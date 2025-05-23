@@ -15,7 +15,7 @@ export const useRecommendations = ({
 } => {
   const { data, loading } = useQuery(
     gql(`
-      query RecommendationsQuery($count: Int, $algorithm: JSON, $batchKey: String) {
+      query RecommendationsQuery($count: Int, $algorithm: JSON) {
         Recommendations(count: $count, algorithm: $algorithm) {
           ...PostsListWithVotesAndSequence
         }
@@ -25,8 +25,8 @@ export const useRecommendations = ({
       variables: {
         count: algorithm?.count || 10,
         algorithm: algorithm || defaultAlgorithmSettings,
-        batchKey: "recommendations",
       },
+      context: { batchKey: "recommendations" },
       // This is a workaround for a bug in apollo where setting `ssr: false` makes it not fetch
       // the query on the client (see https://github.com/apollographql/apollo-client/issues/5918)
       ssr: apolloSSRFlag(ssr),

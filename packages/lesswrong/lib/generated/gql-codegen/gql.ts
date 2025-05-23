@@ -209,7 +209,7 @@ type Documents = {
     "\n  mutation createCommentExternalPostImporter($data: CreateCommentDataInput!) {\n    createComment(data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.createCommentExternalPostImporterDocument,
     "\n    mutation importUrlAsDraftPost($url: String!) {\n      importUrlAsDraftPost(url: $url) {\n        alreadyExists\n        post {\n          _id\n          slug\n          title\n          content\n          url\n        }\n      }\n    }\n  ": typeof types.importUrlAsDraftPostDocument,
     "\n  query FeedPostsHighlight($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsExpandedHighlight\n      }\n    }\n  }\n": typeof types.FeedPostsHighlightDocument,
-    "\n      query latestGoogleDocMetadata($postId: String!, $version: String, $batchKey: String) {\n        latestGoogleDocMetadata(postId: $postId, version: $version)\n      }\n    ": typeof types.latestGoogleDocMetadataDocument,
+    "\n      query latestGoogleDocMetadata($postId: String!, $version: String) {\n        latestGoogleDocMetadata(postId: $postId, version: $version)\n      }\n    ": typeof types.latestGoogleDocMetadataDocument,
     "\n      query CanAccessGoogleDoc($fileUrl: String!) {\n        CanAccessGoogleDoc(fileUrl: $fileUrl)\n      }\n    ": typeof types.CanAccessGoogleDocDocument,
     "\n      mutation ImportGoogleDoc($fileUrl: String!, $postId: String) {\n        ImportGoogleDoc(fileUrl: $fileUrl, postId: $postId) {\n          ...PostsBase\n        }\n      }\n    ": typeof types.ImportGoogleDocDocument,
     "\n  mutation createPostNewDialogueDialog($data: CreatePostDataInput!) {\n    createPost(data: $data) {\n      data {\n        ...PostsEdit\n      }\n    }\n  }\n": typeof types.createPostNewDialogueDialogDocument,
@@ -236,8 +236,8 @@ type Documents = {
     "\n    mutation flipSplashArtImage($reviewWinnerArtId: String!) {\n      flipSplashArtImage(reviewWinnerArtId: $reviewWinnerArtId)\n    }\n  ": typeof types.flipSplashArtImageDocument,
     "\n  query PostBody($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostSideComments\n      }\n    }\n  }\n": typeof types.PostBodyDocument,
     "\n    mutation AcceptCoauthorRequest($postId: String, $userId: String, $accept: Boolean) {\n        acceptCoauthorRequest(postId: $postId, userId: $userId, accept: $accept) {\n          ...PostsDetails\n        }\n    }\n  ": typeof types.AcceptCoauthorRequestDocument,
-    "\n  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String, $batchKey: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigationAndRevision\n      }\n    }\n  }\n": typeof types.PostsPageWrapper1Document,
-    "\n  query PostsPageWrapper($documentId: String, $sequenceId: String, $batchKey: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n": typeof types.PostsPageWrapperDocument,
+    "\n  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigationAndRevision\n      }\n    }\n  }\n": typeof types.PostsPageWrapper1Document,
+    "\n  query PostsPageWrapper($documentId: String, $sequenceId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n": typeof types.PostsPageWrapperDocument,
     "\n  query PostsRevisionsList($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevisionsList\n      }\n    }\n  }\n": typeof types.PostsRevisionsListDocument,
     "\n    mutation RegisterRSVP($postId: String, $name: String, $email: String, $private: Boolean, $response: String) {\n        RSVPToEvent(postId: $postId, name: $name, email: $email, private: $private, response: $response) {\n        ...PostsDetails\n        }\n    }\n  ": typeof types.RegisterRSVPDocument,
     "\n    mutation CancelRSVPToEvent($postId: String, $name: String, $userId: String) {\n        CancelRSVPToEvent(postId: $postId, name: $name, userId: $userId) {\n        ...PostsDetails\n        }\n    }\n  ": typeof types.CancelRSVPToEventDocument,
@@ -255,7 +255,7 @@ type Documents = {
     "\n      mutation clickRecommendation($postId: String!) {\n        clickRecommendation(postId: $postId)\n      }\n    ": typeof types.clickRecommendationDocument,
     "\n    query ContinueReadingQuery {\n      ContinueReading {\n        sequence {\n          ...SequenceContinueReadingFragment\n        }\n        collection {\n          ...CollectionContinueReadingFragment\n        }\n        nextPost {\n          ...PostsListWithVotes\n        }\n        numRead\n        numTotal\n        lastReadTime\n      }\n    }\n  ": typeof types.ContinueReadingQueryDocument,
     "\n    mutation dismissRecommendation($postId: String) {\n      dismissRecommendation(postId: $postId)\n    }\n  ": typeof types.dismissRecommendationDocument,
-    "\n      query RecommendationsQuery($count: Int, $algorithm: JSON, $batchKey: String) {\n        Recommendations(count: $count, algorithm: $algorithm) {\n          ...PostsListWithVotesAndSequence\n        }\n      }\n    ": typeof types.RecommendationsQueryDocument,
+    "\n      query RecommendationsQuery($count: Int, $algorithm: JSON) {\n        Recommendations(count: $count, algorithm: $algorithm) {\n          ...PostsListWithVotesAndSequence\n        }\n      }\n    ": typeof types.RecommendationsQueryDocument,
     "\n    query BestOfLessWrongAdmin {\n      GetAllReviewWinners {\n        ...PostsTopItemInfo\n      }\n    }\n  ": typeof types.BestOfLessWrongAdminDocument,
     "\n  query FrontpageBestOfLWWidget($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.FrontpageBestOfLWWidgetDocument,
     "\n    mutation GenerateCoverImagesForPost($postId: String!, $prompt: String) {\n      generateCoverImagesForPost(postId: $postId, prompt: $prompt) { \n        _id\n      }\n    }\n  ": typeof types.GenerateCoverImagesForPostDocument,
@@ -339,7 +339,7 @@ type Documents = {
     "\n  query SurveyScheduleEditPage($documentId: String) {\n    surveySchedule(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SurveyScheduleEdit\n      }\n    }\n  }\n": typeof types.SurveyScheduleEditPageDocument,
     "\n    mutation addPostsToTag($tagId: String, $postId: String) {\n      addOrUpvoteTag(tagId: $tagId, postId: $postId) {\n        ...TagRelCreationFragment\n      }\n    }\n  ": typeof types.addPostsToTagDocument,
     "\n  query AllPostsPageTagRevisionItem($documentId: String) {\n    revision(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...RevisionHistoryEntry\n      }\n    }\n  }\n": typeof types.AllPostsPageTagRevisionItemDocument,
-    "\n  query TagsQuery($slugs: [String!]!) {\n    tags(selector: { tagsBySlugs: { slugs: $slugs } }) {\n      results {\n        ...ConceptItemFragment\n      }\n    }\n  }\n": typeof types.TagsQueryDocument,
+    "\n  query AllWikiTagsPageQuery($slugs: [String!]!) {\n    tags(selector: { tagsBySlugs: { slugs: $slugs } }) {\n      results {\n        ...ConceptItemFragment\n      }\n    }\n  }\n": typeof types.AllWikiTagsPageQueryDocument,
     "\n  query EAAllTagsPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": typeof types.EAAllTagsPageDocument,
     "\n  query EATagPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": typeof types.EATagPageDocument,
     "\n  query FilterMode($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n": typeof types.FilterModeDocument,
@@ -967,7 +967,7 @@ const documents: Documents = {
     "\n  mutation createCommentExternalPostImporter($data: CreateCommentDataInput!) {\n    createComment(data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": types.createCommentExternalPostImporterDocument,
     "\n    mutation importUrlAsDraftPost($url: String!) {\n      importUrlAsDraftPost(url: $url) {\n        alreadyExists\n        post {\n          _id\n          slug\n          title\n          content\n          url\n        }\n      }\n    }\n  ": types.importUrlAsDraftPostDocument,
     "\n  query FeedPostsHighlight($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsExpandedHighlight\n      }\n    }\n  }\n": types.FeedPostsHighlightDocument,
-    "\n      query latestGoogleDocMetadata($postId: String!, $version: String, $batchKey: String) {\n        latestGoogleDocMetadata(postId: $postId, version: $version)\n      }\n    ": types.latestGoogleDocMetadataDocument,
+    "\n      query latestGoogleDocMetadata($postId: String!, $version: String) {\n        latestGoogleDocMetadata(postId: $postId, version: $version)\n      }\n    ": types.latestGoogleDocMetadataDocument,
     "\n      query CanAccessGoogleDoc($fileUrl: String!) {\n        CanAccessGoogleDoc(fileUrl: $fileUrl)\n      }\n    ": types.CanAccessGoogleDocDocument,
     "\n      mutation ImportGoogleDoc($fileUrl: String!, $postId: String) {\n        ImportGoogleDoc(fileUrl: $fileUrl, postId: $postId) {\n          ...PostsBase\n        }\n      }\n    ": types.ImportGoogleDocDocument,
     "\n  mutation createPostNewDialogueDialog($data: CreatePostDataInput!) {\n    createPost(data: $data) {\n      data {\n        ...PostsEdit\n      }\n    }\n  }\n": types.createPostNewDialogueDialogDocument,
@@ -994,8 +994,8 @@ const documents: Documents = {
     "\n    mutation flipSplashArtImage($reviewWinnerArtId: String!) {\n      flipSplashArtImage(reviewWinnerArtId: $reviewWinnerArtId)\n    }\n  ": types.flipSplashArtImageDocument,
     "\n  query PostBody($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostSideComments\n      }\n    }\n  }\n": types.PostBodyDocument,
     "\n    mutation AcceptCoauthorRequest($postId: String, $userId: String, $accept: Boolean) {\n        acceptCoauthorRequest(postId: $postId, userId: $userId, accept: $accept) {\n          ...PostsDetails\n        }\n    }\n  ": types.AcceptCoauthorRequestDocument,
-    "\n  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String, $batchKey: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigationAndRevision\n      }\n    }\n  }\n": types.PostsPageWrapper1Document,
-    "\n  query PostsPageWrapper($documentId: String, $sequenceId: String, $batchKey: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n": types.PostsPageWrapperDocument,
+    "\n  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigationAndRevision\n      }\n    }\n  }\n": types.PostsPageWrapper1Document,
+    "\n  query PostsPageWrapper($documentId: String, $sequenceId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n": types.PostsPageWrapperDocument,
     "\n  query PostsRevisionsList($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevisionsList\n      }\n    }\n  }\n": types.PostsRevisionsListDocument,
     "\n    mutation RegisterRSVP($postId: String, $name: String, $email: String, $private: Boolean, $response: String) {\n        RSVPToEvent(postId: $postId, name: $name, email: $email, private: $private, response: $response) {\n        ...PostsDetails\n        }\n    }\n  ": types.RegisterRSVPDocument,
     "\n    mutation CancelRSVPToEvent($postId: String, $name: String, $userId: String) {\n        CancelRSVPToEvent(postId: $postId, name: $name, userId: $userId) {\n        ...PostsDetails\n        }\n    }\n  ": types.CancelRSVPToEventDocument,
@@ -1013,7 +1013,7 @@ const documents: Documents = {
     "\n      mutation clickRecommendation($postId: String!) {\n        clickRecommendation(postId: $postId)\n      }\n    ": types.clickRecommendationDocument,
     "\n    query ContinueReadingQuery {\n      ContinueReading {\n        sequence {\n          ...SequenceContinueReadingFragment\n        }\n        collection {\n          ...CollectionContinueReadingFragment\n        }\n        nextPost {\n          ...PostsListWithVotes\n        }\n        numRead\n        numTotal\n        lastReadTime\n      }\n    }\n  ": types.ContinueReadingQueryDocument,
     "\n    mutation dismissRecommendation($postId: String) {\n      dismissRecommendation(postId: $postId)\n    }\n  ": types.dismissRecommendationDocument,
-    "\n      query RecommendationsQuery($count: Int, $algorithm: JSON, $batchKey: String) {\n        Recommendations(count: $count, algorithm: $algorithm) {\n          ...PostsListWithVotesAndSequence\n        }\n      }\n    ": types.RecommendationsQueryDocument,
+    "\n      query RecommendationsQuery($count: Int, $algorithm: JSON) {\n        Recommendations(count: $count, algorithm: $algorithm) {\n          ...PostsListWithVotesAndSequence\n        }\n      }\n    ": types.RecommendationsQueryDocument,
     "\n    query BestOfLessWrongAdmin {\n      GetAllReviewWinners {\n        ...PostsTopItemInfo\n      }\n    }\n  ": types.BestOfLessWrongAdminDocument,
     "\n  query FrontpageBestOfLWWidget($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.FrontpageBestOfLWWidgetDocument,
     "\n    mutation GenerateCoverImagesForPost($postId: String!, $prompt: String) {\n      generateCoverImagesForPost(postId: $postId, prompt: $prompt) { \n        _id\n      }\n    }\n  ": types.GenerateCoverImagesForPostDocument,
@@ -1097,7 +1097,7 @@ const documents: Documents = {
     "\n  query SurveyScheduleEditPage($documentId: String) {\n    surveySchedule(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SurveyScheduleEdit\n      }\n    }\n  }\n": types.SurveyScheduleEditPageDocument,
     "\n    mutation addPostsToTag($tagId: String, $postId: String) {\n      addOrUpvoteTag(tagId: $tagId, postId: $postId) {\n        ...TagRelCreationFragment\n      }\n    }\n  ": types.addPostsToTagDocument,
     "\n  query AllPostsPageTagRevisionItem($documentId: String) {\n    revision(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...RevisionHistoryEntry\n      }\n    }\n  }\n": types.AllPostsPageTagRevisionItemDocument,
-    "\n  query TagsQuery($slugs: [String!]!) {\n    tags(selector: { tagsBySlugs: { slugs: $slugs } }) {\n      results {\n        ...ConceptItemFragment\n      }\n    }\n  }\n": types.TagsQueryDocument,
+    "\n  query AllWikiTagsPageQuery($slugs: [String!]!) {\n    tags(selector: { tagsBySlugs: { slugs: $slugs } }) {\n      results {\n        ...ConceptItemFragment\n      }\n    }\n  }\n": types.AllWikiTagsPageQueryDocument,
     "\n  query EAAllTagsPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": types.EAAllTagsPageDocument,
     "\n  query EATagPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": types.EATagPageDocument,
     "\n  query FilterMode($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n": types.FilterModeDocument,
@@ -2327,7 +2327,7 @@ export function gql(source: "\n  query FeedPostsHighlight($documentId: String) {
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n      query latestGoogleDocMetadata($postId: String!, $version: String, $batchKey: String) {\n        latestGoogleDocMetadata(postId: $postId, version: $version)\n      }\n    "): (typeof documents)["\n      query latestGoogleDocMetadata($postId: String!, $version: String, $batchKey: String) {\n        latestGoogleDocMetadata(postId: $postId, version: $version)\n      }\n    "];
+export function gql(source: "\n      query latestGoogleDocMetadata($postId: String!, $version: String) {\n        latestGoogleDocMetadata(postId: $postId, version: $version)\n      }\n    "): (typeof documents)["\n      query latestGoogleDocMetadata($postId: String!, $version: String) {\n        latestGoogleDocMetadata(postId: $postId, version: $version)\n      }\n    "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -2435,11 +2435,11 @@ export function gql(source: "\n    mutation AcceptCoauthorRequest($postId: Strin
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String, $batchKey: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigationAndRevision\n      }\n    }\n  }\n"): (typeof documents)["\n  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String, $batchKey: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigationAndRevision\n      }\n    }\n  }\n"];
+export function gql(source: "\n  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigationAndRevision\n      }\n    }\n  }\n"): (typeof documents)["\n  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigationAndRevision\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query PostsPageWrapper($documentId: String, $sequenceId: String, $batchKey: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n"): (typeof documents)["\n  query PostsPageWrapper($documentId: String, $sequenceId: String, $batchKey: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n"];
+export function gql(source: "\n  query PostsPageWrapper($documentId: String, $sequenceId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n"): (typeof documents)["\n  query PostsPageWrapper($documentId: String, $sequenceId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -2511,7 +2511,7 @@ export function gql(source: "\n    mutation dismissRecommendation($postId: Strin
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n      query RecommendationsQuery($count: Int, $algorithm: JSON, $batchKey: String) {\n        Recommendations(count: $count, algorithm: $algorithm) {\n          ...PostsListWithVotesAndSequence\n        }\n      }\n    "): (typeof documents)["\n      query RecommendationsQuery($count: Int, $algorithm: JSON, $batchKey: String) {\n        Recommendations(count: $count, algorithm: $algorithm) {\n          ...PostsListWithVotesAndSequence\n        }\n      }\n    "];
+export function gql(source: "\n      query RecommendationsQuery($count: Int, $algorithm: JSON) {\n        Recommendations(count: $count, algorithm: $algorithm) {\n          ...PostsListWithVotesAndSequence\n        }\n      }\n    "): (typeof documents)["\n      query RecommendationsQuery($count: Int, $algorithm: JSON) {\n        Recommendations(count: $count, algorithm: $algorithm) {\n          ...PostsListWithVotesAndSequence\n        }\n      }\n    "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -2847,7 +2847,7 @@ export function gql(source: "\n  query AllPostsPageTagRevisionItem($documentId: 
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query TagsQuery($slugs: [String!]!) {\n    tags(selector: { tagsBySlugs: { slugs: $slugs } }) {\n      results {\n        ...ConceptItemFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query TagsQuery($slugs: [String!]!) {\n    tags(selector: { tagsBySlugs: { slugs: $slugs } }) {\n      results {\n        ...ConceptItemFragment\n      }\n    }\n  }\n"];
+export function gql(source: "\n  query AllWikiTagsPageQuery($slugs: [String!]!) {\n    tags(selector: { tagsBySlugs: { slugs: $slugs } }) {\n      results {\n        ...ConceptItemFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query AllWikiTagsPageQuery($slugs: [String!]!) {\n    tags(selector: { tagsBySlugs: { slugs: $slugs } }) {\n      results {\n        ...ConceptItemFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

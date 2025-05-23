@@ -102,10 +102,13 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     const [selectorViewName, selectorViewTerms] = Object.entries(selector ?? {})?.[0] ?? [undefined, undefined];
     const selectorTerms = { view: selectorViewName === 'default' ? undefined : selectorViewName, ...selectorViewTerms } as ViewTermsBase & Record<string, unknown>;
 
+    // Use the legacy input terms if `input` is provided; otherwise use the new selector terms
     const { terms = selectorTerms, enableTotal = false, resolverArgs = {} } = input ?? {};
     const logger = loggerConstructor(`views-${collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
     logger('multi resolver()')
     logger('multi terms', terms)
+
+    const { input: _input, selector: _selector, ...otherQueryVariables } = info.variableValues;
 
     // Terms and resolverArgs are both passed into the `SelectFragmentQuery` in the same place,
     // so if we have any overlapping keys, they need to have the same value or we're probably doing something wrong by having one clobber the other.
@@ -120,19 +123,19 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     // We continue to permit overlapping keys as long as they have the same value because there's a few tag-related pieces of code that do that
     // and it'd be a headache to refactor them right now.  But we probably ought to clean that up at some point.
     const termKeys = Object.keys(terms);
-    const conflictingKeys = Object.keys(resolverArgs).filter(termKey => {
+    const conflictingKeys = Object.keys(otherQueryVariables).filter(termKey => {
       if (!termKeys.includes(termKey)) {
         return false;
       }
 
-      return !isEqual(terms[termKey], resolverArgs[termKey]);
+      return !isEqual(terms[termKey], otherQueryVariables[termKey]);
     });
 
     if (conflictingKeys.length) {
       captureException(`Got a ${collectionName} multi request with conflicting term and resolverArg keys: ${conflictingKeys.join(', ')}`);
       throwError({
         id: 'app.conflicting_term_and_resolver_arg_keys',
-        data: { terms, resolverArgs, collectionName },
+        data: { terms, otherQueryVariables, collectionName },
       });
     }
 
@@ -166,7 +169,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       const query = new SelectFragmentQuery(
         sqlFragment,
         currentUser,
-        {...resolverArgs, ...terms},
+        {...otherQueryVariables, ...terms},
         parameters.selector,
         parameters.syntheticFields,
         {

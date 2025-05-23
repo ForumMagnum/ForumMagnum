@@ -1,5 +1,6 @@
-import { ApolloError, gql, useQuery, WatchQueryFetchPolicy } from "@apollo/client";
+import { ApolloError, useQuery, WatchQueryFetchPolicy } from "@apollo/client";
 import { postGetCommentCountStr } from "../../lib/collections/posts/helpers";
+import { gql } from "@/lib/generated/gql-codegen";
 
 export type PostWithForeignId = {
   fmCrosspost: {
@@ -111,9 +112,9 @@ export function useForeignCrosspost<Post extends FragmentTypes[CrosspostFragment
         ...fetchProps,
         documentId: localPost.fmCrosspost?.foreignPostId,
       },
-      batchKey: crosspostBatchKey,
     },
-    skip
+    skip,
+    context: { batchKey: crosspostBatchKey },
   });
 
   const foreignPost: FragmentTypes[FragmentTypeName] = data?.getCrosspost;
@@ -178,9 +179,9 @@ export const usePostContents = <FragmentTypeName extends CrosspostFragments>({
         fragmentName,
         documentId: post.fmCrosspost?.foreignPostId,
       },
-      batchKey: crosspostBatchKey,
     },
     skip: !isForeign || skip,
+    context: { batchKey: crosspostBatchKey },
   });
 
   if (isForeign) {

@@ -19,7 +19,7 @@ export function useLoadMore<T extends ObservableQueryFields<any, OperationVariab
   const count = data?.results?.length ?? 0;
   const totalCount = data?.totalCount ?? 0;
 
-  // TODO: figure out what to do about effectiveLimit from useMulti
+  // TODO: figure out what to do about `count >= limit`, which in useMulti is `count >= effectiveLimit`
   const showLoadMore = alwaysShowLoadMore || (enableTotal ? (count < totalCount) : (count >= limit));
 
   const loadMore: WrappedFetchMore<T> = useCallback((options: Parameters<T>[0] = {}) => {

@@ -79,7 +79,6 @@ export function getGraphQLMultiQueryFromOptions({collectionName, typeName, fragm
 
 export interface UseMultiOptions<
   F extends keyof FragmentTypes,
-  // V,
   CollectionName extends CollectionNameString
 > {
   terms?: ViewTermsByCollectionName[CollectionName],
@@ -91,7 +90,6 @@ export interface UseMultiOptions<
   nextFetchPolicy?: WatchQueryFetchPolicy,
   collectionName: CollectionNameString,
   fragmentName: F,
-  // fragmentDoc: TypedDocumentNode<F, V>,
   limit?: number,
   itemsPerPage?: number,
   skip?: boolean,

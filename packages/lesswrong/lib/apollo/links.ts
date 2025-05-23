@@ -51,7 +51,7 @@ export const createHttpLink = (baseUrl = '/') => {
 
     // If the operation has a batchKey variable, add that to the batch key.
     // This is to manually separate out very slow queries
-    const explicitBatchKey = operation.variables?.batchKey;
+    const explicitBatchKey = context.batchKey;
 
     return explicitBatchKey && typeof explicitBatchKey === "string" ? defaultBatchKey : defaultBatchKey + explicitBatchKey;
   };

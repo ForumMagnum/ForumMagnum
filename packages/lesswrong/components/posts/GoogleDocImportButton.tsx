@@ -110,7 +110,7 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; 
 
   const { data: latestGoogleDocMetadataQuery } = useQuery(
     gql(`
-      query latestGoogleDocMetadata($postId: String!, $version: String, $batchKey: String) {
+      query latestGoogleDocMetadata($postId: String!, $version: String) {
         latestGoogleDocMetadata(postId: $postId, version: $version)
       }
     `),
@@ -118,9 +118,9 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; 
       variables: {
         postId: postId!,
         version,
-        batchKey: "docImportInfo"
       },
       skip: !postId,
+      context: { batchKey: "docImportInfo" },
     }
   );
   const previousDocId = latestGoogleDocMetadataQuery?.latestGoogleDocMetadata?.id

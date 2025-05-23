@@ -240,7 +240,7 @@ const ArbitalRedirectNotice = ({ onDismiss }: {
 }
 
 const TagsQuery = gql(`
-  query TagsQuery($slugs: [String!]!) {
+  query AllWikiTagsPageQuery($slugs: [String!]!) {
     tags(selector: { tagsBySlugs: { slugs: $slugs } }) {
       results {
         ...ConceptItemFragment

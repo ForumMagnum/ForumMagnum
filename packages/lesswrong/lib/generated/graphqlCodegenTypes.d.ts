@@ -15691,7 +15691,6 @@ type latestGoogleDocMetadataQuery_Query = { __typename?: 'Query', latestGoogleDo
 type latestGoogleDocMetadataQueryVariables = Exact<{
   postId: Scalars['String']['input'];
   version: InputMaybe<Scalars['String']['input']>;
-  batchKey: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -16139,7 +16138,6 @@ type PostsPageWrapper1QueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
   sequenceId: InputMaybe<Scalars['String']['input']>;
   version: InputMaybe<Scalars['String']['input']>;
-  batchKey: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -16158,7 +16156,6 @@ type PostsPageWrapperQuery_Query = { __typename?: 'Query', post: PostsPageWrappe
 type PostsPageWrapperQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
   sequenceId: InputMaybe<Scalars['String']['input']>;
-  batchKey: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -16461,7 +16458,6 @@ type RecommendationsQueryQuery_Query = { __typename?: 'Query', Recommendations: 
 type RecommendationsQueryQueryVariables = Exact<{
   count: InputMaybe<Scalars['Int']['input']>;
   algorithm: InputMaybe<Scalars['JSON']['input']>;
-  batchKey: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -17836,22 +17832,22 @@ type AllPostsPageTagRevisionItemQueryVariables = Exact<{
 
 type AllPostsPageTagRevisionItemQuery = AllPostsPageTagRevisionItemQuery_Query;
 
-type TagsQueryQuery_tags_MultiTagOutput_results_Tag = (
+type AllWikiTagsPageQueryQuery_tags_MultiTagOutput_results_Tag = (
   { __typename?: 'Tag' }
   & ConceptItemFragment
 );
 
-type TagsQueryQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', results: Array<TagsQueryQuery_tags_MultiTagOutput_results_Tag | null> | null };
+type AllWikiTagsPageQueryQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', results: Array<AllWikiTagsPageQueryQuery_tags_MultiTagOutput_results_Tag | null> | null };
 
-type TagsQueryQuery_Query = { __typename?: 'Query', tags: TagsQueryQuery_tags_MultiTagOutput | null };
+type AllWikiTagsPageQueryQuery_Query = { __typename?: 'Query', tags: AllWikiTagsPageQueryQuery_tags_MultiTagOutput | null };
 
 
-type TagsQueryQueryVariables = Exact<{
+type AllWikiTagsPageQueryQueryVariables = Exact<{
   slugs: Array<Scalars['String']['input']> | Scalars['String']['input'];
 }>;
 
 
-type TagsQueryQuery = TagsQueryQuery_Query;
+type AllWikiTagsPageQueryQuery = AllWikiTagsPageQueryQuery_Query;
 
 type EAAllTagsPageQuery_tag_SingleTagOutput_result_Tag = (
   { __typename?: 'Tag' }

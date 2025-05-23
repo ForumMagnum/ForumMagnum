@@ -18,7 +18,7 @@ import { PostsListWithVotes } from '@/lib/collections/posts/fragments';
 import { SequencesPageFragment } from '@/lib/collections/sequences/fragments';
 
 const PostsWithNavigationAndRevisionQuery = gql(`
-  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String, $batchKey: String) {
+  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {
     post(input: { selector: { documentId: $documentId } }) {
       result {
         ...PostsWithNavigationAndRevision
@@ -28,7 +28,7 @@ const PostsWithNavigationAndRevisionQuery = gql(`
 `);
 
 const PostsWithNavigationQuery = gql(`
-  query PostsPageWrapper($documentId: String, $sequenceId: String, $batchKey: String) {
+  query PostsPageWrapper($documentId: String, $sequenceId: String) {
     post(input: { selector: { documentId: $documentId } }) {
       result {
         ...PostsWithNavigation
@@ -44,6 +44,8 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
 }) => {
   const currentUser = useCurrentUser();
   const { query } = useSubscribedLocation();
+
+  console.log({ documentId, sequenceId, version });
 
   // Check the cache for a copy of the post with the PostsListWithVotes fragment, so that when you click through
   // a PostsItem, you can see the start of the post (the part of the text that was in the hover-preview) while
@@ -67,14 +69,16 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   } : postPreload;
 
   const { loading: postWithoutRevisionLoading, error: postWithoutRevisionError, refetch: refetchPostWithoutRevision, data: postWithoutRevisionData } = useQuery(PostsWithNavigationQuery, {
-    variables: { documentId: documentId, sequenceId, batchKey: "singlePost" },
-    skip: !version,
+    variables: { documentId: documentId, sequenceId },
+    skip: !!version,
+    context: { batchKey: "singlePost" },
   });
   const postWithoutRevision = postWithoutRevisionData?.post?.result ?? undefined;
 
   const { loading: postWithRevisionLoading, error: postWithRevisionError, refetch: refetchPostWithRevision, data: postWithRevisionData } = useQuery(PostsWithNavigationAndRevisionQuery, {
-    variables: { documentId: documentId, sequenceId, version, batchKey: "singlePost" },
-    skip: !!version,
+    variables: { documentId: documentId, sequenceId, version },
+    skip: !version,
+    context: { batchKey: "singlePost" },
   });
   const postWithRevision = postWithRevisionData?.post?.result ?? undefined;
 
