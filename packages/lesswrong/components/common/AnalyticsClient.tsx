@@ -1,6 +1,6 @@
 import React, {useContext, useEffect} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { clientContextVars } from '../../lib/analyticsEvents';
+import { clientContextVars, flushClientEvents } from '../../lib/analyticsEvents';
 import { useCurrentUser } from './withUser';
 import withErrorBoundary from './withErrorBoundary';
 import { ABTestGroupsUsedContext } from '../../lib/abTestImpl';
@@ -22,6 +22,7 @@ export const AnalyticsClient = () => {
     if (!isLWorAF) {
       clientContextVars.abTestGroupsUsed = abTestGroupsUsed;
     }
+    flushClientEvents(true);
   }, [currentUserId, clientId, currentUser, abTestGroupsUsed]);
   
   return <div/>;
