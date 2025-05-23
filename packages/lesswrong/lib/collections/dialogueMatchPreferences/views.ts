@@ -2,7 +2,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface DialogueMatchPreferencesViewTerms extends ViewTermsBase {
-    view: DialogueMatchPreferencesViewName | undefined,
+    view: DialogueMatchPreferencesViewName,
     dialogueCheckId?: string,
   }
 }

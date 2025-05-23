@@ -2,7 +2,7 @@ import { CollectionViewSet } from '@/lib/views/collectionViewSet';
 
 declare global {
   interface BookmarksViewTerms extends ViewTermsBase {
-    view: BookmarksViewName | undefined
+    view: BookmarksViewName
     limit?: number
     userId?: string
     documentId?: string

@@ -2,7 +2,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface RevisionsViewTerms extends ViewTermsBase {
-    view: RevisionsViewName | undefined
+    view: RevisionsViewName
     documentId?: string
     fieldName?: string
     before?: Date|string|null,

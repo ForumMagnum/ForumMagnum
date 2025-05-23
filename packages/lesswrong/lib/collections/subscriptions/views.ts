@@ -3,7 +3,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface SubscriptionsViewTerms extends ViewTermsBase {
-    view: SubscriptionsViewName | undefined
+    view: SubscriptionsViewName
     userId?: string
     collectionName?: string
     subscriptionType?: string

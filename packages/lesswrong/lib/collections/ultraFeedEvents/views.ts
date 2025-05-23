@@ -2,7 +2,7 @@ import { CollectionViewSet } from '@/lib/views/collectionViewSet';
 
 declare global {
   interface UltraFeedEventsViewTerms extends ViewTermsBase {
-    view: UltraFeedEventsViewName | undefined
+    view: UltraFeedEventsViewName
     // Add your view terms here
   }
 }

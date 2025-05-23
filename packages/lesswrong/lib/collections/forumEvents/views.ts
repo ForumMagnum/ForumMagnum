@@ -3,7 +3,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface ForumEventsViewTerms extends ViewTermsBase {
-    view: ForumEventsViewName | undefined
+    view: ForumEventsViewName
   }
 }
 

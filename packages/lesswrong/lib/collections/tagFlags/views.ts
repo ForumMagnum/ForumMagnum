@@ -2,7 +2,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface TagFlagsViewTerms extends ViewTermsBase {
-    view: TagFlagsViewName | undefined
+    view: TagFlagsViewName
     userId?: string
   }
 }

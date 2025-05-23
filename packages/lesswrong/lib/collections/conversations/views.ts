@@ -4,7 +4,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface ConversationsViewTerms extends ViewTermsBase {
-    view: ConversationsViewName | 'default' | undefined
+    view: ConversationsViewName | 'default'
     userId?: string
     participantIds?: Array<string>
     showArchive?: boolean

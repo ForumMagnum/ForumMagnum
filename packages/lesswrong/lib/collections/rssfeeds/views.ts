@@ -2,7 +2,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface RSSFeedsViewTerms extends ViewTermsBase {
-    view: RSSFeedsViewName | undefined
+    view: RSSFeedsViewName
     userId?: string,
   }
 }

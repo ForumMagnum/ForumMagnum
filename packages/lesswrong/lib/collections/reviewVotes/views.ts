@@ -2,7 +2,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface ReviewVotesViewTerms extends ViewTermsBase {
-    view: ReviewVotesViewName | undefined
+    view: ReviewVotesViewName
     postId?: string
     userId?: string
     year?: string,

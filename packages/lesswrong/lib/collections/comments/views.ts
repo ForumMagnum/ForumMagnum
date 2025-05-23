@@ -15,7 +15,7 @@ export const COMMENT_SORTING_MODES = new TupleSet([
 
 declare global {
   interface CommentsViewTerms extends ViewTermsBase {
-    view: CommentsViewName | 'default' | undefined,
+    view: CommentsViewName | 'default',
     postId?: string,
     userId?: string,
     tagId?: string,

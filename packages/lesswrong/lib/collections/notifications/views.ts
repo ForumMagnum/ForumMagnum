@@ -2,7 +2,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface NotificationsViewTerms extends ViewTermsBase {
-    view: NotificationsViewName | 'default' | undefined
+    view: NotificationsViewName | 'default'
     type?: string
     userId?: string
     viewed?: boolean

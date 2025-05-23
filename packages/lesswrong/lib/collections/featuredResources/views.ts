@@ -2,7 +2,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface FeaturedResourcesViewTerms extends ViewTermsBase {
-    view: FeaturedResourcesViewName | undefined
+    view: FeaturedResourcesViewName
   }
 }
 
