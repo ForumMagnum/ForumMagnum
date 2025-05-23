@@ -2,7 +2,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface MessagesViewTerms extends ViewTermsBase {
-    view?: MessagesViewName
+    view: MessagesViewName | undefined
     conversationId?: string
   }
 }

@@ -7,7 +7,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface UsersViewTerms extends ViewTermsBase {
-    view?: UsersViewName
+    view: UsersViewName | undefined
     sort?: {
       createdAt?: number,
       karma?: number,

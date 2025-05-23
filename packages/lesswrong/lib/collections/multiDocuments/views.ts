@@ -5,7 +5,7 @@ import type { ApolloClient, NormalizedCacheObject } from "@apollo/client";
 
 declare global {
   interface MultiDocumentsViewTerms extends ViewTermsBase {
-    view?: MultiDocumentsViewName
+    view: MultiDocumentsViewName | 'default' | undefined
     slug?: string,
     documentId?: string,
     parentDocumentId?: string,

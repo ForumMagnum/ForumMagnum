@@ -2,7 +2,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface PostRelationsViewTerms extends ViewTermsBase {
-    view?: PostRelationsViewName
+    view: PostRelationsViewName | undefined
     postId?: string,
   }
 }

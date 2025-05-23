@@ -3,7 +3,7 @@ import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 
 declare global {
   interface UserMostValuablePostsViewTerms extends ViewTermsBase {
-    view?: UserMostValuablePostsViewName
+    view: UserMostValuablePostsViewName | undefined
     userId?: string,
     postId?: string
   }

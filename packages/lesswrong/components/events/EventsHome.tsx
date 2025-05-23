@@ -347,7 +347,7 @@ const EventsHome = ({classes}: {
     numSpecialCards = 0
   }
 
-  const filters: PostsViewTerms = {}
+  const filters: Omit<PostsViewTerms, 'view'> = {}
   if (modeFilter === 'in-person') {
     filters.onlineEvent = false
   } else if (modeFilter === 'online') {

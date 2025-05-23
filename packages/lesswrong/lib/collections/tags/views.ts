@@ -6,7 +6,7 @@ import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 
 declare global {
   interface TagsViewTerms extends ViewTermsBase {
-    view?: TagsViewName
+    view: TagsViewName | 'default' | undefined
     userId?: string
     wikiGrade?: string
     slug?: string

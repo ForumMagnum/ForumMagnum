@@ -2,7 +2,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface SurveySchedulesViewTerms extends ViewTermsBase {
-    view?: SurveySchedulesViewName
+    view: SurveySchedulesViewName | undefined
   }
 }
 

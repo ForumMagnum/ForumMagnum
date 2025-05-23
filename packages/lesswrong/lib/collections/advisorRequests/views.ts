@@ -2,7 +2,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface AdvisorRequestsViewTerms extends ViewTermsBase {
-    view?: AdvisorRequestsViewName
+    view: AdvisorRequestsViewName | undefined
     userId?: string
   }
 }

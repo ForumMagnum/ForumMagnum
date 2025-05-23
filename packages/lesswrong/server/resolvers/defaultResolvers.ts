@@ -88,7 +88,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
         enableTotal?: boolean,
         resolverArgs?: Record<string, unknown>,
       },
-      selector?: Record<string, ViewTermsBase & Record<string, unknown>>,
+      selector?: Record<string, Omit<ViewTermsBase, 'view'> & Record<string, unknown>>,
       [resolverArgKeys: string]: unknown
     },
     context: ResolverContext,

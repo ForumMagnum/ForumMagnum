@@ -3,7 +3,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface SequencesViewTerms extends ViewTermsBase {
-    view?: SequencesViewName
+    view: SequencesViewName | 'default' | undefined
     userId?: string
     sequenceIds?: string[]
   }

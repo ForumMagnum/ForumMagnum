@@ -2,7 +2,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface DigestsViewTerms extends ViewTermsBase {
-    view?: DigestsViewName,
+    view: DigestsViewName | undefined,
     num?: number
   }
 }

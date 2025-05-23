@@ -249,7 +249,7 @@ type MongoBulkWriteOptions = Partial<{
 type MakeFieldsNullable<T extends {}> = {[K in keyof T]: T[K]|null };
 
 interface ViewTermsBase {
-  view?: string
+  view: string | undefined
   limit?: number
   offset?: number
   orderBy?: any //FIXME: unused Vulcan thing

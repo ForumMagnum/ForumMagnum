@@ -124,7 +124,7 @@ function PostsEmailInner({
   const { results: posts } = useMulti({
     collectionName: "Posts",
     fragmentName: "PostsRevision",
-    terms: { exactPostIds: postIds },
+    terms: { exactPostIds: postIds, view: 'default' },
   });
 
   if (!posts || posts.length === 0) {

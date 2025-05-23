@@ -59,6 +59,7 @@ const AllPostsList = ({
   const {query} = useLocation();
 
   const baseTerms: PostsViewTerms = {
+    view: 'default',
     karmaThreshold: query.karmaThreshold || (currentShowLowKarma
       ? MAX_LOW_KARMA_THRESHOLD
       : DEFAULT_LOW_KARMA_THRESHOLD),
@@ -73,7 +74,7 @@ const AllPostsList = ({
     return (
       <AnalyticsContext
         listContext={"allPostsPage"}
-        terms={{view: "allTime" as PostsViewName, ...baseTerms}}
+        terms={{ ...baseTerms, view: "allTime" as PostsViewName }}
       >
         <PostsList2
           terms={{
@@ -91,8 +92,8 @@ const AllPostsList = ({
   const timeBlock = timeframeToTimeBlock[currentTimeframe as TimeframeType];
 
   const postListParameters: PostsViewTerms = {
-    view: "timeframe",
     ...baseTerms,
+    view: "timeframe",
   };
 
   if (parseInt(query.limit)) {

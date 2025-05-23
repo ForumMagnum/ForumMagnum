@@ -30,7 +30,7 @@ type ReviewSortings = "fewestReviews"|"mostReviews"|"lastCommentedAt"
 
 declare global {
   interface PostsViewTerms extends ViewTermsBase {
-    view?: PostsViewName,
+    view: PostsViewName | 'default' | undefined,
     includeRelatedQuestions?: "true"|"false",
     karmaThreshold?: number|string,
     meta?: boolean,

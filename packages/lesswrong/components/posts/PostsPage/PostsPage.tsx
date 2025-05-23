@@ -609,7 +609,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const commentOpts = {includeAdminViews: currentUser?.isAdmin};
   const defaultCommentTerms = useMemo(() => ({view: defaultView, limit: 1000}), [defaultView])
   const commentTerms: CommentsViewTerms = isValidCommentView(query.view, commentOpts)
-    ? {...(query as CommentsViewTerms), limit:1000}
+    ? {...(query as unknown as CommentsViewTerms), limit:1000}
     : defaultCommentTerms;
 
   // these are the replies to the debate responses (see earlier comment about deprecated feature)

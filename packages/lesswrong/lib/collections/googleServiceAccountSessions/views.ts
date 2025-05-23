@@ -2,6 +2,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface GoogleServiceAccountSessionsViewTerms extends ViewTermsBase {
+    view: 'default' | undefined,
   }
 }
 

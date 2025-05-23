@@ -107,7 +107,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
   const commentOpts = {includeAdminViews: currentUser?.isAdmin};
   const terms: CommentsViewTerms = isValidCommentView(query.view, commentOpts)
-    ? {...(query as CommentsViewTerms), limit:1000}
+    ? {...(query as unknown as CommentsViewTerms), limit:1000}
     : {view: defaultView, limit: 1000, postId: documentId}
 
   // Don't pass in the eagerPostComments if we skipped the query,

@@ -173,8 +173,7 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
   toggleIncludeInactive: MouseEventHandler,
   classes: ClassesType<typeof styles>,
 }) => {
-  let groupsListTerms: LocalgroupsViewTerms = {}
-  groupsListTerms = userLocation.known ? {
+  const groupsListTerms: LocalgroupsViewTerms = userLocation.known ? {
     view: 'nearby',
     lat: userLocation.lat,
     lng: userLocation.lng,
