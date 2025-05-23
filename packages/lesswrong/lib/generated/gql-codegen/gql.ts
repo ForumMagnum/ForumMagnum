@@ -753,6 +753,8 @@ type Documents = {
     "\n  query NewDialogueMessagesEmail1($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": typeof types.NewDialogueMessagesEmail1Document,
     "\n  query NewDialogueMessagesEmail($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevision\n      }\n    }\n  }\n": typeof types.NewDialogueMessagesEmailDocument,
     "\n  query PostNominatedEmail($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevision\n      }\n    }\n  }\n": typeof types.PostNominatedEmailDocument,
+    "\n  query singleDraftPostForLLMQuery($input: SinglePostInput, $version: String) {\n    post(input: $input) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n": typeof types.singleDraftPostForLLMQueryDocument,
+    "\n  query singlePublishedPostForLLMQuery($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.singlePublishedPostForLLMQueryDocument,
 };
 const documents: Documents = {
     "\n  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUserLayoutDocument,
@@ -1494,6 +1496,8 @@ const documents: Documents = {
     "\n  query NewDialogueMessagesEmail1($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": types.NewDialogueMessagesEmail1Document,
     "\n  query NewDialogueMessagesEmail($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevision\n      }\n    }\n  }\n": types.NewDialogueMessagesEmailDocument,
     "\n  query PostNominatedEmail($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevision\n      }\n    }\n  }\n": types.PostNominatedEmailDocument,
+    "\n  query singleDraftPostForLLMQuery($input: SinglePostInput, $version: String) {\n    post(input: $input) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n": types.singleDraftPostForLLMQueryDocument,
+    "\n  query singlePublishedPostForLLMQuery($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": types.singlePublishedPostForLLMQueryDocument,
 };
 
 /**
@@ -4466,6 +4470,14 @@ export function gql(source: "\n  query NewDialogueMessagesEmail($documentId: Str
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query PostNominatedEmail($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevision\n      }\n    }\n  }\n"): (typeof documents)["\n  query PostNominatedEmail($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevision\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query singleDraftPostForLLMQuery($input: SinglePostInput, $version: String) {\n    post(input: $input) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query singleDraftPostForLLMQuery($input: SinglePostInput, $version: String) {\n    post(input: $input) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query singlePublishedPostForLLMQuery($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n"): (typeof documents)["\n  query singlePublishedPostForLLMQuery($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};

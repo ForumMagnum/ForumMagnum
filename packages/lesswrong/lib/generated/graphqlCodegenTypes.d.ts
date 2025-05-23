@@ -21635,3 +21635,38 @@ type PostNominatedEmailQueryVariables = Exact<{
 
 
 type PostNominatedEmailQuery = PostNominatedEmailQuery_Query;
+
+type singleDraftPostForLLMQueryQuery_post_SinglePostOutput_result_Post = (
+  { __typename?: 'Post' }
+  & PostsEditQueryFragment
+);
+
+type singleDraftPostForLLMQueryQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: singleDraftPostForLLMQueryQuery_post_SinglePostOutput_result_Post | null };
+
+type singleDraftPostForLLMQueryQuery_Query = { __typename?: 'Query', post: singleDraftPostForLLMQueryQuery_post_SinglePostOutput | null };
+
+
+type singleDraftPostForLLMQueryQueryVariables = Exact<{
+  input: InputMaybe<SinglePostInput>;
+  version: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type singleDraftPostForLLMQueryQuery = singleDraftPostForLLMQueryQuery_Query;
+
+type singlePublishedPostForLLMQueryQuery_post_SinglePostOutput_result_Post = (
+  { __typename?: 'Post' }
+  & PostsPage
+);
+
+type singlePublishedPostForLLMQueryQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: singlePublishedPostForLLMQueryQuery_post_SinglePostOutput_result_Post | null };
+
+type singlePublishedPostForLLMQueryQuery_Query = { __typename?: 'Query', post: singlePublishedPostForLLMQueryQuery_post_SinglePostOutput | null };
+
+
+type singlePublishedPostForLLMQueryQueryVariables = Exact<{
+  input: InputMaybe<SinglePostInput>;
+}>;
+
+
+type singlePublishedPostForLLMQueryQuery = singlePublishedPostForLLMQueryQuery_Query;

@@ -56,32 +56,6 @@ type TReturn<FragmentTypeName extends keyof FragmentTypes> = (TSuccessReturn<Fra
   }
 }
 
-// You can pass either `documentId` or `slug`, but not both. The must pass one;
-// you pass undefined, in which case the query is skipped.
-export type SelectorInput = { documentId: string | undefined };
-
-export type UseSingleProps<FragmentTypeName extends keyof FragmentTypes> = (
-  SelectorInput & {
-    collectionName: CollectionNameString,
-    fragmentName?: FragmentTypeName,
-    fragment?: any,
-    extraVariables?: Record<string,any>,
-    extraVariablesValues?: any,
-    fetchPolicy?: WatchQueryFetchPolicy,
-    nextFetchPolicy?: WatchQueryFetchPolicy,
-    notifyOnNetworkStatusChange?: boolean,
-    allowNull?: boolean,
-    skip?: boolean,
-    ssr?: boolean,
-    /**
-     * Optional Apollo client instance to use for this request. If not provided,
-     * uses the default client provided by React context. This should only be
-     * overriden for crossposting or similar foreign-DB operations.
-     */
-    apolloClient?: ApolloClient<NormalizedCacheObject>,
-  }
-);
-
 /**
  * React hook that queries a collection, returning a single document with the
  * given ID, along with metadata about loading status and errors.

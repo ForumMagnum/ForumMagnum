@@ -1,6 +1,5 @@
-import { ApolloError, gql, useQuery } from "@apollo/client";
+import { ApolloError, gql, useQuery, WatchQueryFetchPolicy } from "@apollo/client";
 import { postGetCommentCountStr } from "../../lib/collections/posts/helpers";
-import { UseSingleProps } from "../../lib/crud/withSingle";
 
 export type PostWithForeignId = {
   fmCrosspost: {
@@ -50,8 +49,22 @@ const getCrosspostQuery = gql(`
  */
 const crosspostBatchKey = "crosspost";
 
-export type PostFetchProps<FragmentTypeName extends CrosspostFragments> =
-  Omit<UseSingleProps<FragmentTypeName>, "documentId" | "apolloClient">;
+// export type PostFetchProps<FragmentTypeName extends CrosspostFragments> =
+//   Omit<UseSingleProps<FragmentTypeName>, "documentId" | "apolloClient">;
+
+export type PostFetchProps<FragmentTypeName extends CrosspostFragments> = {
+  collectionName: 'Posts',
+  fragmentName?: FragmentTypeName,
+  fragment?: any,
+  extraVariables?: Record<string,any>,
+  extraVariablesValues?: any,
+  fetchPolicy?: WatchQueryFetchPolicy,
+  nextFetchPolicy?: WatchQueryFetchPolicy,
+  notifyOnNetworkStatusChange?: boolean,
+  allowNull?: boolean,
+  skip?: boolean,
+  ssr?: boolean,
+}
 
 /**
  * This lists the valid fragment names that can be passed to the foreign site

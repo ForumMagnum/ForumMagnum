@@ -12,6 +12,7 @@ import { DocumentNode, ExecutionResult, graphql, GraphQLError, print } from 'gra
 import { makeExecutableSchema } from 'graphql-tools';
 import { typeDefs, resolvers } from './apollo-server/initGraphQL';
 import { createAnonymousContext } from './createContexts';
+import { ResultOf, TypedDocumentNode } from '@graphql-typed-document-node/core';
 
 function writeGraphQLErrorToStderr(errors: readonly GraphQLError[])
 {
@@ -31,7 +32,7 @@ export function setOnGraphQLError(fn: ((errors: readonly GraphQLError[]) => void
 }
 
 // note: if no context is passed, default to running requests with full admin privileges
-export const runQuery = async <T = Record<string, any>>(query: string | DocumentNode, variables: any = {}, context?: Partial<ResolverContext>) => {
+export const runQuery = async <const TDocumentNode extends TypedDocumentNode<any, any>>(query: string | TDocumentNode, variables: any = {}, context?: Partial<ResolverContext>) => {
   const executableSchema = makeExecutableSchema({ typeDefs, resolvers });
   const queryContext = createAnonymousContext(context);
 
@@ -40,7 +41,7 @@ export const runQuery = async <T = Record<string, any>>(query: string | Document
     : print(query)
 
   // see http://graphql.org/graphql-js/graphql/#graphql
-  const result = await graphql(executableSchema, stringQuery, {}, queryContext, variables) as ExecutionResult<T>;
+  const result = await graphql(executableSchema, stringQuery, {}, queryContext, variables) as ExecutionResult<ResultOf<TDocumentNode>>;
 
   if (result.errors) {
     onGraphQLError(result.errors);
