@@ -115,20 +115,6 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
       [stickerId, userId, forumEventId]
     );
   }
-
-  async ensurePostId({ commentId }: { commentId: string }) {
-    return this.none(`
-      -- ForumEventsRepo.ensurePostId
-      UPDATE "ForumEvents"
-      SET "postId" = (
-          SELECT c."postId"
-          FROM "Comments" c
-          WHERE c."_id" = $1
-      )
-      WHERE "commentId" = $1
-      AND "postId" IS NULL
-    `, [commentId]);
-  }
 }
 
 recordPerfMetrics(ForumEventsRepo);
