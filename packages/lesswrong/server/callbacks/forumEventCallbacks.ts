@@ -84,7 +84,8 @@ async function upsertPoll({
     return createForumEvent(
       {
         data: {
-          // @ts-expect-error _id is not in the type but works
+          // TODO Explicitly allow setting an _id. This does work currently, but the generated types don't recognise it
+          // @ts-expect-error
           _id,
           title: `New Poll for ${_id}`,
           startDate: new Date(),
@@ -186,7 +187,9 @@ const pollsAllowedFields = [
   { collectionName: "Comments", fieldName: "contents"},
   { collectionName: "Posts", fieldName: "contents"},
 ]
-export function assertPollsAllowed(revision: DbRevision) {
+export function assertPollsAllowed(revision?: DbRevision | null) {
+  if (!revision) return;
+
   const { html, collectionName, fieldName } = revision;
 
   if (!html) return;
