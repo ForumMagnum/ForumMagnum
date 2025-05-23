@@ -18838,6 +18838,108 @@ type updateUserUsersEditFormMutationVariables = Exact<{
 
 type updateUserUsersEditFormMutation = updateUserUsersEditFormMutation_Mutation;
 
+type SubscribedUserQuery_user_SingleUserOutput_result_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type SubscribedUserQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: SubscribedUserQuery_user_SingleUserOutput_result_User | null };
+
+type SubscribedUserQuery_Query = { __typename?: 'Query', user: SubscribedUserQuery_user_SingleUserOutput | null };
+
+
+type SubscribedUserQueryVariables = Exact<{
+  documentId: Scalars['String']['input'];
+}>;
+
+
+type SubscribedUserQuery = SubscribedUserQuery_Query;
+
+type SubscribedPostQuery_post_SinglePostOutput_result_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type SubscribedPostQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: SubscribedPostQuery_post_SinglePostOutput_result_Post | null };
+
+type SubscribedPostQuery_Query = { __typename?: 'Query', post: SubscribedPostQuery_post_SinglePostOutput | null };
+
+
+type SubscribedPostQueryVariables = Exact<{
+  documentId: Scalars['String']['input'];
+}>;
+
+
+type SubscribedPostQuery = SubscribedPostQuery_Query;
+
+type SubscribedCommentQuery_comment_SingleCommentOutput_result_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithParentMetadata
+);
+
+type SubscribedCommentQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: SubscribedCommentQuery_comment_SingleCommentOutput_result_Comment | null };
+
+type SubscribedCommentQuery_Query = { __typename?: 'Query', comment: SubscribedCommentQuery_comment_SingleCommentOutput | null };
+
+
+type SubscribedCommentQueryVariables = Exact<{
+  documentId: Scalars['String']['input'];
+}>;
+
+
+type SubscribedCommentQuery = SubscribedCommentQuery_Query;
+
+type SubscribedLocalgroupQuery_localgroup_SingleLocalgroupOutput_result_Localgroup = (
+  { __typename?: 'Localgroup' }
+  & localGroupsBase
+);
+
+type SubscribedLocalgroupQuery_localgroup_SingleLocalgroupOutput = { __typename?: 'SingleLocalgroupOutput', result: SubscribedLocalgroupQuery_localgroup_SingleLocalgroupOutput_result_Localgroup | null };
+
+type SubscribedLocalgroupQuery_Query = { __typename?: 'Query', localgroup: SubscribedLocalgroupQuery_localgroup_SingleLocalgroupOutput | null };
+
+
+type SubscribedLocalgroupQueryVariables = Exact<{
+  documentId: Scalars['String']['input'];
+}>;
+
+
+type SubscribedLocalgroupQuery = SubscribedLocalgroupQuery_Query;
+
+type SubscribedTagQuery_tag_SingleTagOutput_result_Tag = (
+  { __typename?: 'Tag' }
+  & TagPreviewFragment
+);
+
+type SubscribedTagQuery_tag_SingleTagOutput = { __typename?: 'SingleTagOutput', result: SubscribedTagQuery_tag_SingleTagOutput_result_Tag | null };
+
+type SubscribedTagQuery_Query = { __typename?: 'Query', tag: SubscribedTagQuery_tag_SingleTagOutput | null };
+
+
+type SubscribedTagQueryVariables = Exact<{
+  documentId: Scalars['String']['input'];
+}>;
+
+
+type SubscribedTagQuery = SubscribedTagQuery_Query;
+
+type SubscribedSequenceQuery_sequence_SingleSequenceOutput_result_Sequence = (
+  { __typename?: 'Sequence' }
+  & SequencesPageTitleFragment
+);
+
+type SubscribedSequenceQuery_sequence_SingleSequenceOutput = { __typename?: 'SingleSequenceOutput', result: SubscribedSequenceQuery_sequence_SingleSequenceOutput_result_Sequence | null };
+
+type SubscribedSequenceQuery_Query = { __typename?: 'Query', sequence: SubscribedSequenceQuery_sequence_SingleSequenceOutput | null };
+
+
+type SubscribedSequenceQueryVariables = Exact<{
+  documentId: Scalars['String']['input'];
+}>;
+
+
+type SubscribedSequenceQuery = SubscribedSequenceQuery_Query;
+
 type updateUserReactionsPaletteMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
   & UsersCurrent

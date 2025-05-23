@@ -399,6 +399,12 @@ type Documents = {
     "\n  mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserDeactivateAccountSectionDocument,
     "\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserDeleteAccountSectionDocument,
     "\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserUsersEditFormDocument,
+    "\n  query SubscribedUser($documentId: String!) {\n    user(input: { selector: { _id: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": typeof types.SubscribedUserDocument,
+    "\n  query SubscribedPost($documentId: String!) {\n    post(input: { selector: { _id: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.SubscribedPostDocument,
+    "\n  query SubscribedComment($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": typeof types.SubscribedCommentDocument,
+    "\n  query SubscribedLocalgroup($documentId: String!) {\n    localgroup(input: { selector: { _id: $documentId } }) {\n      result {\n        ...localGroupsBase\n      }\n    }\n  }\n": typeof types.SubscribedLocalgroupDocument,
+    "\n  query SubscribedTag($documentId: String!) {\n    tag(input: { selector: { _id: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n": typeof types.SubscribedTagDocument,
+    "\n  query SubscribedSequence($documentId: String!) {\n    sequence(input: { selector: { _id: $documentId } }) {\n      result {\n        ...SequencesPageTitleFragment\n      }\n    }\n  }\n": typeof types.SubscribedSequenceDocument,
     "\n  mutation updateUserReactionsPalette($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": typeof types.updateUserReactionsPaletteDocument,
     "\n  mutation performVoteComment($documentId: String, $voteType: String, $extendedVote: JSON) {\n    performVoteComment(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {\n      document {\n        ...WithVoteComment\n      }\n      showVotingPatternWarning\n    }\n  }\n": typeof types.performVoteCommentDocument,
     "\n  mutation performVotePost($documentId: String, $voteType: String, $extendedVote: JSON) {\n    performVotePost(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {\n      document {\n        ...WithVotePost\n      }\n      showVotingPatternWarning\n    }\n  }\n": typeof types.performVotePostDocument,
@@ -1151,6 +1157,12 @@ const documents: Documents = {
     "\n  mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserDeactivateAccountSectionDocument,
     "\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserDeleteAccountSectionDocument,
     "\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserUsersEditFormDocument,
+    "\n  query SubscribedUser($documentId: String!) {\n    user(input: { selector: { _id: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": types.SubscribedUserDocument,
+    "\n  query SubscribedPost($documentId: String!) {\n    post(input: { selector: { _id: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": types.SubscribedPostDocument,
+    "\n  query SubscribedComment($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": types.SubscribedCommentDocument,
+    "\n  query SubscribedLocalgroup($documentId: String!) {\n    localgroup(input: { selector: { _id: $documentId } }) {\n      result {\n        ...localGroupsBase\n      }\n    }\n  }\n": types.SubscribedLocalgroupDocument,
+    "\n  query SubscribedTag($documentId: String!) {\n    tag(input: { selector: { _id: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n": types.SubscribedTagDocument,
+    "\n  query SubscribedSequence($documentId: String!) {\n    sequence(input: { selector: { _id: $documentId } }) {\n      result {\n        ...SequencesPageTitleFragment\n      }\n    }\n  }\n": types.SubscribedSequenceDocument,
     "\n  mutation updateUserReactionsPalette($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUserReactionsPaletteDocument,
     "\n  mutation performVoteComment($documentId: String, $voteType: String, $extendedVote: JSON) {\n    performVoteComment(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {\n      document {\n        ...WithVoteComment\n      }\n      showVotingPatternWarning\n    }\n  }\n": types.performVoteCommentDocument,
     "\n  mutation performVotePost($documentId: String, $voteType: String, $extendedVote: JSON) {\n    performVotePost(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {\n      document {\n        ...WithVotePost\n      }\n      showVotingPatternWarning\n    }\n  }\n": types.performVotePostDocument,
@@ -3072,6 +3084,30 @@ export function gql(source: "\n  mutation updateUserDeleteAccountSection($select
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query SubscribedUser($documentId: String!) {\n    user(input: { selector: { _id: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n"): (typeof documents)["\n  query SubscribedUser($documentId: String!) {\n    user(input: { selector: { _id: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query SubscribedPost($documentId: String!) {\n    post(input: { selector: { _id: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  query SubscribedPost($documentId: String!) {\n    post(input: { selector: { _id: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query SubscribedComment($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n"): (typeof documents)["\n  query SubscribedComment($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query SubscribedLocalgroup($documentId: String!) {\n    localgroup(input: { selector: { _id: $documentId } }) {\n      result {\n        ...localGroupsBase\n      }\n    }\n  }\n"): (typeof documents)["\n  query SubscribedLocalgroup($documentId: String!) {\n    localgroup(input: { selector: { _id: $documentId } }) {\n      result {\n        ...localGroupsBase\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query SubscribedTag($documentId: String!) {\n    tag(input: { selector: { _id: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query SubscribedTag($documentId: String!) {\n    tag(input: { selector: { _id: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query SubscribedSequence($documentId: String!) {\n    sequence(input: { selector: { _id: $documentId } }) {\n      result {\n        ...SequencesPageTitleFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query SubscribedSequence($documentId: String!) {\n    sequence(input: { selector: { _id: $documentId } }) {\n      result {\n        ...SequencesPageTitleFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

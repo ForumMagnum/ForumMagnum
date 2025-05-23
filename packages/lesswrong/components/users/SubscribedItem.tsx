@@ -1,12 +1,12 @@
 import React, { ReactNode } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
-import { gql as dynamicGql, useQuery } from '@apollo/client';
-import { getFragment } from "@/lib/vulcan-lib/fragments";
+import { useQuery } from '@apollo/client';
 import Loading from "../vulcan-core/Loading";
 import NotifyMeButton from "../notifications/NotifyMeButton";
 import { SubscriptionType } from "@/lib/collections/subscriptions/helpers";
+import { TypedDocumentNode } from '@graphql-typed-document-node/core';
+import { defineStyles, useStyles } from "../hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SubscribedItem', (theme: ThemeType) => ({
   root: {
     marginLeft: -6,
     display: "flex",
@@ -26,46 +26,36 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.7,
     wordBreak: "keep-all"
   },
-});
+}));
 
-const SubscribedItem = ({
-  collectionName,
-  fragmentName,
+export default function SubscribedItem<TQuery, TExtractResult>({
+  query,
   subscription,
   renderDocument,
-  classes,
+  extractDocument,
 }: {
-  collectionName: CollectionNameString,
-  fragmentName: keyof FragmentTypes,
+  query: TypedDocumentNode<TQuery, { documentId: string }>,
   subscription: SubscriptionState,
-  renderDocument: (document: AnyBecauseTodo) => ReactNode,
-  classes: ClassesType<typeof styles>
-}) => {
-  const fragment = getFragment(fragmentName);
-
-  const query = dynamicGql`
-    query SubscribedItem($documentId: String!) {
-      ${collectionName}(input: { selector: { _id: $documentId } }) {
-        ${`...${fragmentName}`}
-      }
-    }
-    ${fragment}
-  `;
-
+  renderDocument: (document: NonNullable<TExtractResult>) => ReactNode,
+  extractDocument: (data: TQuery) => TExtractResult,
+}) {
+  const classes = useStyles(styles);
+  
   const { data: fetchedResult, loading } = useQuery(query, {
     variables: {
-      documentId: subscription.documentId,
+      documentId: subscription.documentId ?? "",
     },
     skip: !subscription.documentId,
   });
 
-  const document = fetchedResult?.[collectionName];
+  const document = fetchedResult ? extractDocument(fetchedResult) : null;
 
-  if (!document && !loading) {
-    return null;
-  }
   if (loading) {
     return <Loading/>;
+  }
+
+  if (!document) {
+    return null;
   }
 
   return (
@@ -83,11 +73,3 @@ const SubscribedItem = ({
     </div>
   );
 }
-
-export default registerComponent(
-  "SubscribedItem",
-  SubscribedItem,
-  {styles},
-);
-
-
