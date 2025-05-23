@@ -745,6 +745,9 @@ type Documents = {
     "\n  fragment FeedPostFragment on FeedPost {\n    _id\n    postMetaInfo\n    post {\n      ...PostsListWithVotes\n    }\n  }\n": typeof types.FeedPostFragmentDoc,
     "\n  fragment FeedCommentThreadFragment on FeedCommentThread {\n    _id\n    commentMetaInfos\n    comments {\n      ...UltraFeedComment\n    }\n  }\n": typeof types.FeedCommentThreadFragmentDoc,
     "\n  fragment FeedSpotlightFragment on FeedSpotlightItem {\n    _id\n    spotlight {\n      ...SpotlightDisplay\n    }\n  }\n": typeof types.FeedSpotlightFragmentDoc,
+    "\n  query multiPostsForAutocompleteQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsForAutocomplete\n      }\n    }\n  }\n": typeof types.multiPostsForAutocompleteQueryDocument,
+    "\n  query multiCommentsForAutocompleteQuery($input: MultiCommentInput) {\n    comments(input: $input) {\n      results {\n        ...CommentsForAutocomplete\n      }\n    }\n  }\n": typeof types.multiCommentsForAutocompleteQueryDocument,
+    "\n  query multiCommentsForAutocompleteWithParentsQuery($input: MultiCommentInput) {\n    comments(input: $input) {\n      results {\n        ...CommentsForAutocompleteWithParents\n      }\n    }\n  }\n": typeof types.multiCommentsForAutocompleteWithParentsQueryDocument,
     "\n  query EmailComment2($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": typeof types.EmailComment2Document,
     "\n  query EmailComment1($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n": typeof types.EmailComment1Document,
     "\n  query EmailComment($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.EmailCommentDocument,
@@ -755,6 +758,7 @@ type Documents = {
     "\n  query PostNominatedEmail($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevision\n      }\n    }\n  }\n": typeof types.PostNominatedEmailDocument,
     "\n  query singleDraftPostForLLMQuery($input: SinglePostInput, $version: String) {\n    post(input: $input) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n": typeof types.singleDraftPostForLLMQueryDocument,
     "\n  query singlePublishedPostForLLMQuery($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.singlePublishedPostForLLMQueryDocument,
+    "\n  query multiPostsForLLMQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.multiPostsForLLMQueryDocument,
 };
 const documents: Documents = {
     "\n  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUserLayoutDocument,
@@ -1488,6 +1492,9 @@ const documents: Documents = {
     "\n  fragment FeedPostFragment on FeedPost {\n    _id\n    postMetaInfo\n    post {\n      ...PostsListWithVotes\n    }\n  }\n": types.FeedPostFragmentDoc,
     "\n  fragment FeedCommentThreadFragment on FeedCommentThread {\n    _id\n    commentMetaInfos\n    comments {\n      ...UltraFeedComment\n    }\n  }\n": types.FeedCommentThreadFragmentDoc,
     "\n  fragment FeedSpotlightFragment on FeedSpotlightItem {\n    _id\n    spotlight {\n      ...SpotlightDisplay\n    }\n  }\n": types.FeedSpotlightFragmentDoc,
+    "\n  query multiPostsForAutocompleteQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsForAutocomplete\n      }\n    }\n  }\n": types.multiPostsForAutocompleteQueryDocument,
+    "\n  query multiCommentsForAutocompleteQuery($input: MultiCommentInput) {\n    comments(input: $input) {\n      results {\n        ...CommentsForAutocomplete\n      }\n    }\n  }\n": types.multiCommentsForAutocompleteQueryDocument,
+    "\n  query multiCommentsForAutocompleteWithParentsQuery($input: MultiCommentInput) {\n    comments(input: $input) {\n      results {\n        ...CommentsForAutocompleteWithParents\n      }\n    }\n  }\n": types.multiCommentsForAutocompleteWithParentsQueryDocument,
     "\n  query EmailComment2($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": types.EmailComment2Document,
     "\n  query EmailComment1($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n": types.EmailComment1Document,
     "\n  query EmailComment($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": types.EmailCommentDocument,
@@ -1498,6 +1505,7 @@ const documents: Documents = {
     "\n  query PostNominatedEmail($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevision\n      }\n    }\n  }\n": types.PostNominatedEmailDocument,
     "\n  query singleDraftPostForLLMQuery($input: SinglePostInput, $version: String) {\n    post(input: $input) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n": types.singleDraftPostForLLMQueryDocument,
     "\n  query singlePublishedPostForLLMQuery($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": types.singlePublishedPostForLLMQueryDocument,
+    "\n  query multiPostsForLLMQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsPage\n      }\n    }\n  }\n": types.multiPostsForLLMQueryDocument,
 };
 
 /**
@@ -4441,6 +4449,18 @@ export function gql(source: "\n  fragment FeedSpotlightFragment on FeedSpotlight
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  query multiPostsForAutocompleteQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsForAutocomplete\n      }\n    }\n  }\n"): (typeof documents)["\n  query multiPostsForAutocompleteQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsForAutocomplete\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query multiCommentsForAutocompleteQuery($input: MultiCommentInput) {\n    comments(input: $input) {\n      results {\n        ...CommentsForAutocomplete\n      }\n    }\n  }\n"): (typeof documents)["\n  query multiCommentsForAutocompleteQuery($input: MultiCommentInput) {\n    comments(input: $input) {\n      results {\n        ...CommentsForAutocomplete\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query multiCommentsForAutocompleteWithParentsQuery($input: MultiCommentInput) {\n    comments(input: $input) {\n      results {\n        ...CommentsForAutocompleteWithParents\n      }\n    }\n  }\n"): (typeof documents)["\n  query multiCommentsForAutocompleteWithParentsQuery($input: MultiCommentInput) {\n    comments(input: $input) {\n      results {\n        ...CommentsForAutocompleteWithParents\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  query EmailComment2($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n"): (typeof documents)["\n  query EmailComment2($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -4478,6 +4498,10 @@ export function gql(source: "\n  query singleDraftPostForLLMQuery($input: Single
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query singlePublishedPostForLLMQuery($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n"): (typeof documents)["\n  query singlePublishedPostForLLMQuery($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query multiPostsForLLMQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsPage\n      }\n    }\n  }\n"): (typeof documents)["\n  query multiPostsForLLMQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsPage\n      }\n    }\n  }\n"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};

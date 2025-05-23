@@ -21498,6 +21498,57 @@ type FeedSpotlightFragment_FeedSpotlightItem_spotlight_Spotlight = (
 
 type FeedSpotlightFragment = { __typename?: 'FeedSpotlightItem', _id: string, spotlight: FeedSpotlightFragment_FeedSpotlightItem_spotlight_Spotlight | null };
 
+type multiPostsForAutocompleteQueryQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsForAutocomplete
+);
+
+type multiPostsForAutocompleteQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<multiPostsForAutocompleteQueryQuery_posts_MultiPostOutput_results_Post | null> | null };
+
+type multiPostsForAutocompleteQueryQuery_Query = { __typename?: 'Query', posts: multiPostsForAutocompleteQueryQuery_posts_MultiPostOutput | null };
+
+
+type multiPostsForAutocompleteQueryQueryVariables = Exact<{
+  input: InputMaybe<MultiPostInput>;
+}>;
+
+
+type multiPostsForAutocompleteQueryQuery = multiPostsForAutocompleteQueryQuery_Query;
+
+type multiCommentsForAutocompleteQueryQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsForAutocomplete
+);
+
+type multiCommentsForAutocompleteQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<multiCommentsForAutocompleteQueryQuery_comments_MultiCommentOutput_results_Comment | null> | null };
+
+type multiCommentsForAutocompleteQueryQuery_Query = { __typename?: 'Query', comments: multiCommentsForAutocompleteQueryQuery_comments_MultiCommentOutput | null };
+
+
+type multiCommentsForAutocompleteQueryQueryVariables = Exact<{
+  input: InputMaybe<MultiCommentInput>;
+}>;
+
+
+type multiCommentsForAutocompleteQueryQuery = multiCommentsForAutocompleteQueryQuery_Query;
+
+type multiCommentsForAutocompleteWithParentsQueryQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsForAutocompleteWithParents
+);
+
+type multiCommentsForAutocompleteWithParentsQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<multiCommentsForAutocompleteWithParentsQueryQuery_comments_MultiCommentOutput_results_Comment | null> | null };
+
+type multiCommentsForAutocompleteWithParentsQueryQuery_Query = { __typename?: 'Query', comments: multiCommentsForAutocompleteWithParentsQueryQuery_comments_MultiCommentOutput | null };
+
+
+type multiCommentsForAutocompleteWithParentsQueryQueryVariables = Exact<{
+  input: InputMaybe<MultiCommentInput>;
+}>;
+
+
+type multiCommentsForAutocompleteWithParentsQueryQuery = multiCommentsForAutocompleteWithParentsQueryQuery_Query;
+
 type EmailComment2Query_comment_SingleCommentOutput_result_Comment = (
   { __typename?: 'Comment' }
   & CommentsListWithParentMetadata
@@ -21670,3 +21721,20 @@ type singlePublishedPostForLLMQueryQueryVariables = Exact<{
 
 
 type singlePublishedPostForLLMQueryQuery = singlePublishedPostForLLMQueryQuery_Query;
+
+type multiPostsForLLMQueryQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsPage
+);
+
+type multiPostsForLLMQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<multiPostsForLLMQueryQuery_posts_MultiPostOutput_results_Post | null> | null };
+
+type multiPostsForLLMQueryQuery_Query = { __typename?: 'Query', posts: multiPostsForLLMQueryQuery_posts_MultiPostOutput | null };
+
+
+type multiPostsForLLMQueryQueryVariables = Exact<{
+  input: InputMaybe<MultiPostInput>;
+}>;
+
+
+type multiPostsForLLMQueryQuery = multiPostsForLLMQueryQuery_Query;
