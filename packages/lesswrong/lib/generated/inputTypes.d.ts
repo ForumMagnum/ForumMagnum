@@ -1890,6 +1890,8 @@ interface ForumEvent {
   tag: Tag | null;
   postId: string | null;
   post: Post | null;
+  commentId: string | null;
+  comment: Comment | null;
   bannerImageId: string | null;
   includesPoll: boolean;
   isGlobal: boolean;
@@ -4779,6 +4781,7 @@ interface CreateForumEventDataInput {
   contrastColor?: string | null;
   tagId?: string | null;
   postId?: string | null;
+  commentId?: string | null;
   bannerImageId?: string | null;
   includesPoll?: boolean | null;
   isGlobal: boolean;
@@ -4810,6 +4813,7 @@ interface UpdateForumEventDataInput {
   contrastColor?: string | null;
   tagId?: string | null;
   postId?: string | null;
+  commentId?: string | null;
   bannerImageId?: string | null;
   includesPoll?: boolean | null;
   isGlobal?: boolean | null;

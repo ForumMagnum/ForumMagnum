@@ -88,6 +88,7 @@ const ONE_DAY_MS = 24 * ONE_HOUR_MS;
 async function upsertPoll({
   _id,
   post,
+  commentId,
   existingPoll,
   question,
   agreeWording,
@@ -97,32 +98,41 @@ async function upsertPoll({
 }: {
   _id: string;
   existingPoll?: DbForumEvent;
-  post: DbPost;
+  post?: Pick<DbPost, '_id' | 'draft'>;
+  commentId?: string;
 } & PollProps, context: ResolverContext) {
   const endDateFromDuration = new Date(
     Date.now() + (duration.days * ONE_DAY_MS) + (duration.hours * ONE_HOUR_MS) + (duration.minutes * ONE_MINUTE_MS)
   );
-  // Start the timer when the post is published. If editing after that, don't update the end date
-  const endDate = existingPoll?.endDate ? existingPoll?.endDate : (post.draft ? null : endDateFromDuration);
+
+  // The post not existing means this is a poll in a comment that is currently being
+  // created (so doesn't exist in the db yet). In this case, treat the poll as a non-draft.
+  // Technically it is possible to comment on a draft post but this is a rare edge case.
+  const isPostDraft = post ? post.draft : false;
+  // Poll timer starts when the post is published. Don't update the end date after that.
+  const endDate = existingPoll?.endDate ? existingPoll.endDate : (isPostDraft ? null : endDateFromDuration);
+
+  const dataPayload = {
+    eventFormat: "POLL" as const,
+    pollQuestion: {
+      originalContents: {
+        data: `<p>${question}</p>`,
+        type: "ckEditorMarkup" as const,
+      },
+    },
+    pollAgreeWording: agreeWording,
+    pollDisagreeWording: disagreeWording,
+    endDate,
+    ...colorScheme,
+    postId: post?._id,
+    commentId,
+  };
 
   if (existingPoll) {
     return updateForumEvent(
       {
         selector: { _id: existingPoll._id },
-        data: {
-          eventFormat: "POLL",
-          pollQuestion: {
-            originalContents: {
-              data: `<p>${question}</p>`,
-              type: "ckEditorMarkup",
-            },
-          },
-          pollAgreeWording: agreeWording,
-          pollDisagreeWording: disagreeWording,
-          endDate,
-          ...colorScheme,
-          postId: post._id,
-        },
+        data: dataPayload,
       },
       context
     );
@@ -130,24 +140,12 @@ async function upsertPoll({
     return createForumEvent(
       {
         data: {
-          // TODO Explicitly allow setting an _id. This does work currently, but the generated types don't recognise it
-          // @ts-expect-error
+          // @ts-expect-error _id is not in the type but works
           _id,
           title: `New Poll for ${_id}`,
-          eventFormat: "POLL",
-          pollQuestion: {
-            originalContents: {
-              data: `<p>${question}</p>`,
-              type: "ckEditorMarkup",
-            },
-          },
           startDate: new Date(),
-          endDate,
-          pollAgreeWording: agreeWording,
-          pollDisagreeWording: disagreeWording,
-          ...colorScheme,
-          postId: post._id,
           isGlobal: false,
+          ...dataPayload,
         },
       },
       context
@@ -164,54 +162,70 @@ export async function upsertPolls({
 }) {
   if (!hasPolls) return;
 
-  if (revision.html && revision.collectionName === "Posts" && !!revision.documentId) {
-    const $ = cheerioParse(revision.html);
-    const pollData = $(".ck-poll[data-internal-id]")
-      .map((_, element) => {
-        const internalId = $(element).attr("data-internal-id");
-        const props = $(element).attr("data-props");
+  const { html, collectionName, documentId } = revision;
 
-        if (!props) return null;
+  if (!(html && (collectionName === "Posts" || collectionName === "Comments") && !!documentId)) return;
 
-        try {
-          const rawParsedProps = JSON.parse(props);
-          const validationResult = PollPropsSchema.safeParse(rawParsedProps);
-          if (!validationResult.success) {
-            const errorMessage = `Invalid poll props found for internalId ${internalId}: ${JSON.stringify(validationResult.error.issues)}`;
-            throw new Error(errorMessage);
-          }
+  const $ = cheerioParse(html);
+  const pollData = $(".ck-poll[data-internal-id]")
+    .map((_, element) => {
+      const internalId = $(element).attr("data-internal-id");
+      const props = $(element).attr("data-props");
 
-          const parsedProps = validationResult.data;
-          return { _id: internalId, ...parsedProps };
+      if (!props) return null;
 
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.error(`Error parsing poll props for internalId ${internalId}:`, error);
-          return null;
+      try {
+        const rawParsedProps = JSON.parse(props);
+        const validationResult = PollPropsSchema.safeParse(rawParsedProps);
+        if (!validationResult.success) {
+          const errorMessage = `Invalid poll props found for internalId ${internalId}: ${JSON.stringify(validationResult.error.issues)}`;
+          throw new Error(errorMessage);
         }
-      })
-      .get()
-      .filter((item): item is ({ _id: string } & PollProps) => item !== null);
 
-    if (!pollData?.length) return;
+        const parsedProps = validationResult.data;
+        return { _id: internalId, ...parsedProps };
 
-    const [post, existingPolls] = await Promise.all([
-      context.loaders.Posts.load(revision.documentId),
-      context.loaders.ForumEvents.loadMany(pollData.map(d => d._id))
-    ]);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(`Error parsing poll props for internalId ${internalId}:`, error);
+        return null;
+      }
+    })
+    .get()
+    .filter((item): item is ({ _id: string } & PollProps) => item !== null);
 
-    const validExistingPolls = existingPolls.filter((fe): fe is DbForumEvent => !(fe instanceof Error) && !!fe?._id);
+  if (!pollData?.length) return;
 
-    if (!post) {
-      // eslint-disable-next-line no-console
-      console.error(`Post (${revision.documentId}) not found, cannot upsert polls`);
-      return;
+  const fetchPollPost = async (): Promise<DbPost | undefined> => {
+    if (collectionName === "Posts") {
+      return context.loaders.Posts.load(documentId);
+    } else { // Comments
+      const comment = await context.loaders.Comments.load(documentId);
+      if (comment && comment.postId) {
+        return context.loaders.Posts.load(comment.postId);
+      }
+      return undefined;
     }
+  };
 
-    // Upsert a poll for each internal id found in the HTML
-    for (const data of pollData) {
-      const existingPoll = validExistingPolls.find(poll => poll && poll._id === data._id);
-      await upsertPoll({ ...data, post, existingPoll }, context);
-    }
+  const [post, existingPolls] = await Promise.all([
+    fetchPollPost(),
+    context.loaders.ForumEvents.loadMany(pollData.map(d => d._id))
+  ]);
+
+  const validExistingPolls = existingPolls.filter((fe): fe is DbForumEvent => !(fe instanceof Error) && !!fe?._id);
+
+  if ((collectionName === "Posts" && !post)) {
+    // eslint-disable-next-line no-console
+    console.error(`Post (${documentId}) not found, cannot upsert polls`);
+    return;
+  }
+
+  const commentId = collectionName === "Comments" ? documentId : undefined;
+
+  // Upsert a poll for each internal id found in the HTML
+  for (const data of pollData) {
+    const existingPoll = validExistingPolls.find(poll => poll && poll._id === data._id);
+    await upsertPoll({ ...data, post, commentId, existingPoll }, context);
   }
 };
