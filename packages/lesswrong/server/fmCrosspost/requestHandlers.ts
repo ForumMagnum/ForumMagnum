@@ -3,7 +3,7 @@ import Posts from "../../server/collections/posts/collection";
 import Users from "../../server/collections/users/collection";
 import { createAnonymousContext } from "../vulcan-lib/createContexts";
 import { extractDenormalizedData } from "./denormalizedFields";
-import { InvalidUserError, UnauthorizedError } from "./errors";
+import { InvalidUserError, PostNotFoundError, UnauthorizedError } from "./errors";
 import { validateCrosspostingKarmaThreshold } from "./helpers";
 import type { GetRouteOf, PostRouteOf } from "./routes";
 import { verifyToken } from "./tokens";
@@ -187,5 +187,9 @@ export const onGetCrosspostRequest: PostRouteOf<'getCrosspost'> = async (req) =>
 
   const document = data?.post?.result;
 
-  return { document: document ?? {} };
+  if (!document) {
+    throw new PostNotFoundError(documentId);
+  }
+
+  return { document };
 };
