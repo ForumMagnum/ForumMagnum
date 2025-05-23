@@ -190,7 +190,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   // Get JSS styles, which were added to sheetsRegistry as a byproduct of
   // renderToString.
   const css = generateEmailStylesheet({ stylesContext, theme, themeOptions });
-  const html = boilerplateGenerator({ css, body: body, title:subject })
+  const html = boilerplateGenerator({ css, body, title:subject })
   
   // Find any relative links, and convert them to absolute
   const htmlWithAbsoluteUrls = makeAllUrlsAbsolute(html, getSiteUrl());
