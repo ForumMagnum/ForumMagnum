@@ -1,7 +1,6 @@
 import type { Request } from "express";
 import Posts from "../../server/collections/posts/collection";
 import Users from "../../server/collections/users/collection";
-import { getGraphQLSingleQueryFromOptions } from "../../lib/crud/withSingle";
 import { createAnonymousContext } from "../vulcan-lib/createContexts";
 import { extractDenormalizedData } from "./denormalizedFields";
 import { InvalidUserError, UnauthorizedError } from "./errors";
@@ -17,8 +16,77 @@ import {
 import { connectCrossposterToken } from "../crossposting/tokens";
 import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
 import { createPost } from '../collections/posts/mutations';
-import { collectionNameToTypeName } from "@/lib/generated/collectionTypeNames";
-import { getSingleResolverName } from "@/lib/crud/utils";
+import { gql } from "@/lib/generated/gql-codegen";
+import type { CrosspostFragments } from "@/components/hooks/useForeignCrosspost";
+
+const postsWithNavigationQuery = gql(`
+  query getCrosspostPostsWithNavigation($input: SinglePostInput, $sequenceId: String) {
+    post(input: $input) {
+      result {
+        ...PostsWithNavigation
+      }
+    }
+  }
+`);
+
+const postsWithNavigationAndRevisionQuery = gql(`
+  query getCrosspostPostsWithNavigationAndRevision($input: SinglePostInput, $version: String, $sequenceId: String) {
+    post(input: $input) {
+      result {
+        ...PostsWithNavigationAndRevision
+      }
+    }
+  }
+`);
+
+const postsListQuery = gql(`
+  query getCrosspostPostsList($input: SinglePostInput) {
+    post(input: $input) {
+      result {
+        ...PostsList
+      }
+    }
+  }
+`);
+
+const sunshinePostsListQuery = gql(`
+  query getCrosspostSunshinePostsList($input: SinglePostInput) {
+    post(input: $input) {
+      result {
+        ...SunshinePostsList
+      }
+    }
+  }
+`);
+
+const postsPageQuery = gql(`
+  query getCrosspostPostsPage($input: SinglePostInput) {
+    post(input: $input) {
+      result {
+        ...PostsPage
+      }
+    }
+  }
+`);
+
+const getCrosspostQueryDocument = (fragmentName: CrosspostFragments) => {
+  switch (fragmentName) {
+    case 'PostsWithNavigation':
+      return postsWithNavigationQuery;
+    
+    case 'PostsWithNavigationAndRevision':
+      return postsWithNavigationAndRevisionQuery;
+    
+    case 'PostsList':
+      return postsListQuery;
+    
+    case 'SunshinePostsList':
+      return sunshinePostsListQuery;
+    
+    case 'PostsPage':
+      return postsPageQuery;
+  }
+};
 
 export const onCrosspostTokenRequest: GetRouteOf<'crosspostToken'> = async (req: Request) => {
   const {user} = req;
@@ -102,17 +170,10 @@ export const onUpdateCrosspostRequest: PostRouteOf<'updateCrosspost'> = async (r
 
 export const onGetCrosspostRequest: PostRouteOf<'getCrosspost'> = async (req) => {
   const { createClient }: typeof import('../vulcan-lib/apollo-ssr/apolloClient') = require('../vulcan-lib/apollo-ssr/apolloClient');
-  const { collectionName, extraVariables, extraVariablesValues, fragmentName, documentId } = req;
+  const { extraVariablesValues, fragmentName, documentId } = req;
   const apolloClient = await createClient(createAnonymousContext());
-  const typeName = collectionNameToTypeName[collectionName];
-  const resolverName = getSingleResolverName(typeName);
-  const query = getGraphQLSingleQueryFromOptions({
-    extraVariables,
-    collectionName,
-    fragmentName,
-    fragment: undefined,
-    resolverName,
-  });
+  
+  const query = getCrosspostQueryDocument(fragmentName);
 
   const { data } = await apolloClient.query({
     query,
@@ -124,7 +185,7 @@ export const onGetCrosspostRequest: PostRouteOf<'getCrosspost'> = async (req) =>
     },
   });
 
-  const document = data?.[resolverName]?.result;
+  const document = data?.post?.result;
 
-  return { document };
+  return { document: document ?? {} };
 };

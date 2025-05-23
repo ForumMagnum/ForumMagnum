@@ -756,6 +756,11 @@ type Documents = {
     "\n  query NewDialogueMessagesEmail1($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": typeof types.NewDialogueMessagesEmail1Document,
     "\n  query NewDialogueMessagesEmail($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevision\n      }\n    }\n  }\n": typeof types.NewDialogueMessagesEmailDocument,
     "\n  query PostNominatedEmail($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevision\n      }\n    }\n  }\n": typeof types.PostNominatedEmailDocument,
+    "\n  query getCrosspostPostsWithNavigation($input: SinglePostInput, $sequenceId: String) {\n    post(input: $input) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n": typeof types.getCrosspostPostsWithNavigationDocument,
+    "\n  query getCrosspostPostsWithNavigationAndRevision($input: SinglePostInput, $version: String, $sequenceId: String) {\n    post(input: $input) {\n      result {\n        ...PostsWithNavigationAndRevision\n      }\n    }\n  }\n": typeof types.getCrosspostPostsWithNavigationAndRevisionDocument,
+    "\n  query getCrosspostPostsList($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.getCrosspostPostsListDocument,
+    "\n  query getCrosspostSunshinePostsList($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...SunshinePostsList\n      }\n    }\n  }\n": typeof types.getCrosspostSunshinePostsListDocument,
+    "\n  query getCrosspostPostsPage($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.getCrosspostPostsPageDocument,
     "\n  query singleDraftPostForLLMQuery($input: SinglePostInput, $version: String) {\n    post(input: $input) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n": typeof types.singleDraftPostForLLMQueryDocument,
     "\n  query singlePublishedPostForLLMQuery($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.singlePublishedPostForLLMQueryDocument,
     "\n  query multiPostsForLLMQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.multiPostsForLLMQueryDocument,
@@ -1503,6 +1508,11 @@ const documents: Documents = {
     "\n  query NewDialogueMessagesEmail1($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": types.NewDialogueMessagesEmail1Document,
     "\n  query NewDialogueMessagesEmail($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevision\n      }\n    }\n  }\n": types.NewDialogueMessagesEmailDocument,
     "\n  query PostNominatedEmail($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevision\n      }\n    }\n  }\n": types.PostNominatedEmailDocument,
+    "\n  query getCrosspostPostsWithNavigation($input: SinglePostInput, $sequenceId: String) {\n    post(input: $input) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n": types.getCrosspostPostsWithNavigationDocument,
+    "\n  query getCrosspostPostsWithNavigationAndRevision($input: SinglePostInput, $version: String, $sequenceId: String) {\n    post(input: $input) {\n      result {\n        ...PostsWithNavigationAndRevision\n      }\n    }\n  }\n": types.getCrosspostPostsWithNavigationAndRevisionDocument,
+    "\n  query getCrosspostPostsList($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": types.getCrosspostPostsListDocument,
+    "\n  query getCrosspostSunshinePostsList($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...SunshinePostsList\n      }\n    }\n  }\n": types.getCrosspostSunshinePostsListDocument,
+    "\n  query getCrosspostPostsPage($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": types.getCrosspostPostsPageDocument,
     "\n  query singleDraftPostForLLMQuery($input: SinglePostInput, $version: String) {\n    post(input: $input) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n": types.singleDraftPostForLLMQueryDocument,
     "\n  query singlePublishedPostForLLMQuery($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": types.singlePublishedPostForLLMQueryDocument,
     "\n  query multiPostsForLLMQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsPage\n      }\n    }\n  }\n": types.multiPostsForLLMQueryDocument,
@@ -4490,6 +4500,26 @@ export function gql(source: "\n  query NewDialogueMessagesEmail($documentId: Str
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query PostNominatedEmail($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevision\n      }\n    }\n  }\n"): (typeof documents)["\n  query PostNominatedEmail($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsRevision\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query getCrosspostPostsWithNavigation($input: SinglePostInput, $sequenceId: String) {\n    post(input: $input) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n"): (typeof documents)["\n  query getCrosspostPostsWithNavigation($input: SinglePostInput, $sequenceId: String) {\n    post(input: $input) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query getCrosspostPostsWithNavigationAndRevision($input: SinglePostInput, $version: String, $sequenceId: String) {\n    post(input: $input) {\n      result {\n        ...PostsWithNavigationAndRevision\n      }\n    }\n  }\n"): (typeof documents)["\n  query getCrosspostPostsWithNavigationAndRevision($input: SinglePostInput, $version: String, $sequenceId: String) {\n    post(input: $input) {\n      result {\n        ...PostsWithNavigationAndRevision\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query getCrosspostPostsList($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  query getCrosspostPostsList($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query getCrosspostSunshinePostsList($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...SunshinePostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  query getCrosspostSunshinePostsList($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...SunshinePostsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query getCrosspostPostsPage($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n"): (typeof documents)["\n  query getCrosspostPostsPage($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

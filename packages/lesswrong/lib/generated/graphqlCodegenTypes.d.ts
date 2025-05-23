@@ -21687,6 +21687,94 @@ type PostNominatedEmailQueryVariables = Exact<{
 
 type PostNominatedEmailQuery = PostNominatedEmailQuery_Query;
 
+type getCrosspostPostsWithNavigationQuery_post_SinglePostOutput_result_Post = (
+  { __typename?: 'Post' }
+  & PostsWithNavigation
+);
+
+type getCrosspostPostsWithNavigationQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: getCrosspostPostsWithNavigationQuery_post_SinglePostOutput_result_Post | null };
+
+type getCrosspostPostsWithNavigationQuery_Query = { __typename?: 'Query', post: getCrosspostPostsWithNavigationQuery_post_SinglePostOutput | null };
+
+
+type getCrosspostPostsWithNavigationQueryVariables = Exact<{
+  input: InputMaybe<SinglePostInput>;
+  sequenceId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type getCrosspostPostsWithNavigationQuery = getCrosspostPostsWithNavigationQuery_Query;
+
+type getCrosspostPostsWithNavigationAndRevisionQuery_post_SinglePostOutput_result_Post = (
+  { __typename?: 'Post' }
+  & PostsWithNavigationAndRevision
+);
+
+type getCrosspostPostsWithNavigationAndRevisionQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: getCrosspostPostsWithNavigationAndRevisionQuery_post_SinglePostOutput_result_Post | null };
+
+type getCrosspostPostsWithNavigationAndRevisionQuery_Query = { __typename?: 'Query', post: getCrosspostPostsWithNavigationAndRevisionQuery_post_SinglePostOutput | null };
+
+
+type getCrosspostPostsWithNavigationAndRevisionQueryVariables = Exact<{
+  input: InputMaybe<SinglePostInput>;
+  version: InputMaybe<Scalars['String']['input']>;
+  sequenceId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type getCrosspostPostsWithNavigationAndRevisionQuery = getCrosspostPostsWithNavigationAndRevisionQuery_Query;
+
+type getCrosspostPostsListQuery_post_SinglePostOutput_result_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type getCrosspostPostsListQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: getCrosspostPostsListQuery_post_SinglePostOutput_result_Post | null };
+
+type getCrosspostPostsListQuery_Query = { __typename?: 'Query', post: getCrosspostPostsListQuery_post_SinglePostOutput | null };
+
+
+type getCrosspostPostsListQueryVariables = Exact<{
+  input: InputMaybe<SinglePostInput>;
+}>;
+
+
+type getCrosspostPostsListQuery = getCrosspostPostsListQuery_Query;
+
+type getCrosspostSunshinePostsListQuery_post_SinglePostOutput_result_Post = (
+  { __typename?: 'Post' }
+  & SunshinePostsList
+);
+
+type getCrosspostSunshinePostsListQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: getCrosspostSunshinePostsListQuery_post_SinglePostOutput_result_Post | null };
+
+type getCrosspostSunshinePostsListQuery_Query = { __typename?: 'Query', post: getCrosspostSunshinePostsListQuery_post_SinglePostOutput | null };
+
+
+type getCrosspostSunshinePostsListQueryVariables = Exact<{
+  input: InputMaybe<SinglePostInput>;
+}>;
+
+
+type getCrosspostSunshinePostsListQuery = getCrosspostSunshinePostsListQuery_Query;
+
+type getCrosspostPostsPageQuery_post_SinglePostOutput_result_Post = (
+  { __typename?: 'Post' }
+  & PostsPage
+);
+
+type getCrosspostPostsPageQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: getCrosspostPostsPageQuery_post_SinglePostOutput_result_Post | null };
+
+type getCrosspostPostsPageQuery_Query = { __typename?: 'Query', post: getCrosspostPostsPageQuery_post_SinglePostOutput | null };
+
+
+type getCrosspostPostsPageQueryVariables = Exact<{
+  input: InputMaybe<SinglePostInput>;
+}>;
+
+
+type getCrosspostPostsPageQuery = getCrosspostPostsPageQuery_Query;
+
 type singleDraftPostForLLMQueryQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
   & PostsEditQueryFragment

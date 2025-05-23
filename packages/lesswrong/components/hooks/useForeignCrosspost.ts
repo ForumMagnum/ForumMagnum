@@ -82,7 +82,7 @@ export const crosspostFragments = [
   "PostsPage",
 ] as const;
 
-type CrosspostFragments = typeof crosspostFragments[number];
+export type CrosspostFragments = typeof crosspostFragments[number];
 
 /**
  * Load foreign crosspost data from the foreign site
