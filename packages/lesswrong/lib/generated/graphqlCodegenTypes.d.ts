@@ -210,6 +210,18 @@ type Bookmark = {
   userId: Scalars['String']['output'];
 };
 
+type BookmarkSelector = {
+  myBookmarkedPosts?: InputMaybe<EmptyViewInput>;
+  myBookmarks?: InputMaybe<EmptyViewInput>;
+  userDocumentBookmark?: InputMaybe<BookmarksUserDocumentBookmarkInput>;
+};
+
+type BookmarksUserDocumentBookmarkInput = {
+  collectionName?: InputMaybe<Scalars['String']['input']>;
+  documentId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
 type Chapter = {
   __typename?: 'Chapter';
   _id: Scalars['String']['output'];
@@ -7612,11 +7624,16 @@ type QuerybookArgs = {
 
 type QuerybookmarkArgs = {
   input?: InputMaybe<SingleBookmarkInput>;
+  selector?: InputMaybe<SelectorInput>;
 };
 
 
 type QuerybookmarksArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiBookmarkInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<BookmarkSelector>;
 };
 
 

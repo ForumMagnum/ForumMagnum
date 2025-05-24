@@ -13,23 +13,48 @@ export const graphqlBookmarkQueryTypeDefs = gql`
     resolverArgs: JSON
     allowNull: Boolean
   }
+  
   type SingleBookmarkOutput {
     result: Bookmark
   }
+
+  input BookmarksUserDocumentBookmarkInput {
+    userId: String
+    documentId: String
+    collectionName: String
+  }
+
+
+  input BookmarkSelector {
+    myBookmarkedPosts: EmptyViewInput
+    myBookmarks: EmptyViewInput
+    userDocumentBookmark: BookmarksUserDocumentBookmarkInput
+  }
+  
   input MultiBookmarkInput {
     terms: JSON
     resolverArgs: JSON
     enableTotal: Boolean
     enableCache: Boolean
   }
+
   type MultiBookmarkOutput {
     results: [Bookmark]
     totalCount: Int
   }
 
   extend type Query {
-    bookmark(input: SingleBookmarkInput): SingleBookmarkOutput
-    bookmarks(input: MultiBookmarkInput): MultiBookmarkOutput
+    bookmark(
+      input: SingleBookmarkInput @deprecated(reason: "Use the selector field instead"),
+      selector: SelectorInput
+    ): SingleBookmarkOutput
+    bookmarks(
+      input: MultiBookmarkInput @deprecated(reason: "Use the selector field instead"),
+      selector: BookmarkSelector,
+      limit: Int,
+      offset: Int,
+      enableTotal: Boolean
+    ): MultiBookmarkOutput
   }
 `;
 

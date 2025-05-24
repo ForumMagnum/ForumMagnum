@@ -1046,6 +1046,18 @@ interface SingleBookmarkOutput {
   result: Bookmark | null;
 }
 
+interface BookmarksUserDocumentBookmarkInput {
+  userId?: string | null;
+  documentId?: string | null;
+  collectionName?: string | null;
+}
+
+interface BookmarkSelector {
+  myBookmarkedPosts: EmptyViewInput | null;
+  myBookmarks: EmptyViewInput | null;
+  userDocumentBookmark: BookmarksUserDocumentBookmarkInput | null;
+}
+
 interface MultiBookmarkInput {
   terms?: any;
   resolverArgs?: any;
@@ -9001,6 +9013,8 @@ interface GraphQLTypeMap {
   Bookmark: Bookmark;
   SingleBookmarkInput: SingleBookmarkInput;
   SingleBookmarkOutput: SingleBookmarkOutput;
+  BookmarksUserDocumentBookmarkInput: BookmarksUserDocumentBookmarkInput;
+  BookmarkSelector: BookmarkSelector;
   MultiBookmarkInput: MultiBookmarkInput;
   MultiBookmarkOutput: MultiBookmarkOutput;
   Book: Book;
