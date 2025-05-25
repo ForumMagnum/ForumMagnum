@@ -241,19 +241,19 @@ const UltraFeedItemFooterCore = ({
               hideAfScore={true}
             />
           </div>
-          <div className={classes.agreementButtons}>
+          {collectionName === "Comments" && <div className={classes.agreementButtons}>
             <AgreementVoteAxis
               document={voteProps.document}
               hideKarma={hideKarma}
               voteProps={voteProps}
               agreementScoreClassName={classes.footerAgreementScoreOverride}
             />
-          </div>
+          </div>}
         </>
       )}
 
       {voteProps.document && votingSystem === "namesAttachedReactions" && (
-        <CondensedFooterReactions voteProps={voteProps} className={classes.condensedFooterReactions}/>
+        <CondensedFooterReactions voteProps={voteProps} allowReactions={collectionName === "Comments"} className={classes.condensedFooterReactions}/>
       )}
 
       { bookmarkProps && bookmarkableCollectionNames.has(collectionName) && (

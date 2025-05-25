@@ -17,7 +17,7 @@ import { Card } from "@/components/widgets/Paper";
 import { AddReactionIcon } from '../icons/AddReactionIcon';
 import HoverOver from "../common/HoverOver";
 
-const styles = defineStyles("CondensedFooterReactions", (theme: ThemeType) => ({
+const styles = defineStyles("CondensedFooterReactions", (theme: any /* ThemeType */) => ({
   root: {
     display: 'flex',
     alignItems: 'center',
@@ -136,9 +136,19 @@ const styles = defineStyles("CondensedFooterReactions", (theme: ThemeType) => ({
     fontWeight: 600,
     borderBottomColor: theme.palette.primary.main,
   },
+  disabledButton: {
+    opacity: 0.5,
+    cursor: 'not-allowed',
+  },
+  paletteDisabledText: {
+    padding: theme.spacing.unit * 2,
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+  }
 }));
 
 interface CondensedFooterReactionsSharedProps {
+  allowReactions: boolean;
   voteProps: VotingProps<VoteableTypeClient>;
   classes: Record<string, string>;
   topIcon: React.ReactNode | null;
@@ -149,7 +159,7 @@ interface CondensedFooterReactionsSharedProps {
 }
 
 const CondensedFooterReactionsDesktop = (props: CondensedFooterReactionsSharedProps) => {
-  const { classes, voteProps, topIcon, totalReactionCount, toggleReactionMain, getCurrentUserReactionVoteMain } = props;
+  const { classes, voteProps, topIcon, totalReactionCount, toggleReactionMain, getCurrentUserReactionVoteMain, allowReactions } = props;
   const paletteAnchorEl = useRef<HTMLDivElement>(null);
   
   const [showPalettePopup, setShowPalettePopup] = useState(false);
@@ -176,7 +186,6 @@ const CondensedFooterReactionsDesktop = (props: CondensedFooterReactionsSharedPr
           placement="top-end" 
           tooltip={false}
           hideOnTouchScreens={true}
-
         >
           <span 
             ref={paletteAnchorEl}
@@ -187,36 +196,59 @@ const CondensedFooterReactionsDesktop = (props: CondensedFooterReactionsSharedPr
           </span>
         </HoverOver>
       )}
-      <span ref={totalReactionCount === 0 ? paletteAnchorEl : undefined} >
-        <span
-          className={classNames(classes.addReactionButton, classes.addReactionDesktopExtra, { [classes.addReactionButtonActive]: showPalettePopup })}
-          onClick={() => setShowPalettePopup(prev => !prev)}
-        >
-          <AddReactionIcon />
-        </span>
-      </span>
+      
+      {allowReactions && (
+        <>
+          <span ref={totalReactionCount === 0 ? paletteAnchorEl : undefined} >
+            <span
+              className={classNames(classes.addReactionButton, classes.addReactionDesktopExtra, { [classes.addReactionButtonActive]: showPalettePopup })}
+              onClick={() => setShowPalettePopup(prev => !prev)}
+            >
+              <AddReactionIcon />
+            </span>
+          </span>
 
-      {paletteAnchorEl.current && showPalettePopup && (
-        <LWPopper open={showPalettePopup} anchorEl={paletteAnchorEl.current} placement="bottom-end" allowOverflow={true} distance={4}>
-          <LWClickAwayListener onClickAway={() => setShowPalettePopup(false)}>
-            <Card className={classes.overviewPopperCard}>
-              <div className={classes.desktopPopupContentWrapper}>
-                <ReactionsPalette quote={null} getCurrentUserReactionVote={getCurrentUserReactionVoteMain} toggleReaction={handleToggleReactionWithClosePalette} />
-              </div>
-            </Card>
-          </LWClickAwayListener>
-        </LWPopper>
+          {paletteAnchorEl.current && showPalettePopup && (
+            <LWPopper open={showPalettePopup} anchorEl={paletteAnchorEl.current} placement="bottom-end" allowOverflow={true} distance={4}>
+              <LWClickAwayListener onClickAway={() => setShowPalettePopup(false)}>
+                <Card className={classes.overviewPopperCard}>
+                  <div className={classes.desktopPopupContentWrapper}>
+                    <ReactionsPalette quote={null} getCurrentUserReactionVote={getCurrentUserReactionVoteMain} toggleReaction={handleToggleReactionWithClosePalette} />
+                  </div>
+                </Card>
+              </LWClickAwayListener>
+            </LWPopper>
+          )}
+        </>
       )}
     </div>
   );
 };
 
 const CondensedFooterReactionsMobile = (props: CondensedFooterReactionsSharedProps) => {
-  const { classes, voteProps, topIcon, totalReactionCount, toggleReactionMain, getCurrentUserReactionVoteMain } = props;
+  const { classes, voteProps, topIcon, totalReactionCount, toggleReactionMain, getCurrentUserReactionVoteMain, allowReactions } = props;
   const anchorEl = useRef<HTMLDivElement>(null);
   const [showMobilePopup, setShowMobilePopup] = useState(false);
   const [activeMobileTab, setActiveMobileTab] = useState<'overview' | 'palette'>('overview');
   const [justClosedByClickAway, setJustClosedByClickAway] = useState(false);
+
+  if (!allowReactions && totalReactionCount === 0) {
+    return (
+      <div className={classes.root} ref={anchorEl}>
+        <HoverOver
+          title="Reacting not enabled on this document, e.g. posts"
+          placement="top"
+          tooltip={true}
+        >
+          <span
+            className={classNames(classes.addReactionButton, classes.disabledButton)}
+          >
+            <AddReactionIcon />
+          </span>
+        </HoverOver>
+      </div>
+    );
+  }
 
   const handleClickAway = () => {
     setShowMobilePopup(false);
@@ -228,7 +260,11 @@ const CondensedFooterReactionsMobile = (props: CondensedFooterReactionsSharedPro
     if (justClosedByClickAway) return;
 
     if (showMobilePopup) {
-      setShowMobilePopup(false);
+      if (activeMobileTab === targetTab) {
+        setShowMobilePopup(false);
+      } else {
+        setActiveMobileTab(targetTab);
+      }
     } else {
       setActiveMobileTab(targetTab);
       setShowMobilePopup(true);
@@ -256,7 +292,7 @@ const CondensedFooterReactionsMobile = (props: CondensedFooterReactionsSharedPro
           {totalReactionCount}
         </span>
       )}
-      {totalReactionCount === 0 && (
+      {totalReactionCount === 0 && allowReactions && (
         <span
           className={classNames(classes.addReactionButton, { [classes.addReactionButtonActive]: showMobilePopup && activeMobileTab === 'palette' })}
           onClick={() => handleMobilePopupToggle('palette')}
@@ -274,7 +310,7 @@ const CondensedFooterReactionsMobile = (props: CondensedFooterReactionsSharedPro
                     <div 
                       key={tab.value}
                       className={classNames(classes.tabButton, { [classes.tabButtonActive]: activeMobileTab === tab.value })}
-                      onClick={() => setActiveMobileTab(tab.value)}
+                      onClick={() => handleMobilePopupToggle(tab.value)}
                     >
                       {tab.label}
                     </div>
@@ -284,7 +320,12 @@ const CondensedFooterReactionsMobile = (props: CondensedFooterReactionsSharedPro
                   {activeMobileTab === 'overview' && totalReactionCount > 0 && (
                     <DetailedReactionOverview voteProps={voteProps} />
                   )}
-                  {activeMobileTab === 'palette' && (
+                  {activeMobileTab === 'palette' && !allowReactions && (
+                    <div className={classes.paletteDisabledText}>
+                      To leave inline reacts, open the full post
+                    </div>
+                  )}
+                  {activeMobileTab === 'palette' && allowReactions && (
                     <UltraFeedReactionsPalette quote={null} getCurrentUserReactionVote={getCurrentUserReactionVoteMain} toggleReaction={handleToggleReactionWithClose} />
                   )}
                 </div>
@@ -298,13 +339,13 @@ const CondensedFooterReactionsMobile = (props: CondensedFooterReactionsSharedPro
 
 interface CondensedFooterReactionsProps {
   voteProps: VotingProps<VoteableTypeClient>;
-  maxIcons?: number;
+  allowReactions: boolean;
   className?: string;
 }
 
 const CondensedFooterReactions = (props: CondensedFooterReactionsProps) => {
   const classes = useStyles(styles);
-  const { voteProps, maxIcons = 3, className } = props;
+  const { voteProps, allowReactions, className } = props;
   const currentUser = useCurrentUser();
   
   const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
@@ -324,6 +365,7 @@ const CondensedFooterReactions = (props: CondensedFooterReactionsProps) => {
   ) : null;
   
   const sharedProps: CondensedFooterReactionsSharedProps = {
+    allowReactions,
     voteProps,
     classes,
     topIcon: topIconElement,
