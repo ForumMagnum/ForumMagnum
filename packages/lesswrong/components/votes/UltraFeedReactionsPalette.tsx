@@ -204,7 +204,9 @@ const UltraFeedReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, 
           reaction={reaction}
           placement={placement}
           size={18}
-          quote={quote} />;
+          quote={quote}
+          key={idx}
+        />;
       })}
     </div>
   </div>
