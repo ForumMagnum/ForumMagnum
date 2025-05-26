@@ -2,7 +2,6 @@ import React, { CSSProperties, useRef, useState } from 'react'
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import MoreHorizIcon from '@/lib/vendor/@material-ui/icons/src/MoreHoriz';
 import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
-import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from '../../../lib/analyticsEvents';
 import type { Placement as PopperPlacementType } from "popper.js"
 import { useIsAboveBreakpoint } from '../../hooks/useScreenWidth';
@@ -28,7 +27,7 @@ const styles = defineStyles("PostActionsButton", (theme: ThemeType) => ({
   },
 }));
 
-const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, className}: {
+const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, className, ActionsComponent}: {
   post: PostsList|SunshinePostsList,
   vertical?: boolean,
   popperGap?: number,
@@ -36,12 +35,12 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
   flip?: boolean,
   includeBookmark?: boolean,
   className?: string,
+  ActionsComponent?: React.ComponentType<any>,
 }) => {
   const classes = useStyles(styles);
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const {captureEvent} = useTracking();
-  const currentUser = useCurrentUser();
 
   // This is fine with SSR because the popper will only be rendered after use
   // interaction
@@ -68,6 +67,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
   }
 
   const Icon = vertical ? MoreVertIcon : MoreHorizIcon
+  const MenuComponent = ActionsComponent ?? PostActions;
   return <div className={classNames(classes.root, className)}>
     <div ref={anchorEl}>
       <Icon className={classes.icon} onClick={(ev: React.MouseEvent) => handleSetOpen(!isOpen)}/>
@@ -82,7 +82,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
     >
       {/*FIXME: ClickAwayListener doesn't handle portals correctly, which winds up making submenus inoperable. But we do still need clickaway to close.*/}
       <LWClickAwayListener onClickAway={() => handleSetOpen(false)}>
-        <PostActions post={post} closeMenu={() => handleSetOpen(false)} includeBookmark={includeBookmark} />
+        <MenuComponent post={post} closeMenu={() => handleSetOpen(false)} includeBookmark={includeBookmark} />
       </LWClickAwayListener>
     </PopperCard>
   </div>
