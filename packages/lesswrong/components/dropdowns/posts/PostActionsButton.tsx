@@ -27,6 +27,12 @@ const styles = defineStyles("PostActionsButton", (theme: ThemeType) => ({
   },
 }));
 
+interface PostActionsComponentProps {
+  post: PostsList | SunshinePostsList;
+  closeMenu: () => void;
+  includeBookmark?: boolean;
+}
+
 const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, className, ActionsComponent}: {
   post: PostsList|SunshinePostsList,
   vertical?: boolean,
@@ -35,7 +41,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
   flip?: boolean,
   includeBookmark?: boolean,
   className?: string,
-  ActionsComponent?: React.ComponentType<any>,
+  ActionsComponent?: React.ComponentType<PostActionsComponentProps>,
 }) => {
   const classes = useStyles(styles);
   const anchorEl = useRef<HTMLDivElement | null>(null);
