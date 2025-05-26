@@ -1,5 +1,4 @@
 import React, { FC, ReactElement, MouseEvent, PropsWithChildren, ReactNode } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import ForumIcon, { ForumIconName } from "../common/ForumIcon";
 import ListItemIcon from "@/lib/vendor/@material-ui/core/src/ListItemIcon";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -9,8 +8,9 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 import { MenuItem } from "../common/Menus";
 import Loading from "../vulcan-core/Loading";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("DropdownItem", (theme: ThemeType) => ({
   root: {
     ...(isFriendlyUI && {
       "&:hover": {
@@ -58,28 +58,7 @@ const styles = (theme: ThemeType) => ({
   tooltip: {
     display: "block",
   },
-});
-
-export type DropdownItemAction = {
-  onClick: (event: MouseEvent) => void | Promise<void>,
-  to?: never,
-} | {
-  onClick?: never,
-  to: HashLinkProps["to"],
-}
-
-export type DropdownItemProps = DropdownItemAction & {
-  title: ReactNode,
-  sideMessage?: string,
-  icon?: ForumIconName | (() => ReactElement),
-  iconClassName?: string,
-  menuItemClassName?: string,
-  afterIcon?: ForumIconName | (() => ReactElement),
-  tooltip?: string,
-  disabled?: boolean,
-  loading?: boolean,
-  rawLink?: boolean,
-}
+}));
 
 const DummyWrapper: FC<PropsWithChildren<{className?: string}>> = ({className, children}) =>
   <div className={className}>{children}</div>;
@@ -93,7 +72,7 @@ const RawLink: FC<PropsWithChildren<{
   </a>
 );
 
-const DropdownItem = ({
+export const DropdownItem = ({
   title,
   sideMessage,
   onClick,
@@ -106,10 +85,23 @@ const DropdownItem = ({
   disabled,
   loading,
   rawLink,
-  classes,
-}: DropdownItemProps & {classes: ClassesType<typeof styles>}) => {
+}: {
+  title: ReactNode,
+  sideMessage?: string,
+  icon?: ForumIconName | (() => ReactElement),
+  iconClassName?: string,
+  menuItemClassName?: string,
+  afterIcon?: ForumIconName | (() => ReactElement),
+  tooltip?: string,
+  disabled?: boolean,
+  loading?: boolean,
+  rawLink?: boolean,
+  onClick?: (event: MouseEvent) => void | Promise<void>,
+  to?: HashLinkProps["to"],
+}) => {
   const LinkWrapper = to ? rawLink ? RawLink : Link : DummyWrapper;
   const TooltipWrapper = tooltip ? LWTooltip : DummyWrapper;
+  const classes = useStyles(styles);
   return (
     <LinkWrapper to={to!} className={classes.root}>
       <TooltipWrapper title={tooltip!} className={classes.tooltip}>
@@ -147,10 +139,4 @@ const DropdownItem = ({
   );
 }
 
-export default registerComponent(
-  "DropdownItem",
-  DropdownItem,
-  {styles},
-);
-
-
+export default DropdownItem;
