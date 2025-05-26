@@ -37,7 +37,6 @@ const NotifyMeDropdownItemInternal: FC<NotifyMeDropdownItemInternalProps> = ({
       title={message}
       onClick={onSubscribe}
       icon={isSubscribed ? "Bell" : "BellBorder"}
-      loading={loading}
       tooltip={tooltip}
     />
   );

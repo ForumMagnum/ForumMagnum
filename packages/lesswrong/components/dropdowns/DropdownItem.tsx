@@ -72,6 +72,12 @@ const RawLink: FC<PropsWithChildren<{
   </a>
 );
 
+/**
+ * Dropdown item, for use in menus such as the triple-dot menus on posts
+ * and comments. Note that menus are positioned based on size immediately
+ * after opening, so you should avoid loading states that make menu items
+ * significantly narrower than they will be when loaded.
+ */
 export const DropdownItem = ({
   title,
   sideMessage,
@@ -94,6 +100,12 @@ export const DropdownItem = ({
   afterIcon?: ForumIconName | (() => ReactElement),
   tooltip?: string,
   disabled?: boolean,
+  /**
+   * Replaces the menu item with a loading indicator. This should ONLY be used
+   * to indicate an action is in progress, that started after the menu has
+   * already opened; if the contents of a menu start out in a loading state,
+   * then its width will change and this may lead to it being awkwardly partly
+   * off-screen. */
   loading?: boolean,
   rawLink?: boolean,
   onClick?: (event: MouseEvent) => void | Promise<void>,
