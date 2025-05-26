@@ -3,10 +3,8 @@ import React, { useCallback } from "react";
 import DropdownMenu from "../dropdowns/DropdownMenu";
 import DropdownItem from "../dropdowns/DropdownItem";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import PostSubscriptionsDropdownItem from "../dropdowns/posts/PostSubscriptionsDropdownItem";
 import SuggestCuratedDropdownItem from "../dropdowns/posts/SuggestCuratedDropdownItem";
-import { defineStyles } from "../hooks/useStyles";
-import { useStyles } from "../hooks/useStyles";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 import NotifyMeToggleDropdownItem from "../dropdowns/NotifyMeToggleDropdownItem";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 
@@ -54,7 +52,6 @@ const UltraFeedPostActions = ({ post, closeMenu, includeBookmark }: {
         icon="ArrowRight"
         onClick={handleOpenNewTab}
       />
-      {/* <PostSubscriptionsDropdownItem post={post} /> */}
       <SuggestCuratedDropdownItem post={post} />
     </DropdownMenu>
   );
