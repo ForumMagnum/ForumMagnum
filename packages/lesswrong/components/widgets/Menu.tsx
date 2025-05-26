@@ -39,7 +39,7 @@ export function Menu({open, anchorEl, onClose, onClick, minWidth, className, chi
         <Paper>
           {children}
         </Paper>
-     ,</LWClickAwayListener>
+      </LWClickAwayListener>
     </div>
   </MenuPopper>
 }
