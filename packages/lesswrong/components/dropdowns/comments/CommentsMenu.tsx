@@ -21,7 +21,15 @@ const styles = (_theme: ThemeType) => ({
   },
 })
 
-const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: {
+interface CommentsMenuComponentProps {
+  currentUser: UsersCurrent;
+  comment: CommentsList;
+  post?: PostsMinimumInfo;
+  tag?: TagBasicInfo | null;
+  showEdit: () => void;
+}
+
+const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon, ActionsComponent}: {
   classes: ClassesType<typeof styles>,
   className?: string,
   comment: CommentsList,
@@ -29,6 +37,7 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: 
   tag?: TagBasicInfo,
   showEdit: () => void,
   icon?: any,
+  ActionsComponent?: React.ComponentType<CommentsMenuComponentProps>,
 }) => {
   const [anchorEl, setAnchorEl] = useState<any>(null);
 
@@ -40,6 +49,8 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: 
   const { captureEvent } = useTracking({eventType: "commentMenuClicked", eventProps: {commentId: comment._id, itemType: "comment"}})
 
   if (!currentUser) return null
+
+  const MenuComponent = ActionsComponent ?? CommentActions;
 
   return (
     <>
@@ -62,7 +73,7 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: 
         anchorEl={anchorEl}
         className={classes.root}
       >
-        {everOpened && <CommentActions
+        {everOpened && <MenuComponent
           currentUser={currentUser}
           comment={comment}
           post={post}
