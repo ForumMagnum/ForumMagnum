@@ -49,7 +49,7 @@ export const graphqlRevisionQueryTypeDefs = gql`
   }
   
   type MultiRevisionOutput {
-    results: [Revision]
+    results: [Revision!]!
     totalCount: Int
   }
   

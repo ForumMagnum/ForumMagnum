@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '@/lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import sortBy from 'lodash/sortBy';
 import keyBy from 'lodash/keyBy';
@@ -14,6 +13,17 @@ import markdownItSup from "markdown-it-sup";
 import { useQuery, useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { maybeDate } from '@/lib/utils/dateUtils';
+
+const LlmConversationsFragmentMultiQuery = gql(`
+  query multiLlmConversationLlmChatWrapperQuery($selector: LlmConversationSelector, $limit: Int, $enableTotal: Boolean) {
+    llmConversations(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...LlmConversationsFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const LlmConversationsFragmentUpdateMutation = gql(`
   mutation updateLlmConversationLlmChatWrapper($selector: SelectorInput!, $data: UpdateLlmConversationDataInput!) {
@@ -174,13 +184,17 @@ const LlmChatWrapper = ({children}: {
 
   const [updateConversation] = useMutation(LlmConversationsFragmentUpdateMutation);
 
-  const { results: userLlmConversations } = useMulti({
-    collectionName: "LlmConversations",
-    fragmentName: "LlmConversationsFragment",
-    terms: { view: "llmConversationsWithUser", userId: currentUser?._id, limit: 50 }, //TODO: Figure out what to do when people have many conversations
+  const { data } = useQuery(LlmConversationsFragmentMultiQuery, {
+    variables: {
+      selector: { llmConversationsWithUser: { userId: currentUser?._id } },
+      limit: 50,
+      enableTotal: false,
+    },
     skip: !currentUser,
-    enableTotal: false,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const userLlmConversations = data?.llmConversations?.results;
 
   const userLlmConversationsDict = useMemo(() => {
     const conversationsWithMessagesArray = userLlmConversations?.map((conversation) => ({...conversation, messages: []})) 
@@ -197,11 +211,11 @@ const LlmChatWrapper = ({children}: {
 
   const [currentConversationId, setCurrentConversationId] = useState<string>();
 
-  const { data } = useQuery(LlmConversationsWithMessagesFragmentQuery, {
+  const { data: dataLlmConversationsWithMessages } = useQuery(LlmConversationsWithMessagesFragmentQuery, {
     variables: { documentId: currentConversationId },
     skip: !currentConversationId,
   });
-  const currentConversationWithMessages = data?.llmConversation?.result;
+  const currentConversationWithMessages = dataLlmConversationsWithMessages?.llmConversation?.result;
 
   const currentConversationLoading = useMemo(() => (
     !!currentConversationId && loadingConversationIds.includes(currentConversationId)

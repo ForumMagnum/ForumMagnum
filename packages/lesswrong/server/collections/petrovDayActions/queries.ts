@@ -46,7 +46,7 @@ export const graphqlPetrovDayActionQueryTypeDefs = gql`
   }
   
   type MultiPetrovDayActionOutput {
-    results: [PetrovDayAction]
+    results: [PetrovDayAction!]!
     totalCount: Int
   }
   

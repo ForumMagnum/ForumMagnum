@@ -1,7 +1,20 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import CommentsListSection from "../comments/CommentsListSection";
+import { useQuery, NetworkStatus } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CommentsListMultiQuery = gql(`
+  query multiCommentTagDiscussionSectionQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsList
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
 });
@@ -12,18 +25,34 @@ const TagDiscussionSection = ({classes, tag}: {
 }) => {
   const [highlightDate,setHighlightDate] = useState<Date|undefined>(undefined);
   
-  const { results, loadMore, loadingMore, totalCount } = useMulti({
-    skip: !tag?._id,
-    terms: {
-      view: "tagDiscussionComments",
-      tagId: tag?._id,
+  const { data, loading, fetchMore, networkStatus } = useQuery(CommentsListMultiQuery, {
+    variables: {
+      selector: { tagDiscussionComments: { tagId: tag?._id } },
       limit: 500,
+      enableTotal: true,
     },
-    collectionName: "Comments",
-    fragmentName: 'CommentsList',
+    skip: !tag?._id,
     fetchPolicy: 'cache-and-network',
-    enableTotal: true,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.comments?.results;
+
+  const { loadMore } = useLoadMore({
+    data: data?.comments,
+    loading,
+    fetchMore,
+    initialLimit: 500,
+    itemsPerPage: 10,
+    enableTotal: true,
+    resetTrigger: {
+        view: "tagDiscussionComments",
+        tagId: tag?._id,
+        limit: 500,
+      }
+  });
+  const totalCount = data?.comments?.totalCount;
+  const loadingMore = networkStatus === NetworkStatus.fetchMore;
   
   if (!results)
     return null

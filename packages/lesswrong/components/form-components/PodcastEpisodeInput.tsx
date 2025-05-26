@@ -2,15 +2,36 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import debounce from 'lodash/debounce';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { EditablePost } from '@/lib/collections/posts/helpers';
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PodcastEpisodeFullMultiQuery = gql(`
+  query multiPodcastEpisodePodcastEpisodeInputQuery($selector: PodcastEpisodeSelector, $limit: Int, $enableTotal: Boolean) {
+    podcastEpisodes(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PodcastEpisodeFull
+      }
+      totalCount
+    }
+  }
+`);
+
+const PodcastSelectMultiQuery = gql(`
+  query multiPodcastPodcastEpisodeInputQuery($selector: PodcastSelector, $limit: Int, $enableTotal: Boolean) {
+    podcasts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PodcastSelect
+      }
+      totalCount
+    }
+  }
+`);
 
 const PodcastEpisodesDefaultFragmentMutation = gql(`
   mutation createPodcastEpisodePodcastEpisodeInput($data: CreatePodcastEpisodeDataInput!) {
@@ -41,27 +62,30 @@ export const PodcastEpisodeInput = ({ field, document }: {
   const value = field.state.value ?? '';
   const { title: postTitle } = document;
 
-  const { results: podcasts = [], loading } = useMulti({
-    collectionName: 'Podcasts',
-    fragmentName: 'PodcastSelect',
-    terms: {}
+  const { data, loading } = useQuery(PodcastSelectMultiQuery, {
+    variables: {
+      selector: { default: {} },
+      limit: 10,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const podcasts = useMemo(() => data?.podcasts?.results ?? [], [data?.podcasts?.results]);
 
   const [externalEpisodeId, setExternalEpisodeId] = useState('');
 
-  const terms: PodcastEpisodesViewTerms = useMemo(
-    () => externalEpisodeId
-      ? { view: 'episodeByExternalId', externalEpisodeId }
-      : { view: 'episodeByExternalId', _id: value },
-    [externalEpisodeId, value]
-  );
-
   // If the post already has an attached episode, fetch it by _id.  Otherwise, refetch it by externalEpisodeId (only when `refetchPodcastEpisode` is called)
-  const { results: [existingPodcastEpisode] = [], refetch: refetchPodcastEpisode, loading: episodeLoading } = useMulti({
-    collectionName: 'PodcastEpisodes',
-    fragmentName: 'PodcastEpisodeFull',
-    terms,
+  const { data: dataPodcastEpisodeFull, loading: episodeLoading, refetch: refetchPodcastEpisode } = useQuery(PodcastEpisodeFullMultiQuery, {
+    variables: {
+      selector: { episodeByExternalId: externalEpisodeId ? { externalEpisodeId } : { _id: value } },
+      limit: 10,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const [existingPodcastEpisode] = useMemo(() => dataPodcastEpisodeFull?.podcastEpisodes?.results ?? [], [dataPodcastEpisodeFull?.podcastEpisodes?.results]);
 
   const [createEpisodeMutation, { data: createdEpisode }] = useMutation(PodcastEpisodesDefaultFragmentMutation);
 

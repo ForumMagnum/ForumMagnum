@@ -34,7 +34,7 @@ export const graphqlUserEagDetailQueryTypeDefs = gql`
   }
   
   type MultiUserEAGDetailOutput {
-    results: [UserEAGDetail]
+    results: [UserEAGDetail!]!
     totalCount: Int
   }
   

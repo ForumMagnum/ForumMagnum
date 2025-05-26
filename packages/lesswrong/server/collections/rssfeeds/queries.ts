@@ -34,7 +34,7 @@ export const graphqlRssfeedQueryTypeDefs = gql`
   }
   
   type MultiRSSFeedOutput {
-    results: [RSSFeed]
+    results: [RSSFeed!]!
     totalCount: Int
   }
   

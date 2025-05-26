@@ -55,7 +55,7 @@ export const graphqlForumEventQueryTypeDefs = gql`
   }
   
   type MultiForumEventOutput {
-    results: [ForumEvent]
+    results: [ForumEvent!]!
     totalCount: Int
   }
   

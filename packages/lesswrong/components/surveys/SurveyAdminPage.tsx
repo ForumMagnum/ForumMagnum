@@ -1,7 +1,6 @@
 import React, { FormEvent, useCallback, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
-import { useMulti } from "@/lib/crud/withMulti";
 import { Link } from "@/lib/reactRouterWrapper";
 import Error404 from "../common/Error404";
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -12,8 +11,31 @@ import FormatDate from "../common/FormatDate";
 import BlurredBackgroundModal from "../common/BlurredBackgroundModal";
 import EAOnboardingInput from "../ea-forum/onboarding/EAOnboardingInput";
 import LoadMore from "../common/LoadMore";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+
+const SurveyScheduleEditMultiQuery = gql(`
+  query multiSurveyScheduleSurveyAdminPageQuery($selector: SurveyScheduleSelector, $limit: Int, $enableTotal: Boolean) {
+    surveySchedules(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SurveyScheduleEdit
+      }
+      totalCount
+    }
+  }
+`);
+
+const SurveyMinimumInfoMultiQuery = gql(`
+  query multiSurveySurveyAdminPageQuery($selector: SurveySelector, $limit: Int, $enableTotal: Boolean) {
+    surveys(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SurveyMinimumInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 const SurveyMinimumInfoMutation = gql(`
   mutation createSurveySurveyAdminPage($data: CreateSurveyDataInput!) {
@@ -62,31 +84,44 @@ const SurveysEditor = ({classes}: {
   const [showCreateSurveyModal, setShowCreateSurveyModal] = useState(false);
   const [newSurveyName, setNewSurveyName] = useState("");
 
-  const {
-    results: surveys,
-    loading: loadingSurveys,
-    loadMoreProps: loadMoreSurveysProps,
-    refetch: refetchSurveys,
-  } = useMulti({
-    collectionName: "Surveys",
-    fragmentName: "SurveyMinimumInfo",
-    terms: {
-      view: "surveysByCreatedAt",
+  const { data, loading: loadingSurveys, refetch: refetchSurveys, fetchMore: fetchMoreSurveys } = useQuery(SurveyMinimumInfoMultiQuery, {
+    variables: {
+      selector: { surveysByCreatedAt: {} },
+      limit: 10,
+      enableTotal: false,
     },
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const surveys = data?.surveys?.results;
+
+  const loadMoreSurveysProps = useLoadMore({
+    data: data?.surveys,
+    loading: loadingSurveys,
+    fetchMore: fetchMoreSurveys,
+    initialLimit: 10,
+    itemsPerPage: 10,
   });
 
   const [createSurvey, { loading: loadingCreateSurvey, error: createSurveyError }] = useMutation(SurveyMinimumInfoMutation);
 
-  const {
-    results: surveySchedules,
-    loading: loadingSurveySchedules,
-    loadMoreProps: loadMoreSurveySchedulesProps,
-  } = useMulti({
-    collectionName: "SurveySchedules",
-    fragmentName: "SurveyScheduleEdit",
-    terms: {
-      view: "surveySchedulesByCreatedAt",
+  const { data: dataSurveyScheduleEdit, loading: loadingSurveySchedules, fetchMore: fetchMoreSurveySchedules } = useQuery(SurveyScheduleEditMultiQuery, {
+    variables: {
+      selector: { surveySchedulesByCreatedAt: {} },
+      limit: 10,
+      enableTotal: false,
     },
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const surveySchedules = dataSurveyScheduleEdit?.surveySchedules?.results;
+
+  const loadMoreSurveySchedulesProps = useLoadMore({
+    data: dataSurveyScheduleEdit?.surveySchedules,
+    loading: loadingSurveySchedules,
+    fetchMore: fetchMoreSurveySchedules,
+    initialLimit: 10,
+    itemsPerPage: 10,
   });
 
   const onOpenCreateSurveyModal = useCallback(() => {

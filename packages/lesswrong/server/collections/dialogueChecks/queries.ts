@@ -40,7 +40,7 @@ export const graphqlDialogueCheckQueryTypeDefs = gql`
   }
   
   type MultiDialogueCheckOutput {
-    results: [DialogueCheck]
+    results: [DialogueCheck!]!
     totalCount: Int
   }
   

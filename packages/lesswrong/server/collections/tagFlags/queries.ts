@@ -30,7 +30,7 @@ export const graphqlTagFlagQueryTypeDefs = gql`
   }
   
   type MultiTagFlagOutput {
-    results: [TagFlag]
+    results: [TagFlag!]!
     totalCount: Int
   }
   

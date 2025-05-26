@@ -1,14 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useTracking } from '@/lib/analyticsEvents';
-import { useMulti } from '@/lib/crud/withMulti';
 import classNames from 'classnames';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import type { PetrovDayActionType } from "@/lib/collections/petrovDayActions/constants";
 import PetrovWorldmapWrapper from "./PetrovWorldmapWrapper";
 import PastWarnings from "./PastWarnings";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PetrovDayActionInfoMultiQuery = gql(`
+  query multiPetrovDayActionPetrovLaunchConsoleQuery($selector: PetrovDayActionSelector, $limit: Int, $enableTotal: Boolean) {
+    petrovDayActions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PetrovDayActionInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 const PetrovDayActionInfoMutation = gql(`
   mutation createPetrovDayActionPetrovLaunchConsole($data: CreatePetrovDayActionDataInput!) {
@@ -87,16 +97,17 @@ export const PetrovLaunchConsole = ({classes, side, currentUser}: {
   const [openCodes, setOpenCodes] = useState(false)
   const [launchCode, setLaunchCode] = useState('')
 
-  const { results: petrovDayActions = [], refetch: refetchPetrovDayActions } = useMulti({
-    collectionName: 'PetrovDayActions',
-    fragmentName: 'PetrovDayActionInfo',
-    terms: {
-      view: 'launchDashboard',
-      side: side,
-      limit: 200
+  const { data, refetch: refetchPetrovDayActions } = useQuery(PetrovDayActionInfoMultiQuery, {
+    variables: {
+      selector: { launchDashboard: { side: side } },
+      limit: 200,
+      enableTotal: false,
     },
-    skip: !currentUser
-  })
+    skip: !currentUser,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const petrovDayActions = data?.petrovDayActions?.results ?? [];
   const petrovReportActionTypes: PetrovDayActionType[] = side === 'east' ? ['eastPetrovAllClear', 'eastPetrovNukesIncoming'] : ['westPetrovAllClear', 'westPetrovNukesIncoming']
   // const petrovReports = petrovDayActions.filter((action) => petrovReportActionTypes.includes(action.actionType))
 
@@ -124,7 +135,7 @@ export const PetrovLaunchConsole = ({classes, side, currentUser}: {
   useEffect(() => {
     const interval = setInterval(() => {
       if (currentUser) {
-        refetchPetrovDayActions();
+        void refetchPetrovDayActions();
       }
     }, 30000);
     return () => clearInterval(interval);

@@ -39,7 +39,7 @@ export const graphqlMessageQueryTypeDefs = gql`
   }
   
   type MultiMessageOutput {
-    results: [Message]
+    results: [Message!]!
     totalCount: Int
   }
   

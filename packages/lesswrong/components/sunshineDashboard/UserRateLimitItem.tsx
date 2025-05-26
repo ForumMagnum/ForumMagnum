@@ -1,7 +1,6 @@
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import moment from 'moment';
 import React, { useState } from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear'
 import { useForm } from '@tanstack/react-form';
@@ -20,8 +19,19 @@ import Loading from "../vulcan-core/Loading";
 import MetaInfo from "../common/MetaInfo";
 import LWTooltip from "../common/LWTooltip";
 import { withDateFields } from '@/lib/utils/dateUtils';
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UserRateLimitDisplayMultiQuery = gql(`
+  query multiUserRateLimitUserRateLimitItemQuery($selector: UserRateLimitSelector, $limit: Int, $enableTotal: Boolean) {
+    userRateLimits(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UserRateLimitDisplay
+      }
+      totalCount
+    }
+  }
+`);
 
 const UserRateLimitsDefaultFragmentUpdateMutation = gql(`
   mutation updateUserRateLimitUserRateLimitItem1($selector: SelectorInput!, $data: UpdateUserRateLimitDataInput!) {
@@ -379,11 +389,16 @@ export const UserRateLimitItem = ({ userId, classes }: {
   const [createNewRateLimit, setCreateNewRateLimit] = useState(false);
   const [editingExistingRateLimitId, setEditingExistingRateLimitId] = useState<string>();
 
-  const { results: existingRateLimits, refetch } = useMulti({
-    collectionName: 'UserRateLimits',
-    fragmentName: 'UserRateLimitDisplay',
-    terms: { view: 'userRateLimits', userIds: [userId], active: true }
+  const { data, refetch } = useQuery(UserRateLimitDisplayMultiQuery, {
+    variables: {
+      selector: { userRateLimits: { userIds: [userId], active: true } },
+      limit: 10,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const existingRateLimits = data?.userRateLimits?.results;
 
   const [create] = useMutation(UserRateLimitsDefaultFragmentMutation);
 

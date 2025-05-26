@@ -1,6 +1,6 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { UseMultiResult } from "../../lib/crud/withMulti";
+import type { LoadMoreProps } from "../../lib/crud/withMulti";
 import FriendlyConversationItem from "./FriendlyConversationItem";
 import Loading from "../vulcan-core/Loading";
 import SectionFooter from "../common/SectionFooter";
@@ -21,7 +21,11 @@ const FriendlyInboxNavigation = ({
   setSelectedConversationId,
   classes,
 }: {
-  conversationsResult: UseMultiResult<"ConversationsListWithReadStatus">;
+  conversationsResult: {
+    results: ConversationsListWithReadStatus[];
+    loading: boolean;
+    loadMoreProps: LoadMoreProps;
+  };
   currentUser: UsersCurrent;
   title?: React.JSX.Element | string;
   selectedConversationId: string | undefined;

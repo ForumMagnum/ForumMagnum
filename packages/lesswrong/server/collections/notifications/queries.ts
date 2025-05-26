@@ -48,7 +48,7 @@ export const graphqlNotificationQueryTypeDefs = gql`
   }
   
   type MultiNotificationOutput {
-    results: [Notification]
+    results: [Notification!]!
     totalCount: Int
   }
   

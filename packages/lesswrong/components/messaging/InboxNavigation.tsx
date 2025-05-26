@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import qs from 'qs'
 import { isLWorAF } from '../../lib/instanceSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
@@ -16,8 +15,20 @@ import SectionFooter from "../common/SectionFooter";
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import { Typography } from "../common/Typography";
 import LoadMore from "../common/LoadMore";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+
+const ConversationsListMultiQuery = gql(`
+  query multiConversationInboxNavigationQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
+    conversations(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ConversationsList
+      }
+      totalCount
+    }
+  }
+`);
 
 const ConversationsListUpdateMutation = gql(`
   mutation updateConversationInboxNavigation($selector: SelectorInput!, $data: UpdateConversationDataInput!) {
@@ -39,12 +50,26 @@ const InboxNavigation = ({
   const { currentRoute, query } = location;
   const navigate = useNavigate();
 
-  const { results, loading, loadMoreProps } = useMulti({
-    terms,
-    collectionName: "Conversations",
-    fragmentName: 'ConversationsList',
+  const { view, limit, ...selectorTerms } = terms;
+  const { data, loading, fetchMore } = useQuery(ConversationsListMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 50,
+      enableTotal: false,
+    },
     fetchPolicy: 'cache-and-network',
-    limit: 50,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = data?.conversations?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: data?.conversations,
+    loading,
+    fetchMore,
+    initialLimit: 50,
+    itemsPerPage: 10,
+    resetTrigger: terms
   });
   
   const [updateConversation] = useMutation(ConversationsListUpdateMutation);

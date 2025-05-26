@@ -85,9 +85,7 @@ const useTagsTooltipTag = (
   hash?: string,
   skip?: boolean,
 ) => {
-  const {tag: loadedTag, loading} = useTagPreview(tagSlug ?? "", hash, {
-    skip: skip || !!tag,
-  });
+  const {tag: loadedTag, loading} = useTagPreview(tagSlug ?? "", hash, skip || !!tag);
 
   if (tag) {
     return {

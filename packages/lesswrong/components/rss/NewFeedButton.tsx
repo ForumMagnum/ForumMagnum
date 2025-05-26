@@ -1,7 +1,6 @@
 import React from 'react';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '../common/withUser';
-import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
@@ -12,8 +11,19 @@ import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm
 import Loading from "../vulcan-core/Loading";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import MetaInfo from "../common/MetaInfo";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const RSSFeedMinimumInfoMultiQuery = gql(`
+  query multiRSSFeedNewFeedButtonQuery($selector: RSSFeedSelector, $limit: Int, $enableTotal: Boolean) {
+    rSSFeeds(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...RSSFeedMinimumInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 const newRSSFeedFragmentMutation = gql(`
   mutation createRSSFeedNewFeedButton($data: CreateRSSFeedDataInput!) {
@@ -185,11 +195,16 @@ const NewFeedButton = ({classes, user, closeModal}: {
   closeModal?: any
 }) => {
   const currentUser = useCurrentUser();
-  const { results: feeds, loading } = useMulti({
-    terms: {view: "usersFeed", userId: user._id},
-    collectionName: "RSSFeeds",
-    fragmentName: "RSSFeedMinimumInfo"
+  const { data, loading } = useQuery(RSSFeedMinimumInfoMultiQuery, {
+    variables: {
+      selector: { usersFeed: { userId: user._id } },
+      limit: 10,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const feeds = data?.rSSFeeds?.results;
   
   if (currentUser) {
     return (

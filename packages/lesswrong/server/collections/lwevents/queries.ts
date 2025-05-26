@@ -47,7 +47,7 @@ export const graphqlLweventQueryTypeDefs = gql`
   }
   
   type MultiLWEventOutput {
-    results: [LWEvent]
+    results: [LWEvent!]!
     totalCount: Int
   }
   

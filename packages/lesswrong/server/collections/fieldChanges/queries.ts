@@ -30,7 +30,7 @@ export const graphqlFieldChangeQueryTypeDefs = gql`
   }
   
   type MultiFieldChangeOutput {
-    results: [FieldChange]
+    results: [FieldChange!]!
     totalCount: Int
   }
   

@@ -30,7 +30,7 @@ export const graphqlUltraFeedEventQueryTypeDefs = gql`
   }
   
   type MultiUltraFeedEventOutput {
-    results: [UltraFeedEvent]
+    results: [UltraFeedEvent!]!
     totalCount: Int
   }
   

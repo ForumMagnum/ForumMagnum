@@ -1,7 +1,30 @@
-import { useMulti } from "../../../lib/crud/withMulti";
 import { isE2E } from "../../../lib/executionEnvironment";
 import { filterNonnull } from "../../../lib/utils/typeGuardUtils";
 import keyBy from "lodash/keyBy";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UserOnboardingAuthorMultiQuery = gql(`
+  query multiUseruseSuggestedSubscriptionsQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UserOnboardingAuthor
+      }
+      totalCount
+    }
+  }
+`);
+
+const UserOnboardingTagMultiQuery = gql(`
+  query multiTaguseSuggestedSubscriptionsQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UserOnboardingTag
+      }
+      totalCount
+    }
+  }
+`);
 
 const subscribeTagIds: string[] = [
   "sWcuTyTB5dP3nas2t", // Global health and development
@@ -30,29 +53,31 @@ const subscribeUserIds: string[] = [
 ];
 
 export const useSuggestedSubscriptions = () => {
-  const {results: rawTags} = useMulti({
-    collectionName: "Tags",
-    fragmentName: "UserOnboardingTag",
-    limit: subscribeTagIds.length,
-    terms: {
-      view: "tagsByTagIds",
-      tagIds: subscribeTagIds,
+  const { data } = useQuery(UserOnboardingTagMultiQuery, {
+    variables: {
+      selector: { tagsByTagIds: { tagIds: subscribeTagIds } },
+      limit: subscribeTagIds.length,
+      enableTotal: false,
     },
     skip: isE2E,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const rawTags = data?.tags?.results;
   const tagsById = keyBy(rawTags, "_id");
   const tags = filterNonnull(subscribeTagIds.map((_id) => tagsById[_id]));
 
-  const {results: rawUsers} = useMulti({
-    collectionName: "Users",
-    fragmentName: "UserOnboardingAuthor",
-    limit: subscribeUserIds.length,
-    terms: {
-      view: "usersByUserIds",
-      userIds: subscribeUserIds,
+  const { data: dataUserOnboardingAuthor } = useQuery(UserOnboardingAuthorMultiQuery, {
+    variables: {
+      selector: { usersByUserIds: { userIds: subscribeUserIds } },
+      limit: subscribeUserIds.length,
+      enableTotal: false,
     },
     skip: isE2E,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const rawUsers = dataUserOnboardingAuthor?.users?.results;
   const usersById = keyBy(rawUsers, "_id");
   const users = filterNonnull(subscribeUserIds.map((_id) => usersById[_id]));
 

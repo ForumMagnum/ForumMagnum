@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useMulti } from '../../../lib/crud/withMulti';
 import { useQuery, useMutation } from '@apollo/client';
 import { gql } from '@/lib/generated/gql-codegen/gql';
 import { SettingsOption } from '../../../lib/collections/posts/dropdownOptions';
@@ -20,6 +19,17 @@ import LWTooltip from "../../common/LWTooltip";
 import EditDigestActionButtons from "./EditDigestActionButtons";
 import EditDigestTableRow from "./EditDigestTableRow";
 import Error404 from "../../common/Error404";
+
+const DigestsMinimumInfoMultiQuery = gql(`
+  query multiDigestEditDigestQuery($selector: DigestSelector, $limit: Int, $enableTotal: Boolean) {
+    digests(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...DigestsMinimumInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 const DigestPostsMinimumInfoUpdateMutation = gql(`
   mutation updateDigestPostEditDigest($selector: SelectorInput!, $data: UpdateDigestPostDataInput!) {
@@ -187,16 +197,17 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const currentUser = useCurrentUser()
   
   // get the digest based on the num from the URL
-  const {results} = useMulti({
-    terms: {
-      view: "findByNum",
-      num: parseInt(params.num)
+  const { data: dataDigests } = useQuery(DigestsMinimumInfoMultiQuery, {
+    variables: {
+      selector: { findByNum: { num: parseInt(params.num) } },
+      limit: 1,
+      enableTotal: false,
     },
-    collectionName: "Digests",
-    fragmentName: 'DigestsMinimumInfo',
-    limit: 1,
-    skip: !userIsAdmin(currentUser)
-  })
+    skip: !userIsAdmin(currentUser),
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = dataDigests?.digests?.results;
   const digest = results?.[0]
 
   // get the list of posts eligible for this digest

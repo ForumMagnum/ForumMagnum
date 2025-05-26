@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { styles } from './PostsPage/PostsPage';
-import { useMulti } from '@/lib/crud/withMulti';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import CompareRevisions from "../revisions/CompareRevisions";
@@ -10,6 +9,17 @@ import PostsPagePostHeader from "./PostsPage/PostsPagePostHeader";
 import RevisionComparisonNotice from "../revisions/RevisionComparisonNotice";
 import LoadingOrErrorPage from "../common/LoadingOrErrorPage";
 import ErrorPage from "../common/ErrorPage";
+
+const RevisionHistoryEntryMultiQuery = gql(`
+  query multiRevisionPostsCompareRevisionsQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
+    revisions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...RevisionHistoryEntry
+      }
+      totalCount
+    }
+  }
+`);
 
 const PostsWithNavigationQuery = gql(`
   query PostsCompareRevisions($documentId: String, $sequenceId: String) {
@@ -36,16 +46,17 @@ const PostsCompareRevisions = ({ classes }: {
   const post = data?.post?.result;
   
   // Load the after- revision
-  const { results: revisionResults, loading: loadingRevision, error: revisionError } = useMulti({
-    collectionName: "Revisions",
-    fragmentName: "RevisionHistoryEntry",
-    terms: {
-      view: "revisionByVersionNumber",
-      documentId: postId,
-      version: versionAfter,
+  const { data: dataRevisionHistoryEntry, error: revisionError, loading: loadingRevision } = useQuery(RevisionHistoryEntryMultiQuery, {
+    variables: {
+      selector: { revisionByVersionNumber: { documentId: postId, version: versionAfter } },
+      limit: 10,
+      enableTotal: false,
     },
     skip: !versionAfter,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const revisionResults = dataRevisionHistoryEntry?.revisions?.results;
   
   if (!post) {
     return <LoadingOrErrorPage loading={loadingPost} error={postError} />

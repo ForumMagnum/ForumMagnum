@@ -35,7 +35,7 @@ export const graphqlSurveyQuestionQueryTypeDefs = gql`
   }
   
   type MultiSurveyQuestionOutput {
-    results: [SurveyQuestion]
+    results: [SurveyQuestion!]!
     totalCount: Int
   }
   

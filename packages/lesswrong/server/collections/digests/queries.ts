@@ -18,7 +18,7 @@ export const graphqlDigestQueryTypeDefs = gql`
   }
   
   input DigestsFindByNumInput {
-    num: String
+    num: Int
   }
   
   input DigestSelector {
@@ -35,7 +35,7 @@ export const graphqlDigestQueryTypeDefs = gql`
   }
   
   type MultiDigestOutput {
-    results: [Digest]
+    results: [Digest!]!
     totalCount: Int
   }
   

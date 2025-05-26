@@ -17,9 +17,14 @@ export const graphqlPodcastEpisodeQueryTypeDefs = gql`
     result: PodcastEpisode
   }
   
+  input PodcastEpisodeByExternalIdInput {
+    externalEpisodeId: String
+    _id: String
+  }
+
   input PodcastEpisodeSelector {
     default: EmptyViewInput
-    episodeByExternalId: EmptyViewInput
+    episodeByExternalId: PodcastEpisodeByExternalIdInput
   }
   
   input MultiPodcastEpisodeInput {
@@ -30,7 +35,7 @@ export const graphqlPodcastEpisodeQueryTypeDefs = gql`
   }
   
   type MultiPodcastEpisodeOutput {
-    results: [PodcastEpisode]
+    results: [PodcastEpisode!]!
     totalCount: Int
   }
   

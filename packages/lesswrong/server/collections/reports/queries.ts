@@ -39,7 +39,7 @@ export const graphqlReportQueryTypeDefs = gql`
   }
   
   type MultiReportOutput {
-    results: [Report]
+    results: [Report!]!
     totalCount: Int
   }
   

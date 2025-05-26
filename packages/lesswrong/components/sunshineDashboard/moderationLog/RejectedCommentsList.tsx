@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
-import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import LoadMore from "../../common/LoadMore";
@@ -11,6 +10,20 @@ import PostsTooltip from "../../posts/PostsPreviewTooltip/PostsTooltip";
 import CommentBody from "../../comments/CommentsItem/CommentBody";
 import Row from "../../common/Row";
 import ForumIcon from "../../common/ForumIcon";
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CommentsListWithParentMetadataMultiQuery = gql(`
+  query multiCommentRejectedCommentsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsListWithParentMetadata
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   commentPadding: {
@@ -38,11 +51,24 @@ export const RejectedCommentsList = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [expanded,setExpanded] = useState(false);
-  const { results, loadMoreProps } = useMulti({
-    terms:{view: 'rejected', limit: 10},
-    collectionName: "Comments",
-    fragmentName: 'CommentsListWithParentMetadata',
-    enableTotal: false,
+  const { data, loading, fetchMore } = useQuery(CommentsListWithParentMetadataMultiQuery, {
+    variables: {
+      selector: { rejected: {} },
+      limit: 10,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = data?.comments?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: data?.comments,
+    loading,
+    fetchMore,
+    initialLimit: 10,
+    itemsPerPage: 10,
+    resetTrigger: {view: 'rejected', limit: 10}
   });
   
   return <div>

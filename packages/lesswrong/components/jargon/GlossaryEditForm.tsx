@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { useMutation, gql as graphql } from '@apollo/client';
-import { useMulti } from '@/lib/crud/withMulti';
+import { useMutation, useQuery } from '@apollo/client';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
@@ -22,6 +21,18 @@ import MetaInfo from "../common/MetaInfo";
 import EditUserJargonSettings from "./EditUserJargonSettings";
 import ForumIcon from "../common/ForumIcon";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+
+const JargonTermsMultiQuery = gql(`
+  query multiJargonTermGlossaryEditFormQuery($selector: JargonTermSelector, $limit: Int, $enableTotal: Boolean) {
+    jargonTerms(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...JargonTerms
+      }
+      totalCount
+    }
+  }
+`);
 
 const JargonTermsUpdateMutation = gql(`
   mutation updateJargonTermGlossaryEditForm1($selector: SelectorInput!, $data: UpdateJargonTermDataInput!) {
@@ -341,15 +352,29 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   const { exampleAltTerm, setExampleAltTerm } = useLocalStorageState("exampleAltTerm", getPromptExampleStorageKey, defaultExampleAltTerm);
   const { exampleDefinition, setExampleDefinition } = useLocalStorageState("exampleDefinition", getPromptExampleStorageKey, defaultExampleDefinition);
 
-  const { results: glossary = [], loadMoreProps, refetch } = useMulti({
-    terms: {
+  const { data, loading, refetch, fetchMore } = useQuery(JargonTermsMultiQuery, {
+    variables: {
+      selector: { postEditorJargonTerms: { postId: document._id } },
+      limit: 500,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const glossary = data?.jargonTerms?.results ?? [];
+
+  const loadMoreProps = useLoadMore({
+    data: data?.jargonTerms,
+    loading,
+    fetchMore,
+    initialLimit: 500,
+    itemsPerPage: 10,
+    resetTrigger: {
       view: "postEditorJargonTerms",
       postId: document._id,
       limit: 500
-    },
-    collectionName: "JargonTerms",
-    fragmentName: 'JargonTerms',
-  })
+    }
+  });
 
   const { sortedTerms, getCount } = useJargonCounts(document, glossary);
 
@@ -358,7 +383,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   const sortedApprovedTerms = nonDeletedTerms.filter((item) => item.approved);
   const sortedUnapprovedTerms = nonDeletedTerms.filter((item) => !item.approved);
 
-  const [getNewJargonTerms, { data, loading: mutationLoading, error }] = useMutation(graphql(`
+  const [getNewJargonTerms, { loading: mutationLoading, error }] = useMutation(gql(`
     mutation getNewJargonTerms($postId: String!, $glossaryPrompt: String, $examplePost: String, $exampleTerm: String, $exampleAltTerm: String, $exampleDefinition: String) {
       getNewJargonTerms(postId: $postId, glossaryPrompt: $glossaryPrompt, examplePost: $examplePost, exampleTerm: $exampleTerm, exampleAltTerm: $exampleAltTerm, exampleDefinition: $exampleDefinition) {
         ...JargonTerms
@@ -377,7 +402,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       await getNewJargonTerms({ 
         variables: { postId: document._id, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition }
       });
-      refetch();
+      void refetch();
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error(err);

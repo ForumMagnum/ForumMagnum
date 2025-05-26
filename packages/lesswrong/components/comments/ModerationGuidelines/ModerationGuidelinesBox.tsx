@@ -19,7 +19,7 @@ import ContentStyles from "../../common/ContentStyles";
 
 const PostsModerationGuidelinesQuery = gql(`
   query PostsModerationGuidelines($documentId: String) {
-    PostsModerationGuidelines: post(input: { selector: { documentId: $documentId } }) {
+    PostsModerationGuidelines: post(selector: { documentId: $documentId }) {
       result {
         ...PostsModerationGuidelines
       }
@@ -30,7 +30,7 @@ const PostsModerationGuidelinesQuery = gql(`
 
 const TagModerationGuidelinesQuery = gql(`
   query TagModerationGuidelines($documentId: String) {
-    TagModerationGuidelines: tag(input: { selector: { documentId: $documentId } }) {
+    TagModerationGuidelines: tag(selector: { documentId: $documentId }) {
       result {
         ...TagFragment
       }

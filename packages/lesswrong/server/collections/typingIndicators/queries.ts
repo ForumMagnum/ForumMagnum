@@ -29,7 +29,7 @@ export const graphqlTypingIndicatorQueryTypeDefs = gql`
   }
   
   type MultiTypingIndicatorOutput {
-    results: [TypingIndicator]
+    results: [TypingIndicator!]!
     totalCount: Int
   }
   

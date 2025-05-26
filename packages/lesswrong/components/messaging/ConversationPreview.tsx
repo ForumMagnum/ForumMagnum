@@ -1,11 +1,21 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import Loading from "../vulcan-core/Loading";
 import MessageItem from "./MessageItem";
+
+const messageListFragmentMultiQuery = gql(`
+  query multiMessageConversationPreviewQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {
+    messages(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...messageListFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 
 const ConversationsListQuery = gql(`
@@ -46,16 +56,17 @@ const ConversationPreview = ({conversationId, currentUser, classes, showTitle=tr
   });
   const conversation = data?.conversation?.result;
 
-  const { results: messages = [] } = useMulti({
-    terms: {
-      view: 'conversationPreview', 
-      conversationId: conversationId
+  const { data: dataMessageListFragment } = useQuery(messageListFragmentMultiQuery, {
+    variables: {
+      selector: { conversationPreview: { conversationId: conversationId } },
+      limit: count,
+      enableTotal: false,
     },
-    collectionName: "Messages",
-    fragmentName: 'messageListFragment',
     fetchPolicy: 'cache-and-network',
-    limit: count,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const messages = dataMessageListFragment?.messages?.results ?? [];
   
   // using a spread operator instead of naively "messages.reverse()" to avoid modifying the 
   // original array, which coud cause rendering bugs (reversing the order every time the component re-renders)

@@ -32,11 +32,11 @@ declare global {
   interface PostsViewTerms extends ViewTermsBase {
     view: PostsViewName | 'default',
     includeRelatedQuestions?: "true"|"false",
-    karmaThreshold?: number|string,
+    karmaThreshold?: number,
     meta?: boolean,
     userId?: string,
-    filter?: any,
-    filters?: any,
+    filter?: string,
+    filters?: string[],
     filterSettings?: any,
     sortBy?: ReviewSortings,
     sortByMost?: boolean,
@@ -58,9 +58,9 @@ declare global {
     legacyId?: string,
     postId?: string,
     authorIsUnreviewed?: boolean|null,
-    before?: Date|string|null,
-    after?: Date|string|null,
-    curatedAfter?: Date|string|null,
+    before?: string|null,
+    after?: string|null,
+    curatedAfter?: string|null,
     timeField?: keyof DbPost,
     postIds?: Array<string>,
     /** Fetch exactly these postIds and apply no other filters (apart from permissions checks) */
@@ -148,9 +148,9 @@ function defaultView(terms: PostsViewTerms, _: ApolloClient<NormalizedCacheObjec
   // TODO: Use default threshold in default view
   // TODO: Looks like a bug in cases where karmaThreshold = 0, because we'd
   // still want to filter.
-  if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
-    params.selector.baseScore = {$gte: parseInt(terms.karmaThreshold+"", 10)}
-    params.selector.maxBaseScore = {$gte: parseInt(terms.karmaThreshold+"", 10)}
+  if (typeof terms.karmaThreshold === 'number' && terms.karmaThreshold !== 0) {
+    params.selector.baseScore = {$gte: terms.karmaThreshold}
+    params.selector.maxBaseScore = {$gte: terms.karmaThreshold}
   }
   if (terms.excludeEvents) {
     params.selector.isEvent = false

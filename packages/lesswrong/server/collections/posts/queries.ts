@@ -24,16 +24,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostDefaultViewInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -42,16 +47,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsUserPostsInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -60,70 +70,96 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsMagicInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
     timeField: String
     curatedAfter: String
+    meta: Boolean
+    forum: Boolean
   }
   
   input PostsTopInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
     timeField: String
     curatedAfter: String
+    meta: Boolean
+    forum: Boolean
   }
   
   input PostsNewInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
     timeField: String
     curatedAfter: String
+    meta: Boolean
+    forum: Boolean
   }
   
   input PostsRecentCommentsInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -132,16 +168,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsOldInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -150,16 +191,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsTimeframeInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -169,16 +215,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsDailyInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -187,16 +238,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsTagRelevanceInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -205,16 +261,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsFrontpageInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -223,16 +284,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsFrontpageRssInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -241,16 +307,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsCuratedInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -259,16 +330,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsCuratedRssInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -277,16 +353,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsCommunityInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -295,16 +376,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsCommunityRssInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -313,16 +399,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsMetaRssInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -331,34 +422,46 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsRssInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
     timeField: String
     curatedAfter: String
+    meta: Boolean
+    forum: Boolean
   }
   
   input PostsTopQuestionsInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -367,16 +470,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsRecentQuestionActivityInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -385,16 +493,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsScheduledInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -403,16 +516,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsRejectedInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -421,38 +539,48 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsDraftsInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
     timeField: String
     curatedAfter: String
-    includeDraftEvents: String
-    includeArchived: String
-    includeShared: String
+    includeDraftEvents: Boolean
+    includeArchived: Boolean
+    includeShared: Boolean
     sortDraftsBy: String
   }
   
   input PostsAll_draftsInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -461,16 +589,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsUnlistedInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -479,16 +612,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsUserAFSubmissionsInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -497,16 +635,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsSlugPostInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -516,16 +659,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsLegacyIdPostInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -535,16 +683,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsRecentDiscussionThreadsListInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -554,16 +707,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsAfRecentDiscussionThreadsListInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -573,16 +731,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsReviewRecentDiscussionThreadsList2018Input {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -592,16 +755,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsReviewRecentDiscussionThreadsList2019Input {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -611,176 +779,215 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsGlobalEventsInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
     timeField: String
     curatedAfter: String
-    onlineEvent: String
-    eventType: String
+    onlineEvent: Boolean
+    eventType: [String!]
   }
   
   input PostsNearbyEventsInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
     timeField: String
     curatedAfter: String
-    onlineEvent: String
-    eventType: String
-    lng: String
-    lat: String
-    distance: String
-    filters: String
+    onlineEvent: Boolean
+    eventType: [String!]
+    lng: Float
+    lat: Float
+    distance: Float
+    filters: [String!]
   }
   
   input PostsEventsInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
     timeField: String
     curatedAfter: String
-    globalEvent: String
-    onlineEvent: String
-    groupId: String
+    globalEvent: Boolean
+    onlineEvent: Boolean
   }
   
   input PostsEventsInTimeRangeInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
     timeField: String
     curatedAfter: String
-    groupId: String
   }
   
   input PostsUpcomingEventsInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
     timeField: String
     curatedAfter: String
-    groupId: String
   }
   
   input PostsPastEventsInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
     timeField: String
     curatedAfter: String
-    groupId: String
   }
   
   input PostsTbdEventsInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
     timeField: String
     curatedAfter: String
-    groupId: String
   }
   
   input PostsNonEventGroupPostsInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
     timeField: String
     curatedAfter: String
-    groupId: String
   }
   
   input PostsPostsWithBannedUsersInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -789,16 +996,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsCommunityResourcePostsInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -807,16 +1019,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsSunshineNewPostsInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -825,16 +1042,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsSunshineNewUsersPostsInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -843,35 +1065,45 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsSunshineCuratedSuggestionsInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
     timeField: String
     curatedAfter: String
-    audioOnly: String
+    audioOnly: Boolean
   }
   
   input PostsHasEverDialoguedInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -880,16 +1112,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsPingbackPostsInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -899,54 +1136,69 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsNominations2018Input {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
     timeField: String
     curatedAfter: String
-    sortByMost: String
+    sortByMost: Boolean
   }
   
   input PostsNominations2019Input {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
     timeField: String
     curatedAfter: String
-    sortByMost: String
+    sortByMost: Boolean
   }
   
   input PostsReviews2018Input {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -956,16 +1208,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsReviews2019Input {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -975,16 +1232,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsVoting2019Input {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -994,16 +1256,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsStickiedInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -1012,36 +1279,46 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsNominatablePostsByVoteInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
     timeField: String
     curatedAfter: String
-    requiredUnnominated: String
-    requiredFrontpage: String
+    requiredUnnominated: Boolean
+    requiredFrontpage: Boolean
   }
   
   input PostsReviewVotingInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -1051,36 +1328,46 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsFrontpageReviewWidgetInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
     timeField: String
     curatedAfter: String
-    reviewYear: String
+    reviewYear: Int
     reviewPhase: String
   }
   
   input PostsReviewQuickPageInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -1089,16 +1376,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsReviewFinalVotingInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -1107,16 +1399,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsMyBookmarkedPostsInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -1126,16 +1423,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsAlignmentSuggestedPostsInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -1144,16 +1446,21 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input PostsCurrentOpenThreadInput {
-    postIds: String
-    notPostIds: String
-    hideCommunity: String
-    karmaThreshold: String
-    excludeEvents: String
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
     userId: String
     includeRelatedQuestions: String
     filter: String
     view: String
-    filterSettings: String
+    filterSettings: JSON
     sortedBy: String
     after: String
     before: String
@@ -1233,7 +1540,7 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   type MultiPostOutput {
-    results: [Post]
+    results: [Post!]!
     totalCount: Int
   }
   

@@ -2,7 +2,6 @@ import classNames from 'classnames';
 import React, { useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { tagGetUrl } from '../../../lib/collections/tags/helpers';
-import { useMulti } from '../../../lib/crud/withMulti';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from '@/components/posts/PostsPage/constants';
@@ -29,8 +28,30 @@ import TagTableOfContents from "../TagTableOfContents";
 import SidebarSubtagsBox from "./SidebarSubtagsBox";
 import SubforumWikiTab from "./SubforumWikiTab";
 import SubforumSubforumTab from "./SubforumSubforumTab";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UserTagRelDetailsMultiQuery = gql(`
+  query multiUserTagRelTagSubforumPage2Query($selector: UserTagRelSelector, $limit: Int, $enableTotal: Boolean) {
+    userTagRels(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UserTagRelDetails
+      }
+      totalCount
+    }
+  }
+`);
+
+const TagWithFlagsFragmentMultiQuery = gql(`
+  query multiTagTagSubforumPage2Query($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagWithFlagsFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const UserTagRelDetailsMutation = gql(`
   mutation createUserTagRelTagSubforumPage2($data: CreateUserTagRelDataInput!) {
@@ -163,12 +184,6 @@ const TagSubforumPage2 = ({classes}: {
   const contributorsLimit = 7;
   const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagPageWithRevisionFragment" : "TagPageFragment", {
     extraVariables: revision ? {
-      version: 'String',
-      contributorsLimit: 'Int',
-    } : {
-      contributorsLimit: 'Int',
-    },
-    extraVariablesValues: revision ? {
       version: revision,
       contributorsLimit,
     } : {
@@ -186,22 +201,32 @@ const TagSubforumPage2 = ({classes}: {
     //tagFlagId handled as default case below
   }
 
-  const { results: otherTagsWithNavigation } = useMulti({
-    terms: ["allPages", "myPages"].includes(query.focus) ? multiTerms[query.focus] : {view: "tagsByTagFlag", tagFlagId: query.focus},
-    collectionName: "Tags",
-    fragmentName: 'TagWithFlagsFragment',
-    limit: 1500,
-    skip: !query.flagId
-  })
+  const { view, limit, ...selectorTerms } = ["allPages", "myPages"].includes(query.focus) ? multiTerms[query.focus] : { view: "tagsByTagFlag", tagFlagId: query.focus };
+  const { data } = useQuery(TagWithFlagsFragmentMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 1500,
+      enableTotal: false,
+    },
+    skip: !query.flagId,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const otherTagsWithNavigation = data?.tags?.results;
 
   const skipUserTagRel = !tag || !currentUser
 
-  const { results: userTagRelResults, loading: userTagRelLoading } = useMulti({
-    terms: { view: "single", tagId: tag?._id, userId: currentUser?._id },
-    collectionName: "UserTagRels",
-    fragmentName: "UserTagRelDetails",
-    skip: skipUserTagRel
+  const { data: dataUserTagRelDetails, loading: userTagRelLoading } = useQuery(UserTagRelDetailsMultiQuery, {
+    variables: {
+      selector: { single: { tagId: tag?._id, userId: currentUser?._id } },
+      limit: 10,
+      enableTotal: false,
+    },
+    skip: skipUserTagRel,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const userTagRelResults = dataUserTagRelDetails?.userTagRels?.results;
 
   const [createUserTagRel, { data: createdUserTagRelData, called: createUserTagRelCalled }] = useMutation(UserTagRelDetailsMutation);
 

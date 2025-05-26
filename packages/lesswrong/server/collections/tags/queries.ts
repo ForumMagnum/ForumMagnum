@@ -105,6 +105,7 @@ export const graphqlTagQueryTypeDefs = gql`
   
   input TagsPingbackWikiPagesInput {
     excludedTagIds: [String!]
+    tagId: String
   }
   
   input TagSelector  {
@@ -139,7 +140,7 @@ export const graphqlTagQueryTypeDefs = gql`
   }
   
   type MultiTagOutput {
-    results: [Tag]
+    results: [Tag!]!
     totalCount: Int
   }
   

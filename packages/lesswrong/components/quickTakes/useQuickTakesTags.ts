@@ -1,8 +1,20 @@
 import { useCallback, useState } from "react";
-import { useMulti } from "../../lib/crud/withMulti";
 import type { ChecklistTag } from "../tagging/TagsChecklist";
 import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const TagPreviewFragmentMultiQuery = gql(`
+  query multiTaguseQuickTakesTagsQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagPreviewFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const filterDefined = <T>(values: (T | null | undefined)[]): T[] =>
   values.filter((value) => value !== null && value !== undefined) as T[];
@@ -52,15 +64,17 @@ export const useQuickTakesTags = (initialSelectedTagIds: string[] = []): QuickTa
 
   const {currentForumEvent} = useCurrentAndRecentForumEvents();
 
-  const {results, loading} = useMulti({
-    terms: {
-      view: "coreAndSubforumTags",
+  const { data, loading } = useQuery(TagPreviewFragmentMultiQuery, {
+    variables: {
+      selector: { coreAndSubforumTags: {} },
+      limit: 100,
+      enableTotal: false,
     },
-    collectionName: "Tags",
-    fragmentName: "TagPreviewFragment",
-    limit: 100,
     skip: !quickTakesTagsEnabledSetting.get(),
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.tags?.results;
 
   const tags: QuickTakesTag[] = [
     FRONTPAGE_DUMMY_TAG,

@@ -34,7 +34,7 @@ export const graphqlDialogueMatchPreferenceQueryTypeDefs = gql`
   }
   
   type MultiDialogueMatchPreferenceOutput {
-    results: [DialogueMatchPreference]
+    results: [DialogueMatchPreference!]!
     totalCount: Int
   }
   

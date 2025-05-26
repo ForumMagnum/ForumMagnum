@@ -29,7 +29,7 @@ export const graphqlCkEditorUserSessionQueryTypeDefs = gql`
   }
   
   type MultiCkEditorUserSessionOutput {
-    results: [CkEditorUserSession]
+    results: [CkEditorUserSession!]!
     totalCount: Int
   }
   

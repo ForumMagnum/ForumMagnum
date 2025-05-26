@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import moment from 'moment-timezone';
 import { timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import { QueryLink } from '../../lib/reactRouterWrapper';
@@ -16,6 +15,20 @@ import Divider from "../common/Divider";
 import { Typography } from "../common/Typography";
 import PostsTagsList from "../tagging/PostsTagsList";
 import PostsLoading from "./PostsLoading";
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsListWithVotesMultiQuery = gql(`
+  query multiPostPostsTimeBlockQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsListWithVotes
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -130,17 +143,33 @@ const PostsTimeBlock = ({
   const displayPostsTagsList = query.limit
   const timeBlock = timeframeToTimeBlock[timeframe];
 
-  const { results: posts, totalCount, loading, loadMoreProps } = useMulti({
-    terms: {
-      ...terms,
-      before: before.toDate(),
-      after: after.toDate(),
+  const { view, ...rest } = terms;
+
+  const { data, loading, fetchMore } = useQuery(PostsListWithVotesMultiQuery, {
+    variables: {
+      selector: { [view]: { ...rest, before: before.toISOString(), after: after.toISOString() } },
+      limit: 10,
+      enableTotal: true,
     },
-    collectionName: "Posts",
-    fragmentName: 'PostsListWithVotes',
-    enableTotal: true,
-    itemsPerPage: 50,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const posts = data?.posts?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: data?.posts,
+    loading,
+    fetchMore,
+    initialLimit: 10,
+    itemsPerPage: 50,
+    enableTotal: true,
+    resetTrigger: {
+      ...terms,
+      before: before.toISOString(),
+      after: after.toISOString(),
+    }
+  });
+  const totalCount = data?.posts?.totalCount;
 
   const filteredPosts = tagFilter ? filter(posts, post => post.tags.map(tag=>tag._id).includes(tagFilter)) : posts
 

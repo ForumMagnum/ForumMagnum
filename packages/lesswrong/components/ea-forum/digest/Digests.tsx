@@ -1,12 +1,24 @@
 import React, { Fragment } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../../common/withUser';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import { getDigestInfo } from '../../../lib/collections/digests/helpers';
 import Error404 from "../../common/Error404";
 import SectionTitle from "../../common/SectionTitle";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const DigestsMinimumInfoMultiQuery = gql(`
+  query multiDigestDigestsQuery($selector: DigestSelector, $limit: Int, $enableTotal: Boolean) {
+    digests(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...DigestsMinimumInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -30,15 +42,17 @@ const styles = (theme: ThemeType) => ({
 
 const Digests = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const currentUser = useCurrentUser()
-  const { results } = useMulti({
-    terms: {
-      view: "all"
+  const { data } = useQuery(DigestsMinimumInfoMultiQuery, {
+    variables: {
+      selector: { all: {} },
+      limit: 100,
+      enableTotal: false,
     },
-    collectionName: "Digests",
-    fragmentName: 'DigestsMinimumInfo',
-    limit: 100,
-    skip: !userIsAdmin(currentUser)
-  })
+    skip: !userIsAdmin(currentUser),
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = data?.digests?.results;
   if (!userIsAdmin(currentUser)) {
     return <Error404 />
   }

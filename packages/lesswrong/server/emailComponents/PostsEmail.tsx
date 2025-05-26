@@ -1,5 +1,4 @@
 import React from 'react';
-import { useMulti } from '@/lib/crud/withMulti';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { postGetPageUrl, postGetLink, postGetLinkTarget } from '../../lib/collections/posts/helpers';
 import { truncatise } from '@/lib/truncatise';
@@ -11,6 +10,19 @@ import { EmailContentItemBody } from './EmailContentItemBody';
 import { EmailFooterRecommendations } from './EmailFooterRecommendations';
 import { EmailPostDate } from './EmailPostDate';
 import ContentStyles from '@/components/common/ContentStyles';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsRevisionMultiQuery = gql(`
+  query multiPostPostsEmailQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean, $version: String) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsRevision
+      }
+      totalCount
+    }
+  }
+`);
 
 const getPodcastInfoElement = (podcastEpisode: Exclude<PostsDetails['podcastEpisode'], null>) => {
   const { podcast: { applePodcastLink, spotifyPodcastLink }, episodeLink, externalEpisodeId } = podcastEpisode;
@@ -121,11 +133,16 @@ function PostsEmailInner({
   hideRecommendations?: boolean;
 }) {
   const classes = useStyles(styles);
-  const { results: posts } = useMulti({
-    collectionName: "Posts",
-    fragmentName: "PostsRevision",
-    terms: { exactPostIds: postIds, view: 'default' },
+  const { data } = useQuery(PostsRevisionMultiQuery, {
+    variables: {
+      selector: { default: { exactPostIds: postIds } },
+      limit: 10,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const posts = data?.posts?.results;
 
   if (!posts || posts.length === 0) {
     return null;

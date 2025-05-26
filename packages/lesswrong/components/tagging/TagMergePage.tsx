@@ -6,7 +6,7 @@ import { taggingNameCapitalSetting, taggingNameSetting } from "../../lib/instanc
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import { Link } from "../../lib/reactRouterWrapper";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
-import { gql as graphql, useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { useMessages } from "../common/withMessages";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import TagsSearchAutoComplete from "../search/TagsSearchAutoComplete";
@@ -85,7 +85,7 @@ const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const [transferSubtags, setTransferSubtags] = useState<boolean>(true);
   const [redirectSource, setDeleteSource] = useState<boolean>(false);
 
-  const [mergeTags, {loading: mutationLoading}] = useMutation(graphql`
+  const [mergeTags, {loading: mutationLoading}] = useMutation(gql(`
     mutation mergeTags(
       $sourceTagId: String!
       $targetTagId: String!
@@ -99,7 +99,7 @@ const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
         redirectSource: $redirectSource
       )
     }
-  `);
+  `));
 
   const { loading: sourceTagLoading, refetch: refetchSource, data } = useQuery(TagFragmentQuery, {
     variables: { documentId: sourceTagId ?? "" },
@@ -116,6 +116,10 @@ const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const targetTag = dataTarget?.tag?.result;
 
   const onSubmit = useCallback(async () => {
+    if (!sourceTagId || !targetTagId) {
+      flash({ messageString: "Please select a source and target tag" });
+      return;
+    }
     try {
       await mergeTags({ variables: { sourceTagId, targetTagId, transferSubtags, redirectSource } });
 

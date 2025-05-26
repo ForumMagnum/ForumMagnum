@@ -29,7 +29,7 @@ export const graphqlSplashArtCoordinateQueryTypeDefs = gql`
   }
   
   type MultiSplashArtCoordinateOutput {
-    results: [SplashArtCoordinate]
+    results: [SplashArtCoordinate!]!
     totalCount: Int
   }
   

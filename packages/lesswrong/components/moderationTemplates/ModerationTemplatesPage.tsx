@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { userCanDo } from "../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
-import {useMulti} from "../../lib/crud/withMulti";
 import { ALLOWABLE_COLLECTIONS, TemplateType } from "@/lib/collections/moderationTemplates/constants";
 import classNames from 'classnames';
 import { registerComponent } from "../../lib/vulcan-lib/components";
@@ -14,6 +13,19 @@ import Loading from "../vulcan-core/Loading";
 import Row from "../common/Row";
 import ToCColumn from "../posts/TableOfContents/ToCColumn";
 import TableOfContents from "../posts/TableOfContents/TableOfContents";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const ModerationTemplateFragmentMultiQuery = gql(`
+  query multiModerationTemplateModerationTemplatesPageQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
+    moderationTemplates(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ModerationTemplateFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   form: {
@@ -44,14 +56,16 @@ export const ModerationTemplatesPage = ({classes}: {
   const [showDeleted, setShowDeleted] = useState<boolean>(false);
   const [filter, setFilter] = useState<TemplateType|null>(null);
   
-  const { results: moderationTemplates = [], loading } = useMulti({
-    collectionName: 'ModerationTemplates',
-    fragmentName: 'ModerationTemplateFragment',
-    terms: {
-      view: "moderationTemplatesPage",
-      limit: 100
-    }
+  const { data, loading } = useQuery(ModerationTemplateFragmentMultiQuery, {
+    variables: {
+      selector: { moderationTemplatesPage: {} },
+      limit: 100,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const moderationTemplates = data?.moderationTemplates?.results ?? [];
   
   if (!userCanDo(currentUser, 'moderationTemplates.edit.all')) return null
   

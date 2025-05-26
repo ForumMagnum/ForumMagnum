@@ -1,10 +1,22 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { hasGoogleDocImportSetting } from '../../lib/publicSettings';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const GoogleServiceAccountSessionAdminInfoMultiQuery = gql(`
+  query multiGoogleServiceAccountSessionSunshineGoogleServiceAccountQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {
+    googleServiceAccountSessions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...GoogleServiceAccountSessionAdminInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -27,13 +39,17 @@ const SunshineGoogleServiceAccount = ({ classes }: {
 }) => {
   const currentUser = useCurrentUser();
 
-  const { results: serviceAccounts, loading } = useMulti({
-    terms: {},
-    collectionName: "GoogleServiceAccountSessions",
-    fragmentName: 'GoogleServiceAccountSessionAdminInfo',
-    enableTotal: false,
+  const { data, loading } = useQuery(GoogleServiceAccountSessionAdminInfoMultiQuery, {
+    variables: {
+      selector: { default: {} },
+      limit: 10,
+      enableTotal: false,
+    },
     skip: !hasGoogleDocImportSetting.get(),
-  })
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const serviceAccounts = data?.googleServiceAccountSessions?.results;
   const estimatedExpiry = serviceAccounts?.[0]?.estimatedExpiry
 
   const shouldWarn = !estimatedExpiry || (new Date(estimatedExpiry).getTime() - Date.now()) < WARN_THRESHOLD

@@ -34,7 +34,7 @@ export const graphqlPostRelationQueryTypeDefs = gql`
   }
   
   type MultiPostRelationOutput {
-    results: [PostRelation]
+    results: [PostRelation!]!
     totalCount: Int
   }
   

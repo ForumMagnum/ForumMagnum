@@ -39,7 +39,7 @@ export const graphqlBookmarkQueryTypeDefs = gql`
   }
 
   type MultiBookmarkOutput {
-    results: [Bookmark]
+    results: [Bookmark!]!
     totalCount: Int
   }
 

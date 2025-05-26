@@ -39,7 +39,7 @@ export const graphqlTagRelQueryTypeDefs = gql`
   }
   
   type MultiTagRelOutput {
-    results: [TagRel]
+    results: [TagRel!]!
     totalCount: Int
   }
   

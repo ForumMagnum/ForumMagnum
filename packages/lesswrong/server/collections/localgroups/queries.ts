@@ -19,53 +19,53 @@ export const graphqlLocalgroupQueryTypeDefs = gql`
   
   input LocalgroupDefaultViewInput {
     filters: String
-    includeInactive: String
+    includeInactive: Boolean
   }
   
   input LocalgroupsUserOrganizesGroupsInput {
     filters: String
-    includeInactive: String
+    includeInactive: Boolean
     userId: String
   }
   
   input LocalgroupsUserActiveGroupsInput {
     filters: String
-    includeInactive: String
+    includeInactive: Boolean
     userId: String
   }
   
   input LocalgroupsUserInactiveGroupsInput {
     filters: String
-    includeInactive: String
+    includeInactive: Boolean
     userId: String
   }
   
   input LocalgroupsAllInput {
     filters: String
-    includeInactive: String
+    includeInactive: Boolean
   }
   
   input LocalgroupsNearbyInput {
     filters: String
-    includeInactive: String
+    includeInactive: Boolean
     lng: String
     lat: String
   }
   
   input LocalgroupsSingleInput {
     filters: String
-    includeInactive: String
+    includeInactive: Boolean
     groupId: String
   }
   
   input LocalgroupsLocalInput {
     filters: String
-    includeInactive: String
+    includeInactive: Boolean
   }
   
   input LocalgroupsOnlineInput {
     filters: String
-    includeInactive: String
+    includeInactive: Boolean
   }
   
   input LocalgroupSelector  {
@@ -88,7 +88,7 @@ export const graphqlLocalgroupQueryTypeDefs = gql`
   }
   
   type MultiLocalgroupOutput {
-    results: [Localgroup]
+    results: [Localgroup!]!
     totalCount: Int
   }
   

@@ -29,7 +29,7 @@ export const graphqlDigestPostQueryTypeDefs = gql`
   }
   
   type MultiDigestPostOutput {
-    results: [DigestPost]
+    results: [DigestPost!]!
     totalCount: Int
   }
   

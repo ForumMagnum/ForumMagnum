@@ -1,10 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import ForumIcon from "../common/ForumIcon";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UserMostValuablePostInfoMultiQuery = gql(`
+  query multiUserMostValuablePostPostMostValuableCheckboxQuery($selector: UserMostValuablePostSelector, $limit: Int, $enableTotal: Boolean) {
+    userMostValuablePosts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UserMostValuablePostInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 const UserMostValuablePostInfoUpdateMutation = gql(`
   mutation updateUserMostValuablePostPostMostValuableCheckbox($selector: SelectorInput!, $data: UpdateUserMostValuablePostDataInput!) {
@@ -47,12 +57,16 @@ export const PostMostValuableCheckbox = ({post, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
-  const { results, loading } = useMulti({
-    terms: {view: "currentUserPost", postId: post._id},
-    collectionName: "UserMostValuablePosts",
-    fragmentName: "UserMostValuablePostInfo",
-    limit: 1,
-  })
+  const { data, loading } = useQuery(UserMostValuablePostInfoMultiQuery, {
+    variables: {
+      selector: { currentUserPost: { postId: post._id } },
+      limit: 1,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = data?.userMostValuablePosts?.results;
   const userVote = results?.length ? results[0] : null
   
   const [createMostValuable, { loading: createMostValuableLoading }] = useMutation(UserMostValuablePostInfoMutation);

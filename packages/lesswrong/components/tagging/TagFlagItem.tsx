@@ -1,5 +1,4 @@
 import React from "react"
-import { useMulti } from "../../lib/crud/withMulti";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from 'classnames';
 import { useHover } from "../common/withHover";
@@ -12,6 +11,17 @@ import { gql } from "@/lib/generated/gql-codegen/gql";
 import LWPopper from "../common/LWPopper";
 import ContentItemBody from "../common/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
+
+const TagWithFlagsFragmentMultiQuery = gql(`
+  query multiTagTagFlagItemQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagWithFlagsFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const TagFlagFragmentQuery = gql(`
   query TagFlagItem($documentId: String) {
@@ -71,14 +81,17 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
     tagFlagId: {view: "tagsByTagFlag", tagFlagId: tagFlag?._id}
   }
   
-  const { totalCount, loading } = useMulti({
-    terms: TagFlagItemTerms[itemType],
-    collectionName: "Tags",
-    fragmentName: "TagWithFlagsFragment",
-    limit: 0,
+  const { view, limit, ...selectorTerms } = TagFlagItemTerms[itemType];
+  const { data: dataTagWithFlags, loading } = useQuery(TagWithFlagsFragmentMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 0,
+      enableTotal: true,
+    },
     skip: !showNumber,
-    enableTotal: true
+    notifyOnNetworkStatusChange: true,
   });
+  const totalCount = dataTagWithFlags?.tags?.totalCount;
   
   const rootStyles = classNames(classes.root, {[classes.black]: style === "black", [classes.white]: style === "white"});
   

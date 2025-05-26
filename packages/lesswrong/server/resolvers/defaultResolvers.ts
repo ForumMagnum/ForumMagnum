@@ -89,13 +89,16 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
         resolverArgs?: Record<string, unknown>,
       },
       selector?: Record<string, Omit<ViewTermsBase, 'view'> & Record<string, unknown>>,
+      limit?: number,
+      offset?: number,
+      enableTotal?: boolean,
       [resolverArgKeys: string]: unknown
     },
     context: ResolverContext,
     info: GraphQLResolveInfo,
-  ) => {
+  ): Promise<{ results: Partial<T>[]; totalCount?: number }> => {
     const collection = context[collectionName] as CollectionBase<N>;
-    const { input, selector } = args ?? { input: {} };
+    const { input, selector, limit, offset, enableTotal } = args ?? { input: {} };
 
     // We used to handle selector terms just using a generic "terms" object, but now we use a more structured approach
     // with multiple named views. This translates this new input format into the old one.
@@ -103,7 +106,8 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     const selectorTerms = { view: selectorViewName === 'default' ? undefined : selectorViewName, ...selectorViewTerms } as ViewTermsBase & Record<string, unknown>;
 
     // Use the legacy input terms if `input` is provided; otherwise use the new selector terms
-    const { terms = selectorTerms, enableTotal = false, resolverArgs = {} } = input ?? {};
+    // const { terms = selectorTerms, enableTotal = false } = input ?? {};
+    const terms = input?.terms ?? { ...selectorTerms, limit, offset };
     const logger = loggerConstructor(`views-${collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
     logger('multi resolver()')
     logger('multi terms', terms)
@@ -128,7 +132,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
         return false;
       }
 
-      return !isEqual(terms[termKey], otherQueryVariables[termKey]);
+      return !isEqual(terms[termKey as keyof typeof terms], otherQueryVariables[termKey as keyof typeof otherQueryVariables]);
     });
 
     if (conflictingKeys.length) {
@@ -205,7 +209,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     // prime the cache
     restrictedDocs.forEach((doc: AnyBecauseTodo) => context.loaders[collectionName].prime(doc._id, doc));
 
-    const data: any = { results: restrictedDocs };
+    const data: { results: Partial<T>[]; totalCount?: number } = { results: restrictedDocs };
 
     if (enableTotal) {
       // get total count of documents matching the selector
@@ -223,17 +227,17 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
 
   const singleResolver = async (
     _root: void,
-    {input = {}}: {input: AnyBecauseTodo},
+    { input = {}, selector, allowNull = false }: { input: AnyBecauseTodo, selector?: SelectorInput, allowNull?: boolean },
     context: ResolverContext,
     info: GraphQLResolveInfo,
   ) => {
     const collection = context[collectionName] as CollectionBase<N>;
-    const { resolverArgs } = input;
+    const { input: _input, selector: _selector, ...otherQueryVariables } = info.variableValues;
     // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
     // it has none of the methods you would usually associate with objects like `toString`. This causes various problems
     // down the line. See https://stackoverflow.com/questions/56298481/how-to-fix-object-null-prototype-title-product
     // So we copy it here to give it back those methoods
-    const selector = {...(input.selector || {})}
+    const usedSelector = { ...(input.selector ?? selector ?? {}) };
 
     const logger = loggerConstructor(`resolvers-${collectionName.toLowerCase()}`)
     const {logGroupStart, logGroupEnd} = logGroupConstructor(`resolvers-${collectionName.toLowerCase()}`)
@@ -241,16 +245,16 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     logGroupStart(
       `--------------- start \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`
     );
-    logger(`Selector: ${JSON.stringify(selector)}`);
+    logger(`Selector: ${JSON.stringify(usedSelector)}`);
 
-    const { currentUser }: {currentUser: DbUser|null} = context;
+    const { currentUser } = context;
 
     // useSingle allows passing in `_id` as `documentId`
-    if (selector.documentId) {
-      selector._id = selector.documentId;
-      delete selector.documentId;
+    if (usedSelector.documentId) {
+      usedSelector._id = usedSelector.documentId;
+      delete usedSelector.documentId;
     }
-    const documentId = selector._id;
+    const documentId = usedSelector._id;
 
     // get fragment from GraphQL AST
     const fragmentInfo = getFragmentInfo(info, "result", typeName);
@@ -263,8 +267,8 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       const query = new SelectFragmentQuery(
         sqlFragment,
         currentUser,
-        resolverArgs,
-        selector,
+        otherQueryVariables,
+        usedSelector,
         undefined,
         {limit: 1},
       );
@@ -272,13 +276,13 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       const db = getSqlClientOrThrow();
       doc = await db.oneOrNone(compiledQuery.sql, compiledQuery.args);
     } else {
-      doc = await collection.findOne(convertDocumentIdToIdInSelector(selector));
+      doc = await collection.findOne(convertDocumentIdToIdInSelector(usedSelector));
     }
 
     if (!doc) {
       throwError({
         id: 'app.missing_document',
-        data: { documentId, selector, collectionName: collection.collectionName },
+        data: { documentId, selector: usedSelector, collectionName: collection.collectionName },
       });
     }
 

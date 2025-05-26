@@ -1,12 +1,24 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { isEAForum, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
-import { useMulti } from '../../lib/crud/withMulti';
 import classNames from 'classnames';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import TagsChecklist from "../tagging/TagsChecklist";
 import TagMultiselect from "./TagMultiselect";
 import Loading from "../vulcan-core/Loading";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const TagFragmentMultiQuery = gql(`
+  query multiTagFormComponentPostEditorTaggingQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = defineStyles('FormComponentPostEditorTagging', (_theme: ThemeType) => ({
   root: {
@@ -57,35 +69,35 @@ export const FormComponentPostEditorTagging = ({ field, postCategory, placeholde
 
   const showCoreAndTypesTopicSections = isEAForum;
 
-  const coreTagResult = useMulti({
-    terms: {
-      view: "coreTags",
+  const coreTagResult = useQuery(TagFragmentMultiQuery, {
+    variables: {
+      selector: { coreTags: {} },
+      limit: 100,
+      enableTotal: false,
     },
-    collectionName: "Tags",
-    fragmentName: "TagFragment",
-    limit: 100,
     skip: !showCoreAndTypesTopicSections,
+    notifyOnNetworkStatusChange: true,
   });
 
-  const postTypeResult = useMulti({
-    terms: {
-      view: "postTypeTags",
+  const postTypeResult = useQuery(TagFragmentMultiQuery, {
+    variables: {
+      selector: { postTypeTags: {} },
+      limit: 100,
+      enableTotal: false,
     },
-    collectionName: "Tags",
-    fragmentName: "TagFragment",
-    limit: 100,
     skip: !showCoreAndTypesTopicSections,
+    notifyOnNetworkStatusChange: true,
   });
 
   const loading = coreTagResult.loading || postTypeResult.loading;
 
   const coreTags = useMemo(
-    () => coreTagResult.results ?? [],
-    [coreTagResult.results],
+    () => coreTagResult.data?.tags?.results ?? [],
+    [coreTagResult.data?.tags?.results],
   );
   const postTypeTags = useMemo(
-    () => postTypeResult.results ?? [],
-    [postTypeResult.results],
+    () => postTypeResult.data?.tags?.results ?? [],
+    [postTypeResult.data?.tags?.results],
   );
 
   // Filter out core tags that are also post type tags (only show them as post types)

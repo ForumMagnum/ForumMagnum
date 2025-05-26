@@ -34,7 +34,7 @@ export const graphqlUserJobAdQueryTypeDefs = gql`
   }
   
   type MultiUserJobAdOutput {
-    results: [UserJobAd]
+    results: [UserJobAd!]!
     totalCount: Int
   }
   

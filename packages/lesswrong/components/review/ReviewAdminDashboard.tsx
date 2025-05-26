@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
@@ -12,6 +11,19 @@ import Loading from "../vulcan-core/Loading";
 import Error404 from "../common/Error404";
 import { Typography } from "../common/Typography";
 import UsersNameDisplay from "../users/UsersNameDisplay";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const reviewAdminDashboardMultiQuery = gql(`
+  query multiReviewVoteReviewAdminDashboardQuery($selector: ReviewVoteSelector, $limit: Int, $enableTotal: Boolean) {
+    reviewVotes(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...reviewAdminDashboard
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -46,13 +58,18 @@ const ReviewAdminDashboard = ({classes}: {classes: ClassesType<typeof styles>}) 
   const [sortField, setSortField] = useState('votes');
 
   // TODO: fix the bug where for some reason this doesn't work for 2020 votes
-  const { results: votes, loading: votesLoading, totalCount } = useMulti({
-    terms: {view: "reviewVotesAdminDashboard", limit: 5000, year: year},
-    collectionName: "ReviewVotes",
-    fragmentName: "reviewAdminDashboard",
+  const { data, loading: votesLoading } = useQuery(reviewAdminDashboardMultiQuery, {
+    variables: {
+      selector: { reviewVotesAdminDashboard: { year: parseInt(year) } },
+      limit: 5000,
+      enableTotal: true,
+    },
     fetchPolicy: 'network-only',
-    enableTotal: true
-  })
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const votes = data?.reviewVotes?.results;
+  const totalCount = data?.reviewVotes?.totalCount;
 
   // NOTE: this is for showing top-karma users and seeing if they voted
   // it didn't seem that important, and with the 5000 vote limit, it seemed

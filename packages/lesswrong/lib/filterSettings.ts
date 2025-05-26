@@ -1,11 +1,23 @@
 import { useState, useCallback } from 'react';
 import { useCurrentUser } from '../components/common/withUser';
 import { useUpdateCurrentUser } from '../components/hooks/useUpdateCurrentUser';
-import { useMulti } from './crud/withMulti';
 import { defaultVisibilityTags } from './publicSettings';
 import filter from 'lodash/filter';
 import findIndex from 'lodash/findIndex'
 import { useTracking } from './analyticsEvents';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const TagBasicInfoMultiQuery = gql(`
+  query multiTagfilterSettingsQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagBasicInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 export interface FilterSettings {
   personalBlog: FilterMode,
@@ -85,14 +97,16 @@ export const useFilterSettings = () => {
   const defaultSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings()
   let [filterSettings, setFilterSettingsLocally] = useState<FilterSettings>(defaultSettings)
   
-  const { results: suggestedTags, loading: loadingSuggestedTags, error: errorLoadingSuggestedTags } = useMulti({
-    terms: {
-      view: "suggestedFilterTags",
+  const { data, error: errorLoadingSuggestedTags, loading: loadingSuggestedTags } = useQuery(TagBasicInfoMultiQuery, {
+    variables: {
+      selector: { suggestedFilterTags: {} },
+      limit: 100,
+      enableTotal: false,
     },
-    collectionName: "Tags",
-    fragmentName: "TagBasicInfo",
-    limit: 100,
-  })
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const suggestedTags = data?.tags?.results;
   
   if (suggestedTags) {
     filterSettings = addSuggestedTagsToSettings(filterSettings, suggestedTags)

@@ -1,9 +1,21 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { CommentTreeOptions } from '../comments/commentTree';
 import NoContent from "../common/NoContent";
 import PostsItemNewCommentsListNode from "./PostsItemNewCommentsListNode";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CommentsListMultiQuery = gql(`
+  query multiCommentPostsDialogItemNewCommentsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsList
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({})
 
@@ -13,23 +25,29 @@ const PostsDialogItemNewCommentsList = ({ terms, post, treeOptions }: {
   post: PostsList & { debate: true },
   treeOptions: CommentTreeOptions,
 }) => {
-  const { loading, results } = useMulti({
-    terms,
-    collectionName: "Comments",
-    fragmentName: 'CommentsList',
+  const { view, limit, ...selectorTerms } = terms;
+  const { data, loading } = useQuery(CommentsListMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 5,
+      enableTotal: false,
+    },
     fetchPolicy: 'cache-first',
-    limit: 5,
+    notifyOnNetworkStatusChange: true,
   });
 
-  const { loading: debateResponsesLoading, results: debateResponses } = useMulti({
-    collectionName: "Comments",
-    fragmentName: "CommentsList",
-    terms: {
-      view: 'recentDebateResponses',
-      postId: post._id,
+  const results = data?.comments?.results;
+
+  const { data: dataCommentsList, loading: debateResponsesLoading } = useQuery(CommentsListMultiQuery, {
+    variables: {
+      selector: { recentDebateResponses: { postId: post._id } },
       limit: 2,
+      enableTotal: false,
     },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const debateResponses = dataCommentsList?.comments?.results;
   const noCommentsFound = !loading && results && !results.length;
   const noDebateResponsesFound = !debateResponsesLoading && debateResponses && !debateResponses.length;
 

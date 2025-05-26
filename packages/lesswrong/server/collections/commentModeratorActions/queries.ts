@@ -34,7 +34,7 @@ export const graphqlCommentModeratorActionQueryTypeDefs = gql`
   }
   
   type MultiCommentModeratorActionOutput {
-    results: [CommentModeratorAction]
+    results: [CommentModeratorAction!]!
     totalCount: Int
   }
   

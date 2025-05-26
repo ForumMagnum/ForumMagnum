@@ -40,7 +40,7 @@ export const graphqlElectionVoteQueryTypeDefs = gql`
   }
   
   type MultiElectionVoteOutput {
-    results: [ElectionVote]
+    results: [ElectionVote!]!
     totalCount: Int
   }
   

@@ -1,11 +1,9 @@
 import React, { useMemo, useState } from "react";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
-import { useMulti } from "@/lib/crud/withMulti";
 import classNames from "classnames";
 import { makeSortableListComponent } from "../form-components/sortableList";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen";
-
 import { SummaryForm } from "./SummaryForm";
 import LWTooltip from "../common/LWTooltip";
 import ContentItemBody from "../common/ContentItemBody";
@@ -13,6 +11,17 @@ import ContentStyles from "../common/ContentStyles";
 import ForumIcon from "../common/ForumIcon";
 import Loading from "../vulcan-core/Loading";
 import { withDateFields } from "@/lib/utils/dateUtils";
+
+const MultiDocumentContentDisplayMultiQuery = gql(`
+  query multiMultiDocumentSummariesEditFormQuery($selector: MultiDocumentSelector, $limit: Int, $enableTotal: Boolean) {
+    multiDocuments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...MultiDocumentContentDisplay
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = defineStyles("SummariesEditForm", (theme: ThemeType) => ({
   root: {
@@ -172,7 +181,7 @@ const MAX_SUMMARIES_TEXT = "You can edit these summaries by clicking on them and
 
 const SummaryEditorRow = ({ summary, refetch }: {
   summary: MultiDocumentContentDisplay,
-  refetch: () => Promise<void>,
+  refetch: () => Promise<unknown>,
 }) => {
   const classes = useStyles(styles);
 
@@ -213,7 +222,7 @@ const SummaryEditorRow = ({ summary, refetch }: {
 interface NewSummaryEditorProps {
   parentDocumentId: string,
   collectionName: 'Tags' | 'MultiDocuments',
-  refetchSummaries: () => Promise<void>,
+  refetchSummaries: () => Promise<unknown>,
   setNewSummaryEditorOpen: (open: boolean) => void,
 }
 
@@ -267,14 +276,16 @@ const SummariesEditForm = ({ parentDocumentId, collectionName }: SummariesEditFo
   const [newSummaryEditorOpen, setNewSummaryEditorOpen] = useState(false);
   const [reorderedSummaries, setReorderedSummaries] = useState<string[]>();
 
-  const { results, loading, refetch } = useMulti({
-    collectionName: 'MultiDocuments',
-    fragmentName: 'MultiDocumentContentDisplay',
-    terms: {
-      view: 'summariesByParentId',
-      parentDocumentId,
+  const { data, loading, refetch } = useQuery(MultiDocumentContentDisplayMultiQuery, {
+    variables: {
+      selector: { summariesByParentId: { parentDocumentId } },
+      limit: 10,
+      enableTotal: false,
     },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.multiDocuments?.results;
 
   const [reorderSummaries] = useMutation(gql(`
     mutation reorderSummaries($parentDocumentId: String!, $parentDocumentCollectionName: String!, $summaryIds: [String!]!) {

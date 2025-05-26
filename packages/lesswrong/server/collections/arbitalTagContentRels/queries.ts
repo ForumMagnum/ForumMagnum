@@ -29,7 +29,7 @@ export const graphqlArbitalTagContentRelQueryTypeDefs = gql`
   }
   
   type MultiArbitalTagContentRelOutput {
-    results: [ArbitalTagContentRel]
+    results: [ArbitalTagContentRel!]!
     totalCount: Int
   }
   

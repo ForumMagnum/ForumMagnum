@@ -1,15 +1,25 @@
 import React, { useCallback } from 'react';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
-import { useMulti } from '../../lib/crud/withMulti';
 import { useMessages } from '../common/withMessages';
-import { useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { gql } from '@/lib/generated/gql-codegen/gql';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { makeAbsolute } from "../../lib/vulcan-lib/utils";
 import ErrorAccessDenied from '../common/ErrorAccessDenied';
 import SingleColumnSection from '../common/SingleColumnSection';
 import EAButton from '../ea-forum/EAButton';
+
+const GoogleServiceAccountSessionAdminInfoMultiQuery = gql(`
+  query multiGoogleServiceAccountSessionAdminGoogleServiceAccountQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {
+    googleServiceAccountSessions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...GoogleServiceAccountSessionAdminInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -29,12 +39,16 @@ const AdminGoogleServiceAccount = ({classes}: {
 }) => {
   const currentUser = useCurrentUser();
 
-  const { results: serviceAccounts } = useMulti({
-    terms: {},
-    collectionName: "GoogleServiceAccountSessions",
-    fragmentName: 'GoogleServiceAccountSessionAdminInfo',
-    enableTotal: false,
-  })
+  const { data } = useQuery(GoogleServiceAccountSessionAdminInfoMultiQuery, {
+    variables: {
+      selector: { default: {} },
+      limit: 10,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const serviceAccounts = data?.googleServiceAccountSessions?.results;
   const email = serviceAccounts?.[0]?.email
   const estimatedExpiry = serviceAccounts?.[0]?.estimatedExpiry
 

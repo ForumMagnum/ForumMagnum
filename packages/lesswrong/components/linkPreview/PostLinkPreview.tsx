@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { gql as graphql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { Card } from "@/components/widgets/Paper";
 import { Link } from '../../lib/reactRouterWrapper';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
@@ -810,16 +810,19 @@ export const ArbitalPreview = ({href, id, children}: {
   const { anchorEl, hover, eventHandlers } = useHover();
   const [match, www, arbitalSlug] = href.match(/^http(?:s?):\/\/(www\.)?arbital\.com\/p\/([a-zA-Z0-9_]+)+/) || []
 
-  const { data: rawData, loading } = useQuery(graphql`
-    query ArbitalPageRequest {
-      ArbitalPageData(pageAlias: "${arbitalSlug}") {
+  const { data: rawData, loading } = useQuery(gql(`
+    query ArbitalPageRequest($arbitalSlug: String!) {
+      ArbitalPageData(pageAlias: $arbitalSlug) {
         title
         html
       }
     }
-  `, {
+  `), {
     ssr: true,
     skip: !arbitalSlug,
+    variables: {
+      arbitalSlug,
+    },
   });
 
   if (!arbitalSlug || loading) {
@@ -841,7 +844,7 @@ export const ArbitalPreview = ({href, id, children}: {
               <a href={href}><h2>{rawData?.ArbitalPageData?.title}</h2></a>
               <a href="https://arbital.com" title="This article is hosted on Arbital.com"><div className={classes.logo}><ArbitalLogo/></div></a>
             </div>
-            <div dangerouslySetInnerHTML={{__html: rawData?.ArbitalPageData?.html}} id={id} />
+            <div dangerouslySetInnerHTML={{__html: rawData?.ArbitalPageData?.html ?? ""}} id={id} />
           </ContentStyles>
         </Card>
       </LWPopper>

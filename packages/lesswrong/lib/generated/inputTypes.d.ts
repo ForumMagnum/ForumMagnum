@@ -810,7 +810,7 @@ interface ExternalPost {
   modifiedAt: Date | null;
   draft: boolean | null;
   content: string | null;
-  coauthorStatuses: Array<CoauthorStatus | null> | null;
+  coauthorStatuses: Array<CoauthorStatus> | null;
 }
 
 interface ExternalPostImportData {
@@ -919,7 +919,7 @@ interface MultiAdvisorRequestInput {
 }
 
 interface MultiAdvisorRequestOutput {
-  results: Array<AdvisorRequest | null> | null;
+  results: Array<AdvisorRequest>;
   totalCount: number | null;
 }
 
@@ -965,7 +965,7 @@ interface MultiArbitalTagContentRelInput {
 }
 
 interface MultiArbitalTagContentRelOutput {
-  results: Array<ArbitalTagContentRel | null> | null;
+  results: Array<ArbitalTagContentRel>;
   totalCount: number | null;
 }
 
@@ -1020,7 +1020,7 @@ interface MultiBanInput {
 }
 
 interface MultiBanOutput {
-  results: Array<Ban | null> | null;
+  results: Array<Ban>;
   totalCount: number | null;
 }
 
@@ -1066,7 +1066,7 @@ interface MultiBookmarkInput {
 }
 
 interface MultiBookmarkOutput {
-  results: Array<Bookmark | null> | null;
+  results: Array<Bookmark>;
   totalCount: number | null;
 }
 
@@ -1113,7 +1113,7 @@ interface MultiBookInput {
 }
 
 interface MultiBookOutput {
-  results: Array<Book | null> | null;
+  results: Array<Book>;
   totalCount: number | null;
 }
 
@@ -1160,7 +1160,7 @@ interface MultiChapterInput {
 }
 
 interface MultiChapterOutput {
-  results: Array<Chapter | null> | null;
+  results: Array<Chapter>;
   totalCount: number | null;
 }
 
@@ -1196,7 +1196,7 @@ interface MultiCkEditorUserSessionInput {
 }
 
 interface MultiCkEditorUserSessionOutput {
-  results: Array<CkEditorUserSession | null> | null;
+  results: Array<CkEditorUserSession>;
   totalCount: number | null;
 }
 
@@ -1241,7 +1241,7 @@ interface MultiClientIdInput {
 }
 
 interface MultiClientIdOutput {
-  results: Array<ClientId | null> | null;
+  results: Array<ClientId>;
   totalCount: number | null;
 }
 
@@ -1275,7 +1275,7 @@ interface SingleCollectionOutput {
 }
 
 interface CollectionDefaultViewInput {
-  collectionIds?: string | null;
+  collectionIds?: Array<string> | null;
 }
 
 interface CollectionSelector {
@@ -1290,7 +1290,7 @@ interface MultiCollectionInput {
 }
 
 interface MultiCollectionOutput {
-  results: Array<Collection | null> | null;
+  results: Array<Collection>;
   totalCount: number | null;
 }
 
@@ -1332,7 +1332,7 @@ interface MultiCommentModeratorActionInput {
 }
 
 interface MultiCommentModeratorActionOutput {
-  results: Array<CommentModeratorAction | null> | null;
+  results: Array<CommentModeratorAction>;
   totalCount: number | null;
 }
 
@@ -1452,157 +1452,178 @@ interface SingleCommentOutput {
 
 interface CommentDefaultViewInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
 }
 
 interface CommentsCommentRepliesInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   parentCommentId?: string | null;
 }
 
 interface CommentsPostCommentsDeletedInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   postId?: string | null;
 }
 
 interface CommentsAllCommentsDeletedInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
 }
 
 interface CommentsCheckedByModGPTInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
 }
 
 interface CommentsPostCommentsTopInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   postId?: string | null;
 }
 
 interface CommentsPostCommentsRecentRepliesInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   postId?: string | null;
 }
 
 interface CommentsPostCommentsMagicInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   postId?: string | null;
 }
 
 interface CommentsAfPostCommentsTopInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   postId?: string | null;
 }
 
 interface CommentsPostCommentsOldInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   postId?: string | null;
 }
 
 interface CommentsPostCommentsNewInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   postId?: string | null;
 }
 
 interface CommentsPostCommentsBestInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   postId?: string | null;
 }
 
 interface CommentsPostLWCommentsInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   postId?: string | null;
 }
 
 interface CommentsProfileRecentCommentsInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   limit?: string | null;
 }
 
 interface CommentsProfileCommentsInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   sortBy?: string | null;
   limit?: string | null;
 }
 
 interface CommentsAllRecentCommentsInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   sortBy?: string | null;
   limit?: string | null;
 }
 
 interface CommentsRecentCommentsInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   sortBy?: string | null;
   limit?: string | null;
 }
 
 interface CommentsAfSubmissionsInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   limit?: string | null;
 }
 
 interface CommentsRejectedInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   limit?: string | null;
 }
 
 interface CommentsRecentDiscussionThreadInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   postId?: string | null;
   limit?: string | null;
 }
 
 interface CommentsAfRecentDiscussionThreadInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   postId?: string | null;
   limit?: string | null;
 }
 
 interface CommentsPostsItemCommentsInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   postId?: string | null;
   after?: string | null;
   limit?: string | null;
@@ -1610,58 +1631,66 @@ interface CommentsPostsItemCommentsInput {
 
 interface CommentsSunshineNewCommentsListInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   limit?: string | null;
 }
 
 interface CommentsQuestionAnswersInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   postId?: string | null;
   sortBy?: string | null;
 }
 
 interface CommentsLegacyIdCommentInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   legacyId?: string | null;
 }
 
 interface CommentsSunshineNewUsersCommentsInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
 }
 
 interface CommentsDefaultModeratorResponsesInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   tagId?: string | null;
 }
 
 interface CommentsRepliesToAnswerInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   parentAnswerId?: string | null;
 }
 
 interface CommentsAnswersAndRepliesInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   postId?: string | null;
   sortBy?: string | null;
 }
 
 interface CommentsTopShortformInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   before?: string | null;
   after?: string | null;
   shortformFrontpage?: string | null;
@@ -1669,122 +1698,151 @@ interface CommentsTopShortformInput {
 
 interface CommentsShortformInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
 }
 
 interface CommentsShortformFrontpageInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
-  maxAgeDays?: string | null;
-  showCommunity?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
+  maxAgeDays?: number | null;
+  showCommunity?: boolean | null;
   relevantTagId?: string | null;
 }
 
 interface CommentsRepliesToCommentThreadInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   topLevelCommentId?: string | null;
+}
+
+interface CommentsRepliesToCommentThreadIncludingRootInput {
+  userId?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
+  topLevelCommentId: string;
 }
 
 interface CommentsShortformLatestChildrenInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   topLevelCommentId?: string | null;
 }
 
 interface CommentsNominations2018Input {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
 }
 
 interface CommentsNominations2019Input {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
 }
 
 interface CommentsReviews2018Input {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
 }
 
 interface CommentsReviews2019Input {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
 }
 
 interface CommentsReviewsInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
+  postId?: string | null;
+  reviewYear?: number | null;
+  sortBy?: string | null;
 }
 
 interface CommentsTagDiscussionCommentsInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   tagId?: string | null;
 }
 
 interface CommentsTagSubforumCommentsInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
 }
 
 interface CommentsLatestSubforumDiscussionInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   profileTagIds?: string | null;
 }
 
 interface CommentsModeratorCommentsInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
 }
 
 interface CommentsDebateResponsesInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   postId?: string | null;
 }
 
 interface CommentsRecentDebateResponsesInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   postId?: string | null;
   limit?: string | null;
 }
 
 interface CommentsForumEventCommentsInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   forumEventId?: string | null;
 }
 
 interface CommentsAlignmentSuggestedCommentsInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
   postId?: string | null;
 }
 
 interface CommentsRssInput {
   userId?: string | null;
-  commentIds?: string | null;
-  minimumKarma?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
 }
 
 interface CommentSelector {
@@ -1822,6 +1880,7 @@ interface CommentSelector {
   shortformFrontpage: CommentsShortformFrontpageInput | null;
   repliesToCommentThread: CommentsRepliesToCommentThreadInput | null;
   shortformLatestChildren: CommentsShortformLatestChildrenInput | null;
+  repliesToCommentThreadIncludingRoot: CommentsRepliesToCommentThreadIncludingRootInput | null;
   nominations2018: CommentsNominations2018Input | null;
   nominations2019: CommentsNominations2019Input | null;
   reviews2018: CommentsReviews2018Input | null;
@@ -1846,7 +1905,7 @@ interface MultiCommentInput {
 }
 
 interface MultiCommentOutput {
-  results: Array<Comment | null> | null;
+  results: Array<Comment>;
   totalCount: number | null;
 }
 
@@ -1914,7 +1973,7 @@ interface MultiConversationInput {
 }
 
 interface MultiConversationOutput {
-  results: Array<Conversation | null> | null;
+  results: Array<Conversation>;
   totalCount: number | null;
 }
 
@@ -1974,7 +2033,7 @@ interface MultiCurationNoticeInput {
 }
 
 interface MultiCurationNoticeOutput {
-  results: Array<CurationNotice | null> | null;
+  results: Array<CurationNotice>;
   totalCount: number | null;
 }
 
@@ -2038,7 +2097,7 @@ interface MultiDialogueCheckInput {
 }
 
 interface MultiDialogueCheckOutput {
-  results: Array<DialogueCheck | null> | null;
+  results: Array<DialogueCheck>;
   totalCount: number | null;
 }
 
@@ -2085,7 +2144,7 @@ interface MultiDialogueMatchPreferenceInput {
 }
 
 interface MultiDialogueMatchPreferenceOutput {
-  results: Array<DialogueMatchPreference | null> | null;
+  results: Array<DialogueMatchPreference>;
   totalCount: number | null;
 }
 
@@ -2123,7 +2182,7 @@ interface MultiDigestPostInput {
 }
 
 interface MultiDigestPostOutput {
-  results: Array<DigestPost | null> | null;
+  results: Array<DigestPost>;
   totalCount: number | null;
 }
 
@@ -2150,7 +2209,7 @@ interface SingleDigestOutput {
 }
 
 interface DigestsFindByNumInput {
-  num?: string | null;
+  num?: number | null;
 }
 
 interface DigestSelector {
@@ -2167,7 +2226,7 @@ interface MultiDigestInput {
 }
 
 interface MultiDigestOutput {
-  results: Array<Digest | null> | null;
+  results: Array<Digest>;
   totalCount: number | null;
 }
 
@@ -2229,7 +2288,7 @@ interface MultiElectionCandidateInput {
 }
 
 interface MultiElectionCandidateOutput {
-  results: Array<ElectionCandidate | null> | null;
+  results: Array<ElectionCandidate>;
   totalCount: number | null;
 }
 
@@ -2281,7 +2340,7 @@ interface MultiElectionVoteInput {
 }
 
 interface MultiElectionVoteOutput {
-  results: Array<ElectionVote | null> | null;
+  results: Array<ElectionVote>;
   totalCount: number | null;
 }
 
@@ -2322,7 +2381,7 @@ interface MultiElicitQuestionPredictionInput {
 }
 
 interface MultiElicitQuestionPredictionOutput {
-  results: Array<ElicitQuestionPrediction | null> | null;
+  results: Array<ElicitQuestionPrediction>;
   totalCount: number | null;
 }
 
@@ -2358,7 +2417,7 @@ interface MultiElicitQuestionInput {
 }
 
 interface MultiElicitQuestionOutput {
-  results: Array<ElicitQuestion | null> | null;
+  results: Array<ElicitQuestion>;
   totalCount: number | null;
 }
 
@@ -2403,7 +2462,7 @@ interface MultiFeaturedResourceInput {
 }
 
 interface MultiFeaturedResourceOutput {
-  results: Array<FeaturedResource | null> | null;
+  results: Array<FeaturedResource>;
   totalCount: number | null;
 }
 
@@ -2441,7 +2500,7 @@ interface MultiFieldChangeInput {
 }
 
 interface MultiFieldChangeOutput {
-  results: Array<FieldChange | null> | null;
+  results: Array<FieldChange>;
   totalCount: number | null;
 }
 
@@ -2519,7 +2578,7 @@ interface MultiForumEventInput {
 }
 
 interface MultiForumEventOutput {
-  results: Array<ForumEvent | null> | null;
+  results: Array<ForumEvent>;
   totalCount: number | null;
 }
 
@@ -2593,7 +2652,7 @@ interface MultiGardenCodeInput {
 }
 
 interface MultiGardenCodeOutput {
-  results: Array<GardenCode | null> | null;
+  results: Array<GardenCode>;
   totalCount: number | null;
 }
 
@@ -2630,7 +2689,7 @@ interface MultiGoogleServiceAccountSessionInput {
 }
 
 interface MultiGoogleServiceAccountSessionOutput {
-  results: Array<GoogleServiceAccountSession | null> | null;
+  results: Array<GoogleServiceAccountSession>;
   totalCount: number | null;
 }
 
@@ -2689,7 +2748,7 @@ interface MultiJargonTermInput {
 }
 
 interface MultiJargonTermOutput {
-  results: Array<JargonTerm | null> | null;
+  results: Array<JargonTerm>;
   totalCount: number | null;
 }
 
@@ -2746,7 +2805,7 @@ interface MultiLWEventInput {
 }
 
 interface MultiLWEventOutput {
-  results: Array<LWEvent | null> | null;
+  results: Array<LWEvent>;
   totalCount: number | null;
 }
 
@@ -2787,7 +2846,7 @@ interface LlmConversationsLlmConversationsWithUserInput {
 }
 
 interface LlmConversationsLlmConversationsAllInput {
-  showDeleted?: string | null;
+  showDeleted?: boolean | null;
 }
 
 interface LlmConversationSelector {
@@ -2804,7 +2863,7 @@ interface MultiLlmConversationInput {
 }
 
 interface MultiLlmConversationOutput {
-  results: Array<LlmConversation | null> | null;
+  results: Array<LlmConversation>;
   totalCount: number | null;
 }
 
@@ -2859,53 +2918,53 @@ interface SingleLocalgroupOutput {
 
 interface LocalgroupDefaultViewInput {
   filters?: string | null;
-  includeInactive?: string | null;
+  includeInactive?: boolean | null;
 }
 
 interface LocalgroupsUserOrganizesGroupsInput {
   filters?: string | null;
-  includeInactive?: string | null;
+  includeInactive?: boolean | null;
   userId?: string | null;
 }
 
 interface LocalgroupsUserActiveGroupsInput {
   filters?: string | null;
-  includeInactive?: string | null;
+  includeInactive?: boolean | null;
   userId?: string | null;
 }
 
 interface LocalgroupsUserInactiveGroupsInput {
   filters?: string | null;
-  includeInactive?: string | null;
+  includeInactive?: boolean | null;
   userId?: string | null;
 }
 
 interface LocalgroupsAllInput {
   filters?: string | null;
-  includeInactive?: string | null;
+  includeInactive?: boolean | null;
 }
 
 interface LocalgroupsNearbyInput {
   filters?: string | null;
-  includeInactive?: string | null;
+  includeInactive?: boolean | null;
   lng?: string | null;
   lat?: string | null;
 }
 
 interface LocalgroupsSingleInput {
   filters?: string | null;
-  includeInactive?: string | null;
+  includeInactive?: boolean | null;
   groupId?: string | null;
 }
 
 interface LocalgroupsLocalInput {
   filters?: string | null;
-  includeInactive?: string | null;
+  includeInactive?: boolean | null;
 }
 
 interface LocalgroupsOnlineInput {
   filters?: string | null;
-  includeInactive?: string | null;
+  includeInactive?: boolean | null;
 }
 
 interface LocalgroupSelector {
@@ -2928,7 +2987,7 @@ interface MultiLocalgroupInput {
 }
 
 interface MultiLocalgroupOutput {
-  results: Array<Localgroup | null> | null;
+  results: Array<Localgroup>;
   totalCount: number | null;
 }
 
@@ -2990,7 +3049,7 @@ interface MultiMessageInput {
 }
 
 interface MultiMessageOutput {
-  results: Array<Message | null> | null;
+  results: Array<Message>;
   totalCount: number | null;
 }
 
@@ -3041,7 +3100,7 @@ interface MultiModerationTemplateInput {
 }
 
 interface MultiModerationTemplateOutput {
-  results: Array<ModerationTemplate | null> | null;
+  results: Array<ModerationTemplate>;
   totalCount: number | null;
 }
 
@@ -3084,7 +3143,7 @@ interface MultiModeratorActionInput {
 }
 
 interface MultiModeratorActionOutput {
-  results: Array<ModeratorAction | null> | null;
+  results: Array<ModeratorAction>;
   totalCount: number | null;
 }
 
@@ -3139,21 +3198,21 @@ interface SingleMultiDocumentOutput {
 }
 
 interface MultiDocumentDefaultViewInput {
-  excludedDocumentIds?: string | null;
+  excludedDocumentIds?: Array<string> | null;
 }
 
 interface MultiDocumentsLensBySlugInput {
-  excludedDocumentIds?: string | null;
+  excludedDocumentIds?: Array<string> | null;
   slug?: string | null;
 }
 
 interface MultiDocumentsSummariesByParentIdInput {
-  excludedDocumentIds?: string | null;
+  excludedDocumentIds?: Array<string> | null;
   parentDocumentId?: string | null;
 }
 
 interface MultiDocumentsPingbackLensPagesInput {
-  excludedDocumentIds?: string | null;
+  excludedDocumentIds?: Array<string> | null;
   documentId?: string | null;
 }
 
@@ -3172,7 +3231,7 @@ interface MultiMultiDocumentInput {
 }
 
 interface MultiMultiDocumentOutput {
-  results: Array<MultiDocument | null> | null;
+  results: Array<MultiDocument>;
   totalCount: number | null;
 }
 
@@ -3235,7 +3294,7 @@ interface MultiNotificationInput {
 }
 
 interface MultiNotificationOutput {
-  results: Array<Notification | null> | null;
+  results: Array<Notification>;
   totalCount: number | null;
 }
 
@@ -3294,7 +3353,7 @@ interface MultiPetrovDayActionInput {
 }
 
 interface MultiPetrovDayActionOutput {
-  results: Array<PetrovDayAction | null> | null;
+  results: Array<PetrovDayAction>;
   totalCount: number | null;
 }
 
@@ -3329,9 +3388,14 @@ interface SinglePodcastEpisodeOutput {
   result: PodcastEpisode | null;
 }
 
+interface PodcastEpisodeByExternalIdInput {
+  externalEpisodeId?: string | null;
+  _id?: string | null;
+}
+
 interface PodcastEpisodeSelector {
   default: EmptyViewInput | null;
-  episodeByExternalId: EmptyViewInput | null;
+  episodeByExternalId: PodcastEpisodeByExternalIdInput | null;
 }
 
 interface MultiPodcastEpisodeInput {
@@ -3342,7 +3406,7 @@ interface MultiPodcastEpisodeInput {
 }
 
 interface MultiPodcastEpisodeOutput {
-  results: Array<PodcastEpisode | null> | null;
+  results: Array<PodcastEpisode>;
   totalCount: number | null;
 }
 
@@ -3377,7 +3441,7 @@ interface MultiPodcastInput {
 }
 
 interface MultiPodcastOutput {
-  results: Array<Podcast | null> | null;
+  results: Array<Podcast>;
   totalCount: number | null;
 }
 
@@ -3437,7 +3501,7 @@ interface MultiPostRelationInput {
 }
 
 interface MultiPostRelationOutput {
-  results: Array<PostRelation | null> | null;
+  results: Array<PostRelation>;
   totalCount: number | null;
 }
 
@@ -3693,16 +3757,21 @@ interface SinglePostOutput {
 }
 
 interface PostDefaultViewInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -3711,16 +3780,21 @@ interface PostDefaultViewInput {
 }
 
 interface PostsUserPostsInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -3729,70 +3803,96 @@ interface PostsUserPostsInput {
 }
 
 interface PostsMagicInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
+  meta?: boolean | null;
+  forum?: boolean | null;
 }
 
 interface PostsTopInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
+  meta?: boolean | null;
+  forum?: boolean | null;
 }
 
 interface PostsNewInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
+  meta?: boolean | null;
+  forum?: boolean | null;
 }
 
 interface PostsRecentCommentsInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -3801,16 +3901,21 @@ interface PostsRecentCommentsInput {
 }
 
 interface PostsOldInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -3819,16 +3924,21 @@ interface PostsOldInput {
 }
 
 interface PostsTimeframeInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -3838,16 +3948,21 @@ interface PostsTimeframeInput {
 }
 
 interface PostsDailyInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -3856,16 +3971,21 @@ interface PostsDailyInput {
 }
 
 interface PostsTagRelevanceInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -3874,16 +3994,21 @@ interface PostsTagRelevanceInput {
 }
 
 interface PostsFrontpageInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -3892,16 +4017,21 @@ interface PostsFrontpageInput {
 }
 
 interface PostsFrontpageRssInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -3910,16 +4040,21 @@ interface PostsFrontpageRssInput {
 }
 
 interface PostsCuratedInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -3928,16 +4063,21 @@ interface PostsCuratedInput {
 }
 
 interface PostsCuratedRssInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -3946,16 +4086,21 @@ interface PostsCuratedRssInput {
 }
 
 interface PostsCommunityInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -3964,16 +4109,21 @@ interface PostsCommunityInput {
 }
 
 interface PostsCommunityRssInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -3982,16 +4132,21 @@ interface PostsCommunityRssInput {
 }
 
 interface PostsMetaRssInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4000,34 +4155,46 @@ interface PostsMetaRssInput {
 }
 
 interface PostsRssInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
+  meta?: boolean | null;
+  forum?: boolean | null;
 }
 
 interface PostsTopQuestionsInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4036,16 +4203,21 @@ interface PostsTopQuestionsInput {
 }
 
 interface PostsRecentQuestionActivityInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4054,16 +4226,21 @@ interface PostsRecentQuestionActivityInput {
 }
 
 interface PostsScheduledInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4072,16 +4249,21 @@ interface PostsScheduledInput {
 }
 
 interface PostsRejectedInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4090,38 +4272,48 @@ interface PostsRejectedInput {
 }
 
 interface PostsDraftsInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
-  includeDraftEvents?: string | null;
-  includeArchived?: string | null;
-  includeShared?: string | null;
+  includeDraftEvents?: boolean | null;
+  includeArchived?: boolean | null;
+  includeShared?: boolean | null;
   sortDraftsBy?: string | null;
 }
 
 interface PostsAll_draftsInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4130,16 +4322,21 @@ interface PostsAll_draftsInput {
 }
 
 interface PostsUnlistedInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4148,16 +4345,21 @@ interface PostsUnlistedInput {
 }
 
 interface PostsUserAFSubmissionsInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4166,16 +4368,21 @@ interface PostsUserAFSubmissionsInput {
 }
 
 interface PostsSlugPostInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4185,16 +4392,21 @@ interface PostsSlugPostInput {
 }
 
 interface PostsLegacyIdPostInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4204,16 +4416,21 @@ interface PostsLegacyIdPostInput {
 }
 
 interface PostsRecentDiscussionThreadsListInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4223,16 +4440,21 @@ interface PostsRecentDiscussionThreadsListInput {
 }
 
 interface PostsAfRecentDiscussionThreadsListInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4242,16 +4464,21 @@ interface PostsAfRecentDiscussionThreadsListInput {
 }
 
 interface PostsReviewRecentDiscussionThreadsList2018Input {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4261,16 +4488,21 @@ interface PostsReviewRecentDiscussionThreadsList2018Input {
 }
 
 interface PostsReviewRecentDiscussionThreadsList2019Input {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4280,176 +4512,215 @@ interface PostsReviewRecentDiscussionThreadsList2019Input {
 }
 
 interface PostsGlobalEventsInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
-  onlineEvent?: string | null;
-  eventType?: string | null;
+  onlineEvent?: boolean | null;
+  eventType?: Array<string> | null;
 }
 
 interface PostsNearbyEventsInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
-  onlineEvent?: string | null;
-  eventType?: string | null;
-  lng?: string | null;
-  lat?: string | null;
-  distance?: string | null;
-  filters?: string | null;
+  onlineEvent?: boolean | null;
+  eventType?: Array<string> | null;
+  lng?: number | null;
+  lat?: number | null;
+  distance?: number | null;
+  filters?: Array<string> | null;
 }
 
 interface PostsEventsInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
-  globalEvent?: string | null;
-  onlineEvent?: string | null;
-  groupId?: string | null;
+  globalEvent?: boolean | null;
+  onlineEvent?: boolean | null;
 }
 
 interface PostsEventsInTimeRangeInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
-  groupId?: string | null;
 }
 
 interface PostsUpcomingEventsInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
-  groupId?: string | null;
 }
 
 interface PostsPastEventsInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
-  groupId?: string | null;
 }
 
 interface PostsTbdEventsInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
-  groupId?: string | null;
 }
 
 interface PostsNonEventGroupPostsInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
-  groupId?: string | null;
 }
 
 interface PostsPostsWithBannedUsersInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4458,16 +4729,21 @@ interface PostsPostsWithBannedUsersInput {
 }
 
 interface PostsCommunityResourcePostsInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4476,16 +4752,21 @@ interface PostsCommunityResourcePostsInput {
 }
 
 interface PostsSunshineNewPostsInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4494,16 +4775,21 @@ interface PostsSunshineNewPostsInput {
 }
 
 interface PostsSunshineNewUsersPostsInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4512,35 +4798,45 @@ interface PostsSunshineNewUsersPostsInput {
 }
 
 interface PostsSunshineCuratedSuggestionsInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
-  audioOnly?: string | null;
+  audioOnly?: boolean | null;
 }
 
 interface PostsHasEverDialoguedInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4549,16 +4845,21 @@ interface PostsHasEverDialoguedInput {
 }
 
 interface PostsPingbackPostsInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4568,54 +4869,69 @@ interface PostsPingbackPostsInput {
 }
 
 interface PostsNominations2018Input {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
-  sortByMost?: string | null;
+  sortByMost?: boolean | null;
 }
 
 interface PostsNominations2019Input {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
-  sortByMost?: string | null;
+  sortByMost?: boolean | null;
 }
 
 interface PostsReviews2018Input {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4625,16 +4941,21 @@ interface PostsReviews2018Input {
 }
 
 interface PostsReviews2019Input {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4644,16 +4965,21 @@ interface PostsReviews2019Input {
 }
 
 interface PostsVoting2019Input {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4663,16 +4989,21 @@ interface PostsVoting2019Input {
 }
 
 interface PostsStickiedInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4681,36 +5012,46 @@ interface PostsStickiedInput {
 }
 
 interface PostsNominatablePostsByVoteInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
-  requiredUnnominated?: string | null;
-  requiredFrontpage?: string | null;
+  requiredUnnominated?: boolean | null;
+  requiredFrontpage?: boolean | null;
 }
 
 interface PostsReviewVotingInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4720,36 +5061,46 @@ interface PostsReviewVotingInput {
 }
 
 interface PostsFrontpageReviewWidgetInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
-  reviewYear?: string | null;
+  reviewYear?: number | null;
   reviewPhase?: string | null;
 }
 
 interface PostsReviewQuickPageInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4758,16 +5109,21 @@ interface PostsReviewQuickPageInput {
 }
 
 interface PostsReviewFinalVotingInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4776,16 +5132,21 @@ interface PostsReviewFinalVotingInput {
 }
 
 interface PostsMyBookmarkedPostsInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4795,16 +5156,21 @@ interface PostsMyBookmarkedPostsInput {
 }
 
 interface PostsAlignmentSuggestedPostsInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4813,16 +5179,21 @@ interface PostsAlignmentSuggestedPostsInput {
 }
 
 interface PostsCurrentOpenThreadInput {
-  postIds?: string | null;
-  notPostIds?: string | null;
-  hideCommunity?: string | null;
-  karmaThreshold?: string | null;
-  excludeEvents?: string | null;
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
   userId?: string | null;
   includeRelatedQuestions?: string | null;
   filter?: string | null;
   view?: string | null;
-  filterSettings?: string | null;
+  filterSettings?: any;
   sortedBy?: string | null;
   after?: string | null;
   before?: string | null;
@@ -4902,7 +5273,7 @@ interface MultiPostInput {
 }
 
 interface MultiPostOutput {
-  results: Array<Post | null> | null;
+  results: Array<Post>;
   totalCount: number | null;
 }
 
@@ -4949,7 +5320,7 @@ interface MultiRSSFeedInput {
 }
 
 interface MultiRSSFeedOutput {
-  results: Array<RSSFeed | null> | null;
+  results: Array<RSSFeed>;
   totalCount: number | null;
 }
 
@@ -5026,7 +5397,7 @@ interface MultiReportInput {
 }
 
 interface MultiReportOutput {
-  results: Array<Report | null> | null;
+  results: Array<Report>;
   totalCount: number | null;
 }
 
@@ -5061,12 +5432,16 @@ interface ReviewVotesReviewVotesFromUserInput {
   year?: string | null;
 }
 
+interface ReviewVotesReviewVotesAdminDashboardInput {
+  year?: number | null;
+}
+
 interface ReviewVoteSelector {
   default: EmptyViewInput | null;
   reviewVotesFromUser: ReviewVotesReviewVotesFromUserInput | null;
   reviewVotesForPost: EmptyViewInput | null;
   reviewVotesForPostAndUser: EmptyViewInput | null;
-  reviewVotesAdminDashboard: EmptyViewInput | null;
+  reviewVotesAdminDashboard: ReviewVotesReviewVotesAdminDashboardInput | null;
 }
 
 interface MultiReviewVoteInput {
@@ -5077,7 +5452,7 @@ interface MultiReviewVoteInput {
 }
 
 interface MultiReviewVoteOutput {
-  results: Array<ReviewVote | null> | null;
+  results: Array<ReviewVote>;
   totalCount: number | null;
 }
 
@@ -5105,10 +5480,14 @@ interface ReviewWinnerArtsPostArtInput {
   postId?: string | null;
 }
 
+interface ReviewWinnerArtsAllForYearInput {
+  year?: number | null;
+}
+
 interface ReviewWinnerArtSelector {
   default: EmptyViewInput | null;
   postArt: ReviewWinnerArtsPostArtInput | null;
-  allForYear: EmptyViewInput | null;
+  allForYear: ReviewWinnerArtsAllForYearInput | null;
 }
 
 interface MultiReviewWinnerArtInput {
@@ -5119,7 +5498,7 @@ interface MultiReviewWinnerArtInput {
 }
 
 interface MultiReviewWinnerArtOutput {
-  results: Array<ReviewWinnerArt | null> | null;
+  results: Array<ReviewWinnerArt>;
   totalCount: number | null;
 }
 
@@ -5168,7 +5547,7 @@ interface MultiReviewWinnerInput {
 }
 
 interface MultiReviewWinnerOutput {
-  results: Array<ReviewWinner | null> | null;
+  results: Array<ReviewWinner>;
   totalCount: number | null;
 }
 
@@ -5257,7 +5636,7 @@ interface MultiRevisionInput {
 }
 
 interface MultiRevisionOutput {
-  results: Array<Revision | null> | null;
+  results: Array<Revision>;
   totalCount: number | null;
 }
 
@@ -5299,31 +5678,31 @@ interface SingleSequenceOutput {
 }
 
 interface SequenceDefaultViewInput {
-  sequenceIds?: string | null;
+  sequenceIds?: Array<string> | null;
 }
 
 interface SequencesUserProfileInput {
-  sequenceIds?: string | null;
+  sequenceIds?: Array<string> | null;
   userId?: string | null;
 }
 
 interface SequencesUserProfilePrivateInput {
-  sequenceIds?: string | null;
+  sequenceIds?: Array<string> | null;
   userId?: string | null;
 }
 
 interface SequencesUserProfileAllInput {
-  sequenceIds?: string | null;
+  sequenceIds?: Array<string> | null;
   userId?: string | null;
 }
 
 interface SequencesCuratedSequencesInput {
-  sequenceIds?: string | null;
+  sequenceIds?: Array<string> | null;
   userId?: string | null;
 }
 
 interface SequencesCommunitySequencesInput {
-  sequenceIds?: string | null;
+  sequenceIds?: Array<string> | null;
   userId?: string | null;
 }
 
@@ -5344,7 +5723,7 @@ interface MultiSequenceInput {
 }
 
 interface MultiSequenceOutput {
-  results: Array<Sequence | null> | null;
+  results: Array<Sequence>;
   totalCount: number | null;
 }
 
@@ -5411,7 +5790,7 @@ interface MultiSplashArtCoordinateInput {
 }
 
 interface MultiSplashArtCoordinateOutput {
-  results: Array<SplashArtCoordinate | null> | null;
+  results: Array<SplashArtCoordinate>;
   totalCount: number | null;
 }
 
@@ -5494,7 +5873,7 @@ interface MultiSpotlightInput {
 }
 
 interface MultiSpotlightOutput {
-  results: Array<Spotlight | null> | null;
+  results: Array<Spotlight>;
   totalCount: number | null;
 }
 
@@ -5521,17 +5900,28 @@ interface SingleSubscriptionOutput {
   result: Subscription | null;
 }
 
+interface SubscriptionsSubscriptionStateInput {
+  documentId?: string | null;
+  userId?: string | null;
+  type?: string | null;
+  collectionName?: string | null;
+}
+
 interface SubscriptionsSubscriptionsOfTypeInput {
   userId?: string | null;
   collectionName?: string | null;
   subscriptionType?: string | null;
 }
 
+interface SubscriptionsMembersOfGroupInput {
+  documentId?: string | null;
+}
+
 interface SubscriptionSelector {
   default: EmptyViewInput | null;
-  subscriptionState: EmptyViewInput | null;
+  subscriptionState: SubscriptionsSubscriptionStateInput | null;
   subscriptionsOfType: SubscriptionsSubscriptionsOfTypeInput | null;
-  membersOfGroup: EmptyViewInput | null;
+  membersOfGroup: SubscriptionsMembersOfGroupInput | null;
 }
 
 interface MultiSubscriptionInput {
@@ -5542,7 +5932,7 @@ interface MultiSubscriptionInput {
 }
 
 interface MultiSubscriptionOutput {
-  results: Array<Subscription | null> | null;
+  results: Array<Subscription>;
   totalCount: number | null;
 }
 
@@ -5579,7 +5969,7 @@ interface MultiSurveyQuestionInput {
 }
 
 interface MultiSurveyQuestionOutput {
-  results: Array<SurveyQuestion | null> | null;
+  results: Array<SurveyQuestion>;
   totalCount: number | null;
 }
 
@@ -5620,7 +6010,7 @@ interface MultiSurveyResponseInput {
 }
 
 interface MultiSurveyResponseOutput {
-  results: Array<SurveyResponse | null> | null;
+  results: Array<SurveyResponse>;
   totalCount: number | null;
 }
 
@@ -5666,7 +6056,7 @@ interface MultiSurveyScheduleInput {
 }
 
 interface MultiSurveyScheduleOutput {
-  results: Array<SurveySchedule | null> | null;
+  results: Array<SurveySchedule>;
   totalCount: number | null;
 }
 
@@ -5701,7 +6091,7 @@ interface MultiSurveyInput {
 }
 
 interface MultiSurveyOutput {
-  results: Array<Survey | null> | null;
+  results: Array<Survey>;
   totalCount: number | null;
 }
 
@@ -5740,7 +6130,7 @@ interface MultiTagFlagInput {
 }
 
 interface MultiTagFlagOutput {
-  results: Array<TagFlag | null> | null;
+  results: Array<TagFlag>;
   totalCount: number | null;
 }
 
@@ -5801,7 +6191,7 @@ interface MultiTagRelInput {
 }
 
 interface MultiTagRelOutput {
-  results: Array<TagRel | null> | null;
+  results: Array<TagRel>;
   totalCount: number | null;
 }
 
@@ -5992,6 +6382,7 @@ interface TagsAllArbitalTagsInput {
 
 interface TagsPingbackWikiPagesInput {
   excludedTagIds?: Array<string> | null;
+  tagId?: string | null;
 }
 
 interface TagSelector {
@@ -6026,7 +6417,7 @@ interface MultiTagInput {
 }
 
 interface MultiTagOutput {
-  results: Array<Tag | null> | null;
+  results: Array<Tag>;
   totalCount: number | null;
 }
 
@@ -6068,7 +6459,7 @@ interface MultiTypingIndicatorInput {
 }
 
 interface MultiTypingIndicatorOutput {
-  results: Array<TypingIndicator | null> | null;
+  results: Array<TypingIndicator>;
   totalCount: number | null;
 }
 
@@ -6103,7 +6494,7 @@ interface MultiUltraFeedEventInput {
 }
 
 interface MultiUltraFeedEventOutput {
-  results: Array<UltraFeedEvent | null> | null;
+  results: Array<UltraFeedEvent>;
   totalCount: number | null;
 }
 
@@ -6156,7 +6547,7 @@ interface MultiUserEAGDetailInput {
 }
 
 interface MultiUserEAGDetailOutput {
-  results: Array<UserEAGDetail | null> | null;
+  results: Array<UserEAGDetail>;
   totalCount: number | null;
 }
 
@@ -6199,7 +6590,7 @@ interface MultiUserJobAdInput {
 }
 
 interface MultiUserJobAdOutput {
-  results: Array<UserJobAd | null> | null;
+  results: Array<UserJobAd>;
   totalCount: number | null;
 }
 
@@ -6242,7 +6633,7 @@ interface MultiUserMostValuablePostInput {
 }
 
 interface MultiUserMostValuablePostOutput {
-  results: Array<UserMostValuablePost | null> | null;
+  results: Array<UserMostValuablePost>;
   totalCount: number | null;
 }
 
@@ -6270,7 +6661,7 @@ interface SingleUserRateLimitOutput {
 }
 
 interface UserRateLimitsUserRateLimitsInput {
-  active?: string | null;
+  active?: boolean | null;
   userIds?: Array<string> | null;
 }
 
@@ -6288,7 +6679,7 @@ interface MultiUserRateLimitInput {
 }
 
 interface MultiUserRateLimitOutput {
-  results: Array<UserRateLimit | null> | null;
+  results: Array<UserRateLimit>;
   totalCount: number | null;
 }
 
@@ -6333,7 +6724,7 @@ interface MultiUserTagRelInput {
 }
 
 interface MultiUserTagRelOutput {
-  results: Array<UserTagRel | null> | null;
+  results: Array<UserTagRel>;
   totalCount: number | null;
 }
 
@@ -6618,7 +7009,7 @@ interface SingleUserOutput {
 }
 
 interface UsersUsersByUserIdsInput {
-  userIds?: string | null;
+  userIds?: Array<string> | null;
 }
 
 interface UsersUsersProfileInput {
@@ -6627,7 +7018,7 @@ interface UsersUsersProfileInput {
 }
 
 interface UsersTagCommunityMembersInput {
-  hasBio?: string | null;
+  hasBio?: boolean | null;
   profileTagId?: string | null;
 }
 
@@ -6658,7 +7049,7 @@ interface MultiUserInput {
 }
 
 interface MultiUserOutput {
-  results: Array<User | null> | null;
+  results: Array<User>;
   totalCount: number | null;
 }
 
@@ -6695,11 +7086,22 @@ interface SingleVoteOutput {
   result: Vote | null;
 }
 
+interface VotesUserPostVotesInput {
+  collectionName?: string | null;
+  voteType?: VoteType | null;
+  after?: string | null;
+  before?: string | null;
+}
+
+interface VotesUserVotesInput {
+  collectionNames: Array<string>;
+}
+
 interface VoteSelector {
   default: EmptyViewInput | null;
   tagVotes: EmptyViewInput | null;
-  userPostVotes: EmptyViewInput | null;
-  userVotes: EmptyViewInput | null;
+  userPostVotes: VotesUserPostVotesInput | null;
+  userVotes: VotesUserVotesInput | null;
 }
 
 interface MultiVoteInput {
@@ -6710,7 +7112,7 @@ interface MultiVoteInput {
 }
 
 interface MultiVoteOutput {
-  results: Array<Vote | null> | null;
+  results: Array<Vote>;
   totalCount: number | null;
 }
 
@@ -9093,6 +9495,7 @@ interface GraphQLTypeMap {
   CommentsShortformInput: CommentsShortformInput;
   CommentsShortformFrontpageInput: CommentsShortformFrontpageInput;
   CommentsRepliesToCommentThreadInput: CommentsRepliesToCommentThreadInput;
+  CommentsRepliesToCommentThreadIncludingRootInput: CommentsRepliesToCommentThreadIncludingRootInput;
   CommentsShortformLatestChildrenInput: CommentsShortformLatestChildrenInput;
   CommentsNominations2018Input: CommentsNominations2018Input;
   CommentsNominations2019Input: CommentsNominations2019Input;
@@ -9324,6 +9727,7 @@ interface GraphQLTypeMap {
   PodcastEpisode: PodcastEpisode;
   SinglePodcastEpisodeInput: SinglePodcastEpisodeInput;
   SinglePodcastEpisodeOutput: SinglePodcastEpisodeOutput;
+  PodcastEpisodeByExternalIdInput: PodcastEpisodeByExternalIdInput;
   PodcastEpisodeSelector: PodcastEpisodeSelector;
   MultiPodcastEpisodeInput: MultiPodcastEpisodeInput;
   MultiPodcastEpisodeOutput: MultiPodcastEpisodeOutput;
@@ -9428,6 +9832,7 @@ interface GraphQLTypeMap {
   SingleReviewVoteInput: SingleReviewVoteInput;
   SingleReviewVoteOutput: SingleReviewVoteOutput;
   ReviewVotesReviewVotesFromUserInput: ReviewVotesReviewVotesFromUserInput;
+  ReviewVotesReviewVotesAdminDashboardInput: ReviewVotesReviewVotesAdminDashboardInput;
   ReviewVoteSelector: ReviewVoteSelector;
   MultiReviewVoteInput: MultiReviewVoteInput;
   MultiReviewVoteOutput: MultiReviewVoteOutput;
@@ -9435,6 +9840,7 @@ interface GraphQLTypeMap {
   SingleReviewWinnerArtInput: SingleReviewWinnerArtInput;
   SingleReviewWinnerArtOutput: SingleReviewWinnerArtOutput;
   ReviewWinnerArtsPostArtInput: ReviewWinnerArtsPostArtInput;
+  ReviewWinnerArtsAllForYearInput: ReviewWinnerArtsAllForYearInput;
   ReviewWinnerArtSelector: ReviewWinnerArtSelector;
   MultiReviewWinnerArtInput: MultiReviewWinnerArtInput;
   MultiReviewWinnerArtOutput: MultiReviewWinnerArtOutput;
@@ -9488,7 +9894,9 @@ interface GraphQLTypeMap {
   Subscription: Subscription;
   SingleSubscriptionInput: SingleSubscriptionInput;
   SingleSubscriptionOutput: SingleSubscriptionOutput;
+  SubscriptionsSubscriptionStateInput: SubscriptionsSubscriptionStateInput;
   SubscriptionsSubscriptionsOfTypeInput: SubscriptionsSubscriptionsOfTypeInput;
+  SubscriptionsMembersOfGroupInput: SubscriptionsMembersOfGroupInput;
   SubscriptionSelector: SubscriptionSelector;
   MultiSubscriptionInput: MultiSubscriptionInput;
   MultiSubscriptionOutput: MultiSubscriptionOutput;
@@ -9619,6 +10027,8 @@ interface GraphQLTypeMap {
   Vote: Vote;
   SingleVoteInput: SingleVoteInput;
   SingleVoteOutput: SingleVoteOutput;
+  VotesUserPostVotesInput: VotesUserPostVotesInput;
+  VotesUserVotesInput: VotesUserVotesInput;
   VoteSelector: VoteSelector;
   MultiVoteInput: MultiVoteInput;
   MultiVoteOutput: MultiVoteOutput;

@@ -31,7 +31,7 @@ export const graphqlGoogleServiceAccountSessionQueryTypeDefs = gql`
   }
   
   type MultiGoogleServiceAccountSessionOutput {
-    results: [GoogleServiceAccountSession]
+    results: [GoogleServiceAccountSession!]!
     totalCount: Int
   }
   

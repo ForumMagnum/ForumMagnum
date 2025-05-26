@@ -35,7 +35,7 @@ export const graphqlChapterQueryTypeDefs = gql`
   }
   
   type MultiChapterOutput {
-    results: [Chapter]
+    results: [Chapter!]!
     totalCount: Int
   }
   

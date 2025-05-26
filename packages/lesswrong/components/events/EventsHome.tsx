@@ -8,7 +8,6 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
-import { useMulti } from '../../lib/crud/withMulti';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import Geosuggest from 'react-geosuggest';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -29,8 +28,20 @@ import Loading from "../vulcan-core/Loading";
 import DistanceUnitToggle from "../community/modules/DistanceUnitToggle";
 import { MenuItem } from "../common/Menus";
 import ForumIcon from "../common/ForumIcon";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+
+const PostsListMultiQuery = gql(`
+  query multiPostEventsHomeQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsList
+      }
+      totalCount
+    }
+  }
+`);
 
 const UsersProfileUpdateMutation = gql(`
   mutation updateUserEventsHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -371,16 +382,31 @@ const EventsHome = ({classes}: {
     ...filters,
   }
   
-  const { results, loading, showLoadMore, loadMore } = useMulti({
-    terms: eventsListTerms,
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
+  const { view, limit, ...selectorTerms } = eventsListTerms;
+  const { data, loading, fetchMore } = useQuery(PostsListMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 12 - numSpecialCards,
+      enableTotal: false,
+    },
+    skip: userLocation.loading,
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    limit: 12 - numSpecialCards,
-    itemsPerPage: 12,
-    skip: userLocation.loading
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.posts?.results;
+
+  const { loadMore, hidden } = useLoadMore({
+    data: data?.posts,
+    loading,
+    fetchMore,
+    initialLimit: 12 - numSpecialCards,
+    itemsPerPage: 12,
+    resetTrigger: eventsListTerms
+  });
+
+  const showLoadMore = !hidden;
   
   // we try to highlight the event most relevant to you
   let highlightedEvent: PostsList|undefined;
@@ -401,7 +427,7 @@ const EventsHome = ({classes}: {
     if (!highlightedEvent) highlightedEvent = results[0]
   }
   
-  let loadMoreButton = showLoadMore && <button className={classes.loadMore} onClick={() => loadMore(null)}>
+  let loadMoreButton = showLoadMore && <button className={classes.loadMore} onClick={() => loadMore()}>
     {preferredHeadingCase("Load More")}
   </button>
   if (loading && results?.length) {

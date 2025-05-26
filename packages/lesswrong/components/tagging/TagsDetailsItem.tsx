@@ -4,7 +4,6 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link, QueryLink } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { EditTagForm } from './EditTagPage';
-import { useMulti } from '../../lib/crud/withMulti';
 import { useLocation } from '../../lib/routeUtil';
 import classNames from 'classnames'
 import { isFriendlyUI } from '@/themes/forumTheme';
@@ -15,6 +14,17 @@ import Loading from "../vulcan-core/Loading";
 import TagFlagItem from "./TagFlagItem";
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const TagRelFragmentMultiQuery = gql(`
+  query multiTagRelTagsDetailsItemQuery($selector: TagRelSelector, $limit: Int, $enableTotal: Boolean) {
+    tagRels(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagRelFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const TagEditFragmentQuery = gql(`
   query TagsDetailsItem($documentId: String) {
@@ -113,16 +123,17 @@ const TagsDetailsItem = ({ tag, classes, showFlags = false, flagId, collapse = f
   });
   const editableTag = data?.tag?.result;
 
-  const { results: tagRels, loading } = useMulti({
-    skip: !(tag._id) || showFlags,
-    terms: {
-      view: "postsWithTag",
-      tagId: tag._id,
+  const { data: dataTagRels, loading } = useQuery(TagRelFragmentMultiQuery, {
+    variables: {
+      selector: { postsWithTag: { tagId: tag._id } },
+      limit: 3,
+      enableTotal: false,
     },
-    collectionName: "TagRels",
-    fragmentName: "TagRelFragment",
-    limit: 3,
+    skip: !(tag._id) || showFlags,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const tagRels = dataTagRels?.tagRels?.results;
 
   const editTagForm = (
     editableTag

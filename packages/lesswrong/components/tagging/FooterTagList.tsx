@@ -1,6 +1,5 @@
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
-import { useMutation } from '@apollo/client';
+import { useMutation, useQuery, NetworkStatus } from '@apollo/client';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useCurrentUser } from '../common/withUser';
 import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
@@ -24,6 +23,18 @@ import Loading from "../vulcan-core/Loading";
 import AddTagButton from "./AddTagButton";
 import CoreTagsChecklist from "./CoreTagsChecklist";
 import PostsAnnualReviewMarketTag from "../posts/PostsAnnualReviewMarketTag";
+import { apolloSSRFlag } from "@/lib/helpers";
+
+const TagRelMinimumFragmentMultiQuery = gql(`
+  query multiTagRelFooterTagListQuery($selector: TagRelSelector, $limit: Int, $enableTotal: Boolean) {
+    tagRels(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagRelMinimumFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI ? {
@@ -178,18 +189,19 @@ const FooterTagList = ({
   // - (somewhat speculative) It allows the mutation to be handled more seamlessly
   // (incrementing the score and reordering the tags) by updating the result of
   // this query
-  const { results, loading, loadingInitial, refetch } = useMulti({
-    terms: {
-      view: "tagsOnPost",
-      postId: post._id,
+  const { data, loading, refetch, networkStatus } = useQuery(TagRelMinimumFragmentMultiQuery, {
+    variables: {
+      selector: { tagsOnPost: { postId: post._id } },
+      limit: 100,
+      enableTotal: false,
     },
-    collectionName: "TagRels",
-    fragmentName: "TagRelMinimumFragment", // Must match the fragment in the mutation
-    limit: 100,
     fetchPolicy: 'cache-and-network',
-    // Only fetch this as a follow-up query on the client
-    ssr: false,
+    ssr: apolloSSRFlag(false),
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.tagRels?.results;
+  const loadingInitial = networkStatus === NetworkStatus.loading;
 
   const checkShouldDisplayShowAll = useCallback(() => {
     if (!showAll && rootRef.current) {
@@ -250,7 +262,7 @@ const FooterTagList = ({
         },
       });
       setIsAwaiting(false);
-      refetch();
+      void refetch();
       captureEvent("tagAddedToItem", {tagId, tagName});
     } catch (e) {
       setIsAwaiting(false);

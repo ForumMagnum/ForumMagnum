@@ -13,7 +13,7 @@ declare global {
 }
 
 function subscriptionState(terms: SubscriptionsViewTerms) {
-  const { userId, documentId, collectionName, type} = terms
+  const { userId, documentId, collectionName, type } = terms
   return {
     selector: {userId, documentId, collectionName, type, deleted: false},
     options: {sort: {createdAt: -1}, limit: 1}

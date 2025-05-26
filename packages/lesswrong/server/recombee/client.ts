@@ -353,7 +353,7 @@ const helpers = {
       forum: true,
       limit,
       filterSettings,
-      after: ninetyDaysAgo,
+      after: ninetyDaysAgo.toISOString(),
       ...notPostIdsArg,
       ...loadMoreCountArg,
     };

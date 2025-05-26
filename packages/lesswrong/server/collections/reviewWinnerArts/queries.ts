@@ -20,11 +20,15 @@ export const graphqlReviewWinnerArtQueryTypeDefs = gql`
   input ReviewWinnerArtsPostArtInput {
     postId: String
   }
+
+  input ReviewWinnerArtsAllForYearInput {
+    year: Int
+  }
   
   input ReviewWinnerArtSelector {
     default: EmptyViewInput
     postArt: ReviewWinnerArtsPostArtInput
-    allForYear: EmptyViewInput
+    allForYear: ReviewWinnerArtsAllForYearInput
   }
   
   input MultiReviewWinnerArtInput {
@@ -35,7 +39,7 @@ export const graphqlReviewWinnerArtQueryTypeDefs = gql`
   }
   
   type MultiReviewWinnerArtOutput {
-    results: [ReviewWinnerArt]
+    results: [ReviewWinnerArt!]!
     totalCount: Int
   }
   

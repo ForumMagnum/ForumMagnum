@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '@/lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { userCanPassivelyGenerateJargonTerms } from '@/lib/betas';
 import { useLocation } from '@/lib/routeUtil';
@@ -13,6 +12,20 @@ import ContentStyles from "../common/ContentStyles";
 import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import Row from "../common/Row";
 import UsersNameDisplay from "../users/UsersNameDisplay";
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsEditQueryFragmentMultiQuery = gql(`
+  query multiPostGlossaryEditorPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean, $version: String) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsEditQueryFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -39,16 +52,29 @@ export const GlossaryEditorPage = ({classes}: {
   const showAll = query.all === 'true' && currentUser?.isAdmin;
   const view: PostsViewName = ["new", "top"].includes(query.view ?? '') ? query.view as PostsViewName : 'new'
 
-  const { results: posts = [], loadMoreProps, refetch } = useMulti({
-    terms: {
-      view: "top",
-      userId: showAll ? undefined : currentUser?._id,
-      limit: limit
+  const { data, loading, refetch, fetchMore } = useQuery(PostsEditQueryFragmentMultiQuery, {
+    variables: {
+      selector: { top: { userId: showAll ? undefined : currentUser?._id } },
+      limit: limit,
+      enableTotal: false,
     },
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const posts = data?.posts?.results ?? [];
+
+  const loadMoreProps = useLoadMore({
+    data: data?.posts,
+    loading,
+    fetchMore,
+    initialLimit: limit,
     itemsPerPage: 50,
-    collectionName: "Posts",
-    fragmentName: 'PostsEditQueryFragment',
-  })
+    resetTrigger: {
+        view: "top",
+        userId: showAll ? undefined : currentUser?._id,
+        limit: limit
+      }
+  });
   if (!currentUser) {
     return <SingleColumnSection><ErrorAccessDenied/></SingleColumnSection>;
   }

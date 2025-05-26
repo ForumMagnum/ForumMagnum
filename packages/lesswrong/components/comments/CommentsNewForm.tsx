@@ -111,9 +111,9 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export type CommentSuccessCallback = (
+export type CommentSuccessCallback = ((
   comment: CommentsList,
-) => void | Promise<void>;
+) => void | Promise<void>) | (() => Promise<unknown>);
 
 export type CommentCancelCallback = (...args: unknown[]) => void | Promise<void>;
 

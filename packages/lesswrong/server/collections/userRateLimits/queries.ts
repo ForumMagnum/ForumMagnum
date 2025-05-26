@@ -30,7 +30,7 @@ export const graphqlUserRateLimitQueryTypeDefs = gql`
   }
   
   input UserRateLimitsUserRateLimitsInput {
-    active: String
+    active: Boolean
     userIds: [String!]
   }
   
@@ -48,7 +48,7 @@ export const graphqlUserRateLimitQueryTypeDefs = gql`
   }
   
   type MultiUserRateLimitOutput {
-    results: [UserRateLimit]
+    results: [UserRateLimit!]!
     totalCount: Int
   }
   

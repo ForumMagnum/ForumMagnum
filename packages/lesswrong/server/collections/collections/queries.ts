@@ -18,10 +18,8 @@ export const graphqlCollectionQueryTypeDefs = gql`
   }
   
   input CollectionDefaultViewInput {
-    collectionIds: String
+    collectionIds: [String!]
   }
-  
-  
   
   input CollectionSelector  {
     default: CollectionDefaultViewInput
@@ -35,7 +33,7 @@ export const graphqlCollectionQueryTypeDefs = gql`
   }
   
   type MultiCollectionOutput {
-    results: [Collection]
+    results: [Collection!]!
     totalCount: Int
   }
   

@@ -1214,7 +1214,7 @@ type ExternalPost {
   modifiedAt: Date
   draft: Boolean
   content: String
-  coauthorStatuses: [CoauthorStatus]
+  coauthorStatuses: [CoauthorStatus!]
 }
 
 type ExternalPostImportData {
@@ -1465,7 +1465,7 @@ input MultiAdvisorRequestInput {
 }
 
 type MultiAdvisorRequestOutput {
-  results: [AdvisorRequest]
+  results: [AdvisorRequest!]!
   totalCount: Int
 }
 
@@ -1516,7 +1516,7 @@ input MultiArbitalTagContentRelInput {
 }
 
 type MultiArbitalTagContentRelOutput {
-  results: [ArbitalTagContentRel]
+  results: [ArbitalTagContentRel!]!
   totalCount: Int
 }
 
@@ -1576,7 +1576,7 @@ input MultiBanInput {
 }
 
 type MultiBanOutput {
-  results: [Ban]
+  results: [Ban!]!
   totalCount: Int
 }
 
@@ -1627,7 +1627,7 @@ input MultiBookmarkInput {
 }
 
 type MultiBookmarkOutput {
-  results: [Bookmark]
+  results: [Bookmark!]!
   totalCount: Int
 }
 
@@ -1679,7 +1679,7 @@ input MultiBookInput {
 }
 
 type MultiBookOutput {
-  results: [Book]
+  results: [Book!]!
   totalCount: Int
 }
 
@@ -1731,7 +1731,7 @@ input MultiChapterInput {
 }
 
 type MultiChapterOutput {
-  results: [Chapter]
+  results: [Chapter!]!
   totalCount: Int
 }
 
@@ -1772,7 +1772,7 @@ input MultiCkEditorUserSessionInput {
 }
 
 type MultiCkEditorUserSessionOutput {
-  results: [CkEditorUserSession]
+  results: [CkEditorUserSession!]!
   totalCount: Int
 }
 
@@ -1822,7 +1822,7 @@ input MultiClientIdInput {
 }
 
 type MultiClientIdOutput {
-  results: [ClientId]
+  results: [ClientId!]!
   totalCount: Int
 }
 
@@ -1861,7 +1861,7 @@ type SingleCollectionOutput {
 }
 
 input CollectionDefaultViewInput {
-  collectionIds: String
+  collectionIds: [String!]
 }
 
 input CollectionSelector {
@@ -1876,7 +1876,7 @@ input MultiCollectionInput {
 }
 
 type MultiCollectionOutput {
-  results: [Collection]
+  results: [Collection!]!
   totalCount: Int
 }
 
@@ -1923,7 +1923,7 @@ input MultiCommentModeratorActionInput {
 }
 
 type MultiCommentModeratorActionOutput {
-  results: [CommentModeratorAction]
+  results: [CommentModeratorAction!]!
   totalCount: Int
 }
 
@@ -2053,157 +2053,178 @@ type SingleCommentOutput {
 
 input CommentDefaultViewInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
 }
 
 input CommentsCommentRepliesInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   parentCommentId: String
 }
 
 input CommentsPostCommentsDeletedInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   postId: String
 }
 
 input CommentsAllCommentsDeletedInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
 }
 
 input CommentsCheckedByModGPTInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
 }
 
 input CommentsPostCommentsTopInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   postId: String
 }
 
 input CommentsPostCommentsRecentRepliesInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   postId: String
 }
 
 input CommentsPostCommentsMagicInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   postId: String
 }
 
 input CommentsAfPostCommentsTopInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   postId: String
 }
 
 input CommentsPostCommentsOldInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   postId: String
 }
 
 input CommentsPostCommentsNewInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   postId: String
 }
 
 input CommentsPostCommentsBestInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   postId: String
 }
 
 input CommentsPostLWCommentsInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   postId: String
 }
 
 input CommentsProfileRecentCommentsInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   limit: String
 }
 
 input CommentsProfileCommentsInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   sortBy: String
   limit: String
 }
 
 input CommentsAllRecentCommentsInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   sortBy: String
   limit: String
 }
 
 input CommentsRecentCommentsInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   sortBy: String
   limit: String
 }
 
 input CommentsAfSubmissionsInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   limit: String
 }
 
 input CommentsRejectedInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   limit: String
 }
 
 input CommentsRecentDiscussionThreadInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   postId: String
   limit: String
 }
 
 input CommentsAfRecentDiscussionThreadInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   postId: String
   limit: String
 }
 
 input CommentsPostsItemCommentsInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   postId: String
   after: String
   limit: String
@@ -2211,58 +2232,66 @@ input CommentsPostsItemCommentsInput {
 
 input CommentsSunshineNewCommentsListInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   limit: String
 }
 
 input CommentsQuestionAnswersInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   postId: String
   sortBy: String
 }
 
 input CommentsLegacyIdCommentInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   legacyId: String
 }
 
 input CommentsSunshineNewUsersCommentsInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
 }
 
 input CommentsDefaultModeratorResponsesInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   tagId: String
 }
 
 input CommentsRepliesToAnswerInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   parentAnswerId: String
 }
 
 input CommentsAnswersAndRepliesInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   postId: String
   sortBy: String
 }
 
 input CommentsTopShortformInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   before: String
   after: String
   shortformFrontpage: String
@@ -2270,122 +2299,151 @@ input CommentsTopShortformInput {
 
 input CommentsShortformInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
 }
 
 input CommentsShortformFrontpageInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
-  maxAgeDays: String
-  showCommunity: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
+  maxAgeDays: Int
+  showCommunity: Boolean
   relevantTagId: String
 }
 
 input CommentsRepliesToCommentThreadInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   topLevelCommentId: String
+}
+
+input CommentsRepliesToCommentThreadIncludingRootInput {
+  userId: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
+  topLevelCommentId: String!
 }
 
 input CommentsShortformLatestChildrenInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   topLevelCommentId: String
 }
 
 input CommentsNominations2018Input {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
 }
 
 input CommentsNominations2019Input {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
 }
 
 input CommentsReviews2018Input {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
 }
 
 input CommentsReviews2019Input {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
 }
 
 input CommentsReviewsInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
+  postId: String
+  reviewYear: Int
+  sortBy: String
 }
 
 input CommentsTagDiscussionCommentsInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   tagId: String
 }
 
 input CommentsTagSubforumCommentsInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
 }
 
 input CommentsLatestSubforumDiscussionInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   profileTagIds: String
 }
 
 input CommentsModeratorCommentsInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
 }
 
 input CommentsDebateResponsesInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   postId: String
 }
 
 input CommentsRecentDebateResponsesInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   postId: String
   limit: String
 }
 
 input CommentsForumEventCommentsInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   forumEventId: String
 }
 
 input CommentsAlignmentSuggestedCommentsInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
   postId: String
 }
 
 input CommentsRssInput {
   userId: String
-  commentIds: String
-  minimumKarma: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
 }
 
 input CommentSelector {
@@ -2423,6 +2481,7 @@ input CommentSelector {
   shortformFrontpage: CommentsShortformFrontpageInput
   repliesToCommentThread: CommentsRepliesToCommentThreadInput
   shortformLatestChildren: CommentsShortformLatestChildrenInput
+  repliesToCommentThreadIncludingRoot: CommentsRepliesToCommentThreadIncludingRootInput
   nominations2018: CommentsNominations2018Input
   nominations2019: CommentsNominations2019Input
   reviews2018: CommentsReviews2018Input
@@ -2447,7 +2506,7 @@ input MultiCommentInput {
 }
 
 type MultiCommentOutput {
-  results: [Comment]
+  results: [Comment!]!
   totalCount: Int
 }
 
@@ -2520,7 +2579,7 @@ input MultiConversationInput {
 }
 
 type MultiConversationOutput {
-  results: [Conversation]
+  results: [Conversation!]!
   totalCount: Int
 }
 
@@ -2585,7 +2644,7 @@ input MultiCurationNoticeInput {
 }
 
 type MultiCurationNoticeOutput {
-  results: [CurationNotice]
+  results: [CurationNotice!]!
   totalCount: Int
 }
 
@@ -2654,7 +2713,7 @@ input MultiDialogueCheckInput {
 }
 
 type MultiDialogueCheckOutput {
-  results: [DialogueCheck]
+  results: [DialogueCheck!]!
   totalCount: Int
 }
 
@@ -2706,7 +2765,7 @@ input MultiDialogueMatchPreferenceInput {
 }
 
 type MultiDialogueMatchPreferenceOutput {
-  results: [DialogueMatchPreference]
+  results: [DialogueMatchPreference!]!
   totalCount: Int
 }
 
@@ -2749,7 +2808,7 @@ input MultiDigestPostInput {
 }
 
 type MultiDigestPostOutput {
-  results: [DigestPost]
+  results: [DigestPost!]!
   totalCount: Int
 }
 
@@ -2781,7 +2840,7 @@ type SingleDigestOutput {
 }
 
 input DigestsFindByNumInput {
-  num: String
+  num: Int
 }
 
 input DigestSelector {
@@ -2798,7 +2857,7 @@ input MultiDigestInput {
 }
 
 type MultiDigestOutput {
-  results: [Digest]
+  results: [Digest!]!
   totalCount: Int
 }
 
@@ -2865,7 +2924,7 @@ input MultiElectionCandidateInput {
 }
 
 type MultiElectionCandidateOutput {
-  results: [ElectionCandidate]
+  results: [ElectionCandidate!]!
   totalCount: Int
 }
 
@@ -2922,7 +2981,7 @@ input MultiElectionVoteInput {
 }
 
 type MultiElectionVoteOutput {
-  results: [ElectionVote]
+  results: [ElectionVote!]!
   totalCount: Int
 }
 
@@ -2968,7 +3027,7 @@ input MultiElicitQuestionPredictionInput {
 }
 
 type MultiElicitQuestionPredictionOutput {
-  results: [ElicitQuestionPrediction]
+  results: [ElicitQuestionPrediction!]!
   totalCount: Int
 }
 
@@ -3009,7 +3068,7 @@ input MultiElicitQuestionInput {
 }
 
 type MultiElicitQuestionOutput {
-  results: [ElicitQuestion]
+  results: [ElicitQuestion!]!
   totalCount: Int
 }
 
@@ -3059,7 +3118,7 @@ input MultiFeaturedResourceInput {
 }
 
 type MultiFeaturedResourceOutput {
-  results: [FeaturedResource]
+  results: [FeaturedResource!]!
   totalCount: Int
 }
 
@@ -3102,7 +3161,7 @@ input MultiFieldChangeInput {
 }
 
 type MultiFieldChangeOutput {
-  results: [FieldChange]
+  results: [FieldChange!]!
   totalCount: Int
 }
 
@@ -3195,7 +3254,7 @@ input MultiForumEventInput {
 }
 
 type MultiForumEventOutput {
-  results: [ForumEvent]
+  results: [ForumEvent!]!
   totalCount: Int
 }
 
@@ -3274,7 +3333,7 @@ input MultiGardenCodeInput {
 }
 
 type MultiGardenCodeOutput {
-  results: [GardenCode]
+  results: [GardenCode!]!
   totalCount: Int
 }
 
@@ -3316,7 +3375,7 @@ input MultiGoogleServiceAccountSessionInput {
 }
 
 type MultiGoogleServiceAccountSessionOutput {
-  results: [GoogleServiceAccountSession]
+  results: [GoogleServiceAccountSession!]!
   totalCount: Int
 }
 
@@ -3380,7 +3439,7 @@ input MultiJargonTermInput {
 }
 
 type MultiJargonTermOutput {
-  results: [JargonTerm]
+  results: [JargonTerm!]!
   totalCount: Int
 }
 
@@ -3442,7 +3501,7 @@ input MultiLWEventInput {
 }
 
 type MultiLWEventOutput {
-  results: [LWEvent]
+  results: [LWEvent!]!
   totalCount: Int
 }
 
@@ -3488,7 +3547,7 @@ input LlmConversationsLlmConversationsWithUserInput {
 }
 
 input LlmConversationsLlmConversationsAllInput {
-  showDeleted: String
+  showDeleted: Boolean
 }
 
 input LlmConversationSelector {
@@ -3505,7 +3564,7 @@ input MultiLlmConversationInput {
 }
 
 type MultiLlmConversationOutput {
-  results: [LlmConversation]
+  results: [LlmConversation!]!
   totalCount: Int
 }
 
@@ -3565,53 +3624,53 @@ type SingleLocalgroupOutput {
 
 input LocalgroupDefaultViewInput {
   filters: String
-  includeInactive: String
+  includeInactive: Boolean
 }
 
 input LocalgroupsUserOrganizesGroupsInput {
   filters: String
-  includeInactive: String
+  includeInactive: Boolean
   userId: String
 }
 
 input LocalgroupsUserActiveGroupsInput {
   filters: String
-  includeInactive: String
+  includeInactive: Boolean
   userId: String
 }
 
 input LocalgroupsUserInactiveGroupsInput {
   filters: String
-  includeInactive: String
+  includeInactive: Boolean
   userId: String
 }
 
 input LocalgroupsAllInput {
   filters: String
-  includeInactive: String
+  includeInactive: Boolean
 }
 
 input LocalgroupsNearbyInput {
   filters: String
-  includeInactive: String
+  includeInactive: Boolean
   lng: String
   lat: String
 }
 
 input LocalgroupsSingleInput {
   filters: String
-  includeInactive: String
+  includeInactive: Boolean
   groupId: String
 }
 
 input LocalgroupsLocalInput {
   filters: String
-  includeInactive: String
+  includeInactive: Boolean
 }
 
 input LocalgroupsOnlineInput {
   filters: String
-  includeInactive: String
+  includeInactive: Boolean
 }
 
 input LocalgroupSelector {
@@ -3634,7 +3693,7 @@ input MultiLocalgroupInput {
 }
 
 type MultiLocalgroupOutput {
-  results: [Localgroup]
+  results: [Localgroup!]!
   totalCount: Int
 }
 
@@ -3701,7 +3760,7 @@ input MultiMessageInput {
 }
 
 type MultiMessageOutput {
-  results: [Message]
+  results: [Message!]!
   totalCount: Int
 }
 
@@ -3763,7 +3822,7 @@ input MultiModerationTemplateInput {
 }
 
 type MultiModerationTemplateOutput {
-  results: [ModerationTemplate]
+  results: [ModerationTemplate!]!
   totalCount: Int
 }
 
@@ -3835,7 +3894,7 @@ input MultiModeratorActionInput {
 }
 
 type MultiModeratorActionOutput {
-  results: [ModeratorAction]
+  results: [ModeratorAction!]!
   totalCount: Int
 }
 
@@ -3905,21 +3964,21 @@ type SingleMultiDocumentOutput {
 }
 
 input MultiDocumentDefaultViewInput {
-  excludedDocumentIds: String
+  excludedDocumentIds: [String!]
 }
 
 input MultiDocumentsLensBySlugInput {
-  excludedDocumentIds: String
+  excludedDocumentIds: [String!]
   slug: String
 }
 
 input MultiDocumentsSummariesByParentIdInput {
-  excludedDocumentIds: String
+  excludedDocumentIds: [String!]
   parentDocumentId: String
 }
 
 input MultiDocumentsPingbackLensPagesInput {
-  excludedDocumentIds: String
+  excludedDocumentIds: [String!]
   documentId: String
 }
 
@@ -3938,7 +3997,7 @@ input MultiMultiDocumentInput {
 }
 
 type MultiMultiDocumentOutput {
-  results: [MultiDocument]
+  results: [MultiDocument!]!
   totalCount: Int
 }
 
@@ -4006,7 +4065,7 @@ input MultiNotificationInput {
 }
 
 type MultiNotificationOutput {
-  results: [Notification]
+  results: [Notification!]!
   totalCount: Int
 }
 
@@ -4070,7 +4129,7 @@ input MultiPetrovDayActionInput {
 }
 
 type MultiPetrovDayActionOutput {
-  results: [PetrovDayAction]
+  results: [PetrovDayAction!]!
   totalCount: Int
 }
 
@@ -4110,9 +4169,14 @@ type SinglePodcastEpisodeOutput {
   result: PodcastEpisode
 }
 
+input PodcastEpisodeByExternalIdInput {
+  externalEpisodeId: String
+  _id: String
+}
+
 input PodcastEpisodeSelector {
   default: EmptyViewInput
-  episodeByExternalId: EmptyViewInput
+  episodeByExternalId: PodcastEpisodeByExternalIdInput
 }
 
 input MultiPodcastEpisodeInput {
@@ -4123,7 +4187,7 @@ input MultiPodcastEpisodeInput {
 }
 
 type MultiPodcastEpisodeOutput {
-  results: [PodcastEpisode]
+  results: [PodcastEpisode!]!
   totalCount: Int
 }
 
@@ -4163,7 +4227,7 @@ input MultiPodcastInput {
 }
 
 type MultiPodcastOutput {
-  results: [Podcast]
+  results: [Podcast!]!
   totalCount: Int
 }
 
@@ -4228,7 +4292,7 @@ input MultiPostRelationInput {
 }
 
 type MultiPostRelationOutput {
-  results: [PostRelation]
+  results: [PostRelation!]!
   totalCount: Int
 }
 
@@ -4495,16 +4559,21 @@ type SinglePostOutput {
 }
 
 input PostDefaultViewInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -4513,16 +4582,21 @@ input PostDefaultViewInput {
 }
 
 input PostsUserPostsInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -4531,70 +4605,96 @@ input PostsUserPostsInput {
 }
 
 input PostsMagicInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
   timeField: String
   curatedAfter: String
+  meta: Boolean
+  forum: Boolean
 }
 
 input PostsTopInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
   timeField: String
   curatedAfter: String
+  meta: Boolean
+  forum: Boolean
 }
 
 input PostsNewInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
   timeField: String
   curatedAfter: String
+  meta: Boolean
+  forum: Boolean
 }
 
 input PostsRecentCommentsInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -4603,16 +4703,21 @@ input PostsRecentCommentsInput {
 }
 
 input PostsOldInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -4621,16 +4726,21 @@ input PostsOldInput {
 }
 
 input PostsTimeframeInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -4640,16 +4750,21 @@ input PostsTimeframeInput {
 }
 
 input PostsDailyInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -4658,16 +4773,21 @@ input PostsDailyInput {
 }
 
 input PostsTagRelevanceInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -4676,16 +4796,21 @@ input PostsTagRelevanceInput {
 }
 
 input PostsFrontpageInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -4694,16 +4819,21 @@ input PostsFrontpageInput {
 }
 
 input PostsFrontpageRssInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -4712,16 +4842,21 @@ input PostsFrontpageRssInput {
 }
 
 input PostsCuratedInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -4730,16 +4865,21 @@ input PostsCuratedInput {
 }
 
 input PostsCuratedRssInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -4748,16 +4888,21 @@ input PostsCuratedRssInput {
 }
 
 input PostsCommunityInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -4766,16 +4911,21 @@ input PostsCommunityInput {
 }
 
 input PostsCommunityRssInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -4784,16 +4934,21 @@ input PostsCommunityRssInput {
 }
 
 input PostsMetaRssInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -4802,34 +4957,46 @@ input PostsMetaRssInput {
 }
 
 input PostsRssInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
   timeField: String
   curatedAfter: String
+  meta: Boolean
+  forum: Boolean
 }
 
 input PostsTopQuestionsInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -4838,16 +5005,21 @@ input PostsTopQuestionsInput {
 }
 
 input PostsRecentQuestionActivityInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -4856,16 +5028,21 @@ input PostsRecentQuestionActivityInput {
 }
 
 input PostsScheduledInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -4874,16 +5051,21 @@ input PostsScheduledInput {
 }
 
 input PostsRejectedInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -4892,38 +5074,48 @@ input PostsRejectedInput {
 }
 
 input PostsDraftsInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
   timeField: String
   curatedAfter: String
-  includeDraftEvents: String
-  includeArchived: String
-  includeShared: String
+  includeDraftEvents: Boolean
+  includeArchived: Boolean
+  includeShared: Boolean
   sortDraftsBy: String
 }
 
 input PostsAll_draftsInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -4932,16 +5124,21 @@ input PostsAll_draftsInput {
 }
 
 input PostsUnlistedInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -4950,16 +5147,21 @@ input PostsUnlistedInput {
 }
 
 input PostsUserAFSubmissionsInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -4968,16 +5170,21 @@ input PostsUserAFSubmissionsInput {
 }
 
 input PostsSlugPostInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -4987,16 +5194,21 @@ input PostsSlugPostInput {
 }
 
 input PostsLegacyIdPostInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -5006,16 +5218,21 @@ input PostsLegacyIdPostInput {
 }
 
 input PostsRecentDiscussionThreadsListInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -5025,16 +5242,21 @@ input PostsRecentDiscussionThreadsListInput {
 }
 
 input PostsAfRecentDiscussionThreadsListInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -5044,16 +5266,21 @@ input PostsAfRecentDiscussionThreadsListInput {
 }
 
 input PostsReviewRecentDiscussionThreadsList2018Input {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -5063,16 +5290,21 @@ input PostsReviewRecentDiscussionThreadsList2018Input {
 }
 
 input PostsReviewRecentDiscussionThreadsList2019Input {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -5082,176 +5314,215 @@ input PostsReviewRecentDiscussionThreadsList2019Input {
 }
 
 input PostsGlobalEventsInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
   timeField: String
   curatedAfter: String
-  onlineEvent: String
-  eventType: String
+  onlineEvent: Boolean
+  eventType: [String!]
 }
 
 input PostsNearbyEventsInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
   timeField: String
   curatedAfter: String
-  onlineEvent: String
-  eventType: String
-  lng: String
-  lat: String
-  distance: String
-  filters: String
+  onlineEvent: Boolean
+  eventType: [String!]
+  lng: Float
+  lat: Float
+  distance: Float
+  filters: [String!]
 }
 
 input PostsEventsInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
   timeField: String
   curatedAfter: String
-  globalEvent: String
-  onlineEvent: String
-  groupId: String
+  globalEvent: Boolean
+  onlineEvent: Boolean
 }
 
 input PostsEventsInTimeRangeInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
   timeField: String
   curatedAfter: String
-  groupId: String
 }
 
 input PostsUpcomingEventsInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
   timeField: String
   curatedAfter: String
-  groupId: String
 }
 
 input PostsPastEventsInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
   timeField: String
   curatedAfter: String
-  groupId: String
 }
 
 input PostsTbdEventsInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
   timeField: String
   curatedAfter: String
-  groupId: String
 }
 
 input PostsNonEventGroupPostsInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
   timeField: String
   curatedAfter: String
-  groupId: String
 }
 
 input PostsPostsWithBannedUsersInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -5260,16 +5531,21 @@ input PostsPostsWithBannedUsersInput {
 }
 
 input PostsCommunityResourcePostsInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -5278,16 +5554,21 @@ input PostsCommunityResourcePostsInput {
 }
 
 input PostsSunshineNewPostsInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -5296,16 +5577,21 @@ input PostsSunshineNewPostsInput {
 }
 
 input PostsSunshineNewUsersPostsInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -5314,35 +5600,45 @@ input PostsSunshineNewUsersPostsInput {
 }
 
 input PostsSunshineCuratedSuggestionsInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
   timeField: String
   curatedAfter: String
-  audioOnly: String
+  audioOnly: Boolean
 }
 
 input PostsHasEverDialoguedInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -5351,16 +5647,21 @@ input PostsHasEverDialoguedInput {
 }
 
 input PostsPingbackPostsInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -5370,54 +5671,69 @@ input PostsPingbackPostsInput {
 }
 
 input PostsNominations2018Input {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
   timeField: String
   curatedAfter: String
-  sortByMost: String
+  sortByMost: Boolean
 }
 
 input PostsNominations2019Input {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
   timeField: String
   curatedAfter: String
-  sortByMost: String
+  sortByMost: Boolean
 }
 
 input PostsReviews2018Input {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -5427,16 +5743,21 @@ input PostsReviews2018Input {
 }
 
 input PostsReviews2019Input {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -5446,16 +5767,21 @@ input PostsReviews2019Input {
 }
 
 input PostsVoting2019Input {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -5465,16 +5791,21 @@ input PostsVoting2019Input {
 }
 
 input PostsStickiedInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -5483,36 +5814,46 @@ input PostsStickiedInput {
 }
 
 input PostsNominatablePostsByVoteInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
   timeField: String
   curatedAfter: String
-  requiredUnnominated: String
-  requiredFrontpage: String
+  requiredUnnominated: Boolean
+  requiredFrontpage: Boolean
 }
 
 input PostsReviewVotingInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -5522,36 +5863,46 @@ input PostsReviewVotingInput {
 }
 
 input PostsFrontpageReviewWidgetInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
   timeField: String
   curatedAfter: String
-  reviewYear: String
+  reviewYear: Int
   reviewPhase: String
 }
 
 input PostsReviewQuickPageInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -5560,16 +5911,21 @@ input PostsReviewQuickPageInput {
 }
 
 input PostsReviewFinalVotingInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -5578,16 +5934,21 @@ input PostsReviewFinalVotingInput {
 }
 
 input PostsMyBookmarkedPostsInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -5597,16 +5958,21 @@ input PostsMyBookmarkedPostsInput {
 }
 
 input PostsAlignmentSuggestedPostsInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -5615,16 +5981,21 @@ input PostsAlignmentSuggestedPostsInput {
 }
 
 input PostsCurrentOpenThreadInput {
-  postIds: String
-  notPostIds: String
-  hideCommunity: String
-  karmaThreshold: String
-  excludeEvents: String
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
   userId: String
   includeRelatedQuestions: String
   filter: String
   view: String
-  filterSettings: String
+  filterSettings: JSON
   sortedBy: String
   after: String
   before: String
@@ -5704,7 +6075,7 @@ input MultiPostInput {
 }
 
 type MultiPostOutput {
-  results: [Post]
+  results: [Post!]!
   totalCount: Int
 }
 
@@ -5756,7 +6127,7 @@ input MultiRSSFeedInput {
 }
 
 type MultiRSSFeedOutput {
-  results: [RSSFeed]
+  results: [RSSFeed!]!
   totalCount: Int
 }
 
@@ -5838,7 +6209,7 @@ input MultiReportInput {
 }
 
 type MultiReportOutput {
-  results: [Report]
+  results: [Report!]!
   totalCount: Int
 }
 
@@ -5878,12 +6249,16 @@ input ReviewVotesReviewVotesFromUserInput {
   year: String
 }
 
+input ReviewVotesReviewVotesAdminDashboardInput {
+  year: Int
+}
+
 input ReviewVoteSelector {
   default: EmptyViewInput
   reviewVotesFromUser: ReviewVotesReviewVotesFromUserInput
   reviewVotesForPost: EmptyViewInput
   reviewVotesForPostAndUser: EmptyViewInput
-  reviewVotesAdminDashboard: EmptyViewInput
+  reviewVotesAdminDashboard: ReviewVotesReviewVotesAdminDashboardInput
 }
 
 input MultiReviewVoteInput {
@@ -5894,7 +6269,7 @@ input MultiReviewVoteInput {
 }
 
 type MultiReviewVoteOutput {
-  results: [ReviewVote]
+  results: [ReviewVote!]!
   totalCount: Int
 }
 
@@ -5927,10 +6302,14 @@ input ReviewWinnerArtsPostArtInput {
   postId: String
 }
 
+input ReviewWinnerArtsAllForYearInput {
+  year: Int
+}
+
 input ReviewWinnerArtSelector {
   default: EmptyViewInput
   postArt: ReviewWinnerArtsPostArtInput
-  allForYear: EmptyViewInput
+  allForYear: ReviewWinnerArtsAllForYearInput
 }
 
 input MultiReviewWinnerArtInput {
@@ -5941,7 +6320,7 @@ input MultiReviewWinnerArtInput {
 }
 
 type MultiReviewWinnerArtOutput {
-  results: [ReviewWinnerArt]
+  results: [ReviewWinnerArt!]!
   totalCount: Int
 }
 
@@ -5995,7 +6374,7 @@ input MultiReviewWinnerInput {
 }
 
 type MultiReviewWinnerOutput {
-  results: [ReviewWinner]
+  results: [ReviewWinner!]!
   totalCount: Int
 }
 
@@ -6089,7 +6468,7 @@ input MultiRevisionInput {
 }
 
 type MultiRevisionOutput {
-  results: [Revision]
+  results: [Revision!]!
   totalCount: Int
 }
 
@@ -6136,31 +6515,31 @@ type SingleSequenceOutput {
 }
 
 input SequenceDefaultViewInput {
-  sequenceIds: String
+  sequenceIds: [String!]
 }
 
 input SequencesUserProfileInput {
-  sequenceIds: String
+  sequenceIds: [String!]
   userId: String
 }
 
 input SequencesUserProfilePrivateInput {
-  sequenceIds: String
+  sequenceIds: [String!]
   userId: String
 }
 
 input SequencesUserProfileAllInput {
-  sequenceIds: String
+  sequenceIds: [String!]
   userId: String
 }
 
 input SequencesCuratedSequencesInput {
-  sequenceIds: String
+  sequenceIds: [String!]
   userId: String
 }
 
 input SequencesCommunitySequencesInput {
-  sequenceIds: String
+  sequenceIds: [String!]
   userId: String
 }
 
@@ -6181,7 +6560,7 @@ input MultiSequenceInput {
 }
 
 type MultiSequenceOutput {
-  results: [Sequence]
+  results: [Sequence!]!
   totalCount: Int
 }
 
@@ -6253,7 +6632,7 @@ input MultiSplashArtCoordinateInput {
 }
 
 type MultiSplashArtCoordinateOutput {
-  results: [SplashArtCoordinate]
+  results: [SplashArtCoordinate!]!
   totalCount: Int
 }
 
@@ -6347,7 +6726,7 @@ input MultiSpotlightInput {
 }
 
 type MultiSpotlightOutput {
-  results: [Spotlight]
+  results: [Spotlight!]!
   totalCount: Int
 }
 
@@ -6379,17 +6758,28 @@ type SingleSubscriptionOutput {
   result: Subscription
 }
 
+input SubscriptionsSubscriptionStateInput {
+  documentId: String
+  userId: String
+  type: String
+  collectionName: String
+}
+
 input SubscriptionsSubscriptionsOfTypeInput {
   userId: String
   collectionName: String
   subscriptionType: String
 }
 
+input SubscriptionsMembersOfGroupInput {
+  documentId: String
+}
+
 input SubscriptionSelector {
   default: EmptyViewInput
-  subscriptionState: EmptyViewInput
+  subscriptionState: SubscriptionsSubscriptionStateInput
   subscriptionsOfType: SubscriptionsSubscriptionsOfTypeInput
-  membersOfGroup: EmptyViewInput
+  membersOfGroup: SubscriptionsMembersOfGroupInput
 }
 
 input MultiSubscriptionInput {
@@ -6400,7 +6790,7 @@ input MultiSubscriptionInput {
 }
 
 type MultiSubscriptionOutput {
-  results: [Subscription]
+  results: [Subscription!]!
   totalCount: Int
 }
 
@@ -6448,7 +6838,7 @@ input MultiSurveyQuestionInput {
 }
 
 type MultiSurveyQuestionOutput {
-  results: [SurveyQuestion]
+  results: [SurveyQuestion!]!
   totalCount: Int
 }
 
@@ -6494,7 +6884,7 @@ input MultiSurveyResponseInput {
 }
 
 type MultiSurveyResponseOutput {
-  results: [SurveyResponse]
+  results: [SurveyResponse!]!
   totalCount: Int
 }
 
@@ -6551,7 +6941,7 @@ input MultiSurveyScheduleInput {
 }
 
 type MultiSurveyScheduleOutput {
-  results: [SurveySchedule]
+  results: [SurveySchedule!]!
   totalCount: Int
 }
 
@@ -6591,7 +6981,7 @@ input MultiSurveyInput {
 }
 
 type MultiSurveyOutput {
-  results: [Survey]
+  results: [Survey!]!
   totalCount: Int
 }
 
@@ -6635,7 +7025,7 @@ input MultiTagFlagInput {
 }
 
 type MultiTagFlagOutput {
-  results: [TagFlag]
+  results: [TagFlag!]!
   totalCount: Int
 }
 
@@ -6701,7 +7091,7 @@ input MultiTagRelInput {
 }
 
 type MultiTagRelOutput {
-  results: [TagRel]
+  results: [TagRel!]!
   totalCount: Int
 }
 
@@ -6897,6 +7287,7 @@ input TagsAllArbitalTagsInput {
 
 input TagsPingbackWikiPagesInput {
   excludedTagIds: [String!]
+  tagId: String
 }
 
 input TagSelector {
@@ -6931,7 +7322,7 @@ input MultiTagInput {
 }
 
 type MultiTagOutput {
-  results: [Tag]
+  results: [Tag!]!
   totalCount: Int
 }
 
@@ -6978,7 +7369,7 @@ input MultiTypingIndicatorInput {
 }
 
 type MultiTypingIndicatorOutput {
-  results: [TypingIndicator]
+  results: [TypingIndicator!]!
   totalCount: Int
 }
 
@@ -7018,7 +7409,7 @@ input MultiUltraFeedEventInput {
 }
 
 type MultiUltraFeedEventOutput {
-  results: [UltraFeedEvent]
+  results: [UltraFeedEvent!]!
   totalCount: Int
 }
 
@@ -7076,7 +7467,7 @@ input MultiUserEAGDetailInput {
 }
 
 type MultiUserEAGDetailOutput {
-  results: [UserEAGDetail]
+  results: [UserEAGDetail!]!
   totalCount: Int
 }
 
@@ -7124,7 +7515,7 @@ input MultiUserJobAdInput {
 }
 
 type MultiUserJobAdOutput {
-  results: [UserJobAd]
+  results: [UserJobAd!]!
   totalCount: Int
 }
 
@@ -7172,7 +7563,7 @@ input MultiUserMostValuablePostInput {
 }
 
 type MultiUserMostValuablePostOutput {
-  results: [UserMostValuablePost]
+  results: [UserMostValuablePost!]!
   totalCount: Int
 }
 
@@ -7217,7 +7608,7 @@ type SingleUserRateLimitOutput {
 }
 
 input UserRateLimitsUserRateLimitsInput {
-  active: String
+  active: Boolean
   userIds: [String!]
 }
 
@@ -7235,7 +7626,7 @@ input MultiUserRateLimitInput {
 }
 
 type MultiUserRateLimitOutput {
-  results: [UserRateLimit]
+  results: [UserRateLimit!]!
   totalCount: Int
 }
 
@@ -7285,7 +7676,7 @@ input MultiUserTagRelInput {
 }
 
 type MultiUserTagRelOutput {
-  results: [UserTagRel]
+  results: [UserTagRel!]!
   totalCount: Int
 }
 
@@ -7621,7 +8012,7 @@ type SingleUserOutput {
 }
 
 input UsersUsersByUserIdsInput {
-  userIds: String
+  userIds: [String!]
 }
 
 input UsersUsersProfileInput {
@@ -7630,7 +8021,7 @@ input UsersUsersProfileInput {
 }
 
 input UsersTagCommunityMembersInput {
-  hasBio: String
+  hasBio: Boolean
   profileTagId: String
 }
 
@@ -7661,7 +8052,7 @@ input MultiUserInput {
 }
 
 type MultiUserOutput {
-  results: [User]
+  results: [User!]!
   totalCount: Int
 }
 
@@ -7711,11 +8102,22 @@ type SingleVoteOutput {
   result: Vote
 }
 
+input VotesUserPostVotesInput {
+  collectionName: String
+  voteType: VoteType
+  after: String
+  before: String
+}
+
+input VotesUserVotesInput {
+  collectionNames: [String!]!
+}
+
 input VoteSelector {
   default: EmptyViewInput
   tagVotes: EmptyViewInput
-  userPostVotes: EmptyViewInput
-  userVotes: EmptyViewInput
+  userPostVotes: VotesUserPostVotesInput
+  userVotes: VotesUserVotesInput
 }
 
 input MultiVoteInput {
@@ -7726,7 +8128,7 @@ input MultiVoteInput {
 }
 
 type MultiVoteOutput {
-  results: [Vote]
+  results: [Vote!]!
   totalCount: Int
 }
 

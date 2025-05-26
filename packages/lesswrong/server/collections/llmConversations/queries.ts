@@ -22,7 +22,7 @@ export const graphqlLlmConversationQueryTypeDefs = gql`
   }
   
   input LlmConversationsLlmConversationsAllInput {
-    showDeleted: String
+    showDeleted: Boolean
   }
   
   input LlmConversationSelector {
@@ -39,7 +39,7 @@ export const graphqlLlmConversationQueryTypeDefs = gql`
   }
   
   type MultiLlmConversationOutput {
-    results: [LlmConversation]
+    results: [LlmConversation!]!
     totalCount: Int
   }
   

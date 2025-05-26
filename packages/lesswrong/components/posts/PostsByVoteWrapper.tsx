@@ -1,5 +1,4 @@
 import React from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isLWorAF } from '@/lib/instanceSettings';
 import PostsByVote from "./PostsByVote";
@@ -7,9 +6,22 @@ import ErrorBoundary from "../common/ErrorBoundary";
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 import LWPostsByVote from "./LWPostsByVote";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UserVotesMultiQuery = gql(`
+  query multiVotePostsByVoteWrapperQuery($selector: VoteSelector, $limit: Int, $enableTotal: Boolean) {
+    votes(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UserVotes
+      }
+      totalCount
+    }
+  }
+`);
 
 const PostsByVoteWrapper = ({voteType, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
-  voteType: string,
+  voteType: VoteType,
   year: number | '≤2020',
   limit?: number,
   showMostValuableCheckbox?: boolean,
@@ -19,18 +31,16 @@ const PostsByVoteWrapper = ({voteType, year, limit, showMostValuableCheckbox=fal
   // const before = year === '≤2020' ? '2021-01-01' : `${year + 1}-01-01`
   const after = `${year}-01-01`
 
-  const { results: votes, loading } = useMulti({
-    terms: {
-      view: "userPostVotes",
-      collectionName: "Posts",
-      voteType: voteType,
-      // before,
-      ...(year === '≤2020' ? {} : {after}),
+  const { data, loading } = useQuery(UserVotesMultiQuery, {
+    variables: {
+      selector: { userPostVotes: { collectionName: "Posts", voteType: voteType, ...(year === '≤2020' ? {} : { after }) } },
+      limit: 10000,
+      enableTotal: false,
     },
-    collectionName: "Votes",
-    fragmentName: "UserVotes",
-    limit: 10000
+    notifyOnNetworkStatusChange: true,
   });
+
+  const votes = data?.votes?.results;
 
   if (loading) return <div><Loading/><Typography variant="body2">Loading Votes</Typography></div>
     

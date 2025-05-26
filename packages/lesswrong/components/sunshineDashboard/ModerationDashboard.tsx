@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import qs from 'qs';
 import React from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
@@ -12,6 +11,20 @@ import UsersReviewInfoCard from "./UsersReviewInfoCard";
 import LoadMore from "../common/LoadMore";
 import Loading from "../vulcan-core/Loading";
 import FirstContentIcons from "./FirstContentIcons";
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SunshineUsersListMultiQuery = gql(`
+  query multiUserModerationDashboardQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SunshineUsersList
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   page: {
@@ -128,19 +141,46 @@ const ModerationDashboard = ({ classes }: {
     });
   };
 
-  const { results: usersToReview = [], totalCount: totalUsersToReviewCount, loadMoreProps, refetch, loading } = useMulti({
-    terms: {view: "sunshineNewUsers", limit: 10},
-    collectionName: "Users",
-    fragmentName: 'SunshineUsersList',
-    enableTotal: true,
-    itemsPerPage: 50
+  const { data, loading: loadingSunshineUsersList, refetch: refetchSunshineUsersList, fetchMore: fetchMoreSunshineUsersList } = useQuery(SunshineUsersListMultiQuery, {
+    variables: {
+      selector: { sunshineNewUsers: {} },
+      limit: 10,
+      enableTotal: true,
+    },
+    notifyOnNetworkStatusChange: true,
   });
 
-  const { results: allUsers = [], loadMoreProps: allUsersLoadMoreProps, refetch: refetchAllUsers } = useMulti({
-    terms: {view: "allUsers", limit: 10},
-    collectionName: "Users",
-    fragmentName: 'SunshineUsersList',
+  const usersToReview = data?.users?.results ?? [];
+
+  const loadMoreProps = useLoadMore({
+    data: data?.users,
+    loading: loadingSunshineUsersList,
+    fetchMore: fetchMoreSunshineUsersList,
+    initialLimit: 10,
     itemsPerPage: 50,
+    enableTotal: true,
+    resetTrigger: {view: "sunshineNewUsers", limit: 10}
+  });
+  const totalUsersToReviewCount = data?.users?.totalCount;
+
+  const { data: dataSunshineUsersList, loading: loadingAllUsers, refetch: refetchAllUsers, fetchMore: fetchMoreAllUsers } = useQuery(SunshineUsersListMultiQuery, {
+    variables: {
+      selector: { allUsers: {} },
+      limit: 10,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const allUsers = dataSunshineUsersList?.users?.results ?? [];
+
+  const allUsersLoadMoreProps = useLoadMore({
+    data: dataSunshineUsersList?.users,
+    loading: loadingAllUsers,
+    fetchMore: fetchMoreAllUsers,
+    initialLimit: 10,
+    itemsPerPage: 50,
+    resetTrigger: {view: "allUsers", limit: 10}
   });
 
   if (!currentUser || !userIsAdminOrMod(currentUser)) {
@@ -185,7 +225,7 @@ const ModerationDashboard = ({ classes }: {
               onClick={() => changeView("sunshineNewUsers")}
               className={classNames(classes.tabButton, { [classes.tabButtonSelected]: currentView === 'sunshineNewUsers' })} 
             >
-              Unreviewed Users {loading ? <Loading/> : <>({totalUsersToReviewCount})</>}
+              Unreviewed Users {loadingSunshineUsersList ? <Loading/> : <>({totalUsersToReviewCount})</>}
             </div>
             <div 
               onClick={() => changeView("allUsers")}
@@ -201,7 +241,7 @@ const ModerationDashboard = ({ classes }: {
           <div className={classNames({ [classes.hidden]: currentView !== 'sunshineNewUsers' })}>
             {usersToReview.map(user =>
               <div key={user._id} id={user._id}>
-                <UsersReviewInfoCard user={user} refetch={refetch} currentUser={currentUser}/>
+                <UsersReviewInfoCard user={user} refetch={refetchSunshineUsersList} currentUser={currentUser}/>
               </div>
             )}
           </div>

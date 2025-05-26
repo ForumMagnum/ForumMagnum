@@ -1,18 +1,29 @@
 import React, { FC, MouseEvent, useCallback, useEffect, useRef, useState } from "react";
 import classNames from "classnames";
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import CloudinaryImage2, { CloudinaryPropsType } from "../common/CloudinaryImage2";
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from "../../lib/routeUtil";
-import { useMulti } from "../../lib/crud/withMulti";
 import { REVIEW_YEAR, eligibleToNominate, reviewElectionName } from "../../lib/reviewUtils";
 import { TARGET_REVIEW_VOTING_NUM } from "./ReviewProgressVoting";
 import { useMessages } from "../common/withMessages";
 import DeferRender from "../common/DeferRender";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const reviewVoteFragmentMultiQuery = gql(`
+  query multiReviewVoteReviewVotingCanvasQuery($selector: ReviewVoteSelector, $limit: Int, $enableTotal: Boolean) {
+    reviewVotes(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...reviewVoteFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 export type GivingSeasonHeart = {
   userId: string,
@@ -290,7 +301,7 @@ const ReviewVotingCanvas = ({
   const currentUser = useCurrentUser();
   const showHearts = currentRoute?.path === "/";
 
-  const {data, refetch} = useQuery(gql`
+  const {data, refetch} = useQuery(gql(`
     query GivingSeasonHeartsQuery($electionName: String!) {
       GivingSeasonHearts(electionName: $electionName) {
         userId
@@ -300,7 +311,7 @@ const ReviewVotingCanvas = ({
         theta
       }
     }
-  `, {
+  `), {
     variables: {
       electionName: reviewElectionName
     },
@@ -313,7 +324,7 @@ const ReviewVotingCanvas = ({
   }, [data?.GivingSeasonHearts]);
 
   const [rawAddHeart, {loading: isAddingHeart}] = useMutation(
-    gql`
+    gql(`
       mutation AddGivingSeasonHeart(
         $electionName: String!,
         $x: Float!,
@@ -333,12 +344,12 @@ const ReviewVotingCanvas = ({
           theta
         }
       }
-    `,
+    `),
     {errorPolicy: "all"},
   );
 
   const [rawRemoveHeart, {loading: isRemovingHeart}] = useMutation(
-    gql`
+    gql(`
       mutation RemoveGivingSeasonHeart($electionName: String!) {
         RemoveGivingSeasonHeart(electionName: $electionName) {
           userId
@@ -348,7 +359,7 @@ const ReviewVotingCanvas = ({
           theta
         }
       }
-    `,
+    `),
     {errorPolicy: "all"},
   );
 
@@ -413,18 +424,16 @@ const ReviewVotingCanvas = ({
     setHoverPos(null);
   }, []);
 
-  const { totalCount } = useMulti({
-    terms: {
-      view: "reviewVotesFromUser",
-      userId: currentUser?._id,
-      year: REVIEW_YEAR.toString()
+  const { data: dataReviewVoteFragment } = useQuery(reviewVoteFragmentMultiQuery, {
+    variables: {
+      selector: { reviewVotesFromUser: { userId: currentUser?._id, year: REVIEW_YEAR.toString() } },
+      limit: TARGET_REVIEW_VOTING_NUM,
+      enableTotal: true,
     },
-    collectionName: "ReviewVotes",
-    fragmentName: 'reviewVoteFragment',
-    enableTotal: true,
     skip: !currentUser,
-    limit: TARGET_REVIEW_VOTING_NUM
+    notifyOnNetworkStatusChange: true,
   });
+  const totalCount = dataReviewVoteFragment?.reviewVotes?.totalCount;
 
   const {flash} = useMessages();
   const userHasVotedEnough = (totalCount || 0) >= TARGET_REVIEW_VOTING_NUM;

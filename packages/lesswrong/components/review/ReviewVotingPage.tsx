@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
-import { useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
@@ -24,6 +23,17 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import ReviewPostForm from "./ReviewPostForm";
 import PostsTagsList from "../tagging/PostsTagsList";
 import LWTooltip from "../common/LWTooltip";
+
+const PostsReviewVotingListMultiQuery = gql(`
+  query multiPostReviewVotingPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsReviewVotingList
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -115,19 +125,25 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
     reviewPhase = query.phase as ReviewPhase
   }
 
-  const { results, loading: postsLoading, error: postsError } = useMulti({
-    terms: {
-      view: reviewPhase === "VOTING" ? "reviewFinalVoting" : "reviewVoting",
-      before: `${reviewYear+1}-01-01`,
-      reviewPhase: reviewPhase,
-      after: `${reviewYear}-01-01`,
+  const { view, limit, ...selectorTerms } = {
+    view: reviewPhase === "VOTING" ? "reviewFinalVoting" : "reviewVoting",
+    before: `${reviewYear + 1}-01-01`,
+    reviewPhase: reviewPhase,
+    after: `${reviewYear}-01-01`,
+    limit: 600,
+  };
+  const { data, error: postsError, loading: postsLoading } = useQuery(PostsReviewVotingListMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
       limit: 600,
+      enableTotal: false,
     },
-    collectionName: "Posts",
-    fragmentName: 'PostsReviewVotingList',
+    skip: !reviewYear,
     fetchPolicy: 'cache-and-network',
-    skip: !reviewYear
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.posts?.results;
   const postsResults = results ?? null;
 
   const [submitVote] = useMutation(gql(`

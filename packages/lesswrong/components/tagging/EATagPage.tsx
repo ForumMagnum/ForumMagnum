@@ -5,7 +5,6 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers';
 import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { useMulti } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -46,6 +45,17 @@ import TagVersionHistoryButton from "../editor/TagVersionHistory";
 import ContentStyles from "../common/ContentStyles";
 import CommentsListCondensed from "../common/CommentsListCondensed";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const TagWithFlagsFragmentMultiQuery = gql(`
+  query multiTagEATagPageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagWithFlagsFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const TagEditFragmentQuery = gql(`
   query EATagPage($documentId: String) {
@@ -233,12 +243,6 @@ const EATagPage = ({classes}: {
   const contributorsLimit = 7;
   const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagPageWithRevisionFragment" : "TagPageFragment", {
     extraVariables: revision ? {
-      version: 'String',
-      contributorsLimit: 'Int',
-    } : {
-      contributorsLimit: 'Int',
-    },
-    extraVariablesValues: revision ? {
       version: revision,
       contributorsLimit,
     } : {
@@ -264,13 +268,18 @@ const EATagPage = ({classes}: {
     //tagFlagId handled as default case below
   }
 
-  const { results: otherTagsWithNavigation } = useMulti({
-    terms: ["allPages", "myPages"].includes(query.focus) ? multiTerms[query.focus] : {view: "tagsByTagFlag", tagFlagId: query.focus},
-    collectionName: "Tags",
-    fragmentName: 'TagWithFlagsFragment',
-    limit: 1500,
-    skip: !query.flagId
-  })
+  const { view, limit, ...selectorTerms } = ["allPages", "myPages"].includes(query.focus) ? multiTerms[query.focus] : { view: "tagsByTagFlag", tagFlagId: query.focus };
+  const { data: dataTagWithFlags } = useQuery(TagWithFlagsFragmentMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 1500,
+      enableTotal: false,
+    },
+    skip: !query.flagId,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const otherTagsWithNavigation = dataTagWithFlags?.tags?.results;
   
   useOnSearchHotkey(() => setTruncated(false));
 

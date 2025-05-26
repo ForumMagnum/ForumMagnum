@@ -3,11 +3,21 @@ import { useQuery } from '@apollo/client';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useOnFocusTab } from '../hooks/useOnFocusTab';
-import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from './useUpdateCurrentUser';
 import { faviconUrlSetting, faviconWithBadgeSetting } from '../../lib/instanceSettings';
 import { maybeDate, withDateFields } from '@/lib/utils/dateUtils';
+
+const NotificationsListMultiQuery = gql(`
+  query multiNotificationuseUnreadNotificationsQuery($selector: NotificationSelector, $limit: Int, $enableTotal: Boolean) {
+    notifications(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...NotificationsList
+      }
+      totalCount
+    }
+  }
+`);
 
 
 export type NotificationCountsResult = {
@@ -141,16 +151,14 @@ export const UnreadNotificationsContextProvider: FC<{
   // opens to by default (in `NotificationsMenu`); it isn't actually *used* here
   // but having fetched it puts it into the cache, which saves a load-spinner
   // in the crucial "click the notifications icon after site load" interaction.
-  const { refetch: refetchNotifications } = useMulti({
-    terms: {
-      view: "userNotifications",
-      userId: currentUser?._id,
+  const { refetch: refetchNotifications } = useQuery(NotificationsListMultiQuery, {
+    variables: {
+      selector: { userNotifications: { userId: currentUser?._id } },
+      limit: 20,
+      enableTotal: false,
     },
-    collectionName: "Notifications",
-    fragmentName: 'NotificationsList',
-    limit: 20,
-    enableTotal: false,
     skip: !currentUser?._id,
+    notifyOnNetworkStatusChange: true,
   });
   
   const refetchBoth = useCallback(async () => {

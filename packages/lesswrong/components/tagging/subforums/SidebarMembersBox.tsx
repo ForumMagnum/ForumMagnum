@@ -1,10 +1,22 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { useMulti } from '../../../lib/crud/withMulti';
 import classNames from 'classnames';
 import SubforumSubscribeSection from "./SubforumSubscribeSection";
 import SubforumMember from "./SubforumMember";
 import Loading from "../../vulcan-core/Loading";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UsersProfileMultiQuery = gql(`
+  query multiUserSidebarMembersBoxQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UsersProfile
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -66,12 +78,17 @@ const SidebarMembersBox = ({tag, className, classes}: {
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { results: members, loading } = useMulti({
-    terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 100},
-    collectionName: 'Users',
-    fragmentName: 'UsersProfile',
-    skip: !tag
-  })
+  const { data, loading } = useQuery(UsersProfileMultiQuery, {
+    variables: {
+      selector: { tagCommunityMembers: { profileTagId: tag?._id } },
+      limit: 100,
+      enableTotal: false,
+    },
+    skip: !tag,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const members = data?.users?.results;
   
   const organizers: UsersProfile[] = []
   const otherMembers: UsersProfile[] = []

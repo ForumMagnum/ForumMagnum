@@ -1,11 +1,34 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { useMulti } from "../../lib/crud/withMulti";
 import sortBy from "lodash/sortBy";
 import flatten from "lodash/flatten";
 import PostsLoading from "../posts/PostsLoading";
 import EAPostsItem from "../posts/EAPostsItem";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsListWithVotesMultiQuery = gql(`
+  query multiPostInstagramLandingPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsListWithVotes
+      }
+      totalCount
+    }
+  }
+`);
+
+const ChaptersFragmentMultiQuery = gql(`
+  query multiChapterInstagramLandingPageQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {
+    chapters(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ChaptersFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -32,27 +55,30 @@ const SEQUENCE_ID = 'iNAgbC98BnMuNWmxN';
  * Basically this is the way to get visitors from Instagram to go where you want them to go.
  */
 const InstagramLandingPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
-  const { results: chapters, loading: chaptersLoading } = useMulti({
-    terms: {
-      view: "SequenceChapters",
-      sequenceId: SEQUENCE_ID,
+  const { data, loading: chaptersLoading } = useQuery(ChaptersFragmentMultiQuery, {
+    variables: {
+      selector: { SequenceChapters: { sequenceId: SEQUENCE_ID } },
       limit: 2,
+      enableTotal: false,
     },
-    collectionName: "Chapters",
-    fragmentName: 'ChaptersFragment',
+    notifyOnNetworkStatusChange: true,
   });
+
+  const chapters = data?.chapters?.results;
 
   const postIds = chapters ? flatten(chapters.map(chapter => chapter.postIds || [])) : [];
 
-  const { results: posts, loading: postsLoading } = useMulti({
-    terms: {
-      postIds,
+  const { data: dataPostsListWithVotes, loading: postsLoading } = useQuery(PostsListWithVotesMultiQuery, {
+    variables: {
+      selector: { default: { postIds } },
       limit: postIds.length,
+      enableTotal: false,
     },
-    collectionName: "Posts",
-    fragmentName: 'PostsListWithVotes',
     skip: !postIds.length,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const posts = dataPostsListWithVotes?.posts?.results;
 
   const loading = chaptersLoading || postsLoading;
   const orderedPosts = posts ? sortBy(posts, p => postIds.indexOf(p._id)) : [];

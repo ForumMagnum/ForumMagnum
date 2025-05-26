@@ -2,7 +2,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
 import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
-import { useMulti } from '../../lib/crud/withMulti';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { hideScrollBars } from '../../themes/styleUtils';
@@ -22,6 +21,19 @@ import NewUserDMSummary from "./ModeratorUserInfo/NewUserDMSummary";
 import SunshineUserMessages from "./SunshineUserMessages";
 import FirstContentIcons from "./FirstContentIcons";
 import UserAutoRateLimitsDisplay from "./ModeratorUserInfo/UserAutoRateLimitsDisplay";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CommentsListWithParentMetadataMultiQuery = gql(`
+  query multiCommentUsersReviewInfoCardQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsListWithParentMetadata
+      }
+      totalCount
+    }
+  }
+`);
 
 export const CONTENT_LIMIT = 20
 
@@ -182,13 +194,17 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   
   const { posts = [], loading: postsLoading } = usePublishedPosts(user._id, CONTENT_LIMIT);
   
-  const { results: comments = [], loading: commentsLoading } = useMulti({
-    terms:{view:"sunshineNewUsersComments", userId: user._id},
-    collectionName: "Comments",
-    fragmentName: 'CommentsListWithParentMetadata',
+  const { data, loading: commentsLoading } = useQuery(CommentsListWithParentMetadataMultiQuery, {
+    variables: {
+      selector: { sunshineNewUsersComments: { userId: user._id } },
+      limit: CONTENT_LIMIT,
+      enableTotal: false,
+    },
     fetchPolicy: 'cache-and-network',
-    limit: CONTENT_LIMIT
+    notifyOnNetworkStatusChange: true,
   });
+
+  const comments = data?.comments?.results ?? [];
 
   const {needsReview: showReviewTrigger, reason: reviewTrigger} = getReasonForReview(user)
   

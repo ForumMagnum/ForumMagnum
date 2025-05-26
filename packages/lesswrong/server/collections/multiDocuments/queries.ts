@@ -28,21 +28,21 @@ export const graphqlMultiDocumentQueryTypeDefs = gql`
   }
   
   input MultiDocumentDefaultViewInput {
-    excludedDocumentIds: String
+    excludedDocumentIds: [String!]
   }
   
   input MultiDocumentsLensBySlugInput {
-    excludedDocumentIds: String
+    excludedDocumentIds: [String!]
     slug: String
   }
   
   input MultiDocumentsSummariesByParentIdInput {
-    excludedDocumentIds: String
+    excludedDocumentIds: [String!]
     parentDocumentId: String
   }
   
   input MultiDocumentsPingbackLensPagesInput {
-    excludedDocumentIds: String
+    excludedDocumentIds: [String!]
     documentId: String
   }
   
@@ -61,7 +61,7 @@ export const graphqlMultiDocumentQueryTypeDefs = gql`
   }
   
   type MultiMultiDocumentOutput {
-    results: [MultiDocument]
+    results: [MultiDocument!]!
     totalCount: Int
   }
   

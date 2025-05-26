@@ -35,7 +35,7 @@ export const graphqlUserTagRelQueryTypeDefs = gql`
   }
   
   type MultiUserTagRelOutput {
-    results: [UserTagRel]
+    results: [UserTagRel!]!
     totalCount: Int
   }
   

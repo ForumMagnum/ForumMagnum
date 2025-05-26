@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { gql as graphql, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '../common/withUser';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
@@ -13,6 +13,7 @@ import ContentStyles from "../common/ContentStyles";
 import { Typography } from "../common/Typography";
 import Loading from "../vulcan-core/Loading";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { maybeDate } from '@/lib/utils/dateUtils';
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostExternalPostImporter($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -24,7 +25,7 @@ const PostsListUpdateMutation = gql(`
   }
 `);
 
-const CommentsListMutation = graphql(`
+const CommentsListMutation = gql(`
   mutation createCommentExternalPostImporter($data: CreateCommentDataInput!) {
     createComment(data: $data) {
       data {
@@ -38,19 +39,19 @@ export type ExternalPostImportData = {
   alreadyExists: boolean;
   post: {
     _id: string;
-    slug: string;
-    title: string;
+    slug: string | null;
+    title: string | null;
     url: string | null;
-    postedAt: Date | null;
-    createdAt: Date | null;
+    postedAt: string | null;
+    createdAt: string | null;
     userId: string | null;
-    modifiedAt: Date | null;
-    draft: boolean;
-    content: string;
+    modifiedAt: string | null;
+    draft: boolean | null;
+    content: string | null;
     coauthorStatuses: Array<{
-      userId: string;
-      confirmed: boolean;
-      requested: boolean;
+      userId: string | null;
+      confirmed: boolean | null;
+      requested: boolean | null;
     }> | null;
   };
 };
@@ -253,7 +254,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
 
   const currentUser = useCurrentUser();
 
-  const [importUrlAsDraftPost, { data, loading, error }] = useMutation(graphql`
+  const [importUrlAsDraftPost, { data, loading, error }] = useMutation(gql(`
     mutation importUrlAsDraftPost($url: String!) {
       importUrlAsDraftPost(url: $url) {
         alreadyExists
@@ -263,10 +264,22 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
           title
           content
           url
+          postedAt
+          createdAt
+          modifiedAt
+          userId
+          draft
+          coauthorStatuses {
+            userId
+            confirmed
+            requested
+          }
         }
       }
     }
-  `);
+  `));
+
+  // postedAt, createdAt, modifiedAt, userId, draft, coauthorStatuses
 
   const [create] = useMutation(CommentsListMutation);
 
@@ -277,7 +290,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
       const importedPost = data.importUrlAsDraftPost.post;
       setPost(importedPost);
       setPostContent(importedPost.content ?? '');
-      setAlreadyExists(data.importUrlAsDraftPost.alreadyExists);
+      setAlreadyExists(!!data.importUrlAsDraftPost.alreadyExists);
     }
     if (error) {
       flash(error.message);
@@ -317,9 +330,9 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
             },
             draft: false,
             wasEverUndrafted: true,
-            postedAt: post.postedAt ?? defaultPostedAt ?? new Date(),
+            postedAt: maybeDate(post.postedAt) ?? defaultPostedAt ?? new Date(),
             deletedDraft: false
-          } as AnyBecauseHard
+          }
         }
       });
 

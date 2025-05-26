@@ -1,13 +1,26 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
-import { useMulti } from '../../lib/crud/withMulti';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { isEAForum } from '../../lib/instanceSettings';
 import PostsLoading from "../posts/PostsLoading";
 import PostsItem from "../posts/PostsItem";
 import LoadMore from "../common/LoadMore";
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const BookmarksWithDocumentFragmentMultiQuery = gql(`
+  query multiBookmarkBookmarksListQuery($selector: BookmarkSelector, $limit: Int, $enableTotal: Boolean) {
+    bookmarks(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...BookmarksWithDocumentFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   empty: {
@@ -27,16 +40,29 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, 
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const {results: bookmarks, loading, loadMoreProps} = useMulti({
-    collectionName: "Bookmarks",
-    terms: {
-      view: "myBookmarkedPosts",
-      limit,
+  const { data, loading, fetchMore } = useQuery(BookmarksWithDocumentFragmentMultiQuery, {
+    variables: {
+      selector: { myBookmarkedPosts: {} },
+      limit: 10,
+      enableTotal: false,
     },
-    itemsPerPage: 20,
-    fragmentName: "BookmarksWithDocumentFragment",
-    fetchPolicy: "cache-and-network",
     skip: !currentUser?._id,
+    fetchPolicy: "cache-and-network",
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const bookmarks = data?.bookmarks?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: data?.bookmarks,
+    loading,
+    fetchMore,
+    initialLimit: 10,
+    itemsPerPage: 20,
+    resetTrigger: {
+        view: "myBookmarkedPosts",
+        limit,
+      }
   });
   
   if (!currentUser) return null

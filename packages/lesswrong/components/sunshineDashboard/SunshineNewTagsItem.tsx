@@ -8,7 +8,6 @@ import { useHover } from '../common/withHover'
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { useMulti } from '../../lib/crud/withMulti';
 import SidebarActionMenu from "./SidebarActionMenu";
 import TagSmallPostLink from "../tagging/TagSmallPostLink";
 import SidebarAction from "./SidebarAction";
@@ -18,8 +17,19 @@ import SidebarHoverOver from "./SidebarHoverOver";
 import SidebarInfo from "./SidebarInfo";
 import Loading from "../vulcan-core/Loading";
 import ContentStyles from "../common/ContentStyles";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const TagRelFragmentMultiQuery = gql(`
+  query multiTagRelSunshineNewTagsItemQuery($selector: TagRelSelector, $limit: Int, $enableTotal: Boolean) {
+    tagRels(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagRelFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const SunshineTagFragmentUpdateMutation = gql(`
   mutation updateTagSunshineNewTagsItem($selector: SelectorInput!, $data: UpdateTagDataInput!) {
@@ -86,16 +96,17 @@ const SunshineNewTagsItem = ({tag, classes}: {
       }
     })
   }
-  const { results, loading } = useMulti({
-    skip: !(tag._id),
-    terms: {
-      view: "postsWithTag",
-      tagId: tag._id,
+  const { data, loading } = useQuery(TagRelFragmentMultiQuery, {
+    variables: {
+      selector: { postsWithTag: { tagId: tag._id } },
+      limit: 20,
+      enableTotal: false,
     },
-    collectionName: "TagRels",
-    fragmentName: "TagRelFragment",
-    limit: 20,
+    skip: !(tag._id),
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.tagRels?.results;
   
   return (
     <span {...eventHandlers}>

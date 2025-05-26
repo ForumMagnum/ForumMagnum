@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
-import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { sortings } from '../posts/DraftsList';
 import SectionTitle from "../common/SectionTitle";
@@ -10,6 +9,20 @@ import DraftsListSettings from "../posts/DraftsListSettings";
 import PostsItemWrapper from "../posts/PostsItemWrapper";
 import LoadMore from "../common/LoadMore";
 import Loading from "../vulcan-core/Loading";
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsListMultiQuery = gql(`
+  query multiPostSequenceDraftsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsList
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   item: {
@@ -40,21 +53,34 @@ const SequenceDraftsList = ({limit, title="My Drafts", userId, classes, addDraft
 
   const currentSorting = query.sortDraftsBy ?? query.view ?? currentUser?.draftsListSorting ?? "lastModified";
 
-  const terms: PostsViewTerms = {
-    view: "drafts",
+  const terms = useMemo(() => ({
     userId: userId ?? currentUser?._id,
     limit,
     sortDraftsBy: currentSorting,
     includeArchived: !!query.includeArchived ? (query.includeArchived === 'true') : (currentUser?.draftsListShowArchived ?? undefined),
     includeShared: !!query.includeShared ? (query.includeShared === 'true') : (currentUser?.draftsListShowShared !== false),
-  }
+  }), [userId, limit, currentSorting, query.includeArchived, query.includeShared, currentUser]);
   
-  const { results, loading, loadMoreProps } = useMulti({
-    terms,
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
+  const { data, loading, fetchMore } = useQuery(PostsListMultiQuery, {
+    variables: {
+      selector: { drafts: terms },
+      limit,
+      enableTotal: false,
+    },
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = data?.posts?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: data?.posts,
+    loading,
+    fetchMore,
+    initialLimit: 10,
+    itemsPerPage: 10,
+    resetTrigger: terms
   });
 
   if (!currentUser) return null

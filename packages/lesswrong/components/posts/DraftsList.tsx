@@ -1,9 +1,8 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import { userCanPost } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
-import {useMulti} from "../../lib/crud/withMulti";
 import {useLocation} from "../../lib/routeUtil";
 import {Link} from "../../lib/reactRouterWrapper";
 import DescriptionIcon from "@/lib/vendor/@material-ui/icons/src/Description";
@@ -15,8 +14,20 @@ import DraftsListSettings from "./DraftsListSettings";
 import LoadMore from "../common/LoadMore";
 import PostsItem from "./PostsItem";
 import Loading from "../vulcan-core/Loading";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+
+const PostsListWithVotesMultiQuery = gql(`
+  query multiPostDraftsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsListWithVotes
+      }
+      totalCount
+    }
+  }
+`);
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostDraftsList($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -72,21 +83,35 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
 
   const currentSorting = query.sortDraftsBy ?? query.view ?? currentUser?.draftsListSorting ?? "lastModified";
 
-  const terms: PostsViewTerms = {
-    view: "drafts",
+  const terms = useMemo(() => ({
     userId: userId ?? currentUser?._id,
     limit,
     sortDraftsBy: currentSorting,
     includeArchived: !!query.includeArchived ? (query.includeArchived === 'true') : !!currentUser?.draftsListShowArchived,
     includeShared: !!query.includeShared ? (query.includeShared === 'true') : (currentUser?.draftsListShowShared !== false),
-  }
+  }), [userId, limit, currentSorting, query.includeArchived, query.includeShared, currentUser]);
   
-  const { results, loading, loadMoreProps } = useMulti({
-    terms,
-    collectionName: "Posts",
-    fragmentName: 'PostsListWithVotes',
+  // const { view, limit, ...selectorTerms } = terms;
+  const { data, loading, fetchMore } = useQuery(PostsListWithVotesMultiQuery, {
+    variables: {
+      selector: { drafts: terms },
+      limit,
+      enableTotal: false,
+    },
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = data?.posts?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: data?.posts,
+    loading,
+    fetchMore,
+    initialLimit: 10,
+    itemsPerPage: 10,
+    resetTrigger: terms
   });
   
   if (!currentUser) return null

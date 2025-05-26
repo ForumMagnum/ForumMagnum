@@ -16,6 +16,13 @@ export const graphqlSubscriptionQueryTypeDefs = gql`
   type SingleSubscriptionOutput {
     result: Subscription
   }
+
+  input SubscriptionsSubscriptionStateInput {
+    documentId: String
+    userId: String
+    type: String
+    collectionName: String
+  }
   
   input SubscriptionsSubscriptionsOfTypeInput {
     userId: String
@@ -23,11 +30,15 @@ export const graphqlSubscriptionQueryTypeDefs = gql`
     subscriptionType: String
   }
   
+  input SubscriptionsMembersOfGroupInput {
+    documentId: String
+  }
+  
   input SubscriptionSelector {
     default: EmptyViewInput
-    subscriptionState: EmptyViewInput
+    subscriptionState: SubscriptionsSubscriptionStateInput
     subscriptionsOfType: SubscriptionsSubscriptionsOfTypeInput
-    membersOfGroup: EmptyViewInput
+    membersOfGroup: SubscriptionsMembersOfGroupInput
   }
   
   input MultiSubscriptionInput {
@@ -38,7 +49,7 @@ export const graphqlSubscriptionQueryTypeDefs = gql`
   }
   
   type MultiSubscriptionOutput {
-    results: [Subscription]
+    results: [Subscription!]!
     totalCount: Int
   }
   

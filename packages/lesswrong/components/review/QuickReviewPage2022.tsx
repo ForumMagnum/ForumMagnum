@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import sortBy from 'lodash/sortBy';
@@ -12,6 +11,20 @@ import Loading from "../vulcan-core/Loading";
 import ReviewPhaseInformation from "./ReviewPhaseInformation";
 import ReviewDashboardButtons from "./ReviewDashboardButtons";
 import PostInteractionStripe from "./PostInteractionStripe";
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsReviewVotingListMultiQuery = gql(`
+  query multiPostQuickReviewPage2022Query($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsReviewVotingList
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   grid: {
@@ -101,20 +114,34 @@ export const QuickReviewPage2022 = ({classes}: {
   const [expandedPost, setExpandedPost] = useState<PostsReviewVotingList|null>(null)
   const [truncatePosts, setTruncatePosts] = useState<boolean>(true)
 
-  const { results: posts, loadMore, loading, totalCount } = useMulti({
-    terms: {
-      view: "reviewQuickPage",
-      before: `${reviewYear+1}-01-01`,
-      after: `${reviewYear}-01-01`,
+  const { data, loading, fetchMore } = useQuery(PostsReviewVotingListMultiQuery, {
+    variables: {
+      selector: { reviewQuickPage: { before: `${reviewYear + 1}-01-01`, after: `${reviewYear}-01-01` } },
       limit: 25,
+      enableTotal: true,
     },
-    collectionName: "Posts",
-    fragmentName: 'PostsReviewVotingList',
+    skip: !reviewYear,
     fetchPolicy: 'cache-and-network',
-    enableTotal: true,
-    itemsPerPage: 1000,
-    skip: !reviewYear
+    notifyOnNetworkStatusChange: true,
   });
+
+  const posts = data?.posts?.results;
+
+  const { loadMore } = useLoadMore({
+    data: data?.posts,
+    loading,
+    fetchMore,
+    initialLimit: 25,
+    itemsPerPage: 1000,
+    enableTotal: true,
+    resetTrigger: {
+        view: "reviewQuickPage",
+        before: `${reviewYear+1}-01-01`,
+        after: `${reviewYear}-01-01`,
+        limit: 25,
+      }
+  });
+  const totalCount = data?.posts?.totalCount;
   const sortedPostsResults = !!posts ? sortBy(posts, (post1,post2) => {
     return post1.currentUserVote === null
   }) : []
@@ -125,7 +152,7 @@ export const QuickReviewPage2022 = ({classes}: {
     if (truncatePosts) {
       setTruncatePosts(false)
     } else {
-      loadMore()
+      void loadMore()
     }
   }
 

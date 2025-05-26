@@ -1,9 +1,8 @@
 import React, {useState} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
-import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
-import { useQuery, gql as graphql } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { gql } from "@/lib/generated/gql-codegen/gql";
@@ -14,6 +13,28 @@ import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
 import FormatDate from "../common/FormatDate";
 import UsersNameDisplay from "../users/UsersNameDisplay";
+
+const ModeratorClientIDInfoMultiQuery = gql(`
+  query multiClientIdModerationAltAccountsQuery($selector: ClientIdSelector, $limit: Int, $enableTotal: Boolean) {
+    clientIds(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ModeratorClientIDInfo
+      }
+      totalCount
+    }
+  }
+`);
+
+const UserAltAccountsFragmentMultiQuery = gql(`
+  query multiUserModerationAltAccountsQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UserAltAccountsFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 
 const UserAltAccountsFragmentQuery = gql(`
@@ -143,12 +164,17 @@ const AltAccountsNodeUserBySlug = ({slug, classes}: {
   slug: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {results,loading} = useMulti({
-    collectionName: "Users",
-    fragmentName: "UserAltAccountsFragment",
-    terms: { view: "usersProfile", slug },
+  const { data, loading } = useQuery(UserAltAccountsFragmentMultiQuery, {
+    variables: {
+      selector: { usersProfile: { slug } },
+      limit: 10,
+      enableTotal: false,
+    },
     skip: !slug,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.users?.results;
   const user = results?.[0];
   if (!slug) {
     return <ContentStyles contentType="comment"><i>Select a user to continue</i></ContentStyles>
@@ -227,15 +253,17 @@ const AltAccountsNodeClientID = ({clientId, classes}: {
 }) => {
   const [expanded,setExpanded] = useState(false);
   
-  const { results, loading } = useMulti({
-    collectionName: "ClientIds",
-    fragmentName: "ModeratorClientIDInfo",
-    terms: {
-      view: "getClientId",
-      clientId
+  const { data: dataModeratorClientIDInfo, loading } = useQuery(ModeratorClientIDInfoMultiQuery, {
+    variables: {
+      selector: { getClientId: { clientId } },
+      limit: 10,
+      enableTotal: false,
     },
     skip: !clientId,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = dataModeratorClientIDInfo?.clientIds?.results;
   const clientIdInfo = (results?.length===1 ? results[0] : null);
   
   return <div>
@@ -269,14 +297,14 @@ const AltAccountsNodeIPAddress = ({ipAddress, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [expanded,setExpanded] = useState(false);
-  const {data, loading} = useQuery(graphql`
+  const {data, loading} = useQuery(gql(`
     query ModeratorIPAddressInfo($ipAddress: String!) {
       moderatorViewIPAddress(ipAddress: $ipAddress) {
         ip
         userIds
       }
     }
-  `, {
+  `), {
     variables: {ipAddress}
   });
   

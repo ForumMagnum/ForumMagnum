@@ -1,4 +1,16 @@
-import { useMulti } from "../../lib/crud/withMulti";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SunshinePostsListMultiQuery = gql(`
+  query multiPostusePublishedPostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SunshinePostsList
+      }
+      totalCount
+    }
+  }
+`);
 
 /**
  * Used to fetch a list of posts for moderation contexts.
@@ -6,13 +18,17 @@ import { useMulti } from "../../lib/crud/withMulti";
  * This used to be implemented with LWEvents, but now we're just using the `wasEverUndrafted` field.
  */
 export function usePublishedPosts(userId: string, contentLimit = 20) {
-  const { results: posts = [], loading } = useMulti({
-    terms:{ view:"sunshineNewUsersPosts", userId },
-    collectionName: "Posts",
-    fragmentName: 'SunshinePostsList',
+  const { data, loading } = useQuery(SunshinePostsListMultiQuery, {
+    variables: {
+      selector: { sunshineNewUsersPosts: { userId } },
+      limit: contentLimit,
+      enableTotal: false,
+    },
     fetchPolicy: 'cache-and-network',
-    limit: contentLimit
+    notifyOnNetworkStatusChange: true,
   });
+
+  const posts = data?.posts?.results;
 
   return {
     posts: loading ? undefined : posts,

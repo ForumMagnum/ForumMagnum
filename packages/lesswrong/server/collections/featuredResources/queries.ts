@@ -30,7 +30,7 @@ export const graphqlFeaturedResourceQueryTypeDefs = gql`
   }
   
   type MultiFeaturedResourceOutput {
-    results: [FeaturedResource]
+    results: [FeaturedResource!]!
     totalCount: Int
   }
   

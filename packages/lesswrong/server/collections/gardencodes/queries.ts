@@ -56,7 +56,7 @@ export const graphqlGardencodeQueryTypeDefs = gql`
   }
   
   type MultiGardenCodeOutput {
-    results: [GardenCode]
+    results: [GardenCode!]!
     totalCount: Int
   }
   

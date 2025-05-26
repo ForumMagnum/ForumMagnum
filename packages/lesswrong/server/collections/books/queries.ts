@@ -29,7 +29,7 @@ export const graphqlBookQueryTypeDefs = gql`
   }
   
   type MultiBookOutput {
-    results: [Book]
+    results: [Book!]!
     totalCount: Int
   }
   

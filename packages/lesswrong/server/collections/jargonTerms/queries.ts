@@ -40,7 +40,7 @@ export const graphqlJargonTermQueryTypeDefs = gql`
   }
   
   type MultiJargonTermOutput {
-    results: [JargonTerm]
+    results: [JargonTerm!]!
     totalCount: Int
   }
   

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
-import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import LockIcon from '@/lib/vendor/@material-ui/icons/src/Lock'
@@ -8,6 +7,19 @@ import LockOpenIcon from '@/lib/vendor/@material-ui/icons/src/LockOpen'
 import flatMap from 'lodash/flatMap';
 import Loading from "../../vulcan-core/Loading";
 import LWTooltip from "../../common/LWTooltip";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SunshineUsersListMultiQuery = gql(`
+  query multiUserAltAccountInfoQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SunshineUsersList
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -31,15 +43,17 @@ export const AltAccountInfo = ({classes, user}: {
   const associatedUserIds: string[] = user.associatedClientIds
     ? flatMap(user.associatedClientIds, clientId=>(clientId.userIds||[]))
     : [];
-  const { results, loading } = useMulti({
-    terms: {
-      view: "usersByUserIds",
-      userIds:  associatedUserIds,
+  const { data, loading } = useQuery(SunshineUsersListMultiQuery, {
+    variables: {
+      selector: { usersByUserIds: { userIds: associatedUserIds } },
+      limit: 10,
+      enableTotal: false,
     },
-    collectionName: "Users",
-    fragmentName: 'SunshineUsersList',
-    skip: !(associatedUserIds.length > 0)
+    skip: !(associatedUserIds.length > 0),
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.users?.results;
 
   const flaggedAccounts = results?.filter(result => result._id !== user._id && (!!result.banned || result.postingDisabled || result.allCommentingDisabled || result.commentingOnOtherUsersDisabled || result.conversationsDisabled || result.karma < 0))
   

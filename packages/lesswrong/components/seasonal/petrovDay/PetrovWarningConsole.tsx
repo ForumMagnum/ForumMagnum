@@ -1,10 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
-import { gql as graphql, useQuery, useMutation } from '@apollo/client';
-import { useMulti } from '@/lib/crud/withMulti';
+import { useQuery, useMutation } from '@apollo/client';
 import PetrovWorldmapWrapper from "./PetrovWorldmapWrapper";
 import PastWarnings from "./PastWarnings";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PetrovDayActionInfoMultiQuery = gql(`
+  query multiPetrovDayActionPetrovWarningConsoleQuery($selector: PetrovDayActionSelector, $limit: Int, $enableTotal: Boolean) {
+    petrovDayActions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PetrovDayActionInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 const PetrovDayActionInfoMutation = gql(`
   mutation createPetrovDayActionPetrovWarningConsole($data: CreatePetrovDayActionDataInput!) {
@@ -48,16 +58,17 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
   currentUser: UsersCurrent,
   side: 'east' | 'west'
 }) => {
-  const { results: petrovDayActions = [], refetch: refetchPetrovDayActions } = useMulti({
-    collectionName: 'PetrovDayActions',
-    fragmentName: 'PetrovDayActionInfo',
-    terms: {
-      view: 'warningConsole',
-      side: side,
-      limit: 200
+  const { data: dataPetrovDayActionInfo, refetch: refetchPetrovDayActions } = useQuery(PetrovDayActionInfoMultiQuery, {
+    variables: {
+      selector: { warningConsole: { side: side } },
+      limit: 200,
+      enableTotal: false,
     },
-    skip: !currentUser
-  })
+    skip: !currentUser,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const petrovDayActions = dataPetrovDayActionInfo?.petrovDayActions?.results ?? [];
   const [lastReported, setLastReported] = useState<string | null>(null)
 
   const pastWarnings = side === 'east'
@@ -72,17 +83,14 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
   const reportWindow = inWarningWindow(currentMinute)
   const minutesRemaining = Math.abs(currentMinute - STARTING_MINUTE)
 
-  const { data, refetch: refetchCount } = useQuery(graphql`
+  const { data, refetch: refetchCount } = useQuery(gql(`
     query petrovDay2024Resolvers {
       PetrovDay2024CheckNumberOfIncoming {
         count
       }
     }
-  `, {
+  `), {
     ssr: true,
-    variables: {
-      side
-    }
   });
 
   const count = data?.PetrovDay2024CheckNumberOfIncoming?.count?.toLocaleString()
@@ -100,7 +108,7 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
         }
       }
     }) 
-    refetchPetrovDayActions()
+    void refetchPetrovDayActions()
     setLastReported(new Date().toISOString())
   }
 

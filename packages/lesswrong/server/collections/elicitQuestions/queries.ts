@@ -29,7 +29,7 @@ export const graphqlElicitQuestionQueryTypeDefs = gql`
   }
   
   type MultiElicitQuestionOutput {
-    results: [ElicitQuestion]
+    results: [ElicitQuestion!]!
     totalCount: Int
   }
   

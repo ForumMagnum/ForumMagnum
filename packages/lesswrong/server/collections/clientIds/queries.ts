@@ -34,7 +34,7 @@ export const graphqlClientIdQueryTypeDefs = gql`
   }
   
   type MultiClientIdOutput {
-    results: [ClientId]
+    results: [ClientId!]!
     totalCount: Int
   }
   

@@ -12,7 +12,6 @@ import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
-import { useMulti } from '../../lib/crud/withMulti';
 import { useContinueReading } from '../recommendations/withContinueReading';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import TabPicker, { TabRecord } from './TabPicker';
@@ -44,6 +43,17 @@ import { MixedTypeFeed } from "./MixedTypeFeed";
 import SuggestedFeedSubscriptions from "../subscriptions/SuggestedFeedSubscriptions";
 import PostsItem from "../posts/PostsItem";
 import { SubscribedFeedQuery } from './feeds/feedQueries';
+
+const SubscriptionStateMultiQuery = gql(`
+  query multiSubscriptionLWHomePostsQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
+    subscriptions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SubscriptionState
+      }
+      totalCount
+    }
+  }
+`);
 
 const PostsListWithVotesQuery = gql(`
   query LWHomePosts($documentId: String) {
@@ -474,18 +484,17 @@ const LWHomePosts = ({ children, classes }: {
   }, [refetchSubscriptionContentRef]);
 
   // TODO: refactor to pass this through SuggestedFeedSubscriptions > FollowUserSearch instead of calling it there, if we keep it here
-  const { results: userSubscriptions } = useMulti({
-    terms: {
-      view: "subscriptionsOfType",
-      userId: currentUser?._id,
-      collectionName: "Users",
-      subscriptionType: "newActivityForFeed",
-      limit: 1000
+  const { data: dataSubscriptionState } = useQuery(SubscriptionStateMultiQuery, {
+    variables: {
+      selector: { subscriptionsOfType: { userId: currentUser?._id, collectionName: "Users", subscriptionType: "newActivityForFeed" } },
+      limit: 1000,
+      enableTotal: false,
     },
-    collectionName: "Subscriptions",
-    fragmentName: "SubscriptionState",
-    skip: !currentUser || selectedTab !== 'forum-subscribed-authors'
+    skip: !currentUser || selectedTab !== 'forum-subscribed-authors',
+    notifyOnNetworkStatusChange: true,
   });
+
+  const userSubscriptions = dataSubscriptionState?.subscriptions?.results;
 
   const subscribedFeedProps = {
     query: SubscribedFeedQuery,

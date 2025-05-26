@@ -9,7 +9,7 @@ import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import LoginIcon from "@/lib/vendor/@material-ui/icons/src/LockOpen"
 import UnlinkIcon from "@/lib/vendor/@material-ui/icons/src/RemoveCircle";
-import { gql as graphql, useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { useOnFocusTab } from "../hooks/useOnFocusTab";
 import { combineUrls } from "../../lib/vulcan-lib/utils";
 import { useCurrentUser } from "../common/withUser";
@@ -139,11 +139,11 @@ export const FMCrosspostControl = ({ field }: {
   const {isCrosspost} = field.state.value ?? {};
   if (!currentUser) throw new Error("FMCrosspostControl should only appear when logged in");
 
-  const [unlink, {loading: loadingUnlink}] = useMutation(graphql`
+  const [unlink, {loading: loadingUnlink}] = useMutation(gql(`
     mutation unlinkCrossposter {
       unlinkCrossposter
     }
-  `, {errorPolicy: "all"});
+  `), {errorPolicy: "all"});
   const { refetch, loading: loadingDocument, data } = useQuery(UsersCrosspostInfoQuery, {
     variables: { documentId: currentUser._id },
     notifyOnNetworkStatusChange: true,

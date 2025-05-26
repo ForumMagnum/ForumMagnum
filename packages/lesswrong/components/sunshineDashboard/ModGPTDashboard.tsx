@@ -12,6 +12,20 @@ import UsersName from "../users/UsersName";
 import FormatDate from "../common/FormatDate";
 import Error404 from "../common/Error404";
 import SectionTitle from "../common/SectionTitle";
+import { gql } from '@/lib/generated/gql-codegen';
+import { NetworkStatus, useQuery } from '@apollo/client';
+import { useLoadMore } from '../hooks/useLoadMore';
+
+const ModGPTDashboardQuery = gql(`
+  query ModGPTDashboardQuery($selector: CommentSelector, $limit: Int) {
+    comments(selector: $selector, limit: $limit) {
+      results {
+        ...CommentsListWithModGPTAnalysis
+      }
+    }
+  }
+`);
+
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -103,6 +117,20 @@ const ModGPTDashboard = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser()
+
+  const { data, loading, fetchMore, networkStatus } = useQuery(ModGPTDashboardQuery, {
+    variables: {
+      selector: { checkedByModGPT: {} },
+      limit: 10,
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const { loadMore, count, totalCount } = useLoadMore({
+    data: data?.comments,
+    fetchMore,
+    loading,
+  });
   
   if (!userIsAdminOrMod(currentUser)) {
     return <Error404 />
@@ -115,9 +143,12 @@ const ModGPTDashboard = ({classes}: {
       <Datatable
         collectionName="Comments"
         columns={columns}
-        fragmentName={'CommentsListWithModGPTAnalysis'}
-        terms={{view: "checkedByModGPT"}}
-        limit={10}
+        results={data?.comments?.results ?? []}
+        loading={loading}
+        loadMore={loadMore}
+        count={count}
+        totalCount={totalCount ?? 0}
+        loadingMore={networkStatus === NetworkStatus.fetchMore}
       />
     </div>
   )

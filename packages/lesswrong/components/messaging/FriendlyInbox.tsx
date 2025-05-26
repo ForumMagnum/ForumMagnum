@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { UseMultiResult, useMulti } from "../../lib/crud/withMulti";
+import { UseMultiResult } from "../../lib/crud/withMulti";
 import classNames from "classnames";
 import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
 import { useDialog } from "../common/withDialog";
@@ -18,6 +18,18 @@ import ConversationContents from "./ConversationContents";
 import ForumIcon from "../common/ForumIcon";
 import ConversationDetails from "./ConversationDetails";
 import EAButton from "../ea-forum/EAButton";
+import { useLoadMore } from "../hooks/useLoadMore";
+
+const ConversationsListWithReadStatusMultiQuery = gql(`
+  query multiConversationFriendlyInboxQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
+    conversations(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ConversationsListWithReadStatus
+      }
+      totalCount
+    }
+  }
+`);
 
 const ConversationsListWithReadStatusQuery = gql(`
   query FriendlyInbox($documentId: String) {
@@ -227,17 +239,33 @@ const FriendlyInbox = ({
       />
     });
   }, [isModInbox, openDialog]);
-  const conversationsResult = useMulti({
-    terms,
-    collectionName: "Conversations",
-    fragmentName: "ConversationsListWithReadStatus",
-    limit: 500,
+
+  const { view, ...selectorTerms } = terms;
+  const initialLimit = 500;
+  const conversationsResult = useQuery(ConversationsListWithReadStatusMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: initialLimit,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
   const {
-    results: conversations,
+    data: conversationsData,
     loading: conversationsLoading,
     refetch: refetchConversations,
+    fetchMore: fetchMoreConversations,
   } = conversationsResult;
+
+  const conversations = useMemo(() => conversationsData?.conversations?.results ?? [], [conversationsData?.conversations?.results]);
+
+  const loadMoreProps = useLoadMore({
+    data: conversationsData?.conversations,
+    fetchMore: fetchMoreConversations,
+    loading: conversationsLoading,
+    initialLimit,
+  });
 
   // The conversationId need not appear in the sidebar (e.g. if it is a new conversation). If it does,
   // use the conversation from the list to load the title faster, if not, fetch it directly.
@@ -299,7 +327,11 @@ const FriendlyInbox = ({
           </div>
           <div className={classes.navigation}>
             <FriendlyInboxNavigation
-              conversationsResult={conversationsResult}
+              conversationsResult={{
+                results: conversations,
+                loading: conversationsLoading,
+                loadMoreProps,
+              }}
               currentUser={currentUser}
               selectedConversationId={conversationId}
               setSelectedConversationId={selectConversationCallback}

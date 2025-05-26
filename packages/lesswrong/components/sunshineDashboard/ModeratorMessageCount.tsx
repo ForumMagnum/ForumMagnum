@@ -1,9 +1,21 @@
 import React from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import LWTooltip from "../common/LWTooltip";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const ConversationsMinimumInfoMultiQuery = gql(`
+  query multiConversationModeratorMessageCountQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
+    conversations(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ConversationsMinimumInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,13 +36,16 @@ export const ModeratorMessageCount = ({classes, userId}: {
   userId: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { loading, totalCount } = useMulti({
-    terms: {view: "moderatorConversations", userId},
-    collectionName: "Conversations",
-    fragmentName: 'ConversationsMinimumInfo',
+  const { data, loading } = useQuery(ConversationsMinimumInfoMultiQuery, {
+    variables: {
+      selector: { moderatorConversations: { userId } },
+      limit: 10,
+      enableTotal: true,
+    },
     fetchPolicy: 'cache-and-network',
-    enableTotal: true
+    notifyOnNetworkStatusChange: true,
   });
+  const totalCount = data?.conversations?.totalCount;
 
   if (totalCount === 0 || loading) return null
 

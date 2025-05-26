@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { extractGoogleDocId, googleDocIdToUrl, postGetEditUrl } from "../../lib/collections/posts/helpers";
 import { useMessages } from "../common/withMessages";
-import { useMulti } from "../../lib/crud/withMulti";
 import { useTracking } from "../../lib/analyticsEvents";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -13,6 +12,17 @@ import PopperCard from "../common/PopperCard";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import Loading from "../vulcan-core/Loading";
 import { gql } from "@/lib/generated/gql-codegen";
+
+const GoogleServiceAccountSessionInfoMultiQuery = gql(`
+  query multiGoogleServiceAccountSessionGoogleDocImportButtonQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {
+    googleServiceAccountSessions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...GoogleServiceAccountSessionInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   button: {
@@ -192,15 +202,17 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; 
     }
   }, [canAccessQuery?.CanAccessGoogleDoc, fileId])
 
-  const { results: serviceAccounts, loading: serviceAccountsLoading } = useMulti({
-    terms: {},
-    collectionName: "GoogleServiceAccountSessions",
-    fragmentName: 'GoogleServiceAccountSessionInfo',
-    enableTotal: false,
-    extraVariablesValues: {
-      batchKey: "docImportInfo"
-    }
-  })
+  const { data, loading: serviceAccountsLoading } = useQuery(GoogleServiceAccountSessionInfoMultiQuery, {
+    variables: {
+      selector: { default: {} },
+      limit: 10,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
+    context: { batchKey: "docImportInfo" },
+  });
+
+  const serviceAccounts = data?.googleServiceAccountSessions?.results;
   const email = serviceAccounts?.[0]?.email
 
   const [importGoogleDocMutation, {loading: mutationLoading}] = useMutation(

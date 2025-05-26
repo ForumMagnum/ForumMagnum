@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import { singleLineStyles } from '../comments/SingleLineComment';
 import { CONDENSED_MARGIN_BOTTOM } from '../comments/CommentFrame';
@@ -11,6 +10,20 @@ import CommentOnPostWithReplies from "../comments/CommentOnPostWithReplies";
 import LoadMore from "../common/LoadMore";
 import ContentStyles from "../common/ContentStyles";
 import { maybeDate } from '@/lib/utils/dateUtils';
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CommentWithRepliesFragmentMultiQuery = gql(`
+  query multiCommentReviewPostCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentWithRepliesFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -43,12 +56,26 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
   hideReviewVoteButtons?: boolean
   singleLineCollapse?: boolean
 }) => {
-  const { loading, results, loadMoreProps } = useMulti({
-    terms,
-    collectionName: "Comments",
-    fragmentName: 'CommentWithRepliesFragment',
+  const { view, limit, ...selectorTerms } = terms;
+  const { data, loading, fetchMore } = useQuery(CommentWithRepliesFragmentMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 5,
+      enableTotal: false,
+    },
     fetchPolicy: 'cache-and-network',
-    limit: 5
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = data?.comments?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: data?.comments,
+    loading,
+    fetchMore,
+    initialLimit: 5,
+    itemsPerPage: 10,
+    resetTrigger: terms
   });
   const lastCommentId = results && results[0]?._id
   const nestedComments = results ? unflattenComments(results) : [];

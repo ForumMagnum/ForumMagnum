@@ -54,7 +54,7 @@ export const graphqlConversationQueryTypeDefs = gql`
   }
   
   type MultiConversationOutput {
-    results: [Conversation]
+    results: [Conversation!]!
     totalCount: Int
   }
   

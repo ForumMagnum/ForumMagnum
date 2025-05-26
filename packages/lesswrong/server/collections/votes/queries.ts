@@ -25,11 +25,22 @@ export const graphqlVoteQueryTypeDefs = gql`
     result: Vote
   }
   
+  input VotesUserPostVotesInput {
+    collectionName: String
+    voteType: VoteType
+    after: String
+    before: String
+  }
+  
+  input VotesUserVotesInput {
+    collectionNames: [String!]!
+  }
+  
   input VoteSelector {
     default: EmptyViewInput
     tagVotes: EmptyViewInput
-    userPostVotes: EmptyViewInput
-    userVotes: EmptyViewInput
+    userPostVotes: VotesUserPostVotesInput
+    userVotes: VotesUserVotesInput
   }
   
   input MultiVoteInput {
@@ -40,7 +51,7 @@ export const graphqlVoteQueryTypeDefs = gql`
   }
   
   type MultiVoteOutput {
-    results: [Vote]
+    results: [Vote!]!
     totalCount: Int
   }
   

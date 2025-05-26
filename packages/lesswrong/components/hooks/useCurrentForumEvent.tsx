@@ -1,6 +1,18 @@
 import React, { FC, ReactNode, createContext, useCallback, useContext, useEffect, useMemo } from "react";
-import { useMulti } from "../../lib/crud/withMulti";
 import { hasForumEvents } from "../../lib/betas";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const ForumEventsDisplayMultiQuery = gql(`
+  query multiForumEventuseCurrentForumEventQuery($selector: ForumEventSelector, $limit: Int, $enableTotal: Boolean) {
+    forumEvents(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ForumEventsDisplay
+      }
+      totalCount
+    }
+  }
+`);
 
 type ForumEventsContext = {
   currentAndRecentForumEvents: ForumEventsDisplay[],
@@ -20,14 +32,17 @@ const currentAndRecentForumEventsContext = createContext<ForumEventsContext>(def
 export const CurrentAndRecentForumEventsProvider: FC<{
   children: ReactNode,
 }> = ({children}) => {
-  const {results, refetch} = useMulti({
-    collectionName: "ForumEvents",
-    fragmentName: "ForumEventsDisplay",
-    terms: {
-      view: "currentAndRecentForumEvents",
+  const { data, refetch } = useQuery(ForumEventsDisplayMultiQuery, {
+    variables: {
+      selector: { currentAndRecentForumEvents: {} },
+      limit: 10,
+      enableTotal: false,
     },
     skip: !hasForumEvents,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.forumEvents?.results;
 
   const forumEvents: ForumEventsDisplay[] = useMemo(() => results ?? [], [results]);
   

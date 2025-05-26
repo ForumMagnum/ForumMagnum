@@ -3,13 +3,12 @@ import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib
 import PostsPageCrosspostWrapper, { isPostWithForeignId } from "./PostsPageCrosspostWrapper";
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers';
 import { useCurrentUser } from '../../common/withUser';
-import { useMulti } from '../../../lib/crud/withMulti';
 import { useSubscribedLocation } from '../../../lib/routeUtil';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
 import { useApolloClient, useQuery } from '@apollo/client';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { gql } from "@/lib/generated/gql-codegen/gql";
-import PostsPage, { postsCommentsThreadMultiOptions } from './PostsPage';
+import PostsPage, { postCommentsThreadQuery, postsCommentsThreadMultiOptions, usePostCommentTerms } from './PostsPage';
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
 import Error404 from "../../common/Error404";
 import Loading from "../../vulcan-core/Loading";
@@ -44,8 +43,6 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
 }) => {
   const currentUser = useCurrentUser();
   const { query } = useSubscribedLocation();
-
-  console.log({ documentId, sequenceId, version });
 
   // Check the cache for a copy of the post with the PostsListWithVotes fragment, so that when you click through
   // a PostsItem, you can see the start of the post (the part of the text that was in the hover-preview) while
@@ -103,24 +100,27 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   // less than 1/1000 posts have it set. If it is set the consequences are that the comments will be fetched twice. This shouldn't
   // cause any rerendering or significant performance cost (relative to only fetching them once) because the second fetch doesn't wait
   // for the first to finish.
-  const defaultView = commentGetDefaultView(null, currentUser)
-  // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
-  const commentOpts = {includeAdminViews: currentUser?.isAdmin};
-  const terms: CommentsViewTerms = isValidCommentView(query.view, commentOpts)
-    ? {...(query as unknown as CommentsViewTerms), limit:1000}
-    : {view: defaultView, limit: 1000, postId: documentId}
+  const defaultView = commentGetDefaultView(null, currentUser);
+  const defaultTerms = { view: defaultView, limit: 1000, postId: documentId };
+  const { terms, view, limit } = usePostCommentTerms(currentUser, defaultTerms, query);
 
   // Don't pass in the eagerPostComments if we skipped the query,
   // otherwise PostsPage will skip the lazy query if the terms change
   const skipEagerComments = !!postPreload;
-  const commentQueryResult = useMulti({
-    terms,
+
+  const commentQueryResult = useQuery(postCommentsThreadQuery, {
+    variables: {
+      selector: { [view]: terms },
+      limit,
+      enableTotal: true,
+    },
     skip: skipEagerComments,
-    ...postsCommentsThreadMultiOptions,
+    fetchPolicy: 'cache-and-network' as const,
   });
+
   const eagerPostComments = skipEagerComments
     ? undefined
-    : { terms, queryResponse: commentQueryResult };
+    : { terms: { ...terms, view }, queryResponse: commentQueryResult };
     
   // End of performance section
   if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {

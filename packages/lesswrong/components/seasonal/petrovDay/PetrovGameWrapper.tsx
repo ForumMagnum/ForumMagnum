@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useCurrentUser } from '@/components/common/withUser';
-import { useMulti } from '@/lib/crud/withMulti';
 import { useQuery } from '@apollo/client';
 import { gql } from '@/lib/generated/gql-codegen';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
@@ -10,6 +9,17 @@ import PetrovWarningConsole from "./PetrovWarningConsole";
 import PetrovLaunchConsole from "./PetrovLaunchConsole";
 import PetrovWorldmapWrapper from "./PetrovWorldmapWrapper";
 import PetrovDayLossScreen from "../PetrovDayLossScreen";
+
+const PetrovDayActionInfoMultiQuery = gql(`
+  query multiPetrovDayActionPetrovGameWrapperQuery($selector: PetrovDayActionSelector, $limit: Int, $enableTotal: Boolean) {
+    petrovDayActions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PetrovDayActionInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   citizenEast: {
@@ -44,15 +54,17 @@ export const PetrovGameWrapper = ({classes}: {
 }) => {
   const currentUser = useCurrentUser()
 
-  const { results: petrovDayUserActions } = useMulti({
-    collectionName: 'PetrovDayActions',
-    fragmentName: 'PetrovDayActionInfo',
-    terms: {
-      view: 'getAction',
-      userId: currentUser?._id,
+  const { data: dataPetrovDayActions } = useQuery(PetrovDayActionInfoMultiQuery, {
+    variables: {
+      selector: { getAction: { userId: currentUser?._id } },
+      limit: 10,
+      enableTotal: false,
     },
-    skip: !currentUser
+    skip: !currentUser,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const petrovDayUserActions = dataPetrovDayActions?.petrovDayActions?.results;
 
   const { data, refetch: refetchCheckIfNuked } = useQuery(gql(`
     query petrov2024checkIfNuked {

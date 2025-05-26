@@ -51,12 +51,6 @@ const TagPageRouter = () => {
   // any performance cost.
   const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagPageWithRevisionFragment" : "TagPageFragment", {
     extraVariables: revision ? {
-      version: 'String',
-      contributorsLimit: 'Int',
-    } : {
-      contributorsLimit: 'Int',
-    },
-    extraVariablesValues: revision ? {
       version: revision,
       contributorsLimit,
     } : {

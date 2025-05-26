@@ -37,7 +37,7 @@ export const graphqlReviewWinnerQueryTypeDefs = gql`
   }
   
   type MultiReviewWinnerOutput {
-    results: [ReviewWinner]
+    results: [ReviewWinner!]!
     totalCount: Int
   }
   

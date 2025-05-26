@@ -4,7 +4,6 @@ import moment from 'moment';
 import { useIsInView, useTracking } from '../../lib/analyticsEvents';
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
-import { useMulti } from '../../lib/crud/withMulti';
 import TargetedJobAd, { EAGWillingToRelocateOption, JOB_AD_DATA } from './TargetedJobAd';
 import { useQuery, useMutation } from '@apollo/client';
 import { gql } from '@/lib/generated/gql-codegen/gql';
@@ -15,6 +14,28 @@ import { getCountryCode, isInPoliticalEntity } from '../../lib/geocoding';
 import intersection from 'lodash/intersection';
 import union from 'lodash/fp/union';
 import { CAREER_STAGES } from "@/lib/collections/users/helpers";
+
+const UserEAGDetailsMinimumInfoMultiQuery = gql(`
+  query multiUserEAGDetailTargetedJobAdSectionQuery($selector: UserEAGDetailSelector, $limit: Int, $enableTotal: Boolean) {
+    userEAGDetails(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UserEAGDetailsMinimumInfo
+      }
+      totalCount
+    }
+  }
+`);
+
+const UserJobAdsMinimumInfoMultiQuery = gql(`
+  query multiUserJobAdTargetedJobAdSectionQuery($selector: UserJobAdSelector, $limit: Int, $enableTotal: Boolean) {
+    userJobAds(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UserJobAdsMinimumInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 const UserJobAdsMinimumInfoUpdateMutation = gql(`
   mutation updateUserJobAdTargetedJobAdSection($selector: SelectorInput!, $data: UpdateUserJobAdDataInput!) {
@@ -55,19 +76,29 @@ const TargetedJobAdSection = () => {
 
   const [createUserJobAd] = useMutation(UserJobAdsMinimumInfoMutation);
   const [updateUserJobAd] = useMutation(UserJobAdsMinimumInfoUpdateMutation);
-  const { results: userJobAds, loading: userJobAdsLoading, refetch: refetchUserJobAds } = useMulti({
-    terms: {view: 'adsByUser', userId: currentUser?._id},
-    collectionName: 'UserJobAds',
-    fragmentName: 'UserJobAdsMinimumInfo',
-    skip: !currentUser
-  })
+  const { data, loading: userJobAdsLoading, refetch: refetchUserJobAds } = useQuery(UserJobAdsMinimumInfoMultiQuery, {
+    variables: {
+      selector: { adsByUser: { userId: currentUser?._id } },
+      limit: 10,
+      enableTotal: false,
+    },
+    skip: !currentUser,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const userJobAds = data?.userJobAds?.results;
   
-  const { results: userEAGDetails = [], loading: userEAGDetailsLoading } = useMulti({
-    terms: {view: 'dataByUser', userId: currentUser?._id},
-    collectionName: 'UserEAGDetails',
-    fragmentName: 'UserEAGDetailsMinimumInfo',
-    skip: !currentUser
-  })
+  const { data: dataUserEAGDetailsMinimumInfo, loading: userEAGDetailsLoading } = useQuery(UserEAGDetailsMinimumInfoMultiQuery, {
+    variables: {
+      selector: { dataByUser: { userId: currentUser?._id } },
+      limit: 10,
+      enableTotal: false,
+    },
+    skip: !currentUser,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const userEAGDetails = useMemo(() => dataUserEAGDetailsMinimumInfo?.userEAGDetails?.results ?? [], [dataUserEAGDetailsMinimumInfo?.userEAGDetails?.results]);
   
   // check the amount that the user has read core tags to help target ads
   const { data: coreTagReadsData, loading: coreTagReadsLoading } = useQuery(
@@ -81,13 +112,13 @@ const TargetedJobAdSection = () => {
     `),
     {
       variables: {
-        userId: currentUser?._id!,
+        userId: currentUser?._id ?? '',
       },
       ssr: true,
       skip: !currentUser,
     }
   )
-  const coreTagReads = coreTagReadsData?.UserReadsPerCoreTag
+  const coreTagReads = useMemo(() => coreTagReadsData?.UserReadsPerCoreTag ?? [], [coreTagReadsData?.UserReadsPerCoreTag]);
   
   // we only advertise up to one job per page view
   const [activeJob, setActiveJob] = useState<string>()

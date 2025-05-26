@@ -34,7 +34,7 @@ export const graphqlAdvisorRequestQueryTypeDefs = gql`
   }
   
   type MultiAdvisorRequestOutput {
-    results: [AdvisorRequest]
+    results: [AdvisorRequest!]!
     totalCount: Int
   }
   

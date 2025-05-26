@@ -29,7 +29,7 @@ export const graphqlPodcastQueryTypeDefs = gql`
   }
   
   type MultiPodcastOutput {
-    results: [Podcast]
+    results: [Podcast!]!
     totalCount: Int
   }
   

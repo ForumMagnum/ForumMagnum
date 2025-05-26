@@ -1,7 +1,19 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import { useMulti } from "../../lib/crud/withMulti";
 import ContentStyles from '../common/ContentStyles';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SuggestAlignmentCommentMultiQuery = gql(`
+  query multiCommentAFUnreviewedCommentCountQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SuggestAlignmentComment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -22,12 +34,17 @@ const AFUnreviewedCommentCount = ({ post, classes }: {
 }) => {
   
   //this gets number of comments submitted by non-members or suggested by members that haven't been processed yet
-  const { loading, count } = useMulti({
-    terms: {view: "alignmentSuggestedComments", postId: post._id},
-    collectionName: "Comments",
-    fragmentName: 'SuggestAlignmentComment',
+  const { data, loading } = useQuery(SuggestAlignmentCommentMultiQuery, {
+    variables: {
+      selector: { alignmentSuggestedComments: { postId: post._id } },
+      limit: 10,
+      enableTotal: false,
+    },
     fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
   });
+  
+  const count = data?.comments?.results?.length ?? 0;
   
  if (loading || !count) {
    return null

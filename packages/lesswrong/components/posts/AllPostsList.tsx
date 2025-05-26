@@ -23,6 +23,7 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 import PostsTimeframeList from "./PostsTimeframeList";
 import PostsTimeframeListExponential from "./PostsTimeframeListExponential";
 import PostsList2 from "./PostsList2";
+import { returnIfValidNumber } from "@/lib/utils/typeGuardUtils";
 
 // Number of weeks to display in the timeframe view
 const forumAllPostsNumWeeksSetting = new DatabasePublicSetting<number>("forum.numberOfWeeks", 4);
@@ -60,7 +61,7 @@ const AllPostsList = ({
 
   const baseTerms: PostsViewTerms = {
     view: 'default',
-    karmaThreshold: query.karmaThreshold || (currentShowLowKarma
+    karmaThreshold: returnIfValidNumber(query.karmaThreshold) ?? (currentShowLowKarma
       ? MAX_LOW_KARMA_THRESHOLD
       : DEFAULT_LOW_KARMA_THRESHOLD),
     excludeEvents: !currentIncludeEvents && currentFilter !== "events",

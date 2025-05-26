@@ -1,5 +1,4 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
@@ -8,6 +7,20 @@ import SunshineListCount from "./SunshineListCount";
 import SunshineListTitle from "./SunshineListTitle";
 import SunshineNewTagsItem from "./SunshineNewTagsItem";
 import LoadMore from "../common/LoadMore";
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SunshineTagFragmentMultiQuery = gql(`
+  query multiTagSunshineNewTagsListQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SunshineTagFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -16,12 +29,28 @@ const styles = (theme: ThemeType) => ({
 })
 
 const SunshineNewTagsList = ({ classes }: {classes: ClassesType<typeof styles>}) => {
-  const { results, totalCount, loadMoreProps } = useMulti({
-    terms: {view:"unreviewedTags", limit: 30 },
-    collectionName: "Tags",
-    fragmentName: "SunshineTagFragment",
-    enableTotal: true, itemsPerPage: 30,
+  const { data, loading, fetchMore } = useQuery(SunshineTagFragmentMultiQuery, {
+    variables: {
+      selector: { unreviewedTags: {} },
+      limit: 30,
+      enableTotal: true,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const innerData = data?.tags;
+  const results = innerData?.results ?? [];
+
+  const loadMoreProps = useLoadMore({
+    data: innerData,
+    loading,
+    fetchMore,
+    initialLimit: 30,
+    itemsPerPage: 30,
+    enableTotal: true,
+    resetTrigger: {view:"unreviewedTags", limit: 30 }
+  });
+  const totalCount = data?.tags?.totalCount ?? 0;
   const currentUser = useCurrentUser();
   if (results && results.length && userCanDo(currentUser, "posts.moderate.all")) {
     return (

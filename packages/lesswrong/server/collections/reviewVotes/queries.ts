@@ -22,12 +22,16 @@ export const graphqlReviewVoteQueryTypeDefs = gql`
     year: String
   }
   
+  input ReviewVotesReviewVotesAdminDashboardInput {
+    year: Int
+  }
+  
   input ReviewVoteSelector {
     default: EmptyViewInput
     reviewVotesFromUser: ReviewVotesReviewVotesFromUserInput
     reviewVotesForPost: EmptyViewInput
     reviewVotesForPostAndUser: EmptyViewInput
-    reviewVotesAdminDashboard: EmptyViewInput
+    reviewVotesAdminDashboard: ReviewVotesReviewVotesAdminDashboardInput
   }
   
   input MultiReviewVoteInput {
@@ -38,7 +42,7 @@ export const graphqlReviewVoteQueryTypeDefs = gql`
   }
   
   type MultiReviewVoteOutput {
-    results: [ReviewVote]
+    results: [ReviewVote!]!
     totalCount: Int
   }
   

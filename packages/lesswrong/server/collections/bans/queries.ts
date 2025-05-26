@@ -29,7 +29,7 @@ export const graphqlBanQueryTypeDefs = gql`
   }
   
   type MultiBanOutput {
-    results: [Ban]
+    results: [Ban!]!
     totalCount: Int
   }
   

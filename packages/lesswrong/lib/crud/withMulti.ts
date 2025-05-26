@@ -98,7 +98,7 @@ export interface UseMultiOptions<
   ssr?: boolean,
 }
 
-export type LoadMoreCallback = (limitOverride?: number) => void
+export type LoadMoreCallback = () => Promise<unknown> | void
 
 export type LoadMoreProps = {
   loadMore: LoadMoreCallback

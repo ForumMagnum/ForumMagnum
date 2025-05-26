@@ -1,6 +1,5 @@
 import React, { CSSProperties } from "react";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { useMulti } from "../../lib/crud/withMulti";
 import moment from "moment";
 import { useLocation } from "@/lib/routeUtil";
 import { useQuery } from "@apollo/client";
@@ -19,6 +18,17 @@ import CloudinaryImage2 from "../common/CloudinaryImage2";
 import ForumIcon from "../common/ForumIcon";
 import LWTooltip from "../common/LWTooltip";
 import EAButton from "./EAButton";
+
+const DigestsMinimumInfoMultiQuery = gql(`
+  query multiDigestEADigestPageQuery($selector: DigestSelector, $limit: Int, $enableTotal: Boolean) {
+    digests(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...DigestsMinimumInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -176,16 +186,17 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const digestNum = parseInt(params.num)
   
   // get the digest based on the num from the URL
-  const {results, loading: digestLoading} = useMulti({
-    terms: {
-      view: "findByNum",
-      num: digestNum
+  const { data: dataDigests, loading: digestLoading } = useQuery(DigestsMinimumInfoMultiQuery, {
+    variables: {
+      selector: { findByNum: { num: digestNum } },
+      limit: 1,
+      enableTotal: false,
     },
-    collectionName: "Digests",
-    fragmentName: 'DigestsMinimumInfo',
-    limit: 1,
-    skip: !digestNum
-  })
+    skip: !digestNum,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = dataDigests?.digests?.results;
   const digest = results?.[0]
   
   // get the list of posts in this digest

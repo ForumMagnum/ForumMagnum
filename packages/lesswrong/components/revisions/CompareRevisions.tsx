@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useQuery, gql as graphql, useMutation } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { Menu } from '@/components/widgets/Menu';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
@@ -72,11 +72,11 @@ const CompareRevisions = ({
   const currentUser = useCurrentUser();
   // Use the RevisionsDiff resolver to get a comparison between revisions (see
   // packages/lesswrong/server/resolvers/diffResolvers.ts).
-  const { data: diffResult, loading: loadingDiff, error } = useQuery(graphql`
+  const { data: diffResult, loading: loadingDiff, error } = useQuery(gql(`
     query RevisionsDiff($collectionName: String!, $fieldName: String!, $id: String!, $beforeRev: String, $afterRev: String!, $trim: Boolean) {
       RevisionsDiff(collectionName: $collectionName, fieldName: $fieldName, id: $id, beforeRev: $beforeRev, afterRev: $afterRev, trim: $trim)
     }
-  `, {
+  `), {
     variables: {
       collectionName: collectionName,
       fieldName: fieldName,
@@ -94,7 +94,7 @@ const CompareRevisions = ({
     return <ErrorMessage message={error.message}/>
   }
   
-  if (loadingDiff)
+  if (loadingDiff || typeof diffResultHtml !== "string")
     return <Loading/>
   
   const wordCount = diffResultHtml.split(" ").length

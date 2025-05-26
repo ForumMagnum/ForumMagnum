@@ -12,7 +12,6 @@ import { isEAForum } from "../../lib/instanceSettings";
 import { isFriendlyUI, preferredHeadingCase } from "../../themes/forumTheme";
 import { Link } from '../../lib/reactRouterWrapper';
 import {quickTakesMaxAgeDaysSetting} from '../../lib/publicSettings'
-import { useMulti } from "@/lib/crud/withMulti";
 import ExpandableSection from "../common/ExpandableSection";
 import LWTooltip from "../common/LWTooltip";
 import QuickTakesEntry from "./QuickTakesEntry";
@@ -20,6 +19,20 @@ import QuickTakesListItem from "./QuickTakesListItem";
 import Loading from "../vulcan-core/Loading";
 import SectionFooter from "../common/SectionFooter";
 import LoadMore from "../common/LoadMore";
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const ShortformCommentsMultiQuery = gql(`
+  query multiCommentQuickTakesSectionQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ShortformComments
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   communityToggle: {
@@ -80,23 +93,32 @@ const QuickTakesSection = ({classes}: {
 
   const maxAgeDays = quickTakesMaxAgeDaysSetting.get()
 
-  const {
-    results,
-    loading,
-    showLoadMore,
-    loadMoreProps,
-    refetch
-  } = useMulti({
-    terms: {
-      view: "shortformFrontpage",
-      showCommunity,
-      maxAgeDays,
+  const { data, loading, refetch, fetchMore } = useQuery(ShortformCommentsMultiQuery, {
+    variables: {
+      selector: { shortformFrontpage: { showCommunity, maxAgeDays } },
+      limit: 5,
+      enableTotal: true,
     },
-    limit: 5,
-    collectionName: "Comments",
-    fragmentName: "ShortformComments",
-    enableTotal: true,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.comments?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: data?.comments,
+    loading,
+    fetchMore,
+    initialLimit: 5,
+    itemsPerPage: 10,
+    enableTotal: true,
+    resetTrigger: {
+        view: "shortformFrontpage",
+        showCommunity,
+        maxAgeDays,
+      }
+  });
+
+  const showLoadMore = !loadMoreProps.hidden;
 
   const titleText = preferredHeadingCase("Quick Takes");
   const titleTooltip = (

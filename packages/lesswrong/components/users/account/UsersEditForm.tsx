@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { EditableUser, getUserEmail, SOCIAL_MEDIA_PROFILE_FIELDS, userCanEditUser, userGetDisplayName, userGetProfileUrl } from '@/lib/collections/users/helpers';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '@/components/common/withUser';
-import { gql as graphql, useMutation, useApolloClient } from '@apollo/client';
+import { useMutation, useApolloClient } from '@apollo/client';
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, verifyEmailsSetting } from '@/lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from '@/components/themes/useTheme';
 import { captureEvent } from '@/lib/analyticsEvents';
@@ -1319,11 +1319,11 @@ const UsersEditForm = ({ terms }: {
   const { flash } = useMessages();
   const navigate = useNavigate();
   const client = useApolloClient();
-  const [mutate, loading] = useMutation(graphql`
+  const [mutate, loading] = useMutation(gql(`
     mutation resetPassword($email: String) {
       resetPassword(email: $email)
     }
-  `, { errorPolicy: 'all' })
+  `), { errorPolicy: 'all' })
   const currentThemeOptions = useThemeOptions();
   const setTheme = useSetTheme();
 
@@ -1342,6 +1342,10 @@ const UsersEditForm = ({ terms }: {
   // currently we disable it below
   const requestPasswordReset = async () => {
     const { data } = await mutate({ variables: { email: getUserEmail(currentUser) } })
+    if (!data?.resetPassword) {
+      flash({ messageString: "Password reset may have failed.  Try it and see; ping us on Intercom if you can't get it working." });
+      return;
+    }
     flash(data?.resetPassword)
   }
 

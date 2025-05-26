@@ -1,10 +1,22 @@
 import React from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { FormComponentMultiSelect } from '@/components/form-components/FormComponentMultiSelect';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { MenuItem } from "../common/Menus";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const localGroupsBaseMultiQuery = gql(`
+  query multiLocalgroupSelectLocalgroupQuery($selector: LocalgroupSelector, $limit: Int, $enableTotal: Boolean) {
+    localgroups(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...localGroupsBase
+      }
+      totalCount
+    }
+  }
+`);
 
 interface SelectLocalgroupBaseProps {
   useDocumentAsUser?: boolean;
@@ -32,16 +44,22 @@ export const SelectLocalgroup = (props: SelectLocalgroupProps) => {
   // (ex. you want to be able to select groups for another user).
   const user = props.useDocumentAsUser ? props.document : currentUser
 
-  const { results: groups } = useMulti({
-    collectionName: "Localgroups",
-    fragmentName: 'localGroupsBase',
-    terms: {
-      view: currentUser?.isAdmin ? 'all' : 'userActiveGroups',
-      userId: user?._id,
-      limit: 500
+  const { view, limit, ...selectorTerms } = {
+    view: currentUser?.isAdmin ? 'all' : 'userActiveGroups',
+    userId: user?._id,
+    limit: 500
+  };
+  const { data } = useQuery(localGroupsBaseMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 500,
+      enableTotal: false,
     },
-    skip: !user
+    skip: !user,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const groups = data?.localgroups?.results;
 
   if (props.multiselect) {
     const options = groups?.map(group => {

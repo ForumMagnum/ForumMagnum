@@ -5,7 +5,6 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers';
 import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma, isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
-import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -68,6 +67,18 @@ import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReaction
 import PathInfo from "./PathInfo";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { withDateFields } from "@/lib/utils/dateUtils";
+import type { TagBySlugQueryOptions } from "./useTag";
+
+const TagWithFlagsFragmentMultiQuery = gql(`
+  query multiTagLWTagPageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagWithFlagsFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const TagEditFragmentQuery = gql(`
   query LWTagPage($documentId: String) {
@@ -509,36 +520,23 @@ function getTagQueryOptions(
   contributorsLimit: number
 ): {
   tagFragmentName: ArbitalTagPageFragmentNames;
-  tagQueryOptions: Partial<UseMultiOptions<ArbitalTagPageFragmentNames, "Tags">>;
+  tagQueryOptions: TagBySlugQueryOptions;
 } {
   let tagFragmentName: ArbitalTagPageFragmentNames = "TagPageWithArbitalContentFragment";
-  let tagQueryOptions: Required<Pick<UseMultiOptions<ArbitalTagPageFragmentNames, "Tags">, "extraVariables" | "extraVariablesValues">> = {
-    extraVariables: {
-      contributorsLimit: 'Int',
-    },
-    extraVariablesValues: {
-      contributorsLimit,
-    },
-  };
+  const extraVariables: TagBySlugQueryOptions['extraVariables'] = { contributorsLimit };
 
   if (revision && !lensSlug) {
     tagFragmentName = "TagPageRevisionWithArbitalContentFragment";
-
-    tagQueryOptions.extraVariables.version = 'String';
-    tagQueryOptions.extraVariablesValues.version = revision;
+    extraVariables.version = revision;
   }
 
   if (revision && lensSlug) {
     tagFragmentName = "TagPageWithArbitalContentAndLensRevisionFragment";
-    
-    tagQueryOptions.extraVariables.version = 'String';
-    tagQueryOptions.extraVariables.lensSlug = 'String';
-
-    tagQueryOptions.extraVariablesValues.version = revision;
-    tagQueryOptions.extraVariablesValues.lensSlug = lensSlug;
+    extraVariables.version = revision;
+    extraVariables.lensSlug = lensSlug;
   }
 
-  return { tagFragmentName, tagQueryOptions };
+  return { tagFragmentName, tagQueryOptions: { extraVariables } };
 }
 
 const LWTagPage = () => {
@@ -611,13 +609,18 @@ const LWTagPage = () => {
     //tagFlagId handled as default case below
   }
 
-  const { results: otherTagsWithNavigation } = useMulti({
-    terms: ["allPages", "myPages"].includes(query.focus) ? multiTerms[query.focus] : {view: "tagsByTagFlag", tagFlagId: query.focus},
-    collectionName: "Tags",
-    fragmentName: 'TagWithFlagsFragment',
-    limit: 1500,
-    skip: !query.flagId
-  })
+  const { view, limit, ...selectorTerms } = ["allPages", "myPages"].includes(query.focus) ? multiTerms[query.focus] : { view: "tagsByTagFlag", tagFlagId: query.focus };
+  const { data: dataTagsWithFlags } = useQuery(TagWithFlagsFragmentMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 1500,
+      enableTotal: false,
+    },
+    skip: !query.flagId,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const otherTagsWithNavigation = dataTagsWithFlags?.tags?.results;
 
   useOnSearchHotkey(() => setTruncated(false));
 

@@ -9,12 +9,22 @@ import {
   isDefaultSubscriptionType,
 } from "../../lib/collections/subscriptions/mutations";
 import type { SubscriptionType } from "../../lib/collections/subscriptions/helpers";
-import { useMulti } from "../../lib/crud/withMulti";
 import { max } from "underscore";
 import { userIsDefaultSubscribed, userSubscriptionStateIsFixed } from "../../lib/subscriptionUtil";
 import LoginPopup from "../users/LoginPopup";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SubscriptionStateMultiQuery = gql(`
+  query multiSubscriptionuseNotifyMeQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
+    subscriptions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SubscriptionState
+      }
+      totalCount
+    }
+  }
+`);
 
 const SubscriptionStateMutation = gql(`
   mutation createSubscriptionuseNotifyMe($data: CreateSubscriptionDataInput!) {
@@ -110,20 +120,17 @@ export const useNotifyMe = ({
   });
 
   // Get existing subscription, if there is one
-  const {results, loading} = useMulti({
-    terms: {
-      view: "subscriptionState",
-      documentId: document._id,
-      userId: currentUser?._id,
-      type: subscriptionType,
-      collectionName,
+  const { data, loading } = useQuery(SubscriptionStateMultiQuery, {
+    variables: {
+      selector: { subscriptionState: { documentId: document._id, userId: currentUser?._id, type: subscriptionType, collectionName } },
       limit: 1,
+      enableTotal: false,
     },
-    collectionName: "Subscriptions",
-    fragmentName: "SubscriptionState",
-    enableTotal: false,
-    skip: !currentUser
+    skip: !currentUser,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.subscriptions?.results;
 
   const isSubscribed = currentUser ?
     currentUserIsSubscribed(

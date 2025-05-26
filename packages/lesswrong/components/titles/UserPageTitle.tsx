@@ -1,5 +1,4 @@
 import React from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
@@ -7,6 +6,19 @@ import { styles } from '../common/HeaderSubtitle';
 import { getUserFromResults } from '../users/UsersProfile';
 import { Helmet } from '../../lib/utils/componentsWithChildren';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UsersMinimumInfoMultiQuery = gql(`
+  query multiUserUserPageTitleQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UsersMinimumInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 const titleComponentStyles = defineStyles('UserPageTitle', styles);
 
@@ -17,19 +29,17 @@ export const UserPageTitle = ({isSubtitle, siteName}: {
   const classes = useStyles(titleComponentStyles);
 
   const { params: {slug} } = useLocation();
-  const { results, loading } = useMulti({
-    terms: {
-      view: "usersProfile",
-      slug: slug,
+  const { data, loading } = useQuery(UsersMinimumInfoMultiQuery, {
+    variables: {
+      selector: { usersProfile: { slug: slug } },
+      limit: 10,
+      enableTotal: false,
     },
-    collectionName: "Users",
-    fragmentName: "UsersMinimumInfo",
-    // Ugly workaround: For unclear reasons, this title component (but not the
-    // posts-page or sequences-page title components) fails (results undefined)
-    // if fetchPolicy is cache-only. When set to cache-then-network, it works,
-    // without generating any network requests.
-    fetchPolicy: 'cache-then-network' as any, //TODO
+    fetchPolicy: 'cache-then-network' as any,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.users?.results;
   
   if (!results || loading) return null;
   

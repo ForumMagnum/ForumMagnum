@@ -1,7 +1,6 @@
 import React, { ReactNode } from "react";
 import { commentBodyStyles } from "@/themes/stylePiping";
 import { useCurrentUser } from "../common/withUser";
-import { useMulti } from "@/lib/crud/withMulti";
 import { useCountItemsContext } from "../hooks/CountItemsContext";
 import SubscribedItem from "./SubscribedItem";
 import SectionTitle from "../common/SectionTitle";
@@ -9,6 +8,20 @@ import Loading from "../vulcan-core/Loading";
 import LoadMore from "../common/LoadMore";
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SubscriptionStateMultiQuery = gql(`
+  query multiSubscriptionSubscriptionsListQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
+    subscriptions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SubscriptionState
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = defineStyles('SubscriptionsList', (theme: ThemeType) => ({
   root: {
@@ -44,19 +57,34 @@ export default function SubscriptionsList<TQuery, TExtractResult>({
   const currentUser = useCurrentUser();
   const countItemsContext = useCountItemsContext();
 
-  const {results, loading, loadMoreProps, showLoadMore} = useMulti({
-    terms: {
+  const { data, loading, fetchMore } = useQuery(SubscriptionStateMultiQuery, {
+    variables: {
+      selector: { subscriptionsOfType: { userId: currentUser?._id, collectionName: collectionName, subscriptionType: subscriptionType } },
+      limit: 20,
+      enableTotal: true,
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = data?.subscriptions?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: data?.subscriptions,
+    loading,
+    fetchMore,
+    initialLimit: 20,
+    itemsPerPage: 100,
+    enableTotal: true,
+    resetTrigger: {
       view: "subscriptionsOfType",
       userId: currentUser?._id,
       collectionName: collectionName,
       subscriptionType: subscriptionType,
       limit: 20,
-    },
-    collectionName: "Subscriptions",
-    fragmentName: "SubscriptionState",
-    itemsPerPage: 100,
-    enableTotal: true
+    }
   });
+
+  const showLoadMore = !loadMoreProps.hidden;
 
   if (!currentUser) {
     return null;

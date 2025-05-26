@@ -151,7 +151,7 @@ const CommunityHome = ({classes}: {
   const canCreateGroups = currentUser && (!isEAForum || isAdmin);
 
   const render = () => {
-    const filters = query?.filters || [];
+    const filters: string[] = (query?.filters as unknown as string[] | undefined) || [];
     const eventsListTerms = currentUserLocation.known ? {
       view: 'nearbyEvents',
       lat: currentUserLocation.lat,

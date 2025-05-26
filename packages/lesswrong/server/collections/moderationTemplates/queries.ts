@@ -41,7 +41,7 @@ export const graphqlModerationTemplateQueryTypeDefs = gql`
   }
   
   type MultiModerationTemplateOutput {
-    results: [ModerationTemplate]
+    results: [ModerationTemplate!]!
     totalCount: Int
   }
   

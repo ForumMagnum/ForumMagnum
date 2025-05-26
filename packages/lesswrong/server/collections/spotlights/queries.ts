@@ -24,15 +24,15 @@ export const graphqlSpotlightQueryTypeDefs = gql`
   }
   
   input SpotlightsMostRecentlyPromotedSpotlightsInput {
-    limit: String
+    limit: Int
   }
   
   input SpotlightsSpotlightsPageInput {
-    limit: String
+    limit: Int
   }
   
   input SpotlightsSpotlightsPageDraftInput {
-    limit: String
+    limit: Int
   }
   
   input SpotlightsSpotlightsByDocumentIdsInput {
@@ -60,7 +60,7 @@ export const graphqlSpotlightQueryTypeDefs = gql`
   }
   
   type MultiSpotlightOutput {
-    results: [Spotlight]
+    results: [Spotlight!]!
     totalCount: Int
   }
   

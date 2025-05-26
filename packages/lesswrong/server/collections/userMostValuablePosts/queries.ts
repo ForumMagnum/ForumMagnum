@@ -35,7 +35,7 @@ export const graphqlUserMostValuablePostQueryTypeDefs = gql`
   }
   
   type MultiUserMostValuablePostOutput {
-    results: [UserMostValuablePost]
+    results: [UserMostValuablePost!]!
     totalCount: Int
   }
   

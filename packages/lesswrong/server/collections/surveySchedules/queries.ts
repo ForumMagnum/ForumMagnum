@@ -36,7 +36,7 @@ export const graphqlSurveyScheduleQueryTypeDefs = gql`
   }
   
   type MultiSurveyScheduleOutput {
-    results: [SurveySchedule]
+    results: [SurveySchedule!]!
     totalCount: Int
   }
   

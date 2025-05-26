@@ -1,10 +1,23 @@
 import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { preferredHeadingCase } from '@/themes/forumTheme';
-import { useMulti } from '@/lib/crud/withMulti';
 import { Typography } from "../common/Typography";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import LoadMore from "../common/LoadMore";
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const MembersOfGroupFragmentMultiQuery = gql(`
+  query multiSubscriptionLocalGroupSubscribersQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
+    subscriptions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...MembersOfGroupFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -20,17 +33,30 @@ const LocalGroupSubscribers = ({groupId, classes}: {
   groupId: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {results, totalCount, loading, loadMoreProps} = useMulti({
-    collectionName: "Subscriptions",
-    fragmentName: "MembersOfGroupFragment",
-    terms: {
-      view: "membersOfGroup",
-      documentId: groupId,
+  const { data, loading, fetchMore } = useQuery(MembersOfGroupFragmentMultiQuery, {
+    variables: {
+      selector: { membersOfGroup: { documentId: groupId } },
+      limit: 20,
+      enableTotal: true,
     },
-    enableTotal: true,
-    limit: 20,
-    itemsPerPage: 100,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.subscriptions?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: data?.subscriptions,
+    loading,
+    fetchMore,
+    initialLimit: 20,
+    itemsPerPage: 100,
+    enableTotal: true,
+    resetTrigger: {
+        view: "membersOfGroup",
+        documentId: groupId,
+      }
+  });
+  const totalCount = data?.subscriptions?.totalCount;
 
   return <div>
     <Typography variant="headline" className={classes.title}>

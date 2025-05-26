@@ -1,11 +1,24 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import classNames from 'classnames';
 import { Typography } from "../common/Typography";
 import Loading from "../vulcan-core/Loading";
 import CommentsNodeInner from "./CommentsNode";
 import LoadMore from "../common/LoadMore";
+import { useQuery, NetworkStatus } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CommentsListWithParentMetadataMultiQuery = gql(`
+  query multiCommentRecentCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsListWithParentMetadata
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) =>  ({
   root: {
@@ -25,12 +38,27 @@ const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=fa
   showPinnedOnProfile?: boolean,
   noResultsMessage?: string,
 }) => {
-  const { loadingInitial, loadMoreProps, loading, results } = useMulti({
-    terms,
-    collectionName: "Comments",
-    fragmentName: 'CommentsListWithParentMetadata',
-    enableTotal: false,
+  const { view, limit, ...selectorTerms } = terms;
+  const { data, loading, fetchMore, networkStatus } = useQuery(CommentsListWithParentMetadataMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 10,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.comments?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: data?.comments,
+    loading,
+    fetchMore,
+    initialLimit: 10,
+    itemsPerPage: 10,
+    resetTrigger: terms
+  });
+  const loadingInitial = networkStatus === NetworkStatus.loading;
   // Filter out comments where the user doesn't have access to the post or tag (mostly for posts that are converted to draft)
   const validResults = results?.filter(comment => comment.post?._id || comment.tag?._id)
 

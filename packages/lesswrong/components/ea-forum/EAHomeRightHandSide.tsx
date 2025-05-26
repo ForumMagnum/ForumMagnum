@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
-import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useUserLocation } from '../../lib/collections/users/helpers';
@@ -19,6 +18,19 @@ import FormatDate from "../common/FormatDate";
 import PostsItemDate from "../posts/PostsItemDate";
 import ForumIcon from "../common/ForumIcon";
 import SidebarDigestAd from "./digestAd/SidebarDigestAd";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsListMultiQuery = gql(`
+  query multiPostEAHomeRightHandSideQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsList
+      }
+      totalCount
+    }
+  }
+`);
 
 /**
  * The max screen width where the Home RHS is visible
@@ -134,12 +146,18 @@ const UpcomingEventsSection = ({classes}: {
     view: 'globalEvents',
     limit: 3,
   }
-  const { results: upcomingEvents } = useMulti({
-    collectionName: "Posts",
-    terms: upcomingEventsTerms,
-    fragmentName: 'PostsList',
+  const { view, limit, ...selectorTerms } = upcomingEventsTerms;
+  const { data } = useQuery(PostsListMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 10,
+      enableTotal: false,
+    },
     fetchPolicy: 'cache-and-network',
-  })
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const upcomingEvents = data?.posts?.results;
   if (!upcomingEvents?.length) return null
 
   return <AnalyticsContext pageSubSectionContext="upcomingEvents">

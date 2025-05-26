@@ -24,157 +24,178 @@ export const graphqlCommentQueryTypeDefs = gql`
   
   input CommentDefaultViewInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
   }
   
   input CommentsCommentRepliesInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     parentCommentId: String
   }
   
   input CommentsPostCommentsDeletedInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     postId: String
   }
   
   input CommentsAllCommentsDeletedInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
   }
   
   input CommentsCheckedByModGPTInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
   }
   
   input CommentsPostCommentsTopInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     postId: String
   }
   
   input CommentsPostCommentsRecentRepliesInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     postId: String
   }
   
   input CommentsPostCommentsMagicInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     postId: String
   }
   
   input CommentsAfPostCommentsTopInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     postId: String
   }
   
   input CommentsPostCommentsOldInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     postId: String
   }
   
   input CommentsPostCommentsNewInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     postId: String
   }
   
   input CommentsPostCommentsBestInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     postId: String
   }
   
   input CommentsPostLWCommentsInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     postId: String
   }
   
   input CommentsProfileRecentCommentsInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     limit: String
   }
   
   input CommentsProfileCommentsInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     sortBy: String
     limit: String
   }
   
   input CommentsAllRecentCommentsInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     sortBy: String
     limit: String
   }
   
   input CommentsRecentCommentsInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     sortBy: String
     limit: String
   }
   
   input CommentsAfSubmissionsInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     limit: String
   }
   
   input CommentsRejectedInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     limit: String
   }
   
   input CommentsRecentDiscussionThreadInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     postId: String
     limit: String
   }
   
   input CommentsAfRecentDiscussionThreadInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     postId: String
     limit: String
   }
   
   input CommentsPostsItemCommentsInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     postId: String
     after: String
     limit: String
@@ -182,58 +203,66 @@ export const graphqlCommentQueryTypeDefs = gql`
   
   input CommentsSunshineNewCommentsListInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     limit: String
   }
   
   input CommentsQuestionAnswersInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     postId: String
     sortBy: String
   }
   
   input CommentsLegacyIdCommentInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     legacyId: String
   }
   
   input CommentsSunshineNewUsersCommentsInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
   }
   
   input CommentsDefaultModeratorResponsesInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     tagId: String
   }
   
   input CommentsRepliesToAnswerInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     parentAnswerId: String
   }
   
   input CommentsAnswersAndRepliesInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     postId: String
     sortBy: String
   }
   
   input CommentsTopShortformInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     before: String
     after: String
     shortformFrontpage: String
@@ -241,122 +270,151 @@ export const graphqlCommentQueryTypeDefs = gql`
   
   input CommentsShortformInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
   }
   
   input CommentsShortformFrontpageInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
-    maxAgeDays: String
-    showCommunity: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
+    maxAgeDays: Int
+    showCommunity: Boolean
     relevantTagId: String
   }
   
   input CommentsRepliesToCommentThreadInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     topLevelCommentId: String
   }
   
+  input CommentsRepliesToCommentThreadIncludingRootInput {
+    userId: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
+    topLevelCommentId: String!
+  }
+
   input CommentsShortformLatestChildrenInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     topLevelCommentId: String
   }
   
   input CommentsNominations2018Input {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
   }
   
   input CommentsNominations2019Input {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
   }
   
   input CommentsReviews2018Input {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
   }
   
   input CommentsReviews2019Input {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
   }
   
   input CommentsReviewsInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
+    postId: String
+    reviewYear: Int
+    sortBy: String
   }
   
   input CommentsTagDiscussionCommentsInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     tagId: String
   }
   
   input CommentsTagSubforumCommentsInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
   }
   
   input CommentsLatestSubforumDiscussionInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     profileTagIds: String
   }
   
   input CommentsModeratorCommentsInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
   }
   
   input CommentsDebateResponsesInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     postId: String
   }
   
   input CommentsRecentDebateResponsesInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     postId: String
     limit: String
   }
   
   input CommentsForumEventCommentsInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     forumEventId: String
   }
   
   input CommentsAlignmentSuggestedCommentsInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
     postId: String
   }
   
   input CommentsRssInput {
     userId: String
-    commentIds: String
-    minimumKarma: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
   }
   
   input CommentSelector  {
@@ -394,6 +452,7 @@ export const graphqlCommentQueryTypeDefs = gql`
     shortformFrontpage: CommentsShortformFrontpageInput
     repliesToCommentThread: CommentsRepliesToCommentThreadInput
     shortformLatestChildren: CommentsShortformLatestChildrenInput
+    repliesToCommentThreadIncludingRoot: CommentsRepliesToCommentThreadIncludingRootInput
     nominations2018: CommentsNominations2018Input
     nominations2019: CommentsNominations2019Input
     reviews2018: CommentsReviews2018Input
@@ -418,7 +477,7 @@ export const graphqlCommentQueryTypeDefs = gql`
   }
   
   type MultiCommentOutput {
-    results: [Comment]
+    results: [Comment!]!
     totalCount: Int
   }
   

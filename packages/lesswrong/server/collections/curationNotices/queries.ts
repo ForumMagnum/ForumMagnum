@@ -30,7 +30,7 @@ export const graphqlCurationNoticeQueryTypeDefs = gql`
   }
   
   type MultiCurationNoticeOutput {
-    results: [CurationNotice]
+    results: [CurationNotice!]!
     totalCount: Int
   }
   

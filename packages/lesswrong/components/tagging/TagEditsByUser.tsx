@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 import Loading from "../vulcan-core/Loading";
@@ -8,6 +7,20 @@ import { Typography } from "../common/Typography";
 import SingleLineTagUpdates from "./SingleLineTagUpdates";
 import LoadMore from "../common/LoadMore";
 import { maybeDate } from '@/lib/utils/dateUtils';
+import { useQuery, NetworkStatus } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const RevisionTagFragmentMultiQuery = gql(`
+  query multiRevisionTagEditsByUserQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
+    revisions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...RevisionTagFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -30,13 +43,28 @@ const TagEditsByUser = ({userId, limit, classes}: {
   classes: ClassesType<typeof styles>
 }) => {
 
-  const { loadingInitial, loadMoreProps, results } = useMulti({
-    terms: {view: "revisionsByUser", userId, limit},
-    collectionName: "Revisions",
-    fragmentName: 'RevisionTagFragment',
+  const { data, loading, fetchMore, networkStatus } = useQuery(RevisionTagFragmentMultiQuery, {
+    variables: {
+      selector: { revisionsByUser: { userId } },
+      limit: 10,
+      enableTotal: false,
+    },
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-only",
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.revisions?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: data?.revisions,
+    loading,
+    fetchMore,
+    initialLimit: 10,
+    itemsPerPage: 10,
+    resetTrigger: {view: "revisionsByUser", userId, limit}
+  });
+  const loadingInitial = networkStatus === NetworkStatus.loading;
 
   if (loadingInitial || !results) {
     return <Loading />

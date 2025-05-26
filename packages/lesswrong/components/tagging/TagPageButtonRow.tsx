@@ -159,7 +159,7 @@ const TagPageButtonRow = ({
   setEditing: (editing: boolean) => void;
   hideLabels?: boolean;
   className?: string;
-  refetchTag?: () => Promise<void>;
+  refetchTag?: () => Promise<AnyBecauseHard>;
   updateSelectedLens?: (lensId: string) => void;
   toggleEmbeddedPlayer?: () => void;
   showEmbeddedPlayer?: boolean;

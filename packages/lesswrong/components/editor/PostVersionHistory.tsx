@@ -1,11 +1,10 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
-import { useMulti } from '../../lib/crud/withMulti';
 import classNames from 'classnames';
 import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import {commentBodyStyles, postBodyStyles} from "../../themes/stylePiping";
-import { useMutation, gql as graphql, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import { canUserEditPostMetadata, postGetEditUrl } from '../../lib/collections/posts/helpers';
@@ -22,6 +21,18 @@ import FormatDate from "../common/FormatDate";
 import LoadMore from "../common/LoadMore";
 import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
 import LWTooltip from "../common/LWTooltip";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+
+const RevisionMetadataWithChangeMetricsMultiQuery = gql(`
+  query multiRevisionPostVersionHistoryQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
+    revisions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...RevisionMetadataWithChangeMetrics
+      }
+      totalCount
+    }
+  }
+`);
 
 
 const RevisionDisplayQuery = gql(`
@@ -164,7 +175,7 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
   const [selectedRevisionId,setSelectedRevisionId] = useState<string|null>(null);
   const [revertInProgress,setRevertInProgress] = useState(false);
 
-  const [revertMutation] = useMutation(graphql(`
+  const [revertMutation] = useMutation(gql(`
     mutation revertPostToRevision($postId: String!, $revisionId: String!) {
       revertPostToRevision(postId: $postId, revisionId: $revisionId) {
         ...PostsEdit
@@ -173,15 +184,29 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
   `));
   const canRevert = canUserEditPostMetadata(currentUser, post);
 
-  const { results: revisions, loading: loadingRevisions, loadMoreProps } = useMulti({
-    terms: {
-      view: "revisionsOnDocument",
-      documentId: postId,
-      fieldName: "contents",
+  const { data, loading: loadingRevisions, fetchMore } = useQuery(RevisionMetadataWithChangeMetricsMultiQuery, {
+    variables: {
+      selector: { revisionsOnDocument: { documentId: postId, fieldName: "contents" } },
+      limit: 10,
+      enableTotal: false,
     },
     fetchPolicy: "cache-and-network" as any,
-    collectionName: "Revisions",
-    fragmentName: "RevisionMetadataWithChangeMetrics",
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const revisions = data?.revisions?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: data?.revisions,
+    loading: loadingRevisions,
+    fetchMore,
+    initialLimit: 10,
+    itemsPerPage: 10,
+    resetTrigger: {
+        view: "revisionsOnDocument",
+        documentId: postId,
+        fieldName: "contents",
+      }
   });
 
   useEffect(() => {
@@ -193,6 +218,9 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
   }, [loadedVersion, revisions])
 
   const restoreVersion = useCallback(async () => {
+    if (!selectedRevisionId) {
+      return;
+    }
     captureEvent("restoreVersionClicked", {postId, revisionId: selectedRevisionId})
     setRevertInProgress(true);
     await revertMutation({
@@ -225,12 +253,12 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
     onClose();
   })
 
-  const { loading: revisionLoading, data } = useQuery(RevisionDisplayQuery, {
+  const { loading: revisionLoading, data: dataRevisionDisplayQuery } = useQuery(RevisionDisplayQuery, {
     variables: { documentId: selectedRevisionId||"" },
     skip: !selectedRevisionId,
     fetchPolicy: "cache-first",
   });
-  const revision = data?.revision?.result;
+  const revision = dataRevisionDisplayQuery?.revision?.result;
 
   const isLive = (r: {_id: string}) => r._id === post.contents_latest
 

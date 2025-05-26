@@ -1,10 +1,22 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { tagStyle } from './FooterTag';
 import { taggingNameSetting } from '../../lib/instanceSettings';
 import TagsChecklist from "./TagsChecklist";
 import Loading from "../vulcan-core/Loading";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const TagFragmentMultiQuery = gql(`
+  query multiTagCoreTagsChecklistQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -36,14 +48,16 @@ const CoreTagsChecklist = ({onTagSelected, classes, existingTagIds=[] }: {
   classes: ClassesType<typeof styles>,
   existingTagIds?: Array<string|undefined>
 }) => {
-  const { results, loading } = useMulti({
-    terms: {
-      view: "coreTags",
+  const { data, loading } = useQuery(TagFragmentMultiQuery, {
+    variables: {
+      selector: { coreTags: {} },
+      limit: 100,
+      enableTotal: false,
     },
-    collectionName: "Tags",
-    fragmentName: "TagFragment",
-    limit: 100,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.tags?.results;
   if (loading) return <Loading/>
   if (!results) return null
   

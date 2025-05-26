@@ -70,7 +70,7 @@ export const graphqlUserQueryTypeDefs = gql`
   }
   
   input UsersUsersByUserIdsInput {
-    userIds: String
+    userIds: [String!]
   }
   
   input UsersUsersProfileInput {
@@ -79,7 +79,7 @@ export const graphqlUserQueryTypeDefs = gql`
   }
   
   input UsersTagCommunityMembersInput {
-    hasBio: String
+    hasBio: Boolean
     profileTagId: String
   }
   
@@ -110,7 +110,7 @@ export const graphqlUserQueryTypeDefs = gql`
   }
   
   type MultiUserOutput {
-    results: [User]
+    results: [User!]!
     totalCount: Int
   }
   

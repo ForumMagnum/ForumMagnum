@@ -59,7 +59,7 @@ export const graphqlModeratorActionQueryTypeDefs = gql`
   }
   
   type MultiModeratorActionOutput {
-    results: [ModeratorAction]
+    results: [ModeratorAction!]!
     totalCount: Int
   }
   
