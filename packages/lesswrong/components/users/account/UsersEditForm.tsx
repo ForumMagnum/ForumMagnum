@@ -44,6 +44,7 @@ import UsersEmailVerification from "../UsersEmailVerification";
 import EmailConfirmationRequiredCheckbox from "../EmailConfirmationRequiredCheckbox";
 import FormComponentCheckbox from "../../form-components/FormComponentCheckbox";
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
+import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 
 const styles = defineStyles('UsersEditForm', (theme: ThemeType) => ({
   root: {
@@ -160,6 +161,8 @@ const UsersForm = ({
     fragmentName: 'UsersEdit',
   });
 
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
   const form = useForm({
     defaultValues: {
       ...initialData,
@@ -177,19 +180,23 @@ const UsersForm = ({
         onSubmitModerationGuidelinesCallback.current?.(),
       ]);
 
-      let result: UsersEdit;
+      try {
+        let result: UsersEdit;
 
-      const updatedFields = getUpdatedFieldValues(formApi, ['biography', 'moderationGuidelines']);
-      const { data } = await mutate({
-        selector: { _id: initialData?._id },
-        data: updatedFields,
-      });
-      result = data?.updateUser.data;
+        const updatedFields = getUpdatedFieldValues(formApi, ['biography', 'moderationGuidelines']);
+        const { data } = await mutate({
+          selector: { _id: initialData?._id },
+          data: updatedFields,
+        });
+        result = data?.updateUser.data;
 
-      onSuccessBiographyCallback.current?.(result);
-      onSuccessModerationGuidelinesCallback.current?.(result);
-      
-      onSuccess(result);
+        onSuccessBiographyCallback.current?.(result);
+        onSuccessModerationGuidelinesCallback.current?.(result);
+        
+        onSuccess(result);
+      } catch (error) {
+        setCaughtError(error);
+      }
     },
   });
 
@@ -205,6 +212,7 @@ const UsersForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+      {displayedErrorComponent}
       <div className={classes.defaultGroup}>
         {!isFriendlyUI && (userHasntChangedName(form.state.values) || userIsAdminOrMod(currentUser)) && <div className={classes.fieldWrapper}>
           <form.Field name="displayName">
@@ -1292,6 +1300,7 @@ const UsersForm = ({
           )}
         </form.Subscribe>
       </div>
+      {displayedErrorComponent}
     </form>
   );
 };
