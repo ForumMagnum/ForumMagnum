@@ -83,6 +83,10 @@ const styles = defineStyles("CondensedFooterReactions", (theme: ThemeType) => ({
       height: 20,
       width: 20,
     },
+    [theme.breakpoints.down('sm')]: {
+      top: 3,
+      opacity: 1,
+    },
   },
   addReactionButtonActive: {
     backgroundColor: theme.palette.grey[200],
@@ -90,12 +94,12 @@ const styles = defineStyles("CondensedFooterReactions", (theme: ThemeType) => ({
   },
   hiddenOnMobile: {
     [theme.breakpoints.down('sm')]: {
-      display: 'none !important',
+      display: 'none',
     },
   },
   hiddenOnDesktop: {
     [theme.breakpoints.up('md')]: {
-      display: 'none !important',
+      display: 'none',
     },
   },
   addReactionDesktopExtra: {
@@ -356,9 +360,12 @@ interface CondensedFooterReactionsProps {
   className?: string;
 }
 
-const CondensedFooterReactions = (props: CondensedFooterReactionsProps) => {
+const CondensedFooterReactions = ({
+  voteProps,
+  allowReactions,
+  className,
+}: CondensedFooterReactionsProps) => {
   const classes = useStyles(styles);
-  const { voteProps, allowReactions, className } = props;
   const currentUser = useCurrentUser();
   
   const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);

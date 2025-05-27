@@ -185,7 +185,7 @@ const DetailedReactionOverview = ({ voteProps }: DetailedReactionOverviewProps) 
           </div>
           {item.reactions && item.reactions.length > 0 && (
             <div className={classes.usersWhoReactedList}>
-                <UsersWhoReacted reactions={item.reactions} />
+              <UsersWhoReacted reactions={item.reactions} />
             </div>
           )}
         </div>

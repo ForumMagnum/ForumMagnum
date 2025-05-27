@@ -16,7 +16,7 @@ const styles = defineStyles('UltraFeedAddReactionButton', (theme: ThemeType) => 
     opacity: 0.7,
     position: "relative",
     top: 0,
-    color: `${theme.palette.ultraFeed.dim} !important`,
+    color: theme.palette.ultraFeed.dim,
     display: 'flex',
     marginRight: 6,
     alignItems: 'center',
