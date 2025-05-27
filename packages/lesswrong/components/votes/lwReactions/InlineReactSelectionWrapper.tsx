@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import type { ContentItemBodyImperative } from '../../common/ContentItemBody';
+import type { ContentItemBodyImperative } from '../../contents/contentBodyUtil';
 import type { VotingProps } from '../votingProps';
 import AddInlineReactionButton from "./AddInlineReactionButton";
 import LWPopper from "../../common/LWPopper";

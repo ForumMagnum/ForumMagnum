@@ -21,7 +21,7 @@ import difference from 'lodash/difference';
 import uniq from 'lodash/uniq';
 import { useTracking } from "../../../lib/analyticsEvents";
 import { getConfirmedCoauthorIds } from '../../../lib/collections/posts/helpers';
-import type { ContentItemBodyImperative } from '../../common/ContentItemBody';
+import type { ContentItemBodyImperative } from '../../contents/contentBodyUtil';
 import { SetHoveredReactionContext } from './HoveredReactionContextProvider';
 import { filterNonnull } from '../../../lib/utils/typeGuardUtils';
 import { isMobile } from '../../../lib/utils/isMobile';

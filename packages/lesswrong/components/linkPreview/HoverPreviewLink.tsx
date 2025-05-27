@@ -4,9 +4,8 @@ import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import {parseRoute, parsePath, checkUserRouteAccess} from '../../lib/vulcan-core/appContext'
 import { classifyHost, useLocation } from '../../lib/routeUtil';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { isServer } from '../../lib/executionEnvironment';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { locationHashIsFootnote, locationHashIsFootnoteBackreference } from '../posts/PostsPage/CollapsedFootnotes';
+import { locationHashIsFootnote, locationHashIsFootnoteBackreference } from '../contents/CollapsedFootnotes';
 import {useCurrentUser} from '../common/withUser'
 import { getUrlClass } from '@/server/utils/getUrlClass';
 import type { ContentStyleType } from '../common/ContentStyles';
@@ -88,7 +87,7 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
 
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
     const hostType = classifyHost(linkTargetAbsolute.host)
-    if (!linkIsExcludedFromPreview(onsiteUrl) && (hostType==="onsite" || hostType==="mirrorOfUs" || isServer)) {
+    if (!linkIsExcludedFromPreview(onsiteUrl) && (hostType==="onsite" || hostType==="mirrorOfUs")) {
       const parsedUrl = checkUserRouteAccess(currentUser, parseRouteWithErrors(onsiteUrl, contentSourceDescription))
       const destinationUrl = hostType==="onsite" ? parsedUrl.url : href;
 
