@@ -3,8 +3,10 @@ import { useSingle } from '../../lib/crud/withSingle';
 import type { CommentTreeOptions } from './commentTree';
 import React from 'react';
 import classNames from 'classnames';
-import CommentsItem from "./CommentsItem/CommentsItem";
+import CommentsItem, { commentsItemStyles } from "./CommentsItem/CommentsItem";
 import Loading from "../vulcan-core/Loading";
+import { useStyles } from '../hooks/useStyles';
+import { commentFrameStyles } from './CommentFrame';
 
 const ParentCommentSingle = ({
   documentId,
@@ -21,6 +23,9 @@ const ParentCommentSingle = ({
   truncated?: boolean,
   treeOptions?: CommentTreeOptions
 }) => {
+  const frameClasses = useStyles(commentFrameStyles);
+  const commentItemClasses = useStyles(commentsItemStyles);
+
   const { document, loading } = useSingle({
     documentId,
     collectionName: "Comments",
@@ -29,12 +34,12 @@ const ParentCommentSingle = ({
   if (document && !loading) {
     return (
       <div className={classNames(
-        'comments-node',
-        'recent-comments-node',
+        frameClasses.node2,
+        commentItemClasses.root2,
         {
-          "comments-node-root" : nestingLevel === 1,
-          "comments-node-even" : nestingLevel % 2 === 0,
-          "comments-node-odd"  : nestingLevel % 2 !== 0,
+          [frameClasses.commentsNodeRoot] : nestingLevel === 1,
+          [frameClasses.even]: nestingLevel % 2 === 0,
+          [frameClasses.odd]: nestingLevel % 2 !== 0,
         }
       )}>
         <CommentsItem

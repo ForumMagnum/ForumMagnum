@@ -8,11 +8,13 @@ import DeferRender from "../common/DeferRender";
 import CommentsNodeInner from "../comments/CommentsNode";
 import QuickTakesCollapsedListItem from "./QuickTakesCollapsedListItem";
 import LWQuickTakesCollapsedListItem from "./LWQuickTakesCollapsedListItem";
+import { getClassName } from "../hooks/useStyles";
+import { type commentFrameStyles } from "../comments/CommentFrame";
 
 const styles = (_theme: ThemeType) => ({
   expandedRoot: {
     position: "relative",
-    "& .comments-node-root": {
+    [`& .${getClassName<typeof commentFrameStyles>("CommentFrame", "commentsNodeRoot")}`]: {
       marginBottom: 8,
       ...(isLWorAF ? {
         paddingTop: 0,

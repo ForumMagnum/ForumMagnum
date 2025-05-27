@@ -14,6 +14,8 @@ import ForumIcon from "../common/ForumIcon";
 import UsersName from "../users/UsersName";
 import FooterTag from "../tagging/FooterTag";
 import CommentsNodeInner from "../comments/CommentsNode";
+import { getClassName } from "../hooks/useStyles";
+import { type commentFrameStyles } from "../comments/CommentFrame";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -35,7 +37,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   expandedRoot: {
-    "& .comments-node-root": {
+    [`& .${getClassName<typeof commentFrameStyles>("CommentFrame", "commentsNodeRoot")}`]: {
       marginBottom: 8,
     },
   },

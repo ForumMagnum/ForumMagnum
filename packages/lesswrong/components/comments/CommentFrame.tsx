@@ -3,12 +3,14 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { CommentTreeOptions } from './commentTree';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { commentsNodeRootMarginBottom, maxSmallish, maxTiny } from '@/themes/globalStyles/globalStyles';
 
 export const HIGHLIGHT_DURATION = 3
 
 export const CONDENSED_MARGIN_BOTTOM = 4
 
-const styles = (theme: ThemeType) => ({
+export const commentFrameStyles = defineStyles("CommentFrame", (theme: ThemeType) => ({
   node: {
     border: theme.palette.border.commentBorder,
     borderRadius: isFriendlyUI ? theme.borderRadius.small : undefined,
@@ -16,11 +18,38 @@ const styles = (theme: ThemeType) => ({
     // Higher specificity to override child class (variant syntax)
     '&$deleted': {
       opacity: 0.6
-    }
+    },
+  },
+  // Shared with ParentCommentSingle, unlike classes.node
+  node2: {
+    "& $node2": {
+      [maxTiny]: {
+        marginLeft: 5,
+        marginBottom: 5,
+      }
+    },
+  },
+  even: {
+    backgroundColor: theme.palette.panelBackground.commentNodeEven,
+  },
+  odd: {
+    backgroundColor: theme.palette.panelBackground.commentNodeOdd,
   },
   commentsNodeRoot: {
     borderRadius: theme.borderRadius.small,
+    marginBottom: commentsNodeRootMarginBottom,
+  
+    [maxSmallish]: {
+      marginBottom: 10,
+    },
+    [maxTiny]: {
+      marginBottom: 8,
+      paddingTop: 5,
+    },
+    
+    backgroundColor: theme.palette.panelBackground.default,
   },
+
   child: {
     marginLeft: theme.spacing.unit,
     marginBottom: 6,
@@ -61,13 +90,13 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 0,
     borderBottom: "none",
     borderTop: theme.palette.border.commentBorder,
-    '&.comments-node-root':{
+    '&$commentsNodeRoot':{
       marginBottom: CONDENSED_MARGIN_BOTTOM,
       borderBottom: theme.palette.border.commentBorder,
     }
   },
   condensed: {
-    '&.comments-node-root':{
+    '&$commentsNodeRoot':{
       marginBottom: CONDENSED_MARGIN_BOTTOM,
     }
   },
@@ -83,10 +112,10 @@ const styles = (theme: ThemeType) => ({
     }
   },
   moderatorHat: {
-    "&.comments-node-even": {
+    "&$even": {
       background: theme.palette.panelBackground.commentModeratorHat,
     },
-    "&.comments-node-odd": {
+    "&$odd": {
       background: theme.palette.panelBackground.commentModeratorHat,
     },
   },
@@ -126,10 +155,52 @@ const styles = (theme: ThemeType) => ({
     backgroundImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight}, ${theme.palette.border.primaryHighlight})`,
     border: "none",
     zIndex: 0,
-    '&.CommentFrame-isAnswer': {
+    '&$isAnswer': {
       backgroundImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight2}, ${theme.palette.border.primaryHighlight2})`,
     },
   },
+
+  itsGettingNestedHere: {
+    marginLeft: "7px !important",
+    marginBottom: "7px !important",
+  },
+  soTakeOffAllYourMargins: {
+    marginLeft: "6px !important",
+    marginBottom: "6px !important",
+  },
+  imGettingSoNested: {
+    marginLeft: "5px !important",
+    marginBottom: "5px !important",
+  },
+  imGonnaDropMyMargins: {
+    marginLeft: "5px !important",
+    marginBottom: "5px !important",
+  },
+  whatAreYouEvenArguingAbout: {
+    marginLeft: "4px !important",
+    marginBottom: "4px !important",
+  },
+  areYouSureThisIsAGoodIdea: {
+    marginLeft: "3px !important",
+    marginBottom: "3px !important",
+  },
+  seriouslyWhatTheFuck: {
+    marginLeft: "2px !important",
+    marginBottom: "2px !important",
+    transform: "rotate(.5deg)",
+  },
+  areYouCuriAndLumiferSpecifically: {
+    marginLeft: "1px !important",
+    marginBottom: "1px !important",
+    transform: "rotate(1deg)",
+  },
+  cuzIGuessThatMakesSenseButLikeReallyTho: {
+    marginLeft: "1px !important",
+    marginBottom: "1px !important",
+    transform: "rotate(-1deg)",
+  },
+}), {
+  stylePriority: -1,
 });
 
 const CommentFrame = ({
@@ -149,7 +220,6 @@ const CommentFrame = ({
   showPinnedOnProfile,
   children,
   className,
-  classes
 }: {
   comment: CommentsList,
   treeOptions: CommentTreeOptions,
@@ -169,15 +239,15 @@ const CommentFrame = ({
   
   children: React.ReactNode,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
   const { condensed, postPage, switchAlternatingHighlights } = treeOptions;
+  const classes = useStyles(commentFrameStyles);
   const effectiveNestingLevel = nestingLevel + (switchAlternatingHighlights ? 1 : 0);
   
   const nodeClass = classNames(
-    "comments-node",
-    nestingLevelToClass(effectiveNestingLevel, classes),
     classes.node,
+    classes.node2,
+    nestingLevelToClass(effectiveNestingLevel, classes),
     className,
     comment.af && "af",
     highlighted && classes.highlightAnimation,
@@ -203,25 +273,24 @@ const CommentFrame = ({
   </div>
 }
 
-const nestingLevelToClass = (nestingLevel: number, classes: ClassesType<typeof styles>): string => {
+const nestingLevelToClass = (nestingLevel: number, classes: ClassesType<typeof commentFrameStyles["styles"]>): string => {
   return classNames(
     (nestingLevel === 1)   && classes.commentsNodeRoot,
-    (nestingLevel === 1)   && "comments-node-root" ,
-    (nestingLevel%2 === 0) && "comments-node-even" ,
-    (nestingLevel%2 !== 0) && "comments-node-odd"  ,
-    (nestingLevel > 8)  && "comments-node-its-getting-nested-here",
-    (nestingLevel > 12) && "comments-node-so-take-off-all-your-margins",
-    (nestingLevel > 16) && "comments-node-im-getting-so-nested",
-    (nestingLevel > 20) && "comments-node-im-gonna-drop-my-margins",
-    (nestingLevel > 24) && "comments-node-what-are-you-even-arguing-about",
-    (nestingLevel > 28) && "comments-node-are-you-sure-this-is-a-good-idea",
-    (nestingLevel > 32) && "comments-node-seriously-what-the-fuck",
-    (nestingLevel > 36) && "comments-node-are-you-curi-and-lumifer-specifically",
-    (nestingLevel > 40) && "comments-node-cuz-i-guess-that-makes-sense-but-like-really-tho",
+    (nestingLevel%2 === 0) && classes.even,
+    (nestingLevel%2 !== 0) && classes.odd,
+    (nestingLevel > 8)  && classes.itsGettingNestedHere,
+    (nestingLevel > 12) && classes.soTakeOffAllYourMargins,
+    (nestingLevel > 16) && classes.imGettingSoNested,
+    (nestingLevel > 20) && classes.imGonnaDropMyMargins,
+    (nestingLevel > 24) && classes.whatAreYouEvenArguingAbout,
+    (nestingLevel > 28) && classes.areYouSureThisIsAGoodIdea,
+    (nestingLevel > 32) && classes.seriouslyWhatTheFuck,
+    (nestingLevel > 36) && classes.areYouCuriAndLumiferSpecifically,
+    (nestingLevel > 40) && classes.cuzIGuessThatMakesSenseButLikeReallyTho,
   );
 }
 
 
-export default registerComponent('CommentFrame', CommentFrame, {styles, stylePriority: -1});
+export default registerComponent('CommentFrame', CommentFrame);
 
 

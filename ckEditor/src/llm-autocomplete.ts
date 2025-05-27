@@ -142,7 +142,7 @@ const getReplyingCommentId = (): string | undefined => {
     const currentlySelectedTextField = document.activeElement;
 
     // Then find the closest parent element with the class name 'comment-node'
-    const replyingToCommentNode = currentlySelectedTextField.closest('.comments-node');
+    const replyingToCommentNode = currentlySelectedTextField.closest('.CommentFrame-node');
 
     // Get the comment id from the id attribute
     return replyingToCommentNode?.id;
