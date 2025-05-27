@@ -14,6 +14,8 @@ import { updateComment } from "../collections/comments/mutations";
 import { updateReport } from "../collections/reports/mutations";
 import { updateSequence } from "../collections/sequences/mutations";
 import { updateNotification } from "../collections/notifications/mutations";
+import { inspect } from "util";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 
 
 
@@ -35,21 +37,33 @@ export async function userIPBanAndResetLoginTokens(user: DbUser) {
       }
     }
   `;
-  const IPs: any = await runQuery(query, {userId: user._id});
+  const IPs: any = await runQuery(query, {userId: user._id}, createAdminContext());
   if (IPs) {
-    await asyncForeachSequential(IPs.data.user.result.IPs as Array<string>, async ip => {
-      let tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const ban = {
-        expirationDate: tomorrow,
-        userId: user._id,
-        reason: "User account banned",
-        comment: "Automatic IP ban",
-        ip: ip,
-      }
-      const userContext = await computeContextFromUser({ user, isSSR: false });
-      await createBan({ data: ban }, userContext);
-    })
+    try {
+      await asyncForeachSequential(IPs.data.user.result.IPs as Array<string>, async ip => {
+        let tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const ban = {
+          expirationDate: tomorrow,
+          userId: user._id,
+          reason: "User account banned",
+          comment: "Automatic IP ban",
+          ip: ip,
+        }
+        const userContext = await computeContextFromUser({ user, isSSR: false });
+        await createBan({ data: ban }, userContext);
+      })
+    } catch (e) {
+      /* eslint-disable no-console */
+      console.error("User object:");
+      console.error(inspect(user, { depth: null, colors: true }));
+      console.error("IPs object (raw result from runQuery):");
+      console.error(inspect(IPs, { depth: null, colors: true }));
+      console.error("Caught error details:");
+      console.error(inspect(e, { showHidden: true, depth: null, colors: true }));
+      /* eslint-enable no-console */
+      throw e;
+    }
   }
 
   // Remove login tokens
