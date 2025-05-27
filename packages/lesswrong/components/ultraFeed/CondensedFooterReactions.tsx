@@ -16,7 +16,7 @@ import { Card } from "@/components/widgets/Paper";
 import { AddReactionIcon } from '../icons/AddReactionIcon';
 import HoverOver from "../common/HoverOver";
 
-const styles = defineStyles("CondensedFooterReactions", (theme: any /* ThemeType */) => ({
+const styles = defineStyles("CondensedFooterReactions", (theme: ThemeType) => ({
   root: {
     display: 'flex',
     alignItems: 'center',
@@ -66,7 +66,7 @@ const styles = defineStyles("CondensedFooterReactions", (theme: any /* ThemeType
     width: 18,
   },
   addReactionButton: {
-    opacity: 0.7,
+    opacity: 0.4,
     position: "relative",
     top: 0,
     color: `${theme.palette.ultraFeed.dim} !important`,
@@ -80,8 +80,8 @@ const styles = defineStyles("CondensedFooterReactions", (theme: any /* ThemeType
       opacity: 1,
     },
     '& svg': {
-      height: 18,
-      width: 18,
+      height: 20,
+      width: 20,
     },
   },
   addReactionButtonActive: {
@@ -152,13 +152,20 @@ interface CondensedFooterReactionsSharedProps {
   classes: Record<string, string>;
   topIcon: React.ReactNode | null;
   totalReactionCount: number;
-  currentUser: any;
+  currentUser: UsersCurrent | null;
   toggleReactionMain: (name: string, quote: string | null) => void;
   getCurrentUserReactionVoteMain: ReturnType<typeof useNamesAttachedReactionsVoting>['getCurrentUserReactionVote'];
 }
 
-const CondensedFooterReactionsDesktop = (props: CondensedFooterReactionsSharedProps) => {
-  const { classes, voteProps, topIcon, totalReactionCount, toggleReactionMain, getCurrentUserReactionVoteMain, allowReactions } = props;
+const CondensedFooterReactionsDesktop = ({
+  classes,
+  voteProps,
+  topIcon,
+  totalReactionCount,
+  toggleReactionMain,
+  getCurrentUserReactionVoteMain,
+  allowReactions,
+}: CondensedFooterReactionsSharedProps) => {
   const paletteAnchorEl = useRef<HTMLDivElement>(null);
   
   const [showPalettePopup, setShowPalettePopup] = useState(false);
@@ -187,7 +194,6 @@ const CondensedFooterReactionsDesktop = (props: CondensedFooterReactionsSharedPr
           hideOnTouchScreens={true}
         >
           <span 
-            ref={paletteAnchorEl}
             className={classNames(classes.reactsAndCount)}
           >
             {topIcon}
@@ -198,7 +204,7 @@ const CondensedFooterReactionsDesktop = (props: CondensedFooterReactionsSharedPr
       
       {allowReactions && (
         <>
-          <span ref={totalReactionCount === 0 ? paletteAnchorEl : undefined} >
+          <span ref={paletteAnchorEl} >
             <span
               className={classNames(classes.addReactionButton, classes.addReactionDesktopExtra, { [classes.addReactionButtonActive]: showPalettePopup })}
               onClick={() => setShowPalettePopup(prev => !prev)}
@@ -224,8 +230,15 @@ const CondensedFooterReactionsDesktop = (props: CondensedFooterReactionsSharedPr
   );
 };
 
-const CondensedFooterReactionsMobile = (props: CondensedFooterReactionsSharedProps) => {
-  const { classes, voteProps, topIcon, totalReactionCount, toggleReactionMain, getCurrentUserReactionVoteMain, allowReactions } = props;
+const CondensedFooterReactionsMobile = ({
+  classes,
+  voteProps,
+  topIcon,
+  totalReactionCount,
+  toggleReactionMain,
+  getCurrentUserReactionVoteMain,
+  allowReactions,
+}: CondensedFooterReactionsSharedProps) => {
   const anchorEl = useRef<HTMLDivElement>(null);
   const [showMobilePopup, setShowMobilePopup] = useState(false);
   const [activeMobileTab, setActiveMobileTab] = useState<'overview' | 'palette'>('overview');
@@ -249,6 +262,7 @@ const CondensedFooterReactionsMobile = (props: CondensedFooterReactionsSharedPro
     );
   }
 
+  // justClosedByClickAway is used to prevent the popup reopening when you close it on mobile
   const handleClickAway = () => {
     setShowMobilePopup(false);
     setJustClosedByClickAway(true);
@@ -325,7 +339,7 @@ const CondensedFooterReactionsMobile = (props: CondensedFooterReactionsSharedPro
                     </div>
                   )}
                   {activeMobileTab === 'palette' && allowReactions && (
-                    <UltraFeedReactionsPalette quote={null} getCurrentUserReactionVote={getCurrentUserReactionVoteMain} toggleReaction={handleToggleReactionWithClose} />
+                    <UltraFeedReactionsPalette getCurrentUserReactionVote={getCurrentUserReactionVoteMain} toggleReaction={handleToggleReactionWithClose} />
                   )}
                 </div>
              </Card>

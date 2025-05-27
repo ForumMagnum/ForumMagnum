@@ -10,7 +10,7 @@ import ReactionIcon from "../ReactionIcon";
 import ReactOrAntireactVote from "./ReactOrAntireactVote";
 import LWTooltip from "../../common/LWTooltip";
 import { slugify } from '@/lib/utils/slugify';
-import Loading from '@/components/vulcan-core/Loading';
+import UsersWhoReacted from './UsersWhoReacted';
 
 const styles = defineStyles("DetailedReactionOverview", (theme: ThemeType) => ({
   root: {
@@ -92,7 +92,6 @@ interface DetailedReactionOverviewProps {
 const DetailedReactionOverview = ({ voteProps }: DetailedReactionOverviewProps) => {
   const classes = useStyles(styles);
   const { getCurrentUserReactionVote, setCurrentUserReaction } = useNamesAttachedReactionsVoting(voteProps);
-  const UsersWhoReacted = React.lazy(() => import('./UsersWhoReacted'));
 
   const normalizedReactionsList = getNormalizedReactionsListFromVoteProps(voteProps);
   const allUsedReactsMap: NamesAttachedReactionsList = normalizedReactionsList?.reacts ?? {};
@@ -176,9 +175,7 @@ const DetailedReactionOverview = ({ voteProps }: DetailedReactionOverviewProps) 
           </div>
           {item.reactions && item.reactions.length > 0 && (
             <div className={classes.usersWhoReactedList}>
-              <React.Suspense fallback={<Loading />}>
                 <UsersWhoReacted reactions={item.reactions} />
-              </React.Suspense>
             </div>
           )}
         </div>
