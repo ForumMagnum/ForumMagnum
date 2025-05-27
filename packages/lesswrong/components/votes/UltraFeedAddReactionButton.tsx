@@ -22,12 +22,12 @@ const styles = defineStyles('UltraFeedAddReactionButton', (theme: ThemeType) => 
     alignItems: 'center',
     cursor: 'pointer',
     '& .react-hover-style': {
-      filter: 'opacity(1) !important',
+      filter: 'opacity(1)',
     },
     '& svg': {
-      filter: 'opacity(1) !important',
-      height: 16,
-      width: 16,
+      filter: 'opacity(1)',
+      height: 18,
+      width: 18,
       [theme.breakpoints.down('sm')]: {
         height: 21,
         width: 21,
@@ -100,7 +100,6 @@ const UltraFeedAddReactionButton = ({voteProps, hideOnMobileIfReactions}: {
         }}>
           <div className={classes.hoverBallot}>
             <UltraFeedReactionsPalette
-              quote={null}
               getCurrentUserReactionVote={getCurrentUserReactionVote}
               toggleReaction={handleToggleReaction}
             />

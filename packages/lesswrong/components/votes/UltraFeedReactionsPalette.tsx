@@ -112,9 +112,8 @@ const styles = defineStyles('UltraFeedReactionsPalette', (theme: ThemeType) => (
   },
 }));
 
-const ReactTooltip = (props: { reaction: NamesAttachedReactionType }) => {
+const ReactTooltip = ({ reaction }: { reaction: NamesAttachedReactionType }) => {
   const classes = useStyles(styles);
-  const { reaction } = props;
   return <div className={classes.tooltipRoot}>
    <div className={classes.tooltipIcon}>
       <ReactionIcon inverted={true} react={reaction.name} size={40}/>
@@ -166,15 +165,15 @@ const ListReactButton: React.FC<ListReactButtonProps> = ({
     </LWTooltip>
 }
 
-const UltraFeedReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
-  getCurrentUserReactionVote: (name: EmojiReactName, quote: QuoteLocator|null) => VoteOnReactionType|null,
-  toggleReaction: (reactionName: string, quote: QuoteLocator|null) => void,
-  quote: QuoteLocator|null,
+const UltraFeedReactionsPalette = ({
+  getCurrentUserReactionVote,
+  toggleReaction,
+}: {
+  getCurrentUserReactionVote: (name: EmojiReactName, quote: QuoteLocator | null) => VoteOnReactionType | null;
+  toggleReaction: (reactionName: string, quote: QuoteLocator | null) => void;
 }) => {
   const classes = useStyles(styles);
-  const { captureEvent } = useTracking()
   const [searchText,setSearchText] = useState("");
-  const debouncedCaptureEvent = useRef(debounce(captureEvent, 500))
   
   const activeReacts = namesAttachedReactions.filter(r=>!r.deprecated);
   const reactionsToShow = reactionsSearch(activeReacts, searchText);
@@ -190,7 +189,6 @@ const UltraFeedReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, 
       placeholder="Search reactions"
       onChange={(ev) => {
         setSearchText(ev.currentTarget.value)
-        debouncedCaptureEvent.current("ultraFeedReactPaletteSearch", {searchText: ev.currentTarget.value})
       }}
     />
     <div className={classes.reactionPaletteScrollRegion}>
@@ -203,7 +201,7 @@ const UltraFeedReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, 
           reaction={reaction}
           placement={placement}
           size={18}
-          quote={quote}
+          quote={null}
           key={idx}
         />;
       })}
