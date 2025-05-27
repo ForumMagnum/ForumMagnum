@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import type { EmojiReactName, QuoteLocator, UserReactInfo, VoteOnReactionType, NamesAttachedReactionsList } from '../../../lib/voting/namesAttachedReactions';
 import { getNormalizedReactionsListFromVoteProps } from '@/lib/voting/reactionDisplayHelpers';
 import { namesAttachedReactions as masterReactionList } from '../../../lib/voting/reactions';
@@ -11,6 +11,7 @@ import ReactOrAntireactVote from "./ReactOrAntireactVote";
 import LWTooltip from "../../common/LWTooltip";
 import { slugify } from '@/lib/utils/slugify';
 import UsersWhoReacted from './UsersWhoReacted';
+import { useMemo } from 'react';
 
 const styles = defineStyles("DetailedReactionOverview", (theme: ThemeType) => ({
   root: {
@@ -94,10 +95,9 @@ const DetailedReactionOverview = ({ voteProps }: DetailedReactionOverviewProps) 
   const { getCurrentUserReactionVote, setCurrentUserReaction } = useNamesAttachedReactionsVoting(voteProps);
 
   const normalizedReactionsList = getNormalizedReactionsListFromVoteProps(voteProps);
+  const allUsedReactsMap: NamesAttachedReactionsList = normalizedReactionsList?.reacts ?? {};
 
   const displayItems: DisplayableReactionItem[] = useMemo(() => {
-    const allUsedReactsMap: NamesAttachedReactionsList = normalizedReactionsList?.reacts ?? {};
-    
     const reactionDetailsMap = Object.fromEntries(
       masterReactionList
         .filter(r => !r.deprecated)
@@ -107,6 +107,7 @@ const DetailedReactionOverview = ({ voteProps }: DetailedReactionOverviewProps) 
     return Object.entries(allUsedReactsMap).flatMap(([reactionName, instancesOfThisType]) => {
       const reactionDetail = reactionDetailsMap[reactionName as EmojiReactName];
       
+      // Skip if reaction is deprecated or not found in master list
       if (!reactionDetail || !instancesOfThisType) return [];
 
       const items: DisplayableReactionItem[] = [];
@@ -135,6 +136,7 @@ const DetailedReactionOverview = ({ voteProps }: DetailedReactionOverviewProps) 
         return acc;
       }, {});
 
+      // Create items for each quote
       const quoteItems = Object.entries(groupedByQuote).map(([quote, reactions]) => {
         const quoteLocator = quote as QuoteLocator;
         return {
@@ -151,7 +153,7 @@ const DetailedReactionOverview = ({ voteProps }: DetailedReactionOverviewProps) 
 
       return [...items, ...quoteItems];
     });
-  }, [normalizedReactionsList, getCurrentUserReactionVote]);
+  }, [allUsedReactsMap, getCurrentUserReactionVote]);
   
   return (
     <div className={classes.root}>
@@ -185,7 +187,7 @@ const DetailedReactionOverview = ({ voteProps }: DetailedReactionOverviewProps) 
           </div>
           {item.reactions && item.reactions.length > 0 && (
             <div className={classes.usersWhoReactedList}>
-                <UsersWhoReacted reactions={item.reactions} />
+              <UsersWhoReacted reactions={item.reactions} />
             </div>
           )}
         </div>

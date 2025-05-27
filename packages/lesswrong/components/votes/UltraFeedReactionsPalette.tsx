@@ -72,7 +72,7 @@ const styles = defineStyles('UltraFeedReactionsPalette', (theme: ThemeType) => (
     marginRight: 12,
     padding: 8,
     '& img': {
-      filter: 'opacity(1) !important'
+      filter: 'opacity(1)',
     }
   },
   tooltipLabel: {
@@ -178,10 +178,6 @@ const UltraFeedReactionsPalette = ({
   const activeReacts = namesAttachedReactions.filter(r=>!r.deprecated);
   const reactionsToShow = reactionsSearch(activeReacts, searchText);
 
-  // Ensure we always include the full set of active reactions in the same
-  // ordering as the master palette, to avoid divergence.
-  const orderedVisibleReactions = activeReacts.filter(r => reactionsToShow.includes(r));
-
   return <div className={classes.moreReactions}>
     <input
       type="text" className={classes.searchBox}
@@ -192,7 +188,7 @@ const UltraFeedReactionsPalette = ({
       }}
     />
     <div className={classes.reactionPaletteScrollRegion}>
-      {orderedVisibleReactions.map((reaction, idx) => {
+      {reactionsToShow.map((reaction, idx) => {
         // Slightly alternate tooltip placement to avoid obscuring UI
         const placement: PopperPlacementType = (idx % 2 === 0) ? "left" : "right";
         return <ListReactButton
