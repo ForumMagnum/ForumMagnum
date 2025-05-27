@@ -32,7 +32,7 @@ const DEFAULT_DISPLAY_SETTINGS: UltraFeedDisplaySettings = {
   postTitlesAreModals: true,
 };
 
-export const SHOW_ALL_BREAKPOINT_VALUE = Number.MAX_SAFE_INTEGER;
+export const SHOW_ALL_BREAKPOINT_VALUE = 100_000;
 
 export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
   'recombee-lesswrong-custom': 30,

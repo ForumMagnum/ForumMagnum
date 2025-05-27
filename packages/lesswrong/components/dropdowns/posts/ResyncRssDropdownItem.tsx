@@ -10,7 +10,7 @@ import { DialogContent } from '../../widgets/DialogContent';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import DropdownItem from "../DropdownItem";
 import ContentStyles from "../../common/ContentStyles";
-import ContentItemBody from "../../common/ContentItemBody";
+import { ContentItemBody } from "../../contents/ContentItemBody";
 import LWDialog from "../../common/LWDialog";
 import Loading from "../../vulcan-core/Loading";
 

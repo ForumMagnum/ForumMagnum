@@ -240,7 +240,7 @@ const transferServices = async (sourceUser: DbUser, targetUser: DbUser, dryRun: 
   const profilePaths = ["github", "facebook", "google"]
 
   for (const profilePath of profilePaths) {
-    const sourceProfile = sourceUser.services[profilePath]
+    const sourceProfile = sourceUser.services?.[profilePath]
     if (sourceProfile && !targetUser.services[profilePath]) {
       // eslint-disable-next-line no-console
       console.log(`  Copying ${profilePath} profile from ${sourceUser._id} to ${targetUser._id}`)
