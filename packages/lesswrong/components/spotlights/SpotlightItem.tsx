@@ -30,6 +30,8 @@ import { Typography } from "../common/Typography";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import CommentsNodeInner from "../comments/CommentsNode";
+import { getClassName } from '../hooks/useStyles';
+import { type commentFrameStyles } from '../comments/CommentFrame';
 
 const TEXT_WIDTH = 350;
 
@@ -395,7 +397,7 @@ const styles = (theme: ThemeType) => ({
         borderTop: theme.palette.border.extraFaint,
       }
     },
-    '& .comments-node-root': {
+    [`& .${getClassName<typeof commentFrameStyles>("CommentFrame", "commentsNodeRoot")}`]: {
       backgroundColor: 'unset',
     },
   }

@@ -4,12 +4,13 @@ import type { CommentTreeOptions } from './commentTree';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { commentsNodeRootMarginBottom, maxSmallish, maxTiny } from '@/themes/globalStyles/globalStyles';
 
 export const HIGHLIGHT_DURATION = 3
 
 export const CONDENSED_MARGIN_BOTTOM = 4
 
-const styles = defineStyles("CommentFrame", (theme: ThemeType) => ({
+export const commentFrameStyles = defineStyles("CommentFrame", (theme: ThemeType) => ({
   node: {
     border: theme.palette.border.commentBorder,
     borderRadius: isFriendlyUI ? theme.borderRadius.small : undefined,
@@ -19,9 +20,27 @@ const styles = defineStyles("CommentFrame", (theme: ThemeType) => ({
       opacity: 0.6
     }
   },
+  even: {
+    backgroundColor: theme.palette.panelBackground.commentNodeEven,
+  },
+  odd: {
+    backgroundColor: theme.palette.panelBackground.commentNodeOdd,
+  },
   commentsNodeRoot: {
     borderRadius: theme.borderRadius.small,
+    marginBottom: commentsNodeRootMarginBottom,
+  
+    [maxSmallish]: {
+      marginBottom: 10,
+    },
+    [maxTiny]: {
+      marginBottom: 8,
+      paddingTop: 5,
+    },
+    
+    backgroundColor: theme.palette.panelBackground.default,
   },
+
   child: {
     marginLeft: theme.spacing.unit,
     marginBottom: 6,
@@ -62,13 +81,13 @@ const styles = defineStyles("CommentFrame", (theme: ThemeType) => ({
     marginBottom: 0,
     borderBottom: "none",
     borderTop: theme.palette.border.commentBorder,
-    '&.comments-node-root':{
+    '&$commentsNodeRoot':{
       marginBottom: CONDENSED_MARGIN_BOTTOM,
       borderBottom: theme.palette.border.commentBorder,
     }
   },
   condensed: {
-    '&.comments-node-root':{
+    '&$commentsNodeRoot':{
       marginBottom: CONDENSED_MARGIN_BOTTOM,
     }
   },
@@ -84,10 +103,10 @@ const styles = defineStyles("CommentFrame", (theme: ThemeType) => ({
     }
   },
   moderatorHat: {
-    "&.comments-node-even": {
+    "&$even": {
       background: theme.palette.panelBackground.commentModeratorHat,
     },
-    "&.comments-node-odd": {
+    "&$odd": {
       background: theme.palette.panelBackground.commentModeratorHat,
     },
   },
@@ -213,7 +232,7 @@ const CommentFrame = ({
   className?: string,
 }) => {
   const { condensed, postPage, switchAlternatingHighlights } = treeOptions;
-  const classes = useStyles(styles);
+  const classes = useStyles(commentFrameStyles);
   const effectiveNestingLevel = nestingLevel + (switchAlternatingHighlights ? 1 : 0);
   
   const nodeClass = classNames(
@@ -245,12 +264,11 @@ const CommentFrame = ({
   </div>
 }
 
-const nestingLevelToClass = (nestingLevel: number, classes: ClassesType<typeof styles["styles"]>): string => {
+const nestingLevelToClass = (nestingLevel: number, classes: ClassesType<typeof commentFrameStyles["styles"]>): string => {
   return classNames(
     (nestingLevel === 1)   && classes.commentsNodeRoot,
-    (nestingLevel === 1)   && "comments-node-root",
-    (nestingLevel%2 === 0) && "comments-node-even",
-    (nestingLevel%2 !== 0) && "comments-node-odd",
+    (nestingLevel%2 === 0) && classes.even,
+    (nestingLevel%2 !== 0) && classes.odd,
     (nestingLevel > 8)  && classes.itsGettingNestedHere,
     (nestingLevel > 12) && classes.soTakeOffAllYourMargins,
     (nestingLevel > 16) && classes.imGettingSoNested,

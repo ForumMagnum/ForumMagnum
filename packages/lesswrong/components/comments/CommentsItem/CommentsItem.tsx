@@ -33,9 +33,11 @@ import CoreTagIcon from "../../tagging/CoreTagIcon";
 import RejectedReasonDisplay from "../../sunshineDashboard/RejectedReasonDisplay";
 import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
 import CommentBottom from "./CommentBottom";
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { commentFrameStyles } from '../CommentFrame';
 
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
   root: {
     paddingLeft: theme.spacing.unit*1.5,
     paddingRight: theme.spacing.unit*1.5,
@@ -160,6 +162,8 @@ const styles = (theme: ThemeType) => ({
   excerpt: {
     marginBottom: 8,
   },
+}), {
+  stylePriority: -1,
 });
 
 /**
@@ -186,7 +190,6 @@ export const CommentsItem = ({
   displayTagIcon=false,
   excerptLines,
   className,
-  classes,
 }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
@@ -206,8 +209,9 @@ export const CommentsItem = ({
   displayTagIcon?: boolean,
   excerptLines?: number,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+  const frameClasses = useStyles(commentFrameStyles);
   const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
@@ -284,7 +288,7 @@ export const CommentsItem = ({
 
   const renderReply = () => {
     const levelClass = (nestingLevel + (treeOptions.switchAlternatingHighlights ? 0 : 1)) % 2 === 0
-      ? "comments-node-even" : "comments-node-odd"
+      ? frameClasses.even : frameClasses.odd
 
     return (
       <div className={classNames(classes.replyForm, levelClass, isMinimalist && classes.replyFormMinimalist)}>
@@ -424,8 +428,6 @@ export const CommentsItem = ({
 
 export default registerComponent(
   'CommentsItem', CommentsItem, {
-    styles,
-    stylePriority: -1,
     hocs: [withErrorBoundary],
     areEqual: {
       treeOptions: "shallow",

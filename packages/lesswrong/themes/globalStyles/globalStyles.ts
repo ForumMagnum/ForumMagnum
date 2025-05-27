@@ -1,5 +1,7 @@
 import type { JssStyles } from "@/lib/jssStyles";
 import { isFriendlyUI } from "../forumTheme";
+import { type commentFrameStyles } from "@/components/comments/CommentFrame";
+import { getClassName } from "@/components/hooks/useStyles";
 
 export const maxSmallish = "@media screen and (max-width: 715px)";
 export const maxTiny = "@media screen and (max-width: 400px)";
@@ -137,25 +139,6 @@ const globalStyle = (theme: ThemeType) => ({
 });
 
 const commentsStyle = (theme: ThemeType) => ({
-  ".comments-node-even": {
-    backgroundColor: theme.palette.panelBackground.commentNodeEven,
-  },
-  ".comments-node-odd": {
-    backgroundColor: theme.palette.panelBackground.commentNodeOdd,
-  },
-  ".comments-node-root": {
-    marginBottom: commentsNodeRootMarginBottom,
-  
-    [maxSmallish]: {
-      marginBottom: 10,
-    },
-    [maxTiny]: {
-      marginBottom: 8,
-      paddingTop: 5,
-    },
-    
-    backgroundColor: theme.palette.panelBackground.default,
-  },
   ".comments-node .comments-node": {
     [maxTiny]: {
       marginLeft: 5,
@@ -163,31 +146,12 @@ const commentsStyle = (theme: ThemeType) => ({
     }
   },
   
-  ".comments-edit-form": {
-    position: "relative",
-    paddingBottom: 12,
-    "& .form-submit": {
-      textAlign: "right",
-      marginRight: 10,
-    },
-  },
-  
-  ".comments-load-more": {
-    marginLeft: 10,
-  },
-  
   
   ".recent-comments-node": {
-    "&.loading": {
-      minHeight: 80,
-      padding: 35,
-      backgroundColor: theme.palette.panelBackground.commentNodeEven,
-    },
-  
     "& .comments-node": {
       margin: 0,
     },
-    "&.comments-node-root": {
+    [`&.${getClassName<typeof commentFrameStyles>("CommentFrame", "commentsNodeRoot")}`]: {
       backgroundColor: "none",
       marginBottom: ".8em",
       position: "inherit",
