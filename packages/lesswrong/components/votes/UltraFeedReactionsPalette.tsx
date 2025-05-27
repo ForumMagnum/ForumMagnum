@@ -1,5 +1,4 @@
 import React, {useRef, useState} from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { EmojiReactName, QuoteLocator, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
 import { namesAttachedReactions, NamesAttachedReactionType } from '../../lib/voting/reactions';
 import classNames from 'classnames';
@@ -213,4 +212,4 @@ const UltraFeedReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, 
 }
 
 
-export default registerComponent('UltraFeedReactionsPalette', UltraFeedReactionsPalette); 
+export default UltraFeedReactionsPalette; 

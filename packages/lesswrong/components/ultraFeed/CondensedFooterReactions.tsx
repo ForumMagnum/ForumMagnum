@@ -1,5 +1,4 @@
 import React, { useRef, useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import classNames from "classnames";
 import { VotingProps } from "../votes/votingProps";
@@ -387,4 +386,4 @@ const CondensedFooterReactions = (props: CondensedFooterReactionsProps) => {
   );
 };
 
-export default registerComponent("CondensedFooterReactions", CondensedFooterReactions);
+export default CondensedFooterReactions;

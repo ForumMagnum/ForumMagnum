@@ -1,5 +1,4 @@
 import React, { useState, useRef } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
@@ -112,4 +111,4 @@ const UltraFeedAddReactionButton = ({voteProps, hideOnMobileIfReactions}: {
   </LWTooltip>
 }
 
-export default registerComponent('UltraFeedAddReactionButton', UltraFeedAddReactionButton);
+export default UltraFeedAddReactionButton;
