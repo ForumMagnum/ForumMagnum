@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Card } from "@/components/widgets/Paper";
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from '../common/withHover';
@@ -133,6 +133,14 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
   },
 })
 
+/**
+ * Since footnotes can contain footnotes, by default we could have a side-item
+ * for a footnote that contains itself, leading to infinite sidenotes (until a
+ * React stack-depth limit is reached). Use a context provider to keep track of
+ * what footnotes we're in, to prevent this.
+ */
+const FootnoteAncestorsContext = React.createContext<string[]|null>(null);
+
 const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighlight", children}: {
   classes: ClassesType<typeof footnotePreviewStyles>,
   href: string,
@@ -153,13 +161,16 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
   const { eventHandlers: sidenoteEventHandlers, hover: sidenoteHovered } = useHover();
   const eitherHovered = anchorHovered || sidenoteHovered;
   const [footnoteHTML,setFootnoteHTML] = useState<string|null>(null);
+  const footnoteAncestors = useContext(FootnoteAncestorsContext) ?? [];
   
   useEffect(() => {
-    const extractedFootnoteHTML = extractFootnoteHTML(href);
+    const extractedFootnoteHTML = footnoteAncestors.includes(href)
+      ? null
+      : extractFootnoteHTML(href);
     if (extractedFootnoteHTML) {
       setFootnoteHTML((oldFootnoteHTML) => oldFootnoteHTML ?? extractedFootnoteHTML);
     }
-  }, [href]);
+  }, [href, footnoteAncestors]);
   
   // TODO: Getting the footnote content from the DOM didn't necessarily work;
   // for example if the page was only showing an excerpt (with the rest hidden
@@ -216,12 +227,14 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
               eitherHovered && classes.sidenoteHover
             )}
           >
-            <SidenoteDisplay
-              footnoteHref={href}
-              footnoteHTML={footnoteHTML}
-              contentStyleType={contentStyleType}
-              classes={classes}
-            />
+            <FootnoteAncestorsContext.Provider value={[...footnoteAncestors, href]}>
+              <SidenoteDisplay
+                footnoteHref={href}
+                footnoteHTML={footnoteHTML}
+                contentStyleType={contentStyleType}
+                classes={classes}
+              />
+            </FootnoteAncestorsContext.Provider>
           </div>
           <span className={classes.footnoteMobileIndicator} onClick={onClick}>
             <SideItemLine colorClass={classes.lineColor}/>
