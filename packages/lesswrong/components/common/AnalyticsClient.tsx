@@ -22,6 +22,7 @@ export const AnalyticsClient = () => {
     if (!isLWorAF) {
       clientContextVars.abTestGroupsUsed = abTestGroupsUsed;
     }
+    // There may be events waiting for the client context vars to be set, so flush them now
     flushClientEvents(true);
   }, [currentUserId, clientId, currentUser, abTestGroupsUsed]);
   
