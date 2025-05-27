@@ -47,7 +47,7 @@ export const linkIsExcludedFromPreview = (url: string): boolean => {
 //   contentSourceDescription: (Optional) A human-readabe string describing
 //     where this content came from. Used in error logging only, not displayed
 //     to users.
-const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch, contentStyleType, children }: {
+const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch, contentStyleType, className, children }: {
   href: string,
   contentSourceDescription?: string,
   id?: string,
@@ -55,6 +55,7 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
   // Only Implemented for Tag Hover Previews
   noPrefetch?: boolean,
   contentStyleType?: ContentStyleType,
+  className?: string,
   children: React.ReactNode,
 }) => {
   const URLClass = getUrlClass()
@@ -63,7 +64,7 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
 
   // Invalid link with no href? Don't transform it.
   if (!href) {
-    return <a href={href} id={id} rel={rel}>
+    return <a href={href} id={id} rel={rel} className={className}>
       {children}
     </a>
   }
@@ -75,7 +76,7 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
         {children}
       </FootnotePreview>
     } else if (locationHashIsFootnoteBackreference(href)) {
-      return <a href={href} id={id} rel={rel}>
+      return <a href={href} id={id} rel={rel} className={className}>
         {children}
       </a>
     }
@@ -158,13 +159,13 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
         {children}
       </DefaultPreview>
     }
-    return <a href={href} id={id} rel={rel}>
+    return <a href={href} id={id} rel={rel} className={className}>
       {children}
     </a>
   } catch (err) {
     console.error(err) // eslint-disable-line
     console.error(href) // eslint-disable-line
-    return <a href={href} id={id} rel={rel}>
+    return <a href={href} id={id} rel={rel} className={className}>
       {children}
     </a>
   }
