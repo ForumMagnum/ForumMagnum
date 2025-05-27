@@ -11,6 +11,7 @@ import ReactOrAntireactVote from "./ReactOrAntireactVote";
 import LWTooltip from "../../common/LWTooltip";
 import { slugify } from '@/lib/utils/slugify';
 import UsersWhoReacted from './UsersWhoReacted';
+import { useMemo } from 'react';
 
 const styles = defineStyles("DetailedReactionOverview", (theme: ThemeType) => ({
   root: {
@@ -96,52 +97,61 @@ const DetailedReactionOverview = ({ voteProps }: DetailedReactionOverviewProps) 
   const normalizedReactionsList = getNormalizedReactionsListFromVoteProps(voteProps);
   const allUsedReactsMap: NamesAttachedReactionsList = normalizedReactionsList?.reacts ?? {};
 
-  const displayItems: DisplayableReactionItem[] = [];
+  const displayItems: DisplayableReactionItem[] = useMemo(() => {
+    const reactionDetailsMap = Object.fromEntries(
+      masterReactionList
+        .filter(r => !r.deprecated)
+        .map(r => [r.name, r])
+    );
 
-  masterReactionList.forEach(reactionDetail => {
-    if (reactionDetail.deprecated) return;
+    return Object.entries(allUsedReactsMap).flatMap(([reactionName, instancesOfThisType]) => {
+      const reactionDetail = reactionDetailsMap[reactionName as EmojiReactName];
+      
+      if (!reactionDetail || !instancesOfThisType) return [];
 
-    const reactionName = reactionDetail.name;
-    const instancesOfThisType: UserReactInfo[] = allUsedReactsMap[reactionName] || [];
+      const items: DisplayableReactionItem[] = [];
 
-    const wholeDocInstances = instancesOfThisType.filter(r => !r.quotes || r.quotes.length === 0);
-    if (wholeDocInstances.length > 0) {
-      displayItems.push({
-        id: reactionName,
-        reactionName: reactionName,
-        reactionLabel: reactionDetail.label,
-        iconComponent: <ReactionIcon react={reactionName} />,
-        quote: null,
-        netCount: sumBy(wholeDocInstances, r => r.reactType === "disagreed" ? -1 : 1),
-        currentUserVote: getCurrentUserReactionVote(reactionName, null),
-        reactions: wholeDocInstances, 
-      });
-    }
-
-    const quoteInstances = instancesOfThisType.filter(r => r.quotes && r.quotes.length > 0);
-    const groupedByQuote: Record<string, UserReactInfo[]> = {};
-    quoteInstances.forEach(qi => {
-      const quoteStr = qi.quotes![0]; 
-      if (!groupedByQuote[quoteStr]) {
-        groupedByQuote[quoteStr] = [];
+      const wholeDocInstances = instancesOfThisType.filter(r => !r.quotes || r.quotes.length === 0);
+      if (wholeDocInstances.length > 0) {
+        items.push({
+          id: reactionName,
+          reactionName: reactionName as EmojiReactName,
+          reactionLabel: reactionDetail.label,
+          iconComponent: <ReactionIcon react={reactionName as EmojiReactName} />,
+          quote: null,
+          netCount: sumBy(wholeDocInstances, r => r.reactType === "disagreed" ? -1 : 1),
+          currentUserVote: getCurrentUserReactionVote(reactionName as EmojiReactName, null),
+          reactions: wholeDocInstances,
+        });
       }
-      groupedByQuote[quoteStr].push(qi);
-    });
 
-    Object.entries(groupedByQuote).forEach(([quote, reactions]) => {
-      const quoteLocator = quote as QuoteLocator;
-      displayItems.push({
-        id: `${reactionName}-${slugify(quoteLocator)}`,
-        reactionName: reactionName,
-        reactionLabel: reactionDetail.label, 
-        iconComponent: <ReactionIcon react={reactionName} />,
-        quote: quoteLocator,
-        netCount: sumBy(reactions, r => r.reactType === "disagreed" ? -1 : 1),
-        currentUserVote: getCurrentUserReactionVote(reactionName, quoteLocator),
-        reactions: reactions, 
+      const quoteInstances = instancesOfThisType.filter(r => r.quotes && r.quotes.length > 0);
+      const groupedByQuote = quoteInstances.reduce<Record<string, UserReactInfo[]>>((acc, qi) => {
+        const quoteStr = qi.quotes![0];
+        if (!acc[quoteStr]) {
+          acc[quoteStr] = [];
+        }
+        acc[quoteStr].push(qi);
+        return acc;
+      }, {});
+
+      const quoteItems = Object.entries(groupedByQuote).map(([quote, reactions]) => {
+        const quoteLocator = quote as QuoteLocator;
+        return {
+          id: `${reactionName}-${slugify(quoteLocator)}`,
+          reactionName: reactionName as EmojiReactName,
+          reactionLabel: reactionDetail.label,
+          iconComponent: <ReactionIcon react={reactionName as EmojiReactName} />,
+          quote: quoteLocator,
+          netCount: sumBy(reactions, r => r.reactType === "disagreed" ? -1 : 1),
+          currentUserVote: getCurrentUserReactionVote(reactionName as EmojiReactName, quoteLocator),
+          reactions: reactions,
+        };
       });
+
+      return [...items, ...quoteItems];
     });
-  });
+  }, [allUsedReactsMap, getCurrentUserReactionVote]);
   
   return (
     <div className={classes.root}>
