@@ -37,7 +37,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { commentFrameStyles } from '../CommentFrame';
 
 
-const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
+export const commentsItemStyles = defineStyles("CommentsItem", (theme: ThemeType) => ({
   root: {
     paddingLeft: theme.spacing.unit*1.5,
     paddingRight: theme.spacing.unit*1.5,
@@ -210,7 +210,7 @@ export const CommentsItem = ({
   excerptLines?: number,
   className?: string,
 }) => {
-  const classes = useStyles(styles);
+  const classes = useStyles(commentsItemStyles);
   const frameClasses = useStyles(commentFrameStyles);
   const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);

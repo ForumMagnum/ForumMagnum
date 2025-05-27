@@ -146,7 +146,7 @@ export const commentFrameStyles = defineStyles("CommentFrame", (theme: ThemeType
     backgroundImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight}, ${theme.palette.border.primaryHighlight})`,
     border: "none",
     zIndex: 0,
-    '&.CommentFrame-isAnswer': {
+    '&$isAnswer': {
       backgroundImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight2}, ${theme.palette.border.primaryHighlight2})`,
     },
   },

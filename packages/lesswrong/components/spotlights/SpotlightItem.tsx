@@ -32,6 +32,7 @@ import ForumIcon from "../common/ForumIcon";
 import CommentsNodeInner from "../comments/CommentsNode";
 import { getClassName } from '../hooks/useStyles';
 import { type commentFrameStyles } from '../comments/CommentFrame';
+import { type commentsItemStyles } from '../comments/CommentsItem/CommentsItem';
 
 const TEXT_WIDTH = 350;
 
@@ -381,7 +382,7 @@ const styles = (theme: ThemeType) => ({
     }
   },
   review: {
-    '&& .CommentFrame-node': {
+    [`&& ${getClassName<typeof commentFrameStyles>("CommentFrame", "node")}`]: {
       border: "none",
       margin: 0,
     },
@@ -390,7 +391,7 @@ const styles = (theme: ThemeType) => ({
       backgroundColor: theme.palette.background.translucentBackgroundHeavy,
       borderRadius: 0
     },
-    '& .CommentsItem-root': {
+    [`& .${getClassName<typeof commentsItemStyles>("CommentsItem", "root")}`]: {
       borderBottom: theme.palette.border.extraFaint,
       backgroundColor: theme.palette.background.pageActiveAreaBackground,
       '&:last-child': {
