@@ -1,11 +1,15 @@
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import React, { useCallback } from "react";
 import DropdownMenu from "../dropdowns/DropdownMenu";
 import DropdownItem from "../dropdowns/DropdownItem";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import PostSubscriptionsDropdownItem from "../dropdowns/posts/PostSubscriptionsDropdownItem";
 import SuggestCuratedDropdownItem from "../dropdowns/posts/SuggestCuratedDropdownItem";
-import { defineStyles, useStyles } from "../hooks/useStyles";
+import { defineStyles } from "../hooks/useStyles";
+import { useStyles } from "../hooks/useStyles";
 import NotifyMeToggleDropdownItem from "../dropdowns/NotifyMeToggleDropdownItem";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
+import { useCurrentUser } from "../common/withUser";
 
 const styles = defineStyles("UltraFeedPostActions", (theme: ThemeType) => ({
   root: {
@@ -19,6 +23,7 @@ const UltraFeedPostActions = ({ post, closeMenu, includeBookmark }: {
   includeBookmark?: boolean,
 }) => {
   const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
 
   const handleOpenNewTab = useCallback((ev: React.MouseEvent) => {
     ev.preventDefault();
@@ -33,10 +38,11 @@ const UltraFeedPostActions = ({ post, closeMenu, includeBookmark }: {
   }, [post, closeMenu]);
 
   const author = post.user;
+  const userIsAuthor = currentUser?._id === author?._id;
 
   return (
     <DropdownMenu className={classes.root}>
-      {author && <NotifyMeToggleDropdownItem
+      {author && !userIsAuthor && <NotifyMeToggleDropdownItem
         document={author}
         title={`Follow ${userGetDisplayName(author)}`}
         subscriptionType="newActivityForFeed"
@@ -56,4 +62,4 @@ const UltraFeedPostActions = ({ post, closeMenu, includeBookmark }: {
   );
 };
 
-export default UltraFeedPostActions; 
+export default registerComponent("UltraFeedPostActions", UltraFeedPostActions); 
