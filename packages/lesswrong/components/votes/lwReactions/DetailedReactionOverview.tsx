@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { EmojiReactName, QuoteLocator, UserReactInfo, VoteOnReactionType, NamesAttachedReactionsList } from '../../../lib/voting/namesAttachedReactions';
 import { getNormalizedReactionsListFromVoteProps } from '@/lib/voting/reactionDisplayHelpers';
 import { namesAttachedReactions as masterReactionList } from '../../../lib/voting/reactions';
@@ -11,7 +11,6 @@ import ReactOrAntireactVote from "./ReactOrAntireactVote";
 import LWTooltip from "../../common/LWTooltip";
 import { slugify } from '@/lib/utils/slugify';
 import UsersWhoReacted from './UsersWhoReacted';
-import { useMemo } from 'react';
 
 const styles = defineStyles("DetailedReactionOverview", (theme: ThemeType) => ({
   root: {
@@ -95,9 +94,10 @@ const DetailedReactionOverview = ({ voteProps }: DetailedReactionOverviewProps) 
   const { getCurrentUserReactionVote, setCurrentUserReaction } = useNamesAttachedReactionsVoting(voteProps);
 
   const normalizedReactionsList = getNormalizedReactionsListFromVoteProps(voteProps);
-  const allUsedReactsMap: NamesAttachedReactionsList = normalizedReactionsList?.reacts ?? {};
 
   const displayItems: DisplayableReactionItem[] = useMemo(() => {
+    const allUsedReactsMap: NamesAttachedReactionsList = normalizedReactionsList?.reacts ?? {};
+    
     const reactionDetailsMap = Object.fromEntries(
       masterReactionList
         .filter(r => !r.deprecated)
@@ -153,7 +153,7 @@ const DetailedReactionOverview = ({ voteProps }: DetailedReactionOverviewProps) 
 
       return [...items, ...quoteItems];
     });
-  }, [allUsedReactsMap, getCurrentUserReactionVote]);
+  }, [normalizedReactionsList, getCurrentUserReactionVote]);
   
   return (
     <div className={classes.root}>
