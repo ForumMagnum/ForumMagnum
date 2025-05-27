@@ -611,7 +611,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: b
     {} :
     {
       pointerEvents: 'none',
-      '& *': {
+      '& > *': {
         pointerEvents: 'auto',
       },
     }
