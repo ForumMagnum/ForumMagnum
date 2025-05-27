@@ -69,7 +69,7 @@ const styles = defineStyles("CondensedFooterReactions", (theme: ThemeType) => ({
     opacity: 0.4,
     position: "relative",
     top: 0,
-    color: `${theme.palette.ultraFeed.dim} !important`,
+    color: theme.palette.ultraFeed.dim,
     display: 'flex',
     alignItems: 'center',
     cursor: 'pointer',
