@@ -176,45 +176,6 @@ const commentsStyle = (theme: ThemeType) => ({
     marginLeft: 10,
   },
   
-  ".comments-node-its-getting-nested-here": {
-    marginLeft: "7px !important",
-    marginBottom: "7px !important",
-  },
-  ".comments-node-so-take-off-all-your-margins": {
-    marginLeft: "6px !important",
-    marginBottom: "6px !important",
-  },
-  ".comments-node-im-getting-so-nested": {
-    marginLeft: "5px !important",
-    marginBottom: "5px !important",
-  },
-  ".comments-node-im-gonna-drop-my-margins": {
-    marginLeft: "5px !important",
-    marginBottom: "5px !important",
-  },
-  ".comments-node-what-are-you-even-arguing-about": {
-    marginLeft: "4px !important",
-    marginBottom: "4px !important",
-  },
-  ".comments-node-are-you-sure-this-is-a-good-idea": {
-    marginLeft: "3px !important",
-    marginBottom: "3px !important",
-  },
-  ".comments-node-seriously-what-the-fuck": {
-    marginLeft: "2px !important",
-    marginBottom: "2px !important",
-    transform: "rotate(.5deg)",
-  },
-  ".comments-node-are-you-curi-and-lumifer-specifically": {
-    marginLeft: "1px !important",
-    marginBottom: "1px !important",
-    transform: "rotate(1deg)",
-  },
-  ".comments-node-cuz-i-guess-that-makes-sense-but-like-really-tho": {
-    marginLeft: "1px !important",
-    marginBottom: "1px !important",
-    transform: "rotate(-1deg)",
-  },
   
   ".recent-comments-node": {
     "&.loading": {
