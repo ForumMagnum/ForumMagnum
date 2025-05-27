@@ -1,4 +1,3 @@
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import React, { useCallback } from "react";
 import DropdownMenu from "../dropdowns/DropdownMenu";
 import DropdownItem from "../dropdowns/DropdownItem";
@@ -59,4 +58,4 @@ const UltraFeedCommentActions = ({ comment, post, currentUser, closeMenu }: {
   );
 };
 
-export default registerComponent("UltraFeedCommentActions", UltraFeedCommentActions); 
+export default UltraFeedCommentActions; 
