@@ -18,7 +18,16 @@ export const commentFrameStyles = defineStyles("CommentFrame", (theme: ThemeType
     // Higher specificity to override child class (variant syntax)
     '&$deleted': {
       opacity: 0.6
-    }
+    },
+  },
+  // Shared with ParentCommentSingle, unlike classes.node
+  node2: {
+    "& $node2": {
+      [maxTiny]: {
+        marginLeft: 5,
+        marginBottom: 5,
+      }
+    },
   },
   even: {
     backgroundColor: theme.palette.panelBackground.commentNodeEven,
@@ -236,9 +245,9 @@ const CommentFrame = ({
   const effectiveNestingLevel = nestingLevel + (switchAlternatingHighlights ? 1 : 0);
   
   const nodeClass = classNames(
-    "comments-node",
-    nestingLevelToClass(effectiveNestingLevel, classes),
     classes.node,
+    classes.node2,
+    nestingLevelToClass(effectiveNestingLevel, classes),
     className,
     comment.af && "af",
     highlighted && classes.highlightAnimation,

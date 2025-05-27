@@ -33,7 +33,7 @@ import CoreTagIcon from "../../tagging/CoreTagIcon";
 import RejectedReasonDisplay from "../../sunshineDashboard/RejectedReasonDisplay";
 import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
 import CommentBottom from "./CommentBottom";
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { defineStyles, getClassName, useStyles } from '@/components/hooks/useStyles';
 import { commentFrameStyles } from '../CommentFrame';
 
 
@@ -44,7 +44,18 @@ export const commentsItemStyles = defineStyles("CommentsItem", (theme: ThemeType
     position: "relative",
     "&:hover .CommentsItemMeta-menu": {
       opacity:1
-    }
+    },
+  },
+  // Shared with ParentCommentSingle, unlike classes.root
+  root2: {
+    [`& ${getClassName<typeof commentFrameStyles>("CommentFrame", "node2")}`]: {
+      margin: 0,
+    },
+    [`&.${getClassName<typeof commentFrameStyles>("CommentFrame", "commentsNodeRoot")}`]: {
+      backgroundColor: "none",
+      marginBottom: ".8em",
+      position: "inherit",
+    },
   },
   subforumTop: {
     paddingTop: 4,
@@ -326,8 +337,8 @@ export const CommentsItem = ({
     <HoveredReactionContextProvider voteProps={voteProps}>
       <div className={classNames(
         classes.root,
+        classes.root2,
         className,
-        "recent-comments-node",
         comment.deleted && !comment.deletedPublic && classes.deleted,
         treeOptions.isSideComment && classes.sideComment,
         comment.tagCommentType === "SUBFORUM" && !comment.topLevelCommentId && classes.subforumTop,

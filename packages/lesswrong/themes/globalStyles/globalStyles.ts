@@ -138,28 +138,6 @@ const globalStyle = (theme: ThemeType) => ({
   }: {}),
 });
 
-const commentsStyle = (theme: ThemeType) => ({
-  ".comments-node .comments-node": {
-    [maxTiny]: {
-      marginLeft: 5,
-      marginBottom: 5,
-    }
-  },
-  
-  
-  ".recent-comments-node": {
-    "& .comments-node": {
-      margin: 0,
-    },
-    [`&.${getClassName<typeof commentFrameStyles>("CommentFrame", "commentsNodeRoot")}`]: {
-      backgroundColor: "none",
-      marginBottom: ".8em",
-      position: "inherit",
-    },
-  },
-});
-
-
 type Enumerate<N extends number, Acc extends number[] = []> =
   Acc["length"] extends N
     ? Acc[number]
@@ -372,7 +350,6 @@ const audioPlayerStyles = (theme: ThemeType) => ({
 export const globalStyles = (theme: ThemeType) => ({
   ...clearStyle(theme),
   ...globalStyle(theme),
-  ...commentsStyle(theme),
   ...dialogueStyle(theme),
   ...audioPlayerStyles(theme),
 });
