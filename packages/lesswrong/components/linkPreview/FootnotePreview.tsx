@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Card } from "@/components/widgets/Paper";
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from '../common/withHover';
@@ -161,7 +161,8 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
   const { eventHandlers: sidenoteEventHandlers, hover: sidenoteHovered } = useHover();
   const eitherHovered = anchorHovered || sidenoteHovered;
   const [footnoteHTML,setFootnoteHTML] = useState<string|null>(null);
-  const footnoteAncestors = useContext(FootnoteAncestorsContext) ?? [];
+  const memoizedEmptyArray = useMemo(() => [], []);
+  const footnoteAncestors = useContext(FootnoteAncestorsContext) ?? memoizedEmptyArray;
   
   useEffect(() => {
     const extractedFootnoteHTML = footnoteAncestors.includes(href)
