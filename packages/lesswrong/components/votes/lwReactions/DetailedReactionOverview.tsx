@@ -107,7 +107,6 @@ const DetailedReactionOverview = ({ voteProps }: DetailedReactionOverviewProps) 
     return Object.entries(allUsedReactsMap).flatMap(([reactionName, instancesOfThisType]) => {
       const reactionDetail = reactionDetailsMap[reactionName as EmojiReactName];
       
-      // Skip if reaction is deprecated or not found in master list
       if (!reactionDetail || !instancesOfThisType) return [];
 
       const items: DisplayableReactionItem[] = [];
@@ -136,7 +135,6 @@ const DetailedReactionOverview = ({ voteProps }: DetailedReactionOverviewProps) 
         return acc;
       }, {});
 
-      // Create items for each quote
       const quoteItems = Object.entries(groupedByQuote).map(([quote, reactions]) => {
         const quoteLocator = quote as QuoteLocator;
         return {
