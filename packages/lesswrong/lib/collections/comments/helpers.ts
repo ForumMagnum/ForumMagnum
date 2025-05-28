@@ -103,11 +103,19 @@ export const commentAllowTitle = (comment: {tagCommentType?: TagCommentType, par
 /**
  * If the site is currently hiding comments by unreviewed authors, check if we need to hide this comment.
  */
-export const commentIsHidden = (comment: CommentsList|DbComment) => {
+export const commentIsHiddenPendingReview = (comment: CommentsList|DbComment) => {
   const hideSince = hideUnreviewedAuthorCommentsSettings.get()
   const postedAfterGrandfatherDate = hideSince && new Date(hideSince) < new Date(comment.postedAt) 
   // hide unreviewed comments which were posted after we implmemented a "all comments need to be reviewed" date
   return postedAfterGrandfatherDate && comment.authorIsUnreviewed
+}
+
+export const commentIsNotPublicForAnyReason = (comment: CommentsList|DbComment) => {
+  if (comment.draft || comment.deleted || comment.rejected) {
+    return true;
+  }
+
+  return commentIsHiddenPendingReview(comment);
 }
 
 export const commentIncludedInCounts = (comment: Pick<DbComment, '_id' | 'deleted' | 'rejected' | 'debateResponse' | 'authorIsUnreviewed' | 'draft'>) => (
