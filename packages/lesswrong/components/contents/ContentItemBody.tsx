@@ -129,7 +129,11 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
     }
 
     case htmlparser2.ElementType.Tag: {
-      const TagName = parsedHtml.tagName.toLowerCase() as any;
+      let TagName = parsedHtml.tagName.toLowerCase() as any;
+      if (TagName === 'html' || TagName === 'body') {
+        console.log(`Replaced ${TagName} with div in ${passedThroughProps.description}`);
+        TagName = 'div';
+      }
       const attribs = translateAttribs(parsedHtml.attribs);
       const id = attribs.id;
       const classNames = parsedHtml.attribs.class?.split(' ') ?? [];
