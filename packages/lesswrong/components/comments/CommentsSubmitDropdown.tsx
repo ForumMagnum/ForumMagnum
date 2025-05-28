@@ -9,6 +9,9 @@ import LWClickAwayListener from '../common/LWClickAwayListener';
 import DropdownMenu from '../dropdowns/DropdownMenu';
 import DropdownItem from '../dropdowns/DropdownItem';
 import { Paper } from '../widgets/Paper';
+import { useCurrentUser } from '../common/withUser';
+import { useDialog } from '../common/withDialog';
+import LoginPopup from '../users/LoginPopup';
 
 const styles = (theme: ThemeType) => ({
   buttonWrapper: {
@@ -46,7 +49,9 @@ export const CommentsSubmitDropdown = ({ handleSubmit, classes }: {
   handleSubmit: (meta: {draft: boolean}) => Promise<void>,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { captureEvent } = useTracking()
+  const { captureEvent } = useTracking();
+  const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
 
   const [menuOpen, innerSetMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null)
@@ -81,6 +86,14 @@ export const CommentsSubmitDropdown = ({ handleSubmit, classes }: {
               <DropdownItem
                 title={preferredHeadingCase("Save As Draft")}
                 onClick={() => {
+                  if (!currentUser) {
+                    openDialog({
+                      name: "LoginPopup",
+                      contents: ({onClose}) => <LoginPopup onClose={onClose}/>
+                    });
+                    return;
+                  }
+
                   void handleSubmit({ draft: true });
                   setMenuOpen(false);
                 }}
