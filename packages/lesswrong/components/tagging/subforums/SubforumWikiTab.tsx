@@ -17,7 +17,7 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useSingle } from '@/lib/crud/withSingle';
 import PostsListSortDropdown from "../../posts/PostsListSortDropdown";
 import PostsList2 from "../../posts/PostsList2";
-import ContentItemBody from "../../common/ContentItemBody";
+import { ContentItemBody } from "../../contents/ContentItemBody";
 import AddPostsToTag from "../AddPostsToTag";
 import UsersNameDisplay from "../../users/UsersNameDisplay";
 import TagDiscussionSection from "../TagDiscussionSection";
