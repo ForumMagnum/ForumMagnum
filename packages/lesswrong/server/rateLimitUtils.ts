@@ -99,7 +99,8 @@ function getPostRateLimitInfos(
 async function getCommentsInTimeframe(userId: string, maxTimeframe: number, context: ResolverContext) {
   const { Comments } = context;
   const commentsInTimeframe = await Comments.find(
-    { userId: userId, 
+    { userId: userId,
+      draft: false,
       postedAt: {$gte: moment().subtract(maxTimeframe, 'hours').toDate()},
       debateResponse: {$ne: true}
     }, {

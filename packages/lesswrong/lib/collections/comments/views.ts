@@ -88,7 +88,7 @@ const getDraftSelector = ({ drafts = "include-my-draft-replies", context }: { dr
           {
             $and: [
               { draft: true },
-              { parentCommentId: { $exists: true } },
+              { parentCommentId: { $exists: true, $ne: null } },
               // Note: This is a hack to ensure mingo cache invalidation works:
               // 1. If we're on the server, context is defined, and selecting against the userId is
               //    required to not over-select drafts

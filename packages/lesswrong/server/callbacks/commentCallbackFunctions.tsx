@@ -942,7 +942,11 @@ export function updatePostLastCommentPromotedAt(data: UpdateCommentDataInput, { 
   return data;
 }
 
-export function setCommentPostedAt(data: UpdateCommentDataInput, { oldDocument }: UpdateCallbackProperties<'Comments'>) {
+export function handleDraftState(data: UpdateCommentDataInput, { oldDocument }: UpdateCallbackProperties<'Comments'>) {
+  // Prevent converting a comment back to draft
+  if (data.draft === true && oldDocument.draft === false) {
+    throw new Error("You cannot convert a published comment back to draft.");
+  }
   // Update postedAt when a comment is moved out of drafts.
   if (data.draft === false && oldDocument.draft) {
     data.postedAt = new Date();
