@@ -262,7 +262,6 @@ const UltraFeedItemFooterCore = ({
             documentId={bookmarkProps.documentId}
             collectionName={collectionName}
             className={classNames(classes.bookmarkButton, { [classes.bookmarkButtonHighlighted]: bookmarkProps.highlighted })}
-            overrideTooltipText="You are being shown this because you bookmarked it."
           />
         </div>
       )}

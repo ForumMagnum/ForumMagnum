@@ -27,7 +27,7 @@ export interface UltraFeedSettingsType {
 
 const DEFAULT_DISPLAY_SETTINGS: UltraFeedDisplaySettings = {
   postTruncationBreakpoints: [200, 2000],
-  lineClampNumberOfLines: 2,
+  lineClampNumberOfLines: 0,
   commentTruncationBreakpoints: [50, 200, 1000],
   postTitlesAreModals: true,
 };
@@ -35,12 +35,12 @@ const DEFAULT_DISPLAY_SETTINGS: UltraFeedDisplaySettings = {
 export const SHOW_ALL_BREAKPOINT_VALUE = 100_000;
 
 export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
+  'recentComments': 80,
   'recombee-lesswrong-custom': 30,
   'hacker-news': 30,
-  'recentComments': 60,
-  'spotlights': 10,
-  'bookmarks': 10,
-  'subscriptions': 10,
+  'spotlights': 5,
+  'bookmarks': 5,
+  'subscriptions': 20,
 };
 export interface CommentScoringSettings {
   commentDecayFactor: number;
@@ -55,7 +55,7 @@ export interface CommentScoringSettings {
 const DEFAULT_COMMENT_SCORING_SETTINGS: CommentScoringSettings = {
   commentDecayFactor: 1.8,
   commentDecayBiasHours: 2,
-  ultraFeedSeenPenalty: 0.1,
+  ultraFeedSeenPenalty: 0.05,
   quickTakeBoost: 1.5,
   commentSubscribedAuthorMultiplier: 2,
   threadScoreAggregation: 'logSum',
@@ -134,8 +134,8 @@ export const truncationLevels = ['Very Short', 'Short', 'Medium', 'Long', 'Full'
 export type TruncationLevel = typeof truncationLevels[number];
 
 export const levelToCommentLinesMap: Record<TruncationLevel, number> = {
-  'Very Short': 2, // Only this sets a line clamp
-  'Short': 0,      // Others disable line clamp
+  'Very Short': 0,
+  'Short': 0,
   'Medium': 0,
   'Long': 0,
   'Full': 0,
@@ -190,9 +190,10 @@ export const getCommentBreakpointLevel = (breakpoint: number | undefined): Trunc
 };
 
 export const getFirstCommentLevel = (lines: number, breakpoint: number): TruncationLevel => {
-  if (lines === 2) {
-    return 'Very Short';
-  }
+  // uncomment if we reintroduce line clamp as default
+  // if (lines === 2) {
+  //   return 'Very Short';
+  // }
   return getCommentBreakpointLevel(breakpoint);
 };
 

@@ -68,6 +68,7 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   toggleContainer: {
     display: 'flex',
     justifyContent: 'flex-end',
+    marginLeft: 8,
     marginBottom: 8,
     marginRight: 8,
   },
@@ -213,7 +214,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
     </div>
   </>;
 
-  const checkBoxLabel = alwaysShow ? "Use New Feed on Frontpage" : "Use New Feed";
+  const checkBoxLabel = alwaysShow ? "Use New Feed on Frontpage in place of Recent Discussion" : "Use New Feed";
 
   return (
     <AnalyticsContext pageSectionContext="ultraFeed" ultraFeedContext={{ sessionId }}>
@@ -223,7 +224,6 @@ const UltraFeedContent = ({alwaysShow = false}: {
           value={ultraFeedEnabledCookie} 
           onClick={toggleUltraFeed} 
           label={checkBoxLabel}
-          tooltip="Hide Quick Takes and Popular Comments sections and show a feed of posts and comments from users you subscribe to"
           labelClassName={classes.checkboxLabel}
         />
       </div>
