@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { DialogActions } from '../widgets/DialogActions';
-import { useCreate } from '../../lib/crud/withCreate';
 import { useMessages } from '../common/withMessages';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { useNavigate } from '../../lib/routeUtil';
@@ -11,6 +10,18 @@ import UserMultiselect from "../form-components/UserMultiselect";
 import LWDialog from "../common/LWDialog";
 import Loading from "../vulcan-core/Loading";
 import EAButton from "../ea-forum/EAButton";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsEditMutation = gql(`
+  mutation createPostNewDialogueDialog($data: CreatePostDataInput!) {
+    createPost(data: $data) {
+      data {
+        ...PostsEdit
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   dialog: {
@@ -57,7 +68,7 @@ const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
   const [title, setTitle] = useState("");
   const {flash} = useMessages();
   const [participants, setParticipants] = useState<string[]>(initialParticipantIds ?? []);
-  const {create: createPost, loading} = useCreate({ collectionName: "Posts", fragmentName: "PostsEdit" });
+  const [createPost, { loading }] = useMutation(PostsEditMutation);
   const navigate = useNavigate();
 
   async function createDialogue() {
@@ -67,26 +78,28 @@ const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
       return;
     }
     const createResult = await createPost({
-      data: {
-        title,
-        draft: true,
-        collabEditorDialogue: true,
-        coauthorStatuses: participants.map(userId => ({userId, confirmed: true, requested: false})),
-        shareWithUsers: participants,
-        sharingSettings: {
-          anyoneWithLinkCan: "none",
-          explicitlySharedUsersCan: "edit",
-        },
-        // Contents is a resolver only field, but there is handling for it
-        // in `createMutator`/`updateMutator`
-        ...({
-          contents: {
-            originalContents: {
-              type: "ckEditorMarkup",
-              data: ""
-            }
+      variables: {
+        data: {
+          title,
+          draft: true,
+          collabEditorDialogue: true,
+          coauthorStatuses: participants.map(userId => ({ userId, confirmed: true, requested: false })),
+          shareWithUsers: participants,
+          sharingSettings: {
+            anyoneWithLinkCan: "none",
+            explicitlySharedUsersCan: "edit",
           },
-        }) as AnyBecauseHard,
+          // Contents is a resolver only field, but there is handling for it
+          // in `createMutator`/`updateMutator`
+          ...({
+            contents: {
+              originalContents: {
+                type: "ckEditorMarkup",
+                data: ""
+              }
+            },
+          }) as AnyBecauseHard,
+        }
       },
     });
     if (createResult?.data?.createPost?.data) {

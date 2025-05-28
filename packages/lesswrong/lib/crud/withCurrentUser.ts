@@ -1,5 +1,5 @@
-import { fragmentTextForQuery } from '../vulcan-lib/fragments';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen';
 import { hookToHoc } from '../hocUtils';
 
 /**
@@ -10,20 +10,19 @@ import { hookToHoc } from '../hocUtils';
  * context.
  */
 export const useQueryCurrentUser = () => {
-  const {data, refetch, loading} = useQuery(gql`
+  const {data, refetch, loading} = useQuery(gql(`
     query getCurrentUser {
       currentUser {
         ...UsersCurrent
       }
     }
-    ${fragmentTextForQuery('UsersCurrent')}
-  `, {
+  `), {
     fetchPolicy: "cache-first",
     ssr: true,
   });
   
   return {
-    currentUser: data?.currentUser,
+    currentUser: data?.currentUser ?? null,
     refetchCurrentUser: refetch,
     currentUserLoading: loading,
   }

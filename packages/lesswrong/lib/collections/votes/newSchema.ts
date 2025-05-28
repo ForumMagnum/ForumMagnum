@@ -91,7 +91,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "VoteType!",
       canRead: ["guests"],
       validation: {
         allowedValues: ["bigDownvote", "bigUpvote", "neutral", "smallDownvote", "smallUpvote"],

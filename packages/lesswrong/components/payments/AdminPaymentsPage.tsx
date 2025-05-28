@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Table } from '@/components/widgets/Table';
 import { TableRow } from '@/components/widgets/TableRow';
@@ -15,6 +14,20 @@ import LoadMore from "../common/LoadMore";
 import UserTooltip from "../users/UserTooltip";
 import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import ForumIcon from "../common/ForumIcon";
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UsersProfileMultiQuery = gql(`
+  query multiUserAdminPaymentsPageQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UsersProfile
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -54,12 +67,26 @@ const styles = (theme: ThemeType) => ({
 export const AdminPaymentsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { results, loading, loadMoreProps } = useMulti({
-    terms: {view: "usersWithPaymentInfo", limit: 500},
-    collectionName: "Users",
-    fragmentName: 'UsersProfile',
+  const { data, loading, fetchMore } = useQuery(UsersProfileMultiQuery, {
+    variables: {
+      selector: { usersWithPaymentInfo: {} },
+      limit: 500,
+      enableTotal: true,
+    },
     fetchPolicy: 'cache-and-network',
-    enableTotal: true
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = data?.users?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: data?.users,
+    loading,
+    fetchMore,
+    initialLimit: 500,
+    itemsPerPage: 10,
+    enableTotal: true,
+    resetTrigger: {view: "usersWithPaymentInfo", limit: 500}
   });
 
   const [search, setSearch] = useState<string>("")

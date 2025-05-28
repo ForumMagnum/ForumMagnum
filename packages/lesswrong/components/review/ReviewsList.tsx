@@ -3,7 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { ReviewYear } from '../../lib/reviewUtils';
 import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
-import { useMulti } from '../../lib/crud/withMulti';
 import sortBy from 'lodash/sortBy';
 import { Typography } from "../common/Typography";
 import CommentsNodeInner from "../comments/CommentsNode";
@@ -11,6 +10,19 @@ import SectionTitle from "../common/SectionTitle";
 import ReviewsLeaderboard from "./ReviewsLeaderboard";
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CommentsListWithParentMetadataMultiQuery = gql(`
+  query multiCommentReviewsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsListWithParentMetadata
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -32,17 +44,16 @@ export const ReviewsList = ({classes, title, defaultSort, reviewYear}: {
 }) => {
   const [sortReviews, setSortReviews ] = useState<string>(defaultSort)
   
-  const { loading, results: reviews } = useMulti({
-    terms: { 
-      view: "reviews", 
-      reviewYear,
-       sortBy: "new"
+  const { data, loading } = useQuery(CommentsListWithParentMetadataMultiQuery, {
+    variables: {
+      selector: { reviews: { reviewYear, sortBy: "new" } },
+      limit: 1000,
+      enableTotal: false,
     },
-    limit: 1000,
-    collectionName: "Comments",
-    fragmentName: 'CommentsListWithParentMetadata',
-    enableTotal: false,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const reviews = data?.comments?.results;
   const sortedReviews = sortBy(reviews, obj => {
     if (sortReviews === "top") return -(obj.baseScore ?? 0)
     if (sortReviews === "new") return -obj.postedAt 

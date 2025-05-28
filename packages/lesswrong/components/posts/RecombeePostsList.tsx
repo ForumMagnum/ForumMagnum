@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NetworkStatus, gql, useQuery } from '@apollo/client';
+import { NetworkStatus, useQuery } from '@apollo/client';
 import { HybridRecombeeConfiguration, RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { useOnMountTracking } from '../../lib/analyticsEvents';
 import uniq from 'lodash/uniq';
@@ -9,30 +9,11 @@ import { useCurrentUser } from '../common/withUser';
 import { aboutPostIdSetting } from '@/lib/instanceSettings';
 import { IsRecommendationContext } from '../dropdowns/posts/PostActions';
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import LoadMore from "../common/LoadMore";
 import PostsItem from "./PostsItem";
 import SectionFooter from "../common/SectionFooter";
 import PostsLoading from "./PostsLoading";
-
-// Would be nice not to duplicate in postResolvers.ts but unfortunately the post types are different
-interface RecombeeRecommendedPost {
-  post: PostsListWithVotes,
-  scenario: string,
-  recommId: string,
-  generatedAt: Date,
-  curated?: never,
-  stickied?: never,
-}
-
-type RecommendedPost = RecombeeRecommendedPost | {
-  post: PostsListWithVotes,
-  scenario?: never,
-  recommId?: never,
-  generatedAt?: never,
-  curated: boolean,
-  stickied: boolean,
-};
+import { gql } from '@/lib/generated/gql-codegen';
 
 type LoadMoreSettings = {
   loadMore: (RecombeeConfiguration | HybridRecombeeConfiguration)['loadMore'];
@@ -56,9 +37,9 @@ const HYBRID_RESOLVER_NAME = 'RecombeeHybridPosts';
 
 type RecombeeResolver = typeof DEFAULT_RESOLVER_NAME | typeof HYBRID_RESOLVER_NAME;
 
-const getRecombeePostsQuery = (resolverName: RecombeeResolver) => gql`
-  query get${resolverName}($limit: Int, $settings: JSON) {
-    ${resolverName}(limit: $limit, settings: $settings) {
+const RecombeeLatestPostsQuery = gql(`
+  query getRecombeeLatestPosts($limit: Int, $settings: JSON) {
+    RecombeeLatestPosts(limit: $limit, settings: $settings) {
       results {
         post {
           ...PostsListWithVotes
@@ -71,8 +52,24 @@ const getRecombeePostsQuery = (resolverName: RecombeeResolver) => gql`
       }
     }
   }
-  ${fragmentTextForQuery('PostsListWithVotes')}
-`;
+`);
+
+const RecombeeHybridPostsQuery = gql(`
+  query getRecombeeHybridPosts($limit: Int, $settings: JSON) {
+    RecombeeHybridPosts(limit: $limit, settings: $settings) {
+      results {
+        post {
+          ...PostsListWithVotes
+        }
+        scenario
+        recommId
+        generatedAt
+        curated
+        stickied
+      }
+    }
+  }
+`);
 
 const isWithinLoadMoreWindow = (recGeneratedAt: Date) => {
   // Use 29 minutes instead of 30 as the cutoff for considering recommendations stale, just to have a bit of buffer.
@@ -82,10 +79,10 @@ const isWithinLoadMoreWindow = (recGeneratedAt: Date) => {
   return moment(recGeneratedAt).isAfter(cutoff);
 };
 
-const getLoadMoreSettings = (resolverName: RecombeeResolver, results: RecommendedPost[], loadMoreCount: number): LoadMoreSettings => {
+const getLoadMoreSettings = (resolverName: RecombeeResolver, results: getRecombeeHybridPostsQuery_RecombeeHybridPosts_RecombeeHybridPostsResult_results_RecombeeRecommendedPost[], loadMoreCount: number): LoadMoreSettings => {
   const staleRecommIds = filterNonnull(uniq(
     results
-      .filter(({ generatedAt }) => generatedAt && !isWithinLoadMoreWindow(generatedAt))
+      .filter(({ generatedAt }) => generatedAt && !isWithinLoadMoreWindow(new Date(generatedAt)))
       .map(({ recommId }) => recommId)
   ));
 
@@ -138,8 +135,11 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
     ? HYBRID_RESOLVER_NAME
     : DEFAULT_RESOLVER_NAME;
 
-  const query = getRecombeePostsQuery(resolverName);
-  const { data, loading, fetchMore, networkStatus } = useQuery(query, {
+  const query = algorithm === 'recombee-hybrid'
+    ? RecombeeHybridPostsQuery
+    : RecombeeLatestPostsQuery;
+
+  const { data, loading, fetchMore, networkStatus } = useQuery<getRecombeeLatestPostsQuery | getRecombeeHybridPostsQuery>(query, {
     notifyOnNetworkStatusChange: true,
     pollInterval: 0,
     variables: {
@@ -148,7 +148,11 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
     },
   });
 
-  const results: RecommendedPost[] | undefined = data?.[resolverName]?.results;
+  const results = data
+    ? 'RecombeeLatestPosts' in data
+      ? data.RecombeeLatestPosts?.results
+      : data.RecombeeHybridPosts?.results
+    : undefined;
 
   const hiddenPostIds = currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
   
@@ -200,8 +204,8 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
       {filteredResults.map(({ post, recommId, curated, stickied }) => <IsRecommendationContext.Provider key={post._id} value={!!recommId}>
         <PostsItem 
           post={post} 
-          recombeeRecommId={recommId} 
-          curatedIconLeft={curated} 
+          recombeeRecommId={recommId ?? undefined} 
+          curatedIconLeft={curated ?? undefined} 
           emphasizeIfNew={true}
           terms={stickied ? stickiedPostTerms : undefined}
         />

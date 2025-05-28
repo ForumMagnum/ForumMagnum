@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -10,6 +9,18 @@ import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import RecentComments from "../comments/RecentComments";
 import LWTooltip from "../common/LWTooltip";
 import { MenuItem } from "../common/Menus";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UsersCurrentUpdateMutation = gql(`
+  mutation updateUserReviews2019($selector: SelectorInput!, $data: UpdateUserDataInput!) {
+    updateUser(selector: $selector, data: $data) {
+      data {
+        ...UsersCurrent
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   setting: {
@@ -38,16 +49,15 @@ const Reviews2019 = ({classes}: {
   const [sortReviews, setSortReviews] = useState<CommentSortingMode>("new")
   const [sortNominations, setSortNominations] = useState<CommentSortingMode>("top")
 
-  const {mutate: updateUser} = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersCurrent',
-  });
+  const [updateUser] = useMutation(UsersCurrentUpdateMutation);
   const handleSetExpandUnread = () => {
     if (currentUser) {
       void updateUser({
-        selector: {_id: currentUser._id},
-        data: {
-          noExpandUnreadCommentsReview: expandUnread,
+        variables: {
+          selector: { _id: currentUser._id },
+          data: {
+            noExpandUnreadCommentsReview: expandUnread,
+          }
         }
       });
     }

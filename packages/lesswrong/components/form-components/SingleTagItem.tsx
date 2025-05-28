@@ -1,10 +1,21 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
 import { tagStyle } from '../tagging/FooterTag';
 import classNames from 'classnames';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import Loading from "../vulcan-core/Loading";
 import ForumIcon from "../common/ForumIcon";
+
+const TagBasicInfoQuery = gql(`
+  query SingleTagItem($documentId: String) {
+    tag(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...TagBasicInfo
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   tag: {
@@ -38,11 +49,10 @@ const SingleTagItem = ({documentId, onDelete, className, classes}: {
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { document, loading } = useSingle({
-    documentId,
-    collectionName: "Tags",
-    fragmentName: 'TagBasicInfo',
-  })
+  const { loading, data } = useQuery(TagBasicInfoQuery, {
+    variables: { documentId: documentId },
+  });
+  const document = data?.tag?.result;
 
   if (loading) {
     return <Loading />

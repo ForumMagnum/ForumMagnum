@@ -37,7 +37,7 @@ export const FormComponentFriendlyDisplayNameInput = ({
   field,
   ...props
 }: {
-  field: TypedFieldApi<string | null>;
+  field: TypedFieldApi<string | null | undefined>;
   multiline?: boolean;
   rows?: number;
   fullWidth?: boolean;
@@ -68,7 +68,7 @@ export const FormComponentFriendlyDisplayNameInput = ({
   return (
     <div>
       <div className={classes.inputRow}>
-        <FormComponentFriendlyTextInput value={value} updateCurrentValue={field.handleChange} {...props} className={classes.formInput} />
+        <FormComponentFriendlyTextInput value={value ?? null} updateCurrentValue={field.handleChange} {...props} className={classes.formInput} />
       </div>
       <div className={classes.blurb}>{blurbContent}</div>
     </div>

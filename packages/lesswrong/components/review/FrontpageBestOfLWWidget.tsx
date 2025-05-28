@@ -1,14 +1,25 @@
 import React from 'react';
 import { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewYear, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
 import * as _ from 'underscore';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import SectionTitle from "../common/SectionTitle";
 import RecommendationsList from "../recommendations/RecommendationsList";
 import PostsItem from "../posts/PostsItem";
+
+const PostsListWithVotesQuery = gql(`
+  query FrontpageBestOfLWWidget($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsListWithVotes
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -71,11 +82,10 @@ export const FrontpageBestOfLWWidget = ({classes, reviewYear}: {
   classes: ClassesType<typeof styles>,
   reviewYear: ReviewYear
 }) => {
-  const { document: postVoting } = useSingle({
-    documentId: "zajNa9fdr8JYJpxrG",
-    collectionName: "Posts",
-    fragmentName: "PostsListWithVotes",
+  const { data } = useQuery(PostsListWithVotesQuery, {
+    variables: { documentId: "zajNa9fdr8JYJpxrG" },
   });
+  const postVoting = data?.post?.result;
   
   return <div className={classes.root}>
     <Link className={classes.imageWrapper} to="/posts/zajNa9fdr8JYJpxrG/voting-results-for-the-2021-review"><img className={classes.image} src={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1644368355/enlarge_books-8_bk0yj6_eoige0_gpqvvr.webp"}/></Link>

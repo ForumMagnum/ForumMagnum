@@ -2,7 +2,6 @@ import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { isEAForum, taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { useUpdate } from '@/lib/crud/withUpdate';
 import { slugify } from '@/lib/utils/slugify';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
@@ -12,6 +11,18 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import NewTagInfoBox from "./NewTagInfoBox";
 import Loading from "../vulcan-core/Loading";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const TagEditFragmentUpdateMutation = gql(`
+  mutation updateTagNewTagPage($selector: SelectorInput!, $data: UpdateTagDataInput!) {
+    updateTag(selector: $selector, data: $data) {
+      data {
+        ...TagEditFragment
+      }
+    }
+  }
+`);
 
 export const styles = (_theme: ThemeType) => ({
   root: {
@@ -30,10 +41,7 @@ export const styles = (_theme: ThemeType) => ({
 const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
-  const {mutate: updateTag} = useUpdate({
-    collectionName: "Tags",
-    fragmentName: "TagEditFragment",
-  });
+  const [updateTag] = useMutation(TagEditFragmentUpdateMutation);
 
   const { query } = useLocation();
   const createdType = ["tag","wiki"].includes(query.type) ? query.type : "tag";
@@ -90,8 +98,10 @@ const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
           onSuccess={async (tag) => {
             if (existingTag) {
               await updateTag({
-                selector: { _id: existingTag._id },
-                data: { isPlaceholderPage: false },
+                variables: {
+                  selector: { _id: existingTag._id },
+                  data: { isPlaceholderPage: false }
+                }
               });
             }
             navigate({pathname: tagGetUrl(tag)});

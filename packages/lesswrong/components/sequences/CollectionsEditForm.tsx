@@ -1,4 +1,3 @@
-import { useUpdate } from '@/lib/crud/withUpdate';
 import { defaultEditorPlaceholder } from '@/lib/editor/make_editable';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useForm } from '@tanstack/react-form';
@@ -12,6 +11,18 @@ import { cancelButtonStyles, submitButtonStyles } from '@/components/tanstack-fo
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CollectionsPageFragmentUpdateMutation = gql(`
+  mutation updateCollectionCollectionsEditForm($selector: SelectorInput!, $data: UpdateCollectionDataInput!) {
+    updateCollection(selector: $selector, data: $data) {
+      data {
+        ...CollectionsPageFragment
+      }
+    }
+  }
+`);
 
 export const styles = defineStyles('CollectionsEditForm', (theme: ThemeType) => ({
   newOrEditForm: {
@@ -73,10 +84,7 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
     addOnSuccessCallback
   } = useEditorFormCallbacks<CollectionsPageFragment>();
 
-  const { mutate } = useUpdate({
-    collectionName: 'Collections',
-    fragmentName: 'CollectionsPageFragment',
-  });
+  const [mutate] = useMutation(CollectionsPageFragmentUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
@@ -92,10 +100,15 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
 
         const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
         const { data } = await mutate({
-          selector: { _id: initialData?._id },
-          data: updatedFields,
+          variables: {
+            selector: { _id: initialData?._id },
+            data: updatedFields
+          }
         });
-        result = data?.updateCollection.data;
+        if (!data?.updateCollection?.data) {
+          throw new Error('Failed to update collection');
+        }
+        result = data.updateCollection.data;
 
         onSuccessCallback.current?.(result);
 

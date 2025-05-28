@@ -1,5 +1,4 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import React from 'react';
 import { useHover } from '../common/withHover'
@@ -22,6 +21,28 @@ import { Typography } from "../common/Typography";
 import SunshineCommentsItemOverview from "./SunshineCommentsItemOverview";
 import SunshineNewUsersInfo from "./SunshineNewUsersInfo";
 import UsersName from "../users/UsersName";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsListUpdateMutation = gql(`
+  mutation updatePostSunshineReportedItem1($selector: SelectorInput!, $data: UpdatePostDataInput!) {
+    updatePost(selector: $selector, data: $data) {
+      data {
+        ...PostsList
+      }
+    }
+  }
+`);
+
+const CommentsListWithParentMetadataUpdateMutation = gql(`
+  mutation updateCommentSunshineReportedItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
+    updateComment(selector: $selector, data: $data) {
+      data {
+        ...CommentsListWithParentMetadata
+      }
+    }
+  }
+`);
 
 const styles = (_theme: ThemeType) => ({
   reportedUser: {
@@ -43,14 +64,8 @@ const SunshineReportedItem = ({report, updateReport, classes, currentUser, refet
   refetch: () => void
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover();
-  const { mutate: updateComment } = useUpdate({
-    collectionName: "Comments",
-    fragmentName: 'CommentsListWithParentMetadata',
-  });
-  const { mutate: updatePost } = useUpdate({
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
-  });
+  const [updateComment] = useMutation(CommentsListWithParentMetadataUpdateMutation);
+  const [updatePost] = useMutation(PostsListUpdateMutation);
   
   const handleReview = () => {
     void updateReport({
@@ -67,20 +82,25 @@ const SunshineReportedItem = ({report, updateReport, classes, currentUser, refet
     if (confirm(`Are you sure you want to immediately delete this ${report.comment ? "comment" : "post"}?`)) {
       if (report.comment) {
         void updateComment({
-          selector: {_id: report.comment._id},
-          data: {
-            deleted: true,
-            deletedDate: new Date(),
-            deletedByUserId: currentUser!._id,
-            deletedReason: "spam"
+          variables: {
+            selector: { _id: report.comment._id },
+            data: {
+              deleted: true,
+              deletedDate: new Date(),
+              deletedByUserId: currentUser!._id,
+              deletedReason: "spam"
+            }
           }
         })
       } else if (report.post) {
         void updatePost({
-          selector: {_id: report.post._id},
-          data: { status: report.reportedAsSpam
-            ? postStatuses.STATUS_SPAM
-            : postStatuses.STATUS_DELETED
+          variables: {
+            selector: { _id: report.post._id },
+            data: {
+              status: report.reportedAsSpam
+                ? postStatuses.STATUS_SPAM
+                : postStatuses.STATUS_DELETED
+            }
           }
         })
       }

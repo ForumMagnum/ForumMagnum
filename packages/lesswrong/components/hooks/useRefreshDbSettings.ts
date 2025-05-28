@@ -1,13 +1,15 @@
 import { useCallback, useState } from "react";
-import { gql, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
 
 export const useRefreshDbSettings = () => {
   const [isRefreshingDbSettings, setIsRefreshingDbSettings] = useState(false);
-  const [mutation] = useMutation(gql`
+  const [mutation] = useMutation(gql(`
     mutation RefreshDbSettings {
       RefreshDbSettings
     }
-  `);
+  `));
   const refreshDbSettings = useCallback(async () => {
     setIsRefreshingDbSettings(true);
     await mutation();

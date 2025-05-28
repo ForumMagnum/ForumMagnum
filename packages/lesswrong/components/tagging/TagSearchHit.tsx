@@ -1,13 +1,24 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
 import { useHover } from '../common/withHover';
 import { useCurrentUser } from '../common/withUser';
 import { shouldHideTagForVoting } from '../../lib/collections/tags/permissions';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import PopperCard from "../common/PopperCard";
 import TagPreview from "./TagPreview";
 import Loading from "../vulcan-core/Loading";
+
+const TagPreviewFragmentQuery = gql(`
+  query TagSearchHit($documentId: String) {
+    tag(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...TagPreviewFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -42,12 +53,11 @@ const TagSearchHit = ({hit, onClick, hidePostCount=false, isVotingContext, class
   isVotingContext?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { document: tag } = useSingle({
-    documentId: hit._id,
-    collectionName: "Tags",
-    fragmentName: "TagPreviewFragment",
-    fetchPolicy: 'cache-then-network' as any, //TODO
+  const { data } = useQuery(TagPreviewFragmentQuery, {
+    variables: { documentId: hit._id },
+    fetchPolicy: 'cache-then-network' as any,
   });
+  const tag = data?.tag?.result;
   const {eventHandlers, hover, anchorEl} = useHover();
   const currentUser = useCurrentUser();
   const post = usePostsPageContext()?.fullPost ?? null;

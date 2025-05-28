@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const ReviewWinnerEditDisplay = () => frag`
+export const ReviewWinnerEditDisplay = gql(`
   fragment ReviewWinnerEditDisplay on ReviewWinner {
     _id
     postId
@@ -8,9 +8,9 @@ export const ReviewWinnerEditDisplay = () => frag`
     curatedOrder
     reviewRanking
   }
-`
+`)
 
-export const ReviewWinnerTopPostsDisplay = () => frag`
+export const ReviewWinnerTopPostsDisplay = gql(`
   fragment ReviewWinnerTopPostsDisplay on ReviewWinner {
     _id
     postId
@@ -21,9 +21,9 @@ export const ReviewWinnerTopPostsDisplay = () => frag`
     curatedOrder
     reviewRanking
   }
-`
+`)
 
-export const ReviewWinnerAll = () => frag`
+export const ReviewWinnerAll = gql(`
   fragment ReviewWinnerAll on ReviewWinner {
     _id
     category
@@ -36,9 +36,9 @@ export const ReviewWinnerAll = () => frag`
     }
     competitorCount
   }
-`
+`)
 
-export const ReviewWinnerTopPostsPage = () => frag`
+export const ReviewWinnerTopPostsPage = gql(`
   fragment ReviewWinnerTopPostsPage on ReviewWinner {
     _id
     category
@@ -52,9 +52,9 @@ export const ReviewWinnerTopPostsPage = () => frag`
       }
     }
   }
-`
+`)
 
-export const ReviewWinnerAnnouncement = () => frag`
+export const ReviewWinnerAnnouncement = gql(`
   fragment ReviewWinnerAnnouncement on ReviewWinner {
     _id
     category
@@ -69,4 +69,4 @@ export const ReviewWinnerAnnouncement = () => frag`
       slug
     }
   }
-`
+`)

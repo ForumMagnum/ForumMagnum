@@ -1,9 +1,21 @@
 import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useTracking } from '@/lib/analyticsEvents';
-import { useMulti } from '@/lib/crud/withMulti';
 import PetrovWorldmapWrapper from "./PetrovWorldmapWrapper";
 import Row from "../../common/Row";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PetrovDayActionInfoMultiQuery = gql(`
+  query multiPetrovDayActionPetrovAdminConsoleQuery($selector: PetrovDayActionSelector, $limit: Int, $enableTotal: Boolean) {
+    petrovDayActions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PetrovDayActionInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -32,15 +44,17 @@ export const PetrovAdminConsole = ({classes, currentUser}: {
   currentUser: UsersCurrent
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-  const { results: petrovDayActions = [], refetch: refetchPetrovDayActions } = useMulti({
-    collectionName: 'PetrovDayActions',
-    fragmentName: 'PetrovDayActionInfo',
-    terms: {
-      view: 'adminConsole',
-      limit: 200
+  const { data, refetch: refetchPetrovDayActions } = useQuery(PetrovDayActionInfoMultiQuery, {
+    variables: {
+      selector: { adminConsole: {} },
+      limit: 200,
+      enableTotal: false,
     },
-    skip: !currentUser
-  })
+    skip: !currentUser,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const petrovDayActions = data?.petrovDayActions?.results ?? [];
 
   return <PetrovWorldmapWrapper>
     <div className={classes.root}>

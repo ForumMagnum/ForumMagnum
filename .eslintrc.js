@@ -45,22 +45,6 @@ module.exports = {
   "rules": {
     "babel/generator-star-spacing": 0,
     
-    // A function with a name starting with an uppercase letter should only be
-    // used as a constructor
-    "babel/new-cap": [1, {
-      "capIsNewExceptions": [
-        "Optional",
-        "OneOf",
-        "Maybe",
-        "MailChimpAPI",
-        "Juice",
-        "Run",
-        "AppComposer",
-        "Query",
-        "Map",
-        "List"
-      ]
-    }],
     "babel/array-bracket-spacing": 0,
     "babel/object-curly-spacing": 0,
     "babel/object-shorthand": 0,
@@ -351,6 +335,7 @@ module.exports = {
     "packages/lesswrong/viteClient",
     // You wouldn't have thought this was necessary would you
     ".eslintrc.js",
-    "packages/lesswrong/lib/vendor/@material-ui"
+    "packages/lesswrong/lib/vendor/@material-ui",
+    "packages/lesswrong/lib/generated/gql-codegen"
   ]
 }

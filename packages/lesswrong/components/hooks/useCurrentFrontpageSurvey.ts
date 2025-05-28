@@ -1,6 +1,6 @@
 import { useCallback } from "react";
-import { gql, useQuery } from "@apollo/client";
-import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
 import { hasSurveys } from "@/lib/betas";
 
 
@@ -9,20 +9,19 @@ export const useCurrentFrontpageSurvey = (): {
   refetch: () => Promise<void>,
   loading: boolean,
 } => {
-  const {data, loading, refetch: refetch_} = useQuery(gql`
+  const {data, loading, refetch: refetch_} = useQuery(gql(`
     query CurrentFrontpageSurvey {
       CurrentFrontpageSurvey {
         ...SurveyScheduleMinimumInfo
       }
     }
-    ${fragmentTextForQuery("SurveyScheduleMinimumInfo")}
-  `, {
+  `), {
     skip: !hasSurveys,
     ssr: true,
   });
   const refetch = useCallback(async () => { await refetch_(); }, [refetch_]);
   return {
-    survey: data?.CurrentFrontpageSurvey,
+    survey: data?.CurrentFrontpageSurvey ?? undefined,
     refetch,
     loading,
   };

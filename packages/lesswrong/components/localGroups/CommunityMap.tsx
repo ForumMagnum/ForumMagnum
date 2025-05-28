@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
 import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
@@ -17,6 +16,41 @@ import CommunityMapFilter from "./CommunityMapFilter";
 import LocalEventMarker from "./LocalEventMarker";
 import LocalGroupMarker from "./LocalGroupMarker";
 import StyledMapPopup from "./StyledMapPopup";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UsersMapEntryMultiQuery = gql(`
+  query multiUserCommunityMapQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UsersMapEntry
+      }
+      totalCount
+    }
+  }
+`);
+
+const localGroupsHomeFragmentMultiQuery = gql(`
+  query multiLocalgroupCommunityMapQuery($selector: LocalgroupSelector, $limit: Int, $enableTotal: Boolean) {
+    localgroups(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...localGroupsHomeFragment
+      }
+      totalCount
+    }
+  }
+`);
+
+const PostsListMultiQuery = gql(`
+  query multiPostCommunityMapQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsList
+      }
+      totalCount
+    }
+  }
+`);
 
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
@@ -126,21 +160,32 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
     })
   }, [center.lat, center.lng, zoom])
 
-  const { results: events = [] } = useMulti({
-    terms: eventTerms || {view: 'events'},
-    collectionName: "Posts",
-    fragmentName: "PostsList",
-    limit: 500,
-    skip: !eventTerms
+  const { view, limit, ...selectorTerms } = eventTerms || { view: 'events' };
+  const { data } = useQuery(PostsListMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 500,
+      enableTotal: false,
+    },
+    skip: !eventTerms,
+    notifyOnNetworkStatusChange: true,
   });
 
-  const { results: groups = [] } = useMulti({
-    terms: groupQueryTerms,
-    collectionName: "Localgroups",
-    fragmentName: "localGroupsHomeFragment",
-    limit: 500,
-    skip: !showGroups
-  })
+  const events = useMemo(() => data?.posts?.results ?? [], [data?.posts?.results]);
+
+  const { view: viewLocalGroupsHomeFragment, limit: limitLocalGroupsHomeFragment, ...selectorTermsLocalGroupsHomeFragment } = groupQueryTerms;
+  const { data: dataLocalGroupsHomeFragment } = useQuery(localGroupsHomeFragmentMultiQuery, {
+    variables: {
+      selector: { [viewLocalGroupsHomeFragment]: selectorTermsLocalGroupsHomeFragment },
+      limit: 500,
+      enableTotal: false,
+    },
+    skip: !showGroups,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const groups = useMemo(() => dataLocalGroupsHomeFragment?.localgroups?.results ?? [], [dataLocalGroupsHomeFragment?.localgroups?.results]);
+
   // filter the list of groups if the user has typed in a keyword
   let visibleGroups = groups
   if (keywordSearch) {
@@ -149,13 +194,17 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
     ))
   }
 
-  const { results: users = [] } = useMulti({
-    terms: {view: "usersMapLocations"},
-    collectionName: "Users",
-    fragmentName: "UsersMapEntry",
-    limit: 5000,
-    skip: !showUsers
-  })
+  const { data: dataUsersMapEntry } = useQuery(UsersMapEntryMultiQuery, {
+    variables: {
+      selector: { usersMapLocations: {} },
+      limit: 5000,
+      enableTotal: false,
+    },
+    skip: !showUsers,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const users = useMemo(() => dataUsersMapEntry?.users?.results ?? [], [dataUsersMapEntry?.users?.results]);
 
   const mapStyle = useMapStyle();
 

@@ -2,7 +2,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState, useEffect, useRef } from 'react';
 import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { useDialog } from '../common/withDialog'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
@@ -29,6 +28,18 @@ import CommunityMembers from "./modules/CommunityMembers";
 import GroupFormLink from "../localGroups/GroupFormLink";
 import DistanceUnitToggle from "./modules/DistanceUnitToggle";
 import ForumIcon from "../common/ForumIcon";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UsersProfileUpdateMutation = gql(`
+  mutation updateUserCommunity($selector: SelectorInput!, $data: UpdateUserDataInput!) {
+    updateUser(selector: $selector, data: $data) {
+      data {
+        ...UsersProfile
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -236,10 +247,7 @@ const Community = ({classes}: {
   }, [])
 
   // used to set the user's location if they did not already have one
-  const { mutate: updateUser } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersProfile',
-  });
+  const [updateUser] = useMutation(UsersProfileUpdateMutation);
   
   /**
    * Given a location, update the page query to use that location,
@@ -263,10 +271,12 @@ const Community = ({classes}: {
     if (currentUser) {
       // save it on the user document
       void updateUser({
-        selector: {_id: currentUser._id},
-        data: {
-          location: gmaps?.formatted_address,
-          googleLocation: gmaps
+        variables: {
+          selector: { _id: currentUser._id },
+          data: {
+            location: gmaps?.formatted_address,
+            googleLocation: gmaps
+          }
         }
       })
     } else {

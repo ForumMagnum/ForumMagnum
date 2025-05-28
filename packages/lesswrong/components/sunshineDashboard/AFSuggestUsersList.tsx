@@ -1,10 +1,23 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import SunshineListTitle from "./SunshineListTitle";
 import OmegaIcon from "../icons/OmegaIcon";
 import LoadMore from "../common/LoadMore";
 import AFSuggestUsersItem from "./AFSuggestUsersItem";
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SuggestAlignmentUserMultiQuery = gql(`
+  query multiUserAFSuggestUsersListQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SuggestAlignmentUser
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -15,12 +28,26 @@ const styles = (theme: ThemeType) => ({
 const AFSuggestUsersList = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { results, loadMoreProps } = useMulti({
-    terms: {view:"alignmentSuggestedUsers", limit: 100},
-    collectionName: "Users",
-    enableTotal: true, itemsPerPage: 100,
-    fragmentName: 'SuggestAlignmentUser',
+  const { data, loading, fetchMore } = useQuery(SuggestAlignmentUserMultiQuery, {
+    variables: {
+      selector: { alignmentSuggestedUsers: {} },
+      limit: 100,
+      enableTotal: true,
+    },
     fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = data?.users?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: data?.users,
+    loading,
+    fetchMore,
+    initialLimit: 100,
+    itemsPerPage: 100,
+    enableTotal: true,
+    resetTrigger: {view:"alignmentSuggestedUsers", limit: 100}
   });
   if (results && results.length) {
     return <div>

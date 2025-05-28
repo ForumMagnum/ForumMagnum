@@ -39,7 +39,7 @@ const PostsTooltip = ({
   hash?: string | null,
   postsList?: boolean,
   inlineBlock?: boolean,
-  As?: keyof React.JSX.IntrinsicElements,
+  As?: 'span' | 'div',
   clickable?: boolean,
   flip?: boolean,
   placement?: PopperPlacementType,

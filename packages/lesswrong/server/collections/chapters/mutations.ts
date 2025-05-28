@@ -131,16 +131,16 @@ export const updateChapterGqlMutation = makeGqlUpdateMutation('Chapters', update
 
 
 export const graphqlChapterTypeDefs = gql`
-  input CreateChapterDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateChapterDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateChapterInput {
     data: CreateChapterDataInput!
   }
   
-  input UpdateChapterDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateChapterDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateChapterInput {

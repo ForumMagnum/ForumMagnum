@@ -9,7 +9,6 @@ import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsType
 import { useUltraFeedObserver } from "./UltraFeedObserver";
 import { useRecordPostView } from "../hooks/useRecordPostView";
 import classnames from "classnames";
-import { useSingle } from "../../lib/crud/withSingle";
 import { highlightMaxChars } from "../../lib/editor/ellipsize";
 import { useOverflowNav } from "./OverflowNavObserverContext";
 import { useDialog } from "../common/withDialog";
@@ -24,7 +23,29 @@ import FeedContentBody from "./FeedContentBody";
 import UltraFeedItemFooter from "./UltraFeedItemFooter";
 import Loading from "../vulcan-core/Loading";
 import OverflowNavButtons from "./OverflowNavButtons";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import UltraFeedPostActions from "./UltraFeedPostActions";
+
+const localPostQuery = gql(`
+  query LocalPostQuery($documentId: String!) {
+    post(selector: { _id: $documentId }) {
+      result {
+        ...UltraFeedPostFragment
+      }
+    }
+  }
+`);
+
+const foreignPostQuery = gql(`
+  query ForeignPostQuery($documentId: String!) {
+    post(selector: { _id: $documentId }) {
+      result {
+        ...PostsPage
+      }
+    }
+  }
+`);
 
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
@@ -233,15 +254,29 @@ const UltraFeedPostItem = ({
   
   const documentId = isForeignCrosspost ? (post.fmCrosspost.foreignPostId ?? undefined) : post._id;
 
-  const { document: fullPost, loading: loadingFullPost } = useSingle({
-    documentId,
-    collectionName: "Posts",
-    apolloClient: isForeignCrosspost ? apolloClient : undefined,
-    fragmentName: isForeignCrosspost ? "PostsPage" : "UltraFeedPostFragment",
+  const { data: localPostData, loading: loadingLocalPost } = useQuery(localPostQuery, {
+    skip: isForeignCrosspost || !isLoadingFull,
     fetchPolicy: "cache-first",
-    skip: !isLoadingFull
+    variables: {
+      documentId,
+    },
   });
 
+  const localPost = localPostData?.post?.result;
+
+  const { data: foreignPostData, loading: loadingForeignPost } = useQuery(foreignPostQuery, {
+    skip: !isForeignCrosspost || !isLoadingFull,
+    fetchPolicy: "cache-first",
+    variables: {
+      documentId,
+    },
+    client: apolloClient,
+  });
+
+  const foreignPost = foreignPostData?.post?.result;
+
+  const fullPost = isForeignCrosspost ? foreignPost : localPost;
+  const loadingFullPost = isForeignCrosspost ? loadingForeignPost : loadingLocalPost;
 
   useEffect(() => {
     const currentElement = elementRef.current;

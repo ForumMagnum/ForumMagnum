@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { getDigestName } from '../../../lib/collections/digests/helpers';
 import moment from 'moment';
-import { useUpdate } from '../../../lib/crud/withUpdate';
 import classNames from 'classnames';
 import OpenInNewIcon from '@/lib/vendor/@material-ui/icons/src/OpenInNew';
 import { ColorPicker } from '@/components/form-components/FormComponentColorPicker';
@@ -11,6 +10,18 @@ import SectionTitle from "../../common/SectionTitle";
 import { DatePicker } from "../../form-components/FormComponentDateTime";
 import ForumIcon from "../../common/ForumIcon";
 import ImageUpload2 from "../../form-components/ImageUpload2";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const DigestsMinimumInfoUpdateMutation = gql(`
+  mutation updateDigestEditDigestHeader($selector: SelectorInput!, $data: UpdateDigestDataInput!) {
+    updateDigest(selector: $selector, data: $data) {
+      data {
+        ...DigestsMinimumInfo
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -98,10 +109,7 @@ export const EditDigestHeader = ({digest, classes}: {
   // on-site digest settings section is collapsed by default
   const [isOnsiteSettingsExpanded, setIsOnsiteSettingsExpanded] = useState(false)
   
-  const {mutate: updateDigest} = useUpdate({
-    collectionName: "Digests",
-    fragmentName: "DigestsMinimumInfo",
-  });
+  const [updateDigest] = useMutation(DigestsMinimumInfoUpdateMutation);
 
   const startFormatted = moment(digest.startDate).format('MMM D')
   const endFormatted = digest.endDate ? moment(digest.endDate).format('MMM D') : 'now'
@@ -109,29 +117,35 @@ export const EditDigestHeader = ({digest, classes}: {
   const onChangeDate = (field: "startDate"|"endDate", date?: Date) => {
     if (date) {
       void updateDigest({
-        selector: {_id: digest._id},
-        data: {
-          [field]: date,
-        },
+        variables: {
+          selector: { _id: digest._id },
+          data: {
+            [field]: date,
+          }
+        }
       });
     }
   }
   
   const onChangeImg = (value: string|null) => {
     void updateDigest({
-      selector: {_id: digest._id},
-      data: {
-        onsiteImageId: value,
-      },
+      variables: {
+        selector: { _id: digest._id },
+        data: {
+          onsiteImageId: value,
+        }
+      }
     });
   }
   
   const updatePrimaryColor = async (color: string) => {
     void updateDigest({
-      selector: {_id: digest._id},
-      data: {
-        onsitePrimaryColor: color,
-      },
+      variables: {
+        selector: { _id: digest._id },
+        data: {
+          onsitePrimaryColor: color,
+        }
+      }
     });
   }
   const startNode = isEditingStartDate

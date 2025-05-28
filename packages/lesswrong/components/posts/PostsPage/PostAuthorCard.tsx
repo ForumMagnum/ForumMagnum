@@ -71,7 +71,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const PostAuthorCard = ({author, currentUser, classes}: {
-  author: PostsAuthors_user,
+  author: Exclude<PostsAuthors['user'], null>,
   currentUser: UsersCurrent|null,
   classes: ClassesType<typeof styles>,
 }) => {

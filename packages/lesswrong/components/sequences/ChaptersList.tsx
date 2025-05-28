@@ -1,24 +1,36 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import Loading from "../vulcan-core/Loading";
 import ChaptersItem from "./ChaptersItem";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const ChaptersFragmentMultiQuery = gql(`
+  query multiChapterChaptersListQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {
+    chapters(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ChaptersFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const ChaptersList = ({sequenceId, canEdit, nextSuggestedNumberRef}: {
   sequenceId: string,
   canEdit: boolean,
   nextSuggestedNumberRef: React.MutableRefObject<number>,
 }) => {
-  const { results, loading } = useMulti({
-    terms: {
-      view: "SequenceChapters",
-      sequenceId,
-      limit: 100
+  const { data, loading } = useQuery(ChaptersFragmentMultiQuery, {
+    variables: {
+      selector: { SequenceChapters: { sequenceId } },
+      limit: 100,
+      enableTotal: false,
     },
-    collectionName: "Chapters",
-    fragmentName: 'ChaptersFragment',
-    enableTotal: false,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.chapters?.results;
 
   if (!results || loading) {
     return <Loading />

@@ -1,12 +1,25 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import Pingback from "./Pingback";
 import LWTooltip from "../common/LWTooltip";
 import LoadMore from "../common/LoadMore";
 import Loading from "../vulcan-core/Loading";
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsListMultiQuery = gql(`
+  query multiPostPingbacksListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsList
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -48,16 +61,28 @@ const PingbacksList = ({classes, postId, limit=5}: {
   postId: string,
   limit?: number
 }) => {
-  const { results, loadMoreProps, loading } = useMulti({
-    terms: {
-      view: "pingbackPosts",
-      postId: postId,
+  const { data, loading, fetchMore } = useQuery(PostsListMultiQuery, {
+    variables: {
+      selector: { pingbackPosts: { postId: postId } },
+      limit: limit,
+      enableTotal: true,
     },
-    collectionName: "Posts",
-    fragmentName: "PostsList",
-    limit: limit,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = data?.posts?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: data?.posts,
+    loading,
+    fetchMore,
+    initialLimit: limit,
     itemsPerPage: 100,
     enableTotal: true,
+    resetTrigger: {
+        view: "pingbackPosts",
+        postId: postId,
+      }
   });
 
   const pingbackIds = (results||[]).map((pingback) => pingback._id)

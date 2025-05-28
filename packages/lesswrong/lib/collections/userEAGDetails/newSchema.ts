@@ -37,7 +37,7 @@ const schema = {
       nullable: true,
     },
     graphql: {
-      outputType: "[String]",
+      outputType: "[String!]",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       validation: {
@@ -95,7 +95,7 @@ const schema = {
       nullable: true,
     },
     graphql: {
-      outputType: "[String]",
+      outputType: "[String!]",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       validation: {
@@ -109,7 +109,7 @@ const schema = {
       nullable: true,
     },
     graphql: {
-      outputType: "[String]",
+      outputType: "[String!]",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       validation: {

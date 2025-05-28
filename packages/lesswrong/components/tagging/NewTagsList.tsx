@@ -1,5 +1,4 @@
 import React from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import LoadMore from "../common/LoadMore";
@@ -7,6 +6,20 @@ import TagsListItem from "./TagsListItem";
 import FormatDate from "../common/FormatDate";
 import MetaInfo from "../common/MetaInfo";
 import UsersNameDisplay from "../users/UsersNameDisplay";
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SunshineTagFragmentMultiQuery = gql(`
+  query multiTagNewTagsListQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SunshineTagFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -37,12 +50,25 @@ const NewTagsList = ({classes, showHeaders = true}: {
   classes: ClassesType<typeof styles>,
   showHeaders?: boolean
 }) => {
-  const { results, loadMoreProps } = useMulti({
-    terms: {view:"newTags", limit: 4 },
-    collectionName: "Tags",
-    fragmentName: "SunshineTagFragment",
-    enableTotal: true,
+  const { data, loading, fetchMore } = useQuery(SunshineTagFragmentMultiQuery, {
+    variables: {
+      selector: { newTags: {} },
+      limit: 4,
+      enableTotal: true,
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = data?.tags?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: data?.tags,
+    loading,
+    fetchMore,
+    initialLimit: 4,
     itemsPerPage: 20,
+    enableTotal: true,
+    resetTrigger: {view:"newTags", limit: 4 }
   });
 
   return <div className={classes.root}>

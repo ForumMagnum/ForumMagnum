@@ -2,7 +2,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface LocalgroupsViewTerms extends ViewTermsBase {
-    view?: LocalgroupsViewName
+    view: LocalgroupsViewName | 'default'
     filters?: string|Array<string>
     groupId?: string
     userId?: string

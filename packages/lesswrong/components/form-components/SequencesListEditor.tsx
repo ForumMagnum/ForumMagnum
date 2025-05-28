@@ -25,7 +25,7 @@ const SortableList = makeSortableListComponent({
 });
 
 export const SequencesListEditor = ({ field }: {
-  field: TypedFieldApi<string[]>;
+  field: TypedFieldApi<string[] | null | undefined>;
 }) => {
   const classes = useStyles(styles);
   const value = field.state.value ?? [];

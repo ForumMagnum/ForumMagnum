@@ -19,8 +19,9 @@ import EARecentDiscussionTagCommented from "./EARecentDiscussionTagCommented";
 import EARecentDiscussionTagRevision from "./EARecentDiscussionTagRevision";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
-import MixedTypeFeed from "../common/MixedTypeFeed";
+import { MixedTypeFeed } from "../common/MixedTypeFeed";
 import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
+import { RecentDiscussionFeedQuery } from '../common/feeds/feedQueries';
 
 const recentDisucssionFeedComponents = () => forumSelect({
   LWAF: {
@@ -84,53 +85,48 @@ const RecentDiscussionFeed = ({
     MeetupsPokeComponent,
   } = recentDisucssionFeedComponents();
 
+  const subscribeReminderRenderer = showSubscribeReminderInFeed.get()
+    ? { render: () => <SubscribeReminderComponent/> }
+    : undefined;
+
   return (
     <AnalyticsContext pageSectionContext="recentDiscussion">
       <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
         <SingleColumnSection>
           <SectionTitle title={title} />
           <MixedTypeFeed
+            query={RecentDiscussionFeedQuery}
+            variables={{
+              commentsLimit,
+              maxAgeHours,
+              tagCommentsLimit: commentsLimit,
+              af,
+            }}
             firstPageSize={10}
             pageSize={20}
             refetchRef={refetchRef}
-            resolverName="RecentDiscussionFeed"
-            sortKeyType="Date"
-            resolverArgs={{ af: 'Boolean' }}
-            resolverArgsValues={{ af }}
-            fragmentArgs={{
-              commentsLimit: 'Int',
-              maxAgeHours: 'Int',
-              tagCommentsLimit: 'Int',
-            }}
-            fragmentArgsValues={{
-              commentsLimit, maxAgeHours,
-              tagCommentsLimit: commentsLimit,
-            }}
             renderers={{
               postCommented: {
-                fragmentName: "PostsRecentDiscussion",
                 render: (post: PostsRecentDiscussion) => (
                   <ThreadComponent
                     post={post}
                     refetch={refetch}
-                    comments={post.recentComments}
+                    comments={post.recentComments ?? undefined}
                     expandAllThreads={expandAll}
                   />
                 )
               },
               shortformCommented: {
-                fragmentName: "ShortformRecentDiscussion",
                 render: (post: ShortformRecentDiscussion) => (
                   <ShortformComponent
                     post={post}
                     refetch={refetch}
-                    comments={post.recentComments}
+                    comments={post.recentComments ?? undefined}
                     expandAllThreads={expandAll}
                   />
                 )
               },
               tagDiscussed: {
-                fragmentName: "TagRecentDiscussion",
                 render: (tag: TagRecentDiscussion) => (
                   <TagCommentedComponent
                     tag={tag}
@@ -141,7 +137,6 @@ const RecentDiscussionFeed = ({
                 )
               },
               tagRevised: {
-                fragmentName: "RecentDiscussionRevisionTagFragment",
                 render: (revision: RecentDiscussionRevisionTagFragment) => <div>
                   {revision.tag && revision.documentId && <TagRevisionComponent
                     tag={revision.tag}
@@ -151,16 +146,11 @@ const RecentDiscussionFeed = ({
                   />}
                 </div>,
               },
+
+              subscribeReminder: subscribeReminderRenderer,
               meetupsPoke: {
-                fragmentName: null,
                 render: () => <MeetupsPokeComponent />
               },
-              ...(showSubscribeReminderInFeed.get() ? {
-                subscribeReminder: {
-                  fragmentName: null,
-                  render: () => <SubscribeReminderComponent/>,
-                },
-              } : {}),
             }}
           />
         </SingleColumnSection>

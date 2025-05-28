@@ -1,7 +1,6 @@
 import React, { ChangeEvent, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { frontpageDaysAgoCutoffSetting } from "../../lib/scoring";
-import { useMulti } from "../../lib/crud/withMulti";
 import { PostsPageContext } from "../posts/PostsPage/PostsPageContext";
 import { useCurrentUser } from "../common/withUser";
 import {
@@ -27,6 +26,20 @@ import PostsPageRecommendationsList from "./PostsPageRecommendationsList";
 import LoadMore from "../common/LoadMore";
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsListWithVotesMultiQuery = gql(`
+  query multiPostRecommendationsSamplePageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsListWithVotes
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -103,21 +116,41 @@ const RecommendationsSamplePage = ({classes}: {
     () => featureInputToFeatures(getDefaultFeatures()),
   );
 
-  const {results, loading, loadMoreProps} = useMulti({
-    terms: {
-      after: moment(now).subtract(
-        frontpageDaysAgoCutoffSetting.get()*24,
-        "hours",
-      ).startOf("hour").toISOString(),
-      view: "magic",
-      forum: true,
+  const { data, loading, fetchMore } = useQuery(PostsListWithVotesMultiQuery, {
+    variables: {
+      selector: {
+        magic: {
+          after: moment(now).subtract(
+            frontpageDaysAgoCutoffSetting.get() * 24,
+            "hours",
+          ).startOf("hour").toISOString(), forum: true
+        }
+      },
       limit: 20,
+      enableTotal: false,
     },
-    collectionName: "Posts",
-    fragmentName: "PostsListWithVotes",
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-first",
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = data?.posts?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: data?.posts,
+    loading,
+    fetchMore,
+    initialLimit: 20,
     itemsPerPage: 25,
+    resetTrigger: {
+        after: moment(now).subtract(
+          frontpageDaysAgoCutoffSetting.get()*24,
+          "hours",
+        ).startOf("hour").toISOString(),
+        view: "magic",
+        forum: true,
+        limit: 20,
+      }
   });
 
   if (!currentUser?.isAdmin) {

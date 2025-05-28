@@ -1,11 +1,23 @@
 import React, { useState } from 'react'
 import { AnalyticsContext } from '../../lib/analyticsEvents'
-import { useMulti } from '../../lib/crud/withMulti'
 import { registerComponent } from '../../lib/vulcan-lib/components'
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
 import PostsItemIntroSequence from "../posts/PostsItemIntroSequence";
 import LoadMore from "../common/LoadMore";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const ChaptersFragmentMultiQuery = gql(`
+  query multiChapterTagIntroSequenceQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {
+    chapters(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ChaptersFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const PREVIEW_N = 3
 
@@ -19,17 +31,17 @@ const TagIntroSequence = ({tag, classes}: {
   tag: TagPageFragment,
   classes: ClassesType<typeof styles>
 }) => {
-  const { results: seqChapters, loading } = useMulti({
-    terms: {
-      view: "SequenceChapters",
-      sequenceId: tag.sequence?._id,
+  const { data, loading } = useQuery(ChaptersFragmentMultiQuery, {
+    variables: {
+      selector: { SequenceChapters: { sequenceId: tag.sequence?._id } },
       limit: 100,
+      enableTotal: false,
     },
-    collectionName: "Chapters",
-    fragmentName: 'ChaptersFragment',
-    enableTotal: false,
     skip: !tag.sequence,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const seqChapters = data?.chapters?.results;
   const [loadedMore, setLoadedMore] = useState(false)
 
   const sequence = tag.sequence

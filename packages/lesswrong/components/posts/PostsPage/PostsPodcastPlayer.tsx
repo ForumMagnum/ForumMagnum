@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const PostsPodcastPlayer = ({ podcastEpisode, postId, hideIconList = false, classes }: {
-  podcastEpisode: PostsDetails_podcastEpisode,
+  podcastEpisode: Exclude<PostsDetails['podcastEpisode'], null>,
   postId: string,
   hideIconList?: boolean,
   classes: ClassesType<typeof styles>

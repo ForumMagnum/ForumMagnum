@@ -1,5 +1,4 @@
 import React from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
@@ -8,20 +7,47 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import SpotlightItem from "./SpotlightItem";
 import LoadMore from "../common/LoadMore";
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SpotlightDisplayMultiQuery = gql(`
+  query multiSpotlightSpotlightHistoryQuery($selector: SpotlightSelector, $limit: Int, $enableTotal: Boolean) {
+    spotlights(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SpotlightDisplay
+      }
+      totalCount
+    }
+  }
+`);
 
 export const SpotlightHistory = () => {
   const currentUser = useCurrentUser()
 
-  const { results: spotlights = [], loadMoreProps } = useMulti({
-    collectionName: 'Spotlights',
-    fragmentName: 'SpotlightDisplay',
-    terms: {
-      view: "mostRecentlyPromotedSpotlights",
-      limit: 1
+  const { data, loading, fetchMore } = useQuery(SpotlightDisplayMultiQuery, {
+    variables: {
+      selector: { mostRecentlyPromotedSpotlights: {} },
+      limit: 1,
+      enableTotal: false,
     },
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
-    itemsPerPage: 50
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const spotlights = data?.spotlights?.results ?? [];
+
+  const loadMoreProps = useLoadMore({
+    data: data?.spotlights,
+    loading,
+    fetchMore,
+    initialLimit: 1,
+    itemsPerPage: 50,
+    resetTrigger: {
+        view: "mostRecentlyPromotedSpotlights",
+        limit: 1
+      }
   });
 
   const title = userCanDo(currentUser, 'spotlights.edit.all') ? <Link to={"/spotlights"}>Spotlight Items</Link> : <div>Spotlight Items</div>

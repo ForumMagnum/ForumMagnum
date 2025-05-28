@@ -4,10 +4,21 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { DisplayFeedCommentThread, FeedCommentMetaInfo, FeedItemDisplayStatus } from "./ultraFeedTypes";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
-import { useSingle } from "@/lib/crud/withSingle";
 import { UltraFeedCommentItem, UltraFeedCompressedCommentsItem } from "./UltraFeedCommentItem";
 import UltraFeedPostItem from "./UltraFeedPostItem";
 import Loading from "../vulcan-core/Loading";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsListWithVotesQuery = gql(`
+  query UltraFeedThreadItem($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsListWithVotes
+      }
+    }
+  }
+`);
 
 const itemSeparator = (theme: ThemeType) => ({
   content: '""',
@@ -148,12 +159,11 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
   const {captureEvent} = useTracking();
   const [ postExpanded, setPostExpanded ] = useState(false);
 
-  const { document: post, loading } = useSingle({
-    documentId: comments[0].postId ?? undefined,
-    collectionName: 'Posts',
-    fragmentName: 'PostsListWithVotes',
+  const { loading, data } = useQuery(PostsListWithVotesQuery, {
+    variables: { documentId: comments[0].postId ?? undefined },
     skip: !comments[0].postId || !postExpanded,
   });
+  const post = data?.post?.result;
 
   const postMetaInfo = {
     sources: commentMetaInfos?.[comments[0]._id]?.sources ?? [],

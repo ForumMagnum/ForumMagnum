@@ -1,5 +1,4 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -7,6 +6,20 @@ import SunshineListCount from "./SunshineListCount";
 import SunshineListTitle from "./SunshineListTitle";
 import SunshineNewUsersItem from "./SunshineNewUsersItem";
 import LoadMore from "../common/LoadMore";
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SunshineUsersListMultiQuery = gql(`
+  query multiUserSunshineNewUsersListQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SunshineUsersList
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   loadMore: {
@@ -22,13 +35,30 @@ const SunshineNewUsersList = ({ classes, terms, currentUser }: {
   classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
 }) => {
-  const { results, totalCount, loadMoreProps, refetch } = useMulti({
-    terms,
-    collectionName: "Users",
-    fragmentName: 'SunshineUsersList',
-    enableTotal: true,
-    itemsPerPage: 60
+  const { view, limit, ...selectorTerms } = terms;
+  const { data, loading, refetch, fetchMore } = useQuery(SunshineUsersListMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 10,
+      enableTotal: true,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.users?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: data?.users,
+    loading,
+    fetchMore,
+    initialLimit: 10,
+    itemsPerPage: 60,
+    enableTotal: true,
+    resetTrigger: terms
+  });
+  
+  const totalCount = data?.users?.totalCount ?? 0;
+
   if (results && results.length && userCanDo(currentUser, "posts.moderate.all")) {
     return (
       <div>

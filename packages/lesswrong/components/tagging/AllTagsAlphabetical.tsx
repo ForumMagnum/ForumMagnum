@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import _sortBy from 'lodash/sortBy';
@@ -12,6 +11,19 @@ import TagsListItem from "./TagsListItem";
 import SectionTitle from "../common/SectionTitle";
 import SectionButton from "../common/SectionButton";
 import Loading from "../vulcan-core/Loading";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const TagPreviewFragmentMultiQuery = gql(`
+  query multiTagAllTagsAlphabeticalQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagPreviewFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -32,14 +44,16 @@ const styles = (theme: ThemeType) => ({
 const AllTagsAlphabetical = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { results, loading } = useMulti({
-    terms: {
-      view: "allTagsHierarchical",
+  const { data, loading } = useQuery(TagPreviewFragmentMultiQuery, {
+    variables: {
+      selector: { allTagsHierarchical: {} },
+      limit: 750,
+      enableTotal: false,
     },
-    collectionName: "Tags",
-    fragmentName: "TagPreviewFragment",
-    limit: 750,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.tags?.results;
   const currentUser = useCurrentUser()
 
   const alphabetical = _sortBy(results, tag=>tag.name)

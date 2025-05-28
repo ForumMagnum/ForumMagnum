@@ -42,12 +42,12 @@ const UserSelect = ({ value, setValue, label }: {
 };
 
 interface FormUserSelectProps {
-  field: TypedFieldApi<string | null>;
+  field: TypedFieldApi<string | null | undefined>;
   label: string;
 }
 
 export const FormUserSelect = ({ field, label }: FormUserSelectProps) => {
-  const value = field.state.value;
+  const value = field.state.value ?? null;
   const setValue = useCallback((newValue: string | null) => {
     field.handleChange(newValue);
   }, [field]);

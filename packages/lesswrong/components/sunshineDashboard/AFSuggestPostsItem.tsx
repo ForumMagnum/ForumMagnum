@@ -11,7 +11,6 @@ import UndoIcon from '@/lib/vendor/@material-ui/icons/src/Undo';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
 import {DatabasePublicSetting} from "../../lib/publicSettings";
-import { useUpdate } from '../../lib/crud/withUpdate';
 import SunshineListItem from "./SunshineListItem";
 import SidebarHoverOver from "./SidebarHoverOver";
 import ContentStyles from "../common/ContentStyles";
@@ -23,6 +22,18 @@ import FormatDate from "../common/FormatDate";
 import SidebarActionMenu from "./SidebarActionMenu";
 import SidebarAction from "./SidebarAction";
 import OmegaIcon from "../icons/OmegaIcon";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SuggestAlignmentPostUpdateMutation = gql(`
+  mutation updatePostAFSuggestPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
+    updatePost(selector: $selector, data: $data) {
+      data {
+        ...SuggestAlignmentPost
+      }
+    }
+  }
+`);
 
 export const defaultAFModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultAFModeratorPMsTagSlug', "af-default-moderator-responses")
 
@@ -55,27 +66,28 @@ const AFSuggestPostsItem = ({post, classes}: {
   const currentUser = useCurrentUser();
   const { hover, anchorEl, eventHandlers } = useHover();
   
-  const { mutate: updatePost } = useUpdate({
-    collectionName: "Posts",
-    fragmentName: 'SuggestAlignmentPost',
-  });
+  const [updatePost] = useMutation(SuggestAlignmentPostUpdateMutation);
 
   const handleMoveToAlignment = () => {
     void updatePost({
-      selector: {_id: post._id},
-      data: {
-        reviewForAlignmentUserId: currentUser!._id,
-        afDate: new Date(),
-        af: true,
+      variables: {
+        selector: { _id: post._id },
+        data: {
+          reviewForAlignmentUserId: currentUser!._id,
+          afDate: new Date(),
+          af: true,
+        }
       }
     })
   }
 
   const handleDisregardForAlignment = () => {
     void updatePost({
-      selector: {_id: post._id},
-      data: {
-        reviewForAlignmentUserId: currentUser!._id,
+      variables: {
+        selector: { _id: post._id },
+        data: {
+          reviewForAlignmentUserId: currentUser!._id,
+        }
       }
     })
   }

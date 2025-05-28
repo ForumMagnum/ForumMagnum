@@ -1,18 +1,26 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { useUpdate } from '../../../lib/crud/withUpdate';
 import { postSuggestForAlignment, postUnSuggestForAlignment } from '../../../lib/alignment-forum/posts/helpers';
 import { userCanSuggestPostForAlignment } from '../../../lib/alignment-forum/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { isLWorAF } from '../../../lib/instanceSettings';
 import DropdownItem from "../DropdownItem";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsListUpdateMutation = gql(`
+  mutation updatePostSuggestAlignmentPostDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
+    updatePost(selector: $selector, data: $data) {
+      data {
+        ...PostsList
+      }
+    }
+  }
+`);
 
 const SuggestAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
-  const {mutate: updatePost} = useUpdate({
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
-  });
+  const [updatePost] = useMutation(PostsListUpdateMutation);
 
   if (
     !isLWorAF ||

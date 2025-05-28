@@ -1,10 +1,23 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import SunshineListTitle from "./SunshineListTitle";
 import OmegaIcon from "../icons/OmegaIcon";
 import AFSuggestCommentsItem from "./AFSuggestCommentsItem";
 import LoadMore from "../common/LoadMore";
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SuggestAlignmentCommentMultiQuery = gql(`
+  query multiCommentAFSuggestCommentsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SuggestAlignmentComment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -16,12 +29,26 @@ const styles = (theme: ThemeType) => ({
 const AFSuggestCommentsList = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { results, loadMoreProps } = useMulti({
-    terms: {view:"alignmentSuggestedComments"},
-    enableTotal: true, itemsPerPage: 30,
-    collectionName: "Comments",
-    fragmentName: 'SuggestAlignmentComment',
+  const { data, loading, fetchMore } = useQuery(SuggestAlignmentCommentMultiQuery, {
+    variables: {
+      selector: { alignmentSuggestedComments: {} },
+      limit: 10,
+      enableTotal: true,
+    },
     fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = data?.comments?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: data?.comments,
+    loading,
+    fetchMore,
+    initialLimit: 10,
+    itemsPerPage: 30,
+    enableTotal: true,
+    resetTrigger: {view:"alignmentSuggestedComments"}
   });
   if (results && results.length) {
     return <div>

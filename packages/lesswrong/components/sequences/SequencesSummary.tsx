@@ -1,5 +1,4 @@
 import React, { FC, ReactNode } from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Card } from "@/components/widgets/Paper";
 import { Link } from '../../lib/reactRouterWrapper';
@@ -13,6 +12,19 @@ import Loading from "../vulcan-core/Loading";
 import ContentStyles from "../common/ContentStyles";
 import ContentItemTruncated from "../common/ContentItemTruncated";
 import LWTooltip from "../common/LWTooltip";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const ChaptersFragmentMultiQuery = gql(`
+  query multiChapterSequencesSummaryQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {
+    chapters(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ChaptersFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -126,16 +138,16 @@ export const SequencesSummary = ({classes, sequence, showAuthor=true, maxPosts}:
   showAuthor?: boolean
   maxPosts?: number,
 }) => {
-  const { results: chapters, loading: chaptersLoading } = useMulti({
-    terms: {
-      view: "SequenceChapters",
-      sequenceId: sequence?._id,
-      limit: 100
+  const { data, loading: chaptersLoading } = useQuery(ChaptersFragmentMultiQuery, {
+    variables: {
+      selector: { SequenceChapters: { sequenceId: sequence?._id } },
+      limit: 100,
+      enableTotal: false,
     },
-    collectionName: "Chapters",
-    fragmentName: 'ChaptersFragment',
-    enableTotal: false,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const chapters = data?.chapters?.results;
   const posts = chapters?.flatMap(chapter => chapter.posts ?? []) ?? []
   const totalWordcount = posts.reduce((prev, curr) => prev + (curr?.contents?.wordCount || 0), 0)
 

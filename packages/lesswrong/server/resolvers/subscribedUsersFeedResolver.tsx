@@ -50,10 +50,13 @@ export const subscribedUsersFeedGraphQLTypeDefs = gql`
   type SubscribedFeedQueryResults {
     cutoff: Date
     endOffset: Int!
-    results: [SubscribedFeedEntryType!]
+    results: [SubscribedFeedEntry!]
   }
-  type SubscribedFeedEntryType {
-    type: String!
+  enum SubscribedFeedEntryType {
+    postCommented
+  }
+  type SubscribedFeedEntry {
+    type: SubscribedFeedEntryType!
     postCommented: SubscribedPostAndComments
   }
   extend type Query {

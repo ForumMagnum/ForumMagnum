@@ -2,12 +2,24 @@ import React, { useState } from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { useStyles, defineStyles } from '@/components/hooks/useStyles';
-import { useMulti } from '@/lib/crud/withMulti';
 import groupBy from 'lodash/groupBy';
 import { REVIEW_YEAR } from '@/lib/reviewUtils';
 import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import SingleColumnSection from "../../../common/SingleColumnSection";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const ReviewWinnerAnnouncementMultiQuery = gql(`
+  query multiReviewWinnerBestOfLessWrongAnnouncementQuery($selector: ReviewWinnerSelector, $limit: Int, $enableTotal: Boolean) {
+    reviewWinners(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ReviewWinnerAnnouncement
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) => ({ 
   titleContainer: {
@@ -246,14 +258,16 @@ const styles = defineStyles("BestOfLessWrongAnnouncement", (theme: ThemeType) =>
 const BestOfLessWrongAnnouncement = () => {
   const classes = useStyles(styles);
 
-  const { results } = useMulti({
-    terms: {
-      view: "bestOfLessWrongAnnouncement",
+  const { data } = useQuery(ReviewWinnerAnnouncementMultiQuery, {
+    variables: {
+      selector: { bestOfLessWrongAnnouncement: {} },
+      limit: 18,
+      enableTotal: false,
     },
-    limit: 18,
-    collectionName: "ReviewWinners",
-    fragmentName: "ReviewWinnerAnnouncement",
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.reviewWinners?.results;
 
   const topPerCategory = groupBy(results, 'category');
   const sections = {

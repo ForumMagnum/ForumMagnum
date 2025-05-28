@@ -1,11 +1,23 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import * as _ from 'underscore';
-import { useMulti } from '../../lib/crud/withMulti';
 import DeferRender from '../common/DeferRender';
 import { UpdateCurrentValues } from '../vulcan-forms/propTypes';
 import Loading from "../vulcan-core/Loading";
 import TagFlagItem from "../tagging/TagFlagItem";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const TagFlagFragmentMultiQuery = gql(`
+  query multiTagFlagTagFlagToggleListQuery($selector: TagFlagSelector, $limit: Int, $enableTotal: Boolean) {
+    tagFlags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagFlagFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   
@@ -28,15 +40,16 @@ const TagFlagToggleList = ({ value, path, updateCurrentValues }: {
     }
   }
 
-  const { results, loading } = useMulti({
-    terms: {
-      view: "allTagFlags"
+  const { data, loading } = useQuery(TagFlagFragmentMultiQuery, {
+    variables: {
+      selector: { allTagFlags: {} },
+      limit: 100,
+      enableTotal: false,
     },
-    collectionName: "TagFlags",
-    fragmentName: 'TagFlagFragment',
-    enableTotal: false,
-    limit: 100,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.tagFlags?.results;
 
   if (loading) return <Loading />
   return <DeferRender ssr={false}><div className="multi-select-buttons">

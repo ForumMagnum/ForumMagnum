@@ -1,17 +1,25 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useCurrentUser } from '../../common/withUser';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import DropdownItem from "../DropdownItem";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CommentsListUpdateMutation = gql(`
+  mutation updateCommentToggleIsModeratorCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
+    updateComment(selector: $selector, data: $data) {
+      data {
+        ...CommentsList
+      }
+    }
+  }
+`);
 
 const ToggleIsModeratorCommentDropdownItem = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();
-  const {mutate: updateComment} = useUpdate({
-    collectionName: "Comments",
-    fragmentName: "CommentsList",
-  });
+  const [updateComment] = useMutation(CommentsListUpdateMutation);
 
   if (!currentUser || !userCanDo(currentUser, 'posts.moderate.all')) {
     return null;
@@ -21,14 +29,18 @@ const ToggleIsModeratorCommentDropdownItem = ({comment}: {comment: CommentsList}
     hideModeratorHat: boolean,
   }) => () => {
     void updateComment({
-      selector: { _id: comment._id },
-      data: {moderatorHat: true, ...modHatVisibility},
+      variables: {
+        selector: { _id: comment._id },
+        data: { moderatorHat: true, ...modHatVisibility }
+      }
     });
   }
   const handleUnmarkAsModeratorComment = () => {
     void updateComment({
-      selector: { _id: comment._id },
-      data: {moderatorHat: false},
+      variables: {
+        selector: { _id: comment._id },
+        data: { moderatorHat: false }
+      }
     });
   }
   if (comment.moderatorHat) {

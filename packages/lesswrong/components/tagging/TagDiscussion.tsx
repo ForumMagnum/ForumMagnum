@@ -1,12 +1,24 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { unflattenComments } from "../../lib/utils/unflatten";
-import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 import CommentsList from "../comments/CommentsList";
 import Loading from "../vulcan-core/Loading";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CommentsListMultiQuery = gql(`
+  query multiCommentTagDiscussionQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsList
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -31,18 +43,19 @@ const TagDiscussion = ({classes, tag}: {
   classes: ClassesType<typeof styles>,
   tag: TagFragment | TagBasicInfo | TagCreationHistoryFragment
 }) => {
-  const { results, loading, totalCount } = useMulti({
-    skip: !tag?._id,
-    terms: {
-      view: "tagDiscussionComments",
-      tagId: tag?._id,
+  const { data, loading } = useQuery(CommentsListMultiQuery, {
+    variables: {
+      selector: { tagDiscussionComments: { tagId: tag?._id } },
       limit: 7,
+      enableTotal: true,
     },
-    collectionName: "Comments",
-    fragmentName: 'CommentsList',
+    skip: !tag?._id,
     fetchPolicy: 'cache-and-network',
-    enableTotal: true,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.comments?.results;
+  const totalCount = data?.comments?.totalCount ?? 0;
 
   if (!tag) return null
   if (loading) return <div  className={classNames(classes.root, classes.loading)} ><Loading /></div>

@@ -12,7 +12,6 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { useGetUserBySlug } from '../hooks/useGetUserBySlug';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { useUpdate } from '@/lib/crud/withUpdate';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -25,7 +24,6 @@ import { LocationFormComponent } from '@/components/form-components/LocationForm
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
 import { SelectLocalgroup } from '../form-components/SelectLocalgroup';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
-import { useSingle } from '@/lib/crud/withSingle';
 import { FormComponentFriendlyDisplayNameInput } from '../form-components/FormComponentFriendlyDisplayNameInput';
 import Error404 from "../common/Error404";
 import FormGroupFriendlyUserProfile from "../form-components/FormGroupFriendlyUserProfile";
@@ -34,6 +32,28 @@ import PrefixedInput from "../form-components/PrefixedInput";
 import { Typography } from "../common/Typography";
 import ForumIcon from "../common/ForumIcon";
 import Loading from "../vulcan-core/Loading";
+import { useQuery, useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UsersEditUpdateMutation = gql(`
+  mutation updateUserEditProfileForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {
+    updateUser(selector: $selector, data: $data) {
+      data {
+        ...UsersEdit
+      }
+    }
+  }
+`);
+
+const UsersProfileEditQuery = gql(`
+  query EditProfileForm($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UsersProfileEdit
+      }
+    }
+  }
+`);
 
 const styles = defineStyles('EditProfileForm', (theme: ThemeType) => ({
   root: isFriendlyUI
@@ -185,10 +205,7 @@ const UserProfileForm = ({
     formVariant: "grey",
   } as const;
 
-  const { mutate } = useUpdate({
-    collectionName: 'Users',
-    fragmentName: 'UsersEdit',
-  });
+  const [mutate] = useMutation(UsersEditUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
@@ -208,10 +225,15 @@ const UserProfileForm = ({
 
         const updatedFields = getUpdatedFieldValues(formApi, ['biography', 'howOthersCanHelpMe', 'howICanHelpOthers']);
         const { data } = await mutate({
-          selector: { _id: initialData?._id },
-          data: updatedFields,
+          variables: {
+            selector: { _id: initialData?._id },
+            data: updatedFields
+          }
         });
-        result = data?.updateUser.data;
+        if (!data?.updateUser?.data) {
+          throw new Error('Failed to update user');
+        }
+        result = data.updateUser.data;
 
         onSuccessBiographyCallback.current?.(result);
         onSuccessHowOthersCanHelpMeCallback.current?.(result);
@@ -374,7 +396,7 @@ const UserProfileForm = ({
           <form.Field name="profileTagIds">
             {(field) => (
               <TagMultiselect
-                value={field.state.value}
+                value={field.state.value ?? []}
                 updateCurrentValues={(values) => field.handleChange(values)}
                 label={<>
                   {"Interests"}
@@ -503,12 +525,11 @@ const EditProfileForm = () => {
     { fragmentName: 'UsersProfileEdit', skip: skipSlugLoading }
   );
 
-  const { document: userByDocumentId, loading: loadingUserByDocumentId } = useSingle({
-    collectionName: 'Users',
-    fragmentName: 'UsersProfileEdit',
-    documentId: terms.documentId,
+  const { loading: loadingUserByDocumentId, data } = useQuery(UsersProfileEditQuery, {
+    variables: { documentId: terms.documentId },
     skip: skipDocumentIdLoading,
   });
+  const userByDocumentId = data?.user?.result;
 
   const formUser = terms.slug ? userBySlug : userByDocumentId;
 

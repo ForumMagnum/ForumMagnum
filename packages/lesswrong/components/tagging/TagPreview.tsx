@@ -1,6 +1,5 @@
 import React, { Fragment, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagPostTerms } from './TagPageUtils';
@@ -15,6 +14,19 @@ import startCase from 'lodash/startCase';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import TagSmallPostLink from "./TagSmallPostLink";
 import Loading from "../vulcan-core/Loading";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsListMultiQuery = gql(`
+  query multiPostTagPreviewQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsList
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   root: {
@@ -197,13 +209,18 @@ const TagPreview = ({
   };
 
   const showPosts = postCount > 0 && !!tag?._id && !isFriendlyUI;
-  const {results} = useMulti({
+  const { view, limit, ...selectorTerms } = tagPostTerms(tag, {});
+  const { data } = useQuery(PostsListMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: postCount,
+      enableTotal: false,
+    },
     skip: !showPosts,
-    terms: tagPostTerms(tag, {}),
-    collectionName: "Posts",
-    fragmentName: "PostsList",
-    limit: postCount,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.posts?.results;
 
   // In theory the type system doesn't allow this, but I'm too scared to
   // remove it

@@ -681,7 +681,7 @@ CREATE TABLE "CurationNotices" (
   "contents_latest" TEXT,
   "userId" VARCHAR(27) NOT NULL,
   "commentId" VARCHAR(27),
-  "postId" VARCHAR(27),
+  "postId" VARCHAR(27) NOT NULL,
   "deleted" BOOL NOT NULL DEFAULT FALSE
 );
 
@@ -2598,7 +2598,7 @@ CREATE TABLE "Revisions" (
   "commitMessage" TEXT,
   "userId" VARCHAR(27),
   "draft" BOOL,
-  "originalContents" JSONB,
+  "originalContents" JSONB NOT NULL,
   "html" TEXT,
   "wordCount" DOUBLE PRECISION NOT NULL,
   "changeMetrics" JSONB NOT NULL,

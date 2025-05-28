@@ -1,10 +1,14 @@
-import type { GraphQLSchema, SourceLocation } from "graphql";
+import { buildClientSchema, IntrospectionQuery, GraphQLSchema, SourceLocation } from "graphql";
 import { SchemaLink } from '@apollo/client/link/schema';
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { onError } from '@apollo/client/link/error';
 import { isServer } from '../executionEnvironment';
 import { DatabasePublicSetting } from "../publicSettings";
 import { ApolloLink, Operation, selectURI } from "@apollo/client/core";
+import { withScalars } from "apollo-link-scalars";
+
+const rawClientSchema = require("@/lib/generated/client-schema.min.json");
+const schema = buildClientSchema(rawClientSchema);
 
 const graphqlBatchMaxSetting = new DatabasePublicSetting('batchHttpLink.batchMax', 50)
 
@@ -47,7 +51,7 @@ export const createHttpLink = (baseUrl = '/') => {
 
     // If the operation has a batchKey variable, add that to the batch key.
     // This is to manually separate out very slow queries
-    const explicitBatchKey = operation.variables?.batchKey;
+    const explicitBatchKey = context.batchKey;
 
     return explicitBatchKey && typeof explicitBatchKey === "string" ? defaultBatchKey : defaultBatchKey + explicitBatchKey;
   };
@@ -106,3 +110,20 @@ export const createErrorLink = () =>
       console.error(`[Network error]: ${networkError}`);
     }
   });
+
+// export const dateLink = withScalars({
+//   schema,
+//   typesMap: {
+//     Date: {
+//       serialize: (value: Date) => value.toISOString(),
+//       parseValue: (value: string) => {
+//         return new Date(value);
+//       },
+//       // parseLiteral: (ast) => {
+//       //   if (ast.kind === Kind.STRING) {
+//       //     return new Date(ast.value);
+//       //   }
+//       // }
+//     }
+//   }
+// });

@@ -2,11 +2,12 @@ import React from 'react';
 import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import SingleColumnSection from "../common/SingleColumnSection";
-import MixedTypeFeed from "../common/MixedTypeFeed";
+import { MixedTypeFeed } from "../common/MixedTypeFeed";
 import TagRevisionItem from "./TagRevisionItem";
 import CommentsNodeInner from "../comments/CommentsNode";
 import NewTagItem from "./NewTagItem";
 import SectionTitle from "../common/SectionTitle";
+import { AllTagsActivityFeedQuery } from '../common/feeds/feedQueries';
 
 const TagActivityFeed = ({pageSize = 50}: {
   pageSize?: number
@@ -15,16 +16,14 @@ const TagActivityFeed = ({pageSize = 50}: {
     <SectionTitle title={`Recent ${taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Tag & Wiki'} Activity`}/>
     <MixedTypeFeed
       pageSize={pageSize}
-      resolverName="AllTagsActivityFeed"
-      sortKeyType="Date"
+      query={AllTagsActivityFeedQuery}
+      variables={{}}
       renderers={{
         tagCreated: {
-          fragmentName: "TagCreationHistoryFragment",
           render: (tag: TagCreationHistoryFragment) =>
             <NewTagItem tag={tag} />
         },
         tagRevision: {
-          fragmentName: "RevisionTagFragment",
           render: (revision: RevisionTagFragment) => <div>
             {revision?.tag && <TagRevisionItem
               tag={revision.tag}
@@ -35,7 +34,6 @@ const TagActivityFeed = ({pageSize = 50}: {
           </div>,
         },
         tagDiscussionComment: {
-          fragmentName: "CommentsListWithParentMetadata",
           render: (comment: CommentsListWithParentMetadata) => <div>
             <CommentsNodeInner
               treeOptions={{

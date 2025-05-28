@@ -1,13 +1,14 @@
 import "./integrationTestSetup";
 import { createDummyPost } from "./utils";
 import { fetchFragmentSingle } from "@/server/fetchFragment";
+import { PostsMinimumInfo, PostsListBase, PostsDetails } from "@/lib/collections/posts/fragments";
 
 describe("fetchFragment", () => {
   it("fetches the entire DB object", async () => {
     const post = await createDummyPost();
     const fetched = await fetchFragmentSingle({
       collectionName: "Posts",
-      fragmentName: "PostsMinimumInfo",
+      fragmentDoc: PostsMinimumInfo,
       currentUser: null,
       selector: post._id,
     });
@@ -20,7 +21,7 @@ describe("fetchFragment", () => {
     const post = await createDummyPost();
     const fetched = await fetchFragmentSingle({
       collectionName: "Posts",
-      fragmentName: "PostsListBase",
+      fragmentDoc: PostsListBase,
       currentUser: null,
       selector: post._id,
     });
@@ -33,7 +34,7 @@ describe("fetchFragment", () => {
     const post = await createDummyPost();
     const fetched = await fetchFragmentSingle({
       collectionName: "Posts",
-      fragmentName: "PostsDetails",
+      fragmentDoc: PostsDetails,
       currentUser: null,
       selector: post._id,
     });
@@ -46,7 +47,7 @@ describe("fetchFragment", () => {
     const post = await createDummyPost();
     const fetched = await fetchFragmentSingle({
       collectionName: "Posts",
-      fragmentName: "PostsMinimumInfo",
+      fragmentDoc: PostsMinimumInfo,
       currentUser: null,
       selector: post._id,
     });
@@ -60,7 +61,7 @@ describe("fetchFragment", () => {
 
     const fetchedFiltered = await fetchFragmentSingle({
       collectionName: "Posts",
-      fragmentName: "PostsMinimumInfo",
+      fragmentDoc: PostsMinimumInfo,
       currentUser: null,
       selector: post._id,
     });
@@ -72,7 +73,7 @@ describe("fetchFragment", () => {
     // Now turn off filtering and we should have the field
     const fetchedUnfiltered = await fetchFragmentSingle({
       collectionName: "Posts",
-      fragmentName: "PostsMinimumInfo",
+      fragmentDoc: PostsMinimumInfo,
       currentUser: null,
       selector: post._id,
       skipFiltering: true,

@@ -1,5 +1,4 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import React, { useEffect, useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -57,6 +56,19 @@ import ContentStyles from "../common/ContentStyles";
 import ReportUserButton from "./ReportUserButton";
 import UserNotifyDropdown from "../notifications/UserNotifyDropdown";
 import CommentsSortBySelector from "../comments/CommentsSortBySelector";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UsersProfileMultiQuery = gql(`
+  query multiUserUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UsersProfile
+      }
+      totalCount
+    }
+  }
+`);
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -157,12 +169,17 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   
-  const {loading, results} = useMulti({
-    terms,
-    collectionName: "Users",
-    fragmentName: 'UsersProfile',
-    enableTotal: false,
+  const { view, limit, ...selectorTerms } = terms;
+  const { data, loading } = useQuery(UsersProfileMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 10,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.users?.results;
   const user = getUserFromResults(results)
   
   const { query } = useLocation()

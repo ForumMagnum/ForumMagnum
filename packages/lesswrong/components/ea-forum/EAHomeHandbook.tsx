@@ -1,6 +1,5 @@
 import React from 'react'
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -9,9 +8,21 @@ import { PublicInstanceSetting } from '../../lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_HANDBOOK_COOKIE } from '../../lib/cookies/cookies';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
+
+const SequencesPageFragmentQuery = gql(`
+  query EAHomeHandbook($documentId: String) {
+    sequence(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...SequencesPageFragment
+      }
+    }
+  }
+`);
 
 const bannerHeight = 250
 
@@ -120,11 +131,10 @@ const EAHomeHandbook = ({ classes, documentId }: {
   classes: ClassesType<typeof styles>;
   documentId: string;
 }) => {
-  const { document, loading } = useSingle({
-    documentId,
-    collectionName: "Sequences",
-    fragmentName: 'SequencesPageFragment',
+  const { loading, data } = useQuery(SequencesPageFragmentQuery, {
+    variables: { documentId: documentId },
   });
+  const document = data?.sequence?.result;
   const { flash } = useMessages();
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_HANDBOOK_COOKIE]);
   const hideHandbook = cookies[HIDE_HANDBOOK_COOKIE]

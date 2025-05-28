@@ -4,8 +4,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlUserActivityQueryTypeDefs = gql`
-  type UserActivity {
-    ${getAllGraphQLFields(schema)}
+  type UserActivity ${
+    getAllGraphQLFields(schema)
   }
 `;
 

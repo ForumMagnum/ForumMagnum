@@ -22,7 +22,7 @@ const styles = defineStyles('FormComponentQuickTakesTags', (_theme: ThemeType) =
 }));
 
 export const FormComponentQuickTakesTags = ({ field }: {
-  field: TypedFieldApi<string[] | null>;
+  field: TypedFieldApi<string[] | null | undefined>;
 }) => {
   const classes = useStyles(styles);
   

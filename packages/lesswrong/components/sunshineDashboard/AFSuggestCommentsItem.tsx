@@ -1,5 +1,4 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { commentSuggestForAlignment, commentUnSuggestForAlignment } from '../../lib/alignment-forum/comments/helpers';
@@ -22,6 +21,18 @@ import SidebarInfo from "./SidebarInfo";
 import SidebarActionMenu from "./SidebarActionMenu";
 import SidebarAction from "./SidebarAction";
 import OmegaIcon from "../icons/OmegaIcon";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SuggestAlignmentCommentUpdateMutation = gql(`
+  mutation updateCommentAFSuggestCommentsItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
+    updateComment(selector: $selector, data: $data) {
+      data {
+        ...SuggestAlignmentComment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   afSubmissionHeader: {
@@ -37,27 +48,28 @@ const AFSuggestCommentsItem = ({comment, classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser();
-  const { mutate: updateComment } = useUpdate({
-    collectionName: "Comments",
-    fragmentName: 'SuggestAlignmentComment',
-  });
+  const [updateComment] = useMutation(SuggestAlignmentCommentUpdateMutation);
 
   const handleMoveToAlignment = async () => {
     await updateComment({
-      selector: { _id: comment._id},
-      data: {
-        reviewForAlignmentUserId: currentUser!._id,
-        afDate: new Date(),
-        af: true,
-      },
+      variables: {
+        selector: { _id: comment._id },
+        data: {
+          reviewForAlignmentUserId: currentUser!._id,
+          afDate: new Date(),
+          af: true,
+        }
+      }
     })
   }
 
   const handleDisregardForAlignment = () => {
     void updateComment({
-      selector: { _id: comment._id},
-      data: {
-        reviewForAlignmentUserId: currentUser!._id,
+      variables: {
+        selector: { _id: comment._id },
+        data: {
+          reviewForAlignmentUserId: currentUser!._id,
+        }
       }
     })
   }

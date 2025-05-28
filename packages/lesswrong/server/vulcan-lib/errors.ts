@@ -1,4 +1,4 @@
-import { UserInputError } from 'apollo-server';
+
 
 /*
 
@@ -10,6 +10,5 @@ An error should have:
 
 */
 export function throwError(error: { id: string; data?: Record<string, AnyBecauseTodo> }): never {
-  const { id, } = error;
-  throw new UserInputError(id, error);
+  throw new Error(`${error.id}: ${error.data}`);
 };

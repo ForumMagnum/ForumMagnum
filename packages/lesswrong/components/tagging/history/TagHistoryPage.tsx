@@ -18,7 +18,7 @@ import Error404 from "../../common/Error404";
 import SettingsButton from "../../icons/SettingsButton";
 import UsersName from "../../users/UsersName";
 import SingleColumnSection from "../../common/SingleColumnSection";
-import MixedTypeFeed from "../../common/MixedTypeFeed";
+import { MixedTypeFeed } from "../../common/MixedTypeFeed";
 import TagRevisionItem from "../TagRevisionItem";
 import LensRevisionItem from "./LensRevisionItem";
 import SummaryRevisionItem from "./SummaryRevisionItem";
@@ -30,6 +30,7 @@ import SingleLineFeedEvent from "../../common/SingleLineFeedEvent";
 import SectionTitle from "../../common/SectionTitle";
 import ForumIcon from "../../common/ForumIcon";
 import { MenuItem } from "../../common/Menus";
+import { TagHistoryFeedQuery } from '@/components/common/feeds/feedQueries';
 
 export const tagHistoryStyles = defineStyles("TagHistoryPage", (theme: ThemeType) => ({
   title: {
@@ -129,26 +130,19 @@ const TagHistoryPage = () => {
     <div className={classes.feed}>
     <RevealHiddenBlocks>
     <MixedTypeFeed
+      query={TagHistoryFeedQuery}
       pageSize={25}
-      resolverName="TagHistoryFeed"
-      resolverArgs={{
-        tagId: "String!",
-        options: "JSON",
-      }}
-      resolverArgsValues={{
+      variables={{
         tagId: tag._id,
         options: settings,
       }}
-      sortKeyType="Date"
       renderers={{
         tagCreated: {
-          fragmentName: "TagHistoryFragment",
           render: (creation: TagHistoryFragment) => <SingleLineFeedEvent icon={<ForumIcon className={classes.feedIcon} icon="Star"/>}>
             Created by <UsersName user={creation.user}/> at <FormatDate date={creation.createdAt}/>
           </SingleLineFeedEvent>,
         },
         tagRevision: {
-          fragmentName: "RevisionHistoryEntry",
           render: (revision: RevisionHistoryEntry) => {
             if (!settings.showEdits)
               return null;
@@ -166,7 +160,6 @@ const TagHistoryPage = () => {
           }
         },
         lensRevision: {
-          fragmentName: "RevisionHistoryEntry",
           render: (revision: RevisionHistoryEntry) => {
             if (!settings.showEdits || !revision.documentId)
               return null;
@@ -183,7 +176,6 @@ const TagHistoryPage = () => {
           }
         },
         summaryRevision: {
-          fragmentName: "RevisionHistorySummaryEdit",
           render: (revision: RevisionHistorySummaryEdit) => {
             if (!settings.showEdits)
               return null;
@@ -197,7 +189,6 @@ const TagHistoryPage = () => {
           }
         },
         tagApplied: {
-          fragmentName: "TagRelHistoryFragment",
           render: (application: TagRelHistoryFragment) => {
             if (!settings.showTagging)
               return null;
@@ -212,7 +203,6 @@ const TagHistoryPage = () => {
           }
         },
         tagDiscussionComment: {
-          fragmentName: "CommentsList",
           render: (comment: CommentsList) => {
             if (!settings.showComments)
               return null;
@@ -228,7 +218,6 @@ const TagHistoryPage = () => {
           }
         },
         wikiMetadataChanged: {
-          fragmentName: "FieldChangeFragment",
           render: (metadataChanges: FieldChangeFragment) => {
             return <SingleLineFeedEvent
               icon={<ForumIcon className={classNames(classes.feedIcon)} icon="InfoCircle"/>}
@@ -241,7 +230,6 @@ const TagHistoryPage = () => {
           },
         },
         lensOrSummaryMetadataChanged: {
-          fragmentName: "FieldChangeFragment",
           render: (metadataChanges: FieldChangeFragment) => {
             return <SingleLineFeedEvent
               icon={<ForumIcon className={classNames(classes.feedIcon)} icon="InfoCircle"/>}

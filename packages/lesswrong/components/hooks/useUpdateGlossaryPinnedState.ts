@@ -1,19 +1,27 @@
-import { useUpdate } from "@/lib/crud/withUpdate";
 import { useCurrentUser } from "../common/withUser";
 import { useCallback, useState } from "react";
 import { useTracking } from "@/lib/analyticsEvents";
 import { useCookiesWithConsent } from "./useCookiesWithConsent";
 import { PINNED_GLOSSARY_COOKIE } from "@/lib/cookies/cookies";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UsersCurrentUpdateMutation = gql(`
+  mutation updateUseruseUpdateGlossaryPinnedState($selector: SelectorInput!, $data: UpdateUserDataInput!) {
+    updateUser(selector: $selector, data: $data) {
+      data {
+        ...UsersCurrent
+      }
+    }
+  }
+`);
 
 export function useGlossaryPinnedState() {
   const { captureEvent } = useTracking();
   const currentUser = useCurrentUser();
   const [cookies, setCookie] = useCookiesWithConsent([PINNED_GLOSSARY_COOKIE]);
 
-  const { mutate: updateUser } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersCurrent',
-  });
+  const [updateUser] = useMutation(UsersCurrentUpdateMutation);
 
   // Initialize state based on currentUser or cookie
   const initialPinnedState = currentUser?.postGlossariesPinned ?? cookies[PINNED_GLOSSARY_COOKIE] === 'true';
@@ -26,12 +34,22 @@ export function useGlossaryPinnedState() {
       captureEvent('toggleGlossaryPin', { newValue, source });
       setPostGlossariesPinned(newValue);
       await updateUser({
-        selector: { _id: currentUser._id },
-        data: { postGlossariesPinned: newValue },
-        optimisticResponse: {
-          ...currentUser,
-          postGlossariesPinned: newValue,
+        variables: {
+          selector: { _id: currentUser._id },
+          data: { postGlossariesPinned: newValue }
         },
+        optimisticResponse: {
+          updateUser: {
+            __typename: "UserOutput",
+            data: {
+              __typename: "User",
+              ...{
+                ...currentUser,
+                postGlossariesPinned: newValue,
+              }
+            }
+          }
+        }
       });
     } else {
       const cookieGlossaryPinned = cookies[PINNED_GLOSSARY_COOKIE] === 'true';

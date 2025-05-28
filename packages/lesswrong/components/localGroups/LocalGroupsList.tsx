@@ -1,6 +1,5 @@
 import React, { ReactNode } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import LocalGroupsItem from "./LocalGroupsItem";
 import Loading from "../vulcan-core/Loading";
 import PostsNoResults from "../posts/PostsNoResults";
@@ -8,6 +7,20 @@ import SectionFooter from "../common/SectionFooter";
 import LoadMore from "../common/LoadMore";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const localGroupsHomeFragmentMultiQuery = gql(`
+  query multiLocalgroupLocalGroupsListQuery($selector: LocalgroupSelector, $limit: Int, $enableTotal: Boolean) {
+    localgroups(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...localGroupsHomeFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   localGroups: {
@@ -22,11 +35,25 @@ const LocalGroupsList = ({terms, children, classes, showNoResults=true, heading}
   showNoResults?: boolean,
   heading?: string,
 }) => {
-  const { results, loading, loadMoreProps } = useMulti({
-    terms,
-    collectionName: "Localgroups",
-    fragmentName: 'localGroupsHomeFragment',
-    enableTotal: false,
+  const { view, limit, ...selectorTerms } = terms;
+  const { data, loading, fetchMore } = useQuery(localGroupsHomeFragmentMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 10,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = data?.localgroups?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: data?.localgroups,
+    loading,
+    fetchMore,
+    initialLimit: 10,
+    itemsPerPage: 10,
+    resetTrigger: terms
   });
   // FIXME: Unstable component will lose state on rerender
   // eslint-disable-next-line react/no-unstable-nested-components

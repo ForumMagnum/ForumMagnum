@@ -2,7 +2,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface LWEventsViewTerms extends ViewTermsBase {
-    view?: LWEventsViewName
+    view: LWEventsViewName
     name?: string,
     postId?: string,
     userId?: string,

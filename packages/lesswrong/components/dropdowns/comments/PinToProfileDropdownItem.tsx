@@ -1,9 +1,20 @@
 import React, { useCallback } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import DropdownItem from "../DropdownItem";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CommentsListUpdateMutation = gql(`
+  mutation updateCommentPinToProfileDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
+    updateComment(selector: $selector, data: $data) {
+      data {
+        ...CommentsList
+      }
+    }
+  }
+`);
 
 const styles = (_: ThemeType) => ({
   icon: isFriendlyUI
@@ -17,16 +28,15 @@ const PinToProfileDropdownItem = ({comment, post, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
-  const { mutate: updateComment } = useUpdate({
-    collectionName: "Comments",
-    fragmentName: "CommentsList",
-  });
+  const [updateComment] = useMutation(CommentsListUpdateMutation);
   const togglePinned = useCallback(() => {
     void updateComment({
-      selector: {_id: comment._id},
-      data: {
-        isPinnedOnProfile: !comment.isPinnedOnProfile,
-      },
+      variables: {
+        selector: { _id: comment._id },
+        data: {
+          isPinnedOnProfile: !comment.isPinnedOnProfile,
+        }
+      }
     });
   }, [updateComment, comment]);
 

@@ -5,27 +5,40 @@ import { FeedPostMetaInfo, FeedCommentMetaInfo, DisplayFeedCommentThread, FeedIt
 import { DEFAULT_SETTINGS, UltraFeedSettingsType } from '../ultraFeed/ultraFeedSettingsTypes';
 import { UltraFeedObserverProvider } from '../ultraFeed/UltraFeedObserver';
 import { OverflowNavObserverProvider } from '../ultraFeed/OverflowNavObserverContext';
-import { useMulti } from '../../lib/crud/withMulti';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
 import FeedItemWrapper from "../ultraFeed/FeedItemWrapper";
 import UltraFeedPostItem from "../ultraFeed/UltraFeedPostItem";
 import UltraFeedThreadItem from "../ultraFeed/UltraFeedThreadItem";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const BookmarksFeedItemFragmentMultiQuery = gql(`
+  query multiBookmarkBookmarksFeedQuery($selector: BookmarkSelector, $limit: Int, $enableTotal: Boolean) {
+    bookmarks(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...BookmarksFeedItemFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const BookmarksFeed = () => {
   const currentUser = useCurrentUser();
 
-  const { results: bookmarks = [], loading, error } = useMulti({
-    collectionName: "Bookmarks",
-    fragmentName: "BookmarksFeedItemFragment",
-    terms: {
-      view: "myBookmarks",
-      userId: currentUser?._id,
+  const { data, error, loading } = useQuery(BookmarksFeedItemFragmentMultiQuery, {
+    variables: {
+      selector: { myBookmarks: {} },
       limit: 20,
+      enableTotal: false,
     },
     skip: !currentUser,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const bookmarks = data?.bookmarks?.results ?? [];
   
   if (!currentUser || (loading && !bookmarks.length)) {
     return <SingleColumnSection>

@@ -40,14 +40,14 @@ export const ultraFeedGraphQLTypeDefs = gql`
   type FeedPost {
     _id: String!
     postMetaInfo: JSON
-    post: Post
+    post: Post!
   }
 
   type FeedCommentThread {
     _id: String!
     commentMetaInfos: JSON
-    comments: [Comment]
-    post: Post                         
+    comments: [Comment!]!
+    post: Post
   }
 
   type FeedSpotlightItem {
@@ -58,12 +58,18 @@ export const ultraFeedGraphQLTypeDefs = gql`
   type UltraFeedQueryResults {
     cutoff: Date
     endOffset: Int!
-    results: [UltraFeedEntryType!]
+    results: [UltraFeedEntry!]
     sessionId: String
   }
+  
+  enum UltraFeedEntryType {
+    feedCommentThread
+    feedPost
+    feedSpotlight
+  }
 
-  type UltraFeedEntryType {
-    type: String!
+  type UltraFeedEntry {
+    type: UltraFeedEntryType!
     feedCommentThread: FeedCommentThread
     feedPost: FeedPost
     feedSpotlight: FeedSpotlightItem
@@ -78,7 +84,7 @@ export const ultraFeedGraphQLTypeDefs = gql`
       settings: JSON
     ): UltraFeedQueryResults!
   }
-`
+`;
 
 // items now carry `type`
 type SampledItem =
@@ -594,7 +600,7 @@ export const ultraFeedGraphQLQueries = {
       }
 
       const response = {
-        __typename: "UltraFeedQueryResults",
+        __typename: "UltraFeedQueryResults" as const,
         cutoff: results.length > 0 ? new Date() : null,
         endOffset: (offset ?? 0) + results.length,
         results,

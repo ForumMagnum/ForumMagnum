@@ -1,9 +1,22 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import NotificationsItem from "./NotificationsItem";
 import Loading from "../vulcan-core/Loading";
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const NotificationsListMultiQuery = gql(`
+  query multiNotificationNotificationsListQuery($selector: NotificationSelector, $limit: Int, $enableTotal: Boolean) {
+    notifications(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...NotificationsList
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -39,12 +52,25 @@ const NotificationsList = ({ terms, currentUser, classes }: {
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { results, loading, loadMore } = useMulti({
-    terms,
-    collectionName: "Notifications",
-    fragmentName: 'NotificationsList',
-    limit: 20,
-    enableTotal: false
+  const { view, limit, ...selectorTerms } = terms;
+  const { data, loading, fetchMore } = useQuery(NotificationsListMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 20,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = data?.notifications?.results;
+
+  const { loadMore } = useLoadMore({
+    data: data?.notifications,
+    loading,
+    fetchMore,
+    initialLimit: 20,
+    itemsPerPage: 10,
+    resetTrigger: terms
   });
   const [lastNotificationsCheck] = useState(
     ((currentUser?.lastNotificationsCheck) || ""),

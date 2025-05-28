@@ -1,18 +1,19 @@
 import { useCurrentUser } from "../../common/withUser";
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
 
 export const useNotificationDisplays = (limit: number, type?: string) => {
   // We have to do this manually outside of `usePaginatedResolver` because the
   // return type is pure unadulterated JSON, not a registered fragment type
 
   const currentUser = useCurrentUser();
-  return useQuery(gql`
+  return useQuery(gql(`
     query getNotificationDisplays($limit: Int, $type: String) {
       NotificationDisplays(limit: $limit, type: $type) {
         results
       }
     }
-  `, {
+  `), {
     ssr: true,
     notifyOnNetworkStatusChange: true,
     skip: !currentUser,

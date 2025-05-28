@@ -1,5 +1,4 @@
 import React from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { ReviewYear } from '../../lib/reviewUtils';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
@@ -7,6 +6,19 @@ import CheckBoxOutlineBlankIcon from '@/lib/vendor/@material-ui/icons/src/CheckB
 import CheckBoxTwoToneIcon from '@/lib/vendor/@material-ui/icons/src/CheckBoxTwoTone';
 import range from 'lodash/range';
 import LWTooltip from "../common/LWTooltip";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CommentsListWithParentMetadataMultiQuery = gql(`
+  query multiCommentReviewProgressReviewsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsListWithParentMetadata
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -43,18 +55,18 @@ export const ReviewProgressReviews = ({classes, reviewYear}: {
   const TARGET_NUM = 3
 
   const currentUser = useCurrentUser()
-  const { results: reviewsResults, totalCount } = useMulti({
-    terms: {
-      view: "reviews",
-      userId: currentUser?._id,
-      reviewYear
+  const { data } = useQuery(CommentsListWithParentMetadataMultiQuery, {
+    variables: {
+      selector: { reviews: { userId: currentUser?._id, reviewYear } },
+      limit: TARGET_NUM,
+      enableTotal: true,
     },
-    collectionName: "Comments",
-    fragmentName: 'CommentsListWithParentMetadata',
-    enableTotal: true,
     skip: !currentUser,
-    limit: TARGET_NUM
+    notifyOnNetworkStatusChange: true,
   });
+
+  const reviewsResults = data?.comments?.results;
+  const totalCount = data?.comments?.totalCount;
 
   if (!reviewsResults) return null
 

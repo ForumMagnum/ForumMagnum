@@ -85,9 +85,7 @@ const useTagsTooltipTag = (
   hash?: string,
   skip?: boolean,
 ) => {
-  const {tag: loadedTag, loading} = useTagPreview(tagSlug ?? "", hash, {
-    skip: skip || !!tag,
-  });
+  const {tag: loadedTag, loading} = useTagPreview(tagSlug ?? "", hash, skip || !!tag);
 
   if (tag) {
     return {
@@ -216,7 +214,7 @@ const TagsTooltip = ({
   hideDescription?: boolean,
   noPrefetch?: boolean,
   PreviewWrapper?: TagsTooltipPreviewWrapper,
-  As?: keyof React.JSX.IntrinsicElements,
+  As?: 'span' | 'div',
   inlineBlock?: boolean,
   placement?: PopperPlacementType,
   className?: string,

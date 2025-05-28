@@ -2,6 +2,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface ElectionVotesViewTerms extends ViewTermsBase {
+    view: 'default' | undefined,
     electionName?: string,
     userId?: string,
   }

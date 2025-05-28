@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { useMulti } from "../../lib/crud/withMulti";
 import withErrorBoundary from "../common/withErrorBoundary";
 import { useLocation } from "../../lib/routeUtil";
 import { useTracking } from "../../lib/analyticsEvents";
@@ -13,6 +12,19 @@ import Error404 from "../common/Error404";
 import Loading from "../vulcan-core/Loading";
 import MessageItem from "./MessageItem";
 import Divider from "../common/Divider";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const messageListFragmentMultiQuery = gql(`
+  query multiMessageConversationContentsQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {
+    messages(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...messageListFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   conversationTitle: {
@@ -62,21 +74,17 @@ const ConversationContents = ({
 
   const stateSignatureRef = useRef(stringify({conversationId: conversation._id, numMessagesShown: 0}));
 
-  const {
-    results,
-    refetch,
-    loading,
-  } = useMulti({
-    terms: {
-      view: "messagesConversation",
-      conversationId: conversation._id,
+  const { data, loading, refetch } = useQuery(messageListFragmentMultiQuery, {
+    variables: {
+      selector: { messagesConversation: { conversationId: conversation._id } },
+      limit: 100000,
+      enableTotal: false,
     },
-    collectionName: "Messages",
-    fragmentName: "messageListFragment",
     fetchPolicy: "cache-and-network",
-    limit: 100000,
-    enableTotal: false,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.messages?.results;
 
   const { query } = useLocation();
   const { captureEvent } = useTracking();
@@ -116,7 +124,7 @@ const ConversationContents = ({
     const ls = getBrowserLocalStorage();
     if (query.from) {
       profileViewedFrom.current = query.from;
-    } else if (conversation && conversation.participantIds.length === 2 && ls) {
+    } else if (conversation && conversation.participantIds?.length === 2 && ls) {
       // if this is a conversation with one other person, see if we have info on where the current user found them
       const otherUserId = conversation.participantIds.find((id) => id !== currentUser._id);
       const storedLastViewedProfiles = ls.getItem("lastViewedProfiles")

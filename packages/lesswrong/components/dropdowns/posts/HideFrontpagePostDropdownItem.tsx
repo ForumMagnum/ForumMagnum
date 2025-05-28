@@ -7,7 +7,6 @@ import map from 'lodash/map';
 import { useDialog } from '../../common/withDialog';
 import { useSetIsHiddenMutation } from './useSetIsHidden';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from "../../../lib/vulcan-lib/fragments";
 import LoginPopup from "../../users/LoginPopup";
 import DropdownItem from "../DropdownItem";
 

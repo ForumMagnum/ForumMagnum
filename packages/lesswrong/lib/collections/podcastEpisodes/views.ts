@@ -2,7 +2,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface PodcastEpisodesViewTerms extends ViewTermsBase {
-    view?: PodcastEpisodesViewName
+    view: PodcastEpisodesViewName
     _id?: string
     externalEpisodeId?: string
   }

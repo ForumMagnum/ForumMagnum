@@ -1,18 +1,49 @@
 import React from 'react';
-import { useSingle } from '../../../lib/crud/withSingle';
 import { DialogueMessageInfo, PostsPreviewTooltip } from './PostsPreviewTooltip';
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import PostsPreviewLoading from "./PostsPreviewLoading";
+
+const TagRelFragmentQuery = gql(`
+  query PostsPreviewTooltipSingle4($documentId: String) {
+    tagRel(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...TagRelFragment
+      }
+    }
+  }
+`);
+
+const CommentsListQuery = gql(`
+  query PostsPreviewTooltipSingle3($documentId: String) {
+    comment(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...CommentsList
+      }
+    }
+  }
+`);
+
+const PostsListQuery = gql(`
+  query PostsPreviewTooltipSingle($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsList
+      }
+    }
+  }
+`);
 
 export const PostsPreviewTooltipSingle = ({postId, postsList=false}: {
   postId: string,
   postsList?: boolean
 }) => {
-  const { document: post, loading: postLoading } = useSingle({
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
+  const { loading: postLoading, data } = useQuery(PostsListQuery, {
+    variables: { documentId: postId },
     fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
-    documentId: postId,
   });
+  const post = data?.post?.result;
+
   if (postLoading) {
     return <PostsPreviewLoading />
   }
@@ -27,12 +58,12 @@ export const DialogueMessagePreviewTooltip = ({postId, postsList=false, dialogue
   postsList?: boolean
   dialogueMessageInfo: DialogueMessageInfo,
 }) => {
-  const { document: post, loading: postLoading } = useSingle({
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
+  const { loading: postLoading, data } = useQuery(PostsListQuery, {
+    variables: { documentId: postId },
     fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
-    documentId: postId,
   });
+  const post = data?.post?.result;
+
   if (postLoading) {
     return <PostsPreviewLoading />
   }
@@ -46,19 +77,18 @@ export const PostsPreviewTooltipSingleWithComment = ({postId, commentId}: {
   postId: string,
   commentId: string,
 }) => {
-  const { document: post, loading: postLoading } = useSingle({
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
+  const { loading: postLoading, data: dataPost } = useQuery(PostsListQuery, {
+    variables: { documentId: postId },
     fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
-    documentId: postId,
   });
+  const post = dataPost?.post?.result;
 
-  const { document: comment, loading: commentLoading } = useSingle({
-    collectionName: "Comments",
-    fragmentName: 'CommentsList',
+  const { loading: commentLoading, data: dataComment } = useQuery(CommentsListQuery, {
+    variables: { documentId: commentId },
     fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
-    documentId: commentId,
   });
+  const comment = dataComment?.comment?.result;
+
   if (postLoading || commentLoading) {
     return <PostsPreviewLoading />
   }
@@ -68,23 +98,23 @@ export const PostsPreviewTooltipSingleWithComment = ({postId, commentId}: {
   return (
     <PostsPreviewTooltip
       post={post}
-      comment={commentId ? comment : undefined}
+      comment={commentId && comment ? comment : undefined}
     />
   );
 }
 
 export const TaggedPostTooltipSingle = ({tagRelId}: {tagRelId: string}) => {
-  const { document: tagRel, loading: tagRelLoading } = useSingle({
-    collectionName: "TagRels",
-    fragmentName: 'TagRelFragment',
+  const { loading: tagRelLoading, data } = useQuery(TagRelFragmentQuery, {
+    variables: { documentId: tagRelId },
     fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
-    documentId: tagRelId,
   });
+  const tagRel = data?.tagRel?.result;
+
   if (tagRelLoading) {
     return <PostsPreviewLoading />
   }
 
-  if (!tagRel) {return null;}
+  if (!tagRel?.post) {return null;}
 
   return <PostsPreviewTooltip post={tagRel.post} />
 }

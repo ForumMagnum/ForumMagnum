@@ -13,14 +13,14 @@ export const graphqlTypeDefs = gql`
     slug: String!
   }
   type ArbitalLinkedPages {
-    faster: [ArbitalLinkedPage]
-    slower: [ArbitalLinkedPage]
-    moreTechnical: [ArbitalLinkedPage]
-    lessTechnical: [ArbitalLinkedPage]
-    requirements: [ArbitalLinkedPage]
-    teaches: [ArbitalLinkedPage]
-    parents: [ArbitalLinkedPage]
-    children: [ArbitalLinkedPage]
+    faster: [ArbitalLinkedPage!]!
+    slower: [ArbitalLinkedPage!]!
+    moreTechnical: [ArbitalLinkedPage!]!
+    lessTechnical: [ArbitalLinkedPage!]!
+    requirements: [ArbitalLinkedPage!]!
+    teaches: [ArbitalLinkedPage!]!
+    parents: [ArbitalLinkedPage!]!
+    children: [ArbitalLinkedPage!]!
   }
 `;
 

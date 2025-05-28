@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const UnclaimedReportsList = () => frag`
+export const UnclaimedReportsList = gql(`
   fragment UnclaimedReportsList on Report {
     _id
     userId
@@ -38,4 +38,4 @@ export const UnclaimedReportsList = () => frag`
     reportedAsSpam
     markedAsSpam
   }
-`
+`)

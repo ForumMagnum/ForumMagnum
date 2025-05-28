@@ -1,4 +1,3 @@
-import { useCreate } from '@/lib/crud/withCreate';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { useForm } from '@tanstack/react-form';
@@ -10,6 +9,18 @@ import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 import LWDialog from "../common/LWDialog";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const UnclaimedReportsListMutation = gql(`
+  mutation createReportReportForm($data: CreateReportDataInput!) {
+    createReport(data: $data) {
+      data {
+        ...UnclaimedReportsList
+      }
+    }
+  }
+`);
 
 const formStyles = defineStyles('ReportsForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -36,10 +47,7 @@ const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubm
     onClose?.();
   };
 
-  const { create } = useCreate({
-    collectionName: 'Reports',
-    fragmentName: 'UnclaimedReportsList',
-  });
+  const [create] = useMutation(UnclaimedReportsListMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
@@ -58,8 +66,11 @@ const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubm
       try {
         let result: UnclaimedReportsList;
 
-        const { data } = await create({ data: value });
-        result = data?.createReport.data;
+        const { data } = await create({ variables: { data: value } });
+        if (!data?.createReport?.data) {
+          throw new Error('Failed to create report');
+        }
+        result = data.createReport.data;
 
         handleSubmit();
       } catch (error) {

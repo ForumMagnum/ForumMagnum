@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
@@ -14,6 +13,20 @@ import SpotlightEditorStyles from "./SpotlightEditorStyles";
 import ToCColumn from "../posts/TableOfContents/ToCColumn";
 import TableOfContents from "../posts/TableOfContents/TableOfContents";
 import LoadMore from "../common/LoadMore";
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const SpotlightDisplayMultiQuery = gql(`
+  query multiSpotlightSpotlightsPageQuery($selector: SpotlightSelector, $limit: Int, $enableTotal: Boolean) {
+    spotlights(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SpotlightDisplay
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   form: {
@@ -33,16 +46,34 @@ export const SpotlightsPage = ({classes}: {
   const onlyDrafts = query.drafts === 'true';
   const noDrafts = query.drafts === 'false';
 
-  const { results: spotlights = [], loading, refetch, loadMoreProps } = useMulti({
-    collectionName: 'Spotlights',
-    fragmentName: 'SpotlightDisplay',
-    terms: {
-      view: onlyDrafts ? "spotlightsPageDraft" : "spotlightsPage",
-      limit: 500
+  const { view, limit, ...selectorTerms } = {
+    view: onlyDrafts ? "spotlightsPageDraft" : "spotlightsPage",
+    limit: 500
+  };
+  const { data, loading, refetch, fetchMore } = useQuery(SpotlightDisplayMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 500,
+      enableTotal: true,
     },
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
-    enableTotal:  true
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const spotlights = useMemo(() => data?.spotlights?.results ?? [], [data?.spotlights?.results]);
+
+  const loadMoreProps = useLoadMore({
+    data: data?.spotlights,
+    loading,
+    fetchMore,
+    initialLimit: 500,
+    itemsPerPage: 10,
+    enableTotal: true,
+    resetTrigger: {
+        view: onlyDrafts ? "spotlightsPageDraft" : "spotlightsPage",
+        limit: 500
+      }
   });
 
   const spotlightsInDisplayOrder = useMemo(() => {

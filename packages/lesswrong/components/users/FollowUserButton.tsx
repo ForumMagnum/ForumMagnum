@@ -5,7 +5,8 @@ import { useNotifyMe } from '../hooks/useNotifyMe';
 import { useOptimisticToggle } from '../hooks/useOptimisticToggle';
 import classNames from 'classnames';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
-import { gql, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen';
 import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
@@ -43,11 +44,11 @@ export const FollowUserButton = ({user, classes}: {
     onSubscribeWithDM
   );
 
-  const [sendNewFollowDM] = useMutation(gql`
+  const [sendNewFollowDM] = useMutation(gql(`
     mutation sendEventTriggeredDM($eventType: String!) {
       sendEventTriggeredDM(eventType: $eventType)
     }
-  `, {
+  `), {
     ignoreResults: true
   });
 

@@ -1,24 +1,44 @@
 import React, {useEffect, useState} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useDialog } from '../common/withDialog';
-import { useMulti } from '../../lib/crud/withMulti';
-import { useSingle } from '../../lib/crud/withSingle';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import {commentBodyStyles, postBodyStyles} from "../../themes/stylePiping";
-import { useMutation, gql } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import LWDialog from "../common/LWDialog";
 import Loading from "../vulcan-core/Loading";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import FormatDate from "../common/FormatDate";
 import LoadMore from "../common/LoadMore";
 import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+
+const RevisionMetadataWithChangeMetricsMultiQuery = gql(`
+  query multiRevisionTagVersionHistoryQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
+    revisions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...RevisionMetadataWithChangeMetrics
+      }
+      totalCount
+    }
+  }
+`);
+
+const RevisionDisplayQuery = gql(`
+  query TagVersionHistory($documentId: String) {
+    revision(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...RevisionDisplay
+      }
+    }
+  }
+`);
 
 const LEFT_COLUMN_WIDTH = 160
 
@@ -95,41 +115,53 @@ const TagVersionHistory = ({tagId, onClose, classes}: {
   const [selectedRevisionId,setSelectedRevisionId] = useState<string|null>(null);
   const [revertInProgress,setRevertInProgress] = useState(false);
   // We need the $contributorsLimit arg to satisfy the fragment, other graphql complains, even though we don't use any results that come back.
-  const [revertMutation] = useMutation(gql`
+  const [revertMutation] = useMutation(gql(`
     mutation revertToRevision($tagId: String!, $revertToRevisionId: String!, $contributorsLimit: Int) {
       revertTagToRevision(tagId: $tagId, revertToRevisionId: $revertToRevisionId) {
         ...TagPageFragment
       }
     }
-    ${fragmentTextForQuery("TagPageFragment")}
-  `, {
+  `), {
     ignoreResults: true
   });
   const [revertLoading, setRevertLoading] = useState(false);
   const canRevert = tagUserHasSufficientKarma(currentUser, 'edit');
   
-  const { results: revisions, loading: loadingRevisions, loadMoreProps } = useMulti({
-    terms: {
+  const { data: dataRevisions, loading: loadingRevisions, fetchMore: fetchMoreRevisions } = useQuery(RevisionMetadataWithChangeMetricsMultiQuery, {
+    variables: {
+      selector: { revisionsOnDocument: { documentId: tagId, fieldName: "description" } },
+      limit: 10,
+      enableTotal: false,
+    },
+    fetchPolicy: "cache-and-network",
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const revisions = dataRevisions?.revisions?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: dataRevisions?.revisions,
+    loading: loadingRevisions,
+    fetchMore: fetchMoreRevisions,
+    initialLimit: 10,
+    itemsPerPage: 10,
+    resetTrigger: {
       view: "revisionsOnDocument",
       documentId: tagId,
       fieldName: "description",
-    },
-    fetchPolicy: "cache-and-network",
-    collectionName: "Revisions",
-    fragmentName: "RevisionMetadataWithChangeMetrics",
+    }
   });
   
   useEffect(() => {
     revisions && revisions.length > 0 && setSelectedRevisionId(revisions[0]._id)
   }, [revisions])
   
-  const { document: revision } = useSingle({
+  const { data } = useQuery(RevisionDisplayQuery, {
+    variables: { documentId: selectedRevisionId||"" },
     skip: !selectedRevisionId,
-    documentId: selectedRevisionId||"",
-    collectionName: "Revisions",
     fetchPolicy: "cache-first",
-    fragmentName: "RevisionDisplay",
   });
+  const revision = data?.revision?.result;
 
   const { captureEvent } = useTracking()
   
@@ -154,7 +186,7 @@ const TagVersionHistory = ({tagId, onClose, classes}: {
         </div>
       </div>
       <div className={classes.selectedRevisionDisplay}>
-        {revision && canRevert && <div className={classes.restoreButton}>
+        {revision && canRevert && selectedRevisionId && <div className={classes.restoreButton}>
           {revertLoading
             ? <Loading/>
             : <Button variant="contained" color="primary" onClick={async () => {

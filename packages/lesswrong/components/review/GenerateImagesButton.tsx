@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { gql, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 
 const styles = defineStyles("GenerateImagesButton", (theme: ThemeType) => ({
   root: {
@@ -61,13 +61,13 @@ const GenerateImagesButton = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const [customPrompt, setCustomPrompt] = useState("");
 
-  const [generateCoverImages] = useMutation(gql`
+  const [generateCoverImages] = useMutation(gql(`
     mutation GenerateCoverImagesForPost($postId: String!, $prompt: String) {
       generateCoverImagesForPost(postId: $postId, prompt: $prompt) { 
         _id
       }
     }
-  `);
+  `));
 
   const handleGenerate = async () => {
     try {

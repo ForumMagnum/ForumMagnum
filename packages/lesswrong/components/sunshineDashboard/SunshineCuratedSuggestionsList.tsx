@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
@@ -12,6 +11,31 @@ import FormatDate from "../common/FormatDate";
 import LoadMore from "../common/LoadMore";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
+import { useQuery } from "@apollo/client";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsListMultiQuery = gql(`
+  query multiPostsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsList
+      }
+      totalCount
+    }
+  }
+`);
+
+const SunshineCurationPostsListMultiQuery = gql(`
+  query multiSunshineCurationPostsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SunshineCurationPostsList
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   loadMorePadding: {
@@ -69,21 +93,43 @@ const SunshineCuratedSuggestionsList = ({ terms, atBottom, classes, setCurationP
 
   const [audioOnly, setAudioOnly] = useState<boolean>(false)
 
-  const { results, loadMoreProps, showLoadMore } = useMulti({
-    terms: {
-      ...terms, audioOnly
+  const { view, ...rest } = terms;
+
+  const { data, loading, fetchMore } = useQuery(SunshineCurationPostsListMultiQuery, {
+    variables: {
+      selector: { [view]: { ...rest, audioOnly } },
+      limit: 10,
+      enableTotal: true,
     },
-    collectionName: "Posts",
-    fragmentName: 'SunshineCurationPostsList',
-    enableTotal: true,
-    itemsPerPage: 60
+    notifyOnNetworkStatusChange: true,
   });
 
-  const { results: curatedResults } = useMulti({
-    terms: {view:'curated', limit:1},
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
+  const results = data?.posts?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: data?.posts,
+    loading,
+    fetchMore,
+    initialLimit: 10,
+    itemsPerPage: 60,
+    enableTotal: true,
+    resetTrigger: {
+        ...terms, audioOnly
+      }
   });
+
+  const showLoadMore = !loadMoreProps.hidden;
+
+  const { data: dataPostsList } = useQuery(PostsListMultiQuery, {
+    variables: {
+      selector: { curated: {} },
+      limit: 1,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const curatedResults = dataPostsList?.posts?.results;
   const curatedDate = curatedResults ? new Date(curatedResults[0]?.curatedDate ?? 0) : new Date();
   const twoAndAHalfDaysAgo = new Date(new Date().getTime()-(2.5*24*60*60*1000));
   const timeForCuration = curatedDate <= twoAndAHalfDaysAgo;

@@ -1,15 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { UseMultiResult, useMulti } from "../../lib/crud/withMulti";
+import { UseMultiResult } from "../../lib/crud/withMulti";
 import classNames from "classnames";
 import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
 import { useDialog } from "../common/withDialog";
 import type { InboxComponentProps } from "./InboxWrapper";
-import { useSingle } from "../../lib/crud/withSingle";
 import { userCanDo } from "../../lib/vulcan-users/permissions";
 import { useMarkConversationRead } from "../hooks/useMarkConversationRead";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import NewConversationDialog from "./NewConversationDialog";
 import ConversationTitleEditForm from "./ConversationTitleEditForm";
 import FriendlyInboxNavigation from "./FriendlyInboxNavigation";
@@ -17,6 +18,28 @@ import ConversationContents from "./ConversationContents";
 import ForumIcon from "../common/ForumIcon";
 import ConversationDetails from "./ConversationDetails";
 import EAButton from "../ea-forum/EAButton";
+import { useLoadMore } from "../hooks/useLoadMore";
+
+const ConversationsListWithReadStatusMultiQuery = gql(`
+  query multiConversationFriendlyInboxQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
+    conversations(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ConversationsListWithReadStatus
+      }
+      totalCount
+    }
+  }
+`);
+
+const ConversationsListWithReadStatusQuery = gql(`
+  query FriendlyInbox($documentId: String) {
+    conversation(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...ConversationsListWithReadStatus
+      }
+    }
+  }
+`);
 
 const MAX_WIDTH = 1100;
 
@@ -216,29 +239,44 @@ const FriendlyInbox = ({
       />
     });
   }, [isModInbox, openDialog]);
-  const conversationsResult: UseMultiResult<"ConversationsListWithReadStatus"> = useMulti({
-    terms,
-    collectionName: "Conversations",
-    fragmentName: "ConversationsListWithReadStatus",
-    limit: 500,
+
+  const { view, ...selectorTerms } = terms;
+  const initialLimit = 500;
+  const conversationsResult = useQuery(ConversationsListWithReadStatusMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: initialLimit,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
   const {
-    results: conversations,
+    data: conversationsData,
     loading: conversationsLoading,
     refetch: refetchConversations,
+    fetchMore: fetchMoreConversations,
   } = conversationsResult;
+
+  const conversations = useMemo(() => conversationsData?.conversations?.results ?? [], [conversationsData?.conversations?.results]);
+
+  const loadMoreProps = useLoadMore({
+    data: conversationsData?.conversations,
+    fetchMore: fetchMoreConversations,
+    loading: conversationsLoading,
+    initialLimit,
+  });
 
   // The conversationId need not appear in the sidebar (e.g. if it is a new conversation). If it does,
   // use the conversation from the list to load the title faster, if not, fetch it directly.
   const eagerSelectedConversation = useMemo(() => {
     return conversations?.find((c) => c._id === conversationId);
   }, [conversations, conversationId]);
-  const { document: fetchedSelectedConversation } = useSingle({
-    documentId: conversationId,
-    collectionName: "Conversations",
-    fragmentName: "ConversationsListWithReadStatus",
+  const { data } = useQuery(ConversationsListWithReadStatusQuery, {
+    variables: { documentId: conversationId },
     skip: !conversationId,
   });
+  const fetchedSelectedConversation = data?.conversation?.result;
   const selectedConversation = fetchedSelectedConversation || eagerSelectedConversation;
 
   const onOpenConversation = useCallback(async (conversationId: string) => {
@@ -289,7 +327,11 @@ const FriendlyInbox = ({
           </div>
           <div className={classes.navigation}>
             <FriendlyInboxNavigation
-              conversationsResult={conversationsResult}
+              conversationsResult={{
+                results: conversations,
+                loading: conversationsLoading,
+                loadMoreProps,
+              }}
               currentUser={currentUser}
               selectedConversationId={conversationId}
               setSelectedConversationId={selectConversationCallback}

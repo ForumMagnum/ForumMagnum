@@ -7,6 +7,7 @@ import * as _ from 'underscore';
 import { modGPTPrompt, sanitizeHtmlOptions } from '../../languageModels/modGPT';
 import { truncatise } from '../../../lib/truncatise';
 import { fetchFragmentSingle } from '../../fetchFragment';
+import { PostsPage } from '@/lib/collections/posts/fragments';
 
 /**
  * This was written for the EA Forum to test out having GPT-4o help moderate comments.
@@ -29,7 +30,7 @@ export const testModGPT = wrapVulcanAsyncScript(
     for (const comment of comments) {
       const post = await fetchFragmentSingle({
         collectionName: "Posts",
-        fragmentName: "PostsPage",
+        fragmentDoc: PostsPage,
         selector: {_id: comment.postId},
         currentUser: null,
         skipFiltering: true,

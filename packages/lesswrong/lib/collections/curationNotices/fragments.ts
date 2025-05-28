@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
-export const CurationNoticesFragment = () => frag`
+export const CurationNoticesFragment = gql(`
   fragment CurationNoticesFragment on CurationNotice {
     _id
     createdAt
@@ -21,4 +21,4 @@ export const CurationNoticesFragment = () => frag`
       ...RevisionEdit
     }
   }
-`
+`)

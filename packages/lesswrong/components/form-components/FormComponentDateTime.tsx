@@ -821,7 +821,7 @@ export const DatePicker = ({label, name, value, below, onChange}: {
 
 
 export const FormComponentDatePicker = ({ field, label, name, below }: {
-  field: TypedFieldApi<Date | null>,
+  field: TypedFieldApi<Date | null | undefined>,
   label: string,
   name?: string,
   below?: boolean,

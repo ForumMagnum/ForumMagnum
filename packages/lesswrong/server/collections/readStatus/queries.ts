@@ -4,8 +4,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlReadStatusQueryTypeDefs = gql`
-  type ReadStatus {
-    ${getAllGraphQLFields(schema)}
+  type ReadStatus ${
+    getAllGraphQLFields(schema)
   }
 `;
 

@@ -1,24 +1,34 @@
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { useUpdate } from '../../../lib/crud/withUpdate';
 import React, { useCallback } from 'react';
 import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import DropdownItem from "../DropdownItem";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsListUpdateMutation = gql(`
+  mutation updatePostMoveToDraftDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
+    updatePost(selector: $selector, data: $data) {
+      data {
+        ...PostsList
+      }
+    }
+  }
+`);
 
 const MoveToDraftDropdownItem = ({ post }: {
   post: PostsBase
 }) => {
   const currentUser = useCurrentUser();
-  const {mutate: updatePost} = useUpdate({
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
-  });
+  const [updatePost] = useMutation(PostsListUpdateMutation);
 
   const handleMoveToDraftDropdownItem = useCallback(() => {
     void updatePost({
-      selector: {_id: post._id},
-      data: {draft:true}
+      variables: {
+        selector: { _id: post._id },
+        data: { draft: true }
+      }
     })
   }, [updatePost, post])
 

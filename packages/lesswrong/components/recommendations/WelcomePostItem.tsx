@@ -3,21 +3,31 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from "../common/withUser";
 import { useItemsRead } from "../hooks/useRecordPostView";
 import moment from "moment";
-import { useSingle } from "../../lib/crud/withSingle";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
 import { aboutPostIdSetting } from "@/lib/instanceSettings";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 import PostsItem from "../posts/PostsItem";
+
+const PostsListWithVotesQuery = gql(`
+  query WelcomePostItem($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsListWithVotes
+      }
+    }
+  }
+`);
 
 const WelcomePostItem = () => {
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
   const welcomePostId = aboutPostIdSetting.get();
 
-  const { document: post } = useSingle({
-    documentId: welcomePostId,
-    collectionName: "Posts",
-    fragmentName: "PostsListWithVotes",
+  const { data } = useQuery(PostsListWithVotesQuery, {
+    variables: { documentId: welcomePostId },
   });
+  const post = data?.post?.result;
 
   const { postsRead } = useItemsRead();
   const isRead = post && !!(

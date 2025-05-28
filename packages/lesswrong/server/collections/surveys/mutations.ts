@@ -82,16 +82,16 @@ export const updateSurveyGqlMutation = makeGqlUpdateMutation('Surveys', updateSu
 
 
 export const graphqlSurveyTypeDefs = gql`
-  input CreateSurveyDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateSurveyDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateSurveyInput {
     data: CreateSurveyDataInput!
   }
   
-  input UpdateSurveyDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateSurveyDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateSurveyInput {

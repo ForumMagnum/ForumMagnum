@@ -1,11 +1,33 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useUpdate } from '../../lib/crud/withUpdate';
-import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import SunshineListTitle from "./SunshineListTitle";
 import SunshineReportedItem from "./SunshineReportedItem";
 import SunshineListCount from "./SunshineListCount";
 import LoadMore from "../common/LoadMore";
+import { useMutation, useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+import { useLoadMore } from "@/components/hooks/useLoadMore";
+
+const UnclaimedReportsListMultiQuery = gql(`
+  query multiReportSunshineReportedContentListQuery($selector: ReportSelector, $limit: Int, $enableTotal: Boolean) {
+    reports(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UnclaimedReportsList
+      }
+      totalCount
+    }
+  }
+`);
+
+const UnclaimedReportsListUpdateMutation = gql(`
+  mutation updateReportSunshineReportedContentList($selector: SelectorInput!, $data: UpdateReportDataInput!) {
+    updateReport(selector: $selector, data: $data) {
+      data {
+        ...UnclaimedReportsList
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -17,16 +39,29 @@ const SunshineReportedContentList = ({ classes, currentUser }: {
   classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
 }) => {
-  const { results, totalCount, loadMoreProps, refetch } = useMulti({
-    terms: {view:"sunshineSidebarReports", limit: 30},
-    collectionName: "Reports",
-    fragmentName: 'UnclaimedReportsList',
+  const { data, loading, refetch, fetchMore } = useQuery(UnclaimedReportsListMultiQuery, {
+    variables: {
+      selector: { sunshineSidebarReports: {} },
+      limit: 30,
+      enableTotal: true,
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = data?.reports?.results;
+
+  const loadMoreProps = useLoadMore({
+    data: data?.reports,
+    loading,
+    fetchMore,
+    initialLimit: 30,
+    itemsPerPage: 10,
     enableTotal: true,
+    resetTrigger: {view:"sunshineSidebarReports", limit: 30}
   });
-  const { mutate: updateReport } = useUpdate({
-    collectionName: "Reports",
-    fragmentName: 'UnclaimedReportsList',
-  });
+  const totalCount = data?.reports?.totalCount ?? 0;
+  
+  const [updateReport] = useMutation(UnclaimedReportsListUpdateMutation);
   
   if (results && results.length) {
     return (

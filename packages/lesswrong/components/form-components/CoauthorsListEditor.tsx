@@ -56,7 +56,7 @@ const SortableList = makeSortableListComponent({
 });
 
 interface CoauthorsListEditorProps {
-  field: TypedFieldApi<CoauthorListItem[] | null>;
+  field: TypedFieldApi<CoauthorListItem[] | null | undefined>;
   post: EditablePost;
   label: string;
 }

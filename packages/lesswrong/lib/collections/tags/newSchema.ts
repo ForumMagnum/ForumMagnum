@@ -23,6 +23,7 @@ import { isLW } from "@/lib/instanceSettings";
 import { permissionGroups } from "@/lib/permissions";
 import gql from "graphql-tag";
 import type { TagCommentType } from "../comments/types";
+import { CommentsViews } from "../comments/views";
 
 export const graphqlTypeDefs = gql`
   type TagContributor {
@@ -534,7 +535,7 @@ const schema = {
   },
   recentComments: {
     graphql: {
-      outputType: "[Comment]",
+      outputType: "[Comment!]!",
       canRead: ["guests"],
       arguments: "tagCommentsLimit: Int, maxAgeHours: Int, af: Boolean, tagCommentType: String",
       resolver: async (tag, args: { tagCommentsLimit?: number|null, maxAgeHours?: number, af?: boolean, tagCommentType?: TagCommentType }, context) => {
@@ -546,7 +547,7 @@ const schema = {
         const lastCommentTime = (tagCommentType === "SUBFORUM" ? tag.lastSubforumCommentAt : tag.lastCommentedAt) ?? undefined;
         const timeCutoff = moment(lastCommentTime).subtract(maxAgeHours, "hours").toDate();
         const comments = await Comments.find({
-          ...getDefaultViewSelector("Comments"),
+          ...getDefaultViewSelector(CommentsViews),
           tagId: tag._id,
           score: { $gt: 0 },
           draft: false,
@@ -765,7 +766,7 @@ const schema = {
   },
   contributors: {
     graphql: {
-      outputType: "TagContributorsList",
+      outputType: "TagContributorsList!",
       canRead: ["guests"],
       arguments: "limit: Int, version: String",
       resolver: getContributorsFieldResolver({ collectionName: "Tags", fieldName: "description" }),
@@ -826,8 +827,8 @@ const schema = {
       type: "TEXT[]",
     },
     graphql: {
-      outputType: "[String!]",
-      inputType: "[String!]",
+      outputType: "[TagRelVoteGroup!]",
+      inputType: "[TagRelVoteGroup!]",
       canRead: ["guests"],
       canUpdate: ["admins", "sunshineRegiment"],
       canCreate: ["admins", "sunshineRegiment"],

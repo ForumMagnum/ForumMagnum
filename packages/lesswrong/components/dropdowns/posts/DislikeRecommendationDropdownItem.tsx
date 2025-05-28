@@ -9,7 +9,6 @@ import { recombeeEnabledSetting } from '@/lib/publicSettings';
 import { recombeeApi } from '@/lib/recombee/client';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from "../../../lib/vulcan-lib/fragments";
 import LoginPopup from "../../users/LoginPopup";
 import DropdownItem from "../DropdownItem";
 

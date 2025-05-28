@@ -87,16 +87,16 @@ export const updateRSSFeedGqlMutation = makeGqlUpdateMutation('RSSFeeds', update
 
 
 export const graphqlRSSFeedTypeDefs = gql`
-  input CreateRSSFeedDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateRSSFeedDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateRSSFeedInput {
     data: CreateRSSFeedDataInput!
   }
   
-  input UpdateRSSFeedDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateRSSFeedDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateRSSFeedInput {

@@ -3,12 +3,24 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from "../../lib/reactRouterWrapper";
 import CommentOutlinedIcon from "@/lib/vendor/@material-ui/icons/src/ModeCommentOutlined";
 import { useHover } from "../common/withHover";
-import { useMulti } from "../../lib/crud/withMulti";
 import { tagGetDiscussionUrl } from "../../lib/collections/tags/helpers";
 import classNames from "classnames";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import TagDiscussion from "./TagDiscussion";
 import PopperCard from "../common/PopperCard";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const CommentsListMultiQuery = gql(`
+  query multiCommentTagDiscussionButtonQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsList
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   discussionButton: {
@@ -60,16 +72,15 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideP
   classes: ClassesType<typeof styles>,
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover()
-  const { totalCount, loading } = useMulti({
-    terms: {
-      view: "tagDiscussionComments",
-      tagId: tag._id,
+  const { data, loading } = useQuery(CommentsListMultiQuery, {
+    variables: {
+      selector: { tagDiscussionComments: { tagId: tag._id } },
       limit: 0,
+      enableTotal: true,
     },
-    collectionName: "Comments",
-    fragmentName: 'CommentsList',
-    enableTotal: true,
+    notifyOnNetworkStatusChange: true,
   });
+  const totalCount = data?.comments?.totalCount;
 
   const labelClass = hideLabel ? classes.hideLabel : classes.text;
   const labelOnMobileClass = hideLabelOnMobile ? classes.hideOnMobile : classes.text;

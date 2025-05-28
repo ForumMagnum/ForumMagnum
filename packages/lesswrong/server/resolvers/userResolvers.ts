@@ -73,8 +73,8 @@ export const graphqlTypeDefs = gql`
     usernameUnset: Boolean
   }
   type UserCoreTagReads {
-    tagId: String,
-    userReadCount: Int
+    tagId: String!,
+    userReadCount: Int!
   }
 
   extend type Mutation{
@@ -84,7 +84,7 @@ export const graphqlTypeDefs = gql`
   }
 
   extend type Query {
-    UserReadsPerCoreTag(userId: String!): [UserCoreTagReads]
+    UserReadsPerCoreTag(userId: String!): [UserCoreTagReads!]!
     GetRandomUser(userIsAuthor: String!): User
     IsDisplayNameTaken(displayName: String!): Boolean!
     GetUserBySlug(slug: String!): User

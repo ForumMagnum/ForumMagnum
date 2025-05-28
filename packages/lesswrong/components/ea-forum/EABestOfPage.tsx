@@ -4,7 +4,6 @@ import { useCurrentTime } from "../../lib/utils/timeUtil";
 import { useCurrentCuratedPostCount } from "../hooks/useCurrentCuratedPostCount";
 import { Link } from "../../lib/reactRouterWrapper";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { useMulti } from "../../lib/crud/withMulti";
 import keyBy from "lodash/keyBy";
 import moment from "moment";
 import classNames from "classnames";
@@ -15,6 +14,52 @@ import EACollectionCard from "./EACollectionCard";
 import EAPostsItem from "../posts/EAPostsItem";
 import PostsAudioCard from "../posts/PostsAudioCard";
 import PostsVideoCard from "../posts/PostsVideoCard";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+
+const PostsListWithVotesMultiQuery = gql(`
+  query multiPostsListWithVotesQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsListWithVotes
+      }
+      totalCount
+    }
+  }
+`);
+
+const CollectionsBestOfFragmentMultiQuery = gql(`
+  query multiCollectionEABestOfPageQuery($selector: CollectionSelector, $limit: Int, $enableTotal: Boolean) {
+    collections(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CollectionsBestOfFragment
+      }
+      totalCount
+    }
+  }
+`);
+
+const SequencesPageFragmentMultiQuery = gql(`
+  query multiSequenceEABestOfPageQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {
+    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SequencesPageFragment
+      }
+      totalCount
+    }
+  }
+`);
+
+const PostsBestOfListMultiQuery = gql(`
+  query multiPostsBestOfListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsBestOfList
+      }
+      totalCount
+    }
+  }
+`);
 
 const MAX_WIDTH = 1500;
 const MD_WIDTH = 1000;
@@ -149,36 +194,50 @@ export const digestLink = "https://effectivealtruism.us8.list-manage.com/subscri
 const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const currentCuratedPostCount = useCurrentCuratedPostCount();
 
-  const { results: posts, loading } = useMulti({
-    terms: {postIds: allPostIds, limit: allPostIds.length},
-    collectionName: "Posts",
-    fragmentName: 'PostsBestOfList',
+  const { data, loading } = useQuery(PostsBestOfListMultiQuery, {
+    variables: {
+      selector: { default: { postIds: allPostIds } },
+      limit: allPostIds.length,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
 
-  const { results: sequences, loading: sequencesLoading } = useMulti({
-    terms: {sequenceIds: allSequenceIds, limit: allSequenceIds.length},
-    collectionName: "Sequences",
-    fragmentName: 'SequencesPageFragment',
+  const posts = data?.posts?.results;
+
+  const { data: dataSequencesPageFragment, loading: sequencesLoading } = useQuery(SequencesPageFragmentMultiQuery, {
+    variables: {
+      selector: { default: { sequenceIds: allSequenceIds } },
+      limit: allSequenceIds.length,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
 
-  const { results: collections, loading: collectionsLoading } = useMulti({
-    terms: {collectionIds: allCollectionIds, limit: allCollectionIds.length},
-    collectionName: "Collections",
-    fragmentName: 'CollectionsBestOfFragment',
+  const sequences = dataSequencesPageFragment?.sequences?.results;
+
+  const { data: dataCollectionsBestOfFragment, loading: collectionsLoading } = useQuery(CollectionsBestOfFragmentMultiQuery, {
+    variables: {
+      selector: { default: { collectionIds: allCollectionIds } },
+      limit: allCollectionIds.length,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const collections = dataCollectionsBestOfFragment?.collections?.results;
 
   const currentTime = useCurrentTime();
-  const {
-    results: monthlyHighlights,
-    loading: monthlyHighlightsLoading,
-  } = useMulti({
-    collectionName: "Posts",
-    fragmentName: "PostsListWithVotes",
-    terms: {
-      view: "curated",
-      curatedAfter: moment(currentTime).subtract(1, "month").startOf("day").toDate(),
+  const { data: dataPostsListWithVotes, loading: monthlyHighlightsLoading } = useQuery(PostsListWithVotesMultiQuery, {
+    variables: {
+      selector: { curated: { curatedAfter: moment(currentTime).subtract(1, "month").startOf("day").toISOString() } },
+      limit: 10,
+      enableTotal: false,
     },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const monthlyHighlights = dataPostsListWithVotes?.posts?.results;
 
   const postsById = useMemo(() => keyBy(posts, '_id'), [posts]);
   const sequencesById = useMemo(() => keyBy(sequences, '_id'), [sequences]);

@@ -6,7 +6,6 @@ import { isProduction } from '../lib/executionEnvironment';
 import { toDictionary } from '../lib/utils/toDictionary';
 import * as _ from 'underscore';
 import { isLW } from '../lib/instanceSettings';
-import type { OpenEvent } from 'ws';
 import { createLWEvent } from './collections/lwevents/mutations';
 import { createAdminContext } from './vulcan-lib/createContexts';
 
@@ -204,7 +203,7 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
   // eslint-disable-next-line no-console
   console.log(`Connecting to websocket server ${websocketServerUrl}`);
   const socket = new WebSocket(websocketServerUrl);
-  socket.on('open', function (data: OpenEvent) {
+  socket.on('open', function () {
     socketConnectedSuccessfully = true;
     sendMessageOnSocket(socket, {
       event: "init",

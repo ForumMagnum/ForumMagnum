@@ -3,22 +3,24 @@ import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers";
 import gql from "graphql-tag";
+import { CollectionViewSet } from "@/lib/views/collectionViewSet";
 
 export const graphqlTypingIndicatorQueryTypeDefs = gql`
-  type TypingIndicator {
-    ${getAllGraphQLFields(schema)}
-  }
-
+  type TypingIndicator ${ getAllGraphQLFields(schema) }
+  
   input SingleTypingIndicatorInput {
     selector: SelectorInput
     resolverArgs: JSON
-    allowNull: Boolean
   }
-
+  
   type SingleTypingIndicatorOutput {
     result: TypingIndicator
   }
-
+  
+  input TypingIndicatorSelector {
+    default: EmptyViewInput
+  }
+  
   input MultiTypingIndicatorInput {
     terms: JSON
     resolverArgs: JSON
@@ -27,15 +29,23 @@ export const graphqlTypingIndicatorQueryTypeDefs = gql`
   }
   
   type MultiTypingIndicatorOutput {
-    results: [TypingIndicator]
+    results: [TypingIndicator!]!
     totalCount: Int
   }
-
+  
   extend type Query {
-    typingIndicator(input: SingleTypingIndicatorInput): SingleTypingIndicatorOutput
-    typingIndicators(input: MultiTypingIndicatorInput): MultiTypingIndicatorOutput
+    typingIndicator(
+      input: SingleTypingIndicatorInput @deprecated(reason: "Use the selector field instead"),
+      selector: SelectorInput
+    ): SingleTypingIndicatorOutput
+    typingIndicators(
+      input: MultiTypingIndicatorInput @deprecated(reason: "Use the selector field instead"),
+      selector: TypingIndicatorSelector,
+      limit: Int,
+      offset: Int,
+      enableTotal: Boolean
+    ): MultiTypingIndicatorOutput
   }
 `;
-
-export const typingIndicatorGqlQueryHandlers = getDefaultResolvers('TypingIndicators');
+export const typingIndicatorGqlQueryHandlers = getDefaultResolvers('TypingIndicators', new CollectionViewSet('TypingIndicators', {}));
 export const typingIndicatorGqlFieldResolvers = getFieldGqlResolvers('TypingIndicators', schema);

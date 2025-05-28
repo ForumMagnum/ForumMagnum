@@ -98,9 +98,9 @@ const FriendlyConversationItem = ({
 
   if (!conversation) return null;
 
-  const otherParticipants = conversation.participants.filter((u)=> u._id !== currentUser._id)
+  const otherParticipants = conversation.participants?.filter((u)=> u._id !== currentUser._id)
   // Handle case of conversation with yourself
-  const firstParticipant = otherParticipants[0] ?? conversation.participants[0];
+  const firstParticipant = otherParticipants?.[0] ?? conversation.participants?.[0];
   const title = conversationGetFriendlyTitle(conversation, currentUser)
 
   const latestMessagePlaintext = conversation.latestMessage?.contents?.plaintextMainText ?? ""
