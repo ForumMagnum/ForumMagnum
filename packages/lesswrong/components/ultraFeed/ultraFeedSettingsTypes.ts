@@ -55,7 +55,7 @@ export interface CommentScoringSettings {
 const DEFAULT_COMMENT_SCORING_SETTINGS: CommentScoringSettings = {
   commentDecayFactor: 1.8,
   commentDecayBiasHours: 2,
-  ultraFeedSeenPenalty: 0.1,
+  ultraFeedSeenPenalty: 0.05,
   quickTakeBoost: 1.5,
   commentSubscribedAuthorMultiplier: 2,
   threadScoreAggregation: 'logSum',
