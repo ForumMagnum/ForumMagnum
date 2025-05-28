@@ -1,6 +1,6 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 import { preferredHeadingCase } from '@/themes/forumTheme';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import ForumIcon from '../common/ForumIcon';
@@ -46,8 +46,15 @@ export const CommentsSubmitDropdown = ({ handleSubmit, classes }: {
   handleSubmit: (meta: {draft: boolean}) => Promise<void>,
   classes: ClassesType<typeof styles>,
 }) => {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { captureEvent } = useTracking()
+
+  const [menuOpen, innerSetMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null)
+
+  const setMenuOpen = useCallback((open: boolean) => {
+    captureEvent("menuToggled", { openAfter: open, pageElementContext: "CommentsSubmitDropdown" });
+    innerSetMenuOpen(open);
+  }, [captureEvent, innerSetMenuOpen])
 
   return (
     <AnalyticsContext pageElementContext="CommentsSubmitDropdown">

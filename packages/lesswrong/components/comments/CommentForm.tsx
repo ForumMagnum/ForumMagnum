@@ -35,6 +35,7 @@ import FormGroupQuickTakes from "../form-components/FormGroupQuickTakes";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { hasDraftComments } from '@/lib/betas';
 import CommentsSubmitDropdown from "./CommentsSubmitDropdown";
+import { useTracking } from "@/lib/analyticsEvents";
 
 const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -250,6 +251,7 @@ export const CommentForm = ({
 }: {
   initialData?: UpdateCommentDataInput & { _id: string; tagCommentType: TagCommentType };
   prefilledProps?: {
+    postId?: string;
     parentAnswerId?: string;
     debateResponse?: boolean;
     forumEventId?: string;
@@ -277,6 +279,7 @@ export const CommentForm = ({
   onCancel: () => void;
   onError?: () => void;
 }) => {
+  const { captureEvent } = useTracking();
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
 
@@ -354,6 +357,18 @@ export const CommentForm = ({
 
   const formRef = useFormSubmitOnCmdEnter(() => form.handleSubmit());
 
+  const onFocusChanged = useCallback((focus: boolean) => {
+      captureEvent("commentFormFocusChanged", {
+        focus,
+        formType,
+        editingCommentId: form.state.values?._id,
+        editingCommentPostId: form.state.values?.postId,
+        draft: form.state.values?.draft,
+      });
+    },
+    [captureEvent, formType, form.state.values?._id, form.state.values?.postId, form.state.values?.draft]
+  );
+
   if (formType === 'edit' && !initialData) {
     return <Error404 />;
   }
@@ -387,11 +402,17 @@ export const CommentForm = ({
   );
 
   return (
-    <form className={classNames("vulcan-form", formClassName)} ref={formRef} onSubmit={(e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      void form.handleSubmit({ draft: false });
-    }}>
+    <form
+      className={classNames("vulcan-form", formClassName)}
+      ref={formRef}
+      onSubmit={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        void form.handleSubmit({ draft: false });
+      }}
+      onFocus={() => onFocusChanged(true)}
+      onBlur={() => onFocusChanged(false)}
+    >
       {displayedErrorComponent}
       <DefaultFormGroupLayout
         footer={<></>}

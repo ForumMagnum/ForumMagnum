@@ -216,7 +216,7 @@ const CommentsNodeInner = ({
   }) => {
     event?.stopPropagation();
     if (isTruncated || isSingleLine) {
-      captureEvent("commentExpanded", { postId: comment.postId, commentId: comment._id });
+      captureEvent("commentExpanded", { postId: comment.postId, commentId: comment._id, draft: comment.draft });
       setTruncated(false);
       setSingleLine(false);
       setTruncatedStateSet(true);
@@ -329,19 +329,21 @@ const CommentsNodeInner = ({
                 />
               </AnalyticsTracker>
             </AnalyticsContext>
-          : <CommentsItem
-              treeOptions={treeOptions}
-              truncated={isTruncated && !forceUnTruncated} // forceUnTruncated checked separately here, so isTruncated can also be passed to child nodes
-              nestingLevel={updatedNestingLevel}
-              parentCommentId={parentCommentId}
-              parentAnswerId={parentAnswerId || (comment.answer && comment._id) || undefined}
-              toggleCollapse={toggleCollapse}
-              key={comment._id}
-              scrollIntoView={scrollIntoView}
-              setSingleLine={setSingleLine}
-              displayTagIcon={displayTagIcon}
-              { ...passedThroughItemProps}
-            />
+          : <AnalyticsContext singleLineComment={false} commentId={comment._id}>
+              <CommentsItem
+                treeOptions={treeOptions}
+                truncated={isTruncated && !forceUnTruncated} // forceUnTruncated checked separately here, so isTruncated can also be passed to child nodes
+                nestingLevel={updatedNestingLevel}
+                parentCommentId={parentCommentId}
+                parentAnswerId={parentAnswerId || (comment.answer && comment._id) || undefined}
+                toggleCollapse={toggleCollapse}
+                key={comment._id}
+                scrollIntoView={scrollIntoView}
+                setSingleLine={setSingleLine}
+                displayTagIcon={displayTagIcon}
+                { ...passedThroughItemProps}
+              />
+            </AnalyticsContext>
         }
       </div>}
 
