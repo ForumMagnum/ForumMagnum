@@ -12,6 +12,7 @@ export const ForumEventsMinimumInfo = () => frag`
     contrastColor
     tagId
     postId
+    commentId
     bannerImageId
     eventFormat
     customComponent
