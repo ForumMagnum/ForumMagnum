@@ -36,7 +36,7 @@ const ONE_DAY_MS = 24 * ONE_HOUR_MS;
 async function upsertPoll({
   _id,
   post,
-  commentId,
+  comment,
   existingPoll,
   question,
   agreeWording,
@@ -47,14 +47,15 @@ async function upsertPoll({
   _id: string;
   existingPoll?: DbForumEvent;
   post: Pick<DbPost, '_id' | 'draft'>;
-  commentId?: string;
+  comment?: Pick<DbComment, '_id' | 'draft'>;
 } & PollProps, context: ResolverContext) {
   const endDateFromDuration = new Date(
     Date.now() + (duration.days * ONE_DAY_MS) + (duration.hours * ONE_HOUR_MS) + (duration.minutes * ONE_MINUTE_MS)
   );
 
-  // Poll timer starts when the post is published. Don't update the end date after that.
-  const endDate = existingPoll?.endDate ? existingPoll.endDate : (post.draft ? null : endDateFromDuration);
+  const parentIsDraft = comment ? comment.draft : post.draft;
+  // Poll timer starts when the post/comment is published. Don't update the end date after that.
+  const endDate = existingPoll?.endDate ? existingPoll.endDate : (parentIsDraft ? null : endDateFromDuration);
 
   const dataPayload = {
     eventFormat: "POLL" as const,
@@ -69,7 +70,7 @@ async function upsertPoll({
     endDate,
     ...colorScheme,
     postId: post._id,
-    commentId,
+    commentId: comment?._id,
   };
 
   if (existingPoll) {
@@ -181,7 +182,7 @@ export async function upsertPolls({
   // Upsert a poll for each internal id found in the HTML
   for (const data of pollData) {
     const existingPoll = validExistingPolls.find(poll => poll && poll._id === data._id);
-    await upsertPoll({ ...data, post: fetchedPost, commentId: comment?._id, existingPoll }, context);
+    await upsertPoll({ ...data, post: fetchedPost, comment, existingPoll }, context);
   }
 };
 

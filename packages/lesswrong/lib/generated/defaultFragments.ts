@@ -210,6 +210,7 @@ export const CommentsDefaultFragment = `
     legacyId
     legacyPoll
     legacyParentId
+    draft
     retracted
     deleted
     deletedPublic

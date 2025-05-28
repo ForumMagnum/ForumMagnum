@@ -298,6 +298,7 @@ CREATE TABLE "Comments" (
   "legacyId" TEXT,
   "legacyPoll" BOOL NOT NULL DEFAULT FALSE,
   "legacyParentId" TEXT,
+  "draft" BOOL NOT NULL DEFAULT FALSE,
   "retracted" BOOL NOT NULL DEFAULT FALSE,
   "deleted" BOOL NOT NULL DEFAULT FALSE,
   "deletedPublic" BOOL NOT NULL DEFAULT FALSE,

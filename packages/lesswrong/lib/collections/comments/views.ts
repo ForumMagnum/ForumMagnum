@@ -18,6 +18,7 @@ declare global {
     view?: CommentsViewName,
     postId?: string,
     userId?: string,
+    drafts?: "exclude" | "include-my-draft-replies" | "include" | "drafts-only"
     tagId?: string,
     forumEventId?: string,
     relevantTagId?: string,
@@ -72,6 +73,37 @@ const sortings: Record<CommentSortingMode,MongoSelector<DbComment>> = {
   recentDiscussion: { lastSubthreadActivity: -1 },
 }
 
+const getDraftSelector = ({ drafts = "include-my-draft-replies", context }: { drafts?: "exclude" | "include-my-draft-replies" | "include" | "drafts-only"; context?: ResolverContext; } = {}) => {
+  const currentUserId = context?.currentUser?._id;
+
+  switch (drafts) {
+    case "include":
+      return {};
+    case "drafts-only":
+      return { draft: true };
+    case "include-my-draft-replies":
+      return {
+        $or: [
+          { draft: false },
+          {
+            $and: [
+              { draft: true },
+              { parentCommentId: { $exists: true, $ne: null } },
+              // Note: This is a hack to ensure mingo cache invalidation works:
+              // 1. If we're on the server, context is defined, and selecting against the userId is
+              //    required to not over-select drafts
+              // 2. If we are in mingo, context will not be defined. In this case exclude userId from
+              //    the cache key otherwise drafts won't trigger invalidation
+              ...(context ? [{ userId: currentUserId ?? null }] : []),
+            ]
+          }
+        ]
+      };
+    default:
+      return { draft: false };
+  }
+};
+
 function defaultView(terms: CommentsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
   const validFields = pick(terms, 'userId', 'authorIsUnreviewed');
 
@@ -102,16 +134,14 @@ function defaultView(terms: CommentsViewTerms, _: ApolloClient<NormalizedCacheOb
       ]}
     )
   );
-  
+
   return ({
     selector: {
-      ...(shouldHideNewUnreviewedAuthorComments
-        ? {$and: [
-            hideNewUnreviewedAuthorComments,
-            notDeletedOrDeletionIsPublic
-          ]}
-        : notDeletedOrDeletionIsPublic
-      ),
+      $and: [
+        ...(shouldHideNewUnreviewedAuthorComments ? [hideNewUnreviewedAuthorComments] : []),
+        getDraftSelector({ drafts: terms.drafts, context }),
+        notDeletedOrDeletionIsPublic
+      ],
       hideAuthor: terms.userId ? false : undefined,
       ...(terms.commentIds && {_id: {$in: terms.commentIds}}),
       ...alignmentForum,
@@ -174,7 +204,7 @@ function postCommentsTop(terms: CommentsViewTerms) {
       parentAnswerId: viewFieldNullOrMissing,
       answer: false,
     },
-    options: {sort: {promoted: -1, deleted: 1, baseScore: -1, postedAt: -1}},
+    options: {sort: {draft: -1, promoted: -1, deleted: 1, baseScore: -1, postedAt: -1}},
   };
 }
 
@@ -185,7 +215,7 @@ function postCommentsRecentReplies(terms: CommentsViewTerms) {
       parentAnswerId: viewFieldNullOrMissing,
       answer: false,
     },
-    options: {sort: {lastSubthreadActivity: -1, promoted: -1, deleted: 1, baseScore: -1, postedAt: -1}},
+    options: {sort: {draft: -1, lastSubthreadActivity: -1, promoted: -1, deleted: 1, baseScore: -1, postedAt: -1}},
   };
 }
 
@@ -196,7 +226,7 @@ function postCommentsMagic(terms: CommentsViewTerms) {
       parentAnswerId: viewFieldNullOrMissing,
       answer: false,
     },
-    options: {sort: {promoted: -1, deleted: 1, score: -1, postedAt: -1}},
+    options: {sort: {draft: -1, promoted: -1, deleted: 1, score: -1, postedAt: -1}},
   };
 }
 
@@ -207,7 +237,7 @@ function afPostCommentsTop(terms: CommentsViewTerms) {
       parentAnswerId: viewFieldNullOrMissing,
       answer: false,
     },
-    options: {sort: {promoted: -1, deleted: 1, afBaseScore: -1, postedAt: -1}},
+    options: {sort: {draft: -1, promoted: -1, deleted: 1, afBaseScore: -1, postedAt: -1}},
   };
 }
 
@@ -218,7 +248,7 @@ function postCommentsOld(terms: CommentsViewTerms) {
       parentAnswerId: viewFieldNullOrMissing,
       answer: false,
     },
-    options: {sort: {deleted: 1, postedAt: 1}},
+    options: {sort: {draft: -1, deleted: 1, postedAt: 1}},
     parentAnswerId: viewFieldNullOrMissing
   };
 }
@@ -232,7 +262,7 @@ function postCommentsNew(terms: CommentsViewTerms) {
       parentAnswerId: viewFieldNullOrMissing,
       answer: false,
     },
-    options: {sort: {deleted: 1, postedAt: -1}}
+    options: {sort: {draft: -1, deleted: 1, postedAt: -1}}
   };
 }
 
@@ -243,7 +273,7 @@ function postCommentsBest(terms: CommentsViewTerms) {
       parentAnswerId: viewFieldNullOrMissing,
       answer: false,
     },
-    options: {sort: {promoted: -1, deleted: 1, baseScore: -1}, postedAt: -1}
+    options: {sort: {draft: -1, promoted: -1, deleted: 1, baseScore: -1}, postedAt: -1}
   };
 }
 
@@ -255,7 +285,7 @@ function postLWComments(terms: CommentsViewTerms) {
       answer: false,
       parentAnswerId: viewFieldNullOrMissing
     },
-    options: {sort: {promoted: -1, deleted: 1, baseScore: -1, postedAt: -1}}
+    options: {sort: {draft: -1, promoted: -1, deleted: 1, baseScore: -1, postedAt: -1}}
   };
 }
 
@@ -281,6 +311,20 @@ function profileComments(terms: CommentsViewTerms) {
   return {
     selector: {deletedPublic: false},
     options: {sort: profileCommentsSortings[sortBy], limit: terms.limit || 5},
+  };
+}
+
+function draftComments(terms: CommentsViewTerms) {
+  // If fetching comments for a specific post, show top level comments first
+  // then replies. Otherwise sort by the most recent edit
+  const sort = {  ...(terms.postId && { topLevelCommentId: 1 }), lastEditedAt: -1, postedAt: -1 }
+
+  return {
+    selector: {
+      deletedPublic: false,
+      postId: terms.postId
+    },
+    options: { sort, limit: terms.limit || 5 },
   };
 }
 
@@ -762,6 +806,7 @@ export const CommentsViews = new CollectionViewSet('Comments', {
   postLWComments,
   profileRecentComments,
   profileComments,
+  draftComments,
   allRecentComments,
   recentComments,
   afSubmissions,
@@ -798,5 +843,3 @@ export const CommentsViews = new CollectionViewSet('Comments', {
   // Copied over from server/rss.ts
   rss: recentComments,
 }, defaultView);
-
-
