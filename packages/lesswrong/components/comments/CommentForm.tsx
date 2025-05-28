@@ -38,6 +38,7 @@ import CommentsSubmitDropdown from "./CommentsSubmitDropdown";
 import { useTracking } from "@/lib/analyticsEvents";
 import { useABTest } from "@/lib/abTestImpl";
 import { draftCommentsABTest } from "@/lib/abTests";
+import { isAnyTest } from "@/lib/executionEnvironment";
 
 const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -179,7 +180,7 @@ const CommentSubmit = ({
   const { openDialog } = useDialog();
 
   const abTestGroup = useABTest(draftCommentsABTest);
-  const allowDraftComments = hasDraftComments && abTestGroup === "treatment"
+  const allowDraftComments = hasDraftComments && (isAnyTest || abTestGroup === "treatment")
 
   const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
   const cancelBtnProps: InnerButtonProps = isFriendlyUI && !isMinimalist ? { variant: "contained" } : {};
