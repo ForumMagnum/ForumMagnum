@@ -91,7 +91,7 @@ const LWDialog = ({open, fullScreen, title, maxWidth='sm', fullWidth, disableBac
   
   return <>
     {backdrop!=="none" && openRecently && <Backdrop visible={open} style={backdrop}/>}
-    {(open || (everOpened && keepMounted)) && createPortal(
+    {everOpened && (open || keepMounted) && createPortal(
       <div>
         <ClickAwayListener onClickAway={() => {
           if (!disableBackdropClick)

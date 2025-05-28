@@ -510,6 +510,7 @@ export const ForumEventsDefaultFragment = `
     contrastColor
     tagId
     postId
+    commentId
     bannerImageId
     includesPoll
     isGlobal

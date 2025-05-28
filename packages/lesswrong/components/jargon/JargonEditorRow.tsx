@@ -6,7 +6,7 @@ import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { JargonTermForm } from './JargonTermForm';
 import JargonTooltip from "./JargonTooltip";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import LWTooltip from "../common/LWTooltip";
 
 export const formStyles = {

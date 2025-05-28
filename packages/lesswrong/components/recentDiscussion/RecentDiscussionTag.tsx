@@ -11,7 +11,7 @@ import { TagCommentType } from '../../lib/collections/comments/types';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import CommentsNodeInner from "../comments/CommentsNode";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({

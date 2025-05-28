@@ -4,7 +4,7 @@ import sumBy from 'lodash/sumBy';
 import some from 'lodash/some';
 import sortBy from 'lodash/sortBy';
 import mapValues from 'lodash/mapValues';
-import type { ContentReplacedSubstringComponentInfo } from '@/components/common/ContentItemBody';
+import type { ContentReplacedSubstringComponentInfo } from '@/components/contents/contentBodyUtil';
 
 export function reactionsListToDisplayedNumbers(reactions: NamesAttachedReactionsList | null, currentUserId: string | undefined): { react: EmojiReactName; numberShown: number; }[] {
   if (!reactions)

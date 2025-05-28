@@ -10,7 +10,7 @@ import { useStyles, defineStyles } from '../hooks/useStyles';
 import { descriptionStyles, getSpotlightDisplayTitle } from './SpotlightItem';
 import { useUltraFeedObserver } from '../../components/ultraFeed/UltraFeedObserver';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import { Typography } from "../common/Typography";
 

@@ -2471,6 +2471,8 @@ type ForumEvent {
   tag: Tag
   postId: String
   post: Post
+  commentId: String
+  comment: Comment
   bannerImageId: String
   includesPoll: Boolean!
   isGlobal: Boolean!
@@ -5638,6 +5640,7 @@ input CreateForumEventDataInput {
   contrastColor: String
   tagId: String
   postId: String
+  commentId: String
   bannerImageId: String
   includesPoll: Boolean
   isGlobal: Boolean!
@@ -5669,6 +5672,7 @@ input UpdateForumEventDataInput {
   contrastColor: String
   tagId: String
   postId: String
+  commentId: String
   bannerImageId: String
   includesPoll: Boolean
   isGlobal: Boolean
@@ -8523,6 +8527,7 @@ fragment ForumEventsDefaultFragment on ForumEvent {
   contrastColor
   tagId
   postId
+  commentId
   bannerImageId
   includesPoll
   isGlobal
@@ -8593,6 +8598,7 @@ fragment ForumEventsMinimumInfo on ForumEvent {
   contrastColor
   tagId
   postId
+  commentId
   bannerImageId
   eventFormat
   customComponent

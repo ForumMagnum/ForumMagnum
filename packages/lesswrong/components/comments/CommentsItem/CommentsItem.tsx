@@ -17,7 +17,7 @@ import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import type { ContentItemBodyImperative } from '../../common/ContentItemBody';
+import type { ContentItemBodyImperative } from '../../contents/contentBodyUtil';
 import CommentsEditForm from "../CommentsEditForm";
 import CommentExcerpt from "../../common/excerpts/CommentExcerpt";
 import CommentBody from "./CommentBody";
