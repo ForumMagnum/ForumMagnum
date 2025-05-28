@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
-import { commentIsHidden } from '../../../lib/collections/comments/helpers';
+import { commentIsHiddenPendingReview } from '../../../lib/collections/comments/helpers';
 import moment from 'moment';
 import CalendarDate from "../../common/CalendarDate";
 import MetaInfo from "../../common/MetaInfo";
@@ -40,7 +40,7 @@ const CommentBottomCaveats = ({comment, classes}: {
         [This comment is no longer endorsed by its author]
       </MetaInfo>
     }
-    {commentIsHidden(comment) && !comment.rejected
+    {commentIsHiddenPendingReview(comment) && !comment.rejected
       && <MetaInfo className={classes.caveatText}>
         [This comment will not be visible to other users until the moderation team has reviewed it.]
       </MetaInfo>

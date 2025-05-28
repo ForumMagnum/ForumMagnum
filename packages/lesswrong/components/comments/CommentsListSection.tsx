@@ -31,6 +31,7 @@ import CommentsListMeta from "./CommentsListMeta";
 import { Typography } from "../common/Typography";
 import { MenuItem } from "../common/Menus";
 import { NEW_COMMENT_MARGIN_BOTTOM } from './constants';
+import CommentsDraftList from './CommentsDraftList';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles("CommentsListSection", (theme: ThemeType) => ({
@@ -187,7 +188,7 @@ const CommentsListSection = ({
                   parentAnswerId: parentAnswerId,
                   ...(userIsDebateParticipant ? { debateResponse: true } : {})
                 }}
-                type="comment"
+                interactionType="comment"
                 {...newFormProps}
                 {...(userIsDebateParticipant ? { formProps: { post } } : {})}
               />
@@ -198,6 +199,7 @@ const CommentsListSection = ({
       {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor, false) &&
         <CantCommentExplanation post={post}/>
       }
+      {currentUser && post && <CommentsDraftList userId={currentUser._id} postId={post._id} initialLimit={1} showTotal silentIfEmpty />}
       {totalComments ? <CommentsListSectionTitle
         post={post}
         commentCount={commentCount}

@@ -11,13 +11,13 @@ export interface PingbackDocumentPartial {
   }
 }
 
-export const notifyUsersAboutMentions = async (currentUser: DbUser, collectionType: string, document: PingbackDocumentPartial, oldDocument?: PingbackDocumentPartial) => {
-  const pingbacksToSend = getPingbacksToSend(currentUser, collectionType, document, oldDocument)
+export const notifyUsersAboutMentions = async (currentUser: DbUser, collectionName: CollectionNameString, document: PingbackDocumentPartial, oldDocument?: PingbackDocumentPartial) => {
+  const pingbacksToSend = getPingbacksToSend(currentUser, collectionName, document, oldDocument)
 
   // Todo(PR): this works, but not sure if it's generally a correct conversion. 
   //  TagRels for example won't work, though they don't have content either.
   //  should we define an explicit mapping?
-  const notificationType = collectionType.toLowerCase()
+  const notificationType = collectionName.toLowerCase()
 
   const newDocPingbackCount = getPingbacks(document).length
   if (!canMention(currentUser, newDocPingbackCount).result || !notificationDocumentTypes.has(notificationType)) return
@@ -34,7 +34,7 @@ const getPingbacks = (document?: PingbackDocumentPartial) => document?.pingbacks
 
 function getPingbacksToSend(
   currentUser: DbUser,
-  collectionType: string,
+  collectionName: CollectionNameString,
   document: PingbackDocumentPartial,
   oldDocument?: PingbackDocumentPartial,
 ) {
@@ -43,21 +43,29 @@ function getPingbacksToSend(
     const oldDocPingbacks = getPingbacks(oldDocument)
     const newPingbacks = _.difference(newDocPingbacks, oldDocPingbacks)
 
-    if (collectionType !== 'Post') return newPingbacks
-
-    const post = document as DbPost
-
-    if (post.draft) {
-      const pingedUsersWhoHaveAccessToDoc = _.intersection(newPingbacks, post.shareWithUsers)
-      return pingedUsersWhoHaveAccessToDoc
+    if (collectionName !== 'Posts' && collectionName !== 'Comments') {
+      return newPingbacks
     }
 
-    const oldPost = oldDocument as DbPost | undefined
-    // This currently does not handle multiple moves between draft and published.
-    if (oldPost && isBeingUndrafted(oldPost, post)) {
-      const alreadyNotifiedUsers = _.intersection(oldDocPingbacks, oldPost.shareWithUsers)
+    const doc = document as DbPost | DbComment
+    const oldDoc = oldDocument as DbPost | DbComment | undefined
 
-      // newDocPingbacks bc, we assume most users weren't pinged on the draft stage
+    if (doc.draft) {
+      if (collectionName === 'Posts') {
+        const post = doc as DbPost
+        const pingedUsersWhoHaveAccessToDoc = _.intersection(newPingbacks, post.shareWithUsers)
+        return pingedUsersWhoHaveAccessToDoc
+      }
+      return []
+    }
+
+    // This currently does not handle multiple moves between draft and published.
+    if (oldDoc && isBeingUndrafted(oldDoc, doc)) {
+      let alreadyNotifiedUsers: string[] = []
+      if (collectionName === 'Posts') {
+        alreadyNotifiedUsers = _.intersection(oldDocPingbacks, (oldDoc as DbPost).shareWithUsers)
+      }
+
       return _.difference(newDocPingbacks, alreadyNotifiedUsers)
     }
 

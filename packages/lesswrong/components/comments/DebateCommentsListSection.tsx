@@ -91,7 +91,7 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
           <div className={classes.newCommentLabel}>New Comment</div>
           <CommentsNewForm
             post={post}
-            type="comment"
+            interactionType="comment"
             {...newFormProps}
           />
         </div>

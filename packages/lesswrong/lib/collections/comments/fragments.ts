@@ -28,6 +28,7 @@ export const CommentsList = () => frag`
     lastEditedAt
     repliesBlockedUntil
     userId
+    draft
     deleted
     deletedPublic
     deletedByUserId
@@ -109,6 +110,21 @@ export const ShortformComments = () => frag`
     }
     relevantTags {
       ...TagPreviewFragment
+    }
+  }
+`
+
+export const DraftComments = () => frag`
+  fragment DraftComments on Comment {
+    ...CommentsList
+    post {
+      ...PostsMinimumInfo
+    }
+    parentComment {
+      _id
+      user {
+        ...UsersMinimumInfo
+      }
     }
   }
 `

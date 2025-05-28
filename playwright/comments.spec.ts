@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { createNewPost, loginNewUser } from "./playwrightUtils";
+import { createNewPost, loginNewUser, logout } from "./playwrightUtils";
 
 test("create and edit comment", async ({page, context}) => {
   // Create and visit a new post
@@ -37,4 +37,36 @@ test("create and edit comment", async ({page, context}) => {
 
   // Check that the new comment is displayed
   await expect(commentItem.getByText(newContents)).toBeVisible();
+});
+
+test("create draft comment", async ({ page, context }) => {
+  // Create and visit a new post
+  await loginNewUser(context);
+  const post = await createNewPost();
+  await page.goto(post.postPageUrl);
+
+  const noCommentsPlaceholder = page.getByText("No comments on this post yet.");
+  await expect(noCommentsPlaceholder).toBeVisible();
+
+  // Create a new draft comment
+  const contents = "Test draft comment 456";
+  await page.getByRole("textbox").fill(contents);
+  await page.locator(".CommentsSubmitDropdown-button").click();
+  await page.getByText("Save as draft").click();
+
+  // Check that the draft comment's content is visible to the logged in user
+  await expect(page.getByText(contents)).toBeVisible();
+  await expect(page.getByText("[Draft]", { exact: true })).toBeVisible();
+
+  // The main comment section should still say "No comments on this post yet."
+  await expect(noCommentsPlaceholder).toBeVisible();
+
+  // Log out
+  await logout(context);
+  await page.reload();
+
+  // The draft comment contents should not be visible to an anonymous user
+  await expect(page.getByText(contents)).not.toBeVisible();
+
+  await expect(noCommentsPlaceholder).toBeVisible();
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { commentIsHidden } from '../../lib/collections/comments/helpers';
+import { commentIsHiddenPendingReview } from '../../lib/collections/comments/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useSingle } from '../../lib/crud/withSingle';
 import { isLWorAF } from '../../lib/instanceSettings';
@@ -79,7 +79,7 @@ const CommentPermalink = ({
   if (!comment || !documentId) return null
   
   // if the site is currently hiding comments by unreviewed authors, check if we need to hide this comment
-  if (commentIsHidden(comment) && !comment.rejected) return <div className={classes.root}>
+  if (commentIsHiddenPendingReview(comment) && !comment.rejected) return <div className={classes.root}>
     <div className={classes.permalinkLabel}>
       Comment Permalink 
       <p>Error: Sorry, this comment is hidden</p>

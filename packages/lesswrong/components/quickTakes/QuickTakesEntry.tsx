@@ -176,7 +176,7 @@ const QuickTakesEntry = ({
     >
       <CommentsNewForm
         key={currentUser?._id ?? "logged-out"}
-        type='reply'
+        interactionType='reply'
         prefilledProps={{
           shortform: true,
           shortformFrontpage: frontpage,
