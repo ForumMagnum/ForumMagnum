@@ -68,7 +68,7 @@ async function upsertPoll({
     pollDisagreeWording: disagreeWording,
     endDate,
     ...colorScheme,
-    postId: post?._id,
+    postId: post._id,
     commentId,
   };
 
