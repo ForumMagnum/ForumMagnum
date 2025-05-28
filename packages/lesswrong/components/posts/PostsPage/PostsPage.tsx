@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { isDialogueParticipant, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { getResponseCounts, isDialogueParticipant, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView, commentIncludedInCounts } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -728,7 +728,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     ...postsCommentsThreadMultiOptions,
   });
 
-  const { loading, results: rawResults, loadMore, loadingMore, totalCount } = useEagerResults ? eagerPostComments.queryResponse : lazyResults;
+  const { loading, results: rawResults, loadMore, loadingMore } = useEagerResults ? eagerPostComments.queryResponse : lazyResults;
 
   // If the user has just posted a comment, and they are sorting by magic, put it at the top of the list for them
   const results = useMemo(() => {
@@ -745,7 +745,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commentTerms.view, rawResults, currentUser?._id]);
 
-  const commentCount = results?.filter(c => commentIncludedInCounts(c))?.length ?? 0;
+  const displayedPublicCommentCount = results?.filter(c => commentIncludedInCounts(c))?.length ?? 0;
+  const { commentCount: totalComments } = getResponseCounts({ post, answers })
   const commentTree = unflattenComments(results ?? []);
   const answersTree = unflattenComments(answersAndReplies ?? []);
   const answerCount = post.question ? answersTree.length : undefined;
@@ -992,8 +993,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
             {fullPost && <CommentsListSection
               comments={results ?? []}
               loadMoreComments={loadMore}
-              totalComments={totalCount as number}
-              commentCount={commentCount}
+              totalComments={totalComments}
+              commentCount={displayedPublicCommentCount}
               loadingMoreComments={loadingMore}
               loading={loading}
               post={fullPost}
@@ -1051,7 +1052,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
           tocRowMap={[0, 0, 2, 2]}
           showSplashPageHeader={showSplashPageHeader}
           answerCount={answerCount}
-          commentCount={commentCount}
+          commentCount={displayedPublicCommentCount}
         />
       : <ToCColumn
           tableOfContents={tableOfContents}
