@@ -28,6 +28,7 @@ export const CommentsList = gql(`
     lastEditedAt
     repliesBlockedUntil
     userId
+    draft
     deleted
     deletedPublic
     deletedByUserId
@@ -109,6 +110,21 @@ export const ShortformComments = gql(`
     }
     relevantTags {
       ...TagPreviewFragment
+    }
+  }
+`)
+
+export const DraftComments = gql(`
+  fragment DraftComments on Comment {
+    ...CommentsList
+    post {
+      ...PostsMinimumInfo
+    }
+    parentComment {
+      _id
+      user {
+        ...UsersMinimumInfo
+      }
     }
   }
 `)

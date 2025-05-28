@@ -15,7 +15,7 @@ import { MANUAL_FLAG_ALERT } from "@/lib/collections/moderatorActions/constants"
 import { isFriendlyUI } from '../../themes/forumTheme';
 import MetaInfo from "../common/MetaInfo";
 import LinkPostMessage from "../posts/LinkPostMessage";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import SunshineListItem from "./SunshineListItem";
 import SidebarHoverOver from "./SidebarHoverOver";
 import SidebarInfo from "./SidebarInfo";

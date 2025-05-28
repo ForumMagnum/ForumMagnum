@@ -416,6 +416,15 @@ export const graphqlCommentQueryTypeDefs = gql`
     minimumKarma: Int
     authorIsUnreviewed: Boolean
   }
+
+  input CommentsDraftCommentsInput {
+    userId: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
+    postId: String
+    drafts: String
+  }
   
   input CommentSelector  {
     default: CommentDefaultViewInput
@@ -467,6 +476,7 @@ export const graphqlCommentQueryTypeDefs = gql`
     forumEventComments: CommentsForumEventCommentsInput
     alignmentSuggestedComments: CommentsAlignmentSuggestedCommentsInput
     rss: CommentsRssInput
+    draftComments: CommentsDraftCommentsInput
   }
   
   input MultiCommentInput {

@@ -1988,6 +1988,7 @@ type Comment {
   legacyId: String
   legacyPoll: Boolean!
   legacyParentId: String
+  draft: Boolean!
   retracted: Boolean!
   deleted: Boolean!
   deletedPublic: Boolean!
@@ -2446,6 +2447,15 @@ input CommentsRssInput {
   authorIsUnreviewed: Boolean
 }
 
+input CommentsDraftCommentsInput {
+  userId: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
+  postId: String
+  drafts: String
+}
+
 input CommentSelector {
   default: CommentDefaultViewInput
   commentReplies: CommentsCommentRepliesInput
@@ -2496,6 +2506,7 @@ input CommentSelector {
   forumEventComments: CommentsForumEventCommentsInput
   alignmentSuggestedComments: CommentsAlignmentSuggestedCommentsInput
   rss: CommentsRssInput
+  draftComments: CommentsDraftCommentsInput
 }
 
 input MultiCommentInput {
@@ -3192,6 +3203,8 @@ type ForumEvent {
   tag: Tag
   postId: String
   post: Post
+  commentId: String
+  comment: Comment
   bannerImageId: String
   includesPoll: Boolean!
   isGlobal: Boolean!
@@ -4793,6 +4806,7 @@ input PostsTagRelevanceInput {
   before: String
   timeField: String
   curatedAfter: String
+  tagId: String
 }
 
 input PostsFrontpageInput {
@@ -6690,15 +6704,15 @@ type SingleSpotlightOutput {
 }
 
 input SpotlightsMostRecentlyPromotedSpotlightsInput {
-  limit: String
+  limit: Int
 }
 
 input SpotlightsSpotlightsPageInput {
-  limit: String
+  limit: Int
 }
 
 input SpotlightsSpotlightsPageDraftInput {
-  limit: String
+  limit: Int
 }
 
 input SpotlightsSpotlightsByDocumentIdsInput {
@@ -8354,6 +8368,7 @@ input CreateCommentDataInput {
   legacyId: String
   legacyPoll: Boolean
   legacyParentId: String
+  draft: Boolean
   retracted: Boolean
   deleted: Boolean
   deletedPublic: Boolean
@@ -8387,6 +8402,7 @@ input CreateCommentInput {
 input UpdateCommentDataInput {
   legacyData: JSON
   contents: CreateRevisionDataInput
+  postedAt: Date
   subforumStickyPriority: Float
   authorIsUnreviewed: Boolean
   answer: Boolean
@@ -8401,6 +8417,7 @@ input UpdateCommentDataInput {
   legacyId: String
   legacyPoll: Boolean
   legacyParentId: String
+  draft: Boolean
   retracted: Boolean
   deleted: Boolean
   deletedPublic: Boolean
@@ -8729,6 +8746,7 @@ input CreateForumEventDataInput {
   contrastColor: String
   tagId: String
   postId: String
+  commentId: String
   bannerImageId: String
   includesPoll: Boolean
   isGlobal: Boolean
@@ -8760,6 +8778,7 @@ input UpdateForumEventDataInput {
   contrastColor: String
   tagId: String
   postId: String
+  commentId: String
   bannerImageId: String
   includesPoll: Boolean
   isGlobal: Boolean

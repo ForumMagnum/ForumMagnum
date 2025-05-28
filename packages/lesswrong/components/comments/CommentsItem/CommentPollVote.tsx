@@ -50,7 +50,7 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
   const agreeWording = forumEvent?.pollAgreeWording || "agree";
   const disagreeWording = forumEvent?.pollDisagreeWording || "disagree";
 
-  if (!voteWhenPublished) return null;
+  if (voteWhenPublished === null || voteWhenPublished === undefined) return null;
 
   const isAgreement = (pollVote: number) => pollVote >= 0.5;
   const voteToPercentage = (pollVote: number) => `${Math.round(Math.abs(pollVote - 0.5) * 200)}%`;

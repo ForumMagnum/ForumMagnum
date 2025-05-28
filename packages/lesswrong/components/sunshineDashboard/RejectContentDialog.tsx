@@ -8,7 +8,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import EditIcon from '@/lib/vendor/@material-ui/icons/src/Edit'
 import { Link } from '../../lib/reactRouterWrapper';
 import LWTooltip from "../common/LWTooltip";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import LoadMore from "../common/LoadMore";
 import { useQuery } from "@apollo/client";

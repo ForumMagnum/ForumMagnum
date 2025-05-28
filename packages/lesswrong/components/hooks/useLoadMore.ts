@@ -1,6 +1,7 @@
 import { useCallback, useState, useEffect } from "react";
 import type { ObservableQueryFields, OperationVariables } from "@apollo/client";
 import isEqual from "lodash/isEqual";
+import { useStabilizedCallback } from "./useDebouncedCallback";
 
 interface UseLoadMoreProps<D extends { results: any[]; totalCount?: number | null }, T> {
   data?: D | null;
@@ -40,7 +41,7 @@ export function useLoadMore<T extends ObservableQueryFields<any, OperationVariab
 
   const showLoadMore = alwaysShowLoadMore || (enableTotal ? (count < (totalCount ?? 0)) : (count >= effectiveLimit));
 
-  const loadMore: WrappedFetchMore<T> = useCallback((options: Parameters<T>[0] = {}) => {
+  const loadMore: WrappedFetchMore<T> = useStabilizedCallback((options: Parameters<T>[0] = {}) => {
     const newLimit = options.variables && 'limit' in options.variables ? options.variables.limit : (effectiveLimit + itemsPerPage);
     
     // Simplified fetchMore call - limit is now top-level in the new GraphQL structure
@@ -52,7 +53,7 @@ export function useLoadMore<T extends ObservableQueryFields<any, OperationVariab
     });
     setLimit(newLimit);
     return result as ReturnType<T>;
-  }, [effectiveLimit, fetchMore, itemsPerPage]);
+  });
   
   return {
     loadMore, 

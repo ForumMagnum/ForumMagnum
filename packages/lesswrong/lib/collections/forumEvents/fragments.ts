@@ -12,6 +12,7 @@ export const ForumEventsMinimumInfo = gql(`
     contrastColor
     tagId
     postId
+    commentId
     bannerImageId
     eventFormat
     customComponent

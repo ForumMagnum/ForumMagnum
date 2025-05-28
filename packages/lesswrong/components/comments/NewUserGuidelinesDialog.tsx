@@ -10,7 +10,7 @@ import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { DialogActions } from '../widgets/DialogActions';
 import LWDialog from "../common/LWDialog";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
 

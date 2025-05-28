@@ -12,7 +12,7 @@ import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import PostsUserAndCoauthors from "../PostsUserAndCoauthors";
 import PostsTitle from "../PostsTitle";
-import ContentItemBody from "../../common/ContentItemBody";
+import { ContentItemBody } from "../../contents/ContentItemBody";
 import CommentsNodeInner from "../../comments/CommentsNode";
 import BookmarkButton from "../BookmarkButton";
 import FormatDate from "../../common/FormatDate";

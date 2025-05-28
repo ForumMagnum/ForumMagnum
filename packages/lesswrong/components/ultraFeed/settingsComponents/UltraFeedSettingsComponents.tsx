@@ -371,7 +371,7 @@ export const SourceWeightsSettings: React.FC<SourceWeightsSettingsProps> = ({
 };
 
 const getCommentLevelLabel = (level: TruncationLevel): string => {
-  if (level === 'Very Short') return `${level} (2 lines)`;
+  // if (level === 'Very Short') return `${level} (2 lines)`; // uncomment if we reintroduce line clamp as default
   if (level === 'Full') return `${level} (no limit)`;
   if (level === 'Unset') return level;
   

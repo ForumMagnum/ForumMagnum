@@ -63,4 +63,21 @@ export const twoLineEventsSidebarABTest = new ABTest({
   },
 });
 
-export const allABTests = [welcomeBoxABTest, twoLineEventsSidebarABTest];
+export const draftCommentsABTest = new ABTest({
+  name: "draftComments",
+  active: true,
+  affectsLoggedOut: false,
+  description: "Comments can be saved as drafts",
+  groups: {
+    control: {
+      description: "Draft comments not allowed",
+      weight: 1,
+    },
+    treatment: {
+      description: "Draft comments allowed",
+      weight: 1,
+    },
+  },
+});
+
+export const allABTests = [welcomeBoxABTest, twoLineEventsSidebarABTest, draftCommentsABTest];

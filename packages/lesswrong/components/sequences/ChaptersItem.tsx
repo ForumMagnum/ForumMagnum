@@ -5,7 +5,7 @@ import ChaptersEditForm from "./ChaptersEditForm";
 import ChapterTitle from "./ChapterTitle";
 import SectionFooter from "../common/SectionFooter";
 import SectionButton from "../common/SectionButton";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import PostsItem from "../posts/PostsItem";
 import { useQuery } from "@apollo/client";

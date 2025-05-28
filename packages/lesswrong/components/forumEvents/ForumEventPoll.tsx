@@ -820,6 +820,7 @@ export const ForumEventPoll = ({
         commentPrompt
       }
     },
+    parentCommentId: event.commentId,
     ...(!event.isGlobal && {
       contents: {
         originalContents: {

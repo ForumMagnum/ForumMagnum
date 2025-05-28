@@ -15,10 +15,10 @@ import BookmarkButton from "../posts/BookmarkButton";
 import UltraFeedCommentsDialog from "./UltraFeedCommentsDialog";
 import OverallVoteAxis from "../votes/OverallVoteAxis";
 import AgreementVoteAxis from "../votes/AgreementVoteAxis";
-import { AddReactionButton } from "../votes/lwReactions/NamesAttachedReactionsVoteOnComment";
 import { getDefaultVotingSystem } from "@/lib/collections/posts/newSchema";
 import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import CondensedFooterReactions from "./CondensedFooterReactions";
 
 const UltraFeedEventsDefaultFragmentMutation = gql(`
   mutation createUltraFeedEventUltraFeedItemFooter($data: CreateUltraFeedEventDataInput!) {
@@ -84,37 +84,17 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   commentCountText: {
     marginLeft: 4,
   },
-  addReactionButton: {
-    opacity: 0.7,
-    position: "relative",
-    top: 0,
-    color: `${theme.palette.ultraFeed.dim} !important`,
-    display: 'flex',
-    marginRight: 6,
-    alignItems: 'center',
-    '& .react-hover-style': {
-      filter: 'opacity(1) !important',
-    },
-    '& svg': {
-      filter: 'opacity(1) !important',
-      [theme.breakpoints.down('sm')]: {
-        top: 5,
-        height: 21,
-        width: 21,
-      },
-    },
-    [theme.breakpoints.down('sm')]: {
-      opacity: 1,
-      marginLeft: 6,
-      top: 0,
-    }
-  },
   reactionIcon: {
     marginRight: 6,
   },
   reactionCount: {
     position: "relative",
     bottom: 2,
+  },
+  condensedFooterReactions: {
+    [theme.breakpoints.up('md')]: {
+      marginLeft: 'auto',
+    },
   },
   bookmarkButton: {
     position: "relative", 
@@ -177,10 +157,6 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       fontSize: '17px !important',
       margin: '0 7px !important',
     }
-  },
-  rightItems: {
-    marginLeft: 'auto',
-    display: 'flex'
   },
 }));
 
@@ -273,40 +249,30 @@ const UltraFeedItemFooterCore = ({
               hideAfScore={true}
             />
           </div>
-          <div className={classes.agreementButtons}>
+          {collectionName === "Comments" && <div className={classes.agreementButtons}>
             <AgreementVoteAxis
               document={voteProps.document}
               hideKarma={hideKarma}
               voteProps={voteProps}
               agreementScoreClassName={classes.footerAgreementScoreOverride}
             />
-          </div>
+          </div>}
         </>
       )}
 
-      <div className={classes.rightItems}>
-        {voteProps.document && votingSystem === "namesAttachedReactions" && (
-          <div className={classes.addReactionButton}>
-            <div className={classes.reactionIcon}>
-              <AddReactionButton voteProps={voteProps} />
-            </div>
-            <div className={classes.reactionCount}>
-              {reactionCount > 0 && reactionCount}
-            </div>
-          </div>
-        )}
+      {voteProps.document && votingSystem === "namesAttachedReactions" && (
+        <CondensedFooterReactions voteProps={voteProps} allowReactions={collectionName === "Comments"} className={classes.condensedFooterReactions}/>
+      )}
 
-        { bookmarkProps && bookmarkableCollectionNames.has(collectionName) && (
-          <div onClick={() => handleInteractionLog('bookmarkClicked')}>
-            <BookmarkButton
-              documentId={bookmarkProps.documentId}
-              collectionName={collectionName}
-              className={classNames(classes.bookmarkButton, { [classes.bookmarkButtonHighlighted]: bookmarkProps.highlighted })}
-              overrideTooltipText="You are being shown this because you bookmarked it."
-            />
-          </div>
-        )}
-      </div>
+      { bookmarkProps && bookmarkableCollectionNames.has(collectionName) && (
+        <div onClick={() => handleInteractionLog('bookmarkClicked')}>
+          <BookmarkButton
+            documentId={bookmarkProps.documentId}
+            collectionName={collectionName}
+            className={classNames(classes.bookmarkButton, { [classes.bookmarkButtonHighlighted]: bookmarkProps.highlighted })}
+          />
+        </div>
+      )}
     </div>
   );
 };

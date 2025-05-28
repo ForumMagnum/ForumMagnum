@@ -9,7 +9,7 @@ import { taggingNameIsSet, taggingNamePluralCapitalSetting } from "../../lib/ins
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import LWPopper from "../common/LWPopper";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 
 const TagWithFlagsFragmentMultiQuery = gql(`

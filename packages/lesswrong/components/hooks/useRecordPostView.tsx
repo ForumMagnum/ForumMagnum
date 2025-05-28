@@ -212,10 +212,16 @@ export const ItemsReadContextWrapper = ({children}: {children: React.ReactNode})
     postsRead, tagsRead,
     
     setPostRead: (postId: string, isRead: boolean): void => {
-      setPostsRead({...postsRead, [postId]: isRead});
+      setPostsRead(postsRead => {
+        if (postsRead[postId] === isRead) return postsRead;
+        else return {...postsRead, [postId]: isRead}
+      });
     },
     setTagRead: (tagId: string, isRead: boolean): void => {
-      setTagsRead({...tagsRead, [tagId]: isRead});
+      setTagsRead(tagsRead => {
+        if (tagsRead[tagId] === isRead) return tagsRead;
+        else return {...tagsRead, [tagId]: isRead}
+      });
     },
   }), [postsRead, tagsRead]);
   

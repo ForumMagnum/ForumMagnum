@@ -17,7 +17,7 @@ import ToggleIsModeratorCommentDropdownItem from "./ToggleIsModeratorCommentDrop
 import PinToProfileDropdownItem from "./PinToProfileDropdownItem";
 import DropdownMenu from "../DropdownMenu";
 import ShortformFrontpageDropdownItem from "./ShortformFrontpageDropdownItem";
-import CommentSubscriptionsDropdownItem from "./CommentSubscriptionsDropdownItem";
+import { CommentSubscriptionsDropdownItem } from "./CommentSubscriptionsDropdownItem";
 import BanUserFromPostDropdownItem from "./BanUserFromPostDropdownItem";
 import LockThreadDropdownItem from "./LockThreadDropdownItem";
 

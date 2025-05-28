@@ -15,7 +15,7 @@ import LoginPopup from "../users/LoginPopup";
 import AllTagsAlphabetical from "./AllTagsAlphabetical";
 import SectionButton from "../common/SectionButton";
 import SectionTitle from "../common/SectionTitle";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
 import CoreTagsSection from "./CoreTagsSection";

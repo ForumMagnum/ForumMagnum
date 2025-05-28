@@ -26,7 +26,7 @@ import ChaptersList from "./ChaptersList";
 import FormatDate from "../common/FormatDate";
 import SectionFooter from "../common/SectionFooter";
 import UsersName from "../users/UsersName";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import { Typography } from "../common/Typography";
 import SectionButton from "../common/SectionButton";
 import ContentStyles from "../common/ContentStyles";

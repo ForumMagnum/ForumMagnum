@@ -133,7 +133,21 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Comments", fieldName: "topLevelCommentId" }),
     },
   },
-  postedAt: DEFAULT_CREATED_AT_FIELD,
+  postedAt: {
+    database: {
+      type: "TIMESTAMPTZ",
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Date!",
+      canRead: ["guests"],
+      canUpdate: ["admins"],
+      onCreate: () => new Date(),
+      validation: {
+        optional: true,
+      },
+    },
+  },
   lastEditedAt: {
     database: {
       type: "TIMESTAMPTZ",
@@ -440,7 +454,7 @@ const schema = {
         fieldName: "directChildrenCount",
         foreignCollectionName: "Comments",
         foreignFieldName: "parentCommentId",
-        filterFn: (comment) => !comment.deleted && !comment.rejected,
+        filterFn: (comment) => !comment.deleted && !comment.rejected && !comment.draft,
       }),
       nullable: false,
     },
@@ -452,7 +466,7 @@ const schema = {
       countOfReferences: {
         foreignCollectionName: "Comments",
         foreignFieldName: "parentCommentId",
-        filterFn: (comment) => !comment.deleted && !comment.rejected,
+        filterFn: (comment) => !comment.deleted && !comment.rejected && !comment.draft,
         resyncElastic: false,
       },
       validation: {
@@ -767,6 +781,26 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
+      canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  // draft: Indicates whether a comment is a draft.
+  // Draft comments are only visible to authors and admins.
+  draft: {
+    database: {
+      type: "BOOL",
+      defaultValue: false,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean!",
+      inputType: "Boolean",
+      canRead: ["guests"], // Access to the whole comment is gated in `commentCheckAccess`, not here
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
       validation: {

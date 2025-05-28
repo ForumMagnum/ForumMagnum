@@ -1392,6 +1392,7 @@ interface Comment {
   legacyId: string | null;
   legacyPoll: boolean;
   legacyParentId: string | null;
+  draft: boolean;
   retracted: boolean;
   deleted: boolean;
   deletedPublic: boolean;
@@ -1845,6 +1846,15 @@ interface CommentsRssInput {
   authorIsUnreviewed?: boolean | null;
 }
 
+interface CommentsDraftCommentsInput {
+  userId?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
+  postId?: string | null;
+  drafts?: string | null;
+}
+
 interface CommentSelector {
   default: CommentDefaultViewInput | null;
   commentReplies: CommentsCommentRepliesInput | null;
@@ -1895,6 +1905,7 @@ interface CommentSelector {
   forumEventComments: CommentsForumEventCommentsInput | null;
   alignmentSuggestedComments: CommentsAlignmentSuggestedCommentsInput | null;
   rss: CommentsRssInput | null;
+  draftComments: CommentsDraftCommentsInput | null;
 }
 
 interface MultiCommentInput {
@@ -2526,6 +2537,8 @@ interface ForumEvent {
   tag: Tag | null;
   postId: string | null;
   post: Post | null;
+  commentId: string | null;
+  comment: Comment | null;
   bannerImageId: string | null;
   includesPoll: boolean;
   isGlobal: boolean;
@@ -3991,6 +4004,7 @@ interface PostsTagRelevanceInput {
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
+  tagId?: string | null;
 }
 
 interface PostsFrontpageInput {
@@ -5837,15 +5851,15 @@ interface SingleSpotlightOutput {
 }
 
 interface SpotlightsMostRecentlyPromotedSpotlightsInput {
-  limit?: string | null;
+  limit?: number | null;
 }
 
 interface SpotlightsSpotlightsPageInput {
-  limit?: string | null;
+  limit?: number | null;
 }
 
 interface SpotlightsSpotlightsPageDraftInput {
-  limit?: string | null;
+  limit?: number | null;
 }
 
 interface SpotlightsSpotlightsByDocumentIdsInput {
@@ -7308,6 +7322,7 @@ interface CreateCommentDataInput {
   legacyId?: string | null;
   legacyPoll?: boolean | null;
   legacyParentId?: string | null;
+  draft?: boolean | null;
   retracted?: boolean | null;
   deleted?: boolean | null;
   deletedPublic?: boolean | null;
@@ -7341,6 +7356,7 @@ interface CreateCommentInput {
 interface UpdateCommentDataInput {
   legacyData?: any;
   contents?: CreateRevisionDataInput | null;
+  postedAt?: Date | null;
   subforumStickyPriority?: number | null;
   authorIsUnreviewed?: boolean | null;
   answer?: boolean | null;
@@ -7355,6 +7371,7 @@ interface UpdateCommentDataInput {
   legacyId?: string | null;
   legacyPoll?: boolean | null;
   legacyParentId?: string | null;
+  draft?: boolean | null;
   retracted?: boolean | null;
   deleted?: boolean | null;
   deletedPublic?: boolean | null;
@@ -7643,6 +7660,7 @@ interface CreateForumEventDataInput {
   contrastColor?: string | null;
   tagId?: string | null;
   postId?: string | null;
+  commentId?: string | null;
   bannerImageId?: string | null;
   includesPoll?: boolean | null;
   isGlobal?: boolean | null;
@@ -7674,6 +7692,7 @@ interface UpdateForumEventDataInput {
   contrastColor?: string | null;
   tagId?: string | null;
   postId?: string | null;
+  commentId?: string | null;
   bannerImageId?: string | null;
   includesPoll?: boolean | null;
   isGlobal?: boolean | null;
@@ -9511,6 +9530,7 @@ interface GraphQLTypeMap {
   CommentsForumEventCommentsInput: CommentsForumEventCommentsInput;
   CommentsAlignmentSuggestedCommentsInput: CommentsAlignmentSuggestedCommentsInput;
   CommentsRssInput: CommentsRssInput;
+  CommentsDraftCommentsInput: CommentsDraftCommentsInput;
   CommentSelector: CommentSelector;
   MultiCommentInput: MultiCommentInput;
   MultiCommentOutput: MultiCommentOutput;

@@ -15,7 +15,7 @@ import CollectionsEditForm from "./CollectionsEditForm";
 import BooksItem from "./BooksItem";
 import SectionFooter from "../common/SectionFooter";
 import SectionButton from "../common/SectionButton";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import { Typography } from "../common/Typography";
 import ContentStyles from "../common/ContentStyles";
 import ErrorBoundary from "../common/ErrorBoundary";

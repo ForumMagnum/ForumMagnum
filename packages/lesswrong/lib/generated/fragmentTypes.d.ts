@@ -67,6 +67,7 @@ interface FragmentTypes {
   DigestPostsMinimumInfo: DigestPostsMinimumInfo
   DigestsDefaultFragment: DigestsDefaultFragment
   DigestsMinimumInfo: DigestsMinimumInfo
+  DraftComments: DraftComments
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
   ElectionCandidateSimple: ElectionCandidateSimple
   ElectionCandidatesDefaultFragment: ElectionCandidatesDefaultFragment
@@ -358,7 +359,7 @@ interface FragmentTypesByCollection {
   ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
   Collections: "CollectionContinueReadingFragment"|"CollectionsBestOfFragment"|"CollectionsDefaultFragment"|"CollectionsEditFragment"|"CollectionsPageFragment"
   CommentModeratorActions: "CommentModeratorActionDisplay"|"CommentModeratorActionsDefaultFragment"
-  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsDefaultFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithModerationMetadata"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"UltraFeedComment"|"WithVoteComment"
+  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsDefaultFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithModerationMetadata"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"DraftComments"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"UltraFeedComment"|"WithVoteComment"
   Conversations: "ConversationsDefaultFragment"|"ConversationsList"|"ConversationsListWithReadStatus"|"ConversationsMinimumInfo"
   CronHistories: "CronHistoriesDefaultFragment"
   CurationEmails: "CurationEmailsDefaultFragment"
@@ -499,6 +500,7 @@ interface CollectionNamesByFragmentName {
   DigestPostsMinimumInfo: "DigestPosts"
   DigestsDefaultFragment: "Digests"
   DigestsMinimumInfo: "Digests"
+  DraftComments: "Comments"
   ElectionCandidateBasicInfo: "ElectionCandidates"
   ElectionCandidateSimple: "ElectionCandidates"
   ElectionCandidatesDefaultFragment: "ElectionCandidates"

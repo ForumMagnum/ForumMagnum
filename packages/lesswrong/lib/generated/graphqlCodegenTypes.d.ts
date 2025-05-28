@@ -394,6 +394,7 @@ type Comment = {
   deletedReason?: Maybe<Scalars['String']['output']>;
   descendentCount: Scalars['Float']['output'];
   directChildrenCount: Scalars['Float']['output'];
+  draft: Scalars['Boolean']['output'];
   emojiReactors?: Maybe<Scalars['JSON']['output']>;
   extendedScore?: Maybe<Scalars['JSON']['output']>;
   forumEvent?: Maybe<ForumEvent>;
@@ -552,6 +553,7 @@ type CommentSelector = {
   debateResponses?: InputMaybe<CommentsDebateResponsesInput>;
   default?: InputMaybe<CommentDefaultViewInput>;
   defaultModeratorResponses?: InputMaybe<CommentsDefaultModeratorResponsesInput>;
+  draftComments?: InputMaybe<CommentsDraftCommentsInput>;
   forumEventComments?: InputMaybe<CommentsForumEventCommentsInput>;
   latestSubforumDiscussion?: InputMaybe<CommentsLatestSubforumDiscussionInput>;
   legacyIdComment?: InputMaybe<CommentsLegacyIdCommentInput>;
@@ -677,6 +679,15 @@ type CommentsDefaultModeratorResponsesInput = {
   commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
   tagId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type CommentsDraftCommentsInput = {
+  authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
+  commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  drafts?: InputMaybe<Scalars['String']['input']>;
+  minimumKarma?: InputMaybe<Scalars['Int']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1122,6 +1133,7 @@ type CreateCommentDataInput = {
   deletedDate?: InputMaybe<Scalars['Date']['input']>;
   deletedPublic?: InputMaybe<Scalars['Boolean']['input']>;
   deletedReason?: InputMaybe<Scalars['String']['input']>;
+  draft?: InputMaybe<Scalars['Boolean']['input']>;
   forumEventId?: InputMaybe<Scalars['String']['input']>;
   forumEventMetadata?: InputMaybe<Scalars['JSON']['input']>;
   hideKarma?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1278,6 +1290,7 @@ type CreateElicitQuestionInput = {
 type CreateForumEventDataInput = {
   bannerImageId?: InputMaybe<Scalars['String']['input']>;
   bannerTextColor?: InputMaybe<Scalars['String']['input']>;
+  commentId?: InputMaybe<Scalars['String']['input']>;
   commentPrompt?: InputMaybe<Scalars['String']['input']>;
   contrastColor?: InputMaybe<Scalars['String']['input']>;
   customComponent: ForumEventCustomComponent;
@@ -2535,6 +2548,8 @@ type ForumEvent = {
   _id: Scalars['String']['output'];
   bannerImageId?: Maybe<Scalars['String']['output']>;
   bannerTextColor: Scalars['String']['output'];
+  comment?: Maybe<Comment>;
+  commentId?: Maybe<Scalars['String']['output']>;
   commentPrompt?: Maybe<Scalars['String']['output']>;
   contrastColor?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
@@ -7172,6 +7187,7 @@ type PostsTagRelevanceInput = {
   postIds?: InputMaybe<Array<Scalars['String']['input']>>;
   question?: InputMaybe<Scalars['Boolean']['input']>;
   sortedBy?: InputMaybe<Scalars['String']['input']>;
+  tagId?: InputMaybe<Scalars['String']['input']>;
   timeField?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
   view?: InputMaybe<Scalars['String']['input']>;
@@ -10224,7 +10240,7 @@ type SpotlightSelector = {
 };
 
 type SpotlightsMostRecentlyPromotedSpotlightsInput = {
-  limit?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 type SpotlightsSpotlightsByDocumentIdsInput = {
@@ -10236,11 +10252,11 @@ type SpotlightsSpotlightsByIdInput = {
 };
 
 type SpotlightsSpotlightsPageDraftInput = {
-  limit?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 type SpotlightsSpotlightsPageInput = {
-  limit?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 type SubforumMagicFeedEntry = {
@@ -11150,6 +11166,7 @@ type UpdateCommentDataInput = {
   deletedDate?: InputMaybe<Scalars['Date']['input']>;
   deletedPublic?: InputMaybe<Scalars['Boolean']['input']>;
   deletedReason?: InputMaybe<Scalars['String']['input']>;
+  draft?: InputMaybe<Scalars['Boolean']['input']>;
   hideAuthor?: InputMaybe<Scalars['Boolean']['input']>;
   hideKarma?: InputMaybe<Scalars['Boolean']['input']>;
   hideModeratorHat?: InputMaybe<Scalars['Boolean']['input']>;
@@ -11166,6 +11183,7 @@ type UpdateCommentDataInput = {
   needsReview?: InputMaybe<Scalars['Boolean']['input']>;
   nominatedForReview?: InputMaybe<Scalars['String']['input']>;
   originalDialogueId?: InputMaybe<Scalars['String']['input']>;
+  postedAt?: InputMaybe<Scalars['Date']['input']>;
   promoted?: InputMaybe<Scalars['Boolean']['input']>;
   promotedByUserId?: InputMaybe<Scalars['String']['input']>;
   rejected?: InputMaybe<Scalars['Boolean']['input']>;
@@ -11311,6 +11329,7 @@ type UpdateElicitQuestionInput = {
 type UpdateForumEventDataInput = {
   bannerImageId?: InputMaybe<Scalars['String']['input']>;
   bannerTextColor?: InputMaybe<Scalars['String']['input']>;
+  commentId?: InputMaybe<Scalars['String']['input']>;
   commentPrompt?: InputMaybe<Scalars['String']['input']>;
   contrastColor?: InputMaybe<Scalars['String']['input']>;
   customComponent?: InputMaybe<ForumEventCustomComponent>;
@@ -13240,6 +13259,42 @@ type CommentPermalinkQueryVariables = Exact<{
 
 type CommentPermalinkQuery = CommentPermalinkQuery_Query;
 
+type LinkedDraftCommentQueryQuery_comment_SingleCommentOutput_result_Comment = (
+  { __typename?: 'Comment' }
+  & DraftComments
+);
+
+type LinkedDraftCommentQueryQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: LinkedDraftCommentQueryQuery_comment_SingleCommentOutput_result_Comment | null };
+
+type LinkedDraftCommentQueryQuery_Query = { __typename?: 'Query', comment: LinkedDraftCommentQueryQuery_comment_SingleCommentOutput | null };
+
+
+type LinkedDraftCommentQueryQueryVariables = Exact<{
+  documentId: Scalars['String']['input'];
+}>;
+
+
+type LinkedDraftCommentQueryQuery = LinkedDraftCommentQueryQuery_Query;
+
+type DraftCommentsQueryQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & DraftComments
+);
+
+type DraftCommentsQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<DraftCommentsQueryQuery_comments_MultiCommentOutput_results_Comment> };
+
+type DraftCommentsQueryQuery_Query = { __typename?: 'Query', comments: DraftCommentsQueryQuery_comments_MultiCommentOutput | null };
+
+
+type DraftCommentsQueryQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type DraftCommentsQueryQuery = DraftCommentsQueryQuery_Query;
+
 type CommentEditQuery_comment_SingleCommentOutput_result_Comment = (
   { __typename?: 'Comment' }
   & CommentEdit
@@ -14192,6 +14247,49 @@ type multiLocalgroupOnlineGroupsQueryQueryVariables = Exact<{
 
 
 type multiLocalgroupOnlineGroupsQueryQuery = multiLocalgroupOnlineGroupsQueryQuery_Query;
+
+type ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser_lwUser_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser = { __typename?: 'ElicitUser', _id: string | null, displayName: string | null, sourceUserId: string | null, lwUser: ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser_lwUser_User | null };
+
+type ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData_predictions_ElicitPrediction = { __typename?: 'ElicitPrediction', _id: string | null, predictionId: string | null, prediction: number | null, createdAt: string | null, notes: string | null, sourceUrl: string | null, sourceId: string | null, binaryQuestionId: string | null, creator: ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser | null };
+
+type ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData = { __typename?: 'ElicitBlockData', _id: string | null, title: string | null, notes: string | null, resolvesBy: string | null, resolution: boolean | null, predictions: Array<ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData_predictions_ElicitPrediction> | null };
+
+type ElicitBlockDataQuery_Query = { __typename?: 'Query', ElicitBlockData: ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData | null };
+
+
+type ElicitBlockDataQueryVariables = Exact<{
+  questionId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type ElicitBlockDataQuery = ElicitBlockDataQuery_Query;
+
+type ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser_lwUser_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser = { __typename?: 'ElicitUser', _id: string | null, displayName: string | null, sourceUserId: string | null, lwUser: ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser_lwUser_User | null };
+
+type ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData_predictions_ElicitPrediction = { __typename?: 'ElicitPrediction', _id: string | null, predictionId: string | null, prediction: number | null, createdAt: string | null, notes: string | null, sourceUrl: string | null, sourceId: string | null, binaryQuestionId: string | null, creator: ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser | null };
+
+type ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData = { __typename?: 'ElicitBlockData', _id: string | null, title: string | null, notes: string | null, resolvesBy: string | null, resolution: boolean | null, predictions: Array<ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData_predictions_ElicitPrediction> | null };
+
+type ElicitPredictionMutation_Mutation = { __typename?: 'Mutation', MakeElicitPrediction: ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData | null };
+
+
+type ElicitPredictionMutationVariables = Exact<{
+  questionId: InputMaybe<Scalars['String']['input']>;
+  prediction: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type ElicitPredictionMutation = ElicitPredictionMutation_Mutation;
 
 type RecentlyActiveDialoguesQuery_RecentlyActiveDialogues_RecentlyActiveDialoguesResult_results_Post = (
   { __typename?: 'Post' }
@@ -17570,49 +17668,6 @@ type updatePostDraftsListMutationVariables = Exact<{
 
 
 type updatePostDraftsListMutation = updatePostDraftsListMutation_Mutation;
-
-type ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser_lwUser_User = (
-  { __typename?: 'User' }
-  & UsersMinimumInfo
-);
-
-type ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser = { __typename?: 'ElicitUser', _id: string | null, displayName: string | null, sourceUserId: string | null, lwUser: ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser_lwUser_User | null };
-
-type ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData_predictions_ElicitPrediction = { __typename?: 'ElicitPrediction', _id: string | null, predictionId: string | null, prediction: number | null, createdAt: string | null, notes: string | null, sourceUrl: string | null, sourceId: string | null, binaryQuestionId: string | null, creator: ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser | null };
-
-type ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData = { __typename?: 'ElicitBlockData', _id: string | null, title: string | null, notes: string | null, resolvesBy: string | null, resolution: boolean | null, predictions: Array<ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData_predictions_ElicitPrediction> | null };
-
-type ElicitBlockDataQuery_Query = { __typename?: 'Query', ElicitBlockData: ElicitBlockDataQuery_ElicitBlockData_ElicitBlockData | null };
-
-
-type ElicitBlockDataQueryVariables = Exact<{
-  questionId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type ElicitBlockDataQuery = ElicitBlockDataQuery_Query;
-
-type ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser_lwUser_User = (
-  { __typename?: 'User' }
-  & UsersMinimumInfo
-);
-
-type ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser = { __typename?: 'ElicitUser', _id: string | null, displayName: string | null, sourceUserId: string | null, lwUser: ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser_lwUser_User | null };
-
-type ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData_predictions_ElicitPrediction = { __typename?: 'ElicitPrediction', _id: string | null, predictionId: string | null, prediction: number | null, createdAt: string | null, notes: string | null, sourceUrl: string | null, sourceId: string | null, binaryQuestionId: string | null, creator: ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData_predictions_ElicitPrediction_creator_ElicitUser | null };
-
-type ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData = { __typename?: 'ElicitBlockData', _id: string | null, title: string | null, notes: string | null, resolvesBy: string | null, resolution: boolean | null, predictions: Array<ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData_predictions_ElicitPrediction> | null };
-
-type ElicitPredictionMutation_Mutation = { __typename?: 'Mutation', MakeElicitPrediction: ElicitPredictionMutation_MakeElicitPrediction_ElicitBlockData | null };
-
-
-type ElicitPredictionMutationVariables = Exact<{
-  questionId: InputMaybe<Scalars['String']['input']>;
-  prediction: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-type ElicitPredictionMutation = ElicitPredictionMutation_Mutation;
 
 type updatePostExternalPostImporterMutation_updatePost_PostOutput_data_Post = (
   { __typename?: 'Post' }
@@ -23880,7 +23935,7 @@ type CommentsList_Comment_promotedByUser_User = (
   & UsersMinimumInfo
 );
 
-type CommentsList = { __typename?: 'Comment', _id: string, postId: string | null, tagId: string | null, relevantTagIds: Array<string>, tagCommentType: TagCommentType, parentCommentId: string | null, topLevelCommentId: string | null, descendentCount: number, title: string | null, postedAt: string, lastEditedAt: string | null, repliesBlockedUntil: string | null, userId: string | null, deleted: boolean, deletedPublic: boolean, deletedByUserId: string | null, deletedReason: string | null, hideAuthor: boolean, authorIsUnreviewed: boolean, currentUserVote: string | null, currentUserExtendedVote: any | null, baseScore: number | null, extendedScore: any | null, score: number, voteCount: number, emojiReactors: any | null, af: boolean, afDate: string | null, moveToAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, needsReview: boolean | null, answer: boolean, parentAnswerId: string | null, retracted: boolean, postVersion: string | null, reviewedByUserId: string | null, shortform: boolean | null, shortformFrontpage: boolean, lastSubthreadActivity: string | null, moderatorHat: boolean, hideModeratorHat: boolean | null, nominatedForReview: string | null, reviewingForReview: string | null, promoted: boolean | null, directChildrenCount: number, votingSystem: string, isPinnedOnProfile: boolean, debateResponse: boolean | null, rejected: boolean, rejectedReason: string | null, modGPTRecommendation: string | null, originalDialogueId: string | null, forumEventId: string | null, forumEventMetadata: any | null, tag: CommentsList_Comment_tag_Tag | null, relevantTags: Array<CommentsList_Comment_relevantTags_Tag>, contents: CommentsList_Comment_contents_Revision | null, user: CommentsList_Comment_user_User | null, promotedByUser: CommentsList_Comment_promotedByUser_User | null };
+type CommentsList = { __typename?: 'Comment', _id: string, postId: string | null, tagId: string | null, relevantTagIds: Array<string>, tagCommentType: TagCommentType, parentCommentId: string | null, topLevelCommentId: string | null, descendentCount: number, title: string | null, postedAt: string, lastEditedAt: string | null, repliesBlockedUntil: string | null, userId: string | null, draft: boolean, deleted: boolean, deletedPublic: boolean, deletedByUserId: string | null, deletedReason: string | null, hideAuthor: boolean, authorIsUnreviewed: boolean, currentUserVote: string | null, currentUserExtendedVote: any | null, baseScore: number | null, extendedScore: any | null, score: number, voteCount: number, emojiReactors: any | null, af: boolean, afDate: string | null, moveToAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, needsReview: boolean | null, answer: boolean, parentAnswerId: string | null, retracted: boolean, postVersion: string | null, reviewedByUserId: string | null, shortform: boolean | null, shortformFrontpage: boolean, lastSubthreadActivity: string | null, moderatorHat: boolean, hideModeratorHat: boolean | null, nominatedForReview: string | null, reviewingForReview: string | null, promoted: boolean | null, directChildrenCount: number, votingSystem: string, isPinnedOnProfile: boolean, debateResponse: boolean | null, rejected: boolean, rejectedReason: string | null, modGPTRecommendation: string | null, originalDialogueId: string | null, forumEventId: string | null, forumEventMetadata: any | null, tag: CommentsList_Comment_tag_Tag | null, relevantTags: Array<CommentsList_Comment_relevantTags_Tag>, contents: CommentsList_Comment_contents_Revision | null, user: CommentsList_Comment_user_User | null, promotedByUser: CommentsList_Comment_promotedByUser_User | null };
 
 type CommentsListWithTopLevelComment_Comment_topLevelComment_Comment = (
   { __typename?: 'Comment' }
@@ -23914,6 +23969,23 @@ type ShortformComments_Comment_relevantTags_Tag = (
 
 type ShortformComments = (
   { __typename?: 'Comment', post: ShortformComments_Comment_post_Post | null, relevantTags: Array<ShortformComments_Comment_relevantTags_Tag> }
+  & CommentsList
+);
+
+type DraftComments_Comment_post_Post = (
+  { __typename?: 'Post' }
+  & PostsMinimumInfo
+);
+
+type DraftComments_Comment_parentComment_Comment_user_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type DraftComments_Comment_parentComment_Comment = { __typename?: 'Comment', _id: string, user: DraftComments_Comment_parentComment_Comment_user_User | null };
+
+type DraftComments = (
+  { __typename?: 'Comment', post: DraftComments_Comment_post_Post | null, parentComment: DraftComments_Comment_parentComment_Comment | null }
   & CommentsList
 );
 
@@ -24171,7 +24243,7 @@ type FeaturedResourcesFragment = { __typename?: 'FeaturedResource', _id: string,
 
 type FieldChangeFragment = { __typename?: 'FieldChange', _id: string, createdAt: string, userId: string | null, changeGroup: string | null, documentId: string | null, fieldName: string | null, oldValue: any | null, newValue: any | null };
 
-type ForumEventsMinimumInfo = { __typename?: 'ForumEvent', _id: string, title: string, startDate: string, endDate: string | null, darkColor: string, lightColor: string, bannerTextColor: string, contrastColor: string | null, tagId: string | null, postId: string | null, bannerImageId: string | null, eventFormat: ForumEventFormat, customComponent: ForumEventCustomComponent, commentPrompt: string | null, isGlobal: boolean, pollAgreeWording: string | null, pollDisagreeWording: string | null, maxStickersPerUser: number };
+type ForumEventsMinimumInfo = { __typename?: 'ForumEvent', _id: string, title: string, startDate: string, endDate: string | null, darkColor: string, lightColor: string, bannerTextColor: string, contrastColor: string | null, tagId: string | null, postId: string | null, commentId: string | null, bannerImageId: string | null, eventFormat: ForumEventFormat, customComponent: ForumEventCustomComponent, commentPrompt: string | null, isGlobal: boolean, pollAgreeWording: string | null, pollDisagreeWording: string | null, maxStickersPerUser: number };
 
 type ForumEventsDisplay_ForumEvent_post_Post = (
   { __typename?: 'Post' }
@@ -26040,7 +26112,7 @@ type CollectionsDefaultFragment = { __typename?: 'Collection', _id: string, sche
 
 type CommentModeratorActionsDefaultFragment = { __typename?: 'CommentModeratorAction', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, commentId: string | null, type: string | null, endedAt: string | null };
 
-type CommentsDefaultFragment = { __typename?: 'Comment', _id: string, schemaVersion: number, createdAt: string | null, legacyData: any | null, contents_latest: string | null, pingbacks: any | null, parentCommentId: string | null, topLevelCommentId: string | null, postedAt: string, lastEditedAt: string | null, author: string | null, postId: string | null, tagId: string | null, forumEventId: string | null, forumEventMetadata: any | null, tagCommentType: TagCommentType, subforumStickyPriority: number | null, userId: string | null, userIP: string | null, userAgent: string | null, referrer: string | null, authorIsUnreviewed: boolean, answer: boolean, parentAnswerId: string | null, directChildrenCount: number, descendentCount: number, shortform: boolean | null, shortformFrontpage: boolean, nominatedForReview: string | null, reviewingForReview: string | null, lastSubthreadActivity: string | null, postVersion: string | null, promoted: boolean | null, promotedByUserId: string | null, promotedAt: string | null, hideKarma: boolean | null, legacy: boolean, legacyId: string | null, legacyPoll: boolean, legacyParentId: string | null, retracted: boolean, deleted: boolean, deletedPublic: boolean, deletedReason: string | null, deletedDate: string | null, deletedByUserId: string | null, spam: boolean, repliesBlockedUntil: string | null, needsReview: boolean | null, reviewedByUserId: string | null, hideAuthor: boolean, moderatorHat: boolean, hideModeratorHat: boolean | null, isPinnedOnProfile: boolean, title: string | null, relevantTagIds: Array<string>, debateResponse: boolean | null, rejected: boolean, modGPTAnalysis: string | null, modGPTRecommendation: string | null, rejectedReason: string | null, rejectedByUserId: string | null, af: boolean, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, afDate: string | null, moveToAlignmentUserId: string | null, agentFoundationsId: string | null, originalDialogueId: string | null, voteCount: number, baseScore: number | null, extendedScore: any | null, score: number, afBaseScore: number | null, afExtendedScore: any | null, afVoteCount: number | null };
+type CommentsDefaultFragment = { __typename?: 'Comment', _id: string, schemaVersion: number, createdAt: string | null, legacyData: any | null, contents_latest: string | null, pingbacks: any | null, parentCommentId: string | null, topLevelCommentId: string | null, postedAt: string, lastEditedAt: string | null, author: string | null, postId: string | null, tagId: string | null, forumEventId: string | null, forumEventMetadata: any | null, tagCommentType: TagCommentType, subforumStickyPriority: number | null, userId: string | null, userIP: string | null, userAgent: string | null, referrer: string | null, authorIsUnreviewed: boolean, answer: boolean, parentAnswerId: string | null, directChildrenCount: number, descendentCount: number, shortform: boolean | null, shortformFrontpage: boolean, nominatedForReview: string | null, reviewingForReview: string | null, lastSubthreadActivity: string | null, postVersion: string | null, promoted: boolean | null, promotedByUserId: string | null, promotedAt: string | null, hideKarma: boolean | null, legacy: boolean, legacyId: string | null, legacyPoll: boolean, legacyParentId: string | null, draft: boolean, retracted: boolean, deleted: boolean, deletedPublic: boolean, deletedReason: string | null, deletedDate: string | null, deletedByUserId: string | null, spam: boolean, repliesBlockedUntil: string | null, needsReview: boolean | null, reviewedByUserId: string | null, hideAuthor: boolean, moderatorHat: boolean, hideModeratorHat: boolean | null, isPinnedOnProfile: boolean, title: string | null, relevantTagIds: Array<string>, debateResponse: boolean | null, rejected: boolean, modGPTAnalysis: string | null, modGPTRecommendation: string | null, rejectedReason: string | null, rejectedByUserId: string | null, af: boolean, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, afDate: string | null, moveToAlignmentUserId: string | null, agentFoundationsId: string | null, originalDialogueId: string | null, voteCount: number, baseScore: number | null, extendedScore: any | null, score: number, afBaseScore: number | null, afExtendedScore: any | null, afVoteCount: number | null };
 
 type ConversationsDefaultFragment = { __typename?: 'Conversation', _id: string, schemaVersion: number, createdAt: string | null, legacyData: any | null, title: string | null, participantIds: Array<string> | null, latestActivity: string | null, af: boolean | null, messageCount: number, moderator: boolean | null, archivedByIds: Array<string> };
 
@@ -26076,7 +26148,7 @@ type FeaturedResourcesDefaultFragment = { __typename?: 'FeaturedResource', _id: 
 
 type FieldChangesDefaultFragment = { __typename?: 'FieldChange', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string | null, changeGroup: string | null, documentId: string | null, fieldName: string | null, oldValue: any | null, newValue: any | null };
 
-type ForumEventsDefaultFragment = { __typename?: 'ForumEvent', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, frontpageDescription_latest: string | null, frontpageDescriptionMobile_latest: string | null, postPageDescription_latest: string | null, title: string, startDate: string, endDate: string | null, darkColor: string, lightColor: string, bannerTextColor: string, contrastColor: string | null, tagId: string | null, postId: string | null, bannerImageId: string | null, includesPoll: boolean, isGlobal: boolean, eventFormat: ForumEventFormat, pollQuestion_latest: string | null, pollAgreeWording: string | null, pollDisagreeWording: string | null, maxStickersPerUser: number, customComponent: ForumEventCustomComponent, commentPrompt: string | null, publicData: any | null };
+type ForumEventsDefaultFragment = { __typename?: 'ForumEvent', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, frontpageDescription_latest: string | null, frontpageDescriptionMobile_latest: string | null, postPageDescription_latest: string | null, title: string, startDate: string, endDate: string | null, darkColor: string, lightColor: string, bannerTextColor: string, contrastColor: string | null, tagId: string | null, postId: string | null, commentId: string | null, bannerImageId: string | null, includesPoll: boolean, isGlobal: boolean, eventFormat: ForumEventFormat, pollQuestion_latest: string | null, pollAgreeWording: string | null, pollDisagreeWording: string | null, maxStickersPerUser: number, customComponent: ForumEventCustomComponent, commentPrompt: string | null, publicData: any | null };
 
 type GardenCodesDefaultFragment = { __typename?: 'GardenCode', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, contents_latest: string | null, pingbacks: any | null, slug: string, code: string, title: string, userId: string, startTime: string | null, endTime: string, fbLink: string | null, type: string, hidden: boolean, deleted: boolean, afOnly: boolean };
 

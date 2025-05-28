@@ -212,6 +212,7 @@ export const CommentsDefaultFragment = gql(`
     legacyId
     legacyPoll
     legacyParentId
+    draft
     retracted
     deleted
     deletedPublic
@@ -511,6 +512,7 @@ export const ForumEventsDefaultFragment = gql(`
     contrastColor
     tagId
     postId
+    commentId
     bannerImageId
     includesPoll
     isGlobal

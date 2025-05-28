@@ -13,7 +13,7 @@ import { truncateWithGrace } from '../../lib/editor/ellipsize';
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import ContentStyles from "../common/ContentStyles";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import Loading from "../vulcan-core/Loading";
 
 

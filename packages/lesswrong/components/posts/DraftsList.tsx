@@ -85,11 +85,10 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
 
   const terms = useMemo(() => ({
     userId: userId ?? currentUser?._id,
-    limit,
     sortDraftsBy: currentSorting,
     includeArchived: !!query.includeArchived ? (query.includeArchived === 'true') : !!currentUser?.draftsListShowArchived,
     includeShared: !!query.includeShared ? (query.includeShared === 'true') : (currentUser?.draftsListShowShared !== false),
-  }), [userId, limit, currentSorting, query.includeArchived, query.includeShared, currentUser]);
+  }), [userId, currentSorting, query.includeArchived, query.includeShared, currentUser]);
   
   // const { view, limit, ...selectorTerms } = terms;
   const { data, loading, fetchMore } = useQuery(PostsListWithVotesMultiQuery, {

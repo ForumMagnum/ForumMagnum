@@ -367,7 +367,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
   </div>
 }
 
-function reactionsSearch(candidates: NamesAttachedReactionType[], searchText: string): NamesAttachedReactionType[] {
+export function reactionsSearch(candidates: NamesAttachedReactionType[], searchText: string): NamesAttachedReactionType[] {
   if (!searchText || !searchText.length)
     return candidates;
   

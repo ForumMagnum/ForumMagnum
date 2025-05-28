@@ -6,7 +6,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen";
 import { SummaryForm } from "./SummaryForm";
 import LWTooltip from "../common/LWTooltip";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import ForumIcon from "../common/ForumIcon";
 import Loading from "../vulcan-core/Loading";

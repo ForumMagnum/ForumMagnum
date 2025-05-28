@@ -45,6 +45,7 @@ import FormComponentCheckbox from "../../form-components/FormComponentCheckbox";
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
 import { withDateFields } from '@/lib/utils/dateUtils';
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 
 const UsersEditUpdateMutation = gql(`
   mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -170,6 +171,8 @@ const UsersForm = ({
 
   const [mutate] = useMutation(UsersEditUpdateMutation);
 
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
   const form = useForm({
     defaultValues: {
       ...withDateFields(initialData, ['createdAt']),
@@ -187,24 +190,28 @@ const UsersForm = ({
         onSubmitModerationGuidelinesCallback.current?.(),
       ]);
 
-      let result: UsersEdit;
+      try {
+        let result: UsersEdit;
 
-      const updatedFields = getUpdatedFieldValues(formApi, ['biography', 'moderationGuidelines']);
-      const { data } = await mutate({
-        variables: {
-          selector: { _id: initialData?._id },
-          data: updatedFields
+        const updatedFields = getUpdatedFieldValues(formApi, ['biography', 'moderationGuidelines']);
+        const { data } = await mutate({
+          variables: {
+            selector: { _id: initialData?._id },
+            data: updatedFields
+          }
+        });
+        if (!data?.updateUser?.data) {
+          throw new Error('Failed to update user');
         }
-      });
-      if (!data?.updateUser?.data) {
-        throw new Error('Failed to update user');
-      }
-      result = data.updateUser.data;
+        result = data.updateUser.data;
 
-      onSuccessBiographyCallback.current?.(result);
-      onSuccessModerationGuidelinesCallback.current?.(result);
-      
-      onSuccess(result);
+        onSuccessBiographyCallback.current?.(result);
+        onSuccessModerationGuidelinesCallback.current?.(result);
+        
+        onSuccess(result);
+      } catch (error) {
+        setCaughtError(error);
+      }
     },
   });
 
@@ -220,6 +227,7 @@ const UsersForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+      {displayedErrorComponent}
       <div className={classes.defaultGroup}>
         {!isFriendlyUI && (userHasntChangedName(form.state.values) || userIsAdminOrMod(currentUser)) && <div className={classes.fieldWrapper}>
           <form.Field name="displayName">
@@ -1307,6 +1315,7 @@ const UsersForm = ({
           )}
         </form.Subscribe>
       </div>
+      {displayedErrorComponent}
     </form>
   );
 };

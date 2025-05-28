@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Card } from "@/components/widgets/Paper";
 import { useTagBySlug } from '../tagging/useTag';
 import Button  from '@/lib/vendor/@material-ui/core/src/Button'
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import LWDialog from "../common/LWDialog";
 import ContentStyles from "../common/ContentStyles";
 

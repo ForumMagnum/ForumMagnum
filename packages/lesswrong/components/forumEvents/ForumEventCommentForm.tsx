@@ -196,7 +196,7 @@ const ForumEventCommentForm = ({
           <div className={classes.commentFormWrapper}>
             {!comment && !editFormOpen && (
               <CommentsNewForm
-                type="reply"
+                interactionType="reply"
                 post={post}
                 enableGuidelines={false}
                 cancelCallback={() => cancelCallback()}

@@ -150,7 +150,7 @@ const TwitterAdmin = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     let tsvContent = '';
 
     for (const post of posts) {
-      const postUrl = `${postGetPageUrl(post, true)}`;
+      const postUrl = `${postGetPageUrl(post, true)}?utm_source=twitter&utm_medium=social&utm_campaign=twitter_bot`;
       const titleCell = `=HYPERLINK("${postUrl}", "${post.title.replace(/"/g, '""')}")`;
       const authorsLink = getAuthorsLinks(post);
       const postedAt = readableDate(new Date(post.postedAt));

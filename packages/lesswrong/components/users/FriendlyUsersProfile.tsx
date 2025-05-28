@@ -35,7 +35,7 @@ import NewConversationButton from "../messaging/NewConversationButton";
 import TagEditsByUser from "../tagging/TagEditsByUser";
 import LoadMore from "../common/LoadMore";
 import PostsList2 from "../posts/PostsList2";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import Loading from "../vulcan-core/Loading";
 import PermanentRedirect from "../common/PermanentRedirect";
 import HeadTags from "../common/HeadTags";
@@ -58,6 +58,7 @@ import ForumIcon from "../common/ForumIcon";
 import { useQuery } from "@apollo/client";
 import { useLoadMore } from "@/components/hooks/useLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import CommentsDraftList from '../comments/CommentsDraftList';
 
 const PostsMinimumInfoMultiQuery = gql(`
   query multiPostFriendlyUsersProfileQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -339,6 +340,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
     notifyOnNetworkStatusChange: true,
   });
   const userPostsCount = dataPostsMinimumInfo?.posts?.totalCount;
+  
   if (loading) {
     return <Loading/>
   }
@@ -414,6 +416,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
         </Link>}
       </div>
       <SequencesGridWrapper terms={{view: "userProfilePrivate", userId: user._id, limit: 3}} showLoadMore={true} />
+      <CommentsDraftList userId={user._id} initialLimit={5} />
     </>
   }]
   if (userOrganizesGroups?.length) {

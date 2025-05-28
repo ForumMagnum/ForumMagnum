@@ -20,7 +20,7 @@ import { SpotlightForm } from './SpotlightForm';
 import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
 import AnalyticsTracker from "../common/AnalyticsTracker";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import SpotlightEditorStyles from "./SpotlightEditorStyles";
 import SpotlightStartOrContinueReading from "./SpotlightStartOrContinueReading";

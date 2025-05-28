@@ -9,7 +9,7 @@ import SectionTitle from "../common/SectionTitle";
 import SectionButton from "../common/SectionButton";
 import LargeSequencesItem from "./LargeSequencesItem";
 import SequencesPostsList from "./SequencesPostsList";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import SequencesGrid from "./SequencesGrid";
 import { useQuery } from "@apollo/client";

@@ -2,7 +2,7 @@ import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import React from "react";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import Loading from "../vulcan-core/Loading";
 import NoContent from "../common/NoContent";
 

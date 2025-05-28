@@ -222,6 +222,29 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "postId" }),
     },
   },
+  commentId: {
+    database: {
+      type: "VARCHAR(27)",
+      foreignKey: "Comments",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      canUpdate: ["members"],
+      canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  comment: {
+    graphql: {
+      outputType: "Comment",
+      canRead: ["guests"],
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Comments", fieldName: "commentId" }),
+    },
+  },
   bannerImageId: {
     database: {
       type: "TEXT",

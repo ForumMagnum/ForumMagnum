@@ -25,6 +25,7 @@ import Loading from "../vulcan-core/Loading";
 import OverflowNavButtons from "./OverflowNavButtons";
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import UltraFeedPostActions from "./UltraFeedPostActions";
 
 const localPostQuery = gql(`
   query LocalPostQuery($documentId: String!) {
@@ -376,6 +377,8 @@ const UltraFeedPostItem = ({
           <PostActionsButton
             post={post}
             vertical={true}
+            autoPlace
+            ActionsComponent={UltraFeedPostActions}
             className={classes.tripleDotMenu}
           />
         </AnalyticsContext>

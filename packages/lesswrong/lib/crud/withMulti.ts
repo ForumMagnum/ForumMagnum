@@ -17,6 +17,7 @@ import { FragmentDefinitionNode, print } from 'graphql';
 //   resolverName: string,
 //   extraVariables?: Record<string, PrimitiveGraphQLType>,
 // }
+import { useStabilizedCallback } from '@/components/hooks/useDebouncedCallback';
 
 interface GetGraphQLMultiQueryFromOptionsArgs {
   collectionName: CollectionNameString,
@@ -138,137 +139,137 @@ export type UseMultiResult<
  * if there are no more results, showing a result count if enableTotal is true,
  * showing a loading indicator, etc.
  */
-export function useMulti<
-  F extends keyof FragmentTypes,
-  CollectionName extends CollectionNameString
->({
-  terms,
-  extraVariablesValues,
-  pollInterval = 0, //LESSWRONG: Polling defaults disabled
-  enableTotal = false, //LESSWRONG: enableTotal defaults false
-  extraVariables,
-  fetchPolicy,
-  nextFetchPolicy,
-  collectionName,
-  fragmentName,
-  limit: initialLimit = 10, // Only used as a fallback if terms.limit is not specified
-  itemsPerPage = 10,
-  skip = false,
-  queryLimitName,
-  alwaysShowLoadMore = false,
-  ssr = true,
-}: UseMultiOptions<F, CollectionName>): UseMultiResult<F> {
-  const { query: locationQuery, location } = useLocation();
-  const navigate = useNavigate();
+// export function useMulti<
+//   F extends keyof FragmentTypes,
+//   CollectionName extends CollectionNameString
+// >({
+//   terms,
+//   extraVariablesValues,
+//   pollInterval = 0, //LESSWRONG: Polling defaults disabled
+//   enableTotal = false, //LESSWRONG: enableTotal defaults false
+//   extraVariables,
+//   fetchPolicy,
+//   nextFetchPolicy,
+//   collectionName,
+//   fragmentName,
+//   limit: initialLimit = 10, // Only used as a fallback if terms.limit is not specified
+//   itemsPerPage = 10,
+//   skip = false,
+//   queryLimitName,
+//   alwaysShowLoadMore = false,
+//   ssr = true,
+// }: UseMultiOptions<F, CollectionName>): UseMultiResult<F> {
+//   const { query: locationQuery, location } = useLocation();
+//   const navigate = useNavigate();
 
-  const locationQueryLimit = locationQuery && queryLimitName && !isNaN(parseInt(locationQuery[queryLimitName])) ? parseInt(locationQuery[queryLimitName]) : undefined;
-  const termsLimit = terms?.limit; // FIXME despite the type definition, terms can actually be undefined
-  const defaultLimit: number = locationQueryLimit ?? termsLimit ?? initialLimit
+//   const locationQueryLimit = locationQuery && queryLimitName && !isNaN(parseInt(locationQuery[queryLimitName])) ? parseInt(locationQuery[queryLimitName]) : undefined;
+//   const termsLimit = terms?.limit; // FIXME despite the type definition, terms can actually be undefined
+//   const defaultLimit: number = locationQueryLimit ?? termsLimit ?? initialLimit
 
-  const [limit, setLimit] = useState(defaultLimit);
-  const [lastTerms, setLastTerms] = useState(_.clone(terms));
+//   const [limit, setLimit] = useState(defaultLimit);
+//   const [lastTerms, setLastTerms] = useState(_.clone(terms));
 
-  const typeName = collectionNameToTypeName[collectionName];
+//   const typeName = collectionNameToTypeName[collectionName];
 
-  const resolverName = getMultiResolverName(typeName);
-  const query = getGraphQLMultiQueryFromOptions({ collectionName, typeName, fragmentName, fragment: getFragment(fragmentName), resolverName, extraVariables });
+//   const resolverName = getMultiResolverName(typeName);
+//   const query = getGraphQLMultiQueryFromOptions({ collectionName, typeName, fragmentName, fragment: getFragment(fragmentName), resolverName, extraVariables });
 
-  const graphQLVariables = useMemo(() => ({
-    input: {
-      terms: { ...terms, limit: defaultLimit },
-      resolverArgs: extraVariablesValues, enableTotal
-    },
-    ...extraVariablesValues
-  }), [terms, defaultLimit, enableTotal, extraVariablesValues]);
+//   const graphQLVariables = useMemo(() => ({
+//     input: {
+//       terms: { ...terms, limit: defaultLimit },
+//       resolverArgs: extraVariablesValues, enableTotal
+//     },
+//     ...extraVariablesValues
+//   }), [terms, defaultLimit, enableTotal, extraVariablesValues]);
 
-  let effectiveLimit = limit;
-  if (!_.isEqual(terms, lastTerms)) {
-    setLastTerms(terms);
-    setLimit(defaultLimit);
-    effectiveLimit = defaultLimit;
-  }
+//   let effectiveLimit = limit;
+//   if (!_.isEqual(terms, lastTerms)) {
+//     setLastTerms(terms);
+//     setLimit(defaultLimit);
+//     effectiveLimit = defaultLimit;
+//   }
 
-  // Due to https://github.com/apollographql/apollo-client/issues/6760 this is necessary to restore the Apollo 2.0 behavior for cache-and-network policies
-  const newNextFetchPolicy = nextFetchPolicy || (fetchPolicy === "cache-and-network" || fetchPolicy === "network-only") ? "cache-only" : undefined
+//   // Due to https://github.com/apollographql/apollo-client/issues/6760 this is necessary to restore the Apollo 2.0 behavior for cache-and-network policies
+//   const newNextFetchPolicy = nextFetchPolicy || (fetchPolicy === "cache-and-network" || fetchPolicy === "network-only") ? "cache-only" : undefined
 
-  const useQueryArgument = {
-    variables: graphQLVariables,
-    pollInterval,
-    fetchPolicy,
-    nextFetchPolicy: newNextFetchPolicy as WatchQueryFetchPolicy,
-    // This is a workaround for a bug in apollo where setting `ssr: false` makes it not fetch
-    // the query on the client (see https://github.com/apollographql/apollo-client/issues/5918)
-    ssr: apolloSSRFlag(ssr),
-    skip,
-    notifyOnNetworkStatusChange: true
-  }
-  const { data, error, loading, refetch, fetchMore, networkStatus } = useQuery(query, useQueryArgument);
+//   const useQueryArgument = {
+//     variables: graphQLVariables,
+//     pollInterval,
+//     fetchPolicy,
+//     nextFetchPolicy: newNextFetchPolicy as WatchQueryFetchPolicy,
+//     // This is a workaround for a bug in apollo where setting `ssr: false` makes it not fetch
+//     // the query on the client (see https://github.com/apollographql/apollo-client/issues/5918)
+//     ssr: apolloSSRFlag(ssr),
+//     skip,
+//     notifyOnNetworkStatusChange: true
+//   }
+//   const { data, error, loading, refetch, fetchMore, networkStatus } = useQuery(query, useQueryArgument);
 
-  if (error) {
-    // This error was already caught by the apollo middleware, but the
-    // middleware had no idea who  made the query. To aid in debugging, log a
-    // stack trace here.
-    // eslint-disable-next-line no-console
-    console.error(error.message)
-  }
+//   if (error) {
+//     // This error was already caught by the apollo middleware, but the
+//     // middleware had no idea who  made the query. To aid in debugging, log a
+//     // stack trace here.
+//     // eslint-disable-next-line no-console
+//     console.error(error.message)
+//   }
 
-  const count = (data && data[resolverName] && data[resolverName].results && data[resolverName].results.length) || 0;
-  const totalCount = data && data[resolverName] && data[resolverName].totalCount;
+//   const count = (data && data[resolverName] && data[resolverName].results && data[resolverName].results.length) || 0;
+//   const totalCount = data && data[resolverName] && data[resolverName].totalCount;
 
-  // If we did a query to count the total number of results (enableTotal),
-  // show a Load More if we have fewer than that many results. If we didn't do
-  // that, show a Load More if we got at least as many results as requested.
-  // This means that if the total number of results exactly matches the limit,
-  // the last click of Load More won't get any more documents.
-  //
-  // The caller of this function is responsible for showing a Load More button
-  // if showLoadMore returned true.
-  const showLoadMore = alwaysShowLoadMore || (enableTotal ? (count < totalCount) : (count >= effectiveLimit));
+//   // If we did a query to count the total number of results (enableTotal),
+//   // show a Load More if we have fewer than that many results. If we didn't do
+//   // that, show a Load More if we got at least as many results as requested.
+//   // This means that if the total number of results exactly matches the limit,
+//   // the last click of Load More won't get any more documents.
+//   //
+//   // The caller of this function is responsible for showing a Load More button
+//   // if showLoadMore returned true.
+//   const showLoadMore = alwaysShowLoadMore || (enableTotal ? (count < totalCount) : (count >= effectiveLimit));
+  
+//   const loadMore = useStabilizedCallback(async (limitOverride?: number) => {
+//     const newLimit = limitOverride || (effectiveLimit+itemsPerPage)
+//     if (queryLimitName) {
+//       const newQuery = { ...locationQuery, [queryLimitName]: newLimit }
+//       navigate({ ...location, search: `?${qs.stringify(newQuery)}` })
+//     }
+//     void fetchMore({
+//       variables: {
+//         ...graphQLVariables,
+//         input: {
+//           ...graphQLVariables.input,
+//           terms: { ...graphQLVariables.input.terms, limit: newLimit }
+//         }
+//       },
+//       updateQuery: (prev, { fetchMoreResult }) => fetchMoreResult ?? prev
+//     })
+//     setLimit(newLimit)
+//   });
+  
+//   // A bundle of props that you can pass to Components.LoadMore, to make
+//   // everything just work.
+//   const loadMoreProps = {
+//     loadMore, count, totalCount, loading,
+//     hidden: !showLoadMore,
+//   };
 
-  const loadMore: LoadMoreCallback = async (limitOverride?: number) => {
-    const newLimit = limitOverride || (effectiveLimit + itemsPerPage)
-    if (queryLimitName) {
-      const newQuery = { ...locationQuery, [queryLimitName]: newLimit }
-      navigate({ ...location, search: `?${qs.stringify(newQuery)}` })
-    }
-    void fetchMore({
-      variables: {
-        ...graphQLVariables,
-        input: {
-          ...graphQLVariables.input,
-          terms: { ...graphQLVariables.input.terms, limit: newLimit }
-        }
-      },
-      updateQuery: (prev, { fetchMoreResult }) => fetchMoreResult ?? prev
-    })
-    setLimit(newLimit)
-  };
+//   let results = data?.[resolverName]?.results;
+//   if (results && results.length > limit) {
+//     results = _.take(results, limit);
+//   }
 
-  // A bundle of props that you can pass to Components.LoadMore, to make
-  // everything just work.
-  const loadMoreProps = {
-    loadMore, count, totalCount, loading,
-    hidden: !showLoadMore,
-  };
-
-  let results = data?.[resolverName]?.results;
-  if (results && results.length > limit) {
-    results = _.take(results, limit);
-  }
-
-  return {
-    loading: (loading || networkStatus === NetworkStatus.fetchMore) && !skip,
-    loadingInitial: networkStatus === NetworkStatus.loading,
-    loadingMore: networkStatus === NetworkStatus.fetchMore,
-    results,
-    totalCount: totalCount,
-    refetch,
-    // invalidateCache,
-    error,
-    count,
-    showLoadMore,
-    loadMoreProps,
-    loadMore,
-    limit: effectiveLimit,
-  };
-}
+//   return {
+//     loading: (loading || networkStatus === NetworkStatus.fetchMore) && !skip,
+//     loadingInitial: networkStatus === NetworkStatus.loading,
+//     loadingMore: networkStatus === NetworkStatus.fetchMore,
+//     results,
+//     totalCount: totalCount,
+//     refetch,
+//     // invalidateCache,
+//     error,
+//     count,
+//     showLoadMore,
+//     loadMoreProps,
+//     loadMore,
+//     limit: effectiveLimit,
+//   };
+// }

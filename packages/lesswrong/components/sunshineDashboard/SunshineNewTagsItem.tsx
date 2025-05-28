@@ -11,7 +11,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import SidebarActionMenu from "./SidebarActionMenu";
 import TagSmallPostLink from "../tagging/TagSmallPostLink";
 import SidebarAction from "./SidebarAction";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import SunshineListItem from "./SunshineListItem";
 import SidebarHoverOver from "./SidebarHoverOver";
 import SidebarInfo from "./SidebarInfo";

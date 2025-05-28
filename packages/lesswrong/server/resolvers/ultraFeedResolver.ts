@@ -29,8 +29,8 @@ interface UltraFeedDateCutoffs {
 }
 
 const ULTRA_FEED_DATE_CUTOFFS: UltraFeedDateCutoffs = {
-  latestPostsMaxAgeDays: 45,
-  subscribedPostsMaxAgeDays: 45,
+  latestPostsMaxAgeDays: 30,
+  subscribedPostsMaxAgeDays: 30,
   initialCommentCandidateLookbackDays: 14,
   commentServedEventRecencyHours: 48,
   threadEngagementLookbackDays: 45,

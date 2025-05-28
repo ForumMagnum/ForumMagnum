@@ -24,6 +24,7 @@ import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import ContentStyles from "../common/ContentStyles";
 
 const TagWithFlagsFragmentUpdateMutation = gql(`
   mutation updateTagTagForm($selector: SelectorInput!, $data: UpdateTagDataInput!) {
@@ -209,7 +210,7 @@ export const TagForm = ({
 
       <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
         <form.Field name="description" listeners={{ onChange }}>
-          {(field) => (
+          {(field) => <ContentStyles contentType="tag">
             <EditorFormComponent
               field={field}
               name="description"
@@ -237,7 +238,7 @@ export const TagForm = ({
               commentStyles={true}
               hideControls={false}
             />
-          )}
+          </ContentStyles>}
         </form.Field>
       </div>
 

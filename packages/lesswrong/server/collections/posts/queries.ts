@@ -258,6 +258,7 @@ export const graphqlPostQueryTypeDefs = gql`
     before: String
     timeField: String
     curatedAfter: String
+    tagId: String
   }
   
   input PostsFrontpageInput {

@@ -13,7 +13,7 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import LWDialog from "../common/LWDialog";
 import Loading from "../vulcan-core/Loading";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import FormatDate from "../common/FormatDate";
 import LoadMore from "../common/LoadMore";
 import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
