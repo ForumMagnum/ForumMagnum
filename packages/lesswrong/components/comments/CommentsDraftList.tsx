@@ -60,7 +60,7 @@ const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTota
 
   // Move the linked comment up to the top if given
   const results = ([linkedComment, ...(rawResults ?? [])]
-    .filter(v => v) as DraftComments[])
+    .filter(v => v?.draft) as DraftComments[])
     .reduce((acc, comment) => {
       if (!acc.some(existingComment => existingComment._id === comment._id)) {
         acc.push(comment);
