@@ -24,6 +24,7 @@ import FeedContentBody from "./FeedContentBody";
 import UltraFeedItemFooter from "./UltraFeedItemFooter";
 import Loading from "../vulcan-core/Loading";
 import OverflowNavButtons from "./OverflowNavButtons";
+import UltraFeedPostActions from "./UltraFeedPostActions";
 
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
@@ -341,6 +342,8 @@ const UltraFeedPostItem = ({
           <PostActionsButton
             post={post}
             vertical={true}
+            autoPlace
+            ActionsComponent={UltraFeedPostActions}
             className={classes.tripleDotMenu}
           />
         </AnalyticsContext>

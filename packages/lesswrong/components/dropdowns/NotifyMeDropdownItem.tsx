@@ -1,5 +1,4 @@
 import React, { FC } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { NotifyMeDocument, useNotifyMe } from "../hooks/useNotifyMe";
 import type { SubscriptionType } from "../../lib/collections/subscriptions/helpers";
 import DropdownItem from "./DropdownItem";
@@ -38,22 +37,14 @@ const NotifyMeDropdownItemInternal: FC<NotifyMeDropdownItemInternalProps> = ({
       title={message}
       onClick={onSubscribe}
       icon={isSubscribed ? "Bell" : "BellBorder"}
-      loading={loading}
       tooltip={tooltip}
     />
   );
 }
 
-const NotifyMeDropdownItem = (props: NotifyMeDropdownItemProps) =>
+export const NotifyMeDropdownItem = (props: NotifyMeDropdownItemProps) =>
   props.document && (props.enabled ?? true)
     ? <NotifyMeDropdownItemInternal
       {...props as NotifyMeDropdownItemInternalProps}
     />
     : null;
-
-export default registerComponent(
-  "NotifyMeDropdownItem",
-  NotifyMeDropdownItem,
-);
-
-

@@ -210,9 +210,10 @@ const CommentsNodeInner = ({
       setTruncated(false);
       setSingleLine(false);
       setTruncatedStateSet(true);
-      if (scroll) {
-        scrollIntoView(scrollBehaviour);
-      }
+    }
+
+    if (scroll) {
+      scrollIntoView(scrollBehaviour);
     }
   };
 

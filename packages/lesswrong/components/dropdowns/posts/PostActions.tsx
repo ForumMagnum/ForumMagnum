@@ -24,7 +24,7 @@ import PostAnalyticsDropdownItem from "./PostAnalyticsDropdownItem";
 import ExcludeFromRecommendationsDropdownItem from "./ExcludeFromRecommendationsDropdownItem";
 import ApproveNewUserDropdownItem from "./ApproveNewUserDropdownItem";
 import SharePostSubmenu from "./SharePostSubmenu";
-import PostSubscriptionsDropdownItem from "./PostSubscriptionsDropdownItem";
+import { PostSubscriptionsDropdownItem } from "./PostSubscriptionsDropdownItem";
 import DislikeRecommendationDropdownItem from "./DislikeRecommendationDropdownItem";
 import HideFrontPageButton from './HideFrontpagePostDropdownItem';
 

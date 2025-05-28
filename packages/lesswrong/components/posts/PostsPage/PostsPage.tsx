@@ -68,7 +68,7 @@ import DebateBody from "../../comments/DebateBody";
 import PostsPageRecommendationsList from "../../recommendations/PostsPageRecommendationsList";
 import PostSideRecommendations from "../../recommendations/PostSideRecommendations";
 import PostBottomRecommendations from "../../recommendations/PostBottomRecommendations";
-import NotifyMeDropdownItem from "../../dropdowns/NotifyMeDropdownItem";
+import { NotifyMeDropdownItem } from "../../dropdowns/NotifyMeDropdownItem";
 import Row from "../../common/Row";
 import AnalyticsInViewTracker from "../../common/AnalyticsInViewTracker";
 import PostsPageQuestionContent from "../../questions/PostsPageQuestionContent";
