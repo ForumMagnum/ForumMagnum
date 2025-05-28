@@ -12,22 +12,30 @@ import type { ContentItemBodyImperative } from '../../contents/contentBodyUtil';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import CommentBottomCaveats from "./CommentBottomCaveats";
+import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
+import { Link } from '@/lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType) => ({
   bottom: {
+    display: "flex",
+    alignItems: "center",
     paddingBottom: isFriendlyUI ? 12 : 5,
     paddingTop: isFriendlyUI ? 4 : undefined,
     minHeight: 12,
     ...(isFriendlyUI ? {} : {fontSize: 12}),
   },
   bottomWithReacts: {
-    display: "flex",
-    alignItems: "center",
     justifyContent: "space-between"
   },
   answer: {
     display: "flex",
     alignItems: "baseline",
+  },
+  editInContext: {
+    ...theme.typography.body2,
+    fontWeight: 450,
+    color: theme.palette.lwTertiary.main,
+    marginLeft: "auto"
   },
 })
 
@@ -43,7 +51,6 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
 }) => {
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
-  const isMinimalist = treeOptions.formStyle === "minimalist"
   const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
 
   const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > now;
@@ -63,6 +70,7 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
     (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post ?? null, null, true)) &&
     (!commentHidden || userCanDo(currentUser, 'posts.moderate.all'))
   )
+  const showEditInContext = treeOptions.showEditInContext;
 
   return (
     <div className={classNames(
@@ -80,6 +88,12 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
         commentBodyRef={commentBodyRef}
         voteProps={voteProps}
       />}
+      {showEditInContext && <Link
+        to={commentGetPageUrlFromIds({commentId: comment._id, postId: comment.postId})}
+        target="_blank" rel="noopener noreferrer"
+        className={classes.editInContext}>
+          Edit in context
+      </Link>}
     </div>
   );
 }

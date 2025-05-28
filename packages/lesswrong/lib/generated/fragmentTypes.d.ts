@@ -369,6 +369,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly legacyId: string|null,
   readonly legacyPoll: boolean,
   readonly legacyParentId: string|null,
+  readonly draft: boolean,
   readonly retracted: boolean,
   readonly deleted: boolean,
   readonly deletedPublic: boolean,
@@ -479,6 +480,7 @@ interface CommentsList { // fragment on Comments
   readonly lastEditedAt: Date|null,
   readonly repliesBlockedUntil: Date|null,
   readonly userId: string|null,
+  readonly draft: boolean,
   readonly deleted: boolean,
   readonly deletedPublic: boolean,
   readonly deletedByUserId: string|null,
@@ -818,6 +820,16 @@ interface DigestsMinimumInfo { // fragment on Digests
   readonly onsitePrimaryColor: string|null,
 }
 
+interface DraftComments extends CommentsList { // fragment on Comments
+  readonly post: PostsMinimumInfo|null,
+  readonly parentComment: DraftComments_parentComment|null,
+}
+
+interface DraftComments_parentComment { // fragment on Comments
+  readonly _id: string,
+  readonly user: UsersMinimumInfo|null,
+}
+
 interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
   readonly _id: string,
   readonly electionName: string,
@@ -1031,6 +1043,7 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly contrastColor: string|null,
   readonly tagId: string|null,
   readonly postId: string|null,
+  readonly commentId: string|null,
   readonly bannerImageId: string|null,
   readonly includesPoll: boolean,
   readonly isGlobal: boolean,
@@ -1094,6 +1107,7 @@ interface ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly contrastColor: string|null,
   readonly tagId: string|null,
   readonly postId: string|null,
+  readonly commentId: string|null,
   readonly bannerImageId: string|null,
   readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
   readonly customComponent: "GivingSeason2024Banner" | null,
@@ -5565,6 +5579,7 @@ interface FragmentTypes {
   DigestPostsMinimumInfo: DigestPostsMinimumInfo
   DigestsDefaultFragment: DigestsDefaultFragment
   DigestsMinimumInfo: DigestsMinimumInfo
+  DraftComments: DraftComments
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
   ElectionCandidateSimple: ElectionCandidateSimple
   ElectionCandidatesDefaultFragment: ElectionCandidatesDefaultFragment
@@ -5864,7 +5879,7 @@ interface FragmentTypesByCollection {
   ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
   Collections: "CollectionContinueReadingFragment"|"CollectionsBestOfFragment"|"CollectionsDefaultFragment"|"CollectionsEditFragment"|"CollectionsPageFragment"
   CommentModeratorActions: "CommentModeratorActionDisplay"|"CommentModeratorActionsDefaultFragment"
-  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsDefaultFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithModerationMetadata"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"UltraFeedComment"|"WithVoteComment"
+  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsDefaultFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithModerationMetadata"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"DraftComments"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"UltraFeedComment"|"WithVoteComment"
   Conversations: "ConversationsDefaultFragment"|"ConversationsList"|"ConversationsListWithReadStatus"|"ConversationsMinimumInfo"
   CronHistories: "CronHistoriesDefaultFragment"
   CurationEmails: "CurationEmailsDefaultFragment"
@@ -6009,6 +6024,7 @@ interface CollectionNamesByFragmentName {
   DigestPostsMinimumInfo: "DigestPosts"
   DigestsDefaultFragment: "Digests"
   DigestsMinimumInfo: "Digests"
+  DraftComments: "Comments"
   ElectionCandidateBasicInfo: "ElectionCandidates"
   ElectionCandidateSimple: "ElectionCandidates"
   ElectionCandidatesDefaultFragment: "ElectionCandidates"

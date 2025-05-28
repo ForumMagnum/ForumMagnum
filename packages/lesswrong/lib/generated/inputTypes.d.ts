@@ -1324,6 +1324,7 @@ interface Comment {
   legacyId: string | null;
   legacyPoll: boolean;
   legacyParentId: string | null;
+  draft: boolean;
   retracted: boolean;
   deleted: boolean;
   deletedPublic: boolean;
@@ -1890,6 +1891,8 @@ interface ForumEvent {
   tag: Tag | null;
   postId: string | null;
   post: Post | null;
+  commentId: string | null;
+  comment: Comment | null;
   bannerImageId: string | null;
   includesPoll: boolean;
   isGlobal: boolean;
@@ -4444,6 +4447,7 @@ interface CreateCommentDataInput {
   legacyId?: string | null;
   legacyPoll?: boolean | null;
   legacyParentId?: string | null;
+  draft?: boolean | null;
   retracted?: boolean | null;
   deleted?: boolean | null;
   deletedPublic?: boolean | null;
@@ -4477,6 +4481,7 @@ interface CreateCommentInput {
 interface UpdateCommentDataInput {
   legacyData?: any;
   contents?: CreateRevisionDataInput | null;
+  postedAt?: Date | null;
   subforumStickyPriority?: number | null;
   authorIsUnreviewed?: boolean | null;
   answer?: boolean | null;
@@ -4491,6 +4496,7 @@ interface UpdateCommentDataInput {
   legacyId?: string | null;
   legacyPoll?: boolean | null;
   legacyParentId?: string | null;
+  draft?: boolean | null;
   retracted?: boolean | null;
   deleted?: boolean | null;
   deletedPublic?: boolean | null;
@@ -4779,6 +4785,7 @@ interface CreateForumEventDataInput {
   contrastColor?: string | null;
   tagId?: string | null;
   postId?: string | null;
+  commentId?: string | null;
   bannerImageId?: string | null;
   includesPoll?: boolean | null;
   isGlobal: boolean;
@@ -4810,6 +4817,7 @@ interface UpdateForumEventDataInput {
   contrastColor?: string | null;
   tagId?: string | null;
   postId?: string | null;
+  commentId?: string | null;
   bannerImageId?: string | null;
   includesPoll?: boolean | null;
   isGlobal?: boolean | null;

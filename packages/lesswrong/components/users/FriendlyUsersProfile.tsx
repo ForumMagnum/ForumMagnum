@@ -56,6 +56,7 @@ import UserNotifyDropdown from "../notifications/UserNotifyDropdown";
 import FooterTag from "../tagging/FooterTag";
 import DisplayNameWithMarkers from "../ea-forum/users/DisplayNameWithMarkers";
 import ForumIcon from "../common/ForumIcon";
+import CommentsDraftList from '../comments/CommentsDraftList';
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -288,6 +289,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
     enableTotal: true,
     skip: !user
   })
+
   if (loading) {
     return <Loading/>
   }
@@ -363,6 +365,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
         </Link>}
       </div>
       <SequencesGridWrapper terms={{view: "userProfilePrivate", userId: user._id, limit: 3}} showLoadMore={true} />
+      <CommentsDraftList userId={user._id} initialLimit={5} />
     </>
   }]
   if (userOrganizesGroups?.length) {
