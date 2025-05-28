@@ -139,8 +139,12 @@ function defaultView(terms: CommentsViewTerms, _: ApolloClient<NormalizedCacheOb
     selector: {
       $and: [
         ...(shouldHideNewUnreviewedAuthorComments ? [hideNewUnreviewedAuthorComments] : []),
-        getDraftSelector({ drafts: terms.drafts, context }),
-        notDeletedOrDeletionIsPublic
+        // Note: This nested $and is a bug fix, without it some views don't return anything.
+        // This is probably a bug in mergeSelectors
+        { $and: [
+          getDraftSelector({ drafts: terms.drafts, context }),
+          notDeletedOrDeletionIsPublic
+        ] }
       ],
       hideAuthor: terms.userId ? false : undefined,
       ...(terms.commentIds && {_id: {$in: terms.commentIds}}),
