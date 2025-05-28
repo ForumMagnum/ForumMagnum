@@ -179,7 +179,7 @@ const CommentSubmit = ({
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
 
-  const abTestGroup = useABTest(draftCommentsABTest);
+  const abTestGroup = useABTest(draftCommentsABTest, !currentUser ? "treatment" : undefined);
   const allowDraftComments = hasDraftComments && (isAnyTest || abTestGroup === "treatment")
 
   const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
