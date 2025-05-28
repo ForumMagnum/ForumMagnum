@@ -36,6 +36,8 @@ import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { hasDraftComments } from '@/lib/betas';
 import CommentsSubmitDropdown from "./CommentsSubmitDropdown";
 import { useTracking } from "@/lib/analyticsEvents";
+import { useABTest } from "@/lib/abTestImpl";
+import { draftCommentsABTest } from "@/lib/abTests";
 
 const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -176,6 +178,9 @@ const CommentSubmit = ({
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
 
+  const abTestGroup = useABTest(draftCommentsABTest);
+  const allowDraftComments = hasDraftComments && abTestGroup === "treatment"
+
   const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
   const cancelBtnProps: InnerButtonProps = isFriendlyUI && !isMinimalist ? { variant: "contained" } : {};
   const submitBtnProps: InnerButtonProps = isFriendlyUI && !isMinimalist ? { variant: "contained", color: "primary" } : {};
@@ -185,7 +190,7 @@ const CommentSubmit = ({
     submitBtnProps.disabled = true;
   }
 
-  const showDropdownMenu = hasDraftComments && !disableSubmitDropdown;
+  const showDropdownMenu = allowDraftComments && !disableSubmitDropdown;
 
   return (
     <div
