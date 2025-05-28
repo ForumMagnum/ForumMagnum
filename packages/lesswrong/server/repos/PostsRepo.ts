@@ -1147,7 +1147,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         FROM "Posts" p
         WHERE
           p."postedAt" > NOW() - INTERVAL '$(maxAgeDays) days'
-          AND p."baseScore" >= 5
+          AND p."baseScore" >= 10
           AND p."draft" IS FALSE
           AND p."isFuture" IS FALSE
           AND p."authorIsUnreviewed" IS FALSE
