@@ -47,6 +47,7 @@ import { closeRenderRequestPerfMetric, getCpuTimeMs, logRequestToConsole, openRe
 import { getIpFromRequest } from '../datadog/datadogMiddleware';
 import { HelmetServerState } from 'react-helmet-async';
 import every from 'lodash/every';
+import { prefilterHandleRequest } from '../apolloServer';
 
 export interface RenderSuccessResult {
   ssrBody: string
@@ -134,6 +135,10 @@ const ssrInteractionDisable = isE2E
 
 
 export async function handleRequest(request: Request, response: Response) {
+  if(prefilterHandleRequest(request, response)) {
+    return;
+  }
+
   const responseManager = new ResponseManager(response);
   responseManager.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
 

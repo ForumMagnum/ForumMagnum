@@ -8,7 +8,7 @@ import { metaNoticeStyles } from "../comments/CommentsItem/metaNoticeStyles";
 import { useCommentLink, useCommentLinkState } from '../comments/CommentsItem/useCommentLink';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
-import type { ContentItemBodyImperative } from '../common/ContentItemBody';
+import type { ContentItemBodyImperative } from '../contents/contentBodyUtil';
 import { useVote } from '../votes/withVote';
 import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
 import type { CommentTreeOptions } from '../comments/commentTree';
@@ -276,7 +276,7 @@ const Answer = ({ comment, post, childComments, classes }: {
                   }}
                   successCallback={closeReplyForm}
                   cancelCallback={closeReplyForm}
-                  type="reply"
+                  interactionType="reply"
                 />
               </div>
             }

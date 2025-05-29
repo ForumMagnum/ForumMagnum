@@ -351,9 +351,9 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
    * in the format that we expect to see in the email digest
    */
   const copyDigestToClipboard = async () => {
-    if (!posts) return
+    if (!posts || !digest) return;
     
-    const digestPosts = posts.filter(p => ['yes','maybe'].includes(postStatuses[p._id].emailDigestStatus ?? ""))
+    const digestPosts = posts.filter(p => ['yes','maybe'].includes(postStatuses[p._id].emailDigestStatus ?? ""));
     // sort the "yes" posts to be listed before the "maybe" posts
     digestPosts.sort((a, b) => {
       const aYes = postStatuses[a._id].emailDigestStatus === 'yes'
@@ -364,10 +364,10 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
     })
     await navigator.clipboard.write(
       [new ClipboardItem({
-        'text/html': new Blob([getEmailDigestPostListData(digestPosts)], {type: 'text/html'})
+        'text/html': new Blob([getEmailDigestPostListData({ posts: digestPosts, digestNum: digest.num })], {type: 'text/html'})
       })]
-    )
-    flash({messageString: "Email digest post list copied"})
+    );
+    flash({messageString: "Email digest post list copied"});
   }
   // list of the most common tags in the overall posts list
   const tagCounts = useMemo(() => {
@@ -567,6 +567,7 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
               visibleTagIds={coreAndPopularTagIds}
               setTagFilter={setTagFilter}
               votesVisible={votesVisible}
+              digestNum={digest.num}
             />
           })}
         </tbody>

@@ -42,6 +42,8 @@ import { getCommandLineArguments } from './commandLine';
 import { isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
 import { resolvers, typeDefs } from './vulcan-lib/apollo-server/initGraphQL';
 import express from 'express';
+import { getSiteUrl } from '@/lib/vulcan-lib/utils';
+import { botProtectionCommentRedirectSetting } from './databaseSettings';
 
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
@@ -324,4 +326,32 @@ export function startWebserver() {
   addStaticRoute('/api/ready', ({query}, _req, res, next) => {
     res.end('true');
   });
+}
+
+/**
+ * Workaround to redirect `?commentId=...` links to `#...`, to prevent being DDoS-ed
+ */
+export function prefilterHandleRequest(req: express.Request, res: express.Response): boolean {
+  if (!botProtectionCommentRedirectSetting.get()) {
+    return false;
+  }
+
+  const url = req.url;
+  const baseUrl = getSiteUrl();
+  const parsedUrl = new URL(url, baseUrl);
+
+  // If the URL is of the form ...?commentId=id, serve a redirect to ...#commentId
+  const commentId = parsedUrl.searchParams.get('commentId');
+  if (commentId) {
+    // Side-effectfully transform parsedUrl
+    parsedUrl.searchParams.delete("commentId");
+    parsedUrl.hash = commentId;
+
+    res.status(302);
+    res.redirect(parsedUrl.toString());
+    res.end();
+    return true;
+  }
+
+  return false;
 }

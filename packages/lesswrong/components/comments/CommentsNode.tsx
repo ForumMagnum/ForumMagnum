@@ -16,6 +16,16 @@ import AnalyticsTracker from "../common/AnalyticsTracker";
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
+export const COMMENT_DRAFT_TREE_OPTIONS: CommentTreeOptions = {
+  condensed: true,
+  singleLineCollapse: true,
+  hideSingleLineMeta: true,
+  forceSingleLine: true,
+  showCollapseButtons: false,
+  initialShowEdit: true,
+  hideReply: true
+};
+
 const styles = (theme: ThemeType) => ({
   parentScroll: {
     position: "absolute",
@@ -206,13 +216,14 @@ const CommentsNodeInner = ({
   }) => {
     event?.stopPropagation();
     if (isTruncated || isSingleLine) {
-      captureEvent("commentExpanded", { postId: comment.postId, commentId: comment._id });
+      captureEvent("commentExpanded", { postId: comment.postId, commentId: comment._id, draft: comment.draft });
       setTruncated(false);
       setSingleLine(false);
       setTruncatedStateSet(true);
-      if (scroll) {
-        scrollIntoView(scrollBehaviour);
-      }
+    }
+
+    if (scroll) {
+      scrollIntoView(scrollBehaviour);
     }
   };
 
@@ -270,7 +281,10 @@ const CommentsNodeInner = ({
     {showExtraChildrenButton}
     {childComments.map(child => <CommentsNode
       isChild={true}
-      treeOptions={treeOptions}
+      treeOptions={{
+        ...treeOptions,
+        ...(child.item.draft && COMMENT_DRAFT_TREE_OPTIONS),
+      }}
       comment={child.item}
       parentCommentId={comment._id}
       parentAnswerId={parentAnswerId || (comment.answer && comment._id) || null}
@@ -315,19 +329,21 @@ const CommentsNodeInner = ({
                 />
               </AnalyticsTracker>
             </AnalyticsContext>
-          : <CommentsItem
-              treeOptions={treeOptions}
-              truncated={isTruncated && !forceUnTruncated} // forceUnTruncated checked separately here, so isTruncated can also be passed to child nodes
-              nestingLevel={updatedNestingLevel}
-              parentCommentId={parentCommentId}
-              parentAnswerId={parentAnswerId || (comment.answer && comment._id) || undefined}
-              toggleCollapse={toggleCollapse}
-              key={comment._id}
-              scrollIntoView={scrollIntoView}
-              setSingleLine={setSingleLine}
-              displayTagIcon={displayTagIcon}
-              { ...passedThroughItemProps}
-            />
+          : <AnalyticsContext singleLineComment={false} commentId={comment._id}>
+              <CommentsItem
+                treeOptions={treeOptions}
+                truncated={isTruncated && !forceUnTruncated} // forceUnTruncated checked separately here, so isTruncated can also be passed to child nodes
+                nestingLevel={updatedNestingLevel}
+                parentCommentId={parentCommentId}
+                parentAnswerId={parentAnswerId || (comment.answer && comment._id) || undefined}
+                toggleCollapse={toggleCollapse}
+                key={comment._id}
+                scrollIntoView={scrollIntoView}
+                setSingleLine={setSingleLine}
+                displayTagIcon={displayTagIcon}
+                { ...passedThroughItemProps}
+              />
+            </AnalyticsContext>
         }
       </div>}
 
