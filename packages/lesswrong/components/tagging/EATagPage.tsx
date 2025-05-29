@@ -46,6 +46,7 @@ import TagTableOfContents from "./TagTableOfContents";
 import TagVersionHistoryButton from "../editor/TagVersionHistory";
 import ContentStyles from "../common/ContentStyles";
 import CommentsListCondensed from "../common/CommentsListCondensed";
+import { StructuredData } from "../common/StructuredData";
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -360,9 +361,9 @@ const EATagPage = ({classes}: {
   >
     <HeadTags
       description={headTagDescription}
-      structuredData={getTagStructuredData(tag)}
       noIndex={tag.noindex}
     />
+    <StructuredData generate={() => getTagStructuredData(tag)}/>
     {hoveredContributorId && <style>
       {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}
     </style>}

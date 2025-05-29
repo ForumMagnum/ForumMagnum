@@ -21,6 +21,7 @@ import QuickTakesSection from "../quickTakes/QuickTakesSection";
 import LWHomePosts from "./LWHomePosts";
 import HeadTags from "./HeadTags";
 import UltraFeed from "../ultraFeed/UltraFeed";
+import { StructuredData } from './StructuredData';
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -58,7 +59,7 @@ const LWHome = () => {
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
-          <HeadTags structuredData={getStructuredData()}/>
+          <StructuredData generate={() => getStructuredData()}/>
           <UpdateLastVisitCookie />
           {reviewIsActive() && <>
             {getReviewPhase() !== "RESULTS" && <SingleColumnSection>

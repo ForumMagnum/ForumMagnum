@@ -13,7 +13,6 @@ const HeadTags = ({
   image,
   useSmallImage=false,
   noIndex,
-  structuredData,
 }: {
   ogUrl?: string,
   canonicalUrl?: string,
@@ -22,7 +21,6 @@ const HeadTags = ({
   image?: string|null,
   useSmallImage?: boolean,
   noIndex?: boolean,
-  structuredData?: Record<string, AnyBecauseHard>,
 }) => {
     const { currentRoute, pathname } = useSubscribedLocation();
     // The default url we want to use for our cannonical and og:url tags uses
@@ -76,11 +74,6 @@ const HeadTags = ({
           <link rel='canonical' href={canonicalUrl}/>
 
           <link rel="alternate" type="application/rss+xml" href={rssUrl} />
-
-          {/* See https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data */}
-          {structuredData && <script type="application/ld+json">
-            {toEmbeddableJson(structuredData)}
-          </script>}
         </Helmet>
       </React.Fragment>
     );

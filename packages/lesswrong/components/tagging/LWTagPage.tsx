@@ -68,6 +68,7 @@ import FormatDate from "../common/FormatDate";
 import InlineReactSelectionWrapper from "../votes/lwReactions/InlineReactSelectionWrapper";
 import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
 import PathInfo from "./PathInfo";
+import { StructuredData } from "../common/StructuredData";
 
 const AUDIO_PLAYER_WIDTH = 325;
 
@@ -1001,9 +1002,9 @@ const LWTagPage = () => {
     <TagPageContext.Provider value={{selectedLens: selectedLens ?? null}}>
       <HeadTags
         description={headTagDescription}
-        structuredData={getTagStructuredData(tag)}
         noIndex={tag.noindex}
       />
+      <StructuredData generate={() => getTagStructuredData(tag)}/>
       {hoveredContributorId && <style>
         {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}
       </style>}

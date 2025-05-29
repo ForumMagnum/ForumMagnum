@@ -57,6 +57,7 @@ import FooterTag from "../tagging/FooterTag";
 import DisplayNameWithMarkers from "../ea-forum/users/DisplayNameWithMarkers";
 import ForumIcon from "../common/ForumIcon";
 import CommentsDraftList from '../comments/CommentsDraftList';
+import { StructuredData } from '../common/StructuredData';
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -483,9 +484,9 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
       description={metaDescription}
       noIndex={(!userPostsCount && !user.commentCount) || user.karma <= 0 || user.noindex}
       image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
-      structuredData={getUserStructuredData(user)}
       useSmallImage
     />
+    <StructuredData generate={() => getUserStructuredData(user)}/>
     <AnalyticsContext pageContext="userPage">
       <SingleColumnSection>
         <div className={classNames(classes.section, classes.mainSection)}>

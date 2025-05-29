@@ -82,6 +82,7 @@ import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RECOMBEE_RECOMM_ID_QUERY_PARAM,
 import { getPostDescription, getStructuredData } from './structuredData';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { ReadingProgressBar } from './ReadingProgressBar';
+import { StructuredData } from '@/components/common/StructuredData';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
@@ -561,8 +562,8 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
         title={post.title}
         description={description}
         noIndex={noIndex}
-        structuredData={getStructuredData({post: fullPost, description, commentTree, answersTree})}
       />
+      <StructuredData generate={() => getStructuredData({post: fullPost, description, commentTree, answersTree})}/>
       <CitationTags
         title={post.title}
         author={post.user?.displayName}
