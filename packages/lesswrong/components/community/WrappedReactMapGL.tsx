@@ -1,6 +1,6 @@
 import React from 'react';
 import { componentWithChildren } from '@/lib/utils/componentsWithChildren';
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "../common/Helmet";
 import BadlyTypedReactMapGL, { InteractiveMapProps } from 'react-map-gl';
 import { useMapStyle } from '../hooks/useMapStyle';
 import { mapboxAPIKeySetting } from '@/lib/publicSettings';
@@ -13,7 +13,7 @@ export const WrappedReactMapGL = (props: InteractiveMapProps & {
 }) => {
   const mapStyle = useMapStyle();
   return <>
-    <Helmet>
+    <Helmet name="mapbox">
       <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css" rel="stylesheet" />
     </Helmet>
     <ReactMapGL

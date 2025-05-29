@@ -67,12 +67,20 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
       });  
     }
 
+    const statusRef = {finished: false};
+    setTimeout(() => {
+      if (!statusRef.finished) {
+        console.log(`Stuck operation: ${operationName}`);
+      }
+    }, 10000);
     if (query) {
       logGraphqlQueryStarted(operationName, query, variables);
     }
     
     return {
       willSendResponse() { // hook for transaction finished
+        statusRef.finished = true;
+        console.log(`finished ${operationName}`);
         if (performanceMetricLoggingEnabled.get()) {
           closePerfMetric(startedRequestMetric);
         }

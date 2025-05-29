@@ -5,7 +5,7 @@ import { performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
 import { getClientIP } from '@/server/utils/getClientIP';
 import { captureEvent } from '@/lib/analyticsEvents';
 import { DatabaseServerSetting } from '../databaseSettings';
-import { AttemptCachedRenderParams, AttemptNonCachedRenderParams, RenderResult } from './renderPage';
+import { type RenderParams, RenderResult } from './renderPage';
 
 export const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -16,7 +16,7 @@ export type RenderTimings = {
 }
 
 
-export function openRenderRequestPerfMetric(renderParams: AttemptCachedRenderParams | AttemptNonCachedRenderParams) {
+export function openRenderRequestPerfMetric(renderParams: RenderParams) {
   if (!performanceMetricLoggingEnabled.get()) return;
 
   const { req, startTime, userAgent } = renderParams;
@@ -64,7 +64,7 @@ export function closeRenderRequestPerfMetric(rendered: RenderResult & { cached?:
 }
 
 export function recordSsrAnalytics(
-  params: AttemptCachedRenderParams | AttemptNonCachedRenderParams,
+  params: RenderParams,
   rendered: Exclude<RenderResult, { aborted: true }> & { cached?: boolean }
 ) {
   const { req, startTime, userAgent, url, tabId, ip } = params;

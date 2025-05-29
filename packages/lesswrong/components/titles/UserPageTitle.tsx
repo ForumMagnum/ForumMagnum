@@ -5,8 +5,8 @@ import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
 import { styles } from '../common/HeaderSubtitle';
 import { getUserFromResults } from '../users/UsersProfile';
-import { Helmet } from 'react-helmet-async';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { Helmet } from '../common/Helmet';
 
 const titleComponentStyles = defineStyles('UserPageTitle', styles);
 
@@ -51,7 +51,7 @@ export const UserPageTitle = ({isSubtitle, siteName}: {
       </Link>
     </span>);
   } else {
-    return <Helmet>
+    return <Helmet name="title">
       <title>{titleString}</title>
       <meta property='og:title' content={titleString}/>
     </Helmet>

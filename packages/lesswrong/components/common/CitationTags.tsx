@@ -1,5 +1,5 @@
 import React from "react";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from "./Helmet";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 
 /**
@@ -27,7 +27,7 @@ const CitationTags = ({title, author, coauthors, date}: {
     date = date.slice(0, date.indexOf("T")).replace(/-/g, "/");
   }
   return (
-    <Helmet>
+    <Helmet name="citationTags">
       {title && <meta name="citation_title" content={title} />}
       {author && <meta name="citation_author" content={author} />}
       {coauthors && coauthors.map((coauthor, index) =>

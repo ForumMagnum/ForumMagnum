@@ -1,18 +1,18 @@
 import PriorityBucketQueue, { RequestData } from '@/lib/requestPriorityQueue';
-import { renderRequest, type RenderRequestParams, type RenderResult } from './renderPage';
+import { type RenderResult } from './renderPage';
 import { addStartRenderTimeToPerfMetric, setAsyncStoreValue } from '@/server/perfMetrics';
-import { getClientIP } from '@/server/utils/getClientIP';
 import { maxRenderQueueSize, queuedRequestTimeoutSecondsSetting } from '@/lib/publicSettings';
-import moment from 'moment';
 import { getPathFromReq, trySetResponseStatus } from '../utils/httpUtil';
 import { isAnyTest } from '@/lib/executionEnvironment';
 import { performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
-import { getIpFromRequest } from '../datadog/datadogMiddleware';
 import { captureEvent } from '@/lib/analyticsEvents';
+import { ResponseManager } from './ResponseManager';
 
 interface RenderPriorityQueueSlot extends RequestData {
   callback: () => Promise<void>;
-  renderRequestParams: RenderRequestParams;
+  //renderRequestParams: RenderRequestParams;
+  startTime: Date,
+  responseManager: ResponseManager,
 }
 
 let inFlightRenderCount = 0;
@@ -23,24 +23,32 @@ const requestPriorityQueue = new PriorityBucketQueue<RenderPriorityQueueSlot>();
  * To solve this, we introduce a queue for incoming requests, such that we have a maximum number of requests being rendered at the same time
  * See {@link maybeStartQueuedRequests} for the part that kicks off requests when appropriate
  */
-export function queueRenderRequest(params: RenderRequestParams): Promise<RenderResult> {
+export function queueRenderRequest(renderFn: () => Promise<RenderResult>, options: {
+  ip: string|null,
+  userAgent: string|undefined,
+  userId: string|null,
+  startTime: Date,
+  responseManager: ResponseManager,
+}): Promise<RenderResult> {
   return new Promise((resolve) => {
     requestPriorityQueue.enqueue({
-      ip: getClientIP(params.req) ?? "unknown",
-      userAgent: params.userAgent ?? 'sus-missing-user-agent',
-      userId: params.user?._id,
+      ip: options.ip ?? "unknown",
+      userAgent: options.userAgent ?? 'sus-missing-user-agent',
+      userId: options.userId ?? undefined,
       callback: async () => {
         let result: RenderResult;
         addStartRenderTimeToPerfMetric();
         try {
-          result = await renderRequest(params);
+          result = await renderFn();
         } finally {
           inFlightRenderCount--;
         }
         resolve(result);
         maybeStartQueuedRequests();
       },
-      renderRequestParams: params,
+      startTime: options.startTime,
+      responseManager: options.responseManager,
+      //renderRequestParams: params,
     });
 
     maybeStartQueuedRequests();
@@ -53,13 +61,13 @@ function maybeStartQueuedRequests() {
     let requestToStartRendering = requestPriorityQueue.dequeue();
     if (requestToStartRendering.request) {
       const { preOpPriority, request } = requestToStartRendering;
-      const { startTime, res } = request.renderRequestParams;
+      const { startTime, responseManager } = request;
       
-      const queuedRequestTimeoutSeconds = queuedRequestTimeoutSecondsSetting.get();
-      const maxRequestAge = moment().subtract(queuedRequestTimeoutSeconds, 'seconds').toDate();
-      if (maxRequestAge > startTime) {
-        trySetResponseStatus({ response: res, status: 429 });
-        res.end();
+      const queuedRequestTimeoutMs = queuedRequestTimeoutSecondsSetting.get()*1000;
+      //const maxRequestAge = moment().subtract(queuedRequestTimeoutSeconds, 'seconds').toDate();
+      const maxRequestAge = (new Date().getTime() - queuedRequestTimeoutMs);
+      if (maxRequestAge > startTime.getTime()) {
+        responseManager.abort(429);
         continue;
       }
 
@@ -85,7 +93,7 @@ export function initRenderQueueLogging() {
 }
 
 function logRenderQueueState() {
-  if (requestPriorityQueue.size() > 0) {
+  /*if (requestPriorityQueue.size() > 0) {
     const queueState = requestPriorityQueue.getQueueState().map(([{ renderRequestParams }, priority]) => {
       return {
         userId: renderRequestParams.user?._id,
@@ -105,5 +113,5 @@ function logRenderQueueState() {
         startTime: q.startTime.toISOString(),
       })) as JsonArray,
     });
-  }
+  }*/
 }

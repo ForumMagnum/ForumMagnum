@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useLocation } from '../../lib/routeUtil';
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from '../common/Helmet';
 
 export const LocalgroupPageTitle = ({siteName}: {
   siteName: string,
@@ -18,8 +18,8 @@ export const LocalgroupPageTitle = ({siteName}: {
   if (!group || loading) return null;
 
   const titleString = `${group.name} - ${siteName}`
-  return <Helmet>
-      <title>{titleString}</title>
-      <meta property='og:title' content={titleString}/>
-    </Helmet>
+  return <Helmet name="title">
+    <title>{titleString}</title>
+    <meta property='og:title' content={titleString}/>
+  </Helmet>
 }

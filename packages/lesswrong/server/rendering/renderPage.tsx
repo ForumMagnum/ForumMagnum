@@ -41,11 +41,12 @@ import { makeAbsolute, urlIsAbsolute } from '@/lib/vulcan-lib/utils';
 import type { RouterLocation } from '@/lib/vulcan-lib/routes';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 import express from 'express'
-import { ResponseForwarderStream } from '@/server/rendering/ResponseManager';
+import { ResponseForwarderStream, ResponseManager } from '@/server/rendering/ResponseManager';
 import { queueRenderRequest } from '@/server/rendering/requestQueue';
 import { closeRenderRequestPerfMetric, getCpuTimeMs, logRequestToConsole, openRenderRequestPerfMetric, recordSsrAnalytics, RenderTimings, slowSSRWarnThresholdSetting } from './renderLogging';
 import { getIpFromRequest } from '../datadog/datadogMiddleware';
 import { HelmetServerState } from 'react-helmet-async';
+import every from 'lodash/every';
 
 export interface RenderSuccessResult {
   ssrBody: string
@@ -63,7 +64,6 @@ export interface RenderSuccessResult {
   timezone: string,
   timings: RenderTimings,
   aborted: false,
-  prefetchedResources: Promise<boolean | undefined>,
 }
 
 interface RenderAbortResult {
@@ -72,48 +72,16 @@ interface RenderAbortResult {
 
 export type RenderResult = RenderSuccessResult | RenderAbortResult;
 
-interface CacheMissParams {
-  cacheAttempt: true;
-  prefetchedResources: Promise<boolean | undefined>;
-}
-
-interface CacheSkipParams {
-  cacheAttempt: false;
-  maybePrefetchResources: () => Promise<boolean | undefined>;
-}
-
-interface BaseRenderRequestParams {
-  req: Request,
-  user: DbUser|null,
-  startTime: Date,
-  res: Response,
-  userAgent?: string,
-  isStreaming: boolean
-}
-
-export type RenderRequestParams = BaseRenderRequestParams & (CacheMissParams | CacheSkipParams);
-
-export interface AttemptCachedRenderParams {
+export interface RenderParams {
   req: Request;
-  res: Response;
-  startTime: Date;
-  userAgent?: string;
-  url: string;
-  tabId: string|null;
-  ip: string;
-  cacheAttempt: true;
-}
-
-export interface AttemptNonCachedRenderParams {
-  req: Request;
-  res: Response;
-  startTime: Date;
-  userAgent?: string;
-  url: string;
-  tabId: string|null;
-  ip: string;
-  cacheAttempt: false;
+  responseManager: ResponseManager;
   user: DbUser|null;
+  startTime: Date;
+  userAgent?: string;
+  url: string;
+  tabId: string|null;
+  ip: string;
+  cacheAttempt: boolean;
 }
 
 function shouldSkipCache(req: Request, user: DbUser|null) {
@@ -131,10 +99,10 @@ function shouldSkipCache(req: Request, user: DbUser|null) {
   // Doing this so we can show dynamic latest posts list with varying HN decay parameters based on visit frequency (see useractivities/cron.ts).
   const showDynamicFrontpage = !!lastVisitedFrontpage && visitorGetsDynamicFrontpage(user) && url === "/";
 
-  return (
-    (!isHealthCheck && (user || pathIsExcludedFromPageCache(url))) ||
-    isSlackBot ||
-    showDynamicFrontpage
+  return (user
+    || (!isHealthCheck && pathIsExcludedFromPageCache(url))
+    || isSlackBot
+    || showDynamicFrontpage
   );
 }
 
@@ -164,42 +132,10 @@ const ssrInteractionDisable = isE2E
   : "";
 //}}}
 
-/**
- * If allowed, write the prefetchPrefix to the response so the client can start downloading resources
- */
-const maybePrefetchResources = ({
-  request,
-  response,
-  parsedRoute,
-  prefetchPrefix
-}: {
-  request: express.Request;
-  response: express.Response;
-  parsedRoute: RouterLocation,
-  prefetchPrefix: string;
-}) => {
-
-  const maybeWritePrefetchedResourcesToResponse = async () => {
-    const enableResourcePrefetch = parsedRoute.currentRoute?.enableResourcePrefetch;
-    const prefetchResources =
-      typeof enableResourcePrefetch === "function"
-        ? await enableResourcePrefetch(request, response, parsedRoute, createAnonymousContext())
-        : enableResourcePrefetch;
-
-    if (prefetchResources) {
-      response.setHeader("X-Accel-Buffering", "no"); // force nginx to send start of response immediately
-      trySetResponseStatus({ response, status: 200 });
-      response.write(prefetchPrefix);
-    }
-    return prefetchResources;
-  };
-
-  return maybeWritePrefetchedResourcesToResponse;
-};
-
 
 export async function handleRequest(request: Request, response: Response) {
-  response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
+  const responseManager = new ResponseManager(response);
+  responseManager.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
 
   if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
   const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings())
@@ -218,6 +154,21 @@ export async function handleRequest(request: Request, response: Response) {
     location: parsePath(request.url)
   });
   
+  const resourcePrefetchOption = parsedRoute.currentRoute?.enableResourcePrefetch
+  if (resourcePrefetchOption) {
+    if (typeof resourcePrefetchOption === 'function') {
+      void (async () => {
+        if (await resourcePrefetchOption(request, response, parsedRoute, createAnonymousContext())) {
+          responseManager.setStatus(200);
+          responseManager.commitToNotUpdateHeaders();
+        }
+      })();
+    } else {
+      responseManager.setStatus(200);
+      responseManager.commitToNotUpdateHeaders();
+    }
+  }
+  
   const user = getUserFromReq(request);
   const themeOptions = getThemeOptionsFromReq(request, user);
   const themeOptionsHeader = embedAsGlobalVar("themeOptions", themeOptions);
@@ -231,61 +182,45 @@ export async function handleRequest(request: Request, response: Response) {
   // Inject a tab ID into the page, by injecting a script fragment that puts
   // it into a global variable. If the response is cacheable (same html may be used
   // by multiple tabs), this is generated in `clientStartup.ts` instead.
+  // FIXME This looks at the response cache-control header but should probably
+  // look at the _request_ cache-control heaer instead?
   const tabId = responseIsCacheable(response) ? null : randomId();
   
-  const jssSheetImports = renderJssSheetImports(themeOptions);
-  
   const isReturningVisitor = !!getCookieFromReq(request, LAST_VISITED_FRONTPAGE_COOKIE);
-
+  
   // The part of the header which can be sent before the page is rendered.
   // This includes an open tag for <html> and <head> but not the matching
   // close tags, since there's stuff inside that depends on what actually
   // gets rendered. The browser will pick up any references in the still-open
   // tag and start fetching the, without waiting for the closing tag.
-  const prefetchPrefix = (
-    '<!doctype html>\n'
-    + '<html lang="en">\n'
-    + '<head>\n'
-      + jssStylePreload
-      + externalStylesPreload
-      + ssrInteractionDisable
-      + instanceSettingsHeader
-      + faviconHeader
-      // Embedded script tags that must precede the client bundle
-      + publicSettingsHeader
-      + embedAsGlobalVar("tabId", tabId)
-      + embedAsGlobalVar("isReturningVisitor", isReturningVisitor)
-      // The client bundle. Because this uses <script async>, its load order
-      // relative to any scripts that come later than this is undetermined and
-      // varies based on timings and the browser cache.
-      + clientScript
-      + themeOptionsHeader
+  responseManager.setPrefetchHeader(
+    jssStylePreload
+    + externalStylesPreload
+    + ssrInteractionDisable
+    + instanceSettingsHeader
+    + faviconHeader
+    // Embedded script tags that must precede the client bundle
+    + publicSettingsHeader
+    + embedAsGlobalVar("tabId", tabId)
+    + embedAsGlobalVar("isReturningVisitor", isReturningVisitor)
+    // The client bundle. Because this uses <script async>, its load order
+    // relative to any scripts that come later than this is undetermined and
+    // varies based on timings and the browser cache.
+    + clientScript
+    + themeOptionsHeader
   );
-  
-  const isStreaming = !!parsedRoute.currentRoute?.enableSuspenseStreaming;
-
-  // Note: this may write to the response
-  let prefetchResourcesPromise = maybePrefetchResources({ request, response, parsedRoute, prefetchPrefix });
-  
-  if (isStreaming) {
-    await prefetchResourcesPromise();
-    prefetchResourcesPromise = async () => true
-    response.write(jssSheetImports + "</head>");
-  }
 
   const renderResultPromise = performanceMetricLoggingEnabled.get()
-    ? asyncLocalStorage.run({}, () => renderWithCache(request, response, user, tabId, prefetchResourcesPromise, isStreaming))
-    : renderWithCache(request, response, user, tabId, prefetchResourcesPromise, isStreaming);
+    ? asyncLocalStorage.run({}, () => renderWithCache({req: request, parsedRoute, responseManager, user, tabId}))
+    : renderWithCache({req: request, parsedRoute, responseManager, user, tabId});
 
   const renderResult = await renderResultPromise;
 
-  if (renderResult.aborted) {
+  if (renderResult.aborted || responseManager.isAborted()) {
     trySetResponseStatus({ response, status: 499 });
     response.end();
     return;
   }
-
-  const prefetchingResources = await renderResult.prefetchedResources;
 
   const {
     ssrBody,
@@ -306,51 +241,39 @@ export async function handleRequest(request: Request, response: Response) {
     // eslint-disable-next-line no-console
     console.log(`Redirecting to ${redirectUrl}`);
     const absoluteRedirectUrl = urlIsAbsolute(redirectUrl) ? redirectUrl : makeAbsolute(redirectUrl);
-    trySetResponseStatus({ response, status: status || 301 }).redirect(absoluteRedirectUrl);
+    responseManager.redirect(status||301, absoluteRedirectUrl);
   } else {
-    trySetResponseStatus({ response, status: status || 200 });
+    responseManager.setStatus(status||200);
     const ssrMetadata: SSRMetadata = {
       renderedAt: renderedAt.toISOString(),
       cacheFriendly,
       timezone
     }
 
-    if (!isStreaming) {
-      response.write(
-        (prefetchingResources ? '' : prefetchPrefix)
-          + headers.join('\n')
-          + themeOptionsHeader
-          + jssSheets
-        + '</head>\n'
-        + '<body class="'+classesForAbTestGroups(allAbTestGroups)+'">\n'
-          + ssrBody + '\n'
-        + '</body>\n'
-      );
-    }
+    // TODO: Body should be wrapped in <body class={classesForAbTestGroups(allAbTestGroups)}>
 
-    response.write(
-      embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n' // TODO Remove after 2024-05-14, here for backwards compatibility
-      + embedAsGlobalVar("ssrMetadata", ssrMetadata) + '\n'
+    responseManager.addToFooter(
+      embedAsGlobalVar("ssrMetadata", ssrMetadata) + '\n'
       + serializedApolloState + '\n'
       + serializedForeignApolloState + '\n'
-      + '</html>\n')
-    response.end();
+    );
   }
+  await responseManager.sendAndClose();
 }
 
-export const renderWithCache = async (req: Request, res: Response, user: DbUser|null, tabId: string | null, maybePrefetchResources: () => Promise<boolean | undefined>, isStreaming: boolean) => {
+export const renderWithCache = async ({req, parsedRoute, responseManager, user, tabId}: {
+  req: Request,
+  parsedRoute: RouterLocation,
+  responseManager: ResponseManager,
+  user: DbUser|null,
+  tabId: string | null,
+}) => {
   const startTime = new Date();
   
   const { ip, userAgent, url } = getRequestMetadata(req);
 
   const cacheAttempt = !shouldSkipCache(req, user);
-
-  const baseRenderParams = { req, res, startTime, userAgent, url, tabId, ip };
-  const cacheSensitiveParams = cacheAttempt
-    ? { cacheAttempt }
-    : { cacheAttempt: false, user } as const;
-
-  const renderParams: AttemptCachedRenderParams | AttemptNonCachedRenderParams = { ...baseRenderParams, ...cacheSensitiveParams };
+  const renderParams: RenderParams = { req, responseManager, startTime, userAgent, url, tabId, ip, cacheAttempt, user };
 
   // If the request isn't eligible to hit the page cache, we record a cache bypass
   if (!cacheAttempt) {
@@ -362,15 +285,21 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   let rendered: RenderResult & { cached?: boolean };
   if (cacheAttempt) {
     rendered = await cachedPageRender(
-      req, res, userAgent, maybePrefetchResources,
+      req, responseManager, userAgent,
       // We need the result of `maybePrefetchResources` in both `cachedPageRender` and `queueRenderRequest`
       // In the case where the page is cached, we need to return the result of the promise from `cachedPageRender`
       // In the case where the page is not cached, we need to return the result of the promise from `queueRenderRequest`
       // But we don't want to call `maybePrefetchResources` twice, so we pipe through the promise we get from calling `maybePrefetchResources` in `cachedPageRender`
-      (req, prefetchedResources) => queueRenderRequest({ req, res, userAgent, startTime, user: null, cacheAttempt, prefetchedResources, isStreaming })
+      () => queueRenderRequest(
+        () => renderRequest({req, user, parsedRoute, startTime, responseManager, userAgent, cacheAttempt: true}),
+        { responseManager, userAgent, startTime, userId: null, ip }
+      )
     );
   } else {
-    rendered = await queueRenderRequest({ req, res, userAgent, startTime, user, cacheAttempt, maybePrefetchResources, isStreaming });
+    rendered = await queueRenderRequest(
+      () => renderRequest({req, user, parsedRoute, startTime, responseManager, userAgent, cacheAttempt: true}),
+      { responseManager, userAgent, startTime, userId: user?._id ?? null, ip }
+    );
   }
 
   closeRenderRequestPerfMetric(rendered);
@@ -407,30 +336,22 @@ const buildSSRBody = (htmlContent: string, userAgent?: string) => {
 }
 
 
-export const renderRequest = async ({req, user, startTime, res, userAgent, isStreaming, ...cacheAttemptParams}: RenderRequestParams): Promise<RenderResult> => {
+export const renderRequest = async ({req, user, parsedRoute, startTime, responseManager, userAgent }: {
+  req: Request,
+  responseManager: ResponseManager,
+  parsedRoute: RouterLocation
+  user: DbUser|null,
+  startTime: Date,
+  userAgent?: string,
+  cacheAttempt: boolean
+}): Promise<RenderResult> => {
   const startCpuTime = getCpuTimeMs();
   const startSqlBytesDownloaded = getSqlBytesDownloaded();
 
-  let prefetchedResources: Promise<boolean | undefined>;
-  if (!cacheAttemptParams.cacheAttempt) {
-    // If this is rendering a request for a page that is not cache-eligible,
-    // we would not yet have called either ensureClientId or maybePrefetchResources
-    // We need to call ensureClientId before:
-    // 1. prefetching resources (because that might write to the response, and we need to set the headers before that)
-    // 2. computing context (to ensure the clientId is set on the request)
-    void ensureClientId(req, res);
-    prefetchedResources = cacheAttemptParams.maybePrefetchResources();
-  } else {
-    // If this is rendering a request for a cache-eligible page that was a cache miss,
-    // we would have called ensureClientId and maybePrefetchResources already in `cachedPageRender`
-    // We can just use the prefetchedResources that were passed in from `cachedPageRender`, and don't need to call ensureClientId again
-    prefetchedResources = cacheAttemptParams.prefetchedResources;
-  }
-
-  const cacheFriendly = responseIsCacheable(res);
+  const cacheFriendly = responseIsCacheable(responseManager.res);
   const timezone = getCookieFromReq(req, "timezone") ?? DEFAULT_TIMEZONE;
 
-  const requestContext = await computeContextFromUser({user, req, res, isSSR: true});
+  const requestContext = await computeContextFromUser({user, req, res: responseManager.res, isSSR: true});
   if (req.closed) {
     // eslint-disable-next-line no-console
     console.log(`Request for ${req.url} from ${user?._id ?? getIpFromRequest(req)} was closed before render started`);
@@ -460,55 +381,81 @@ export const renderRequest = async ({req, user, startTime, res, userAgent, isStr
   
   const now = new Date();
   const themeOptions = getThemeOptionsFromReq(req, user);
+  const jssSheets = renderJssSheetImports(themeOptions);
+  responseManager.addToHeadBlock(jssSheets);
   const helmetContext: {helmet?: HelmetServerState} = {};
+  
+  const renderHeadBlock = () => {
+    return ReactDOM.renderToString(<Head userAgent={userAgent} helmetContext={helmetContext}/>);
+  }
+  
+  let headBlockSent = false;
+  let asSentHeadBlock: string|null = null;
+  const sendHeadBlock = () => {
+    if (!headBlockSent) {
+      headBlockSent = true;
+      const head = renderHeadBlock();
+      responseManager.addToHeadBlock(head);
+      asSentHeadBlock = head;
+      responseManager.commitToNotAddToHeadBlock();
+    }
+  }
+  
+  const headBlocksSeen: string[] = [];
+  const onHeadBlockSent = (name: string) => {
+    if (!headBlocksSeen.includes(name)) {
+      headBlocksSeen.push(name);
+      const expectedHeadBlocks = parsedRoute.currentRoute?.expectedHeadBlocks
+      if (expectedHeadBlocks) {
+        if (!expectedHeadBlocks.includes(name)) {
+          console.log(`Page rendered head block ${name} which was not in the route head blocks list`);
+        }
+        if (every(expectedHeadBlocks, h=>headBlocksSeen.includes(h))) {
+          console.log("All head blocks ready, sending head");
+          setTimeout(() => {
+            sendHeadBlock();
+          }, 0);
+        } else {
+          console.log(`Received head block ${name}`);
+        }
+      }
+    }
+  }
 
-  const WrappedApp = <div id="react-app">
+  const WrappedApp = <body><div id="react-app">
     <AppGenerator
       req={req}
+      onHeadBlockSent={onHeadBlockSent}
       apolloClient={client}
       foreignApolloClient={foreignClient}
       serverRequestStatus={serverRequestStatus}
       abTestGroupsUsed={abTestGroupsUsed}
       ssrMetadata={{renderedAt: now.toISOString(), timezone, cacheFriendly}}
-      enableSuspense={isStreaming}
+      enableSuspense={true}
       themeOptions={themeOptions}
       helmetContext={helmetContext}
     />
-  </div>
+  </div></body>
 
-  let htmlContent = '';
+  let ssrBody = '';
   try {
-    if (isStreaming) {
-      const stream = new ResponseForwarderStream({res, corked: false});
-      await new Promise<void>((resolve) => {
-        const reactPipe = renderToPipeableStream(WrappedApp, {
-          onAllReady: () => {
-            resolve();
-          },
-        });
-        reactPipe.pipe(stream);
-      });
-      htmlContent = "";
-      //htmlContent = stream.getString();
-    } else {
-      htmlContent = await renderToStringWithData(WrappedApp);
-    }
+    // TODO: Add prefix/suffix (from buildSSRBody)
+    ssrBody = await responseManager.addBody(WrappedApp);
   } catch(err) {
     console.error(`Error while fetching Apollo Data. date: ${new Date().toString()} url: ${JSON.stringify(getPathFromReq(req))}`); // eslint-disable-line no-console
     console.error(err); // eslint-disable-line no-console
   }
 
-  const ssrBody = buildSSRBody(htmlContent, userAgent);
-
-  // add headers using helmet
-  const head = ReactDOM.renderToString(<Head userAgent={userAgent} helmetContext={helmetContext}/>);
+  const head = renderHeadBlock();
+  sendHeadBlock();
+  if (head !== asSentHeadBlock) {
+    console.error(`Head block sent was incorrect`);
+  }
 
   // add Apollo state, the client will then parse the string
   const initialState = client.extract();
   const serializedApolloState = embedAsGlobalVar("__APOLLO_STATE__", initialState);
   const serializedForeignApolloState = embedAsGlobalVar("__APOLLO_FOREIGN_STATE__", foreignClient.extract());
-
-  const jssSheets = renderJssSheetImports(themeOptions);
 
   const finishedTime = new Date();
   const finishedCpuTime = getCpuTimeMs();
@@ -561,7 +508,6 @@ export const renderRequest = async ({req, user, startTime, res, userAgent, isStr
     cacheFriendly,
     timezone,
     timings,
-    prefetchedResources,
     aborted: false,
   };
 }

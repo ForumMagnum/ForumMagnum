@@ -1,23 +1,263 @@
+import React from 'react';
 import type { Request, Response } from 'express';
 import { Writable } from 'node:stream';
+import { renderToPipeableStream } from 'react-dom/server';
+
+const debugStreamTiming = true;
+
+export class ResponseManager {
+  res: Response
+  startTimeMs: number
+  status: number|null = null;
+  prefetchHeader: string|null
+  headBlockElements: string[] = []
+  bodyStream: ResponseForwarderStream|null
+  footerElements: string[] = []
+
+  aborted = false
+  httpHeadersClosed = false;
+  prefetchHeaderSent = false;
+  headBlockClosed = false;
+  headBlockSent = false;
+  bodyClosed = false;
+  bodyUncorked = false;
+  bodyFinished = false;
+  footerClosed = false;
+  footerSent = false;
+
+  constructor(res: Response) {
+    this.res = res;
+    this.startTimeMs = new Date().getTime();
+    this.bodyStream = null;
+
+    res.setHeader("X-Accel-Buffering", "no"); // force nginx to send start of response as soon as available
+  }
+
+
+  setHeader(header: string, value: string) {
+    if (this.httpHeadersClosed) {
+      this._errorTooLate(`Tried to set ${header} after headers were already closed`);
+      return;
+    }
+    this.res.setHeader(header, value);
+  }
+
+  setStatus(status: number) {
+    if (status === this.status) {
+      return;
+    }
+    if (this.httpHeadersClosed) {
+      this._errorTooLate(`Tried to set status ${status} after headers were already closed`);
+      return;
+    }
+    this.status = status;
+    this.res.status(status);
+  }
+
+  redirect(status: number, absoluteUrl: string) {
+    if (this.httpHeadersClosed) {
+      this._errorTooLate(`Tried to redirect after headers were already closed`);
+      return;
+    }
+    this.res.status(status).redirect(absoluteUrl);
+  }
+
+  commitToNotUpdateHeaders() {
+    if (!this.httpHeadersClosed) {
+      this.httpHeadersClosed = true;
+      this._sendReadyComponents();
+    }
+  }
+
+
+  setPrefetchHeader(prefetchHeader: string) {
+    this.prefetchHeader = prefetchHeader;
+    this._sendReadyComponents();
+  }
+
+  addToHeadBlock(html: string) {
+    if (this.headBlockClosed) {
+      this._errorTooLate(`Tried to add to head block after headers were already closed`);
+      return;
+    }
+    this.headBlockElements.push(html);
+  }
+
+  commitToNotAddToHeadBlock() {
+    if (!this.headBlockClosed) {
+      this.headBlockClosed = true;
+      this._sendReadyComponents();
+    }
+  }
+  
+  async addBody(Body: React.ReactNode): Promise<string> {
+    if (this.bodyStream) {
+      this._errorTooLate(`Response body was already set`);
+      return "";
+    }
+    if (this.aborted) {
+      this._errorTooLate(`Response was aborted`);
+      return "";
+    }
+
+    const bodyStream = this.bodyStream = new ResponseForwarderStream({
+      res: this.res,
+      corked: true,
+      startTimeMs: this.startTimeMs
+    });
+    await new Promise<void>((resolve) => {
+      const reactPipe = renderToPipeableStream(Body, {
+        onAllReady: () => {
+          this.bodyFinished = true;
+          resolve();
+        },
+      });
+      reactPipe.pipe(bodyStream);
+    });
+    return this.bodyStream.getString();
+  }
+
+  addToFooter(html: string) {
+    if (this.footerClosed) {
+      this._errorTooLate(`Tried to add to footer after footer was already clsoed`);
+      return;
+    }
+    this.footerElements.push(html);
+  }
+  
+  commitToNotAddToFootBlock() {
+    if (!this.footerClosed) {
+      this.footerClosed = true;
+      this._sendReadyComponents();
+    }
+  }
+  
+  isAborted(): boolean {
+    return this.aborted || this.res.closed;
+  }
+  abort(status: number) {
+    if (!this.httpHeadersClosed) {
+      this.res.status(status);
+    }
+    this.aborted = true;
+    this.httpHeadersClosed = this.headBlockClosed = this.bodyClosed = this.footerClosed = true;
+    this.res.end();
+  }
+
+  _sendReadyComponents() {
+    if (!this.httpHeadersClosed) return;
+    if (!this.status) return;
+    
+    if (!this.prefetchHeader) return;
+    if (!this.prefetchHeaderSent) {
+      this._sendPrefetchHeaders();
+    }
+    if (!this.headBlockClosed) return;
+    if (!this.headBlockSent) {
+      this._sendHeadBlock();
+    }
+    if (!this.bodyStream) return;
+    if (!this.bodyUncorked) {
+      this._uncorkBody();
+    }
+    if (!this.bodyFinished) return;
+    if (!this.footerClosed) return;
+    if (!this.footerSent) {
+      this._sendFooter();
+    }
+    this.res.end();
+  }
+
+  _sendPrefetchHeaders() {
+    this._write(`<!doctype html>\n<html lang="en">\n<head>${this.prefetchHeader}`);
+    this.prefetchHeaderSent = true;
+  }
+  
+  _sendHeadBlock() {
+    this._write(`${this.headBlockElements.join("")}</head>`);
+    this.headBlockSent = true;
+  }
+
+  _uncorkBody() {
+    if (this.bodyStream) {
+      this.bodyUncorked = true;
+      this.bodyStream.uncork();
+    }
+  }
+  
+  _sendFooter() {
+    this._write(this.footerElements.join(""));
+    this.footerSent = true;
+  }
+  
+  _write(data: string) {
+    if (debugStreamTiming) {
+      this.res.write(`<!-- ${new Date().getTime() - this.startTimeMs}ms -->`);
+    }
+    this.res.write(data);
+  }
+  
+  async sendAndClose(): Promise<void> {
+    if (this.aborted) {
+      return;
+    }
+    this.commitToNotUpdateHeaders();
+    this.commitToNotAddToHeadBlock();
+    this.commitToNotAddToFootBlock();
+    if (!this.bodyStream) {
+      // eslint-disable-next-line no-console
+      console.error("Closing request but no body was provided");
+    }
+    this._sendReadyComponents();
+  }
+  
+  _errorTooLate(message: string) {
+    // eslint-disable-next-line no-console
+    console.error(message);
+  }
+}
 
 export class ResponseForwarderStream extends Writable {
   private res: Response
   private corked: boolean;
   private _data: string[] = [];
+  private startTimeMs: number
 
-  constructor({res, corked}: {
+  constructor({res, corked, startTimeMs}: {
     res: Response,
     corked: boolean
+    startTimeMs: number
   }) {
     super();
     this.res = res;
     this.corked = corked;
+    this.startTimeMs = startTimeMs;
   }
 
   _write(chunk: any, _encoding: string, callback: (error?: Error|null) => void) {
     if (!this.corked) {
-      this.res.write(chunk);
+      if (debugStreamTiming) {
+        // If debugStreamTiming is turned on, look for a place to insert a
+        // comment indicating how much time has passed since the start of the
+        // request. Specifically, if there's a </script> close tag in this
+        // block, put it just after there. This is a safe place because it
+        // can't be inside JSON or text (it would be escaped if it was), and
+        // these are also the places where previously-sent HTML gets moved
+        // into the DOM and used.
+        const chunkStr = new String(chunk);
+        let endScriptIndex = chunkStr.indexOf("</script>");
+        if (endScriptIndex >= 0) {
+          this.res.write(
+            chunkStr.substring(0, endScriptIndex)
+            + `<!-- ${new Date().getTime() - this.startTimeMs}ms -->`
+            + chunkStr.substring(endScriptIndex)
+          );
+        } else {
+          this.res.write(chunk);
+        }
+      } else {
+        this.res.write(chunk);
+      }
     }
     this._data.push(chunk);
     callback();
@@ -26,6 +266,9 @@ export class ResponseForwarderStream extends Writable {
   uncork() {
     if (this.corked) {
       this.corked = false;
+      if (debugStreamTiming) {
+        this.res.write(`<!-- ${new Date().getTime() - this.startTimeMs}ms -->`);
+      }
       for (const chunk of this._data) {
         this.res.write(chunk);
       }

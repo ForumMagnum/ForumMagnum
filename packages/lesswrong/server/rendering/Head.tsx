@@ -7,15 +7,15 @@ const Head = ({userAgent, helmetContext}: {
 }) => {
   // Helmet.rewind() is deprecated in favour of renderStatic() for better readability
   //@see https://github.com/nfl/react-helmet/releases/tag/5.0.0
-  const helmet = helmetContext.helmet!;
+  const helmet = helmetContext.helmet;
   
   // For any html element type you want to appear in <head>, you have to add it explicitly here
   return (
     <>
-      {helmet.title.toComponent()}
-      {helmet.meta.toComponent()}
-      {helmet.link.toComponent()}
-      {helmet.script.toComponent()}
+      {helmet?.title.toComponent() as unknown as React.ReactNode}
+      {helmet?.meta.toComponent() as unknown as React.ReactNode}
+      {helmet?.link.toComponent() as unknown as React.ReactNode}
+      {helmet?.script.toComponent() as unknown as React.ReactNode}
       
       {/* Twitter link-card
        * Note 2023-10-05: Twitter's "summary_large_image" card currently shows only
