@@ -147,19 +147,17 @@ export function extractTableOfContents({
   }
   
   // If the number of headings is excessive (>30) and will not become small
-  // (<8) if the deepest heading level is dropped, drop the deepest heading
-  // level
-  while (headings.length > 30) {
+  // (<8) if the deepest heading level is dropped, and the deepest heading
+  // level comes from <b>/<strong>, drop the deepest heading level
+  if (headings.length > 30) {
     const deepestHeadingLevel = maxBy(headings, h => h.level)?.level ?? 0;
-    const headingsWithoutDeepestLevel = headings.filter(h => h.level < deepestHeadingLevel);
-    if (headingsWithoutDeepestLevel.length < headings.length) {
-      if (headingsWithoutDeepestLevel.length >= 8) {
-        headings = headingsWithoutDeepestLevel;
-      } else {
-        break;
+    if (deepestHeadingLevel >= 7) {
+      const headingsWithoutDeepestLevel = headings.filter(h => h.level < deepestHeadingLevel);
+      if (headingsWithoutDeepestLevel.length < headings.length) {
+        if (headingsWithoutDeepestLevel.length >= 8) {
+          headings = headingsWithoutDeepestLevel;
+        }
       }
-    } else {
-      break;
     }
   }
 
