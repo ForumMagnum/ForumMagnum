@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { getReviewShortTitle, getReviewYearFromString } from '../../lib/reviewUtils';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { styles } from '../common/HeaderSubtitle';
 import { Link } from '../../lib/reactRouterWrapper';
 
@@ -15,11 +15,7 @@ export const ReviewHeaderTitle = ({classes}: {
   </div>;
 }
 
-const ReviewHeaderTitleComponent = registerComponent('ReviewHeaderTitle', ReviewHeaderTitle, {styles});
+export default registerComponent('ReviewHeaderTitle', ReviewHeaderTitle, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewHeaderTitle: typeof ReviewHeaderTitleComponent
-  }
-}
+
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 // import { loadStripe } from "@stripe/stripe-js";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 // import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { useTracking } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
@@ -81,7 +81,7 @@ const Message = ({ message, classes }: {message: string, classes: ClassesType<ty
     <p>{message}</p>
   </section>
 );
-export default function BookCheckout({classes, ignoreMessages = false, text, link}: {classes: ClassesType<typeof styles>, ignoreMessages?: boolean, text?: string, link: string}) {
+function BookCheckout({classes, ignoreMessages = false, text, link}: {classes: ClassesType<typeof styles>, ignoreMessages?: boolean, text?: string, link: string}) {
   const [message, setMessage] = useState("");
   const { captureEvent } = useTracking()
   
@@ -106,10 +106,6 @@ export default function BookCheckout({classes, ignoreMessages = false, text, lin
   </div>
 }
 
-const BookCheckoutComponent = registerComponent('BookCheckout', BookCheckout, {styles});
+export default registerComponent('BookCheckout', BookCheckout, {styles});
 
-declare global {
-  interface ComponentTypes {
-    BookCheckout: typeof BookCheckoutComponent
-  }
-}
+

@@ -1,12 +1,17 @@
-import React, { useCallback } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import FormLabel from '@material-ui/core/FormLabel';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import Checkbox from '@material-ui/core/Checkbox';
-import ListItemText from '@material-ui/core/ListItemText';
+import React, { useCallback, useMemo } from 'react';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
+import OutlinedInput from '@/lib/vendor/@material-ui/core/src/OutlinedInput';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import classNames from 'classnames';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import SectionTitle from "../common/SectionTitle";
+import PeopleDirectoryFilterDropdown from "../peopleDirectory/PeopleDirectoryFilterDropdown";
+import PeopleDirectorySelectOption from "../peopleDirectory/PeopleDirectorySelectOption";
+import { MenuItem } from "../common/Menus";
+import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   greyDropdownRoot: {
@@ -66,7 +71,7 @@ type MultiselectOption = {
  * MultiSelect: A pick-multiple checkbox list. This is split from FormComponentMultiSelect
  * so that it can be used outside of vulcan-forms.
  */
-const MultiSelect = ({
+const MultiSelectInner = ({
   value,
   setValue,
   label,
@@ -116,9 +121,6 @@ const MultiSelect = ({
   }, [value, setValue]);
 
   if (isGrey) {
-    const {
-      SectionTitle, PeopleDirectoryFilterDropdown, PeopleDirectorySelectOption,
-    } = Components;
     return (
       <div>
         {label && <SectionTitle title={label} titleClassName={classes.sectionTitle} />}
@@ -142,8 +144,6 @@ const MultiSelect = ({
       </div>
     );
   }
-
-  const {MenuItem} = Components;
   return <FormControl>
     {label && <FormLabel className={classes.formLabel}>{label}</FormLabel>}
     <Select
@@ -162,54 +162,45 @@ const MultiSelect = ({
         {options.map(option => {
           return <MenuItem key={option.value} value={option.value}>
             <Checkbox checked={value.some(v => v === option.value)} />
-            <ListItemText primary={option.label} />
+            <Typography variant="subheading" component="span">
+              {option.label}
+            </Typography>
           </MenuItem>
         })}
     </Select>
   </FormControl>
 }
 
+interface FormComponentMultiSelectProps {
+  field: TypedFieldApi<string[]> | TypedFieldApi<string[] | null>;
+  label?: string;
+  placeholder?: string;
+  separator?: string;
+  options: Array<MultiselectOption>;
+  variant?: 'default' | 'grey';
+}
 
-/**
- * FormComponentMultiSelect: Wrapper around MultiSelect for use with
- * vulcan-forms.
- */
-const FormComponentMultiSelect = ({
-  value,
+export const FormComponentMultiSelect = ({
+  field,
   label,
   placeholder,
   separator,
   options,
-  variant,
-  path,
-  updateCurrentValues,
-}: FormComponentProps<string[]> & {
-  separator?: string,
-  options: Array<MultiselectOption>,
-  variant?: "default" | "grey",
-  classes: ClassesType<typeof styles>
-}) => {
-  return <Components.MultiSelect
+  variant = 'default',
+}: FormComponentMultiSelectProps) => {
+  const value = useMemo(() => field.state.value ?? [], [field.state.value]);
+
+  return <MultiSelect
     label={label}
     placeholder={placeholder}
     separator={separator}
     options={options}
     variant={variant}
     value={value}
-    setValue={(value) => {
-      void updateCurrentValues({
-        [path]: value
-      });
-    }}
+    setValue={(value) => field.handleChange(value)}
   />
 }
 
-const MultiSelectComponent = registerComponent("MultiSelect", MultiSelect, {styles});
-const FormComponentMultiSelectComponent = registerComponent("FormComponentMultiSelect", FormComponentMultiSelect);
+export const MultiSelect = registerComponent("MultiSelect", MultiSelectInner, {styles});
 
-declare global {
-  interface ComponentTypes {
-    MultiSelect: typeof MultiSelectComponent
-    FormComponentMultiSelect: typeof FormComponentMultiSelectComponent
-  }
-}
+

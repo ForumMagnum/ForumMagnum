@@ -1,9 +1,13 @@
 import React from 'react'
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
+import { Typography } from "../../common/Typography";
+import ForumIcon from "../../common/ForumIcon";
+import LWTooltip from "../../common/LWTooltip";
 
 export const LW_POST_TITLE_FONT_SIZE = "3.75rem";
 
@@ -43,7 +47,11 @@ export const postPageTitleStyles = (theme: ThemeType) => ({
 
 const styles = defineStyles("PostsPageTitle", (theme: ThemeType) => ({
   root: {
-    ...postPageTitleStyles(theme)
+    ...postPageTitleStyles(theme),
+    ...(isFriendlyUI && {
+      lineHeight: 1.25,
+      fontWeight: 700
+    }),
   },
   draft: {
     color: theme.palette.text.dim4
@@ -73,13 +81,13 @@ const styles = defineStyles("PostsPageTitle", (theme: ThemeType) => ({
   },
 }));
 
-const PostsPageTitle = ({post}: {
+const PostsPageTitle = ({post, className}: {
   post: PostsDetails|PostsList,
+  className?: string
 }) => {
   const classes = useStyles(styles);
   const sourcePostRelations = ('sourcePostRelations' in post) ? post.sourcePostRelations : null;
   const parentPost = sourcePostRelations?.filter(rel => !!rel.sourcePost)?.[0]?.sourcePost;
-  const { Typography, ForumIcon, LWTooltip } = Components;
   const showLinkIcon = post.url && isFriendlyUI;
   const showDialogueIcon = post.collabEditorDialogue && isFriendlyUI;
 
@@ -99,7 +107,7 @@ const PostsPageTitle = ({post}: {
           [ Parent Question — {parentPost.title} ]
         </Link>
       </Typography>}
-      <Typography variant="display3" className={classes.root}>
+      <Typography variant="display3" className={classNames(classes.root, className)}>
         <Link to={postGetPageUrl(post)} className={classes.link}>
           {post.draft && <span className={classes.draft}>[Draft] </span>}
           {mostOfTitle}{mostOfTitle && " "}
@@ -122,11 +130,7 @@ const PostsPageTitle = ({post}: {
   )
 }
 
-const PostsPageTitleComponent = registerComponent('PostsPageTitle', PostsPageTitle);
-export default PostsPageTitleComponent;
+export default registerComponent('PostsPageTitle', PostsPageTitle);
 
-declare global {
-  interface ComponentTypes {
-    PostsPageTitle: typeof PostsPageTitleComponent
-  }
-}
+
+

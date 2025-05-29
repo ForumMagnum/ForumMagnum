@@ -1,10 +1,10 @@
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
-import { legacyBreakpoints } from '../../lib/utils/theme';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useNavigate } from '../../lib/routeUtil';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { SequencesForm } from './SequencesForm';
 
 // Also used by SequencesEditForm
 export const styles = (theme: ThemeType) => ({
@@ -96,7 +96,14 @@ export const styles = (theme: ThemeType) => ({
         },
         '& .ImageUpload-root': {
           marginLeft: '0 !important',
-          paddingTop: '0 !important'
+          paddingTop: '0 !important',
+          // This prevents the container element from getting in the way
+          // of the user clicking on anything at the top of the form,
+          // such as the local storage restoration button.
+          // Since in this case everything is absolutely positioned,
+          // we can just set the height to 0 and it won't affect any
+          // of the actual content being handled by this element.
+          maxHeight: 0,
         },
   
         [theme.breakpoints.down('sm')]: {
@@ -129,15 +136,16 @@ export const styles = (theme: ThemeType) => ({
         },
       },
       "& .image-remove-button": {
+        position: "absolute",
+        left: 15,
+        top: 65,
+        background: theme.palette.buttons.imageUpload.background,
+        "&:hover": {
+          background: theme.palette.buttons.imageUpload.hoverBackground,
+        },
+        color: theme.palette.text.invertedBackgroundText,
         [theme.breakpoints.down('sm')]: {
-          position: "absolute !important",
-          left: 6,
           top: 102,
-          background: theme.palette.buttons.imageUpload.background,
-          "&:hover": {
-            background: theme.palette.buttons.imageUpload.hoverBackground,
-          },
-          color: theme.palette.text.invertedBackgroundText,
         },
       },
     
@@ -162,17 +170,13 @@ const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback, cla
   if (currentUser) {
     return (
       <div className={classes.sequencesForm}>
-        <Components.WrappedSmartForm
-          collectionName="Sequences"
-          successCallback={(sequence: any) => {
+        <SequencesForm
+          currentUser={currentUser}
+          onSuccess={(sequence) => {
             navigate({pathname: redirect || '/s/' + sequence._id });
             flash({messageString: "Successfully created Sequence", type: "success"});
           }}
-          cancelCallback={cancelCallback}
-          removeSuccessCallback={removeSuccessCallback}
-          prefilledProps={{userId: currentUser._id}}
-          queryFragment={getFragment('SequencesEdit')}
-          mutationFragment={getFragment('SequencesPageFragment')}
+          onCancel={cancelCallback}
         />
       </div>
     )
@@ -181,10 +185,6 @@ const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback, cla
   }
 }
 
-const SequencesNewFormComponent = registerComponent('SequencesNewForm', SequencesNewForm, {styles});
+export default registerComponent('SequencesNewForm', SequencesNewForm, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesNewForm: typeof SequencesNewFormComponent
-  }
-}
+

@@ -1,12 +1,11 @@
-import Collections from "../../lib/collections/collections/collection";
-import Sequences from "../../lib/collections/sequences/collection";
-import { Posts } from "../../lib/collections/posts";
-import { runQuery } from '../vulcan-lib';
-import { getCollectionHooks } from '../mutationCallbacks';
+import Collections from "../../server/collections/collections/collection";
+import Sequences from "../../server/collections/sequences/collection";
+import { Posts } from "../../server/collections/posts/collection";
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import * as _ from 'underscore';
 
 async function getCompleteCollection(id: string) {
+  const { runQuery }: typeof import('../vulcan-lib/query') = require('../vulcan-lib/query');
   const query = `
   query CodexComplete {
     collection(input: {selector: {documentId:"${id}"}}) {
@@ -105,7 +104,7 @@ async function updateCollectionPosts(posts: Array<DbPost>, collectionSlug: strin
   })
 }
 
-getCollectionHooks("Books").editAsync.add(async function UpdateCollectionLinks (book: DbBook) {
+export async function updateCollectionLinks(book: DbBook) {
   const collectionId = book.collectionId
   const results = await getAllCollectionPosts(collectionId)
 
@@ -130,4 +129,4 @@ getCollectionHooks("Books").editAsync.add(async function UpdateCollectionLinks (
 
   //eslint-disable-next-line no-console
   // console.log(`...finished Updating Collection Links for ${collectionId}`)
-});
+}

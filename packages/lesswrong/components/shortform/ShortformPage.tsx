@@ -1,6 +1,9 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import SingleColumnSection from "../common/SingleColumnSection";
+import ShortformThreadList from "./ShortformThreadList";
+import SectionTitle from "../common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   column: {
@@ -12,8 +15,6 @@ const styles = (theme: ThemeType) => ({
 const ShortformPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SingleColumnSection, ShortformThreadList, SectionTitle } = Components
-
   return (
     <SingleColumnSection>
       <div className={classes.column}>
@@ -24,10 +25,6 @@ const ShortformPage = ({classes}: {
   )
 }
 
-const ShortformPageComponent = registerComponent('ShortformPage', ShortformPage, {styles});
+export default registerComponent('ShortformPage', ShortformPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ShortformPage: typeof ShortformPageComponent
-  }
-}
+

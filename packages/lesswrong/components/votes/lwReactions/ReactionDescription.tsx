@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import type { NamesAttachedReactionType } from '../../../lib/voting/reactions';
 
 const ReactionDescription = ({reaction, contentType="comment", className}: {
@@ -18,11 +18,7 @@ const ReactionDescription = ({reaction, contentType="comment", className}: {
   }
 }
 
-const ReactionDescriptionComponent = registerComponent('ReactionDescription', ReactionDescription);
+export default registerComponent('ReactionDescription', ReactionDescription);
 
-declare global {
-  interface ComponentTypes {
-    ReactionDescription: typeof ReactionDescriptionComponent
-  }
-}
+
 

@@ -1,5 +1,5 @@
 import { computeContextFromUser, getUserFromReq } from '../vulcan-lib/apollo-server/context';
-import { Posts } from '../../lib/collections/posts'
+import { Posts } from '../../server/collections/posts/collection'
 import { getCollaborativeEditorAccess, CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import { getCKEditorDocumentId } from '../../lib/ckEditorUtils'
 import { userGetDisplayName } from '../../lib/collections/users/helpers';

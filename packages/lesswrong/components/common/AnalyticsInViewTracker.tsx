@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useEffect, useCallback } from 'react';
 import { useIsInView, useTracking } from "../../lib/analyticsEvents";
 
@@ -32,10 +32,6 @@ const AnalyticsInViewTracker = ({eventType, eventProps, observerProps, children,
   )
 }
 
-const AnalyticsInViewTrackerComponent = registerComponent('AnalyticsInViewTracker', AnalyticsInViewTracker)
+export default registerComponent('AnalyticsInViewTracker', AnalyticsInViewTracker);
 
-declare global {
-  interface ComponentTypes {
-    AnalyticsInViewTracker: typeof AnalyticsInViewTrackerComponent
-  }
-}
+

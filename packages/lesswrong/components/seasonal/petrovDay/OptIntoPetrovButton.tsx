@@ -1,11 +1,13 @@
 import { useCreate } from '@/lib/crud/withCreate';
 import { useMulti } from '@/lib/crud/withMulti';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
+import LWTooltip from "../../common/LWTooltip";
+import LoginPopupButton from "../../users/LoginPopupButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -160,9 +162,6 @@ const OptIntoPetrovButton = ({classes }: {
   const currentUserOptedIn = !!petrovDayActions?.length
 
   const optedIn = currentUserOptedIn || displayOptedIn
-  
-  const { LWTooltip, LoginPopupButton } = Components
-
   const updateCurrentUser = useUpdateCurrentUser();
 
   const { create: createPetrovDayAction } = useCreate({
@@ -263,11 +262,7 @@ const OptIntoPetrovButton = ({classes }: {
       </div>
 }
 
-const OptIntoPetrovButtonComponent = registerComponent('OptIntoPetrovButton', OptIntoPetrovButton, {styles});
+export default registerComponent('OptIntoPetrovButton', OptIntoPetrovButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    OptIntoPetrovButton: typeof OptIntoPetrovButtonComponent
-  }
-}
+
 

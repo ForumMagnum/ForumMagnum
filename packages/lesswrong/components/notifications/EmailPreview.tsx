@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 
 const styles = (theme: ThemeType) => ({
   emailPreview: {
@@ -46,11 +46,7 @@ export const EmailPreview = ({email, sentDate, classes}: {
   </div>;
 }
 
-const EmailPreviewComponent = registerComponent('EmailPreview', EmailPreview, {styles});
+export default registerComponent('EmailPreview', EmailPreview, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EmailPreview: typeof EmailPreviewComponent
-  }
-}
+
 

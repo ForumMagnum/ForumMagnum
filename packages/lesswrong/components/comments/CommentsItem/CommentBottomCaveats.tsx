@@ -1,8 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { commentIsHidden } from '../../../lib/collections/comments/helpers';
 import moment from 'moment';
+import CalendarDate from "../../common/CalendarDate";
+import MetaInfo from "../../common/MetaInfo";
 
 const styles = (theme: ThemeType) => ({
   caveatText: {
@@ -30,26 +32,22 @@ const CommentBottomCaveats = ({comment, classes}: {
     { blockedReplies &&
       <div className={classes.blockedReplies}>
         A moderator has deactivated replies on this comment{" "}
-        {!blockIsForever && <>until <Components.CalendarDate date={comment.repliesBlockedUntil}/></>}
+        {!blockIsForever && <>until <CalendarDate date={comment.repliesBlockedUntil}/></>}
       </div>
     }
     {comment.retracted
-      && <Components.MetaInfo className={classes.caveatText}>
+      && <MetaInfo className={classes.caveatText}>
         [This comment is no longer endorsed by its author]
-      </Components.MetaInfo>
+      </MetaInfo>
     }
     {commentIsHidden(comment) && !comment.rejected
-      && <Components.MetaInfo className={classes.caveatText}>
+      && <MetaInfo className={classes.caveatText}>
         [This comment will not be visible to other users until the moderation team has reviewed it.]
-      </Components.MetaInfo>
+      </MetaInfo>
     }
   </>
 }
 
-const CommentBottomCaveatsComponent = registerComponent("CommentBottomCaveats", CommentBottomCaveats, {styles});
+export default registerComponent("CommentBottomCaveats", CommentBottomCaveats, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentBottomCaveats: typeof CommentBottomCaveatsComponent
-  }
-}
+

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
+import LWTooltip from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   readTime: {
@@ -10,18 +11,24 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
+
+
 const PostFixedPositionToCHeading = ({post, classes}: {
-  post: PostsListWithVotes
+  post: PostsListWithVotes,
   classes: ClassesType<typeof styles>,
 }) => {
-  return <div className={classes.readTime}>{post.readTimeMinutes} min read</div>
+  const wordCount = post.contents?.wordCount;
+
+  const readTime = <div className={classes.readTime}>{post.readTimeMinutes} min read</div>
+
+  if (!wordCount) return readTime;
+
+  return <LWTooltip title={`${Number(wordCount.toPrecision(2)).toLocaleString()} words`}>
+    {readTime}
+  </LWTooltip>
 }
 
-const FixedPositionToCHeadingComponent = registerComponent('PostFixedPositionToCHeading', PostFixedPositionToCHeading, {styles});
+export default registerComponent('PostFixedPositionToCHeading', PostFixedPositionToCHeading, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostFixedPositionToCHeading: typeof FixedPositionToCHeadingComponent
-  }
-}
+
 

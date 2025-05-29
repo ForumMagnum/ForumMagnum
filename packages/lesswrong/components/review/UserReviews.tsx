@@ -1,7 +1,12 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
+import SingleColumnSection from "../common/SingleColumnSection";
+import RecentComments from "../comments/RecentComments";
+import SectionTitle from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
+import Error404 from "../common/Error404";
 
 const UserReviews = () => {
   const { params: { slug, year } } = useLocation();
@@ -13,8 +18,6 @@ const UserReviews = () => {
   });
 
   const user = results?.length ? results[0] : null
-  const { SingleColumnSection, RecentComments, SectionTitle, Loading, Error404 } = Components
-
   if (loading) return <Loading />
   if (!user) return <Error404 />
   if (!year) return <Error404 />
@@ -65,11 +68,7 @@ const UserReviews = () => {
 
 };
 
-const UserReviewsComponent = registerComponent('UserReviews', UserReviews);
+export default registerComponent('UserReviews', UserReviews);
 
-declare global {
-  interface ComponentTypes {
-    UserReviews: typeof UserReviewsComponent
-  }
-}
+
 

@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { sortings } from '../posts/DraftsList';
+import SectionTitle from "../common/SectionTitle";
+import SettingsButton from "../icons/SettingsButton";
+import DraftsListSettings from "../posts/DraftsListSettings";
+import PostsItemWrapper from "../posts/PostsItemWrapper";
+import LoadMore from "../common/LoadMore";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   item: {
@@ -30,8 +36,6 @@ const SequenceDraftsList = ({limit, title="My Drafts", userId, classes, addDraft
 }) => {
   const [showSettings, setShowSettings] = useState(false);
   const currentUser = useCurrentUser();
-  const { Loading } = Components
-  
   const { query } = useLocation();
 
   const currentSorting = query.sortDraftsBy ?? query.view ?? currentUser?.draftsListSorting ?? "lastModified";
@@ -41,7 +45,7 @@ const SequenceDraftsList = ({limit, title="My Drafts", userId, classes, addDraft
     userId: userId ?? currentUser?._id,
     limit,
     sortDraftsBy: currentSorting,
-    includeArchived: !!query.includeArchived ? (query.includeArchived === 'true') : currentUser?.draftsListShowArchived,
+    includeArchived: !!query.includeArchived ? (query.includeArchived === 'true') : (currentUser?.draftsListShowArchived ?? undefined),
     includeShared: !!query.includeShared ? (query.includeShared === 'true') : (currentUser?.draftsListShowShared !== false),
   }
   
@@ -57,12 +61,12 @@ const SequenceDraftsList = ({limit, title="My Drafts", userId, classes, addDraft
 
   return <>
     {(!results && loading) ? <Loading /> : <>
-      <Components.SectionTitle title={title} noTopMargin={true}>
+      <SectionTitle title={title} noTopMargin={true}>
         <div onClick={() => setShowSettings(!showSettings)}>
-          <Components.SettingsButton label={`Sorted by ${ sortings[currentSorting]}`}/>
+          <SettingsButton label={`Sorted by ${ sortings[currentSorting]}`}/>
         </div>
-      </Components.SectionTitle>
-      {showSettings && <Components.DraftsListSettings
+      </SectionTitle>
+      {showSettings && <DraftsListSettings
         hidden={false}
         persistentSettings={true}
         currentSorting={currentSorting}
@@ -72,20 +76,16 @@ const SequenceDraftsList = ({limit, title="My Drafts", userId, classes, addDraft
       />}
       {results && results.map((post: PostsList) =>
         <li key={post._id} className={classes.item} onClick={() => addDraft(post._id)} >
-          <Components.PostsItemWrapper documentId={post._id} addItem={addDraft} disabled={dialogPostIds.includes(post._id)} simpleAuthor={true} draggable={false} />
+          <PostsItemWrapper documentId={post._id} addItem={addDraft} disabled={dialogPostIds.includes(post._id)} simpleAuthor={true} draggable={false} />
         </li>
       )}
     </>}
-    <Components.LoadMore { ...loadMoreProps } />
+    <LoadMore { ...loadMoreProps } />
   </>
 }
 
-const SequenceDraftsListComponent = registerComponent(
+export default registerComponent(
   'SequenceDraftsList', SequenceDraftsList, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    SequenceDraftsList: typeof SequenceDraftsListComponent
-  }
-}
+

@@ -1,16 +1,15 @@
-import { Sequences } from '../../lib/collections/sequences/collection';
+import { Sequences } from '../../server/collections/sequences/collection';
 import { sequenceGetAllPosts } from '../../lib/collections/sequences/helpers';
-import { Posts } from '../../lib/collections/posts/collection'
-import { createAdminContext } from '../vulcan-lib/query';
-import { getCollectionHooks } from '../mutationCallbacks';
+import { Posts } from '../../server/collections/posts/collection'
+import { UpdateCallbackProperties } from '../mutationCallbacks';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import * as _ from 'underscore';
 import { createNotifications, getSubscribedUsers } from '../notificationCallbacksHelpers';
-import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
+import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers';
 import xor from 'lodash/xor';
 
-async function ChaptersEditCanonizeCallback (chapter: DbChapter) {
-  const context = await createAdminContext();
+export async function canonizeChapterPostInfo(chapter: DbChapter, context: ResolverContext) {
+  const { Posts, Sequences } = context;
   const posts = await sequenceGetAllPosts(chapter.sequenceId, context)
   const sequence = await Sequences.findOne({_id:chapter.sequenceId})
 
@@ -50,11 +49,7 @@ async function ChaptersEditCanonizeCallback (chapter: DbChapter) {
   })
 }
 
-getCollectionHooks("Chapters").newAsync.add(ChaptersEditCanonizeCallback);
-getCollectionHooks("Chapters").editAsync.add(ChaptersEditCanonizeCallback);
-
-
-getCollectionHooks("Chapters").updateAsync.add(async function UpdateSequence({oldDocument, newDocument}) {
+export async function updateSequenceLastUpdated({oldDocument, newDocument}: UpdateCallbackProperties<'Chapters'>) {
   // If any of the user-facing fields have changed, also update the parent sequence's lastUpdated date
   if (
     oldDocument.title !== newDocument.title ||
@@ -66,9 +61,9 @@ getCollectionHooks("Chapters").updateAsync.add(async function UpdateSequence({ol
       {$set: {lastUpdated: new Date()}}
     )
   }
-});
+}
 
-getCollectionHooks("Chapters").updateAsync.add(async function NewSequencePostNotifications({oldDocument, newDocument, context}) {
+export async function notifyUsersOfNewPosts({oldDocument, newDocument, context}: UpdateCallbackProperties<'Chapters'>) {
   // Check if there were any posts added to this chapter
   const newPostIds = _.difference(newDocument.postIds, oldDocument.postIds)
   if (!newPostIds.length) {
@@ -97,4 +92,4 @@ getCollectionHooks("Chapters").updateAsync.add(async function NewSequencePostNot
     subscribedUserIds = context.currentUser?._id ? _.difference(subscribedUserIds, context.currentUser._id) : subscribedUserIds
     await createNotifications({userIds: subscribedUserIds, notificationType: 'newSequencePosts', documentType: 'sequence', documentId: sequence._id, extraData: {postIds: newPostIds}})
   }
-});
+}

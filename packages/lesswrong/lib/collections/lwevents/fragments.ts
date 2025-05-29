@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const newEventFragment = () => frag`
   fragment newEventFragment on LWEvent {
     _id
     createdAt
@@ -10,9 +10,9 @@ registerFragment(`
     properties
     intercom
   }
-`);
+`
 
-registerFragment(`
+export const lastEventFragment = () => frag`
   fragment lastEventFragment on LWEvent {
     _id
     createdAt
@@ -23,9 +23,9 @@ registerFragment(`
     properties
     intercom
   }
-`);
+`
 
-registerFragment(`
+export const lwEventsAdminPageFragment = () => frag`
   fragment lwEventsAdminPageFragment on LWEvent {
     _id
     createdAt
@@ -39,9 +39,9 @@ registerFragment(`
     properties
     intercom
   }
-`);
+`
 
-registerFragment(`
+export const emailHistoryFragment = () => frag`
   fragment emailHistoryFragment on LWEvent {
     _id
     createdAt
@@ -49,4 +49,4 @@ registerFragment(`
     name
     properties
   }
-`);
+`

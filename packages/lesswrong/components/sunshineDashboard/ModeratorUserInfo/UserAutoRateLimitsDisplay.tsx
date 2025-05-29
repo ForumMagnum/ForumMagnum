@@ -1,12 +1,13 @@
 import React from 'react';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
-import { getActiveRateLimitNames, getStrictestActiveRateLimitNames as getStrictestActiveRateLimits } from '../../../lib/rateLimits/utils';
-import { getDownvoteRatio } from '../UsersReviewInfoCard';
-import StarIcon from '@material-ui/icons/Star';
-import StarBorderIcon from '@material-ui/icons/StarBorder';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { getActiveRateLimitNames, getDownvoteRatio, getStrictestActiveRateLimitNames as getStrictestActiveRateLimits } from '../../../lib/rateLimits/utils';
+import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
+import StarBorderIcon from '@/lib/vendor/@material-ui/icons/src/StarBorder';
+import ExpandMoreIcon from '@/lib/vendor/@material-ui/icons/src/ExpandMore';
+import MetaInfo from "../../common/MetaInfo";
+import LWTooltip from "../../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   padding: {
@@ -62,8 +63,6 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: 
   classes: ClassesType<typeof styles>,
   showKarmaMeta?: boolean
 }) => {
-  const { MetaInfo, LWTooltip } = Components
-
   const roundedDownvoteRatio = Math.round(getDownvoteRatio(user) * 100)
   const allRateLimits = [...forumSelect(autoPostRateLimits), ...forumSelect(autoCommentRateLimits)]
   const strictestRateLimits = getStrictestActiveRateLimits(user, allRateLimits);
@@ -108,10 +107,6 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: 
   </div>;
 }
 
-const UserAutoRateLimitsDisplayComponent = registerComponent('UserAutoRateLimitsDisplay', UserAutoRateLimitsDisplay, {styles});
+export default registerComponent('UserAutoRateLimitsDisplay', UserAutoRateLimitsDisplay, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UserAutoRateLimitsDisplay: typeof UserAutoRateLimitsDisplayComponent
-  }
-}
+

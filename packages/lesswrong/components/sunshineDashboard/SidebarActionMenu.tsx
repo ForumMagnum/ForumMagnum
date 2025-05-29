@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 
 const styles = (theme: ThemeType) => ({
@@ -24,11 +24,7 @@ const SidebarActionMenu = ({children, classes}: {
   </div>
 };
 
-const SidebarActionMenuComponent = registerComponent('SidebarActionMenu', SidebarActionMenu, {styles});
+export default registerComponent('SidebarActionMenu', SidebarActionMenu, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SidebarActionMenu: typeof SidebarActionMenuComponent
-  }
-}
+
 

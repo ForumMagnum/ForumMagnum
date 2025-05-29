@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { ExpandedDate } from "../common/FormatDate";
@@ -8,6 +8,12 @@ import { isMobile } from "../../lib/utils/isMobile";
 import withErrorBoundary from "../common/withErrorBoundary";
 import moment from "moment";
 import { useTracking } from "../../lib/analyticsEvents";
+import LWPopper from "../common/LWPopper";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
+import UsersName from "../users/UsersName";
+import FooterTag from "../tagging/FooterTag";
+import CommentsNodeInner from "../comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -104,15 +110,10 @@ const ShortformListItem = ({comment, hideTag, classes}: {
     showCollapseButtons: true,
     onToggleCollapsed: () => wrappedSetExpanded(!expanded),
   };
-
-  const {
-    LWPopper, LWTooltip, ForumIcon, UsersName, FooterTag, CommentsNode
-  } = Components;
-
   if (expanded) {
     return (
       <div className={classes.expandedRoot}>
-        <CommentsNode
+        <CommentsNodeInner
           treeOptions={treeOptions}
           comment={comment}
           loadChildrenSeparately
@@ -124,7 +125,7 @@ const ShortformListItem = ({comment, hideTag, classes}: {
   const karma = comment.baseScore ?? 0;
   const commentCount = comment.descendentCount ?? 0;
   const primaryTag = comment.relevantTags?.[0];
-  const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile();
+  const displayHoverOver = hover && (karma > -5) && !isMobile();
 
   return (
     <div
@@ -161,7 +162,7 @@ const ShortformListItem = ({comment, hideTag, classes}: {
         </div>
       }
       <div className={classes.tag}>
-        {!hideTag && primaryTag && <FooterTag tag={primaryTag} smallText />}
+        {!hideTag && primaryTag && <FooterTag tag={primaryTag} smallText hoverable={true} />}
       </div>
       <div className={classes.preview}>
         {comment.contents?.plaintextMainText}
@@ -173,7 +174,7 @@ const ShortformListItem = ({comment, hideTag, classes}: {
         clickable={false}
       >
         <div className={classes.hoverOver}>
-          <CommentsNode
+          <CommentsNodeInner
             truncated
             nestingLevel={1}
             comment={comment}
@@ -191,7 +192,7 @@ const ShortformListItem = ({comment, hideTag, classes}: {
   );
 }
 
-const ShortformListItemComponent = registerComponent(
+export default registerComponent(
   "ShortformListItem",
   ShortformListItem, {
     styles,
@@ -202,8 +203,4 @@ const ShortformListItemComponent = registerComponent(
   },
 );
 
-declare global {
-  interface ComponentTypes {
-    ShortformListItem: typeof ShortformListItemComponent,
-  }
-}
+

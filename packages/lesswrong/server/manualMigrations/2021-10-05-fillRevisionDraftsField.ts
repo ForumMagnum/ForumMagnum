@@ -1,8 +1,8 @@
 import { registerMigration, forEachBucketRangeInCollection } from './migrationUtils';
-import { Revisions } from '../../lib/collections/revisions/collection';
+import { Revisions } from '../../server/collections/revisions/collection';
 
 
-registerMigration({
+export default registerMigration({
   name: "fillRevisionDraftsField",
   dateWritten: "2021-10-05",
   idempotent: true,

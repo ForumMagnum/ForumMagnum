@@ -1,16 +1,17 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
-import Checkbox from '@material-ui/core/Checkbox';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { QueryLink } from '../../lib/reactRouterWrapper'
 import * as _ from 'underscore';
-import Tooltip from '@material-ui/core/Tooltip';
 import { useCurrentUser } from '../common/withUser';
 
 import { sortings as defaultSortings } from './DraftsList'
 import { preferredHeadingCase } from '../../themes/forumTheme';
-
+import { TooltipSpan } from '../common/FMTooltip';
+import MetaInfo from "../common/MetaInfo";
+import SettingsColumn from "../common/SettingsColumn";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -63,7 +64,6 @@ const DraftsListSettings = ({
   sortings?: any,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { MetaInfo, SettingsColumn } = Components
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   
@@ -87,7 +87,7 @@ const DraftsListSettings = ({
       />
       <div>
         
-        <Tooltip title={<div><div>By default, archived posts are hidden.</div><div>Toggle to show them.</div></div>} placement="left-start">
+        <TooltipSpan title={<div><div>By default, archived posts are hidden.</div><div>Toggle to show them.</div></div>} placement="left-start">
           <QueryLink
             className={classes.checkboxGroup}
             onClick={() => setSetting('showArchived', !currentIncludeArchived)}
@@ -101,8 +101,8 @@ const DraftsListSettings = ({
               {preferredHeadingCase("Show Archived")}
             </MetaInfo>
           </QueryLink>
-        </Tooltip>
-        <Tooltip title={<div><div>By default, posts shared with you are shown.</div><div>Toggle to hide them.</div></div>} placement="left-start">
+        </TooltipSpan>
+        <TooltipSpan title={<div><div>By default, posts shared with you are shown.</div><div>Toggle to hide them.</div></div>} placement="left-start">
           <QueryLink
             className={classes.checkboxGroup}
             onClick={() => setSetting('showShared', !currentIncludeShared)}
@@ -116,18 +116,14 @@ const DraftsListSettings = ({
               {preferredHeadingCase("Show Shared with You")}
             </MetaInfo>
           </QueryLink>
-        </Tooltip>
+        </TooltipSpan>
       </div>
     </div>
   );
 };
 
-const DraftsListSettingsComponent = registerComponent(
+export default registerComponent(
   'DraftsListSettings', DraftsListSettings, { styles }
 );
 
-declare global {
-  interface ComponentTypes {
-    DraftsListSettings: typeof DraftsListSettingsComponent
-  }
-}
+

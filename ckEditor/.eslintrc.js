@@ -46,6 +46,8 @@ module.exports = {
     "@typescript-eslint/space-infix-ops": 0,
     "@typescript-eslint/space-before-blocks": 0,
     "@typescript-eslint/space-before-function-paren": 0,
+    "@typescript-eslint/type-annotation-spacing": 0,
+    "@typescript-eslint/func-call-spacing": 0,
     "spaced-comment": 0,
     "lines-around-comment": 0,
     "template-curly-spacing": 0,
@@ -74,6 +76,7 @@ module.exports = {
     "padded-blocks": 0,
     "@typescript-eslint/array-type": 0,
     "no-useless-escape": 0,
+    "object-shorthand": 0,
 
     // Our main project uses two-space indents, while CkEditor's convention is tabs (ts=4).
     // Our plugins are currently an awkward mix of two-space indents, four-space indents, and

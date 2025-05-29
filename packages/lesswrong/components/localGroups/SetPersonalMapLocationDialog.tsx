@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import Geosuggest from 'react-geosuggest';
 // These imports need to be separate to satisfy eslint, for some reason
 import type { Suggest } from 'react-geosuggest';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import TextField from '@material-ui/core/TextField';
+import { DialogContent } from "@/components/widgets/DialogContent";
+import { DialogActions } from '../widgets/DialogActions';
+import { DialogTitle } from "@/components/widgets/DialogTitle";
+import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import { sharedStyles } from './EventNotificationsDialog'
 import { useGoogleMaps } from '../form-components/LocationFormComponent'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useSingle } from '../../lib/crud/withSingle';
+import Loading from "../vulcan-core/Loading";
+import { Typography } from "../common/Typography";
+import LWDialog from "../common/LWDialog";
 
 const suggestionToGoogleMapsLocation = (suggestion: Suggest) => {
   return suggestion ? suggestion.gmaps : null
@@ -34,8 +37,6 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
     skip: !currentUser,
   });
   const { mapLocation, googleLocation, } = currentUser || {}
-  const { Loading, Typography, LWDialog } = Components
-  
   const [ mapsLoaded ] = useGoogleMaps()
   const [ location, setLocation ] = useState(mapLocation || googleLocation)
   const [ label, setLabel ] = useState(mapLocation?.formatted_address || googleLocation?.formatted_address)
@@ -106,11 +107,7 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
   )
 }
 
-const SetPersonalMapLocationDialogComponent = registerComponent('SetPersonalMapLocationDialog', SetPersonalMapLocationDialog, {styles});
+export default registerComponent('SetPersonalMapLocationDialog', SetPersonalMapLocationDialog, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SetPersonalMapLocationDialog: typeof SetPersonalMapLocationDialogComponent
-  }
-}
+
 

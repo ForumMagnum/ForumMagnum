@@ -1,15 +1,15 @@
 import React, { MouseEvent, useState, useCallback, useRef, useEffect } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useQuickTakesTags } from "./useQuickTakesTags";
-import {
-  COMMENTS_NEW_FORM_PADDING,
+import CommentsNewForm, {
   CommentCancelCallback,
-  CommentSuccessCallback,
-} from "../comments/CommentsNewForm";
+  CommentSuccessCallback } from "../comments/CommentsNewForm";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { useDialog } from "../common/withDialog";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
+import { COMMENTS_NEW_FORM_PADDING } from "@/lib/collections/comments/constants";
+import LoginPopup from "../users/LoginPopup";
 
 const COLLAPSED_HEIGHT = 40;
 
@@ -65,7 +65,7 @@ const styles = (theme: ThemeType) => ({
     '& .ck .ck-placeholder': {
       position: 'unset'
     },
-    '& .CommentsNewForm-submitQuickTakes': {
+    '& .CommentSubmit-submitQuickTakes': {
       display: 'none'
     }
   },
@@ -124,8 +124,8 @@ const QuickTakesEntry = ({
         onSignup();
       } else {
         openDialog({
-          componentName: "LoginPopup",
-          componentProps: {}
+          name: "LoginPopup",
+          contents: ({onClose}) => <LoginPopup onClose={onClose} />
         });
         setExpanded(true);
       }
@@ -154,8 +154,6 @@ const QuickTakesEntry = ({
 
   // is true when user is logged out or has not been reviewed yet, i.e. has made no contributions yet
   const showNewUserMessage = !currentUser?.reviewedByUserId && !isFriendlyUI;
-
-  const {CommentsNewForm} = Components;
   return <div className={classNames(classes.root, className)} ref={ref}>
     {/* TODO: Write a better message for new users */}
     {expanded && showNewUserMessage && <div className={classes.userNotApprovedMessage}>Quick Takes is an excellent place for your first contribution!</div>}
@@ -184,14 +182,10 @@ const QuickTakesEntry = ({
   </div>
 }
 
-const QuickTakesEntryComponent = registerComponent(
+export default registerComponent(
   "QuickTakesEntry",
   QuickTakesEntry,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    QuickTakesEntry: typeof QuickTakesEntryComponent
-  }
-}
+

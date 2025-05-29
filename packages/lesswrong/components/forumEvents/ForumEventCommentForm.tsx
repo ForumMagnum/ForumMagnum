@@ -1,13 +1,20 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMessages } from '../common/withMessages';
 import { State } from '@popperjs/core/lib/types';
+import { PartialDeep } from 'type-fest';
+import CommentsNewForm from "../comments/CommentsNewForm";
+import LWPopper from "../common/LWPopper";
+import ForumIcon from "../common/ForumIcon";
+import CommentsEditForm from "../comments/CommentsEditForm";
+import CommentBody from "../comments/CommentsItem/CommentBody";
+import ForumEventEmojiPicker from "./ForumEventEmojiPicker";
 
 const WIDTH = 350;
 
 const styles = (theme: ThemeType) => ({
   popperContent: {
-    margin: 12,
+    margin: "8px 12px",
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 13,
     fontWeight: 500,
@@ -31,6 +38,9 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer",
     width: "20px",
     height: "20px"
+  },
+  commentFormWrapper: {
+    flex: 1
   },
   commentForm: {
     padding: 0,
@@ -67,6 +77,11 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 700,
     marginBottom: 12
   },
+  formSection: {
+    display: "flex",
+    alignItems: "start",
+    gap: "8px"
+  },
   triangle: {
     position: 'absolute',
     top: -5,
@@ -94,41 +109,44 @@ const styles = (theme: ThemeType) => ({
 const ForumEventCommentForm = ({
   open,
   comment,
-  forumEventId,
+  forumEvent,
   post,
-  refetch,
-  onClose,
+  cancelCallback,
+  successCallback,
+  setEmoji,
   anchorEl,
   title,
   subtitle,
   successMessage="Comment posted",
+  prefilledProps: extraPrefilledProps,
   className,
   classes,
 }: {
   open: boolean;
   comment: ShortformComments | null;
-  forumEventId: string;
+  forumEvent: Pick<DbForumEvent, "_id" | "eventFormat">
   anchorEl: HTMLElement | null;
   post: PostsMinimumInfo;
-  onClose: () => void;
-  refetch: () => Promise<void>;
+  cancelCallback: () => Promise<void> | void;
+  successCallback: () => Promise<void> | void;
+  setEmoji?: (emoji: string) => void;
   title: ((post: PostsMinimumInfo, comment: ShortformComments | null) => React.ReactNode) | React.ReactNode;
   subtitle: ((post: PostsMinimumInfo, comment: ShortformComments | null) => React.ReactNode) | React.ReactNode;
   successMessage?: string;
+  prefilledProps?: PartialDeep<DbComment>;
   className?: string;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { CommentsNewForm, LWPopper, ForumIcon, CommentsEditForm, CommentBody } = Components;
+  const hasEmoji = !!setEmoji;
 
   const [editFormOpen, setEditFormOpen] = useState(false);
   const { flash } = useMessages();
   const updatePopperRef = useRef<(() => Promise<Partial<State>>) | undefined>(undefined);
 
   const onSubmit = useCallback(async () => {
+    await successCallback();
     flash(successMessage)
-    await refetch();
-    onClose();
-  }, [flash, onClose, refetch, successMessage])
+  }, [successCallback, flash, successMessage])
 
   useEffect(() => {
     const updatePopperPos = () => {
@@ -148,65 +166,76 @@ const ForumEventCommentForm = ({
     };
   }, []);
 
+  const prefilledProps: PartialDeep<DbComment> = {
+    forumEventId: forumEvent._id,
+    ...extraPrefilledProps
+  };
+
   if (!open || !anchorEl?.isConnected) {
     return null;
   }
 
   return (
-    <LWPopper open={open} anchorEl={anchorEl} placement="bottom" allowOverflow={false} updateRef={updatePopperRef} className={className}>
+    <LWPopper
+      open={open}
+      anchorEl={anchorEl}
+      placement="bottom"
+      allowOverflow={false}
+      updateRef={updatePopperRef}
+      className={className}
+    >
       <div className={classes.popperContent}>
         <div className={classes.triangle}></div>
-        <ForumIcon icon="Close" className={classes.closeIcon} onClick={onClose} />
+        <ForumIcon icon="Close" className={classes.closeIcon} onClick={cancelCallback} />
         <div className={classes.header}>
-          <div className={classes.title}>{typeof title === 'function' ? title(post, comment) : title}</div>
-          {typeof subtitle === 'function' ? subtitle(post, comment) : subtitle}
+          <div className={classes.title}>{typeof title === "function" ? title(post, comment) : title}</div>
+          {typeof subtitle === "function" ? subtitle(post, comment) : subtitle}
         </div>
-        {!comment && !editFormOpen && (
-          <CommentsNewForm
-            type="reply"
-            post={post}
-            enableGuidelines={false}
-            cancelCallback={() => onClose()}
-            successCallback={onSubmit}
-            prefilledProps={{
-              forumEventId,
-            }}
-            cancelLabel={"Skip"}
-            className={classes.commentForm}
-          />
-        )}
-        {comment && !editFormOpen && (
-          <>
-            <CommentBody comment={comment} />
-            <div className={classes.editButton} onClick={() => setEditFormOpen(true)}>
-              Edit comment
-            </div>
-          </>
-        )}
-        {comment && editFormOpen && (
-          <CommentsEditForm
-            comment={comment}
-            cancelCallback={() => setEditFormOpen(false)}
-            successCallback={async () => {
-              await refetch();
-              setEditFormOpen(false);
-            }}
-            className={classes.commentForm}
-          />
-        )}
+        <div className={classes.formSection}>
+          {hasEmoji && <ForumEventEmojiPicker onSelect={setEmoji} />}
+          <div className={classes.commentFormWrapper}>
+            {!comment && !editFormOpen && (
+              <CommentsNewForm
+                type="reply"
+                post={post}
+                enableGuidelines={false}
+                cancelCallback={() => cancelCallback()}
+                successCallback={onSubmit}
+                prefilledProps={prefilledProps}
+                className={classes.commentForm}
+              />
+            )}
+            {comment && !editFormOpen && (
+              <>
+                <CommentBody comment={comment} />
+                <div className={classes.editButton} onClick={() => setEditFormOpen(true)}>
+                  Edit comment
+                </div>
+              </>
+            )}
+            {comment && editFormOpen && (
+              <CommentsEditForm
+                comment={comment}
+                cancelCallback={() => setEditFormOpen(false)}
+                successCallback={async () => {
+                  setEditFormOpen(false);
+                  await successCallback();
+                }}
+                prefilledProps={prefilledProps}
+                className={classes.commentForm}
+              />
+            )}
+          </div>
+        </div>
       </div>
     </LWPopper>
   );
 };
 
-const ForumEventCommentFormComponent = registerComponent(
+export default registerComponent(
   'ForumEventCommentForm',
   ForumEventCommentForm,
   { styles, stylePriority: 1 }
 );
 
-declare global {
-  interface ComponentTypes {
-    ForumEventCommentForm: typeof ForumEventCommentFormComponent;
-  }
-}
+

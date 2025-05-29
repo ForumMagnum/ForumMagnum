@@ -9,7 +9,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
  */
 const LWClickAwayListener = ({onClickAway, children}: {
   onClickAway: (ev: ClickAwayEvent) => void,
-  children: React.ReactElement,
+  children: React.ReactNode,
 }) => {
   return (
     <ClickAwayListener
@@ -24,10 +24,6 @@ const LWClickAwayListener = ({onClickAway, children}: {
   );
 }
 
-const LWClickAwayListenerComponent = registerComponent('LWClickAwayListener', LWClickAwayListener);
+export default registerComponent('LWClickAwayListener', LWClickAwayListener);
 
-declare global {
-  interface ComponentTypes {
-    LWClickAwayListener: typeof LWClickAwayListenerComponent
-  }
-}
+

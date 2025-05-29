@@ -1,9 +1,13 @@
+import gql from "graphql-tag"
 import { forumSelect } from "@/lib/forumTypeUtils";
-import { getAdminTeamAccount } from "../callbacks/commentCallbacks";
-import { defineMutation } from "../utils/serverGraphqlUtil";
+import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-import { createMutator } from "../vulcan-lib";
 import { adminAccountSetting } from "@/lib/publicSettings";
+import { createConversation, createConversationGqlMutation } from '../collections/conversations/mutations';
+import { createMessage } from '../collections/messages/mutations';
+import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
+import { ACCESS_FILTERED, accessFilterSingle } from "@/lib/utils/schemaUtils";
+import { isAF } from "@/lib/instanceSettings";
 
 export const dmTriggeringEvents = new TupleSet(['newFollowSubscription'] as const)
 export type DmTriggeringEvent = UnionOf<typeof dmTriggeringEvents>;
@@ -31,25 +35,24 @@ const getTriggeredDmContents = (eventType: DmTriggeringEvent) => {
   }
 }
 
-defineMutation({
-  name: "markConversationRead",
-  resultType: "Boolean!",
-  argTypes: "(conversationId: String!)",
-  fn: async (_, {conversationId}: {conversationId: string }, {currentUser, repos}) => {
+export const conversationGqlTypeDefs = gql`
+  extend type Mutation {
+    markConversationRead(conversationId: String!): Boolean!
+    sendEventTriggeredDM(eventType: String!): Boolean!
+    initiateConversation(participantIds: [String!]!, af: Boolean, moderator: Boolean): Conversation
+  }
+
+`
+
+export const conversationGqlMutations = {
+  async markConversationRead (_: void, {conversationId}: {conversationId: string }, {currentUser, repos}: ResolverContext) {
     if (!currentUser) {
       throw new Error("You must be logged in to do this");
     }
     await repos.conversations.markConversationRead(conversationId, currentUser._id);
     return true;
-  }
-});
-
-//mutation to send one of a prespeified type of message to users
-defineMutation({
-  name: "sendEventTriggeredDM",
-  resultType: "Boolean!",
-  argTypes: "(eventType: String!)",
-  fn: async (_, {eventType}: {eventType: string}, context) => {
+  },
+  async sendEventTriggeredDM (_: void, {eventType}: {eventType: string}, context: ResolverContext) {
 
     const { currentUser, Subscriptions, Conversations, Messages } = context;
 
@@ -62,7 +65,7 @@ defineMutation({
       throw new Error("Invalid event type to trigger DM");
     }
 
-    const lwAccount = await getAdminTeamAccount()
+    const lwAccount = await getAdminTeamAccount(context)
 
     if (!lwAccount) {
       throw new Error("Unable to find the lwAccount to send message to user")
@@ -90,12 +93,11 @@ defineMutation({
       title
     }
 
-    const conversation = await createMutator({
-      collection: Conversations,
-      document: conversationData,
-      currentUser: lwAccount,
-      validate: false,
-    });
+    const lwContext = await computeContextFromUser({ user: lwAccount, isSSR: context.isSSR });
+
+    const conversation = await createConversation({
+      data: conversationData
+    }, lwContext);
 
     const firstMessageData = {
       userId: lwAccount._id,
@@ -105,16 +107,48 @@ defineMutation({
           data: message
         }
       },
-      conversationId: conversation.data._id
+      conversationId: conversation._id
     }
 
-    void createMutator({
-      collection: Messages,
-      document: firstMessageData,
-      currentUser: lwAccount,
-      validate: false,
-    })
+    void createMessage({
+      data: firstMessageData
+    }, lwContext);
 
     return true;
+  },
+  async initiateConversation (_: void, { participantIds, moderator }: { participantIds: string[], moderator: boolean | null }, context: ResolverContext): Promise<(Partial<DbConversation> & { [ACCESS_FILTERED]: true }) | null> {
+    const { currentUser, Conversations } = context;
+
+    if (!currentUser) {
+      throw new Error("You must be logged in to do this");
+    }
+
+    const afField = isAF ? { af: true } : {};
+    const moderatorField = typeof moderator === 'boolean' ? { moderator } : {};
+
+    // This is basically the `userGroupUntitledConversations` view plus the default view
+    const selector = {
+      participantIds: participantIds?.length
+        ? { $size: participantIds.length, $all: participantIds }
+        : currentUser._id,
+        ...afField,
+        ...moderatorField,
+    };
+
+    const existingConversation = await Conversations.findOne(selector, { sort: { moderator: 1 }});
+    if (existingConversation) {
+      return accessFilterSingle(currentUser, 'Conversations', existingConversation, context);
+    }
+
+    const conversationData = {
+      ...afField,
+      ...moderatorField,
+      participantIds,
+    };
+
+    // This matches the previous behavior of the `createIfMissing` implementation, which used
+    // the fully put-together "mutation" function including the permission check and acccess filtering.
+    const createdConversationWrapper = await createConversationGqlMutation(_, { data: conversationData }, context);
+    return createdConversationWrapper.data;
   }
-})
+}

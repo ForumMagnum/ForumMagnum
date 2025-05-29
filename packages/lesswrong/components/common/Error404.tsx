@@ -1,7 +1,8 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useServerRequestStatus } from '../../lib/routeUtil'
 import { isFriendlyUI } from '../../themes/forumTheme';
+import SingleColumnSection from "./SingleColumnSection";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -10,7 +11,6 @@ const styles = (theme: ThemeType) => ({
 });
 
 const Error404 = ({classes}: {classes: ClassesType<typeof styles>}) => {
-  const { SingleColumnSection } = Components;
   const serverRequestStatus = useServerRequestStatus()
   if (serverRequestStatus) serverRequestStatus.status = 404
   
@@ -22,10 +22,6 @@ const Error404 = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
 };
 
-const Error404Component = registerComponent('Error404', Error404, {styles});
+export default registerComponent('Error404', Error404, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Error404: typeof Error404Component
-  }
-}
+

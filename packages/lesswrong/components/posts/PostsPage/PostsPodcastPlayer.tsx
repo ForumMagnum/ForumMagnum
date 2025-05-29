@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { applePodcastIcon } from '../../icons/ApplePodcastIcon';
 import { spotifyPodcastIcon } from '../../icons/SpotifyPodcastIcon';
 import { useEventListener } from '../../hooks/useEventListener';
@@ -72,10 +72,6 @@ const PostsPodcastPlayer = ({ podcastEpisode, postId, hideIconList = false, clas
   </>;
 };
 
-const PostsPodcastPlayerComponent = registerComponent('PostsPodcastPlayer', PostsPodcastPlayer, { styles });
+export default registerComponent('PostsPodcastPlayer', PostsPodcastPlayer, { styles });
 
-declare global {
-  interface ComponentTypes {
-    PostsPodcastPlayer: typeof PostsPodcastPlayerComponent,
-  }
-}
+

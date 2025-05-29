@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
@@ -87,11 +87,7 @@ const ExpandedTagsSearchHit = ({hit, classes}: {
   </div>
 }
 
-const ExpandedTagsSearchHitComponent = registerComponent("ExpandedTagsSearchHit", ExpandedTagsSearchHit, {styles});
+export default registerComponent("ExpandedTagsSearchHit", ExpandedTagsSearchHit, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ExpandedTagsSearchHit: typeof ExpandedTagsSearchHitComponent
-  }
-}
+
 

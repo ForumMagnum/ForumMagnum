@@ -1,11 +1,14 @@
 import React from 'react';
-import { Components, registerComponent} from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { Hit } from 'react-instantsearch-core';
-import LocalLibraryIcon from '@material-ui/icons/LocalLibrary';
+import LocalLibraryIcon from '@/lib/vendor/@material-ui/icons/src/LocalLibrary';
 import { Snippet } from 'react-instantsearch-dom';
 import { SearchHitComponentProps } from './types';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import FormatDate from "../common/FormatDate";
+import LWTooltip from "../common/LWTooltip";
+import MetaInfo from "../common/MetaInfo";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -53,8 +56,6 @@ const styles = (theme: ThemeType) => ({
 
 const SequencesSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
   const sequence: SearchSequence = hit;
-  const { LWTooltip, MetaInfo } = Components
-  
   const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"
 
   return <div className={classes.root}>
@@ -69,7 +70,7 @@ const SequencesSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchH
           <div className={classes.meta}>
             <MetaInfo>{sequence.authorDisplayName}</MetaInfo>
             <MetaInfo className="sequences-item-created-date">
-              <Components.FormatDate date={sequence.createdAt}/>
+              <FormatDate date={sequence.createdAt}/>
             </MetaInfo>
           </div>
         </div>
@@ -80,11 +81,7 @@ const SequencesSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchH
   </div>
 }
 
-const SequencesSearchHitComponent = registerComponent("SequencesSearchHit", SequencesSearchHit, {styles});
+export default registerComponent("SequencesSearchHit", SequencesSearchHit, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesSearchHit: typeof SequencesSearchHitComponent
-  }
-}
+
 

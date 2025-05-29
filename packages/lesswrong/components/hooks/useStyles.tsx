@@ -1,20 +1,38 @@
-import React, { createContext, useContext, useLayoutEffect } from "react";
+import React, { createContext, forwardRef, useContext, useLayoutEffect } from "react";
 import type { ClassNameProxy, StyleDefinition, StyleOptions } from "@/server/styleGeneration";
 import type { JssStyles } from "@/lib/jssStyles";
-import { create as jssCreate, SheetsRegistry } from "jss";
-import { jssPreset } from "@material-ui/core/styles";
+import { create as jssCreate, SheetsRegistry } from 'jss';
+import jssGlobal from 'jss-plugin-global';
+import jssNested from 'jss-plugin-nested';
+import jssCamelCase from 'jss-plugin-camel-case';
+import jssDefaultUnit from 'jss-plugin-default-unit';
+import jssVendorPrefixer from 'jss-plugin-vendor-prefixer';
+import jssPropsSort from 'jss-plugin-props-sort';
 import { isClient } from "@/lib/executionEnvironment";
+import { useTheme } from "../themes/useTheme";
 
 export type StylesContextType = {
   theme: ThemeType
   mountedStyles: Map<string, {
     refcount: number
     styleDefinition: StyleDefinition<any>
-    styleNode: HTMLStyleElement
+    styleNode?: HTMLStyleElement
   }>
 }
 
 export const StylesContext = createContext<StylesContextType|null>(null);
+
+
+export function createStylesContext(theme: ThemeType): StylesContextType {
+  return {
+    theme,
+    mountedStyles: new Map<string, {
+      refcount: number
+      styleDefinition: StyleDefinition<any>
+      styleNode?: HTMLStyleElement
+    }>()
+  };
+}
 
 /**
  * _clientMountedStyles: Client-side-only global variable that contains the
@@ -32,12 +50,12 @@ export function setClientMountedStyles(styles: StylesContextType) {
 
 export const topLevelStyleDefinitions: Record<string,StyleDefinition<string>> = {};
 
-export const defineStyles = <T extends string>(
-  name: string,
+export const defineStyles = <T extends string, N extends string>(
+  name: N,
   styles: (theme: ThemeType) => JssStyles<T>,
   options?: StyleOptions
-): StyleDefinition<T> => {
-  const definition: StyleDefinition<T> = {
+): StyleDefinition<T,N> => {
+  const definition: StyleDefinition<T,N> = {
     name,
     styles,
     options,
@@ -48,7 +66,7 @@ export const defineStyles = <T extends string>(
   if (isClient && _clientMountedStyles) {
     const mountedStyles = _clientMountedStyles.mountedStyles.get(name);
     if (mountedStyles) {
-      mountedStyles.styleNode.remove();
+      mountedStyles.styleNode?.remove();
       mountedStyles.styleNode = createAndInsertStyleNode(_clientMountedStyles.theme, definition);
     }
   }
@@ -72,7 +90,7 @@ function addStyleUsage<T extends string>(context: StylesContextType, styleDefini
     if (mountedStyleNode.styleDefinition !== styleDefinition) {
       // Style is mounted by that name, but it doesn't match? Replace it, keeping
       // the ref count
-      mountedStyleNode.styleNode.remove();
+      mountedStyleNode.styleNode?.remove();
       mountedStyleNode.styleNode = createAndInsertStyleNode(theme, styleDefinition);
       context.mountedStyles.get(name)!.refcount++;
     } else {
@@ -88,19 +106,28 @@ function removeStyleUsage<T extends string>(context: StylesContextType, styleDef
     const mountedStyle = context.mountedStyles.get(name)!
     const newRefcount = --mountedStyle.refcount;
     if (!newRefcount) {
-      mountedStyle.styleNode.remove();
+      mountedStyle.styleNode?.remove();
       context.mountedStyles.delete(name);
     }
   }
 }
 
-export const useStyles = <T extends string>(styles: StyleDefinition<T>): JssStyles<T> => {
+export const useStyles = <T extends string>(styles: StyleDefinition<T>, overrideClasses?: Partial<JssStyles<T>>): JssStyles<T> => {
   const stylesContext = useContext(StylesContext);
 
   if (bundleIsServer) {
-    // If we're rendering server-side, we just return a classes object and
-    // don't need to mount any style nodes/etc, because the SSR will use the
-    // static stylesheet.
+    // If we're rendering server-side, we might or might not have
+    // StylesContext. If we do, use it to record which styles were used during
+    // the render. This is used when rendering emails, or if you want to server
+    // an SSR with styles inlined rather than in a static stlyesheet.
+    if (stylesContext) {
+      if (!stylesContext.mountedStyles.has(styles.name)) {
+        stylesContext.mountedStyles.set(styles.name, {
+          refcount: 1,
+          styleDefinition: styles,
+        });
+      }
+    }
   } else {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useLayoutEffect(() => {
@@ -114,7 +141,80 @@ export const useStyles = <T extends string>(styles: StyleDefinition<T>): JssStyl
   if (!styles.nameProxy) {
     styles.nameProxy = classNameProxy(styles.name+"-");
   }
-  return styles.nameProxy;
+  if (overrideClasses) {
+    return overrideClassesProxy(styles.name+"-", overrideClasses)
+  } else {
+    return styles.nameProxy;
+  }
+}
+
+/**
+ * Like useStyles, but returns classes in the form of an object with all
+ * classes in it as regular fields, rather than a proxy. This is less efficient,
+ * but is compatible with some janky object-spreading hacks inside vendored
+ * material-UI code.
+ */
+export const useStylesNonProxy = <T extends string>(styles: StyleDefinition<T>, overrideClasses?: Partial<JssStyles<T>>): JssStyles<T> => {
+  const stylesContext = useContext(StylesContext);
+  const theme = useTheme();
+
+  if (bundleIsServer) {
+    // If we're rendering server-side, we might or might not have
+    // StylesContext. If we do, use it to record which styles were used during
+    // the render. This is used when rendering emails, or if you want to server
+    // an SSR with styles inlined rather than in a static stlyesheet.
+    if (stylesContext) {
+      if (!stylesContext.mountedStyles.has(styles.name)) {
+        stylesContext.mountedStyles.set(styles.name, {
+          refcount: 1,
+          styleDefinition: styles,
+        });
+      }
+    }
+  } else {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useLayoutEffect(() => {
+      if (stylesContext) {
+        addStyleUsage(stylesContext, styles);
+        return () => removeStyleUsage(stylesContext, styles);
+      }
+    }, [styles, stylesContext, stylesContext?.theme]);
+  }
+
+  const styleKeys = Object.keys(styles.styles(theme));
+  const styleKeysSet = new Set(styleKeys);
+  const allClasses = [
+    ...styleKeys,
+    ...(overrideClasses ? Object.keys(overrideClasses) : [])
+  ];
+  return Object.fromEntries(
+    allClasses.map(key => [
+      key,
+      [
+        ...(styleKeysSet.has(key) ? [`${styles.name}-${key}`] : []),
+        ...((overrideClasses && (key in overrideClasses))
+          ? [(overrideClasses as any)[key]]
+          : []
+        ),
+      ].join(" ")
+    ])
+  ) as JssStyles<T>;
+}
+
+
+export const withStyles = <T extends {classes: any}>(styles: StyleDefinition, Component: React.ComponentType<T>) => {
+  return forwardRef(function WithStylesHoc(props: AnyBecauseHard, ref: AnyBecauseHard) {
+    const { classes: classesOverrides } = props;
+    const classes = useStyles(styles, classesOverrides);
+    return <Component ref={ref} {...props} classes={classes} />
+  }) as unknown as React.ForwardRefExoticComponent<Omit<T, "classes"> & { classes?: Partial<T["classes"]> } & React.RefAttributes<any>>;
+}
+
+export function getClassName<T extends StyleDefinition>(
+  stylesName: T["name"],
+  className: keyof ReturnType<T["styles"]> & string
+) {
+  return `${stylesName}-${className}`;
 }
 
 export const withAddClasses = (
@@ -150,6 +250,22 @@ export const classNameProxy = <T extends string>(prefix: string): ClassNameProxy
 }
 
 
+export const overrideClassesProxy = <T extends string>(prefix: string, overrideClasses: Partial<JssStyles<T>>): ClassNameProxy<T> => {
+  return new Proxy({}, {
+    get: function(obj: any, prop: any) {
+      if (typeof prop === "string") {
+        if (prop in overrideClasses) {
+          return `${prefix}${prop} ${overrideClasses[prop as T]!}`;
+        } else {
+          return prefix+prop;
+        }
+      } else {
+        return prefix+'invalid';
+      }
+    }
+  });
+}
+
 function createAndInsertStyleNode(theme: ThemeType, styleDefinition: StyleDefinition): HTMLStyleElement {
   const stylesStr = styleNodeToString(theme, styleDefinition);
   const styleNode = document.createElement("style");
@@ -163,22 +279,32 @@ function createAndInsertStyleNode(theme: ThemeType, styleDefinition: StyleDefini
 function styleNodeToString(theme: ThemeType, styleDefinition: StyleDefinition): string {
   const sheets = new SheetsRegistry()
   
-  const jss = jssCreate({
-    ...jssPreset(),
-    virtual: true,
-  })
+  const jss = getJss();
   const sheet = jss.createStyleSheet(
     styleDefinition.styles(theme), {
-      classNamePrefix: styleDefinition.name,
-      generateClassName: (r,s) => {
-        return `${styleDefinition.name}-${(r as any).key}`
-      }
+      generateId: (rule,sheet) => {
+        if (rule.type === 'keyframes') {
+          return (rule as AnyBecauseHard).name;
+        }
+        return `${styleDefinition.name}-${rule.key}`
+      },
     }
   );
-  sheets.add(sheet)
-  sheet.attach();
-  const str = sheets.toString();
-  return str;
+  sheets.add(sheet);
+  return sheets.toString();
+}
+
+export function getJss() {
+  return jssCreate({
+    plugins: [
+      jssGlobal(),
+      jssNested(),
+      jssCamelCase(),
+      jssDefaultUnit(),
+      jssVendorPrefixer(),
+      jssPropsSort(),
+    ],
+  });
 }
 
 

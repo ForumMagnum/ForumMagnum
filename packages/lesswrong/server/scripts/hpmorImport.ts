@@ -1,8 +1,9 @@
 import fs from 'fs';
-import Users from '../../lib/collections/users/collection';
-import { Posts } from '../../lib/collections/posts';
-import { createMutator } from '../vulcan-lib';
+import Users from '../../server/collections/users/collection';
+import { Posts } from '../../server/collections/posts/collection';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
+import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
+import { createPost } from '../collections/posts/mutations';
 
 const hpmorImport = false;
 
@@ -42,12 +43,10 @@ if (hpmorImport) { void (async ()=>{
     const oldPost = await Posts.findOne({title: post.title});
 
     if (!oldPost){
-      void createMutator({
-        collection: Posts,
-        document: post,
-        currentUser: lwUser,
-        validate: false,
-      })
+      const lwContext = await computeContextFromUser({ user: lwUser, isSSR: false });
+      void createPost({
+        data: post
+      }, lwContext);
     } else {
       //eslint-disable-next-line no-console
       console.log("Post already imported: ", oldPost);

@@ -1,16 +1,16 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const GoogleServiceAccountSessionInfo = () => frag`
   fragment GoogleServiceAccountSessionInfo on GoogleServiceAccountSession {
     _id
     email
   }
-`);
+`
 
-registerFragment(`
+export const GoogleServiceAccountSessionAdminInfo = () => frag`
   fragment GoogleServiceAccountSessionAdminInfo on GoogleServiceAccountSession {
     _id
     email
     estimatedExpiry
   }
-`);
+`

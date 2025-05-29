@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../../themes/stylePiping';
 import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
 
@@ -46,10 +46,6 @@ export const DialogueEditorGuidelines = ({classes}: {
   </div>;
 }
 
-const DialogueEditorGuidelinesComponent = registerComponent('DialogueEditorGuidelines', DialogueEditorGuidelines, {styles});
+export default registerComponent('DialogueEditorGuidelines', DialogueEditorGuidelines, {styles});
 
-declare global {
-  interface ComponentTypes {
-    DialogueEditorGuidelines: typeof DialogueEditorGuidelinesComponent
-  }
-}
+

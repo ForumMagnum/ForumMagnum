@@ -21,7 +21,7 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
   constructor(
     table: Table<T>,
     selector: string | MongoSelector<T>,
-    modifier: MongoModifier<T>,
+    modifier: MongoModifier,
     options?: MongoUpdateOptions<T>, // TODO: What can options be?
     updateOptions?: UpdateOptions,
   ) {
@@ -72,9 +72,10 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
       this.atoms.push("WHERE");
 
       if (limit) {
+        const projection = {_id: 1} as MongoProjection<T>;
         this.atoms = this.atoms.concat([
           "_id IN",
-          new SelectQuery(table, selector, {limit, projection: {_id: 1}}, {forUpdate: true}),
+          new SelectQuery(table, selector, {limit, projection}, {forUpdate: true}),
         ]);
       } else {
         this.appendSelector(selector);
@@ -194,7 +195,8 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     try {
       const fieldType = this.getField(field);
       const arrayValueInNonArrayJsonbField = fieldType && !fieldType.isArray() && fieldType.toConcrete() instanceof JsonType && Array.isArray(value);
-      const typeForArg = arrayValueInNonArrayJsonbField ? new JsonType() : undefined;
+      const primitiveValueInJsonbField = (fieldType?.toConcrete() instanceof JsonType) && (typeof value !== "object" || value instanceof Date);
+      const typeForArg = (arrayValueInNonArrayJsonbField || primitiveValueInJsonbField) ? new JsonType() : undefined;
       const updateValue = this.compileUpdateExpression(value, { jsonType: typeForArg });
       const resolvedField = this.resolveFieldName(field);
       return format(resolvedField, updateValue);

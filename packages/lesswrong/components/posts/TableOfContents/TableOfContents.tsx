@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import type { ToCData } from '../../../lib/tableOfContents';
-import type { ToCDisplayOptions } from './TableOfContentsList';
+import TableOfContentsList, { ToCDisplayOptions } from './TableOfContentsList';
+import { AnalyticsContext } from '@/lib/analyticsEvents';
+import FixedPositionToc from './FixedPositionToC';
 
 const styles = (theme: ThemeType) => ({
 });
@@ -35,36 +37,36 @@ const TableOfContents = ({sectionData, title, heading, onClickSection, displayOp
 
   if (fixedPositionToc) {
     return (
-      <Components.FixedPositionToC
-        tocSections={displayToc.sectionData.sections}
-        title={title}
-        heading={heading}
-        onClickSection={onClickSection}
-        displayOptions={displayOptions}
-        hover={hover}
-      />
+      <AnalyticsContext pageSectionContext="tableOfContents" componentName="FixedPositionToC">
+        <FixedPositionToc
+          tocSections={displayToc.sectionData.sections}
+          title={title}
+          heading={heading}
+          onClickSection={onClickSection}
+          displayOptions={displayOptions}
+          hover={hover}
+        />
+      </AnalyticsContext>
     );
   }
 
   return (
-    <Components.TableOfContentsList
-      tocSections={sectionData.sections}
-      title={title}
-      onClickSection={onClickSection}
-      displayOptions={displayOptions}
-    />
+    <AnalyticsContext pageSectionContext="tableOfContents" componentName="TableOfContentsList">
+      <TableOfContentsList
+        tocSections={sectionData.sections}
+        title={title}
+        onClickSection={onClickSection}
+        displayOptions={displayOptions}
+      />
+    </AnalyticsContext>
   );
 }
 
-const TableOfContentsComponent = registerComponent(
+export default registerComponent(
   "TableOfContents", TableOfContents, {
     styles,
     hocs: [withErrorBoundary]
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    TableOfContents: typeof TableOfContentsComponent
-  }
-}
+

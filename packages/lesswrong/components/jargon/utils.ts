@@ -1,7 +1,9 @@
+import type { EditablePost } from "@/lib/collections/posts/helpers";
+
 // TODO: maybe sort by first use instead of frequency?
 export function countInstancesOfJargon(
   jargonTerm: JargonTermsPost | JargonTerms,
-  post: PostsWithNavigationAndRevision | PostsWithNavigation | PostsPage | PostsEditQueryFragment,
+  post: PostsWithNavigationAndRevision | PostsWithNavigation | PostsPage | PostsEditQueryFragment | EditablePost,
   normalizedPostContents?: string
 ) {
   const postText = normalizedPostContents ?? (post.contents?.html ?? "").toLowerCase();
@@ -12,6 +14,7 @@ export function countInstancesOfJargon(
   const isWordChar = (char: string) => /[\p{L}\p{N}'-]/u.test(char);
   
   const countMatches = (term: string): number => {
+    if (!term) return 0;
     let count = 0;
     let index = postText.indexOf(term);
     

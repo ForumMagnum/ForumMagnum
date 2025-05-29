@@ -1,18 +1,21 @@
 import React from 'react';
-import Paper from '@material-ui/core/Paper';
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { Paper }from '@/components/widgets/Paper';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import { useMessages } from '../../common/withMessages';
 import classNames from 'classnames'
-import Divider from '@material-ui/core/Divider';
-import EmailIcon from '@material-ui/icons/Email';
-import { CloseableComponent, OpenDialogContextType, useDialog } from '../../common/withDialog'
+import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
+import { useDialog } from '../../common/withDialog'
 import { useCurrentUser } from '../../common/withUser';
 import moment from 'moment';
 import { captureEvent } from '../../../lib/analyticsEvents';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { HIDE_MAP_COOKIE } from '../../../lib/cookies/cookies';
+import { createFallBackDialogHandler } from '@/components/localGroups/CommunityMapFilter';
+import EventNotificationsDialog from "../../localGroups/EventNotificationsDialog";
+import LWTooltip from "../../common/LWTooltip";
+import SimpleDivider from "../../widgets/SimpleDivider";
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -62,16 +65,6 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const createFallBackDialogHandler = (
-  openDialog: OpenDialogContextType['openDialog'],
-  dialogName: CloseableComponent,
-  currentUser: UsersCurrent | null
-) => {
-  return () => openDialog({
-    componentName: currentUser ? dialogName : "LoginPopup",
-  });
-}
-
 const HomepageMapFilter = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { openDialog } = useDialog()
   const currentUser = useCurrentUser()
@@ -101,9 +94,6 @@ const HomepageMapFilter = ({classes}: {classes: ClassesType<typeof styles>}) => 
     }
     flash({messageString: "Hid map from Frontpage", action: undoAction})
   }
-
-  const { LWTooltip } = Components
-
   return <Paper>
     <LWTooltip title="September is Meetups Month, celebrating Astral Codex Everywhere. Find a meetup near you." placement="left">
       <div className={classNames(classes.section, classes.title)}>
@@ -112,11 +102,15 @@ const HomepageMapFilter = ({classes}: {classes: ClassesType<typeof styles>}) => 
         </Link>
       </div>
     </LWTooltip>
-    <Divider />
+    <SimpleDivider />
     <LWTooltip title="Get notified when events are in your area" placement="left">
       <div
           className={classNames(classes.section, classes.subscribeSection)}
-          onClick={createFallBackDialogHandler(openDialog, "EventNotificationsDialog", currentUser)}
+          onClick={createFallBackDialogHandler(
+            openDialog, "EventNotificationsDialog",
+            ({onClose}) => <EventNotificationsDialog onClose={onClose} />,
+            currentUser
+          )}
         >
         <EmailIcon className={classNames(classes.actionIcon, classes.subscribeIcon)} /> 
         <span className={classes.buttonText}> Subscribe to events</span>
@@ -132,11 +126,7 @@ const HomepageMapFilter = ({classes}: {classes: ClassesType<typeof styles>}) => 
   </Paper>
 }
 
-const HomepageMapFilterComponent = registerComponent('HomepageMapFilter', HomepageMapFilter, {styles});
+export default registerComponent('HomepageMapFilter', HomepageMapFilter, {styles});
 
-declare global {
-  interface ComponentTypes {
-    HomepageMapFilter: typeof HomepageMapFilterComponent
-  }
-}
+
 

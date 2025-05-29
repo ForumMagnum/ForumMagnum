@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import { iconWidth } from './TabNavigationItem'
 import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
@@ -41,10 +41,6 @@ const TabNavigationSubItem = ({children, classes, className}: {
   </div>
 }
 
-const TabNavigationSubItemComponent = registerComponent('TabNavigationSubItem', TabNavigationSubItem, {styles});
+export default registerComponent('TabNavigationSubItem', TabNavigationSubItem, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TabNavigationSubItem: typeof TabNavigationSubItemComponent
-  }
-}
+

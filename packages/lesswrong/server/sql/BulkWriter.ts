@@ -3,6 +3,7 @@ import Table from "./Table";
 import InsertQuery from "./InsertQuery";
 import UpdateQuery from "./UpdateQuery";
 import DeleteQuery from "./DeleteQuery";
+import { concat } from "../sqlConnection";
 
 export type BulkWriterResult = {
   ok: number,
@@ -91,7 +92,7 @@ class BulkWriter<T extends DbObject> {
 
   async execute(client: SqlClient): Promise<BulkWriterResult> {
     if (this.queries.length) {
-      await client.multi(client.concat(this.queries));
+      await client.multi(concat(this.queries));
     }
     return {
       ok: 1,

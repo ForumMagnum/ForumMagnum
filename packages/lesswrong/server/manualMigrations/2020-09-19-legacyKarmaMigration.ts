@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
 // Given all the console logs, this seemed more elegant than commenting on every one
 import { registerMigration } from './migrationUtils';
-import { Votes } from '../../lib/collections/votes';
-import Users from '../../lib/vulcan-users';
+import { Votes } from '../../server/collections/votes/collection';
+import Users from '../../server/collections/users/collection';
 import { calculateVotePower } from '../../lib/voting/voteTypes';
 
 
-registerMigration({
+export default registerMigration({
   name: "legacyKarmaMigration",
   dateWritten: "2020-09-19",
   idempotent: true,
@@ -14,8 +14,7 @@ registerMigration({
     // First we only get the relevant votes, which are all votes that are not self-votes
     // and are not cancelled. I should also do a sanity check to see how many votes there are that
     // are duplicated (i.e. have the same user-documentId pair but are not cancelled)
-    const voteFields = {_id: 1, documentId: 1, userId: 1, authorIds: 1, voteType: 1, collectionName: 1, cancelled: 1, documentIsAf: 1} as const
-    const allVotes = await Votes.find({}, {sort: {votedAt: 1}}, voteFields).fetch()
+    const allVotes = await Votes.find({}, {sort: {votedAt: 1}}).fetch()
     console.log("Got all the votes")
     const duplicateVotes = findDuplicateVotes(allVotes)
     console.log("Number of duplicate votes", duplicateVotes.length)
@@ -65,7 +64,7 @@ registerMigration({
 
     console.log("Removed invalid votes")
 
-    const allUpdatedVotes = await Votes.find({}, {sort: {votedAt: 1}}, voteFields).fetch()
+    const allUpdatedVotes = await Votes.find({}, {sort: {votedAt: 1}}).fetch()
 
     console.log("Got all the updated votes")
 

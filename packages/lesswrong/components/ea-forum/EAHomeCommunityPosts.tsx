@@ -1,14 +1,17 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import moment from '../../lib/moment-timezone';
-import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collection';
+import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/helpers';
 import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSection';
 import { SHOW_COMMUNITY_POSTS_SECTION_COOKIE } from '../../lib/cookies/cookies';
 import { useFilterSettings } from '../../lib/filterSettings';
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
+import ExpandableSection from "../common/ExpandableSection";
+import PostsList2 from "../posts/PostsList2";
+import SectionFooter from "../common/SectionFooter";
 
 const styles = (theme: ThemeType) => ({
   readMoreLinkMobile: {
@@ -27,7 +30,7 @@ const EAHomeCommunityPosts = ({classes}: {classes: ClassesType<typeof styles>}) 
     section: "community",
     onExpandEvent: "communityPostsSectionExpanded",
     onCollapseEvent: "communityPostsSectionCollapsed",
-    defaultExpanded: "loggedIn",
+    defaultExpanded: "all",
     cookieName: SHOW_COMMUNITY_POSTS_SECTION_COOKIE,
   });
   const now = useCurrentTime();
@@ -50,8 +53,6 @@ const EAHomeCommunityPosts = ({classes}: {classes: ClassesType<typeof styles>}) 
     after: dateCutoff,
     limit: 5,
   } as const;
-
-  const {ExpandableSection, PostsList2, SectionFooter} = Components;
   return (
     <ExpandableSection
       pageSectionContext="communityPosts"
@@ -75,10 +76,6 @@ const EAHomeCommunityPosts = ({classes}: {classes: ClassesType<typeof styles>}) 
   );
 }
 
-const EAHomeCommunityPostsComponent = registerComponent('EAHomeCommunityPosts', EAHomeCommunityPosts, {styles});
+export default registerComponent('EAHomeCommunityPosts', EAHomeCommunityPosts, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EAHomeCommunityPosts: typeof EAHomeCommunityPostsComponent
-  }
-}
+

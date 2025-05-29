@@ -26,6 +26,7 @@ export type CommandLineOptions = {
   port: number|null
   production: boolean
   e2e: boolean
+  codegen: boolean
   settings: string|null
   db: string|null
   postgresUrl: string|null
@@ -34,12 +35,14 @@ export type CommandLineOptions = {
   command: string|null
   lint: boolean
   vite: boolean
+  noSshTunnel: boolean
 }
 const defaultCommandLineOptions: CommandLineOptions = {
   action: "build",
   port: null,
   production: false,
   e2e: false,
+  codegen: false,
   settings: null,
   db: null,
   postgresUrl: null,
@@ -48,6 +51,7 @@ const defaultCommandLineOptions: CommandLineOptions = {
   command: null,
   lint: false,
   vite: false,
+  noSshTunnel: false,
 }
 const helpText = (argv0: string) => `usage: yarn ts-node build-esbuild.ts [options]`
 
@@ -67,6 +71,9 @@ function parseCommandLine(argv: string[]): [CommandLineOptions,string[]] {
           break;
         case "e2e":
           result.e2e = true;
+          break;
+        case "codegen":
+          result.codegen = true;
           break;
         case "settings":
           result.settings = argv[++i];
@@ -116,6 +123,9 @@ function parseCommandLine(argv: string[]): [CommandLineOptions,string[]] {
         case "color":
         case "diag":
           break;
+        case "--no-ssh-tunnel":
+          result.noSshTunnel = true;
+          break;
       }
     } else {
       extraOpts.push(arg);
@@ -128,6 +138,7 @@ function parseCommandLine(argv: string[]): [CommandLineOptions,string[]] {
 const [opts, args] = parseCommandLine(process.argv /*, [
   ["production", "Run in production mode"],
   ["e2e", "Run in end-to-end testing mode"],
+  ["codegen", "Run in codegen mode"],
   ["settings", "A JSON config file for the server", "<file>"],
   ["db", "A path to a database connection config file", "<file>"],
   ["postgresUrl", "A postgresql connection connection string", "<url>"],
@@ -194,6 +205,8 @@ const bundleDefinitions: Record<string,string> = {
   "process.env.NODE_ENV": isProduction ? "\"production\"" : "\"development\"",
   "bundleIsProduction": `${isProduction}`,
   "bundleIsTest": "false",
+  "bundleIsIntegrationTest": "false",
+  "bundleIsCodegen": "false",
   "bundleIsE2E": `${isE2E}`,
   "bundleIsMigrations": "false",
   "defaultSiteAbsoluteUrl": `\"${process.env.ROOT_URL || ""}\"`,
@@ -256,6 +269,16 @@ class RunningServer {
       await this.killProcessInSlot(slotToStartIn, {drain: false});
     }
     this.startProcessInSlot(slotToStartIn);
+
+    if (process.env.RESTART_INTERVAL) {
+      const intervalSeconds = parseInt(process.env.RESTART_INTERVAL);
+      const noise = Math.round(intervalSeconds * 0.1 * (Math.random() - 0.5) * 2);
+      const intervalWithNoise = intervalSeconds + noise;
+      console.log(`Scheduling restart in ${intervalWithNoise} seconds (original: ${intervalSeconds} seconds, noise: ${noise} seconds)`);
+      // Note: This restart causes around 10s of downtime for this instance
+      setTimeout(() => this.startOrRestart(), intervalWithNoise * 1000);
+    }
+
   }
   
   private selectSlotForServer(): number {
@@ -394,7 +417,7 @@ async function main() {
     entryPoints: ['./packages/lesswrong/client/clientStartup.ts'],
     tsconfig: "./tsconfig-client.json",
     bundle: true,
-    target: "es6",
+    target: "es2018",
     sourcemap: true,
     metafile: true,
     sourcesContent: true,
@@ -442,14 +465,14 @@ async function main() {
       ...clientBundleDefinitions,
     },
     external: [
-      "cheerio",
+      "cheerio"
     ],
   });
   
   let serverCli: string[] = [
     "node",
     ...(!isProduction ? ["--inspect"] : []),
-    "-r", "source-map-support/register",
+    "--enable-source-maps",
     "--", `${getOutputDir()}/server/js/serverBundle.js`,
     "--settings", settingsFile,
     ...(opts.shell ? ["--shell"] : []),
@@ -502,7 +525,8 @@ async function main() {
       "bcrypt", "node-pre-gyp", "intercom-client", "node:*",
       "fsevents", "chokidar", "auth0", "dd-trace", "pg-formatter",
       "gpt-3-encoder", "@elastic/elasticsearch", "zod", "node-abort-controller",
-      "cheerio", "vite", "@vitejs/plugin-react",
+      "cheerio", "vite", "@vitejs/plugin-react", "@google-cloud", "@aws-sdk",
+      "@anthropic-ai/sdk", "openai", "@googlemaps"
     ],
   })
   
@@ -514,7 +538,7 @@ async function main() {
   
   if (opts.vite) {
     serverContext.watch();
-    //serverContext.rebuild();
+    // serverContext.rebuild();
     await createViteProxyServer(serverProcess);
   } else if (opts.action === "watch") {
     serverContext.watch();
@@ -567,7 +591,7 @@ async function createViteProxyServer(backend: RunningServer) {
         "@/client/importCkEditor": "/packages/lesswrong/viteClient/importCkEditorVite",
         "@/client": "/packages/lesswrong/client",
         "@/viteClient": "/packages/lesswrong/viteClient",
-        "@/allComponents": "/packages/lesswrong/lib/generated/allComponentsVite",
+        "@/allComponents": "/packages/lesswrong/lib/generated/allComponents",
         "@": "/packages/lesswrong",
         
         // nodejs modules that aren't available on the client, which have

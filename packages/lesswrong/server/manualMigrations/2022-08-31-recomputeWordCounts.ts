@@ -1,19 +1,22 @@
 import { registerMigration, forEachDocumentBatchInCollection } from "./migrationUtils";
-import { editableCollections, editableCollectionsFields } from "../../lib/editor/make_editable"
-import { getCollection } from "../../lib/vulcan-lib";
+import { getEditableCollectionNames, getEditableFieldNamesForCollection } from '@/lib/editor/editableSchemaFieldHelpers';
+import { getCollection } from "../collections/allCollections";
 import { dataToWordCount } from "../editor/conversionUtils";
-import { Revisions } from "../../lib/collections/revisions/collection";
+import { Revisions } from "../../server/collections/revisions/collection";
+import { createAnonymousContext } from "../vulcan-lib/createContexts";
 
 /**
  * This migration recomputes word counts in batches for all Revisions and editable
  * fields using dataToWordCount. It's based on 2019-02-14-computeWordCounts
  * which only creates word counts for documents where the field is undefined.
  */
-registerMigration({
+export default registerMigration({
   name: "recomputeWordCounts",
   dateWritten: "2022-08-31",
   idempotent: true,
   action: async () => {
+    const context = createAnonymousContext();
+
     await forEachDocumentBatchInCollection({
       collection: Revisions,
       batchSize: 1000,
@@ -22,7 +25,7 @@ registerMigration({
         for (const doc of documents) {
           if (!doc.originalContents) continue;
           const { data, type } = doc.originalContents;
-          const wordCount = await dataToWordCount(data, type);
+          const wordCount = await dataToWordCount(data, type, context);
           if (wordCount !== doc.wordCount) {
             updates.push({
               updateOne: {
@@ -43,8 +46,8 @@ registerMigration({
         }
       },
     });
-    for (const collectionName of editableCollections) {
-      for (const fieldName of editableCollectionsFields[collectionName]!) {
+    for (const collectionName of getEditableCollectionNames()) {
+      for (const fieldName of getEditableFieldNamesForCollection(collectionName)) {
         const collection: CollectionBase<any> = getCollection(collectionName)
         await forEachDocumentBatchInCollection({
           collection,
@@ -54,7 +57,7 @@ registerMigration({
             for (const doc of documents) {
               if (doc[fieldName]) {
                 const { data, type } = doc[fieldName].originalContents;
-                const wordCount = await dataToWordCount(data, type);
+                const wordCount = await dataToWordCount(data, type, context);
                 if (wordCount !== doc[fieldName].wordCount) {
                   updates.push({
                     updateOne: {

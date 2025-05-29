@@ -1,10 +1,12 @@
 import React from "react";
-import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { userCanEditUser } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { useImageUpload } from "../../hooks/useImageUpload";
 import { useMessages } from "../../common/withMessages";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
+import ForumIcon from "../../common/ForumIcon";
+import UsersProfileImage from "../../users/UsersProfileImage";
 
 const SIZE = 96;
 
@@ -52,8 +54,6 @@ const EAUsersProfileImage = ({user, classes}: {
       flash(error.message);
     },
   });
-  const {ForumIcon, UsersProfileImage} = Components;
-
   if (!userCanEditUser(currentUser, user)) {
     return (
       <UsersProfileImage user={user} size={SIZE} className={classes.root} />
@@ -71,14 +71,10 @@ const EAUsersProfileImage = ({user, classes}: {
   );
 }
 
-const EAUsersProfileImageComponent = registerComponent(
+export default registerComponent(
   "EAUsersProfileImage",
   EAUsersProfileImage,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAUsersProfileImage: typeof EAUsersProfileImageComponent
-  }
-}
+

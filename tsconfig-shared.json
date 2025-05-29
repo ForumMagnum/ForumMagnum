@@ -8,7 +8,7 @@
     "esModuleInterop": true,
     "rootDir": ".",
     "module": "commonjs",
-    "target": "es6",
+    "target": "es2018",
     "sourceMap": true,
     "moduleResolution": "node",
     "downlevelIteration": true,
@@ -16,6 +16,7 @@
     "skipLibCheck": true,
     "strictBindCallApply": true,
     "allowImportingTsExtensions": true,
+    "allowJs": true,
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
@@ -32,7 +33,8 @@
   "exclude": [
     "node_modules",
     "packages/lesswrong/viteClient",
-    "build"
+    "build",
+    "packages/lesswrong/lib/vendor/@material-ui"
   ],
   "ts-node": {
     "files": true

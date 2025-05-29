@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { useLocation } from '../../lib/routeUtil';
 import DeferRender from '../common/DeferRender';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { ModerationTemplatesForm } from './ModerationTemplateForm';
+import ContentItemBody from "../common/ContentItemBody";
+import MetaInfo from "../common/MetaInfo";
+import BasicFormStyles from "../form-components/BasicFormStyles";
+import Row from "../common/Row";
+
 const styles = (theme: ThemeType) => ({
   root: {
     border: theme.palette.border.commentBorder,
@@ -24,7 +30,6 @@ export const ModerationTemplateItem = ({classes, template}: {
   classes: ClassesType<typeof styles>,
   template: ModerationTemplateFragment
 }) => {
-  const { ContentItemBody, MetaInfo, WrappedSmartForm, BasicFormStyles, Row } = Components
   const [edit, setEdit] = useState<boolean>(false)
 
   const {hash} = useLocation()
@@ -36,13 +41,10 @@ export const ModerationTemplateItem = ({classes, template}: {
     </Row>
     {edit 
       ? <BasicFormStyles>
-          <WrappedSmartForm
-            collectionName="ModerationTemplates"
-            documentId={template._id}
-            mutationFragment={getFragment('ModerationTemplateFragment')}
-            queryFragment={getFragment('ModerationTemplateFragment')}
-            successCallback={() => setEdit(false)}
-          /> 
+          <ModerationTemplatesForm
+            initialData={template}
+            onSuccess={() => setEdit(false)}
+          />
         </BasicFormStyles>
       : <div>
           <ContentItemBody
@@ -56,11 +58,7 @@ export const ModerationTemplateItem = ({classes, template}: {
   </div></DeferRender>
 }
 
-const ModerationTemplateItemComponent = registerComponent('ModerationTemplateItem', ModerationTemplateItem, {styles});
+export default registerComponent('ModerationTemplateItem', ModerationTemplateItem, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ModerationTemplateItem: typeof ModerationTemplateItemComponent
-  }
-}
+
 

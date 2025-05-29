@@ -1,15 +1,12 @@
-import { ApolloServer } from 'apollo-server-express';
+import { ApolloServer, makeExecutableSchema } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
 import { isDevelopment, isE2E } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
 import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
-import voyagerMiddleware from 'graphql-voyager/middleware/express';
 import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
-
-import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
 import { getUserFromReq, configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
@@ -25,13 +22,12 @@ import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
 import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
 import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
 import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
-import { addClientIdMiddleware } from './clientIdMiddleware';
+import { clientIdMiddleware } from './clientIdMiddleware';
 import { classesForAbTestGroups } from '../lib/abTestImpl';
 import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getEAGApplicationData } from './zohoUtils';
-import { faviconUrlSetting, isEAForum, testServerSetting, performanceMetricLoggingEnabled, isDatadogEnabled } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addTestingRoutes } from './testingSqlClient';
@@ -41,17 +37,16 @@ import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
 import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
 import { datadogMiddleware } from './datadog/datadogMiddleware';
-import { Sessions } from '../lib/collections/sessions';
+import { Sessions } from '../server/collections/sessions/collection';
 import { addServerSentEventsEndpoint } from "./serverSentEvents";
 import { botRedirectMiddleware } from './botRedirect';
 import { hstsMiddleware } from './hsts';
 import { getClientBundle } from './utils/bundleUtils';
-import { isElasticEnabled } from './search/elastic/elasticSettings';
 import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
 import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
-import { createAnonymousContext } from './vulcan-lib/query';
+import { createAnonymousContext } from './vulcan-lib/createContexts';
 import { randomId } from '../lib/random';
 import { addCacheControlMiddleware, responseIsCacheable } from './cacheControlMiddleware';
 import { SSRMetadata } from '../lib/utils/timeUtil';
@@ -63,6 +58,9 @@ import { getSqlClientOrThrow } from './sql/sqlClient';
 import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
 import { getInstanceSettings } from '@/lib/getInstanceSettings';
 import { getCommandLineArguments } from './commandLine';
+import { makeAbsolute, urlIsAbsolute } from '@/lib/vulcan-lib/utils';
+import { faviconUrlSetting, isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
+import { resolvers, typeDefs } from './vulcan-lib/apollo-server/initGraphQL';
 
 /**
  * End-to-end tests automate interactions with the page. If we try to, for
@@ -86,7 +84,7 @@ const ssrInteractionDisable = isE2E
 /**
  * If allowed, write the prefetchPrefix to the response so the client can start downloading resources
  */
-const maybePrefetchResources = async ({
+const maybePrefetchResources = ({
   request,
   response,
   parsedRoute,
@@ -98,18 +96,22 @@ const maybePrefetchResources = async ({
   prefetchPrefix: string;
 }) => {
 
-  const enableResourcePrefetch = parsedRoute.currentRoute?.enableResourcePrefetch;
-  const prefetchResources =
-    typeof enableResourcePrefetch === "function"
-      ? await enableResourcePrefetch(request, response, parsedRoute, createAnonymousContext())
-      : enableResourcePrefetch;
+  const maybeWritePrefetchedResourcesToResponse = async () => {
+    const enableResourcePrefetch = parsedRoute.currentRoute?.enableResourcePrefetch;
+    const prefetchResources =
+      typeof enableResourcePrefetch === "function"
+        ? await enableResourcePrefetch(request, response, parsedRoute, createAnonymousContext())
+        : enableResourcePrefetch;
 
-  if (prefetchResources) {
-    response.setHeader("X-Accel-Buffering", "no"); // force nginx to send start of response immediately
-    trySetResponseStatus({ response, status: 200 });
-    response.write(prefetchPrefix);
-  }
-  return prefetchResources;
+    if (prefetchResources) {
+      response.setHeader("X-Accel-Buffering", "no"); // force nginx to send start of response immediately
+      trySetResponseStatus({ response, status: 200 });
+      response.write(prefetchPrefix);
+    }
+    return prefetchResources;
+  };
+
+  return maybeWritePrefetchedResourcesToResponse;
 };
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
@@ -197,7 +199,7 @@ export function startWebserver() {
   }
 
   app.use(express.urlencoded({ extended: true })); // We send passwords + username via urlencoded form parameters
-  app.use('/analyticsEvent', express.json({ limit: '50mb' }));
+  app.use('/analyticsEvent', express.json({ limit: '50mb' }), clientIdMiddleware);
   app.use('/ckeditor-webhook', express.json({ limit: '50mb' }));
 
   if (isElasticEnabled) {
@@ -213,7 +215,6 @@ export function startWebserver() {
   addForumSpecificMiddleware(addMiddleware);
   addSentryMiddlewares(addMiddleware);
   addCacheControlMiddleware(addMiddleware);
-  addClientIdMiddleware(addMiddleware);
   if (isDatadogEnabled) {
     app.use(datadogMiddleware);
   }
@@ -229,7 +230,7 @@ export function startWebserver() {
     introspection: true,
     debug: isDevelopment,
     
-    schema: getExecutableSchema(),
+    schema: makeExecutableSchema({ typeDefs, resolvers }),
     formatError: (e: GraphQLError): GraphQLFormattedError => {
       Sentry.captureException(e);
       const {message, ...properties} = e;
@@ -241,11 +242,9 @@ export function startWebserver() {
     },
     //tracing: isDevelopment,
     tracing: false,
-    cacheControl: true,
     context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
       const context = await getContextFromReqAndRes({req, res, isSSR: false});
       configureSentryScope(context);
-      setAsyncStoreValue('resolverContext', context);
       return context;
     },
     plugins: [new ApolloServerLogging()],
@@ -253,7 +252,7 @@ export function startWebserver() {
 
   app.use('/graphql', express.json({ limit: '50mb' }));
   app.use('/graphql', express.text({ type: 'application/graphql' }));
-  app.use('/graphql', perfMetricMiddleware);
+  app.use('/graphql', clientIdMiddleware, perfMetricMiddleware);
   apolloServer.applyMiddleware({ app })
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
@@ -293,7 +292,7 @@ export function startWebserver() {
     }
   });
   // Setup CKEditor Token
-  app.use("/ckeditor-token", ckEditorTokenHandler)
+  app.use("/ckeditor-token", clientIdMiddleware, ckEditorTokenHandler)
   
   // Static files folder
   app.use(express.static(path.join(__dirname, '../../client')))
@@ -306,10 +305,6 @@ export function startWebserver() {
     }
   }))
   
-  // Voyager is a GraphQL schema visual explorer
-  app.use("/graphql-voyager", voyagerMiddleware({
-    endpointUrl: config.path,
-  }));
   // Setup GraphiQL
   app.use("/graphiql", graphiqlMiddleware({
     endpointURL: config.path,
@@ -438,16 +433,18 @@ export function startWebserver() {
     const prefetchResourcesPromise = maybePrefetchResources({ request, response, parsedRoute, prefetchPrefix });
 
     const renderResultPromise = performanceMetricLoggingEnabled.get()
-      ? asyncLocalStorage.run({}, () => renderWithCache(request, response, user, tabId))
-      : renderWithCache(request, response, user, tabId);
+      ? asyncLocalStorage.run({}, () => renderWithCache(request, response, user, tabId, prefetchResourcesPromise))
+      : renderWithCache(request, response, user, tabId, prefetchResourcesPromise);
 
-    const [prefetchingResources, renderResult] = await Promise.all([prefetchResourcesPromise, renderResultPromise]);
+    const renderResult = await renderResultPromise;
 
     if (renderResult.aborted) {
       trySetResponseStatus({ response, status: 499 });
       response.end();
       return;
     }
+
+    const prefetchingResources = await renderResult.prefetchedResources;
 
     const {
       ssrBody,
@@ -470,7 +467,8 @@ export function startWebserver() {
     if (redirectUrl) {
       // eslint-disable-next-line no-console
       console.log(`Redirecting to ${redirectUrl}`);
-      trySetResponseStatus({ response, status: status || 301 }).redirect(redirectUrl);
+      const absoluteRedirectUrl = urlIsAbsolute(redirectUrl) ? redirectUrl : makeAbsolute(redirectUrl);
+      trySetResponseStatus({ response, status: status || 301 }).redirect(absoluteRedirectUrl);
     } else {
       trySetResponseStatus({ response, status: status || 200 });
       const ssrMetadata: SSRMetadata = {

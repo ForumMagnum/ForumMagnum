@@ -1,11 +1,21 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
-import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
-import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
+import KeyboardArrowDownIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowDown';
+import KeyboardArrowRightIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowRight';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { isLWorAF } from '../../lib/instanceSettings';
+import SunshineNewUsersList from "./SunshineNewUsersList";
+import SunshineNewCommentsList from "./SunshineNewCommentsList";
+import SunshineNewTagsList from "./SunshineNewTagsList";
+import SunshineNewPostsList from "./SunshineNewPostsList";
+import SunshineReportedContentList from "./SunshineReportedContentList";
+import SunshineCuratedSuggestionsList from "./SunshineCuratedSuggestionsList";
+import AFSuggestUsersList from "./AFSuggestUsersList";
+import AFSuggestPostsList from "./AFSuggestPostsList";
+import AFSuggestCommentsList from "./AFSuggestCommentsList";
+import SunshineGoogleServiceAccount from "./SunshineGoogleServiceAccount";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -41,23 +51,8 @@ const styles = (theme: ThemeType) => ({
 })
 
 const SunshineSidebar = ({classes}: {classes: ClassesType<typeof styles>}) => {
-  const [showSidebar, setShowSidebar] = useState(false)
   const [showUnderbelly, setShowUnderbelly] = useState(false)
   const currentUser = useCurrentUser();
-
-  const {
-    SunshineNewUsersList,
-    SunshineNewCommentsList,
-    SunshineNewTagsList,
-    SunshineNewPostsList,
-    SunshineReportedContentList,
-    SunshineCuratedSuggestionsList,
-    AFSuggestUsersList,
-    AFSuggestPostsList,
-    AFSuggestCommentsList,
-    SunshineGoogleServiceAccount,
-  } = Components;
-
   if (!currentUser) return null
 
   const showInitialSidebar = userCanDo(currentUser, 'posts.moderate.all') || currentUser.groups?.includes('alignmentForumAdmins')
@@ -79,34 +74,11 @@ const SunshineSidebar = ({classes}: {classes: ClassesType<typeof styles>}) => {
           <AFSuggestCommentsList />
           <AFSuggestUsersList />
         </div>}
+        <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 7}} atBottom/>
       </div>}
 
-      {userCanDo(currentUser, 'posts.moderate.all') && <div>
-        { showSidebar ? <div className={classes.toggle} onClick={() => setShowSidebar(false)}>
-          Hide Full Sidebar
-            <KeyboardArrowDownIcon />
-          </div>
-          :
-          <div className={classes.toggle} onClick={() => setShowSidebar(true)}>
-            Show Full Sidebar
-            <KeyboardArrowRightIcon />
-          </div>}
-      </div>}
-
-
-      { showSidebar && userCanDo(currentUser, 'posts.moderate.all') && <div>
-        {!!currentUser!.viewUnreviewedComments && <SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>}        
-        <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}} belowFold/>
-
-        {/* regular admins (but not sunshines) see AF content below the fold */}
-        { userIsAdmin(currentUser) && <div>
-          <AFSuggestUsersList />
-          <AFSuggestPostsList />
-          <AFSuggestCommentsList />
-        </div>}
-      </div>}
-
-      { showSidebar && <div>
+      { userCanDo(currentUser, 'posts.moderate.all') && <div>
+        {!!currentUser!.viewUnreviewedComments && <SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>}
         { showUnderbelly ? <div className={classes.toggle} onClick={() => setShowUnderbelly(false)}>
           Hide {underbellyName}
           <KeyboardArrowDownIcon/>
@@ -124,13 +96,9 @@ const SunshineSidebar = ({classes}: {classes: ClassesType<typeof styles>}) => {
   )
 }
 
-const SunshineSidebarComponent = registerComponent("SunshineSidebar", SunshineSidebar, {
+export default registerComponent("SunshineSidebar", SunshineSidebar, {
   styles,
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    SunshineSidebar: typeof SunshineSidebarComponent
-  }
-}
+

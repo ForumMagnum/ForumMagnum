@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
-import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
 import moment from 'moment';
 import { NetworkStatus, gql, useQuery } from '@apollo/client';
-import { userIsAdmin } from '@/lib/vulcan-users';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
 import { useCurrentUser } from '../common/withUser';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import PostsItem from "../posts/PostsItem";
+import JargonTooltip from "./JargonTooltip";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import ContentStyles from "../common/ContentStyles";
+import LoadMore from "../common/LoadMore";
+import Loading from "../vulcan-core/Loading";
+import ErrorAccessDenied from "../common/ErrorAccessDenied";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -45,7 +54,6 @@ const PostListItemWithJargon = ({ post, jargonTerms, classes }: {
   jargonTerms: JargonTerms[],
   classes: ClassesType<typeof styles>,
 }) => {
-  const { PostsItem, JargonTooltip } = Components;
   return <div className={classes.post}>
     <PostsItem post={post}/>
     <div className={classes.jargonTerms}>
@@ -63,8 +71,6 @@ const PostListItemWithJargon = ({ post, jargonTerms, classes }: {
 export const PostsWithApprovedJargonPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SingleColumnSection, SectionTitle, ContentStyles, LoadMore, Loading, ErrorAccessDenied } = Components;
-
   const [limit, setLimit] = useState(15);
   const pageSize = 20;
 
@@ -156,10 +162,6 @@ export const PostsWithApprovedJargonPage = ({classes}: {
   </div>;
 }
 
-const PostsWithApprovedJargonPageComponent = registerComponent('PostsWithApprovedJargonPage', PostsWithApprovedJargonPage, {styles});
+export default registerComponent('PostsWithApprovedJargonPage', PostsWithApprovedJargonPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsWithApprovedJargonPage: typeof PostsWithApprovedJargonPageComponent
-  }
-}
+

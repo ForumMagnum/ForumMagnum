@@ -1,11 +1,19 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
-import AddIcon from '@material-ui/icons/Add';
+import AddIcon from '@/lib/vendor/@material-ui/icons/src/Add';
 import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import FrontpageReviewWidget from "../review/FrontpageReviewWidget";
+import PostsList2 from "../posts/PostsList2";
+import SectionButton from "../common/SectionButton";
+import RecentDiscussionThreadsList from "../recentDiscussion/RecentDiscussionThreadsList";
+import EAPopularCommentsSection from "../ea-forum/EAPopularCommentsSection";
+import RotatingReviewWinnerSpotlight from "../review/RotatingReviewWinnerSpotlight";
 
 const styles = (theme: ThemeType) => ({
   frontpageSequencesGridList: {
@@ -18,7 +26,6 @@ const styles = (theme: ThemeType) => ({
 const AlignmentForumHome = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
-  const { SingleColumnSection, SectionTitle, FrontpageReviewWidget, PostsList2, SectionButton, RecentDiscussionThreadsList, EAPopularCommentsSection, RotatingReviewWinnerSpotlight } = Components
   const currentUser = useCurrentUser();
 
   let recentPostsTerms = {view: 'new', limit: 10, forum: true, af: true} as const;
@@ -58,12 +65,8 @@ const AlignmentForumHome = ({classes}: {
   )
 };
 
-const AlignmentForumHomeComponent = registerComponent(
+export default registerComponent(
   'AlignmentForumHome', AlignmentForumHome, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    AlignmentForumHome: typeof AlignmentForumHomeComponent
-  }
-}
+

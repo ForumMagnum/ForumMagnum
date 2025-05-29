@@ -4,7 +4,7 @@ import { useCurrentUser } from "../common/withUser";
 import { sortBy } from 'underscore';
 import { postGetLastCommentedAt } from "../../lib/collections/posts/helpers";
 import { useOnMountTracking } from "../../lib/analyticsEvents";
-import type { PopperPlacementType } from "@material-ui/core/Popper";
+import type { Placement as PopperPlacementType } from "popper.js"
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { PostsItemConfig } from "./usePostsItem";
 import { PostsListViewType, usePostsListView } from "../hooks/usePostsListView";

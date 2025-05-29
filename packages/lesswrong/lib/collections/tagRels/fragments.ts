@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const TagRelBasicInfo = () => frag`
   fragment TagRelBasicInfo on TagRel {
     _id
     score
@@ -12,10 +12,10 @@ registerFragment(`
     postId
     autoApplied
   }
-`);
+`
 
 
-registerFragment(`
+export const TagRelFragment = () => frag`
   fragment TagRelFragment on TagRel {
     ...TagRelBasicInfo
     tag {
@@ -28,9 +28,9 @@ registerFragment(`
     currentUserExtendedVote
     currentUserCanVote
   }
-`);
+`
 
-registerFragment(`
+export const TagRelHistoryFragment = () => frag`
   fragment TagRelHistoryFragment on TagRel {
     ...TagRelBasicInfo
     createdAt
@@ -41,9 +41,9 @@ registerFragment(`
       ...PostsList
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagRelCreationFragment = () => frag`
   fragment TagRelCreationFragment on TagRel {
     ...TagRelBasicInfo
     tag {
@@ -59,9 +59,9 @@ registerFragment(`
     currentUserVote
     currentUserExtendedVote
   }
-`);
+`
 
-registerFragment(`
+export const TagRelMinimumFragment = () => frag`
   fragment TagRelMinimumFragment on TagRel {
     ...TagRelBasicInfo
     tag {
@@ -71,11 +71,11 @@ registerFragment(`
     currentUserExtendedVote
     currentUserCanVote
   }
-`);
+`
 
 
 // This fragment has to be fully dereferences, because the context of vote fragments doesn't allow for spreading other fragments
-registerFragment(`
+export const WithVoteTagRel = () => frag`
   fragment WithVoteTagRel on TagRel {
     __typename
     _id
@@ -87,4 +87,4 @@ registerFragment(`
     currentUserVote
     currentUserExtendedVote
   }
-`);
+`

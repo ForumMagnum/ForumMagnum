@@ -1,15 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { CommentTreeNode } from '../../lib/utils/unflatten';
 import { useScrollHighlight } from '../hooks/useScrollHighlight';
-import { useLocation } from '../../lib/routeUtil';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs'
 import { commentsTableOfContentsEnabled } from '../../lib/betas';
-import { useNavigate } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { forumTypeSetting } from '@/lib/instanceSettings';
 import { commentIdToLandmark, getCurrentSectionMark, getLandmarkY } from '@/lib/scrollUtils';
+import { useLocation, useNavigate } from "../../lib/routeUtil";
+import TableOfContentsDivider from "../posts/TableOfContents/TableOfContentsDivider";
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import TableOfContentsRow from "../posts/TableOfContents/TableOfContentsRow";
 
 const COMMENTS_TITLE_CLASS_NAME = 'CommentsTableOfContentsTitle';
 
@@ -136,7 +138,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
         highlightedCommentId={highlightedLandmarkName}
         highlightDate={highlightDate}
       />
-      <Components.TableOfContentsDivider/>
+      <TableOfContentsDivider/>
     </>)}
     {commentTree && commentTree.map(comment => <ToCCommentBlock
       key={comment.item._id}
@@ -156,7 +158,6 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
   highlightDate: Date|undefined,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UsersNameDisplay, TableOfContentsRow } = Components;
   const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
@@ -237,10 +238,6 @@ function flattenCommentTree(commentTree: CommentTreeNode<CommentsList>[]): Comme
 }
 
 
-const CommentsTableOfContentsComponent = registerComponent('CommentsTableOfContents', CommentsTableOfContents, { styles });
+export default registerComponent('CommentsTableOfContents', CommentsTableOfContents, { styles });
 
-declare global {
-  interface ComponentTypes {
-    CommentsTableOfContents: typeof CommentsTableOfContentsComponent
-  }
-}
+

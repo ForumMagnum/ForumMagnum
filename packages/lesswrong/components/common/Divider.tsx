@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isLWorAF } from '../../lib/instanceSettings';
 import { compassIcon } from '../icons/compassIcon';
 
@@ -51,10 +51,6 @@ const Divider = ({ classes, wings=true, margin=24 }: {
     </div>}
   </div>
 }
-const DividerComponent = registerComponent('Divider', Divider, {styles});
+export default registerComponent('Divider', Divider, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Divider: typeof DividerComponent
-  }
-}
+

@@ -1,4 +1,4 @@
-import PostRecommendations from "../../lib/collections/postRecommendations/collection";
+import PostRecommendations from "../../server/collections/postRecommendations/collection";
 import { createTable, dropTable } from "./meta/utils";
 
 export const acceptsSchemaHash = "f38ed1e13515715dfc7ea5a8d6ea01df";

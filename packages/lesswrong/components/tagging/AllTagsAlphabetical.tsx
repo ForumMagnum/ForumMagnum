@@ -1,13 +1,17 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
-import AddBoxIcon from '@material-ui/icons/AddBox';
+import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import _sortBy from 'lodash/sortBy';
 import { userCanCreateTags } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import TagsListItem from "./TagsListItem";
+import SectionTitle from "../common/SectionTitle";
+import SectionButton from "../common/SectionButton";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -36,7 +40,6 @@ const AllTagsAlphabetical = ({classes}: {
     fragmentName: "TagPreviewFragment",
     limit: 750,
   });
-  const { TagsListItem, SectionTitle, SectionButton, Loading } = Components;
   const currentUser = useCurrentUser()
 
   const alphabetical = _sortBy(results, tag=>tag.name)
@@ -64,10 +67,6 @@ const AllTagsAlphabetical = ({classes}: {
   );
 }
 
-const AllTagsAlphabeticalComponent = registerComponent("AllTagsAlphabetical", AllTagsAlphabetical, {styles});
+export default registerComponent("AllTagsAlphabetical", AllTagsAlphabetical, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AllTagsAlphabetical: typeof AllTagsAlphabeticalComponent
-  }
-}
+

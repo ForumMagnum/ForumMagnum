@@ -1,7 +1,7 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PeopleDirectorySkeletonTextCell', (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -15,12 +15,12 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 136,
     height: 8,
   },
-});
+}));
 
-const PeopleDirectorySkeletonTextCell = ({lines = 1, classes}: {
+export const PeopleDirectorySkeletonTextCell = ({lines = 1}: {
   lines?: number,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   return (
     <div className={classes.root}>
       {Array.from(Array(lines).keys()).map((i) => (
@@ -28,16 +28,4 @@ const PeopleDirectorySkeletonTextCell = ({lines = 1, classes}: {
       ))}
     </div>
   );
-}
-
-const PeopleDirectorySkeletonTextCellComponent = registerComponent(
-  "PeopleDirectorySkeletonTextCell",
-  PeopleDirectorySkeletonTextCell,
-  {styles},
-);
-
-declare global {
-  interface ComponentTypes {
-    PeopleDirectorySkeletonTextCell: typeof PeopleDirectorySkeletonTextCellComponent
-  }
 }

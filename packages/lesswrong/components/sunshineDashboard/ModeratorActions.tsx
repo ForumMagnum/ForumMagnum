@@ -1,25 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import DoneIcon from '@material-ui/icons/Done';
-import SnoozeIcon from '@material-ui/icons/Snooze';
-import AddAlarmIcon from '@material-ui/icons/AddAlarm';
-import AlarmOffIcon from '@material-ui/icons/AlarmOff';
-import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
-import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
-import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
-import ReportProblemIcon from '@material-ui/icons/ReportProblem';
-import OutlinedFlagIcon from '@material-ui/icons/OutlinedFlag';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
+import SnoozeIcon from '@/lib/vendor/@material-ui/icons/src/Snooze';
+import AddAlarmIcon from '@/lib/vendor/@material-ui/icons/src/AddAlarm';
+import AlarmOffIcon from '@/lib/vendor/@material-ui/icons/src/AlarmOff';
+import DeleteForeverIcon from '@/lib/vendor/@material-ui/icons/src/DeleteForever';
+import RemoveCircleOutlineIcon from '@/lib/vendor/@material-ui/icons/src/RemoveCircleOutline';
+import VisibilityOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/VisibilityOutlined';
+import ReportProblemIcon from '@/lib/vendor/@material-ui/icons/src/ReportProblem';
+import OutlinedFlagIcon from '@/lib/vendor/@material-ui/icons/src/OutlinedFlag';
 import classNames from 'classnames';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import moment from 'moment';
-import FlagIcon from '@material-ui/icons/Flag';
-import Input from '@material-ui/core/Input';
+import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { getCurrentContentCount, UserContentCountPartial } from '../../lib/collections/moderatorActions/helpers';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useDialog } from '../common/withDialog';
+import NewModeratorActionDialog from "./NewModeratorActionDialog";
+import LWTooltip from "../common/LWTooltip";
+import ModeratorActionItem from "./ModeratorUserInfo/ModeratorActionItem";
+import { MenuItem } from "../common/Menus";
+import UserRateLimitItem from "./UserRateLimitItem";
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -89,7 +94,6 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   comments: Array<CommentsListWithParentMetadata>|undefined,
   posts: Array<SunshinePostsList>|undefined,
 }) => {
-  const { LWTooltip, ModeratorActionItem, MenuItem, UserRateLimitItem } = Components
   const [notes, setNotes] = useState(user.sunshineNotes || "")
   const { openDialog } = useDialog();
 
@@ -340,9 +344,12 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     </LWTooltip>
     <LWTooltip title="Create a new moderator action for this user">
       <ReportProblemIcon className={classes.modButton} onClick={() => openDialog({
-        componentName: 'NewModeratorActionDialog',
-        componentProps: {userId: user._id}})}
-      />
+        name: 'NewModeratorActionDialog',
+        contents: ({onClose}) => <NewModeratorActionDialog
+          onClose={onClose}
+          userId={user._id}
+        />
+      })}/>
     </LWTooltip>
   </div>
 
@@ -402,11 +409,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   </div>
 }
 
-const ModeratorActionsComponent = registerComponent('ModeratorActions', ModeratorActions, {styles});
+export default registerComponent('ModeratorActions', ModeratorActions, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ModeratorActions: typeof ModeratorActionsComponent
-  }
-}
+
 

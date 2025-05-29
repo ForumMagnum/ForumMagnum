@@ -4,8 +4,10 @@ import Query from "@/server/sql/Query";
 import { isAnyTest, isDevelopment } from "../lib/executionEnvironment";
 import { PublicInstanceSetting } from "../lib/instanceSettings";
 import omit from "lodash/omit";
-import { logAllQueries } from "@/server/sql/sqlClient";
+import { logAllQueries, logQueryArguments, measureSqlBytesDownloaded } from "@/server/sql/sqlClient";
 import { recordSqlQueryPerfMetric } from "./perfMetrics";
+
+let sqlBytesDownloaded = 0;
 
 // Setting this to -1 disables slow query logging
 const SLOW_QUERY_REPORT_CUTOFF_MS = parseInt(process.env.SLOW_QUERY_REPORT_CUTOFF_MS ?? '') >= -1
@@ -53,6 +55,14 @@ export const pgPromiseLib = pgp({
     // console.log("SQL:", context.query);
   // },
 });
+
+export const concat = (queries: Query<any>[]): string => {
+  const compiled = queries.map((query) => {
+    const {sql, args} = query.compile();
+    return {query: sql, values: args};
+  });
+  return pgPromiseLib.helpers.concat(compiled);
+}
 
 /**
  * The postgres default for max_connections is 100 - you can view the current setting
@@ -173,6 +183,9 @@ const logIfSlow = async <T>(
   recordSqlQueryPerfMetric(originalQuery, startTime, endTime);
 
   const milliseconds = endTime - startTime;
+  if (measureSqlBytesDownloaded || logAllQueries) {
+    sqlBytesDownloaded += JSON.stringify(result).length;
+  }
   if (logAllQueries) {
     // eslint-disable-next-line no-console
     console.log(`Finished query #${queryID} (${milliseconds} ms) (${JSON.stringify(result).length}b)`);
@@ -199,12 +212,19 @@ const wrapQueryMethod = <T>(
     values?: SqlQueryArgs,
     describe?: SqlDescription,
     quiet?: boolean,
-  ) => logIfSlow(
-    () => queryMethod(query, values),
-    describe ?? query,
-    query,
-    quiet,
-  ) as ReturnType<typeof queryMethod>;
+  ) => {
+    const description = describe
+      ?? (logQueryArguments
+        ? `${query}: ${JSON.stringify(values)}`
+        : query
+      )
+    return logIfSlow(
+      () => queryMethod(query, values),
+      description,
+      query,
+      quiet,
+    ) as ReturnType<typeof queryMethod>;
+  }
 }
 
 export const createSqlConnection = async (
@@ -232,15 +252,13 @@ export const createSqlConnection = async (
     any: wrapQueryMethod(db.any),
     multi: wrapQueryMethod(db.multi),
     $pool: db.$pool, // $pool is accessed with magic and isn't copied by spreading
-    concat: (queries: Query<any>[]): string => {
-      const compiled = queries.map((query) => {
-        const {sql, args} = query.compile();
-        return {query: sql, values: args};
-      });
-      return pgPromiseLib.helpers.concat(compiled);
-    },
+    concat,
     isTestingClient,
   };
 
   return client;
+}
+
+export const getSqlBytesDownloaded = (): number => {
+  return sqlBytesDownloaded;
 }

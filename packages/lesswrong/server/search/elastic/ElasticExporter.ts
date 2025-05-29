@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import { OnDropDocument } from "@elastic/elasticsearch/lib/helpers";
 import { htmlToTextDefault } from "../../../lib/htmlToText";
 import ElasticClient from "./ElasticClient";
@@ -7,15 +9,12 @@ import {
   SearchIndexedCollection,
   searchIndexedCollectionNames,
 } from "../../../lib/search/searchUtil";
-import {
-  CommentsRepo,
-  PostsRepo,
-  SequencesRepo,
-  TagsRepo,
-  UsersRepo,
-} from "../../repos";
-import { getCollection } from "../../../lib/vulcan-lib/getCollection";
-import Globals from "../../../lib/vulcan-lib/config";
+import CommentsRepo from "../../repos/CommentsRepo";
+import PostsRepo from "../../repos/PostsRepo";
+import SequencesRepo from "../../repos/SequencesRepo";
+import TagsRepo from "../../repos/TagsRepo";
+import UsersRepo from "../../repos/UsersRepo";
+import { getCollection } from "../../collections/allCollections";
 
 const HTML_FIELDS = [
   "body",
@@ -26,10 +25,40 @@ const HTML_FIELDS = [
   "description",
 ];
 
-class ElasticExporter {
+/**
+ * Class containing functions for exporting to the ElasticSearch index. Most
+ * methods are suitable for calling with "yarn repl"; some are also called
+ * automatically. To invoke manually, your invocation will look something like:
+ *    yarn repl dev packages/lesswrong/server/search/elastic/ElasticExporter.ts 'new ElasticExporter().recreateIndex("Posts")'
+ */
+export class ElasticExporter {
   constructor(
     private client = new ElasticClient(),
   ) {}
+  
+  async printClientInfo() {
+    const client = this.client.getClient();
+    const info = await client.info();
+    // eslint-disable-next-line no-console
+    console.log(info);
+  }
+
+  async printInfo() {
+    const client = this.client.getClient();
+    const info = await client.info();
+    console.log(info);
+    
+    const indexes = await client.indices.get({
+      index: "*",
+    });
+    for (const [indexName,elasticIndex] of Object.entries(indexes)) {
+      console.log(indexName);
+      
+      if (elasticIndex.aliases) {
+        console.log(`    Aliases [${Object.keys(elasticIndex.aliases).join(", ")}]`);
+      }
+    }
+  }
 
   async configureIndexes() {
     for (const collectionName of searchIndexedCollectionNames) {
@@ -92,10 +121,10 @@ class ElasticExporter {
    * alias for the actual name pointing to the underlining index.
    *
    * To change the schema, we then:
-   *  1) Make the old index read-only
-   *  2) Reindex all of the existing data into a new index with the new schema
-   *  3) Mark the new index as writable
-   *  4) Update the alias to point to the new index
+   *  (1) Make the old index read-only
+   *  (2) Reindex all of the existing data into a new index with the new schema
+   *  (3) Mark the new index as writable
+   *  (4) Update the alias to point to the new index
    *
    * For a populated index, expect this to take ~a couple of minutes. Note that,
    * for the sake of data safety, the old index is _not_ automatically deleted.
@@ -158,6 +187,42 @@ class ElasticExporter {
         name: aliasName,
       });
     }
+  }
+
+  /**
+   * Recreate an index, by creating and configuring a new index, exporting into
+   * it, then switching the alias. This will remove any objects that have IDs
+   * not present in the postgres DB, eg to clean up search index pollution that
+   * was the result of connecting a development DB to a production search index.
+   */
+  async recreateIndex(collectionName: SearchIndexCollectionName) {
+    const client = this.client.getClient();
+    const collection = getCollection(collectionName) as SearchIndexedCollection;
+
+    const aliasName = this.getIndexName(collection);
+    const newIndexName = `${aliasName}_${Date.now()}`;
+    const oldIndexName = await this.getExistingAliasTarget(aliasName);
+
+    if (!oldIndexName) {
+      throw new Error("Index did not already exist");
+    }
+    
+    // eslint-disable-next-line no-console
+    console.log(`Creating index: ${collectionName}`);
+    await this.createIndex(newIndexName, collectionName);
+    
+    console.log(`Loading data into index: ${collectionName}`);
+    await this.exportCollection(collectionName, newIndexName);
+
+    console.log(`Switching alias`);
+    await client.indices.putAlias({
+      index: newIndexName,
+      name: aliasName,
+    });
+    await client.indices.deleteAlias({
+      index: oldIndexName,
+      name: aliasName,
+    });
   }
 
   async deleteIndex(collectionName: SearchIndexCollectionName) {
@@ -356,12 +421,12 @@ class ElasticExporter {
     }
   }
 
-  async exportCollection(collectionName: SearchIndexCollectionName) {
+  async exportCollection(collectionName: SearchIndexCollectionName, overrideAlias?: string) {
     const collection = getCollection(collectionName) as SearchIndexedCollection;
     const repo = this.getRepoByCollectionName(collectionName);
 
     const indexName = this.getIndexName(collection);
-    const alias = await this.getExistingAliasTarget(indexName);
+    const alias = overrideAlias ?? await this.getExistingAliasTarget(indexName);
     if (!alias) {
       throw new Error("Alias is not configured - run `elasticConfigureIndexes`");
     }
@@ -382,7 +447,7 @@ class ElasticExporter {
       if (documents.length < 1) {
         break;
       }
-      const erroredDocuments = await this.createDocuments(collection, documents);
+      const erroredDocuments = await this.createDocuments(collection, documents, alias);
       totalErrors.push.apply(totalErrors, erroredDocuments);
     }
 
@@ -402,11 +467,11 @@ class ElasticExporter {
   private async createDocuments(
     collection: SearchIndexedCollection,
     documents: SearchDocument[],
+    indexName: string,
   ): Promise<OnDropDocument<SearchDocument>[]> {
     if (!documents.length) {
       return [];
     }
-    const _index = this.getIndexName(collection);
     const erroredDocuments: OnDropDocument<SearchDocument>[] = [];
     await this.client.getClient().helpers.bulk({
       datasource: documents,
@@ -414,7 +479,7 @@ class ElasticExporter {
         const {id: _id} = this.formatDocument(document);
         return [
           {
-            update: {_index, _id},
+            update: {_index: indexName, _id},
           },
           {
             doc_as_upsert: true,
@@ -478,31 +543,5 @@ class ElasticExporter {
     await client.indices.open({index});
   }
 }
-
-Globals.elasticConfigureIndex = (collectionName: SearchIndexCollectionName) =>
-  new ElasticExporter().configureIndex(collectionName);
-
-Globals.elasticConfigureIndexes = () =>
-  new ElasticExporter().configureIndexes();
-
-Globals.elasticExportCollection = (collectionName: SearchIndexCollectionName) =>
-  new ElasticExporter().exportCollection(collectionName);
-
-Globals.elasticExportAll = () =>
-  new ElasticExporter().exportAll();
-
-Globals.elasticDeleteIndex = (collectionName: SearchIndexCollectionName) =>
-  new ElasticExporter().deleteIndex(collectionName);
-
-Globals.elasticDeleteIndexByName = (indexName: string) =>
-  new ElasticExporter().deleteIndexByName(indexName);
-
-Globals.elasticDeleteOrphanedIndexes = () =>
-  new ElasticExporter().deleteOrphanedIndexes();
-
-Globals.elasticExportDocument = (
-  collectionName: SearchIndexCollectionName,
-  documentId: string,
-) => new ElasticExporter().updateDocument(collectionName, documentId);
 
 export default ElasticExporter;

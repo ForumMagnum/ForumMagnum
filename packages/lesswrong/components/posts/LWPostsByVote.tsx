@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import PostsItem from "./PostsItem";
+import ErrorBoundary from "../common/ErrorBoundary";
+import Loading from "../vulcan-core/Loading";
+import { Typography } from "../common/Typography";
+import LoadMore from "../common/LoadMore";
+import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   checkboxRow: {
@@ -19,7 +26,6 @@ const LWPostsByVote = ({classes, postIds, year, limit, showMostValuableCheckbox=
   hideEmptyStateText?: boolean,
   postItemClassName?: string,
 }) => {
-  const { PostsItem, ErrorBoundary, Loading, Typography, LoadMore, SectionFooterCheckbox, LWTooltip } = Components
   const [requiredUnnominated, setRequiredUnnominated] = useState(true)
   const [requiredFrontpage, setRequiredFrontpage] = useState(true)
 
@@ -64,10 +70,6 @@ const LWPostsByVote = ({classes, postIds, year, limit, showMostValuableCheckbox=
   </ErrorBoundary>
 }
 
-const LWPostsByVoteComponent = registerComponent("LWPostsByVote", LWPostsByVote, {styles});
+export default registerComponent("LWPostsByVote", LWPostsByVote, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LWPostsByVote: typeof LWPostsByVoteComponent
-  }
-}
+

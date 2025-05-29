@@ -1,10 +1,11 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
 
 import { useDialog } from '../common/withDialog';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
+import LoginPopup from "../users/LoginPopup";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -39,8 +40,8 @@ const TagRelevanceButton = ({document, voteType, vote, label, classes, cancelVot
   const wrappedVote = (voteType: string) => {
     if(!currentUser){
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
+        name: "LoginPopup",
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
       });
     } else {
       vote({document, voteType: null, collectionName: "TagRels", currentUser});
@@ -59,11 +60,7 @@ const TagRelevanceButton = ({document, voteType, vote, label, classes, cancelVot
   </a>
 }
 
-const TagRelevanceButtonComponent = registerComponent('TagRelevanceButton', TagRelevanceButton, {styles});
+export default registerComponent('TagRelevanceButton', TagRelevanceButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TagRelevanceButton: typeof TagRelevanceButtonComponent
-  }
-}
+
 

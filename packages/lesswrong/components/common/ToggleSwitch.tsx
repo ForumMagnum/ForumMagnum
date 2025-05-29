@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
@@ -75,14 +75,10 @@ export const ToggleSwitch = ({value, setValue, smallVersion, className, classes}
   );
 }
 
-const ToggleSwitchComponent = registerComponent(
+export default registerComponent(
   "ToggleSwitch",
   ToggleSwitch,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    ToggleSwitch: typeof ToggleSwitchComponent
-  }
-}
+

@@ -1,7 +1,8 @@
 import React, { CSSProperties } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import Card from '@material-ui/core/Card';
-import { PopperPlacementType } from '@material-ui/core/Popper'
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { Card } from "@/components/widgets/Paper";
+import type { Placement as PopperPlacementType } from "popper.js"
+import LWPopper from "./LWPopper";
 
 const PopperCard = ({
   children,
@@ -22,17 +23,13 @@ const PopperCard = ({
   style?: CSSProperties,
   className?: string,
 }) => {
-  return <Components.LWPopper open={open} anchorEl={anchorEl} placement={placement} allowOverflow={allowOverflow} flip={flip}>
+  return <LWPopper open={open} anchorEl={anchorEl} placement={placement} allowOverflow={allowOverflow} flip={flip}>
     <Card style={style} className={className}>
       {children}
     </Card>
-  </Components.LWPopper>
+  </LWPopper>
 }
 
-const PopperCardComponent = registerComponent("PopperCard", PopperCard, {stylePriority: -1});
+export default registerComponent("PopperCard", PopperCard, {stylePriority: -1});
 
-declare global {
-  interface ComponentTypes {
-    PopperCard: typeof PopperCardComponent
-  }
-}
+

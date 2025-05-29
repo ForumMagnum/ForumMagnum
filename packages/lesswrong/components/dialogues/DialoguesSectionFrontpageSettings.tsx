@@ -1,11 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
-import Checkbox from '@material-ui/core/Checkbox';
-import Tooltip from '@material-ui/core/Tooltip';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { useCurrentUser } from '../common/withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { TooltipSpan } from '../common/FMTooltip';
+import MetaInfo from "../common/MetaInfo";
 
 const USER_SETTING_NAMES = {
   showDialogues: 'showDialoguesList',
@@ -49,7 +50,6 @@ const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, curren
   currentShowMyDialogues: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { MetaInfo } = Components
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
 
@@ -63,7 +63,7 @@ const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, curren
 
   return (
       <div className={classNames(classes.root, {[classes.hidden]: hidden})}>
-          <Tooltip title="Dialogues with new content">
+          <TooltipSpan title="Dialogues with new content">
             <div className={classes.setting}>
               <Checkbox 
                 style={{padding: 7}}
@@ -72,8 +72,8 @@ const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, curren
               />
               <MetaInfo>Show Dialogues</MetaInfo>
             </div>
-          </Tooltip>
-          <Tooltip title="Dialogues you're involved in">
+          </TooltipSpan>
+          <TooltipSpan title="Dialogues you're involved in">
             <div className={classes.setting}>
               <Checkbox
                 style={{padding: 7}}
@@ -82,17 +82,13 @@ const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, curren
               />
               <MetaInfo>Show My Dialogues</MetaInfo>
             </div>
-          </Tooltip>
+          </TooltipSpan>
       </div>
   );
 };
 
-const DialoguesSectionFrontpageSettingsComponent = registerComponent(
+export default registerComponent(
   'DialoguesSectionFrontpageSettings', DialoguesSectionFrontpageSettings, { styles }
 );
 
-declare global {
-  interface ComponentTypes {
-    DialoguesSectionFrontpageSettings: typeof DialoguesSectionFrontpageSettingsComponent
-  }
-}
+

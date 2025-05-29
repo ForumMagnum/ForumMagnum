@@ -1,29 +1,63 @@
 import React from 'react';
 import round from "lodash/round"
 import moment from "moment"
-import { isEAForum, isLWorAF } from "./instanceSettings"
+import { isEAForum, isLW, isLWorAF } from "./instanceSettings"
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import { memoizeWithExpiration } from './utils/memoizeWithExpiration';
-import { isDevelopment } from './executionEnvironment';
+import { isDevelopment } from './executionEnvironment'; 
 
-export const reviewYears = [2018, 2019, 2020, 2021, 2022, 2023] as const
-const years = new TupleSet(reviewYears);
-export type ReviewYear = UnionOf<typeof years>;
+/* 
+NOTES FOR REVIEW ENDING
+
+1. Create ReviewWinners and Voting Results post html:
+- yarn repl prod packages/lesswrong/server/reviewVoteUpdate.ts 'updateReviewVoteTotals('finalVote')'
+- yarn repl prod packages/lesswrong/server/reviewVoteUpdate.ts 'createVotingPostHtml()' 
+
+2. Create ReviewWinnerArts
+- Make sure you have a fal.ai account with money in it, and an apiKey in the credentials repo (Ray's will work, but requires Ray SSO)
+
+run this command a few times, it'll take a few minutes per time. Currently this function 
+- yarn repl prod packages/lesswrong/server/scripts/generativeModels/coverImages-2023Review.ts 'getReviewWinnerArts()' 
+
+go to /bestoflesswrongadmin to review images and choose the best one.
+
+3. Choose Top 12 ReviewWinners
+choose which new ReviewWinners should be in the top 12 for each category (probably expect to add 1). Has to be done manually in the DB.
+
+3. Create Spotlights
+- yarn repl prod packages/lesswrong/server/scripts/generativeModels/autoSpotlight.ts 'createSpotlights()' 
+- go to lesswrong.com/spotlights?drafts=true to review spotlights, pick the best one. When you submit one it'll archive the other ones and undraft it
+
+*/
+
+export const reviewWinnerCategories = new TupleSet(['rationality', 'modeling', 'optimization', 'ai strategy', 'ai safety', 'practical'] as const);
+export type ReviewWinnerCategory = UnionOf<typeof reviewWinnerCategories>;
+
+/** Review year is the year under review, not the year in which the review takes place. */
+export const REVIEW_YEAR = 2023
+export const BEST_OF_LESSWRONG_PUBLISH_YEAR: PublishedReviewYear = 2023
+
+const publishedReviewYearsArray = [2018, 2019, 2020, 2021, 2022, 2023] as const;
+export const publishedReviewYears = new TupleSet(publishedReviewYearsArray);
+export const reviewYears = new TupleSet([...publishedReviewYears, REVIEW_YEAR] as const);
+
+export type ReviewYear = UnionOf<typeof reviewYears>;
+export type PublishedReviewYear = UnionOf<typeof publishedReviewYears>;
 
 export function getReviewYearFromString(yearParam: string): ReviewYear {
   const year = parseInt(yearParam)
-  if (years.has(year)) {
+  if (reviewYears.has(year)) {
     return year
   }
   throw Error("Not a valid Review Year")
 }
 
-/** Review year is the year under review, not the year in which the review takes place. */
-export const REVIEW_YEAR: ReviewYear = 2023
 
 // Deprecated in favor of getReviewTitle and getReviewShortTitle 
-export const REVIEW_NAME_TITLE = isEAForum ? 'Effective Altruism: The First Decade' : `The ${REVIEW_YEAR} Review`
 export const REVIEW_NAME_IN_SITU = isEAForum ? 'Decade Review' : `${REVIEW_YEAR} Review`
+
+export const reviewElectionName = `reviewVoting${REVIEW_YEAR}`
+
 
 // This is broken out partly to allow EA Forum or other fora to do reviews with different names
 // (previously EA Forum did a "decade review" rather than a single year review)
@@ -34,7 +68,9 @@ export function getReviewTitle(reviewYear: ReviewYear): string {
 export function getReviewShortTitle(reviewYear: ReviewYear): string {
   return `${reviewYear} Review`
 }
+
 export const reviewPostPath = "/posts/pudQtkre7f9GLmb2b/the-2023-lesswrong-review-the-basic-ask"
+export const reviewResultsPostPath = "/posts/sHvByGZRCsFuxtTKr/voting-results-for-the-2023-review"
 export const longformReviewTagId = "aRnXghESsn4HDm872"
 
 const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'RESULTS', 'COMPLETE'] as const);
@@ -51,7 +87,7 @@ export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
 }
 
 const TIMEZONE_OFFSET = isDevelopment 
-  ? -24*4 // we start testing each phase a few days before it starts
+  ? -24*2 // we start testing each phase a few days before it starts
   : 8 // Pacific Time
 
 export function getReviewPeriodStart(reviewYear: ReviewYear = REVIEW_YEAR) {
@@ -64,8 +100,14 @@ export function getReviewPeriodEnd(reviewYear: ReviewYear = REVIEW_YEAR) {
 export const getReviewStart = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-02`).add(TIMEZONE_OFFSET, 'hours')
 export const getNominationPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+1}-12-16`).add(TIMEZONE_OFFSET, 'hours')
 export const getReviewPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-01-16`).add(TIMEZONE_OFFSET, 'hours')
-export const getVotingPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-01`).add(TIMEZONE_OFFSET, 'hours')
-export const getResultsPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-06`).add(TIMEZONE_OFFSET, 'hours')
+export const getVotingPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-06`).add(TIMEZONE_OFFSET, 'hours')
+export const getResultsPhaseEnd = (reviewYear: ReviewYear) => moment.utc(`${reviewYear+2}-02-10`).add(TIMEZONE_OFFSET, 'hours')
+
+// these displays are used to show the end of the phase in the review widget,
+// because people often interpret the end of the phase as the end of the day
+export const getNominationPhaseEndDisplay = (reviewYear: ReviewYear) => getNominationPhaseEnd(reviewYear).subtract(1, 'days')
+export const getReviewPhaseEndDisplay = (reviewYear: ReviewYear) => getReviewPhaseEnd(reviewYear).subtract(1, 'days')
+export const getVotingPhaseEndDisplay = (reviewYear: ReviewYear) => getVotingPhaseEnd(reviewYear).subtract(1, 'days')
 
 function recomputeReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   if (reviewYear && reviewYear !== REVIEW_YEAR) {
@@ -99,7 +141,7 @@ export const REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD = 2
 // person thought was reasonably important, or at least 4 people thought were "maybe important?"
 export const QUICK_REVIEW_SCORE_THRESHOLD = 4
 
-export function getPositiveVoteThreshold(reviewPhase?: ReviewPhase): Number {
+export function getPositiveVoteThreshold(reviewPhase?: ReviewPhase): number {
   // During the nomination phase, posts require 1 positive reviewVote
   // to appear in review post lists (so a single vote allows others to see it
   // and get prompted to cast additional votes.
@@ -166,7 +208,7 @@ export type VoteIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 interface CostData {
   value: number | null;
   cost: number;
-  tooltip: JSX.Element | null;
+  tooltip: React.JSX.Element | null;
 }
 
 export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<number, CostData> => {

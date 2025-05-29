@@ -1,8 +1,12 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
+import SunshineListCount from "./SunshineListCount";
+import SunshineListTitle from "./SunshineListTitle";
+import SunshineNewPostsItem from "./SunshineNewPostsItem";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,8 +28,6 @@ const SunshineNewPostsList = ({ terms, classes }: {
     enableTotal: true,
   });
   const currentUser = useCurrentUser();
-  
-  const { SunshineListCount, SunshineListTitle, SunshineNewPostsItem, LoadMore } = Components
   if (results && results.length && userCanDo(currentUser, "posts.moderate.all")) {
     return (
       <div className={classes.root}>
@@ -48,11 +50,7 @@ const SunshineNewPostsList = ({ terms, classes }: {
   }
 }
 
-const SunshineNewPostsListComponent = registerComponent('SunshineNewPostsList', SunshineNewPostsList, {styles});
+export default registerComponent('SunshineNewPostsList', SunshineNewPostsList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineNewPostsList: typeof SunshineNewPostsListComponent
-  }
-}
+
 

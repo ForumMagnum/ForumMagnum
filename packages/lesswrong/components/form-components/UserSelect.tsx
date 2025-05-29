@@ -1,7 +1,12 @@
 import React, {useCallback} from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import ErrorBoundary from "../common/ErrorBoundary";
+import UsersSearchAutoComplete from "../search/UsersSearchAutoComplete";
+import SingleUsersItem from "./SingleUsersItem";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FormUserSelect', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center"
@@ -10,54 +15,50 @@ const styles = (theme: ThemeType) => ({
     listStyle: "none",
     fontFamily: theme.typography.fontFamily
   },
-});
+}));
 
-const UserSelect = ({ value, setValue, label, classes }: {
+const UserSelect = ({ value, setValue, label }: {
   value: string | null,
   setValue: (newValue: string | null, result: SearchUser | null) => void,
   label: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   return (
     <div className={classes.root}>
-      <Components.ErrorBoundary>
-        <Components.UsersSearchAutoComplete
+      <ErrorBoundary>
+        <UsersSearchAutoComplete
           clickAction={(userId: string, result: SearchUser) => setValue(userId, result)}
           label={label}
         />
-      </Components.ErrorBoundary>
+      </ErrorBoundary>
       {value && (
         <div className={classes.item}>
-          <Components.SingleUsersItem userId={value} removeItem={() => setValue(null, null)} />
+          <SingleUsersItem userId={value} removeItem={() => setValue(null, null)} />
         </div>
       )}
     </div>
   );
 };
 
-const FormUserSelect = ({value, path, label, updateCurrentValues}: {
-  value: string | null,
-  path: string,
-  label: string,
-  updateCurrentValues: UpdateCurrentValues,
-}) => {
-  const setValue = useCallback((newValue: string | null) => {
-    void updateCurrentValues({[path]: newValue});
-  }, [updateCurrentValues, path]);
+interface FormUserSelectProps {
+  field: TypedFieldApi<string | null>;
+  label: string;
+}
 
-  return <Components.UserSelect
+export const FormUserSelect = ({ field, label }: FormUserSelectProps) => {
+  const value = field.state.value;
+  const setValue = useCallback((newValue: string | null) => {
+    field.handleChange(newValue);
+  }, [field]);
+
+  return <UserSelect
     value={value}
     setValue={setValue}
     label={label}
   />
 };
 
-const UserSelectComponent = registerComponent("UserSelect", UserSelect, {styles});
-const FormUserSelectComponent = registerComponent("FormUserSelect", FormUserSelect, {styles});
+export default registerComponent("UserSelect", UserSelect);
 
-declare global {
-  interface ComponentTypes {
-    UserSelect: typeof UserSelectComponent
-    FormUserSelect: typeof FormUserSelectComponent
-  }
-}
+

@@ -1,6 +1,6 @@
-import { registerFragment } from "@/lib/vulcan-lib";
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const SurveyResponseMinimumInfo = () => frag`
   fragment SurveyResponseMinimumInfo on SurveyResponse {
     _id
     surveyId
@@ -9,4 +9,4 @@ registerFragment(`
     clientId
     response
   }
-`);
+`

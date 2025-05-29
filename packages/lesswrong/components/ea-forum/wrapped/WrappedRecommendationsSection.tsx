@@ -1,7 +1,10 @@
 import React from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { useForumWrappedContext } from "./hooks";
 import { drawnArrow } from "@/components/icons/drawnArrow";
+import WrappedSection from "./WrappedSection";
+import WrappedHeading from "./WrappedHeading";
+import WrappedPost from "./WrappedPost";
 
 const styles = (theme: ThemeType) => ({
   posts: {
@@ -44,7 +47,6 @@ const WrappedRecommendationsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {recommendations} = useForumWrappedContext();
-  const {WrappedSection, WrappedHeading, WrappedPost} = Components;
   return (
     <WrappedSection pageSectionContext="recommendations">
       <WrappedHeading>
@@ -67,14 +69,10 @@ const WrappedRecommendationsSection = ({classes}: {
   );
 }
 
-const WrappedRecommendationsSectionComponent = registerComponent(
+export default registerComponent(
   "WrappedRecommendationsSection",
   WrappedRecommendationsSection,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedRecommendationsSection: typeof WrappedRecommendationsSectionComponent
-  }
-}
+

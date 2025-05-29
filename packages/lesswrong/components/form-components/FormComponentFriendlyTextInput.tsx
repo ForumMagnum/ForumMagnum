@@ -1,10 +1,12 @@
-import React, { ChangeEventHandler, ReactNode, useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import React, { ReactNode } from "react";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { styles as friendlyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
-import TextField from "@material-ui/core/TextField";
+import TextField from "@/lib/vendor/@material-ui/core/src/TextField";
 import classNames from "classnames";
+import { defineStyles, useStyles } from "../hooks/useStyles";
+import SectionTitle from "../common/SectionTitle";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FormComponentFriendlyTextInput', (theme: ThemeType) => ({
   label: {
     fontSize: 12,
   },
@@ -19,13 +21,10 @@ const styles = (theme: ThemeType) => ({
   smallBottomMargin: {
     marginBottom: "-24px !important",
   },
-});
-
-type ChangeHandler = ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
+}));
 
 export const FormComponentFriendlyTextInput = ({
-  updateCurrentValues,
-  path,
+  updateCurrentValue,
   value,
   label,
   disabled,
@@ -34,23 +33,19 @@ export const FormComponentFriendlyTextInput = ({
   startAdornment,
   smallBottomMargin,
   className,
-  classes,
 }: {
+  value: string | null,
+  updateCurrentValue: (value: string | null) => void,
+  label?: string,
+  disabled?: boolean,
   multiline?: boolean,
   rows?: number,
   fullWidth?: boolean,
   startAdornment?: ReactNode,
   smallBottomMargin?: boolean,
   className?: string,
-  classes: ClassesType<typeof styles>,
-} & FormComponentProps<string>) => {
-  const onChange: ChangeHandler = useCallback((event) => {
-    void updateCurrentValues({
-      [path]: event.target.value,
-    });
-  }, [updateCurrentValues, path]);
-
-  const {SectionTitle} = Components;
+}) => {
+  const classes = useStyles(styles);
   return (
     <div className={classNames(
       className,
@@ -61,7 +56,7 @@ export const FormComponentFriendlyTextInput = ({
       }
       <TextField
         value={value ?? ""}
-        onChange={onChange}
+        onChange={(event) => updateCurrentValue(event.target.value)}
         multiline={multiline}
         rows={rows}
         className={classes.textField}
@@ -73,16 +68,4 @@ export const FormComponentFriendlyTextInput = ({
       />
     </div>
   );
-}
-
-const FormComponentFriendlyTextInputComponent = registerComponent(
-  "FormComponentFriendlyTextInput",
-  FormComponentFriendlyTextInput,
-  {styles},
-);
-
-declare global {
-  interface ComponentTypes {
-    FormComponentFriendlyTextInput: typeof FormComponentFriendlyTextInputComponent
-  }
 }

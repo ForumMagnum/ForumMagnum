@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { CSSProperties } from 'react';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { useThemeOptions } from '../themes/useTheme';
@@ -146,10 +146,6 @@ const CloudinaryImage2 = ({
   </picture>
 };
 
-const CloudinaryImage2Component = registerComponent('CloudinaryImage2', CloudinaryImage2);
+export default registerComponent('CloudinaryImage2', CloudinaryImage2);
 
-declare global {
-  interface ComponentTypes {
-    CloudinaryImage2: typeof CloudinaryImage2Component
-  }
-}
+

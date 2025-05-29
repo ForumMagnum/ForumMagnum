@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Components, capitalize, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -16,7 +15,7 @@ import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { useMulti } from '../../lib/crud/withMulti';
 import { ContinueReading, useContinueReading } from '../recommendations/withContinueReading';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
-import { TabRecord } from './TabPicker';
+import TabPicker, { TabRecord } from './TabPicker';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS, LAST_VISITED_FRONTPAGE_COOKIE, RECOMBEE_SETTINGS_COOKIE, SELECTED_FRONTPAGE_TAB_COOKIE } from '../../lib/cookies/cookies';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
@@ -27,6 +26,24 @@ import { userHasSubscribeTabFeed } from '@/lib/betas';
 import { useSingle } from '@/lib/crud/withSingle';
 import { isServer } from '@/lib/executionEnvironment';
 import isEqual from 'lodash/isEqual';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { capitalize } from "../../lib/vulcan-lib/utils";
+import { filterNonnull } from '@/lib/utils/typeGuardUtils';
+import FeedPostCommentsCard from "../recentDiscussion/FeedPostCommentsCard";
+import SettingsButton from "../icons/SettingsButton";
+import SingleColumnSection from "./SingleColumnSection";
+import PostsList2 from "../posts/PostsList2";
+import TagFilterSettings from "../tagging/TagFilterSettings";
+import RecombeePostsList from "../posts/RecombeePostsList";
+import CuratedPostsList from "../recommendations/CuratedPostsList";
+import RecombeePostsListSettings from "../posts/RecombeePostsListSettings";
+import BookmarksList from "../bookmarks/BookmarksList";
+import ContinueReadingList from "../recommendations/ContinueReadingList";
+import VertexPostsList from "../posts/VertexPostsList";
+import WelcomePostItem from "../recommendations/WelcomePostItem";
+import MixedTypeFeed from "./MixedTypeFeed";
+import SuggestedFeedSubscriptions from "../subscriptions/SuggestedFeedSubscriptions";
+import PostsItem from "../posts/PostsItem";
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -280,7 +297,7 @@ const defaultRecombeeConfig: RecombeeConfiguration = {
 };
 
 function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRecord[], filterSettings: FilterSettings) {
-  const [cookies, setCookie] = useCookiesWithConsent();
+  const [cookies, setCookie] = useCookiesWithConsent([RECOMBEE_SETTINGS_COOKIE]);
   const recombeeCookieSettings: RecombeeCookieSettings = cookies[RECOMBEE_SETTINGS_COOKIE] ?? [];
   const [storedActiveScenario, storedActiveScenarioConfig] = recombeeCookieSettings[0] ?? [];
   const currentScenarioConfig = storedActiveScenarioConfig ?? defaultRecombeeConfig;
@@ -339,8 +356,6 @@ const FrontpageSettingsButton = ({
   labelClassName?: string;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { SettingsButton } = Components;
-
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
 
@@ -402,10 +417,6 @@ const LWHomePosts = ({ children, classes }: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>}
 ) => {
-  const { SingleColumnSection, PostsList2, TagFilterSettings, RecombeePostsList, CuratedPostsList,
-    RecombeePostsListSettings, TabPicker, BookmarksList, ContinueReadingList,
-    VertexPostsList, WelcomePostItem, MixedTypeFeed, SuggestedFeedSubscriptions, PostsItem } = Components;
-
   const { captureEvent } = useTracking();
 
   const currentUser = useCurrentUser();
@@ -477,8 +488,8 @@ const LWHomePosts = ({ children, classes }: {
         fragmentName: "SubscribedPostAndCommentsFeed",
         render: (postCommented: SubscribedPostAndCommentsFeed) => {
           const expandOnlyCommentIds = postCommented.expandCommentIds ? new Set<string>(postCommented.expandCommentIds) : undefined;
-          const deemphasizeCommentsExcludingUserIds = userSubscriptions ? new Set(userSubscriptions.map(({ documentId }) => documentId)) : undefined;
-          return <Components.FeedPostCommentsCard
+          const deemphasizeCommentsExcludingUserIds = userSubscriptions ? new Set(filterNonnull(userSubscriptions.map(({ documentId }) => documentId))) : undefined;
+          return <FeedPostCommentsCard
             key={postCommented.post._id}
             post={postCommented.post}
             comments={postCommented.comments}
@@ -525,6 +536,7 @@ const LWHomePosts = ({ children, classes }: {
     labelClassName={classes.suggestedUsersHideLabel}
   />;
 
+  const settingsPotentiallyVisible = desktopSettingsVisible || mobileSettingsVisible;
   const settingsVisibileClassName = classNames({
     [classes.hideOnDesktop]: !desktopSettingsVisible,
     [classes.hideOnMobile]: !mobileSettingsVisible,
@@ -536,7 +548,7 @@ const LWHomePosts = ({ children, classes }: {
 
   const filterSettingsElement = (
     <AnalyticsContext pageSectionContext="tagFilterSettings">
-      <div className={settingsVisibileClassName}>
+      {settingsPotentiallyVisible && <div className={settingsVisibileClassName}>
         <TagFilterSettings
           filterSettings={filterSettings} 
           setPersonalBlogFilter={setPersonalBlogFilter} 
@@ -548,7 +560,7 @@ const LWHomePosts = ({ children, classes }: {
           In the Enriched tab, filters apply only to "Latest" posts, not "Recommended" posts.
         </div>}
   
-      </div>
+      </div>}
     </AnalyticsContext>
   );
 
@@ -559,22 +571,22 @@ const LWHomePosts = ({ children, classes }: {
     skip: !currentUser || selectedTab !== 'forum-subscribed-authors'
   });
 
-  const subscriptionSettingsElement = (
-    <div className={settingsVisibileClassName}>
+  const subscriptionSettingsElement = <>
+    {settingsPotentiallyVisible && <div className={settingsVisibileClassName}>
       <SuggestedFeedSubscriptions
         refetchFeed={refetchSubscriptionContent}
         settingsButton={suggestedUsersSettingsButton}
         existingSubscriptions={userSubscriptions}
       />
       {subscribedTabAnnouncementPost && !subscribedTabAnnouncementPost.isRead && <PostsItem post={subscribedTabAnnouncementPost} className={classes.subscribedAnnouncementPost} />}
-    </div>
-  );
+    </div>}
+  </>;
 
-  const recombeeSettingsElement = (
-    <div className={settingsVisibileClassName}>
+  const recombeeSettingsElement = <>
+    {settingsPotentiallyVisible && <div className={settingsVisibileClassName}>
       {userIsAdmin(currentUser) && <RecombeePostsListSettings settings={scenarioConfig} updateSettings={updateScenarioConfig} />}
-    </div>
-  );
+    </div>}
+  </>;
 
   let settings = null;
   if (selectedTab === 'forum-classic') { 
@@ -708,10 +720,6 @@ const LWHomePosts = ({ children, classes }: {
 
 }
 
-const LWHomePostsComponent = registerComponent('LWHomePosts', LWHomePosts, {styles});
+export default registerComponent('LWHomePosts', LWHomePosts, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LWHomePosts: typeof LWHomePostsComponent
-  }
-}
+

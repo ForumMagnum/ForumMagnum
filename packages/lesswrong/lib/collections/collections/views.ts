@@ -1,5 +1,4 @@
-import { Collections } from './collection';
-import { ensureIndex } from '../../collectionIndexUtils';
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface CollectionsViewTerms extends ViewTermsBase {
@@ -7,14 +6,16 @@ declare global {
   }
 }
 
-Collections.addDefaultView((terms: CollectionsViewTerms) => {
-  let params = {
+function defaultView(terms: CollectionsViewTerms) {
+  return {
     selector: {
       ...(terms.collectionIds && {_id: {$in: terms.collectionIds}}),
     }
-  }
-  return params;
-})
+  };
+};
 
-// Used in Posts and Sequences canonicalCollection resolvers
-ensureIndex(Collections, { slug: "hashed" });
+export const CollectionsViews = new CollectionViewSet(
+  'Collections', 
+  {}, 
+  defaultView
+);

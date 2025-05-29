@@ -1,8 +1,8 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import Users from '../../lib/collections/users/collection';
+import Users from '../../server/collections/users/collection';
 
 
-registerMigration({
+export default registerMigration({
   name: "fixLegacyJoinDates",
   dateWritten: "2019-11-25",
   idempotent: true,

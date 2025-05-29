@@ -2,7 +2,7 @@ import type {FilterTag} from './filterSettings'
 import {getPublicSettings, getPublicSettingsLoaded, initializeSetting} from './settingsCache'
 import {forumSelect} from './forumTypeUtils'
 import {isEAForum} from './instanceSettings'
-import { TupleSet, UnionOf } from './utils/typeGuardUtils';
+import type { ReviewWinnerCategory, ReviewYear } from './reviewUtils';
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
@@ -96,6 +96,7 @@ export const mapboxAPIKeySetting = new DatabasePublicSetting<string | null>('map
 
 export const mailchimpForumDigestListIdSetting = new DatabasePublicSetting<string | null>('mailchimp.forumDigestListId', null)
 export const mailchimpEAForumListIdSetting = new DatabasePublicSetting<string | null>('mailchimp.eaForumListId', null)
+export const mailchimpEAForumNewsletterListIdSetting = new DatabasePublicSetting<string | null>('mailchimp.eaNewsletterListId', null)
 
 export const isProductionDBSetting = new DatabasePublicSetting<boolean>('isProductionDB', false)
 
@@ -116,14 +117,8 @@ export const annualReviewVotingResultsPostPath = new DatabasePublicSetting<strin
 
 export const reviewWinnersCoverArtIds = new DatabasePublicSetting<Record<string, string>>('annualReview.reviewWinnersCoverArtIds', {})
 
-export const reviewWinnerSectionNameTypes = ['rationality', 'optimization', 'modeling', 'ai', 'practical', 'misc'] as const
-export const reviewWinnerSectionNamesSet = new TupleSet(reviewWinnerSectionNameTypes);
-export type ReviewWinnerSectionName = UnionOf<typeof reviewWinnerSectionNamesSet>;
-
-export const reviewWinnerYearTypes = [2018, 2019, 2020, 2021, 2022] as const
-export const reviewWinnerYearSet = new TupleSet(reviewWinnerYearTypes);
-export type ReviewWinnerYear
- = UnionOf<typeof reviewWinnerYearSet>;
+export const reviewWinnerSectionsInfo = new DatabasePublicSetting<Record<ReviewWinnerCategory, ReviewSectionInfo>|null>('annualReview.reviewWinnerSectionsInfo', null)
+export const reviewWinnerYearGroupsInfo = new DatabasePublicSetting<Record<ReviewYear, ReviewYearGroupInfo>|null>('annualReview.reviewWinnerYearGroupsInfo', null)
 
 export type CoordinateInfo = Omit<SplashArtCoordinates, '_id' | 'reviewWinnerArtId'> & { 
   leftHeightPct?: number;
@@ -144,9 +139,6 @@ export interface ReviewYearGroupInfo {
   imgUrl: string;
   coords: CoordinateInfo;
 }
-
-export const reviewWinnerSectionsInfo = new DatabasePublicSetting<Record<ReviewWinnerSectionName, ReviewSectionInfo>|null>('annualReview.reviewWinnerSectionsInfo', null)
-export const reviewWinnerYearGroupsInfo = new DatabasePublicSetting<Record<ReviewWinnerYear, ReviewYearGroupInfo>|null>('annualReview.reviewWinnerYearGroupsInfo', null)
 
 
 export const moderationEmail = new DatabasePublicSetting<string>('moderationEmail', "ERROR: NO MODERATION EMAIL SET")
@@ -217,3 +209,12 @@ export const lightconeFundraiserActive = new DatabasePublicSetting<boolean>('lig
 
 export const postsListViewTypeSetting = new DatabasePublicSetting<string>('posts.viewType', 'list');
 export const quickTakesMaxAgeDaysSetting = new DatabasePublicSetting<number>('feed.quickTakesMaxAgeDays', 5);
+
+export const auth0FacebookLoginEnabled = new DatabasePublicSetting<boolean>(
+  'auth0FacebookLoginEnabled',
+  new Date() < new Date('2025-04-07')
+);
+
+export const mapsAPIKeySetting = new DatabasePublicSetting<string | null>('googleMaps.apiKey', null);
+
+export const siteImageSetting = new DatabasePublicSetting<string>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg'); // An image used to represent the site on social media

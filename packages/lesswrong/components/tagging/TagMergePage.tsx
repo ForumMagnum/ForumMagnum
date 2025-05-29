@@ -1,14 +1,20 @@
 import React, { useCallback, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { userIsAdminOrMod } from "../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import { taggingNameCapitalSetting, taggingNameSetting } from "../../lib/instanceSettings";
-import Checkbox from "@material-ui/core/Checkbox";
+import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import { useSingle } from "../../lib/crud/withSingle";
 import { Link } from "../../lib/reactRouterWrapper";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
 import { gql, useMutation } from "@apollo/client";
 import { useMessages } from "../common/withMessages";
+import TagsSearchAutoComplete from "../search/TagsSearchAutoComplete";
+import { Typography } from "../common/Typography";
+import SingleColumnSection from "../common/SingleColumnSection";
+import Loading from "../vulcan-core/Loading";
+import EAButton from "../ea-forum/EAButton";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -59,8 +65,6 @@ const styles = (theme: ThemeType) => ({
 });
 
 const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
-  const { TagsSearchAutoComplete, Typography, SingleColumnSection, Loading, EAButton, LWTooltip } = Components;
-
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
 
@@ -226,10 +230,6 @@ const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 };
 
-const TagMergePageComponent = registerComponent("TagMergePage", TagMergePage, { styles });
+export default registerComponent("TagMergePage", TagMergePage, { styles });
 
-declare global {
-  interface ComponentTypes {
-    TagMergePage: typeof TagMergePageComponent;
-  }
-}
+

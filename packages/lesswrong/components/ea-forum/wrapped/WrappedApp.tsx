@@ -1,10 +1,11 @@
 import React, { useEffect } from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { useForumWrappedContext } from "./hooks";
 import { getWrappedVideo } from "./videos";
 import { Helmet } from "@/lib/utils/componentsWithChildren";
 import range from "lodash/range";
 import classNames from "classnames";
+import ForumIcon from "../../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -104,8 +105,6 @@ const WrappedApp = ({classes}: {
 
   const thinkingVideo = getWrappedVideo("thinking");
   const personalityVideo = getWrappedVideo(personality);
-
-  const {ForumIcon} = Components;
   return (
     <div className={classes.root}>
       <Helmet>
@@ -153,14 +152,10 @@ const WrappedApp = ({classes}: {
   );
 }
 
-const WrappedAppComponent = registerComponent(
+export default registerComponent(
   "WrappedApp",
   WrappedApp,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedApp: typeof WrappedAppComponent
-  }
-}
+

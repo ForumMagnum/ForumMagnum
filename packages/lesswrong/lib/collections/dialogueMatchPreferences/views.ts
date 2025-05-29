@@ -1,5 +1,4 @@
-import {ensureIndex} from '../../collectionIndexUtils';
-import { DialogueMatchPreferences } from './collection';
+import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface DialogueMatchPreferencesViewTerms extends ViewTermsBase {
@@ -8,13 +7,15 @@ declare global {
   }
 }
 
-DialogueMatchPreferences.addView('dialogueMatchPreferences', (terms: DialogueMatchPreferencesViewTerms) => {
+function dialogueMatchPreferences(terms: DialogueMatchPreferencesViewTerms) {
   return {
     selector: {
         dialogueCheckId: terms.dialogueCheckId,
         deleted: {$ne: true},
     },
   };
-});
+}
 
-ensureIndex(DialogueMatchPreferences, { dialogueCheckId: 1 });
+export const DialogueMatchPreferencesViews = new CollectionViewSet('DialogueMatchPreferences', {
+  dialogueMatchPreferences
+});

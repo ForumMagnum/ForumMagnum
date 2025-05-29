@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import NotificationsItem from "./NotificationsItem";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
     overflowY: "auto",
     padding: 0,
+    margin: 0,
   },
 
   empty: {
@@ -19,6 +20,11 @@ const styles = (theme: ThemeType) => ({
   loadMoreButton: {
     fontSize: "14px",
     padding: 0,
+    cursor: "pointer",
+    margin: 0,
+    "&:hover": {
+      background: theme.palette.greyAlpha(0.1),
+    },
   },
   loadMoreLabel: {
     padding: 16,
@@ -46,9 +52,9 @@ const NotificationsList = ({ terms, currentUser, classes }: {
 
   if (results?.length) {
     return (
-      <List className={classes.root}>
+      <ul className={classes.root}>
         {results.map(notification =>
-          <Components.NotificationsItem
+          <NotificationsItem
             notification={notification}
             lastNotificationsCheck={lastNotificationsCheck}
             currentUser={currentUser}
@@ -56,19 +62,18 @@ const NotificationsList = ({ terms, currentUser, classes }: {
           />
         )}
         {results.length >= 20 &&
-          <ListItem
-            button={true}
+          <div
             className={classes.loadMoreButton}
             onClick={() => loadMore()}
           >
             <div className={classes.loadMoreLabel}>
               {preferredHeadingCase("Load More")}
             </div>
-          </ListItem>}
-      </List>
+          </div>}
+      </ul>
     )
   } else if (loading) {
-    return <Components.Loading/>
+    return <Loading/>
   } else {
     const modifier =
         (terms.type === undefined) ? (<></>)
@@ -80,10 +85,6 @@ const NotificationsList = ({ terms, currentUser, classes }: {
   }
 }
 
-const NotificationsListComponent = registerComponent('NotificationsList', NotificationsList, {styles});
+export default registerComponent('NotificationsList', NotificationsList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    NotificationsList: typeof NotificationsListComponent
-  }
-}
+

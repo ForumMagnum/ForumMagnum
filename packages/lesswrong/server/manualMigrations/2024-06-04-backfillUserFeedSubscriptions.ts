@@ -1,5 +1,5 @@
 import { randomId } from "@/lib/random";
-import { createAdminContext } from "../vulcan-lib";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 import { registerMigration } from "./migrationUtils";
 import groupBy from "lodash/groupBy";
 import uniq from "lodash/uniq";
@@ -39,7 +39,7 @@ function chunkWithoutSplitting<T>(dict: Record<string, T[]>, limit: number): T[]
 
 
 
-registerMigration({
+export default registerMigration({
   name: "backfillUserFeedSubscriptions",
   dateWritten: "2024-06-04",
   idempotent: true,

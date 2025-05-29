@@ -1,21 +1,28 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useDialog } from '../common/withDialog';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useSingle } from '../../lib/crud/withSingle';
 import classNames from 'classnames';
-import {CENTRAL_COLUMN_WIDTH} from "../posts/PostsPage/PostsPage";
+import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import {commentBodyStyles, postBodyStyles} from "../../themes/stylePiping";
 import { useMutation, gql } from '@apollo/client';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import { canUserEditPostMetadata, postGetEditUrl } from '../../lib/collections/posts/helpers';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { useNavigate } from '../../lib/reactRouterWrapper';
-import { useLocation } from '../../lib/routeUtil';
 import { isCollaborative } from './EditorFormComponent';
 import { useOnNavigate } from '../hooks/useOnNavigate';
+import { useLocation, useNavigate } from "../../lib/routeUtil";
+import EAButton from "../ea-forum/EAButton";
+import LWDialog from "../common/LWDialog";
+import Loading from "../vulcan-core/Loading";
+import ContentItemBody from "../common/ContentItemBody";
+import FormatDate from "../common/FormatDate";
+import LoadMore from "../common/LoadMore";
+import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
+import LWTooltip from "../common/LWTooltip";
 
 const LEFT_COLUMN_WIDTH = 160
 
@@ -104,15 +111,17 @@ const PostVersionHistoryButton = ({post, postId, classes}: {
 }) => {
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking()
-
-  const { EAButton } = Components;
-
   return <EAButton
     onClick={() => {
       captureEvent("versionHistoryButtonClicked", {postId})
       openDialog({
-        componentName: "PostVersionHistory",
-        componentProps: {post, postId},
+        name: "PostVersionHistory",
+        contents: ({onClose}) => <PostVersionHistory
+          onClose={onClose}
+          post={post}
+          postId={postId}
+          classes={classes}
+        />
       })
     }}
     variant={"outlined"}
@@ -132,8 +141,6 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
   onClose: () => void,
   classes: ClassesType<typeof styles>
 }) => {
-  const { LWDialog, Loading, ContentItemBody, FormatDate, LoadMore, ChangeMetricsDisplay, EAButton, LWTooltip } = Components;
-
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const location = useLocation();
@@ -281,7 +288,7 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
                 </div>
               )}
               <ContentItemBody
-                dangerouslySetInnerHTML={{ __html: revision.html }}
+                dangerouslySetInnerHTML={{ __html: revision.html ?? '' }}
                 description="PostVersionHistory revision"
               />
             </>
@@ -292,12 +299,6 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
   );
 }
 
-const PostVersionHistoryEAButton = registerComponent("PostVersionHistoryButton", PostVersionHistoryButton, {styles});
-const PostVersionHistoryComponent = registerComponent("PostVersionHistory", PostVersionHistory, {styles});
+export default registerComponent("PostVersionHistoryButton", PostVersionHistoryButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostVersionHistoryButton: typeof PostVersionHistoryEAButton
-    PostVersionHistory: typeof PostVersionHistoryComponent
-  }
-}
+

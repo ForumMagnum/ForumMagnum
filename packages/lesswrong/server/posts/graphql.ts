@@ -4,15 +4,16 @@ GraphQL config
 
 */
 
-import { addGraphQLMutation, addGraphQLResolvers } from '../vulcan-lib';
+import gql from 'graphql-tag';
 
-const specificResolvers = {
-  Mutation: {
-    increasePostViewCount(root: void, {postId}: {postId: string}, context: ResolverContext) {
-      return context.Posts.rawUpdateOne({_id: postId}, { $inc: { viewCount: 1 }});
-    }
+export const extraPostResolversGraphQLTypeDefs = gql`
+  extend type Mutation {
+    increasePostViewCount(postId: String): Float
   }
-};
+`
 
-addGraphQLResolvers(specificResolvers);
-addGraphQLMutation('increasePostViewCount(postId: String): Float');
+export const extraPostResolversGraphQLMutations = {
+  increasePostViewCount(root: void, {postId}: {postId: string}, context: ResolverContext) {
+    return context.Posts.rawUpdateOne({_id: postId}, { $inc: { viewCount: 1 }});
+  }
+}

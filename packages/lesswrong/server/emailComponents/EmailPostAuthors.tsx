@@ -1,12 +1,10 @@
 import React from 'react';
-import { registerComponent, Components, getSiteUrl } from '../../lib/vulcan-lib';
-import './EmailUsername';
+import { getSiteUrl } from "../../lib/vulcan-lib/utils";
+import { EmailUsername } from './EmailUsername';
 
-const EmailPostAuthors = ({post}: {
+export const EmailPostAuthors = ({post}: {
   post: PostsRevision
 }) => {
-  const { EmailUsername } = Components;
-  
   const groupName = post.group ?
     <span>Posted in <a href={`${getSiteUrl().slice(0,-1)}/groups/${post.group._id}`}>{post.group.name}</a> </span> :
     null;
@@ -21,10 +19,3 @@ const EmailPostAuthors = ({post}: {
   </>
 }
 
-const EmailPostAuthorsComponent = registerComponent("EmailPostAuthors", EmailPostAuthors);
-
-declare global {
-  interface ComponentTypes {
-    EmailPostAuthors: typeof EmailPostAuthorsComponent
-  }
-}

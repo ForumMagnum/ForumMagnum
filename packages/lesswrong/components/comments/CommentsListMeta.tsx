@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { ReactNode } from 'react';
 
 const styles = (theme: ThemeType) => ({
@@ -24,10 +24,6 @@ const CommentsListMeta = ({classes, children}: {
   </div>
 }
 
-const CommentsListMetaComponent = registerComponent('CommentsListMeta', CommentsListMeta, {styles});
+export default registerComponent('CommentsListMeta', CommentsListMeta, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentsListMeta: typeof CommentsListMetaComponent,
-  }
-}
+

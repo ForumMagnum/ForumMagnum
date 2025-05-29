@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
-import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { NetworkStatus, gql, useQuery } from '@apollo/client';
 import { VertexConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { useOnMountTracking } from '../../lib/analyticsEvents';
 import { isServer } from '../../lib/executionEnvironment';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import LoadMore from "../common/LoadMore";
+import PostsItem from "./PostsItem";
+import SectionFooter from "../common/SectionFooter";
+import PostsLoading from "./PostsLoading";
 
 // Would be nice not to duplicate in postResolvers.ts but unfortunately the post types are different
 interface VertexRecommendedPost {
@@ -56,8 +61,6 @@ export const VertexPostsList = ({ limit = 100, classes }: {
   limit?: number,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { LoadMore, PostsItem, SectionFooter, PostsLoading } = Components;
-
   const [displayCount, setDisplayCount] = useState(15);
 
   const resolverName = DEFAULT_RESOLVER_NAME;
@@ -113,10 +116,6 @@ export const VertexPostsList = ({ limit = 100, classes }: {
   </div>;
 }
 
-const VertexPostsListComponent = registerComponent('VertexPostsList', VertexPostsList, {styles});
+export default registerComponent('VertexPostsList', VertexPostsList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    VertexPostsList: typeof VertexPostsListComponent
-  }
-}
+

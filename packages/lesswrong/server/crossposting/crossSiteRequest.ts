@@ -1,14 +1,13 @@
 import { ZodType, z } from "zod"
 import { FMCrosspostRoute } from "@/lib/fmCrosspost/routes"
-import { combineUrls } from "@/lib/vulcan-lib";
+import { combineUrls } from "@/lib/vulcan-lib/utils.ts";
 import { fmCrosspostBaseUrlSetting } from "@/lib/instanceSettings";
 import { crosspostUserAgent } from "@/lib/apollo/links";
 import { ApiError } from "@/server/fmCrosspost/errors";
 import {
-  TOS_NOT_ACCEPTED_ERROR,
-  TOS_NOT_ACCEPTED_REMOTE_ERROR,
   fmCrosspostTimeoutMsSetting,
 } from "../fmCrosspost/resolvers";
+import { TOS_NOT_ACCEPTED_ERROR, TOS_NOT_ACCEPTED_REMOTE_ERROR } from "@/lib/collections/posts/constants";
 
 export const makeV2CrossSiteRequest = async <
   RequestSchema extends ZodType,

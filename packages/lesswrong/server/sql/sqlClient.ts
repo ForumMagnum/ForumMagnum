@@ -1,6 +1,18 @@
 import type { DbTarget } from "./PgCollection";
+import { isProduction } from "@/lib/executionEnvironment";
 
+// logAllQueries: If true, generate a console log for all postgres queries.
+// Intended for debugging and performance investigation, not for prod.
 export const logAllQueries = false;
+
+// logQueryArguments: If true, logged queries will include the parameters to
+// the query (which may include sensitive data). Intended for debugging, not for
+// prod.
+export const logQueryArguments = false;
+
+// measureSqlBytesDownloaded: If true, logged queries will include the size (in
+// bytes) of the result set.
+export const measureSqlBytesDownloaded = !isProduction;
 
 /** Main sql client which is safe to use for all queries */
 let sql: SqlClient | null = null;

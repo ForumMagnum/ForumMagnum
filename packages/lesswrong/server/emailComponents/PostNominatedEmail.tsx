@@ -1,21 +1,13 @@
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
-import './EmailFormatDate';
-import './EmailPostAuthors';
-import './EmailContentItemBody';
-import './EmailPostDate';
-import './EmailFooterRecommendations';
 import { getNominationPhaseEnd, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
-import moment from 'moment';
-import { getSiteUrl } from '../vulcan-lib';
+import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 
 
-const PostNominatedEmail = ({documentId, reason}: {
+export const PostNominatedEmail = ({documentId, reason}: {
   documentId: string,
   reason?: string,
-  classes: any,
 }) => {
   const { document: post } = useSingle({
     documentId,
@@ -40,10 +32,3 @@ const PostNominatedEmail = ({documentId, reason}: {
   </React.Fragment>);
 }
 
-const PostNominatedEmailComponent = registerComponent("PostNominatedEmail", PostNominatedEmail);
-
-declare global {
-  interface ComponentTypes {
-    PostNominatedEmail: typeof PostNominatedEmailComponent
-  }
-}

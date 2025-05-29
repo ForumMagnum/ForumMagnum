@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation, gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
@@ -11,18 +10,21 @@ import { getCostData, getReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOL
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import { useLocation } from '../../lib/routeUtil';
-import { voteTooltipType } from './ReviewVoteTableRow';
+import ReviewVoteTableRow, { voteTooltipType } from './ReviewVoteTableRow';
 import filter from 'lodash/filter';
 import { fieldIn } from '../../lib/utils/typeGuardUtils';
 import { getVotePower } from '../../lib/voting/vote';
 import {tagStyle} from '@/components/tagging/FooterTag.tsx'
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { Link } from '@/lib/reactRouterWrapper';
-import { sortingInfo } from './ReviewVotingPageMenu';
+import ReviewVotingPageMenu, { sortingInfo } from './ReviewVotingPageMenu';
 import { useCommentBox } from '../hooks/useCommentBox';
 import { useDialog } from '../common/withDialog';
-
-const isAF = forumTypeSetting.get() === 'AlignmentForum'
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
+import ReviewPostForm from "./ReviewPostForm";
+import PostsTagsList from "../tagging/PostsTagsList";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -103,13 +105,6 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
   expandedPost: PostsReviewVotingList|null,
   setExpandedPost: (post: PostsReviewVotingList|null) => void
 }) => {
-  const {
-    ReviewVoteTableRow,
-    ReviewVotingPageMenu,
-    PostsTagsList,
-    LWTooltip
-  } = Components
-
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   const { query } = useLocation()
@@ -142,7 +137,7 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
         ...PostsReviewVotingList
       }
     }
-    ${getFragment("PostsReviewVotingList")} 
+    ${fragmentTextForQuery("PostsReviewVotingList")} 
   `);
 
   const [sortedPosts, setSortedPosts] = useState(postsResults)
@@ -349,15 +344,7 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
     reSortPosts(sortPosts, sortReversed, tagFilter)
   }, [canInitialResort, reSortPosts, sortPosts, sortReversed, tagFilter, statusFilter])
 
-  let voteTooltip = isAF ? "Showing votes from Alignment Forum members" : "Showing votes from all LessWrong users" as voteTooltipType
-  switch (sortPosts) {
-    case ("reviewVoteScoreHighKarma"):
-      voteTooltip = "Showing votes by 1000+ Karma LessWrong users";
-      break;
-    case ("reviewVoteScoreAF"):
-      voteTooltip = "Showing votes from Alignment Forum members"
-      break;
-  }
+  let voteTooltip = "Showing votes from all LessWrong users" as voteTooltipType
 
   const handleSetExpandedPost = (post: PostsReviewVotingList) => {
     if (expandedPost?._id === post._id) {
@@ -367,10 +354,10 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
       close();
       // this component requires a currentUser so we don't need to do a login check
       openCommentBox({
-        componentName: "ReviewPostForm",
-        componentProps: {
-          post: post
-        }
+        commentBox: ({onClose}) => <ReviewPostForm
+          onClose={onClose}
+          post={post}
+        />
       });
       setExpandedPost(post)
     }
@@ -451,10 +438,6 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
   );
 }
 
-const ReviewVotingPageComponent = registerComponent('ReviewVotingPage', ReviewVotingPage, {styles});
+export default registerComponent('ReviewVotingPage', ReviewVotingPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewVotingPage: typeof ReviewVotingPageComponent
-  }
-}
+

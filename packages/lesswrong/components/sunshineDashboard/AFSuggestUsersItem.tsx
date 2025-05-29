@@ -1,14 +1,20 @@
-import { Components as C, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
 import { useHover } from '../common/withHover'
-import ClearIcon from '@material-ui/icons/Clear';
-import DoneIcon from '@material-ui/icons/Done';
+import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
+import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import withErrorBoundary from '../common/withErrorBoundary'
 import * as _ from 'underscore';
 import { useUpdate } from '../../lib/crud/withUpdate';
+import SunshineListItem from "./SunshineListItem";
+import SidebarHoverOver from "./SidebarHoverOver";
+import { Typography } from "../common/Typography";
+import MetaInfo from "../common/MetaInfo";
+import SidebarActionMenu from "./SidebarActionMenu";
+import SidebarAction from "./SidebarAction";
 
 const AFSuggestUsersItem = ({user}: {
   user: SuggestAlignmentUser,
@@ -46,46 +52,46 @@ const AFSuggestUsersItem = ({user}: {
   if (show) {
     return (
         <span {...eventHandlers}>
-          <C.SunshineListItem hover={hover}>
-            <C.SidebarHoverOver hover={hover} anchorEl={anchorEl} width={250}>
-              <C.Typography variant="body2">
+          <SunshineListItem hover={hover}>
+            <SidebarHoverOver hover={hover} anchorEl={anchorEl} width={250}>
+              <Typography variant="body2">
                 <Link to={userGetProfileUrl(user)}>
                   { user.displayName }
                 </Link>
                 <br/>
-                <C.MetaInfo>
+                <MetaInfo>
                   <div>Alignment Posts: { user.afPostCount || 0 }</div>
                   <div>Alignment Comments: { user.afCommentCount || 0 }</div>
-                </C.MetaInfo>
+                </MetaInfo>
                 {user.afApplicationText && <p>
                   Application:
                   {user.afApplicationText}
                 </p>}
-              </C.Typography>
-            </C.SidebarHoverOver>
+              </Typography>
+            </SidebarHoverOver>
             <div>
-              <C.MetaInfo>
+              <MetaInfo>
                 <Link to={userGetProfileUrl(user)}>
                     {user.displayName}
                 </Link>
-              </C.MetaInfo>
-              <C.MetaInfo>
+              </MetaInfo>
+              <MetaInfo>
                 { user.karma || 0 }
-              </C.MetaInfo>
-              <C.MetaInfo>
+              </MetaInfo>
+              <MetaInfo>
                 Ω { user.afKarma || 0 }
-              </C.MetaInfo>
+              </MetaInfo>
               { user.reviewForAlignmentForumUserId }
             </div>
-            { hover && <C.SidebarActionMenu>
-              <C.SidebarAction title="Approve for AF" onClick={handleReview}>
+            { hover && <SidebarActionMenu>
+              <SidebarAction title="Approve for AF" onClick={handleReview}>
                 <DoneIcon />
-              </C.SidebarAction>
-              <C.SidebarAction warningHighlight={true} title="Ignore" onClick={handleIgnore}>
+              </SidebarAction>
+              <SidebarAction warningHighlight={true} title="Ignore" onClick={handleIgnore}>
                 <ClearIcon/>
-              </C.SidebarAction>
-            </C.SidebarActionMenu>}
-          </C.SunshineListItem>
+              </SidebarAction>
+            </SidebarActionMenu>}
+          </SunshineListItem>
         </span>
     )
   } else {
@@ -93,13 +99,9 @@ const AFSuggestUsersItem = ({user}: {
   }
 }
 
-const AFSuggestUsersItemComponent = registerComponent('AFSuggestUsersItem', AFSuggestUsersItem, {
+export default registerComponent('AFSuggestUsersItem', AFSuggestUsersItem, {
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    AFSuggestUsersItem: typeof AFSuggestUsersItemComponent
-  }
-}
+
 

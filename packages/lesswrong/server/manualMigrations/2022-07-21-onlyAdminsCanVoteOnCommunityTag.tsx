@@ -1,7 +1,7 @@
 import { registerMigration } from './migrationUtils';
-import { Tags } from '../../lib/collections/tags/collection';
+import { Tags } from '../../server/collections/tags/collection';
 
-registerMigration({
+export default registerMigration({
   name: "onlyAdminsCanVoteOnCommunityTopic",
   dateWritten: "2022-07-21",
   idempotent: true,

@@ -1,12 +1,15 @@
 import React from 'react';
-import { Components, registerComponent, RouterLocation } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useTagPreview } from './useTag';
 import { linkStyle } from '../linkPreview/PostLinkPreview';
 import { removeUrlParameters } from '../../lib/routeUtil';
 import classNames from 'classnames';
+import { hasWikiLenses } from '@/lib/betas';
+import { RouterLocation } from "../../lib/vulcan-lib/routes";
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import TagsTooltip from "./TagsTooltip";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('TagHoverPreview', (theme: ThemeType) => ({
   ...linkStyle(theme),
   count: {
     color: theme.palette.secondary.main, // grey[500],
@@ -15,52 +18,57 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 3,
     marginRight: 0
   }
-});
+}));
 
 function normalizeTagLink(link: string) {
   return removeUrlParameters(link, ["showPostCount", "useTagName"]);
 }
 
-const TagHoverPreview = ({
+export const TagHoverPreview = ({
   href,
   targetLocation,
   postCount=6,
   noPrefetch,
   children,
-  classes,
 }: {
   href: string,
   targetLocation: RouterLocation,
   postCount?: number,
   noPrefetch?: boolean,
   children: React.ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+  
   const { params: {slug}, hash } = targetLocation;
   // Slice the hash to remove the leading # (which won't be a part of the
   // element ID in the dom) eg: "Further_reading"
   const hashId = hash.slice(1);
 
-  const {tag} = useTagPreview(slug, hashId, {skip: noPrefetch});
-  const { showPostCount: showPostCountQuery, useTagName: useTagNameQuery } = targetLocation.query
+  const {tag, loading} = useTagPreview(slug, hashId, {skip: noPrefetch});
+  const { showPostCount: showPostCountQuery, useTagName: useTagNameQuery, } = targetLocation.query
+  const lensQuery = targetLocation.query.lens ?? targetLocation.query.l;
   const showPostCount = showPostCountQuery === "true" // query parameters are strings
   const tagName = useTagNameQuery === "true" ? tag?.name : undefined // query parameters are strings
-
+  const previewSlug = lensQuery ?? slug;
   // Remove showPostCount and useTagName query parameters from the link, if present
   const linkTarget = normalizeTagLink(href);
 
-  const {TagsTooltip} = Components;
+  const isRead = tag?.isRead;
+  const isRedLink = hasWikiLenses && ((!tag && !noPrefetch && !loading) || tag?.isPlaceholderPage);
   return (
     <TagsTooltip
-      tagSlug={slug}
+      tagSlug={previewSlug}
       hash={hashId}
       As="span"
       previewPostCount={postCount}
       noPrefetch={noPrefetch}
+      isRedLink={isRedLink}
     >
       <Link
         className={classNames(
           !showPostCount && classes.link,
+          isRead && "visited",
+          isRedLink && classes.redLink,
         )}
         to={linkTarget}
       >
@@ -71,12 +79,4 @@ const TagHoverPreview = ({
       }
     </TagsTooltip>
   );
-}
-
-const TagHoverPreviewComponent = registerComponent("TagHoverPreview", TagHoverPreview, {styles});
-
-declare global {
-  interface ComponentTypes {
-    TagHoverPreview: typeof TagHoverPreviewComponent
-  }
 }

@@ -1,24 +1,27 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import Geosuggest from 'react-geosuggest';
 // These imports need to be separate to satisfy eslint, for some reason
 import type { Suggest } from 'react-geosuggest';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Slider from '@material-ui/lab/Slider';
-import Input from '@material-ui/core/Input';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import FormLabel from '@material-ui/core/FormLabel';
-import Checkbox from '@material-ui/core/Checkbox';
+import { DialogActions } from '../widgets/DialogActions';
+import { DialogContent } from "@/components/widgets/DialogContent";
+import { DialogTitle } from "@/components/widgets/DialogTitle";
+import Slider from '@/lib/vendor/@material-ui/core/src/Slider';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
+import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
+import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { geoSuggestStyles, useGoogleMaps } from '../form-components/LocationFormComponent'
-import { MAX_NOTIFICATION_RADIUS } from '../../lib/collections/users/schema'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import deepmerge from 'deepmerge';
-import InputLabel from '@material-ui/core/InputLabel';
+import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
+import Loading from "../vulcan-core/Loading";
+import { Typography } from "../common/Typography";
+import LWDialog from "../common/LWDialog";
 
+const MAX_NOTIFICATION_RADIUS = 300;
 
 const suggestionToGoogleMapsLocation = (suggestion: Suggest) => {
   return suggestion ? suggestion.gmaps : null
@@ -100,7 +103,6 @@ const EventNotificationsDialog = ({ onClose, classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { Loading, Typography, LWDialog } = Components
   const { nearbyEventsNotificationsLocation, mapLocation, googleLocation, nearbyEventsNotificationsRadius, nearbyPeopleNotificationThreshold } = currentUser || {}
 
   const [ mapsLoaded ] = useGoogleMaps()
@@ -212,11 +214,7 @@ const EventNotificationsDialog = ({ onClose, classes }: {
   )
 }
 
-const EventNotificationsDialogComponent = registerComponent('EventNotificationsDialog', EventNotificationsDialog, {styles});
+export default registerComponent('EventNotificationsDialog', EventNotificationsDialog, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EventNotificationsDialog: typeof EventNotificationsDialogComponent
-  }
-}
+
 

@@ -1,5 +1,5 @@
 import React, { FC, PropsWithChildren, useCallback } from "react";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { usePostsItem, PostsItemConfig } from "./usePostsItem";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -10,6 +10,18 @@ import { InteractionWrapper, useClickableCell } from "../common/useClickableCell
 import { cloudinaryCloudNameSetting } from "../../lib/publicSettings";
 import { usePostContents } from "../hooks/useForeignCrosspost";
 import { usePostsListView } from "../hooks/usePostsListView";
+import PostsTitle from "./PostsTitle";
+import ForumIcon from "../common/ForumIcon";
+import PostActionsButton from "../dropdowns/posts/PostActionsButton";
+import EAKarmaDisplay from "../common/EAKarmaDisplay";
+import EAPostMeta from "../ea-forum/EAPostMeta";
+import PostsItemTagRelevance from "../tagging/PostsItemTagRelevance";
+import PostsItemTooltipWrapper from "./PostsItemTooltipWrapper";
+import PostsVote from "../votes/PostsVote";
+import PostsItemTrailingButtons from "./PostsItemTrailingButtons";
+import PostReadCheckbox from "./PostReadCheckbox";
+import PostsItemNewCommentsWrapper from "./PostsItemNewCommentsWrapper";
+import PostMostValuableCheckbox from "./PostMostValuableCheckbox";
 
 const KARMA_WIDTH = 50;
 const CARD_IMG_HEIGHT = 80;
@@ -312,14 +324,6 @@ const EAPostsItem = ({
     fragmentName: "PostsList",
     skip: !cardView,
   });
-
-  const {
-    PostsTitle, ForumIcon, PostActionsButton, EAKarmaDisplay, EAPostMeta,
-    PostsItemTagRelevance, PostsItemTooltipWrapper, PostsVote,
-    PostsItemTrailingButtons, PostReadCheckbox, PostsItemNewCommentsWrapper,
-    PostMostValuableCheckbox,
-  } = Components;
-
   const SecondaryInfo = useCallback(() => {
     if (secondaryInfoNode) {
       return <InteractionWrapper className={classes.interactionWrapper}>
@@ -362,9 +366,6 @@ const EAPostsItem = ({
     post,
     tagRel,
     toggleComments,
-    ForumIcon,
-    PostActionsButton,
-    PostsItemTagRelevance,
     classes
   ]);
   
@@ -528,7 +529,7 @@ const EAPostsItem = ({
   );
 }
 
-const EAPostsItemComponent = registerComponent(
+export default registerComponent(
   "EAPostsItem",
   EAPostsItem,
   {
@@ -541,8 +542,4 @@ const EAPostsItemComponent = registerComponent(
   },
 );
 
-declare global {
-  interface ComponentTypes {
-    EAPostsItem: typeof EAPostsItemComponent
-  }
-}
+

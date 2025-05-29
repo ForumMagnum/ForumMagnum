@@ -8,17 +8,33 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Components } from "@/lib/vulcan-lib";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import { gql, useQuery } from "@apollo/client";
 import { useRecommendations } from "@/components/recommendations/withRecommendations";
 import { getTopAuthor, getTotalReactsReceived } from "./wrappedHelpers";
-import { userCanStartConversations } from "@/lib/collections/conversations/collection";
+import { userCanStartConversations } from "@/lib/collections/conversations/helpers";
 import { LoadMoreProps, useMulti } from "@/lib/crud/withMulti";
+import WrappedWelcomeSection from "./WrappedWelcomeSection";
+import WrappedTimeSpentSection from "./WrappedTimeSpentSection";
+import WrappedDaysVisitedSection from "./WrappedDaysVisitedSection";
+import WrappedMostReadTopicsSection from "./WrappedMostReadTopicsSection";
+import WrappedRelativeMostReadTopicsSection from "./WrappedRelativeMostReadTopicsSection";
+import WrappedMostReadAuthorSection from "./WrappedMostReadAuthorSection";
+import WrappedThankAuthorSection from "./WrappedThankAuthorSection";
+import WrappedPersonalitySection from "./WrappedPersonalitySection";
+import WrappedTopPostSection from "./WrappedTopPostSection";
+import WrappedTopCommentSection from "./WrappedTopCommentSection";
+import WrappedTopQuickTakeSection from "./WrappedTopQuickTakeSection";
+import WrappedKarmaChangeSection from "./WrappedKarmaChangeSection";
+import WrappedReceivedReactsSection from "./WrappedReceivedReactsSection";
+import WrappedSummarySection from "./WrappedSummarySection";
+import WrappedRecommendationsSection from "./WrappedRecommendationsSection";
+import WrappedMostValuablePostsSection from "./WrappedMostValuablePostsSection";
+import WrappedThankYouSection from "./WrappedThankYouSection";
 
 // When adding a new year you'll need to run the server command to update the
 // analytics views:
-//   ./scripts/serverShellCommand.sh "Globals.triggerWrappedRefresh()"
+//   yarn repl dev packages/lesswrong/server/wrapped/triggerWrappedRefresh.ts "triggerWrappedRefresh()"
 const wrappedYears = new TupleSet([2022, 2023, 2024] as const)
 
 export type WrappedYear = UnionOf<typeof wrappedYears>
@@ -111,95 +127,90 @@ type WrappedDataQueryResult = {
   UserWrappedDataByYear: WrappedDataByYear;
 };
 
-const query = gql`
-  query getWrappedData($userId: String!, $year: Int!) {
-    UserWrappedDataByYear(userId: $userId, year: $year) {
-      engagementPercentile
-      postsReadCount
-      totalSeconds
-      daysVisited
-      mostReadTopics {
-        name
-        shortName
-        slug
-        count
-      }
-      relativeMostReadCoreTopics {
-        tagId
-        tagName
-        tagShortName
-        userReadCount
-        readLikelihoodRatio
-      }
-      mostReadAuthors {
-        _id
-        displayName
-        slug
-        profileImageId
-        count
-        engagementPercentile
-      }
-      topPosts {
-        _id
-        title
-        slug
-        baseScore
-      }
-      postCount
-      authorPercentile
-      topComment {
-        _id
-        postedAt
-        postId
-        postTitle
-        postSlug
-        baseScore
-        extendedScore
-        contents {
-          html
-        }
-      }
-      commentCount
-      commenterPercentile
-      topShortform {
-        _id
-        postedAt
-        postId
-        baseScore
-        extendedScore
-        contents {
-          html
-        }
-      }
-      shortformCount
-      shortformPercentile
-      karmaChange
-      combinedKarmaVals {
-        date
-        postKarma
-        commentKarma
-      }
-      mostReceivedReacts {
-        name
-        count
-      }
-      personality
-    }
-  }
-`;
-
 export const useForumWrapped = ({ userId, year }: { userId?: string | null; year: number }) => {
-  const { data, loading } = useQuery<WrappedDataQueryResult>(
-    query,
-    {
-      variables: {
-        userId,
-        year,
-      },
-      ssr: true,
-      skip: !userId,
+  const { data, loading } = useQuery<WrappedDataQueryResult>(gql`
+    query getWrappedData($userId: String!, $year: Int!) {
+      UserWrappedDataByYear(userId: $userId, year: $year) {
+        engagementPercentile
+        postsReadCount
+        totalSeconds
+        daysVisited
+        mostReadTopics {
+          name
+          shortName
+          slug
+          count
+        }
+        relativeMostReadCoreTopics {
+          tagId
+          tagName
+          tagShortName
+          userReadCount
+          readLikelihoodRatio
+        }
+        mostReadAuthors {
+          _id
+          displayName
+          slug
+          profileImageId
+          count
+          engagementPercentile
+        }
+        topPosts {
+          _id
+          title
+          slug
+          baseScore
+        }
+        postCount
+        authorPercentile
+        topComment {
+          _id
+          postedAt
+          postId
+          postTitle
+          postSlug
+          baseScore
+          extendedScore
+          contents {
+            html
+          }
+        }
+        commentCount
+        commenterPercentile
+        topShortform {
+          _id
+          postedAt
+          postId
+          baseScore
+          extendedScore
+          contents {
+            html
+          }
+        }
+        shortformCount
+        shortformPercentile
+        karmaChange
+        combinedKarmaVals {
+          date
+          postKarma
+          commentKarma
+        }
+        mostReceivedReacts {
+          name
+          count
+        }
+        personality
+      }
     }
-  );
+  `, {
+    variables: {
+      userId,
+      year,
+    },
+    ssr: true,
+    skip: !userId,
+  });
 
   return { data: data?.UserWrappedDataByYear, loading };
 };
@@ -209,30 +220,30 @@ type WrappedSection = {
   predicate?: (data: WrappedDataByYear, currentUser: UsersCurrent) => boolean,
 };
 
-const allSections: WrappedSection[] = [
-  {component: Components.WrappedWelcomeSection},
+const getAllSections = (): WrappedSection[] => ([
+  {component: WrappedWelcomeSection},
   {
-    component: Components.WrappedTimeSpentSection,
+    component: WrappedTimeSpentSection,
     predicate: (data) => data.totalSeconds > 300,
   },
   {
-    component: Components.WrappedDaysVisitedSection,
+    component: WrappedDaysVisitedSection,
     predicate: (data) => data.daysVisited.length > 0,
   },
   {
-    component: Components.WrappedMostReadTopicsSection,
+    component: WrappedMostReadTopicsSection,
     predicate: (data) => data.mostReadTopics.length > 0,
   },
   {
-    component: Components.WrappedRelativeMostReadTopicsSection,
+    component: WrappedRelativeMostReadTopicsSection,
     predicate: (data) => data.relativeMostReadCoreTopics.length > 0,
   },
   {
-    component: Components.WrappedMostReadAuthorSection,
+    component: WrappedMostReadAuthorSection,
     predicate: (data) => data.postsReadCount > 0 && data.mostReadAuthors.length > 0,
   },
   {
-    component: Components.WrappedThankAuthorSection,
+    component: WrappedThankAuthorSection,
     predicate: (data, currentUser) => {
       const {
         topAuthorByEngagementPercentile,
@@ -243,39 +254,39 @@ const allSections: WrappedSection[] = [
         userCanStartConversations(currentUser);
     },
   },
-  {component: Components.WrappedPersonalitySection},
+  {component: WrappedPersonalitySection},
   {
-    component: Components.WrappedTopPostSection,
+    component: WrappedTopPostSection,
     predicate: (data) =>
       !!data.topPosts &&
       data.topPosts.length > 0 &&
       data.topPosts[0].baseScore >= 10,
   },
   {
-    component: Components.WrappedTopCommentSection,
+    component: WrappedTopCommentSection,
     predicate: (data) =>
       !!data.topComment &&
       data.topComment.baseScore > 0,
   },
   {
-    component: Components.WrappedTopQuickTakeSection,
+    component: WrappedTopQuickTakeSection,
     predicate: (data) =>
       !!data.topShortform &&
       data.topShortform.baseScore > 0,
   },
   {
-    component: Components.WrappedKarmaChangeSection,
+    component: WrappedKarmaChangeSection,
     predicate: (data) => !!data.karmaChange,
   },
   {
-    component: Components.WrappedReceivedReactsSection,
+    component: WrappedReceivedReactsSection,
     predicate: (data) => getTotalReactsReceived(data) > 5,
   },
-  {component: Components.WrappedSummarySection},
-  {component: Components.WrappedRecommendationsSection},
-  {component: Components.WrappedMostValuablePostsSection},
-  {component: Components.WrappedThankYouSection},
-];
+  {component: WrappedSummarySection},
+  {component: WrappedRecommendationsSection},
+  {component: WrappedMostValuablePostsSection},
+  {component: WrappedThankYouSection},
+]);
 
 type ForumWrappedContext = {
   year: WrappedYear,
@@ -290,8 +301,8 @@ type ForumWrappedContext = {
   mostValuablePosts: PostsListWithVotes[],
   mostValuablePostsLoading: boolean,
   mostValuablePostsLoadMoreProps: LoadMoreProps,
-  thinkingVideoRef: RefObject<HTMLVideoElement>,
-  personalityVideoRef: RefObject<HTMLVideoElement>,
+  thinkingVideoRef: RefObject<HTMLVideoElement|null>,
+  personalityVideoRef: RefObject<HTMLVideoElement|null>,
 }
 
 const forumWrappedContext = createContext<ForumWrappedContext | null>(null);
@@ -326,7 +337,7 @@ export const ForumWrappedProvider = ({
 }) => {
   const [currentSection, setCurrentSection] = useState(0);
 
-  const sections = allSections.filter((section) => {
+  const sections = getAllSections().filter((section) => {
     return section.predicate ? section.predicate(data, currentUser) : true;
   });
 

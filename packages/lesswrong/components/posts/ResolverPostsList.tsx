@@ -1,7 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useOnMountTracking, useTracking } from "../../lib/analyticsEvents";
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
+import Loading from "../vulcan-core/Loading";
+import PostsItem from "./PostsItem";
+import LoadMore from "../common/LoadMore";
+import SectionFooter from "../common/SectionFooter";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -17,8 +21,6 @@ export const ResolverPostsList = ({resolverName, skip, limit=13, showLoadMore=fa
   fallbackText?: string
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading, PostsItem, LoadMore, SectionFooter } = Components;
-
   const { results, loading, loadMoreProps } = usePaginatedResolver({
     resolverName, 
     fragmentName: "PostsListWithVotes",
@@ -55,11 +57,7 @@ export const ResolverPostsList = ({resolverName, skip, limit=13, showLoadMore=fa
 
 }
 
-const ResolverPostsListComponent = registerComponent('ResolverPostsList', ResolverPostsList, {styles});
+export default registerComponent('ResolverPostsList', ResolverPostsList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ResolverPostsList: typeof ResolverPostsListComponent
-  }
-}
+
 

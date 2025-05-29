@@ -39,7 +39,7 @@ export async function getCollaborativeEditorAccess({formType, post, user, contex
   formType: "new"|"edit",
   post: DbPost|null,
   user: DbUser|null,
-  context: ResolverContext|null,
+  context: ResolverContext,
   
   // If true and the user is a moderator/admin, take their admin powers into
   // account. If false, return permissions as they would be given no moderator

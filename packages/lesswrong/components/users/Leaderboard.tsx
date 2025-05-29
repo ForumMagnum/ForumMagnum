@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import { useMulti } from "../../lib/crud/withMulti";
-import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { gql, NetworkStatus, useQuery } from "@apollo/client";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import classNames from "classnames";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
+import LoadMore from "@/components/common/LoadMore";
+import Loading from "@/components/vulcan-core/Loading";
+import UsersName from "@/components/users/UsersName";
+import UsersNameDisplay from "@/components/users/UsersNameDisplay";
 
 const styles = defineStyles("Leaderboard", (theme: ThemeType) => ({
   pageContainer: {
@@ -140,7 +144,6 @@ type KarmaEntry = {
 };
 
 const Leaderboard = () => {
-  const { ErrorBoundary, Loading, UsersNameDisplay, UsersName, LoadMore } = Components;
   const classes = useStyles(styles);
   const [timeframe, setTimeframe] = useState<"allTime" | "30days">("allTime");
 
@@ -305,12 +308,4 @@ const Leaderboard = () => {
   );
 };
 
-const LeaderboardComponent = registerComponent("Leaderboard", Leaderboard);
-
-declare global {
-  interface ComponentTypes {
-    Leaderboard: typeof LeaderboardComponent;
-  }
-}
-
-export default LeaderboardComponent;
+export default Leaderboard;

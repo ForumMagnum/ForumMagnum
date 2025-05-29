@@ -1,15 +1,19 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
+import PostsItem from "../posts/PostsItem";
+import LWTooltip from "../common/LWTooltip";
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import SectionFooter from "../common/SectionFooter";
+import LoadMore from "../common/LoadMore";
 
 const DialoguesPage = () => {
-  const { PostsItem, LWTooltip, SingleColumnSection, SectionTitle, SectionFooter, LoadMore } = Components
-
   const { results: dialoguePosts, loadMoreProps } = usePaginatedResolver({
     fragmentName: "PostsPage",
     resolverName: "RecentlyActiveDialogues",
@@ -82,12 +86,8 @@ const DialoguesPage = () => {
   </AnalyticsContext>
 }
 
-const DialoguesPageComponent = registerComponent('DialoguesPage', DialoguesPage, {
+export default registerComponent('DialoguesPage', DialoguesPage, {
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    DialoguesPage: typeof DialoguesPageComponent
-  }
-}
+

@@ -1,24 +1,32 @@
 import React, { useRef, useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
-import Paper from '@material-ui/core/Paper';
-import IconButton from '@material-ui/core/IconButton';
+import { Paper }from '@/components/widgets/Paper';
+import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import { Link } from '../../lib/reactRouterWrapper';
-import Badge from '@material-ui/core/Badge';
+import { Badge } from "@/components/widgets/Badge";
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { useTracking, AnalyticsContext } from '../../lib/analyticsEvents';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
-import { ReactionChange } from '../../lib/collections/users/karmaChangesGraphQL';
-import { karmaNotificationTimingChoices } from './KarmaChangeNotifierSettings';
+import type { ReactionChange } from '../../server/collections/users/karmaChangesGraphQL';
+import { getKarmaNotificationTimingChoices } from './KarmaChangeNotifierSettings';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isEAForum } from '../../lib/instanceSettings';
 import { eaAnonymousEmojiPalette, eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
 import classNames from 'classnames';
+import UsersName from "./UsersName";
+import { MenuItemLink } from "../common/Menus";
+import { Typography } from "../common/Typography";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import LWPopper from "../common/LWPopper";
+import ForumIcon from "../common/ForumIcon";
+import ReactionIcon from "../votes/ReactionIcon";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -120,13 +128,14 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
   handleClose: (ev: React.MouseEvent) => any,
 }) => {
   const { posts, comments, tagRevisions, updateFrequency } = karmaChanges
-  const { MenuItemLink, Typography } = Components;
   const currentUser = useCurrentUser();
   const noKarmaChanges = !(
     (posts && (posts.length > 0))
     || (comments && (comments.length > 0))
     || (tagRevisions && (tagRevisions.length > 0))
   )
+
+  const karmaNotificationTimingChoices = getKarmaNotificationTimingChoices();
   
   return (
     <Typography variant="body2">
@@ -260,9 +269,6 @@ const KarmaChangeNotifier = ({currentUser, className, classes}: {
     //Check if user opened the karmaChangeNotifications for the current interval
     const newKarmaChangesSinceLastVisit = new Date(karmaChangeLastOpened || 0) < new Date(endDate || 0)
     const starIsHollow = ((comments.length===0 && posts.length===0 && tagRevisions.length===0) || cleared || !newKarmaChangesSinceLastVisit)
-
-    const { LWClickAwayListener, LWPopper, ForumIcon } = Components;
-
     return <AnalyticsContext pageSection="karmaChangeNotifer">
       <div className={classNames(classes.root, className)}>
         <div ref={anchorEl}>
@@ -302,8 +308,6 @@ const NewReactions = ({reactionChanges, classes}: {
   reactionChanges: ReactionChange[],
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ReactionIcon, LWTooltip } = Components;
-
   const distinctReactionTypes = new Set<string>();
   for (let reactionChange of reactionChanges)
     distinctReactionTypes.add(reactionChange.reactionType);
@@ -329,7 +333,7 @@ const NewReactions = ({reactionChanges, classes}: {
             reactionChanges.filter(r=>r.reactionType===reactionType)
               .map((r,i) => <>
                 {i>0 && <>{", "}</>}
-                <Components.UsersName documentId={r.userId}/>
+                <UsersName documentId={r.userId}/>
               </>)
           }
           disabled={disableTooltip}
@@ -343,12 +347,8 @@ const NewReactions = ({reactionChanges, classes}: {
   </span>
 }
 
-const KarmaChangeNotifierComponent = registerComponent('KarmaChangeNotifier', KarmaChangeNotifier, {
+export default registerComponent('KarmaChangeNotifier', KarmaChangeNotifier, {
   styles, stylePriority: -1, hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    KarmaChangeNotifier: typeof KarmaChangeNotifierComponent
-  }
-}
+

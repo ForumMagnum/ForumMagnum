@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import Table from '@material-ui/core/Table';
-import TableRow from '@material-ui/core/TableRow';
-import TableCell from '@material-ui/core/TableCell';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { Table } from '@/components/widgets/Table';
+import { TableRow } from '@/components/widgets/TableRow';
+import { TableCell } from '@/components/widgets/TableCell';
 import { useCurrentUser } from '../common/withUser';
 import { getUserEmail, userGetProfileUrl } from "../../lib/collections/users/helpers";
-import Input from '@material-ui/core/Input';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { Link } from '../../lib/reactRouterWrapper';
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
+import LoadMore from "../common/LoadMore";
+import UserTooltip from "../users/UserTooltip";
+import ErrorAccessDenied from "../common/ErrorAccessDenied";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -47,9 +54,6 @@ const styles = (theme: ThemeType) => ({
 export const AdminPaymentsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SingleColumnSection, SectionTitle, Loading, LoadMore,
-    UserTooltip, ErrorAccessDenied, ForumIcon } = Components
-
   const { results, loading, loadMoreProps } = useMulti({
     terms: {view: "usersWithPaymentInfo", limit: 500},
     collectionName: "Users",
@@ -65,7 +69,7 @@ export const AdminPaymentsPage = ({classes}: {
     const email = getUserEmail(user)
 
     return displayName.toLowerCase().includes(searchLower) || 
-      username.toLowerCase().includes(searchLower) || 
+      username?.toLowerCase().includes(searchLower) || 
       previousDisplayName?.toLowerCase().includes(searchLower) ||
       slug.toLowerCase().includes(searchLower) ||
       paymentEmail?.toLowerCase().includes(searchLower) ||
@@ -122,11 +126,7 @@ export const AdminPaymentsPage = ({classes}: {
   </div>;
 }
 
-const AdminPaymentsPageComponent = registerComponent('AdminPaymentsPage', AdminPaymentsPage, {styles});
+export default registerComponent('AdminPaymentsPage', AdminPaymentsPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AdminPaymentsPage: typeof AdminPaymentsPageComponent
-  }
-}
+
 

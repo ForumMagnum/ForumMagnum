@@ -1,20 +1,20 @@
 import feedparser from 'feedparser-promised';
-import Users from '../../lib/collections/users/collection';
-import { Posts } from '../../lib/collections/posts';
-import { createMutator, updateMutator } from '../vulcan-lib';
-import RSSFeeds from '../../lib/collections/rssfeeds/collection';
+import Users from '../../server/collections/users/collection';
+import { Posts } from '../../server/collections/posts/collection';
+import RSSFeeds from '../../server/collections/rssfeeds/collection';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import * as _ from 'underscore';
+import { createRSSFeed } from '../collections/rssfeeds/mutations';
+import { createAnonymousContext } from '../vulcan-lib/createContexts';
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
+import { createPost, updatePost } from '../collections/posts/mutations';
 
 async function rssImport(userId: string, rssURL: string, pages = 100, overwrite = false, feedName = "", feedLink = "") {
   try {
     let rssPageImports: Array<any> = [];
     let maybeRSSFeed = await RSSFeeds.findOne({nickname: feedName});
     if (!maybeRSSFeed) {
-      maybeRSSFeed = (await createMutator({
-        collection: RSSFeeds,
-        document: {userId, ownedByUser: true, displayFullContent: true, nickname: feedName, url: feedLink}
-      })).data;
+      maybeRSSFeed = await createRSSFeed({ data: {userId, ownedByUser: true, displayFullContent: true, nickname: feedName, url: feedLink} }, createAnonymousContext());
     }
     if (!maybeRSSFeed) throw Error("Failed to create new rssFeed for rssImport")
     const rssFeed = maybeRSSFeed
@@ -58,23 +58,14 @@ async function rssImport(userId: string, rssURL: string, pages = 100, overwrite 
         const lwUser = await Users.findOne({_id: userId});
         const oldPost = await Posts.findOne({title: post.title, userId: userId});
 
+        const userContext = await computeContextFromUser({ user: lwUser, isSSR: false });
+
         if (!oldPost){
-          void createMutator({
-            collection: Posts,
-            document: post,
-            currentUser: lwUser,
-            validate: false,
-          })
+          void createPost({ data: post }, userContext);
         } else {
           if(overwrite) {
-            void updateMutator({
-              collection: Posts,
-              documentId: oldPost._id,
-              set: {...post},
-              unset: {},
-              currentUser: lwUser,
-              validate: false,
-            })
+            const userContext = await computeContextFromUser({ user: lwUser, isSSR: false });
+            void updatePost({ data: {...post}, selector: { _id: oldPost._id } }, userContext)
           }
           //eslint-disable-next-line no-console
           console.warn("Post already imported: ", oldPost.title);

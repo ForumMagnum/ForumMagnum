@@ -1,9 +1,10 @@
 import React, { useCallback, useState } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
-import type { ContentStyleType } from "../ContentStyles";
+import ContentStyles, { ContentStyleType } from "../ContentStyles";
 import classNames from "classnames";
 import { truncate } from "../../../lib/editor/ellipsize";
+import ContentItemBody from "../ContentItemBody";
 
 const HTML_CHARS_PER_LINE_HEURISTIC = 120;
 const EXPAND_IN_PLACE_LINES = 10;
@@ -17,6 +18,8 @@ const contentTypeMap: Record<ContentStyleType, string> = {
   tag: "tag",
   debateResponse: "debate response",
   llmChat: "llm chat",
+  ultraFeed: "content",
+  ultraFeedPost: "post",
 };
 
 const normalHeading = {
@@ -124,8 +127,6 @@ const ContentExcerpt = ({
     "...",
     false,
   );
-
-  const {ContentStyles, ContentItemBody} = Components;
   return (
     <div className={classNames(classes.root, className)}>
       <ContentStyles
@@ -165,14 +166,10 @@ const ContentExcerpt = ({
   );
 }
 
-const ContentExcerptComponent = registerComponent(
+export default registerComponent(
   "ContentExcerpt",
   ContentExcerpt,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    ContentExcerpt: typeof ContentExcerptComponent,
-  }
-}
+

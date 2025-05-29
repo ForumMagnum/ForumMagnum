@@ -1,4 +1,4 @@
-import { registerComponent, } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useEffect } from 'react';
 import classNames from 'classnames';
 
@@ -70,10 +70,6 @@ const DistanceUnitToggle = ({distanceUnit='km', onChange, skipDefaultEffect, cla
   </div>
 }
 
-const DistanceUnitToggleComponent = registerComponent('DistanceUnitToggle', DistanceUnitToggle, {styles});
+export default registerComponent('DistanceUnitToggle', DistanceUnitToggle, {styles});
 
-declare global {
-  interface ComponentTypes {
-    DistanceUnitToggle: typeof DistanceUnitToggleComponent
-  }
-}
+

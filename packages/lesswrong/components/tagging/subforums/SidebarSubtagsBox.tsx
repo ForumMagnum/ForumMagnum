@@ -4,10 +4,14 @@ import React, { useCallback, useState } from "react";
 import { useSingle } from "../../../lib/crud/withSingle";
 import { useUpdate } from "../../../lib/crud/withUpdate";
 import { taggingNameSetting } from "../../../lib/instanceSettings";
-import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../../common/withUser";
 import type { TagsTooltipPreviewWrapper } from "../TagsTooltip";
 import { stableSortTags } from "../../../lib/collections/tags/helpers";
+import ContentStyles from "../../common/ContentStyles";
+import FooterTag from "../FooterTag";
+import AddTagButton from "../AddTagButton";
+import Loading from "../../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -38,8 +42,6 @@ const SidebarSubtagsBox = ({ tag, className, classes }: {
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ContentStyles, FooterTag, AddTagButton, Loading } = Components;
-
   const [isAwaiting, setIsAwaiting] = useState(false)
   const [showAllSubtags, setShowAllSubtags] = useState(false)
   const currentUser = useCurrentUser();
@@ -128,6 +130,7 @@ const SidebarSubtagsBox = ({ tag, className, classes }: {
         <FooterTag
           key={tag._id}
           tag={tag}
+          hoverable={true}
           hideScore={true}
           hideRelatedTags
           PreviewWrapper={PreviewWrapper}
@@ -136,6 +139,7 @@ const SidebarSubtagsBox = ({ tag, className, classes }: {
           <FooterTag
             key={tag._id}
             tag={tag}
+            hoverable={true}
             hideScore={true}
             PreviewWrapper={PreviewWrapper}
           />
@@ -148,10 +152,6 @@ const SidebarSubtagsBox = ({ tag, className, classes }: {
   );
 };
 
-const SidebarSubtagsBoxComponent = registerComponent("SidebarSubtagsBox", SidebarSubtagsBox, { styles });
+export default registerComponent("SidebarSubtagsBox", SidebarSubtagsBox, { styles });
 
-declare global {
-  interface ComponentTypes {
-    SidebarSubtagsBox: typeof SidebarSubtagsBoxComponent;
-  }
-}
+

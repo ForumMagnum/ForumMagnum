@@ -1,4 +1,4 @@
-import { Components, registerComponent, } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState, useEffect, useRef } from 'react';
 import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
@@ -7,20 +7,28 @@ import { useDialog } from '../common/withDialog'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
 import Geosuggest from 'react-geosuggest';
-import { useLocation } from '../../lib/routeUtil';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
-
-import Button from '@material-ui/core/Button';
-import OpenInNewIcon from '@material-ui/icons/OpenInNew';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import Tab from '@material-ui/core/Tab';
-import Tabs from '@material-ui/core/Tabs';
-import Chip from '@material-ui/core/Chip';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import OpenInNewIcon from '@/lib/vendor/@material-ui/icons/src/OpenInNew';
+import OutlinedInput from '@/lib/vendor/@material-ui/core/src/OutlinedInput';
+import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
+import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
+import { Chip } from "@/components/widgets/Chip";
 import { isFriendlyUI } from '../../themes/forumTheme';
-
+import { Link } from "../../lib/reactRouterWrapper";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
+import EventNotificationsDialog from "../localGroups/EventNotificationsDialog";
+import LoginPopup from "../users/LoginPopup";
+import SetPersonalMapLocationDialog from "../localGroups/SetPersonalMapLocationDialog";
+import CommunityBanner from "./modules/CommunityBanner";
+import LocalGroups from "./modules/LocalGroups";
+import OnlineGroups from "./modules/OnlineGroups";
+import CommunityMembers from "./modules/CommunityMembers";
+import GroupFormLink from "../localGroups/GroupFormLink";
+import DistanceUnitToggle from "./modules/DistanceUnitToggle";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -329,20 +337,32 @@ const Community = ({classes}: {
   const keywordSearchTimer = useRef<any>(null)
 
   const openEventNotificationsForm = () => {
-    openDialog({
-      componentName: currentUser ? "EventNotificationsDialog" : "LoginPopup",
-    });
+    if (currentUser) {
+      openDialog({
+        name: "EventNotificationsDialog",
+        contents: ({onClose}) => <EventNotificationsDialog onClose={onClose} />
+      });
+    } else {
+      openDialog({
+        name: "LoginPopup",
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
+      });
+    }
   }
   
   const openSetPersonalLocationForm = () => {
-    openDialog({
-      componentName: currentUser ? "SetPersonalMapLocationDialog" : "LoginPopup",
-    });
+    if (currentUser) {
+      openDialog({
+        name: "SetPersonalMapLocationDialog",
+        contents: ({onClose}) => <SetPersonalMapLocationDialog onClose={onClose} />
+      });
+    } else {
+      openDialog({
+        name: "LoginPopup",
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
+      });
+    }
   }
-  
-  const { CommunityBanner, LocalGroups, OnlineGroups, CommunityMembers, GroupFormLink,
-          DistanceUnitToggle, ForumIcon } = Components
-  
   const handleChangeTab = (e: React.ChangeEvent, value: string) => {
     setTab(value)
     setKeywordSearch('')
@@ -525,10 +545,6 @@ const Community = ({classes}: {
   )
 }
 
-const CommunityComponent = registerComponent('Community', Community, {styles});
+export default registerComponent('Community', Community, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Community: typeof CommunityComponent
-  }
-}
+

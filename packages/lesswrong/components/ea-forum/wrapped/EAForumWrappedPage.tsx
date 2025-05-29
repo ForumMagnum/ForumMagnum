@@ -1,5 +1,5 @@
 import React from "react"
-import { Components, registerComponent } from "@/lib/vulcan-lib";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { useLocation } from "@/lib/routeUtil";
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from "@/components/common/Header";
@@ -7,6 +7,13 @@ import { useCurrentUser } from "@/components/common/withUser";
 import { makeCloudinaryImageUrl } from "@/components/common/CloudinaryImage2";
 import { ForumWrappedProvider, isWrappedYear, useForumWrapped } from "./hooks";
 import moment from "moment";
+import HeadTags from "../../common/HeadTags";
+import WrappedSection from "./WrappedSection";
+import WrappedHeading from "./WrappedHeading";
+import LoginForm from "../../users/LoginForm";
+import WrappedApp from "./WrappedApp";
+import Loading from "../../vulcan-core/Loading";
+import WrappedWelcomeMessage from "./WrappedWelcomeMessage";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -55,11 +62,6 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const userCreatedAt = moment(currentUser?.createdAt);
   const endOfYear = moment(`${year}-12-31`, "YYYY-MM-DD");
   const isTooYoung = userCreatedAt.isAfter(endOfYear, "date");
-
-  const {
-    HeadTags, WrappedSection, WrappedHeading,LoginForm, WrappedApp, Loading,
-    WrappedWelcomeMessage,
-  } = Components;
   return (
     <AnalyticsContext pageContext="eaYearWrapped" reviewYear={String(year)}>
       <main className={classes.root}>
@@ -113,14 +115,10 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   )
 }
 
-const EAForumWrappedPageComponent = registerComponent(
+export default registerComponent(
   "EAForumWrappedPage",
   EAForumWrappedPage,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAForumWrappedPage: typeof EAForumWrappedPageComponent
-  }
-}
+

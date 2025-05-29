@@ -1,7 +1,7 @@
 import Query, { Atom, sanitizeSqlComment } from "./Query";
 import Table from "./Table";
-import { IdType, UnknownType } from "./Type";
-import { getCollectionByTableName } from "@/lib/vulcan-lib/getCollection";
+import { DefaultValueType, IdType, NotNullType, Type, UnknownType } from "./Type";
+import { tableNameToCollectionName } from "@/lib/generated/collectionTypeNames";
 import { inspect } from "util";
 import { getCollationType } from "./collation";
 
@@ -113,7 +113,7 @@ export const isGroupByAggregateExpression = (value: any) => {
  */
 class SelectQuery<T extends DbObject> extends Query<T> {
   private hasLateralJoin = false;
-  private sqlComment: string|null
+  protected sqlComment: string|null
 
   constructor(
     table: Table<T> | Query<T>,
@@ -232,9 +232,13 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       throw new Error("Invalid $lookup");
     }
 
+    if (!(from in tableNameToCollectionName)) {
+      throw new Error(`Invalid $lookup: ${from} is not a valid table name`);
+    }
+
     if ("localField" in lookup && "foreignField" in lookup) {
       const {localField, foreignField} = lookup;
-      const table = getCollectionByTableName(from).collectionName;
+      const table = tableNameToCollectionName[from as keyof typeof tableNameToCollectionName];
       this.atoms.push(`, LATERAL (SELECT jsonb_agg("${table}".*) AS "${as}" FROM "${table}" WHERE`);
       this.atoms.push(`${this.resolveTableName()}"${localField}" = "${table}"."${foreignField}") Q`);
       this.syntheticFields[as] = new UnknownType();
@@ -343,9 +347,14 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       this.atoms.push("ORDER BY");
       const sorts: string[] = [];
       for (const field in sort) {
-        const pgSorting = sort[field] === 1
-            ? "ASC NULLS FIRST"
-            : "DESC NULLS LAST"
+        const fieldType = this.table.getField(field)
+        const fieldIsNonnull =
+          (fieldType instanceof NotNullType)
+          || (fieldType instanceof DefaultValueType && fieldType.isNotNull());
+        const pgSorting =
+          (sort[field] === 1 ? "ASC" : "DESC")
+          + (fieldIsNonnull
+              ? "" : (sort[field] === 1 ? " NULLS FIRST" : " NULLS LAST"))
         sorts.push(`${this.resolveFieldName(field)} ${pgSorting}`);
       }
       this.atoms.push(sorts.join(", "));

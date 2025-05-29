@@ -11,7 +11,11 @@ if (isDatadogEnabled) {
     // logInjection: true
   });
   tracer.use('express', {
-    service: 'forummagnum'
+    service: 'forummagnum',
+    blocklist: [
+      // This stays open for a long time and skews the average request duration
+      /notificationEvents/
+    ]
   })
 }
 
@@ -23,4 +27,5 @@ export const dogstatsd = isDatadogEnabled
     })
   : null;
 
+// eslint-disable-next-line no-barrel-files/no-barrel-files
 export default tracer;

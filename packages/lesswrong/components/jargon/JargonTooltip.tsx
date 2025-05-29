@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import Card from '@material-ui/core/Card';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { Card } from "@/components/widgets/Paper";
 import { commentBodyStyles } from '@/themes/stylePiping';
-import { ContentReplacedSubstringComponentInfo } from '../common/ContentItemBody';
-import { PopperPlacementType } from '@material-ui/core/Popper';
+import ContentItemBody, { ContentReplacedSubstringComponentInfo } from '../common/ContentItemBody';
+import type { Placement as PopperPlacementType } from "popper.js"
 import { useGlossaryPinnedState } from '../hooks/useUpdateGlossaryPinnedState';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
+import LWClickAwayListener from "../common/LWClickAwayListener";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('JargonTooltip', (theme: ThemeType) => ({
   card: {
     padding: 16,
     paddingBottom: 10,
@@ -82,7 +86,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: '.9em',
     marginBottom: 8,
   }
-});
+}));
 
 
 function convertGlossaryItemToTextReplacement(glossaryItem: JargonTermsPost): ContentReplacedSubstringComponentInfo {
@@ -116,23 +120,23 @@ export function jargonTermsToTextReplacements(terms: JargonTermsPost[]): Content
   return terms.map(convertGlossaryItemToTextReplacement);
 }
 
-export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, classes, tooltipClassName, tooltipTitleClassName, forceTooltip=false, replacedSubstrings}: {
+export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAndOrAIEdited, isFirstOccurrence = false, placement="top-start", children, tooltipClassName, tooltipTitleClassName, forceTooltip=false, replacedSubstrings}: {
   term: string,
   definitionHTML: string,
   approved: boolean,
   deleted: boolean,
   altTerms: string[],
-  humansAndOrAIEdited: JargonTermsDefaultFragment['humansAndOrAIEdited'],
+  humansAndOrAIEdited: JargonTermsPost['humansAndOrAIEdited'],
   isFirstOccurrence?: boolean,
   placement?: PopperPlacementType
   children: React.ReactNode,
-  classes: ClassesType<typeof styles>,
   tooltipClassName?: string,
   tooltipTitleClassName?: string,
   forceTooltip?: boolean,
   replacedSubstrings?: ContentReplacedSubstringComponentInfo[],
 }) => {
-  const { LWTooltip, ContentItemBody, ForumIcon, LWClickAwayListener } = Components;
+  const classes = useStyles(styles);
+
   const { captureEvent } = useTracking();
   const [open, setOpen] = useState(false);
 
@@ -199,10 +203,6 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
   </AnalyticsContext>;
 }
 
-const JargonTooltipComponent = registerComponent('JargonTooltip', JargonTooltip, {styles});
+export default registerComponent('JargonTooltip', JargonTooltip);
 
-declare global {
-  interface ComponentTypes {
-    JargonTooltip: typeof JargonTooltipComponent
-  }
-}
+

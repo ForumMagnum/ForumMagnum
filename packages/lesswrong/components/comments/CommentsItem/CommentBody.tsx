@@ -1,13 +1,15 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
 import { useCurrentUser } from '../../common/withUser'
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
-import type { ContentStyleType } from '../../common/ContentStyles';
+import ContentStyles, { ContentStyleType } from '../../common/ContentStyles';
 import { VotingProps } from '../../votes/votingProps';
-import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
-import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
+import ContentItemBody, { type ContentItemBodyImperative, type ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
+import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
+import CommentDeletedMetadata from "./CommentDeletedMetadata";
+import InlineReactSelectionWrapper from "../../votes/lwReactions/InlineReactSelectionWrapper";
 
 const styles = (theme: ThemeType) => ({
   commentStyling: {
@@ -48,7 +50,7 @@ const CommentBody = ({
   classes,
 }: {
   comment: CommentsList,
-  commentBodyRef?: React.RefObject<ContentItemBody>|null,
+  commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
   collapsed?: boolean,
   truncated?: boolean,
   postPage?: boolean,
@@ -57,7 +59,6 @@ const CommentBody = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { ContentItemBody, CommentDeletedMetadata, ContentStyles, InlineReactSelectionWrapper } = Components
   const { html = "" } = comment.contents || {}
 
   const bodyClasses = classNames(
@@ -70,7 +71,7 @@ const CommentBody = ({
   if (comment.deleted) { return <CommentDeletedMetadata documentId={comment._id}/> }
   if (collapsed) { return null }
 
-  const innerHtml = truncated ? commentExcerptFromHTML(comment, currentUser, postPage) : html
+  const innerHtml = truncated ? commentExcerptFromHTML(comment, currentUser, postPage) : (html ?? '')
 
   let contentType: ContentStyleType;
   if (comment.answer) {
@@ -95,11 +96,12 @@ const CommentBody = ({
       description={`comment ${comment._id}`}
       nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
       replacedSubstrings={highlights}
+      contentStyleType={contentType}
     />
   </ContentStyles>
 
-  if (votingSystem.name === "namesAttachedReactions" && voteProps) {
-    return <InlineReactSelectionWrapper commentBodyRef={commentBodyRef} voteProps={voteProps} styling="comment" >
+  if (votingSystem.hasInlineReacts && voteProps) {
+    return <InlineReactSelectionWrapper contentRef={commentBodyRef} voteProps={voteProps} styling="comment" >
       {contentBody}
     </InlineReactSelectionWrapper>
   } else {
@@ -107,11 +109,7 @@ const CommentBody = ({
   }
 }
 
-const CommentBodyComponent = registerComponent('CommentBody', CommentBody, {styles});
+export default registerComponent('CommentBody', CommentBody, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentBody: typeof CommentBodyComponent,
-  }
-}
+
 

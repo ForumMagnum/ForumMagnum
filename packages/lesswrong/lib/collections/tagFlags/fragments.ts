@@ -1,6 +1,6 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const TagFlagFragment = () => frag`
   fragment TagFlagFragment on TagFlag {
     _id
     createdAt
@@ -14,13 +14,13 @@ registerFragment(`
       plaintextDescription
     }
   }
-`);
+`
 
-registerFragment(`
+export const TagFlagEditFragment = () => frag`
   fragment TagFlagEditFragment on TagFlag {
     ...TagFlagFragment
     contents {
       ...RevisionEdit
     }
   }
-`);
+`

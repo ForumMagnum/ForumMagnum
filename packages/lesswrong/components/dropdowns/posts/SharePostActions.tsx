@@ -1,12 +1,16 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { useMessages } from '../../common/withMessages';
 
-import Paper from '@material-ui/core/Paper';
+import { Paper }from '@/components/widgets/Paper';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
+import DropdownMenu from "../DropdownMenu";
+import DropdownItem from "../DropdownItem";
+import DropdownDivider from "../DropdownDivider";
+import SocialMediaIcon from "../../icons/SocialMediaIcon";
 
 const styles = (_theme: ThemeType) => ({
   icon: {
@@ -20,7 +24,6 @@ const SharePostActions = ({post, onClick, classes}: {
   onClick?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { DropdownMenu, DropdownItem, DropdownDivider, SocialMediaIcon } = Components;
   const { captureEvent } = useTracking()
   const { flash } = useMessages();
   
@@ -56,7 +59,7 @@ const SharePostActions = ({post, onClick, classes}: {
     openLinkInNewTab(destinationUrl);
   }
 
-  return <Paper onClick={onClick}>
+  return <div onClick={onClick}><Paper>
     <DropdownMenu>
       <DropdownItem
         title={preferredHeadingCase("Copy Link")}
@@ -80,13 +83,9 @@ const SharePostActions = ({post, onClick, classes}: {
         onClick={shareToLinkedIn}
       />
     </DropdownMenu>
-  </Paper>
+  </Paper></div>
 }
 
-const SharePostActionsComponent = registerComponent('SharePostActions', SharePostActions, {styles});
+export default registerComponent('SharePostActions', SharePostActions, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SharePostActions: typeof SharePostActionsComponent
-  }
-}
+

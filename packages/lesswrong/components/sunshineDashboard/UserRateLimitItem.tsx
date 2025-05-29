@@ -1,12 +1,26 @@
-import Select from '@material-ui/core/Select';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import moment from 'moment';
 import React, { useState } from 'react';
-import { USER_RATE_LIMIT_TYPES } from '../../lib/collections/userRateLimits/schema';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import ClearIcon from '@material-ui/icons/Clear'
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear'
 import { useUpdate } from '../../lib/crud/withUpdate';
+import { useForm } from '@tanstack/react-form';
+import classNames from 'classnames';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
+import { MuiTextField } from '@/components/form-components/MuiTextField';
+import { cancelButtonStyles, submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import { FormComponentDatePicker } from '../form-components/FormComponentDateTime';
+import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
+import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
+import Error404 from "../common/Error404";
+import { MenuItem } from "../common/Menus";
+import Loading from "../vulcan-core/Loading";
+import MetaInfo from "../common/MetaInfo";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   rateLimitForm: {
@@ -63,12 +77,26 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+const USER_RATE_LIMIT_TYPES = {
+  allComments: "Comments",
+  allPosts: "Posts",
+};
+
+const INTERVAL_UNITS = {
+  minutes: "minutes",
+  hours: "hours",
+  days: "days",
+  weeks: "weeks",
+};
+
 const COMMENTS_THREE_PER_DAY = 'comments_3_per_day';
 const COMMENTS_ONE_PER_DAY = 'comments_1_per_day';
 const COMMENTS_ONE_PER_THREE_DAYS = 'comments_1_per_3_days';
-
 const POSTS_ONE_PER_WEEK = 'posts_1_per_week';
-const DEFAULT_RATE_LIMITS: Record<string, (userId: string) => NullablePartial<DbUserRateLimit>> = {
+
+type RateLimitInput = Pick<DbUserRateLimit, 'userId' | 'type' | 'intervalLength' | 'intervalUnit' | 'actionsPerInterval' | 'endedAt'>;
+
+const DEFAULT_RATE_LIMITS: Record<string, (userId: string) => RateLimitInput> = {
   [COMMENTS_THREE_PER_DAY]: (userId: string) => ({
     userId,
     type: 'allComments',
@@ -120,11 +148,188 @@ const getRateLimitDescription = (rateLimit: UserRateLimitDisplay) => {
   return `${USER_RATE_LIMIT_TYPES[rateLimit.type]}, ${rateLimit.actionsPerInterval} per ${intervalDescription}`;
 };
 
-export const UserRateLimitItem = ({userId, classes}: {
+const formStyles = defineStyles('SurveySchedulesForm', (theme: ThemeType) => ({
+  defaultFormSection: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  fieldWrapper: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  },
+  submitButton: submitButtonStyles(theme),
+  cancelButton: cancelButtonStyles(theme),
+}));
+
+type EditableUserRateLimit = Required<Omit<UpdateUserRateLimitDataInput, 'legacyData'>> & { _id: string; intervalUnit: DbUserRateLimit['intervalUnit']; type: DbUserRateLimit['type'] };
+
+type EditableUserRateLimitFormData = {
+  onSuccess: (doc: UserRateLimitDisplay) => void;
+  onCancel: () => void;
+} & (
+  | {
+    initialData: EditableUserRateLimit;
+    prefilledProps?: undefined;
+  }
+  | {
+    initialData?: undefined;
+    prefilledProps: RateLimitInput;
+  }
+);
+
+export const UserRateLimitsForm = ({
+  initialData,
+  prefilledProps,
+  onSuccess,
+  onCancel,
+}: EditableUserRateLimitFormData) => {
+  const classes = useStyles(formStyles);
+  const formType = initialData ? 'edit' : 'new';
+
+  const { create } = useCreate({
+    collectionName: 'UserRateLimits',
+    fragmentName: 'UserRateLimitDisplay',
+  });
+
+  const { mutate } = useUpdate({
+    collectionName: 'UserRateLimits',
+    fragmentName: 'UserRateLimitDisplay',
+  });
+
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
+  const form = useForm({
+    defaultValues: {
+      ...(initialData ? initialData : prefilledProps),
+    },
+    onSubmit: async ({ value, formApi }) => {
+      try {
+        let result: UserRateLimitDisplay;
+
+        if (formType === 'new') {
+          const { data } = await create({ data: value });
+          result = data?.createUserRateLimit.data;
+        } else {
+          const updatedFields = getUpdatedFieldValues(formApi);
+          const { data } = await mutate({
+            selector: { _id: initialData?._id },
+            data: updatedFields,
+          });
+          result = data?.updateUserRateLimit.data;
+        }
+
+        onSuccess(result);
+        setCaughtError(undefined);
+      } catch (error) {
+        setCaughtError(error);
+      }
+    },
+  });
+
+  if (formType === 'edit' && !initialData) {
+    return <Error404 />;
+  }
+
+  return (
+    <form className="vulcan-form" onSubmit={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      void form.handleSubmit();
+    }}>
+      {displayedErrorComponent}
+      <div className={classes.defaultFormSection}>
+        <div className={classNames('input-type', classes.fieldWrapper)}>
+          <form.Field name="type">
+            {(field) => (
+              <FormComponentSelect
+                field={field}
+                options={Object.entries(USER_RATE_LIMIT_TYPES).map(([value, label]) => ({ value, label }))}
+                label="Type"
+              />
+            )}
+          </form.Field>
+        </div>
+
+        <div className={classNames('input-intervalUnit', classes.fieldWrapper)}>
+          <form.Field name="intervalUnit">
+            {(field) => (
+              <FormComponentSelect
+                field={field}
+                options={Object.entries(INTERVAL_UNITS).map(([value, label]) => ({ value, label }))}
+                label="Interval unit"
+              />
+            )}
+          </form.Field>
+        </div>
+
+        <div className={classNames('input-intervalLength', classes.fieldWrapper)}>
+          <form.Field name="intervalLength">
+            {(field) => (
+              <MuiTextField
+                field={field}
+                type="number"
+                label="Interval length"
+              />
+            )}
+          </form.Field>
+        </div>
+
+        <div className={classNames('input-actionsPerInterval', classes.fieldWrapper)}>
+          <form.Field name="actionsPerInterval">
+            {(field) => (
+              <MuiTextField
+                field={field}
+                type="number"
+                label="Actions per interval"
+              />
+            )}
+          </form.Field>
+        </div>
+
+        <div className={classNames('input-endedAt', classes.fieldWrapper)}>
+          <form.Field name="endedAt">
+            {(field) => (
+              <FormComponentDatePicker
+                field={field}
+                label="Ended at"
+              />
+            )}
+          </form.Field>
+        </div>
+      </div>
+
+
+      <div className="form-submit">
+        <Button
+          className={classNames("form-cancel", classes.cancelButton)}
+          onClick={(e) => {
+            e.preventDefault();
+            onCancel();
+          }}
+        >
+          Cancel
+        </Button>
+
+        <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
+          {([canSubmit, isSubmitting]) => (
+            <Button
+              type="submit"
+              disabled={!canSubmit || isSubmitting}
+              className={classNames("primary-form-submit-button", classes.submitButton)}
+            >
+              Submit
+            </Button>
+          )}
+        </form.Subscribe>
+      </div>
+    </form>
+  );
+};
+
+export const UserRateLimitItem = ({ userId, classes }: {
   userId: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { WrappedSmartForm, MenuItem, Loading, MetaInfo, LWTooltip } = Components;
   const [createNewRateLimit, setCreateNewRateLimit] = useState(false);
   const [editingExistingRateLimitId, setEditingExistingRateLimitId] = useState<string>();
 
@@ -170,6 +375,9 @@ export const UserRateLimitItem = ({userId, classes}: {
     return <Loading />;
   }
 
+  const existingRateLimit = existingRateLimits.find(rateLimit => rateLimit._id === editingExistingRateLimitId);
+  const existingOrDefaultValue = existingRateLimit ? { initialData: existingRateLimit } : { prefilledProps: prefilledCustomFormProps };
+
   return <div>
     {/** Doesn't have both a comment and post rate limit */}
     {existingRateLimits.length < 2 && <div>
@@ -194,17 +402,14 @@ export const UserRateLimitItem = ({userId, classes}: {
       </Select>
     </div>}
     {(createNewRateLimit || editingExistingRateLimitId) && <div className={classes.rateLimitForm}>
-      <WrappedSmartForm
-        {...(editingExistingRateLimitId ? {documentId: editingExistingRateLimitId} : {})}
-        collectionName='UserRateLimits'
-        mutationFragmentName='UserRateLimitDisplay'
-        prefilledProps={editingExistingRateLimitId ? {} : prefilledCustomFormProps}
-        successCallback={async () => {
+      <UserRateLimitsForm
+        {...existingOrDefaultValue}
+        onSuccess={async () => {
           await refetch();
           setCreateNewRateLimit(false);
           setEditingExistingRateLimitId(undefined);
         }}
-        cancelCallback={() => {
+        onCancel={() => {
           setCreateNewRateLimit(false);
           setEditingExistingRateLimitId(undefined);
         }}
@@ -220,18 +425,14 @@ export const UserRateLimitItem = ({userId, classes}: {
         </span>
         <LWTooltip title="End this rate limit">
           <span className={classes.clickToEdit}>
-            <ClearIcon className={classes.clearIcon} onClick={() => endExistingRateLimit(existingRateLimit._id)}/>
+            <ClearIcon className={classes.clearIcon} onClick={() => endExistingRateLimit(existingRateLimit._id)} />
           </span>
         </LWTooltip>
       </div>)}
   </div>;
 }
 
-const UserRateLimitItemComponent = registerComponent('UserRateLimitItem', UserRateLimitItem, {styles});
+export default registerComponent('UserRateLimitItem', UserRateLimitItem, { styles });
 
-declare global {
-  interface ComponentTypes {
-    UserRateLimitItem: typeof UserRateLimitItemComponent
-  }
-}
+
 

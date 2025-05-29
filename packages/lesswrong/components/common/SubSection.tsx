@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
 
 const styles = (theme: ThemeType) => ({
@@ -18,10 +18,6 @@ const SubSection = ({children, classes, className}: {
   </div>
 }
 
-const SubSectionComponent = registerComponent('SubSection', SubSection, {styles});
+export default registerComponent('SubSection', SubSection, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SubSection: typeof SubSectionComponent
-  }
-}
+

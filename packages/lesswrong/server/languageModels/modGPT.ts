@@ -1,28 +1,15 @@
 import { getOpenAI } from './languageModelIntegration';
-import { getCollectionHooks } from '../mutationCallbacks';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import sanitizeHtml from 'sanitize-html';
 import { sanitizeAllowedTags } from '../../lib/vulcan-lib/utils';
-import { htmlToText } from 'html-to-text';
-import { createMutator, updateMutator } from '../vulcan-lib';
-import Comments from '../../lib/collections/comments/collection';
-import Posts from '../../lib/collections/posts/collection';
-import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collection';
+import Comments from '../../server/collections/comments/collection';
 import { dataToHTML } from '../editor/conversionUtils';
-import { isEAForum } from '../../lib/instanceSettings';
-import Users from '../../lib/collections/users/collection';
-import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import OpenAI from 'openai';
-import Conversations from '../../lib/collections/conversations/collection';
-import Messages from '../../lib/collections/messages/collection';
-import { getAdminTeamAccount } from '../callbacks/commentCallbacks';
 import { captureEvent } from '../../lib/analyticsEvents';
-import { appendToSunshineNotes } from '../../lib/collections/users/helpers';
-import { createAdminContext } from "../vulcan-lib/query";
 import difference from 'lodash/difference';
 import { truncatise } from '../../lib/truncatise';
-import { FetchedFragment, fetchFragmentSingle } from '../fetchFragment';
-
+import { FetchedFragment } from '../fetchFragment';
+import { updateComment } from '../collections/comments/mutations';
 
 export const modGPTPrompt = `
   You are an advisor to the moderation team for the EA Forum. Your job is to make recommendations to the moderation team about whether they should intervene and moderate a comment.
@@ -106,7 +93,7 @@ export const sanitizeHtmlOptions = {
 /**
  * Ask GPT-4 to help moderate the given comment. It will respond with a "recommendation", as per the prompt above.
  */
-async function checkModGPT(comment: DbComment, post: FetchedFragment<'PostsOriginalContents'>): Promise<void> {
+export async function checkModGPT(comment: DbComment, post: FetchedFragment<'PostsOriginalContents'>, context: ResolverContext): Promise<void> {
   const api = await getOpenAI();
   if (!api) {
     if (!isAnyTest) {
@@ -124,8 +111,8 @@ async function checkModGPT(comment: DbComment, post: FetchedFragment<'PostsOrigi
     return
   }
 
-  const commentHtml = await dataToHTML(comment.contents.originalContents.data, comment.contents.originalContents.type, {sanitize: false})
-  const postHtml = await dataToHTML(post.contents.originalContents.data, post.contents.originalContents.type, {sanitize: false})
+  const commentHtml = await dataToHTML(comment.contents.originalContents.data, comment.contents.originalContents.type, context, {sanitize: false})
+  const postHtml = await dataToHTML(post.contents.originalContents.data, post.contents.originalContents.type, context, {sanitize: false})
   const commentText = sanitizeHtml(commentHtml ?? "", sanitizeHtmlOptions)
   const postText = sanitizeHtml(postHtml ?? "", sanitizeHtmlOptions)
   const postExcerpt = truncatise(postText, {TruncateBy: 'characters', TruncateLength: 300, Strict: true, Suffix: ''})
@@ -142,6 +129,7 @@ async function checkModGPT(comment: DbComment, post: FetchedFragment<'PostsOrigi
       const parentCommentHtml = await dataToHTML(
         parentComment.contents.originalContents.data,
         parentComment.contents.originalContents.type,
+        context,
         {sanitize: false}
       )
       const parentCommentText = sanitizeHtml(parentCommentHtml ?? "", sanitizeHtmlOptions)
@@ -163,15 +151,13 @@ async function checkModGPT(comment: DbComment, post: FetchedFragment<'PostsOrigi
     
     const matches = topResult.match(/^Recommendation: (.+)/)
     const rec = (matches?.length && matches.length > 1) ? matches[1] : undefined
-    await updateMutator({
-      collection: Comments,
-      documentId: comment._id,
-      set: {
+    await updateComment({
+      data: {
         modGPTAnalysis: topResult,
         modGPTRecommendation: rec
       },
-      validate: false,
-    })
+      selector: { _id: comment._id }
+    }, context)
     captureEvent("modGPTResponse", {
       ...analyticsData,
       comment: commentText,
@@ -245,15 +231,7 @@ async function checkModGPT(comment: DbComment, post: FetchedFragment<'PostsOrigi
         error: error.message
       })
       // If we can't reach ModGPT, then make sure to clear out any previous ModGPT-related data on the comment.
-      await updateMutator({
-        collection: Comments,
-        documentId: comment._id,
-        unset: {
-          modGPTAnalysis: 1,
-          modGPTRecommendation: 1
-        },
-        validate: false,
-      })
+      await updateComment({ data: { modGPTAnalysis: null, modGPTRecommendation: null }, selector: { _id: comment._id } }, context)
     } else {
       //eslint-disable-next-line no-console
       console.error(error)
@@ -261,77 +239,3 @@ async function checkModGPT(comment: DbComment, post: FetchedFragment<'PostsOrigi
     return
   }
 }
-
-getCollectionHooks("Comments").updateAsync.add(async ({oldDocument, newDocument}) => {
-  // On the EA Forum, ModGPT checks earnest comments on posts for norm violations.
-  // We skip comments by unreviewed authors, because those will be reviewed by a human.
-  if (
-    !isEAForum ||
-    !newDocument.postId ||
-    newDocument.deleted ||
-    newDocument.deletedPublic ||
-    newDocument.spam ||
-    newDocument.needsReview ||
-    newDocument.authorIsUnreviewed ||
-    newDocument.retracted ||
-    newDocument.rejected ||
-    newDocument.shortform ||
-    newDocument.moderatorHat ||
-    !newDocument.contents?.originalContents?.data
-  ) {
-    return
-  }
-  
-  const noChange = oldDocument.contents?.originalContents?.data === newDocument.contents.originalContents.data
-  if (noChange) return
-
-  // only have ModGPT check comments on posts tagged with "Community"
-  const post = await fetchFragmentSingle({
-    collectionName: "Posts",
-    fragmentName: "PostsOriginalContents",
-    currentUser: null,
-    skipFiltering: true,
-    selector: {_id: newDocument.postId},
-  });
-  if (!post) return
-  
-  const postTags = post.tagRelevance
-  if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
-  
-  void checkModGPT(newDocument, post)
-})
-
-getCollectionHooks("Comments").createAsync.add(async ({document}) => {
-  // On the EA Forum, ModGPT checks earnest comments on posts for norm violations.
-  // We skip comments by unreviewed authors, because those will be reviewed by a human.
-  if (
-    !isEAForum ||
-    !document.postId ||
-    document.deleted ||
-    document.deletedPublic ||
-    document.spam ||
-    document.needsReview ||
-    document.authorIsUnreviewed ||
-    document.retracted ||
-    document.rejected ||
-    document.shortform ||
-    document.moderatorHat
-  ) {
-    return
-  }
-  
-  // only have ModGPT check comments on posts tagged with "Community"
-  const post = await fetchFragmentSingle({
-    collectionName: "Posts",
-    fragmentName: "PostsOriginalContents",
-    currentUser: null,
-    skipFiltering: true,
-    selector: {_id: document.postId},
-  });
-  if (!post) return
-  
-  const postTags = post.tagRelevance
-  if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
-  
-  void checkModGPT(document, post)
-})

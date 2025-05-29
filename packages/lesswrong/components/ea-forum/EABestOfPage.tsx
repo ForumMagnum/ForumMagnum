@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
 import { useCurrentCuratedPostCount } from "../hooks/useCurrentCuratedPostCount";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -8,6 +8,13 @@ import { useMulti } from "../../lib/crud/withMulti";
 import keyBy from "lodash/keyBy";
 import moment from "moment";
 import classNames from "classnames";
+import Loading from "../vulcan-core/Loading";
+import HeadTags from "../common/HeadTags";
+import EASequenceCard from "./EASequenceCard";
+import EACollectionCard from "./EACollectionCard";
+import EAPostsItem from "../posts/EAPostsItem";
+import PostsAudioCard from "../posts/PostsAudioCard";
+import PostsVideoCard from "../posts/PostsVideoCard";
 
 const MAX_WIDTH = 1500;
 const MD_WIDTH = 1000;
@@ -178,7 +185,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const collectionsById = useMemo(() => keyBy(collections, '_id'), [collections]);
 
   if (loading || sequencesLoading || collectionsLoading || monthlyHighlightsLoading) {
-    return <Components.Loading />;
+    return <Loading />;
   }
 
   const bestOfYearPosts = bestOfYearPostIds.map((id) => postsById[id]).filter(p => !!p);
@@ -187,11 +194,6 @@ const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const featuredCollectionCollections = featuredCollectionsCollectionIds.map((id) => collectionsById[id]).filter(c => !!c);
   const featuredCollectionSequences = featuredCollectionsSequenceIds.map((id) => sequencesById[id]).filter(s => !!s);
   const introToCauseAreasSequences = introToCauseAreasSequenceIds.map((id) => sequencesById[id]).filter(s => !!s);
-
-  const {
-    HeadTags, EASequenceCard, EACollectionCard, EAPostsItem, PostsAudioCard,
-    PostsVideoCard,
-  } = Components;
   return (
     <>
       <HeadTags title="Best of the Forum" />
@@ -304,14 +306,10 @@ const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 };
 
-const EABestOfPageComponent = registerComponent(
+export default registerComponent(
   "EABestOfPage",
   EABestOfPage,
   {styles, stylePriority: 2},
 );
 
-declare global {
-  interface ComponentTypes {
-    EABestOfPage: typeof EABestOfPageComponent;
-  }
-}
+

@@ -1,4 +1,4 @@
-import TypingIndicators from "../../lib/collections/typingIndicators/collection";
+import TypingIndicators from "../../server/collections/typingIndicators/collection";
 import {randomId} from "../../lib/random";
 import AbstractRepo from "./AbstractRepo";
 

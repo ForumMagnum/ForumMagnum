@@ -1,10 +1,10 @@
 import React from 'react';
 import classNames from 'classnames';
-import IconButton from '@material-ui/core/IconButton';
+import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import { SoftUpArrowIcon } from '../icons/softUpArrowIcon';
 import { SoftUpArrowIconCap } from '../icons/softUpArrowIconCap';
 import { useVoteColors } from './useVoteColors';
-import { registerComponent } from '@/lib/vulcan-lib';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { BaseVoteArrowIconProps } from './VoteArrowIcon';
 
@@ -167,13 +167,9 @@ const VoteArrowIconSolid = ({
   );
 };
 
-const VoteArrowIconSolidComponent = registerComponent( 'VoteArrowIconSolid', VoteArrowIconSolid, {styles});
+export default registerComponent( 'VoteArrowIconSolid', VoteArrowIconSolid, {styles});
 
-export default VoteArrowIconSolidComponent;
 
-declare global {
-  interface ComponentTypes {
-    VoteArrowIconSolid: typeof VoteArrowIconSolidComponent;
-  }
-}
+
+
 

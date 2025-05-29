@@ -1,12 +1,16 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { registerComponent, Components } from "../../../lib/vulcan-lib";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import Checkbox from "@material-ui/core/Checkbox";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
+import { DialogContent } from '../../widgets/DialogContent';
+import { DialogTitle } from '../../widgets/DialogTitle';
+import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import classNames from "classnames";
-import Button from "@material-ui/core/Button";
+import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { CookieType, CookiesTable } from "../../../lib/cookies/utils";
 import { useCookiePreferences } from "../../hooks/useCookiesWithConsent";
+import { Typography } from "../Typography";
+import ForumIcon from "../ForumIcon";
+import CookieTable from "./CookieTable";
+import LWDialog from "../LWDialog";
 
 const styles = (theme: ThemeType) => ({
   dialog: {
@@ -97,7 +101,6 @@ const CookieCategory = ({
   className?: string;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { Typography, ForumIcon, CookieTable } = Components;
   const [open, setOpen] = useState(false);
 
   const checked = useMemo(() => allowedCookies.includes(cookieType), [allowedCookies, cookieType]);
@@ -164,8 +167,6 @@ const CookieCategory = ({
 };
 
 const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: ClassesType<typeof styles> }) => {
-  const { LWDialog, Typography } = Components;
-
   const { cookiePreferences, updateCookiePreferences } = useCookiePreferences();
   const [allowedCookies, setAllowedCookies] = useState<CookieType[]>(cookiePreferences);
 
@@ -178,9 +179,7 @@ const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: Cla
     <LWDialog
       open
       onClose={onClose}
-      dialogClasses={{
-        paper: classes.dialog,
-      }}
+      paperClassName={classes.dialog}
     >
       <DialogTitle className={classes.title}>Cookie Settings</DialogTitle>
       <DialogContent className={classes.content}>
@@ -229,12 +228,8 @@ const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: Cla
   );
 };
 
-const CookieDialogComponent = registerComponent("CookieDialog", CookieDialog, {
+export default registerComponent("CookieDialog", CookieDialog, {
   styles,
 });
 
-declare global {
-  interface ComponentTypes {
-    CookieDialog: typeof CookieDialogComponent;
-  }
-}
+

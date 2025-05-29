@@ -1,15 +1,14 @@
-import { emailBodyStyles } from "@/themes/stylePiping";
-import { createAdminContext, createMutator, Globals, runQuery } from "../vulcan-lib";
-import PetrovDayActions from "@/lib/collections/petrovDayActions/collection";
-import Users from "@/lib/vulcan-users";
-import Conversations from "@/lib/collections/conversations/collection";
-import { Posts } from "@/lib/collections/posts";
+import PetrovDayActions from "@/server/collections/petrovDayActions/collection";
+import Users from "@/server/collections/users/collection";
 import { filterWhereFieldsNotNull } from "@/lib/utils/typeGuardUtils";
-import { create } from "underscore";
+import { createAdminContext } from "../vulcan-lib/createContexts";
+import { runQuery } from "../vulcan-lib/query";
+import { createPetrovDayAction } from "../collections/petrovDayActions/mutations";
+import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
 
 const context = createAdminContext()
 
-const assignPetrov2024Roles = async () => {
+export const assignPetrov2024Roles = async () => {
   // eslint-disable-next-line no-console
   console.log("Assigning Petrov 2024 roles")
   
@@ -183,35 +182,34 @@ const assignPetrov2024Roles = async () => {
   
   const usersWithInfo = usersWithPasswords.map((user, i) => ({_id: user._id, username: user.username, displayName: user.displayName, password: characterInfo[i].password}))
     
-  const results = await Promise.all([...usersWithPasswords.flatMap((user, i) =>
-    [createMutator({
-      collection: PetrovDayActions,
-      document: {
-        userId: user._id,
-        actionType: "hasRole",
+  const results = await Promise.all([...usersWithPasswords.flatMap(async (user, i) => {
+    // Create a context with the specific user
+    const userContext = await computeContextFromUser({ user, isSSR: false });
+    
+    return [
+      createPetrovDayAction({
         data: {
-          role: characterInfo[i].role,
+          userId: user._id,
+          actionType: "hasRole",
+          data: {
+            role: characterInfo[i].role,
+          }
         }
-      },
-      currentUser: user,
-      validate: false,
-    }), 
-    createMutator({
-      collection: PetrovDayActions,
-      document: {
-        userId: user._id,
-        actionType: "hasSide",
+      }, userContext), 
+      createPetrovDayAction({
         data: {
-          side: characterInfo[i].side,
+          userId: user._id,
+          actionType: "hasSide",
+          data: {
+            side: characterInfo[i].side,
+          }
         }
-      },
-      currentUser: user,
-      validate: false,
-    })]
-  )])
+      }, userContext)
+    ];
+  })])
 
-  const currentAdmin = createAdminContext().currentUser
-
+  const adminContext = createAdminContext();
+  const currentAdmin = adminContext.currentUser;
 
   const citizenOptIns = await PetrovDayActions.find({actionType: "optIn"}).fetch()
   const citizenFiltered = filterWhereFieldsNotNull(citizenOptIns, 'userId')
@@ -235,83 +233,65 @@ const assignPetrov2024Roles = async () => {
   const offsetLength = firstHalfOfCitizens.length
   const secondHalfOfCitizens = remainingCitizens.slice(offsetLength)
 
-  await Promise.all(firstHalfOfCitizens.map((citizen, i) => createMutator({
-    collection: PetrovDayActions,
-    document: {
+  await Promise.all(firstHalfOfCitizens.map((citizen, i) => createPetrovDayAction({
+    data: {
       userId: citizen.userId,
       actionType: "hasSide",
       data: {
         side: "east",
       }
-    },
-    validate: false,
-    currentUser: currentAdmin,
-  })))
+    }
+  }, adminContext)))
 
-  await Promise.all(firstHalfOfCitizens.map((citizen, i) => createMutator({
-    collection: PetrovDayActions,
-    document: {
+  await Promise.all(firstHalfOfCitizens.map((citizen, i) => createPetrovDayAction({
+    data: {
       userId: citizen.userId,
       actionType: "hasRole",
       data: {
         role: "citizen",
       }
-    },
-    validate: false,
-    currentUser: currentAdmin,
-  })))
+    }
+  }, adminContext)))
   
-  await Promise.all(secondHalfOfCitizens.map((citizen, i) => createMutator({
-    collection: PetrovDayActions,
-    document: {
+  await Promise.all(secondHalfOfCitizens.map((citizen, i) => createPetrovDayAction({
+    data: {
       userId: citizen.userId,
       actionType: "hasSide",
       data: {
         side: "west",
       }
-    },
-    validate: false,
-    currentUser: currentAdmin,
-  })))
+    }
+  }, adminContext)))
 
-  await Promise.all(secondHalfOfCitizens.map((citizen, i) => createMutator({
-    collection: PetrovDayActions,
-    document: {
+  await Promise.all(secondHalfOfCitizens.map((citizen, i) => createPetrovDayAction({
+    data: {
       userId: citizen.userId,
       actionType: "hasRole",
       data: {
         role: "citizen",
       }
-    },
-    validate: false,
-    currentUser: currentAdmin,
-  })))
+    }
+  }, adminContext)))
 
-  await Promise.all(userIdsOfEastLeaders.map((userId, i) => createMutator({
-    collection: PetrovDayActions,
-    document: {
+  await Promise.all(userIdsOfEastLeaders.map((userId, i) => createPetrovDayAction({
+    data: {
       userId: userId,
       actionType: "hasSide",
       data: {
         side: "east",
       }
-    },
-    validate: false,
-    currentUser: currentAdmin,
-  })))
+    }
+  }, adminContext)))
 
-  await Promise.all(userIdsOfWestLeaders.map((userId, i) => createMutator({
-    collection: PetrovDayActions,
-    document: {
+  await Promise.all(userIdsOfWestLeaders.map((userId, i) => createPetrovDayAction({
+    data: {
       userId: userId,
       actionType: "hasSide",
       data: {
         side: "west",
       }
-    },
-    validate: false,
-    currentUser: currentAdmin,
-  })))
+    }
+  }, adminContext)))
 
   // const westGenerals = usersWithInfo.filter((user, i) => users[i].role === "westGeneral")
   // const eastGenerals = usersWithInfo.filter((user, i) => users[i].role === "eastGeneral")
@@ -319,9 +299,8 @@ const assignPetrov2024Roles = async () => {
 
   // const citizens = Users.
 
-  // await createMutator({
-  //   collection: Posts,
-  //   document: {
+  // await createPost({
+  //   data: {
   //     title: "West Generals Meeting",
   //     draft: true,
   //     collabEditorDialogue: true,
@@ -334,28 +313,24 @@ const assignPetrov2024Roles = async () => {
   //     createdAt: new Date(),
   //   },
   // })
-  // await createMutator({
-  //   collection: Posts,
-  //   document: {
+  // await createPost({
+  //   data: {
   //     title: "East Generals Meeting",
   //     coauthorStatuses: eastGenerals.map(user => ({userId: user._id, confirmed: true, requested: false})),
   //     createdAt: new Date(),
   //   },
   // })
-  // await createMutator({
-  //   collection: Posts,
-  //   document: {
+  // await createPost({
+  //   data: {
   //     title: "All Generals Meeting",
   //     coauthorStatuses: allGenerals.map(user => ({userId: user._id, confirmed: true, requested: false})),
   //     createdAt: new Date(),
   //   },
-  // })petrovSocialDeception
+  // })
 
   // eslint-disable-next-line no-console
   console.log(usersWithInfo)
   // eslint-disable-next-line no-console
   console.log("done")
 }
-
-Globals.assignPetrov2024Roles = assignPetrov2024Roles
 

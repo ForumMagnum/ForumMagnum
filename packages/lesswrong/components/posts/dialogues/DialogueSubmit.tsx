@@ -1,15 +1,18 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import Button from '@material-ui/core/Button';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../../common/withUser";
 import { isLW } from "../../../lib/instanceSettings";
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCreate } from '../../../lib/crud/withCreate';
-import { EditorContext } from '../PostsEditForm';
-import { useNavigate } from '../../../lib/reactRouterWrapper';
+import { EditorContext } from '../EditorContext';
+import { useNavigate } from '../../../lib/routeUtil';
+import type { TypedFormApi } from '../../tanstack-form-components/BaseAppForm';
+import type { EditablePost } from '@/lib/collections/posts/helpers';
+import { defineStyles, useStyles } from '../../hooks/useStyles';
+import Row from "../../common/Row";
 
-export const styles = (theme: ThemeType) => ({
+export const styles = defineStyles('DialogueSubmit', (theme: ThemeType) => ({
   formButton: {
     fontFamily: theme.typography.commentStyle.fontFamily,
     fontSize: isFriendlyUI ? 14 : 16,
@@ -42,24 +45,22 @@ export const styles = (theme: ThemeType) => ({
       color: theme.palette.secondary.main
     })
   },
-});
+}));
 
-export type DialogueSubmitProps = FormButtonProps & {
-  saveDraftLabel?: string,
-  feedbackLabel?: string,
-  document: PostsPage,
-  classes: ClassesType<typeof styles>,
-}
+export type DialogueSubmitProps = {
+  formApi: TypedFormApi<EditablePost, {}>;
+  disabled: boolean;
+  submitLabel?: string;
+  saveDraftLabel?: string;
+};
 
-const DialogueSubmit = ({
-  updateCurrentValues,
-  submitForm,
+export const DialogueSubmit = ({
+  formApi,
+  disabled,
   submitLabel = "Submit",
   saveDraftLabel = "Save as draft",
-  document,
-  collectionName,
-  classes,
 }: DialogueSubmitProps) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   if (!currentUser) throw Error("must be logged in to post")
 
@@ -72,27 +73,27 @@ const DialogueSubmit = ({
 
   const navigate = useNavigate();
 
+  const document = formApi.state.values;
+
   const submitWithConfirmation = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (confirm('Warning!  This will publish your dialogue and make it visible to other users.')) {
-      collectionName === "Posts" && await updateCurrentValues({draft: false});
-      await submitForm();
+      formApi.setFieldValue('draft', false);
+      await formApi.handleSubmit();
     }
   };
 
-  const submitWithoutConfirmation = () => collectionName === "Posts" && updateCurrentValues({draft: false});
+  const submitWithoutConfirmation = () => formApi.setFieldValue('draft', false);
 
-  const requireConfirmation = isLW && collectionName === 'Posts' && !!document.debate;
+  const requireConfirmation = isLW && !!document.debate;
   const showShortformButton = !!userShortformId && !isFriendlyUI;
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
-
-  const {Row} = Components;
   return (
     <Row justifyContent="flex-end">
       <Button type="submit"
         className={classNames(classes.formButton, classes.secondaryButton)}
-        onClick={() => updateCurrentValues({draft: true})}
+        onClick={() => formApi.setFieldValue('draft', true)}
       >
         {saveDraftLabel}
       </Button>
@@ -105,8 +106,7 @@ const DialogueSubmit = ({
           // So getData() does exist on the Editor. But the typings don't agree. For now, #AnyBecauseHard
           // @ts-ignore
           const shortformString = editor && editor.getData()
-          // Casting because the current type we have for new comment creation doesn't quite line up with our actual GraphQL API
-          const shortformContents = {originalContents: {type: "ckEditorMarkup", data: shortformString}} as DbComment['contents']
+          const shortformContents = {originalContents: {type: "ckEditorMarkup", data: shortformString}}
 
           const response = await createShortform({
             data: {
@@ -124,6 +124,7 @@ const DialogueSubmit = ({
       <Button
         type="submit"
         onClick={onSubmitClick}
+        disabled={disabled}
         className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
         {...(isFriendlyUI ? {
           variant: "contained",
@@ -136,10 +137,3 @@ const DialogueSubmit = ({
   );
 }
 
-const DialogueSubmitComponent = registerComponent('DialogueSubmit', DialogueSubmit, {styles});
-
-declare global {
-  interface ComponentTypes {
-    DialogueSubmit: typeof DialogueSubmitComponent
-  }
-}

@@ -1,11 +1,12 @@
-import { Components, registerComponent, getCollection } from '../../lib/vulcan-lib';
 import { LoadMoreCallback, useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import { getSchema } from '../../lib/utils/getSchema';
 import { getFieldValue } from './Card';
 import _sortBy from 'lodash/sortBy';
 import { formatLabel, formatMessage } from '../../lib/vulcan-i18n/provider';
 import { useCurrentUser } from '../common/withUser';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import Loading from "./Loading";
+import LoadMore from "../common/LoadMore";
 
 type ColumnComponent = React.ComponentType<{column: any}>
 
@@ -33,7 +34,6 @@ export const Datatable = <
   limit?: number,
   terms: ViewTermsByCollectionName[CollectionName]
 }) => {
-  const collection = getCollection(collectionName);
   const { results, loading, loadingMore, loadMore, count, totalCount } = useMulti({
     collectionName,
     fragmentName,
@@ -41,10 +41,10 @@ export const Datatable = <
     limit,
     enableTotal: true,
   });
-  return <DatatableLayout collectionName={collection.options.collectionName}>
+  return <DatatableLayout collectionName={collectionName}>
     <DatatableContents
       columns={columns}
-      collection={collection}
+      collectionName={collectionName}
       results={results}
       loading={loading}
       loadingMore={loadingMore}
@@ -64,25 +64,22 @@ const DatatableLayout = ({ collectionName, children }: {
   </div>
 );
 
-const DatatableHeader = ({ collection, column }: {
-  collection: CollectionBase<any>
+const DatatableHeader = ({ collectionName, column }: {
+  collectionName: CollectionNameString;
   column: Column;
 }) => {
   const columnName = getColumnName(column);
   
-  if (collection) {
-    const schema = getSchema(collection);
-
+  if (collectionName) {
     /*
 
     use either:
 
     1. the column name translation : collectionName.columnName, global.columnName, columnName
-    2. the column name label in the schema (if the column name matches a schema field)
-    3. the raw column name.
+    2. the raw column name.
 
     */
-    const formattedLabel = formatLabel({fieldName: columnName, collectionName: collection.collectionName, schema: schema});
+    const formattedLabel = formatLabel({fieldName: columnName, collectionName});
 
     return <DatatableHeaderCellLayout>{formattedLabel}</DatatableHeaderCellLayout>;
   } else {
@@ -106,20 +103,18 @@ const DatatableHeaderCellLayout = ({ children, ...otherProps }: {
 const DatatableContents = (props: {
   columns: Column[];
   title?: string;
-  collection: CollectionBase<any>;
+  collectionName: CollectionNameString;
   results?: any[];
   loading?: boolean;
   loadMore: LoadMoreCallback;
   count?: number;
   totalCount: number;
   loadingMore: boolean;
-  emptyState?: JSX.Element;
+  emptyState?: React.JSX.Element;
 }) => {
-  const { title, collection, results, columns, loading, loadingMore, loadMore, count, totalCount, emptyState } = props;
-  const { LoadMore } = Components;
-
+  const { title, collectionName, results, columns, loading, loadingMore, loadMore, count, totalCount, emptyState } = props;
   if (loading) {
-    return <div className="datatable-list datatable-list-loading"><Components.Loading /></div>;
+    return <div className="datatable-list datatable-list-loading"><Loading /></div>;
   } else if (!results || !results.length) {
     return emptyState || null;
   }
@@ -132,17 +127,17 @@ const DatatableContents = (props: {
       <DatatableContentsInnerLayout>
         <DatatableContentsHeadLayout>
           {sortedColumns.map((column, index) =>
-            <DatatableHeader key={index} collection={collection} column={column} />)
+            <DatatableHeader key={index} collectionName={collectionName} column={column} />)
           }
         </DatatableContentsHeadLayout>
         <DatatableContentsBodyLayout>
-          {results.map((document: any, index: number) => <DatatableRow {...props} collection={collection} columns={columns} document={document} key={index} />)}
+          {results.map((document: any, index: number) => <DatatableRow {...props} columns={columns} document={document} key={index} />)}
         </DatatableContentsBodyLayout>
       </DatatableContentsInnerLayout>
       {hasMore &&
         <DatatableContentsMoreLayout>
           {loadingMore
-            ? <Components.Loading />
+            ? <Loading />
             : <LoadMore count={count} totalCount={totalCount} loadMore={loadMore} />
           }
         </DatatableContentsMoreLayout>
@@ -197,7 +192,6 @@ const DatatableTitle = ({ title }: {
 interface DatatableRowProps {
   columns: Column[];
   document: any;
-  collection: CollectionBase<any>;
 }
 
 const DatatableRow = (props: DatatableRowProps) => {
@@ -261,10 +255,6 @@ const DatatableDefaultCell = ({ column, document }: {
 }
 
 
-const DatatableComponent = registerComponent('Datatable', Datatable);
+export default registerComponent('Datatable', Datatable);
 
-declare global {
-  interface ComponentTypes {
-    Datatable: typeof DatatableComponent,
-  }
-}
+

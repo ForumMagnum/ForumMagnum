@@ -1,4 +1,4 @@
-import { ClientIds } from "../../lib/collections/clientIds/collection";
+import { ClientIds } from "../../server/collections/clientIds/collection";
 import { updateIndexes } from "./meta/utils";
 
 /**

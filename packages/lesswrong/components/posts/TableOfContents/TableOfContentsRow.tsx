@@ -1,15 +1,17 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { fullHeightToCEnabled } from '../../../lib/betas';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import TableOfContentsDivider from "./TableOfContentsDivider";
 
 const sectionOffsetStyling = (fullHeightToCEnabled ? {
   display: 'flex',
   flexDirection: 'column-reverse',
 } : {});
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
   root: {
     position: "relative",
     ...theme.typography.body2,
@@ -105,27 +107,17 @@ const styles = (theme: ThemeType) => ({
     flexDirection: 'column-reverse',
     transition: 'opacity 0.4s ease-in-out, height 0.4s ease-in-out, max-height 0.4s ease-in-out, margin-top 0.4s ease-in-out',
   }
-});
-
-const levelToClassName = (level: number, classes: ClassesType<typeof styles>) => {
-  switch(level) {
-    case 0: return classes.level0;
-    case 1: return classes.level1;
-    case 2: return classes.level2;
-    case 3: return classes.level3;
-    default: return classes.level4;
-  }
-}
+}));
+export type TableOfContentsRowStyles = typeof styles;
 
 const TableOfContentsRow = ({
-  indentLevel=0, highlighted=false, href, onClick, children, classes, title, divider, answer, dense, scale, fullHeight, commentToC
+  indentLevel=0, highlighted=false, href, onClick, children, title, divider, answer, dense, scale, fullHeight, commentToC
 }: {
   indentLevel?: number,
   highlighted?: boolean,
   href: string,
   onClick?: (ev: any) => void,
   children?: React.ReactNode,
-  classes: ClassesType<typeof styles>,
   title?: boolean,
   divider?: boolean,
   answer?: boolean,
@@ -135,18 +127,29 @@ const TableOfContentsRow = ({
   fullHeight?: boolean,
   commentToC?: boolean
 }) => {
+  const classes = useStyles(styles);
   const fullHeightTitle = !!(title && fullHeight);
 
   const scaleStyling = scale !== undefined ? { flex: scale } : undefined;
 
   if (divider) {
-    return <Components.TableOfContentsDivider scaleStyling={scaleStyling} />
+    return <TableOfContentsDivider scaleStyling={scaleStyling} />
   }
   
+  const levelToClassName = (level: number) => {
+    switch(level) {
+      case 0: return classes.level0;
+      case 1: return classes.level1;
+      case 2: return classes.level2;
+      case 3: return classes.level3;
+      default: return classes.level4;
+    }
+  }
+
   return <div
     className={classNames(
       classes.root,
-      levelToClassName(indentLevel, classes),
+      levelToClassName(indentLevel),
       { [classes.titleContainer]: fullHeightTitle },
       { [classes.highlighted]: highlighted },
     )}
@@ -162,10 +165,6 @@ const TableOfContentsRow = ({
   </div>
 }
 
-const TableOfContentsRowComponent = registerComponent("TableOfContentsRow", TableOfContentsRow, {styles});
+export default registerComponent("TableOfContentsRow", TableOfContentsRow);
 
-declare global {
-  interface ComponentTypes {
-    TableOfContentsRow: typeof TableOfContentsRowComponent
-  }
-}
+

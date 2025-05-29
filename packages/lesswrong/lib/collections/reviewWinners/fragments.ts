@@ -1,17 +1,16 @@
-import { registerFragment } from '../../vulcan-lib';
+import { frag } from "@/lib/fragments/fragmentWrapper"
 
-registerFragment(`
+export const ReviewWinnerEditDisplay = () => frag`
   fragment ReviewWinnerEditDisplay on ReviewWinner {
     _id
     postId
     reviewYear
     curatedOrder
     reviewRanking
-    isAI
   }
-`);
+`
 
-registerFragment(`
+export const ReviewWinnerTopPostsDisplay = () => frag`
   fragment ReviewWinnerTopPostsDisplay on ReviewWinner {
     _id
     postId
@@ -21,11 +20,10 @@ registerFragment(`
     reviewYear
     curatedOrder
     reviewRanking
-    isAI
   }
-`);
+`
 
-registerFragment(`
+export const ReviewWinnerAll = () => frag`
   fragment ReviewWinnerAll on ReviewWinner {
     _id
     category
@@ -36,12 +34,11 @@ registerFragment(`
     reviewWinnerArt {
       ...ReviewWinnerArtImages
     }
-    isAI
     competitorCount
   }
-`);
+`
 
-registerFragment(`
+export const ReviewWinnerTopPostsPage = () => frag`
   fragment ReviewWinnerTopPostsPage on ReviewWinner {
     _id
     category
@@ -51,8 +48,25 @@ registerFragment(`
     reviewWinnerArt {
       splashArtImageUrl
       activeSplashArtCoordinates {
-        ...SplashArtCoordinates
+        ...SplashArtCoordinatesEdit
       }
     }
   }
-`);
+`
+
+export const ReviewWinnerAnnouncement = () => frag`
+  fragment ReviewWinnerAnnouncement on ReviewWinner {
+    _id
+    category
+    curatedOrder
+    reviewYear
+    reviewRanking
+    competitorCount
+    postId
+    post {
+      _id
+      title
+      slug
+    }
+  }
+`

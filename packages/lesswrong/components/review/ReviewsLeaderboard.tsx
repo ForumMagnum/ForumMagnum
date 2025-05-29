@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
-import Card from '@material-ui/core/Card';
+import { Card } from "@/components/widgets/Paper";
 import { ReviewYear } from '../../lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import Row from "../common/Row";
+import MetaInfo from "../common/MetaInfo";
+import LWTooltip from "../common/LWTooltip";
+import CommentsNodeInner from "../comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -58,8 +63,6 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
 }) => {
   const currentUser = useCurrentUser()
   const [truncated, setTruncated] = useState<boolean>(true)
-  const { UsersNameDisplay, Row, MetaInfo, LWTooltip, CommentsNode } = Components
-
   // TODO find the place in the code where this is normally set
   const getSelfUpvotePower = (user: UsersMinimumInfo|null) => {
     if (user?.karma && user?.karma >= 1000) {
@@ -77,8 +80,8 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
     }
     return ({
       user: user,
-      totalKarma: userTuple[1].reduce((value, review) => value + review.baseScore - getSelfUpvotePower(user), 0),
-      reviews: sortBy(userTuple[1], obj => -obj.baseScore)
+      totalKarma: userTuple[1].reduce((value, review) => value + (review.baseScore ?? 0) - getSelfUpvotePower(user), 0),
+      reviews: sortBy(userTuple[1], obj => -(obj.baseScore ?? 0))
     })}).filter((userRow): userRow is ReviewLeaderboardRow => userRow !== null)
 
   const NUM_DEFAULT_REVIEWS = 10
@@ -86,7 +89,7 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
   const sortedUserRows = sortBy(userRowsMapping, obj => -obj.totalKarma)
   const truncatedRows = truncated ? sortedUserRows.slice(0,NUM_DEFAULT_REVIEWS) : sortedUserRows
 
-  const totalKarma = reviews?.reduce((v, r) => v + r.baseScore, 0)
+  const totalKarma = reviews?.reduce((v, r) => v + (r.baseScore ?? 0), 0)
 
   // TODO: move this to a separate component (it's slightly annoying to factor it out which is why we haven't done it yet)
   const reviewLeaderboardRow = (reviewUser: ReviewLeaderboardRow) => {
@@ -105,9 +108,9 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
         </div>
         <div className={classes.reviews}>{reviewUser.reviews.map(review => {
           return <LWTooltip placement="bottom-start" title={<div className={classes.card}>
-            <CommentsNode treeOptions={{showPostTitle: true}} comment={review}/></div>} tooltip={false} key={review._id}>
+            <CommentsNodeInner treeOptions={{showPostTitle: true}} comment={review}/></div>} tooltip={false} key={review._id}>
             <a href={`/reviews/${reviewYear ?? "all"}#${review._id}`} onClick={() => setTruncated(true)}>
-              <MetaInfo>{review.baseScore - getSelfUpvotePower(review.user)}</MetaInfo>
+              <MetaInfo>{(review.baseScore ?? 0) - getSelfUpvotePower(review.user)}</MetaInfo>
             </a>
           </LWTooltip>
           })}</div>
@@ -134,11 +137,7 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
   </div>
 }
 
-const ReviewsLeaderboardComponent = registerComponent('ReviewsLeaderboard', ReviewsLeaderboard, {styles});
+export default registerComponent('ReviewsLeaderboard', ReviewsLeaderboard, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewsLeaderboard: typeof ReviewsLeaderboardComponent
-  }
-}
+
 

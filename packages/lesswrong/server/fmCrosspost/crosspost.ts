@@ -1,15 +1,16 @@
 import pick from 'lodash/pick'
-import Users from "../../lib/collections/users/collection";
+import Users from "../../server/collections/users/collection";
 import { randomId } from "../../lib/random";
 import { loggerConstructor } from "../../lib/utils/logging";
 import { denormalizedFieldKeys, extractDenormalizedData } from "./denormalizedFields";
 import { makeCrossSiteRequest } from "./resolvers";
 import type { UpdateCallbackProperties } from "../mutationCallbacks";
-import type { Crosspost, DenormalizedCrosspostData } from "./types";
+import { requiredDenormalizedFields, type Crosspost, type DenormalizedCrosspostData } from "./types";
 import {
   createCrosspostToken,
   updateCrosspostToken,
 } from "@/server/crossposting/tokens";
+import schema from "@/lib/collections/posts/newSchema";
 // import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
 // import { fetchFragmentSingle } from '../fetchFragment';
 // import {
@@ -19,7 +20,7 @@ import {
 // import { makeV2CrossSiteRequest } from "@/server/crossposting/crossSiteRequest";
 
 const assertPostIsCrosspostable = (
-  post: DbPost,
+  post: CreatePostDataInput | UpdatePostDataInput | Partial<DbPost>,
   logger: ReturnType<typeof loggerConstructor>,
 ) => {
   if (post.isEvent) {
@@ -32,7 +33,7 @@ const assertPostIsCrosspostable = (
   }
 }
 
-export async function performCrosspost(post: DbPost): Promise<DbPost> {
+export async function performCrosspost<T extends Pick<CreatePostDataInput | UpdatePostDataInput, 'fmCrosspost' | 'userId' | 'draft' | 'title' | 'isEvent' | 'question'>>(post: T): Promise<T> {
   const logger = loggerConstructor('callbacks-posts')
   logger('performCrosspost()')
   logger('post info:', pick(post, ['title', 'fmCrosspost']))
@@ -57,20 +58,29 @@ export async function performCrosspost(post: DbPost): Promise<DbPost> {
   }
 
   // If we're creating a new post without making a draft first then we won't have an ID yet
-  if (!post._id) {
+  if (!('_id' in post)) {
     logger('we must be creating a new post, assigning a random ID')
-    post._id = randomId();
+    Object.assign(post, {_id: randomId()});
   }
 
   // Grab the normalized contents from the revision
   // TODO: Enable to this when V2 is deployed to both sites
   // const revision = await getLatestContentsRevision(post);
 
+  const postWithDefaultValues: T & DenormalizedCrosspostData = {
+    ...post,
+    draft: post.draft ?? schema.draft.database.defaultValue,
+    deletedDraft: (post as UpdatePostDataInput).deletedDraft ?? schema.deletedDraft.database.defaultValue,
+    title: post.title ?? '',
+    isEvent: post.isEvent ?? schema.isEvent.database.defaultValue,
+    question: post.question ?? schema.question.database.defaultValue,
+  };
+
   const token = await createCrosspostToken.create({
     localUserId: post.userId,
     foreignUserId: user.fmCrosspostUserId,
-    postId: post._id,
-    ...extractDenormalizedData(post),
+    postId: (post as unknown as DbPost)._id,
+    ...extractDenormalizedData(postWithDefaultValues),
     // TODO: Enable to this when V2 is deployed to both sites
     // originalContents: revision?.originalContents,
   });
@@ -138,9 +148,9 @@ const removeCrosspost = async <T extends Crosspost>(post: T) => {
 }
 
 export async function handleCrosspostUpdate(
-  data: Partial<DbPost>,
+  data: UpdatePostDataInput,
   {oldDocument, newDocument, currentUser}: UpdateCallbackProperties<"Posts">
-): Promise<Partial<DbPost>> {
+): Promise<UpdatePostDataInput> {
   const logger = loggerConstructor('callbacks-posts')
   logger('handleCrosspostUpdate()')
   const {userId, fmCrosspost} = newDocument;
@@ -185,7 +195,7 @@ export async function handleCrosspostUpdate(
     if (newDocument.draft && !oldDocument.draft) {
       logger('hack: post is now a draft, unlinking crosspost')
       return {
-        ...newDocument,
+        ...data,
         fmCrosspost: {
           ...fmCrosspost,
           foreignPostId: null,
@@ -195,5 +205,9 @@ export async function handleCrosspostUpdate(
     return data;
   }
 
-  return performCrosspost({ ...newDocument, ...data });
+  const crosspostedPost = await performCrosspost({ ...newDocument, ...data });
+  return {
+    ...data,
+    fmCrosspost: crosspostedPost.fmCrosspost,
+  };
 }

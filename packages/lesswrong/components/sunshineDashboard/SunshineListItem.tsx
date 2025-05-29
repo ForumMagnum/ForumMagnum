@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -35,11 +35,7 @@ const SunshineListItem = ({children, classes, hover=false}: {
   </div>
 };
 
-const SunshineListItemComponent = registerComponent('SunshineListItem', SunshineListItem, {styles});
+export default registerComponent('SunshineListItem', SunshineListItem, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SunshineListItem: typeof SunshineListItemComponent
-  }
-}
+
 

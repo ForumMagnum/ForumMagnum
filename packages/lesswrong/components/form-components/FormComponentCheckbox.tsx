@@ -1,54 +1,70 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import Checkbox from '@material-ui/core/Checkbox';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import classNames from 'classnames';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import FormControlLabel from '@/lib/vendor/@material-ui/core/src/FormControlLabel';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { Typography } from "../common/Typography";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FormComponentCheckbox', (theme: ThemeType) => ({
   root: {
-    marginRight:theme.spacing.unit*3,
+    marginRight: theme.spacing.unit * 3,
+    marginLeft: 0,
     marginTop: 5,
     display: "flex",
     alignItems: "center"
   },
   size: {
-    width:36,
-    height:0
+    width: 36,
+    height: 0,
   },
   inline: {
     display: "inline",
     cursor: "pointer",
-  }
-})
+  },
+}));
 
-const FormComponentCheckbox = ({ classes, label, disabled=false, path, value }: FormComponentProps<boolean> & {
-  classes: ClassesType<typeof styles>;
-}, context: FormComponentContext<boolean>) => {
-  return <div className={classes.root}>
-    <Checkbox
-      className={classes.size}
-      checked={value}
-      onChange={(event, checked) => {
-        void context.updateCurrentValues({
-          [path]: checked
-        })
-      }}
-      disabled={disabled}
-      disableRipple
+export interface FormComponentCheckboxProps {
+  field: TypedFieldApi<boolean> | TypedFieldApi<boolean | null>;
+  label?: string;
+  disabled?: boolean;
+  className?: string;
+}
+
+const FormComponentCheckbox = ({
+  field,
+  label,
+  disabled = false,
+  className,
+}: FormComponentCheckboxProps) => {
+  const classes = useStyles(styles);
+
+  // For some reason the `htmlFor` attribute doesn't seem to make the label clickable,
+  // so I've gone ahead and wrapped the checkbox in a FormControlLabel.
+  const id = `checkbox-${field.name}`;
+
+  const checkbox = <Checkbox
+    id={id}
+    className={classes.size}
+    checked={!!field.state.value}
+    onChange={(_, checked) => field.handleChange(checked)}
+    onBlur={field.handleBlur}
+    disabled={disabled}
+    disableRipple
+  />;
+
+  const displayedLabel = label && <Typography htmlFor={id} className={classes.inline} variant="body2" component="label">{label}</Typography>;
+
+  return (
+    <FormControlLabel
+      className={classNames(classes.root, className)}
+      control={checkbox}
+      label={displayedLabel}
     />
-    <Components.Typography className={classes.inline} variant="body2" component="label">{label}</Components.Typography>
-  </div>
+  );
 }
 
-(FormComponentCheckbox as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-};
+export default registerComponent('FormComponentCheckbox', FormComponentCheckbox);
 
-// Replaces FormComponentCheckbox from vulcan-ui-bootstrap
-const FormComponentCheckboxComponent = registerComponent("FormComponentCheckbox", FormComponentCheckbox, {styles});
-
-declare global {
-  interface ComponentTypes {
-    FormComponentCheckbox: typeof FormComponentCheckboxComponent
-  }
-}
 

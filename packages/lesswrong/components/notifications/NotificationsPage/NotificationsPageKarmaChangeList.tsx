@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import type { KarmaChangesSimple } from "../../../lib/collections/users/karmaChangesGraphQL";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
+import NotificationsPageKarmaChange from "./NotificationsPageKarmaChange";
 
 const styles = (theme: ThemeType) => ({
   showMoreBtn: {
@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 export const NotificationsPageKarmaChangeList = ({karmaChanges, truncateAt, classes}: {
-  karmaChanges?: KarmaChangesSimple,
+  karmaChanges?: Pick<KarmaChanges, "posts" | "comments" | "tagRevisions">,
   truncateAt?: number,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -27,23 +27,45 @@ export const NotificationsPageKarmaChangeList = ({karmaChanges, truncateAt, clas
       (karmaChanges?.posts.length ?? 0) + (karmaChanges?.comments.length ?? 0) + (karmaChanges?.tagRevisions.length ?? 0) > truncateAt
     )
   )
-  
-  const {NotificationsPageKarmaChange} = Components;
-  
   let posts = karmaChanges?.posts
   let comments = karmaChanges?.comments
   let tagRevisions = karmaChanges?.tagRevisions
   
   // If we're truncating the list, attempt to only show the first n items.
-  // This doesn't quite work because some items can have more than one
-  // notification attached to them (like an upvote and an agree react).
   if (isTruncated && truncateAt !== undefined) {
-    let itemCount = truncateAt
-    posts = posts?.slice(0, itemCount)
-    itemCount -= posts?.length ?? 0
-    comments = comments?.slice(0, itemCount)
-    itemCount -= comments?.length ?? 0
-    tagRevisions = tagRevisions?.slice(0, itemCount)
+    let remainingItemCount = truncateAt
+    posts = posts?.slice(0, remainingItemCount)
+    // Count how many notifications the posts will show
+    const postNotificationCount = posts?.reduce((acc, post) => {
+      return acc + (post.scoreChange === 0 ? 0 : 1) + (Object.keys(post.eaAddedReacts ?? {}).length ?? 0)
+    }, 0) ?? 0
+    // If we have n items, hide the rest
+    if (posts && postNotificationCount >= remainingItemCount) {
+      // If this is more than we want to show, remove the last post
+      if (postNotificationCount > remainingItemCount) {
+        posts.pop()
+      }
+      comments = []
+      tagRevisions = []
+    } else {
+      remainingItemCount -= postNotificationCount
+      comments = comments?.slice(0, remainingItemCount)
+      // Count how many notifications the comments will show
+      const commentNotificationCount = comments?.reduce((acc, comment) => {
+        return acc + (comment.scoreChange === 0 ? 0 : 1) + (Object.keys(comment.eaAddedReacts ?? {}).length ?? 0)
+      }, 0) ?? 0
+      // If we have n items, hide the rest
+      if (comments && commentNotificationCount >= remainingItemCount) {
+        // If this is more than we want to show, remove the last comment
+        if (commentNotificationCount > remainingItemCount) {
+          comments.pop()
+        }
+        tagRevisions = []
+      } else {
+        remainingItemCount -= commentNotificationCount
+        tagRevisions = tagRevisions?.slice(0, remainingItemCount)
+      }
+    }
   }
 
   return (
@@ -75,14 +97,10 @@ export const NotificationsPageKarmaChangeList = ({karmaChanges, truncateAt, clas
   );
 }
 
-const NotificationsPageKarmaChangeListComponent = registerComponent(
+export default registerComponent(
   "NotificationsPageKarmaChangeList",
   NotificationsPageKarmaChangeList,
   {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    NotificationsPageKarmaChangeList: typeof NotificationsPageKarmaChangeListComponent
-  }
-}
+

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { tagStyle } from './FooterTag';
 import sortBy from 'lodash/sortBy';
 import classNames from 'classnames';
 import filter from 'lodash/filter';
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -40,7 +41,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-type TagWithCount = TagPreviewFragment & {count: number}
+type TagWithCount = TagBasicInfo & {count: number}
 
 // This is designed to be used with list of posts, to show a list of all the tags currently
 // included among that list of posts, and allow users to filter the post list to only show 
@@ -64,9 +65,6 @@ export const PostsTagsList = (
     defaultMax?: number // default number of tags to show
     afterChildren?: React.ReactNode,
   }) => {
-  const { LWTooltip } = Components
-
-
   const allTags = posts?.flatMap(post => post.tags) ?? []
   const uniqueTags = [...new Set(allTags)]
   const tagsWithCount: TagWithCount[] = uniqueTags.map(tag => ({
@@ -99,11 +97,7 @@ export const PostsTagsList = (
   </div>;
 }
 
-const PostsTagsListComponent = registerComponent('PostsTagsList', PostsTagsList, {styles});
+export default registerComponent('PostsTagsList', PostsTagsList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsTagsList: typeof PostsTagsListComponent
-  }
-}
+
 

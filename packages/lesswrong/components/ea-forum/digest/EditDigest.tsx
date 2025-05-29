@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Components, fragmentTextForQuery, registerComponent } from '../../../lib/vulcan-lib';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { gql, useQuery } from '@apollo/client';
 import { SettingsOption } from '../../../lib/collections/posts/dropdownOptions';
-import FilterIcon from '@material-ui/icons/FilterList';
+import FilterIcon from '@/lib/vendor/@material-ui/icons/src/FilterList';
 import { useMessages } from '../../common/withMessages';
 import { useCreate } from '../../../lib/crud/withCreate';
 import { useUpdate } from '../../../lib/crud/withUpdate';
@@ -12,6 +11,17 @@ import { DIGEST_STATUS_OPTIONS, InDigestStatusOption, StatusField, getEmailDiges
 import { useCurrentUser } from '../../common/withUser';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
+import { registerComponent } from "../../../lib/vulcan-lib/components";
+import { fragmentTextForQuery } from "../../../lib/vulcan-lib/fragments";
+import Loading from "../../vulcan-core/Loading";
+import EditDigestHeader from "./EditDigestHeader";
+import ForumDropdown from "../../common/ForumDropdown";
+import ForumDropdownMultiselect from "../../common/ForumDropdownMultiselect";
+import ForumIcon from "../../common/ForumIcon";
+import LWTooltip from "../../common/LWTooltip";
+import EditDigestActionButtons from "./EditDigestActionButtons";
+import EditDigestTableRow from "./EditDigestTableRow";
+import Error404 from "../../common/Error404";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -135,7 +145,7 @@ const styles = (theme: ThemeType) => ({
 
 type DigestPlannerPostData = {
   post: PostsListWithVotes,
-  digestPost: DigestPost
+  digestPost: DigestPost | null
   rating: number
 }
 export type PostWithRating = PostsListWithVotes & {rating: number}
@@ -197,7 +207,7 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
   // save the list of all eligible posts, along with their ratings
   const [posts, setPosts] = useState<Array<PostWithRating>>()
   // track the digest status of each post (i.e. whether or not it's in the email and on-site digests)
-  const [postStatuses, setPostStatuses] = useState<Record<string, DigestPost>>({})
+  const [postStatuses, setPostStatuses] = useState<Record<string, Partial<DigestPost>>>({})
   // disable all status icons while processing the previous click
   const [statusIconsDisabled, setStatusIconsDisabled] = useState<boolean>(false)
   // by default, the current user's votes are hidden, but they can click the column header to reveal them
@@ -209,13 +219,13 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
     if (!eligiblePosts) return
     
     const newPosts: Array<PostWithRating> = []
-    const newPostStatuses: Record<string,DigestPost> = {}
+    const newPostStatuses: Record<string, Partial<DigestPost>> = {}
     eligiblePosts.forEach(postData => {
       newPosts.push({...postData.post, rating: postData.rating})
       newPostStatuses[postData.post._id] = {
-        _id: postData.digestPost._id,
-        emailDigestStatus: postData.digestPost.emailDigestStatus ?? 'pending',
-        onsiteDigestStatus: postData.digestPost.onsiteDigestStatus ?? 'pending'
+        _id: postData.digestPost?._id,
+        emailDigestStatus: postData.digestPost?.emailDigestStatus ?? 'pending',
+        onsiteDigestStatus: postData.digestPost?.onsiteDigestStatus ?? 'pending'
       }
     })
     // sort the list by curated, then suggested for curation, then rating, then karma
@@ -256,7 +266,8 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
     }
     setEmailDigestFilter(newFilter)
   }
-  
+
+  /*
   const handleUpdateOnsiteDigestFilter = (val: InDigestStatusOption) => {
     let newFilter = [...onsiteDigestFilter]
     if (newFilter.includes(val)) {
@@ -266,7 +277,8 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
     }
     setOnsiteDigestFilter(newFilter)
   }
-  
+  */
+
   const resetFilters = () => {
     setEmailDigestFilter([...DIGEST_STATUS_OPTIONS])
     setOnsiteDigestFilter([...DIGEST_STATUS_OPTIONS])
@@ -302,6 +314,8 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
       case 'pending':
         newStatus = 'yes'
         break
+      default:
+        break;
     }
     newPostStatuses[postId][statusField] = newStatus
     
@@ -338,7 +352,7 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const copyDigestToClipboard = async () => {
     if (!posts) return
     
-    const digestPosts = posts.filter(p => ['yes','maybe'].includes(postStatuses[p._id].emailDigestStatus))
+    const digestPosts = posts.filter(p => ['yes','maybe'].includes(postStatuses[p._id].emailDigestStatus ?? ""))
     // sort the "yes" posts to be listed before the "maybe" posts
     digestPosts.sort((a, b) => {
       const aYes = postStatuses[a._id].emailDigestStatus === 'yes'
@@ -354,11 +368,6 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
     )
     flash({messageString: "Email digest post list copied"})
   }
-
-
-  const { Loading, EditDigestHeader, ForumDropdown, ForumDropdownMultiselect, ForumIcon, LWTooltip,
-    EditDigestActionButtons, EditDigestTableRow, Error404 } = Components
-  
   // list of the most common tags in the overall posts list
   const tagCounts = useMemo(() => {
     return posts?.reduce((tagsList: TagUsage[], post) => {
@@ -390,8 +399,11 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
     // filter by selected digest statuses (i.e. whether or not the post is in the email or on-site digest)
     let visiblePosts = posts.filter(post => {
-      return emailDigestFilter.includes(postStatuses[post._id].emailDigestStatus) &&
-        onsiteDigestFilter.includes(postStatuses[post._id].onsiteDigestStatus)
+      const {emailDigestStatus, onsiteDigestStatus} = postStatuses[post._id];
+      return emailDigestStatus &&
+        onsiteDigestStatus &&
+        emailDigestFilter.includes(emailDigestStatus) &&
+        onsiteDigestFilter.includes(onsiteDigestStatus)
     })
     // then filter by the selected tag
     if (tagFilter) {
@@ -406,7 +418,8 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
     if (!posts) return null
     // build a set of all eligible posts filtered by tag and on-site digest status
     let postSet = posts.filter(post => {
-      return onsiteDigestFilter.includes(postStatuses[post._id].onsiteDigestStatus)
+      const {onsiteDigestStatus} = postStatuses[post._id];
+      return onsiteDigestStatus && onsiteDigestFilter.includes(onsiteDigestStatus)
     })
     if (tagFilter) {
       postSet = postSet.filter(post => post.tags.find(tag => tag._id === tagFilter))
@@ -418,7 +431,8 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
     if (!posts) return null
     // build a set of all eligible posts filtered by tag and email digest status
     let postSet = posts.filter(post => {
-      return emailDigestFilter.includes(postStatuses[post._id].emailDigestStatus)
+      const {emailDigestStatus} = postStatuses[post._id];
+      return emailDigestStatus && emailDigestFilter.includes(emailDigestStatus)
     })
     if (tagFilter) {
       postSet = postSet.filter(post => post.tags.find(tag => tag._id === tagFilter))
@@ -430,8 +444,11 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
     if (!coreAndPopularTags || !posts) return null
     // build a set of all elible posts filtered by status
     const postSet = posts.filter(post => {
-      return emailDigestFilter.includes(postStatuses[post._id].emailDigestStatus) &&
-        onsiteDigestFilter.includes(postStatuses[post._id].onsiteDigestStatus)
+      const {emailDigestStatus, onsiteDigestStatus} = postStatuses[post._id];
+      return emailDigestStatus &&
+        emailDigestFilter.includes(emailDigestStatus) &&
+        onsiteDigestStatus &&
+        onsiteDigestFilter.includes(onsiteDigestStatus);
     })
     return coreAndPopularTags.reduce((prev: Record<string, SettingsOption>, next) => {
       prev[next._id] = {label: `${next.name} (${postSet.filter(p => p.tags.some(t => t._id === next._id)).length})`}
@@ -557,10 +574,6 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
   )
 }
 
-const EditDigestComponent = registerComponent('EditDigest', EditDigest, {styles});
+export default registerComponent('EditDigest', EditDigest, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EditDigest: typeof EditDigestComponent
-  }
-}
+

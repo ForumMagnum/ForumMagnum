@@ -1,11 +1,20 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { Link } from '../../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../../common/withUser';
 import { isMod } from '../../../lib/collections/users/helpers';
 import { forumSelect } from '../../../lib/forumTypeUtils';
-import type { Column } from '../../vulcan-core/Datatable';
+import Datatable, { Column } from '../../vulcan-core/Datatable';
+import FormatDate from "../../common/FormatDate";
+import UsersName from "../../users/UsersName";
+import UsersNameWrapper from "../../users/UsersNameWrapper";
+import SingleColumnSection from "../../common/SingleColumnSection";
+import RejectedPostsList from "./RejectedPostsList";
+import RejectedCommentsList from "./RejectedCommentsList";
+import SectionTitle from "../../common/SectionTitle";
+import ToCColumn from "../../posts/TableOfContents/ToCColumn";
+import TableOfContents from "../../posts/TableOfContents/TableOfContents";
 
 const shouldShowEndUserModerationToNonMods = forumSelect({
   EAForum: false,
@@ -44,7 +53,7 @@ const DateDisplay = ({column, document}: {
   column: Column;
   document: AnyBecauseTodo;
 }) => {
-  return <div>{document[column.name] && <Components.FormatDate date={document[column.name]}/>}</div>
+  return <div>{document[column.name] && <FormatDate date={document[column.name]}/>}</div>
 }
 
 const PostDisplay = ({column, document}: {
@@ -61,7 +70,7 @@ const UserDisplay = ({column, document}: {
 }) => {
   const user = document.user || document
   return <div>
-    <Components.UsersName user={user} nofollow />
+    <UsersName user={user} nofollow />
   </div>
 }
 
@@ -71,7 +80,7 @@ const DeletedByUserDisplay = ({column, document}: {
 }) => {
   const user = document.deletedByUser || document.user || document
   return <span>
-    <Components.UsersName user={user} nofollow />
+    <UsersName user={user} nofollow />
   </span>
 }
 
@@ -83,7 +92,7 @@ const BannedUsersDisplay = ({column, document}: {
   const bannedUsers = document[column.name] ?? []
   return <div>
     { bannedUsers.map((userId: string) => <div key={userId}>
-      <Components.UsersNameWrapper documentId={userId} nofollow />
+      <UsersNameWrapper documentId={userId} nofollow />
       </div>)}
   </div>
 }
@@ -195,9 +204,6 @@ const ModerationLog = ({classes}: {
   const currentUser = useCurrentUser()
   const shouldShowEndUserModeration = (currentUser && isMod(currentUser)) ||
     shouldShowEndUserModerationToNonMods
-  const { SingleColumnSection, RejectedPostsList, RejectedCommentsList, SectionTitle, ToCColumn, TableOfContents } = Components;
-  
-
   const sectionData = {
     html: "",
     sections: [
@@ -243,7 +249,7 @@ const ModerationLog = ({classes}: {
         <SectionTitle title="Moderation Log"/>
         <div className={classes.section}>
           <h3 id="deleted-comments">Deleted Comments</h3>
-          <Components.Datatable
+          <Datatable
             collectionName="Comments"
             columns={deletedCommentColumns}
             fragmentName={'DeletedCommentsModerationLog'}
@@ -254,7 +260,7 @@ const ModerationLog = ({classes}: {
         {shouldShowEndUserModeration && <>
           <div className={classes.section}>
             <h3 id="users-banned-from-posts">Users Banned From Posts</h3>
-            <Components.Datatable
+            <Datatable
               collectionName="Posts"
               columns={usersBannedFromPostsColumns}
               fragmentName={'UsersBannedFromPostsModerationLog'}
@@ -264,7 +270,7 @@ const ModerationLog = ({classes}: {
           </div>
           <div className={classes.section}>
             <h3 id="users-banned-from-users">Users Banned From Users</h3>
-            <Components.Datatable
+            <Datatable
               collectionName="Users"
               columns={usersBannedFromUsersColumns}
               fragmentName={'UsersBannedFromUsersModerationLog'}
@@ -274,7 +280,7 @@ const ModerationLog = ({classes}: {
           </div>
           <div className={classes.section}>
             <h3 id="moderated-users">Moderated Users</h3>
-            <Components.Datatable
+            <Datatable
               collectionName="ModeratorActions"
               columns={moderatorActionColumns}
               terms={{view: "restrictionModerationActions"}}
@@ -284,7 +290,7 @@ const ModerationLog = ({classes}: {
           </div>
           <div className={classes.section}>
             <h3 id="rate-limited-users">Rate Limited Users</h3>
-            <Components.Datatable
+            <Datatable
               collectionName="UserRateLimits"
               columns={userRateLimitColumns}
               terms={{view: "activeUserRateLimits"}}
@@ -304,10 +310,6 @@ const ModerationLog = ({classes}: {
   )
 }
 
-const ModerationLogComponent = registerComponent('ModerationLog', ModerationLog, {styles});
+export default registerComponent('ModerationLog', ModerationLog, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ModerationLog: typeof ModerationLogComponent
-  }
-}
+

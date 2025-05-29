@@ -1,10 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import groupBy from 'lodash/groupBy';
 import uniq from 'lodash/uniq'
 import moment from 'moment';
-import type { DebateResponseWithReplies } from './DebateResponseBlock';
+import DebateResponseBlock, { DebateResponseWithReplies } from './DebateResponseBlock';
 import DeferRender from '../common/DeferRender';
+import { filterNonnull } from '@/lib/utils/typeGuardUtils';
+import DebateTypingIndicator from "./DebateTypingIndicator";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -17,8 +19,7 @@ export const DebateBody = ({ debateResponses, post, classes }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { DebateResponseBlock, DebateTypingIndicator } = Components;
-  const orderedParticipantList = uniq(debateResponses.map(({ comment }) => comment.userId));
+  const orderedParticipantList = filterNonnull(uniq(debateResponses.map(({ comment }) => comment.userId)));
 
   return (<DeferRender ssr={false}>
     <div className={classes.root}>
@@ -30,7 +31,7 @@ export const DebateBody = ({ debateResponses, post, classes }: {
         // Now, we're going to create blocks of sequential-responses-by-author
         .flatMap(([daySeparator, perDayDebateResponses], dayIdx) => {
           const debateResponseBlocks: DebateResponseWithReplies[][] = [];
-          let lastAuthorId: string;
+          let lastAuthorId: string | null;
 
           perDayDebateResponses.sort((c1, c2) => moment(c1.comment.postedAt).diff(c2.comment.postedAt)).forEach((debateResponse) => {
             const currentAuthorId = debateResponse.comment.userId;
@@ -66,10 +67,6 @@ export const DebateBody = ({ debateResponses, post, classes }: {
   </DeferRender>);
 }
 
-const DebateBodyComponent = registerComponent('DebateBody', DebateBody, {styles});
+export default registerComponent('DebateBody', DebateBody, {styles});
 
-declare global {
-  interface ComponentTypes {
-    DebateBody: typeof DebateBodyComponent
-  }
-}
+

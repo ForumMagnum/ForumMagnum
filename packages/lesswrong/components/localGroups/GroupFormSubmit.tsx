@@ -1,18 +1,19 @@
-import React from "react";
-import { registerComponent } from "@/lib/vulcan-lib";
-import Button from "@material-ui/core/Button";
-import Tooltip from "@material-ui/core/Tooltip";
-import classNames from "classnames";
+import React from 'react'
+import Button from '@/lib/vendor/@material-ui/core/src/Button'
+import { TooltipSpan } from "@/components/common/FMTooltip";
+import classNames from 'classnames'
+import { defineStyles, useStyles } from '../hooks/useStyles'
+import type { AnyFormApi } from '@tanstack/react-form'
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('GroupFormSubmit', (theme: ThemeType) => ({
   root: {
     display: 'flex',
-    marginTop: 20
+    marginTop: 20,
   },
   inactiveButton: {
     '&&': {
       color: theme.palette.error.main,
-    }
+    },
   },
   formButton: {
     paddingBottom: "2px",
@@ -21,43 +22,49 @@ const styles = (theme: ThemeType) => ({
     "&:hover": {
       background: theme.palette.panelBackground.darken05,
     },
-    color: theme.palette.lwTertiary.main
+    color: theme.palette.lwTertiary.main,
   },
   submit: {
     '&&': {
-      marginLeft: 'auto'
-    }
+      marginLeft: 'auto',
+    },
   },
-});
+}))
 
-const GroupFormSubmit = ({
+interface GroupFormSubmitProps {
+  submitLabel?: string;
+  document: { inactive?: boolean };
+  formType: string;
+  formApi: AnyFormApi;
+}
+
+export const GroupFormSubmit = ({
   submitLabel = "Submit",
-  updateCurrentValues,
   document,
   formType,
-  classes,
-}: {
-  submitLabel?: string,
-  updateCurrentValues: AnyBecauseTodo,
-  document: AnyBecauseTodo,
-  formType: string,
-  classes: ClassesType<typeof styles>,
-}) => {
+  formApi,
+}: GroupFormSubmitProps) => {
+  const classes = useStyles(styles);
+
+  const handleToggleInactive = () => {
+    formApi.setFieldValue('inactive', !document.inactive)
+  };
+
   return (
     <div className={classes.root}>
       {formType === 'edit' &&
-        <Tooltip title={document.inactive
+        <TooltipSpan title={document.inactive
           ? "Display the group on maps and lists again"
           : "This will hide the group from all maps and lists"}
         >
           <Button
             type="submit"
-            onClick={() => updateCurrentValues({inactive: !document.inactive})}
+            onClick={handleToggleInactive}
             className={classNames(classes.formButton, classes.inactiveButton)}
           >
            {document.inactive ? "Reactivate group" : "Mark group as inactive"} 
           </Button>
-        </Tooltip>
+        </TooltipSpan>
       }
       <Button
         type="submit"
@@ -67,16 +74,4 @@ const GroupFormSubmit = ({
       </Button>
     </div>
   );
-}
-
-const GroupFormSubmitComponent = registerComponent(
-  "GroupFormSubmit",
-  GroupFormSubmit,
-  {styles},
-);
-
-declare global {
-  interface ComponentTypes {
-    GroupFormSubmit: typeof GroupFormSubmitComponent
-  }
 }

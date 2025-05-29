@@ -1,7 +1,7 @@
-import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { useCurrentUser } from '../withUser';
-import { iconWidth } from './TabNavigationItem'
+import TabNavigationItem, { iconWidth } from './TabNavigationItem'
 
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
@@ -9,6 +9,8 @@ import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import EventsList from './EventsList';
+import { SubscribeWidget } from '../SubscribeWidget';
 
 export const TAB_NAVIGATION_MENU_WIDTH = 250
 
@@ -66,9 +68,6 @@ const TabNavigationMenu = ({
 }) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
-  const { TabNavigationItem } = Components
-  const customComponentProps = {currentUser}
-  
   const handleClick = (e: React.BaseSyntheticEvent, tabId: string) => {
     captureEvent(`${tabId}NavClicked`)
     onClickSection && onClickSection(e)
@@ -87,14 +86,16 @@ const TabNavigationMenu = ({
               return <div key={tab.id} className={classes.divider} />
             }
             if ('customComponentName' in tab) {
-              // FIXME: not clear how to type this without the intersection of all the component types causing all the props to evaluate to `never`
-              const CustomComponent: any = Components[tab.customComponentName as keyof ComponentTypes];
-              return <CustomComponent
-                key={tab.id}
-                tab={tab}
-                onClick={(e: React.BaseSyntheticEvent) => handleClick(e, tab.id)}
-                {...customComponentProps}
-              />
+              switch (tab.customComponentName) {
+                case 'EventsList':
+                  return <EventsList
+                    key={tab.id}
+                    onClick={(e: React.BaseSyntheticEvent) => handleClick(e, tab.id)}
+                    currentUser={currentUser}
+                  />;
+                case 'SubscribeWidget':
+                  return <SubscribeWidget key={tab.id} />;
+              }
             }
 
             return <TabNavigationItem
@@ -109,12 +110,8 @@ const TabNavigationMenu = ({
     </AnalyticsContext>  )
 };
 
-const TabNavigationMenuComponent = registerComponent(
+export default registerComponent(
   'TabNavigationMenu', TabNavigationMenu, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    TabNavigationMenu: typeof TabNavigationMenuComponent
-  }
-}
+

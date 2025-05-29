@@ -1,35 +1,34 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
+import { Alert } from './Alert';
+import { FormError } from './FormError';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FormErrors', (theme: ThemeType) => ({
   root: {
     ...theme.typography.errorStyle
   }
-})
+}));
 
-const FormErrors = ({ errors, classes }: {
+export const FormErrors = ({ errors, getLabel }: {
   errors: any[]
-  classes: ClassesType<typeof styles>
-}) => (
-  <div className={classNames(classes.root, "form-errors")}>
-    {!!errors.length && (
-      <Components.Alert className="flash-message" variant="danger">
-        <ul>
-          {errors.map((error, index) => (
-            <li key={index}>
-              <Components.FormError error={error} errorContext="form" />
-            </li>
-          ))}
-        </ul>
-      </Components.Alert>
-    )}
-  </div>
-);
-const FormErrorsComponent = registerComponent('FormErrors', FormErrors, {styles});
+  getLabel: (fieldName: string, fieldLocale?: any) => string,
+}) => {
+  const classes = useStyles(styles);
+  return (
+    <div className={classNames(classes.root, "form-errors")}>
+      {!!errors.length && (
+        <Alert>
+          <ul>
+            {errors.map((error, index) => (
+              <li key={index}>
+                <FormError error={error} errorContext="form" getLabel={getLabel} />
+              </li>
+            ))}
+          </ul>
+        </Alert>
+      )}
+    </div>
+  );
+};
 
-declare global {
-  interface ComponentTypes {
-    FormErrors: typeof FormErrorsComponent
-  }
-}

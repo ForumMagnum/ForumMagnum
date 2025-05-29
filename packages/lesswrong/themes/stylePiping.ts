@@ -286,8 +286,8 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
     // title-vs-contents distinction invisible
     background: isFriendlyUI ? undefined : theme.palette.panelBackground.darken05+'!important',
     
-    "&>p": {
-      display: "inline-block",
+    "&>*": {
+      display: "inline",
     },
   },
   '& .detailsBlockTitle[open]': {
@@ -348,10 +348,27 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
   }
 });
 
+const conditionallyVisibleBlockStyles = (theme: ThemeType) => ({
+  "& .conditionallyVisibleBlock": {
+    border: theme.palette.border.normal,
+    borderRadius: 4,
+    padding: 8,
+    "&.defaultHidden": {
+      display: "none",
+    },
+  },
+});
+
 // Calling requireCssVar results in the variable being defined in the stylesheet
 // (e.g. --palette-fonts-sansSerifStack). These are required for use in styles that
-// are within the ckeditor bundle (in ckEditor/src/ckeditor5-cta-button/ctaform.css)
+// are within the ckeditor bundle (in ckEditor/src/ckeditor5-cta-button/ctaform.css
+// and ckEditor/src/ckeditor5-poll/poll.css)
 requireCssVar("palette", "fonts", "sansSerifStack")
+requireCssVar("borderRadius", "default")
+requireCssVar("borderRadius", "small")
+requireCssVar("palette", "buttons", "alwaysPrimary")
+requireCssVar("palette", "text", "alwaysWhite")
+requireCssVar("palette", "primary", "dark")
 requireCssVar("palette", "panelBackground", "default")
 requireCssVar("palette", "error", "main")
 requireCssVar("palette", "grey", 200)
@@ -371,7 +388,7 @@ const ctaButtonStyles = (theme: ThemeType) => ({
     lineHeight: '20px',
     textTransform: 'none',
     padding: '12px 16px',
-    borderRadius: theme.borderRadius.default,
+    borderRadius: isFriendlyUI ? theme.borderRadius.default : theme.borderRadius.small,
     boxShadow: 'none',
     backgroundColor: theme.palette.buttons.alwaysPrimary,
     color: theme.palette.text.alwaysWhite,
@@ -468,7 +485,8 @@ const baseBodyStyles = (theme: ThemeType) => ({
     verticalAlign: 'baseline',
     top: '-0.6em',
     fontSize: '65%',
-    position: 'relative'
+    position: 'relative',
+    lineHeight: 0,
   },
   '& sub': {
     fontSize: '70%',
@@ -549,6 +567,7 @@ export const postBodyStyles = (theme: ThemeType) => {
     ...lwartifactsPreviewStyles(theme),
     ...footnoteStyles(theme),
     ...collapsibleSectionStyles(theme),
+    ...conditionallyVisibleBlockStyles(theme),
     ...ctaButtonStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {
@@ -585,7 +604,7 @@ export const postBodyStyles = (theme: ThemeType) => {
   }
 }
 
-export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: Boolean) => {
+export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: boolean) => {
   // DoubleHack Fixme: this awkward phrasing is to make it so existing commentBodyStyles don't change functionality, but we're able to use commentBodyStyles without overwriting the pointer-events of child objects.
 
   const pointerEvents = dontIncludePointerEvents ?

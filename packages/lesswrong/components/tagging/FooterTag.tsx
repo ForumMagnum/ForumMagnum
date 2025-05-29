@@ -1,14 +1,16 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import classNames from 'classnames';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useCurrentUser } from '../common/withUser';
-import { coreTagIconMap } from './CoreTagIcon';
+import CoreTagIcon, { coreTagIconMap } from './CoreTagIcon';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
-import type { TagsTooltipPreviewWrapper } from './TagsTooltip';
+import TagsTooltip, { TagsTooltipPreviewWrapper } from './TagsTooltip';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import ForumIcon from "../common/ForumIcon";
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
@@ -58,7 +60,7 @@ export const coreTagStyle = (theme: ThemeType) => ({
   },
 });
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FooterTag", (theme: ThemeType) => ({
   root: {
     display: "inline-block",
     cursor: "pointer",
@@ -116,8 +118,19 @@ const styles = (theme: ThemeType) => ({
     paddingTop: 3,
     paddingBottom: 3,
   }
+}), {
+  stylePriority: -1,
 });
 
+/**
+ * A visible tag name, which may have a preview on hover. The `hoverable` flag
+ * is either false (no hover), true (enforce that the tag uses
+ * TagPreviewFragment), or "ifDescriptionPresent" (don't enforce that the tag
+ * used TagPreviewFragment, but make it hoverable if you did). This last option
+ * exists because FooterTagList and TruncatedTagsList appear inside
+ * hover-previews of posts, and they will initially open into a loading state
+ * where we have tags' names but don't have their descriptions.
+ */
 const FooterTag = ({
   tagRel,
   tag,
@@ -130,10 +143,9 @@ const FooterTag = ({
   neverCoreStyling=false,
   hideRelatedTags,
   className,
-  classes,
-  noBackground = false, 
+  noBackground = false,
+  hoverable,
 }: {
-  tag: TagPreviewFragment | TagSectionPreviewFragment | TagRecentDiscussion,
   tagRel?: TagRelMinimumFragment,
   hideScore?: boolean,
   hideIcon?: boolean,
@@ -144,9 +156,13 @@ const FooterTag = ({
   neverCoreStyling?: boolean,
   hideRelatedTags?: boolean,
   className?: string,
-  noBackground?: boolean
-  classes: ClassesType<typeof styles>,
-}) => {
+  noBackground?: boolean,
+} & (
+    { hoverable: false, tag: TagBasicInfo }
+  | { hoverable: true, tag: TagPreviewFragment }
+  | { hoverable: "ifDescriptionPresent", tag: TagBasicInfo|TagPreviewFragment }
+)) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
   if (tag.adminOnly && !currentUser?.isAdmin) { return null }
@@ -156,45 +172,44 @@ const FooterTag = ({
   const tagName = isFriendlyUI && smallText
     ? tag.shortName || tag.name
     : tag.name;
-
-  const {TagsTooltip, CoreTagIcon, ForumIcon} = Components;
   const renderedTag = <>
     {showIcon && <span className={classes.coreIcon}><CoreTagIcon tag={tag} /></span>}
     <span className={classes.name}>{tagName}</span>
     {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
   </>
+  
+  const visibleElement = <span className={classNames(classes.root, className, {
+    [classes.core]: !neverCoreStyling && tag.core,
+    [classes.smallText]: smallText,
+    [classes.noBackground]: noBackground,
+  })}>
+    {link ? <Link to={tagGetUrl(tag)}>
+      {renderedTag}
+      {highlightAsAutoApplied && <span className={classes.robotIcon}><ForumIcon icon="Robot" /></span>}
+    </Link> : renderedTag}
+  </span>
+  
+  const hasTooltip = (hoverable === true) || (hoverable === "ifDescriptionPresent" && tag && 'description' in tag);
 
-  return (
-    <AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem">
-      <TagsTooltip
-        tag={tag}
+  const withTooltip = hasTooltip
+    ? <TagsTooltip
+        tag={tag as TagPreviewFragment}
         tagRel={tagRel}
         PreviewWrapper={PreviewWrapper}
         hideRelatedTags={hideRelatedTags}
         popperClassName={classes.tooltip}
       >
-        <span className={classNames(classes.root, className, {
-          [classes.core]: !neverCoreStyling && tag.core,
-          [classes.smallText]: smallText,
-          [classes.noBackground]: noBackground,
-        })}>
-          {link ? <Link to={tagGetUrl(tag)}>
-            {renderedTag}
-            {highlightAsAutoApplied && <span className={classes.robotIcon}><ForumIcon icon="Robot" /></span>}
-          </Link> : renderedTag}
-        </span>
+        {visibleElement}
       </TagsTooltip>
+    : visibleElement
+
+  return (
+    <AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem">
+      {withTooltip}
     </AnalyticsContext>
   );
 }
 
-const FooterTagComponent = registerComponent("FooterTag", FooterTag, {
-  styles,
-  stylePriority: -1,
-});
+export default registerComponent("FooterTag", FooterTag);
 
-declare global {
-  interface ComponentTypes {
-    FooterTag: typeof FooterTagComponent
-  }
-}
+

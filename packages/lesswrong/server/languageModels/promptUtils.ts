@@ -38,7 +38,7 @@ interface GenerateAssistantContextMessageArgs {
 // Trying to be conservative, since we have a bunch of additional tokens coming from e.g. JSON.stringify
 const CHARS_PER_TOKEN = 3.5;
 
-export const documentToMarkdown = (document: LlmPost | DbComment | null) => {
+export const documentToMarkdown = (document: LlmPost | Pick<DbComment,"contents"> | null) => {
   const html = document?.contents?.html;
   if (!html) {
     return undefined;
@@ -106,7 +106,7 @@ const filterCommentTrees = (trees: CommentTreeNode<NestedComment>[], tokenCounte
   }
 }
 
-const createCommentTree = (comments: DbComment[]): CommentTreeNode<NestedComment>[] => {
+const createCommentTree = (comments: Pick<DbComment, "_id"|"contents"|"baseScore"|"author"|"postId"|"parentCommentId"|"topLevelCommentId">[]): CommentTreeNode<NestedComment>[] => {
   return unflattenComments<NestedComment>(comments.map(comment => {
     const { baseScore, contents, ...rest } = comment;
     return {
@@ -124,7 +124,10 @@ const getUserActionVerb = (postContext?: PromptContextOptions['postContext']) =>
 }
 
 const formatCommentsForPost = async (post: PostsMinimumInfo, tokenCounter: TokenCounter, context: ResolverContext): Promise<string> => {
-  const comments = await context.Comments.find({postId: post._id}, undefined, { contents: 1, baseScore: 1, author: 1, _id: 1, postId: 1, parentCommentId: 1, topLevelCommentId: 1 }).fetch()
+  const comments = await context.Comments.find(
+    {postId: post._id}, undefined,
+    { contents: 1, baseScore: 1, author: 1, _id: 1, postId: 1, parentCommentId: 1, topLevelCommentId: 1 }
+  ).fetch()
   if (!comments.length) {
     return ""
   }

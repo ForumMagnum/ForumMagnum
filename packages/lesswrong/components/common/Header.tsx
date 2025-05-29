@@ -1,27 +1,38 @@
 import React, { useContext, useState, useCallback, useEffect, CSSProperties } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
-import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
-import TocIcon from '@material-ui/icons/Toc';
+import Toolbar from '@/lib/vendor/@material-ui/core/src/Toolbar';
+import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
+import TocIcon from '@/lib/vendor/@material-ui/icons/src/Toc';
 import { useCurrentUser } from '../common/withUser';
 import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { PublicInstanceSetting, isEAForum, isLW } from '../../lib/instanceSettings';
+import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, isEAForum, isLW } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { hasProminentLogoSetting, lightconeFundraiserUnsyncedAmount, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive, lightconeFundraiserPostId } from '../../lib/publicSettings';
 import { useLocation } from '../../lib/routeUtil';
-import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
+import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from './CloudinaryImage2';
 import { hasForumEvents } from '@/lib/betas';
 import { useFundraiserStripeTotal, useLivePercentage } from '@/lib/lightconeFundraiser';
+import SearchBar from "./SearchBar";
+import UsersMenu from "../users/UsersMenu";
+import UsersAccountMenu from "../users/UsersAccountMenu";
+import NotificationsMenuButton from "../notifications/NotificationsMenuButton";
+import NavigationDrawer from "./TabNavigationMenu/NavigationDrawer";
+import NotificationsMenu from "../notifications/NotificationsMenu";
+import KarmaChangeNotifier from "../users/KarmaChangeNotifier";
+import HeaderSubtitle from "./HeaderSubtitle";
+import { Typography } from "./Typography";
+import ForumIcon from "./ForumIcon";
+import ActiveDialogues from "../dialogues/ActiveDialogues";
+import SiteLogo from "../ea-forum/SiteLogo";
+import MessagesMenuButton from "../messaging/MessagesMenuButton";
 
-export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
-export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
 /** Height of top header. On Book UI sites, this is for desktop only */
 export const HEADER_HEIGHT = isBookUI ? 64 : 66;
 /** Height of top header on mobile. On Friendly UI sites, this is the same as the HEADER_HEIGHT */
@@ -126,9 +137,11 @@ export const styles = (theme: ThemeType) => ({
   appBarDarkBackground: {
     ...textColorOverrideStyles({
       theme,
-      color: theme.palette.text.alwaysWhite,
-      contrastColor: theme.palette.text.alwaysBlack,
+      color: "var(--header-text-color)",
+      contrastColor: "var(--header-contrast-color)",
     }),
+    "--header-text-color": theme.palette.text.alwaysWhite,
+    "--header-contrast-color": theme.palette.text.alwaysBlack,
   },
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
@@ -167,7 +180,11 @@ export const styles = (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     fontWeight: isFriendlyUI ? 400 : undefined,
-    height: isFriendlyUI ? undefined : '19px'
+    height: isFriendlyUI ? undefined : '19px',
+    
+    ...(isAF && {
+      top: 0,
+    }),
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,
@@ -282,7 +299,7 @@ const Header = ({
   sidebarHidden: boolean,
   toggleStandaloneNavigation: () => void,
   stayAtTop?: boolean,
-  searchResultsArea: React.RefObject<HTMLDivElement>,
+  searchResultsArea: React.RefObject<HTMLDivElement|null>,
   // CSS var corresponding to the background color you want to apply (see also appBarDarkBackground above)
   backgroundColor?: string,
   classes: ClassesType<typeof styles>,
@@ -297,14 +314,7 @@ const Header = ({
   const { captureEvent } = useTracking()
   const { notificationsOpened } = useUnreadNotifications();
   const { currentRoute, pathname, hash } = useLocation();
-  const {currentForumEvent} = useCurrentForumEvent();
-
-  const {
-    SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
-    NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
-    ActiveDialogues, SiteLogo, MessagesMenuButton,
-  } = Components;
-
+  const {currentForumEvent} = useCurrentAndRecentForumEvents();
   useEffect(() => {
     // When we move to a different page we will be positioned at the top of
     // the page (unless the hash is set) but Headroom doesn't run this callback
@@ -476,23 +486,23 @@ const Header = ({
   // If we're explicitly given a backgroundColor, that overrides any event header
   if (backgroundColor) {
     headerStyle.backgroundColor = backgroundColor
-  } else if (hasForumEvents && currentRoute?.name === "home") {
-    // On EAF, forum events with polls also update the home page header background
-    if (bannerImageId && currentForumEvent?.includesPoll) {
-      const darkColor = currentForumEvent.darkColor;
-      const background = `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
-        c: "fill",
-        dpr: "auto",
-        q: "auto",
-        f: "auto",
-        g: "north",
-      })})${darkColor ? `, ${darkColor}` : ''}`;
-      headerStyle.background = background;
-    }
+  } else if (hasForumEvents && currentRoute?.name === "home" && bannerImageId && currentForumEvent?.eventFormat !== "BASIC") {
+    // On EAF, forum events with polls or stickers also update the home page header background and text
+    const darkColor = currentForumEvent.darkColor;
+    const background = `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
+      c: "fill",
+      dpr: "auto",
+      q: "auto",
+      f: "auto",
+      g: "north",
+    })})${darkColor ? `, ${darkColor}` : ''}`;
+    headerStyle.background = background;
+    (headerStyle as any)["--header-text-color"] = currentForumEvent.bannerTextColor ?? undefined;
+    (headerStyle as any)["--header-contrast-color"] = currentForumEvent.darkColor ?? undefined;
   }
 
-  // Make all the text and icons white when we have some sort of color in the header background
-  const useWhiteText = Object.keys(headerStyle).length > 0;
+  // Make all the text and icons the same color as the text on the current forum event banner
+  const useContrastText = Object.keys(headerStyle).length > 0;
 
   return (
     <AnalyticsContext pageSectionContext="header">
@@ -511,7 +521,7 @@ const Header = ({
           <header
             className={classNames(
               classes.appBar,
-              useWhiteText && classes.appBarDarkBackground
+              useContrastText && classes.appBarDarkBackground
             )}
             style={headerStyle}
           >
@@ -522,20 +532,18 @@ const Header = ({
                   <div className={classes.titleSubtitleContainer}>
                     <div className={classes.titleFundraiserContainer}>
                       <Link to="/" className={classes.titleLink}>
-                        {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
+                        {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaContrast={useContrastText}/></div>}
                         {forumHeaderTitleSetting.get()}
                       </Link>
-                      {isLW && lightconeFundraiserActive.get() && <div className={classes.lightconeFundraiserHeaderItem}><Link to={`/posts/${lightconeFundraiserPostId.get()}`}> is fundraising!</Link></div>}
                     </div>
                     <HeaderSubtitle />
                   </div>
                 </div>
                 <div className={classNames(classes.hideMdUp, classes.titleFundraiserContainer)}>
                   <Link to="/" className={classes.titleLink}>
-                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
+                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaContrast={useContrastText}/></div>}
                     {forumShortTitleSetting.get()}
                   </Link>
-                  {isLW && lightconeFundraiserActive.get() && <div className={classes.lightconeFundraiserHeaderItemSmall}><Link to={`/posts/${lightconeFundraiserPostId.get()}`}>$</Link></div>}
                 </div>
               </Typography>
               {!isEAForum &&<ActiveDialogues />}
@@ -550,13 +558,9 @@ const Header = ({
   )
 }
 
-const HeaderComponent = registerComponent('Header', Header, {
+export default registerComponent('Header', Header, {
   styles,
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    Header: typeof HeaderComponent
-  }
-}
+

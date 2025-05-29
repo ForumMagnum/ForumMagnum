@@ -1,12 +1,21 @@
 import React, { useRef, useState } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
-import { Components, makeAbsolute, registerComponent } from '@/lib/vulcan-lib';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { userGetProfileUrl } from '@/lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
+import { registerComponent } from "@/lib/vulcan-lib/components";
+import { makeAbsolute } from "@/lib/vulcan-lib/utils.ts";
+import Error404 from "../common/Error404";
+import SectionTitle from "../common/SectionTitle";
+import Loading from "../vulcan-core/Loading";
+import FormatDate from "../common/FormatDate";
+import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -93,17 +102,6 @@ const readableDate = (date: Date) => date.toISOString().replace('T', ' ').slice(
 const TwitterAdmin = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const [copyCount, setCopyCount] = useState(10);
   const currentUser = useCurrentUser();
-  const {
-    Error404,
-    SectionTitle,
-    Loading,
-    FormatDate,
-    TruncatedAuthorsList,
-    ForumIcon,
-    LWTooltip,
-    LoadMore
-  } = Components;
-
   const { flash } = useMessages();
 
   const { results, loading, error, loadMoreProps } = usePaginatedResolver({
@@ -113,7 +111,7 @@ const TwitterAdmin = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     itemsPerPage: 20,
   });
 
-  const authorExpandContainer = useRef(null);
+  const authorExpandContainer = useRef<HTMLDivElement>(null);
 
   if (!userIsAdmin(currentUser)) {
     return <Error404 />;
@@ -273,10 +271,6 @@ const TwitterAdmin = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 };
 
-const TwitterAdminComponent = registerComponent('TwitterAdmin', TwitterAdmin, { styles });
+export default registerComponent('TwitterAdmin', TwitterAdmin, { styles });
 
-declare global {
-  interface ComponentTypes {
-    TwitterAdmin: typeof TwitterAdminComponent;
-  }
-}
+

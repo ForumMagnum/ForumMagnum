@@ -1,8 +1,12 @@
 import React from 'react';
 
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import ConversationTitleEditForm from "./ConversationTitleEditForm";
+import Loading from "../vulcan-core/Loading";
+import MetaInfo from "../common/MetaInfo";
+import UsersName from "../users/UsersName";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -21,15 +25,15 @@ const ConversationDetails = ({conversation, hideOptions = false, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { openDialog } = useDialog();
-  const { Loading, MetaInfo, UsersName } = Components
   if (!conversation?.participants?.length) return <Loading />
 
   const openConversationOptions = () => {
     openDialog({
-      componentName: "ConversationTitleEditForm",
-      componentProps: {
-        documentId: conversation._id
-      }
+      name: "ConversationTitleEditForm",
+      contents: ({onClose}) => <ConversationTitleEditForm
+        onClose={onClose}
+        conversation={conversation}
+      />
     });
   }
 
@@ -50,10 +54,6 @@ const ConversationDetails = ({conversation, hideOptions = false, classes}: {
   )
 }
 
-const ConversationDetailsComponent = registerComponent('ConversationDetails', ConversationDetails, {styles});
+export default registerComponent('ConversationDetails', ConversationDetails, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ConversationDetails: typeof ConversationDetailsComponent
-  }
-}
+

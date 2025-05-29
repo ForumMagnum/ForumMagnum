@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
-import { useLocation } from '../../../lib/routeUtil';
 import type { ToCData, ToCSection } from '../../../lib/tableOfContents';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import filter from 'lodash/filter';
 import { useScrollHighlight } from '../../hooks/useScrollHighlight';
-import { useNavigate } from '../../../lib/reactRouterWrapper';
 import { getCurrentSectionMark, scrollFocusOnElement, ScrollHighlightLandmark } from '@/lib/scrollUtils';
 import { isLWorAF } from '@/lib/instanceSettings';
+import { useLocation, useNavigate } from "../../../lib/routeUtil";
+import TableOfContentsRow from "./TableOfContentsRow";
+import AnswerTocRow from "./AnswerTocRow";
 
 export interface ToCDisplayOptions {
   /**
@@ -66,9 +67,6 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
       }
     }
   }
-
-  const { TableOfContentsRow, AnswerTocRow } = Components;
-
   let filteredSections = (displayOptions?.maxHeadingDepth && tocSections)
     ? filter(tocSections, s=>s.level <= displayOptions.maxHeadingDepth!)
     : tocSections;
@@ -250,14 +248,10 @@ export function adjustHeadingText(text: string|undefined, displayOptions?: ToCDi
   }
 }
 
-const TableOfContentsListComponent = registerComponent(
+export default registerComponent(
   "TableOfContentsList", TableOfContentsList, {
     hocs: [withErrorBoundary]
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    TableOfContentsList: typeof TableOfContentsListComponent
-  }
-}
+

@@ -1,5 +1,5 @@
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from 'classnames';
 
 export const SCROLL_INDICATOR_SIZE = 13;
@@ -130,15 +130,11 @@ const HorizScrollBlock = ({children, className, contentsClassName, classes}: {
   </div>
 }
 
-const HorizScrollBlockComponent = registerComponent(
+export default registerComponent(
   'HorizScrollBlock',
   HorizScrollBlock,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    HorizScrollBlock: typeof HorizScrollBlockComponent
-  }
-}
+
 

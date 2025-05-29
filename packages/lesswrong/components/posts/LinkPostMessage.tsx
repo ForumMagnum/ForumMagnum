@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetLink, postGetLinkTarget } from '../../lib/collections/posts/helpers';
 import React from 'react';
 import classNames from 'classnames';
@@ -48,10 +48,6 @@ const LinkPostMessage = ({post, classes, negativeTopMargin}: {
   );
 }
 
-const LinkPostMessageComponent = registerComponent('LinkPostMessage', LinkPostMessage, {styles});
+export default registerComponent('LinkPostMessage', LinkPostMessage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LinkPostMessage: typeof LinkPostMessageComponent
-  }
-}
+

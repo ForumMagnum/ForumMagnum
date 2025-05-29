@@ -38,6 +38,13 @@ export interface ToCSection {
    * section
    */
   scale?: number,
+  
+  /**
+   * Flag to indicate this is a spacer section, not an actual ToC entry.
+   * Used to add spacing without showing a dot or label.
+   * Introduced so the first heading is probably spaced even when it's not at the top of the page.
+   */
+  spacer?: boolean,
 }
 
 export interface ToCSectionWithOffset extends ToCSection {
@@ -192,15 +199,15 @@ export function getTocAnswers({ post, answers }: { post: { question: boolean }; 
   if (!post.question) return []
 
   const answerSections: ToCSection[] = answers.map((answer: CommentType): ToCSection => {
-    const { html = "" } = answer.contents || {};
+    const { html } = answer.contents || {};
     const highlight = truncate(html, 900);
-    let shortHighlight = htmlToTextDefault(answerTocExcerptFromHTML(html));
+    let shortHighlight = htmlToTextDefault(answerTocExcerptFromHTML(html ?? ""));
     const author = ("user" in answer ? answer.user?.displayName : answer.author) ?? null;
 
     return {
       title: `${answer.baseScore} ${author}`,
       answer: {
-        baseScore: answer.baseScore,
+        baseScore: answer.baseScore ?? 0,
         voteCount: answer.voteCount,
         postedAt: answer.postedAt,
         author: author,

@@ -1,6 +1,6 @@
 import React from "react";
 import { useCurrentFrontpageSpotlight } from "../hooks/useCurrentFrontpageSpotlight";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { getSpotlightUrl } from "../../lib/collections/spotlights/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
 import { isLWorAF } from "../../lib/instanceSettings";
@@ -65,14 +65,10 @@ const HeaderEventSubtitle = ({classes}: {classes: ClassesType<typeof styles>}) =
     : null;
 }
 
-const HeaderEventSubtitleComponent = registerComponent(
+export default registerComponent(
   "HeaderEventSubtitle",
   HeaderEventSubtitle,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    HeaderEventSubtitle: typeof HeaderEventSubtitleComponent
-  }
-}
+

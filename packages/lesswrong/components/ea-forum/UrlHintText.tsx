@@ -1,6 +1,7 @@
 import React from 'react';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { Link } from "../../lib/reactRouterWrapper";
+import { useNavigate } from "../../lib/routeUtil";
 
 const linkPostPostPath = '/posts/8yDsenRQhNF4HEDwu/link-posting-is-an-act-of-community-service'
 
@@ -34,10 +35,6 @@ const UrlHintText = () => {
   </>;
 }
 
-export const UrlHintTextComponent = registerComponent("UrlHintText", UrlHintText);
+export default registerComponent("UrlHintText", UrlHintText);
 
-declare global {
-  interface ComponentTypes {
-    UrlHintText: typeof UrlHintTextComponent
-  }
-}
+

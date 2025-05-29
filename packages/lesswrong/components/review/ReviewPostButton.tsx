@@ -1,9 +1,11 @@
 import React from 'react';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCommentBox } from '../hooks/useCommentBox';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
+import ReviewPostForm from "./ReviewPostForm";
+import LoginPopup from "../users/LoginPopup";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -33,15 +35,15 @@ const ReviewPostButton = ({classes, post, reviewMessage="Review", year}: {
   const handleClick = () => {
     if (currentUser) {
       openCommentBox({
-        componentName: "ReviewPostForm",
-        componentProps: {
-          post: post
-        }
+        commentBox: ({onClose}) => <ReviewPostForm
+          onClose={onClose}
+          post={post}
+        />
       });
     } else {
       openDialog({
-        componentName: "LoginPopup",
-        componentProps: {}
+        name: "LoginPopup",
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
       });
     }
   }
@@ -55,11 +57,7 @@ const ReviewPostButton = ({classes, post, reviewMessage="Review", year}: {
   )
 }
 
-const ReviewPostButtonComponent = registerComponent('ReviewPostButton', ReviewPostButton, {styles});
+export default registerComponent('ReviewPostButton', ReviewPostButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ReviewPostButton: typeof ReviewPostButtonComponent
-  }
-}
+
 

@@ -1,12 +1,16 @@
 import React, { ReactNode, useRef, useState }  from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import Paper from '@material-ui/core/Paper';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { Paper }from '@/components/widgets/Paper';
 import { useCurrentUser } from '../common/withUser';
 import { userCanUseTags } from '../../lib/betas';
 import { useTracking } from "../../lib/analyticsEvents";
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { isBookUI, preferredHeadingCase } from '../../themes/forumTheme';
-import { PopperPlacementType } from '@material-ui/core/Popper';
+import type { Placement as PopperPlacementType } from "popper.js"
+import LWPopper from "../common/LWPopper";
+import AddTagOrWikiPage from "./AddTagOrWikiPage";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   addTagButton: {
@@ -33,8 +37,6 @@ const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingCont
   const anchorEl = useRef<HTMLAnchorElement|null>(null);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
-  const { LWPopper, AddTag, LWClickAwayListener, LWTooltip } = Components
-
   if (!userCanUseTags(currentUser)) {
     return null;
   }
@@ -62,7 +64,8 @@ const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingCont
             onClickAway={() => setIsOpen(false)}
           >
             <Paper>
-              <AddTag
+              <AddTagOrWikiPage
+                onlyTags={true}
                 onTagSelected={({tagId, tagName}: {tagId: string, tagName: string}) => {
                   setIsOpen(false);
                   onTagSelected({tagId, tagName});
@@ -82,10 +85,6 @@ const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingCont
   return button;
 }
 
-const AddTagButtonComponent = registerComponent("AddTagButton", AddTagButton, {styles});
+export default registerComponent("AddTagButton", AddTagButton, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AddTagButton: typeof AddTagButtonComponent
-  }
-}
+

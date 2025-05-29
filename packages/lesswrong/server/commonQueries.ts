@@ -1,4 +1,4 @@
-import { UsersRepo } from "./repos";
+import UsersRepo from "./repos/UsersRepo";
 
 /**Finds a user matching on email, searches case INsensitively.
  * Currently searches both email and emailS fields, though the later should ideally be full deprecated

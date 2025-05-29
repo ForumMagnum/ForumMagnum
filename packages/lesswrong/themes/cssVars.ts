@@ -1,4 +1,3 @@
-import type { Theme as MuiThemeType } from '@material-ui/core/styles';
 import { getAtPath } from '../lib/helpers';
 
 type ThemePathItem = string | number;
@@ -39,11 +38,11 @@ export const requireCssVar = (...path: ThemePath): string => {
   return keyToVarRef(key);
 }
 
-export const requestedCssVarsToString = (theme: MuiThemeType & ThemeType, selector = ":root"): string => {
+export const requestedCssVarsToString = (theme: ThemeType, selector = ":root"): string => {
   const vars: string[] = [];
   for (const key of requestedCssVars.values()) {
     const value = getAtPath(theme, keyToPath(key));
-    if (value) {
+    if (value !== undefined) {
       vars.push(`${keyToVar(key)}: ${value};`);
     } else {
       // eslint-disable-next-line

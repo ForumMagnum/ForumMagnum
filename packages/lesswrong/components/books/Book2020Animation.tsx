@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactNode } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 
 const WIDTH = 220
@@ -176,15 +176,11 @@ const Book2020Animation = ({ classes, children }: {
 }
 
 
-const Book2020AnimationComponent = registerComponent('Book2020Animation', Book2020Animation, {
+export default registerComponent('Book2020Animation', Book2020Animation, {
   styles,
   // This component tries to look like a printed book, which is white, so its colors
   // don't change in dark mode
   allowNonThemeColors: true,
 });
 
-declare global {
-  interface ComponentTypes {
-    Book2020Animation: typeof Book2020AnimationComponent
-  }
-}
+

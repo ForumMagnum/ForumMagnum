@@ -1,5 +1,4 @@
-import { Vulcan } from '../../lib/vulcan-lib';
-import Users from '../../lib/collections/users/collection';
+import Users from '../../server/collections/users/collection';
 import { urlIsBroken } from './utils'
 import htmlparser2 from 'htmlparser2';
 import { URL } from 'url';
@@ -78,9 +77,9 @@ const describePost = async (post: PostsPage) =>
 // meant to be handled by a person) includes the title/author/karma of the
 // post and a list of broken things within it.
 const checkPost = async (post: PostsPage) => {
-  const { html = "" } = post.contents || {}
-  const images = getImagesInHtml(html);
-  const links = getLinksInHtml(html);
+  const { html } = post.contents || {}
+  const images = getImagesInHtml(html ?? "");
+  const links = getLinksInHtml(html ?? "");
   
   let brokenImages: Array<string> = [];
   let offsiteImages: Array<string> = [];
@@ -117,7 +116,8 @@ const checkPost = async (post: PostsPage) => {
   }
 };
 
-Vulcan.findBrokenLinks = async (
+// Exported to allow running manually with "yarn repl"
+export const findBrokenLinks = async (
   startDate: Date, endDate: Date,
   output: string|((message: string) => void)
 ) => {

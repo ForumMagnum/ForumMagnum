@@ -1,16 +1,13 @@
 import type { Request } from "express";
-import Posts from "../../lib/collections/posts/collection";
-import Users from "../../lib/collections/users/collection";
-import { getGraphQLSingleQueryFromOptions, getResolverNameFromOptions } from "../../lib/crud/withSingle";
-import { Utils } from "../../lib/vulcan-lib";
-import { createClient } from "../vulcan-lib/apollo-ssr/apolloClient";
-import { createAnonymousContext } from "../vulcan-lib/query";
+import Posts from "../../server/collections/posts/collection";
+import Users from "../../server/collections/users/collection";
+import { getGraphQLSingleQueryFromOptions } from "../../lib/crud/withSingle";
+import { createAnonymousContext } from "../vulcan-lib/createContexts";
 import { extractDenormalizedData } from "./denormalizedFields";
 import { InvalidUserError, UnauthorizedError } from "./errors";
 import { validateCrosspostingKarmaThreshold } from "./helpers";
 import type { GetRouteOf, PostRouteOf } from "./routes";
 import { verifyToken } from "./tokens";
-import { getAllRepos } from "@/server/repos";
 import {
   ConnectCrossposterPayloadValidator,
   CrosspostPayloadValidator,
@@ -18,6 +15,10 @@ import {
   UpdateCrosspostPayloadValidator,
 } from "./types";
 import { connectCrossposterToken } from "../crossposting/tokens";
+import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
+import { createPost } from '../collections/posts/mutations';
+import { collectionNameToTypeName } from "@/lib/generated/collectionTypeNames";
+import { getSingleResolverName } from "@/lib/crud/utils";
 
 export const onCrosspostTokenRequest: GetRouteOf<'crosspostToken'> = async (req: Request) => {
   const {user} = req;
@@ -71,7 +72,7 @@ export const onCrosspostRequest: PostRouteOf<'crosspost'> = async (req) => {
    * TODO: Null is made legal value for fields but database types are incorrectly generated without null. 
    * Hacky fix for now. Search 84b2 to find all instances of this casting.
    */
-  const document: Partial<DbPost> = {
+  const document: CreatePostDataInput = {
     userId: user._id,
     fmCrosspost: {
       isCrosspost: true,
@@ -79,22 +80,10 @@ export const onCrosspostRequest: PostRouteOf<'crosspost'> = async (req) => {
       foreignPostId: postId,
     },
     ...denormalizedData,
-  } as Partial<DbPost>;
+  };
 
-  const {data: post} = await Utils.createMutator({
-    document,
-    collection: Posts,
-    validate: false,
-    currentUser: user,
-    // This is a hack - we have only a fraction of the necessary information for
-    // a context. But it appears to be working.
-    context: {
-      currentUser: user,
-      isFMCrosspostRequest: true,
-      Users,
-      repos: getAllRepos(),
-    } as Partial<ResolverContext> as  ResolverContext,
-  });
+  const userContext = await computeContextFromUser({ user, isSSR: false })
+  const post = await createPost({ data: document }, { ...userContext, isFMCrosspostRequest: true });
 
   return {
     status: "posted",
@@ -112,15 +101,18 @@ export const onUpdateCrosspostRequest: PostRouteOf<'updateCrosspost'> = async (r
 };
 
 export const onGetCrosspostRequest: PostRouteOf<'getCrosspost'> = async (req) => {
+  const { createClient }: typeof import('../vulcan-lib/apollo-ssr/apolloClient') = require('../vulcan-lib/apollo-ssr/apolloClient');
   const { collectionName, extraVariables, extraVariablesValues, fragmentName, documentId } = req;
   const apolloClient = await createClient(createAnonymousContext());
+  const typeName = collectionNameToTypeName[collectionName];
+  const resolverName = getSingleResolverName(typeName);
   const query = getGraphQLSingleQueryFromOptions({
     extraVariables,
     collectionName,
     fragmentName,
     fragment: undefined,
+    resolverName,
   });
-  const resolverName = getResolverNameFromOptions(collectionName);
 
   const { data } = await apolloClient.query({
     query,

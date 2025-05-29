@@ -1,11 +1,24 @@
 import React, { useCallback } from 'react'
 import { isBotSiteSetting, isEAForum } from '../../lib/instanceSettings'
 import { DatabasePublicSetting } from '../../lib/publicSettings'
-import { Components, combineUrls, getSiteUrl, registerComponent } from '../../lib/vulcan-lib'
 import { useCurrentUser } from '../common/withUser'
-import { maintenanceTime } from '../common/MaintenanceBanner'
+import MaintenanceBanner, { maintenanceTime } from '../common/MaintenanceBanner'
 import { AnalyticsContext } from '../../lib/analyticsEvents'
 import DeferRender from '../common/DeferRender'
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
+import RecentDiscussionFeed from "../recentDiscussion/RecentDiscussionFeed";
+import QuickTakesSection from "../quickTakes/QuickTakesSection";
+import DismissibleSpotlightItem from "../spotlights/DismissibleSpotlightItem";
+import HomeLatestPosts from "../common/HomeLatestPosts";
+import EAHomeCommunityPosts from "./EAHomeCommunityPosts";
+import EAPopularCommentsSection from "./EAPopularCommentsSection";
+import EAHomeMainContent from "./EAHomeMainContent";
+import SmallpoxBanner from "./SmallpoxBanner";
+import EventBanner from "./EventBanner";
+import HeadTags from "../common/HeadTags";
+import BotSiteBanner from "../common/BotSiteBanner";
+import EAGBanner from "./EAGBanner";
 
 const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
 const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBanner', false)
@@ -48,11 +61,6 @@ const styles = (_theme: ThemeType) => ({
 const FrontpageNode = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const currentUser = useCurrentUser();
   const recentDiscussionCommentsPerPost = currentUser && currentUser.isAdmin ? 4 : 3;
-  const {
-    RecentDiscussionFeed, QuickTakesSection, DismissibleSpotlightItem,
-    HomeLatestPosts, EAHomeCommunityPosts, EAPopularCommentsSection,
-  } = Components
-
   return (
     <>
       <DismissibleSpotlightItem current className={classes.spotlightMargin} />
@@ -90,11 +98,6 @@ const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
     () => <FrontpageNode classes={classes} />,
     [classes],
   );
-
-  const {
-    EAHomeMainContent, SmallpoxBanner, EventBanner, MaintenanceBanner,
-    HeadTags, BotSiteBanner, EAGBanner,
-  } = Components
   return (
     <AnalyticsContext pageContext="homePage">
       <HeadTags structuredData={getStructuredData()}/>
@@ -108,10 +111,6 @@ const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
   )
 }
 
-const EAHomeComponent = registerComponent('EAHome', EAHome, {styles});
+export default registerComponent('EAHome', EAHome, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EAHome: typeof EAHomeComponent
-  }
-}
+

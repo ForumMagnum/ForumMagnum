@@ -1,17 +1,21 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
 import { styles } from '../common/HeaderSubtitle';
 import { Helmet } from '../../lib/utils/componentsWithChildren';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const SequencesPageTitle = ({isSubtitle, siteName, classes}: {
+const titleComponentStyles = defineStyles('SequencesPageTitle', styles);
+
+export const SequencesPageTitle = ({isSubtitle, siteName}: {
   isSubtitle: boolean,
   siteName: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(titleComponentStyles);
+
   const { params: {_id} } = useLocation();
   
   const { document: sequence, loading } = useSingle({
@@ -40,13 +44,4 @@ const SequencesPageTitle = ({isSubtitle, siteName, classes}: {
   // collections. That special case didn't work, but maybe it's worth building
   // a version that does.
 }
-
-const SequencesPageTitleComponent = registerComponent("SequencesPageTitle", SequencesPageTitle, {styles});
-
-declare global {
-  interface ComponentTypes {
-    SequencesPageTitle: typeof SequencesPageTitleComponent
-  }
-}
-
 

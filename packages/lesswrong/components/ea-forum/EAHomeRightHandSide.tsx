@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -12,6 +12,13 @@ import { userHasEAHomeRHS } from '../../lib/betas';
 import { useRecentOpportunities } from '../hooks/useRecentOpportunities';
 import { useEAVirtualPrograms } from '../hooks/useEAVirtualPrograms';
 import DeferRender from '../common/DeferRender';
+import LWTooltip from "../common/LWTooltip";
+import SectionTitle from "../common/SectionTitle";
+import PostsItemTooltipWrapper from "../posts/PostsItemTooltipWrapper";
+import FormatDate from "../common/FormatDate";
+import PostsItemDate from "../posts/PostsItemDate";
+import ForumIcon from "../common/ForumIcon";
+import SidebarDigestAd from "./digestAd/SidebarDigestAd";
 
 /**
  * The max screen width where the Home RHS is visible
@@ -58,25 +65,6 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 450,
     fontFamily: theme.typography.fontFamily,
     marginBottom: 32,
-  },
-  wrappedAd: {
-    backgroundColor: theme.palette.wrapped.background,
-    color: theme.palette.text.alwaysWhite,
-    padding: '12px 24px',
-    borderRadius: theme.borderRadius.default,
-    '&:hover': {
-      opacity: 1,
-      backgroundColor: theme.palette.wrapped.darkBackground,
-    }
-  },
-  wrappedAdHeading: {
-    fontWeight: 600,
-    fontSize: 16,
-    lineHeight: '22px',
-    margin: 0
-  },
-  wrappedAdHighlight: {
-    color: theme.palette.wrapped.highlightText,
   },
   digestAd: {
     maxWidth: 280,
@@ -129,24 +117,6 @@ const styles = (theme: ThemeType) => ({
 });
 
 
-const WrappedAd = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
-  const currentUser = useCurrentUser()
-  if (!currentUser) return null
-
-  return <AnalyticsContext pageSubSectionContext="wrappedAd">
-    <div className={classes.section}>
-      <Link to="/wrapped" className={classes.wrappedAd}>
-        <h2 className={classes.wrappedAdHeading}>
-          Your 2024 EA Forum
-          <div className={classes.wrappedAdHighlight}>Wrapped</div>
-        </h2>
-      </Link>
-    </div>
-  </AnalyticsContext>
-}
-
 /**
  * This is a list of upcoming (nearby) events. It uses logic similar to EventsList.tsx.
  */
@@ -170,9 +140,6 @@ const UpcomingEventsSection = ({classes}: {
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
   })
-
-  const {LWTooltip, SectionTitle, PostsItemTooltipWrapper, FormatDate} = Components;
-  
   if (!upcomingEvents?.length) return null
 
   return <AnalyticsContext pageSubSectionContext="upcomingEvents">
@@ -245,11 +212,6 @@ export const EAHomeRightHandSide = ({classes}: {
   }
 
   if (!userHasEAHomeRHS(currentUser)) return null
-  
-  const {
-    SectionTitle, PostsItemTooltipWrapper, PostsItemDate, LWTooltip, ForumIcon, SidebarDigestAd, FormatDate
-  } = Components
-  
   const sidebarToggleNode = <div className={classes.sidebarToggle} onClick={handleToggleSidebar}>
     <LWTooltip title={isHidden ? 'Show sidebar' : 'Hide sidebar'}>
       <ForumIcon icon={isHidden ? 'ThickChevronLeft' : 'ThickChevronRight'} className={classes.sidebarToggleIcon} />
@@ -276,7 +238,6 @@ export const EAHomeRightHandSide = ({classes}: {
   return <AnalyticsContext pageSectionContext="homeRhs">
     {!!currentUser && sidebarToggleNode}
     <div className={classes.root}>
-      <WrappedAd classes={classes} />
       {digestAdNode}
       
       {!!opportunityPosts?.length && <AnalyticsContext pageSubSectionContext="opportunities">
@@ -349,10 +310,6 @@ export const EAHomeRightHandSide = ({classes}: {
   </AnalyticsContext>
 }
 
-const EAHomeRightHandSideComponent = registerComponent('EAHomeRightHandSide', EAHomeRightHandSide, {styles});
+export default registerComponent('EAHomeRightHandSide', EAHomeRightHandSide, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EAHomeRightHandSide: typeof EAHomeRightHandSideComponent
-  }
-}
+

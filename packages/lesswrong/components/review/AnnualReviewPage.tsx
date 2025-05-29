@@ -1,15 +1,20 @@
-// TODO: Import component in components.ts
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation, useNavigate } from '../../lib/routeUtil';
 import { getReviewPhase, getReviewYearFromString } from '@/lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
+import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
+import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import qs from 'qs'
 import classNames from 'classnames';
-import { SECTION_WIDTH } from '../common/SingleColumnSection';
-import { allPostsParams } from './NominationsPage';
+import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
+import NominationsPage, { allPostsParams } from './NominationsPage';
+import FrontpageReviewWidget from "./FrontpageReviewWidget";
+import ReviewVotingPage from "./ReviewVotingPage";
+import ReviewVotingExpandedPost from "./ReviewVotingExpandedPost";
+import ReviewsPage from "./ReviewsPage";
+import ReviewPhaseInformation from "./ReviewPhaseInformation";
+import QuickReviewPage from "./QuickReviewPage";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -126,7 +131,6 @@ const styles = (theme: ThemeType) => ({
 export const AnnualReviewPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { SingleColumnSection, FrontpageReviewWidget, ReviewVotingPage, NominationsPage, ReviewVotingExpandedPost, ReviewsPage, ReviewPhaseInformation, QuickReviewPage } = Components
   const currentUser = useCurrentUser()
   const navigate = useNavigate()
   const { params, query, location } = useLocation()
@@ -226,10 +230,6 @@ export const AnnualReviewPage = ({classes}: {
   </div>
 }
 
-const AnnualReviewPageComponent = registerComponent('AnnualReviewPage', AnnualReviewPage, {styles});
+export default registerComponent('AnnualReviewPage', AnnualReviewPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AnnualReviewPage: typeof AnnualReviewPageComponent
-  }
-}
+

@@ -1,8 +1,9 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
-import Checkbox from '@material-ui/core/Checkbox';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import classNames from 'classnames';
-import { PopperPlacementType } from '@material-ui/core/Popper'
+import type { Placement as PopperPlacementType } from "popper.js"
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -40,19 +41,19 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SectionFooterCheckbox = ({ classes, label, onClick, value, disabled, tooltip, tooltipPlacement="bottom-start" }: {
+const SectionFooterCheckbox = ({ classes, label, onClick, value, disabled, tooltip, tooltipPlacement="bottom-start", labelClassName }: {
   classes: ClassesType<typeof styles>,
   label: string|React.ReactNode,
   onClick: (ev: React.MouseEvent) => void,
   value: boolean,
   disabled?: boolean,
   tooltip?: any,
-  tooltipPlacement?: PopperPlacementType
+  tooltipPlacement?: PopperPlacementType,
+  labelClassName?: string
 }) => {
-  const { LWTooltip } = Components
   const checkbox = <span className={classNames(classes.root, {[classes.disabled]: disabled })} onClick={!disabled ? onClick : undefined}>
     <Checkbox disableRipple classes={{root: classes.checkbox, checked: classes.checked}} checked={value} />
-    <span className={classes.label}>{ label }</span>
+    <span className={classNames(classes.label, labelClassName)}>{ label }</span>
   </span>
 
   if (tooltip) {
@@ -64,10 +65,6 @@ const SectionFooterCheckbox = ({ classes, label, onClick, value, disabled, toolt
   }
 }
 
-const SectionFooterCheckboxComponent = registerComponent("SectionFooterCheckbox", SectionFooterCheckbox, {styles});
+export default registerComponent("SectionFooterCheckbox", SectionFooterCheckbox, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SectionFooterCheckbox: typeof SectionFooterCheckboxComponent
-  }
-}
+

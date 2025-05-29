@@ -33,7 +33,7 @@
  */
 export const acceptsSchemaHash = "a09712836b72d69f7456155ccc81ac83";
 
-import DialogueMatchPreferences from "../../lib/collections/dialogueMatchPreferences/collection";
+import DialogueMatchPreferences from "../../server/collections/dialogueMatchPreferences/collection";
 import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {

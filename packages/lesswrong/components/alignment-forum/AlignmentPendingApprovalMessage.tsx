@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Link } from "../../lib/reactRouterWrapper";
@@ -39,10 +39,6 @@ const AlignmentPendingApprovalMessage = ({post, classes}: {
   }
 }
 
-const AlignmentPendingApprovalMessageComponent = registerComponent('AlignmentPendingApprovalMessage', AlignmentPendingApprovalMessage, {styles});
+export default registerComponent('AlignmentPendingApprovalMessage', AlignmentPendingApprovalMessage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AlignmentPendingApprovalMessage: typeof AlignmentPendingApprovalMessageComponent
-  }
-}
+

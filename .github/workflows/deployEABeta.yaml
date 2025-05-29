@@ -3,7 +3,11 @@ concurrency: deploy-ea-beta
 on:
   workflow_dispatch:
   push:
-    branches: [ea-wrapped-2024]
+    # Note: The beta site may be scaled down to 0 if we haven't used it for a while. To scale it
+    # back up, go to Elastic Beanstalk (https://us-east-1.console.aws.amazon.com/elasticbeanstalk/home?region=us-east-1#/environments)
+    # and set the "Min instances" and "Max instances" to 1 in the configuration for EAForum-Beta.
+    # Also please scale it back down if you think it won't be needed for > ~2 weeks
+    branches: [manually-install-py-packaging]
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -16,7 +20,9 @@ jobs:
     - uses: actions/setup-python@v2
       with:
         python-version: '>=3.5 <3.12' # Version range or exact version of a Python version to use, using SemVer's version range syntax
-    - run: pip3 install "pyyaml<5.4" && pip3 install --upgrade pip awsebcli # pip3 install "pyyaml<5.4" is a temporary workaround for this bug: https://github.com/aws/aws-elastic-beanstalk-cli/issues/441
+      # pip3 install "pyyaml<5.4" is a temporary workaround for this bug: https://github.com/aws/aws-elastic-beanstalk-cli/issues/441
+      # `packaging` is a workaround for https://github.com/aws/aws-elastic-beanstalk-cli/issues/541
+    - run: pip3 install "pyyaml<5.4" && pip3 install --upgrade pip packaging awsebcli
     - name: Run Deploy
       run: scripts/deploy.sh EAForum ${{ matrix.environment }}
       env:

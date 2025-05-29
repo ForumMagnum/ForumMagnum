@@ -2,15 +2,13 @@ import { captureException } from '@sentry/core';
 import { captureEvent } from '../lib/analyticsEvents';
 import { isAnyTest } from '../lib/executionEnvironment';
 import { DatabaseServerSetting } from './databaseSettings';
-import { printInFlightRequests, checkForMemoryLeaks } from './vulcan-lib/apollo-ssr/pageCache';
-import { Globals } from '../lib/vulcan-lib/config';
+import { printInFlightRequests } from './vulcan-lib/apollo-ssr/pageCache';
 
 import * as Sentry from '@sentry/node';
 import * as SentryIntegrations from '@sentry/integrations';
 import { sentryUrlSetting, sentryEnvironmentSetting, sentryReleaseSetting } from '../lib/instanceSettings';
 import * as _ from 'underscore';
 import fs from 'fs';
-import { printInProgressCallbacks } from './utils/callbackHooks';
 import type { AddMiddlewareType } from './apolloServer';
 
 // Log unhandled promise rejections, eg exceptions escaping from async
@@ -29,8 +27,6 @@ process.on("unhandledRejection", (r: any) => {
     console.log(r.stack);
   }
 });
-
-captureEvent("serverStarted", {});
 
 
 export function serverInitSentry() {
@@ -66,7 +62,7 @@ export const addSentryMiddlewares = (addConnectHandler: AddMiddlewareType) => {
 const gigabytes = 1024*1024*1024;
 const consoleLogMemoryUsageThreshold = new DatabaseServerSetting<number>("consoleLogMemoryUsage", 1.5*gigabytes);
 const sentryErrorMemoryUsageThreshold = new DatabaseServerSetting<number>("sentryErrorMemoryUsage", 2.1*gigabytes);
-const memoryUsageCheckInterval = new DatabaseServerSetting<number>("memoryUsageCheckInterval", 2000);
+const memoryUsageCheckInterval = new DatabaseServerSetting<number>("memoryUsageCheckInterval", 10000);
 
 export function startMemoryUsageMonitor() {
   if (!isAnyTest) {
@@ -75,8 +71,6 @@ export function startMemoryUsageMonitor() {
       if (memoryUsage > consoleLogMemoryUsageThreshold.get()) {
         // eslint-disable-next-line no-console
         console.log(`Memory usage is high: ${memoryUsage} bytes (warning threshold: ${consoleLogMemoryUsageThreshold.get()})`);
-        checkForMemoryLeaks();
-        
         logInFlightStuff();
       }
       if (memoryUsage > sentryErrorMemoryUsageThreshold.get()) {
@@ -164,9 +158,7 @@ function printInFlightGraphqlQueries() {
   }
 }
 
-function logInFlightStuff() {
+export function logInFlightStuff() {
   printInFlightRequests();
   printInFlightGraphqlQueries();
-  printInProgressCallbacks();
 }
-Globals.logInFlightStuff = logInFlightStuff;

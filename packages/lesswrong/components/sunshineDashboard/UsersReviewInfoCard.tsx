@@ -1,15 +1,27 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
-import FlagIcon from '@material-ui/icons/Flag';
+import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
 import { useMulti } from '../../lib/crud/withMulti';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
-import { UserKarmaInfo } from '../../lib/rateLimits/types';
 import { truncate } from '../../lib/editor/ellipsize';
 import { usePublishedPosts } from '../hooks/usePublishedPosts';
+import MetaInfo from "../common/MetaInfo";
+import UserReviewMetadata from "./ModeratorUserInfo/UserReviewMetadata";
+import LWTooltip from "../common/LWTooltip";
+import UserReviewStatus from "./ModeratorUserInfo/UserReviewStatus";
+import SunshineNewUserPostsList from "./SunshineNewUserPostsList";
+import ContentSummaryRows from "./ModeratorUserInfo/ContentSummaryRows";
+import SunshineNewUserCommentsList from "./SunshineNewUserCommentsList";
+import ModeratorActions from "./ModeratorActions";
+import UsersName from "../users/UsersName";
+import NewUserDMSummary from "./ModeratorUserInfo/NewUserDMSummary";
+import SunshineUserMessages from "./SunshineUserMessages";
+import FirstContentIcons from "./FirstContentIcons";
+import UserAutoRateLimitsDisplay from "./ModeratorUserInfo/UserAutoRateLimitsDisplay";
 
 export const CONTENT_LIMIT = 20
 
@@ -159,50 +171,12 @@ const styles = (theme: ThemeType) => ({
 export const DEFAULT_BIO_WORDCOUNT = 250
 export const MAX_BIO_WORDCOUNT = 10000
 
-export function getDownvoteRatio(user: UserKarmaInfo): number {
-  // First check if the sum of the individual vote count fields
-  // add up to something close (with 5%) to the voteReceivedCount field.
-  // (They should be equal, but we know there are bugs around counting votes,
-  // so to be fair to users we don't want to rate limit them if it's too buggy.)
-
-  let {
-    smallUpvoteReceivedCount,
-    bigUpvoteReceivedCount,
-    smallDownvoteReceivedCount,
-    bigDownvoteReceivedCount,
-    voteReceivedCount
-  } = user;
-
-  smallUpvoteReceivedCount ??= 0;
-  bigUpvoteReceivedCount ??= 0;
-  smallDownvoteReceivedCount ??= 0;
-  bigDownvoteReceivedCount ??= 0;
-  voteReceivedCount ??= 0;
-
-  const sumOfVoteCounts = smallUpvoteReceivedCount + bigUpvoteReceivedCount + smallDownvoteReceivedCount + bigDownvoteReceivedCount;
-  const denormalizedVoteCountSumDiff = Math.abs(sumOfVoteCounts - voteReceivedCount);
-  const voteCountsAreValid = voteReceivedCount > 0
-    && (denormalizedVoteCountSumDiff / voteReceivedCount) <= 0.05;
-
-  const totalDownvoteCount = smallDownvoteReceivedCount + bigDownvoteReceivedCount;
-  // If vote counts are not valid (i.e. they are negative or voteReceivedCount is 0), then do nothing
-  const downvoteRatio = voteCountsAreValid ? (totalDownvoteCount / voteReceivedCount) : 0
-
-  return downvoteRatio
-}
-
 const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   user: SunshineUsersList,
   currentUser: UsersCurrent,
   refetch: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    MetaInfo, UserReviewMetadata, LWTooltip, UserReviewStatus,
-    SunshineNewUserPostsList, ContentSummaryRows, SunshineNewUserCommentsList, ModeratorActions,
-    UsersName, NewUserDMSummary, SunshineUserMessages, FirstContentIcons, UserAutoRateLimitsDisplay
-  } = Components
-
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
   const [bioWordcount, setBioWordcount] = useState<number>(DEFAULT_BIO_WORDCOUNT)
   
@@ -296,15 +270,11 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   )
 }
 
-const UsersReviewInfoCardComponent = registerComponent('UsersReviewInfoCard', UsersReviewInfoCard, {
+export default registerComponent('UsersReviewInfoCard', UsersReviewInfoCard, {
   styles,
   hocs: [
     withErrorBoundary,
   ],
 });
 
-declare global {
-  interface ComponentTypes {
-    UsersReviewInfoCard: typeof UsersReviewInfoCardComponent
-  }
-}
+

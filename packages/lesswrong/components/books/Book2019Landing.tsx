@@ -1,8 +1,12 @@
 import React from 'react';
-import {Components, registerComponent} from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import { captureEvent } from "../../lib/analyticsEvents";
+import Book2019Animation from "./Book2019Animation";
+import HeadTags from "../common/HeadTags";
+import LWTooltip from "../common/LWTooltip";
+import ContentStyles from "../common/ContentStyles";
 
 const lw = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
 
@@ -261,8 +265,6 @@ const HiddenQuote = ({classes}: {classes: ClassesType<typeof styles>}) => {
 const Book2019Landing = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {Book2019Animation, HeadTags, LWTooltip, ContentStyles} = Components;
-
   return (
     <div>
       <HeadTags 
@@ -340,10 +342,6 @@ const Book2019Landing = ({classes}: {
   )
 }
 
-const Book2019LandingComponent = registerComponent('Book2019Landing', Book2019Landing, {styles});
+export default registerComponent('Book2019Landing', Book2019Landing, {styles});
 
-declare global {
-  interface ComponentTypes {
-    Book2019Landing: typeof Book2019LandingComponent
-  }
-}
+

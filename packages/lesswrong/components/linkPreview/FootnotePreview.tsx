@@ -1,18 +1,23 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import Card from '@material-ui/core/Card';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Card } from "@/components/widgets/Paper";
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from '../common/withHover';
 import { EXPAND_FOOTNOTES_EVENT } from '../posts/PostsPage/CollapsedFootnotes';
 import { hasCollapsedFootnotes, hasSidenotes } from '@/lib/betas';
 import classNames from 'classnames';
 import { parseDocumentFromString } from '@/lib/domParser';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
-import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, sidenotesHiddenBreakpoint } from '../posts/PostsPage/PostsPage';
+import { sidenotesHiddenBreakpoint, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES } from '../posts/PostsPage/constants';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
-import { useHasSideItemsSidebar } from '../contents/SideItems';
+import { SideItem, useHasSideItemsSidebar } from '../contents/SideItems';
 import { useDialog } from '../common/withDialog';
 import { isRegularClick } from "@/components/posts/TableOfContents/TableOfContentsList";
 import { isMobile } from '@/lib/utils/isMobile';
+import ContentStyles, { ContentStyleType } from '../common/ContentStyles';
+import FootnoteDialog from "./FootnoteDialog";
+import SideItemLine from "../contents/SideItemLine";
+import LWPopper from "../common/LWPopper";
+import ContentItemBody from "../common/ContentItemBody";
 
 const footnotePreviewStyles = (theme: ThemeType) => ({
   hovercard: {
@@ -51,6 +56,10 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
     "& .footnote-content": {
       width: "auto !important",
       maxWidth: "100%",
+      
+      "& ul:first-child, & ol:first-child": {
+        marginTop: 0,
+      },
     },
   },
 
@@ -124,14 +133,14 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
   },
 })
 
-const FootnotePreview = ({classes, href, id, rel, children}: {
+const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighlight", children}: {
   classes: ClassesType<typeof footnotePreviewStyles>,
   href: string,
   id?: string,
   rel?: string,
+  contentStyleType?: ContentStyleType,
   children: React.ReactNode,
 }) => {
-  const { ContentStyles, SideItem, SideItemLine, LWPopper } = Components
   const { openDialog } = useDialog();
   const [disableHover, setDisableHover] = useState(false);
   const { eventHandlers: anchorEventHandlers, hover: anchorHovered, anchorEl } = useHover({
@@ -164,10 +173,11 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
     if (isRegularClick(ev) && isMobile() && footnoteHTML !== null) {
       setDisableHover(true);
       openDialog({
-        componentName: "FootnoteDialog",
-        componentProps: {
-          footnoteHTML: footnoteHTML,
-        },
+        name: "FootnoteDialog",
+        contents: ({onClose}) => <FootnoteDialog
+          onClose={onClose}
+          footnoteHTML={footnoteHTML}
+        />
       });
       ev.preventDefault();
     } else {
@@ -191,7 +201,7 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
         allowOverflow
       >
         <Card>
-          <ContentStyles contentType="postHighlight" className={classes.hovercard}>
+          <ContentStyles contentType={contentStyleType} className={classes.hovercard}>
             <div dangerouslySetInnerHTML={{__html: footnoteHTML || ""}} />
           </ContentStyles>
         </Card>
@@ -209,6 +219,7 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
             <SidenoteDisplay
               footnoteHref={href}
               footnoteHTML={footnoteHTML}
+              contentStyleType={contentStyleType}
               classes={classes}
             />
           </div>
@@ -245,21 +256,8 @@ function extractFootnoteHTML(href: string): string|null {
     const footnoteContentsElement = document.querySelector(href);
     const footnoteHTML = footnoteContentsElement?.innerHTML ?? null;
     
-    // Decide whether the footnote is nonempty. This is tricky because while there
-    // are consistently formatted footnotes created by our editor plugins, there
-    // are also wacky irregular footnotes present in imported HTML and similar
-    // things. Eg https://www.lesswrong.com/posts/ACGeaAk6KButv2xwQ/the-halo-effect
-    // We can't just condition on the footnote containing non-whitespace text,
-    // because footnotes sometimes have their number and backlink in a place that
-    // would be mistaken for their body. Our current heuristic is that a footnote
-    // is nonempty if it contains at least one <p> which contains non-whitespace
-    // text, which might false-negative on rare cases like an image-only footnote
-    // but which seems to work in practice.
-    const footnoteContentsNonempty = !!footnoteContentsElement
-      && !!Array.from(footnoteContentsElement.querySelectorAll("p"))
-        .reduce((acc, p) => acc + p.textContent, "").trim();
     
-    if (footnoteContentsNonempty) {
+    if (footnoteContentsElement && isFootnoteContentsNonempty(footnoteContentsElement)) {
       return footnoteHTML;
     } else {
       return null;
@@ -270,16 +268,32 @@ function extractFootnoteHTML(href: string): string|null {
   }
 }
 
-const SidenoteDisplay = ({footnoteHref, footnoteHTML, classes}: {
+const isFootnoteContentsNonempty = (footnoteContentsElement: Element): boolean => {
+  // Decide whether the footnote is nonempty. This is tricky because while there
+  // are consistently formatted footnotes created by our editor plugins, there
+  // are also wacky irregular footnotes present in imported HTML and similar
+  // things. Eg https://www.lesswrong.com/posts/ACGeaAk6KButv2xwQ/the-halo-effect
+  // We can't just condition on the footnote containing non-whitespace text,
+  // because footnotes sometimes have their number and backlink in a place that
+  // would be mistaken for their body. Our current heuristic is that a footnote
+  // is nonempty if it contains at least one <p> which contains non-whitespace
+  // text, which might false-negative on rare cases like an image-only footnote
+  // but which seems to work in practice.
+  return !!footnoteContentsElement
+    && !!Array.from(footnoteContentsElement.querySelectorAll("p, li"))
+      .reduce((acc, p) => acc + p.textContent, "").trim();
+}
+
+const SidenoteDisplay = ({footnoteHref, footnoteHTML, contentStyleType, classes}: {
   footnoteHref: string,
   footnoteHTML: string,
+  contentStyleType: ContentStyleType,
   classes: ClassesType<typeof footnotePreviewStyles>,
 }) => {
-  const { ContentItemBody, ContentStyles } = Components;
   const footnoteIndex = getFootnoteIndex(footnoteHref, footnoteHTML);
 
   return (
-    <ContentStyles contentType="postHighlight">
+    <ContentStyles contentType={contentStyleType}>
       <span className={classes.sidenoteWithIndex}>
         {footnoteIndex !== null && <span className={classes.sidenoteIndex}>
           {footnoteIndex}{"."}
@@ -312,8 +326,11 @@ function getFootnoteId(href: string, html: string): string|null {
  * Because of different versions of the CkEditor footnote plugin, imported
  * posts, etc, we have several different strategies for doing this:
  *  - Find the footnote reference, and use the data-footnote-index prop
- *  - Find the footnote in the post footer, and if it's inside an <ol> tag, use
+ *  - Find the footnote in the page footer, and if it's inside an <ol> tag, use
  *    its position within that tag's list of children
+ * 
+ * We specifically look for footnotes with an OL parent that has the "footnotes" class
+ * to avoid using versions of the footnote that's present from the ckEditor edit form (present for quick-switching).
  */
 function getFootnoteIndex(href: string, html: string): string|null {
   // Parse the footnote for its data-footnote-id, use that to find the footnote
@@ -323,42 +340,48 @@ function getFootnoteIndex(href: string, html: string): string|null {
   const footnoteId = getFootnoteId(href, html);
   if (!footnoteId) return null;
 
-  const fromFootnoteIndexAttribute = document.getElementById("fnref"+footnoteId)
-    ?.getAttribute("data-footnote-index");
-  if (fromFootnoteIndexAttribute)
-    return fromFootnoteIndexAttribute;
+  const footnoteRef = document.getElementById("fnref"+footnoteId);
+  const fromFootnoteIndexAttribute = footnoteRef?.getAttribute("data-footnote-index");
   
-  const footnoteElement = document.getElementById("fn"+footnoteId);
-  if (footnoteElement) {
-    const parentElement = footnoteElement.parentElement;
-    if (parentElement && parentElement.tagName === 'OL') {
-      const olStartAttr = parentElement.getAttribute("start");
-      const olStart = olStartAttr ? parseInt(olStartAttr) : 1;
-
-      let numPrecedingLiElements = 0;
-      for (let i=0; i<parentElement.children.length; i++) {
-        const elem = parentElement.children.item(i);
-        if (elem === footnoteElement) {
-          break;
-        }
-        if (elem?.tagName === 'LI') {
-          numPrecedingLiElements++;
-        }
-      }
-      return ""+(numPrecedingLiElements+olStart);
-    }
+  if (fromFootnoteIndexAttribute) {
+    return fromFootnoteIndexAttribute;
   }
   
+  const allMatchingElements = Array.from(document.querySelectorAll(`#fn${footnoteId}`));
+  
+  // Try to find element with an OL parent with the "footnotes" class
+  // This prevents using the version of the footnote from within quick-switch edit form that has a div parent instead of an ol
+  const footnoteWithOlParent = allMatchingElements.find(el => 
+    el.parentElement?.tagName === 'OL' &&
+    (el.parentElement.classList.contains('footnotes')
+      || el.parentElement.classList.contains('footnotes-list'))
+  );
+  
+  if (footnoteWithOlParent) {
+    const parentElement = footnoteWithOlParent.parentElement;
+    
+    const olStartAttr = parentElement?.getAttribute("start");
+    const olStart = olStartAttr ? parseInt(olStartAttr) : 1;
 
+    let numPrecedingLiElements = 0;
+    for (let i=0; i<(parentElement?.children.length ?? 0); i++) {
+      const elem = parentElement?.children.item(i);
+      if (elem === footnoteWithOlParent) {
+        break;
+      }
+      if (elem?.tagName === 'LI') {
+        numPrecedingLiElements++;
+      }
+    }
+    
+    return (olStart + numPrecedingLiElements).toString();
+  }
+  
   return null;
 }
 
-const FootnotePreviewComponent = registerComponent('FootnotePreview', FootnotePreview, {
+export default registerComponent('FootnotePreview', FootnotePreview, {
   styles: footnotePreviewStyles,
 });
 
-declare global {
-  interface ComponentTypes {
-    FootnotePreview: typeof FootnotePreviewComponent
-  }
-}
+

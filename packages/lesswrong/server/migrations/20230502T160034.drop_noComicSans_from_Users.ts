@@ -24,7 +24,7 @@
  */
 export const acceptsSchemaHash = "5d840ee3f919bdbf70df33e470b65666";
 
-import Users from "../../lib/collections/users/collection"
+import Users from "../../server/collections/users/collection"
 import { BoolType } from "../../server/sql/Type";
 import { addRemovedField, dropRemovedField } from "./meta/utils"
 
