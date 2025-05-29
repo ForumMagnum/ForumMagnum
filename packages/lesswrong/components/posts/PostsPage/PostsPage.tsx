@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { getResponseCounts, isDialogueParticipant, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView, commentIncludedInCounts } from '../../../lib/collections/comments/helpers'
@@ -6,7 +6,7 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import {forumTitleSetting, isAF, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
+import {isAF, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting, recombeeEnabledSetting, vertexEnabledSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
 import { hasPostRecommendations, commentsTableOfContentsEnabled, hasDigests, hasSidenotes } from '../../../lib/betas';
@@ -27,7 +27,6 @@ import PostsAudioPlayerWrapper, { postHasAudioPlayer } from './PostsAudioPlayerW
 import { ImageProvider } from './ImageContext';
 import { getMarketInfo, highlightMarket } from '../../../lib/collections/posts/annualReviewMarkets';
 import isEqual from 'lodash/isEqual';
-import { usePostReadProgress } from '../usePostReadProgress';
 import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
 import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
@@ -43,7 +42,6 @@ import { BestOfLWPostsPageSplashImage } from './BestOfLessWrong/BestOfLWPostsPag
 import { useNavigate, useSubscribedLocation } from "@/lib/routeUtil";
 import { useCurrentAndRecentForumEvents } from '@/components/hooks/useCurrentForumEvent';
 import SharePostPopup from "../SharePostPopup";
-import ReplyCommentDialog from "../../comments/ReplyCommentDialog";
 import { SideItemsSidebar, SideItemsContainer } from "../../contents/SideItems";
 import MultiToCLayout from "../TableOfContents/MultiToCLayout";
 import HeadTags from "../../common/HeadTags";
@@ -84,77 +82,14 @@ import PostPageReviewButton from "./PostPageReviewButton";
 import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
 import FixedPositionToCHeading from '../TableOfContents/PostFixedPositionToCHeading';
 import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RECOMBEE_RECOMM_ID_QUERY_PARAM, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, SHARE_POPUP_QUERY_PARAM, sidenotesHiddenBreakpoint, VERTEX_ATTRIBUTION_ID_QUERY_PARAM } from './constants';
-import { getStructuredData } from './structuredData';
+import { getPostDescription, getStructuredData } from './structuredData';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { ReadingProgressBar } from './ReadingProgressBar';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
 
-const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
-  /cross-? ?posted/i,
-  /epistemic status/i,
-  /acknowledgements/i
-];
-
 const getRecommendationsPosition = (): "right" | "underPost" => "underPost";
-
-/** Get a og:description-appropriate description for a post */
-export const getPostDescription = (post: {
-  contents?: { plaintextDescription: string | null } | null;
-  customHighlight?: { plaintextDescription: string | null } | null;
-  socialPreviewData?: { text?: string | null } | null;
-  shortform?: boolean | null;
-  user: { displayName: string } | null;
-}) => {
-  if (post.socialPreviewData?.text) {
-    return post.socialPreviewData.text;
-  }
-
-  const longDescription = post.customHighlight?.plaintextDescription || post.contents?.plaintextDescription;
-  if (longDescription) {
-    // concatenate the first few paragraphs together up to some reasonable length
-    const plaintextPars = longDescription
-      // paragraphs in the plaintext description are separated by double-newlines
-      .split(/\n\n/)
-      // get rid of bullshit opening text ('epistemic status' or 'crossposted from' etc)
-      .filter((par) => !POST_DESCRIPTION_EXCLUSIONS.some((re) => re.test(par)));
-
-    if (!plaintextPars.length) return "";
-
-    // concatenate paragraphs together with a delimiter, until they reach an
-    // acceptable length (target is 100-200 characters)
-    // this will return a longer description if one of the first couple of
-    // paragraphs is longer than 200
-    let firstFewPars = plaintextPars[0];
-    for (const par of plaintextPars.slice(1)) {
-      const concat = `${firstFewPars} • ${par}`;
-      // If we're really short, we need more
-      if (firstFewPars.length < 40) {
-        firstFewPars = concat;
-        continue;
-      }
-      // Otherwise, if we have room for the whole next paragraph, concatenate it
-      if (concat.length < 150) {
-        firstFewPars = concat;
-        continue;
-      }
-      // If we're here, we know we have enough and couldn't fit the last
-      // paragraph, so we should stop
-      break;
-    }
-    if (firstFewPars.length > 148) {
-      return firstFewPars.slice(0, 149).trim() + "…";
-    }
-    return firstFewPars + " …";
-  }
-  if (post.shortform)
-    return `A collection of shorter posts ${
-      post.user ? `by ${forumTitleSetting.get()} user ${post.user.displayName}` : ""
-    }`;
-  return null;
-};
-
 
 // Also used in PostsCompareRevisions
 export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
