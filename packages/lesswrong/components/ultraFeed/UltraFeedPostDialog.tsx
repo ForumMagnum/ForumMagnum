@@ -40,43 +40,41 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
       paddingTop: 0,
     }
   },
-  titleContainer: {
+  stickyHeader: {
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'space-between',
     position: 'sticky',
     top: 0,
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     zIndex: 10,
-    padding: '20px 20px 12px 20px',
-    marginBottom: 0,
-    // borderBottom: `1px solid ${theme.palette.grey[300]}`,
+    padding: '12px 20px',
     [theme.breakpoints.down('sm')]: {
-      padding: '16px 10px 16px 10px',
+      padding: '8px 10px',
     }
   },
+  titleContainer: {
+    // padding: '20px 20px 0 20px',
+    // [theme.breakpoints.down('sm')]: {
+    //   padding: '0px 10px 0 10px',
+    // }
+  },
   tripleDotMenu: {
-    position: 'absolute',
-    top: 20,
-    right: 20,
-    zIndex: 11,
     opacity: 0.7,
     padding: 5,
+    marginLeft: 'auto',
     "& svg": {
       fontSize: 18,
       cursor: "pointer",
       color: theme.palette.text.dim,
       transform: 'rotate(90deg)',
     },
-    [theme.breakpoints.down('sm')]: {
-      top: 16,
-      right: 10,
-    }
   },
   headerContent: {
     display: 'flex',
     flexDirection: 'column',
     gap: '4px',
-    flex: 1,
+    marginBottom: 24,
   },
   titleWrapper: {
     display: 'flex',
@@ -256,53 +254,55 @@ const UltraFeedDialogContent = ({
     >
       <DialogContent className={classes.dialogContent}>
         {post && <>
-          <AnalyticsContext pageElementContext="tripleDotMenu">
-            <PostActionsButton
-              post={post}
-              vertical={true}
-              autoPlace
-              ActionsComponent={UltraFeedPostActions}
-              className={classes.tripleDotMenu}
-            />
-          </AnalyticsContext>
-          <div className={classes.titleContainer}>
+          <div className={classes.stickyHeader}>
             <ForumIcon 
               icon="ThickChevronLeft" 
               onClick={onClose} 
               className={classes.chevronButton} 
             />
-            <div className={classes.headerContent}>
-              <div className={classes.titleWrapper}>
-                <Link
-                  to={postGetPageUrl(post)}
-                  className={classes.title}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onClose();
-                  }
-                  }>
-                  {post.title}
-                </Link>
-              </div>
-              <div className={classes.metaRow}>
-                <TruncatedAuthorsList 
-                  post={post} 
-                  useMoreSuffix={false} 
-                  expandContainer={authorListRef}
-                  className={classes.authorsList} 
-                />
-                {post.postedAt && (
-                  <span className={classes.metaDateContainer}>
-                    <FormatDate date={post.postedAt} format="MMM D YYYY" />
-                  </span>
-                )}
-                {post.readTimeMinutes && (
-                  <span>{post.readTimeMinutes} min read</span>
-                )}
-              </div>
-            </div>
+            <AnalyticsContext pageElementContext="tripleDotMenu">
+              <PostActionsButton
+                post={post}
+                vertical={true}
+                autoPlace
+                ActionsComponent={UltraFeedPostActions}
+                className={classes.tripleDotMenu}
+              />
+            </AnalyticsContext>
           </div>
           <div className={classes.scrollableContent}>
+            <div className={classes.titleContainer}>
+              <div className={classes.headerContent}>
+                <div className={classes.titleWrapper}>
+                  <Link
+                    to={postGetPageUrl(post)}
+                    className={classes.title}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onClose();
+                    }
+                    }>
+                    {post.title}
+                  </Link>
+                </div>
+                <div className={classes.metaRow}>
+                  <TruncatedAuthorsList 
+                    post={post} 
+                    useMoreSuffix={false} 
+                    expandContainer={authorListRef}
+                    className={classes.authorsList} 
+                  />
+                  {post.postedAt && (
+                    <span className={classes.metaDateContainer}>
+                      <FormatDate date={post.postedAt} format="MMM D YYYY" />
+                    </span>
+                  )}
+                  {post.readTimeMinutes && (
+                    <span>{post.readTimeMinutes} min read</span>
+                  )}
+                </div>
+              </div>
+            </div>
             {post?.contents?.html ? (
               <FeedContentBody
                 html={post.contents.html}
