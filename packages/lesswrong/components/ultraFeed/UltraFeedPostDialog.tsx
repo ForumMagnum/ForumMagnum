@@ -210,8 +210,31 @@ const UltraFeedDialogContent = ({
 }) => {
   const classes = useStyles(styles);
   const authorListRef = useRef<HTMLDivElement>(null);
+  const isClosingViaBackRef = useRef(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    window.history.pushState({ dialogOpen: true }, '');
+
+    // Handle popstate (back button/swipe)
+    const handlePopState = (event: PopStateEvent) => {
+      if (!event.state?.dialogOpen) {
+        isClosingViaBackRef.current = true;
+        onClose();
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      // If dialog is closing normally (not via back), remove the history entry
+      if (!isClosingViaBackRef.current && window.history.state?.dialogOpen) {
+        window.history.back();
+      }
+    };
+  }, [onClose]);
 
   useEffect(() => {
     if (textFragment) {
