@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -635,8 +635,9 @@ const LWHomePosts = ({ children, classes }: {
           {showInlineTabSettingsButton && inlineTabSettingsButton}
         </div>
         {settings}
-        {/* TODO: reenable, disabled for testing to see how often duplication happens */}
-        <HideRepeatedPostsProvider>
+        <Suspense>
+          {/* TODO: reenable, disabled for testing to see how often duplication happens */}
+          <HideRepeatedPostsProvider>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
 
@@ -708,7 +709,8 @@ const LWHomePosts = ({ children, classes }: {
               </AnalyticsContext>}
 
             </AllowHidingFrontPagePostsContext.Provider>
-        </HideRepeatedPostsProvider>
+          </HideRepeatedPostsProvider>
+        </Suspense>
         
         {!selectedTabSettings.isInfiniteScroll && <>
           {children}

@@ -77,7 +77,11 @@ const LWHome = () => {
             <LWHomePosts>
               <Suspense>
                 <QuickTakesSection />
+              </Suspense>
+              <Suspense>
                 <EAPopularCommentsSection />
+              </Suspense>
+              <Suspense>
                 <UltraFeed />
                 {!ultraFeedEnabled && <RecentDiscussionFeed
                   af={false}
