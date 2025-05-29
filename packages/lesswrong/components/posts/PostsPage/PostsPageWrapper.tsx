@@ -62,18 +62,6 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     ? {...(query as CommentsViewTerms), limit:1000}
     : {view: defaultView, limit: 1000, postId: documentId}
 
-  // Don't pass in the eagerPostComments if we skipped the query,
-  // otherwise PostsPage will skip the lazy query if the terms change
-  const skipEagerComments = !!postPreload;
-  const commentQueryResult = useMulti({
-    terms,
-    skip: skipEagerComments,
-    ...postsCommentsThreadMultiOptions,
-  });
-  const eagerPostComments = skipEagerComments
-    ? undefined
-    : { terms, queryResponse: commentQueryResult };
-    
   // End of performance section
   if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
     throw new Error(error.message);
@@ -90,14 +78,13 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   } else if (!post && !postPreloadWithSequence) {
     return <Error404/>
   } else if (post && isPostWithForeignId(post)) {
-    return <PostsPageCrosspostWrapper post={post} eagerPostComments={eagerPostComments} refetch={refetch} fetchProps={fetchProps} />
+    return <PostsPageCrosspostWrapper post={post} refetch={refetch} fetchProps={fetchProps} />
   }
 
   return (
     <PostsPage
       fullPost={post}
       postPreload={postPreloadWithSequence ?? undefined}
-      eagerPostComments={eagerPostComments}
       refetch={refetch}
     />
   );

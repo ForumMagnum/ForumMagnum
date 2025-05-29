@@ -26,7 +26,6 @@ import { unflattenComments } from '../../../lib/utils/unflatten';
 import PostsAudioPlayerWrapper, { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import { ImageProvider } from './ImageContext';
 import { getMarketInfo, highlightMarket } from '../../../lib/collections/posts/annualReviewMarkets';
-import isEqual from 'lodash/isEqual';
 import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
 import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
@@ -270,8 +269,7 @@ export const postsCommentsThreadMultiOptions = {
   enableTotal: true,
 }
 
-const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch}: {
-  eagerPostComments?: EagerPostComments,
+const PostsPage = ({fullPost, postPreload, refetch}: {
   refetch: () => void,
 } & (
   { fullPost: PostsWithNavigation|PostsWithNavigationAndRevision, postPreload: undefined }
@@ -514,16 +512,10 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch}: {
 
   const marketInfo = getMarketInfo(post)
 
-  // check for deep equality between terms and eagerPostComments.terms
-  const useEagerResults = eagerPostComments && isEqual(commentTerms, eagerPostComments?.terms);
-
-  const lazyResults = useMulti({
+  const { loading, results: rawResults, loadMore, loadingMore } = useMulti({
     terms: {...commentTerms, postId: post._id},
-    skip: useEagerResults,
     ...postsCommentsThreadMultiOptions,
   });
-
-  const { loading, results: rawResults, loadMore, loadingMore } = useEagerResults ? eagerPostComments.queryResponse : lazyResults;
 
   // If the user has just posted a comment, and they are sorting by magic, put it at the top of the list for them
   const results = useMemo(() => {
