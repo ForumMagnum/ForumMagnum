@@ -536,7 +536,7 @@ function prefilterHandleRequest(req: express.Request, res: express.Response): bo
     parsedUrl.searchParams.delete("commentId");
     parsedUrl.hash = commentId;
 
-    res.status(301);
+    res.status(302);
     res.redirect(parsedUrl.toString());
     res.end();
     return true;
