@@ -86,7 +86,7 @@ import FixedPositionToCHeading from '../TableOfContents/PostFixedPositionToCHead
 import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RECOMBEE_RECOMM_ID_QUERY_PARAM, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, SHARE_POPUP_QUERY_PARAM, sidenotesHiddenBreakpoint, VERTEX_ATTRIBUTION_ID_QUERY_PARAM } from './constants';
 import { getStructuredData } from './structuredData';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { ReadingProgressBar } from '../ReadingProgressBar';
+import { ReadingProgressBar } from './ReadingProgressBar';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
@@ -570,17 +570,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch}: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDebateResponseLink, linkedCommentId]);
 
-  const onClickCommentOnSelection = useCallback((html: string) => {
-    openDialog({
-      name: "ReplyCommentDialog",
-      contents: ({onClose}) => <ReplyCommentDialog
-        onClose={onClose}
-        post={post}
-        initialHtml={html}
-      />
-    })
-  }, [openDialog, post]);
-
   const isCrosspostedQuestion = post.question &&
     post.fmCrosspost?.isCrosspost &&
     !post.fmCrosspost?.hostedHere;
@@ -772,7 +761,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch}: {
         <PostBodyPrefix post={post} query={query}/>
         <AnalyticsContext pageSectionContext="postBody">
           <HoveredReactionContextProvider voteProps={voteProps}>
-          <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
+          <CommentOnSelectionContentWrapper post={post}>
           <div id="postContent">
             {htmlWithAnchors && <>
               <PostBody
