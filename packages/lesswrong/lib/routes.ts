@@ -1631,6 +1631,7 @@ addRoute(
     background: postBackground,
     noFooter: hasPostRecommendations,
     enableResourcePrefetch: postRouteWillDefinitelyReturn200,
+    expectedHeadBlocks: ["title", "meta", "fonts", "citationTags"],
     swrCaching: "logged-out"
   },
   {
