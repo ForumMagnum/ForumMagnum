@@ -7,6 +7,7 @@ declare global {
     headers: string;
     serializedApolloState: string;
     serializedForeignApolloState: string;
+    structuredData: Record<string,any>|null
     jssSheets: string;
     status: number;
     redirectUrl: string;

@@ -16,14 +16,16 @@ import { ThemeContextProvider } from '@/components/themes/useTheme';
 import { AbstractThemeOptions } from '@/themes/themeNames';
 import AppComponent from '../../../../components/vulcan-core/App';
 import { HelmetProvider, HelmetServerState } from 'react-helmet-async';
-import { SentHeadBlocksContext } from '@/components/common/Helmet';
+import { SSRResponseContext } from '@/components/common/Helmet';
+import type { ResponseManager } from '@/server/rendering/ResponseManager';
 
 // Server-side wrapper around the app. There's another AppGenerator which is
 // the client-side version, which differs in how it sets up the wrappers for
 // routing and cookies and such. See client/start.tsx.
-const AppGenerator = ({ req, onHeadBlockSent, apolloClient, foreignApolloClient, serverRequestStatus, abTestGroupsUsed, ssrMetadata, themeOptions, enableSuspense, helmetContext }: {
+const AppGenerator = ({ req, onHeadBlockSent, responseManager, apolloClient, foreignApolloClient, serverRequestStatus, abTestGroupsUsed, ssrMetadata, themeOptions, enableSuspense, helmetContext }: {
   req: Request,
   onHeadBlockSent: (name: string) => void,
+  responseManager: ResponseManager,
   apolloClient: ApolloClient<NormalizedCacheObject>,
   foreignApolloClient: ApolloClient<NormalizedCacheObject>,
   serverRequestStatus: ServerRequestStatusContextType,
@@ -35,7 +37,12 @@ const AppGenerator = ({ req, onHeadBlockSent, apolloClient, foreignApolloClient,
 }) => {
   const App = (
     <HelmetProvider context={helmetContext}>
-    <SentHeadBlocksContext.Provider value={onHeadBlockSent}>
+    <SSRResponseContext.Provider value={{
+      onSendHeadBlock: onHeadBlockSent,
+      setStructuredData: (generate) => {
+        responseManager.setStructuredData(generate);
+      }
+    }}>
     <EnableSuspenseContext.Provider value={enableSuspense}>
     <ApolloProvider client={apolloClient}>
       <ForeignApolloClientProvider value={foreignApolloClient}>
@@ -62,7 +69,7 @@ const AppGenerator = ({ req, onHeadBlockSent, apolloClient, foreignApolloClient,
       </ForeignApolloClientProvider>
     </ApolloProvider>
     </EnableSuspenseContext.Provider>
-    </SentHeadBlocksContext.Provider>
+    </SSRResponseContext.Provider>
     </HelmetProvider>
   );
   return App;

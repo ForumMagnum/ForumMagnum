@@ -2,6 +2,7 @@ import React from 'react';
 import type { Request, Response } from 'express';
 import { Writable } from 'node:stream';
 import { renderToPipeableStream } from 'react-dom/server';
+import { toEmbeddableJson } from '@/lib/utils/jsonUtils';
 
 const debugStreamTiming = true;
 
@@ -13,6 +14,8 @@ export class ResponseManager {
   headBlockElements: string[] = []
   body: ResponseForwarderStream|string|null = null
   footerElements: string[] = []
+  generateStructuredData: (() => Record<string,AnyBecauseHard>)|null = null;
+  structuredData: (Record<string,AnyBecauseHard>)|null = null;
 
   aborted = false
   httpHeadersClosed = false;
@@ -24,6 +27,7 @@ export class ResponseManager {
   bodyFinished = false;
   footerClosed = false;
   footerSent = false;
+  structuredDataSent = false;
 
   constructor(res: Response) {
     this.res = res;
@@ -173,16 +177,19 @@ export class ResponseManager {
     if (!this.footerSent) {
       this._sendFooter();
     }
+    if (!this.structuredDataSent) {
+      this._sendStructuredData();
+    }
     this.res.end();
   }
   
   _warnNotReadyComponents() {
-    if (!this.httpHeadersClosed) console.error("HTTP headers not closed");
-    if (!this.status) console.error("Status not set");
-    if (!this.prefetchHeader) console.error("Prefetch header not set");
-    if (!this.headBlockClosed) console.error("Head block not closed");
-    if (!this.body) console.error("Body not set");
-    if (!this.footerClosed) console.error("Footer not closed");
+    if (!this.httpHeadersClosed) console.error("HTTP headers not closed"); //eslint-disable-line no-console
+    if (!this.status) console.error("Status not set"); //eslint-disable-line no-console
+    if (!this.prefetchHeader) console.error("Prefetch header not set"); //eslint-disable-line no-console
+    if (!this.headBlockClosed) console.error("Head block not closed"); //eslint-disable-line no-console
+    if (!this.body) console.error("Body not set"); //eslint-disable-line no-console
+    if (!this.footerClosed) console.error("Footer not closed"); //eslint-disable-line no-console
   }
 
   _sendPrefetchHeaders() {
@@ -213,6 +220,26 @@ export class ResponseManager {
     this.footerSent = true;
   }
   
+  setStructuredData(generate: () => Record<string,AnyBecauseHard>) {
+    this.generateStructuredData = generate;
+  }
+  getStructuredData(): Record<string,AnyBecauseHard>|null {
+    if (!this.structuredData && this.generateStructuredData) {
+      this.structuredData = this.generateStructuredData();
+    }
+    return this.structuredData;
+  }
+
+  _sendStructuredData() {
+    if (!this.structuredData && this.generateStructuredData) {
+      this.structuredData = this.generateStructuredData();
+    }
+    this.structuredDataSent = true;
+    if (this.structuredData) {
+      this._write(`<script type="application/ld+json">${toEmbeddableJson(this.structuredData)}</script>`);
+    }
+  }
+
   _write(data: string) {
     if (debugStreamTiming) {
       this.res.write(`<!-- ${new Date().getTime() - this.startTimeMs}ms -->`);

@@ -54,6 +54,7 @@ export interface RenderSuccessResult {
   headers: string
   serializedApolloState: string
   serializedForeignApolloState: string
+  structuredData: Record<string,AnyBecauseHard>|null
   jssSheets: string
   status: number|undefined,
   redirectUrl: string|undefined
@@ -268,6 +269,10 @@ export async function handleRequest(request: Request, response: Response) {
       responseManager.addToHeadBlock(renderResult.jssSheets);
       responseManager.addToHeadBlock(renderResult.headers);
       responseManager.addBodyString(renderResult.ssrBody);
+      const structuredData = renderResult.structuredData
+      if (structuredData) {
+        responseManager.setStructuredData(() => structuredData);
+      }
     } else {
       console.log("Finishing rendered request");
     }
@@ -444,6 +449,7 @@ export const renderRequest = async ({req, user, parsedRoute, startTime, response
     <AppGenerator
       req={req}
       onHeadBlockSent={onHeadBlockSent}
+      responseManager={responseManager}
       apolloClient={client}
       foreignApolloClient={foreignClient}
       serverRequestStatus={serverRequestStatus}
@@ -516,6 +522,7 @@ export const renderRequest = async ({req, user, parsedRoute, startTime, response
     headers: head,
     serializedApolloState,
     serializedForeignApolloState,
+    structuredData: responseManager.getStructuredData(),
     jssSheets,
     status: serverRequestStatus.status,
     redirectUrl: serverRequestStatus.redirectUrl,

@@ -1,14 +1,10 @@
-import React from 'react';
-import { toEmbeddableJson } from '@/lib/utils/jsonUtils';
+import { useContext } from 'react';
+import { SSRResponseContext } from './Helmet';
 
 export const StructuredData = ({generate}: {
   generate: () => Record<string,AnyBecauseHard>
 }) => {
-  // TODO: Move this from inline-wherever to the end of the page
-  return <>
-    {/* See https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data */}
-    <script type="application/ld+json">
-      {toEmbeddableJson(generate())}
-    </script>
-  </>
+  const { setStructuredData } = useContext(SSRResponseContext);
+  setStructuredData(generate);
+  return null;
 }
