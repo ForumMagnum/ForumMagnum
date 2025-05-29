@@ -196,7 +196,7 @@ const Leaderboard = () => {
   );
 
   const last30DaysResults =
-    last30DaysData?.NetKarmaChangesForAuthorsOverPeriod || [];
+    last30DaysData?.NetKarmaChangesForAuthorsOverPeriod ?? [];
 
   // Add type guard functions
   const isAllTimeEntry = (entry: UsersMinimumInfo | KarmaEntry): entry is UsersMinimumInfo => {

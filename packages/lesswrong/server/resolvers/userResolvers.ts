@@ -242,47 +242,21 @@ export const graphqlQueries = {
     return await context.repos.votes.getNetKarmaChangesForAuthorsOverPeriod(days, limit);
   },
   async AirtableLeaderboards() {
+    // If we have cached data
     if (airtableCache.data) {
       const isStale = Date.now() - airtableCache.timestamp > STALE_TIME_MS;
 
-      // If the data is stale but no fetch is happening yet, start a new background fetch.
+      // Start a background refresh if data is stale and no fetch is in progress
       if (isStale && !inFlightPromise) {
-        void (async () => {
-          try {
-            inFlightPromise = fetchAirtableRecords();
-            const freshData = await inFlightPromise;
-            airtableCache.data = freshData;
-            airtableCache.timestamp = Date.now();
-          } finally {
-            inFlightPromise = null;
-          }
-        })();
+        void startAirtableFetch();
       }
 
-      // Regardless of staleness, return the cached data (stale-while-revalidate).
+      // Always return cached data (stale-while-revalidate pattern)
       return airtableCache.data;
     }
 
-    // If we have no data yet:
-    if (inFlightPromise) {
-      // If we're already fetching it, just await that same promise
-      // so we don't fire off multiple fetches.
-      return await inFlightPromise;
-    } else {
-      // Start a new fetch and wait for it before returning.
-      inFlightPromise = (async () => {
-        try {
-          const freshData = await fetchAirtableRecords();
-          airtableCache.data = freshData;
-          airtableCache.timestamp = Date.now();
-          return freshData;
-        } finally {
-          inFlightPromise = null;
-        }
-      })();
-
-      return await inFlightPromise;
-    }
+    // No cached data - wait for in-flight fetch or start a new one
+    return inFlightPromise || startAirtableFetch();
   }
 };
 
@@ -337,6 +311,20 @@ let airtableCache: {
 } = {
   data: undefined,
   timestamp: 0,
+};
+
+const startAirtableFetch = async () => {
+  inFlightPromise = (async () => {
+    try {
+      const freshData = await fetchAirtableRecords();
+      airtableCache.data = freshData;
+      airtableCache.timestamp = Date.now();
+      return freshData;
+    } finally {
+      inFlightPromise = null;
+    }
+  })();
+  return inFlightPromise;
 };
 
 // We'll keep track of whether we have an in-flight promise so that we don't trigger multiple fetches simultaneously.

@@ -242,13 +242,15 @@ lw18ReviewPosts.forEach(
   })
 )
 
-addRoute(
-  {
-    name: 'leaderboard',
-    path: '/leaderboard',
-    component: LeaderboardComponent,
-  }
-)
+if (isLW) {
+  addRoute(
+    {
+      name: 'leaderboard',
+      path: '/leaderboard',
+      component: LeaderboardComponent,
+    }
+  )
+}
 
 // User-profile routes
 addRoute(
