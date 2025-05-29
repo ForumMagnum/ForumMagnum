@@ -18,7 +18,6 @@ import express from 'express'
 import { app } from './expressServer';
 import path from 'path'
 import { getPublicSettings, getPublicSettingsLoaded } from '../lib/settingsCache';
-import { getSiteUrl } from '../lib/vulcan-lib/utils';
 import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
 import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
 import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
@@ -59,7 +58,7 @@ import { getSqlClientOrThrow } from './sql/sqlClient';
 import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
 import { getInstanceSettings } from '@/lib/getInstanceSettings';
 import { getCommandLineArguments } from './commandLine';
-import { makeAbsolute, urlIsAbsolute } from '@/lib/vulcan-lib/utils';
+import { makeAbsolute, urlIsAbsolute, getSiteUrl } from '@/lib/vulcan-lib/utils';
 import { faviconUrlSetting, isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
 import { resolvers, typeDefs } from './vulcan-lib/apollo-server/initGraphQL';
 import { botProtectionCommentRedirectSetting } from './databaseSettings';
