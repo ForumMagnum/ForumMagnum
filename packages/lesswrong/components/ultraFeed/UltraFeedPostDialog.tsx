@@ -1,11 +1,10 @@
 import React, { useEffect, useRef } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useSingle } from "../../lib/crud/withSingle";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { useMulti } from "@/lib/crud/withMulti";
-import { useLocation, useNavigate } from "@/lib/routeUtil";
+import { useNavigate } from "@/lib/routeUtil";
 import LWDialog from "../common/LWDialog";
 import FeedContentBody from "./FeedContentBody";
 import UltraFeedItemFooter from "./UltraFeedItemFooter";
@@ -13,6 +12,11 @@ import Loading from "../vulcan-core/Loading";
 import CommentsListSection from "../comments/CommentsListSection";
 import ForumIcon from '../common/ForumIcon';
 import { DialogContent } from "../widgets/DialogContent";
+import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
+import FormatDate from "../common/FormatDate";
+import PostActionsButton from "../dropdowns/posts/PostActionsButton";
+import UltraFeedPostActions from "./UltraFeedPostActions";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   '@global': {
@@ -26,17 +30,92 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     }
   },
   dialogContent: {
-    padding: 20,
-    paddingTop: 0,
-    [theme.breakpoints.down('sm')]: {
-      padding: 10,
+    padding: 0,
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+    position: 'relative',
+    '&:first-child': {
       paddingTop: 0,
     }
   },
   titleContainer: {
     display: 'flex',
     alignItems: 'center',
-    marginBottom: 12,
+    position: 'sticky',
+    top: 0,
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    zIndex: 10,
+    padding: '20px 20px 12px 20px',
+    marginBottom: 0,
+    // borderBottom: `1px solid ${theme.palette.grey[300]}`,
+    [theme.breakpoints.down('sm')]: {
+      padding: '16px 10px 16px 10px',
+    }
+  },
+  tripleDotMenu: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    zIndex: 11,
+    opacity: 0.7,
+    padding: 5,
+    "& svg": {
+      fontSize: 18,
+      cursor: "pointer",
+      color: theme.palette.text.dim,
+      transform: 'rotate(90deg)',
+    },
+    [theme.breakpoints.down('sm')]: {
+      top: 16,
+      right: 10,
+    }
+  },
+  headerContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px',
+    flex: 1,
+  },
+  titleWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+  },
+  metaRow: {
+    gap: "12px",
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "baseline",
+    rowGap: "6px",
+    color: theme.palette.text.dim,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: theme.typography.body2.fontSize,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 17,
+    },
+  },
+  metaDateContainer: {
+    marginRight: 8,
+  },
+  authorsList: {
+    fontSize: 'inherit',
+    color: 'inherit',
+    fontFamily: 'inherit',
+    marginRight: 8,
+    flexShrink: 1,
+    minWidth: 0,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+  },
+  scrollableContent: {
+    flex: 1,
+    overflowY: 'auto',
+    padding: '0 20px 20px 20px',
+    [theme.breakpoints.down('sm')]: {
+      padding: '0 10px 10px 10px',
+    }
   },
   title: {
     fontFamily: theme.palette.fonts.serifStack,
@@ -70,6 +149,7 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   dialogPaper: {
     maxWidth: 765,
     height: '100dvh',
+    maxHeight: '100dvh',
   },
   loadingContainer: {
     display: "flex",
@@ -129,6 +209,7 @@ const UltraFeedDialogContent = ({
   onClose: () => void;
 }) => {
   const classes = useStyles(styles);
+  const authorListRef = useRef<HTMLDivElement>(null);
 
   const navigate = useNavigate();
 
@@ -151,60 +232,91 @@ const UltraFeedDialogContent = ({
       paperClassName={classes.dialogPaper}
     >
       <DialogContent className={classes.dialogContent}>
-        {post && <div>
+        {post && <>
+          <AnalyticsContext pageElementContext="tripleDotMenu">
+            <PostActionsButton
+              post={post}
+              vertical={true}
+              autoPlace
+              ActionsComponent={UltraFeedPostActions}
+              className={classes.tripleDotMenu}
+            />
+          </AnalyticsContext>
           <div className={classes.titleContainer}>
             <ForumIcon 
               icon="ThickChevronLeft" 
               onClick={onClose} 
               className={classes.chevronButton} 
             />
-            <Link
-              to={postGetPageUrl(post)}
-              className={classes.title}
-              onClick={(e) => {
-                e.stopPropagation();
-                onClose();
-              }
-              }>
-              {post.title}
-            </Link>
+            <div className={classes.headerContent}>
+              <div className={classes.titleWrapper}>
+                <Link
+                  to={postGetPageUrl(post)}
+                  className={classes.title}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClose();
+                  }
+                  }>
+                  {post.title}
+                </Link>
+              </div>
+              <div className={classes.metaRow}>
+                <TruncatedAuthorsList 
+                  post={post} 
+                  useMoreSuffix={false} 
+                  expandContainer={authorListRef}
+                  className={classes.authorsList} 
+                />
+                {post.postedAt && (
+                  <span className={classes.metaDateContainer}>
+                    <FormatDate date={post.postedAt} format="MMM D YYYY" />
+                  </span>
+                )}
+                {post.readTimeMinutes && (
+                  <span>{post.readTimeMinutes} min read</span>
+                )}
+              </div>
+            </div>
           </div>
-          {post?.contents?.html ? (
-            <FeedContentBody
-              html={post.contents.html}
-              wordCount={post.contents.wordCount || 0}
-              linkToDocumentOnFinalExpand={false}
-              hideSuffix
-              serifStyle
+          <div className={classes.scrollableContent}>
+            {post?.contents?.html ? (
+              <FeedContentBody
+                html={post.contents.html}
+                wordCount={post.contents.wordCount || 0}
+                linkToDocumentOnFinalExpand={false}
+                hideSuffix
+                serifStyle
+              />
+            ) : (
+              <div>Post content not available.</div>
+            )}
+            <UltraFeedItemFooter
+              document={post}
+              collectionName="Posts"
+              metaInfo={{
+                sources: [],
+                displayStatus: "expanded",
+              }}
+              className={classes.footer}
             />
-          ) : (
-            <div>Post content not available.</div>
-          )}
-        </div>}
-        <UltraFeedItemFooter
-          document={post}
-          collectionName="Posts"
-          metaInfo={{
-            sources: [],
-            displayStatus: "expanded",
-          }}
-          className={classes.footer}
-        />
-        {commentsLoading && <div className={classes.loadingContainer}><Loading /></div>}
-        {comments && (
-          <CommentsListSection
-            post={post}
-            comments={comments ?? []}
-            totalComments={commentsTotalCount ?? 0}
-            commentCount={(comments ?? []).length}
-            loadMoreComments={() => { }}
-            loadingMoreComments={false}
-            highlightDate={undefined}
-            setHighlightDate={() => { }}
-            hideDateHighlighting={true}
-            newForm={true}
-          />
-        )}
+            {commentsLoading && <div className={classes.loadingContainer}><Loading /></div>}
+            {comments && (
+              <CommentsListSection
+                post={post}
+                comments={comments ?? []}
+                totalComments={commentsTotalCount ?? 0}
+                commentCount={(comments ?? []).length}
+                loadMoreComments={() => { }}
+                loadingMoreComments={false}
+                highlightDate={undefined}
+                setHighlightDate={() => { }}
+                hideDateHighlighting={true}
+                newForm={true}
+              />
+            )}
+          </div>
+        </>}
       </DialogContent>
     </LWDialog>
   );
