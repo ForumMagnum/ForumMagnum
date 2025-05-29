@@ -140,7 +140,7 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   if (getReviewPhase() === 'RESULTS') homePageImage = reviewCompleteImage
 
   // TODO: comment this out after we're done with LessOnline banner
-  const priceIncreaseDate = new Date('2025-04-02T08:00:00Z')
+  const priceIncreaseDate = new Date('2025-05-25T08:00:00Z')
   if (new Date() < priceIncreaseDate) {
     homePageImage = <LessOnline2025Banner priceIncreaseDate={priceIncreaseDate} />
   }

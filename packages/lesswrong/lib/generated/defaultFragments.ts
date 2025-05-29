@@ -210,6 +210,7 @@ export const CommentsDefaultFragment = `
     legacyId
     legacyPoll
     legacyParentId
+    draft
     retracted
     deleted
     deletedPublic
@@ -509,6 +510,7 @@ export const ForumEventsDefaultFragment = `
     contrastColor
     tagId
     postId
+    commentId
     bannerImageId
     includesPoll
     isGlobal

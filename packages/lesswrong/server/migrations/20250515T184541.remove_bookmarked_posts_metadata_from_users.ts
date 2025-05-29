@@ -20,6 +20,25 @@ interface CollectionBookmarkRow {
 type BookmarksToInsertData = Omit<DbBookmark, "schemaVersion">
 
 export async function up({ db }: MigrationContext): Promise<void> {
+  // The `bookmarkedPostsMetadata` column was later dropped, so you can't successfully run it in some github actions
+  // which bootstrap from accepted_schema.sql, since it doesn't have that column anymore.  But it's necessary to run
+  // if you're on an older FM instance which does still have the column.
+
+  const columnExists = await db.oneOrNone<{ exists: boolean }>(`
+    SELECT EXISTS (
+      SELECT 1
+      FROM information_schema.columns
+      WHERE table_name = 'Users'
+      AND column_name = 'bookmarkedPostsMetadata'
+    )
+  `);
+
+  if (!columnExists?.exists) {
+    // eslint-disable-next-line no-console
+    console.log("bookmarkedPostsMetadata column does not exist, skipping migration");
+    return;
+  }
+
   // eslint-disable-next-line no-console
   console.log("Starting migration: remove_bookmarked_posts_metadata_from_users (up)");
 

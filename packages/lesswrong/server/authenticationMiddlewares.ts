@@ -12,7 +12,7 @@ import { VerifyCallback } from 'passport-oauth2'
 import { DatabaseServerSetting } from './databaseSettings';
 import { combineUrls, getSiteUrl } from '../lib/vulcan-lib/utils';
 import pick from 'lodash/pick';
-import { isEAForum, siteUrlSetting } from '../lib/instanceSettings';
+import { isAF, isEAForum, siteUrlSetting } from '../lib/instanceSettings';
 import { auth0ProfilePath, idFromAuth0Profile, userFromAuth0Profile } from './authentication/auth0Accounts';
 import moment from 'moment';
 import type { AddMiddlewareType } from './apolloServer';
@@ -82,6 +82,8 @@ const facebookOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAu
 
 const githubClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.github.clientId', null)
 const githubOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.github.secret', null)
+const afGithubClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.afGithub.clientId', null)
+const afGithubOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.afGithub.secret', null)
 export const expressSessionSecretSetting = new DatabaseServerSetting<string | null>('expressSessionSecret', null)
 
 
@@ -505,8 +507,8 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
     ))
   }
 
-  const githubClientId = githubClientIdSetting.get()
-  const githubOAuthSecret = githubOAuthSecretSetting.get()
+  const githubClientId = isAF ? afGithubClientIdSetting.get() : githubClientIdSetting.get()
+  const githubOAuthSecret = isAF ? afGithubOAuthSecretSetting.get() : githubOAuthSecretSetting.get()
   if (githubClientId && githubOAuthSecret) {
     passport.use(new GithubOAuthStrategy({
       clientID: githubClientId,

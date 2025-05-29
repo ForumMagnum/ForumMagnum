@@ -9,7 +9,7 @@ function useBeforeUnloadTracking() {
   const trackBeforeUnload = useCallback(
     () => {
       captureEvent("beforeUnloadFired")
-      flushClientEvents()
+      flushClientEvents(true)
     },
     [captureEvent]
   );
