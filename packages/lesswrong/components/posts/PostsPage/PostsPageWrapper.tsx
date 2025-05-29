@@ -46,22 +46,6 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
 
   const { document: post, refetch, loading, error, fetchProps } = useDisplayedPost(documentId, sequenceId, version);
 
-  // This section is a performance optimisation to make comment fetching start as soon as possible rather than waiting for
-  // the post to be fetched first. This is mainly beneficial in SSR. We don't preload comments if the post was preloaded
-  // (which happens on the client when navigating through a PostsItem), because the preloaded post already takes care of
-  // the waterfalling queries and the preload would be a duplicate query.
-
-  // Note: in principle defaultView can depend on the post (via post.commentSortOrder). In practice this is almost never set,
-  // less than 1/1000 posts have it set. If it is set the consequences are that the comments will be fetched twice. This shouldn't
-  // cause any rerendering or significant performance cost (relative to only fetching them once) because the second fetch doesn't wait
-  // for the first to finish.
-  const defaultView = commentGetDefaultView(null, currentUser)
-  // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
-  const commentOpts = {includeAdminViews: currentUser?.isAdmin};
-  const terms: CommentsViewTerms = isValidCommentView(query.view, commentOpts)
-    ? {...(query as CommentsViewTerms), limit:1000}
-    : {view: defaultView, limit: 1000, postId: documentId}
-
   // End of performance section
   if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
     throw new Error(error.message);

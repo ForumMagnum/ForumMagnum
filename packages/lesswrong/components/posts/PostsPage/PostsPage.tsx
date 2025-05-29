@@ -83,6 +83,7 @@ import { getPostDescription, getStructuredData } from './structuredData';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { ReadingProgressBar } from './ReadingProgressBar';
 import { StructuredData } from '@/components/common/StructuredData';
+import { LWCommentCount } from '../TableOfContents/LWCommentCount';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
@@ -485,29 +486,29 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
 
   const marketInfo = getMarketInfo(post)
 
-  const { loading, results: rawResults, loadMore, loadingMore } = useMulti({
+  const { loading, results: rawComments, loadMore, loadingMore } = useMulti({
     terms: {...commentTerms, postId: post._id},
     ...postsCommentsThreadMultiOptions,
   });
 
   // If the user has just posted a comment, and they are sorting by magic, put it at the top of the list for them
-  const results = useMemo(() => {
-    if (!isEAForum || !rawResults || commentTerms.view !== "postCommentsMagic") return rawResults;
+  const comments = useMemo(() => {
+    if (!isEAForum || !rawComments || commentTerms.view !== "postCommentsMagic") return rawComments;
 
-    const recentUserComments = rawResults
+    const recentUserComments = rawComments
       .filter((c) => c.userId === currentUser?._id && now.getTime() - new Date(c.postedAt).getTime() < 60000)
       .sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
 
-    if (!recentUserComments.length) return rawResults;
+    if (!recentUserComments.length) return rawComments;
 
-    return [...recentUserComments, ...rawResults.filter((c) => !recentUserComments.includes(c))];
+    return [...recentUserComments, ...rawComments.filter((c) => !recentUserComments.includes(c))];
     // Ignore `now` to make this more stable
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [commentTerms.view, rawResults, currentUser?._id]);
+  }, [commentTerms.view, rawComments, currentUser?._id]);
 
-  const displayedPublicCommentCount = results?.filter(c => commentIncludedInCounts(c))?.length ?? 0;
+  const displayedPublicCommentCount = comments?.filter(c => commentIncludedInCounts(c))?.length ?? 0;
   const { commentCount: totalComments } = getResponseCounts({ post, answers })
-  const commentTree = unflattenComments(results ?? []);
+  const commentTree = unflattenComments(comments ?? []);
   const answersTree = unflattenComments(answersAndReplies ?? []);
   const answerCount = post.question ? answersTree.length : undefined;
 
@@ -531,8 +532,8 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
   const hashCommentId = location.hash.length >= 1 ? location.hash.slice(1) : null;
   // If the comment reference in the hash doesn't appear in the page, try and load it separately as a permalinked comment
   const showHashCommentFallback = useMemo(() => (
-    hashCommentId && !loading && ![...(results ?? []), ...(answersAndReplies ?? [])].map(({ _id }) => _id).includes(hashCommentId)
-  ), [answersAndReplies, hashCommentId, loading, results]);
+    hashCommentId && !loading && ![...(comments ?? []), ...(answersAndReplies ?? [])].map(({ _id }) => _id).includes(hashCommentId)
+  ), [answersAndReplies, hashCommentId, loading, comments]);
 
   const [permalinkedCommentId, setPermalinkedCommentId] = useState((fullPost && !isDebateResponseLink) ? (linkedCommentId ?? null) : null)
   // Don't show loading state if we are are getting the id from the hash, because it might be a hash referencing a non-comment id in the page
@@ -751,7 +752,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
         <div className={classes.commentsSection}>
           <AnalyticsContext pageSectionContext="commentsSection">
             {fullPost && <CommentsListSection
-              comments={results ?? []}
+              comments={comments ?? []}
               loadMoreComments={loadMore}
               totalComments={totalComments}
               commentCount={displayedPublicCommentCount}
@@ -764,7 +765,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
             />}
             {isAF && <AFUnreviewedCommentCount post={post}/>}
           </AnalyticsContext>
-          {isFriendlyUI && Math.max(post.commentCount, results?.length ?? 0) < 1 &&
+          {isFriendlyUI && Math.max(post.commentCount, comments?.length ?? 0) < 1 &&
             <div className={classes.noCommentsPlaceholder}>
               <div>No comments on this post yet.</div>
               <div>Be the first to respond.</div>
@@ -811,8 +812,10 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
           ]}
           tocRowMap={[0, 0, 2, 2]}
           showSplashPageHeader={showSplashPageHeader}
-          answerCount={answerCount}
-          commentCount={displayedPublicCommentCount}
+          sharedToCFooter={<LWCommentCount
+            answerCount={answerCount}
+            commentCount={displayedPublicCommentCount}
+          />}
         />
       : <ToCColumn
           tableOfContents={tableOfContents}
