@@ -256,7 +256,7 @@ function alignmentSuggestedUsers() {
       deleted: {$ne: true},
       $or: [
         {banned: {$exists: false}},
-        {banned: {$gte: new Date()}}
+        {banned: {$lt: new Date()}}
       ]
     },
     options: {
