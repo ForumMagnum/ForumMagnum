@@ -17,14 +17,12 @@ import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
 import { isServer } from '../../../lib/executionEnvironment';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
-import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
-import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { useOnServerSentEvent } from '../../hooks/useUnreadNotifications';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/helpers';
-import { CommentTreeNode, unflattenComments } from '../../../lib/utils/unflatten';
+import { unflattenComments } from '../../../lib/utils/unflatten';
 import PostsAudioPlayerWrapper, { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import { ImageProvider } from './ImageContext';
 import { getMarketInfo, highlightMarket } from '../../../lib/collections/posts/annualReviewMarkets';
@@ -81,12 +79,13 @@ import ForumEventPostPagePollSection from "../../forumEvents/ForumEventPostPageP
 import NotifyMeButton from "../../notifications/NotifyMeButton";
 import LWTooltip from "../../common/LWTooltip";
 import PostsPageDate from "./PostsPageDate";
-import SingleColumnSection from "../../common/SingleColumnSection";
 import FundraisingThermometer from "../../common/FundraisingThermometer";
 import PostPageReviewButton from "./PostPageReviewButton";
 import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
 import FixedPositionToCHeading from '../TableOfContents/PostFixedPositionToCHeading';
 import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RECOMBEE_RECOMM_ID_QUERY_PARAM, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, SHARE_POPUP_QUERY_PARAM, sidenotesHiddenBreakpoint, VERTEX_ATTRIBUTION_ID_QUERY_PARAM } from './constants';
+import { getStructuredData } from './structuredData';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
@@ -156,116 +155,8 @@ export const getPostDescription = (post: {
 };
 
 
-const getCommentStructuredData = ({
-  comment
-}: {
-  comment: CommentTreeNode<CommentsList>
-}): Record<string, any> => ({
-  "@type": "Comment",
-  text: comment.item.contents?.html,
-  datePublished: new Date(comment.item.postedAt).toISOString(),
-  author: [{
-    "@type": "Person",
-    name: comment.item.user?.displayName,
-    url: userGetProfileUrl(comment.item.user, true),
-    interactionStatistic: [
-      {
-        "@type": "InteractionCounter",
-        interactionType: {
-          "@type": "http://schema.org/CommentAction",
-        },
-        userInteractionCount: comment.item.user?.[isAF ? "afCommentCount" : "commentCount"],
-      },
-      {
-        "@type": "InteractionCounter",
-        interactionType: {
-          "@type": "http://schema.org/WriteAction",
-        },
-        userInteractionCount: comment.item.user?.[isAF ? "afPostCount" : "postCount"],
-      },
-    ],
-  }],
-  ...(comment.children.length > 0 && {comment: comment.children.map(child => getCommentStructuredData({comment: child}))})
-})
-
-/**
- * Build structured data for a post to help with SEO.
- */
-const getStructuredData = ({
-  post,
-  description,
-  commentTree,
-  answersTree
-}: {
-  post: PostsWithNavigation | PostsWithNavigationAndRevision;
-  description: string | null;
-  commentTree: CommentTreeNode<CommentsList>[];
-  answersTree: CommentTreeNode<CommentsList>[];
-}) => {
-  const hasUser = !!post.user;
-  const hasCoauthors = !!post.coauthors && post.coauthors.length > 0;
-  const answersAndComments = [...answersTree, ...commentTree];
-  // Get comments from Apollo Cache
-
-  return {
-    "@context": "http://schema.org",
-    "@type": "DiscussionForumPosting",
-    "url": postGetPageUrl(post, true),
-    "text": post.contents?.html ?? description,
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": postGetPageUrl(post, true),
-    },
-    headline: post.title,
-    ...(description && { description: description }),
-    datePublished: new Date(post.postedAt).toISOString(),
-    about: post.tags.filter(tag => !!tag.description?.htmlHighlight).map(tag => ({
-      "@type": "Thing",
-      name: tag.name,
-      url: tagGetUrl(tag, undefined, true),
-      description: tag.description?.htmlHighlight,
-    })),
-    ...(hasUser && {
-      author: [
-        {
-          "@type": "Person",
-          name: post.user.displayName,
-          url: userGetProfileUrl(post.user, true),
-        },
-        ...(hasCoauthors
-          ? post.coauthors
-              .filter(({ _id }) => !postCoauthorIsPending(post, _id))
-              .map(coauthor => ({
-                "@type": "Person",
-                "name": coauthor.displayName,
-                url: userGetProfileUrl(post.user, true),
-              }))
-          : []),
-      ],
-    }),
-    ...(answersAndComments.length > 0 && {comment: answersAndComments.map(comment => getCommentStructuredData({comment}))}),
-    interactionStatistic: [
-      {
-        "@type": "InteractionCounter",
-        interactionType: {
-          "@type": "http://schema.org/CommentAction",
-        },
-        userInteractionCount: post.commentCount,
-      },
-      {
-        "@type": "InteractionCounter",
-        interactionType: {
-          "@type": "http://schema.org/LikeAction",
-        },
-        userInteractionCount: post.baseScore,
-      },
-    ],
-  };
-};
-
-
 // Also used in PostsCompareRevisions
-export const styles = (theme: ThemeType) => ({
+export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   readingProgressBar: {
     position: 'fixed',
     top: 0,
@@ -437,7 +328,7 @@ export const styles = (theme: ThemeType) => ({
     marginTop: 60,
     marginBottom: -20 // to account or voting UI padding
   },
-})
+}));
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
   comment: debateResponse,
@@ -456,14 +347,14 @@ export const postsCommentsThreadMultiOptions = {
   enableTotal: true,
 }
 
-const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}: {
+const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch}: {
   eagerPostComments?: EagerPostComments,
   refetch: () => void,
-  classes: ClassesType<typeof styles>,
 } & (
   { fullPost: PostsWithNavigation|PostsWithNavigationAndRevision, postPreload: undefined }
   | { fullPost: undefined, postPreload: PostsListWithVotes }
 )) => {
+  const classes = useStyles(styles);
   const post = fullPost ?? postPreload;
   const location = useSubscribedLocation();
   const navigate = useNavigate();
@@ -1081,7 +972,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
 }
 
 export default registerComponent('PostsPage', PostsPage, {
-  styles, hocs: [withErrorBoundary],
+  hocs: [withErrorBoundary],
   areEqual: "auto",
 });
 
