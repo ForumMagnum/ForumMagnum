@@ -31,7 +31,7 @@ const ConversationPreview = ({conversationId, currentUser, classes, showTitle=tr
   const { document: conversation, loading: conversationLoading } = useSingle({
     collectionName: "Conversations",
     fragmentName: 'ConversationsList',
-    fetchPolicy: 'cache-then-network' as any, //TODO
+    fetchPolicy: 'cache-first',
     documentId: conversationId
   });
 

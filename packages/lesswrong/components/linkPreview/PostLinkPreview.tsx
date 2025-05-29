@@ -55,7 +55,7 @@ export const PostLinkPreview = ({href, targetLocation, id, children}: {
   const { document: post, loading, error } = useSingle({
     collectionName: "Posts",
     fragmentName: 'PostsList',
-    fetchPolicy: 'cache-then-network' as any, //TODO
+    fetchPolicy: 'cache-first',
 
     documentId: postID,
     allowNull: true,
@@ -86,7 +86,7 @@ export const PostLinkPreviewSequencePost = ({href, targetLocation, id, children}
   const { document: post, loading, error } = useSingle({
     collectionName: "Posts",
     fragmentName: 'PostsList',
-    fetchPolicy: 'cache-then-network' as any, //TODO
+    fetchPolicy: 'cache-first',
     documentId: postID,
     allowNull: true,
   });
@@ -163,7 +163,7 @@ export const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, id, ch
   const { document: post, loading } = useSingle({
     collectionName: "Posts",
     fragmentName: 'PostsList',
-    fetchPolicy: 'cache-then-network' as any, //TODO
+    fetchPolicy: 'cache-first',
 
     documentId: postId,
     allowNull: true,
@@ -293,7 +293,7 @@ const PostLinkCommentPreview = ({href, commentId, post, id, children}: {
   const { document: comment, loading, error } = useSingle({
     collectionName: "Comments",
     fragmentName: 'CommentsList',
-    fetchPolicy: 'cache-then-network' as any, //TODO
+    fetchPolicy: 'cache-first',
     documentId: commentId,
     allowNull: true,
   });
@@ -396,7 +396,7 @@ export const SequencePreview = ({targetLocation, href, children}: {
     documentId: sequenceId,
     collectionName: "Sequences",
     fragmentName: 'SequencesPageFragment',
-    fetchPolicy: 'cache-then-network' as any,
+    fetchPolicy: 'cache-first',
     allowNull: true,
   });
 

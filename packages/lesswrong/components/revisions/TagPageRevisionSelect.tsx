@@ -30,7 +30,7 @@ const TagPageRevisionSelect = ({ classes }: {
       documentId: tag?._id,
       fieldName: "description",
     },
-    fetchPolicy: "cache-then-network" as any,
+    fetchPolicy: "cache-first",
     collectionName: "Revisions",
     fragmentName: "RevisionHistoryEntry",
     enableTotal: true,
