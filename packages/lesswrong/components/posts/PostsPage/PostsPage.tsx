@@ -15,7 +15,6 @@ import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
 import { PostsPageContext } from './PostsPageContext';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
-import { isServer } from '../../../lib/executionEnvironment';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
@@ -28,7 +27,6 @@ import { ImageProvider } from './ImageContext';
 import { getMarketInfo, highlightMarket } from '../../../lib/collections/posts/annualReviewMarkets';
 import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
 import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
-import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 import { useVote } from '@/components/votes/withVote';
 import { getVotingSystemByName } from '@/lib/voting/getVotingSystem';
 import DeferRender from '@/components/common/DeferRender';
@@ -70,7 +68,7 @@ import PostsPageQuestionContent from "../../questions/PostsPageQuestionContent";
 import AFUnreviewedCommentCount from "../../alignment-forum/AFUnreviewedCommentCount";
 import CommentsListSection from "../../comments/CommentsListSection";
 import CommentsTableOfContents from "../../comments/CommentsTableOfContents";
-import StickyDigestAd from "../../ea-forum/digestAd/StickyDigestAd";
+import { MaybeStickyDigestAd } from "../../ea-forum/digestAd/StickyDigestAd";
 import AttributionInViewTracker from "../../common/AttributionInViewTracker";
 import ForumEventPostPagePollSection from "../../forumEvents/ForumEventPostPagePollSection";
 import NotifyMeButton from "../../notifications/NotifyMeButton";
@@ -283,7 +281,6 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
   const now = useCurrentTime();
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
-  const [showDigestAd, setShowDigestAd] = useState(false)
   const [highlightDate,setHighlightDate] = useState<Date|undefined|null>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
   const { currentForumEvent } = useCurrentAndRecentForumEvents();
 
@@ -313,31 +310,6 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
     });
     setShowEmbeddedPlayer(!showEmbeddedPlayer);
   } : undefined;
-
-  // postReadCount is currently only used by StickyDigestAd, to only show the ad after the client has visited multiple posts.
-  const ls = getBrowserLocalStorage()
-  useEffect(() => {
-    if (ls && hasDigests) {
-      const postReadCount = ls.getItem('postReadCount') ?? '0'
-      ls.setItem('postReadCount', `${parseInt(postReadCount) + 1}`)
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // On the EA Forum, show a digest ad at the bottom of the screen after the user scrolled down.
-  useEffect(() => {
-    if (!isEAForum || isServer || post.isEvent || post.question || post.shortform) return
-
-    checkShowDigestAd()
-    window.addEventListener('scroll', checkShowDigestAd)
-
-    return () => {
-      window.removeEventListener('scroll', checkShowDigestAd)
-    };
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-  const checkShowDigestAd = () => {
-    // Ad stays visible once shown
-    setShowDigestAd((showAd) => showAd || window.scrollY > 1000)
-  }
 
   const getSequenceId = () => {
     return params.sequenceId || fullPost?.canonicalSequenceId || null;
@@ -852,7 +824,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
         </ToCColumn>
     }
   
-    {isEAForum && showDigestAd && <DeferRender ssr={false}><StickyDigestAd /></DeferRender>}
+    {isEAForum && <DeferRender ssr={false}><MaybeStickyDigestAd post={post} /></DeferRender>}
     {hasPostRecommendations && fullPost && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
       <PostBottomRecommendations
         post={post}
