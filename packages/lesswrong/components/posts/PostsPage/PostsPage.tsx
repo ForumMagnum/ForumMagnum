@@ -86,6 +86,7 @@ import FixedPositionToCHeading from '../TableOfContents/PostFixedPositionToCHead
 import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RECOMBEE_RECOMM_ID_QUERY_PARAM, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, SHARE_POPUP_QUERY_PARAM, sidenotesHiddenBreakpoint, VERTEX_ATTRIBUTION_ID_QUERY_PARAM } from './constants';
 import { getStructuredData } from './structuredData';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { ReadingProgressBar } from '../ReadingProgressBar';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
@@ -157,19 +158,6 @@ export const getPostDescription = (post: {
 
 // Also used in PostsCompareRevisions
 export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
-  readingProgressBar: {
-    position: 'fixed',
-    top: 0,
-    height: 4,
-    width: 'var(--scrollAmount)',
-    background: theme.palette.primary.main,
-    '--scrollAmount': '0%',
-    zIndex: theme.zIndexes.commentBoxPopup,
-    [theme.breakpoints.down('sm')]: {
-      marginLeft: -8,
-      marginRight: -8
-    }
-  },
   title: {
     marginBottom: 32,
     [theme.breakpoints.down('sm')]: {
@@ -393,14 +381,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch}: {
     setShowEmbeddedPlayer(!showEmbeddedPlayer);
   } : undefined;
 
-  const disableProgressBar = (isBookUI || isServer || post.isEvent || post.question || post.debate || post.shortform || post.readTimeMinutes < 3);
-
-  const { readingProgressBarRef } = usePostReadProgress({
-    updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
-    disabled: disableProgressBar,
-    useFixedToCScrollCalculation: false
-  });
-  
   // postReadCount is currently only used by StickyDigestAd, to only show the ad after the client has visited multiple posts.
   const ls = getBrowserLocalStorage()
   useEffect(() => {
@@ -920,7 +900,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch}: {
     <SideItemsContainer>
     <ImageProvider>
     <SideItemVisibilityContextProvider post={fullPost}>
-    <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
+    <ReadingProgressBar post={post}/>
     {splashHeaderImage}
     {commentsTableOfContentsEnabled
       ? <MultiToCLayout
