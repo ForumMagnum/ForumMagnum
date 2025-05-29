@@ -11,7 +11,7 @@ export class ResponseManager {
   status: number|null = null;
   prefetchHeader: string|null
   headBlockElements: string[] = []
-  bodyStream: ResponseForwarderStream|null
+  body: ResponseForwarderStream|string|null = null
   footerElements: string[] = []
 
   aborted = false
@@ -28,7 +28,6 @@ export class ResponseManager {
   constructor(res: Response) {
     this.res = res;
     this.startTimeMs = new Date().getTime();
-    this.bodyStream = null;
 
     res.setHeader("X-Accel-Buffering", "no"); // force nginx to send start of response as soon as available
   }
@@ -90,8 +89,8 @@ export class ResponseManager {
     }
   }
   
-  async addBody(Body: React.ReactNode): Promise<string> {
-    if (this.bodyStream) {
+  async addBodyStream(Body: React.ReactNode): Promise<string> {
+    if (this.body) {
       this._errorTooLate(`Response body was already set`);
       return "";
     }
@@ -100,7 +99,7 @@ export class ResponseManager {
       return "";
     }
 
-    const bodyStream = this.bodyStream = new ResponseForwarderStream({
+    const bodyStream = this.body = new ResponseForwarderStream({
       res: this.res,
       corked: true,
       startTimeMs: this.startTimeMs
@@ -114,7 +113,16 @@ export class ResponseManager {
       });
       reactPipe.pipe(bodyStream);
     });
-    return this.bodyStream.getString();
+    return bodyStream.getString();
+  }
+  
+  addBodyString(bodyString: string) {
+    if (this.body) {
+      this._errorTooLate(`Response body was already set`);
+      return "";
+    }
+
+    this.body = bodyString;
   }
 
   addToFooter(html: string) {
@@ -156,7 +164,7 @@ export class ResponseManager {
     if (!this.headBlockSent) {
       this._sendHeadBlock();
     }
-    if (!this.bodyStream) return;
+    if (!this.body) return;
     if (!this.bodyUncorked) {
       this._uncorkBody();
     }
@@ -166,6 +174,15 @@ export class ResponseManager {
       this._sendFooter();
     }
     this.res.end();
+  }
+  
+  _warnNotReadyComponents() {
+    if (!this.httpHeadersClosed) console.error("HTTP headers not closed");
+    if (!this.status) console.error("Status not set");
+    if (!this.prefetchHeader) console.error("Prefetch header not set");
+    if (!this.headBlockClosed) console.error("Head block not closed");
+    if (!this.body) console.error("Body not set");
+    if (!this.footerClosed) console.error("Footer not closed");
   }
 
   _sendPrefetchHeaders() {
@@ -179,9 +196,15 @@ export class ResponseManager {
   }
 
   _uncorkBody() {
-    if (this.bodyStream) {
+    if (this.body) {
       this.bodyUncorked = true;
-      this.bodyStream.uncork();
+      if (typeof this.body === 'string') {
+        this._write(this.body);
+        this.bodyFinished = true;
+        this._sendReadyComponents();
+      } else {
+        this.body.uncork();
+      }
     }
   }
   
@@ -204,10 +227,12 @@ export class ResponseManager {
     this.commitToNotUpdateHeaders();
     this.commitToNotAddToHeadBlock();
     this.commitToNotAddToFootBlock();
-    if (!this.bodyStream) {
+    if (!this.body) {
       // eslint-disable-next-line no-console
       console.error("Closing request but no body was provided");
     }
+    
+    this._warnNotReadyComponents();
     this._sendReadyComponents();
   }
   
@@ -279,3 +304,4 @@ export class ResponseForwarderStream extends Writable {
     return this._data.join('');
   }
 }
+

@@ -51,7 +51,7 @@ import { prefilterHandleRequest } from '../apolloServer';
 
 export interface RenderSuccessResult {
   ssrBody: string
-  headers: Array<string>
+  headers: string
   serializedApolloState: string
   serializedForeignApolloState: string
   jssSheets: string
@@ -135,7 +135,7 @@ const ssrInteractionDisable = isE2E
 
 
 export async function handleRequest(request: Request, response: Response) {
-  if(prefilterHandleRequest(request, response)) {
+  if (prefilterHandleRequest(request, response)) {
     return;
   }
 
@@ -262,6 +262,15 @@ export async function handleRequest(request: Request, response: Response) {
       + serializedApolloState + '\n'
       + serializedForeignApolloState + '\n'
     );
+
+    if (renderResult.cached) {
+      console.log(`Finishing cached request with ${renderResult.ssrBody.length}b body`);
+      responseManager.addToHeadBlock(renderResult.jssSheets);
+      responseManager.addToHeadBlock(renderResult.headers);
+      responseManager.addBodyString(renderResult.ssrBody);
+    } else {
+      console.log("Finishing rendered request");
+    }
   }
   await responseManager.sendAndClose();
 }
@@ -295,10 +304,14 @@ export const renderWithCache = async ({req, parsedRoute, responseManager, user, 
       // In the case where the page is cached, we need to return the result of the promise from `cachedPageRender`
       // In the case where the page is not cached, we need to return the result of the promise from `queueRenderRequest`
       // But we don't want to call `maybePrefetchResources` twice, so we pipe through the promise we get from calling `maybePrefetchResources` in `cachedPageRender`
-      () => queueRenderRequest(
-        () => renderRequest({req, user, parsedRoute, startTime, responseManager, userAgent, cacheAttempt: true}),
-        { responseManager, userAgent, startTime, userId: null, ip }
-      )
+      () => {
+        return queueRenderRequest(
+          () => {
+            return renderRequest({req, user, parsedRoute, startTime, responseManager, userAgent, cacheAttempt: true});
+          },
+          { responseManager, userAgent, startTime, userId: null, ip }
+        )
+      }
     );
   } else {
     rendered = await queueRenderRequest(
@@ -318,7 +331,7 @@ export const renderWithCache = async ({req, parsedRoute, responseManager, user, 
 
   return {
     ...rendered,
-    headers: [...rendered.headers],
+    headers: rendered.headers,
   };
 };
 
@@ -445,7 +458,7 @@ export const renderRequest = async ({req, user, parsedRoute, startTime, response
   let ssrBody = '';
   try {
     // TODO: Add prefix/suffix (from buildSSRBody)
-    ssrBody = await responseManager.addBody(WrappedApp);
+    ssrBody = await responseManager.addBodyStream(WrappedApp);
   } catch(err) {
     console.error(`Error while fetching Apollo Data. date: ${new Date().toString()} url: ${JSON.stringify(getPathFromReq(req))}`); // eslint-disable-line no-console
     console.error(err); // eslint-disable-line no-console
@@ -500,7 +513,7 @@ export const renderRequest = async ({req, user, parsedRoute, startTime, response
 
   return {
     ssrBody,
-    headers: [head],
+    headers: head,
     serializedApolloState,
     serializedForeignApolloState,
     jssSheets,
