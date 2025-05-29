@@ -116,3 +116,6 @@ export const sinceDaysAgoSetting = new DatabaseServerSetting<number>('displayNam
 
 export const welcomeEmailPostId = new DatabaseServerSetting<string|null>("welcomeEmailPostId", null);
 export const forumTeamUserId = new DatabaseServerSetting<string|null>("forumTeamUserId", null);
+
+// Anti-DDoS measure
+export const botProtectionCommentRedirectSetting = new DatabaseServerSetting<boolean>("botProtectionCommentRedirect", forumSelect({EAForum: true, default: false}));
