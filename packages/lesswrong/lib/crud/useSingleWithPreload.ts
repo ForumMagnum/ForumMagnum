@@ -12,11 +12,13 @@ export function useSingleWithPreload<
   fragmentName,
   preloadFragmentName,
   documentId,
+  ssr=true,
 }: {
   collectionName: CollectionName;
   fragmentName: FragmentName;
   preloadFragmentName: PreloadFragmentName;
   documentId: string;
+  ssr?: boolean,
 }) {
   const apolloClient = useApolloClient();
 
@@ -32,6 +34,7 @@ export function useSingleWithPreload<
     documentId,
     collectionName,
     fragmentName,
+    ssr,
   });
 
   return {

@@ -2,7 +2,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { ApolloError } from '@apollo/client';
 import { useSingle, UseSingleProps } from '../../lib/crud/withSingle';
 
-export const usePostBySlug = ({slug}: {slug: string}):
+export const usePostBySlug = ({slug, ssr=true}: {slug: string, ssr?: boolean}):
   {
     post: PostsPage,
     loading: false,
@@ -22,6 +22,7 @@ export const usePostBySlug = ({slug}: {slug: string}):
     fragmentName: 'PostsPage',
     limit: 1,
     enableTotal: false,
+    ssr,
   });
   
   if (results && results.length>0 && results[0]._id) {
@@ -39,7 +40,10 @@ export const usePostBySlug = ({slug}: {slug: string}):
   }
 }
 
-export const usePostByLegacyId = ({ legacyId }: {legacyId: string}):
+export const usePostByLegacyId = ({ legacyId, ssr=true }: {
+  legacyId: string
+  ssr?: boolean
+}):
   {
     post: PostsPage,
     loading: false,
@@ -59,6 +63,7 @@ export const usePostByLegacyId = ({ legacyId }: {legacyId: string}):
     fragmentName: 'PostsPage',
     limit: 1,
     enableTotal: false,
+    ssr,
   });
   
   if (results && results.length>0 && results[0]._id) {

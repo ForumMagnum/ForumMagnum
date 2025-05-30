@@ -10,7 +10,7 @@ export const PostsPreviewTooltipSingle = ({postId, postsList=false}: {
   const { document: post, loading: postLoading } = useSingle({
     collectionName: "Posts",
     fragmentName: 'PostsList',
-    fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
+    fetchPolicy: 'cache-first',
     documentId: postId,
   });
   if (postLoading) {
@@ -30,7 +30,7 @@ export const DialogueMessagePreviewTooltip = ({postId, postsList=false, dialogue
   const { document: post, loading: postLoading } = useSingle({
     collectionName: "Posts",
     fragmentName: 'PostsList',
-    fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
+    fetchPolicy: 'cache-first',
     documentId: postId,
   });
   if (postLoading) {
@@ -49,14 +49,14 @@ export const PostsPreviewTooltipSingleWithComment = ({postId, commentId}: {
   const { document: post, loading: postLoading } = useSingle({
     collectionName: "Posts",
     fragmentName: 'PostsList',
-    fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
+    fetchPolicy: 'cache-first',
     documentId: postId,
   });
 
   const { document: comment, loading: commentLoading } = useSingle({
     collectionName: "Comments",
     fragmentName: 'CommentsList',
-    fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
+    fetchPolicy: 'cache-first',
     documentId: commentId,
   });
   if (postLoading || commentLoading) {
@@ -77,7 +77,7 @@ export const TaggedPostTooltipSingle = ({tagRelId}: {tagRelId: string}) => {
   const { document: tagRel, loading: tagRelLoading } = useSingle({
     collectionName: "TagRels",
     fragmentName: 'TagRelFragment',
-    fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
+    fetchPolicy: 'cache-first',
     documentId: tagRelId,
   });
   if (tagRelLoading) {
