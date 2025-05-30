@@ -174,7 +174,6 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
     tiebreaker: "publicDateMs",
     filters: [
       {term: {deleted: false}},
-      {term: {draft: false}},
       {term: {rejected: false}},
       {term: {authorIsUnreviewed: false}},
       {term: {retracted: false}},
@@ -197,7 +196,6 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
     privateFields: [
       "authorIsUnreviewed",
       "deleted",
-      "draft",
       "legacy",
       "rejected",
       "retracted",
