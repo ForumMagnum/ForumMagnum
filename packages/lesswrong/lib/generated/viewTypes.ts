@@ -86,7 +86,7 @@ type UserJobAdsViewName = "adsByUser";
 type UserMostValuablePostsViewName = "currentUserMostValuablePosts"|"currentUserPost";
 type UserRateLimitsViewName = "activeUserRateLimits"|"userRateLimits";
 type UserTagRelsViewName = "single";
-type UsersViewName = "LWSunshinesList"|"LWTrustLevel1List"|"LWUsersAdmin"|"alignmentSuggestedUsers"|"allUsers"|"recentlyActive"|"reviewAdminUsers"|"sunshineNewUsers"|"tagCommunityMembers"|"usersByUserIds"|"usersMapLocations"|"usersProfile"|"usersWithBannedUsers"|"usersWithOptedInToDialogueFacilitation"|"usersWithPaymentInfo";
+type UsersViewName = "LWSunshinesList"|"LWTrustLevel1List"|"LWUsersAdmin"|"alignmentSuggestedUsers"|"allUsers"|"recentlyActive"|"reviewAdminUsers"|"sunshineNewUsers"|"tagCommunityMembers"|"usersByUserIds"|"usersMapLocations"|"usersProfile"|"usersTopKarma"|"usersWithBannedUsers"|"usersWithOptedInToDialogueFacilitation"|"usersWithPaymentInfo";
 type VotesViewName = "tagVotes"|"userPostVotes"|"userVotes";
 
 interface ViewTermsByCollectionName {
