@@ -4,7 +4,7 @@ import { Writable } from 'node:stream';
 import { renderToPipeableStream } from 'react-dom/server';
 import { toEmbeddableJson } from '@/lib/utils/jsonUtils';
 
-const debugStreamTiming = true;
+const debugStreamTiming = false;
 
 export class ResponseManager {
   res: Response
@@ -243,6 +243,7 @@ export class ResponseManager {
   _write(data: string) {
     if (debugStreamTiming) {
       this.res.write(`<!-- ${new Date().getTime() - this.startTimeMs}ms -->`);
+      console.log(`Wrote ${data.length}b`);
     }
     this.res.write(data);
   }
@@ -297,7 +298,7 @@ export class ResponseForwarderStream extends Writable {
         // these are also the places where previously-sent HTML gets moved
         // into the DOM and used.
         const chunkStr = new String(chunk);
-        let endScriptIndex = chunkStr.indexOf("</script>");
+        let endScriptIndex = chunkStr.lastIndexOf("</script>");
         if (endScriptIndex >= 0) {
           this.res.write(
             chunkStr.substring(0, endScriptIndex)
@@ -307,6 +308,7 @@ export class ResponseForwarderStream extends Writable {
         } else {
           this.res.write(chunk);
         }
+        console.log(`Wrote ${chunkStr.length}b`);
       } else {
         this.res.write(chunk);
       }
