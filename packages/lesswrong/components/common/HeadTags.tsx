@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { combineUrls, getBasePath, getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { taglineSetting, tabTitleSetting, tabLongTitleSetting, noIndexSetting } from '../../lib/instanceSettings';
@@ -41,7 +41,9 @@ const HeadTags = ({
     return (
       <React.Fragment>
         { TitleComponent
-            ? <TitleComponent siteName={tabShortTitle} isSubtitle={false} />
+            ? <Suspense>
+                <TitleComponent siteName={tabShortTitle} isSubtitle={false} />
+              </Suspense>
             : <Helmet name="title"><title>
                 {titleString
                   ? `${titleString} — ${tabShortTitle}`

@@ -11,7 +11,7 @@ export const PostsPageHeaderTitle = ({siteName}: {
   const { document: post, loading } = useSingle({
     documentId: _id || postId,
     collectionName: "Posts",
-    fragmentName: "PostsBase",
+    fragmentName: "PostsMinimumInfo",
   });
 
   if (!post || loading) return null;

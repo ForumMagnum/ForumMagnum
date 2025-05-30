@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
@@ -320,7 +320,9 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
     {post.isEvent && <div className={classes.eventData}>
       <PostsPageEventData post={post}/>
     </div>}
-    <ReviewPillContainer postId={post._id} />
+    <Suspense>
+      <ReviewPillContainer postId={post._id} />
+    </Suspense>
   </div>
 }
 
