@@ -491,7 +491,6 @@ export function startWebserver() {
         + '<body class="'+classesForAbTestGroups(allAbTestGroups)+'">\n'
           + ssrBody + '\n'
         + '</body>\n'
-        + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n' // TODO Remove after 2024-05-14, here for backwards compatibility
         + embedAsGlobalVar("ssrMetadata", ssrMetadata) + '\n'
         + serializedApolloState + '\n'
         + serializedForeignApolloState + '\n'
