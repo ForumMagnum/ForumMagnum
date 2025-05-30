@@ -77,7 +77,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.1",
-    "@apollo/client": "^3.2.0",
+    "@apollo/client": "^3.13.8",
     "@aws-sdk/client-cloudfront": "^3.577.0",
     "@babel/runtime": "^7.26.10",
     "@centreforeffectivealtruism/umzug": "^3.2.1",
@@ -296,7 +296,7 @@
     "react-dom": "^19.0.0",
     "react-event-listener": "^0.6.6",
     "react-geosuggest": "^2.8.0",
-    "react-helmet": "^6.1.0",
+    "react-helmet-async": "^2.0.5",
     "react-instantsearch": "6.40.4",
     "react-instantsearch-core": "6.40.4",
     "react-instantsearch-dom": "6.40.4",

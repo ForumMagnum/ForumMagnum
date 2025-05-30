@@ -11,23 +11,32 @@ import { ServerRequestStatusContextType } from '../../../../lib/vulcan-core/appC
 import { getAllCookiesFromReq } from '../../../utils/httpUtil';
 import { SSRMetadata, EnvironmentOverrideContext } from '../../../../lib/utils/timeUtil';
 import { LayoutOptionsContextProvider } from '../../../../components/hooks/useLayoutOptions';
+import { EnableSuspenseContext } from '@/lib/crud/useQuery';
 import { ThemeContextProvider } from '@/components/themes/useTheme';
 import { AbstractThemeOptions } from '@/themes/themeNames';
 import AppComponent from '../../../../components/vulcan-core/App';
+import { HelmetProvider, HelmetServerState } from 'react-helmet-async';
+import { SentHeadBlocksContext } from '@/components/common/Helmet';
 
 // Server-side wrapper around the app. There's another AppGenerator which is
 // the client-side version, which differs in how it sets up the wrappers for
 // routing and cookies and such. See client/start.tsx.
-const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestStatus, abTestGroupsUsed, ssrMetadata, themeOptions }: {
+const AppGenerator = ({ req, onHeadBlockSent, apolloClient, foreignApolloClient, serverRequestStatus, abTestGroupsUsed, ssrMetadata, themeOptions, enableSuspense, helmetContext }: {
   req: Request,
+  onHeadBlockSent: (name: string) => void,
   apolloClient: ApolloClient<NormalizedCacheObject>,
   foreignApolloClient: ApolloClient<NormalizedCacheObject>,
   serverRequestStatus: ServerRequestStatusContextType,
   abTestGroupsUsed: RelevantTestGroupAllocation,
   ssrMetadata: SSRMetadata,
   themeOptions: AbstractThemeOptions,
+  enableSuspense: boolean,
+  helmetContext: {helmet?: HelmetServerState},
 }) => {
   const App = (
+    <HelmetProvider context={helmetContext}>
+    <SentHeadBlocksContext.Provider value={onHeadBlockSent}>
+    <EnableSuspenseContext.Provider value={enableSuspense}>
     <ApolloProvider client={apolloClient}>
       <ForeignApolloClientProvider value={foreignApolloClient}>
         {/* We do not use the context for StaticRouter here, and instead are using our own context provider */}
@@ -52,6 +61,9 @@ const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestSta
         </StaticRouter>
       </ForeignApolloClientProvider>
     </ApolloProvider>
+    </EnableSuspenseContext.Provider>
+    </SentHeadBlocksContext.Provider>
+    </HelmetProvider>
   );
   return App;
 };

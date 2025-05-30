@@ -1,4 +1,5 @@
-import { useQuery, gql } from '@apollo/client'
+import { gql } from '@apollo/client'
+import { useQuery } from "@/lib/crud/useQuery";
 
 export type PostAnalyticsResult = {
   allViews: number

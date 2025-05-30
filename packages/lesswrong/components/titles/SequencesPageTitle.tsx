@@ -1,11 +1,10 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
 import { styles } from '../common/HeaderSubtitle';
-import { Helmet } from '../../lib/utils/componentsWithChildren';
+import { Helmet } from '../common/Helmet';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const titleComponentStyles = defineStyles('SequencesPageTitle', styles);
@@ -34,7 +33,7 @@ export const SequencesPageTitle = ({isSubtitle, siteName}: {
       </Link>
     </span>);
   } else {
-    return <Helmet>
+    return <Helmet name="title">
       <title>{titleString}</title>
       <meta property='og:title' content={titleString}/>
     </Helmet>

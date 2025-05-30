@@ -68,16 +68,21 @@ export type Route = {
   hasLeftNavigationColumn?: boolean
   navigationFooterBar?: boolean,
   
-  // enableResourcePrefetch: Start loading stylesheet and JS bundle before the page is
-  // rendered. This requires sending headers before rendering, which means
-  // that the page can't return an HTTP error status or an HTTP redirect. In
-  // exchange, loading time is significantly improved for users who don't have
-  // the stylesheet and JS bundle already in their cache.
-  //
-  // This should only return true for routes which are *guaranteed* to return a 200 status code.
-  // I.e. it is better to give false negatives (not prefetching on a route that actually returns
-  // a 200) than false positives.
+  /**
+   * enableResourcePrefetch: Start loading stylesheet and JS bundle before the page is
+   * rendered. This requires sending headers before rendering, which means
+   * that the page can't return an HTTP error status or an HTTP redirect. In
+   * exchange, loading time is significantly improved for users who don't have
+   * the stylesheet and JS bundle already in their cache.
+   *
+   * This should only return true for routes which are *guaranteed* to return a 200 status code.
+   * I.e. it is better to give false negatives (not prefetching on a route that actually returns
+   * a 200) than false positives.
+   */
   enableResourcePrefetch?: boolean | ((req: Request, res: Response, parsedRoute: RouterLocation, context: ResolverContext) => Promise<boolean>),
+  
+  expectedHeadBlocks?: string[]
+
   /**
    * Under what circumstances stale-while-revalidate caching should be enabled on this route.
    * If enabled, page loads where this is allowed will have a "Cache-control: max-age=1, s-max-age=1, stale-while-revalidate=86400"

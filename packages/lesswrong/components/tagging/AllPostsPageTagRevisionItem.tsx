@@ -30,7 +30,7 @@ const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId, classes}: {
     documentId: revisionId,
     collectionName: "Revisions",
     fragmentName: "RevisionHistoryEntry",
-    fetchPolicy: 'cache-then-network' as any, //TODO
+    fetchPolicy: 'cache-first',
   });
   
   if (loading)

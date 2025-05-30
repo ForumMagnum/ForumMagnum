@@ -9,10 +9,10 @@ import PostsPagePostHeader from "./PostsPage/PostsPagePostHeader";
 import RevisionComparisonNotice from "../revisions/RevisionComparisonNotice";
 import LoadingOrErrorPage from "../common/LoadingOrErrorPage";
 import ErrorPage from "../common/ErrorPage";
+import { useStyles } from '../hooks/useStyles';
 
-const PostsCompareRevisions = ({ classes }: {
-  classes: ClassesType<typeof styles>
-}) => {
+const PostsCompareRevisions = () => {
+  const classes = useStyles(styles);
   const { params, query } = useLocation();
   const postId = params._id;
   const versionBefore = query.before;
@@ -68,6 +68,6 @@ const PostsCompareRevisions = ({ classes }: {
   </div>;
 }
 
-export default registerComponent("PostsCompareRevisions", PostsCompareRevisions, {styles});
+export default registerComponent("PostsCompareRevisions", PostsCompareRevisions);
 
 

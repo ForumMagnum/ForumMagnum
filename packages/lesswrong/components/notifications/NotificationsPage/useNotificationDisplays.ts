@@ -1,5 +1,6 @@
 import { useCurrentUser } from "../../common/withUser";
-import { gql, useQuery } from "@apollo/client";
+import { gql } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 
 export const useNotificationDisplays = (limit: number, type?: string) => {
   // We have to do this manually outside of `usePaginatedResolver` because the

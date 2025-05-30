@@ -29,7 +29,7 @@ const PostNominatedNotification = ({classes, postId}: {classes: ClassesType<type
   const { document: post, loading } = useSingle({
     collectionName: "Posts",
     fragmentName: 'PostsList',
-    fetchPolicy: 'cache-then-network' as any, //TODO
+    fetchPolicy: 'cache-first',
     documentId: postId
   });
 
