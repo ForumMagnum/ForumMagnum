@@ -27,12 +27,14 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   mainContent: {
     display: 'flex',
     flexDirection: 'row',
+    maxWidth: '100%',
   },
   compressedRoot: {
     display: 'flex',
     flexDirection: 'row',
   },
   commentContentWrapper: {
+    maxWidth: '100%',
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
