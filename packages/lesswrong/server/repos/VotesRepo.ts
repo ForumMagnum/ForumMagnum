@@ -754,6 +754,27 @@ class VotesRepo extends AbstractRepo<"Votes"> {
     }
     return result;
   }
+  async getNetKarmaChangesForAuthorsOverPeriod(days: number, limit: number): Promise<Array<{ userId: string; netKarma: number }>> {
+    return this.getRawDb().any(`
+      -- VotesRepo.getNetKarmaChangesForAuthorsOverPeriod
+      SELECT
+        author_id AS "userId",
+        SUM(power) AS "netKarma"
+      FROM (
+        SELECT
+          UNNEST("authorIds") AS author_id,
+          "power"
+        FROM "Votes"
+        WHERE
+          "votedAt" >= NOW() - INTERVAL '$1 days'
+          AND "cancelled" IS NOT TRUE
+          AND "isUnvote" IS NOT TRUE
+      ) sub
+      GROUP BY author_id
+      ORDER BY "netKarma" DESC
+      LIMIT $2 
+    `, [days, limit], `getNetKarmaChangesForAuthorsOverPeriod(${days}, ${limit})`);
+  }
 }
 
 recordPerfMetrics(VotesRepo);

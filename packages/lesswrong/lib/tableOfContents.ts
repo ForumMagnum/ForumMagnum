@@ -5,6 +5,7 @@ import { htmlToTextDefault } from "./htmlToText";
 import type { WindowType } from "./domParser";
 import { PostWithCommentCounts, postGetCommentCountStr } from "./collections/posts/helpers";
 import { isLWorAF } from "./instanceSettings";
+import maxBy from "lodash/maxBy";
 
 export interface ToCAnswer {
   baseScore: number,
@@ -142,6 +143,21 @@ export function extractTableOfContents({
         anchor: anchor,
         level: tagToHeadingLevel(tagName),
       });
+    }
+  }
+  
+  // If the number of headings is excessive (>30) and will not become small
+  // (<8) if the deepest heading level is dropped, and the deepest heading
+  // level comes from <b>/<strong>, drop the deepest heading level
+  if (headings.length > 30) {
+    const deepestHeadingLevel = maxBy(headings, h => h.level)?.level ?? 0;
+    if (deepestHeadingLevel >= 7) {
+      const headingsWithoutDeepestLevel = headings.filter(h => h.level < deepestHeadingLevel);
+      if (headingsWithoutDeepestLevel.length < headings.length) {
+        if (headingsWithoutDeepestLevel.length >= 8) {
+          headings = headingsWithoutDeepestLevel;
+        }
+      }
     }
   }
 

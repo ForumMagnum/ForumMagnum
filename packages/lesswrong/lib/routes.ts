@@ -166,6 +166,7 @@ import Digests from '@/components/ea-forum/digest/Digests';
 import EAAllTagsPage from '@/components/tagging/EAAllTagsPage';
 import AllWikiTagsPage from '@/components/tagging/AllWikiTagsPage';
 import { communityPath, getAllTagsPath, getAllTagsRedirectPaths } from './pathConstants';
+import LeaderboardComponent from '@/components/users/Leaderboard';
 
 const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Groups' : 'Community' };
 
@@ -240,6 +241,16 @@ lw18ReviewPosts.forEach(
     redirect: () => `/posts/${id}/${slug}`
   })
 )
+
+if (isLW) {
+  addRoute(
+    {
+      name: 'leaderboard',
+      path: '/leaderboard',
+      component: LeaderboardComponent,
+    }
+  )
+}
 
 // User-profile routes
 addRoute(
