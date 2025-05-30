@@ -1,11 +1,9 @@
 import React, { ReactNode } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { Card } from "@/components/widgets/Paper";
-import SupervisorAccountIcon from '@/lib/vendor/@material-ui/icons/src/SupervisorAccount';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
 import { usePostByLegacyId, usePostBySlug } from '../posts/usePost';
@@ -54,8 +52,8 @@ export const PostLinkPreview = ({href, targetLocation, id, children}: {
   const { document: post, loading, error } = useSingle({
     collectionName: "Posts",
     fragmentName: 'PostsList',
-    fetchPolicy: 'cache-then-network' as any, //TODO
-
+    fetchPolicy: 'cache-first',
+    ssr: false,
     documentId: postID,
     allowNull: true,
   });
@@ -85,7 +83,8 @@ export const PostLinkPreviewSequencePost = ({href, targetLocation, id, children}
   const { document: post, loading, error } = useSingle({
     collectionName: "Posts",
     fragmentName: 'PostsList',
-    fetchPolicy: 'cache-then-network' as any, //TODO
+    fetchPolicy: 'cache-first',
+    ssr: false,
     documentId: postID,
     allowNull: true,
   });
@@ -106,7 +105,7 @@ export const PostLinkPreviewSlug = ({href, targetLocation, id, children}: {
   children: ReactNode,
 }) => {
   const slug = targetLocation.params.slug;
-  const { post, error } = usePostBySlug({ slug });
+  const { post, error } = usePostBySlug({ slug, ssr: false });
 
   return <PostLinkPreviewVariantCheck href={href} post={post} targetLocation={targetLocation} error={error} id={id}>
     {children}
@@ -120,7 +119,7 @@ export const PostLinkPreviewLegacy = ({href, targetLocation, id, children}: {
   children: ReactNode,
 }) => {
   const legacyId = targetLocation.params.id;
-  const { post, error } = usePostByLegacyId({ legacyId });
+  const { post, error } = usePostByLegacyId({ legacyId, ssr: false });
 
   return <PostLinkPreviewVariantCheck href={href} post={post} targetLocation={targetLocation} error={error} id={id}>
     {children}
@@ -136,8 +135,8 @@ export const CommentLinkPreviewLegacy = ({href, targetLocation, id, children}: {
   const legacyPostId = targetLocation.params.id;
   const legacyCommentId = targetLocation.params.commentId;
 
-  const { post, error: postError } = usePostByLegacyId({ legacyId: legacyPostId });
-  const { comment, error: commentError } = useCommentByLegacyId({ legacyId: legacyCommentId });
+  const { post, error: postError } = usePostByLegacyId({ legacyId: legacyPostId, ssr: false });
+  const { comment, error: commentError } = useCommentByLegacyId({ legacyId: legacyCommentId, ssr: false });
   const error = postError || commentError;
 
   if (comment) {
@@ -162,8 +161,8 @@ export const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, id, ch
   const { document: post, loading } = useSingle({
     collectionName: "Posts",
     fragmentName: 'PostsList',
-    fetchPolicy: 'cache-then-network' as any, //TODO
-
+    fetchPolicy: 'cache-first',
+    ssr: false,
     documentId: postId,
     allowNull: true,
   });
@@ -292,7 +291,8 @@ const PostLinkCommentPreview = ({href, commentId, post, id, children}: {
   const { document: comment, loading, error } = useSingle({
     collectionName: "Comments",
     fragmentName: 'CommentsList',
-    fetchPolicy: 'cache-then-network' as any, //TODO
+    fetchPolicy: 'cache-first',
+    ssr: false,
     documentId: commentId,
     allowNull: true,
   });
@@ -322,11 +322,9 @@ const PostLinkPreviewWithPost = ({href, post, id, children}: {
   const classes = useStyles(postLinkPreviewWithPostStyles);
 
   if (!post) {
-    return <span>
-      <Link to={href}>
-        {children}
-      </Link>
-    </span>
+    return <Link to={href} className={classes.link}>
+      {children}
+    </Link>
   }
 
   const hash = (href.indexOf("#") >= 0) ? (href.split("#")[1]) : undefined;
@@ -359,11 +357,9 @@ const CommentLinkPreviewWithComment = ({href, comment, post, id, children}: {
   const classes = useStyles(commentLinkPreviewWithCommentStyles);
 
   if (!comment) {
-    return <span>
-      <Link to={href}>
-        {children}
-      </Link>
-    </span>
+    return <Link to={href} className={classes.link}>
+      {children}
+    </Link>
   }
   return (
     <PostsTooltip
@@ -395,7 +391,8 @@ export const SequencePreview = ({targetLocation, href, children}: {
     documentId: sequenceId,
     collectionName: "Sequences",
     fragmentName: 'SequencesPageFragment',
-    fetchPolicy: 'cache-then-network' as any,
+    fetchPolicy: 'cache-first',
+    ssr: false,
     allowNull: true,
   });
 
