@@ -56,6 +56,7 @@ export const PostLinkPreview = ({href, targetLocation, id, children}: {
     collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-first',
+    ssr: false,
 
     documentId: postID,
     allowNull: true,
@@ -87,6 +88,7 @@ export const PostLinkPreviewSequencePost = ({href, targetLocation, id, children}
     collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-first',
+    ssr: false,
     documentId: postID,
     allowNull: true,
   });
@@ -164,6 +166,7 @@ export const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, id, ch
     collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-first',
+    ssr: false,
 
     documentId: postId,
     allowNull: true,
@@ -294,6 +297,7 @@ const PostLinkCommentPreview = ({href, commentId, post, id, children}: {
     collectionName: "Comments",
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-first',
+    ssr: false,
     documentId: commentId,
     allowNull: true,
   });
@@ -397,6 +401,7 @@ export const SequencePreview = ({targetLocation, href, children}: {
     collectionName: "Sequences",
     fragmentName: 'SequencesPageFragment',
     fetchPolicy: 'cache-first',
+    ssr: false,
     allowNull: true,
   });
 
