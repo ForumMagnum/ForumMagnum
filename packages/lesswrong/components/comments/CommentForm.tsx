@@ -179,9 +179,6 @@ const CommentSubmit = ({
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
 
-  const abTestGroup = useABTest(draftCommentsABTest, !currentUser ? "treatment" : undefined);
-  const allowDraftComments = hasDraftComments && (isAnyTest || abTestGroup === "treatment")
-
   const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
   const cancelBtnProps: InnerButtonProps = isFriendlyUI && !isMinimalist ? { variant: "contained" } : {};
   const submitBtnProps: InnerButtonProps = isFriendlyUI && !isMinimalist ? { variant: "contained", color: "primary" } : {};
@@ -191,7 +188,7 @@ const CommentSubmit = ({
     submitBtnProps.disabled = true;
   }
 
-  const showDropdownMenu = allowDraftComments && !disableSubmitDropdown;
+  const showDropdownMenu = hasDraftComments && !disableSubmitDropdown;
 
   return (
     <div
