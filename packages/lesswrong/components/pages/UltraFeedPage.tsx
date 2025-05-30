@@ -22,7 +22,7 @@ const UltraFeedPage = () => {
     );
   }
 
-  return <UltraFeed alwaysShow={true} />;
+  return <UltraFeed alwaysShow />;
 };
 
 export default UltraFeedPage;
