@@ -36,6 +36,11 @@ type FetchFragmentOptions<
    * operations) then it's also sensible to set this to true.
    */
   skipFiltering?: boolean,
+  /**
+   * By default, we run all the relevant code resolvers for the chosen fragment.
+   * Set this to true to avoid doing so.
+   */
+  skipCodeResolvers?: boolean,
 }
 
 /**
@@ -65,6 +70,7 @@ export const fetchFragment = async <
   resolverArgs,
   context: maybeContext,
   skipFiltering,
+  skipCodeResolvers,
 }: FetchFragmentOptions<CollectionName, FragmentName>): Promise<FetchedFragment<FragmentName>[]> => {
   const context = maybeContext ?? await computeContextFromUser({
     user: currentUser,
@@ -86,9 +92,11 @@ export const fetchFragment = async <
   const db = getSqlClientOrThrow();
 
   const results = await db.any(sql, args);
-  await Promise.all(results.map(
-    (result) => query.executeCodeResolvers(result, context),
-  ));
+  if (!skipCodeResolvers) {
+    await Promise.all(results.map(
+      (result) => query.executeCodeResolvers(result, context),
+    ));
+  }
   if (skipFiltering) {
     return results;
   }
