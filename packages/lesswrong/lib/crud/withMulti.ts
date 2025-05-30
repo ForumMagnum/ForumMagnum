@@ -167,7 +167,7 @@ export function useMulti<
     // This is a workaround for a bug in apollo where setting `ssr: false` makes it not fetch
     // the query on the client (see https://github.com/apollographql/apollo-client/issues/5918)
     ssr: apolloSSRFlag(ssr),
-    skip,
+    skip: skip || (bundleIsServer && !ssr),
     notifyOnNetworkStatusChange: true
   }
   const {data, error, loading, refetch, fetchMore, networkStatus} = useQuery(query, useQueryArgument);

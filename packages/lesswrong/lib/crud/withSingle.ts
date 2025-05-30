@@ -107,7 +107,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   const typeName = collectionNameToTypeName[collectionName];
   const resolverName = getSingleResolverName(typeName)
   const query = getGraphQLSingleQueryFromOptions({ extraVariables, collectionName, fragment, fragmentName, resolverName })
-  const skipQuery = skip || !documentId;
+  const skipQuery = skip || !documentId || (bundleIsServer && !ssr);
   // TODO: Properly type this generic query
   const { data, error, loading, ...rest } = useQuery(query, {
     variables: {
