@@ -3,6 +3,7 @@ import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { getAdminTeamAccountId } from "@/server/utils/adminTeamAccount";
+import { getWithCustomLoader } from "@/lib/loaders";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -72,35 +73,12 @@ const schema = {
         if (!botAccountId) {
           return null;
         }
-        const { Revisions } = context;
-        const selector = {
-          documentId: document._id,
-          collectionName: "JargonTerms",
-        };
-        const [earliestRevision, latestRevision] = await Promise.all([
-          Revisions.findOne(selector, {
-            sort: {
-              createdAt: 1,
-            },
-          }),
-          Revisions.findOne(selector, {
-            sort: {
-              createdAt: -1,
-            },
-          }),
-        ]);
-        if (!earliestRevision || !latestRevision) {
-          return null;
-        }
-        const madeByAI = earliestRevision.userId === botAccountId;
-        const editedByHumans = latestRevision.userId !== botAccountId;
-        if (madeByAI && editedByHumans) {
-          return "humansAndAI";
-        } else if (!madeByAI && editedByHumans) {
-          return "humans";
-        } else {
-          return "AI";
-        }
+        
+        return getWithCustomLoader(
+          context, "humansAndOrAIEdited",
+          document._id,
+          async (documentIds) => context.repos.jargonTerms.getHumansAndOrAIEdited(botAccountId, documentIds)
+        );
       },
       validation: {
         allowedValues: ['humans', 'AI', 'humansAndAI'],
