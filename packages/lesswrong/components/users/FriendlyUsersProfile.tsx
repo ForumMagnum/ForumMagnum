@@ -462,7 +462,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
       count: user.commentCount,
       body: <AnalyticsContext pageSectionContext="commentsSection">
         <RecentComments
-          terms={{view: 'profileComments', sortBy: "new", authorIsUnreviewed: null, limit: 10, userId: user._id}}
+          terms={{view: 'profileComments', sortBy: "new", authorIsUnreviewed: null, limit: 10, userId: user._id, drafts: "exclude"}}
           showPinnedOnProfile
         />
       </AnalyticsContext>
