@@ -36,9 +36,6 @@ import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { hasDraftComments } from '@/lib/betas';
 import CommentsSubmitDropdown from "./CommentsSubmitDropdown";
 import { useTracking } from "@/lib/analyticsEvents";
-import { useABTest } from "@/lib/abTestImpl";
-import { draftCommentsABTest } from "@/lib/abTests";
-import { isAnyTest } from "@/lib/executionEnvironment";
 
 const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   fieldWrapper: {
