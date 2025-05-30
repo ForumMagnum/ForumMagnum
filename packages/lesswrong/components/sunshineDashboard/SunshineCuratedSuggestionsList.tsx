@@ -12,6 +12,7 @@ import FormatDate from "../common/FormatDate";
 import LoadMore from "../common/LoadMore";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
+import { userIsMemberOf } from '@/lib/vulcan-users/permissions';
 
 const styles = (theme: ThemeType) => ({
   loadMorePadding: {
@@ -46,7 +47,7 @@ const styles = (theme: ThemeType) => ({
 
 const shouldShow = (atBottom: boolean, timeForCuration: boolean, currentUser: UsersCurrent | null, hasCurationDrafts: boolean) => {
   if (isEAForum) {
-    return !atBottom && currentUser?.isAdmin;
+    return !atBottom && (currentUser?.isAdmin || userIsMemberOf(currentUser, 'canSuggestCuration'));
   } else {
     return (atBottom === hasCurationDrafts) || timeForCuration;
   }
