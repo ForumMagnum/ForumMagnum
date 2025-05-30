@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
-import { getDefaultViewSelector, mergeSelectors, replaceSpecialFieldSelectors } from '../../lib/utils/viewUtils';
+import { getDefaultViewSelector, mergeSelectors, mergeWithDefaultViewSelector, replaceSpecialFieldSelectors } from '../../lib/utils/viewUtils';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { FieldChanges } from '@/server/collections/fieldChanges/collection';
 import gql from 'graphql-tag';
@@ -29,6 +29,7 @@ type ViewBasedSubqueryProps<
   collection: CollectionBase<N>,
   context: ResolverContext,
   selector: MongoSelector<ObjectsByCollectionName[N]>,
+  includeDefaultSelector: boolean,
   sticky?: boolean,
 } & SubquerySortField<ObjectsByCollectionName[N], SortFieldName>;
 
@@ -37,13 +38,15 @@ export function viewBasedSubquery<
   SortKeyType,
   SortFieldName extends keyof ObjectsByCollectionName[N]
 >(props: ViewBasedSubqueryProps<N, SortFieldName>): FeedSubquery<ObjectsByCollectionName[N], SortKeyType> {
-  props.sortDirection ??= "desc";
-  const {type, collection, context, selector, sticky, sortField, sortDirection} = props;
+  const {type, collection, context, selector, includeDefaultSelector, sticky, sortField, sortDirection="desc"} = props;
   return {
     type,
     getSortKey: (item: ObjectsByCollectionName[N]) => item[props.sortField] as unknown as SortKeyType,
     isNumericallyPositioned: !!sticky,
     doQuery: async (limit: number, cutoff: SortKeyType): Promise<Partial<ObjectsByCollectionName[N]>[]> => {
+      const selectorWithDefaults = includeDefaultSelector
+        ? mergeWithDefaultViewSelector(collection.collectionName, selector)
+        : selector;
       const results = await queryWithCutoff({context, collection, selector, limit, cutoffField: sortField, cutoff, sortDirection});
       return await accessFilterMultiple(context.currentUser, collection.collectionName, results, context);
     }
