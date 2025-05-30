@@ -11,8 +11,6 @@ declare global {
     tabId: string | null;
     themeOptions: AbstractThemeOptions,
     ssrMetadata?: SSRMetadata
-    /** TODO Remove after 2024-05-14, here for backwards compatibility */
-    ssrRenderedAt: string,
     publicSettings: any,
     publicInstanceSettings: any,
     __APOLLO_STATE__: any,
