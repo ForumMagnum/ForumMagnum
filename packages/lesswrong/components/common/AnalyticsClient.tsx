@@ -26,7 +26,7 @@ export const AnalyticsClient = () => {
     flushClientEvents(true);
   }, [currentUserId, clientId, currentUser, abTestGroupsUsed]);
   
-  return <div/>;
+  return <></>;
 }
 
 export default registerComponent("AnalyticsClient", AnalyticsClient, {
