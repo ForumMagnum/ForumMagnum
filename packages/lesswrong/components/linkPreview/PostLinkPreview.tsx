@@ -30,8 +30,7 @@ let missingLinkPreviewsLogged = new Set<string>();
 // on it which contain links to LessWrong posts that only exist in the prod DB,
 // not the dev DB, and the error-logging that used to produce was extremely
 // voluminous.
-function logMissingLinkPreview(message: string)
-{
+function logMissingLinkPreview(message: string) {
   if (isClient) {
     if(!missingLinkPreviewsLogged.has(message)) {
       missingLinkPreviewsLogged.add(message);
@@ -210,10 +209,11 @@ const PostLinkPreviewVariantCheck = ({ href, post, targetLocation, comment, comm
   </PostLinkPreviewWithPost>
 }
 
-export const linkStyle = (theme: ThemeType) => (
-  visitedLinksHaveFilledInCircle
-    ? {
-      link: {
+
+export const linkStyles = defineStyles("LinkStyles", (theme: ThemeType) => ({
+  link: {
+    ...(visitedLinksHaveFilledInCircle
+      ? {
         '&:after': {
           content: '""',
           top: -7,
@@ -255,30 +255,85 @@ export const linkStyle = (theme: ThemeType) => (
           background: theme.palette.link.visited ?? theme.palette.primary.main,
           border: `1.2px solid ${theme.palette.link.visited ?? theme.palette.primary.main}`,
         },
-      },
-      redLink: {
-        color: `${theme.palette.error.main} !important`,
-        '&:after': {
-          border: `1.2px solid ${theme.palette.error.main}`,
-        },
-        '&:visited:after, &.visited:after': {
-          border: `1.2px solid ${theme.palette.error.main}`,
-        },
-      },
-    } : {
-      link: {
+      } : {
         '&:after': {
           content: '"°"',
           marginLeft: 1,
         },
+      }
+    )
+  },
+  redLink: {
+    ...(visitedLinksHaveFilledInCircle ? {
+      color: `${theme.palette.error.main} !important`,
+      '&:after': {
+        border: `1.2px solid ${theme.palette.error.main}`,
       },
-      redLink: undefined,
-    }
-);
-
-const styles = (theme: ThemeType) => ({
-  ...linkStyle(theme)
-})
+      '&:visited:after, &.visited:after': {
+        border: `1.2px solid ${theme.palette.error.main}`,
+      },
+    } : {})
+  },
+  
+  owidIframe: {
+    width: 600,
+    height: 375,
+    border: "none",
+    maxWidth: "100vw",
+  },
+  owidBackground: {
+  },
+  metaculusIframe: {
+    width: 400,
+    height: 250,
+    border: "none",
+    maxWidth: "100vw"
+  },
+  metaculusBackground: {
+    backgroundColor: theme.palette.panelBackground.metaculusBackground,
+  },
+  fatebookIframe: {
+    width: 560,
+    height: 200,
+    border: "none",
+    maxWidth: "100vw",
+    backgroundColor: theme.palette.panelBackground.default,
+    borderRadius: 3,
+    boxShadow: theme.palette.boxShadow.eaCard,
+  },
+  manifoldIframe: {
+    width: 560,
+    height: 405,
+    border: "none",
+    maxWidth: "100vw",
+  },
+  neuronpediaIframe: {
+    width: "100%",
+    height: 360,
+    border: "1px solid",
+    borderColor: theme.palette.grey[300],
+    borderRadius: 6,
+    maxWidth: 639,
+  },
+  metaforecastIframe: {
+    width: 560,
+    height: 405,
+    border: "none",
+    maxWidth: "100vw",
+  },
+  estimakerIframe: {
+    width: 560,
+    height: 405,
+    border: "none",
+    maxWidth: "100vw",
+  },
+  viewpointsIframe: {
+    width: 560,
+    height: 300,
+    border: "none",
+    maxWidth: "100vw",
+  },
+}));
 
 const PostLinkCommentPreview = ({href, commentId, post, id, children}: {
   href: string,
@@ -310,8 +365,6 @@ const PostLinkCommentPreview = ({href, commentId, post, id, children}: {
   </PostLinkPreviewWithPost>
 }
 
-const postLinkPreviewWithPostStyles = defineStyles('PostLinkPreviewWithPost', styles);
-
 const PostLinkPreviewWithPost = ({href, post, id, children}: {
   href: string,
   post: PostsList|null,
@@ -319,7 +372,7 @@ const PostLinkPreviewWithPost = ({href, post, id, children}: {
   error: any,
   children: ReactNode,
 }) => {
-  const classes = useStyles(postLinkPreviewWithPostStyles);
+  const classes = useStyles(linkStyles);
 
   if (!post) {
     return <Link to={href} className={classes.link}>
@@ -344,8 +397,6 @@ const PostLinkPreviewWithPost = ({href, post, id, children}: {
   );
 }
 
-const commentLinkPreviewWithCommentStyles = defineStyles('CommentLinkPreviewWithComment', styles);
-
 const CommentLinkPreviewWithComment = ({href, comment, post, id, children}: {
   href: string,
   comment: any,
@@ -354,7 +405,7 @@ const CommentLinkPreviewWithComment = ({href, comment, post, id, children}: {
   error: any,
   children: ReactNode,
 }) => {
-  const classes = useStyles(commentLinkPreviewWithCommentStyles);
+  const classes = useStyles(linkStyles);
 
   if (!comment) {
     return <Link to={href} className={classes.link}>
@@ -376,14 +427,12 @@ const CommentLinkPreviewWithComment = ({href, comment, post, id, children}: {
   );
 }
 
-const sequencePreviewStyles = defineStyles('SequencePreview', styles);
-
 export const SequencePreview = ({targetLocation, href, children}: {
   targetLocation: any,
   href: string,
   children: ReactNode,
 }) => {
-  const classes = useStyles(sequencePreviewStyles);
+  const classes = useStyles(linkStyles);
   
   const sequenceId = targetLocation.params._id;
 
@@ -467,23 +516,12 @@ export const DefaultPreview = ({href, onsite=false, id, rel, children}: {
   );
 }
 
-const owidStyles = defineStyles('OWIDPreview', (theme: ThemeType) => ({
-  iframeStyling: {
-    width: 600,
-    height: 375,
-    border: "none",
-    maxWidth: "100vw",
-  },
-  background: {},
-  ...linkStyle(theme)
-}));
-
 export const OWIDPreview = ({href, id, children}: {
   href: string,
   id?: string,
   children: ReactNode,
 }) => {
-  const classes = useStyles(owidStyles);
+  const classes = useStyles(linkStyles);
   const { anchorEl, hover, eventHandlers } = useHover();
   const [match] = href.match(/^http(?:s?):\/\/ourworldindata\.org\/grapher\/.*/) || []
 
@@ -500,33 +538,20 @@ export const OWIDPreview = ({href, id, children}: {
       </a>
       
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
-        <div className={classes.background}>
-          <iframe className={classes.iframeStyling} src={match} />
+        <div className={classes.owidBackground}>
+          <iframe className={classes.owidIframe} src={match} />
         </div>
       </LWPopper>
     </span>
   </AnalyticsTracker>
 }
 
-const metaculusStyles = defineStyles('MetaculusPreview', (theme: ThemeType) => ({
-  background: {
-    backgroundColor: theme.palette.panelBackground.metaculusBackground,
-  },
-  iframeStyling: {
-    width: 400,
-    height: 250, 
-    border: "none",
-    maxWidth: "100vw"
-  },
-  ...linkStyle(theme)
-}));
-
 export const MetaculusPreview = ({href, id, children}: {
   href: string,
   id?: string,
   children: ReactNode,
 }) => {
-  const classes = useStyles(metaculusStyles);
+  const classes = useStyles(linkStyles);
 
   const { anchorEl, hover, eventHandlers } = useHover();
   const [match, www, questionNumber] = href.match(/^http(?:s?):\/\/(www\.)?metaculus\.com\/questions\/([a-zA-Z0-9]{1,6})?/) || []
@@ -544,33 +569,20 @@ export const MetaculusPreview = ({href, id, children}: {
       </a>
       
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
-        <div className={classes.background}>
-          <iframe className={classes.iframeStyling} src={`https://d3s0w6fek99l5b.cloudfront.net/s/1/questions/embed/${questionNumber}/?plot=pdf`} />
+        <div className={classes.metaculusBackground}>
+          <iframe className={classes.metaculusIframe} src={`https://d3s0w6fek99l5b.cloudfront.net/s/1/questions/embed/${questionNumber}/?plot=pdf`} />
         </div>
       </LWPopper>
     </span>
   </AnalyticsTracker>
 }
 
-const fatebookStyles = defineStyles('FatebookPreview', (theme: ThemeType) => ({
-  iframeStyling: {
-    width: 560,
-    height: 200,
-    border: "none",
-    maxWidth: "100vw",
-    backgroundColor: theme.palette.panelBackground.default,
-    borderRadius: 3,
-    boxShadow: theme.palette.boxShadow.eaCard,
-  },
-  link: linkStyle(theme),
-}));
-
 export const FatebookPreview = ({href, id, children}: {
   href: string,
   id?: string,
   children: ReactNode,
 }) => {
-  const classes = useStyles(fatebookStyles);
+  const classes = useStyles(linkStyles);
   
   const { anchorEl, hover, eventHandlers } = useHover();
 
@@ -596,29 +608,19 @@ export const FatebookPreview = ({href, id, children}: {
         </a>
 
         <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
-          <iframe className={classes.iframeStyling} src={url} />
+          <iframe className={classes.fatebookIframe} src={url} />
         </LWPopper>
       </span>
     </AnalyticsTracker>
   );
 };
 
-const manifoldStyles = defineStyles('ManifoldPreview', (theme: ThemeType) => ({
-  iframeStyling: {
-    width: 560,
-    height: 405,
-    border: "none",
-    maxWidth: "100vw",
-  },
-  ...linkStyle(theme),
-}));
-
 export const ManifoldPreview = ({href, id, children}: {
   href: string;
   id?: string;
   children: ReactNode,
 }) => {
-  const classes = useStyles(manifoldStyles);
+  const classes = useStyles(linkStyles);
   const { anchorEl, hover, eventHandlers } = useHover();
 
   // test if fits https://manifold.markets/embed/[...]
@@ -645,31 +647,19 @@ export const ManifoldPreview = ({href, id, children}: {
         </a>
 
         <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
-          <iframe className={classes.iframeStyling} src={url} />
+          <iframe className={classes.manifoldIframe} src={url} />
         </LWPopper>
       </span>
     </AnalyticsTracker>
   );
 };
 
-const neuronpediaStyles = defineStyles('NeuronpediaPreview', (theme: ThemeType) => ({
-  iframeStyling: {
-    width: "100%",
-    height: 360,
-    border: "1px solid",
-    borderColor: theme.palette.grey[300],
-    borderRadius: 6,
-    maxWidth: 639,
-  },
-  ...linkStyle(theme),
-}));
-
 export const NeuronpediaPreview = ({href, id, children}: {
   href: string;
   id?: string;
   children: ReactNode,
 }) => {
-  const classes = useStyles(neuronpediaStyles);
+  const classes = useStyles(linkStyles);
   const { anchorEl, hover, eventHandlers } = useHover();
 
   // test if it's already an embed url https://[www.]neuronpedia.org/[model]/[layer]/[index]?embed=true[...]
@@ -697,29 +687,19 @@ export const NeuronpediaPreview = ({href, id, children}: {
         </a>
 
         <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
-          <iframe className={classes.iframeStyling} src={url} />
+          <iframe className={classes.neuronpediaIframe} src={url} />
         </LWPopper>
       </span>
     </AnalyticsTracker>
   );
 };
 
-const metaforecastStyles = defineStyles('MetaforecastPreview', (theme: ThemeType) => ({
-  iframeStyling: {
-    width: 560,
-    height: 405,
-    border: "none",
-    maxWidth: "100vw",
-  },
-  ...linkStyle(theme),
-}));
-
 export const MetaforecastPreview = ({href, id, children}: {
   href: string;
   id?: string;
   children: ReactNode,
 }) => {
-  const classes = useStyles(metaforecastStyles);
+  const classes = useStyles(linkStyles);
   const { anchorEl, hover, eventHandlers } = useHover();
 
   // test if fits https://metaforecast.org/questions/embed/[...]
@@ -746,7 +726,7 @@ export const MetaforecastPreview = ({href, id, children}: {
         </a>
 
         <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
-          <iframe className={classes.iframeStyling} src={url} />
+          <iframe className={classes.metaforecastIframe} src={url} />
         </LWPopper>
       </span>
     </AnalyticsTracker>
@@ -778,7 +758,6 @@ const arbitalStyles = defineStyles('ArbitalPreview', (theme: ThemeType) => ({
     fill: theme.palette.icon.dim2,
     marginTop: -5
   },
-  ...linkStyle(theme)
 }));
 
 export const ArbitalPreview = ({href, id, children}: {
@@ -787,6 +766,8 @@ export const ArbitalPreview = ({href, id, children}: {
   children: ReactNode,
 }) => {
   const classes = useStyles(arbitalStyles);
+  const linkClasses = useStyles(linkStyles);
+
   const { anchorEl, hover, eventHandlers } = useHover();
   const [match, www, arbitalSlug] = href.match(/^http(?:s?):\/\/(www\.)?arbital\.com\/p\/([a-zA-Z0-9_]+)+/) || []
 
@@ -810,7 +791,7 @@ export const ArbitalPreview = ({href, id, children}: {
 
   return <AnalyticsTracker eventType="link" eventProps={{to: href}}>
     <span {...eventHandlers}>
-      <a className={classes.link} href={href} id={id}>
+      <a className={linkClasses.link} href={href} id={id}>
         {children}
       </a>
       
@@ -829,22 +810,12 @@ export const ArbitalPreview = ({href, id, children}: {
   </AnalyticsTracker>
 }
 
-const estimakerStyles = defineStyles('EstimakerPreview', (theme: ThemeType) => ({
-  iframeStyling: {
-    width: 560,
-    height: 405,
-    border: "none",
-    maxWidth: "100vw",
-  },
-  ...linkStyle(theme),
-}));
-
 export const EstimakerPreview = ({href, id, children}: {
   href: string,
   id?: string,
   children: ReactNode,
 }) => {
-  const classes = useStyles(estimakerStyles);
+  const classes = useStyles(linkStyles);
   const { anchorEl, hover, eventHandlers } = useHover();
 
   // test if fits https://estimaker.app/_/$user/$slug
@@ -865,29 +836,19 @@ export const EstimakerPreview = ({href, id, children}: {
           {children}
         </a>
         <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
-          <iframe className={classes.iframeStyling} src={href} />
+          <iframe className={classes.estimakerIframe} src={href} />
         </LWPopper>
       </span>
     </AnalyticsTracker>
   );
 };
 
-const viewpointsStyles = defineStyles('ViewpointsPreview', (theme: ThemeType) => ({
-  iframeStyling: {
-    width: 560,
-    height: 300,
-    border: "none",
-    maxWidth: "100vw",
-  },
-  ...linkStyle(theme),
-}));
-
 export const ViewpointsPreview = ({href, id, children}: {
   href: string,
   id?: string,
   children: ReactNode,
 }) => {
-  const classes = useStyles(viewpointsStyles);
+  const classes = useStyles(linkStyles);
   const { anchorEl, hover, eventHandlers } = useHover();
 
   // test if fits https://viewpoints.xyz/embed/polls/$slug
@@ -913,7 +874,7 @@ export const ViewpointsPreview = ({href, id, children}: {
           {children}
         </a>
         <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
-          <iframe className={classes.iframeStyling} src={url} />
+          <iframe className={classes.viewpointsIframe} src={url} />
         </LWPopper>
       </span>
     </AnalyticsTracker>
