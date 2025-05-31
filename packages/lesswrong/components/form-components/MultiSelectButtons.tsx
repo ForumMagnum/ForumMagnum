@@ -12,7 +12,7 @@ const styles = defineStyles('MultiSelectButtons', (theme: ThemeType) => ({
     // Material UI v0 happened to use.)
     fontWeight: isFriendlyUI ? 600 : 500,
     fontSize: "16px",
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : "Roboto, sans-serif",
+    fontFamily: theme.palette.fonts.sansSerifStack,
   },
 
   selected: {
