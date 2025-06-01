@@ -16,6 +16,7 @@ export const graphqlCommentQueryTypeDefs = gql`
   input SingleCommentInput {
     selector: SelectorInput
     resolverArgs: JSON
+    allowNull: Boolean
   }
   
   type SingleCommentOutput {
@@ -494,7 +495,8 @@ export const graphqlCommentQueryTypeDefs = gql`
   extend type Query {
     comment(
       input: SingleCommentInput @deprecated(reason: "Use the selector field instead"),
-      selector: SelectorInput
+      selector: SelectorInput,
+      allowNull: Boolean
     ): SingleCommentOutput
     comments(
       input: MultiCommentInput @deprecated(reason: "Use the selector field instead"),

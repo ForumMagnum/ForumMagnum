@@ -43,7 +43,7 @@ const TagPageRevisionSelect = ({ classes }: {
       enableTotal: true,
     },
     skip: !tag,
-    fetchPolicy: "cache-then-network" as any,
+    fetchPolicy: 'cache-first',
     notifyOnNetworkStatusChange: true,
   });
 

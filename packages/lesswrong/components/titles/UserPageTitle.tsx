@@ -35,7 +35,7 @@ export const UserPageTitle = ({isSubtitle, siteName}: {
       limit: 10,
       enableTotal: false,
     },
-    fetchPolicy: 'cache-then-network' as any,
+    fetchPolicy: 'cache-first',
     notifyOnNetworkStatusChange: true,
   });
 

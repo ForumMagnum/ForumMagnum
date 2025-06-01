@@ -2046,6 +2046,7 @@ enum TagCommentType {
 input SingleCommentInput {
   selector: SelectorInput
   resolverArgs: JSON
+  allowNull: Boolean
 }
 
 type SingleCommentOutput {
@@ -2522,7 +2523,7 @@ type MultiCommentOutput {
 }
 
 extend type Query {
-  comment(input: SingleCommentInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleCommentOutput
+  comment(input: SingleCommentInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput, allowNull: Boolean): SingleCommentOutput
   comments(input: MultiCommentInput @deprecated(reason: "Use the selector field instead"), selector: CommentSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiCommentOutput
 }
 
@@ -4565,6 +4566,7 @@ enum PostCategory {
 input SinglePostInput {
   selector: SelectorInput
   resolverArgs: JSON
+  allowNull: Boolean
 }
 
 type SinglePostOutput {
@@ -4759,7 +4761,7 @@ input PostsTimeframeInput {
   before: String
   timeField: String
   curatedAfter: String
-  limit: String
+  limit: Int
 }
 
 input PostsDailyInput {
@@ -6094,7 +6096,7 @@ type MultiPostOutput {
 }
 
 extend type Query {
-  post(input: SinglePostInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SinglePostOutput
+  post(input: SinglePostInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput, allowNull: Boolean): SinglePostOutput
   posts(input: MultiPostInput @deprecated(reason: "Use the selector field instead"), selector: PostSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiPostOutput
 }
 
@@ -6522,6 +6524,7 @@ type Sequence {
 input SingleSequenceInput {
   selector: SelectorInput
   resolverArgs: JSON
+  allowNull: Boolean
 }
 
 type SingleSequenceOutput {
@@ -6579,7 +6582,7 @@ type MultiSequenceOutput {
 }
 
 extend type Query {
-  sequence(input: SingleSequenceInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleSequenceOutput
+  sequence(input: SingleSequenceInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput, allowNull: Boolean): SingleSequenceOutput
   sequences(input: MultiSequenceInput @deprecated(reason: "Use the selector field instead"), selector: SequenceSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiSequenceOutput
 }
 

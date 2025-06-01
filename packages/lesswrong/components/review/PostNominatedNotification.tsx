@@ -39,7 +39,7 @@ const styles = (theme: ThemeType) => ({
 const PostNominatedNotification = ({classes, postId}: {classes: ClassesType<typeof styles>, postId: string}) => {
   const { loading, data } = useQuery(PostsListQuery, {
     variables: { documentId: postId },
-    fetchPolicy: 'cache-then-network' as any,
+    fetchPolicy: 'cache-first',
   });
   
   const post = data?.post?.result;

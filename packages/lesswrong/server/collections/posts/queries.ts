@@ -17,6 +17,7 @@ export const graphqlPostQueryTypeDefs = gql`
   input SinglePostInput {
     selector: SelectorInput
     resolverArgs: JSON
+    allowNull: Boolean
   }
   
   type SinglePostOutput {
@@ -211,7 +212,7 @@ export const graphqlPostQueryTypeDefs = gql`
     before: String
     timeField: String
     curatedAfter: String
-    limit: String
+    limit: Int
   }
   
   input PostsDailyInput {
@@ -1548,7 +1549,8 @@ export const graphqlPostQueryTypeDefs = gql`
   extend type Query {
     post(
       input: SinglePostInput @deprecated(reason: "Use the selector field instead"),
-      selector: SelectorInput
+      selector: SelectorInput,
+      allowNull: Boolean
     ): SinglePostOutput
     posts(
       input: MultiPostInput @deprecated(reason: "Use the selector field instead"),

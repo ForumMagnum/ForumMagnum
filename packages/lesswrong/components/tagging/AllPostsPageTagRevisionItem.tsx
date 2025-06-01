@@ -39,7 +39,7 @@ const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId, classes}: {
 }) => {
   const { loading, data } = useQuery(RevisionHistoryEntryQuery, {
     variables: { documentId: revisionId },
-    fetchPolicy: 'cache-then-network' as any,
+    fetchPolicy: 'cache-first',
   });
   const revision = data?.revision?.result;
   

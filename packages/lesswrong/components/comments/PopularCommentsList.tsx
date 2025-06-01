@@ -48,7 +48,6 @@ const PopularCommentsList = ({classes}: {classes: ClassesType<typeof styles>}) =
     itemsPerPage: 5,
   });
 
-
   const CommentComponent = isFriendlyUI ? FriendlyPopularComment : LWPopularComment;
   return (
     <AnalyticsContext pageSectionContext="popularCommentsList">

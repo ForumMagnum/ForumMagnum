@@ -56,7 +56,7 @@ const PostsRevisionSelect = ({ classes }: {
       enableTotal: false,
     },
     skip: !post,
-    fetchPolicy: "cache-then-network" as any,
+    fetchPolicy: 'cache-first',
     notifyOnNetworkStatusChange: true,
   });
 

@@ -11,6 +11,7 @@ export const graphqlSequenceQueryTypeDefs = gql`
   input SingleSequenceInput {
     selector: SelectorInput
     resolverArgs: JSON
+    allowNull: Boolean
   }
   
   type SingleSequenceOutput {
@@ -70,7 +71,8 @@ export const graphqlSequenceQueryTypeDefs = gql`
   extend type Query {
     sequence(
       input: SingleSequenceInput @deprecated(reason: "Use the selector field instead"),
-      selector: SelectorInput
+      selector: SelectorInput,
+      allowNull: Boolean
     ): SingleSequenceOutput
     sequences(
       input: MultiSequenceInput @deprecated(reason: "Use the selector field instead"),

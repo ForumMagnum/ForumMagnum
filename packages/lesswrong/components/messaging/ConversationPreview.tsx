@@ -52,7 +52,7 @@ const ConversationPreview = ({conversationId, currentUser, classes, showTitle=tr
 }) => {
   const { loading: conversationLoading, data } = useQuery(ConversationsListQuery, {
     variables: { documentId: conversationId },
-    fetchPolicy: 'cache-then-network' as any,
+    fetchPolicy: 'cache-first',
   });
   const conversation = data?.conversation?.result;
 

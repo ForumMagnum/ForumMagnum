@@ -1,4 +1,4 @@
-
+import { GraphQLError } from "graphql";
 
 /*
 
@@ -10,5 +10,7 @@ An error should have:
 
 */
 export function throwError(error: { id: string; data?: Record<string, AnyBecauseTodo> }): never {
-  throw new Error(`${error.id}: ${error.data}`);
+  const { id } = error;
+  throw new GraphQLError(id)
+  // throw new Error(`${error.id}: ${error.data}`);
 };

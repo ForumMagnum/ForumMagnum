@@ -152,7 +152,7 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
   const [displayedError, setDisplayedError] = useState<string|null>(null);
   const clientId = useClientId();
 
-  const showErrors = (errors: readonly GraphQLFormattedError<Record<string, unknown>>[]) => {
+  const showErrors = (errors: readonly GraphQLFormattedError[]) => {
     setDisplayedError(errors.map(err => err.message).join('.\n'));
   }
   

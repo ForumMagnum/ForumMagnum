@@ -40,7 +40,7 @@ export const PostsPreviewTooltipSingle = ({postId, postsList=false}: {
 }) => {
   const { loading: postLoading, data } = useQuery(PostsListQuery, {
     variables: { documentId: postId },
-    fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
+    fetchPolicy: 'cache-first',
   });
   const post = data?.post?.result;
 
@@ -60,7 +60,7 @@ export const DialogueMessagePreviewTooltip = ({postId, postsList=false, dialogue
 }) => {
   const { loading: postLoading, data } = useQuery(PostsListQuery, {
     variables: { documentId: postId },
-    fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
+    fetchPolicy: 'cache-first',
   });
   const post = data?.post?.result;
 
@@ -79,13 +79,13 @@ export const PostsPreviewTooltipSingleWithComment = ({postId, commentId}: {
 }) => {
   const { loading: postLoading, data: dataPost } = useQuery(PostsListQuery, {
     variables: { documentId: postId },
-    fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
+    fetchPolicy: 'cache-first',
   });
   const post = dataPost?.post?.result;
 
   const { loading: commentLoading, data: dataComment } = useQuery(CommentsListQuery, {
     variables: { documentId: commentId },
-    fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
+    fetchPolicy: 'cache-first',
   });
   const comment = dataComment?.comment?.result;
 
@@ -106,7 +106,7 @@ export const PostsPreviewTooltipSingleWithComment = ({postId, commentId}: {
 export const TaggedPostTooltipSingle = ({tagRelId}: {tagRelId: string}) => {
   const { loading: tagRelLoading, data } = useQuery(TagRelFragmentQuery, {
     variables: { documentId: tagRelId },
-    fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
+    fetchPolicy: 'cache-first',
   });
   const tagRel = data?.tagRel?.result;
 

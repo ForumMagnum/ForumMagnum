@@ -55,7 +55,7 @@ const TagSearchHit = ({hit, onClick, hidePostCount=false, isVotingContext, class
 }) => {
   const { data } = useQuery(TagPreviewFragmentQuery, {
     variables: { documentId: hit._id },
-    fetchPolicy: 'cache-then-network' as any,
+    fetchPolicy: 'cache-first',
   });
   const tag = data?.tag?.result;
   const {eventHandlers, hover, anchorEl} = useHover();

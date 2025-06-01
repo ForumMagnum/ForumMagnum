@@ -227,12 +227,13 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
 
   const singleResolver = async (
     _root: void,
-    { input = {}, selector, allowNull = false }: { input: AnyBecauseTodo, selector?: SelectorInput, allowNull?: boolean },
+    { input = {}, selector, allowNull }: { input: AnyBecauseTodo, selector?: SelectorInput, allowNull?: boolean },
     context: ResolverContext,
     info: GraphQLResolveInfo,
   ) => {
     const collection = context[collectionName] as CollectionBase<N>;
     const { input: _input, selector: _selector, ...otherQueryVariables } = info.variableValues;
+    allowNull ??= input.allowNull ?? false;
     // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
     // it has none of the methods you would usually associate with objects like `toString`. This causes various problems
     // down the line. See https://stackoverflow.com/questions/56298481/how-to-fix-object-null-prototype-title-product
@@ -280,10 +281,14 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     }
 
     if (!doc) {
-      throwError({
-        id: 'app.missing_document',
-        data: { documentId, selector: usedSelector, collectionName: collection.collectionName },
-      });
+      if (allowNull) {
+        return { result: null };
+      } else {
+        throwError({
+          id: 'app.missing_document',
+          data: { documentId, selector, collectionName: collection.collectionName },
+        });
+      }
     }
 
     // if collection has a checkAccess function defined, use it to perform a check on the current document

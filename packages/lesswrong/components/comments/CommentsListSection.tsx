@@ -135,6 +135,12 @@ const CommentsListSection = ({
   const commentTree = unflattenComments(comments);
   const [restoreScrollPos, setRestoreScrollPos] = useState(-1);
 
+  // let now = new Date().getTime();
+
+  // while (new Date().getTime() < now + 5000) {
+  //   // console.log("waiting");
+  // }
+
   useEffect(() => {
     if (restoreScrollPos === -1) return;
 

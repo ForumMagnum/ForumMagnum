@@ -11,7 +11,7 @@ import stringify from "json-stringify-deterministic";
 import LRU from "lru-cache";
 import { isE2E } from "@/lib/executionEnvironment";
 import { connectCrossposterToken } from "../crossposting/tokens";
-import { gql } from "apollo-server-express";
+import gql from "graphql-tag";
 import { TOS_NOT_ACCEPTED_ERROR, TOS_NOT_ACCEPTED_REMOTE_ERROR } from "@/lib/collections/posts/constants";
 // import { makeV2CrossSiteRequest } from "../crossposting/crossSiteRequest";
 // import {

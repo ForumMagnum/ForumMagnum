@@ -43,7 +43,7 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, 
   const { data, loading, fetchMore } = useQuery(BookmarksWithDocumentFragmentMultiQuery, {
     variables: {
       selector: { myBookmarkedPosts: {} },
-      limit: 10,
+      limit,
       enableTotal: false,
     },
     skip: !currentUser?._id,
@@ -57,7 +57,7 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, 
     data: data?.bookmarks,
     loading,
     fetchMore,
-    initialLimit: 10,
+    initialLimit: limit,
     itemsPerPage: 20,
     resetTrigger: {
         view: "myBookmarkedPosts",

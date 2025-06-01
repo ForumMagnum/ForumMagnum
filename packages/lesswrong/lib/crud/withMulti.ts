@@ -184,7 +184,7 @@ export type UseMultiResult<
 
 //   let effectiveLimit = limit;
 //   if (!_.isEqual(terms, lastTerms)) {
-//     setLastTerms(terms);
+//     setLastTermterms);
 //     setLimit(defaultLimit);
 //     effectiveLimit = defaultLimit;
 //   }
@@ -202,7 +202,7 @@ export type UseMultiResult<
 //     ssr: apolloSSRFlag(ssr),
 //     skip,
 //     notifyOnNetworkStatusChange: true
-//   }
+//   
 //   const { data, error, loading, refetch, fetchMore, networkStatus } = useQuery(query, useQueryArgument);
 
 //   if (error) {

@@ -7230,7 +7230,7 @@ type PostsTimeframeInput = {
   hideCommunity?: InputMaybe<Scalars['Boolean']['input']>;
   includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
   karmaThreshold?: InputMaybe<Scalars['Int']['input']>;
-  limit?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
   notPostIds?: InputMaybe<Array<Scalars['String']['input']>>;
   postIds?: InputMaybe<Array<Scalars['String']['input']>>;
   question?: InputMaybe<Scalars['Boolean']['input']>;
@@ -8094,6 +8094,7 @@ type QuerycollectionsArgs = {
 
 
 type QuerycommentArgs = {
+  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<SingleCommentInput>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -8563,6 +8564,7 @@ type QuerypodcastsArgs = {
 
 
 type QuerypostArgs = {
+  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<SinglePostInput>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -8683,6 +8685,7 @@ type QueryrevisionsArgs = {
 
 
 type QuerysequenceArgs = {
+  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<SingleSequenceInput>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -9552,6 +9555,7 @@ type SingleCollectionOutput = {
 };
 
 type SingleCommentInput = {
+  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -9842,6 +9846,7 @@ type SinglePodcastOutput = {
 };
 
 type SinglePostInput = {
+  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -9922,6 +9927,7 @@ type SingleRevisionOutput = {
 };
 
 type SingleSequenceInput = {
+  allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
 };
@@ -16837,6 +16843,7 @@ type PostLinkPreviewSequenceQuery_Query = { __typename?: 'Query', sequence: Post
 
 type PostLinkPreviewSequenceQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
+  allowNull: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -16854,6 +16861,7 @@ type PostLinkPreviewCommentQuery_Query = { __typename?: 'Query', comment: PostLi
 
 type PostLinkPreviewCommentQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
+  allowNull: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -16871,6 +16879,7 @@ type PostLinkPreviewPostQuery_Query = { __typename?: 'Query', post: PostLinkPrev
 
 type PostLinkPreviewPostQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
+  allowNull: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 

@@ -18,11 +18,13 @@ import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import SequencesTooltip from "../sequences/SequencesTooltip";
 import LWPopper from "../common/LWPopper";
 import ContentStyles from "../common/ContentStyles";
+import ErrorBoundary from '../common/ErrorBoundary';
+import { apolloSSRFlag } from '@/lib/helpers';
 
 
 const SequencesPageFragmentQuery = gql(`
-  query PostLinkPreviewSequence($documentId: String) {
-    sequence(input: { selector: { documentId: $documentId } }) {
+  query PostLinkPreviewSequence($documentId: String, $allowNull: Boolean) {
+    sequence(input: { selector: { documentId: $documentId }, allowNull: $allowNull }) {
       result {
         ...SequencesPageFragment
       }
@@ -31,8 +33,8 @@ const SequencesPageFragmentQuery = gql(`
 `);
 
 const CommentsListQuery = gql(`
-  query PostLinkPreviewComment($documentId: String) {
-    comment(input: { selector: { documentId: $documentId } }) {
+  query PostLinkPreviewComment($documentId: String, $allowNull: Boolean) {
+    comment(input: { selector: { documentId: $documentId }, allowNull: $allowNull }) {
       result {
         ...CommentsList
       }
@@ -41,8 +43,8 @@ const CommentsListQuery = gql(`
 `);
 
 const PostsListQuery = gql(`
-  query PostLinkPreviewPost($documentId: String) {
-    post(input: { selector: { documentId: $documentId } }) {
+  query PostLinkPreviewPost($documentId: String, $allowNull: Boolean) {
+    post(input: { selector: { documentId: $documentId }, allowNull: $allowNull }) {
       result {
         ...PostsList
       }
@@ -63,13 +65,13 @@ let missingLinkPreviewsLogged = new Set<string>();
 // voluminous.
 function logMissingLinkPreview(message: string)
 {
-  if (isClient) {
+  // if (isClient) {
     if(!missingLinkPreviewsLogged.has(message)) {
       missingLinkPreviewsLogged.add(message);
       //eslint-disable-next-line no-console
       console.log(message);
     }
-  }
+  // }
 }
 
 export const PostLinkPreview = ({href, targetLocation, id, children}: {
@@ -81,8 +83,12 @@ export const PostLinkPreview = ({href, targetLocation, id, children}: {
   const postID = targetLocation.params._id;
 
   const { loading, error, data } = useQuery(PostsListQuery, {
-    variables: { documentId: postID },
-    fetchPolicy: 'cache-then-network' as any,
+    variables: {
+      documentId: postID,
+      // allowNull: true,
+    },
+    fetchPolicy: 'cache-first',
+    ssr: apolloSSRFlag(false),
   });
   const post = data?.post?.result;
   
@@ -109,8 +115,8 @@ export const PostLinkPreviewSequencePost = ({href, targetLocation, id, children}
   const postID = targetLocation.params.postId;
 
   const { loading, error, data } = useQuery(PostsListQuery, {
-    variables: { documentId: postID },
-    fetchPolicy: 'cache-then-network' as any,
+    variables: { documentId: postID, allowNull: true },
+    fetchPolicy: 'cache-first',
   });
   const post = data?.post?.result;
 
@@ -184,8 +190,8 @@ export const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, id, ch
   const commentId = targetLocation.params.commentId;
 
   const { loading, data, error   } = useQuery(PostsListQuery, {
-    variables: { documentId: postId },
-    fetchPolicy: 'cache-then-network' as any,
+    variables: { documentId: postId, allowNull: true },
+    fetchPolicy: 'cache-first',
   });
   const post = data?.post?.result;
 
@@ -311,8 +317,8 @@ const PostLinkCommentPreview = ({href, commentId, post, id, children}: {
 }) => {
 
   const { loading, error, data } = useQuery(CommentsListQuery, {
-    variables: { documentId: commentId },
-    fetchPolicy: 'cache-then-network' as any,
+    variables: { documentId: commentId, allowNull: true },
+    fetchPolicy: 'cache-first',
   });
   const comment = data?.comment?.result;
 
@@ -412,7 +418,7 @@ export const SequencePreview = ({targetLocation, href, children}: {
 
   const { loading, data, error  } = useQuery(SequencesPageFragmentQuery, {
     variables: { documentId: sequenceId },
-    fetchPolicy: 'cache-then-network' as any,
+    fetchPolicy: 'cache-first',
   });
   const sequence = data?.sequence?.result;
 

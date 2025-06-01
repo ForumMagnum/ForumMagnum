@@ -1,11 +1,13 @@
-import { ApolloServer, makeExecutableSchema } from 'apollo-server-express';
+import { ApolloServer, ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from '@apollo/server';
+import { expressMiddleware } from '@as-integrations/express5';
+import { makeExecutableSchema } from '@graphql-tools/schema';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
 import { isDevelopment, isE2E } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
 import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
-import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
+import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql'; 
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
 import { getUserFromReq, configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 
@@ -43,7 +45,7 @@ import { botRedirectMiddleware } from './botRedirect';
 import { hstsMiddleware } from './hsts';
 import { getClientBundle } from './utils/bundleUtils';
 import ElasticController from './search/elastic/ElasticController';
-import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
+// import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
 import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
 import { createAnonymousContext } from './vulcan-lib/createContexts';
@@ -115,8 +117,9 @@ const maybePrefetchResources = ({
 };
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
-  requestDidStart({ request, context }: GraphQLRequestContext<ResolverContext>): GraphQLRequestListener<ResolverContext> {
+  requestDidStart({ request, contextValue: context }: GraphQLRequestContext<ResolverContext>) {
     const { operationName = 'unknownGqlOperation', query, variables } = request;
+    // console.log("requestDidStart", operationName, query, variables);
 
     //remove sensitive data from variables such as password
     let filteredVariables = variables;
@@ -140,9 +143,18 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
     if (query) {
       logGraphqlQueryStarted(operationName, query, variables);
     }
+
+    let isFinished = false;
+    setTimeout(() => {
+      if (!isFinished) {
+        console.log("willSendResponse", operationName, query, variables);
+      }
+    }, 10_000);
     
     return {
       willSendResponse() { // hook for transaction finished
+        isFinished = true;
+        // console.log("willSendResponse", operationName, query, variables);
         if (performanceMetricLoggingEnabled.get()) {
           closePerfMetric(startedRequestMetric);
         }
@@ -153,11 +165,13 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
       }
     };
   }
+
+
 }
 
 export type AddMiddlewareType = typeof app.use;
 
-export function startWebserver() {
+export async function startWebserver() {
   const addMiddleware: AddMiddlewareType = (...args: any[]) => app.use(...args);
   const config = { path: '/graphql' };
   const expressSessionSecret = expressSessionSecretSetting.get()
@@ -226,9 +240,9 @@ export function startWebserver() {
   // given options contains the schema
   const apolloServer = new ApolloServer({
     // graphql playground (replacement to graphiql), available on the app path
-    playground: getPlaygroundConfig(config.path),
+    // playground: getPlaygroundConfig(config.path),
     introspection: true,
-    debug: isDevelopment,
+    // debug: isDevelopment,
     
     schema: makeExecutableSchema({ typeDefs, resolvers }),
     formatError: (e: GraphQLError): GraphQLFormattedError => {
@@ -241,19 +255,31 @@ export function startWebserver() {
       return formatError(e) as any;
     },
     //tracing: isDevelopment,
-    tracing: false,
-    context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
-      const context = await getContextFromReqAndRes({req, res, isSSR: false});
-      configureSentryScope(context);
-      return context;
-    },
+    // tracing: false,
+    // context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
+    //   const context = await getContextFromReqAndRes({req, res, isSSR: false});
+    //   configureSentryScope(context);
+    //   return context;
+    // },
     plugins: [new ApolloServerLogging()],
+    allowBatchedHttpRequests: true,
   });
 
   app.use('/graphql', express.json({ limit: '50mb' }));
   app.use('/graphql', express.text({ type: 'application/graphql' }));
   app.use('/graphql', clientIdMiddleware, perfMetricMiddleware);
-  apolloServer.applyMiddleware({ app })
+
+  await apolloServer.start();
+
+  app.use('/graphql', expressMiddleware(apolloServer, {
+    context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
+      const context = await getContextFromReqAndRes({req, res, isSSR: false});
+      configureSentryScope(context);
+      return context;
+    },
+  }))
+  // apolloServer.
+  // apolloServer.applyMiddleware({ app })
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
     const {hash: bundleHash, content: bundleBuffer, brotli: bundleBrotliBuffer} = getClientBundle().resource;
