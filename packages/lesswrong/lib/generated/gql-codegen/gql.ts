@@ -612,6 +612,8 @@ type Documents = {
     "\n  query multiUserFriendlyUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": typeof types.multiUserFriendlyUsersProfileQueryDocument,
     "\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n": typeof types.KarmaChangeNotifierDocument,
     "\n  query multiPostLWUserTooltipContentQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostLWUserTooltipContentQueryDocument,
+    "\n  query AirtableLeaderboards {\n    AirtableLeaderboards {\n      name\n      leaderboardAmount\n    }\n  }\n": typeof types.AirtableLeaderboardsDocument,
+    "\n        query getNetKarmaChangesForAuthorsOverPeriod($days: Int!, $limit: Int!) {\n          NetKarmaChangesForAuthorsOverPeriod(days: $days, limit: $limit) {\n            userId\n            netKarma\n          }\n        }\n      ": typeof types.getNetKarmaChangesForAuthorsOverPeriodDocument,
     "\n    mutation login($username: String, $password: String) {\n      login(username: $username, password: $password) {\n        token\n      }\n    }\n  ": typeof types.loginDocument,
     "\n    mutation signup($email: String, $username: String, $password: String, $subscribeToCurated: Boolean, $reCaptchaToken: String, $abTestKey: String) {\n      signup(email: $email, username: $username, password: $password, subscribeToCurated: $subscribeToCurated, reCaptchaToken: $reCaptchaToken, abTestKey: $abTestKey) {\n        token\n      }\n    }\n  ": typeof types.signupDocument,
     "\n    mutation resetPassword($email: String) {\n      resetPassword(email: $email)\n    }\n  ": typeof types.resetPasswordDocument,
@@ -1596,6 +1598,8 @@ const documents: Documents = {
     "\n  query multiUserFriendlyUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": types.multiUserFriendlyUsersProfileQueryDocument,
     "\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n": types.KarmaChangeNotifierDocument,
     "\n  query multiPostLWUserTooltipContentQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": types.multiPostLWUserTooltipContentQueryDocument,
+    "\n  query AirtableLeaderboards {\n    AirtableLeaderboards {\n      name\n      leaderboardAmount\n    }\n  }\n": types.AirtableLeaderboardsDocument,
+    "\n        query getNetKarmaChangesForAuthorsOverPeriod($days: Int!, $limit: Int!) {\n          NetKarmaChangesForAuthorsOverPeriod(days: $days, limit: $limit) {\n            userId\n            netKarma\n          }\n        }\n      ": types.getNetKarmaChangesForAuthorsOverPeriodDocument,
     "\n    mutation login($username: String, $password: String) {\n      login(username: $username, password: $password) {\n        token\n      }\n    }\n  ": types.loginDocument,
     "\n    mutation signup($email: String, $username: String, $password: String, $subscribeToCurated: Boolean, $reCaptchaToken: String, $abTestKey: String) {\n      signup(email: $email, username: $username, password: $password, subscribeToCurated: $subscribeToCurated, reCaptchaToken: $reCaptchaToken, abTestKey: $abTestKey) {\n        token\n      }\n    }\n  ": types.signupDocument,
     "\n    mutation resetPassword($email: String) {\n      resetPassword(email: $email)\n    }\n  ": types.resetPasswordDocument,
@@ -4388,6 +4392,14 @@ export function gql(source: "\n  query KarmaChangeNotifier($documentId: String) 
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query multiPostLWUserTooltipContentQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiPostLWUserTooltipContentQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query AirtableLeaderboards {\n    AirtableLeaderboards {\n      name\n      leaderboardAmount\n    }\n  }\n"): (typeof documents)["\n  query AirtableLeaderboards {\n    AirtableLeaderboards {\n      name\n      leaderboardAmount\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n        query getNetKarmaChangesForAuthorsOverPeriod($days: Int!, $limit: Int!) {\n          NetKarmaChangesForAuthorsOverPeriod(days: $days, limit: $limit) {\n            userId\n            netKarma\n          }\n        }\n      "): (typeof documents)["\n        query getNetKarmaChangesForAuthorsOverPeriod($days: Int!, $limit: Int!) {\n          NetKarmaChangesForAuthorsOverPeriod(days: $days, limit: $limit) {\n            userId\n            netKarma\n          }\n        }\n      "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

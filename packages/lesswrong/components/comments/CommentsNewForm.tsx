@@ -25,6 +25,7 @@ import NewCommentModerationWarning from "../sunshineDashboard/NewCommentModerati
 import RateLimitWarning from "../editor/RateLimitWarning";
 import { useQuery, useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { useLocation } from '@/lib/routeUtil';
 
 const SuggestAlignmentCommentUpdateMutation = gql(`
   mutation updateCommentCommentsNewForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -244,10 +245,14 @@ const CommentsNewForm = ({
     }, 0);
   };
 
+  const { pathname } = useLocation();
   const wrappedSuccessCallback = (comment: CommentsList) => {
     afNonMemberSuccessHandling({currentUser, document: comment, openDialog, updateDocument: updateComment })
     if (comment.deleted && comment.deletedReason) {
       flash(comment.deletedReason);
+    }
+    if (comment.draft && comment.shortform && pathname === '/') {
+      flash("Quick take saved as draft, visit your profile to edit it.");
     }
     if (successCallback) {
       void successCallback(comment);
@@ -373,7 +378,7 @@ const CommentsNewForm = ({
               prefilledProps={prefilledProps}
               commentSubmitProps={commentSubmitProps}
               // Note: This is overly restrictive at the moment to focus on the core use case first, many of these would work
-              disableSubmitDropdown={isQuickTake || isAnswer || post?.question || prefilledProps.tagId}
+              disableSubmitDropdown={isAnswer || post?.question || prefilledProps.tagId}
               interactionType={interactionType}
               alignmentForumPost={post?.af}
               quickTakesFormGroup={isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI)}

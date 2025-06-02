@@ -112,6 +112,11 @@ const ReviewPillContainer = ({postId}: {postId: string}) => {
   });
 
   const reviews = data?.comments?.results;
+  
+  if (!reviews?.length) {
+    return null;
+  }
+  
   return <AnalyticsContext pageElementContext="reviewPillContainer">
     <div className={classes.root}>
       {reviews?.map((review) => (

@@ -250,6 +250,18 @@ extend type Query {
   GetRandomUser(userIsAuthor: String!): User
   IsDisplayNameTaken(displayName: String!): Boolean!
   GetUserBySlug(slug: String!): User
+  NetKarmaChangesForAuthorsOverPeriod(days: Int!, limit: Int!): [NetKarmaChangesForAuthorsOverPeriod!]!
+  AirtableLeaderboards: [AirtableLeaderboardResult!]!
+}
+
+type NetKarmaChangesForAuthorsOverPeriod {
+  userId: String
+  netKarma: Int
+}
+
+type AirtableLeaderboardResult {
+  name: String!
+  leaderboardAmount: Int
 }
 
 type SuggestedFeedSubscriptionUsersResult {

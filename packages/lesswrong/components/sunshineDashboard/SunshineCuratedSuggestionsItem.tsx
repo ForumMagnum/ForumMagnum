@@ -21,6 +21,7 @@ import ForumIcon from "../common/ForumIcon";
 import FormatDate from "../common/FormatDate";
 import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { isEAForum } from '@/lib/instanceSettings';
 
 const SunshineCurationPostsListUpdateMutation = gql(`
   mutation updatePostSunshineCuratedSuggestionsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -111,7 +112,8 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
     })
   }
 
-  const hasCurationNotice = post.curationNotices && post.curationNotices.length > 0
+  // On the EA Forum, only admins can curate and remove from curation suggestions
+  const canCurate = isEAForum ? currentUser?.isAdmin : true;
 
   return (
     <span {...eventHandlers}>
@@ -167,14 +169,15 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
               <ForumIcon icon="Undo"/>
             </SidebarAction>
           }
-          { timeForCuration &&
+          { timeForCuration && canCurate &&
             <SidebarAction title="Curate Post" onClick={handleCurate}>
               <ForumIcon icon="Star" />
             </SidebarAction>
           }
-          <SidebarAction title="Remove from Curation Suggestions" onClick={handleDisregardForCurated}>
-            <ForumIcon icon="Clear"/>
-          </SidebarAction>
+          { canCurate && <SidebarAction title="Remove from Curation Suggestions" onClick={handleDisregardForCurated}>
+              <ForumIcon icon="Clear"/>
+            </SidebarAction>
+          }
         </SidebarActionMenu>}
       </SunshineListItem>
     </span>

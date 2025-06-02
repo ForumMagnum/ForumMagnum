@@ -6,6 +6,8 @@ interface Query {
   GetRandomUser: User | null;
   IsDisplayNameTaken: boolean;
   GetUserBySlug: User | null;
+  NetKarmaChangesForAuthorsOverPeriod: Array<NetKarmaChangesForAuthorsOverPeriod>;
+  AirtableLeaderboards: Array<AirtableLeaderboardResult>;
   SuggestedFeedSubscriptionUsers: SuggestedFeedSubscriptionUsersResult | null;
   CommentsWithReacts: CommentsWithReactsResult | null;
   PopularComments: PopularCommentsResult | null;
@@ -585,6 +587,16 @@ interface NewUserCompletedProfile {
 interface UserCoreTagReads {
   tagId: string;
   userReadCount: number;
+}
+
+interface NetKarmaChangesForAuthorsOverPeriod {
+  userId: string | null;
+  netKarma: number | null;
+}
+
+interface AirtableLeaderboardResult {
+  name: string;
+  leaderboardAmount: number | null;
 }
 
 interface SuggestedFeedSubscriptionUsersResult {
@@ -9683,6 +9695,8 @@ interface GraphQLTypeMap {
   UserDialogueUsefulData: UserDialogueUsefulData;
   NewUserCompletedProfile: NewUserCompletedProfile;
   UserCoreTagReads: UserCoreTagReads;
+  NetKarmaChangesForAuthorsOverPeriod: NetKarmaChangesForAuthorsOverPeriod;
+  AirtableLeaderboardResult: AirtableLeaderboardResult;
   SuggestedFeedSubscriptionUsersResult: SuggestedFeedSubscriptionUsersResult;
   VoteResultPost: VoteResultPost;
   VoteResultComment: VoteResultComment;

@@ -37,9 +37,6 @@ import { gql } from "@/lib/generated/gql-codegen/gql";
 import { hasDraftComments } from '@/lib/betas';
 import CommentsSubmitDropdown from "./CommentsSubmitDropdown";
 import { useTracking } from "@/lib/analyticsEvents";
-import { useABTest } from "@/lib/abTestImpl";
-import { draftCommentsABTest } from "@/lib/abTests";
-import { isAnyTest } from "@/lib/executionEnvironment";
 
 const CommentsListUpdateMutation = gql(`
   mutation updateCommentCommentForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -200,9 +197,6 @@ const CommentSubmit = ({
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
 
-  const abTestGroup = useABTest(draftCommentsABTest, !currentUser ? "treatment" : undefined);
-  const allowDraftComments = hasDraftComments && (isAnyTest || abTestGroup === "treatment")
-
   const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
   const cancelBtnProps: InnerButtonProps = isFriendlyUI && !isMinimalist ? { variant: "contained" } : {};
   const submitBtnProps: InnerButtonProps = isFriendlyUI && !isMinimalist ? { variant: "contained", color: "primary" } : {};
@@ -212,7 +206,7 @@ const CommentSubmit = ({
     submitBtnProps.disabled = true;
   }
 
-  const showDropdownMenu = allowDraftComments && !disableSubmitDropdown;
+  const showDropdownMenu = hasDraftComments && !disableSubmitDropdown;
 
   return (
     <div

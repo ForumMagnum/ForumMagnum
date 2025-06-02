@@ -43,6 +43,12 @@ type AdvisorRequestsRequestsByUserInput = {
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
+type AirtableLeaderboardResult = {
+  __typename?: 'AirtableLeaderboardResult';
+  leaderboardAmount?: Maybe<Scalars['Int']['output']>;
+  name: Scalars['String']['output'];
+};
+
 type AllTagsActivityFeedEntry = {
   __typename?: 'AllTagsActivityFeedEntry';
   tagCreated?: Maybe<Tag>;
@@ -5263,6 +5269,12 @@ type MyDialoguesResult = {
   results: Array<Post>;
 };
 
+type NetKarmaChangesForAuthorsOverPeriod = {
+  __typename?: 'NetKarmaChangesForAuthorsOverPeriod';
+  netKarma?: Maybe<Scalars['Int']['output']>;
+  userId?: Maybe<Scalars['String']['output']>;
+};
+
 type NewUserCompletedProfile = {
   __typename?: 'NewUserCompletedProfile';
   displayName?: Maybe<Scalars['String']['output']>;
@@ -7423,6 +7435,7 @@ type Query = {
   __typename?: 'Query';
   ActiveTagCount: Scalars['Int']['output'];
   AdminMetadata?: Maybe<Scalars['String']['output']>;
+  AirtableLeaderboards: Array<AirtableLeaderboardResult>;
   AllTagsActivityFeed: AllTagsActivityFeedQueryResults;
   AnalyticsSeries?: Maybe<Array<Maybe<AnalyticsSeriesValue>>>;
   ArbitalPageData?: Maybe<ArbitalPageData>;
@@ -7448,6 +7461,7 @@ type Query = {
   MigrationsDashboard?: Maybe<MigrationsDashboardData>;
   MultiPostAnalytics: MultiPostAnalyticsResult;
   MyDialogues?: Maybe<MyDialoguesResult>;
+  NetKarmaChangesForAuthorsOverPeriod: Array<NetKarmaChangesForAuthorsOverPeriod>;
   NotificationDisplays?: Maybe<NotificationDisplaysResult>;
   PetrovDay2024CheckNumberOfIncoming?: Maybe<PetrovDay2024CheckNumberOfIncomingData>;
   PetrovDayCheckIfIncoming?: Maybe<PetrovDayCheckIfIncomingData>;
@@ -7739,6 +7753,12 @@ type QueryMultiPostAnalyticsArgs = {
 
 type QueryMyDialoguesArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+type QueryNetKarmaChangesForAuthorsOverPeriodArgs = {
+  days: Scalars['Int']['input'];
+  limit: Scalars['Int']['input'];
 };
 
 
@@ -23353,6 +23373,29 @@ type multiPostLWUserTooltipContentQueryQueryVariables = Exact<{
 
 
 type multiPostLWUserTooltipContentQueryQuery = multiPostLWUserTooltipContentQueryQuery_Query;
+
+type AirtableLeaderboardsQuery_AirtableLeaderboards_AirtableLeaderboardResult = { __typename?: 'AirtableLeaderboardResult', name: string, leaderboardAmount: number | null };
+
+type AirtableLeaderboardsQuery_Query = { __typename?: 'Query', AirtableLeaderboards: Array<AirtableLeaderboardsQuery_AirtableLeaderboards_AirtableLeaderboardResult> };
+
+
+type AirtableLeaderboardsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type AirtableLeaderboardsQuery = AirtableLeaderboardsQuery_Query;
+
+type getNetKarmaChangesForAuthorsOverPeriodQuery_NetKarmaChangesForAuthorsOverPeriod_NetKarmaChangesForAuthorsOverPeriod = { __typename?: 'NetKarmaChangesForAuthorsOverPeriod', userId: string | null, netKarma: number | null };
+
+type getNetKarmaChangesForAuthorsOverPeriodQuery_Query = { __typename?: 'Query', NetKarmaChangesForAuthorsOverPeriod: Array<getNetKarmaChangesForAuthorsOverPeriodQuery_NetKarmaChangesForAuthorsOverPeriod_NetKarmaChangesForAuthorsOverPeriod> };
+
+
+type getNetKarmaChangesForAuthorsOverPeriodQueryVariables = Exact<{
+  days: Scalars['Int']['input'];
+  limit: Scalars['Int']['input'];
+}>;
+
+
+type getNetKarmaChangesForAuthorsOverPeriodQuery = getNetKarmaChangesForAuthorsOverPeriodQuery_Query;
 
 type loginMutation_login_LoginReturnData = { __typename?: 'LoginReturnData', token: string | null };
 

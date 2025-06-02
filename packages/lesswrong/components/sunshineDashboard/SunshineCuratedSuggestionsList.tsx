@@ -14,6 +14,7 @@ import ForumIcon from "../common/ForumIcon";
 import { useQuery } from "@apollo/client";
 import { useLoadMore } from "@/components/hooks/useLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { userIsMemberOf } from '@/lib/vulcan-users/permissions';
 
 const PostsListMultiQuery = gql(`
   query multiPostsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -70,7 +71,7 @@ const styles = (theme: ThemeType) => ({
 
 const shouldShow = (atBottom: boolean, timeForCuration: boolean, currentUser: UsersCurrent | null, hasCurationDrafts: boolean) => {
   if (isEAForum) {
-    return !atBottom && currentUser?.isAdmin;
+    return !atBottom && (currentUser?.isAdmin || userIsMemberOf(currentUser, 'canSuggestCuration'));
   } else {
     return (atBottom === hasCurationDrafts) || timeForCuration;
   }
