@@ -267,6 +267,8 @@ function translateAttribs(attribs: Record<string,string>): Record<string,any> {
     attribsCopy.style = parseInlineStyle(attribs.style);
   }
 
+  // These two are used in the custom Bayes Rule Guide html.
+  // Using `new Function` seemed safer than `eval`.
   if ('onclick' in attribsCopy) {
     try {
       attribsCopy.onClick = new Function(attribsCopy.onclick);
