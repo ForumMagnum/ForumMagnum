@@ -4,7 +4,7 @@ Run a GraphQL request from the server with the proper context
 
 */
 import { ExecutionResult, graphql, GraphQLError, print } from 'graphql';
-import { makeExecutableSchema } from 'graphql-tools';
+import { makeExecutableSchema } from '@graphql-tools/schema';
 import { typeDefs, resolvers } from './apollo-server/initGraphQL';
 import { createAnonymousContext } from './createContexts';
 import { ResultOf, TypedDocumentNode } from '@graphql-typed-document-node/core';

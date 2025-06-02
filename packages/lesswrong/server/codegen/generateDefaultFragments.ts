@@ -1,5 +1,5 @@
 import { allSchemas } from "@/lib/schema/allSchemas";
-import { makeExecutableSchema } from "graphql-tools";
+import { makeExecutableSchema } from "@graphql-tools/schema";
 import { resolvers, typeDefs } from "../vulcan-lib/apollo-server/initGraphQL";
 import type { GraphQLSchema } from "graphql";
 import { collectionNameToTypeName } from "@/lib/generated/collectionTypeNames";

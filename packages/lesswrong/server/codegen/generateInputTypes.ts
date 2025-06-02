@@ -1,4 +1,4 @@
-import { makeExecutableSchema } from "graphql-tools";
+import { makeExecutableSchema } from "@graphql-tools/schema";
 import { typeDefs, resolvers } from "../vulcan-lib/apollo-server/initGraphQL";
 import { GraphQLInputObjectType, GraphQLObjectType, InputObjectTypeDefinitionNode, Kind, ObjectTypeDefinitionNode, TypeNode } from "graphql";
 import { graphqlTypeToCollectionName } from "@/lib/vulcan-lib/collections";
