@@ -30,7 +30,7 @@ export default registerMigration({
 
             const user = await Users.findOne({_id: post.userId});
             if (!user) {
-              console.warn("Post", post._id, "has valid user");
+              console.warn("Post", post._id, "has invalid user");
               continue;
             }
 
