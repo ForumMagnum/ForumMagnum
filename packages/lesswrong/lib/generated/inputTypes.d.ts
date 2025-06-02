@@ -7441,6 +7441,7 @@ interface UserSelector {
   usersWithPaymentInfo: EmptyViewInput | null;
   usersWithOptedInToDialogueFacilitation: EmptyViewInput | null;
   alignmentSuggestedUsers: EmptyViewInput | null;
+  usersTopKarma: EmptyViewInput | null;
 }
 
 interface MultiUserInput {

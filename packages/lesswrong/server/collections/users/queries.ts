@@ -100,6 +100,7 @@ export const graphqlUserQueryTypeDefs = gql`
     usersWithPaymentInfo: EmptyViewInput
     usersWithOptedInToDialogueFacilitation: EmptyViewInput
     alignmentSuggestedUsers: EmptyViewInput
+    usersTopKarma: EmptyViewInput
   }
   
   input MultiUserInput {

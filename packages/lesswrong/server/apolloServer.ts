@@ -120,7 +120,6 @@ const maybePrefetchResources = ({
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   async requestDidStart({ request, contextValue: context }: GraphQLRequestContext<ResolverContext>) {
     const { operationName = 'unknownGqlOperation', query, variables } = request;
-    // console.log("requestDidStart", operationName, query, variables);
 
     //remove sensitive data from variables such as password
     let filteredVariables = variables;
@@ -144,18 +143,9 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
     if (query) {
       logGraphqlQueryStarted(operationName, query, variables);
     }
-
-    let isFinished = false;
-    setTimeout(() => {
-      if (!isFinished) {
-        console.log("willSendResponse", operationName, query, variables);
-      }
-    }, 10_000);
     
     return {
       async willSendResponse() { // hook for transaction finished
-        isFinished = true;
-        // console.log("willSendResponse", operationName, query, variables);
         if (performanceMetricLoggingEnabled.get()) {
           closePerfMetric(startedRequestMetric);
         }

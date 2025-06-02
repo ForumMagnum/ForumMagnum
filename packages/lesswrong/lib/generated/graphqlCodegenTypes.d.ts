@@ -12614,6 +12614,7 @@ type UserSelector = {
   usersByUserIds?: InputMaybe<UsersUsersByUserIdsInput>;
   usersMapLocations?: InputMaybe<EmptyViewInput>;
   usersProfile?: InputMaybe<UsersUsersProfileInput>;
+  usersTopKarma?: InputMaybe<EmptyViewInput>;
   usersWithBannedUsers?: InputMaybe<EmptyViewInput>;
   usersWithOptedInToDialogueFacilitation?: InputMaybe<EmptyViewInput>;
   usersWithPaymentInfo?: InputMaybe<EmptyViewInput>;
@@ -23373,6 +23374,25 @@ type multiPostLWUserTooltipContentQueryQueryVariables = Exact<{
 
 
 type multiPostLWUserTooltipContentQueryQuery = multiPostLWUserTooltipContentQueryQuery_Query;
+
+type TopKarmaUsersQuery_users_MultiUserOutput_results_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type TopKarmaUsersQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', totalCount: number | null, results: Array<TopKarmaUsersQuery_users_MultiUserOutput_results_User> };
+
+type TopKarmaUsersQuery_Query = { __typename?: 'Query', users: TopKarmaUsersQuery_users_MultiUserOutput | null };
+
+
+type TopKarmaUsersQueryVariables = Exact<{
+  selector: InputMaybe<UserSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type TopKarmaUsersQuery = TopKarmaUsersQuery_Query;
 
 type AirtableLeaderboardsQuery_AirtableLeaderboards_AirtableLeaderboardResult = { __typename?: 'AirtableLeaderboardResult', name: string, leaderboardAmount: number | null };
 

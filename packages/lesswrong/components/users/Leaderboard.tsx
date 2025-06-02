@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { useMulti } from "../../lib/crud/withMulti";
-import { gql, NetworkStatus, useQuery } from "@apollo/client";
+import { NetworkStatus, useQuery } from "@apollo/client";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import classNames from "classnames";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
@@ -8,6 +7,19 @@ import LoadMore from "@/components/common/LoadMore";
 import Loading from "@/components/vulcan-core/Loading";
 import UsersName from "@/components/users/UsersName";
 import UsersNameDisplay from "@/components/users/UsersNameDisplay";
+import { gql } from "@/lib/generated/gql-codegen";
+import { useLoadMore } from "../hooks/useLoadMore";
+
+const TopKarmaUsersQuery = gql(`
+  query TopKarmaUsers($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UsersMinimumInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = defineStyles("Leaderboard", (theme: ThemeType) => ({
   pageContainer: {
@@ -113,14 +125,14 @@ type AirtableLeaderboardResult = {
 };
 
 // Query for the donor (Airtable) leaderboard
-const DONOR_LEADERBOARD_QUERY = gql`
+const DONOR_LEADERBOARD_QUERY = gql(`
   query AirtableLeaderboards {
     AirtableLeaderboards {
       name
       leaderboardAmount
     }
   }
-`;
+`);
 
 const LeaderboardTable = ({ headers, children }: { headers: string[], children: React.ReactNode }) => {
   const classes = useStyles(styles);
@@ -149,29 +161,38 @@ const Leaderboard = () => {
 
   // Query #1: Top Karma Users
   //  - We'll load 50 by default now.
-  const {
-    results: topKarmaUsers,
-    loadMoreProps,
-  } = useMulti({
-    collectionName: "Users",
-    fragmentName: "UsersMinimumInfo",
-    terms: { view: "usersTopKarma" },
-    itemsPerPage: 50,
+  const topKarmaUsersInitialLimit = 50;
+
+  const { data: topKarmaUsersData, loading: topKarmaUsersLoading, fetchMore: topKarmaUsersFetchMore } = useQuery(TopKarmaUsersQuery, {
+    variables: {
+      selector: { usersTopKarma: {} },
+      limit: topKarmaUsersInitialLimit,
+      enableTotal: true,
+    },
+  });
+
+  const topKarmaUsers = topKarmaUsersData?.users?.results ?? undefined;
+
+  const loadMoreProps = useLoadMore({
+    data: topKarmaUsersData?.users,
+    loading: topKarmaUsersLoading,
+    fetchMore: topKarmaUsersFetchMore,
+    initialLimit: topKarmaUsersInitialLimit,
+    itemsPerPage: topKarmaUsersInitialLimit,
     enableTotal: true,
-    limit: 50,
   });
 
   // Query #2: Karma changes in last 30 days (also load 50 by default)
   const { data: last30DaysData, fetchMore, networkStatus } =
     useQuery<NetKarmaChangesResult>(
-      gql`
+      gql(`
         query getNetKarmaChangesForAuthorsOverPeriod($days: Int!, $limit: Int!) {
           NetKarmaChangesForAuthorsOverPeriod(days: $days, limit: $limit) {
             userId
             netKarma
           }
         }
-      `,
+      `),
       {
         variables: {
           days: 30,
