@@ -265,6 +265,16 @@ function translateAttribs(attribs: Record<string,string>): Record<string,any> {
   if ('style' in attribsCopy) {
     attribsCopy.style = parseInlineStyle(attribs.style);
   }
+
+  if ('onclick' in attribsCopy) {
+    attribsCopy.onClick = new Function(attribsCopy.onclick);
+    delete attribsCopy.onclick;
+  }
+  if ('onchange' in attribsCopy) {
+    attribsCopy.onChange = new Function(attribsCopy.onchange);
+    delete attribsCopy.onchange;
+  }
+
   for (const attribKey of Object.keys(attribsCopy)) {
     if (attribKey in mapAttributeNames) {
       attribsCopy[mapAttributeNames[attribKey]] = attribsCopy[attribKey];
@@ -288,6 +298,7 @@ const mapAttributeNames: Record<string,string> = {
   "columnspan": "columnSpan",
   "rowspan": "rowSpan",
   "allowfullscreen": "allowFullScreen",
+  "for": "htmlFor",
 }
 
 function camelCaseCssAttribute(input: string) {
