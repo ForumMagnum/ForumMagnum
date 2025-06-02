@@ -178,6 +178,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         c."userId",
         COALESCE(c."baseScore", 0) AS "baseScore",
         COALESCE(c."deleted", FALSE) AS "deleted",
+        COALESCE(c."draft", FALSE) AS "draft",
         COALESCE(c."rejected", FALSE) AS "rejected",
         COALESCE(c."authorIsUnreviewed", FALSE) AS "authorIsUnreviewed",
         COALESCE(c."retracted", FALSE) AS "retracted",
