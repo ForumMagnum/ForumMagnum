@@ -10,7 +10,7 @@ import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from "@/
 import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
 import { throwError } from "@/server/vulcan-lib/errors";
 import { captureException } from "@sentry/core";
-import { print, type FieldNode, type FragmentDefinitionNode, type GraphQLResolveInfo } from "graphql";
+import { Kind, print, type FieldNode, type FragmentDefinitionNode, type GraphQLResolveInfo } from "graphql";
 import isEqual from "lodash/isEqual";
 import { getCollectionAccessFilter } from "../permissions/accessFilters";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
@@ -36,20 +36,20 @@ const getFragmentInfo = ({ fieldName, fieldNodes, fragments }: GraphQLResolveInf
   // because because we need to handle the possibility of fields directly selected from the root
   // rather than being nested inside a subfragment.
   const implicitFragment: FragmentDefinitionNode = {
-    kind: 'FragmentDefinition',
+    kind: Kind.FRAGMENT_DEFINITION,
     name: {
-      kind: 'Name',
+      kind: Kind.NAME,
       value: fieldName,
     },
     typeCondition: {
-      kind: 'NamedType',
+      kind: Kind.NAMED_TYPE,
       name: {
-        kind: 'Name',
+        kind: Kind.NAME,
         value: typeName,
       },
     },
     selectionSet: {
-      kind: 'SelectionSet',
+      kind: Kind.SELECTION_SET,
       selections: resultSelections,
     },
   };

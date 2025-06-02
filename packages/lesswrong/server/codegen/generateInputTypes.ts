@@ -1,6 +1,6 @@
 import { makeExecutableSchema } from "graphql-tools";
 import { typeDefs, resolvers } from "../vulcan-lib/apollo-server/initGraphQL";
-import { GraphQLInputObjectType, GraphQLObjectType, InputObjectTypeDefinitionNode, ObjectTypeDefinitionNode, TypeNode } from "graphql";
+import { GraphQLInputObjectType, GraphQLObjectType, InputObjectTypeDefinitionNode, Kind, ObjectTypeDefinitionNode, TypeNode } from "graphql";
 import { graphqlTypeToCollectionName } from "@/lib/vulcan-lib/collections";
 import { isValidCollectionName, getAllCollections } from "../collections/allCollections";
 import { typeNameToCollectionName } from "@/lib/generated/collectionTypeNames";
@@ -39,15 +39,15 @@ function convertParsedTypeNodeToTypescriptType(parsedType: ParsedType): string {
 
 function parseTypeNode(typeNode: TypeNode): ParsedType {
   switch (typeNode.kind) {
-    case 'NamedType': {
+    case Kind.NAMED_TYPE: {
       return { type: typeNode.name.value, nullable: true };
     }
-    case 'ListType': {
+    case Kind.LIST_TYPE: {
       const childType = parseTypeNode(typeNode.type);
       const childTypeString = convertParsedTypeNodeToTypescriptType(childType);
       return { type: `Array<${childTypeString}>`, nullable: true };
     }
-    case 'NonNullType': {
+    case Kind.NON_NULL_TYPE: {
       const childType = parseTypeNode(typeNode.type);
       return { type: childType.type, nullable: false };
     }

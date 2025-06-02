@@ -8,7 +8,7 @@ import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr
 
 import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
 import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql'; 
-import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
+// import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
 import { getUserFromReq, configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
@@ -117,7 +117,7 @@ const maybePrefetchResources = ({
 };
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
-  requestDidStart({ request, contextValue: context }: GraphQLRequestContext<ResolverContext>) {
+  async requestDidStart({ request, contextValue: context }: GraphQLRequestContext<ResolverContext>) {
     const { operationName = 'unknownGqlOperation', query, variables } = request;
     // console.log("requestDidStart", operationName, query, variables);
 
@@ -152,7 +152,7 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
     }, 10_000);
     
     return {
-      willSendResponse() { // hook for transaction finished
+      async willSendResponse() { // hook for transaction finished
         isFinished = true;
         // console.log("willSendResponse", operationName, query, variables);
         if (performanceMetricLoggingEnabled.get()) {

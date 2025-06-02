@@ -36,7 +36,13 @@ export const runQuery = async <const TDocumentNode extends TypedDocumentNode<any
     : print(query)
 
   // see http://graphql.org/graphql-js/graphql/#graphql
-  const result = await graphql(executableSchema, stringQuery, {}, queryContext, variables) as ExecutionResult<ResultOf<TDocumentNode>>;
+  const result = await graphql({
+    schema: executableSchema,
+    source: stringQuery,
+    rootValue: {},
+    contextValue: queryContext,
+    variableValues: variables,
+  }) as ExecutionResult<ResultOf<TDocumentNode>>;
 
   if (result.errors) {
     onGraphQLError(result.errors);
