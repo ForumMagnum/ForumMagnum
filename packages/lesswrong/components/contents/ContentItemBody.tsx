@@ -16,6 +16,7 @@ import { validateUrl } from '@/lib/vulcan-lib/utils';
 import { captureEvent } from '@/lib/analyticsEvents';
 import ForumEventPostPagePollSection from '../forumEvents/ForumEventPostPagePollSection';
 import repeat from 'lodash/repeat';
+import { captureException } from '@sentry/core';
 
 type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"> & {
   bodyRef: React.RefObject<HTMLDivElement|null>
@@ -267,12 +268,24 @@ function translateAttribs(attribs: Record<string,string>): Record<string,any> {
   }
 
   if ('onclick' in attribsCopy) {
-    attribsCopy.onClick = new Function(attribsCopy.onclick);
-    delete attribsCopy.onclick;
+    try {
+      attribsCopy.onClick = new Function(attribsCopy.onclick);
+      delete attribsCopy.onclick;  
+    } catch (e) {
+      captureException(`Error parsing onclick attribute in ContentItemBody.  Original function string: ${attribsCopy.onclick}.  Error: ${e.message}`);
+      // eslint-disable-next-line no-console
+      console.error('Error parsing onclick attribute', e);
+    }
   }
   if ('onchange' in attribsCopy) {
-    attribsCopy.onChange = new Function(attribsCopy.onchange);
-    delete attribsCopy.onchange;
+    try {
+      attribsCopy.onChange = new Function(attribsCopy.onchange);
+      delete attribsCopy.onchange;  
+    } catch (e) {
+      captureException(`Error parsing onchange attribute in ContentItemBody.  Original function string: ${attribsCopy.onchange}.  Error: ${e.message}`);
+      // eslint-disable-next-line no-console
+      console.error('Error parsing onchange attribute', e);
+    }
   }
 
   for (const attribKey of Object.keys(attribsCopy)) {
