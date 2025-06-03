@@ -8,7 +8,7 @@ import Loading from "@/components/vulcan-core/Loading";
 import UsersName from "@/components/users/UsersName";
 import UsersNameDisplay from "@/components/users/UsersNameDisplay";
 import { gql } from "@/lib/generated/gql-codegen";
-import { useLoadMore } from "../hooks/useLoadMore";
+import { useQueryWithLoadMore } from "../hooks/useQueryWithLoadMore";
 
 const TopKarmaUsersQuery = gql(`
   query TopKarmaUsers($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -163,24 +163,16 @@ const Leaderboard = () => {
   //  - We'll load 50 by default now.
   const topKarmaUsersInitialLimit = 50;
 
-  const { data: topKarmaUsersData, loading: topKarmaUsersLoading, fetchMore: topKarmaUsersFetchMore } = useQuery(TopKarmaUsersQuery, {
+  const { data, loadMoreProps } = useQueryWithLoadMore(TopKarmaUsersQuery, {
     variables: {
       selector: { usersTopKarma: {} },
       limit: topKarmaUsersInitialLimit,
       enableTotal: true,
     },
-  });
-
-  const topKarmaUsers = topKarmaUsersData?.users?.results ?? undefined;
-
-  const loadMoreProps = useLoadMore({
-    data: topKarmaUsersData?.users,
-    loading: topKarmaUsersLoading,
-    fetchMore: topKarmaUsersFetchMore,
-    initialLimit: topKarmaUsersInitialLimit,
     itemsPerPage: topKarmaUsersInitialLimit,
-    enableTotal: true,
   });
+
+  const topKarmaUsers = data?.users?.results ?? undefined;
 
   // Query #2: Karma changes in last 30 days (also load 50 by default)
   const { data: last30DaysData, fetchMore, networkStatus } =

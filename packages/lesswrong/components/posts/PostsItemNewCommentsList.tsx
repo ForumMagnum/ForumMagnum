@@ -29,7 +29,7 @@ const PostsItemNewCommentsList = ({ terms, post, treeOptions }: {
   const { data, loading } = useQuery(CommentsListMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
-      limit: 5,
+      limit: terms.limit ?? 5,
       enableTotal: false,
     },
     fetchPolicy: 'cache-first',
