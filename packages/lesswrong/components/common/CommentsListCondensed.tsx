@@ -9,8 +9,7 @@ import ShortformListItem from "../shortform/ShortformListItem";
 import LoadMore from "./LoadMore";
 import SectionButton from "./SectionButton";
 import ShortformSubmitForm from "../shortform/ShortformSubmitForm";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const ShortformCommentsMultiQuery = gql(`
@@ -51,7 +50,7 @@ const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTo
     setShowShortformFeed(!showShortformFeed);
   }, [setShowShortformFeed, showShortformFeed]);
   const { view, limit, ...selectorTerms } = terms;
-  const { data, loading, refetch, fetchMore } = useQuery(ShortformCommentsMultiQuery, {
+  const { data, loading, refetch, loadMoreProps } = useQueryWithLoadMore(ShortformCommentsMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
       limit: initialLimit,
@@ -61,16 +60,6 @@ const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTo
   });
 
   const results = data?.comments?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: data?.comments,
-    loading,
-    fetchMore,
-    initialLimit: initialLimit,
-    itemsPerPage: 10,
-    enableTotal: true,
-    resetTrigger: terms
-  });
   const totalCount = data?.comments?.totalCount ?? undefined;
   const count = results?.length ?? 0;
 

@@ -9,8 +9,7 @@ import DraftsListSettings from "../posts/DraftsListSettings";
 import PostsItemWrapper from "../posts/PostsItemWrapper";
 import LoadMore from "../common/LoadMore";
 import Loading from "../vulcan-core/Loading";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const PostsListMultiQuery = gql(`
@@ -61,7 +60,7 @@ const SequenceDraftsList = ({limit, title="My Drafts", userId, classes, addDraft
     includeShared: !!query.includeShared ? (query.includeShared === 'true') : (currentUser?.draftsListShowShared !== false),
   }), [userId, limit, currentSorting, query.includeArchived, query.includeShared, currentUser]);
   
-  const { data, loading, fetchMore } = useQuery(PostsListMultiQuery, {
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(PostsListMultiQuery, {
     variables: {
       selector: { drafts: terms },
       limit,
@@ -73,15 +72,6 @@ const SequenceDraftsList = ({limit, title="My Drafts", userId, classes, addDraft
   });
 
   const results = data?.posts?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: data?.posts,
-    loading,
-    fetchMore,
-    initialLimit: 10,
-    itemsPerPage: 10,
-    resetTrigger: terms
-  });
 
   if (!currentUser) return null
 

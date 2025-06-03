@@ -13,8 +13,7 @@ import SpotlightEditorStyles from "./SpotlightEditorStyles";
 import ToCColumn from "../posts/TableOfContents/ToCColumn";
 import TableOfContents from "../posts/TableOfContents/TableOfContents";
 import LoadMore from "../common/LoadMore";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const SpotlightDisplayMultiQuery = gql(`
@@ -50,7 +49,7 @@ export const SpotlightsPage = ({classes}: {
     view: onlyDrafts ? "spotlightsPageDraft" : "spotlightsPage",
     limit: 500
   };
-  const { data, loading, refetch, fetchMore } = useQuery(SpotlightDisplayMultiQuery, {
+  const { data, loading, refetch, loadMoreProps } = useQueryWithLoadMore(SpotlightDisplayMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
       limit: 500,
@@ -62,19 +61,6 @@ export const SpotlightsPage = ({classes}: {
   });
 
   const spotlights = useMemo(() => data?.spotlights?.results ?? [], [data?.spotlights?.results]);
-
-  const loadMoreProps = useLoadMore({
-    data: data?.spotlights,
-    loading,
-    fetchMore,
-    initialLimit: 500,
-    itemsPerPage: 10,
-    enableTotal: true,
-    resetTrigger: {
-        view: onlyDrafts ? "spotlightsPageDraft" : "spotlightsPage",
-        limit: 500
-      }
-  });
 
   const spotlightsInDisplayOrder = useMemo(() => {
     if (!spotlights.length) return spotlights;

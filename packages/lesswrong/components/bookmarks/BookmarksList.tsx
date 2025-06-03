@@ -7,8 +7,7 @@ import { isEAForum } from '../../lib/instanceSettings';
 import PostsLoading from "../posts/PostsLoading";
 import PostsItem from "../posts/PostsItem";
 import LoadMore from "../common/LoadMore";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const BookmarksWithDocumentFragmentMultiQuery = gql(`
@@ -40,7 +39,7 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, 
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { data, loading, fetchMore } = useQuery(BookmarksWithDocumentFragmentMultiQuery, {
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(BookmarksWithDocumentFragmentMultiQuery, {
     variables: {
       selector: { myBookmarkedPosts: {} },
       limit,
@@ -49,21 +48,10 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, 
     skip: !currentUser?._id,
     fetchPolicy: "cache-and-network",
     notifyOnNetworkStatusChange: true,
+    itemsPerPage: 20,
   });
 
   const bookmarks = data?.bookmarks?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: data?.bookmarks,
-    loading,
-    fetchMore,
-    initialLimit: limit,
-    itemsPerPage: 20,
-    resetTrigger: {
-        view: "myBookmarkedPosts",
-        limit,
-      }
-  });
   
   if (!currentUser) return null
 

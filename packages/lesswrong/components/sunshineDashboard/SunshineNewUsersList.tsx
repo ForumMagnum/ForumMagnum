@@ -6,8 +6,7 @@ import SunshineListCount from "./SunshineListCount";
 import SunshineListTitle from "./SunshineListTitle";
 import SunshineNewUsersItem from "./SunshineNewUsersItem";
 import LoadMore from "../common/LoadMore";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const SunshineUsersListMultiQuery = gql(`
@@ -36,27 +35,17 @@ const SunshineNewUsersList = ({ classes, terms, currentUser }: {
   currentUser: UsersCurrent,
 }) => {
   const { view, limit, ...selectorTerms } = terms;
-  const { data, loading, refetch, fetchMore } = useQuery(SunshineUsersListMultiQuery, {
+  const { data, refetch, loadMoreProps } = useQueryWithLoadMore(SunshineUsersListMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
       limit: 10,
       enableTotal: true,
     },
     notifyOnNetworkStatusChange: true,
+    itemsPerPage: 60,
   });
 
   const results = data?.users?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: data?.users,
-    loading,
-    fetchMore,
-    initialLimit: 10,
-    itemsPerPage: 60,
-    enableTotal: true,
-    resetTrigger: terms
-  });
-  
   const totalCount = data?.users?.totalCount ?? 0;
 
   if (results && results.length && userCanDo(currentUser, "posts.moderate.all")) {

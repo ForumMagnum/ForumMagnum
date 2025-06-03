@@ -7,8 +7,7 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import SpotlightItem from "./SpotlightItem";
 import LoadMore from "../common/LoadMore";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const SpotlightDisplayMultiQuery = gql(`
@@ -25,7 +24,7 @@ const SpotlightDisplayMultiQuery = gql(`
 export const SpotlightHistory = () => {
   const currentUser = useCurrentUser()
 
-  const { data, loading, fetchMore } = useQuery(SpotlightDisplayMultiQuery, {
+  const { data, loadMoreProps } = useQueryWithLoadMore(SpotlightDisplayMultiQuery, {
     variables: {
       selector: { mostRecentlyPromotedSpotlights: {} },
       limit: 1,
@@ -34,21 +33,10 @@ export const SpotlightHistory = () => {
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: true,
+    itemsPerPage: 50,
   });
 
   const spotlights = data?.spotlights?.results ?? [];
-
-  const loadMoreProps = useLoadMore({
-    data: data?.spotlights,
-    loading,
-    fetchMore,
-    initialLimit: 1,
-    itemsPerPage: 50,
-    resetTrigger: {
-        view: "mostRecentlyPromotedSpotlights",
-        limit: 1
-      }
-  });
 
   const title = userCanDo(currentUser, 'spotlights.edit.all') ? <Link to={"/spotlights"}>Spotlight Items</Link> : <div>Spotlight Items</div>
 

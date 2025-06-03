@@ -8,8 +8,7 @@ import Loading from "../vulcan-core/Loading";
 import LoadMore from "../common/LoadMore";
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const SubscriptionStateMultiQuery = gql(`
@@ -57,33 +56,17 @@ export default function SubscriptionsList<TQuery, TExtractResult>({
   const currentUser = useCurrentUser();
   const countItemsContext = useCountItemsContext();
 
-  const { data, loading, fetchMore } = useQuery(SubscriptionStateMultiQuery, {
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(SubscriptionStateMultiQuery, {
     variables: {
       selector: { subscriptionsOfType: { userId: currentUser?._id, collectionName: collectionName, subscriptionType: subscriptionType } },
       limit: 20,
       enableTotal: true,
     },
     notifyOnNetworkStatusChange: true,
+    itemsPerPage: 100,
   });
 
   const results = data?.subscriptions?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: data?.subscriptions,
-    loading,
-    fetchMore,
-    initialLimit: 20,
-    itemsPerPage: 100,
-    enableTotal: true,
-    resetTrigger: {
-      view: "subscriptionsOfType",
-      userId: currentUser?._id,
-      collectionName: collectionName,
-      subscriptionType: subscriptionType,
-      limit: 20,
-    }
-  });
-
   const showLoadMore = !loadMoreProps.hidden;
 
   if (!currentUser) {

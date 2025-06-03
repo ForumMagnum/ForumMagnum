@@ -7,8 +7,7 @@ import SequencesGrid, { styles } from './SequencesGrid';
 import LoadMore from "../common/LoadMore";
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const SequencesPageFragmentMultiQuery = gql(`
@@ -38,26 +37,17 @@ const SequencesGridWrapper = ({
   showAuthor?: boolean,
 }) => {
   const { view, limit, ...selectorTerms } = terms;
-  const { data, loading, fetchMore } = useQuery(SequencesPageFragmentMultiQuery, {
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(SequencesPageFragmentMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
       limit: 10,
       enableTotal: showLoadMore,
     },
     notifyOnNetworkStatusChange: true,
+    itemsPerPage,
   });
 
   const results = data?.sequences?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: data?.sequences,
-    loading,
-    fetchMore,
-    initialLimit: 10,
-    itemsPerPage: 10,
-    enableTotal: showLoadMore,
-    resetTrigger: terms
-  });
   
   if (results && results.length) {
     return (<div className={className}>

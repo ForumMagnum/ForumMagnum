@@ -8,8 +8,7 @@ import SectionTitle from "../common/SectionTitle";
 import PostsItem from "../posts/PostsItem";
 import CommentsNodeInner from "../comments/CommentsNode";
 import LoadMore from "../common/LoadMore";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const UserVotesWithDocumentMultiQuery = gql(`
@@ -53,29 +52,18 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const defaultLimit = 10;
   const pageSize = 30;
 
-  const { data, loading, fetchMore } = useQuery(UserVotesWithDocumentMultiQuery, {
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(UserVotesWithDocumentMultiQuery, {
     variables: {
       selector: { userVotes: { collectionNames: ["Posts", "Comments"] } },
       limit: defaultLimit,
       enableTotal: false,
     },
     notifyOnNetworkStatusChange: true,
+    itemsPerPage: pageSize,
   });
 
   const votes = data?.votes?.results;
 
-  const loadMoreProps = useLoadMore({
-    data: data?.votes,
-    loading,
-    fetchMore,
-    initialLimit: defaultLimit,
-    itemsPerPage: pageSize,
-    resetTrigger: {
-        view: "userVotes",
-        collectionNames: ["Posts", "Comments"],
-      }
-  });
-  
   /**
    * Returns either a PostItem or CommentsNode, depending on the content type
   */

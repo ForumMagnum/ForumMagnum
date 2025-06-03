@@ -36,7 +36,7 @@ import { Typography } from "../common/Typography";
 import HoverOver from "../common/HoverOver";
 import LocalGroupSubscribers from "./LocalGroupSubscribers";
 import UsersNameDisplay from "../users/UsersNameDisplay";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
 const PostsListMultiQuery = gql(`
   query multiPostLocalGroupPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -280,7 +280,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   });
   const group = data?.localgroup?.result;
   
-  const { data: dataUpcomingEvents, loading: upcomingEventsLoading, fetchMore: upcomingEventsFetchMore } = useQuery(PostsListMultiQuery, {
+  const { data: dataUpcomingEvents, loading: upcomingEventsLoading, loadMoreProps: upcomingEventsLoadMoreProps } = useQueryWithLoadMore(PostsListMultiQuery, {
     variables: {
       selector: { upcomingEvents: { groupId } },
       limit: 2,
@@ -289,21 +289,12 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
     notifyOnNetworkStatusChange: true,
+    itemsPerPage: 6,
   });
 
   const upcomingEvents = dataUpcomingEvents?.posts?.results;
 
-  const upcomingEventsLoadMoreProps = useLoadMore({
-    data: dataUpcomingEvents?.posts,
-    loading: upcomingEventsLoading,
-    fetchMore: upcomingEventsFetchMore,
-    initialLimit: 2,
-    itemsPerPage: 6,
-    enableTotal: true,
-    resetTrigger: {view: 'upcomingEvents', groupId}
-  });
-
-  const { data: dataTbdEvents, loading: tbdEventsLoading, fetchMore: tbdEventsFetchMore } = useQuery(PostsListMultiQuery, {
+  const { data: dataTbdEvents, loading: tbdEventsLoading, loadMoreProps: tbdEventsLoadMoreProps } = useQueryWithLoadMore(PostsListMultiQuery, {
     variables: {
       selector: { tbdEvents: { groupId } },
       limit: 2,
@@ -312,21 +303,12 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
     notifyOnNetworkStatusChange: true,
+    itemsPerPage: 6,
   });
 
   const tbdEvents = dataTbdEvents?.posts?.results;
 
-  const tbdEventsLoadMoreProps = useLoadMore({
-    data: dataTbdEvents?.posts,
-    loading: tbdEventsLoading,
-    fetchMore: tbdEventsFetchMore,
-    initialLimit: 2,
-    itemsPerPage: 6,
-    enableTotal: true,
-    resetTrigger: {view: 'tbdEvents', groupId}
-  });
-
-  const { data: dataPostsList, loading: pastEventsLoading, fetchMore: pastEventsFetchMore } = useQuery(PostsListMultiQuery, {
+  const { data: dataPostsList, loading: pastEventsLoading, loadMoreProps: pastEventsLoadMoreProps } = useQueryWithLoadMore(PostsListMultiQuery, {
     variables: {
       selector: { pastEvents: { groupId } },
       limit: 2,
@@ -335,19 +317,10 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
     notifyOnNetworkStatusChange: true,
+    itemsPerPage: 6,
   });
 
   const pastEvents = dataPostsList?.posts?.results;
-
-  const pastEventsLoadMoreProps = useLoadMore({
-    data: dataPostsList?.posts,
-    loading: pastEventsLoading,
-    fetchMore: pastEventsFetchMore,
-    initialLimit: 2,
-    itemsPerPage: 6,
-    enableTotal: true,
-    resetTrigger: {view: 'pastEvents', groupId}
-  });
 
   if (groupLoading) return <Loading />
   if (!group || group.deleted) return <Error404 />
