@@ -19,6 +19,7 @@ const styles = defineStyles("LWDialog", theme => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    pointerEvents: "none", // to prevent interfering with clickaway
   },
   paper: {
     position: "relative",
@@ -27,6 +28,7 @@ const styles = defineStyles("LWDialog", theme => ({
     maxHeight: 'calc(100% - 96px)',
     flexDirection: 'column',
     margin: '48px auto',
+    pointerEvents: "auto",
   },
   paperFullScreen: {
     margin: 0,
@@ -89,7 +91,7 @@ const LWDialog = ({open, fullScreen, title, maxWidth='sm', fullWidth, disableBac
   
   return <>
     {backdrop!=="none" && openRecently && <Backdrop visible={open} style={backdrop}/>}
-    {(open || (everOpened && keepMounted)) && createPortal(
+    {everOpened && (open || keepMounted) && createPortal(
       <div>
         <ClickAwayListener onClickAway={() => {
           if (!disableBackdropClick)

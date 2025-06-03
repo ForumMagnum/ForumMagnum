@@ -116,21 +116,33 @@ const QuickTakesEntry = ({
     void cancelCallback?.();
   }, [cancelCallback]);
 
+  // Desired behaviour here:
+  // 1. Always expand on focus
+  // 2. If the focus was triggered by a click and the user is logged out, show the login popup
+  //
+  // (2) requires tracking `isUnexpandedClickRef`, as the mouseup for the click will occur after the element has expanded
+  const isUnexpandedClickRef = useRef(false);
   const onFocus = useCallback(() => {
-    if (currentUser) {
+    if (!expanded) {
       setExpanded(true);
-    } else {
-      if (isFriendlyUI) {
-        onSignup();
-      } else {
-        openDialog({
-          name: "LoginPopup",
-          contents: ({onClose}) => <LoginPopup onClose={onClose} />
-        });
-        setExpanded(true);
-      }
+      isUnexpandedClickRef.current = true;
     }
-  }, [currentUser, openDialog, onSignup]);
+  }, [setExpanded, expanded]);
+
+  const handleLoggedOut = useCallback(() => {
+    if (currentUser || (expanded && !isUnexpandedClickRef.current)) return;
+
+    isUnexpandedClickRef.current = false;
+
+    if (isFriendlyUI) {
+      onSignup();
+    } else {
+      openDialog({
+        name: "LoginPopup",
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
+      });
+    }
+  }, [currentUser, openDialog, onSignup, expanded]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -160,10 +172,11 @@ const QuickTakesEntry = ({
     <div
       className={classNames(classes.commentEditor, {[classes.collapsed]: !expanded})}
       onFocus={onFocus}
+      onClick={handleLoggedOut}
     >
       <CommentsNewForm
         key={currentUser?._id ?? "logged-out"}
-        type='reply'
+        interactionType='reply'
         prefilledProps={{
           shortform: true,
           shortformFrontpage: frontpage,

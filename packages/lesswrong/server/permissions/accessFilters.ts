@@ -42,6 +42,14 @@ const clientIdCheckAccess: CheckAccessFunction<'ClientIds'> = async (currentUser
   return userIsAdmin(currentUser)
 }
 
+const commentCheckAccess: CheckAccessFunction<'Comments'> = async (currentUser, document, context): Promise<boolean> => {
+  if (!document.draft) {
+    return true;
+  }
+
+  return userIsAdmin(currentUser) || userOwns(currentUser, document);
+}
+
 const conversationCheckAccess: CheckAccessFunction<'Conversations'> = async (currentUser, document, context): Promise<boolean> => {
   if (!currentUser || !document) return false;
   return document.participantIds?.includes(currentUser._id)
@@ -378,7 +386,7 @@ const accessFilters = {
   CkEditorUserSessions: allowAccess,
   ClientIds: clientIdCheckAccess,
   Collections: allowAccess,
-  Comments: allowAccess,
+  Comments: commentCheckAccess,
   CommentModeratorActions: allowAccess,
   Conversations: conversationCheckAccess,
   CronHistories: allowAccess,

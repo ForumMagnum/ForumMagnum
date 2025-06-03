@@ -7,7 +7,7 @@ import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from '../common/withUser';
 import NewConversationButton, { TemplateQueryStrings } from '../messaging/NewConversationButton'
 import { commentBodyStyles } from '../../themes/stylePiping';
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import LWTooltip from "../common/LWTooltip";
 import { MenuItem } from "../common/Menus";
 

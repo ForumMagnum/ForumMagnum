@@ -1,10 +1,9 @@
 import React, { useMemo } from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { subscriptionTypes } from "../../../lib/collections/subscriptions/helpers";
 import { userGetDisplayName } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { allowSubscribeToUserComments } from "../../../lib/betas";
-import CombinedSubscriptionsDropdownItem from "../CombinedSubscriptionsDropdownItem";
+import { CombinedSubscriptionsDropdownItem } from "../CombinedSubscriptionsDropdownItem";
 
 /**
  * A list of props that go into each subscription menu item,
@@ -75,10 +74,4 @@ export const CommentSubscriptionsDropdownItem = ({comment, post}: {
   }, [comment, post, currentUser, enableSubscribeToCommentUser]);
   return <CombinedSubscriptionsDropdownItem notifyMeItems={notifyMeItems} />
 }
-
-export default registerComponent(
-  "CommentSubscriptionsDropdownItem",
-  CommentSubscriptionsDropdownItem,
-);
-
 

@@ -19,12 +19,13 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { COMMENTS_NEW_FORM_PADDING } from '@/lib/collections/comments/constants';
-import { CommentForm } from './CommentForm';
+import { CommentForm, type CommentInteractionType } from './CommentForm';
 import NewUserGuidelinesDialog from "./NewUserGuidelinesDialog";
 import ModerationGuidelinesBox from "./ModerationGuidelines/ModerationGuidelinesBox";
 import RecaptchaWarning from "../common/RecaptchaWarning";
 import NewCommentModerationWarning from "../sunshineDashboard/NewCommentModerationWarning";
 import RateLimitWarning from "../editor/RateLimitWarning";
+import { useLocation } from '@/lib/routeUtil';
 
 export type FormDisplayMode = "default" | "minimalist"
 
@@ -114,13 +115,13 @@ const getSubmitLabel = (isQuickTake: boolean, isAnswer?: boolean) => {
 
 export type CommentsNewFormProps = {
   prefilledProps?: any,
-  post?: PostsMinimumInfo,
+  post?: PostsMinimumInfo & { question?: boolean },
   tag?: TagBasicInfo,
   tagCommentType?: TagCommentType,
   parentComment?: CommentsList,
   successCallback?: CommentSuccessCallback,
   cancelCallback?: CommentCancelCallback,
-  type: string,
+  interactionType: CommentInteractionType,
   // RM: this no longer does anything; it's used in two places to remove the `af` field
   // but I don't think it really matters.
   removeFields?: any,
@@ -147,7 +148,7 @@ const CommentsNewForm = ({
   tagCommentType="DISCUSSION",
   parentComment,
   successCallback,
-  type,
+  interactionType,
   cancelCallback,
   removeFields,
   formProps,
@@ -230,10 +231,14 @@ const CommentsNewForm = ({
     }, 0);
   };
 
+  const { pathname } = useLocation();
   const wrappedSuccessCallback = (comment: CommentsList) => {
     afNonMemberSuccessHandling({currentUser, document: comment, openDialog, updateDocument: updateComment })
     if (comment.deleted && comment.deletedReason) {
       flash(comment.deletedReason);
+    }
+    if (comment.draft && comment.shortform && pathname === '/') {
+      flash("Quick take saved as draft, visit your profile to edit it.");
     }
     if (successCallback) {
       void successCallback(comment);
@@ -317,13 +322,11 @@ const CommentsNewForm = ({
   }), [isQuickTake, classes.quickTakesForm, extraFormProps, formProps, answerFormProps]);
 
   const commentSubmitProps = useMemo(() => ({
-    isMinimalist,
     formDisabledDueToRateLimit,
     isQuickTake,
     quickTakesSubmitButtonAtBottom,
-    type,
     loading,
-  }), [isMinimalist, formDisabledDueToRateLimit, isQuickTake, quickTakesSubmitButtonAtBottom, type, loading]);
+  }), [formDisabledDueToRateLimit, isQuickTake, quickTakesSubmitButtonAtBottom, loading]);
   
   // @ts-ignore FIXME: Not enforcing that the post-author fragment has enough fields for userIsAllowedToComment
   if (currentUser && !userCanDo(currentUser, `posts.moderate.all`) && !userIsAllowedToComment(currentUser, prefilledProps, post?.user, !!parentComment)
@@ -360,6 +363,9 @@ const CommentsNewForm = ({
             <CommentForm
               prefilledProps={prefilledProps}
               commentSubmitProps={commentSubmitProps}
+              // Note: This is overly restrictive at the moment to focus on the core use case first, many of these would work
+              disableSubmitDropdown={isAnswer || post?.question || prefilledProps.tagId}
+              interactionType={interactionType}
               alignmentForumPost={post?.af}
               quickTakesFormGroup={isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI)}
               formClassName={mergedFormProps.formClassName}

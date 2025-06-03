@@ -19,6 +19,7 @@ async function getTocAnswersServer(document: DbPost, context: ResolverContext) {
   let answersTerms: MongoSelector<DbComment> = {
     answer:true,
     postId: document._id,
+    draft: false,
     deleted:false,
   }
   if (isAF) {
@@ -34,6 +35,7 @@ async function getTocCommentsServer(document: DbPost, context: ResolverContext) 
   const commentSelector: any = {
     ...getDefaultViewSelector("Comments"),
     answer: false,
+    draft: false,
     parentAnswerId: null,
     postId: document._id
   }

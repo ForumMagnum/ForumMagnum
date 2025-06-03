@@ -5,7 +5,7 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnComment';
 import sumBy from 'lodash/sumBy';
 import type { VotingProps } from '../votingProps';
-import type { ContentItemBodyImperative } from '../../common/ContentItemBody';
+import type { ContentItemBodyImperative } from '../../contents/contentBodyUtil';
 import ReactOrAntireactVote from "./ReactOrAntireactVote";
 import UsersWhoReacted from "./UsersWhoReacted";
 

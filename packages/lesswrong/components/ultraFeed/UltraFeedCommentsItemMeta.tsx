@@ -11,6 +11,7 @@ import CommentsMenu from "../dropdowns/comments/CommentsMenu";
 import CommentsItemDate from "../comments/CommentsItem/CommentsItemDate";
 import CommentUserName from "../comments/CommentsItem/CommentUserName";
 import CommentShortformIcon from "../comments/CommentsItem/CommentShortformIcon";
+import UltraFeedCommentActions from "./UltraFeedCommentActions";
 
 const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => ({
   root: {
@@ -214,7 +215,7 @@ const UltraFeedCommentsItemMeta = ({
       <div className={classes.tripleDotMenu}>
         {!hideActionsMenu && setShowEdit && post &&
           <AnalyticsContext pageElementContext="tripleDotMenu">
-            <CommentsMenu comment={comment} post={post} showEdit={setShowEdit} />
+            <CommentsMenu comment={comment} post={post} showEdit={setShowEdit} ActionsComponent={UltraFeedCommentActions} />
           </AnalyticsContext>
         }
       </div>

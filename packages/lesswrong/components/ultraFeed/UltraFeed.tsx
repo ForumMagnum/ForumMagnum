@@ -68,6 +68,7 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   toggleContainer: {
     display: 'flex',
     justifyContent: 'flex-end',
+    marginLeft: 'auto',
     marginBottom: 8,
     marginRight: 8,
   },
@@ -149,6 +150,11 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   },
   checkboxLabel: {
     whiteSpace: 'nowrap',
+    justifyContent: 'center',
+  },
+  checkboxLabelAlwaysShow: {
+    fontSize: '1.8rem',
+    justifyContent: 'center',
   },
 }));
 
@@ -213,20 +219,21 @@ const UltraFeedContent = ({alwaysShow = false}: {
     </div>
   </>;
 
-  const checkBoxLabel = alwaysShow ? "Use New Feed on Frontpage" : "Use New Feed";
+  const checkBoxLabel = alwaysShow ? "Use New Feed on the frontpage (in place of Recent Discussion)" : "Use New Feed";
 
   return (
     <AnalyticsContext pageSectionContext="ultraFeed" ultraFeedContext={{ sessionId }}>
     <div className={classes.root}>
-      <div className={classes.toggleContainer}>
-        <SectionFooterCheckbox 
-          value={ultraFeedEnabledCookie} 
-          onClick={toggleUltraFeed} 
-          label={checkBoxLabel}
-          tooltip="Hide Quick Takes and Popular Comments sections and show a feed of posts and comments from users you subscribe to"
-          labelClassName={classes.checkboxLabel}
-        />
-      </div>
+      <SingleColumnSection>
+        <div className={classes.toggleContainer}>
+          <SectionFooterCheckbox 
+            value={ultraFeedEnabledCookie} 
+            onClick={toggleUltraFeed} 
+            label={checkBoxLabel}
+            labelClassName={alwaysShow ? classes.checkboxLabelAlwaysShow : classes.checkboxLabel}
+          />
+        </div>
+      </SingleColumnSection>
       
       {ultraFeedEnabled && <>
         <UltraFeedObserverProvider incognitoMode={resolverSettings.incognitoMode}>

@@ -1,10 +1,11 @@
-import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import React, { ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from 'classnames';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 export const SCROLL_INDICATOR_SIZE = 13;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("HorizScrollBlock", (theme: ThemeType) => ({
   scrollIndicatorWrapper: {
     display: "block",
     position: "relative",
@@ -70,14 +71,14 @@ const styles = (theme: ThemeType) => ({
   hidden: {
     display: "none !important",
   },
-})
+}), {stylePriority: -1});
 
-const HorizScrollBlock = ({children, className, contentsClassName, classes}: {
+export const HorizScrollBlock = ({children, className, contentsClassName}: {
   children: ReactNode
   className?: string,
   contentsClassName?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const scrollableContentsRef = useRef<HTMLDivElement>(null);
   const [isScrolledAllTheWayLeft, setIsScrolledAllTheWayLeft] = useState(true);
   const [isScrolledAllTheWayRight, setIsScrolledAllTheWayRight] = useState(false);
@@ -130,11 +131,32 @@ const HorizScrollBlock = ({children, className, contentsClassName, classes}: {
   </div>
 }
 
-export default registerComponent(
-  'HorizScrollBlock',
-  HorizScrollBlock,
-  {styles, stylePriority: -1},
-);
-
-
-
+export const MaybeScrollableBlock = ({TagName, attribs, bodyRef, children}: {
+  TagName: any
+  attribs: Record<string,any>
+  bodyRef: React.RefObject<HTMLDivElement|null>,
+  children: React.ReactNode
+}) => {
+  const contentsRef = useRef<HTMLElement|null>(null);
+  const [isScrollable, setIsScrollable] = useState(false);
+  
+  useEffect(() => {
+    if (contentsRef.current && bodyRef.current) {
+      if (contentsRef.current.scrollWidth > bodyRef.current.clientWidth && contentsRef.current.clientWidth > 0) {
+        setIsScrollable(true);
+      }
+    }
+  }, [bodyRef]);
+  
+  if (isScrollable) {
+    return <HorizScrollBlock>
+      <TagName {...attribs} ref={contentsRef}>
+        {children}
+      </TagName>
+    </HorizScrollBlock>
+  } else {
+    return <TagName {...attribs} ref={contentsRef}>
+      {children}
+    </TagName>
+  }
+}

@@ -246,6 +246,18 @@ extend type Query {
   GetRandomUser(userIsAuthor: String!): User
   IsDisplayNameTaken(displayName: String!): Boolean!
   GetUserBySlug(slug: String!): User
+  NetKarmaChangesForAuthorsOverPeriod(days: Int!, limit: Int!): [NetKarmaChangesForAuthorsOverPeriod!]!
+  AirtableLeaderboards: [AirtableLeaderboardResult!]!
+}
+
+type NetKarmaChangesForAuthorsOverPeriod {
+  userId: String
+  netKarma: Int
+}
+
+type AirtableLeaderboardResult {
+  name: String!
+  leaderboardAmount: Int
 }
 
 type SuggestedFeedSubscriptionUsersResult {
@@ -1844,6 +1856,7 @@ type Comment {
   legacyId: String
   legacyPoll: Boolean!
   legacyParentId: String
+  draft: Boolean!
   retracted: Boolean!
   deleted: Boolean!
   deletedPublic: Boolean!
@@ -2470,6 +2483,8 @@ type ForumEvent {
   tag: Tag
   postId: String
   post: Post
+  commentId: String
+  comment: Comment
   bannerImageId: String
   includesPoll: Boolean!
   isGlobal: Boolean!
@@ -5259,6 +5274,7 @@ input CreateCommentDataInput {
   legacyId: String
   legacyPoll: Boolean
   legacyParentId: String
+  draft: Boolean
   retracted: Boolean
   deleted: Boolean
   deletedPublic: Boolean
@@ -5292,6 +5308,7 @@ input CreateCommentInput {
 input UpdateCommentDataInput {
   legacyData: JSON
   contents: CreateRevisionDataInput
+  postedAt: Date
   subforumStickyPriority: Float
   authorIsUnreviewed: Boolean
   answer: Boolean
@@ -5306,6 +5323,7 @@ input UpdateCommentDataInput {
   legacyId: String
   legacyPoll: Boolean
   legacyParentId: String
+  draft: Boolean
   retracted: Boolean
   deleted: Boolean
   deletedPublic: Boolean
@@ -5634,6 +5652,7 @@ input CreateForumEventDataInput {
   contrastColor: String
   tagId: String
   postId: String
+  commentId: String
   bannerImageId: String
   includesPoll: Boolean
   isGlobal: Boolean!
@@ -5665,6 +5684,7 @@ input UpdateForumEventDataInput {
   contrastColor: String
   tagId: String
   postId: String
+  commentId: String
   bannerImageId: String
   includesPoll: Boolean
   isGlobal: Boolean
@@ -7253,7 +7273,6 @@ input UpdateUserDataInput {
   collapseModerationGuidelines: Boolean
   bannedUserIds: [String!]
   bannedPersonalUserIds: [String!]
-  bookmarkedPostsMetadata: [PostMetadataInput!]
   hiddenPostsMetadata: [PostMetadataInput!]
   legacyId: String
   deleted: Boolean
@@ -7822,6 +7841,7 @@ fragment CommentsDefaultFragment on Comment {
   legacyId
   legacyPoll
   legacyParentId
+  draft
   retracted
   deleted
   deletedPublic
@@ -7938,6 +7958,7 @@ fragment CommentsList on Comment {
   lastEditedAt
   repliesBlockedUntil
   userId
+  draft
   deleted
   deletedPublic
   deletedByUserId
@@ -8272,6 +8293,19 @@ fragment DigestsMinimumInfo on Digest {
   onsitePrimaryColor
 }
 
+fragment DraftComments on Comment {
+  ...CommentsList
+  post {
+    ...PostsMinimumInfo
+  }
+  parentComment {
+    _id
+    user {
+      ...UsersMinimumInfo
+    }
+  }
+}
+
 fragment ElectionCandidateBasicInfo on ElectionCandidate {
   _id
   electionName
@@ -8505,6 +8539,7 @@ fragment ForumEventsDefaultFragment on ForumEvent {
   contrastColor
   tagId
   postId
+  commentId
   bannerImageId
   includesPoll
   isGlobal
@@ -8575,6 +8610,7 @@ fragment ForumEventsMinimumInfo on ForumEvent {
   contrastColor
   tagId
   postId
+  commentId
   bannerImageId
   eventFormat
   customComponent

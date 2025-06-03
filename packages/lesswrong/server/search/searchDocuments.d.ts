@@ -11,6 +11,7 @@ interface SearchComment extends SearchBase {
   isDeleted: boolean,
   retracted: boolean,
   deleted: boolean,
+  draft: boolean,
   spam: boolean,
   legacy: boolean,
   userIP: string | null,

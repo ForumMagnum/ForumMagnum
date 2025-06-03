@@ -36,7 +36,7 @@ export const styles = defineStyles("MuiTouchRipple", theme => ({
     height: '100%',
     left: 0,
     top: 0,
-    pointerEvents: 'none',
+    pointerEvents: 'none !important',
     zIndex: 0,
   },
   /* Styles applied to the internal `Ripple` components `ripple` class. */

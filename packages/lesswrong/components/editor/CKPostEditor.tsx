@@ -374,7 +374,7 @@ const postEditorToolbarConfig = {
       'math',
       // We don't have the collapsible sections plugin in the selected-text toolbar yet,
       // because the behavior of creating a collapsible section is non-obvious and we want to fix it first
-      ...(isEAForum ? ['ctaButtonToolbarItem'] : []),
+      ...(isEAForum ? ['ctaButtonToolbarItem', 'pollToolbarItem'] : []),
       'footnote',
       ...(isLWorAF ? ['insertClaimButton'] : []),
     ],

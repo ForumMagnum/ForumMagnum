@@ -10,7 +10,6 @@ import Loading from "../vulcan-core/Loading";
 import Error404 from "../common/Error404";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
-import ContentStyles from "../common/ContentStyles";
 
 export const EditTagForm = ({tag, successCallback, cancelCallback, changeCallback, warnUnsavedChanges}: {
   tag: UpdateTagDataInput & { _id: string; canVoteOnRels: DbTag['canVoteOnRels'] },
@@ -19,14 +18,12 @@ export const EditTagForm = ({tag, successCallback, cancelCallback, changeCallbac
   changeCallback?: any,
   warnUnsavedChanges?: boolean,
 }) => {
-  return <ContentStyles contentType="tag">
-    <TagForm
-      initialData={tag}
-      onSuccess={successCallback}
-      onCancel={cancelCallback}
-      onChange={changeCallback}
-    />
-  </ContentStyles>
+  return <TagForm
+    initialData={tag}
+    onSuccess={successCallback}
+    onCancel={cancelCallback}
+    onChange={changeCallback}
+  />
 }
 
 const EditTagPage = () => {

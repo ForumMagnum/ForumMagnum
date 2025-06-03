@@ -204,6 +204,7 @@ interface DbComment extends DbObject {
   deletedReason: string | null
   descendentCount: number
   directChildrenCount: number
+  draft: boolean
   extendedScore: any | null
   forumEventId: string | null
   forumEventMetadata: {
@@ -531,6 +532,7 @@ interface DbForumEvent extends DbObject {
   __collectionName?: "ForumEvents"
   bannerImageId: string | null
   bannerTextColor: string
+  commentId: string | null
   commentPrompt: string | null
   contrastColor: string | null
   createdAt: Date
@@ -1685,7 +1687,6 @@ interface DbUser extends DbObject {
   biography: EditableFieldContents | null
   biography_latest: string | null
   blueskyProfileURL: string | null
-  bookmarkedPostsMetadata: Array<PostMetadataInput!>
   careerStage: Array<string> | null
   collapseModerationGuidelines: boolean | null
   commentCount: number
