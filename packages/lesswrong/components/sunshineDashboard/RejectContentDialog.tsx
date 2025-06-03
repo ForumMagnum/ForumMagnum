@@ -11,8 +11,7 @@ import LWTooltip from "../common/LWTooltip";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import LoadMore from "../common/LoadMore";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const ModerationTemplateFragmentMultiQuery = gql(`
@@ -83,7 +82,7 @@ const RejectContentDialog = ({classes, rejectContent}: {
   const [rejectedReason, setRejectedReason] = useState('');
   const [showMore, setShowMore] = useState(false)
 
-  const { data, loading, fetchMore } = useQuery(ModerationTemplateFragmentMultiQuery, {
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(ModerationTemplateFragmentMultiQuery, {
     variables: {
       selector: { moderationTemplatesList: { collectionName: "Rejections" } },
       limit: 25,
@@ -93,16 +92,6 @@ const RejectContentDialog = ({classes, rejectContent}: {
   });
 
   const rejectionTemplates = data?.moderationTemplates?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: data?.moderationTemplates,
-    loading,
-    fetchMore,
-    initialLimit: 25,
-    itemsPerPage: 10,
-    enableTotal: true,
-    resetTrigger: { view: 'moderationTemplatesList', collectionName: "Rejections" }
-  });
 
   if (!rejectionTemplates) return null;
   

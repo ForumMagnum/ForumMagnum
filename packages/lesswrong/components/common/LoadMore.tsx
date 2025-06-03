@@ -10,7 +10,7 @@ import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isAF } from '@/lib/instanceSettings';
 import Loading from "../vulcan-core/Loading";
 import type { ObservableQueryFields } from '@apollo/client';
-import type { WrappedFetchMore } from '../hooks/useLoadMore';
+import type { WrappedFetchMore } from '../hooks/useQueryWithLoadMore';
 
 const styles = (theme: ThemeType) => ({
   root: {

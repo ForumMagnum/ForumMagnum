@@ -56,7 +56,7 @@ import FooterTag from "../tagging/FooterTag";
 import DisplayNameWithMarkers from "../ea-forum/users/DisplayNameWithMarkers";
 import ForumIcon from "../common/ForumIcon";
 import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import CommentsDraftList from '../comments/CommentsDraftList';
 
@@ -307,7 +307,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
   // show/hide the "Posts" section sort/filter settings
   const [showPostSettings, setShowPostSettings] = useState(false)
 
-  const { data: dataLocalGroupsHomeFragment, loading: loadingLocalGroups, fetchMore } = useQuery(localGroupsHomeFragmentMultiQuery, {
+  const { data: dataLocalGroupsHomeFragment, loadMoreProps: userOrganizesGroupsLoadMoreProps } = useQueryWithLoadMore(localGroupsHomeFragmentMultiQuery, {
     variables: {
       selector: { userOrganizesGroups: { userId: user?._id } },
       limit: 300,
@@ -318,15 +318,6 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
   });
 
   const userOrganizesGroups = dataLocalGroupsHomeFragment?.localgroups?.results;
-
-  const userOrganizesGroupsLoadMoreProps = useLoadMore({
-    data: dataLocalGroupsHomeFragment?.localgroups,
-    loading: loadingLocalGroups,
-    fetchMore,
-    initialLimit: 300,
-    itemsPerPage: 10,
-    resetTrigger: {view: 'userOrganizesGroups', userId: user?._id, limit: 300}
-  });
 
   // count posts here rather than using user.postCount,
   // because the latter doesn't include posts where the user is a coauthor

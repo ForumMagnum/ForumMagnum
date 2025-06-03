@@ -15,8 +15,8 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import Loading from "../vulcan-core/Loading";
 import LoadMore from "../common/LoadMore";
 import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
 const CommentsListMultiQuery = gql(`
   query multiCommentAutocompleteModelSettingsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -398,7 +398,7 @@ const AutocompleteModelSettings = ({ classes }: { classes: ClassesType<typeof st
   });
   const [tokenCount, setTokenCount] = useState(0);
 
-  const { data: dataPostsListWithVotes, error: postsError, loading: postsLoading, fetchMore: postsFetchMore } = useQuery(PostsListWithVotesMultiQuery, {
+  const { data: dataPostsListWithVotes, error: postsError, loading: postsLoading, loadMoreProps: postsLoadMoreProps } = useQueryWithLoadMore(PostsListWithVotesMultiQuery, {
     variables: {
       selector: { userPosts: { userId: currentUser?._id, sortedBy: "top" } },
       limit: 20,
@@ -409,17 +409,7 @@ const AutocompleteModelSettings = ({ classes }: { classes: ClassesType<typeof st
 
   const posts = dataPostsListWithVotes?.posts?.results;
 
-  const postsLoadMoreProps = useLoadMore({
-    data: dataPostsListWithVotes?.posts,
-    loading: postsLoading,
-    fetchMore: postsFetchMore,
-    initialLimit: 20,
-    itemsPerPage: 10,
-    enableTotal: true,
-    resetTrigger: { view: "userPosts", userId: currentUser?._id, limit: 20, sortedBy: "top" }
-  });
-
-  const { data: dataCommentsList, error: commentsError, loading: commentsLoading, fetchMore: commentsFetchMore } = useQuery(CommentsListMultiQuery, {
+  const { data: dataCommentsList, error: commentsError, loading: commentsLoading, loadMoreProps: commentsLoadMoreProps } = useQueryWithLoadMore(CommentsListMultiQuery, {
     variables: {
       selector: { profileComments: { userId: currentUser?._id, sortBy: "top" } },
       limit: 30,
@@ -429,16 +419,6 @@ const AutocompleteModelSettings = ({ classes }: { classes: ClassesType<typeof st
   });
 
   const comments = dataCommentsList?.comments?.results;
-
-  const commentsLoadMoreProps = useLoadMore({
-    data: dataCommentsList?.comments,
-    loading: commentsLoading,
-    fetchMore: commentsFetchMore,
-    initialLimit: 30,
-    itemsPerPage: 10,
-    enableTotal: true,
-    resetTrigger: { view: "profileComments", userId: currentUser?._id, limit: 30, sortBy: "top"}
-  });
 
   const authorContent = useGetFeaturedAuthorsContent()
 

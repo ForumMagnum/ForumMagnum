@@ -9,8 +9,7 @@ import PostsItem from "../posts/PostsItem";
 import SectionFooter from "../common/SectionFooter";
 import Loading from "../vulcan-core/Loading";
 import PostInteractionStripe from "./PostInteractionStripe";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const PostsReviewVotingListMultiQuery = gql(`
@@ -64,7 +63,7 @@ export const QuickReviewPage = ({classes, reviewYear}: {
   const [truncatePosts, setTruncatePosts] = useState<boolean>(true)
   const currentUser = useCurrentUser()
 
-  const { data, loading, fetchMore } = useQuery(PostsReviewVotingListMultiQuery, {
+  const { data, loading, loadMoreProps: { loadMore } } = useQueryWithLoadMore(PostsReviewVotingListMultiQuery, {
     variables: {
       selector: { reviewQuickPage: { before: `${reviewYear + 1}-01-01`, after: `${reviewYear}-01-01` } },
       limit: 60,
@@ -73,24 +72,10 @@ export const QuickReviewPage = ({classes, reviewYear}: {
     skip: !reviewYear,
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
+    itemsPerPage: 1000,
   });
 
   const posts = data?.posts?.results;
-
-  const { loadMore } = useLoadMore({
-    data: data?.posts,
-    loading,
-    fetchMore,
-    initialLimit: 60,
-    itemsPerPage: 1000,
-    enableTotal: true,
-    resetTrigger: {
-        view: "reviewQuickPage",
-        before: `${reviewYear+1}-01-01`,
-        after: `${reviewYear}-01-01`,
-        limit: 60,
-      }
-  });
   const totalCount = data?.posts?.totalCount;
 
   function comparePosts(post1: PostsReviewVotingList, post2: PostsReviewVotingList) {

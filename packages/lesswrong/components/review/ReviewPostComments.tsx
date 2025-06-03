@@ -10,8 +10,7 @@ import CommentOnPostWithReplies from "../comments/CommentOnPostWithReplies";
 import LoadMore from "../common/LoadMore";
 import ContentStyles from "../common/ContentStyles";
 import { maybeDate } from '@/lib/utils/dateUtils';
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const CommentWithRepliesFragmentMultiQuery = gql(`
@@ -57,7 +56,7 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
   singleLineCollapse?: boolean
 }) => {
   const { view, limit, ...selectorTerms } = terms;
-  const { data, loading, fetchMore } = useQuery(CommentWithRepliesFragmentMultiQuery, {
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(CommentWithRepliesFragmentMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
       limit: 5,
@@ -69,14 +68,6 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
 
   const results = data?.comments?.results;
 
-  const loadMoreProps = useLoadMore({
-    data: data?.comments,
-    loading,
-    fetchMore,
-    initialLimit: 5,
-    itemsPerPage: 10,
-    resetTrigger: terms
-  });
   const lastCommentId = results && results[0]?._id
   const nestedComments = results ? unflattenComments(results) : [];
   const placeholderArray = new Array(placeholderCount).fill(1)

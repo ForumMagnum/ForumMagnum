@@ -1,5 +1,4 @@
-import React, {  } from 'react';
-// import { useMulti } from '../../lib/crud/withMulti';
+import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Typography } from '../common/Typography';
 import Loading from '../vulcan-core/Loading';
@@ -7,10 +6,9 @@ import LoadMore from '../common/LoadMore';
 import CommentsNode, { COMMENT_DRAFT_TREE_OPTIONS } from './CommentsNode';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { useCommentLinkState } from './CommentsItem/useCommentLink';
-// import { useSingle } from '@/lib/crud/withSingle';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@apollo/client';
-import { useLoadMore } from '../hooks/useLoadMore';
+import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
 
 const LinkedDraftCommentQuery = gql(`
   query LinkedDraftCommentQuery($documentId: String!) {
@@ -70,14 +68,7 @@ const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTota
 
   const linkedComment = linkedCommentData?.comment?.result;
 
-  // const { document: linkedComment, loading: linkedCommentLoading } = useSingle({
-  //   documentId: linkedCommentId,
-  //   collectionName: "Comments",
-  //   fragmentName: 'DraftComments',
-  //   skip: !linkedCommentId
-  // });
-
-  const { data: draftCommentsData, loading: draftCommentsLoading, fetchMore: fetchMoreDraftComments } = useQuery(DraftCommentsQuery, {
+  const { data: draftCommentsData, loading: draftCommentsLoading, loadMoreProps } = useQueryWithLoadMore(DraftCommentsQuery, {
     variables: {
       selector: {
         draftComments: {
@@ -89,33 +80,11 @@ const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTota
       limit: initialLimit,
       enableTotal: true,
     },
+    itemsPerPage,
   });
 
   const rawResults = draftCommentsData?.comments?.results;
   const totalCount = draftCommentsData?.comments?.totalCount ?? undefined;
-
-  const loadMoreProps = useLoadMore({
-    data: draftCommentsData?.comments,
-    fetchMore: fetchMoreDraftComments,
-    loading: draftCommentsLoading,
-    itemsPerPage,
-    initialLimit,
-    resetTrigger: { userId, postId }
-  });
-
-  // const { results: rawResults, loading: rawResultsLoading, totalCount, loadMoreProps } = useMulti({
-  //   terms: {
-  //     view: "draftComments",
-  //     userId,
-  //     postId,
-  //     drafts: "drafts-only",
-  //   },
-  //   limit: initialLimit,
-  //   itemsPerPage,
-  //   enableTotal: true,
-  //   collectionName: "Comments",
-  //   fragmentName: 'DraftComments',
-  // });
 
   // Move the linked comment up to the top if given
   const results = ([linkedComment, ...(rawResults ?? [])]

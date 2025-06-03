@@ -1,8 +1,70 @@
-import { useQuery, type OperationVariables, type QueryHookOptions } from "@apollo/client";
+import { useState } from "react";
+import { useQuery, type OperationVariables, type QueryHookOptions, type ObservableQueryFields } from "@apollo/client";
 import type { TypedDocumentNode } from "@graphql-typed-document-node/core";
 import { Kind } from "graphql";
-import { useLoadMore } from "./useLoadMore";
 import { apolloSSRFlag } from "@/lib/helpers";
+import isEqual from "lodash/isEqual";
+import { useStabilizedCallback } from "./useDebouncedCallback";
+
+interface UseLoadMoreProps<D extends { results: any[]; totalCount?: number | null }, T> {
+  data?: D | null;
+  loading: boolean;
+  fetchMore: T;
+  initialLimit: number;
+  itemsPerPage: number;
+  alwaysShowLoadMore?: boolean;
+  enableTotal?: boolean;
+  resetTrigger?: any; // When this changes, pagination resets to initial limit
+}
+
+export type WrappedFetchMore<T extends ObservableQueryFields<any, OperationVariables>['fetchMore']> = (options?: Parameters<T>[0]) => ReturnType<T>;
+
+function useLoadMore<T extends ObservableQueryFields<any, OperationVariables>['fetchMore'], D extends { results: any[]; totalCount?: number | null }>({ 
+  data, 
+  loading, 
+  fetchMore, 
+  initialLimit, 
+  itemsPerPage, 
+  alwaysShowLoadMore, 
+  enableTotal,
+  resetTrigger,
+}: UseLoadMoreProps<D, T>) {
+  const [limit, setLimit] = useState(initialLimit);
+  const [lastResetTrigger, setLastResetTrigger] = useState(resetTrigger);
+
+  let effectiveLimit = limit;
+  if (!isEqual(resetTrigger, lastResetTrigger)) {
+    setLastResetTrigger(resetTrigger);
+    setLimit(initialLimit);
+    effectiveLimit = initialLimit;
+  }
+
+  const count = data?.results?.length ?? 0;
+  const totalCount = data?.totalCount ?? undefined;
+
+  const showLoadMore = alwaysShowLoadMore || (enableTotal ? (count < (totalCount ?? 0)) : (count >= effectiveLimit));
+
+  const loadMore: WrappedFetchMore<T> = useStabilizedCallback((options: Parameters<T>[0] = {}) => {
+    const newLimit = options.variables && 'limit' in options.variables ? options.variables.limit : (effectiveLimit + itemsPerPage);
+    
+    const result = fetchMore({
+      variables: { limit: newLimit },
+      updateQuery: (prev, {fetchMoreResult}) => fetchMoreResult ?? prev,
+    });
+    setLimit(newLimit);
+    return result as ReturnType<T>;
+  });
+  
+  return {
+    loadMore, 
+    count, 
+    totalCount, 
+    loading,
+    hidden: !showLoadMore, 
+    limit: effectiveLimit,
+    showLoadMore,
+  };
+}
 
 interface PaginatedQueryVariables extends OperationVariables {
   selector?: Record<string, unknown>;

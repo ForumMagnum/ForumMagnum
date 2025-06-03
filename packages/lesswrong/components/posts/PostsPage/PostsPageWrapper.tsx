@@ -4,17 +4,17 @@ import PostsPageCrosspostWrapper, { isPostWithForeignId } from "./PostsPageCross
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { useSubscribedLocation } from '../../../lib/routeUtil';
-import { isValidCommentView } from '../../../lib/commentViewOptions';
 import { useApolloClient, useQuery } from '@apollo/client';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { gql } from "@/lib/generated/gql-codegen/gql";
-import PostsPage, { postCommentsThreadQuery, postsCommentsThreadMultiOptions, usePostCommentTerms } from './PostsPage';
+import PostsPage, { postCommentsThreadQuery, usePostCommentTerms } from './PostsPage';
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
 import Error404 from "../../common/Error404";
 import Loading from "../../vulcan-core/Loading";
 import { PostFetchProps } from '@/components/hooks/useForeignCrosspost';
 import { PostsListWithVotes } from '@/lib/collections/posts/fragments';
 import { SequencesPageFragment } from '@/lib/collections/sequences/fragments';
+import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
 
 const PostsWithNavigationAndRevisionQuery = gql(`
   query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {
@@ -108,7 +108,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   // otherwise PostsPage will skip the lazy query if the terms change
   const skipEagerComments = !!postPreload;
 
-  const commentQueryResult = useQuery(postCommentsThreadQuery, {
+  const commentQueryResult = useQueryWithLoadMore(postCommentsThreadQuery, {
     variables: {
       selector: { [view]: terms },
       limit,

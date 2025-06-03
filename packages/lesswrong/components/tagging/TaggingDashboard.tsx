@@ -19,7 +19,7 @@ import TagVoteActivity from "./TagVoteActivity";
 import SingleColumnSection from "../common/SingleColumnSection";
 import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
 const TagFlagFragmentMultiQuery = gql(`
   query multiTagFlagTaggingDashboardQuery($selector: TagFlagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -132,25 +132,17 @@ const TaggingDashboard = ({classes}: {
     
   const terms = fieldIn(query.focus, multiTerms) ? multiTerms[query.focus] : { view: "tagsByTagFlag", tagFlagId: query.focus };
   const { view, ...selectorTerms } = terms;
-  const { data: dataTagsWithFlags, loading, fetchMore } = useQuery(TagWithFlagsFragmentMultiQuery, {
+  const { data: dataTagsWithFlags, loading, loadMoreProps } = useQueryWithLoadMore(TagWithFlagsFragmentMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
       limit: 10,
       enableTotal: false,
     },
     notifyOnNetworkStatusChange: true,
+    itemsPerPage: 50,
   });
 
   const tags = dataTagsWithFlags?.tags?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: dataTagsWithFlags?.tags,
-    loading,
-    fetchMore,
-    initialLimit: 10,
-    itemsPerPage: 50,
-    resetTrigger: terms,
-  });
 
   const tagsFiltered = ["allPages", "myPages"].includes(query.focus)  //if not showing all tags, only show those with at least one non-deleted tag flag
     ? tags

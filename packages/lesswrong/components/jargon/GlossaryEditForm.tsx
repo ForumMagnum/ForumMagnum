@@ -21,7 +21,7 @@ import MetaInfo from "../common/MetaInfo";
 import EditUserJargonSettings from "./EditUserJargonSettings";
 import ForumIcon from "../common/ForumIcon";
 import { gql } from "@/lib/generated/gql-codegen/gql";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
 
 const JargonTermsMultiQuery = gql(`
   query multiJargonTermGlossaryEditFormQuery($selector: JargonTermSelector, $limit: Int, $enableTotal: Boolean) {
@@ -352,7 +352,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   const { exampleAltTerm, setExampleAltTerm } = useLocalStorageState("exampleAltTerm", getPromptExampleStorageKey, defaultExampleAltTerm);
   const { exampleDefinition, setExampleDefinition } = useLocalStorageState("exampleDefinition", getPromptExampleStorageKey, defaultExampleDefinition);
 
-  const { data, loading, refetch, fetchMore } = useQuery(JargonTermsMultiQuery, {
+  const { data, refetch, loadMoreProps } = useQueryWithLoadMore(JargonTermsMultiQuery, {
     variables: {
       selector: { postEditorJargonTerms: { postId: document._id } },
       limit: 500,
@@ -362,19 +362,6 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   });
 
   const glossary = data?.jargonTerms?.results ?? [];
-
-  const loadMoreProps = useLoadMore({
-    data: data?.jargonTerms,
-    loading,
-    fetchMore,
-    initialLimit: 500,
-    itemsPerPage: 10,
-    resetTrigger: {
-      view: "postEditorJargonTerms",
-      postId: document._id,
-      limit: 500
-    }
-  });
 
   const { sortedTerms, getCount } = useJargonCounts(document, glossary);
 

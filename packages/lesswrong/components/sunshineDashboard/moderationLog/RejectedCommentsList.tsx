@@ -10,8 +10,7 @@ import PostsTooltip from "../../posts/PostsPreviewTooltip/PostsTooltip";
 import CommentBody from "../../comments/CommentsItem/CommentBody";
 import Row from "../../common/Row";
 import ForumIcon from "../../common/ForumIcon";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
@@ -51,7 +50,7 @@ export const RejectedCommentsList = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [expanded,setExpanded] = useState(false);
-  const { data, loading, fetchMore } = useQuery(CommentsListWithParentMetadataMultiQuery, {
+  const { data, loadMoreProps } = useQueryWithLoadMore(CommentsListWithParentMetadataMultiQuery, {
     variables: {
       selector: { rejected: {} },
       limit: 10,
@@ -61,15 +60,6 @@ export const RejectedCommentsList = ({classes}: {
   });
 
   const results = data?.comments?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: data?.comments,
-    loading,
-    fetchMore,
-    initialLimit: 10,
-    itemsPerPage: 10,
-    resetTrigger: {view: 'rejected', limit: 10}
-  });
   
   return <div>
     {results?.map(comment =>

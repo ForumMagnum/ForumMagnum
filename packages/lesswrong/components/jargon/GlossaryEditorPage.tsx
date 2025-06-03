@@ -13,7 +13,7 @@ import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import Row from "../common/Row";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const PostsEditQueryFragmentMultiQuery = gql(`
@@ -50,31 +50,21 @@ export const GlossaryEditorPage = ({classes}: {
   const { query } = useLocation();
   const limit = query.limit ? parseInt(query.limit) : 5;
   const showAll = query.all === 'true' && currentUser?.isAdmin;
-  const view: PostsViewName = ["new", "top"].includes(query.view ?? '') ? query.view as PostsViewName : 'new'
+  // TODO: this didn't seem to be used even before any of the gql refactoring
+  // const view: PostsViewName = ["new", "top"].includes(query.view ?? '') ? query.view as PostsViewName : 'new'
 
-  const { data, loading, refetch, fetchMore } = useQuery(PostsEditQueryFragmentMultiQuery, {
+  const { data,  loadMoreProps } = useQueryWithLoadMore(PostsEditQueryFragmentMultiQuery, {
     variables: {
       selector: { top: { userId: showAll ? undefined : currentUser?._id } },
       limit: limit,
       enableTotal: false,
     },
     notifyOnNetworkStatusChange: true,
+    itemsPerPage: 50,
   });
 
   const posts = data?.posts?.results ?? [];
 
-  const loadMoreProps = useLoadMore({
-    data: data?.posts,
-    loading,
-    fetchMore,
-    initialLimit: limit,
-    itemsPerPage: 50,
-    resetTrigger: {
-        view: "top",
-        userId: showAll ? undefined : currentUser?._id,
-        limit: limit
-      }
-  });
   if (!currentUser) {
     return <SingleColumnSection><ErrorAccessDenied/></SingleColumnSection>;
   }

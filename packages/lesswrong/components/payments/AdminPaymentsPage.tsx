@@ -14,8 +14,7 @@ import LoadMore from "../common/LoadMore";
 import UserTooltip from "../users/UserTooltip";
 import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import ForumIcon from "../common/ForumIcon";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const UsersProfileMultiQuery = gql(`
@@ -67,7 +66,7 @@ const styles = (theme: ThemeType) => ({
 export const AdminPaymentsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { data, loading, fetchMore } = useQuery(UsersProfileMultiQuery, {
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(UsersProfileMultiQuery, {
     variables: {
       selector: { usersWithPaymentInfo: {} },
       limit: 500,
@@ -78,16 +77,6 @@ export const AdminPaymentsPage = ({classes}: {
   });
 
   const results = data?.users?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: data?.users,
-    loading,
-    fetchMore,
-    initialLimit: 500,
-    itemsPerPage: 10,
-    enableTotal: true,
-    resetTrigger: {view: "usersWithPaymentInfo", limit: 500}
-  });
 
   const [search, setSearch] = useState<string>("")
   const filteredResults = results?.filter(user => {

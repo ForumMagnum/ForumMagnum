@@ -1,12 +1,10 @@
 import moment from "moment";
-import { UseMultiResult } from "../../lib/crud/withMulti";
 import difference from "lodash/difference";
 import groupBy from "lodash/groupBy";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
-import { NetworkStatus, useQuery } from "@apollo/client";
-import { apolloSSRFlag } from "@/lib/helpers";
+import { NetworkStatus } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
-import { useLoadMore } from "./useLoadMore";
+import { useQueryWithLoadMore } from "./useQueryWithLoadMore";
 
 const RecentOpportunitiesQuery = gql(`
   query RecentOpportunitiesQuery($selector: PostSelector, $limit: Int) {
@@ -99,19 +97,12 @@ export const useRecentOpportunities =<
 
   const queryToUse = fragmentName === "PostsListWithVotesAndSequence" ? RecentOpportunitiesWithSequenceQuery : RecentOpportunitiesQuery;
   
-  const { data, loading, error, networkStatus, refetch, fetchMore } = useQuery(queryToUse, {
+  const { data, loading, error, networkStatus, refetch, loadMoreProps } = useQueryWithLoadMore(queryToUse, {
     variables: { selector },
     skip,
     fetchPolicy: "cache-and-network",
     notifyOnNetworkStatusChange: true,
     ssr,
-  });
-
-  const loadMoreProps = useLoadMore({
-    data: data?.posts,
-    fetchMore,
-    loading,
-    resetTrigger: selector,
   });
 
   const results = data?.posts?.results;

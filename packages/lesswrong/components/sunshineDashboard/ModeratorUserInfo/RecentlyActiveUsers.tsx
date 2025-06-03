@@ -18,8 +18,7 @@ import FormatDate from "../../common/FormatDate";
 import MetaInfo from "../../common/MetaInfo";
 import SectionFooterCheckbox from "../../form-components/SectionFooterCheckbox";
 import Row from "../../common/Row";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const SunshineUsersListMultiQuery = gql(`
@@ -147,27 +146,17 @@ const RecentlyActiveUsers = ({ classes }: {
   const {query} = useLocation();
   const limit = parseInt(query.limit) || 200 // this is using || instead of ?? because it correclty handles NaN 
 
-  const { data, loading, refetch, fetchMore } = useQuery(SunshineUsersListMultiQuery, {
+  const { data, refetch, loadMoreProps: recentlyActiveLoadMoreProps } = useQueryWithLoadMore(SunshineUsersListMultiQuery, {
     variables: {
       selector: { recentlyActive: {} },
       limit: limit,
       enableTotal: true,
     },
     notifyOnNetworkStatusChange: true,
+    itemsPerPage: 200,
   });
 
   const results = data?.users?.results ?? [];
-
-  const recentlyActiveLoadMoreProps = useLoadMore({
-    data: data?.users,
-    loading,
-    fetchMore,
-    initialLimit: limit,
-    itemsPerPage: 200,
-    enableTotal: true,
-    resetTrigger: {view: "recentlyActive", limit:limit}
-  });
-
 
   const handleExpand = (id: string) => {
     if (expandId === id) {

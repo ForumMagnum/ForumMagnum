@@ -11,7 +11,7 @@ import { cloudinaryCloudNameSetting, recombeeEnabledSetting, vertexEnabledSettin
 import classNames from 'classnames';
 import { hasPostRecommendations, commentsTableOfContentsEnabled, hasDigests, hasSidenotes } from '../../../lib/betas';
 import { useDialog } from '../../common/withDialog';
-import { UseMultiResult } from '../../../lib/crud/withMulti';
+import { LoadMoreProps, UseMultiResult } from '../../../lib/crud/withMulti';
 import { PostsPageContext } from './PostsPageContext';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
@@ -90,7 +90,7 @@ import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RECOMBEE_RECOMM_ID_QUERY_PARAM,
 import { NetworkStatus, QueryResult, useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { returnIfValidNumber } from '@/lib/utils/typeGuardUtils';
-import { useLoadMore } from '@/components/hooks/useLoadMore';
+import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
 
 const CommentsListMultiQuery = gql(`
   query multiCommentPostsPageQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -462,7 +462,7 @@ const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsLis
 
 export type EagerPostComments = {
   terms: CommentsViewTerms,
-  queryResponse: QueryResult<postCommentsThreadQueryQuery> // UseMultiResult<'CommentsList'>,
+  queryResponse: QueryResult<postCommentsThreadQueryQuery> & { loadMoreProps: LoadMoreProps },
 }
 
 export const postsCommentsThreadMultiOptions = {
@@ -774,7 +774,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   // check for deep equality between terms and eagerPostComments.terms
   const useEagerResults = eagerPostComments && isEqual({ ...terms, view }, eagerPostComments?.terms);
 
-  const lazyResults = useQuery(postCommentsThreadQuery, {
+  const lazyResults = useQueryWithLoadMore(postCommentsThreadQuery, {
     variables: {
       selector: { [view]: { ...terms, postId: post._id } },
       limit,
@@ -784,17 +784,9 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     fetchPolicy: 'cache-and-network' as const,
   });
 
-  const { loading, data: rawData, fetchMore, networkStatus, variables: usedVariables } = useEagerResults ? eagerPostComments.queryResponse : lazyResults;
+  const { loading, data: rawData, networkStatus, loadMoreProps: { loadMore } } = useEagerResults ? eagerPostComments.queryResponse : lazyResults;
   const rawResults = rawData?.comments?.results;
   const loadingMore = networkStatus === NetworkStatus.fetchMore;
-  const { loadMore } = useLoadMore({
-    data: rawData?.comments,
-    fetchMore,
-    loading,
-    enableTotal: usedVariables?.enableTotal,
-    initialLimit: usedVariables?.limit,
-    resetTrigger: usedVariables?.selector,
-  });
 
   // If the user has just posted a comment, and they are sorting by magic, put it at the top of the list for them
   const results = useMemo(() => {
