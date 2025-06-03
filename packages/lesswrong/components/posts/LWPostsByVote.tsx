@@ -7,8 +7,7 @@ import { Typography } from "../common/Typography";
 import LoadMore from "../common/LoadMore";
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import LWTooltip from "../common/LWTooltip";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const PostsListWithVotesMultiQuery = gql(`
@@ -45,32 +44,15 @@ const LWPostsByVote = ({classes, postIds, year, limit, showMostValuableCheckbox=
   const before = year === '≤2020' ? '2021-01-01' : `${year + 1}-01-01`
   const after = `${year}-01-01`
 
-  const { data, loading, fetchMore } = useQuery(PostsListWithVotesMultiQuery, {
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(PostsListWithVotesMultiQuery, {
     variables: {
       selector: { nominatablePostsByVote: { postIds, requiredUnnominated, requiredFrontpage, before, ...(year === '≤2020' ? {} : { after }) } },
       limit: limit ?? 1000,
       enableTotal: false,
     },
-    notifyOnNetworkStatusChange: true,
   });
 
   const posts = data?.posts?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: data?.posts,
-    loading,
-    fetchMore,
-    initialLimit: limit ?? 1000,
-    itemsPerPage: 10,
-    resetTrigger: {
-      view: "nominatablePostsByVote",
-      postIds,
-      requiredUnnominated,
-      requiredFrontpage,
-      before,
-      ...(year === '≤2020' ? {} : {after}),
-    }
-  });
 
   const showLoadMore = !loadMoreProps.hidden;
 

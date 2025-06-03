@@ -7,8 +7,7 @@ import SectionFooter from "../common/SectionFooter";
 import LoadMore from "../common/LoadMore";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const localGroupsHomeFragmentMultiQuery = gql(`
@@ -36,25 +35,16 @@ const LocalGroupsList = ({terms, children, classes, showNoResults=true, heading}
   heading?: string,
 }) => {
   const { view, limit, ...selectorTerms } = terms;
-  const { data, loading, fetchMore } = useQuery(localGroupsHomeFragmentMultiQuery, {
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(localGroupsHomeFragmentMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
       limit: 10,
       enableTotal: false,
     },
-    notifyOnNetworkStatusChange: true,
   });
 
   const results = data?.localgroups?.results;
 
-  const loadMoreProps = useLoadMore({
-    data: data?.localgroups,
-    loading,
-    fetchMore,
-    initialLimit: 10,
-    itemsPerPage: 10,
-    resetTrigger: terms
-  });
   // FIXME: Unstable component will lose state on rerender
   // eslint-disable-next-line react/no-unstable-nested-components
   const MaybeTitleWrapper = ({children}: { children: ReactNode }) => heading ?

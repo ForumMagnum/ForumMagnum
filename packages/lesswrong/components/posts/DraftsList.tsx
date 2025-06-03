@@ -14,9 +14,9 @@ import DraftsListSettings from "./DraftsListSettings";
 import LoadMore from "../common/LoadMore";
 import PostsItem from "./PostsItem";
 import Loading from "../vulcan-core/Loading";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
 const PostsListWithVotesMultiQuery = gql(`
   query multiPostDraftsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -90,8 +90,7 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
     includeShared: !!query.includeShared ? (query.includeShared === 'true') : (currentUser?.draftsListShowShared !== false),
   }), [userId, currentSorting, query.includeArchived, query.includeShared, currentUser]);
   
-  // const { view, limit, ...selectorTerms } = terms;
-  const { data, loading, fetchMore } = useQuery(PostsListWithVotesMultiQuery, {
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(PostsListWithVotesMultiQuery, {
     variables: {
       selector: { drafts: terms },
       limit,
@@ -99,19 +98,9 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
     },
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    notifyOnNetworkStatusChange: true,
   });
 
   const results = data?.posts?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: data?.posts,
-    loading,
-    fetchMore,
-    initialLimit: 10,
-    itemsPerPage: 10,
-    resetTrigger: terms
-  });
   
   if (!currentUser) return null
   

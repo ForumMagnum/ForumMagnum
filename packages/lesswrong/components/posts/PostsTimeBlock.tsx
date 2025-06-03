@@ -15,8 +15,7 @@ import Divider from "../common/Divider";
 import { Typography } from "../common/Typography";
 import PostsTagsList from "../tagging/PostsTagsList";
 import PostsLoading from "./PostsLoading";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const PostsListWithVotesMultiQuery = gql(`
@@ -145,30 +144,16 @@ const PostsTimeBlock = ({
 
   const { view, ...rest } = terms;
 
-  const { data, loading, fetchMore } = useQuery(PostsListWithVotesMultiQuery, {
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(PostsListWithVotesMultiQuery, {
     variables: {
       selector: { [view]: { ...rest, before: before.toISOString(), after: after.toISOString() } },
       limit: 10,
       enableTotal: true,
     },
-    notifyOnNetworkStatusChange: true,
+    itemsPerPage: 50,
   });
 
   const posts = data?.posts?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: data?.posts,
-    loading,
-    fetchMore,
-    initialLimit: 10,
-    itemsPerPage: 50,
-    enableTotal: true,
-    resetTrigger: {
-      ...terms,
-      before: before.toISOString(),
-      after: after.toISOString(),
-    }
-  });
   const totalCount = data?.posts?.totalCount;
 
   const filteredPosts = tagFilter ? filter(posts, post => post.tags.map(tag=>tag._id).includes(tagFilter)) : posts

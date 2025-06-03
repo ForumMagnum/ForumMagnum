@@ -6,8 +6,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import LoadMore from "../common/LoadMore";
 import CommentOnPostWithReplies from "../comments/CommentOnPostWithReplies";
 import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const CommentWithRepliesFragmentMultiQuery = gql(`
@@ -31,7 +30,8 @@ const ShortformThreadList = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { data, loading, refetch, fetchMore } = useQuery(CommentWithRepliesFragmentMultiQuery, {
+  
+  const { data, refetch, loadMoreProps } = useQueryWithLoadMore(CommentWithRepliesFragmentMultiQuery, {
     variables: {
       selector: { shortform: {} },
       limit: 20,
@@ -39,22 +39,10 @@ const ShortformThreadList = ({ classes }: {
     },
     fetchPolicy: 'cache-and-network',
     pollInterval: 0,
-    notifyOnNetworkStatusChange: true,
   });
 
   const results = data?.comments?.results;
 
-  const loadMoreProps = useLoadMore({
-    data: data?.comments,
-    loading,
-    fetchMore,
-    initialLimit: 20,
-    itemsPerPage: 10,
-    resetTrigger: {
-        view: 'shortform',
-        limit:20
-      }
-  });
   return (
     <div>
       {(userCanQuickTake(currentUser) || !currentUser) &&

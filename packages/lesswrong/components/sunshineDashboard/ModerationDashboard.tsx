@@ -11,8 +11,7 @@ import UsersReviewInfoCard from "./UsersReviewInfoCard";
 import LoadMore from "../common/LoadMore";
 import Loading from "../vulcan-core/Loading";
 import FirstContentIcons from "./FirstContentIcons";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const SunshineUsersListMultiQuery = gql(`
@@ -141,47 +140,28 @@ const ModerationDashboard = ({ classes }: {
     });
   };
 
-  const { data, loading: loadingSunshineUsersList, refetch: refetchSunshineUsersList, fetchMore: fetchMoreSunshineUsersList } = useQuery(SunshineUsersListMultiQuery, {
+  const { data, loading: loadingSunshineUsersList, refetch: refetchSunshineUsersList, loadMoreProps } = useQueryWithLoadMore(SunshineUsersListMultiQuery, {
     variables: {
       selector: { sunshineNewUsers: {} },
       limit: 10,
       enableTotal: true,
     },
-    notifyOnNetworkStatusChange: true,
+    itemsPerPage: 50,
   });
 
   const usersToReview = data?.users?.results ?? [];
-
-  const loadMoreProps = useLoadMore({
-    data: data?.users,
-    loading: loadingSunshineUsersList,
-    fetchMore: fetchMoreSunshineUsersList,
-    initialLimit: 10,
-    itemsPerPage: 50,
-    enableTotal: true,
-    resetTrigger: {view: "sunshineNewUsers", limit: 10}
-  });
   const totalUsersToReviewCount = data?.users?.totalCount;
 
-  const { data: dataSunshineUsersList, loading: loadingAllUsers, refetch: refetchAllUsers, fetchMore: fetchMoreAllUsers } = useQuery(SunshineUsersListMultiQuery, {
+  const { data: dataSunshineUsersList, refetch: refetchAllUsers, loadMoreProps: allUsersLoadMoreProps } = useQueryWithLoadMore(SunshineUsersListMultiQuery, {
     variables: {
       selector: { allUsers: {} },
       limit: 10,
       enableTotal: false,
     },
-    notifyOnNetworkStatusChange: true,
+    itemsPerPage: 50,
   });
 
   const allUsers = dataSunshineUsersList?.users?.results ?? [];
-
-  const allUsersLoadMoreProps = useLoadMore({
-    data: dataSunshineUsersList?.users,
-    loading: loadingAllUsers,
-    fetchMore: fetchMoreAllUsers,
-    initialLimit: 10,
-    itemsPerPage: 50,
-    resetTrigger: {view: "allUsers", limit: 10}
-  });
 
   if (!currentUser || !userIsAdminOrMod(currentUser)) {
     return null;

@@ -6,8 +6,7 @@ import Pingback from "./Pingback";
 import LWTooltip from "../common/LWTooltip";
 import LoadMore from "../common/LoadMore";
 import Loading from "../vulcan-core/Loading";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const PostsListMultiQuery = gql(`
@@ -61,29 +60,15 @@ const PingbacksList = ({classes, postId, limit=5}: {
   postId: string,
   limit?: number
 }) => {
-  const { data, loading, fetchMore } = useQuery(PostsListMultiQuery, {
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(PostsListMultiQuery, {
     variables: {
       selector: { pingbackPosts: { postId: postId } },
-      limit: limit,
+      limit,
       enableTotal: true,
     },
-    notifyOnNetworkStatusChange: true,
   });
 
   const results = data?.posts?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: data?.posts,
-    loading,
-    fetchMore,
-    initialLimit: limit,
-    itemsPerPage: 100,
-    enableTotal: true,
-    resetTrigger: {
-        view: "pingbackPosts",
-        postId: postId,
-      }
-  });
 
   const pingbackIds = (results||[]).map((pingback) => pingback._id)
   useOnMountTracking({

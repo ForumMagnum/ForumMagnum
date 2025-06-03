@@ -13,8 +13,8 @@ import FormatDate from "../common/FormatDate";
 import Error404 from "../common/Error404";
 import SectionTitle from "../common/SectionTitle";
 import { gql } from '@/lib/generated/gql-codegen';
-import { NetworkStatus, useQuery } from '@apollo/client';
-import { useLoadMore } from '../hooks/useLoadMore';
+import { NetworkStatus } from '@apollo/client';
+import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
 
 const ModGPTDashboardQuery = gql(`
   query ModGPTDashboardQuery($selector: CommentSelector, $limit: Int) {
@@ -118,19 +118,14 @@ const ModGPTDashboard = ({classes}: {
 }) => {
   const currentUser = useCurrentUser()
 
-  const { data, loading, fetchMore, networkStatus } = useQuery(ModGPTDashboardQuery, {
+  const { data, loading, networkStatus, loadMoreProps } = useQueryWithLoadMore(ModGPTDashboardQuery, {
     variables: {
       selector: { checkedByModGPT: {} },
       limit: 10,
     },
-    notifyOnNetworkStatusChange: true,
   });
 
-  const { loadMore, count, totalCount } = useLoadMore({
-    data: data?.comments,
-    fetchMore,
-    loading,
-  });
+  const { loadMore, count, totalCount } = loadMoreProps;
   
   if (!userIsAdminOrMod(currentUser)) {
     return <Error404 />

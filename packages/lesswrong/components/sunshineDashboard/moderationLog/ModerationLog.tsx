@@ -16,8 +16,8 @@ import SectionTitle from "../../common/SectionTitle";
 import ToCColumn from "../../posts/TableOfContents/ToCColumn";
 import TableOfContents from "../../posts/TableOfContents/TableOfContents";
 import { gql } from '@/lib/generated/gql-codegen';
-import { NetworkStatus, useQuery } from '@apollo/client';
-import { useLoadMore } from '@/components/hooks/useLoadMore';
+import { NetworkStatus } from '@apollo/client';
+import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
 
 const DeletedCommentsModerationLogQuery = gql(`
   query DeletedCommentsModerationLogQuery($selector: CommentSelector, $limit: Int) {
@@ -296,17 +296,10 @@ const ModerationLog = ({classes}: {
   const {
     data: deletedCommentsData,
     loading: deletedCommentsLoading,
-    fetchMore: deletedCommentsFetchMore,
     networkStatus: deletedCommentsNetworkStatus,
-  } = useQuery(DeletedCommentsModerationLogQuery, {
-    variables: { selector: { allCommentsDeleted: {} }, limit: 10 },
-    notifyOnNetworkStatusChange: true,
-  });
-
-  const { loadMore: deletedCommentsLoadMore, count: deletedCommentsCount, totalCount: deletedCommentsTotalCount } = useLoadMore({
-    data: deletedCommentsData?.comments,
-    fetchMore: deletedCommentsFetchMore,
-    loading: deletedCommentsLoading,
+    loadMoreProps: { loadMore: deletedCommentsLoadMore, count: deletedCommentsCount, totalCount: deletedCommentsTotalCount },
+  } = useQueryWithLoadMore(DeletedCommentsModerationLogQuery, {
+    variables: { selector: { allCommentsDeleted: {} }, limit: 10, enableTotal: false },
   });
 
   const deletedCommentsResults = deletedCommentsData?.comments?.results ?? [];
@@ -315,17 +308,10 @@ const ModerationLog = ({classes}: {
   const {
     data: usersBannedFromPostsData,
     loading: usersBannedFromPostsLoading,
-    fetchMore: usersBannedFromPostsFetchMore,
     networkStatus: usersBannedFromPostsNetworkStatus,
-  } = useQuery(UsersBannedFromPostsModerationLogQuery, {
-    variables: { selector: { postsWithBannedUsers: {} }, limit: 10 },
-    notifyOnNetworkStatusChange: true,
-  });
-
-  const { loadMore: usersBannedFromPostsLoadMore, count: usersBannedFromPostsCount, totalCount: usersBannedFromPostsTotalCount } = useLoadMore({
-    data: usersBannedFromPostsData?.posts,
-    fetchMore: usersBannedFromPostsFetchMore,
-    loading: usersBannedFromPostsLoading,
+    loadMoreProps: { loadMore: usersBannedFromPostsLoadMore, count: usersBannedFromPostsCount, totalCount: usersBannedFromPostsTotalCount },
+  } = useQueryWithLoadMore(UsersBannedFromPostsModerationLogQuery, {
+    variables: { selector: { postsWithBannedUsers: {} }, limit: 10, enableTotal: false },
   });
 
   const usersBannedFromPostsResults = usersBannedFromPostsData?.posts?.results ?? [];
@@ -334,17 +320,10 @@ const ModerationLog = ({classes}: {
   const {
     data: usersBannedFromUsersData,
     loading: usersBannedFromUsersLoading,
-    fetchMore: usersBannedFromUsersFetchMore,
     networkStatus: usersBannedFromUsersNetworkStatus,
-  } = useQuery(UsersBannedFromUsersModerationLogQuery, {
-    variables: { selector: { usersWithBannedUsers: {} }, limit: 10 },
-    notifyOnNetworkStatusChange: true,
-  });
-
-  const { loadMore: usersBannedFromUsersLoadMore, count: usersBannedFromUsersCount, totalCount: usersBannedFromUsersTotalCount } = useLoadMore({
-    data: usersBannedFromUsersData?.users,
-    fetchMore: usersBannedFromUsersFetchMore,
-    loading: usersBannedFromUsersLoading,
+    loadMoreProps: { loadMore: usersBannedFromUsersLoadMore, count: usersBannedFromUsersCount, totalCount: usersBannedFromUsersTotalCount },
+  } = useQueryWithLoadMore(UsersBannedFromUsersModerationLogQuery, {
+    variables: { selector: { usersWithBannedUsers: {} }, limit: 10, enableTotal: false },
   });
 
   const usersBannedFromUsersResults = usersBannedFromUsersData?.users?.results ?? [];
@@ -353,17 +332,10 @@ const ModerationLog = ({classes}: {
   const {
     data: moderatorActionsData,
     loading: moderatorActionsLoading,
-    fetchMore: moderatorActionsFetchMore,
     networkStatus: moderatorActionsNetworkStatus,
-  } = useQuery(ModeratorActionModerationLogQuery, {
-    variables: { selector: { restrictionModerationActions: {} }, limit: 10 },
-    notifyOnNetworkStatusChange: true,
-  });
-
-  const { loadMore: moderatorActionsLoadMore, count: moderatorActionsCount, totalCount: moderatorActionsTotalCount } = useLoadMore({
-    data: moderatorActionsData?.moderatorActions,
-    fetchMore: moderatorActionsFetchMore,
-    loading: moderatorActionsLoading,
+    loadMoreProps: { loadMore: moderatorActionsLoadMore, count: moderatorActionsCount, totalCount: moderatorActionsTotalCount },
+  } = useQueryWithLoadMore(ModeratorActionModerationLogQuery, {
+    variables: { selector: { restrictionModerationActions: {} }, limit: 10, enableTotal: false },
   });
 
   const moderatorActionsResults = moderatorActionsData?.moderatorActions?.results ?? [];
@@ -372,17 +344,10 @@ const ModerationLog = ({classes}: {
   const {
     data: userRateLimitsData,
     loading: userRateLimitsLoading,
-    fetchMore: userRateLimitsFetchMore,
     networkStatus: userRateLimitsNetworkStatus,
-  } = useQuery(UserRateLimitModerationLogQuery, {
-    variables: { selector: { activeUserRateLimits: {} }, limit: 10 },
-    notifyOnNetworkStatusChange: true,
-  });
-
-  const { loadMore: userRateLimitsLoadMore, count: userRateLimitsCount, totalCount: userRateLimitsTotalCount } = useLoadMore({
-    data: userRateLimitsData?.userRateLimits,
-    fetchMore: userRateLimitsFetchMore,
-    loading: userRateLimitsLoading,
+    loadMoreProps: { loadMore: userRateLimitsLoadMore, count: userRateLimitsCount, totalCount: userRateLimitsTotalCount },
+  } = useQueryWithLoadMore(UserRateLimitModerationLogQuery, {
+    variables: { selector: { activeUserRateLimits: {} }, limit: 10, enableTotal: false },
   });
 
   const userRateLimitsResults = userRateLimitsData?.userRateLimits?.results ?? [];

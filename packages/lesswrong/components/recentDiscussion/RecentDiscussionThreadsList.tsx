@@ -12,8 +12,8 @@ import ShortformSubmitForm from "../shortform/ShortformSubmitForm";
 import Loading from "../vulcan-core/Loading";
 import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
 import LoadMore from "../common/LoadMore";
-import { useQuery, NetworkStatus } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { NetworkStatus } from "@apollo/client";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const PostsRecentDiscussionMultiQuery = gql(`
@@ -43,7 +43,7 @@ const RecentDiscussionThreadsList = ({
   const currentUser = useCurrentUser();
   
   const { view, limit, ...selectorTerms } = terms;
-  const { data, loading, refetch, fetchMore, networkStatus } = useQuery(PostsRecentDiscussionMultiQuery, {
+  const { data, loading, refetch, networkStatus, loadMoreProps } = useQueryWithLoadMore(PostsRecentDiscussionMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
       limit: 10,
@@ -54,19 +54,10 @@ const RecentDiscussionThreadsList = ({
     },
     fetchPolicy: 'cache-and-network',
     pollInterval: 0,
-    notifyOnNetworkStatusChange: true,
   });
 
   const results = data?.posts?.results;
-
-  const { loadMore } = useLoadMore({
-    data: data?.posts,
-    loading,
-    fetchMore,
-    initialLimit: 10,
-    itemsPerPage: 10,
-    resetTrigger: terms
-  });
+  const { loadMore } = loadMoreProps;
   const loadingMore = networkStatus === NetworkStatus.fetchMore;
 
   useGlobalKeydown((event: KeyboardEvent) => {

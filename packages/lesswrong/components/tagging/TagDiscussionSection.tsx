@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import CommentsListSection from "../comments/CommentsListSection";
-import { useQuery, NetworkStatus } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { NetworkStatus } from "@apollo/client";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const CommentsListMultiQuery = gql(`
@@ -25,7 +25,7 @@ const TagDiscussionSection = ({classes, tag}: {
 }) => {
   const [highlightDate,setHighlightDate] = useState<Date|undefined>(undefined);
   
-  const { data, loading, fetchMore, networkStatus } = useQuery(CommentsListMultiQuery, {
+  const { data, networkStatus, loadMoreProps } = useQueryWithLoadMore(CommentsListMultiQuery, {
     variables: {
       selector: { tagDiscussionComments: { tagId: tag?._id } },
       limit: 500,
@@ -33,24 +33,10 @@ const TagDiscussionSection = ({classes, tag}: {
     },
     skip: !tag?._id,
     fetchPolicy: 'cache-and-network',
-    notifyOnNetworkStatusChange: true,
   });
 
   const results = data?.comments?.results;
-
-  const { loadMore } = useLoadMore({
-    data: data?.comments,
-    loading,
-    fetchMore,
-    initialLimit: 500,
-    itemsPerPage: 10,
-    enableTotal: true,
-    resetTrigger: {
-        view: "tagDiscussionComments",
-        tagId: tag?._id,
-        limit: 500,
-      }
-  });
+  const { loadMore } = loadMoreProps;
   const totalCount = data?.comments?.totalCount;
   const loadingMore = networkStatus === NetworkStatus.fetchMore;
   

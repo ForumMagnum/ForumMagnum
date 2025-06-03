@@ -4,9 +4,9 @@ import SunshineListTitle from "./SunshineListTitle";
 import SunshineReportedItem from "./SunshineReportedItem";
 import SunshineListCount from "./SunshineListCount";
 import LoadMore from "../common/LoadMore";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
 const UnclaimedReportsListMultiQuery = gql(`
   query multiReportSunshineReportedContentListQuery($selector: ReportSelector, $limit: Int, $enableTotal: Boolean) {
@@ -39,26 +39,15 @@ const SunshineReportedContentList = ({ classes, currentUser }: {
   classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
 }) => {
-  const { data, loading, refetch, fetchMore } = useQuery(UnclaimedReportsListMultiQuery, {
+  const { data, refetch, loadMoreProps } = useQueryWithLoadMore(UnclaimedReportsListMultiQuery, {
     variables: {
       selector: { sunshineSidebarReports: {} },
       limit: 30,
       enableTotal: true,
     },
-    notifyOnNetworkStatusChange: true,
   });
 
   const results = data?.reports?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: data?.reports,
-    loading,
-    fetchMore,
-    initialLimit: 30,
-    itemsPerPage: 10,
-    enableTotal: true,
-    resetTrigger: {view:"sunshineSidebarReports", limit: 30}
-  });
   const totalCount = data?.reports?.totalCount ?? 0;
   
   const [updateReport] = useMutation(UnclaimedReportsListUpdateMutation);
