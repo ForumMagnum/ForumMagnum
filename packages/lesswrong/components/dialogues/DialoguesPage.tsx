@@ -11,7 +11,7 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import SectionFooter from "../common/SectionFooter";
 import LoadMore from "../common/LoadMore";
-import { useLoadMore } from '../hooks/useLoadMore';
+import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
 
 const PostsListWithVotesQuery = gql(`
   query DialoguesPage($documentId: String) {
@@ -26,7 +26,7 @@ const PostsListWithVotesQuery = gql(`
 const DialoguesPage = () => {
   const initialLimit = 20;
 
-  const { data: recentlyActiveDialoguesData, loading, fetchMore } = useQuery(gql(`
+  const { data: recentlyActiveDialoguesData, loadMoreProps: dialoguePostsLoadMoreProps } = useQueryWithLoadMore(gql(`
     query RecentlyActiveDialogues($limit: Int) {
       RecentlyActiveDialogues(limit: $limit) {
         results {
@@ -42,14 +42,8 @@ const DialoguesPage = () => {
   });
 
   const dialoguePosts = recentlyActiveDialoguesData?.RecentlyActiveDialogues?.results;
-  const dialoguePostsLoadMoreProps = useLoadMore({
-    data: recentlyActiveDialoguesData?.RecentlyActiveDialogues,
-    loading,
-    fetchMore,
-    initialLimit,
-  });
   
-  const { data: myDialoguesData } = useQuery(gql(`
+  const { data: myDialoguesData, loadMoreProps: myDialoguesLoadMoreProps } = useQueryWithLoadMore(gql(`
     query MyDialogues($limit: Int) {
       MyDialogues(limit: $limit) {
         results {
@@ -65,12 +59,6 @@ const DialoguesPage = () => {
   }); 
 
   const myDialogues = myDialoguesData?.MyDialogues?.results;
-  const myDialoguesLoadMoreProps = useLoadMore({
-    data: myDialoguesData?.MyDialogues,
-    loading,
-    fetchMore,
-    initialLimit,
-  });
 
   const currentUser = useCurrentUser();
 

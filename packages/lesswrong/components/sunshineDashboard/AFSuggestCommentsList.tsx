@@ -4,8 +4,7 @@ import SunshineListTitle from "./SunshineListTitle";
 import OmegaIcon from "../icons/OmegaIcon";
 import AFSuggestCommentsItem from "./AFSuggestCommentsItem";
 import LoadMore from "../common/LoadMore";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const SuggestAlignmentCommentMultiQuery = gql(`
@@ -29,7 +28,7 @@ const styles = (theme: ThemeType) => ({
 const AFSuggestCommentsList = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { data, loading, fetchMore } = useQuery(SuggestAlignmentCommentMultiQuery, {
+  const { data, loadMoreProps } = useQueryWithLoadMore(SuggestAlignmentCommentMultiQuery, {
     variables: {
       selector: { alignmentSuggestedComments: {} },
       limit: 10,
@@ -37,19 +36,11 @@ const AFSuggestCommentsList = ({ classes }: {
     },
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
+    itemsPerPage: 30,
   });
 
   const results = data?.comments?.results;
 
-  const loadMoreProps = useLoadMore({
-    data: data?.comments,
-    loading,
-    fetchMore,
-    initialLimit: 10,
-    itemsPerPage: 30,
-    enableTotal: true,
-    resetTrigger: {view:"alignmentSuggestedComments"}
-  });
   if (results && results.length) {
     return <div>
       <SunshineListTitle>

@@ -6,8 +6,7 @@ import SunshineListCount from "./SunshineListCount";
 import SunshineListTitle from "./SunshineListTitle";
 import SunshineNewPostsItem from "./SunshineNewPostsItem";
 import LoadMore from "../common/LoadMore";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const SunshinePostsListMultiQuery = gql(`
@@ -35,7 +34,7 @@ const SunshineNewPostsList = ({ terms, classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { view, limit, ...selectorTerms } = terms;
-  const { data, loading, refetch, fetchMore } = useQuery(SunshinePostsListMultiQuery, {
+  const { data, refetch, loadMoreProps } = useQueryWithLoadMore(SunshinePostsListMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
       limit: 10,
@@ -45,16 +44,6 @@ const SunshineNewPostsList = ({ terms, classes }: {
   });
 
   const results = data?.posts?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: data?.posts,
-    loading,
-    fetchMore,
-    initialLimit: 10,
-    itemsPerPage: 10,
-    enableTotal: true,
-    resetTrigger: terms
-  });
 
   const totalCount = data?.posts?.totalCount ?? 0;
   const showLoadMore = !loadMoreProps.hidden;

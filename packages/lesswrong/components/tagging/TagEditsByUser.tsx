@@ -7,8 +7,8 @@ import { Typography } from "../common/Typography";
 import SingleLineTagUpdates from "./SingleLineTagUpdates";
 import LoadMore from "../common/LoadMore";
 import { maybeDate } from '@/lib/utils/dateUtils';
-import { useQuery, NetworkStatus } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { NetworkStatus } from "@apollo/client";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const RevisionTagFragmentMultiQuery = gql(`
@@ -43,7 +43,7 @@ const TagEditsByUser = ({userId, limit, classes}: {
   classes: ClassesType<typeof styles>
 }) => {
 
-  const { data, loading, fetchMore, networkStatus } = useQuery(RevisionTagFragmentMultiQuery, {
+  const { data, networkStatus, loadMoreProps } = useQueryWithLoadMore(RevisionTagFragmentMultiQuery, {
     variables: {
       selector: { revisionsByUser: { userId } },
       limit: 10,
@@ -56,14 +56,6 @@ const TagEditsByUser = ({userId, limit, classes}: {
 
   const results = data?.revisions?.results;
 
-  const loadMoreProps = useLoadMore({
-    data: data?.revisions,
-    loading,
-    fetchMore,
-    initialLimit: 10,
-    itemsPerPage: 10,
-    resetTrigger: {view: "revisionsByUser", userId, limit}
-  });
   const loadingInitial = networkStatus === NetworkStatus.loading;
 
   if (loadingInitial || !results) {

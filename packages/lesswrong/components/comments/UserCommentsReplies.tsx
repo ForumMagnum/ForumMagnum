@@ -9,7 +9,7 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
 import { useQuery, NetworkStatus } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
@@ -57,7 +57,7 @@ const UserCommentsReplies = ({ classes }: { classes: ClassesType<typeof styles> 
 
   const userResults = data?.users?.results;
   const user = getUserFromResults(userResults ?? null)
-  const { data: dataCommentsListWithParentMetadata, loading, fetchMore, networkStatus } = useQuery(CommentsListWithParentMetadataMultiQuery, {
+  const { data: dataCommentsListWithParentMetadata, networkStatus, loadMoreProps } = useQueryWithLoadMore(CommentsListWithParentMetadataMultiQuery, {
     variables: {
       selector: { allRecentComments: { authorIsUnreviewed: null, userId: user?._id } },
       limit: 50,
@@ -69,14 +69,6 @@ const UserCommentsReplies = ({ classes }: { classes: ClassesType<typeof styles> 
 
   const results = dataCommentsListWithParentMetadata?.comments?.results;
 
-  const loadMoreProps = useLoadMore({
-    data: dataCommentsListWithParentMetadata?.comments,
-    loading,
-    fetchMore,
-    initialLimit: 50,
-    itemsPerPage: 10,
-    resetTrigger: {view: 'allRecentComments', authorIsUnreviewed: null, limit: 50, userId: user?._id}
-  });
   const loadingInitial = networkStatus === NetworkStatus.loading;
   
   if (loadingInitial || !user) return <Loading />

@@ -32,7 +32,7 @@ import WrappedSummarySection from "./WrappedSummarySection";
 import WrappedRecommendationsSection from "./WrappedRecommendationsSection";
 import WrappedMostValuablePostsSection from "./WrappedMostValuablePostsSection";
 import WrappedThankYouSection from "./WrappedThankYouSection";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { apolloSSRFlag } from "@/lib/helpers";
 
 const PostsListWithVotesMultiQuery = gql(`
@@ -383,28 +383,17 @@ export const ForumWrappedProvider = ({
   const bigUpvotePostIds = useVotes(year, "bigUpvote");
   const smallUpvotePostIds = useVotes(year, "smallUpvote");
 
-  const { data: dataPostsListWithVotes, loading: mostValuablePostsLoading, fetchMore: fetchMoreMostValuablePosts } = useQuery(PostsListWithVotesMultiQuery, {
+  const { data: dataPostsListWithVotes, loading: mostValuablePostsLoading, loadMoreProps: mostValuablePostsLoadMoreProps } = useQueryWithLoadMore(PostsListWithVotesMultiQuery, {
     variables: {
       selector: { nominatablePostsByVote: { postIds: [...bigUpvotePostIds, ...smallUpvotePostIds] } },
       limit: 20,
       enableTotal: false,
     },
     notifyOnNetworkStatusChange: true,
+    itemsPerPage: 40,
   });
 
   const mostValuablePosts = dataPostsListWithVotes?.posts?.results ?? [];
-
-  const mostValuablePostsLoadMoreProps = useLoadMore({
-    data: dataPostsListWithVotes?.posts,
-    loading: mostValuablePostsLoading,
-    fetchMore: fetchMoreMostValuablePosts,
-    initialLimit: 20,
-    itemsPerPage: 40,
-    resetTrigger: {
-      view: "nominatablePostsByVote",
-      postIds: [...bigUpvotePostIds, ...smallUpvotePostIds],
-    }
-  });
 
   const thinkingVideoRef = useRef<HTMLVideoElement>(null);
   const personalityVideoRef = useRef<HTMLVideoElement>(null);

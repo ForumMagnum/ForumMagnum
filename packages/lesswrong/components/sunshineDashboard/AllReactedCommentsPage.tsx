@@ -4,9 +4,8 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import CommentsNodeInner from "../comments/CommentsNode";
 import LoadMore from "../common/LoadMore";
-import { useQuery } from '@apollo/client';
 import { gql } from '@/lib/generated/gql-codegen';
-import { useLoadMore } from '../hooks/useLoadMore';
+import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -19,7 +18,7 @@ export const AllReactedCommentsPage = ({classes}: {
   const defaultLimit = 50;
   const pageSize = 50
 
-  const { data, loading, fetchMore } = useQuery(gql(`
+  const { data, loadMoreProps } = useQueryWithLoadMore(gql(`
     query AllReactedComments($limit: Int) {
       CommentsWithReacts(limit: $limit) {
         results {
@@ -32,17 +31,10 @@ export const AllReactedCommentsPage = ({classes}: {
     pollInterval: 0,
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-only",
+    itemsPerPage: pageSize,
   });
 
   const results = data?.CommentsWithReacts?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: data?.CommentsWithReacts,
-    loading,
-    fetchMore,
-    initialLimit: defaultLimit,
-    itemsPerPage: pageSize,
-  });
   
   return (
     <SingleColumnSection>

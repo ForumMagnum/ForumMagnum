@@ -6,8 +6,7 @@ import TagsListItem from "./TagsListItem";
 import FormatDate from "../common/FormatDate";
 import MetaInfo from "../common/MetaInfo";
 import UsersNameDisplay from "../users/UsersNameDisplay";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const SunshineTagFragmentMultiQuery = gql(`
@@ -50,26 +49,17 @@ const NewTagsList = ({classes, showHeaders = true}: {
   classes: ClassesType<typeof styles>,
   showHeaders?: boolean
 }) => {
-  const { data, loading, fetchMore } = useQuery(SunshineTagFragmentMultiQuery, {
+  const { data, loadMoreProps } = useQueryWithLoadMore(SunshineTagFragmentMultiQuery, {
     variables: {
       selector: { newTags: {} },
       limit: 4,
       enableTotal: true,
     },
     notifyOnNetworkStatusChange: true,
+    itemsPerPage: 20,
   });
 
   const results = data?.tags?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: data?.tags,
-    loading,
-    fetchMore,
-    initialLimit: 4,
-    itemsPerPage: 20,
-    enableTotal: true,
-    resetTrigger: {view:"newTags", limit: 4 }
-  });
 
   return <div className={classes.root}>
     {showHeaders && <h2>New {taggingNamePluralCapitalSetting.get()}</h2>}

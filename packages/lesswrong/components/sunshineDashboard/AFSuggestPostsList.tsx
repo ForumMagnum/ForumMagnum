@@ -4,8 +4,7 @@ import SunshineListTitle from "./SunshineListTitle";
 import OmegaIcon from "../icons/OmegaIcon";
 import AFSuggestPostsItem from "./AFSuggestPostsItem";
 import LoadMore from "../common/LoadMore";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const SuggestAlignmentPostMultiQuery = gql(`
@@ -29,7 +28,7 @@ const styles = (theme: ThemeType) => ({
 const AFSuggestPostsList = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { data, loading, fetchMore } = useQuery(SuggestAlignmentPostMultiQuery, {
+  const { data, loadMoreProps } = useQueryWithLoadMore(SuggestAlignmentPostMultiQuery, {
     variables: {
       selector: { alignmentSuggestedPosts: {} },
       limit: 10,
@@ -41,14 +40,6 @@ const AFSuggestPostsList = ({ classes }: {
 
   const results = data?.posts?.results;
 
-  const loadMoreProps = useLoadMore({
-    data: data?.posts,
-    loading,
-    fetchMore,
-    initialLimit: 10,
-    itemsPerPage: 10,
-    resetTrigger: {view:"alignmentSuggestedPosts"}
-  });
   if (results && results.length) {
     return <div>
       <SunshineListTitle>

@@ -7,8 +7,7 @@ import SunshineListCount from "./SunshineListCount";
 import SunshineListTitle from "./SunshineListTitle";
 import SunshineNewTagsItem from "./SunshineNewTagsItem";
 import LoadMore from "../common/LoadMore";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const SunshineTagFragmentMultiQuery = gql(`
@@ -29,27 +28,19 @@ const styles = (theme: ThemeType) => ({
 })
 
 const SunshineNewTagsList = ({ classes }: {classes: ClassesType<typeof styles>}) => {
-  const { data, loading, fetchMore } = useQuery(SunshineTagFragmentMultiQuery, {
+  const { data, loadMoreProps } = useQueryWithLoadMore(SunshineTagFragmentMultiQuery, {
     variables: {
       selector: { unreviewedTags: {} },
       limit: 30,
       enableTotal: true,
     },
     notifyOnNetworkStatusChange: true,
+    itemsPerPage: 30,
   });
 
   const innerData = data?.tags;
   const results = innerData?.results ?? [];
 
-  const loadMoreProps = useLoadMore({
-    data: innerData,
-    loading,
-    fetchMore,
-    initialLimit: 30,
-    itemsPerPage: 30,
-    enableTotal: true,
-    resetTrigger: {view:"unreviewedTags", limit: 30 }
-  });
   const totalCount = data?.tags?.totalCount ?? 0;
   const currentUser = useCurrentUser();
   if (results && results.length && userCanDo(currentUser, "posts.moderate.all")) {

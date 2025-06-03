@@ -5,8 +5,7 @@ import QuickTakesListItem from "../quickTakes/QuickTakesListItem";
 import CommentsNodeInner from "../comments/CommentsNode";
 import LoadMore from "../common/LoadMore";
 import ContentType from "../posts/PostsPage/ContentType";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const ShortformCommentsMultiQuery = gql(`
@@ -62,7 +61,7 @@ const ShortformTimeBlock  = ({reportEmpty, before, after, terms, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { view, ...rest } = terms;
-  const { data, loading, fetchMore } = useQuery(ShortformCommentsMultiQuery, {
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(ShortformCommentsMultiQuery, {
     variables: {
       selector: { [view]: { ...rest, before, after } },
       limit: 5,
@@ -70,22 +69,12 @@ const ShortformTimeBlock  = ({reportEmpty, before, after, terms, classes}: {
     },
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
+    itemsPerPage: 50,
   });
 
   const comments = data?.comments?.results;
+  const { loadMore } = loadMoreProps;
 
-  const { loadMore } = useLoadMore({
-    data: data?.comments,
-    loading,
-    fetchMore,
-    initialLimit: 5,
-    itemsPerPage: 50,
-    enableTotal: true,
-    resetTrigger: {
-        ...terms,
-        before, after,
-      }
-  });
   const totalCount = data?.comments?.totalCount ?? 0;
 
   useEffect(() => {

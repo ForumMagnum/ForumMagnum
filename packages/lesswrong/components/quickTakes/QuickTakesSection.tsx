@@ -19,8 +19,7 @@ import QuickTakesListItem from "./QuickTakesListItem";
 import Loading from "../vulcan-core/Loading";
 import SectionFooter from "../common/SectionFooter";
 import LoadMore from "../common/LoadMore";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const ShortformCommentsMultiQuery = gql(`
@@ -93,7 +92,7 @@ const QuickTakesSection = ({classes}: {
 
   const maxAgeDays = quickTakesMaxAgeDaysSetting.get()
 
-  const { data, loading, refetch, fetchMore } = useQuery(ShortformCommentsMultiQuery, {
+  const { data, loading, refetch, loadMoreProps } = useQueryWithLoadMore(ShortformCommentsMultiQuery, {
     variables: {
       selector: { shortformFrontpage: { showCommunity, maxAgeDays } },
       limit: 5,
@@ -103,20 +102,6 @@ const QuickTakesSection = ({classes}: {
   });
 
   const results = data?.comments?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: data?.comments,
-    loading,
-    fetchMore,
-    initialLimit: 5,
-    itemsPerPage: 10,
-    enableTotal: true,
-    resetTrigger: {
-        view: "shortformFrontpage",
-        showCommunity,
-        maxAgeDays,
-      }
-  });
 
   const showLoadMore = !loadMoreProps.hidden;
 

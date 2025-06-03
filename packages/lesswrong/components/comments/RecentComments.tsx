@@ -5,8 +5,8 @@ import { Typography } from "../common/Typography";
 import Loading from "../vulcan-core/Loading";
 import CommentsNodeInner from "./CommentsNode";
 import LoadMore from "../common/LoadMore";
-import { useQuery, NetworkStatus } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { NetworkStatus } from "@apollo/client";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
@@ -39,7 +39,7 @@ const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=fa
   noResultsMessage?: string,
 }) => {
   const { view, limit, ...selectorTerms } = terms;
-  const { data, loading, fetchMore, networkStatus } = useQuery(CommentsListWithParentMetadataMultiQuery, {
+  const { data, networkStatus, loadMoreProps } = useQueryWithLoadMore(CommentsListWithParentMetadataMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
       limit: 10,
@@ -50,14 +50,6 @@ const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=fa
 
   const results = data?.comments?.results;
 
-  const loadMoreProps = useLoadMore({
-    data: data?.comments,
-    loading,
-    fetchMore,
-    initialLimit: 10,
-    itemsPerPage: 10,
-    resetTrigger: terms
-  });
   const loadingInitial = networkStatus === NetworkStatus.loading;
   // Filter out comments where the user doesn't have access to the post or tag (mostly for posts that are converted to draft)
   const validResults = results?.filter(comment => comment.post?._id || comment.tag?._id)

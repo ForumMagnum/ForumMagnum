@@ -6,8 +6,8 @@ import Loading from "../vulcan-core/Loading";
 import LoadMore from "../common/LoadMore";
 import SingleColumnSection from "../common/SingleColumnSection";
 import { Typography } from "../common/Typography";
-import { useQuery, NetworkStatus } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { NetworkStatus } from "@apollo/client";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
@@ -41,7 +41,7 @@ const ModeratorComments = ({classes, terms={view: "moderatorComments"}, truncate
   noResultsMessage?: string,
 }) => {
   const { view, limit, ...selectorTerms } = terms;
-  const { data, loading, fetchMore, networkStatus } = useQuery(CommentsListWithParentMetadataMultiQuery, {
+  const { data, networkStatus, loadMoreProps } = useQueryWithLoadMore(CommentsListWithParentMetadataMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
       limit: 10,
@@ -52,14 +52,6 @@ const ModeratorComments = ({classes, terms={view: "moderatorComments"}, truncate
 
   const results = data?.comments?.results;
 
-  const loadMoreProps = useLoadMore({
-    data: data?.comments,
-    loading,
-    fetchMore,
-    initialLimit: 10,
-    itemsPerPage: 10,
-    resetTrigger: terms
-  });
   const loadingInitial = networkStatus === NetworkStatus.loading;
   if (!loadingInitial && results && !results.length) {
     return (<Typography variant="body2">{noResultsMessage}</Typography>)

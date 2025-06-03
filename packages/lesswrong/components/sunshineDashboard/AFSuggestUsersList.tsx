@@ -4,8 +4,7 @@ import SunshineListTitle from "./SunshineListTitle";
 import OmegaIcon from "../icons/OmegaIcon";
 import LoadMore from "../common/LoadMore";
 import AFSuggestUsersItem from "./AFSuggestUsersItem";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const SuggestAlignmentUserMultiQuery = gql(`
@@ -28,7 +27,7 @@ const styles = (theme: ThemeType) => ({
 const AFSuggestUsersList = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { data, loading, fetchMore } = useQuery(SuggestAlignmentUserMultiQuery, {
+  const { data, loadMoreProps } = useQueryWithLoadMore(SuggestAlignmentUserMultiQuery, {
     variables: {
       selector: { alignmentSuggestedUsers: {} },
       limit: 100,
@@ -36,19 +35,11 @@ const AFSuggestUsersList = ({ classes }: {
     },
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
+    itemsPerPage: 100,
   });
 
   const results = data?.users?.results;
 
-  const loadMoreProps = useLoadMore({
-    data: data?.users,
-    loading,
-    fetchMore,
-    initialLimit: 100,
-    itemsPerPage: 100,
-    enableTotal: true,
-    resetTrigger: {view:"alignmentSuggestedUsers", limit: 100}
-  });
   if (results && results.length) {
     return <div>
       <SunshineListTitle>
