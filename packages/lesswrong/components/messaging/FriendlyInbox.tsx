@@ -18,7 +18,7 @@ import ConversationContents from "./ConversationContents";
 import ForumIcon from "../common/ForumIcon";
 import ConversationDetails from "./ConversationDetails";
 import EAButton from "../ea-forum/EAButton";
-import { useLoadMore } from "../hooks/useLoadMore";
+import { useQueryWithLoadMore } from "../hooks/useQueryWithLoadMore";
 
 const ConversationsListWithReadStatusMultiQuery = gql(`
   query multiConversationFriendlyInboxQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -242,7 +242,12 @@ const FriendlyInbox = ({
 
   const { view, ...selectorTerms } = terms;
   const initialLimit = 500;
-  const conversationsResult = useQuery(ConversationsListWithReadStatusMultiQuery, {
+  const {
+    data: conversationsData,
+    loading: conversationsLoading,
+    refetch: refetchConversations,
+    loadMoreProps,
+  } = useQueryWithLoadMore(ConversationsListWithReadStatusMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
       limit: initialLimit,
@@ -251,21 +256,7 @@ const FriendlyInbox = ({
     notifyOnNetworkStatusChange: true,
   });
 
-  const {
-    data: conversationsData,
-    loading: conversationsLoading,
-    refetch: refetchConversations,
-    fetchMore: fetchMoreConversations,
-  } = conversationsResult;
-
   const conversations = useMemo(() => conversationsData?.conversations?.results ?? [], [conversationsData?.conversations?.results]);
-
-  const loadMoreProps = useLoadMore({
-    data: conversationsData?.conversations,
-    fetchMore: fetchMoreConversations,
-    loading: conversationsLoading,
-    initialLimit,
-  });
 
   // The conversationId need not appear in the sidebar (e.g. if it is a new conversation). If it does,
   // use the conversation from the list to load the title faster, if not, fetch it directly.

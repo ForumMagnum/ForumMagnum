@@ -15,9 +15,8 @@ import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
 import ForumIcon from "../common/ForumIcon";
 import LWTooltip from "../common/LWTooltip";
 import LoadMore from "../common/LoadMore";
-import { useQuery } from '@apollo/client';
 import { gql } from '@/lib/generated/gql-codegen';
-import { useLoadMore } from '../hooks/useLoadMore';
+import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -108,7 +107,7 @@ const TwitterAdmin = ({ classes }: { classes: ClassesType<typeof styles> }) => {
 
   const initialLimit = 20;
 
-  const { data, loading, error, fetchMore } = useQuery(gql(`
+  const { data, loading, error, loadMoreProps } = useQueryWithLoadMore(gql(`
     query CrossedKarmaThreshold($limit: Int!) {
       CrossedKarmaThreshold(limit: $limit) {
         results {
@@ -121,11 +120,10 @@ const TwitterAdmin = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     pollInterval: 0,
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-only",
+    itemsPerPage: 20,
   });
 
   const results = data?.CrossedKarmaThreshold?.results;
-
-  const loadMoreProps = useLoadMore({ data: data?.CrossedKarmaThreshold, loading, fetchMore, initialLimit, itemsPerPage: 20 });
 
   const authorExpandContainer = useRef<HTMLDivElement>(null);
 

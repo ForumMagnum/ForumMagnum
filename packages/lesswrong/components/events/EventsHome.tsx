@@ -30,7 +30,7 @@ import { MenuItem } from "../common/Menus";
 import ForumIcon from "../common/ForumIcon";
 import { useMutation, useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
 const PostsListMultiQuery = gql(`
   query multiPostEventsHomeQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -383,7 +383,7 @@ const EventsHome = ({classes}: {
   }
   
   const { view, limit, ...selectorTerms } = eventsListTerms;
-  const { data, loading, fetchMore } = useQuery(PostsListMultiQuery, {
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(PostsListMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
       limit: 12 - numSpecialCards,
@@ -393,18 +393,12 @@ const EventsHome = ({classes}: {
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
     notifyOnNetworkStatusChange: true,
+    itemsPerPage: 12,
   });
 
   const results = data?.posts?.results;
 
-  const { loadMore, hidden } = useLoadMore({
-    data: data?.posts,
-    loading,
-    fetchMore,
-    initialLimit: 12 - numSpecialCards,
-    itemsPerPage: 12,
-    resetTrigger: eventsListTerms
-  });
+  const { loadMore, hidden } = loadMoreProps;
 
   const showLoadMore = !hidden;
   

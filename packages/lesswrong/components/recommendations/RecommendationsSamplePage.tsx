@@ -26,8 +26,7 @@ import PostsPageRecommendationsList from "./PostsPageRecommendationsList";
 import LoadMore from "../common/LoadMore";
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const PostsListWithVotesMultiQuery = gql(`
@@ -116,14 +115,15 @@ const RecommendationsSamplePage = ({classes}: {
     () => featureInputToFeatures(getDefaultFeatures()),
   );
 
-  const { data, loading, fetchMore } = useQuery(PostsListWithVotesMultiQuery, {
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(PostsListWithVotesMultiQuery, {
     variables: {
       selector: {
         magic: {
           after: moment(now).subtract(
             frontpageDaysAgoCutoffSetting.get() * 24,
             "hours",
-          ).startOf("hour").toISOString(), forum: true
+          ).startOf("hour").toISOString(),
+          forum: true,
         }
       },
       limit: 20,
@@ -132,26 +132,10 @@ const RecommendationsSamplePage = ({classes}: {
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-first",
     notifyOnNetworkStatusChange: true,
+    itemsPerPage: 25,
   });
 
   const results = data?.posts?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: data?.posts,
-    loading,
-    fetchMore,
-    initialLimit: 20,
-    itemsPerPage: 25,
-    resetTrigger: {
-        after: moment(now).subtract(
-          frontpageDaysAgoCutoffSetting.get()*24,
-          "hours",
-        ).startOf("hour").toISOString(),
-        view: "magic",
-        forum: true,
-        limit: 20,
-      }
-  });
 
   if (!currentUser?.isAdmin) {
     return (

@@ -10,8 +10,7 @@ import Loading from "../vulcan-core/Loading";
 import RevisionSelect from "./RevisionSelect";
 import TagRevisionItem from "../tagging/TagRevisionItem";
 import LoadMore from "../common/LoadMore";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const RevisionHistoryEntryMultiQuery = gql(`
@@ -36,7 +35,7 @@ const TagPageRevisionSelect = ({ classes }: {
   const focusedUser = query.user;
   const navigate = useNavigate();
   const { tag, loading: loadingTag } = useTagBySlug(slug, "TagBasicInfo");
-  const { data, loading, fetchMore } = useQuery(RevisionHistoryEntryMultiQuery, {
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(RevisionHistoryEntryMultiQuery, {
     variables: {
       selector: { revisionsOnDocument: { documentId: tag?._id, fieldName: "description" } },
       limit: 10,
@@ -45,23 +44,11 @@ const TagPageRevisionSelect = ({ classes }: {
     skip: !tag,
     fetchPolicy: 'cache-first',
     notifyOnNetworkStatusChange: true,
+    itemsPerPage: 30,
   });
 
   const revisions = data?.revisions?.results;
 
-  const loadMoreProps = useLoadMore({
-    data: data?.revisions,
-    loading,
-    fetchMore,
-    initialLimit: 10,
-    itemsPerPage: 30,
-    enableTotal: true,
-    resetTrigger: {
-        view: "revisionsOnDocument",
-        documentId: tag?._id,
-        fieldName: "description",
-      }
-  });
   const totalCount = data?.revisions?.totalCount ?? 0;
   const count = revisions?.length ?? 0;
   

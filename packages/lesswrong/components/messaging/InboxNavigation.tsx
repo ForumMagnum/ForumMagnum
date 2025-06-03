@@ -15,9 +15,9 @@ import SectionFooter from "../common/SectionFooter";
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import { Typography } from "../common/Typography";
 import LoadMore from "../common/LoadMore";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
 const ConversationsListMultiQuery = gql(`
   query multiConversationInboxNavigationQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -51,7 +51,7 @@ const InboxNavigation = ({
   const navigate = useNavigate();
 
   const { view, limit, ...selectorTerms } = terms;
-  const { data, loading, fetchMore } = useQuery(ConversationsListMultiQuery, {
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(ConversationsListMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
       limit: 50,
@@ -62,15 +62,6 @@ const InboxNavigation = ({
   });
 
   const results = data?.conversations?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: data?.conversations,
-    loading,
-    fetchMore,
-    initialLimit: 50,
-    itemsPerPage: 10,
-    resetTrigger: terms
-  });
   
   const [updateConversation] = useMutation(ConversationsListUpdateMutation);
   const showArchive = query?.showArchive === "true"

@@ -11,9 +11,9 @@ import FormatDate from "../common/FormatDate";
 import BlurredBackgroundModal from "../common/BlurredBackgroundModal";
 import EAOnboardingInput from "../ea-forum/onboarding/EAOnboardingInput";
 import LoadMore from "../common/LoadMore";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
 const SurveyScheduleEditMultiQuery = gql(`
   query multiSurveyScheduleSurveyAdminPageQuery($selector: SurveyScheduleSelector, $limit: Int, $enableTotal: Boolean) {
@@ -84,7 +84,7 @@ const SurveysEditor = ({classes}: {
   const [showCreateSurveyModal, setShowCreateSurveyModal] = useState(false);
   const [newSurveyName, setNewSurveyName] = useState("");
 
-  const { data, loading: loadingSurveys, refetch: refetchSurveys, fetchMore: fetchMoreSurveys } = useQuery(SurveyMinimumInfoMultiQuery, {
+  const { data, loading: loadingSurveys, refetch: refetchSurveys, loadMoreProps: loadMoreSurveysProps } = useQueryWithLoadMore(SurveyMinimumInfoMultiQuery, {
     variables: {
       selector: { surveysByCreatedAt: {} },
       limit: 10,
@@ -95,17 +95,9 @@ const SurveysEditor = ({classes}: {
 
   const surveys = data?.surveys?.results;
 
-  const loadMoreSurveysProps = useLoadMore({
-    data: data?.surveys,
-    loading: loadingSurveys,
-    fetchMore: fetchMoreSurveys,
-    initialLimit: 10,
-    itemsPerPage: 10,
-  });
-
   const [createSurvey, { loading: loadingCreateSurvey, error: createSurveyError }] = useMutation(SurveyMinimumInfoMutation);
 
-  const { data: dataSurveyScheduleEdit, loading: loadingSurveySchedules, fetchMore: fetchMoreSurveySchedules } = useQuery(SurveyScheduleEditMultiQuery, {
+  const { data: dataSurveyScheduleEdit, loading: loadingSurveySchedules, loadMoreProps: loadMoreSurveySchedulesProps } = useQueryWithLoadMore(SurveyScheduleEditMultiQuery, {
     variables: {
       selector: { surveySchedulesByCreatedAt: {} },
       limit: 10,
@@ -115,14 +107,6 @@ const SurveysEditor = ({classes}: {
   });
 
   const surveySchedules = dataSurveyScheduleEdit?.surveySchedules?.results;
-
-  const loadMoreSurveySchedulesProps = useLoadMore({
-    data: dataSurveyScheduleEdit?.surveySchedules,
-    loading: loadingSurveySchedules,
-    fetchMore: fetchMoreSurveySchedules,
-    initialLimit: 10,
-    itemsPerPage: 10,
-  });
 
   const onOpenCreateSurveyModal = useCallback(() => {
     setShowCreateSurveyModal(true);

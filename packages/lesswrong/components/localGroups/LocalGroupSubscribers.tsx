@@ -4,8 +4,7 @@ import { preferredHeadingCase } from '@/themes/forumTheme';
 import { Typography } from "../common/Typography";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import LoadMore from "../common/LoadMore";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const MembersOfGroupFragmentMultiQuery = gql(`
@@ -33,29 +32,18 @@ const LocalGroupSubscribers = ({groupId, classes}: {
   groupId: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { data, loading, fetchMore } = useQuery(MembersOfGroupFragmentMultiQuery, {
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(MembersOfGroupFragmentMultiQuery, {
     variables: {
       selector: { membersOfGroup: { documentId: groupId } },
       limit: 20,
       enableTotal: true,
     },
     notifyOnNetworkStatusChange: true,
+    itemsPerPage: 100,
   });
 
   const results = data?.subscriptions?.results;
 
-  const loadMoreProps = useLoadMore({
-    data: data?.subscriptions,
-    loading,
-    fetchMore,
-    initialLimit: 20,
-    itemsPerPage: 100,
-    enableTotal: true,
-    resetTrigger: {
-        view: "membersOfGroup",
-        documentId: groupId,
-      }
-  });
   const totalCount = data?.subscriptions?.totalCount;
 
   return <div>

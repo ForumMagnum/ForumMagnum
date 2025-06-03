@@ -12,8 +12,7 @@ import TagSmallPostLink from "./TagSmallPostLink";
 import SingleColumnSection from "../common/SingleColumnSection";
 import LoadMore from "../common/LoadMore";
 import NewTagsList from "./NewTagsList";
-import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const TagVotingActivityMultiQuery = gql(`
@@ -123,25 +122,17 @@ const TagVoteActivity = ({classes, showHeaders = true, showNewTags = true, limit
   limit?: number,
   itemsPerPage?: number
 }) => {
-  const { data, loading, fetchMore } = useQuery(TagVotingActivityMultiQuery, {
+  const { data, loadMoreProps } = useQueryWithLoadMore(TagVotingActivityMultiQuery, {
     variables: {
       selector: { tagVotes: {} },
       limit: limit,
       enableTotal: false,
     },
     notifyOnNetworkStatusChange: true,
+    itemsPerPage,
   });
 
   const votes = data?.votes?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: data?.votes,
-    loading,
-    fetchMore,
-    initialLimit: limit,
-    itemsPerPage: itemsPerPage,
-    resetTrigger: {view:"tagVotes"}
-  });
 
   return <SingleColumnSection>
     {showNewTags && <NewTagsList />}

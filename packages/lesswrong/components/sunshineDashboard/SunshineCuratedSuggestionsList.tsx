@@ -12,7 +12,7 @@ import LoadMore from "../common/LoadMore";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import { useQuery } from "@apollo/client";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { userIsMemberOf } from '@/lib/vulcan-users/permissions';
 
@@ -96,28 +96,17 @@ const SunshineCuratedSuggestionsList = ({ terms, atBottom, classes, setCurationP
 
   const { view, ...rest } = terms;
 
-  const { data, loading, fetchMore } = useQuery(SunshineCurationPostsListMultiQuery, {
+  const { data, loadMoreProps } = useQueryWithLoadMore(SunshineCurationPostsListMultiQuery, {
     variables: {
       selector: { [view]: { ...rest, audioOnly } },
       limit: 10,
       enableTotal: true,
     },
     notifyOnNetworkStatusChange: true,
+    itemsPerPage: 60,
   });
 
   const results = data?.posts?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: data?.posts,
-    loading,
-    fetchMore,
-    initialLimit: 10,
-    itemsPerPage: 60,
-    enableTotal: true,
-    resetTrigger: {
-        ...terms, audioOnly
-      }
-  });
 
   const showLoadMore = !loadMoreProps.hidden;
 

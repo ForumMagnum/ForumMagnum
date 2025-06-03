@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -17,7 +17,8 @@ import { ContentItemBody } from "../contents/ContentItemBody";
 import FormatDate from "../common/FormatDate";
 import LoadMore from "../common/LoadMore";
 import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import LWTooltip from "../common/LWTooltip";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
 const RevisionMetadataWithChangeMetricsMultiQuery = gql(`
   query multiRevisionTagVersionHistoryQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -126,8 +127,8 @@ const TagVersionHistory = ({tagId, onClose, classes}: {
   });
   const [revertLoading, setRevertLoading] = useState(false);
   const canRevert = tagUserHasSufficientKarma(currentUser, 'edit');
-  
-  const { data: dataRevisions, loading: loadingRevisions, fetchMore: fetchMoreRevisions } = useQuery(RevisionMetadataWithChangeMetricsMultiQuery, {
+
+  const { data: dataRevisions, loading: loadingRevisions, loadMoreProps } = useQueryWithLoadMore(RevisionMetadataWithChangeMetricsMultiQuery, {
     variables: {
       selector: { revisionsOnDocument: { documentId: tagId, fieldName: "description" } },
       limit: 10,
@@ -139,19 +140,6 @@ const TagVersionHistory = ({tagId, onClose, classes}: {
 
   const revisions = dataRevisions?.revisions?.results;
 
-  const loadMoreProps = useLoadMore({
-    data: dataRevisions?.revisions,
-    loading: loadingRevisions,
-    fetchMore: fetchMoreRevisions,
-    initialLimit: 10,
-    itemsPerPage: 10,
-    resetTrigger: {
-      view: "revisionsOnDocument",
-      documentId: tagId,
-      fieldName: "description",
-    }
-  });
-  
   useEffect(() => {
     revisions && revisions.length > 0 && setSelectedRevisionId(revisions[0]._id)
   }, [revisions])

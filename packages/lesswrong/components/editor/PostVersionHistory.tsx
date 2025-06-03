@@ -21,7 +21,7 @@ import FormatDate from "../common/FormatDate";
 import LoadMore from "../common/LoadMore";
 import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
 import LWTooltip from "../common/LWTooltip";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
 const RevisionMetadataWithChangeMetricsMultiQuery = gql(`
   query multiRevisionPostVersionHistoryQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -184,7 +184,7 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
   `));
   const canRevert = canUserEditPostMetadata(currentUser, post);
 
-  const { data, loading: loadingRevisions, fetchMore } = useQuery(RevisionMetadataWithChangeMetricsMultiQuery, {
+  const { data, loadMoreProps } = useQueryWithLoadMore(RevisionMetadataWithChangeMetricsMultiQuery, {
     variables: {
       selector: { revisionsOnDocument: { documentId: postId, fieldName: "contents" } },
       limit: 10,
@@ -195,19 +195,6 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
   });
 
   const revisions = data?.revisions?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: data?.revisions,
-    loading: loadingRevisions,
-    fetchMore,
-    initialLimit: 10,
-    itemsPerPage: 10,
-    resetTrigger: {
-        view: "revisionsOnDocument",
-        documentId: postId,
-        fieldName: "contents",
-      }
-  });
 
   useEffect(() => {
     if (!(revisions && revisions.length > 0)) return

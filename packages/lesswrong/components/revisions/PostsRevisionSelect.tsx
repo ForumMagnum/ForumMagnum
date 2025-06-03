@@ -7,7 +7,7 @@ import { gql } from "@/lib/generated/gql-codegen/gql";
 import SingleColumnSection from "../common/SingleColumnSection";
 import RevisionSelect from "./RevisionSelect";
 import Loading from "../vulcan-core/Loading";
-import { useLoadMore } from "@/components/hooks/useLoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
 const RevisionMetadataWithChangeMetricsMultiQuery = gql(`
   query multiRevisionPostsRevisionSelectQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -49,7 +49,7 @@ const PostsRevisionSelect = ({ classes }: {
   
   const post = data?.post?.result;
 
-  const { data: dataRevisionsOnDocument, loading: loadingRevisions, fetchMore: fetchMoreRevisions } = useQuery(RevisionMetadataWithChangeMetricsMultiQuery, {
+  const { data: dataRevisionsOnDocument, loading: loadingRevisions, loadMoreProps } = useQueryWithLoadMore(RevisionMetadataWithChangeMetricsMultiQuery, {
     variables: {
       selector: { revisionsOnDocument: { documentId: post?._id, fieldName: "contents" } },
       limit: 10,
@@ -61,19 +61,6 @@ const PostsRevisionSelect = ({ classes }: {
   });
 
   const revisions = dataRevisionsOnDocument?.revisions?.results;
-
-  const loadMoreProps = useLoadMore({
-    data: dataRevisionsOnDocument?.revisions,
-    loading: loadingRevisions,
-    fetchMore: fetchMoreRevisions,
-    initialLimit: 10,
-    itemsPerPage: 10,
-    resetTrigger: {
-      view: "revisionsOnDocument",
-      documentId: post?._id,
-      fieldName: "contents",
-    }
-  });
   
   const compareRevs = useCallback(({before,after}: {before: RevisionMetadata, after: RevisionMetadata}) => {
     if (!post) return;
