@@ -1,5 +1,4 @@
 import React, { ReactNode, useCallback } from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import type { Placement as PopperPlacementType } from "popper.js"
 import { DialogueMessageInfo, PostsPreviewTooltip } from "./PostsPreviewTooltip";
 import {
@@ -117,9 +116,4 @@ const PostsTooltip = ({
   );
 }
 
-export default registerComponent(
-  "PostsTooltip",
-  PostsTooltip,
-);
-
-
+export default PostsTooltip;
