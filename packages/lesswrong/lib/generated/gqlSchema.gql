@@ -4654,6 +4654,7 @@ input PostsMagicInput {
   curatedAfter: String
   meta: Boolean
   forum: Boolean
+  limit: Int
 }
 
 input PostsTopInput {
@@ -5839,6 +5840,7 @@ input PostsStickiedInput {
   before: String
   timeField: String
   curatedAfter: String
+  forum: Boolean
 }
 
 input PostsNominatablePostsByVoteInput {

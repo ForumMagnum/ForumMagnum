@@ -173,7 +173,7 @@ type TestPost = Omit<PartialDeep<DbPost>, 'postedAt'> & {
   contents?: Partial<EditableFieldContents> | null,
 }
 
-export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data?: TestPost) => {
+export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data: TestPost = { contents: { originalContents: { type: 'ckEditorMarkup', data: 'This is a test post' } } }) => {
   user ||= await createDefaultUser()
   const postId = data?._id ?? randomId();
   const revision = await createDummyRevision(user as DbUser, {

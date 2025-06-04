@@ -91,14 +91,13 @@ export const useRecentOpportunities =<
         ],
       },
       after: dateCutoff,
-      limit,
     },
-  };
+  } satisfies PostSelector;
 
   const queryToUse = fragmentName === "PostsListWithVotesAndSequence" ? RecentOpportunitiesWithSequenceQuery : RecentOpportunitiesQuery;
   
   const { data, loading, error, networkStatus, refetch, loadMoreProps } = useQueryWithLoadMore(queryToUse, {
-    variables: { selector },
+    variables: { selector, limit },
     skip,
     fetchPolicy: "cache-and-network",
     notifyOnNetworkStatusChange: true,

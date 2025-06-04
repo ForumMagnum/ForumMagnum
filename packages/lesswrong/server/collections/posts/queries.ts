@@ -93,6 +93,7 @@ export const graphqlPostQueryTypeDefs = gql`
     curatedAfter: String
     meta: Boolean
     forum: Boolean
+    limit: Int
   }
   
   input PostsTopInput {
@@ -1278,6 +1279,7 @@ export const graphqlPostQueryTypeDefs = gql`
     before: String
     timeField: String
     curatedAfter: String
+    forum: Boolean
   }
   
   input PostsNominatablePostsByVoteInput {

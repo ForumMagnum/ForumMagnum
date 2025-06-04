@@ -114,11 +114,11 @@ const getLoadMoreSettings = (resolverName: RecombeeResolver, results: getRecombe
   }
 }
 
-export const stickiedPostTerms: PostsViewTerms = {
+export const stickiedPostTerms = {
   view: 'stickied',
   limit: 4, // seriously, shouldn't have more than 4 stickied posts
   forum: true
-};
+} satisfies PostsViewTerms;
 
 export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: {
   algorithm: string,

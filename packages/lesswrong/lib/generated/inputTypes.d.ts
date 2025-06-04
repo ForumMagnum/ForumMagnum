@@ -4225,6 +4225,7 @@ interface PostsMagicInput {
   curatedAfter?: string | null;
   meta?: boolean | null;
   forum?: boolean | null;
+  limit?: number | null;
 }
 
 interface PostsTopInput {
@@ -5410,6 +5411,7 @@ interface PostsStickiedInput {
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
+  forum?: boolean | null;
 }
 
 interface PostsNominatablePostsByVoteInput {

@@ -6457,6 +6457,7 @@ type PostsMagicInput = {
   hideCommunity?: InputMaybe<Scalars['Boolean']['input']>;
   includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
   karmaThreshold?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
   meta?: InputMaybe<Scalars['Boolean']['input']>;
   notPostIds?: InputMaybe<Array<Scalars['String']['input']>>;
   postIds?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -7098,6 +7099,7 @@ type PostsStickiedInput = {
   excludeEvents?: InputMaybe<Scalars['Boolean']['input']>;
   filter?: InputMaybe<Scalars['String']['input']>;
   filterSettings?: InputMaybe<Scalars['JSON']['input']>;
+  forum?: InputMaybe<Scalars['Boolean']['input']>;
   groupId?: InputMaybe<Scalars['String']['input']>;
   hideCommunity?: InputMaybe<Scalars['Boolean']['input']>;
   includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;

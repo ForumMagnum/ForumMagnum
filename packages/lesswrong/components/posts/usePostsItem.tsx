@@ -20,7 +20,7 @@ import { recombeeEnabledSetting, vertexEnabledSetting } from "../../lib/publicSe
 import type { PostsListViewType } from "../hooks/usePostsListView";
 import { maybeDate } from "@/lib/utils/dateUtils";
 
-const isSticky = (post: PostsList, terms: PostsViewTerms) =>
+const isSticky = (post: PostsList, terms?: PostsViewTerms) =>
   (post && terms && terms.forum)
     ? post.sticky || (terms.af && post.afSticky) || (terms.meta && post.metaSticky)
     : false;
@@ -45,7 +45,7 @@ export type PostsItemConfig = {
    * terms: If this is part of a list generated from a query, the terms of that
    * query. Used for figuring out which sticky icons to apply, if any.
    */
-  terms?: any,
+  terms?: PostsViewTerms,
   /** resumeReading: If this is a Resume Reading suggestion, the corresponding
   /* partiallyReadSequenceItem (see schema in users/schema). Used for
   /* the sequence-image background.*/
