@@ -37,6 +37,7 @@ import { gql } from "@/lib/generated/gql-codegen/gql";
 import { hasDraftComments } from '@/lib/betas';
 import CommentsSubmitDropdown from "./CommentsSubmitDropdown";
 import { useTracking } from "@/lib/analyticsEvents";
+import { CommentsList } from "@/lib/collections/comments/fragments";
 
 const CommentsListUpdateMutation = gql(`
   mutation updateCommentCommentForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -319,7 +320,43 @@ export const CommentForm = ({
     addOnSuccessCallback
   } = useEditorFormCallbacks<CommentsList>();
 
-  const [create] = useMutation(CommentsListMutation);
+  const [create] = useMutation(CommentsListMutation, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          comments(existingComments, { storeFieldName }) {
+            const newComment = data?.createComment?.data;
+            if (!newComment) {
+              return existingComments;
+            } else if (!newComment.postId && !newComment.tagId) {
+              return existingComments;
+            } else if (newComment.postId && !storeFieldName.includes(newComment.postId)) {
+              return existingComments;
+            } else if (newComment.tagId && !storeFieldName.includes(newComment.tagId)) {
+              return existingComments;
+            }
+
+            const newCommentRef = cache.writeFragment({
+              fragment: CommentsList,
+              data: data?.createComment?.data,
+              fragmentName: "CommentsList",
+            });
+
+            if (!existingComments || !existingComments.results) {
+              return [newCommentRef];
+            }
+
+            const newResults = [...existingComments.results, newCommentRef];
+
+            return {
+              ...existingComments,
+              results: newResults,
+            };
+          }
+        }
+      });
+    }
+  });
 
   const [mutate] = useMutation(CommentsListUpdateMutation);
 
@@ -351,6 +388,7 @@ export const CommentForm = ({
             throw new Error('Failed to create comment');
           }
           result = data.createComment.data;
+
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({
