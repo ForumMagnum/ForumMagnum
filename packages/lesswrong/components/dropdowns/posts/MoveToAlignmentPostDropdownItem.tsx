@@ -12,15 +12,19 @@ const MoveToAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
 
   const handleMoveToAlignmentForum = () => {
     void setAlignmentPostMutation({
-      postId: post._id,
-      af: true,
+      variables: {
+        postId: post._id,
+        af: true,
+      }
     })
   }
 
   const handleRemoveFromAlignmentForum = () => {
     void setAlignmentPostMutation({
-      postId: post._id,
-      af: false,
+      variables: {
+        postId: post._id,
+        af: false,
+      }
     })
   }
 
