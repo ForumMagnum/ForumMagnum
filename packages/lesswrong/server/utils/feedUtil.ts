@@ -46,8 +46,9 @@ export function viewBasedSubquery<
     getSortKey: (item: ObjectsByCollectionName[N]) => item[props.sortField] as unknown as SortKeyType,
     isNumericallyPositioned: !!sticky,
     doQuery: async (limit: number, cutoff: SortKeyType): Promise<Partial<ObjectsByCollectionName[N]>[]> => {
+      const viewSet = allViews[collection.collectionName] as CollectionViewSet<N, Record<string, ViewFunction<N>>>;
       const selectorWithDefaults = includeDefaultSelector
-        ? mergeWithDefaultViewSelector(collection.collectionName, selector)
+        ? mergeWithDefaultViewSelector(viewSet, selector)
         : selector;
       const results = await queryWithCutoff({context, collection, selector, limit, cutoffField: sortField, cutoff, sortDirection});
       return await accessFilterMultiple(context.currentUser, collection.collectionName, results, context);
