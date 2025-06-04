@@ -13,6 +13,7 @@ import SingleLineComment from "./SingleLineComment";
 import CommentsItem from "./CommentsItem/CommentsItem";
 import RepliesToCommentList from "../shortform/RepliesToCommentList";
 import AnalyticsTracker from "../common/AnalyticsTracker";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -26,7 +27,7 @@ export const COMMENT_DRAFT_TREE_OPTIONS: CommentTreeOptions = {
   hideReply: true
 };
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommentsNode", (theme: ThemeType) => ({
   parentScroll: {
     position: "absolute",
     top:0,
@@ -47,7 +48,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft: theme.spacing.unit,
     paddingTop: theme.spacing.unit,
   },
-})
+}));
 
 export interface CommentsNodeProps {
   treeOptions: CommentTreeOptions,
@@ -89,7 +90,6 @@ export interface CommentsNodeProps {
   noAutoScroll?: boolean,
   displayTagIcon?: boolean,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }
 /**
  * CommentsNode: A node in a comment tree, passes through to CommentsItems to handle rendering a specific comment,
@@ -123,8 +123,8 @@ const CommentsNodeInner = ({
   noAutoScroll=false,
   displayTagIcon=false,
   className,
-  classes,
 }: CommentsNodeProps) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
@@ -364,7 +364,6 @@ const CommentsNodeInner = ({
 }
 
 const CommentsNode = registerComponent('CommentsNode', CommentsNodeInner, {
-  styles,
   areEqual: {
     treeOptions: "shallow",
     childComments: (oldValue: Array<CommentTreeNode<CommentsList>>, newValue: Array<CommentTreeNode<CommentsList>>) => commentTreesEqual(oldValue, newValue)
