@@ -79,7 +79,7 @@ export const recentDiscussionFeedGraphQLQueries = {
       {[`tagRelevance.${EA_FORUM_TRANSLATION_TOPIC_ID}`]: {$exists: false}},
     ]};
 
-    const postSelector = {
+    const postSelector: MongoSelector<DbPost> = {
       baseScore: {$gt:0},
       hideFrontpageComments: false,
       lastCommentedAt: {$exists: true},
@@ -105,6 +105,7 @@ export const recentDiscussionFeedGraphQLQueries = {
           collection: Posts,
           sortField: "lastCommentedAt",
           context,
+          includeDefaultSelector: false,
           selector: {
             ...postSelector,
             $or: [
@@ -119,6 +120,7 @@ export const recentDiscussionFeedGraphQLQueries = {
           collection: Posts,
           sortField: "lastCommentedAt",
           context,
+          includeDefaultSelector: false,
           selector: {
             ...postSelector,
             shortform: {$eq: true},
@@ -130,7 +132,9 @@ export const recentDiscussionFeedGraphQLQueries = {
           collection: Tags,
           sortField: "lastCommentedAt",
           context,
+          includeDefaultSelector: true,
           selector: {
+            wikiOnly: viewFieldAllowAny,
             lastCommentedAt: {$exists: true},
             ...(af ? {af: true} : undefined),
           },
@@ -141,6 +145,7 @@ export const recentDiscussionFeedGraphQLQueries = {
           collection: Revisions,
           sortField: "editedAt",
           context,
+          includeDefaultSelector: true,
           selector: {
             collectionName: "Tags",
             fieldName: "description",

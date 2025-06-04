@@ -37,6 +37,7 @@ import gql from 'graphql-tag';
 import { createAdminContext } from "@/server/vulcan-lib/createContexts";
 import { updateTag } from '../collections/tags/mutations';
 import { WithDateFields } from '@/lib/utils/dateUtils';
+import { getDefaultViewSelector, mergeSelectors, mergeWithDefaultViewSelector } from '@/lib/utils/viewUtils';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -88,6 +89,7 @@ const createSubforumFeedResolver = <SortKeyType extends number | Date>(sorting: 
       collection: Posts,
       ...sorting.posts,
       context,
+      includeDefaultSelector: true,
       selector: {
         [`tagRelevance.${tagId}`]: {$gte: 1},
         hiddenRelatedQuestion: undefined,
@@ -102,6 +104,7 @@ const createSubforumFeedResolver = <SortKeyType extends number | Date>(sorting: 
       collection: Comments,
       ...sorting.comments,
       context,
+      includeDefaultSelector: true,
       selector: {
         $or: [{tagId: tagId, tagCommentType: "SUBFORUM"}, {relevantTagIds: tagId}],
         topLevelCommentId: {$exists: false},
@@ -117,6 +120,7 @@ const createSubforumFeedResolver = <SortKeyType extends number | Date>(sorting: 
       sortDirection: "asc",
       sticky: true,
       context,
+      includeDefaultSelector: true,
       selector: {
         tagId,
         tagCommentType: "SUBFORUM",
@@ -228,14 +232,14 @@ interface TagUpdates {
   documentDeletions: CategorizedDeletionEvent[];
 }
 
-function getRootCommentsInTimeBlockSelector(before: Date, after: Date) {
-  return {
+function getRootCommentsInTimeBlockSelector(before: Date, after: Date): MongoSelector<DbComment> {
+  return mergeWithDefaultViewSelector("Comments", {
     deleted: false,
     postedAt: {$lt: before, $gt: after},
     topLevelCommentId: null,
     tagId: {$exists: true, $ne: null},
     tagCommentType: "DISCUSSION",
-  };
+  });
 }
 
 function getDocumentDeletionsInTimeBlockSelector(documentIds: string[], before: Date, after: Date) {

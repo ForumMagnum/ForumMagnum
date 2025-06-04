@@ -13,7 +13,7 @@ const CommentsListMultiQuery = gql(`
   }
 `);
 
-export const useCommentByLegacyId = ({ legacyId }: { legacyId: string }): {
+export const useCommentByLegacyId = ({ legacyId, ssr=true }: { legacyId: string, ssr?: boolean }): {
   comment: CommentsList|null,
   loading: boolean,
   error: any,
@@ -28,6 +28,7 @@ export const useCommentByLegacyId = ({ legacyId }: { legacyId: string }): {
     },
     skip: !isValidId,
     notifyOnNetworkStatusChange: true,
+    ssr,
   });
 
   const results = data?.comments?.results;

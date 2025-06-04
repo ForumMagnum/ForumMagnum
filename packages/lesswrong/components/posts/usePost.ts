@@ -12,7 +12,7 @@ const PostsPageMultiQuery = gql(`
   }
 `);
 
-export const usePostBySlug = ({slug}: {slug: string}):
+export const usePostBySlug = ({slug, ssr=true}: {slug: string, ssr?: boolean}):
   {
     post: PostsPage,
     loading: false,
@@ -29,6 +29,7 @@ export const usePostBySlug = ({slug}: {slug: string}):
       enableTotal: false,
     },
     notifyOnNetworkStatusChange: true,
+    ssr,
   });
 
   const results = data?.posts?.results;
@@ -48,7 +49,10 @@ export const usePostBySlug = ({slug}: {slug: string}):
   }
 }
 
-export const usePostByLegacyId = ({ legacyId }: {legacyId: string}):
+export const usePostByLegacyId = ({ legacyId, ssr=true }: {
+  legacyId: string
+  ssr?: boolean
+}):
   {
     post: PostsPage,
     loading: false,
@@ -65,6 +69,7 @@ export const usePostByLegacyId = ({ legacyId }: {legacyId: string}):
       enableTotal: false,
     },
     notifyOnNetworkStatusChange: true,
+    ssr,
   });
 
   const results = dataPostsPage?.posts?.results;

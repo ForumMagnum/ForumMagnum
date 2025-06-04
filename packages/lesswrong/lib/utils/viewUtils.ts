@@ -45,6 +45,10 @@ export function getDefaultViewSelector<N extends CollectionNameString>(viewSet: 
   return replaceSpecialFieldSelectors(viewQuery.selector);
 }
 
+export function mergeWithDefaultViewSelector<N extends CollectionNameString>(collectionName: N, selector: MongoSelector<ObjectsByCollectionName[N]>) {
+  return mergeSelectors(getDefaultViewSelector(collectionName), selector);
+}
+
 /**
  * Given a set of terms describing a view, translate them into a mongodb selector
  * and options, which is ready to execute (but don't execute it yet).

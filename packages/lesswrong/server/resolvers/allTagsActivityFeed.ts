@@ -44,6 +44,7 @@ export const allTagsActivityFeedGraphQLQueries = {
           collection: Tags,
           sortField: "createdAt",
           context,
+          includeDefaultSelector: false,
           selector: {}
         }),
         // Tag revisions
@@ -52,6 +53,7 @@ export const allTagsActivityFeedGraphQLQueries = {
           collection: Revisions,
           sortField: "editedAt",
           context,
+          includeDefaultSelector: false,
           selector: {
             collectionName: "Tags",
             fieldName: "description",
@@ -71,6 +73,7 @@ export const allTagsActivityFeedGraphQLQueries = {
           collection: Comments,
           sortField: "postedAt",
           context,
+          includeDefaultSelector: false,
           selector: {
             tagId: {$ne: null},
           },

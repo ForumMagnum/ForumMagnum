@@ -94,6 +94,7 @@ export const tagHistoryFeedGraphQLQueries = {
           collection: TagRels,
           sortField: "createdAt",
           context,
+          includeDefaultSelector: false,
           selector: {tagId},
         }) : null),
         // Tag revisions
@@ -102,6 +103,7 @@ export const tagHistoryFeedGraphQLQueries = {
           collection: Revisions,
           sortField: "editedAt",
           context,
+          includeDefaultSelector: false,
           selector: {
             documentId: tagId,
             collectionName: "Tags",
@@ -122,6 +124,7 @@ export const tagHistoryFeedGraphQLQueries = {
           collection: Comments,
           sortField: "postedAt",
           context,
+          includeDefaultSelector: true,
           selector: {
             parentCommentId: null,
             tagId,
