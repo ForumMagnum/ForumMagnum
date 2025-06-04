@@ -2,6 +2,9 @@ import React from 'react';
 import { useStyles, defineStyles } from '../hooks/useStyles';
 import { useCurrentUser } from '../common/withUser';
 import UltraFeed from "../ultraFeed/UltraFeed";
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { ULTRA_FEED_ENABLED_COOKIE, ULTRA_FEED_PAGE_VISITED_COOKIE } from '../../lib/cookies/cookies';
+import { useEffect } from 'react';
 
 const styles = defineStyles("UltraFeedPage", (theme: ThemeType) => ({
   loginMessage: {
@@ -13,6 +16,18 @@ const styles = defineStyles("UltraFeedPage", (theme: ThemeType) => ({
 const UltraFeedPage = () => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const [_, setCookie] = useCookiesWithConsent([ULTRA_FEED_PAGE_VISITED_COOKIE]);
+
+  useEffect(() => {
+    setCookie(ULTRA_FEED_PAGE_VISITED_COOKIE, 'true', { 
+      path: "/", 
+    });
+
+    setCookie(ULTRA_FEED_ENABLED_COOKIE, 'true', { 
+      path: "/", 
+    });
+
+  }, [setCookie]);
 
   if (!currentUser) {
     return (
