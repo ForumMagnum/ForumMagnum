@@ -258,7 +258,7 @@ export const MessagesNewForm = ({
 }: {
   conversationId: string;
   templateQueries?: TemplateQueryStrings;
-  successEvent: () => void;
+  successEvent: (newMessage: messageListFragment) => void;
   submitLabel?: string,
   formStyle?: FormDisplayMode;
   classes: ClassesType<typeof styles>;
@@ -294,7 +294,7 @@ export const MessagesNewForm = ({
             },
           },
         }}
-        onSuccess={() => successEvent()}
+        onSuccess={(newMessage) => successEvent(newMessage)}
       />
     </div>
   );

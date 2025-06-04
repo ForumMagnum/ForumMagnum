@@ -74,7 +74,7 @@ const ConversationContents = ({
 
   const stateSignatureRef = useRef(stringify({conversationId: conversation._id, numMessagesShown: 0}));
 
-  const { data, loading, refetch } = useQuery(messageListFragmentMultiQuery, {
+  const { data, loading, refetch, updateQuery } = useQuery(messageListFragmentMultiQuery, {
     variables: {
       selector: { messagesConversation: { conversationId: conversation._id } },
       limit: 100000,
@@ -157,7 +157,7 @@ const ConversationContents = ({
           conversationId={conversation._id}
           templateQueries={{ templateId: query.templateId, displayName: query.displayName }}
           formStyle={isFriendlyUI ? "minimalist" : undefined}
-          successEvent={() => {
+          successEvent={(newMessage) => {
             setMessageSentCount(messageSentCount + 1);
             captureEvent("messageSent", {
               conversationId: conversation._id,
@@ -166,6 +166,19 @@ const ConversationContents = ({
               messageCount: (conversation.messageCount || 0) + 1,
               ...(profileViewedFrom?.current && { from: profileViewedFrom.current }),
             });
+            updateQuery((_, { previousData }) => {
+              const previousResults = previousData?.messages?.results ?? [];
+              const previousMessages = previousResults.filter((m): m is messageListFragment => m !== undefined) ?? [];
+
+              return {
+                __typename: "Query" as const,
+                messages: {
+                  __typename: "MultiMessageOutput" as const,
+                  results: [...previousMessages, newMessage],
+                  totalCount: previousData?.messages?.totalCount ? previousData?.messages?.totalCount + 1 : 1,
+                },
+              }
+            })
           }}
         />
       </div>
