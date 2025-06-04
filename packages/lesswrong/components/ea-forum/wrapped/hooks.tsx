@@ -14,7 +14,6 @@ import { gql } from '@/lib/generated/gql-codegen/gql';
 import { useRecommendations } from "@/components/recommendations/withRecommendations";
 import { getTopAuthor, getTotalReactsReceived } from "./wrappedHelpers";
 import { userCanStartConversations } from "@/lib/collections/conversations/helpers";
-import { LoadMoreProps } from '@/components/hooks/useQueryWithLoadMore';
 import WrappedWelcomeSection from "./WrappedWelcomeSection";
 import WrappedTimeSpentSection from "./WrappedTimeSpentSection";
 import WrappedDaysVisitedSection from "./WrappedDaysVisitedSection";
@@ -32,7 +31,7 @@ import WrappedSummarySection from "./WrappedSummarySection";
 import WrappedRecommendationsSection from "./WrappedRecommendationsSection";
 import WrappedMostValuablePostsSection from "./WrappedMostValuablePostsSection";
 import WrappedThankYouSection from "./WrappedThankYouSection";
-import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { useQueryWithLoadMore, LoadMoreProps } from "@/components/hooks/useQueryWithLoadMore";
 import { apolloSSRFlag } from "@/lib/helpers";
 
 const PostsListWithVotesMultiQuery = gql(`

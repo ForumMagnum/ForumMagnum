@@ -2567,17 +2567,17 @@ type SingleConversationOutput {
 }
 
 input ConversationsModeratorConversationsInput {
+  showArchive: Boolean
   userId: String
-  showArchive: String
 }
 
 input ConversationsUserConversationsInput {
-  showArchive: String
+  showArchive: Boolean
   userId: String
 }
 
 input ConversationsUserConversationsAllInput {
-  showArchive: String
+  showArchive: Boolean
   userId: String
 }
 
@@ -2635,14 +2635,14 @@ type CurationNotice {
   schemaVersion: Float!
   createdAt: Date!
   legacyData: JSON
-  contents(version: String): Revision!
+  contents(version: String): Revision
   contents_latest: String
   userId: String!
-  user: User!
+  user: User
   commentId: String
   comment: Comment
   postId: String!
-  post: Post!
+  post: Post
   deleted: Boolean!
 }
 
@@ -3227,7 +3227,7 @@ type ForumEvent {
   pollAgreeWording: String
   pollDisagreeWording: String
   maxStickersPerUser: Float!
-  customComponent: ForumEventCustomComponent!
+  customComponent: ForumEventCustomComponent
   commentPrompt: String
   publicData: JSON
   voteCount: Int!
@@ -8771,7 +8771,7 @@ input CreateForumEventDataInput {
   pollAgreeWording: String
   pollDisagreeWording: String
   maxStickersPerUser: Float
-  customComponent: ForumEventCustomComponent!
+  customComponent: ForumEventCustomComponent
   commentPrompt: String
   publicData: JSON
 }

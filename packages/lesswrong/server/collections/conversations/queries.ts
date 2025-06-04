@@ -18,17 +18,17 @@ export const graphqlConversationQueryTypeDefs = gql`
   }
   
   input ConversationsModeratorConversationsInput {
+    showArchive: Boolean
     userId: String
-    showArchive: String
   }
   
   input ConversationsUserConversationsInput {
-    showArchive: String
+    showArchive: Boolean
     userId: String
   }
   
   input ConversationsUserConversationsAllInput {
-    showArchive: String
+    showArchive: Boolean
     userId: String
   }
   

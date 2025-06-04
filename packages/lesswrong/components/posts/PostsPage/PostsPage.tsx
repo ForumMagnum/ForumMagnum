@@ -11,7 +11,6 @@ import { cloudinaryCloudNameSetting, recombeeEnabledSetting, vertexEnabledSettin
 import classNames from 'classnames';
 import { hasPostRecommendations, commentsTableOfContentsEnabled, hasDigests, hasSidenotes } from '../../../lib/betas';
 import { useDialog } from '../../common/withDialog';
-import { LoadMoreProps } from '@/components/hooks/useQueryWithLoadMore';
 import { PostsPageContext } from './PostsPageContext';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
@@ -81,7 +80,6 @@ import ForumEventPostPagePollSection from "../../forumEvents/ForumEventPostPageP
 import NotifyMeButton from "../../notifications/NotifyMeButton";
 import LWTooltip from "../../common/LWTooltip";
 import PostsPageDate from "./PostsPageDate";
-import SingleColumnSection from "../../common/SingleColumnSection";
 import FundraisingThermometer from "../../common/FundraisingThermometer";
 import PostPageReviewButton from "./PostPageReviewButton";
 import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
@@ -90,7 +88,7 @@ import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RECOMBEE_RECOMM_ID_QUERY_PARAM,
 import { NetworkStatus, QueryResult, useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { returnIfValidNumber } from '@/lib/utils/typeGuardUtils';
-import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
+import { useQueryWithLoadMore, LoadMoreProps } from '@/components/hooks/useQueryWithLoadMore';
 
 const CommentsListMultiQuery = gql(`
   query multiCommentPostsPageQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

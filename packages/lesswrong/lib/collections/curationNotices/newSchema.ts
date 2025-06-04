@@ -20,7 +20,7 @@ const schema = {
       // Normally making the output type required for a denormalized field is a bad idea,
       // but curationNotices are only accessible to admins who can pass the collection-level
       // access filter, and who will also be able to access revisions.
-      outputType: "Revision!",
+      outputType: "Revision",
       inputType: "CreateRevisionDataInput",
       canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
@@ -49,7 +49,7 @@ const schema = {
   },
   user: {
     graphql: {
-      outputType: "User!",
+      outputType: "User",
       canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
@@ -91,7 +91,7 @@ const schema = {
   },
   post: {
     graphql: {
-      outputType: "Post!",
+      outputType: "Post",
       canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "postId" }),
     },

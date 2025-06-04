@@ -1,7 +1,7 @@
 import { MouseEvent, useCallback } from "react";
 import { useObserver } from "../hooks/useObserver";
 import { useMutation } from "@apollo/client";
-import gql from "graphql-tag";
+import { gql } from "@/lib/generated/gql-codegen/gql";
 
 export const useRecommendationAnalytics = <
   T extends HTMLElement = HTMLDivElement,
@@ -12,19 +12,19 @@ export const useRecommendationAnalytics = <
   disableAnalytics = false,
 ) => {
   const [observeRecommendation] = useMutation(
-    gql`
+    gql(`
       mutation observeRecommendation($postId: String!) {
         observeRecommendation(postId: $postId)
       }
-    `,
+    `),
     {errorPolicy: "all"},
   );
   const [clickRecommendation] = useMutation(
-    gql`
+    gql(`
       mutation clickRecommendation($postId: String!) {
         clickRecommendation(postId: $postId)
       }
-    `,
+    `),
     {errorPolicy: "all"},
   );
 

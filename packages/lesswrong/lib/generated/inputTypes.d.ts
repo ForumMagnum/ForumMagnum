@@ -2334,17 +2334,17 @@ interface SingleConversationOutput {
 }
 
 interface ConversationsModeratorConversationsInput {
+  showArchive?: boolean | null;
   userId?: string | null;
-  showArchive?: string | null;
 }
 
 interface ConversationsUserConversationsInput {
-  showArchive?: string | null;
+  showArchive?: boolean | null;
   userId?: string | null;
 }
 
 interface ConversationsUserConversationsAllInput {
-  showArchive?: string | null;
+  showArchive?: boolean | null;
   userId?: string | null;
 }
 
@@ -2397,14 +2397,14 @@ interface CurationNotice {
   schemaVersion: number;
   createdAt: Date;
   legacyData: any;
-  contents: Revision;
+  contents: Revision | null;
   contents_latest: string | null;
   userId: string;
-  user: User;
+  user: User | null;
   commentId: string | null;
   comment: Comment | null;
   postId: string;
-  post: Post;
+  post: Post | null;
   deleted: boolean;
 }
 
@@ -2934,7 +2934,7 @@ interface ForumEvent {
   pollAgreeWording: string | null;
   pollDisagreeWording: string | null;
   maxStickersPerUser: number;
-  customComponent: ForumEventCustomComponent;
+  customComponent: ForumEventCustomComponent | null;
   commentPrompt: string | null;
   publicData: any;
   voteCount: number;
@@ -8058,7 +8058,7 @@ interface CreateForumEventDataInput {
   pollAgreeWording?: string | null;
   pollDisagreeWording?: string | null;
   maxStickersPerUser?: number | null;
-  customComponent: ForumEventCustomComponent;
+  customComponent?: ForumEventCustomComponent | null;
   commentPrompt?: string | null;
   publicData?: any;
 }

@@ -10,6 +10,8 @@ import LRU from "lru-cache";
 import { TypedDocumentNode } from '@apollo/client';
 import { print } from 'graphql';
 import { transformFragments } from './fragmentWrapper';
+import mapValues from 'lodash/mapValues';
+import gql from 'graphql-tag';
 
 // Generated default fragments
 import * as defaultFragments from '@/lib/generated/defaultFragments';
@@ -91,7 +93,7 @@ import * as ultraFeedFragments from '../ultraFeed';
 // TODO: does this need fixing to avoid esbuild headaches?  I think no, but could be risky in the future.
 let testFragments: Record<never, never>;
 if (isAnyTest) {
-  testFragments = require('../../server/sql/tests/testFragments');
+  testFragments = mapValues(require('../../server/sql/tests/testFragments'), (v) => gql`${v}`);
 } else {
   testFragments = {};
 }

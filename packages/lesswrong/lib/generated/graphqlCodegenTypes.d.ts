@@ -1046,17 +1046,17 @@ type ConversationSelector = {
 };
 
 type ConversationsModeratorConversationsInput = {
-  showArchive?: InputMaybe<Scalars['String']['input']>;
+  showArchive?: InputMaybe<Scalars['Boolean']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type ConversationsUserConversationsAllInput = {
-  showArchive?: InputMaybe<Scalars['String']['input']>;
+  showArchive?: InputMaybe<Scalars['Boolean']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type ConversationsUserConversationsInput = {
-  showArchive?: InputMaybe<Scalars['String']['input']>;
+  showArchive?: InputMaybe<Scalars['Boolean']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1299,7 +1299,7 @@ type CreateForumEventDataInput = {
   commentId?: InputMaybe<Scalars['String']['input']>;
   commentPrompt?: InputMaybe<Scalars['String']['input']>;
   contrastColor?: InputMaybe<Scalars['String']['input']>;
-  customComponent: ForumEventCustomComponent;
+  customComponent?: InputMaybe<ForumEventCustomComponent>;
   darkColor?: InputMaybe<Scalars['String']['input']>;
   endDate?: InputMaybe<Scalars['Date']['input']>;
   eventFormat?: InputMaybe<ForumEventFormat>;
@@ -2083,15 +2083,15 @@ type CurationNotice = {
   _id: Scalars['String']['output'];
   comment?: Maybe<Comment>;
   commentId?: Maybe<Scalars['String']['output']>;
-  contents: Revision;
+  contents?: Maybe<Revision>;
   contents_latest?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
   deleted: Scalars['Boolean']['output'];
   legacyData?: Maybe<Scalars['JSON']['output']>;
-  post: Post;
+  post?: Maybe<Post>;
   postId: Scalars['String']['output'];
   schemaVersion: Scalars['Float']['output'];
-  user: User;
+  user?: Maybe<User>;
   userId: Scalars['String']['output'];
 };
 
@@ -2559,7 +2559,7 @@ type ForumEvent = {
   commentPrompt?: Maybe<Scalars['String']['output']>;
   contrastColor?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
-  customComponent: ForumEventCustomComponent;
+  customComponent?: Maybe<ForumEventCustomComponent>;
   darkColor: Scalars['String']['output'];
   endDate?: Maybe<Scalars['Date']['output']>;
   eventFormat: ForumEventFormat;
@@ -24334,7 +24334,7 @@ type CurationNoticesFragment_CurationNotice_contents_Revision = (
   & RevisionEdit
 );
 
-type CurationNoticesFragment = { __typename?: 'CurationNotice', _id: string, createdAt: string, userId: string, commentId: string | null, postId: string, deleted: boolean, user: CurationNoticesFragment_CurationNotice_user_User, comment: CurationNoticesFragment_CurationNotice_comment_Comment | null, post: CurationNoticesFragment_CurationNotice_post_Post, contents: CurationNoticesFragment_CurationNotice_contents_Revision };
+type CurationNoticesFragment = { __typename?: 'CurationNotice', _id: string, createdAt: string, userId: string, commentId: string | null, postId: string, deleted: boolean, user: CurationNoticesFragment_CurationNotice_user_User | null, comment: CurationNoticesFragment_CurationNotice_comment_Comment | null, post: CurationNoticesFragment_CurationNotice_post_Post | null, contents: CurationNoticesFragment_CurationNotice_contents_Revision | null };
 
 type DialogueCheckInfo_DialogueCheck_matchPreference_DialogueMatchPreference = (
   { __typename?: 'DialogueMatchPreference' }
@@ -24375,7 +24375,7 @@ type FeaturedResourcesFragment = { __typename?: 'FeaturedResource', _id: string,
 
 type FieldChangeFragment = { __typename?: 'FieldChange', _id: string, createdAt: string, userId: string | null, changeGroup: string | null, documentId: string | null, fieldName: string | null, oldValue: any | null, newValue: any | null };
 
-type ForumEventsMinimumInfo = { __typename?: 'ForumEvent', _id: string, title: string, startDate: string, endDate: string | null, darkColor: string, lightColor: string, bannerTextColor: string, contrastColor: string | null, tagId: string | null, postId: string | null, commentId: string | null, bannerImageId: string | null, eventFormat: ForumEventFormat, customComponent: ForumEventCustomComponent, commentPrompt: string | null, isGlobal: boolean, pollAgreeWording: string | null, pollDisagreeWording: string | null, maxStickersPerUser: number };
+type ForumEventsMinimumInfo = { __typename?: 'ForumEvent', _id: string, title: string, startDate: string, endDate: string | null, darkColor: string, lightColor: string, bannerTextColor: string, contrastColor: string | null, tagId: string | null, postId: string | null, commentId: string | null, bannerImageId: string | null, eventFormat: ForumEventFormat, customComponent: ForumEventCustomComponent | null, commentPrompt: string | null, isGlobal: boolean, pollAgreeWording: string | null, pollDisagreeWording: string | null, maxStickersPerUser: number };
 
 type ForumEventsDisplay_ForumEvent_post_Post = (
   { __typename?: 'Post' }
@@ -26280,7 +26280,7 @@ type FeaturedResourcesDefaultFragment = { __typename?: 'FeaturedResource', _id: 
 
 type FieldChangesDefaultFragment = { __typename?: 'FieldChange', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string | null, changeGroup: string | null, documentId: string | null, fieldName: string | null, oldValue: any | null, newValue: any | null };
 
-type ForumEventsDefaultFragment = { __typename?: 'ForumEvent', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, frontpageDescription_latest: string | null, frontpageDescriptionMobile_latest: string | null, postPageDescription_latest: string | null, title: string, startDate: string, endDate: string | null, darkColor: string, lightColor: string, bannerTextColor: string, contrastColor: string | null, tagId: string | null, postId: string | null, commentId: string | null, bannerImageId: string | null, includesPoll: boolean, isGlobal: boolean, eventFormat: ForumEventFormat, pollQuestion_latest: string | null, pollAgreeWording: string | null, pollDisagreeWording: string | null, maxStickersPerUser: number, customComponent: ForumEventCustomComponent, commentPrompt: string | null, publicData: any | null };
+type ForumEventsDefaultFragment = { __typename?: 'ForumEvent', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, frontpageDescription_latest: string | null, frontpageDescriptionMobile_latest: string | null, postPageDescription_latest: string | null, title: string, startDate: string, endDate: string | null, darkColor: string, lightColor: string, bannerTextColor: string, contrastColor: string | null, tagId: string | null, postId: string | null, commentId: string | null, bannerImageId: string | null, includesPoll: boolean, isGlobal: boolean, eventFormat: ForumEventFormat, pollQuestion_latest: string | null, pollAgreeWording: string | null, pollDisagreeWording: string | null, maxStickersPerUser: number, customComponent: ForumEventCustomComponent | null, commentPrompt: string | null, publicData: any | null };
 
 type GardenCodesDefaultFragment = { __typename?: 'GardenCode', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, contents_latest: string | null, pingbacks: any | null, slug: string, code: string, title: string, userId: string, startTime: string | null, endTime: string, fbLink: string | null, type: string, hidden: boolean, deleted: boolean, afOnly: boolean };
 
