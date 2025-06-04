@@ -2,6 +2,7 @@ import { ApolloServer, ApolloServerPlugin, GraphQLRequestContext, GraphQLRequest
 import { expressMiddleware } from '@as-integrations/express5';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
+import cors from 'cors';
 
 import { isDevelopment, isE2E } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
@@ -262,6 +263,7 @@ export async function startWebserver() {
 
   await apolloServer.start();
 
+  app.use('/graphql', cors());
   app.use('/graphql', expressMiddleware(apolloServer, {
     context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
       const context = await getContextFromReqAndRes({req, res, isSSR: false});

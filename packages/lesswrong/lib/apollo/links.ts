@@ -81,7 +81,8 @@ export const headerLink = new ApolloLink((operation, forward) => {
     const path = url.pathname + url.search
 
     const headers = {
-      'request-origin-path': path
+      'request-origin-path': path,
+      'x-apollo-operation-name': operation.operationName,
     };
 
     operation.setContext({
