@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useStyles, defineStyles } from '../hooks/useStyles';
 import { useCurrentUser } from '../common/withUser';
 import UltraFeed from "../ultraFeed/UltraFeed";
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { ULTRA_FEED_ENABLED_COOKIE, ULTRA_FEED_PAGE_VISITED_COOKIE } from '../../lib/cookies/cookies';
-import { useEffect } from 'react';
 
 const styles = defineStyles("UltraFeedPage", (theme: ThemeType) => ({
   loginMessage: {
