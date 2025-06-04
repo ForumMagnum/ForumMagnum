@@ -429,10 +429,6 @@ const schema = {
       canRead: ["guests"],
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      validation: {
-        allowedValues: ["post", "linkpost", "question"],
-        optional: true,
-      },
     },
   },
   title: {

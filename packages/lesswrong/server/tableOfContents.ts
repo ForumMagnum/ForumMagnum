@@ -7,7 +7,7 @@ import { extractTableOfContents, getTocAnswers, getTocComments, shouldShowTableO
 import { parseDocumentFromString } from '../lib/domParser';
 import { getLatestContentsRevision } from './collections/revisions/helpers';
 import { applyCustomArbitalScripts } from './utils/arbital/arbitalCustomScripts';
-import { getEditableFieldNamesForCollection } from '@/lib/editor/editableSchemaFieldHelpers';
+import { getEditableFieldNamesForCollection } from '@/server/editor/editableSchemaFieldHelpers';
 import { getCollectionAccessFilter } from './permissions/accessFilters';
 
 async function getTocAnswersServer(document: DbPost, context: ResolverContext) {

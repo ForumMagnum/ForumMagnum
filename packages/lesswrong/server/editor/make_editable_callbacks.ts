@@ -1,6 +1,6 @@
 import {extractVersionsFromSemver} from '../../lib/editor/utils'
 import {htmlToPingbacks} from '../pingbacks'
-import { isEditableField } from '../../lib/editor/editableSchemaFieldHelpers'
+import { isEditableField } from './editableSchemaFieldHelpers'
 import { collectionNameToTypeName } from '../../lib/generated/collectionTypeNames'
 import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-notify'
 import {getLatestRev, getNextVersion, htmlToChangeMetrics, isBeingUndrafted, MaybeDrafteable} from './utils'

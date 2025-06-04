@@ -268,7 +268,7 @@ export const MessagesNewForm = ({
 
   const { loading: loadingTemplate, data } = useQuery(ModerationTemplateFragmentQuery, {
     variables: { documentId: templateQueries?.templateId },
-    skip: false,
+    skip,
   });
   const template = data?.moderationTemplate?.result;
 
