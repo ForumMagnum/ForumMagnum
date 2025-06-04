@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Card } from "@/components/widgets/Paper";
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from '../common/withHover';
-import { EXPAND_FOOTNOTES_EVENT } from '../posts/PostsPage/CollapsedFootnotes';
+import { EXPAND_FOOTNOTES_EVENT } from '../contents/CollapsedFootnotes';
 import { hasCollapsedFootnotes, hasSidenotes } from '@/lib/betas';
 import classNames from 'classnames';
 import { parseDocumentFromString } from '@/lib/domParser';
@@ -17,7 +17,9 @@ import ContentStyles, { ContentStyleType } from '../common/ContentStyles';
 import FootnoteDialog from "./FootnoteDialog";
 import SideItemLine from "../contents/SideItemLine";
 import LWPopper from "../common/LWPopper";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
+import { InteractionWrapper } from '../common/useClickableCell';
+
 
 const footnotePreviewStyles = (theme: ThemeType) => ({
   hovercard: {
@@ -194,19 +196,6 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
 
   return (
     <span>
-      {footnoteHTML !== null && !disableHover && <LWPopper
-        open={anchorHovered && !sidenoteIsVisible}
-        anchorEl={anchorEl}
-        placement="bottom-start"
-        allowOverflow
-      >
-        <Card>
-          <ContentStyles contentType={contentStyleType} className={classes.hovercard}>
-            <div dangerouslySetInnerHTML={{__html: footnoteHTML || ""}} />
-          </ContentStyles>
-        </Card>
-      </LWPopper>}
-      
       {hasSidenotes && !sidenotesDisabledOnPost && footnoteHTML !== null &&
         <SideItem options={{offsetTop: -6}}>
           <div
@@ -238,6 +227,21 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
         className={classNames(eitherHovered && classes.anchorHover)}
       >
         {children}
+        {footnoteHTML !== null && !disableHover && <LWPopper
+          open={anchorHovered && !sidenoteIsVisible}
+          anchorEl={anchorEl}
+          placement="bottom-start"
+          allowOverflow
+          clickable
+        >
+          <InteractionWrapper>
+            <Card>
+              <ContentStyles contentType={contentStyleType} className={classes.hovercard}>
+                <div dangerouslySetInnerHTML={{__html: footnoteHTML || ""}} />
+              </ContentStyles>
+            </Card>
+          </InteractionWrapper>
+        </LWPopper>}
       </a>
     </span>
   );

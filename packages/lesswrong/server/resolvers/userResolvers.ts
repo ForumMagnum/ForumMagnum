@@ -2,7 +2,7 @@ import { slugify } from '@/lib/utils/slugify';
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
 import { getUserEmail, userCanEditUser } from "../../lib/collections/users/helpers";
-import { isEAForum } from '../../lib/instanceSettings';
+import { isEAForum, airtableApiKeySetting } from '../../lib/instanceSettings';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import Users from '../../server/collections/users/collection';
 import { userFindOneByEmail } from "../commonQueries";
@@ -88,6 +88,18 @@ export const graphqlTypeDefs = gql`
     GetRandomUser(userIsAuthor: String!): User
     IsDisplayNameTaken(displayName: String!): Boolean!
     GetUserBySlug(slug: String!): User
+    NetKarmaChangesForAuthorsOverPeriod(days: Int!, limit: Int!): [NetKarmaChangesForAuthorsOverPeriod!]!
+    AirtableLeaderboards: [AirtableLeaderboardResult!]!
+  }
+
+  type NetKarmaChangesForAuthorsOverPeriod {
+    userId: String,
+    netKarma: Int
+  }
+
+  type AirtableLeaderboardResult {
+    name: String!
+    leaderboardAmount: Int
   }
 
   ${suggestedFeedTypeDefs}
@@ -221,5 +233,102 @@ export const graphqlQueries = {
     }
 
     return accessFilterSingle(context.currentUser, 'Users', userBySlug, context);
+  },
+  async NetKarmaChangesForAuthorsOverPeriod(
+    _root: void,
+    {days, limit}: {days: number, limit: number},
+    context: ResolverContext,
+  ) {
+    return await context.repos.votes.getNetKarmaChangesForAuthorsOverPeriod(days, limit);
+  },
+  async AirtableLeaderboards() {
+    // If we have cached data
+    if (airtableCache.data) {
+      const isStale = Date.now() - airtableCache.timestamp > STALE_TIME_MS;
+
+      // Start a background refresh if data is stale and no fetch is in progress
+      if (isStale && !inFlightPromise) {
+        void startAirtableFetch();
+      }
+
+      // Always return cached data (stale-while-revalidate pattern)
+      return airtableCache.data;
+    }
+
+    // No cached data - wait for in-flight fetch or start a new one
+    return inFlightPromise || startAirtableFetch();
   }
+};
+
+type AirtableLeaderboardResultType = {
+  name: string;
+  leaderboardAmount?: number;
+};
+
+
+async function fetchAirtableRecords(): Promise<AirtableLeaderboardResultType[]> {
+  const baseId = "appUepxJdxacpehZz";
+  const tableName = "Donors";
+  const viewName = "LeaderBoard";
+
+  const apiKey = airtableApiKeySetting.get();
+  if (!apiKey) {
+    throw new Error("Can't fetch Airtable records without an API key");
+  }
+
+  const url = `https://api.airtable.com/v0/${baseId}/${encodeURIComponent(tableName)}?view=${encodeURIComponent(viewName)}`;
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Airtable API responded with status ${response.status} - ${response.statusText}`);
+  }
+
+  // The data returned by Airtable has a "records" array.
+  // Each "record" has a "fields" object containing the columns we need.
+  const data = await response.json();
+  const records = data.records || [];
+
+  const unpackArray = (value: any) => Array.isArray(value) ? value[0] : value;
+
+  // Transform "records" into our AirtableLeaderboardResultType format
+  return records.map((record: any) => {
+    const name = unpackArray(record.fields?.["Leaderboard Display Name"]) ?? "Unknown";
+    const amountStr = unpackArray(record.fields?.["Leaderboard Amount"]) ?? "";
+    return {
+      name,
+      leaderboardAmount: amountStr === "" ? undefined : parseInt(amountStr, 10),
+    };
+  });
 }
+
+let airtableCache: {
+  data?: AirtableLeaderboardResultType[];
+  timestamp: number;
+} = {
+  data: undefined,
+  timestamp: 0,
+};
+
+const startAirtableFetch = async () => {
+  inFlightPromise = (async () => {
+    try {
+      const freshData = await fetchAirtableRecords();
+      airtableCache.data = freshData;
+      airtableCache.timestamp = Date.now();
+      return freshData;
+    } finally {
+      inFlightPromise = null;
+    }
+  })();
+  return inFlightPromise;
+};
+
+// We'll keep track of whether we have an in-flight promise so that we don't trigger multiple fetches simultaneously.
+let inFlightPromise: Promise<AirtableLeaderboardResultType[]> | null = null;
+
+// We'll consider data stale if it's older than 10 minutes.
+const STALE_TIME_MS = 1000 * 60 * 10;

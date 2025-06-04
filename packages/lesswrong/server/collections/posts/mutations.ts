@@ -8,12 +8,13 @@ import { userCanDo, userIsMemberOf, userIsPodcaster } from "@/lib/vulcan-users/p
 import { swrInvalidatePostRoute } from "@/server/cache/swr";
 import { moveToAFUpdatesUserAFKarma } from "@/server/callbacks/alignment-forum/callbacks";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
+import { upsertPolls } from "@/server/callbacks/forumEventCallbacks";
 import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, assertPostTitleHasNoEmojis, autoTagNewPost, autoTagUndraftedPost, checkRecentRepost, checkTosAccepted, clearCourseEndTime, createNewJargonTermsCallback, eventUpdatedNotifications, extractSocialPreviewImage, fixEventStartAndEndTimes, lwPostsNewUpvoteOwnPost, notifyUsersAddedAsCoauthors, notifyUsersAddedAsPostCoauthors, oldPostsLastCommentedAt, onEditAddLinkSharingKey, onPostPublished, postsNewDefaultLocation, postsNewDefaultTypes, postsNewPostRelation, postsNewRateLimit, postsNewUserApprovedStatus, postsUndraftRateLimit, removeFrontpageDate, removeRedraftNotifications, resetDialogueMatches, resetPostApprovedDate, scheduleCoauthoredPostWhenUndrafted, scheduleCoauthoredPostWithUnconfirmedCoauthors, sendCoauthorRequestNotifications, sendEAFCuratedAuthorsNotification, sendLWAFPostCurationEmails, sendNewPublishedDialogueMessageNotifications, sendPostApprovalNotifications, sendPostSharedWithUserNotifications, sendRejectionPM, sendUsersSharedOnPostNotifications, setPostUndraftedFields, syncTagRelevance, triggerReviewForNewPostIfNeeded, updateCommentHideKarma, updatedPostMaybeTriggerReview, updatePostEmbeddingsOnChange, updatePostShortform, updateRecombeePost, updateUserNotesOnPostDraft, updateUserNotesOnPostRejection } from "@/server/callbacks/postCallbackFunctions";
 import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks/sharedCallbackFunctions";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
 import { HAS_EMBEDDINGS_FOR_RECOMMENDATIONS } from "@/server/embeddings";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { handleCrosspostUpdate, performCrosspost } from "@/server/fmCrosspost/crosspost";
+import { handleCrosspostUpdate } from "@/server/fmCrosspost/crosspost";
 import { rehostPostMetaImages } from "@/server/scripts/convertImagesToCloudinary";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
@@ -85,7 +86,6 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
   data = await postsNewUserApprovedStatus(data, currentUser, context);
   data = await fixEventStartAndEndTimes(data);
   data = await scheduleCoauthoredPostWithUnconfirmedCoauthors(data);
-  data = await performCrosspost(data);
   data = addLinkSharingKey(data);  
 
   const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Posts', callbackProps);
@@ -108,6 +108,12 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
     newDoc: documentWithId,
     props: afterCreateProperties,
   });
+
+  await upsertPolls({
+    revisionId: documentWithId.contents_latest,
+    post: documentWithId,
+    context,
+  })
 
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('Posts', documentWithId);
 
@@ -175,15 +181,18 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   await checkRecentRepost(updateCallbackProperties.newDocument, currentUser, context);
   data = setPostUndraftedFields(data, updateCallbackProperties);
   data = scheduleCoauthoredPostWhenUndrafted(data, updateCallbackProperties);
-  // Explicitly don't assign back to partial post here, since it returns the value fetched from the database
-  // TODO: that above comment might be wrong, i'm confused about what's supposed to be happening here
-  data = await handleCrosspostUpdate(data, updateCallbackProperties);
   data = onEditAddLinkSharingKey(data, updateCallbackProperties);
 
   data = await createRevisionsForEditableFields({
     docData: data,
     props: updateCallbackProperties,
   });
+
+  // Explicitly don't assign back to partial post here, since it returns the value fetched from the database
+  // TODO: that above comment might be wrong, i'm confused about what's supposed to be happening here
+  // TODO TODO: I'm still confused
+  // This has to be done _after_ the new revision is created
+  data = await handleCrosspostUpdate(context, data, updateCallbackProperties);
 
   let modifier = dataToModifier(data);
   modifier = clearCourseEndTime(modifier, oldDocument);
@@ -204,6 +213,12 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });
+
+  await upsertPolls({
+    revisionId: updatedDocument.contents_latest,
+    post: updatedDocument,
+    context,
+  })
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Posts', updatedDocument, oldDocument);
 

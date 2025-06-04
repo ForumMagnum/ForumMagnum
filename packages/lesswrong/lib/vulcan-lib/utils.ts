@@ -25,9 +25,11 @@ export const camelCaseify = function<T extends string>(str: T): CamelCaseify<T> 
   return lowerCamelCaseStr as CamelCaseify<T>;
 };
 
-export type CamelCaseify<T extends string> = T extends `${infer Prefix}-${infer Rest}`
-  ? `${Uncapitalize<Prefix>}${Capitalize<CamelCaseify<Rest>>}`
-  : Uncapitalize<T>;
+export type CamelCaseify<T extends string, Separator extends string = '-'> = 
+  T extends `${infer Prefix}${Separator}${infer Rest}`
+    ? `${Uncapitalize<Prefix>}${Capitalize<CamelCaseify<Rest, Separator>>}`
+    : Uncapitalize<T>;
+
 
 // Capitalize a string.
 export const capitalize = function(str: string): string {

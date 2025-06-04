@@ -46,7 +46,7 @@ const TagSearchHit = ({hit, onClick, hidePostCount=false, isVotingContext, class
     documentId: hit._id,
     collectionName: "Tags",
     fragmentName: "TagPreviewFragment",
-    fetchPolicy: 'cache-then-network' as any, //TODO
+    fetchPolicy: 'cache-first',
   });
   const {eventHandlers, hover, anchorEl} = useHover();
   const currentUser = useCurrentUser();

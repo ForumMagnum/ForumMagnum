@@ -17,7 +17,7 @@ import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import type { ContentItemBodyImperative } from '../../common/ContentItemBody';
+import type { ContentItemBodyImperative } from '../../contents/contentBodyUtil';
 import CommentsEditForm from "../CommentsEditForm";
 import CommentExcerpt from "../../common/excerpts/CommentExcerpt";
 import CommentBody from "./CommentBody";
@@ -225,7 +225,7 @@ export const CommentsItem = ({
   const frameClasses = useStyles(commentFrameStyles);
   const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
-  const [showEditState, setShowEditState] = useState(false);
+  const [showEditState, setShowEditState] = useState(treeOptions.initialShowEdit || false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
   const isMinimalist = treeOptions.formStyle === "minimalist"
   const currentUser = useCurrentUser();
@@ -259,6 +259,9 @@ export const CommentsItem = ({
 
   const editCancelCallback = () => {
     setShowEditState(false);
+    if (comment.draft) {
+      setSingleLine?.(true);
+    }
   }
 
   const editSuccessCallback = () => {
@@ -266,6 +269,9 @@ export const CommentsItem = ({
       refetch()
     }
     setShowEditState(false);
+    if (comment.draft) {
+      setSingleLine?.(true);
+    }
   }
 
   const toggleShowParent = () => {
@@ -311,7 +317,7 @@ export const CommentsItem = ({
           prefilledProps={{
             parentAnswerId: parentAnswerId ? parentAnswerId : null
           }}
-          type="reply"
+          interactionType="reply"
           enableGuidelines={enableGuidelines}
           formStyle={treeOptions.formStyle}
         />

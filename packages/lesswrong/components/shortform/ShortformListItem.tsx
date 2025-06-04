@@ -56,7 +56,6 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 2,
     color: theme.palette.grey[1000],
     fontWeight: 600,
-    lintHeight: "17px",
   },
   date: {
     marginLeft: 10,

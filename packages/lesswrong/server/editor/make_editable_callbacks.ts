@@ -294,10 +294,8 @@ async function notifyUsersAboutPingbackMentionsInCreate<N extends CollectionName
 ) {
   const { pingbacks = false, collectionName } = options;
 
-  const typeName = collectionNameToTypeName[collectionName];
-
   if (currentUser && pingbacks && 'pingbacks' in newDocument) {
-    await notifyUsersAboutMentions(currentUser, typeName, newDocument)
+    await notifyUsersAboutMentions(currentUser, collectionName, newDocument)
   }
 
   return newDocument

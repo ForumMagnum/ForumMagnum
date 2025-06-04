@@ -36,7 +36,7 @@ import NewConversationButton from "../messaging/NewConversationButton";
 import TagEditsByUser from "../tagging/TagEditsByUser";
 import LoadMore from "../common/LoadMore";
 import PostsList2 from "../posts/PostsList2";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import Loading from "../vulcan-core/Loading";
 import PermanentRedirect from "../common/PermanentRedirect";
 import HeadTags from "../common/HeadTags";
@@ -56,6 +56,7 @@ import UserNotifyDropdown from "../notifications/UserNotifyDropdown";
 import FooterTag from "../tagging/FooterTag";
 import DisplayNameWithMarkers from "../ea-forum/users/DisplayNameWithMarkers";
 import ForumIcon from "../common/ForumIcon";
+import CommentsDraftList from '../comments/CommentsDraftList';
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -288,6 +289,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
     enableTotal: true,
     skip: !user
   })
+
   if (loading) {
     return <Loading/>
   }
@@ -363,6 +365,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
         </Link>}
       </div>
       <SequencesGridWrapper terms={{view: "userProfilePrivate", userId: user._id, limit: 3}} showLoadMore={true} />
+      <CommentsDraftList userId={user._id} initialLimit={5} />
     </>
   }]
   if (userOrganizesGroups?.length) {
@@ -458,7 +461,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
       count: user.commentCount,
       body: <AnalyticsContext pageSectionContext="commentsSection">
         <RecentComments
-          terms={{view: 'profileComments', sortBy: "new", authorIsUnreviewed: null, limit: 10, userId: user._id}}
+          terms={{view: 'profileComments', sortBy: "new", authorIsUnreviewed: null, limit: 10, userId: user._id, drafts: "exclude"}}
           showPinnedOnProfile
         />
       </AnalyticsContext>
