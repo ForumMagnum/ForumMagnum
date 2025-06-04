@@ -16,17 +16,22 @@ const styles = defineStyles("UltraFeedPage", (theme: ThemeType) => ({
 const UltraFeedPage = () => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const [_, setCookie] = useCookiesWithConsent([ULTRA_FEED_PAGE_VISITED_COOKIE]);
+  const [cookies, setCookie] = useCookiesWithConsent([ULTRA_FEED_PAGE_VISITED_COOKIE]);
+
+  const isFirstVisit = cookies[ULTRA_FEED_PAGE_VISITED_COOKIE] !== 'true';
 
   useEffect(() => {
+    if (isFirstVisit) {
+      setCookie(ULTRA_FEED_ENABLED_COOKIE, 'true', { 
+        path: "/", 
+      });
+    }
+
     setCookie(ULTRA_FEED_PAGE_VISITED_COOKIE, 'true', { 
       path: "/", 
     });
 
-    setCookie(ULTRA_FEED_ENABLED_COOKIE, 'true', { 
-      path: "/", 
-    });
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setCookie]);
 
   if (!currentUser) {
