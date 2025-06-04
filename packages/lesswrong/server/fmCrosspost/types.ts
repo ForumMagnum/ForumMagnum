@@ -157,7 +157,7 @@ export const CrosspostPayloadValidator = t.intersection([
 export type CrosspostResponse = t.TypeOf<typeof CrosspostResponseValidator>;
 export type CrosspostPayload = t.TypeOf<typeof CrosspostPayloadValidator>;
 
-export type Crosspost = Pick<DbPost, "_id" | "userId" | "fmCrosspost"> & DenormalizedCrosspostData;
+export type Crosspost = Pick<DbPost, "_id" | "userId" | "fmCrosspost" | "contents_latest"> & DenormalizedCrosspostData;
 
 const getCrosspostFragmentsType = () => {
   const result: Partial<Record<typeof crosspostFragments[number], null>> = {};

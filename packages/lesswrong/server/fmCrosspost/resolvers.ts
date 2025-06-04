@@ -1,25 +1,28 @@
 import type { Request } from "express";
 import { isLeft } from 'fp-ts/Either';
 import { crosspostUserAgent } from "../../lib/apollo/links";
-import Users from "../../server/collections/users/collection";
-import { ApiError, UnauthorizedError } from "./errors";
-import { validateCrosspostingKarmaThreshold } from "./helpers";
+import {
+  ApiError,
+  UnauthorizedError,
+  TOS_NOT_ACCEPTED_ERROR,
+  TOS_NOT_ACCEPTED_REMOTE_ERROR,
+} from "./errors";
+import {
+  assertCrosspostingKarmaThreshold,
+  fmCrosspostTimeoutMsSetting,
+} from "./helpers";
 import { makeApiUrl, PostRequestTypes, PostResponseTypes, ValidatedPostRouteName, validatedPostRoutes, ValidatedPostRoutes } from "./routes";
 import { ConnectCrossposterArgs, GetCrosspostRequest } from "./types";
-import { DatabaseServerSetting } from "../databaseSettings";
 import stringify from "json-stringify-deterministic";
 import LRU from "lru-cache";
 import { isE2E } from "@/lib/executionEnvironment";
 import { connectCrossposterToken } from "../crossposting/tokens";
+import { makeV2CrossSiteRequest } from "../crossposting/crossSiteRequest";
+import {
+  connectCrossposterRoute,
+  unlinkCrossposterRoute,
+} from "@/lib/fmCrosspost/routes";
 import gql from "graphql-tag";
-import { TOS_NOT_ACCEPTED_ERROR, TOS_NOT_ACCEPTED_REMOTE_ERROR } from "@/lib/collections/posts/constants";
-// import { makeV2CrossSiteRequest } from "../crossposting/crossSiteRequest";
-// import {
-//   connectCrossposterRoute,
-//   unlinkCrossposterRoute,
-// } from "@/lib/fmCrosspost/routes";
-
-export const fmCrosspostTimeoutMsSetting = new DatabaseServerSetting<number>('fmCrosspostTimeoutMs', 15000)
 
 const getUserId = (req?: Request) => {
   const userId = req?.user?._id;
@@ -35,7 +38,13 @@ const foreignPostCache = new LRU<string, Promise<AnyBecauseHard>>({
   max: 100,
 });
 
-export const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteName>(
+/**
+ * @deprecated
+ * Old version of `makeCrossSiteRequest` - use `makeV2CrossSiteRequest` instead.
+ * This is still here to support the `getCrosspost` graphql query, which will be
+ * removed once crosspost bodies are denormalized across sites.
+ */
+const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteName>(
   routeName: RouteName,
   body: PostRequestTypes<RouteName>,
   onErrorMessage: string,
@@ -106,52 +115,37 @@ export const fmCrosspostGraphQLMutations = {
   connectCrossposter: async (
     _root: void,
     {token}: ConnectCrossposterArgs,
-    {req, currentUser}: ResolverContext,
+    {req, currentUser, Users}: ResolverContext,
   ) => {
     const localUserId = getUserId(req);
-
-    // Throws an error if user doesn't have enough karma on the receiving forum (which is the current execution environment)
-    validateCrosspostingKarmaThreshold(currentUser);
-
-    const {foreignUserId} = await makeCrossSiteRequest(
-      'connectCrossposter',
+    assertCrosspostingKarmaThreshold(currentUser);
+    const {foreignUserId} = await makeV2CrossSiteRequest(
+      connectCrossposterRoute,
       {token, localUserId},
       "Failed to connect accounts for crossposting",
     );
-    // TODO: Switch to this when V2 is deployed to both sites
-    // const {foreignUserId} = await makeV2CrossSiteRequest(
-    //   connectCrossposterRoute,
-    //   {token, localUserId},
-    //   "Failed to connect accounts for crossposting",
-    // );
     await Users.rawUpdateOne({_id: localUserId}, {
       $set: {fmCrosspostUserId: foreignUserId},
     });
     return "success";
   },
-  unlinkCrossposter: async (_root: void, _args: {}, {req}: ResolverContext) => {
+  unlinkCrossposter: async (_root: void, _args: {}, {req, Users}: ResolverContext) => {
     const localUserId = getUserId(req);
     const foreignUserId = req?.user?.fmCrosspostUserId;
     if (foreignUserId) {
       const token = await connectCrossposterToken.create({
         userId: foreignUserId,
       });
-      await makeCrossSiteRequest(
-        'unlinkCrossposter',
+      await makeV2CrossSiteRequest(
+        unlinkCrossposterRoute,
         {token},
         "Failed to unlink crossposting accounts",
       );
-      // TODO: Switch to this when V2 is deployed to both sites
-      // await makeV2CrossSiteRequest(
-      //   unlinkCrossposterRoute,
-      //   {token},
-      //   "Failed to unlink crossposting accounts",
-      // );
       await Users.rawUpdateOne({_id: localUserId}, {
         $unset: {fmCrosspostUserId: ""},
       });
+      return "success";
     }
-    return "success";
   },
 }
 

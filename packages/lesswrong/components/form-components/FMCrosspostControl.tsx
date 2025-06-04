@@ -14,6 +14,7 @@ import { useOnFocusTab } from "../hooks/useOnFocusTab";
 import { combineUrls } from "../../lib/vulcan-lib/utils";
 import { useCurrentUser } from "../common/withUser";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { generateTokenRoute } from "@/lib/fmCrosspost/routes";
 import { TypedFieldApi } from "@/components/tanstack-form-components/BaseAppForm";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import Loading from "../vulcan-core/Loading";
@@ -71,6 +72,7 @@ const FMCrosspostAccount = ({fmCrosspostUserId}: {
   const apolloClient = useForeignApolloClient();
   const { loading, data } = useQuery(UsersCrosspostInfoQuery, {
     variables: { documentId: fmCrosspostUserId },
+    client: apolloClient,
   });
   const document = data?.user?.result;
 
@@ -161,15 +163,10 @@ export const FMCrosspostControl = ({ field }: {
 
   const onClickLogin = async () => {
     try {
-      const result = await fetch("/api/crosspostToken");
-      const {token, error} = await result.json();
-      // TODO Switch to this once deployed
-      // const {token} = await generateTokenRoute.makeRequest({});
+      const {token} = await generateTokenRoute.makeRequest({});
       if (token) {
         const url = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", `crosspostLogin?token=${token}`);
         window.open(url, "_blank")?.focus();
-      } else if (typeof error === 'string') {
-        setError(error);
       } else {
         setError("Couldn't create login token");
       }

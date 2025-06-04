@@ -1,5 +1,6 @@
 import { crosspostKarmaThreshold } from "../../lib/publicSettings";
 import { InsufficientKarmaError, InvalidUserError } from "./errors";
+import { DatabaseServerSetting } from "../databaseSettings";
 
 /**
  * Check if the user has enough karma to be allowed to crosspost.
@@ -7,7 +8,7 @@ import { InsufficientKarmaError, InvalidUserError } from "./errors";
  * Ex: if a user has 0 karma on LW, and attempts to link accounts to crosspost from the EA Forum, they will get this error, because LW requires you to have a 100 karma account *on LW* to crosspost from the EA Forum.
  * This is true regardless of how much karma they have on the EA Forum.  (This check is performed on both sides, so a user needs to pass both forums' karma thresholds to be able to establish a link.)
  */
- export const validateCrosspostingKarmaThreshold = (currentUser: DbUser | null) => {
+ export const assertCrosspostingKarmaThreshold = (currentUser: DbUser | null) => {
   if (!currentUser) {
     throw new InvalidUserError();
   }
@@ -24,3 +25,9 @@ import { InsufficientKarmaError, InvalidUserError } from "./errors";
     throw new InsufficientKarmaError(currentKarmaThreshold);
   }
 }
+
+/**
+ * Timeout for cross-site requests to prevent crosspost requests from hanging
+ * the site
+ */
+export const fmCrosspostTimeoutMsSetting = new DatabaseServerSetting<number>('fmCrosspostTimeoutMs', 15000)
