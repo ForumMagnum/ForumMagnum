@@ -17,6 +17,17 @@ interface UseLoadMoreProps<D extends { results: any[]; totalCount?: number | nul
   resetTrigger?: any; // When this changes, pagination resets to initial limit
 }
 
+
+export type LoadMoreCallback = () => Promise<unknown> | void;
+
+export type LoadMoreProps = {
+  loadMore: LoadMoreCallback;
+  count: number;
+  totalCount?: number;
+  loading: boolean;
+  hidden?: boolean;
+};
+
 export type WrappedFetchMore<T extends ObservableQueryFields<any, OperationVariables>['fetchMore']> = (options?: Parameters<T>[0]) => ReturnType<T>;
 
 function useLoadMore<T extends ObservableQueryFields<any, OperationVariables>['fetchMore'], D extends { results: any[]; totalCount?: number | null }>({ 

@@ -11,7 +11,7 @@ import { cloudinaryCloudNameSetting, recombeeEnabledSetting, vertexEnabledSettin
 import classNames from 'classnames';
 import { hasPostRecommendations, commentsTableOfContentsEnabled, hasDigests, hasSidenotes } from '../../../lib/betas';
 import { useDialog } from '../../common/withDialog';
-import { LoadMoreProps, UseMultiResult } from '../../../lib/crud/withMulti';
+import { LoadMoreProps } from '@/components/hooks/useQueryWithLoadMore';
 import { PostsPageContext } from './PostsPageContext';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';

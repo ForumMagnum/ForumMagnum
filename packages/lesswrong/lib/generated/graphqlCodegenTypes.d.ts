@@ -17318,6 +17318,21 @@ type updateConversationInboxNavigationMutationVariables = Exact<{
 
 type updateConversationInboxNavigationMutation = updateConversationInboxNavigationMutation_Mutation;
 
+type MessageUserGetUserBySlugQuery_GetUserBySlug_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type MessageUserGetUserBySlugQuery_Query = { __typename?: 'Query', GetUserBySlug: MessageUserGetUserBySlugQuery_GetUserBySlug_User | null };
+
+
+type MessageUserGetUserBySlugQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+}>;
+
+
+type MessageUserGetUserBySlugQuery = MessageUserGetUserBySlugQuery_Query;
+
 type createMessageMessagesNewFormMutation_createMessage_MessageOutput_data_Message = (
   { __typename?: 'Message' }
   & messageListFragment
@@ -23262,6 +23277,21 @@ type EditProfileFormQueryVariables = Exact<{
 
 type EditProfileFormQuery = EditProfileFormQuery_Query;
 
+type EditProfileFormGetUserBySlugQuery_GetUserBySlug_User = (
+  { __typename?: 'User' }
+  & UsersProfileEdit
+);
+
+type EditProfileFormGetUserBySlugQuery_Query = { __typename?: 'Query', GetUserBySlug: EditProfileFormGetUserBySlugQuery_GetUserBySlug_User | null };
+
+
+type EditProfileFormGetUserBySlugQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+}>;
+
+
+type EditProfileFormGetUserBySlugQuery = EditProfileFormGetUserBySlugQuery_Query;
+
 type useEmailTokenMutation_Mutation = { __typename?: 'Mutation', useEmailToken: any | null };
 
 
@@ -23559,6 +23589,21 @@ type updateUserDeleteAccountSectionMutationVariables = Exact<{
 
 type updateUserDeleteAccountSectionMutation = updateUserDeleteAccountSectionMutation_Mutation;
 
+type UsersAccountManagementGetUserBySlugQuery_GetUserBySlug_User = (
+  { __typename?: 'User' }
+  & UsersEdit
+);
+
+type UsersAccountManagementGetUserBySlugQuery_Query = { __typename?: 'Query', GetUserBySlug: UsersAccountManagementGetUserBySlugQuery_GetUserBySlug_User | null };
+
+
+type UsersAccountManagementGetUserBySlugQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+}>;
+
+
+type UsersAccountManagementGetUserBySlugQuery = UsersAccountManagementGetUserBySlugQuery_Query;
+
 type updateUserUsersEditFormMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
   & UsersEdit
@@ -23576,6 +23621,21 @@ type updateUserUsersEditFormMutationVariables = Exact<{
 
 
 type updateUserUsersEditFormMutation = updateUserUsersEditFormMutation_Mutation;
+
+type UsersEditFormGetUserBySlugQuery_GetUserBySlug_User = (
+  { __typename?: 'User' }
+  & UsersEdit
+);
+
+type UsersEditFormGetUserBySlugQuery_Query = { __typename?: 'Query', GetUserBySlug: UsersEditFormGetUserBySlugQuery_GetUserBySlug_User | null };
+
+
+type UsersEditFormGetUserBySlugQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+}>;
+
+
+type UsersEditFormGetUserBySlugQuery = UsersEditFormGetUserBySlugQuery_Query;
 
 type SubscribedUserQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }

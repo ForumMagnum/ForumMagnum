@@ -74,7 +74,7 @@
     "generate-client-stats": "esbuild-visualizer --metadata ./client_meta.json --filename client_stats.html",
     "brigader-check": "ts-node -r tsconfig-paths/register scripts/brigaderCheck.ts",
     "create-collection": "scripts/createCollection.sh",
-    "graphql-codegen": "graphql-codegen --config codegen.ts --debug"
+    "graphql-codegen": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.1",

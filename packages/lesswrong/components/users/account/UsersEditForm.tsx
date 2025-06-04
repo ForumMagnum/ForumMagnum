@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { EditableUser, getUserEmail, SOCIAL_MEDIA_PROFILE_FIELDS, userCanEditUser, userGetDisplayName, userGetProfileUrl } from '@/lib/collections/users/helpers';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '@/components/common/withUser';
-import { useMutation, useApolloClient } from '@apollo/client';
+import { useMutation, useApolloClient, useQuery } from '@apollo/client';
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, verifyEmailsSetting } from '@/lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from '@/components/themes/useTheme';
 import { captureEvent } from '@/lib/analyticsEvents';
@@ -11,7 +11,6 @@ import { configureDatadogRum } from '@/client/datadogRum';
 import { isBookUI, isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useLocation, useNavigate } from '@/lib/routeUtil.tsx';
 import { registerComponent } from "@/lib/vulcan-lib/components";
-import { useGetUserBySlug } from '@/components/hooks/useGetUserBySlug';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { LegacyFormGroupLayout } from '@/components/tanstack-form-components/LegacyFormGroupLayout';
@@ -53,6 +52,14 @@ const UsersEditUpdateMutation = gql(`
       data {
         ...UsersEdit
       }
+    }
+  }
+`);
+
+const GetUserBySlugQuery = gql(`
+  query UsersEditFormGetUserBySlug($slug: String!) {
+    GetUserBySlug(slug: $slug) {
+      ...UsersEdit
     }
   }
 `);
@@ -1338,7 +1345,12 @@ const UsersEditForm = ({ terms }: {
 
   const userHasEditAccess = userCanEditUser(currentUser, terms);
 
-  const { user: userBySlug, loading: loadingUser } = useGetUserBySlug(terms.slug, { fragmentName: 'UsersEdit', skip: !userHasEditAccess });
+  const { data: userBySlugData, loading: loadingUser } = useQuery(GetUserBySlugQuery, {
+    variables: { slug: terms.slug },
+    skip: !userHasEditAccess,
+  });
+
+  const userBySlug = userBySlugData?.GetUserBySlug;
 
   if (!userHasEditAccess || !currentUser) {
     return <ErrorAccessDenied />;

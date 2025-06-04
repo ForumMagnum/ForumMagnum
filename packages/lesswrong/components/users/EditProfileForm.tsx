@@ -10,7 +10,6 @@ import { isBookUI, isFriendlyUI, preferredHeadingCase } from '@/themes/forumThem
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-import { useGetUserBySlug } from '../hooks/useGetUserBySlug';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
@@ -51,6 +50,14 @@ const UsersProfileEditQuery = gql(`
       result {
         ...UsersProfileEdit
       }
+    }
+  }
+`);
+
+const GetUserBySlugQuery = gql(`
+  query EditProfileFormGetUserBySlug($slug: String!) {
+    GetUserBySlug(slug: $slug) {
+      ...UsersProfileEdit
     }
   }
 `);
@@ -520,10 +527,12 @@ const EditProfileForm = () => {
   const skipSlugLoading = !terms.slug;
   const skipDocumentIdLoading = !terms.documentId;
 
-  const { user: userBySlug, loading: loadingUserBySlug } = useGetUserBySlug(
-    terms.slug,
-    { fragmentName: 'UsersProfileEdit', skip: skipSlugLoading }
-  );
+  const { data: userBySlugData, loading: loadingUserBySlug } = useQuery(GetUserBySlugQuery, {
+    variables: { slug: terms.slug ?? '' },
+    skip: skipSlugLoading,
+  });
+
+  const userBySlug = userBySlugData?.GetUserBySlug;
 
   const { loading: loadingUserByDocumentId, data } = useQuery(UsersProfileEditQuery, {
     variables: { documentId: terms.documentId },

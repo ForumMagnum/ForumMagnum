@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { queryIsUpdating } from './queryStatusUtils'
 import {useTracking} from "../../lib/analyticsEvents";
-import { LoadMoreCallback } from '../../lib/crud/withMulti';
+import { LoadMoreCallback } from '../hooks/useQueryWithLoadMore';
 import { useIsFirstRender } from "../hooks/useFirstRender";
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';

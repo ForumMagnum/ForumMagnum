@@ -267,6 +267,7 @@ type Documents = {
     "\n  query FriendlyInbox($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsListWithReadStatus\n      }\n    }\n  }\n": typeof types.FriendlyInboxDocument,
     "\n  query multiConversationInboxNavigationQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {\n    conversations(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ConversationsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiConversationInboxNavigationQueryDocument,
     "\n  mutation updateConversationInboxNavigation($selector: SelectorInput!, $data: UpdateConversationDataInput!) {\n    updateConversation(selector: $selector, data: $data) {\n      data {\n        ...ConversationsList\n      }\n    }\n  }\n": typeof types.updateConversationInboxNavigationDocument,
+    "\n  query MessageUserGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersMinimumInfo\n    }\n  }\n": typeof types.MessageUserGetUserBySlugDocument,
     "\n  mutation createMessageMessagesNewForm($data: CreateMessageDataInput!) {\n    createMessage(data: $data) {\n      data {\n        ...messageListFragment\n      }\n    }\n  }\n": typeof types.createMessageMessagesNewFormDocument,
     "\n  query MessagesNewForm($documentId: String) {\n    moderationTemplate(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n": typeof types.MessagesNewFormDocument,
     "\n  mutation updateModerationTemplateModerationTemplateForm($selector: SelectorInput!, $data: UpdateModerationTemplateDataInput!) {\n    updateModerationTemplate(selector: $selector, data: $data) {\n      data {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n": typeof types.updateModerationTemplateModerationTemplateFormDocument,
@@ -605,6 +606,7 @@ type Documents = {
     "\n    mutation connectCrossposter($token: String) {\n      connectCrossposter(token: $token)\n    }\n  ": typeof types.connectCrossposterDocument,
     "\n  mutation updateUserEditProfileForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserEditProfileFormDocument,
     "\n  query EditProfileForm($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersProfileEdit\n      }\n    }\n  }\n": typeof types.EditProfileFormDocument,
+    "\n  query EditProfileFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersProfileEdit\n    }\n  }\n": typeof types.EditProfileFormGetUserBySlugDocument,
     "\n    mutation useEmailToken($token: String) {\n      useEmailToken(token: $token)\n    }\n  ": typeof types.useEmailTokenDocument,
     "\n    mutation sendEventTriggeredDM($eventType: String!) {\n      sendEventTriggeredDM(eventType: $eventType)\n    }\n  ": typeof types.sendEventTriggeredDMDocument,
     "\n  query multiPostFriendlyUsersProfileQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsMinimumInfo\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostFriendlyUsersProfileQueryDocument,
@@ -624,7 +626,9 @@ type Documents = {
     "\n  query multiUserUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": typeof types.multiUserUsersProfileQueryDocument,
     "\n  mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserDeactivateAccountSectionDocument,
     "\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserDeleteAccountSectionDocument,
+    "\n  query UsersAccountManagementGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": typeof types.UsersAccountManagementGetUserBySlugDocument,
     "\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserUsersEditFormDocument,
+    "\n  query UsersEditFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": typeof types.UsersEditFormGetUserBySlugDocument,
     "\n  query SubscribedUser($documentId: String!) {\n    user(input: { selector: { _id: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": typeof types.SubscribedUserDocument,
     "\n  query SubscribedPost($documentId: String!) {\n    post(input: { selector: { _id: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.SubscribedPostDocument,
     "\n  query SubscribedComment($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": typeof types.SubscribedCommentDocument,
@@ -1254,6 +1258,7 @@ const documents: Documents = {
     "\n  query FriendlyInbox($documentId: String) {\n    conversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ConversationsListWithReadStatus\n      }\n    }\n  }\n": types.FriendlyInboxDocument,
     "\n  query multiConversationInboxNavigationQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {\n    conversations(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ConversationsList\n      }\n      totalCount\n    }\n  }\n": types.multiConversationInboxNavigationQueryDocument,
     "\n  mutation updateConversationInboxNavigation($selector: SelectorInput!, $data: UpdateConversationDataInput!) {\n    updateConversation(selector: $selector, data: $data) {\n      data {\n        ...ConversationsList\n      }\n    }\n  }\n": types.updateConversationInboxNavigationDocument,
+    "\n  query MessageUserGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersMinimumInfo\n    }\n  }\n": types.MessageUserGetUserBySlugDocument,
     "\n  mutation createMessageMessagesNewForm($data: CreateMessageDataInput!) {\n    createMessage(data: $data) {\n      data {\n        ...messageListFragment\n      }\n    }\n  }\n": types.createMessageMessagesNewFormDocument,
     "\n  query MessagesNewForm($documentId: String) {\n    moderationTemplate(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n": types.MessagesNewFormDocument,
     "\n  mutation updateModerationTemplateModerationTemplateForm($selector: SelectorInput!, $data: UpdateModerationTemplateDataInput!) {\n    updateModerationTemplate(selector: $selector, data: $data) {\n      data {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n": types.updateModerationTemplateModerationTemplateFormDocument,
@@ -1592,6 +1597,7 @@ const documents: Documents = {
     "\n    mutation connectCrossposter($token: String) {\n      connectCrossposter(token: $token)\n    }\n  ": types.connectCrossposterDocument,
     "\n  mutation updateUserEditProfileForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserEditProfileFormDocument,
     "\n  query EditProfileForm($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersProfileEdit\n      }\n    }\n  }\n": types.EditProfileFormDocument,
+    "\n  query EditProfileFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersProfileEdit\n    }\n  }\n": types.EditProfileFormGetUserBySlugDocument,
     "\n    mutation useEmailToken($token: String) {\n      useEmailToken(token: $token)\n    }\n  ": types.useEmailTokenDocument,
     "\n    mutation sendEventTriggeredDM($eventType: String!) {\n      sendEventTriggeredDM(eventType: $eventType)\n    }\n  ": types.sendEventTriggeredDMDocument,
     "\n  query multiPostFriendlyUsersProfileQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsMinimumInfo\n      }\n      totalCount\n    }\n  }\n": types.multiPostFriendlyUsersProfileQueryDocument,
@@ -1611,7 +1617,9 @@ const documents: Documents = {
     "\n  query multiUserUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": types.multiUserUsersProfileQueryDocument,
     "\n  mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserDeactivateAccountSectionDocument,
     "\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserDeleteAccountSectionDocument,
+    "\n  query UsersAccountManagementGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": types.UsersAccountManagementGetUserBySlugDocument,
     "\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserUsersEditFormDocument,
+    "\n  query UsersEditFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": types.UsersEditFormGetUserBySlugDocument,
     "\n  query SubscribedUser($documentId: String!) {\n    user(input: { selector: { _id: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": types.SubscribedUserDocument,
     "\n  query SubscribedPost($documentId: String!) {\n    post(input: { selector: { _id: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": types.SubscribedPostDocument,
     "\n  query SubscribedComment($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": types.SubscribedCommentDocument,
@@ -3017,6 +3025,10 @@ export function gql(source: "\n  mutation updateConversationInboxNavigation($sel
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  query MessageUserGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersMinimumInfo\n    }\n  }\n"): (typeof documents)["\n  query MessageUserGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersMinimumInfo\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  mutation createMessageMessagesNewForm($data: CreateMessageDataInput!) {\n    createMessage(data: $data) {\n      data {\n        ...messageListFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createMessageMessagesNewForm($data: CreateMessageDataInput!) {\n    createMessage(data: $data) {\n      data {\n        ...messageListFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -4369,6 +4381,10 @@ export function gql(source: "\n  query EditProfileForm($documentId: String) {\n 
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  query EditProfileFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersProfileEdit\n    }\n  }\n"): (typeof documents)["\n  query EditProfileFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersProfileEdit\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n    mutation useEmailToken($token: String) {\n      useEmailToken(token: $token)\n    }\n  "): (typeof documents)["\n    mutation useEmailToken($token: String) {\n      useEmailToken(token: $token)\n    }\n  "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -4445,7 +4461,15 @@ export function gql(source: "\n  mutation updateUserDeleteAccountSection($select
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  query UsersAccountManagementGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n"): (typeof documents)["\n  query UsersAccountManagementGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query UsersEditFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n"): (typeof documents)["\n  query UsersEditFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

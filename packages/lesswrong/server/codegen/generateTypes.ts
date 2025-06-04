@@ -156,8 +156,50 @@ function generateGraphQLSchemaFile(): string {
 }
 
 async function generateGraphQLCodegenTypes(): Promise<void> {
+  // For some godforsaken reason, manually scanning the `packages/lesswrong` directory
+  // for files that might even plausibly contain any gql makes the codegen faster than 
+  // if we pass in the `packages/lesswrong` directory to the `documents` option.
+  // (~6 seconds vs ~20 seconds.)
+  //
+  // We could hoist this to `generateTypes` to re-use the list of files in `generateFragmentTypes`,
+  // but the scanning is ~100ms and doesn't seem worth it.
+  const filesContainingGql = getFilesMaybeContainingGql("packages/lesswrong");
+
+  graphqlCodegenConfig.documents = filesContainingGql;
   const fileOutputs = await generate(graphqlCodegenConfig)
   for (const fileOutput of fileOutputs) {
     fs.writeFileSync(fileOutput.filename, fileOutput.content.replace("InputMaybe<T> = Maybe<T>", "InputMaybe<T> = T | null | undefined"));
   }
+}
+
+function fileMightIncludeGql(filePath: string) {
+  const content = fs.readFileSync(filePath, 'utf-8').toLowerCase();
+  return content.includes('gql`') || content.includes('gql(');
+}
+
+function getFilesMaybeContainingGql(dir: string) {
+  const files: string[] = [];
+  
+  function traverse(currentDir: string) {
+    const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+    
+    for (const entry of entries) {
+      const fullPath = path.join(currentDir, entry.name);
+      
+      if (entry.isDirectory()) {
+        traverse(fullPath);
+      } else if (entry.isFile()
+        && (entry.name.endsWith('.ts') || entry.name.endsWith('.tsx'))
+        && !entry.name.endsWith('.d.ts')
+        && fileMightIncludeGql(fullPath)
+      ) {
+        files.push(fullPath);
+      }
+    }
+  }
+  
+  traverse(dir);
+  // These two files contain dynamically concatenated gql strings, which graphql-codegen isn't a fan of.
+  // Filtering them out is fine as long as we don't define any gql types/operations in them which we need to be codegen'd.
+  return files.filter(f => !f.endsWith('paginatedResolver.ts') && !f.endsWith('votingGraphQL.ts'));;
 }

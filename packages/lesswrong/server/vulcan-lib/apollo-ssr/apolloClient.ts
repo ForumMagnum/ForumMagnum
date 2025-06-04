@@ -16,12 +16,12 @@ export const createClient = async (context: ResolverContext | null, foreign = fa
     links.push(createHttpLink(fmCrosspostBaseUrlSetting.get() ?? "/"));
   } else if (context) {
     links.push(createErrorLink());
-    // links.push(createHttpLink('http://localhost:3000/'));
     const schema = makeExecutableSchema({ typeDefs, resolvers });
     // schemaLink will fetch data directly based on the executable schema
     // context here is the resolver context
     links.push(createSchemaLink(schema, context));
   } else {
+    // eslint-disable-next-line no-console
     console.error("createClient called with no context");
   }
 

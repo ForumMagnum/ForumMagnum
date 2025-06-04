@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { UseMultiResult } from "../../lib/crud/withMulti";
 import classNames from "classnames";
 import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
 import { useDialog } from "../common/withDialog";

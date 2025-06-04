@@ -1,4 +1,4 @@
-import { LoadMoreCallback } from '../../lib/crud/withMulti';
+import { LoadMoreCallback } from '../hooks/useQueryWithLoadMore';
 import React from 'react';
 import { getFieldValue } from './Card';
 import _sortBy from 'lodash/sortBy';

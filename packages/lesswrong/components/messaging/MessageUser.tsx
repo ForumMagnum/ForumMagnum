@@ -3,10 +3,19 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation } from "../../lib/routeUtil";
 import { useCurrentUser } from "../common/withUser";
 import { useInitiateConversation } from "../hooks/useInitiateConversation";
-import { useGetUserBySlug } from "../hooks/useGetUserBySlug";
 import Loading from "../vulcan-core/Loading";
 import PermanentRedirect from "../common/PermanentRedirect";
 import SingleColumnSection from "../common/SingleColumnSection";
+import { useQuery } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const GetUserBySlugQuery = gql(`
+  query MessageUserGetUserBySlug($slug: String!) {
+    GetUserBySlug(slug: $slug) {
+      ...UsersMinimumInfo
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   error: {
@@ -41,7 +50,12 @@ const MessageUserInnerInner = ({ user, classes }: { user: UsersMinimumInfo; clas
 const MessageUser = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const currentUser = useCurrentUser();
   const { params } = useLocation();
-  const { user, loading } = useGetUserBySlug(params.slug, { fragmentName: 'UsersMinimumInfo', skip: !currentUser || !params.slug });
+  const { data, loading } = useQuery(GetUserBySlugQuery, {
+    variables: { slug: params.slug },
+    skip: !currentUser || !params.slug,
+  });
+
+  const user = data?.GetUserBySlug;
 
   if (!currentUser) {
     return <SingleColumnSection className={classes.error}>Log in to access private messages.</SingleColumnSection>;

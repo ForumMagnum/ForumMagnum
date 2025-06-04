@@ -14,7 +14,7 @@ import { gql } from '@/lib/generated/gql-codegen/gql';
 import { useRecommendations } from "@/components/recommendations/withRecommendations";
 import { getTopAuthor, getTotalReactsReceived } from "./wrappedHelpers";
 import { userCanStartConversations } from "@/lib/collections/conversations/helpers";
-import { LoadMoreProps } from "@/lib/crud/withMulti";
+import { LoadMoreProps } from '@/components/hooks/useQueryWithLoadMore';
 import WrappedWelcomeSection from "./WrappedWelcomeSection";
 import WrappedTimeSpentSection from "./WrappedTimeSpentSection";
 import WrappedDaysVisitedSection from "./WrappedDaysVisitedSection";

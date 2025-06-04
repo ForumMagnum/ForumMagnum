@@ -4,7 +4,7 @@ import type { CodegenConfig } from '@graphql-codegen/cli';
 const config: CodegenConfig = {
   overwrite: true,
   schema: "./packages/lesswrong/lib/generated/gqlSchema.gql",
-  documents: "./packages/lesswrong/",
+  documents: "./packages/lesswrong/**/*.{ts,tsx}",
   generates: {
     // One object for client-side query return types
     "./packages/lesswrong/lib/generated/gql-codegen/": {
