@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { CommentTreeOptions } from '../comments/commentTree';
 import NoContent from "../common/NoContent";
 import PostsItemNewCommentsListNode from "./PostsItemNewCommentsListNode";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const CommentsListMultiQuery = gql(`

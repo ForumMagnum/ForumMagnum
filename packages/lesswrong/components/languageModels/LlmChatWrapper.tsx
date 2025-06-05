@@ -10,7 +10,8 @@ import markdownItContainer from "markdown-it-container";
 import markdownItFootnote from "markdown-it-footnote";
 import markdownItSub from "markdown-it-sub";
 import markdownItSup from "markdown-it-sup";
-import { useQuery, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { maybeDate } from '@/lib/utils/dateUtils';
 

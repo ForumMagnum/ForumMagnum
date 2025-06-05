@@ -9,7 +9,7 @@ import ForumEventPoll, { getForumEventVoteForUser } from "./ForumEventPoll";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useConcreteThemeOptions } from "../themes/useTheme";
 import { useCurrentUser } from "../common/withUser";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import classNames from "classnames";
 

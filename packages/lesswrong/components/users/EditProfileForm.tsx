@@ -31,7 +31,8 @@ import PrefixedInput from "../form-components/PrefixedInput";
 import { Typography } from "../common/Typography";
 import ForumIcon from "../common/ForumIcon";
 import Loading from "../vulcan-core/Loading";
-import { useQuery, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const UsersEditUpdateMutation = gql(`

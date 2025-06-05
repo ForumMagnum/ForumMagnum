@@ -11,7 +11,7 @@ import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { taggingNamePluralSetting, taggingNameCapitalSetting } from "@/lib/instanceSettings";
 import { algoliaPrefixSetting } from "@/lib/publicSettings";
 import qs from "qs";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const TagNameMultiQuery = gql(`

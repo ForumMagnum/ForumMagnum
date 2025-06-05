@@ -12,7 +12,7 @@ import classNames from 'classnames';
 import moment from 'moment';
 import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWithChildren';
 import { useMapStyle } from '@/components/hooks/useMapStyle';
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import StyledMapPopup from "../../localGroups/StyledMapPopup";
 import GroupLinks from "../../localGroups/GroupLinks";

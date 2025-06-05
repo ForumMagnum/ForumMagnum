@@ -7,7 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import Loading from "./Loading";
 import LoadMore from "../common/LoadMore";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 type ColumnComponent = React.ComponentType<{column: any}>

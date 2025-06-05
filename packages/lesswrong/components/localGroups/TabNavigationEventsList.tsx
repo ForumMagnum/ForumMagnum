@@ -13,7 +13,7 @@ import { MenuItemLink } from "../common/Menus";
 import TimeTag from "../common/TimeTag";
 import FormatDate from "../common/FormatDate";
 import EventTime from "./EventTime";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const PostsListMultiQuery = gql(`

@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { useQuery } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 import { Card } from "@/components/widgets/Paper";
 import { Link } from '../../lib/reactRouterWrapper';
 import { looksLikeDbIdString } from '../../lib/routeUtil';

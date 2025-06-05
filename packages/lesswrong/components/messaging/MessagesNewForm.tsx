@@ -6,7 +6,8 @@ import classNames from "classnames";
 import { FormDisplayMode } from "../comments/CommentsNewForm";
 import {isFriendlyUI} from '../../themes/forumTheme'
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { useQuery, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { useForm } from "@tanstack/react-form";

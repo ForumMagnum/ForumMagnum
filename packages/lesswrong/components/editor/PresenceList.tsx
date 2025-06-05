@@ -4,7 +4,7 @@ import type { ConnectedUserInfo } from "./CKPostEditor";
 import keyBy from 'lodash/keyBy';
 import classNames from 'classnames';
 import CloudOff from "@/lib/vendor/@material-ui/icons/src/CloudOff";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import UsersName from "../users/UsersName";
 

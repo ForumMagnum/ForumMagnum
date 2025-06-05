@@ -11,7 +11,7 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const SubscriptionStateMultiQuery = gql(`

@@ -10,7 +10,7 @@ import SectionTitle from "../common/SectionTitle";
 import ReviewsLeaderboard from "./ReviewsLeaderboard";
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const CommentsListWithParentMetadataMultiQuery = gql(`

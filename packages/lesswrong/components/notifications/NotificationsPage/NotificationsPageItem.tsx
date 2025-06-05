@@ -3,7 +3,7 @@ import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import ForumIcon, { ForumIconName } from "../../common/ForumIcon";
 import classNames from "classnames";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import LWTooltip from "../../common/LWTooltip";
 import CommentsNodeInner from "../../comments/CommentsNode";

@@ -55,7 +55,7 @@ import UserNotifyDropdown from "../notifications/UserNotifyDropdown";
 import FooterTag from "../tagging/FooterTag";
 import DisplayNameWithMarkers from "../ea-forum/users/DisplayNameWithMarkers";
 import ForumIcon from "../common/ForumIcon";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import CommentsDraftList from '../comments/CommentsDraftList';

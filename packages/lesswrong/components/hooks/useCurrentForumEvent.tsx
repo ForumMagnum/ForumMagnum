@@ -1,6 +1,6 @@
 import React, { FC, ReactNode, createContext, useCallback, useContext, useEffect, useMemo } from "react";
 import { hasForumEvents } from "../../lib/betas";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const ForumEventsDisplayMultiQuery = gql(`

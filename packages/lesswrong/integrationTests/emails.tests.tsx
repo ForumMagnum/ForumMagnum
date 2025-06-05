@@ -3,7 +3,7 @@ import React from 'react';
 import { createDummyUser, createDummyPost } from './utils'
 import { emailDoctype, generateEmail } from '../server/emails/renderEmail';
 import { getUserEmail } from "../lib/collections/users/helpers";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { defineStyles, withStyles } from "@/components/hooks/useStyles";
 

@@ -6,7 +6,7 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isLW } from "../../lib/instanceSettings";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { DialogActions } from '../widgets/DialogActions';
 import LWDialog from "../common/LWDialog";

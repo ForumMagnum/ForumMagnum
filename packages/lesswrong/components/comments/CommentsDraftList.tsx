@@ -7,7 +7,7 @@ import CommentsNode, { COMMENT_DRAFT_TREE_OPTIONS } from './CommentsNode';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { useCommentLinkState } from './CommentsItem/useCommentLink';
 import { gql } from '@/lib/generated/gql-codegen';
-import { useQuery } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
 
 const LinkedDraftCommentQuery = gql(`

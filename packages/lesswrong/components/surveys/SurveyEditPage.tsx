@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from "react";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { useQuery } from '@/lib/crud/useQuery';
 import { Link } from "@/lib/reactRouterWrapper";
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from "@/lib/routeUtil";

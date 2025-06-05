@@ -7,7 +7,7 @@ import {
   forumEventBannerDescriptionStyles,
   forumEventBannerGradientBackground,
 } from "./ForumEventFrontpageBanner";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";

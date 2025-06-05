@@ -1,4 +1,5 @@
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
 import React, { FC, useCallback, useMemo, useRef, useState } from "react";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";

@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useQuery } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import PermanentRedirect from "../common/PermanentRedirect";

@@ -11,7 +11,7 @@ import { HIDE_FEATURED_RESOURCE_COOKIE } from '../../../lib/cookies/cookies';
 import { TooltipSpan } from '../FMTooltip';
 import { Typography } from "../Typography";
 import SimpleDivider from "../../widgets/SimpleDivider";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const FeaturedResourcesFragmentMultiQuery = gql(`

@@ -23,7 +23,8 @@ import ModerationGuidelinesBox from "./ModerationGuidelines/ModerationGuidelines
 import RecaptchaWarning from "../common/RecaptchaWarning";
 import NewCommentModerationWarning from "../sunshineDashboard/NewCommentModerationWarning";
 import RateLimitWarning from "../editor/RateLimitWarning";
-import { useQuery, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { useLocation } from '@/lib/routeUtil';
 

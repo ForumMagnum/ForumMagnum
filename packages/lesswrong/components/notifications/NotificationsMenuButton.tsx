@@ -9,7 +9,7 @@ import { Badge } from "@/components/widgets/Badge";
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import ForumIcon from "../common/ForumIcon";
 import LWPopper from "../common/LWPopper";

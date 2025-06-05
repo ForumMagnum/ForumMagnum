@@ -10,7 +10,7 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import SectionSubtitle from "../common/SectionSubtitle";
 import DialoguesSectionFrontpageSettings from "./DialoguesSectionFrontpageSettings";
-import { useQuery } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
 
 const styles = (theme: ThemeType) => ({

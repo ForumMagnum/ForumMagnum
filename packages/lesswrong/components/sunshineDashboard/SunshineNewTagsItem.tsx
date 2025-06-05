@@ -17,7 +17,8 @@ import SidebarHoverOver from "./SidebarHoverOver";
 import SidebarInfo from "./SidebarInfo";
 import Loading from "../vulcan-core/Loading";
 import ContentStyles from "../common/ContentStyles";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const TagRelFragmentMultiQuery = gql(`

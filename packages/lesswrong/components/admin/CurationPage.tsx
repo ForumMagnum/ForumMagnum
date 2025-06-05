@@ -12,7 +12,7 @@ import SectionTitle from "../common/SectionTitle";
 import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import CurationNoticesItem from "./CurationNoticesItem";
 import CommentsList from "../comments/CommentsList";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const CurationNoticesFragmentMultiQuery = gql(`

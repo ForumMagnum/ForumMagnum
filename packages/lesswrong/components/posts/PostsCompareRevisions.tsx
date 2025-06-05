@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { styles } from './PostsPage/PostsPage';
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import CompareRevisions from "../revisions/CompareRevisions";
 import PostsPagePostHeader from "./PostsPage/PostsPagePostHeader";

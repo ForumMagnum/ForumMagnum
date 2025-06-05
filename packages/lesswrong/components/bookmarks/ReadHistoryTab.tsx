@@ -8,7 +8,8 @@ import Loading from "../vulcan-core/Loading";
 import PostsItem from "../posts/PostsItem";
 import LoadMore from "../common/LoadMore";
 import { Typography } from "../common/Typography";
-import { NetworkStatus, useQuery } from '@apollo/client';
+import { NetworkStatus } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 
 const styles = (theme: ThemeType) => ({

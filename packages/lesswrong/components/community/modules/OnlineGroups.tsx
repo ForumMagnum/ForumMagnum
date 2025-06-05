@@ -7,7 +7,7 @@ import { requireCssVar } from '../../../themes/cssVars';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const localGroupsHomeFragmentMultiQuery = gql(`

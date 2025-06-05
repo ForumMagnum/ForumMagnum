@@ -5,7 +5,7 @@ import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
 import PostsItemIntroSequence from "../posts/PostsItemIntroSequence";
 import LoadMore from "../common/LoadMore";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const ChaptersFragmentMultiQuery = gql(`

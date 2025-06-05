@@ -6,7 +6,8 @@ import { taggingNameCapitalSetting, taggingNameSetting } from "../../lib/instanc
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import { Link } from "../../lib/reactRouterWrapper";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
 import { useMessages } from "../common/withMessages";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import TagsSearchAutoComplete from "../search/TagsSearchAutoComplete";

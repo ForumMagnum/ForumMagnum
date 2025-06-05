@@ -56,7 +56,7 @@ import ContentStyles from "../common/ContentStyles";
 import ReportUserButton from "./ReportUserButton";
 import UserNotifyDropdown from "../notifications/UserNotifyDropdown";
 import CommentsSortBySelector from "../comments/CommentsSortBySelector";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const UsersProfileMultiQuery = gql(`

@@ -17,7 +17,7 @@ import LoadMore from "../common/LoadMore";
 import TagActivityFeed from "./TagActivityFeed";
 import TagVoteActivity from "./TagVoteActivity";
 import SingleColumnSection from "../common/SingleColumnSection";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 

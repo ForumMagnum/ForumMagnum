@@ -23,7 +23,7 @@ import FeedContentBody from "./FeedContentBody";
 import UltraFeedItemFooter from "./UltraFeedItemFooter";
 import Loading from "../vulcan-core/Loading";
 import OverflowNavButtons from "./OverflowNavButtons";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import UltraFeedPostActions from "./UltraFeedPostActions";
 

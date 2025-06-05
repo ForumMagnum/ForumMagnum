@@ -8,7 +8,7 @@ import { PublicInstanceSetting } from '../../lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_HANDBOOK_COOKIE } from '../../lib/cookies/cookies';
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import Loading from "../vulcan-core/Loading";

@@ -6,7 +6,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Card } from "@/components/widgets/Paper";
 import { useCurrentUser } from "../common/withUser";
 import { taggingNameIsSet, taggingNamePluralCapitalSetting } from "../../lib/instanceSettings";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import LWPopper from "../common/LWPopper";
 import { ContentItemBody } from "../contents/ContentItemBody";

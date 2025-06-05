@@ -4,7 +4,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { PostWithArtGrid } from './PostWithArtGrid';
 import GenerateImagesButton from '@/components/review/GenerateImagesButton';
 import Loading from "../../../vulcan-core/Loading";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const ReviewWinnerArtImagesMultiQuery = gql(`

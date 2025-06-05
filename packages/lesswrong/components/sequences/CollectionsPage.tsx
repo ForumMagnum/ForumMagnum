@@ -7,7 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 import { isFriendlyUI } from '@/themes/forumTheme';
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { BooksForm } from './BooksForm';
 import Loading from "../vulcan-core/Loading";

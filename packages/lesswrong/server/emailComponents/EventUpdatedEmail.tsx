@@ -3,7 +3,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useTimezone } from '../../components/common/withTimezone';
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import PrettyEventDateTime from '@/components/events/modules/PrettyEventDateTime';
 

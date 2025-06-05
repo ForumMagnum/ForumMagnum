@@ -6,7 +6,7 @@ import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import ErrorBoundary from "../common/ErrorBoundary";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const CommentsListWithParentMetadataMultiQuery = gql(`

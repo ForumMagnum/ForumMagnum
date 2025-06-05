@@ -7,7 +7,7 @@ import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsType
 import { UltraFeedCommentItem, UltraFeedCompressedCommentsItem } from "./UltraFeedCommentItem";
 import UltraFeedPostItem from "./UltraFeedPostItem";
 import Loading from "../vulcan-core/Loading";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const PostsListWithVotesQuery = gql(`

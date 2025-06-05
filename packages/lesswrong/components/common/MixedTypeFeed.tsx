@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
-import { useQuery, ObservableQuery, WatchQueryFetchPolicy } from '@apollo/client';
+import { ObservableQuery, WatchQueryFetchPolicy } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';

@@ -10,7 +10,7 @@ import MessagesNewForm from "../messaging/MessagesNewForm";
 import UsersName from "../users/UsersName";
 import LWTooltip from "../common/LWTooltip";
 import MetaInfo from "../common/MetaInfo";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const ConversationsListMultiQuery = gql(`

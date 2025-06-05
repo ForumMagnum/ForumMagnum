@@ -14,7 +14,7 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import VisibilityOff from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import LWTooltip from "../common/LWTooltip";
 import PopperCard from "../common/PopperCard";

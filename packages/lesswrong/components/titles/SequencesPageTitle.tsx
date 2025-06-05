@@ -4,7 +4,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
 import { styles } from '../common/HeaderSubtitle';
 import { Helmet } from '../../lib/utils/componentsWithChildren';
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 

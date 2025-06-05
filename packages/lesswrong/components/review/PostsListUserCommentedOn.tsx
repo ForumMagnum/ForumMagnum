@@ -1,7 +1,8 @@
 import React, {useState} from 'react'
 import {AnalyticsContext} from '../../lib/analyticsEvents'
 import {useCurrentUser} from '../common/withUser'
-import {NetworkStatus, useQuery} from '@apollo/client'
+import {NetworkStatus} from '@apollo/client'
+import { useQuery } from "@/lib/crud/useQuery"
 import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import Loading from "../vulcan-core/Loading";

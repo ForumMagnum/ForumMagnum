@@ -5,7 +5,7 @@ import { defaultVisibilityTags } from './publicSettings';
 import filter from 'lodash/filter';
 import findIndex from 'lodash/findIndex'
 import { useTracking } from './analyticsEvents';
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const TagBasicInfoMultiQuery = gql(`

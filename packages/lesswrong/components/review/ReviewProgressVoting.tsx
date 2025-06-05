@@ -5,7 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import CropSquareIcon from '@/lib/vendor/@material-ui/icons/src/CropSquare';
 import range from 'lodash/range';
 import LWTooltip from "../common/LWTooltip";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const reviewVoteFragmentMultiQuery = gql(`

@@ -17,7 +17,8 @@ import LWDialog from "../../common/LWDialog";
 import { Typography } from "../../common/Typography";
 import Loading from "../../vulcan-core/Loading";
 import { gql } from '@/lib/generated/gql-codegen';
-import { useQuery, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 
 const postUpdateMutation = gql(`
   mutation updatePostModerationGuidelinesEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {

@@ -14,7 +14,7 @@ import { useMessages } from '../../common/withMessages';
 import { AnalyticsContext, useTracking } from '../../../lib/analyticsEvents';
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import Loading from "../../vulcan-core/Loading";
 import { Typography } from "../../common/Typography";

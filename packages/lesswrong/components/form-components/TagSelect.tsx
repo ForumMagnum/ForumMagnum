@@ -1,5 +1,5 @@
 import React from 'react';
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { Chip } from '@/components/widgets/Chip';
 import { defineStyles, useStyles } from '../hooks/useStyles';

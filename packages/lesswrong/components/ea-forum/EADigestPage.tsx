@@ -2,7 +2,7 @@ import React, { CSSProperties } from "react";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import moment from "moment";
 import { useLocation } from "@/lib/routeUtil";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen/gql';
 import { useCurrentUser } from "../common/withUser";
 import { Link } from "@/lib/reactRouterWrapper";

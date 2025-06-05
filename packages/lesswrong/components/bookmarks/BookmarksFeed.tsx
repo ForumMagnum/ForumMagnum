@@ -11,7 +11,7 @@ import Loading from "../vulcan-core/Loading";
 import FeedItemWrapper from "../ultraFeed/FeedItemWrapper";
 import UltraFeedPostItem from "../ultraFeed/UltraFeedPostItem";
 import UltraFeedThreadItem from "../ultraFeed/UltraFeedThreadItem";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const BookmarksFeedItemFragmentMultiQuery = gql(`

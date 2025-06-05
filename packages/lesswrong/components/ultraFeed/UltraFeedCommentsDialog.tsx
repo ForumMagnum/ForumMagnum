@@ -7,7 +7,7 @@ import { Link } from "../../lib/reactRouterWrapper";
 import LWDialog from "../common/LWDialog";
 import CommentsListSection from "../comments/CommentsListSection";
 import Loading from "../vulcan-core/Loading";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const CommentsListMultiQuery = gql(`

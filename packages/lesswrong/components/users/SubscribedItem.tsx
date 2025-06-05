@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { useQuery } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 import Loading from "../vulcan-core/Loading";
 import NotifyMeButton from "../notifications/NotifyMeButton";
 import { SubscriptionType } from "@/lib/collections/subscriptions/helpers";

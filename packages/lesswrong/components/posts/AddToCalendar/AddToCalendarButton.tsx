@@ -5,7 +5,7 @@ import { useTracking } from "../../../lib/analyticsEvents";
 import makeUrls from './makeUrls';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import LWTooltip from "../../common/LWTooltip";
 import LWPopper from "../../common/LWPopper";

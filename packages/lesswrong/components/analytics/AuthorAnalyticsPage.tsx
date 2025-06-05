@@ -20,7 +20,7 @@ import ForumIcon from "../common/ForumIcon";
 import LWTooltip from "../common/LWTooltip";
 import AnalyticsPostItem from "./AnalyticsPostItem";
 import AnalyticsPostItemSkeleton from "./AnalyticsPostItemSkeleton";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const UsersMinimumInfoMultiQuery = gql(`

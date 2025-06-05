@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
-import { useQuery } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { gql } from "@/lib/generated/gql-codegen/gql";

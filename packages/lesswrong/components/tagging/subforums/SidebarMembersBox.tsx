@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import SubforumSubscribeSection from "./SubforumSubscribeSection";
 import SubforumMember from "./SubforumMember";
 import Loading from "../../vulcan-core/Loading";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const UsersProfileMultiQuery = gql(`

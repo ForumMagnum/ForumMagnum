@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import type { ChecklistTag } from "../tagging/TagsChecklist";
 import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const TagPreviewFragmentMultiQuery = gql(`

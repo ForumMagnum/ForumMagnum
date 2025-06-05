@@ -16,7 +16,7 @@ import CommunityMapFilter from "./CommunityMapFilter";
 import LocalEventMarker from "./LocalEventMarker";
 import LocalGroupMarker from "./LocalGroupMarker";
 import StyledMapPopup from "./StyledMapPopup";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const UsersMapEntryMultiQuery = gql(`

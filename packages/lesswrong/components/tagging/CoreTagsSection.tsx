@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import CoreTagCard from "./CoreTagCard";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const TagDetailsFragmentMultiQuery = gql(`

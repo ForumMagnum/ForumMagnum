@@ -3,7 +3,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { EditableUser, getUserEmail, SOCIAL_MEDIA_PROFILE_FIELDS, userCanEditUser, userGetDisplayName, userGetProfileUrl } from '@/lib/collections/users/helpers';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '@/components/common/withUser';
-import { useMutation, useApolloClient, useQuery } from '@apollo/client';
+import { useMutation, useApolloClient } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery"
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, verifyEmailsSetting } from '@/lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from '@/components/themes/useTheme';
 import { captureEvent } from '@/lib/analyticsEvents';

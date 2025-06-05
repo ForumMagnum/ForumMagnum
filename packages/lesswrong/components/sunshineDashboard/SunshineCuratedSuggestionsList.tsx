@@ -11,7 +11,7 @@ import FormatDate from "../common/FormatDate";
 import LoadMore from "../common/LoadMore";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { userIsMemberOf } from '@/lib/vulcan-users/permissions';

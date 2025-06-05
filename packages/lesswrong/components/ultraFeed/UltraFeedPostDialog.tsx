@@ -11,7 +11,7 @@ import Loading from "../vulcan-core/Loading";
 import CommentsListSection from "../comments/CommentsListSection";
 import ForumIcon from '../common/ForumIcon';
 import { DialogContent } from "../widgets/DialogContent";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const CommentsListMultiQuery = gql(`

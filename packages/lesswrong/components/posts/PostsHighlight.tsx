@@ -8,7 +8,7 @@ import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import { captureException }from "@sentry/core";
 import classNames from 'classnames';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import ContentStyles from "../common/ContentStyles";
 import LinkPostMessage from "./LinkPostMessage";

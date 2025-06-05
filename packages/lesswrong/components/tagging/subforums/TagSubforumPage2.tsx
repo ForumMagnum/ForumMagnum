@@ -28,7 +28,8 @@ import TagTableOfContents from "../TagTableOfContents";
 import SidebarSubtagsBox from "./SidebarSubtagsBox";
 import SubforumWikiTab from "./SubforumWikiTab";
 import SubforumSubforumTab from "./SubforumSubforumTab";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const UserTagRelDetailsMultiQuery = gql(`

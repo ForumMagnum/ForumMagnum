@@ -6,7 +6,8 @@ import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import type { PetrovDayActionType } from "@/lib/collections/petrovDayActions/constants";
 import PetrovWorldmapWrapper from "./PetrovWorldmapWrapper";
 import PastWarnings from "./PastWarnings";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const PetrovDayActionInfoMultiQuery = gql(`
