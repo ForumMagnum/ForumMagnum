@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import UsersNameDisplay from "../users/UsersNameDisplay";

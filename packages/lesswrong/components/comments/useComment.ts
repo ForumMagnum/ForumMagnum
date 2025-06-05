@@ -1,5 +1,5 @@
 import { isValidBase36Id } from '../../lib/utils/base36id';
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const CommentsListMultiQuery = gql(`

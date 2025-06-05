@@ -5,7 +5,7 @@ import Loading from "../vulcan-core/Loading";
 import UsersNameDisplay from "./UsersNameDisplay";
 import UserNameDeleted from "./UserNameDeleted";
 import { gql } from "@/lib/generated/gql-codegen/gql";
-import { useQuery } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 
 const UsersMinimumInfoQuery = gql(`
   query UsersNameWrapper($documentId: String) {

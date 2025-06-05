@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useCurrentUser } from '@/components/common/withUser';
-import { useQuery } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
 import PetrovAdminConsole from "./PetrovAdminConsole";

@@ -10,7 +10,7 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import CompareRevisions from "../revisions/CompareRevisions";
 import RevisionComparisonNotice from "../revisions/RevisionComparisonNotice";
 import LoadingOrErrorPage from "../common/LoadingOrErrorPage";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const RevisionHistoryEntryMultiQuery = gql(`

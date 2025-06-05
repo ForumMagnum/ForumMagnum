@@ -5,7 +5,7 @@ import DeferRender from '../common/DeferRender';
 import { UpdateCurrentValues } from '../vulcan-forms/propTypes';
 import Loading from "../vulcan-core/Loading";
 import TagFlagItem from "../tagging/TagFlagItem";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const TagFlagFragmentMultiQuery = gql(`

@@ -6,7 +6,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import TagsChecklist from "../tagging/TagsChecklist";
 import TagMultiselect from "./TagMultiselect";
 import Loading from "../vulcan-core/Loading";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const TagFragmentMultiQuery = gql(`

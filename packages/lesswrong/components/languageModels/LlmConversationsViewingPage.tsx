@@ -8,7 +8,7 @@ import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { isEmpty } from 'underscore';
 import qs from 'qs';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox/Checkbox";
 import Loading from "../vulcan-core/Loading";

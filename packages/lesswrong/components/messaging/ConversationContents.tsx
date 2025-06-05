@@ -12,7 +12,7 @@ import Error404 from "../common/Error404";
 import Loading from "../vulcan-core/Loading";
 import MessageItem from "./MessageItem";
 import Divider from "../common/Divider";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const messageListFragmentMultiQuery = gql(`

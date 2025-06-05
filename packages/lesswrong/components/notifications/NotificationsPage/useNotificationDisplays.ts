@@ -1,5 +1,5 @@
 import { useCurrentUser } from "../../common/withUser";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 
 export const useNotificationDisplays = (limit: number, type?: string) => {

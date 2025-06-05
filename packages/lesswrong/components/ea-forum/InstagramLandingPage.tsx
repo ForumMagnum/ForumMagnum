@@ -5,7 +5,7 @@ import sortBy from "lodash/sortBy";
 import flatten from "lodash/flatten";
 import PostsLoading from "../posts/PostsLoading";
 import EAPostsItem from "../posts/EAPostsItem";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const PostsListWithVotesMultiQuery = gql(`

@@ -11,7 +11,7 @@ import TagsListItem from "./TagsListItem";
 import SectionTitle from "../common/SectionTitle";
 import SectionButton from "../common/SectionButton";
 import Loading from "../vulcan-core/Loading";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const TagPreviewFragmentMultiQuery = gql(`

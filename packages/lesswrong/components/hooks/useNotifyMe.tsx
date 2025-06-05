@@ -12,7 +12,8 @@ import type { SubscriptionType } from "../../lib/collections/subscriptions/helpe
 import { max } from "underscore";
 import { userIsDefaultSubscribed, userSubscriptionStateIsFixed } from "../../lib/subscriptionUtil";
 import LoginPopup from "../users/LoginPopup";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const SubscriptionStateMultiQuery = gql(`

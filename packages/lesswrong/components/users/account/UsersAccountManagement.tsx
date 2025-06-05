@@ -8,7 +8,7 @@ import Loading from "../../vulcan-core/Loading";
 import DeactivateAccountSection from "./DeactivateAccountSection";
 import DeleteAccountSection from "./DeleteAccountSection";
 import { gql } from '@/lib/generated/gql-codegen';
-import { useQuery } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 
 const GetUserBySlugQuery = gql(`
   query UsersAccountManagementGetUserBySlug($slug: String!) {

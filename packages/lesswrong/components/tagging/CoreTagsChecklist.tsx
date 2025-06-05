@@ -4,7 +4,7 @@ import { tagStyle } from './FooterTag';
 import { taggingNameSetting } from '../../lib/instanceSettings';
 import TagsChecklist from "./TagsChecklist";
 import Loading from "../vulcan-core/Loading";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const TagFragmentMultiQuery = gql(`

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { NetworkStatus, useQuery } from "@apollo/client";
+import { NetworkStatus } from "@apollo/client";
+import { useQuery } from '@/lib/crud/useQuery';
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import classNames from "classnames";
 import ErrorBoundary from "@/components/common/ErrorBoundary";

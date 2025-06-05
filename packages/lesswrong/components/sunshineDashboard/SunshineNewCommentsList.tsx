@@ -3,7 +3,7 @@ import React from 'react';
 import SunshineListCount from "./SunshineListCount";
 import SunshineNewCommentsItem from "./SunshineNewCommentsItem";
 import SunshineListTitle from "./SunshineListTitle";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const CommentsListWithParentMetadataMultiQuery = gql(`

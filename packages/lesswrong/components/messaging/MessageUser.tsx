@@ -6,7 +6,7 @@ import { useInitiateConversation } from "../hooks/useInitiateConversation";
 import Loading from "../vulcan-core/Loading";
 import PermanentRedirect from "../common/PermanentRedirect";
 import SingleColumnSection from "../common/SingleColumnSection";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const GetUserBySlugQuery = gql(`

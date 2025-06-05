@@ -6,7 +6,8 @@ import { useCurrentUser } from '../../common/withUser';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import LWTooltip from "../../common/LWTooltip";
 import LoginPopupButton from "../../users/LoginPopupButton";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const PetrovDayActionInfoMultiQuery = gql(`

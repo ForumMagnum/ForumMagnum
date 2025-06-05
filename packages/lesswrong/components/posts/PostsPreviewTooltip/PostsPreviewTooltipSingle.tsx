@@ -1,6 +1,6 @@
 import React from 'react';
 import { DialogueMessageInfo, PostsPreviewTooltip } from './PostsPreviewTooltip';
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import PostsPreviewLoading from "./PostsPreviewLoading";
 

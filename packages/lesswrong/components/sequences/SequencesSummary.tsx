@@ -12,7 +12,7 @@ import Loading from "../vulcan-core/Loading";
 import ContentStyles from "../common/ContentStyles";
 import ContentItemTruncated from "../common/ContentItemTruncated";
 import LWTooltip from "../common/LWTooltip";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const ChaptersFragmentMultiQuery = gql(`

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useQuery, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { useQuery } from '@/lib/crud/useQuery';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { Menu } from '@/components/widgets/Menu';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useApolloClient, useQuery, useMutation } from '@apollo/client';
+import { useApolloClient, useMutation } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen/gql';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useDialog } from '../../common/withDialog';

@@ -10,7 +10,7 @@ import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { gql } from '@/lib/generated/gql-codegen/gql';
-import { useQuery } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 import Loading from "../vulcan-core/Loading";
 import WikiTagGroup from "./WikiTagGroup";
 import NewWikiTagButton from "./NewWikiTagButton";

@@ -12,7 +12,7 @@ import ContentStyles from "../common/ContentStyles";
 import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import Row from "../common/Row";
 import UsersNameDisplay from "../users/UsersNameDisplay";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 

@@ -8,7 +8,7 @@ import SectionButton from "../common/SectionButton";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import PostsItem from "../posts/PostsItem";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const ChaptersEditQuery = gql(`

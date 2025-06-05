@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
-import { useQuery } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 import MigrationsDashboardRow, { rowStyles } from './MigrationsDashboardRow';
 import SingleColumnSection from "../../common/SingleColumnSection";
 import Loading from "../../vulcan-core/Loading";

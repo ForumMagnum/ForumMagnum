@@ -5,7 +5,7 @@ import CalendarDate from "../common/CalendarDate";
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
 import { maybeDate } from '@/lib/utils/dateUtils';
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const lastEventFragmentMultiQuery = gql(`

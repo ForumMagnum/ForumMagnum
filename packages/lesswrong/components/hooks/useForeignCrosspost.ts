@@ -1,4 +1,5 @@
-import { ApolloError, useQuery, WatchQueryFetchPolicy } from "@apollo/client";
+import { ApolloError, WatchQueryFetchPolicy } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { postGetCommentCountStr } from "../../lib/collections/posts/helpers";
 import { gql } from "@/lib/generated/gql-codegen";
 

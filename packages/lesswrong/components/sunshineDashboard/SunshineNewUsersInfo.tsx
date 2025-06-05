@@ -19,7 +19,7 @@ import ModeratorMessageCount from "./ModeratorMessageCount";
 import UserReviewMetadata from "./ModeratorUserInfo/UserReviewMetadata";
 import ModeratorActions from "./ModeratorActions";
 import NewUserDMSummary from "./ModeratorUserInfo/NewUserDMSummary";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const CommentsListWithParentMetadataMultiQuery = gql(`

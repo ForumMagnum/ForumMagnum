@@ -8,7 +8,7 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import SectionFooter from "../common/SectionFooter";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const UsersProfileMultiQuery = gql(`

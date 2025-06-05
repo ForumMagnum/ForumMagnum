@@ -14,7 +14,7 @@ import EACollectionCard from "./EACollectionCard";
 import EAPostsItem from "../posts/EAPostsItem";
 import PostsAudioCard from "../posts/PostsAudioCard";
 import PostsVideoCard from "../posts/PostsVideoCard";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const PostsListWithVotesMultiQuery = gql(`

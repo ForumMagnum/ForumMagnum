@@ -13,7 +13,7 @@ import Loading from "../vulcan-core/Loading";
 import Row from "../common/Row";
 import ToCColumn from "../posts/TableOfContents/ToCColumn";
 import TableOfContents from "../posts/TableOfContents/TableOfContents";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const ModerationTemplateFragmentMultiQuery = gql(`

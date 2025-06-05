@@ -1,7 +1,7 @@
 import React from 'react';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";

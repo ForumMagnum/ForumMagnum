@@ -18,7 +18,8 @@ import LWPopper from "../common/LWPopper";
 import { Typography } from "../common/Typography";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const SubscriptionStateMultiQuery = gql(`

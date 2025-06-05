@@ -25,7 +25,7 @@ import TagIntroSequence from "../TagIntroSequence";
 import SectionTitle from "../../common/SectionTitle";
 import ContentStyles from "../../common/ContentStyles";
 import Loading from "../../vulcan-core/Loading";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const TagEditFragmentQuery = gql(`

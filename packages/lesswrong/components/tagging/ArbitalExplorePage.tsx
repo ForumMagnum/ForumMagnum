@@ -6,7 +6,7 @@ import type { ArbitalPage, ArbitalPageNode } from './arbitalTypes';
 import WikiTagNestedList from "./WikiTagNestedList";
 import Loading from "../vulcan-core/Loading";
 import InlineSelect from "../common/InlineSelect";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const ExplorePageTagFragmentMultiQuery = gql(`

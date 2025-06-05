@@ -6,7 +6,7 @@ import ErrorBoundary from "../common/ErrorBoundary";
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 import LWPostsByVote from "./LWPostsByVote";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const UserVotesMultiQuery = gql(`

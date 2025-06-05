@@ -4,7 +4,7 @@ import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm
 import { FormComponentMultiSelect } from '@/components/form-components/FormComponentMultiSelect';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { MenuItem } from "../common/Menus";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const localGroupsBaseMultiQuery = gql(`

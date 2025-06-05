@@ -10,7 +10,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { EmailFormatDate } from './EmailFormatDate';
 import { EmailUsername } from './EmailUsername';
 import { EmailContentItemBody } from './EmailContentItemBody';
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { maybeDate } from '@/lib/utils/dateUtils';
 

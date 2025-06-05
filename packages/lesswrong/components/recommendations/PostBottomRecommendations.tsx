@@ -12,7 +12,7 @@ import EAPostsItem from "../posts/EAPostsItem";
 import EALargePostsItem from "../posts/EALargePostsItem";
 import UserTooltip from "../users/UserTooltip";
 import PostsItem from "../posts/PostsItem";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const styles = (theme: ThemeType) => ({

@@ -1,5 +1,6 @@
 import React, { useState, MouseEvent, useEffect, useCallback } from "react";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
 import { useCurrentUser } from "@/components/common/withUser";
 import { useDialog } from "@/components/common/withDialog";

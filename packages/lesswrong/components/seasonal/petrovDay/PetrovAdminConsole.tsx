@@ -3,7 +3,7 @@ import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useTracking } from '@/lib/analyticsEvents';
 import PetrovWorldmapWrapper from "./PetrovWorldmapWrapper";
 import Row from "../../common/Row";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const PetrovDayActionInfoMultiQuery = gql(`

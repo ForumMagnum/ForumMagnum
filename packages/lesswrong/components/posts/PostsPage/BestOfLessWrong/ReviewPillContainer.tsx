@@ -9,7 +9,7 @@ import CommentBody from "../../../comments/CommentsItem/CommentBody";
 import SmallSideVote from "../../../votes/SmallSideVote";
 import LWTooltip from "../../../common/LWTooltip";
 import UsersNameDisplay from "../../../users/UsersNameDisplay";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const CommentWithRepliesFragmentMultiQuery = gql(`

@@ -20,7 +20,7 @@ import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
 import CoreTagsSection from "./CoreTagsSection";
 import SingleColumnSection from "../common/SingleColumnSection";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const TagEditFragmentQuery = gql(`

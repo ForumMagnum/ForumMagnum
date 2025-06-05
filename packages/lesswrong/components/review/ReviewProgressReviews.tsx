@@ -6,7 +6,7 @@ import CheckBoxOutlineBlankIcon from '@/lib/vendor/@material-ui/icons/src/CheckB
 import CheckBoxTwoToneIcon from '@/lib/vendor/@material-ui/icons/src/CheckBoxTwoTone';
 import range from 'lodash/range';
 import LWTooltip from "../common/LWTooltip";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const CommentsListWithParentMetadataMultiQuery = gql(`

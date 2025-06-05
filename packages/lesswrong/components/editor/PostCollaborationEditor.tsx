@@ -6,7 +6,7 @@ import { getPostCollaborateUrl, canUserEditPostMetadata, postGetEditUrl, isNotHo
 import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
 import { isMissingDocumentError } from '../../lib/utils/errorUtil';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@/lib/crud/useQuery';
 import DeferRender from '../common/DeferRender';
 import Error404 from "../common/Error404";
 import PostsAuthors from "../posts/PostsPage/PostsAuthors";

@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { hasSurveys } from "@/lib/betas";
 

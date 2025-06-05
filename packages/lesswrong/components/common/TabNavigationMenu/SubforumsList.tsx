@@ -5,7 +5,7 @@ import { tagGetSubforumUrl, tagGetUrl } from "../../../lib/collections/tags/help
 import { isEAForum } from "../../../lib/instanceSettings";
 import TabNavigationSubItem from "./TabNavigationSubItem";
 import { MenuItemLink, MenuItem } from "../Menus";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const TagSubforumSidebarFragmentMultiQuery = gql(`

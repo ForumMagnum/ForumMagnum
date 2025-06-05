@@ -10,7 +10,7 @@ import { useLocation, useNavigate } from "../../lib/routeUtil";
 import SingleColumnSection from "./SingleColumnSection";
 import ForumIcon from "./ForumIcon";
 import LWTooltip from "./LWTooltip";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const TagFragmentMultiQuery = gql(`

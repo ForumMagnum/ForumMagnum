@@ -1,6 +1,7 @@
 import React, { FC, MouseEvent, useCallback, useEffect, useRef, useState } from "react";
 import classNames from "classnames";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import CloudinaryImage2, { CloudinaryPropsType } from "../common/CloudinaryImage2";

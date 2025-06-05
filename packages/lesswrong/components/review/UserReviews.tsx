@@ -6,7 +6,7 @@ import RecentComments from "../comments/RecentComments";
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
 import Error404 from "../common/Error404";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const UsersProfileMultiQuery = gql(`

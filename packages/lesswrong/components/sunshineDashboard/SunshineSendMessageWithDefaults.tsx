@@ -9,7 +9,7 @@ import { commentBodyStyles } from '../../themes/stylePiping';
 import { ContentItemBody } from "../contents/ContentItemBody";
 import LWTooltip from "../common/LWTooltip";
 import { MenuItem } from "../common/Menus";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 
 const ModerationTemplateFragmentMultiQuery = gql(`

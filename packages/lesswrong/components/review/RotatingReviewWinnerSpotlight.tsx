@@ -1,6 +1,6 @@
 import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { useQuery } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import SpotlightItem from "../spotlights/SpotlightItem";
