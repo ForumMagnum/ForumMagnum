@@ -111,11 +111,11 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   sourceIcon: {
     width: 16,
     height: 16,
-    marginRight: 8,
+    marginRight: 6,
     color: theme.palette.grey[600],
     opacity: 0.7,
     position: 'relative',
-    top: 2,
+    top: 3,
     flexShrink: 0,
   },
   metaDateContainer: {
@@ -150,6 +150,13 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
 }));
 
+const sourceIconMap: Array<{ source: FeedItemSourceType, icon: any, tooltip: string }> = [
+  { source: 'bookmarks' as FeedItemSourceType, icon: BookmarksIcon, tooltip: "From your bookmarks" },
+  { source: 'subscriptions' as FeedItemSourceType, icon: SubscriptionsIcon, tooltip: "From users you follow" },
+  { source: 'recombee-lesswrong-custom' as FeedItemSourceType, icon: SparkleIcon, tooltip: "Recommended for you" },
+  { source: 'hacker-news' as FeedItemSourceType, icon: ClockIcon, tooltip: "Latest posts" },
+];
+
 interface UltraFeedPostItemHeaderProps {
   post: PostsListWithVotes;
   isRead: boolean;
@@ -175,35 +182,13 @@ const UltraFeedPostItemHeader = ({
     }
   };
 
-  const getSourceIcon = () => {
-    if (sources.includes('bookmarks')) {
-      return { icon: BookmarksIcon, tooltip: "From your bookmarks" };
-    }
-    if (sources.includes('subscriptions')) {
-      return { icon: SubscriptionsIcon, tooltip: "From users you follow" };
-    }
-    if (sources.includes('recombee-lesswrong-custom')) {
-      return { icon: SparkleIcon, tooltip: "Recommended for you" };
-    }
-    if (sources.includes('hacker-news')) {
-      return { icon: ClockIcon, tooltip: "Latest posts" };
-    }
-    return null;
-  };
-
-  const sourceIconInfo = getSourceIcon();
+  const sourceIcons = sourceIconMap
+    .filter(({ source }) => sources.includes(source))
+    .map(({ source, icon, tooltip }) => ({ icon, tooltip, key: source }));
 
   return (
     <div className={classes.header}>
       <div className={classes.titleContainer}>
-        {sourceIconInfo && (
-          <LWTooltip title={sourceIconInfo.tooltip} placement="top">
-            <span>
-              <sourceIconInfo.icon className={classes.sourceIcon} />
-            </span>
-          </LWTooltip>
-        )}
-        {/* Mobile version: Respects postTitlesAreModals */}
         <div className={classes.hideOnDesktop}>
           {postTitlesAreModals ? (
             <a
@@ -233,6 +218,13 @@ const UltraFeedPostItemHeader = ({
         </div>
       </div>
       <div className={classes.metaRow}>
+        {sourceIcons.map((iconInfo) => (
+          <LWTooltip key={iconInfo.key} title={iconInfo.tooltip} placement="top">
+            <span>
+              <iconInfo.icon className={classes.sourceIcon} />
+            </span>
+          </LWTooltip>
+        ))}
         <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={authorListRef} className={classes.authorsList} />
         {post.postedAt && (
           <span className={classes.metaDateContainer}>

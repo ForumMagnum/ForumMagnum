@@ -39,7 +39,7 @@ export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
   'recombee-lesswrong-custom': 30,
   'hacker-news': 30,
   'spotlights': 5,
-  'bookmarks': 5,
+  'bookmarks': 1,
   'subscriptions': 20,
 };
 export interface CommentScoringSettings {
