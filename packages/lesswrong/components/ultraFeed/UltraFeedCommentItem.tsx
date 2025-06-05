@@ -24,7 +24,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     position: 'relative',
     paddingTop: commentHeaderPaddingDesktop,
     backgroundColor: 'transparent',
-    transition: 'background-color 0.75s ease-out',
+    transition: 'background-color 1.0s ease-out',
   },
   rootWithAnimation: {
     backgroundColor: `${theme.palette.primary.main}3b`,
