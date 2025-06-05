@@ -194,24 +194,36 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
   const triggerParentHighlight = useCallback((commentId: string) => {
     const comment = comments.find(c => c._id === commentId);
     if (comment?.parentCommentId) {
-      // Add the parent comment ID to the animating set
-      setAnimatingCommentIds(prev => new Set(prev).add(comment.parentCommentId!));
+      const parentCommentId = comment.parentCommentId;
       
-      // Remove it after a short delay to trigger the fade-out
+      const parentStatus = commentDisplayStatuses[parentCommentId];
+      const wasCollapsed = parentStatus === "collapsed" || parentStatus === "hidden";
+      
+      if (wasCollapsed) {
+        setDisplayStatus(parentCommentId, "expanded");
+      }
+      
+      const highlightDelay = wasCollapsed ? 300 : 0;
+      
       setTimeout(() => {
-        setAnimatingCommentIds(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(comment.parentCommentId!);
-          return newSet;
-        });
-      }, 100); // Short delay before starting fade-out
+        setAnimatingCommentIds(prev => new Set(prev).add(parentCommentId));
+        
+        setTimeout(() => {
+          setAnimatingCommentIds(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(parentCommentId);
+            return newSet;
+          });
+        }, 100);
+      }, highlightDelay);
       
       captureEvent("ultraFeedReplyIconClicked", {
         commentId,
-        parentCommentId: comment.parentCommentId,
+        parentCommentId: parentCommentId,
+        wasCollapsed,
       });
     }
-  }, [comments, captureEvent]);
+  }, [comments, commentDisplayStatuses, setDisplayStatus, captureEvent]);
 
   return (
     <AnalyticsContext pageSubSectionContext="ultraFeedThread" ultraFeedCardId={thread._id} ultraFeedCardIndex={index}>
