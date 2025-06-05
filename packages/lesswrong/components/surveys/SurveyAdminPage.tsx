@@ -90,7 +90,6 @@ const SurveysEditor = ({classes}: {
       limit: 10,
       enableTotal: false,
     },
-    notifyOnNetworkStatusChange: true,
   });
 
   const surveys = data?.surveys?.results;
@@ -103,7 +102,6 @@ const SurveysEditor = ({classes}: {
       limit: 10,
       enableTotal: false,
     },
-    notifyOnNetworkStatusChange: true,
   });
 
   const surveySchedules = dataSurveyScheduleEdit?.surveySchedules?.results;

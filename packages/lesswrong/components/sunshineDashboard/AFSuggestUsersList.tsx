@@ -34,7 +34,6 @@ const AFSuggestUsersList = ({ classes }: {
       enableTotal: true,
     },
     fetchPolicy: 'cache-and-network',
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 100,
   });
 

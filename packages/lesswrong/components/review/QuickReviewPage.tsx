@@ -71,7 +71,6 @@ export const QuickReviewPage = ({classes, reviewYear}: {
     },
     skip: !reviewYear,
     fetchPolicy: 'cache-and-network',
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 1000,
   });
 

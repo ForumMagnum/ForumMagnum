@@ -138,7 +138,6 @@ const TaggingDashboard = ({classes}: {
       limit: 10,
       enableTotal: false,
     },
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 50,
   });
 

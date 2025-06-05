@@ -252,7 +252,6 @@ const FriendlyInbox = ({
       limit: initialLimit,
       enableTotal: false,
     },
-    notifyOnNetworkStatusChange: true,
   });
 
   const conversations = useMemo(() => conversationsData?.conversations?.results ?? [], [conversationsData?.conversations?.results]);

@@ -64,7 +64,6 @@ const UserCommentsReplies = ({ classes }: { classes: ClassesType<typeof styles> 
       enableTotal: false,
     },
     skip: !user,
-    notifyOnNetworkStatusChange: true,
   });
 
   const results = dataCommentsListWithParentMetadata?.comments?.results;

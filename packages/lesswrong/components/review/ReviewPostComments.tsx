@@ -63,7 +63,6 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
       enableTotal: false,
     },
     fetchPolicy: 'cache-and-network',
-    notifyOnNetworkStatusChange: true,
   });
 
   const results = data?.comments?.results;

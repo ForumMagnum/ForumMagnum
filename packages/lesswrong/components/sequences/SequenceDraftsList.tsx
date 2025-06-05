@@ -68,7 +68,6 @@ const SequenceDraftsList = ({limit, title="My Drafts", userId, classes, addDraft
     },
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    notifyOnNetworkStatusChange: true,
   });
 
   const results = data?.posts?.results;

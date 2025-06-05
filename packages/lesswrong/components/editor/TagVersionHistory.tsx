@@ -135,7 +135,6 @@ const TagVersionHistory = ({tagId, onClose, classes}: {
       enableTotal: false,
     },
     fetchPolicy: "cache-and-network",
-    notifyOnNetworkStatusChange: true,
   });
 
   const revisions = dataRevisions?.revisions?.results;

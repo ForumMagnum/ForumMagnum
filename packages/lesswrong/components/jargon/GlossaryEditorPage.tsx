@@ -59,7 +59,6 @@ export const GlossaryEditorPage = ({classes}: {
       limit: limit,
       enableTotal: false,
     },
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 50,
   });
 

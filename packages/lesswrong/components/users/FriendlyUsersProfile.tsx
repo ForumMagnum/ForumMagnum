@@ -314,7 +314,6 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
       enableTotal: false,
     },
     skip: !user,
-    notifyOnNetworkStatusChange: true,
   });
 
   const userOrganizesGroups = dataLocalGroupsHomeFragment?.localgroups?.results;

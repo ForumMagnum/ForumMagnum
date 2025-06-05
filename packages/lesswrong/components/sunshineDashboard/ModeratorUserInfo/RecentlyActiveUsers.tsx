@@ -152,7 +152,6 @@ const RecentlyActiveUsers = ({ classes }: {
       limit: limit,
       enableTotal: true,
     },
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 200,
   });
 

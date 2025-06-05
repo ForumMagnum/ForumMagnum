@@ -34,7 +34,6 @@ const SunshineNewTagsList = ({ classes }: {classes: ClassesType<typeof styles>})
       limit: 30,
       enableTotal: true,
     },
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 30,
   });
 

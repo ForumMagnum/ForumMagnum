@@ -58,7 +58,6 @@ const NotificationsList = ({ terms, currentUser, classes }: {
       limit: 20,
       enableTotal: false,
     },
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 10,
   });
 

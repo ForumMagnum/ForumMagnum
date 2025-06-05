@@ -68,7 +68,6 @@ const ShortformTimeBlock  = ({reportEmpty, before, after, terms, classes}: {
       enableTotal: true,
     },
     fetchPolicy: 'cache-and-network',
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 50,
   });
 

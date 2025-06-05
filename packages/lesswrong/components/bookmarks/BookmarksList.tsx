@@ -47,7 +47,6 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, 
     },
     skip: !currentUser?._id,
     fetchPolicy: "cache-and-network",
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 20,
   });
 

@@ -128,7 +128,6 @@ const TagVoteActivity = ({classes, showHeaders = true, showNewTags = true, limit
       limit: limit,
       enableTotal: false,
     },
-    notifyOnNetworkStatusChange: true,
     itemsPerPage,
   });
 

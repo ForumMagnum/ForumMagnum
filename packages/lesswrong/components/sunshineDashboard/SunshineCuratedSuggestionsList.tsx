@@ -102,7 +102,6 @@ const SunshineCuratedSuggestionsList = ({ terms, atBottom, classes, setCurationP
       limit: 10,
       enableTotal: true,
     },
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 60,
   });
 

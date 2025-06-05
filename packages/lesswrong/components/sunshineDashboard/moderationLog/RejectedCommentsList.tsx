@@ -56,7 +56,6 @@ export const RejectedCommentsList = ({classes}: {
       limit: 10,
       enableTotal: false,
     },
-    notifyOnNetworkStatusChange: true,
   });
 
   const results = data?.comments?.results;

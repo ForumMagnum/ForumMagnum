@@ -40,7 +40,6 @@ const SunshineNewPostsList = ({ terms, classes }: {
       limit: 10,
       enableTotal: true,
     },
-    notifyOnNetworkStatusChange: true,
   });
 
   const results = data?.posts?.results;

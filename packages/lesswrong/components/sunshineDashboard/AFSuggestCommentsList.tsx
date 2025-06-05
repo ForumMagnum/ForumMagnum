@@ -35,7 +35,6 @@ const AFSuggestCommentsList = ({ classes }: {
       enableTotal: true,
     },
     fetchPolicy: 'cache-and-network',
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 30,
   });
 

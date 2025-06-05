@@ -121,7 +121,6 @@ export const QuickReviewPage2022 = ({classes}: {
     },
     skip: !reviewYear,
     fetchPolicy: 'cache-and-network',
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 1000,
   });
 

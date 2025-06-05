@@ -51,7 +51,6 @@ const TagEditsByUser = ({userId, limit, classes}: {
     },
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-only",
-    notifyOnNetworkStatusChange: true,
   });
 
   const results = data?.revisions?.results;

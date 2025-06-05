@@ -392,7 +392,6 @@ const EventsHome = ({classes}: {
     skip: userLocation.loading,
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 12,
   });
 

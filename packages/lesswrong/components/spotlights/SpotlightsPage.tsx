@@ -57,7 +57,6 @@ export const SpotlightsPage = ({classes}: {
     },
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
-    notifyOnNetworkStatusChange: true,
   });
 
   const spotlights = useMemo(() => data?.spotlights?.results ?? [], [data?.spotlights?.results]);

@@ -43,7 +43,6 @@ const SequencesGridWrapper = ({
       limit: 10,
       enableTotal: showLoadMore,
     },
-    notifyOnNetworkStatusChange: true,
     itemsPerPage,
   });
 

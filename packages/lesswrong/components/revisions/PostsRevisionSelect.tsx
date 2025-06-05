@@ -57,7 +57,6 @@ const PostsRevisionSelect = ({ classes }: {
     },
     skip: !post,
     fetchPolicy: 'cache-first',
-    notifyOnNetworkStatusChange: true,
   });
 
   const revisions = dataRevisionsOnDocument?.revisions?.results;

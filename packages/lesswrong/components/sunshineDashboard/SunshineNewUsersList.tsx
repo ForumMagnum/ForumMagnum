@@ -41,7 +41,6 @@ const SunshineNewUsersList = ({ classes, terms, currentUser }: {
       limit: 10,
       enableTotal: true,
     },
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 60,
   });
 
