@@ -31,7 +31,7 @@ const SunshineNewCommentsList = ({ terms, classes }: {
   const { data } = useQuery(CommentsListWithParentMetadataMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
-      limit: 10,
+      limit: limit ?? 10,
       enableTotal: true,
     },
     notifyOnNetworkStatusChange: true,

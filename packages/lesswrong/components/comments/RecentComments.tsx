@@ -42,7 +42,7 @@ const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=fa
   const { data, networkStatus, loadMoreProps } = useQueryWithLoadMore(CommentsListWithParentMetadataMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
-      limit: 10,
+      limit: limit ?? 10,
       enableTotal: false,
     },
   });

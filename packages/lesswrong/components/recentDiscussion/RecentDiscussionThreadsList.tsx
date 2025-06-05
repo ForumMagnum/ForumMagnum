@@ -46,7 +46,7 @@ const RecentDiscussionThreadsList = ({
   const { data, loading, refetch, networkStatus, loadMoreProps } = useQueryWithLoadMore(PostsRecentDiscussionMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
-      limit: 10,
+      limit: limit ?? 10,
       enableTotal: false,
       ...{
         commentsLimit, maxAgeHours, af

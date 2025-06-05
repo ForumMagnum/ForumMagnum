@@ -44,7 +44,7 @@ const ModeratorComments = ({classes, terms={view: "moderatorComments"}, truncate
   const { data, networkStatus, loadMoreProps } = useQueryWithLoadMore(CommentsListWithParentMetadataMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
-      limit: 10,
+      limit: limit ?? 10,
       enableTotal: false,
     },
   });

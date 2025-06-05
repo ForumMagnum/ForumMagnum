@@ -35,7 +35,7 @@ const RepliesToCommentList = ({ post, parentCommentId, directReplies = false }: 
   const { data, loading } = useQuery(CommentsListMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
-      limit: 10,
+      limit: limit ?? 10,
       enableTotal: false,
     },
     notifyOnNetworkStatusChange: true,
