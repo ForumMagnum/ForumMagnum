@@ -12,6 +12,8 @@ import CommentsItemDate from "../comments/CommentsItem/CommentsItemDate";
 import CommentUserName from "../comments/CommentsItem/CommentUserName";
 import CommentShortformIcon from "../comments/CommentsItem/CommentShortformIcon";
 import UltraFeedCommentActions from "./UltraFeedCommentActions";
+import SubdirectoryArrowLeft from "@/lib/vendor/@material-ui/icons/src/SubdirectoryArrowLeft";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => ({
   root: {
@@ -129,6 +131,17 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
       display: 'none',
     },
   },
+  replyingToIcon: {
+    fontSize: 14,
+    transform: "rotate(90deg)",
+    marginRight: 4,
+  },
+  replyingToIconClickable: {
+    cursor: "pointer",
+    "&:hover": {
+      opacity: 0.7,
+    },
+  },
 }));
 
 const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick}: {
@@ -182,6 +195,8 @@ const UltraFeedCommentsItemMeta = ({
   hideActionsMenu,
   showPostTitle,
   onPostTitleClick,
+  parentAuthorName,
+  onReplyIconClick,
 }: {
   comment: UltraFeedComment,
   setShowEdit?: () => void,
@@ -189,6 +204,8 @@ const UltraFeedCommentsItemMeta = ({
   hideActionsMenu?: boolean,
   showPostTitle?: boolean,
   onPostTitleClick?: () => void,
+  parentAuthorName?: string | null,
+  onReplyIconClick?: () => void,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -209,6 +226,14 @@ const UltraFeedCommentsItemMeta = ({
   );
 
   const isNewContent = comment.postedAt && (new Date(comment.postedAt) > new Date(Date.now() - (7 * 24 * 60 * 60 * 1000)));
+  const isTopLevelComment = !comment.parentCommentId;
+
+  const handleReplyIconClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (onReplyIconClick) {
+      onReplyIconClick();
+    }
+  };
 
   return (
     <div className={classes.root}>
@@ -220,33 +245,42 @@ const UltraFeedCommentsItemMeta = ({
         }
       </div>
       <div className={classes.metaRow}>
-          {comment.shortform && post && <div className={classes.commentShortformIconContainer}>
-            <CommentShortformIcon comment={comment} post={post} iconClassName={classes.commentShortformIcon}/>
-          </div>}
-          <CommentUserName
-            comment={comment}
-            className={classes.username}
-          />
-          {!hideDate && post && <span className={classNames({[classes.newContentDateStyling]: isNewContent})}>
-            <CommentsItemDate comment={comment} post={post} className={classes.date}/>
-          </span>}
-          {showModeratorCommentAnnotation &&
-            <span className={classes.moderatorHat}>
-              {moderatorCommentAnnotation}
-            </span>
-          }
-          <ReplyingToTitle enabled={showPostTitle} position="metarow" comment={comment} onPostTitleClick={onPostTitleClick} />
+        {!isTopLevelComment && (
+          <LWTooltip 
+            title={parentAuthorName ? `Replying to ${parentAuthorName}` : "Replying to parent comment"}
+            placement="top"
+          >
+            <SubdirectoryArrowLeft 
+              className={classNames(classes.replyingToIcon, {
+                [classes.replyingToIconClickable]: !!onReplyIconClick
+              })}
+              onClick={handleReplyIconClick}
+            />
+          </LWTooltip>
+        )}
+        {comment.shortform && post && <div className={classes.commentShortformIconContainer}>
+          <CommentShortformIcon comment={comment} post={post} iconClassName={classes.commentShortformIcon}/>
+        </div>}
+        <CommentUserName
+          comment={comment}
+          className={classes.username}
+        />
+        {!hideDate && post && <span className={classNames({[classes.newContentDateStyling]: isNewContent})}>
+          <CommentsItemDate comment={comment} post={post} className={classes.date}/>
+        </span>}
+        {showModeratorCommentAnnotation &&
+          <span className={classes.moderatorHat}>
+            {moderatorCommentAnnotation}
+          </span>
+        }
+        <ReplyingToTitle enabled={showPostTitle} position="metarow" comment={comment} onPostTitleClick={onPostTitleClick} />
       </div>
       <ReplyingToTitle enabled={showPostTitle && !post?.shortform} position="below" comment={comment} onPostTitleClick={onPostTitleClick} />
     </div>
   );
 };
 
-export default registerComponent(
-  "UltraFeedCommentsItemMeta",
-  UltraFeedCommentsItemMeta
-);
-
+export default UltraFeedCommentsItemMeta;
 
 
  

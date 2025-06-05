@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
@@ -8,6 +8,7 @@ import { useSingle } from "@/lib/crud/withSingle";
 import { UltraFeedCommentItem, UltraFeedCompressedCommentsItem } from "./UltraFeedCommentItem";
 import UltraFeedPostItem from "./UltraFeedPostItem";
 import Loading from "../vulcan-core/Loading";
+import { userGetDisplayName } from "@/lib/collections/users/helpers";
 
 const itemSeparator = (theme: ThemeType) => ({
   content: '""',
@@ -147,6 +148,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
   const { comments, commentMetaInfos } = thread;
   const {captureEvent} = useTracking();
   const [ postExpanded, setPostExpanded ] = useState(false);
+  const [animatingCommentIds, setAnimatingCommentIds] = useState<Set<string>>(new Set());
 
   const { document: post, loading } = useSingle({
     documentId: comments[0].postId ?? undefined,
@@ -164,6 +166,15 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
   const initialHighlightStatuses = initializeHighlightStatuses(initialDisplayStatuses, commentMetaInfos);
   const [commentDisplayStatuses, setCommentDisplayStatuses] = useState<CommentDisplayStatusMap>(initialDisplayStatuses);
   const [highlightStatuses] = useState<Record<string, boolean>>(initialHighlightStatuses);
+  
+  const commentAuthorsMap = useMemo(() => {
+    const authorsMap: Record<string, string | null> = {};
+    comments.forEach(comment => {
+      authorsMap[comment._id] = userGetDisplayName(comment.user) ?? null;
+    });
+    return authorsMap;
+  }, [comments]);
+  
   const setDisplayStatus = (commentId: string, newStatus: "expanded" | "collapsed" | "hidden") => {
     setCommentDisplayStatuses(prev => ({
       ...prev,
@@ -179,6 +190,28 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
   const compressedItems = useMemo(() => {
     return compressCollapsedComments(commentDisplayStatuses, visibleComments);
   }, [visibleComments, commentDisplayStatuses]);
+
+  const triggerParentHighlight = useCallback((commentId: string) => {
+    const comment = comments.find(c => c._id === commentId);
+    if (comment?.parentCommentId) {
+      // Add the parent comment ID to the animating set
+      setAnimatingCommentIds(prev => new Set(prev).add(comment.parentCommentId!));
+      
+      // Remove it after a short delay to trigger the fade-out
+      setTimeout(() => {
+        setAnimatingCommentIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(comment.parentCommentId!);
+          return newSet;
+        });
+      }, 100); // Short delay before starting fade-out
+      
+      captureEvent("ultraFeedReplyIconClicked", {
+        commentId,
+        parentCommentId: comment.parentCommentId,
+      });
+    }
+  }, [comments, captureEvent]);
 
   return (
     <AnalyticsContext pageSubSectionContext="ultraFeedThread" ultraFeedCardId={thread._id} ultraFeedCardIndex={index}>
@@ -213,6 +246,8 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
               const cId = item._id;
               const isFirstItem = index === 0;
               const isLastItem = index === compressedItems.length - 1;
+              const parentAuthorName = item.parentCommentId ? commentAuthorsMap[item.parentCommentId] : null;
+              const isAnimating = animatingCommentIds.has(cId);
               
               return (
                 <div key={cId} className={classes.commentItem}>
@@ -226,6 +261,9 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
                     isFirstComment={isFirstItem}
                     isLastComment={isLastItem}
                     settings={settings}
+                    parentAuthorName={parentAuthorName}
+                    onReplyIconClick={() => triggerParentHighlight(cId)}
+                    isHighlightAnimating={isAnimating}
                   />
                 </div>
               );
