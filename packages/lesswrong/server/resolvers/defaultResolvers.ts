@@ -107,7 +107,10 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
 
     // Use the legacy input terms if `input` is provided; otherwise use the new selector terms
     // const { terms = selectorTerms, enableTotal = false } = input ?? {};
-    const terms = input?.terms ?? { ...selectorTerms, limit, offset };
+    const terms = input?.terms ?? { ...selectorTerms,
+      limit: selectorTerms.limit ?? limit,
+      offset: selectorTerms.offset ?? offset,
+    };
     const logger = loggerConstructor(`views-${collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
     logger('multi resolver()')
     logger('multi terms', terms)
