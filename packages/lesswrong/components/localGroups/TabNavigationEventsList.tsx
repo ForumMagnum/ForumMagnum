@@ -121,7 +121,7 @@ const TabNavigationEventsList = ({ terms, onClick, classes }: {
   const { data } = useQuery(PostsListMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
-      limit: 10,
+      limit: limit ?? 10,
       enableTotal: false,
     },
     fetchPolicy: 'cache-and-network',

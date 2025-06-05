@@ -102,7 +102,7 @@ const UltraFeedCommentsDialog = ({
   const { data: dataPostComments, loading: loadingPostComments } = useQuery(CommentsListMultiQuery, {
     variables: {
       selector: { postCommentsTop: { postId } },
-      limit: 50,
+      limit: 50, // Consider pagination later if needed
       enableTotal: true,
     },
     skip: !isPost || !postId,
@@ -115,10 +115,10 @@ const UltraFeedCommentsDialog = ({
   const { data: dataThreadComments, loading: loadingThreadComments } = useQuery(CommentsListMultiQuery, {
     variables: {
       selector: { repliesToCommentThreadIncludingRoot: { topLevelCommentId: topLevelCommentId ?? '' } },
-      limit: 50,
+      limit: 50, // Fetch a large number to get the whole thread initially
       enableTotal: true,
     },
-    skip: isPost || !topLevelCommentId,
+    skip: isPost || !topLevelCommentId, // Only run if collectionName is Comments and we have the ID
     notifyOnNetworkStatusChange: true,
   });
 

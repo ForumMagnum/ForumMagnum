@@ -250,7 +250,7 @@ const UltraFeedPostDialog = ({
   const { data: dataCommentsList, loading: isCommentsLoading } = useQuery(CommentsListMultiQuery, {
     variables: {
       selector: { postCommentsTop: { postId: postId ?? post?._id } },
-      limit: 100,
+      limit: 100, // TODO: add load more
       enableTotal: true,
     },
     skip: !(postId ?? post?._id),

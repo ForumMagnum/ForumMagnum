@@ -38,7 +38,7 @@ const LocalGroupsList = ({terms, children, classes, showNoResults=true, heading}
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(localGroupsHomeFragmentMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
-      limit: 10,
+      limit: limit ?? 10,
       enableTotal: false,
     },
   });

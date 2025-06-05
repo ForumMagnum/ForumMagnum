@@ -188,6 +188,7 @@ const LlmChatWrapper = ({children}: {
   const { data } = useQuery(LlmConversationsFragmentMultiQuery, {
     variables: {
       selector: { llmConversationsWithUser: { userId: currentUser?._id } },
+      // TODO: Figure out what to do when people have many conversations
       limit: 50,
       enableTotal: false,
     },
