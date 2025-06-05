@@ -5,9 +5,7 @@ import {useGlobalKeydown} from '../common/withGlobalKeydown';
 import {gql, useMutation} from '@apollo/client';
 import throttle from 'lodash/throttle';
 import { isDialogueParticipant } from '@/lib/collections/posts/helpers';
-import { print as gqlPrint } from 'graphql';
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { TypingIndicatorInfo } from '@/lib/collections/typingIndicators/fragments';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -32,7 +30,6 @@ export const DebateTypingIndicator = ({classes, post}: {
         ...TypingIndicatorInfo
       }
     }
-    ${gqlPrint(TypingIndicatorInfo)}
   `))
 
   useGlobalKeydown(throttle(() => {

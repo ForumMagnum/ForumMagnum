@@ -183,7 +183,6 @@
     "akismet-api": "^4.2.0",
     "algoliasearch": "^3.29.0",
     "apollo-errors": "^1.9.0",
-    "apollo-link-scalars": "^4.0.3",
     "auth0": "^2.42.0",
     "bcrypt": "^5.0.1",
     "bowser": "^1.9.4",
