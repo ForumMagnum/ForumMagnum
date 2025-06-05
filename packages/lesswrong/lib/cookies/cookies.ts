@@ -212,6 +212,12 @@ export const ULTRA_FEED_ENABLED_COOKIE = registerCookie({
   description: "Whether the ultra feed mode is enabled, which hides QuickTakes and Popular Comments",
 })
 
+export const ULTRA_FEED_PAGE_VISITED_COOKIE = registerCookie({
+  name: 'ultra_feed_page_visited',
+  type: "functional",
+  description: "Whether the user has ever visited the ultra feed page",
+})
+
 
 // Third party cookies
 

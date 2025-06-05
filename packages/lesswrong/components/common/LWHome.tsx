@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { showReviewOnFrontPageIfActive, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive } from '../../lib/publicSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { LAST_VISITED_FRONTPAGE_COOKIE, ULTRA_FEED_ENABLED_COOKIE } from '../../lib/cookies/cookies';
+import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
 import { userHasUltraFeed,visitorGetsDynamicFrontpage } from '../../lib/betas';
 import { isLW, isAF } from '@/lib/instanceSettings';
@@ -51,9 +51,7 @@ const getStructuredData = () => ({
 })
 
 const LWHome = () => {
-  const currentUser = useCurrentUser();
-  const [ultraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
-  const ultraFeedEnabled = !!currentUser && (ultraFeedCookie[ULTRA_FEED_ENABLED_COOKIE] === "true");
+  const [isUltraFeedShowing, setIsUltraFeedShowing] = useState(false);
 
   return (
       <AnalyticsContext pageContext="homePage">
@@ -75,8 +73,8 @@ const LWHome = () => {
             <LWHomePosts>
               <QuickTakesSection />
               <EAPopularCommentsSection />
-              <UltraFeed />
-              {!ultraFeedEnabled && ( 
+              <UltraFeed onShowingChange={setIsUltraFeedShowing} />
+              {!isUltraFeedShowing && (
                 <RecentDiscussionFeed
                   af={false}
                   commentsLimit={4}
