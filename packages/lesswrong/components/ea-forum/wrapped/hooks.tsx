@@ -388,7 +388,6 @@ export const ForumWrappedProvider = ({
       limit: 20,
       enableTotal: false,
     },
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 40,
   });
 

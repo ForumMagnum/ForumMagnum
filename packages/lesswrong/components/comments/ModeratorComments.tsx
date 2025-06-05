@@ -47,7 +47,6 @@ const ModeratorComments = ({classes, terms={view: "moderatorComments"}, truncate
       limit: 10,
       enableTotal: false,
     },
-    notifyOnNetworkStatusChange: true,
   });
 
   const results = data?.comments?.results;

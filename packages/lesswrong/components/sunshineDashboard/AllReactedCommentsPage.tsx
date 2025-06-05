@@ -28,7 +28,6 @@ export const AllReactedCommentsPage = ({classes}: {
     }
   `), {
     variables: { limit: defaultLimit },
-    pollInterval: 0,
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-only",
     itemsPerPage: pageSize,

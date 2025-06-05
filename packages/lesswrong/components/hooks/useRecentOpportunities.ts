@@ -100,7 +100,6 @@ export const useRecentOpportunities =<
     variables: { selector, limit },
     skip,
     fetchPolicy: "cache-and-network",
-    notifyOnNetworkStatusChange: true,
     ssr,
   });
 

@@ -129,7 +129,6 @@ export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
   `), {
     ssr: false,
     skip: !name,
-    pollInterval: 0,
     fetchPolicy: "network-only",
     variables: {
       displayName: name,

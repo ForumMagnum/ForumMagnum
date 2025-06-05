@@ -35,7 +35,6 @@ const AFSuggestPostsList = ({ classes }: {
       enableTotal: false,
     },
     fetchPolicy: 'cache-and-network',
-    notifyOnNetworkStatusChange: true,
   });
 
   const results = data?.posts?.results;

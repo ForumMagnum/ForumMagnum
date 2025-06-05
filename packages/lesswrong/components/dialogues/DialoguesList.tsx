@@ -106,7 +106,6 @@ const DialoguesList = ({ currentUser, classes }: { currentUser: UsersCurrent, cl
     }
   `), {
     variables: { limit: initialLimit },
-    pollInterval: 0,
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-only",
   }); 
@@ -123,7 +122,6 @@ const DialoguesList = ({ currentUser, classes }: { currentUser: UsersCurrent, cl
     }
   `), {
     variables: { limit: initialLimit },
-    pollInterval: 0,
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-only",
   });

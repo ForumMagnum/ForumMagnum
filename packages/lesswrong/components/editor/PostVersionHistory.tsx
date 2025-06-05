@@ -192,7 +192,6 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
       enableTotal: false,
     },
     fetchPolicy: "cache-and-network" as any,
-    notifyOnNetworkStatusChange: true,
   });
 
   const revisions = data?.revisions?.results;

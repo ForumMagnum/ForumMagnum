@@ -58,7 +58,6 @@ const InboxNavigation = ({
       enableTotal: false,
     },
     fetchPolicy: 'cache-and-network',
-    notifyOnNetworkStatusChange: true,
   });
 
   const results = data?.conversations?.results;

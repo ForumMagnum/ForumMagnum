@@ -62,7 +62,6 @@ export default function SubscriptionsList<TQuery, TExtractResult>({
       limit: 20,
       enableTotal: true,
     },
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 100,
   });
 

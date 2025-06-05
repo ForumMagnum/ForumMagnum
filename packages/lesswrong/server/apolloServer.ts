@@ -2,13 +2,13 @@ import { ApolloServer, ApolloServerPlugin, GraphQLRequestContext, GraphQLRequest
 import { expressMiddleware } from '@as-integrations/express5';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
+import cors from 'cors';
 
 import { isDevelopment, isE2E } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
 import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
 import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql'; 
-// import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
 import { getUserFromReq, configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
@@ -230,10 +230,9 @@ export async function startWebserver() {
   // create server
   // given options contains the schema
   const apolloServer = new ApolloServer({
-    // graphql playground (replacement to graphiql), available on the app path
-    // playground: getPlaygroundConfig(config.path),
+
     introspection: true,
-    // debug: isDevelopment,
+    includeStacktraceInErrorResponses: isDevelopment,
     
     schema: makeExecutableSchema({ typeDefs, resolvers }),
     formatError: (e: GraphQLError): GraphQLFormattedError => {
@@ -245,13 +244,6 @@ export async function startWebserver() {
       // and that doesn't require a cast here
       return formatError(e) as any;
     },
-    //tracing: isDevelopment,
-    // tracing: false,
-    // context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
-    //   const context = await getContextFromReqAndRes({req, res, isSSR: false});
-    //   configureSentryScope(context);
-    //   return context;
-    // },
     plugins: [new ApolloServerLogging()],
     allowBatchedHttpRequests: true,
   });
@@ -262,6 +254,18 @@ export async function startWebserver() {
 
   await apolloServer.start();
 
+  // This sets Access-Control-Allow-Origin to *.
+  // As of v4, Apollo Server has a CSRF prevention feature enabled by default.
+  // It requires that clients either send a content-type header that indicates the request must have already been pre-flighted,
+  // or include one of the `x-apollo-operation-name` or `apollo-require-preflight` headers.
+  // Confusingly, I experienced the CSRF-prevention error in both the github action and locally when testing crossposting,
+  // in the _preflight_ OPTIONS request, which of course doesn't have any of those headers.
+  // I... don't really understand why setting the Access-Control-Allow-Origin header here prevents Apollo Server from
+  // rejecting the preflight request, but it does seem to do that.
+  // (Their docs say "You can also choose to omit CORS middleware entirely to disable cross-origin requests",
+  // but if the preflight request was getting rejected for that reason, then it seems like a bug that the server
+  // was returning the CSRF-prevention error in response, which contains instructions that wouldn't help at all.)
+  app.use('/graphql', cors());
   app.use('/graphql', expressMiddleware(apolloServer, {
     context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
       const context = await getContextFromReqAndRes({req, res, isSSR: false});
@@ -269,8 +273,6 @@ export async function startWebserver() {
       return context;
     },
   }))
-  // apolloServer.
-  // apolloServer.applyMiddleware({ app })
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
     const {hash: bundleHash, content: bundleBuffer, brotli: bundleBrotliBuffer} = getClientBundle().resource;

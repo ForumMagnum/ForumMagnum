@@ -38,7 +38,6 @@ const LocalGroupSubscribers = ({groupId, classes}: {
       limit: 20,
       enableTotal: true,
     },
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 100,
   });
 

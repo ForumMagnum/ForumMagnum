@@ -58,7 +58,6 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType<typeof styles>}) => {
       limit: defaultLimit,
       enableTotal: false,
     },
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: pageSize,
   });
 

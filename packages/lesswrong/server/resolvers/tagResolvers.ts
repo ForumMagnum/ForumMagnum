@@ -38,6 +38,7 @@ import { createAdminContext } from "@/server/vulcan-lib/createContexts";
 import { updateTag } from '../collections/tags/mutations';
 import { WithDateFields } from '@/lib/utils/dateUtils';
 import { getDefaultViewSelector, mergeSelectors, mergeWithDefaultViewSelector } from '@/lib/utils/viewUtils';
+import { CommentsViews } from '@/lib/collections/comments/views';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -233,7 +234,7 @@ interface TagUpdates {
 }
 
 function getRootCommentsInTimeBlockSelector(before: Date, after: Date): MongoSelector<DbComment> {
-  return mergeWithDefaultViewSelector("Comments", {
+  return mergeWithDefaultViewSelector(CommentsViews, {
     deleted: false,
     postedAt: {$lt: before, $gt: after},
     topLevelCommentId: null,

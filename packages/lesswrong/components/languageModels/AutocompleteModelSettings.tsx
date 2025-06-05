@@ -398,24 +398,22 @@ const AutocompleteModelSettings = ({ classes }: { classes: ClassesType<typeof st
   });
   const [tokenCount, setTokenCount] = useState(0);
 
-  const { data: dataPostsListWithVotes, error: postsError, loading: postsLoading, loadMoreProps: postsLoadMoreProps } = useQueryWithLoadMore(PostsListWithVotesMultiQuery, {
+  const { data: dataPostsListWithVotes, error: postsError, loadMoreProps: postsLoadMoreProps } = useQueryWithLoadMore(PostsListWithVotesMultiQuery, {
     variables: {
       selector: { userPosts: { userId: currentUser?._id, sortedBy: "top" } },
       limit: 20,
       enableTotal: true,
     },
-    notifyOnNetworkStatusChange: true,
   });
 
   const posts = dataPostsListWithVotes?.posts?.results;
 
-  const { data: dataCommentsList, error: commentsError, loading: commentsLoading, loadMoreProps: commentsLoadMoreProps } = useQueryWithLoadMore(CommentsListMultiQuery, {
+  const { data: dataCommentsList, error: commentsError, loadMoreProps: commentsLoadMoreProps } = useQueryWithLoadMore(CommentsListMultiQuery, {
     variables: {
       selector: { profileComments: { userId: currentUser?._id, sortBy: "top" } },
       limit: 30,
       enableTotal: true,
     },
-    notifyOnNetworkStatusChange: true,
   });
 
   const comments = dataCommentsList?.comments?.results;

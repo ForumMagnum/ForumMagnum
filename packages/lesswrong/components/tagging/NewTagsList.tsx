@@ -55,7 +55,6 @@ const NewTagsList = ({classes, showHeaders = true}: {
       limit: 4,
       enableTotal: true,
     },
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 20,
   });
 

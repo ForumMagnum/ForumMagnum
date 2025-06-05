@@ -32,7 +32,6 @@ export const SpotlightHistory = () => {
     },
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 50,
   });
 

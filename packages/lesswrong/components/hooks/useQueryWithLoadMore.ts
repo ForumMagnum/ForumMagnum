@@ -110,6 +110,8 @@ export function useQueryWithLoadMore<
   query: TypedDocumentNode<ValidPaginatedData<TData>, TVariables>,
   options: QueryHookOptions<ValidPaginatedData<TData>, TVariables> & PaginatedQueryOptions & {
     variables: TVariables & PaginatedQueryVariables;
+    // Prevent anyone from pointlessly passing `true`, which we assign by default inside the hook.
+    notifyOnNetworkStatusChange?: false;
   }
 ) {
   const {

@@ -131,7 +131,6 @@ const RecommendationsSamplePage = ({classes}: {
     },
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-first",
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 25,
   });
 

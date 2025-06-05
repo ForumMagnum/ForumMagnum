@@ -45,8 +45,8 @@ export function getDefaultViewSelector<N extends CollectionNameString>(viewSet: 
   return replaceSpecialFieldSelectors(viewQuery.selector);
 }
 
-export function mergeWithDefaultViewSelector<N extends CollectionNameString>(collectionName: N, selector: MongoSelector<ObjectsByCollectionName[N]>) {
-  return mergeSelectors(getDefaultViewSelector(collectionName), selector);
+export function mergeWithDefaultViewSelector<N extends CollectionNameString>(viewSet: CollectionViewSet<N, Record<string, ViewFunction<N>>>, selector: MongoSelector<ObjectsByCollectionName[N]>) {
+  return mergeSelectors(getDefaultViewSelector(viewSet), selector);
 }
 
 /**

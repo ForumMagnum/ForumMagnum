@@ -166,7 +166,6 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
     },
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    notifyOnNetworkStatusChange: true,
     itemsPerPage,
     alwaysShowLoadMore,
   });

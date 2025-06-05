@@ -98,7 +98,6 @@ const QuickTakesSection = ({classes}: {
       limit: 5,
       enableTotal: true,
     },
-    notifyOnNetworkStatusChange: true,
   });
 
   const results = data?.comments?.results;

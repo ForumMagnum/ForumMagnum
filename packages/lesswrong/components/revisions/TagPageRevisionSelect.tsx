@@ -43,7 +43,6 @@ const TagPageRevisionSelect = ({ classes }: {
     },
     skip: !tag,
     fetchPolicy: 'cache-first',
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 30,
   });
 

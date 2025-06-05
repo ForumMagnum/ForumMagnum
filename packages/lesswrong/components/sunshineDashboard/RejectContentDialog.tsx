@@ -88,7 +88,6 @@ const RejectContentDialog = ({classes, rejectContent}: {
       limit: 25,
       enableTotal: true,
     },
-    notifyOnNetworkStatusChange: true,
   });
 
   const rejectionTemplates = data?.moderationTemplates?.results;

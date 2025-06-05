@@ -99,7 +99,6 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
     }
   `), {
     variables: { limit: 3 },
-    pollInterval: 0,
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-only",
     ssr

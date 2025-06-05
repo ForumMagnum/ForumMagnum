@@ -73,7 +73,6 @@ export const AdminPaymentsPage = ({classes}: {
       enableTotal: true,
     },
     fetchPolicy: 'cache-and-network',
-    notifyOnNetworkStatusChange: true,
   });
 
   const results = data?.users?.results;

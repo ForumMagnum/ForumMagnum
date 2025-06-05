@@ -45,7 +45,6 @@ const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=fa
       limit: 10,
       enableTotal: false,
     },
-    notifyOnNetworkStatusChange: true,
   });
 
   const results = data?.comments?.results;

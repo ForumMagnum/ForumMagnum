@@ -7,7 +7,7 @@ import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum, isLWo
 import { allOf } from "@/lib/utils/functionUtils";
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";
 import { registerComponent } from "@/lib/vulcan-lib/components";
-import { userIsAdmin, userIsAdminOrMod, userIsMemberOf, userOverNKarmaOrApproved, userOwns } from "@/lib/vulcan-users/permissions";
+import { OwnableDocument, userIsAdmin, userIsAdminOrMod, userIsMemberOf, userOverNKarmaOrApproved, userOwns } from "@/lib/vulcan-users/permissions";
 import { isFriendlyUI, preferredHeadingCase } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
@@ -101,8 +101,8 @@ function getFooterTagListPostInfo(post: EditablePost) {
   };
 }
 
-function userCanEditCrosspostSettings(user: UsersCurrent | null) {
-  return userIsAdmin(user) || allOf(userOwns, userPassesCrosspostingKarmaThreshold);
+function userCanEditCrosspostSettings(user: UsersCurrent | null, document: OwnableDocument) {
+  return userIsAdmin(user) || allOf(userOwns, userPassesCrosspostingKarmaThreshold)(user, document);
 }
 
 function getVotingSystemOptions(user: UsersCurrent | null) {
@@ -234,7 +234,7 @@ const PostForm = ({
 
   const hideSocialPreviewGroup = (isLWorAF && !!initialData.collabEditorDialogue) || (isEAForum && !!initialData.isEvent);
 
-  const hideCrosspostControl = !fmCrosspostSiteNameSetting.get() || isEvent || !userCanEditCrosspostSettings(currentUser);
+  const hideCrosspostControl = !fmCrosspostSiteNameSetting.get() || isEvent;
   const crosspostControlTooltip = fmCrosspostBaseUrlSetting.get()?.includes("forum.effectivealtruism.org")
     ? "The EA Forum is for discussions that are relevant to doing good effectively. If you're not sure what this means, consider exploring the Forum's Frontpage before posting on it."
     : undefined;
@@ -1067,7 +1067,7 @@ const PostForm = ({
       </LegacyFormGroupLayout>}
 
       <LegacyFormGroupLayout label="Options" startCollapsed={true}>
-        {!hideCrosspostControl && <div className={classes.fieldWrapper}>
+        {!hideCrosspostControl && form.state.values.userId && userCanEditCrosspostSettings(currentUser, { userId: form.state.values.userId }) && <div className={classes.fieldWrapper}>
           <form.Field name="fmCrosspost">
             {(field) => (
               <LWTooltip title={crosspostControlTooltip}>

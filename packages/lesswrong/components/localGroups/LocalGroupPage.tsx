@@ -288,7 +288,6 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
     },
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 6,
   });
 
@@ -302,7 +301,6 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
     },
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 6,
   });
 
@@ -316,7 +314,6 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
     },
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    notifyOnNetworkStatusChange: true,
     itemsPerPage: 6,
   });
 

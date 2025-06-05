@@ -56,7 +56,6 @@ const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTo
       limit: initialLimit,
       enableTotal: true,
     },
-    notifyOnNetworkStatusChange: true,
   });
 
   const results = data?.comments?.results;

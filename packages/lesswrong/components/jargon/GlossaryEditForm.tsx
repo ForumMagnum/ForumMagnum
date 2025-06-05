@@ -359,7 +359,6 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       limit: 500,
       enableTotal: false,
     },
-    notifyOnNetworkStatusChange: true,
   });
 
   const glossary = data?.jargonTerms?.results ?? [];
