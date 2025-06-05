@@ -113,6 +113,7 @@ const ForumEventStickers: FC<{
       limit: 1000,
       enableTotal: false,
     },
+    // Don't run on the first pass, to speed up SSR
     skip: !uniqueCommentIds || !uniqueCommentIds.length || !users,
     notifyOnNetworkStatusChange: true,
   });

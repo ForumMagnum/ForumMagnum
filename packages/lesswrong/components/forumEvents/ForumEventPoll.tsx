@@ -612,6 +612,7 @@ export const ForumEventPoll = ({
       limit: 1000,
       enableTotal: false,
     },
+    // Don't run on the first pass, to prioritise loading the user images
     skip: !event?._id || !voters,
     notifyOnNetworkStatusChange: true,
   });

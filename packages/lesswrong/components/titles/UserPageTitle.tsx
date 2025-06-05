@@ -35,6 +35,10 @@ export const UserPageTitle = ({isSubtitle, siteName}: {
       limit: 10,
       enableTotal: false,
     },
+    // Ugly workaround: For unclear reasons, this title component (but not the
+    // posts-page or sequences-page title components) fails (results undefined)
+    // if fetchPolicy is cache-only. When set to cache-first, it works,
+    // without generating any network requests.
     fetchPolicy: 'cache-first',
     notifyOnNetworkStatusChange: true,
   });

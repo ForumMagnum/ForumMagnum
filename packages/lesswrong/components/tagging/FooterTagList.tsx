@@ -26,17 +26,6 @@ import CoreTagsChecklist from "./CoreTagsChecklist";
 import PostsAnnualReviewMarketTag from "../posts/PostsAnnualReviewMarketTag";
 import { apolloSSRFlag } from "@/lib/helpers";
 
-const TagRelMinimumFragmentMultiQuery = gql(`
-  query multiTagRelFooterTagListQuery($selector: TagRelSelector, $limit: Int, $enableTotal: Boolean) {
-    tagRels(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...TagRelMinimumFragment
-      }
-      totalCount
-    }
-  }
-`);
-
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI ? {
     marginTop: 8,
@@ -190,13 +179,24 @@ const FooterTagList = ({
   // - (somewhat speculative) It allows the mutation to be handled more seamlessly
   // (incrementing the score and reordering the tags) by updating the result of
   // this query
-  const { data, loading, refetch, networkStatus } = useQuery(TagRelMinimumFragmentMultiQuery, {
+  // The fragment in this query must match the mutation below
+  const { data, loading, refetch, networkStatus } = useQuery(gql(`
+    query multiTagRelFooterTagListQuery($selector: TagRelSelector, $limit: Int, $enableTotal: Boolean) {
+      tagRels(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+        results {
+          ...TagRelMinimumFragment
+        }
+        totalCount
+      }
+    }
+  `), {
     variables: {
       selector: { tagsOnPost: { postId: post._id } },
       limit: 100,
       enableTotal: false,
     },
     fetchPolicy: 'cache-and-network',
+    // Only fetch this as a follow-up query on the client
     ssr: apolloSSRFlag(false),
     notifyOnNetworkStatusChange: true,
   });
@@ -245,6 +245,7 @@ const FooterTagList = ({
     skip: isLWorAF || !tagIds.length || loading
   });
 
+  // The fragment in this mutation must match the query above
   const [mutate] = useMutation(gql(`
     mutation addOrUpvoteTag($tagId: String, $postId: String) {
       addOrUpvoteTag(tagId: $tagId, postId: $postId) {

@@ -38,6 +38,8 @@ export function useTagOrLens<TagFragmentTypeName extends keyof typeof tagBySlugQ
       limit: 10,
       enableTotal: false,
     },
+    // Having a limit of 1 makes this fail if we have copies of this lens for deleted tags which don't get returned for permissions reasons
+    // so we get as many as we can and assume that we'll only ever actually get at most one back
     skip: !hasWikiLenses || !slug,
     notifyOnNetworkStatusChange: true,
   });
