@@ -32,7 +32,6 @@ const PopularCommentsList = ({classes}: {classes: ClassesType<typeof styles>}) =
     }
   `), {
     variables: { limit: initialLimit },
-    pollInterval: 0,
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-only",
     itemsPerPage: 5,

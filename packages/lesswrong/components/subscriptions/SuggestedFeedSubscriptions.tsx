@@ -254,7 +254,6 @@ function useSuggestedUsers() {
     }
   `), {
     variables: { limit: initialLimit },
-    pollInterval: 0,
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-only",
     ssr: false,

@@ -38,7 +38,6 @@ const ShortformThreadList = ({ classes }: {
       enableTotal: false,
     },
     fetchPolicy: 'cache-and-network',
-    pollInterval: 0,
   });
 
   const results = data?.comments?.results;

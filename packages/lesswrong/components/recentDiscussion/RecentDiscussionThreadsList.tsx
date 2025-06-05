@@ -53,7 +53,6 @@ const RecentDiscussionThreadsList = ({
       },
     },
     fetchPolicy: 'cache-and-network',
-    pollInterval: 0,
   });
 
   const results = data?.posts?.results;

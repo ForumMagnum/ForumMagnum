@@ -141,7 +141,6 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
 
   const { data, loading, fetchMore, networkStatus } = useQuery<getRecombeeLatestPostsQuery | getRecombeeHybridPostsQuery>(query, {
     notifyOnNetworkStatusChange: true,
-    pollInterval: 0,
     variables: {
       limit,
       settings: recombeeSettings,

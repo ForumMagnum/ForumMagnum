@@ -36,7 +36,6 @@ const DialoguesPage = () => {
     }
   `), {
     variables: { limit: initialLimit },
-    pollInterval: 0,
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-only",
   });
@@ -53,10 +52,9 @@ const DialoguesPage = () => {
     }
   `), {
     variables: { limit: 10 },
-    pollInterval: 0,
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-only",
-  }); 
+  });
 
   const myDialogues = myDialoguesData?.MyDialogues?.results;
 
