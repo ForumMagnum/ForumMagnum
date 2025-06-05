@@ -111,7 +111,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   sourceIcon: {
     width: 16,
     height: 16,
-    marginRight: 6,
+    marginRight: 8,
     color: theme.palette.grey[600],
     opacity: 0.7,
     position: 'relative',

@@ -38,7 +38,7 @@ export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
   'recentComments': 80,
   'recombee-lesswrong-custom': 30,
   'hacker-news': 30,
-  'spotlights': 5,
+  'spotlights': 2,
   'bookmarks': 1,
   'subscriptions': 20,
 };
