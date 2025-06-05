@@ -14,3 +14,4 @@
 --ignore-dir=express/src
 --ignore-file=is:client_stats.html
 --ignore-file=is:client_meta.json
+--ignore-dir=packages/lesswrong/lib/generated/gql-codegen
