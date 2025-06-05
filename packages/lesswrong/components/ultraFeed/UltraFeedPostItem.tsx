@@ -3,7 +3,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { FeedPostMetaInfo } from "./ultraFeedTypes";
+import { FeedPostMetaInfo, FeedItemSourceType } from "./ultraFeedTypes";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
@@ -25,6 +25,11 @@ import UltraFeedItemFooter from "./UltraFeedItemFooter";
 import Loading from "../vulcan-core/Loading";
 import OverflowNavButtons from "./OverflowNavButtons";
 import UltraFeedPostActions from "./UltraFeedPostActions";
+import BookmarksIcon from "@/lib/vendor/@material-ui/icons/src/Bookmarks";
+import ClockIcon from "@/lib/vendor/@material-ui/icons/src/AccessTime";
+import SubscriptionsIcon from "@/lib/vendor/@material-ui/icons/src/NotificationsNone";
+import LWTooltip from "../common/LWTooltip";
+import { SparkleIcon } from "../icons/sparkleIcon";
 
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
@@ -60,8 +65,8 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
   titleContainer: {
     display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
     width: '100%',
     [theme.breakpoints.down('sm')]: {
     },
@@ -103,6 +108,16 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
       fontSize: "1.3rem",
     },
   },
+  sourceIcon: {
+    width: 16,
+    height: 16,
+    marginRight: 8,
+    color: theme.palette.grey[600],
+    opacity: 0.7,
+    position: 'relative',
+    top: 2,
+    flexShrink: 0,
+  },
   metaDateContainer: {
     marginRight: 8,
   },
@@ -140,6 +155,7 @@ interface UltraFeedPostItemHeaderProps {
   isRead: boolean;
   handleOpenDialog: (params?: { textFragment?: string }) => void;
   postTitlesAreModals: boolean;
+  sources: FeedItemSourceType[];
 }
 
 const UltraFeedPostItemHeader = ({
@@ -147,6 +163,7 @@ const UltraFeedPostItemHeader = ({
   isRead,
   handleOpenDialog,
   postTitlesAreModals,
+  sources,
 }: UltraFeedPostItemHeaderProps) => {
   const classes = useStyles(styles);
   const authorListRef = useRef<HTMLDivElement>(null);
@@ -158,9 +175,34 @@ const UltraFeedPostItemHeader = ({
     }
   };
 
+  const getSourceIcon = () => {
+    if (sources.includes('bookmarks')) {
+      return { icon: BookmarksIcon, tooltip: "From your bookmarks" };
+    }
+    if (sources.includes('subscriptions')) {
+      return { icon: SubscriptionsIcon, tooltip: "From users you follow" };
+    }
+    if (sources.includes('recombee-lesswrong-custom')) {
+      return { icon: SparkleIcon, tooltip: "Recommended for you" };
+    }
+    if (sources.includes('hacker-news')) {
+      return { icon: ClockIcon, tooltip: "Latest posts" };
+    }
+    return null;
+  };
+
+  const sourceIconInfo = getSourceIcon();
+
   return (
     <div className={classes.header}>
       <div className={classes.titleContainer}>
+        {sourceIconInfo && (
+          <LWTooltip title={sourceIconInfo.tooltip} placement="top">
+            <span>
+              <sourceIconInfo.icon className={classes.sourceIcon} />
+            </span>
+          </LWTooltip>
+        )}
         {/* Mobile version: Respects postTitlesAreModals */}
         <div className={classes.hideOnDesktop}>
           {postTitlesAreModals ? (
@@ -353,6 +395,7 @@ const UltraFeedPostItem = ({
           isRead={isRead}
           handleOpenDialog={handleOpenDialog}
           postTitlesAreModals={displaySettings.postTitlesAreModals}
+          sources={postMetaInfo.sources}
         />
 
         {shouldShowLoading && loadingFullPost ? (
