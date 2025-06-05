@@ -32,7 +32,7 @@ export const EmailHistory = ({terms}: {terms: LWEventsViewTerms}) => {
   const { data } = useQuery(emailHistoryFragmentMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
-      limit: 10,
+      limit: limit ?? 10,
       enableTotal: false,
     },
     notifyOnNetworkStatusChange: true,

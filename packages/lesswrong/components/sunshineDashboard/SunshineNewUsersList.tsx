@@ -38,7 +38,7 @@ const SunshineNewUsersList = ({ classes, terms, currentUser }: {
   const { data, refetch, loadMoreProps } = useQueryWithLoadMore(SunshineUsersListMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
-      limit: 10,
+      limit: limit ?? 10,
       enableTotal: true,
     },
     itemsPerPage: 60,

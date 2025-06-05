@@ -142,12 +142,12 @@ const PostsTimeBlock = ({
   const displayPostsTagsList = query.limit
   const timeBlock = timeframeToTimeBlock[timeframe];
 
-  const { view, ...rest } = terms;
+  const { view, limit, ...rest } = terms;
 
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(PostsListWithVotesMultiQuery, {
     variables: {
       selector: { [view]: { ...rest, before: before.toISOString(), after: after.toISOString() } },
-      limit: 10,
+      limit: limit ?? 10,
       enableTotal: true,
     },
     itemsPerPage: 50,

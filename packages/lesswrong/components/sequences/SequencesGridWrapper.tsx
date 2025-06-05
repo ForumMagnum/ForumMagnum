@@ -40,7 +40,7 @@ const SequencesGridWrapper = ({
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(SequencesPageFragmentMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
-      limit: 10,
+      limit: limit ?? 10,
       enableTotal: showLoadMore,
     },
     itemsPerPage,

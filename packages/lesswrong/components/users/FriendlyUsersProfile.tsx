@@ -253,7 +253,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
   const { data, loading } = useQuery(UsersProfileMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
-      limit: 10,
+      limit,
       enableTotal: false,
     },
     fetchPolicy: 'cache-and-network',

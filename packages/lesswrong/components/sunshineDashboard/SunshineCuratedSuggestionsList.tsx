@@ -94,12 +94,12 @@ const SunshineCuratedSuggestionsList = ({ terms, atBottom, classes, setCurationP
 
   const [audioOnly, setAudioOnly] = useState<boolean>(false)
 
-  const { view, ...rest } = terms;
+  const { view, limit, ...rest } = terms;
 
   const { data, loadMoreProps } = useQueryWithLoadMore(SunshineCurationPostsListMultiQuery, {
     variables: {
       selector: { [view]: { ...rest, audioOnly } },
-      limit: 10,
+      limit: limit ?? 10,
       enableTotal: true,
     },
     itemsPerPage: 60,
