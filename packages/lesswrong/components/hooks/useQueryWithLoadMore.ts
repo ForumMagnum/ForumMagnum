@@ -115,7 +115,7 @@ export function useQueryWithLoadMore<
 ) {
   const {
     variables,
-    ssr,
+    ssr = true,
     notifyOnNetworkStatusChange = true,
     itemsPerPage = 10,
     alwaysShowLoadMore = false,
@@ -127,11 +127,9 @@ export function useQueryWithLoadMore<
     ? selector.limit
     : (limit ?? 10);
 
-  const patchedSsr = apolloSSRFlag(ssr);
-
   const optionsWithDefaults = {
     ...remainingOptions,
-    ssr: patchedSsr,
+    ssr: apolloSSRFlag(ssr),
     notifyOnNetworkStatusChange,
     variables: {
       ...({ selector, ...remainingVariables }) as TVariables,
