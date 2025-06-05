@@ -13,6 +13,7 @@ import UltraFeedCommentActions from "./UltraFeedCommentActions";
 import SubdirectoryArrowLeft from "@/lib/vendor/@material-ui/icons/src/SubdirectoryArrowLeft";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
+import DebateIcon from "@/lib/vendor/@material-ui/icons/src/Forum";
 
 const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => ({
   root: {
@@ -74,6 +75,26 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     marginRight: theme.spacing.unit,
     position: "relative",
     top: 2
+  },
+  debateIconContainer: {
+    position: 'relative',
+    bottom: 0,
+    display: 'flex',
+    alignItems: 'center',
+    cursor: 'pointer',
+    "&:hover": {
+      opacity: 0.7,
+    },
+  },
+  debateIcon: {
+    cursor: "pointer",
+    color: theme.palette.grey[500],
+    width: 16,
+    height: 16,
+    marginLeft: -2,
+    marginRight: 6,
+    position: "relative",
+    top: 2,
   },
   username: {
     marginRight: 8,
@@ -265,12 +286,12 @@ const UltraFeedCommentsItemMeta = ({
     }
   };
 
-  const handleShortformIconClick = (event: React.MouseEvent) => {
+  const handlePostTitleHighlight = (event: React.MouseEvent, iconType: 'shortform' | 'debate') => {
     event.stopPropagation();
     setPostTitleHighlighted(true);
     
     // Track the click event
-    captureEvent("ultraFeedShortformIconClicked", {
+    captureEvent(iconType === 'shortform' ? "ultraFeedShortformIconClicked" : "ultraFeedDebateIconClicked", {
       commentId: comment._id,
       postId: post._id,
     });
@@ -309,8 +330,18 @@ const UltraFeedCommentsItemMeta = ({
             title={post.title}
             placement="top"
           >
-            <div className={classes.commentShortformIconContainer} onClick={handleShortformIconClick}>
+            <div className={classes.commentShortformIconContainer} onClick={(event) => handlePostTitleHighlight(event, 'shortform')}>
               <ForumIcon icon="Shortform" className={classes.commentShortformIcon} />
+            </div>
+          </LWTooltip>
+        )}
+        {!comment.shortform && isTopLevelComment && post && (
+          <LWTooltip
+            title={`Replying to ${post.title}`}
+            placement="top"
+          >
+            <div className={classes.debateIconContainer} onClick={(event) => handlePostTitleHighlight(event, 'debate')}>
+              <DebateIcon className={classes.debateIcon} />
             </div>
           </LWTooltip>
         )}
