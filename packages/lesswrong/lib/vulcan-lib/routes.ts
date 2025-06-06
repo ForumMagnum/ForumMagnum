@@ -52,7 +52,7 @@ export type Route = {
   description?: string,
   redirect?: (location: RouterLocation) => string | null,
   getPingback?: (parsedUrl: RouterLocation, context: ResolverContext) => Promise<PingbackDocument|null> | PingbackDocument|null,
-  previewComponent?: React.FunctionComponent<{ href: string, targetLocation?: RouterLocation, id?: string, noPrefetch?: boolean, children: React.ReactNode }>,
+  previewComponent?: React.FunctionComponent<{ href: string, targetLocation?: RouterLocation, id?: string, noPrefetch?: boolean, children: React.ReactNode, className?: string }>,
   _id?: string|null,
   noIndex?: boolean,
   background?: string,
