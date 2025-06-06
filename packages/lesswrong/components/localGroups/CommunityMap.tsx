@@ -55,11 +55,6 @@ const styles = (theme: ThemeType) => ({
     width: 34,
     padding: 5
   },
-  buttonText: {
-    marginLeft: 10,
-    fontWeight: 500,
-    fontFamily: "Roboto",
-  },
   mapButtons: {
     alignItems: "flex-end",
     position: "absolute",

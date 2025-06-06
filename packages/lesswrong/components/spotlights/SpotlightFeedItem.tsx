@@ -13,6 +13,8 @@ import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { ContentItemBody } from "../contents/ContentItemBody";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import { Typography } from "../common/Typography";
+import StarIcon from "@/lib/vendor/@material-ui/icons/src/Star";
+import LWTooltip from "../common/LWTooltip";
 
 const buildVerticalFadeMask = (breakpoints: string[]) => {
   const mask = `linear-gradient(to bottom, ${breakpoints.join(",")})`;
@@ -93,6 +95,16 @@ const useSpotlightFeedItemStyles = defineStyles(
       display: "flex",
       alignItems: "center",
       marginBottom: 8,
+      textWrap: 'balance',
+    },
+    starIcon: {
+      width: 20,
+      height: 20,
+      marginRight: 8,
+      color: theme.palette.grey[800],
+      opacity: 1,
+      position: 'relative',
+      top: 3,
     },
     subtitle: {
       ...theme.typography.postStyle,
@@ -255,6 +267,9 @@ const SpotlightFeedItem = ({
           <div className={classes.content}>
             <div className={classes.titleArea}>
               <div className={classes.title}>
+                <LWTooltip title="This is a featured item" placement="top">
+                  <StarIcon className={classes.starIcon} />
+                </LWTooltip>
                 <Link to={url}>
                   {getSpotlightDisplayTitle(spotlight)}
                 </Link>

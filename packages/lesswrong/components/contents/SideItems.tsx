@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { useHover } from '@/components/common/withHover';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { getOffsetChainTop } from '@/lib/utils/domUtil';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 export type SideItemOptions = {
   format: "block"|"icon",
@@ -45,7 +46,7 @@ export type SideItemContentContextType = {
 };
 export const SideItemContentContext = createContext<SideItemContentContextType|null>(null);
 
-export const styles = (theme: ThemeType) => ({
+export const styles = defineStyles("SideItems", (theme: ThemeType) => ({
   sideItem: {
     position: "absolute",
     width: "100%",
@@ -54,7 +55,7 @@ export const styles = (theme: ThemeType) => ({
     position: "relative",
     height: "100%",
   },
-});
+}));
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -63,10 +64,10 @@ function useForceRerender() {
   return {renderCount, rerender};
 }
 
-const SideItemsContainerInner = ({classes, children}: {
-  classes: ClassesType<typeof styles>,
+export const SideItemsContainer = ({children}: {
   children: React.ReactNode
 }) => {
+  const classes = useStyles(styles);
   const state = useRef<SideItemsState>({sideItems: [], maxId: -1});
   const contentsRef = useRef<HTMLDivElement|null>(null);
   const {renderCount, rerender} = useForceRerender();
@@ -147,9 +148,8 @@ const SideItemsContainerInner = ({classes, children}: {
   );
 }
 
-const SideItemsSidebarInner = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const SideItemsSidebar = () => {
+  const classes = useStyles(styles);
   const placementContext = useContext(SideItemsPlacementContext);
   const displayContext = useContext(SideItemsDisplayContext);
   const sideItemColumnRef = useRef<HTMLDivElement>(null);
@@ -261,7 +261,13 @@ export const useHasSideItemsSidebar = (): boolean => {
   return !!useContext(SideItemsPlacementContext);
 }
 
-export const SideItemsContainer = registerComponent('SideItemsContainer', SideItemsContainerInner, {styles});
-export const SideItemsSidebar = registerComponent('SideItemsSidebar', SideItemsSidebarInner, {styles});
-
+export const NoSideItems = ({children}: {
+  children: React.ReactNode
+}) => {
+  return <SideItemsPlacementContext.Provider value={null}>
+    <SideItemsDisplayContext.Provider value={null}>
+      {children}
+    </SideItemsDisplayContext.Provider>
+  </SideItemsPlacementContext.Provider>
+}
 

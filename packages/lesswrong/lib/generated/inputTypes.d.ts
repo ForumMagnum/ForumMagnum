@@ -210,6 +210,16 @@ interface UserCoreTagReads {
   userReadCount: number | null;
 }
 
+interface NetKarmaChangesForAuthorsOverPeriod {
+  userId: string | null;
+  netKarma: number | null;
+}
+
+interface AirtableLeaderboardResult {
+  name: string;
+  leaderboardAmount: number | null;
+}
+
 interface SuggestedFeedSubscriptionUsersResult {
   results: Array<User>;
 }
@@ -6430,6 +6440,8 @@ interface GraphQLTypeMap {
   UserDialogueUsefulData: UserDialogueUsefulData;
   NewUserCompletedProfile: NewUserCompletedProfile;
   UserCoreTagReads: UserCoreTagReads;
+  NetKarmaChangesForAuthorsOverPeriod: NetKarmaChangesForAuthorsOverPeriod;
+  AirtableLeaderboardResult: AirtableLeaderboardResult;
   SuggestedFeedSubscriptionUsersResult: SuggestedFeedSubscriptionUsersResult;
   VoteResultPost: VoteResultPost;
   VoteResultComment: VoteResultComment;

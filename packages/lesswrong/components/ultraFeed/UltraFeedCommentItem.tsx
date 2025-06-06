@@ -23,6 +23,12 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   root: {
     position: 'relative',
     paddingTop: commentHeaderPaddingDesktop,
+    backgroundColor: 'transparent',
+    transition: 'background-color 1.0s ease-out',
+  },
+  rootWithAnimation: {
+    backgroundColor: `${theme.palette.primary.main}3b`,
+    transition: 'none',
   },
   mainContent: {
     display: 'flex',
@@ -170,6 +176,9 @@ export interface UltraFeedCommentItemProps {
   isLastComment?: boolean;
   onPostTitleClick?: () => void;
   settings?: UltraFeedSettingsType;
+  parentAuthorName?: string | null;
+  onReplyIconClick?: () => void;
+  isHighlightAnimating?: boolean;
 }
 
 export const UltraFeedCommentItem = ({
@@ -182,6 +191,9 @@ export const UltraFeedCommentItem = ({
   isLastComment = false,
   onPostTitleClick,
   settings = DEFAULT_SETTINGS,
+  parentAuthorName,
+  onReplyIconClick,
+  isHighlightAnimating = false,
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
   const { observe, unobserve, trackExpansion, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView } = useUltraFeedObserver();
@@ -285,7 +297,9 @@ export const UltraFeedCommentItem = ({
 
   return (
     <AnalyticsContext ultraFeedElementType="feedComment" ultraFeedCardId={comment._id}>
-    <div className={classes.root}>
+    <div className={classNames(classes.root, {
+      [classes.rootWithAnimation]: isHighlightAnimating
+    })}>
       <div className={classes.mainContent}>
         <div className={classes.verticalLineContainer}>
           <div className={classNames(
@@ -304,7 +318,10 @@ export const UltraFeedCommentItem = ({
               comment={comment}
               setShowEdit={() => {}}
               showPostTitle={showPostTitle}
-              onPostTitleClick={onPostTitleClick} />
+              onPostTitleClick={onPostTitleClick}
+              parentAuthorName={parentAuthorName}
+              onReplyIconClick={onReplyIconClick}
+            />
           </div>
           <div className={classes.contentWrapper}>
             <FeedContentBody
