@@ -30,6 +30,7 @@ const config: CodegenConfig = {
         namingConvention: (s: string) => s.replace("Fragment", ""),
         enumsAsTypes: true,
         extractAllFieldsToTypes: true,
+        inlineFragmentTypes: 'combine',
       },
       presetConfig: {
         gqlTagName: 'gql',

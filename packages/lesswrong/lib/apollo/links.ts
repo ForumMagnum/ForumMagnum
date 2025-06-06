@@ -1,13 +1,10 @@
-import { buildClientSchema, GraphQLSchema, SourceLocation } from "graphql";
+import { GraphQLSchema, SourceLocation } from "graphql";
 import { SchemaLink } from '@apollo/client/link/schema';
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { onError } from '@apollo/client/link/error';
 import { isServer } from '../executionEnvironment';
 import { DatabasePublicSetting } from "../publicSettings";
 import { ApolloLink, Operation, selectURI } from "@apollo/client/core";
-
-const rawClientSchema = require("@/lib/generated/client-schema.min.json");
-const schema = buildClientSchema(rawClientSchema);
 
 const graphqlBatchMaxSetting = new DatabasePublicSetting('batchHttpLink.batchMax', 50)
 

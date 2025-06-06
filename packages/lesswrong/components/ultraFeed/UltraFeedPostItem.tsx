@@ -3,7 +3,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { FeedPostMetaInfo } from "./ultraFeedTypes";
+import { FeedPostMetaInfo, FeedItemSourceType } from "./ultraFeedTypes";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
@@ -26,6 +26,11 @@ import OverflowNavButtons from "./OverflowNavButtons";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/crud/wrapGql";
 import UltraFeedPostActions from "./UltraFeedPostActions";
+import BookmarksIcon from "@/lib/vendor/@material-ui/icons/src/Bookmarks";
+import ClockIcon from "@/lib/vendor/@material-ui/icons/src/AccessTime";
+import SubscriptionsIcon from "@/lib/vendor/@material-ui/icons/src/NotificationsNone";
+import LWTooltip from "../common/LWTooltip";
+import { SparkleIcon } from "../icons/sparkleIcon";
 
 const localPostQuery = gql(`
   query LocalPostQuery($documentId: String!) {
@@ -81,8 +86,8 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
   titleContainer: {
     display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
     width: '100%',
     [theme.breakpoints.down('sm')]: {
     },
@@ -124,6 +129,16 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
       fontSize: "1.3rem",
     },
   },
+  sourceIcon: {
+    width: 16,
+    height: 16,
+    marginRight: 8,
+    color: theme.palette.grey[600],
+    opacity: 0.7,
+    position: 'relative',
+    top: 3,
+    flexShrink: 0,
+  },
   metaDateContainer: {
     marginRight: 8,
   },
@@ -156,11 +171,19 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
 }));
 
+const sourceIconMap: Array<{ source: FeedItemSourceType, icon: any, tooltip: string }> = [
+  { source: 'bookmarks' as FeedItemSourceType, icon: BookmarksIcon, tooltip: "From your bookmarks" },
+  { source: 'subscriptions' as FeedItemSourceType, icon: SubscriptionsIcon, tooltip: "From users you follow" },
+  { source: 'recombee-lesswrong-custom' as FeedItemSourceType, icon: SparkleIcon, tooltip: "Recommended for you" },
+  { source: 'hacker-news' as FeedItemSourceType, icon: ClockIcon, tooltip: "Latest posts" },
+];
+
 interface UltraFeedPostItemHeaderProps {
   post: PostsListWithVotes;
   isRead: boolean;
   handleOpenDialog: (params?: { textFragment?: string }) => void;
   postTitlesAreModals: boolean;
+  sources: FeedItemSourceType[];
 }
 
 const UltraFeedPostItemHeader = ({
@@ -168,6 +191,7 @@ const UltraFeedPostItemHeader = ({
   isRead,
   handleOpenDialog,
   postTitlesAreModals,
+  sources,
 }: UltraFeedPostItemHeaderProps) => {
   const classes = useStyles(styles);
   const authorListRef = useRef<HTMLDivElement>(null);
@@ -179,10 +203,13 @@ const UltraFeedPostItemHeader = ({
     }
   };
 
+  const sourceIcons = sourceIconMap
+    .filter(({ source }) => sources.includes(source))
+    .map(({ source, icon, tooltip }) => ({ icon, tooltip, key: source }));
+
   return (
     <div className={classes.header}>
       <div className={classes.titleContainer}>
-        {/* Mobile version: Respects postTitlesAreModals */}
         <div className={classes.hideOnDesktop}>
           {postTitlesAreModals ? (
             <a
@@ -212,6 +239,13 @@ const UltraFeedPostItemHeader = ({
         </div>
       </div>
       <div className={classes.metaRow}>
+        {sourceIcons.map((iconInfo) => (
+          <LWTooltip key={iconInfo.key} title={iconInfo.tooltip} placement="top">
+            <span>
+              <iconInfo.icon className={classes.sourceIcon} />
+            </span>
+          </LWTooltip>
+        ))}
         <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={authorListRef} className={classes.authorsList} />
         {post.postedAt && (
           <span className={classes.metaDateContainer}>
@@ -388,6 +422,7 @@ const UltraFeedPostItem = ({
           isRead={isRead}
           handleOpenDialog={handleOpenDialog}
           postTitlesAreModals={displaySettings.postTitlesAreModals}
+          sources={postMetaInfo.sources}
         />
 
         {shouldShowLoading && loadingFullPost ? (
