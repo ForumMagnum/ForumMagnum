@@ -8,7 +8,7 @@ import Undo from '@/lib/vendor/@material-ui/icons/src/Undo';
 import DropdownItem from "../DropdownItem";
 import OmegaIcon from "../../icons/OmegaIcon";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const SuggestAlignmentCommentUpdateMutation = gql(`
   mutation updateCommentSuggestAlignmentCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {

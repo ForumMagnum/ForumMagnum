@@ -4,7 +4,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
 import { useMutation } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from '@/lib/generated/gql-codegen/gql';
+import { gql } from "@/lib/crud/wrapGql";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { makeAbsolute } from "../../lib/vulcan-lib/utils";
 import ErrorAccessDenied from '../common/ErrorAccessDenied';

@@ -6,7 +6,7 @@ import { useCurrentUser } from '../../common/withUser';
 import { isLWorAF } from '../../../lib/instanceSettings';
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostSuggestAlignmentPostDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {

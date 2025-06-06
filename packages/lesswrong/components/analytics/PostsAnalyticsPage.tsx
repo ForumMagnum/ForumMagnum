@@ -13,7 +13,7 @@ import { Link } from "../../lib/reactRouterWrapper";
 import AnalyticsGraph, { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
 import classNames from "classnames";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import SingleColumnSection from "../common/SingleColumnSection";
 import LoginForm from "../users/LoginForm";
 import HeadTags from "../common/HeadTags";

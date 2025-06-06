@@ -12,7 +12,7 @@ import SectionTitle from "../common/SectionTitle";
 import NewTagInfoBox from "./NewTagInfoBox";
 import Loading from "../vulcan-core/Loading";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const TagEditFragmentUpdateMutation = gql(`
   mutation updateTagNewTagPage($selector: SelectorInput!, $data: UpdateTagDataInput!) {

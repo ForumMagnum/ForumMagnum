@@ -13,7 +13,7 @@ import moment from 'moment';
 import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWithChildren';
 import { useMapStyle } from '@/components/hooks/useMapStyle';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import StyledMapPopup from "../../localGroups/StyledMapPopup";
 import GroupLinks from "../../localGroups/GroupLinks";
 import HomepageMapFilter from "./HomepageMapFilter";

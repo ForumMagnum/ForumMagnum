@@ -4,7 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames'
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const localGroupsHomeFragmentQuery = gql(`
   query PostsGroupDetails($documentId: String) {

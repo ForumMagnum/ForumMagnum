@@ -8,7 +8,7 @@ import LWTooltip from "../../common/LWTooltip";
 import LoginPopupButton from "../../users/LoginPopupButton";
 import { useMutation } from "@apollo/client";
 import { useQuery } from '@/lib/crud/useQuery';
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const PetrovDayActionInfoMultiQuery = gql(`
   query multiPetrovDayActionOptIntoPetrovButtonQuery($selector: PetrovDayActionSelector, $limit: Int, $enableTotal: Boolean) {

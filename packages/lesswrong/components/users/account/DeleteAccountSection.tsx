@@ -8,7 +8,7 @@ import DeleteAccountConfirmationModal from "./DeleteAccountConfirmationModal";
 import ActionButtonSection from "./ActionButtonSection";
 import FormatDate from "../../common/FormatDate";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const UsersEditUpdateMutation = gql(`
   mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {

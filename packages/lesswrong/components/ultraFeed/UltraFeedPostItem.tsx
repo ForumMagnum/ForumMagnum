@@ -24,7 +24,7 @@ import UltraFeedItemFooter from "./UltraFeedItemFooter";
 import Loading from "../vulcan-core/Loading";
 import OverflowNavButtons from "./OverflowNavButtons";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import UltraFeedPostActions from "./UltraFeedPostActions";
 
 const localPostQuery = gql(`

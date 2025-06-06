@@ -8,7 +8,7 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import { Typography } from "../common/Typography";
 import { NetworkStatus } from "@apollo/client";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentModeratorCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

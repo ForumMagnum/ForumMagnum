@@ -5,7 +5,7 @@ import OmegaIcon from "../icons/OmegaIcon";
 import AFSuggestCommentsItem from "./AFSuggestCommentsItem";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const SuggestAlignmentCommentMultiQuery = gql(`
   query multiCommentAFSuggestCommentsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

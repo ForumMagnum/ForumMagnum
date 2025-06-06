@@ -23,7 +23,7 @@ import SidebarActionMenu from "./SidebarActionMenu";
 import SidebarAction from "./SidebarAction";
 import OmegaIcon from "../icons/OmegaIcon";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const SuggestAlignmentPostUpdateMutation = gql(`
   mutation updatePostAFSuggestPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {

@@ -6,7 +6,7 @@ import { UpdateCurrentValues } from '../vulcan-forms/propTypes';
 import Loading from "../vulcan-core/Loading";
 import TagFlagItem from "../tagging/TagFlagItem";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const TagFlagFragmentMultiQuery = gql(`
   query multiTagFlagTagFlagToggleListQuery($selector: TagFlagSelector, $limit: Int, $enableTotal: Boolean) {

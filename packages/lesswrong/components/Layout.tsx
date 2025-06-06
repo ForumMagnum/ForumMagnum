@@ -63,7 +63,7 @@ import IntercomWrapper from "./common/IntercomWrapper";
 import CookieBanner from "./common/CookieBanner/CookieBanner";
 import { defineStyles, useStyles } from './hooks/useStyles';
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {

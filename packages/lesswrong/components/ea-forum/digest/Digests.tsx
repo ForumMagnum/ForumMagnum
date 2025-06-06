@@ -7,7 +7,7 @@ import { getDigestInfo } from '../../../lib/collections/digests/helpers';
 import Error404 from "../../common/Error404";
 import SectionTitle from "../../common/SectionTitle";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const DigestsMinimumInfoMultiQuery = gql(`
   query multiDigestDigestsQuery($selector: DigestSelector, $limit: Int, $enableTotal: Boolean) {

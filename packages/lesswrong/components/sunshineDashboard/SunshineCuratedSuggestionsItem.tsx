@@ -20,7 +20,7 @@ import SidebarActionMenu from "./SidebarActionMenu";
 import ForumIcon from "../common/ForumIcon";
 import FormatDate from "../common/FormatDate";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import { isEAForum } from '@/lib/instanceSettings';
 
 const SunshineCurationPostsListUpdateMutation = gql(`

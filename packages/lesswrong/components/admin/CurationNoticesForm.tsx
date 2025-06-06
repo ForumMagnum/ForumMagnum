@@ -11,7 +11,7 @@ import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm
 import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const CurationNoticesFragmentUpdateMutation = gql(`
   mutation updateCurationNoticeCurationNoticesForm($selector: SelectorInput!, $data: UpdateCurationNoticeDataInput!) {

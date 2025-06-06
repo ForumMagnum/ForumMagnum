@@ -6,7 +6,7 @@ import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import LWDialog from "../../common/LWDialog";
 import { Typography } from "../../common/Typography";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const ElicitQuestionFragmentMutation = gql(`
   mutation createElicitQuestionCreateClaimDialog($data: CreateElicitQuestionDataInput!) {

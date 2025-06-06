@@ -7,7 +7,7 @@ import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 import CommentsList from "../comments/CommentsList";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const CommentsListMultiQuery = gql(`
   query multiCommentTagDiscussionQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

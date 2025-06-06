@@ -8,7 +8,7 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import CommunityMapWrapper from "../../localGroups/CommunityMapWrapper";
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const localGroupsHomeFragmentMultiQuery = gql(`
   query multiLocalgroupLocalGroupsQuery($selector: LocalgroupSelector, $limit: Int, $enableTotal: Boolean) {

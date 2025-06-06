@@ -9,7 +9,7 @@ import { useForeignApolloClient } from '../../hooks/useForeignApolloClient';
 import { POST_PREVIEW_ELEMENT_CONTEXT, POST_PREVIEW_WIDTH } from './helpers';
 import type { PostsPreviewTooltipProps } from './PostsPreviewTooltip';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import PostsUserAndCoauthors from "../PostsUserAndCoauthors";
 import PostsTitle from "../PostsTitle";
 import { ContentItemBody } from "../../contents/ContentItemBody";

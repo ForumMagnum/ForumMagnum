@@ -2,7 +2,7 @@ import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useQuery } from "@/lib/crud/useQuery";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import SpotlightItem from "../spotlights/SpotlightItem";
 
 const SpotlightDisplayQuery = gql(`

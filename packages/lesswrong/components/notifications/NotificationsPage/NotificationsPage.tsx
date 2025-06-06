@@ -5,7 +5,7 @@ import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useUnreadNotifications } from "../../hooks/useUnreadNotifications";
 import { NotificationsPageTabContextProvider } from "./notificationsPageTabs";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import LoginForm from "../../users/LoginForm";
 import NotificationsPageFeed from "./NotificationsPageFeed";
 

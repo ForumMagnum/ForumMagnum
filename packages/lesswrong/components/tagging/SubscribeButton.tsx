@@ -20,7 +20,7 @@ import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery"
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const SubscriptionStateMultiQuery = gql(`
   query multiSubscriptionSubscribeButtonQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {

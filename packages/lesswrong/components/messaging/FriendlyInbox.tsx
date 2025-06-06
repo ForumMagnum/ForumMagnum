@@ -9,7 +9,7 @@ import { useMarkConversationRead } from "../hooks/useMarkConversationRead";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import NewConversationDialog from "./NewConversationDialog";
 import ConversationTitleEditForm from "./ConversationTitleEditForm";
 import FriendlyInboxNavigation from "./FriendlyInboxNavigation";

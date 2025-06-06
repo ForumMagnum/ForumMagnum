@@ -17,7 +17,7 @@ import uniqBy from 'lodash/uniqBy';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { useMutation } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery"
-import { gql } from '@/lib/generated/gql-codegen/gql';
+import { gql } from "@/lib/crud/wrapGql";
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import type { Node, RootElement, Writer, Element as CKElement, Selection, DocumentFragment } from '@ckeditor/ckeditor5-engine';
 import { EditorContext } from '../posts/EditorContext';

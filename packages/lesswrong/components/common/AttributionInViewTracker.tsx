@@ -7,7 +7,7 @@ import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSe
 import { useMutation } from '@apollo/client';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { useClientId } from '@/lib/abTestImpl';
-import { gql } from '@/lib/generated/gql-codegen/gql';
+import { gql } from "@/lib/crud/wrapGql";
 interface AttributionEventProps {
   post: PostsListBase;
   portion: number;

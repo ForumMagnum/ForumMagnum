@@ -4,7 +4,7 @@ import { useTracking } from '@/lib/analyticsEvents';
 import PetrovWorldmapWrapper from "./PetrovWorldmapWrapper";
 import Row from "../../common/Row";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const PetrovDayActionInfoMultiQuery = gql(`
   query multiPetrovDayActionPetrovAdminConsoleQuery($selector: PetrovDayActionSelector, $limit: Int, $enableTotal: Boolean) {

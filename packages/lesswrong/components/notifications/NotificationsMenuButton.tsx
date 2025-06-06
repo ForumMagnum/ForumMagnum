@@ -10,7 +10,7 @@ import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import ForumIcon from "../common/ForumIcon";
 import LWPopper from "../common/LWPopper";
 import LWClickAwayListener from "../common/LWClickAwayListener";

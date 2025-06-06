@@ -7,7 +7,7 @@ import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorConten
 import withErrorBoundary from '../common/withErrorBoundary';
 import * as _ from 'underscore';
 import { useLazyQuery, useMutation } from '@apollo/client';
-import { gql } from '@/lib/generated/gql-codegen/gql';
+import { gql } from "@/lib/crud/wrapGql";
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import Transition from 'react-transition-group/Transition';
 import { useTracking } from '../../lib/analyticsEvents';

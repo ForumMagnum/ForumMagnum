@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import Loading from "../vulcan-core/Loading";
 import TagRevisionItem from "./TagRevisionItem";
 import LensRevisionItem from "./history/LensRevisionItem";

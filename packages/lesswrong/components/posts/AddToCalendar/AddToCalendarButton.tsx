@@ -6,7 +6,7 @@ import makeUrls from './makeUrls';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import LWTooltip from "../../common/LWTooltip";
 import LWPopper from "../../common/LWPopper";
 

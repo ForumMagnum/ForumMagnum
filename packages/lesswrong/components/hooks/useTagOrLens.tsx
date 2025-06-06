@@ -2,7 +2,7 @@ import { TagBySlugQueryOptions, useTagBySlug } from "../tagging/useTag";
 import { hasWikiLenses } from "@/lib/betas";
 import { ApolloError } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery"
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import type { tagBySlugQueries } from "../tagging/tagBySlugQueries";
 import { ResultOf } from "@graphql-typed-document-node/core";
 

@@ -25,7 +25,7 @@ import ModeratorActionItem from "./ModeratorUserInfo/ModeratorActionItem";
 import { MenuItem } from "../common/Menus";
 import UserRateLimitItem from "./UserRateLimitItem";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModeratorActions($selector: SelectorInput!, $data: UpdateUserDataInput!) {

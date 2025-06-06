@@ -6,7 +6,7 @@ import CropSquareIcon from '@/lib/vendor/@material-ui/icons/src/CropSquare';
 import range from 'lodash/range';
 import LWTooltip from "../common/LWTooltip";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const reviewVoteFragmentMultiQuery = gql(`
   query multiReviewVoteReviewProgressVotingQuery($selector: ReviewVoteSelector, $limit: Int, $enableTotal: Boolean) {

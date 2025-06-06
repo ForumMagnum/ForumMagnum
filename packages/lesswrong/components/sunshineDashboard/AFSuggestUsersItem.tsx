@@ -15,7 +15,7 @@ import MetaInfo from "../common/MetaInfo";
 import SidebarActionMenu from "./SidebarActionMenu";
 import SidebarAction from "./SidebarAction";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserAFSuggestUsersItem($selector: SelectorInput!, $data: UpdateUserDataInput!) {

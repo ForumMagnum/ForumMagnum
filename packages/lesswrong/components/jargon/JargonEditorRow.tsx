@@ -8,7 +8,7 @@ import JargonTooltip from "./JargonTooltip";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import LWTooltip from "../common/LWTooltip";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const JargonTermsUpdateMutation = gql(`
   mutation updateJargonTermJargonEditorRow($selector: SelectorInput!, $data: UpdateJargonTermDataInput!) {

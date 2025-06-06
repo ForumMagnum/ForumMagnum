@@ -15,7 +15,7 @@ import UserTooltip from "../users/UserTooltip";
 import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import ForumIcon from "../common/ForumIcon";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const UsersProfileMultiQuery = gql(`
   query multiUserAdminPaymentsPageQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {

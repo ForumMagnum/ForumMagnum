@@ -5,7 +5,7 @@ import SunshineReportedItem from "./SunshineReportedItem";
 import SunshineListCount from "./SunshineListCount";
 import LoadMore from "../common/LoadMore";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
 const UnclaimedReportsListMultiQuery = gql(`

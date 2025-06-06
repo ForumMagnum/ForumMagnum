@@ -14,7 +14,7 @@ import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useMutation } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import { EditorContext } from './EditorContext';
 import Loading from "../vulcan-core/Loading";
 import PermanentRedirect from "../common/PermanentRedirect";

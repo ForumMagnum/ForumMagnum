@@ -8,7 +8,7 @@ import LWDialog from "../common/LWDialog";
 import CommentsListSection from "../comments/CommentsListSection";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const CommentsListMultiQuery = gql(`
   query multiCommentUltraFeedCommentsDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

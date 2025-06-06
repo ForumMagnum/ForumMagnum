@@ -10,7 +10,7 @@ import SectionFooter from "../common/SectionFooter";
 import Loading from "../vulcan-core/Loading";
 import PostInteractionStripe from "./PostInteractionStripe";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const PostsReviewVotingListMultiQuery = gql(`
   query multiPostQuickReviewPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {

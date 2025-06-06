@@ -21,7 +21,7 @@ import LWTooltip from "../common/LWTooltip";
 import AnalyticsPostItem from "./AnalyticsPostItem";
 import AnalyticsPostItemSkeleton from "./AnalyticsPostItemSkeleton";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const UsersMinimumInfoMultiQuery = gql(`
   query multiUserAuthorAnalyticsPageQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {

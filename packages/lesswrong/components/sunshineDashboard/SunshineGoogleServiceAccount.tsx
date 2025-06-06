@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { hasGoogleDocImportSetting } from '../../lib/publicSettings';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const GoogleServiceAccountSessionAdminInfoMultiQuery = gql(`
   query multiGoogleServiceAccountSessionSunshineGoogleServiceAccountQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {

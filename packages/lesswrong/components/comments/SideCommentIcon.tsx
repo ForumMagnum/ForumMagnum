@@ -12,7 +12,7 @@ import { useDialog } from '../common/withDialog';
 import { useApolloClient } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery";
 import { CommentWithRepliesFragment } from '@/lib/collections/comments/fragments';
-import { gql } from '@/lib/generated/gql-codegen/gql';
+import { gql } from "@/lib/crud/wrapGql";
 import LWDialog from "../common/LWDialog";
 import { SideItem } from "../contents/SideItems";
 import SideItemLine from "../contents/SideItemLine";

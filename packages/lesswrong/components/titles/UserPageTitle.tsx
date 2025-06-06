@@ -7,7 +7,7 @@ import { getUserFromResults } from '../users/UsersProfile';
 import { Helmet } from '../../lib/utils/componentsWithChildren';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const UsersMinimumInfoMultiQuery = gql(`
   query multiUserUserPageTitleQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {

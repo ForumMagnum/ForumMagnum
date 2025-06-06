@@ -1,6 +1,6 @@
 import { ApolloError } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery"
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const PostsPageMultiQuery = gql(`
   query multiPostusePostQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {

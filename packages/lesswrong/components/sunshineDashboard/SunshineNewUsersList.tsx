@@ -7,7 +7,7 @@ import SunshineListTitle from "./SunshineListTitle";
 import SunshineNewUsersItem from "./SunshineNewUsersItem";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserSunshineNewUsersListQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {

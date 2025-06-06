@@ -10,7 +10,7 @@ import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
 import { useMutation } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery"
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const PodcastEpisodeFullMultiQuery = gql(`
   query multiPodcastEpisodePodcastEpisodeInputQuery($selector: PodcastEpisodeSelector, $limit: Int, $enableTotal: Boolean) {

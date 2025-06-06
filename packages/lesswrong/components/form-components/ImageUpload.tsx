@@ -8,7 +8,7 @@ import { userHasDefaultProfilePhotos } from '../../lib/betas';
 import { ImageType, useImageUpload } from '../hooks/useImageUpload';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import UsersProfileImage from "../users/UsersProfileImage";

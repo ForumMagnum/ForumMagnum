@@ -7,7 +7,7 @@ import LoadMore from "../common/LoadMore";
 import CommentOnPostWithReplies from "../comments/CommentOnPostWithReplies";
 import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const CommentWithRepliesFragmentMultiQuery = gql(`
   query multiCommentShortformThreadListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

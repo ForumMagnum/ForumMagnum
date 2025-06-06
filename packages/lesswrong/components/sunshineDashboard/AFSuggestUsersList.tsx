@@ -5,7 +5,7 @@ import OmegaIcon from "../icons/OmegaIcon";
 import LoadMore from "../common/LoadMore";
 import AFSuggestUsersItem from "./AFSuggestUsersItem";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const SuggestAlignmentUserMultiQuery = gql(`
   query multiUserAFSuggestUsersListQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {

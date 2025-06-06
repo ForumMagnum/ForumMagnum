@@ -27,7 +27,7 @@ import LWDialog from "../common/LWDialog";
 import Loading from "../vulcan-core/Loading";
 import { useMutation } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import { withDateFields } from '@/lib/utils/dateUtils';
 
 const localGroupsHomeFragmentUpdateMutation = gql(`

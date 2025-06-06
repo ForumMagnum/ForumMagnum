@@ -11,7 +11,7 @@ import CommentBody from "../../comments/CommentsItem/CommentBody";
 import Row from "../../common/Row";
 import ForumIcon from "../../common/ForumIcon";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentRejectedCommentsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

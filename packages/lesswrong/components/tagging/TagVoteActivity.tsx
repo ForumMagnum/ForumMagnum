@@ -13,7 +13,7 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import LoadMore from "../common/LoadMore";
 import NewTagsList from "./NewTagsList";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const TagVotingActivityMultiQuery = gql(`
   query multiVoteTagVoteActivityQuery($selector: VoteSelector, $limit: Int, $enableTotal: Boolean) {

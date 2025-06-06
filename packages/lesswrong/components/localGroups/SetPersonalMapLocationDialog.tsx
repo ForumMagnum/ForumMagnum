@@ -13,7 +13,7 @@ import { sharedStyles } from './EventNotificationsDialog'
 import { useGoogleMaps } from '../form-components/LocationFormComponent'
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 import LWDialog from "../common/LWDialog";

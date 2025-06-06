@@ -6,7 +6,7 @@ import Loading from "../vulcan-core/Loading";
 import PostsItemIntroSequence from "../posts/PostsItemIntroSequence";
 import LoadMore from "../common/LoadMore";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const ChaptersFragmentMultiQuery = gql(`
   query multiChapterTagIntroSequenceQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {

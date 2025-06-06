@@ -4,7 +4,7 @@ import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const CommentsListUpdateMutation = gql(`
   mutation updateCommentRetractCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {

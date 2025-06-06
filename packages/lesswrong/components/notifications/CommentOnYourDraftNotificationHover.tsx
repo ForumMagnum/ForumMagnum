@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import {useCurrentUser} from "../common/withUser";
 import { NotifPopoverLink } from './useNotificationsPopoverContext';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import UsersName from "../users/UsersName";
 import Loading from "../vulcan-core/Loading";
 

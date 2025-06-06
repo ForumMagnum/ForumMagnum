@@ -5,7 +5,7 @@ import { useMutation } from '@apollo/client';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
-import { gql } from '@/lib/generated/gql-codegen/gql';
+import { gql } from "@/lib/crud/wrapGql";
 import LockThreadDialog from "./LockThreadDialog";
 import DropdownItem from "../DropdownItem";
 

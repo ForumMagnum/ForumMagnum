@@ -16,7 +16,7 @@ import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import { Typography } from "../common/Typography";
 import LoadMore from "../common/LoadMore";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
 const ConversationsListMultiQuery = gql(`

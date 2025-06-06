@@ -12,7 +12,7 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import { Typography } from "../common/Typography";
 import ContentStyles from "../common/ContentStyles";
 import Error404 from "../common/Error404";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const MultiDocumentMinimumInfoMultiQuery = gql(`
   query multiMultiDocumentRedlinkTagPageQuery($selector: MultiDocumentSelector, $limit: Int, $enableTotal: Boolean) {

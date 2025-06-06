@@ -15,7 +15,7 @@ import { AnalyticsContext, useTracking } from '../../../lib/analyticsEvents';
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import Loading from "../../vulcan-core/Loading";
 import { Typography } from "../../common/Typography";
 import { MultiSelect } from "../../form-components/FormComponentMultiSelect";

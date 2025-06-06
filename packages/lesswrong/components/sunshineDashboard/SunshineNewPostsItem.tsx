@@ -26,7 +26,7 @@ import ContentStyles from "../common/ContentStyles";
 import SmallSideVote from "../votes/SmallSideVote";
 import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostSunshineNewPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
