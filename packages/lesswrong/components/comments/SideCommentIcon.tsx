@@ -11,7 +11,6 @@ import { useIsMobile } from '../hooks/useScreenWidth';
 import { useDialog } from '../common/withDialog';
 import { useApolloClient } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery";
-import { CommentWithRepliesFragment } from '@/lib/collections/comments/fragments';
 import { gql } from "@/lib/crud/wrapGql";
 import LWDialog from "../common/LWDialog";
 import { SideItem } from "../contents/SideItems";
@@ -20,6 +19,7 @@ import LWPopper from "../common/LWPopper";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import CommentWithReplies from "./CommentWithReplies";
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { getFragmentByName } from '@/lib/vulcan-lib/fragments';
 
 const styles = (theme: ThemeType) => ({
   sideCommentIconWrapper: {
@@ -285,7 +285,7 @@ const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, closeDialog
   const apolloClient = useApolloClient();
 
   const cachedComment = apolloClient.cache.readFragment({
-    fragment: CommentWithRepliesFragment,
+    fragment: getFragmentByName("CommentWithRepliesFragment"),
     fragmentName: "CommentWithRepliesFragment",
     id: `Comments:`+commentId,
   });

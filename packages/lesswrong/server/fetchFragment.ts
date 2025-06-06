@@ -5,15 +5,16 @@ import { computeContextFromUser } from "./vulcan-lib/apollo-server/context";
 import { getSqlFragment } from "@/lib/fragments/allFragments";
 import { TypedDocumentNode } from "@apollo/client";
 import { FragmentDefinitionNode, print } from "graphql";
+import { getFragmentText } from "@/lib/vulcan-lib/fragments";
+
 type FetchFragmentOptions<
-  F,
-  V,
+  F extends FragmentName,
   CollectionName extends CollectionNameString & keyof FragmentTypesByCollection,
 > = {
   /** The collection to fetch from. */
   collectionName: CollectionName,
   /** The fragment to use (which must be from the given collection). */
-  fragmentDoc: TypedDocumentNode<F, V>,
+  fragmentName: F,
   /**
    * The current user, or null for logged out. For security reasons, this is not
    * an optional parameter - it must always be specified, even if you explicitely
@@ -60,12 +61,11 @@ export type FetchedFragment<F, CollectionName extends CollectionNameString> =
  * `fetchFragmentSingle` if you only want a single result instead of an array.
  */
 export const fetchFragment = async <
-  F,
-  V,
+  F extends FragmentName,
   CollectionName extends CollectionNameString & keyof FragmentTypesByCollection,
 >({
   collectionName,
-  fragmentDoc,
+  fragmentName,
   currentUser,
   selector,
   options,
@@ -73,19 +73,13 @@ export const fetchFragment = async <
   context: maybeContext,
   skipFiltering,
   skipCodeResolvers,
-}: FetchFragmentOptions<F, V, CollectionName>): Promise<FetchedFragment<F, CollectionName>[]> => {
+}: FetchFragmentOptions<F, CollectionName>): Promise<FetchedFragment<F, CollectionName>[]> => {
   const context = maybeContext ?? await computeContextFromUser({
     user: currentUser,
     isSSR: false,
   });
 
-  const fragmentText = print(fragmentDoc)
-  const fragmentDefinition = fragmentDoc.definitions.find((def): def is FragmentDefinitionNode => def.kind === 'FragmentDefinition')
-  if (!fragmentDefinition) {
-    throw new Error('Fragment definition not found');
-  }
-  const fragmentName = fragmentDefinition.name.value;
-
+  const fragmentText = getFragmentText(fragmentName);
   const sqlFragment = getSqlFragment(fragmentName, fragmentText);
 
   const query = new SelectFragmentQuery(
@@ -121,7 +115,7 @@ export const fetchFragment = async <
 /**
  * Like `fetchFragment`, but only returns a single result.
  */
-export const fetchFragmentSingle = async <
+/*export const fetchFragmentSingle = async <
   F,
   V,
   CollectionName extends CollectionNameString & keyof FragmentTypesByCollection,
@@ -129,6 +123,22 @@ export const fetchFragmentSingle = async <
   options: FetchFragmentOptions<F, V, CollectionName>,
 ): Promise<FetchedFragment<F, CollectionName> | null> => {
   const results = await fetchFragment<F, V, CollectionName>({
+    ...options,
+    options: {
+      ...options.options,
+      limit: 1,
+    },
+  });
+  return results[0] ?? null;
+}*/
+
+export const fetchFragmentSingle = async <
+  CollectionName extends CollectionNameString & keyof FragmentTypesByCollection,
+  FragmentName extends FragmentTypesByCollection[CollectionName] & keyof FragmentTypes,
+>(
+  options: FetchFragmentOptions<FragmentName, CollectionName>,
+): Promise<FetchedFragment<FragmentName, CollectionName> | null> => {
+  const results = await fetchFragment<FragmentName, CollectionName>({
     ...options,
     options: {
       ...options.options,

@@ -37,7 +37,7 @@ import { gql } from "@/lib/crud/wrapGql";
 import { hasDraftComments } from '@/lib/betas';
 import CommentsSubmitDropdown from "./CommentsSubmitDropdown";
 import { useTracking } from "@/lib/analyticsEvents";
-import { CommentsList } from "@/lib/collections/comments/fragments";
+import { getFragmentByName } from "@/lib/vulcan-lib/fragments";
 
 const CommentsListUpdateMutation = gql(`
   mutation updateCommentCommentForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -339,7 +339,7 @@ export const CommentForm = ({
             }
 
             const newCommentRef = cache.writeFragment({
-              fragment: CommentsList,
+              fragment: getFragmentByName("CommentsList"),
               data: data?.createComment?.data,
               fragmentName: "CommentsList",
             });

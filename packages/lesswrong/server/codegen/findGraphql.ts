@@ -4,9 +4,10 @@ import * as path from 'path';
 import keyBy from 'lodash/keyBy';
 import { extractFragmentName } from '@/lib/fragments/fragmentWrapper';
 import gql from 'graphql-tag';
-import { type DocumentNode, type DefinitionNode, Kind, FragmentDefinitionNode } from 'graphql';
+import { type DocumentNode, type DefinitionNode, Kind, FragmentDefinitionNode, print } from 'graphql';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { generateDefaultFragments } from './generateDefaultFragments';
+import { enumerateFiles } from './generateTypes';
 
 function fileMightIncludeFragment(filePath: string): boolean {
   try {
@@ -19,17 +20,19 @@ function fileMightIncludeFragment(filePath: string): boolean {
   }
 }
 
-function findFragmentsIn(srcDir: string, functionToFind: string): string[] {
-  const tsFiles = getAllTypeScriptFilesIn(srcDir);
-  const program = ts.createProgram(tsFiles, {});
-  const fragmentStrings: string[] = [];
-  
-  for (const sourceFile of program.getSourceFiles()) {
-    const fragmentStringsInFile = findFragmentsInFile(sourceFile, functionToFind);
-    fragmentStrings.push(...fragmentStringsInFile);
+function findFragmentsIn(srcDir: string, functionToFind: string): Record<string,string> {
+  const gqlFiles: string[] = enumerateFiles(srcDir).filter(f => f.endsWith('.gql'));
+  const fragmentsByName: Record<string,string> = {};
+  for (const gqlFile of gqlFiles) {
+    const fileContents = fs.readFileSync(gqlFile, 'utf8');
+    const parsedGraphQL = gql(fileContents);
+    const fragmentDefinitions = parsedGraphQL.definitions.filter(def => def.kind === Kind.FRAGMENT_DEFINITION);
+    for (const fragmentDefinition of fragmentDefinitions) {
+      const fragmentName = fragmentDefinition.name.value;
+      fragmentsByName[fragmentName] = print(fragmentDefinition);
+    }
   }
-  
-  return fragmentStrings;
+  return fragmentsByName;
 }
 
 function getAllTypeScriptFilesIn(dir: string): string[] {
@@ -103,6 +106,7 @@ export type FragmentsFromSource = Record<string, FragmentFromSource>
 let allFragmentsInSource: FragmentsFromSource|null = null;
 
 export function findFragmentsInSource(collectionNameToTypeName: Record<string, string>): FragmentsFromSource {
+  // FIXME fragments live in gql files now
   if (allFragmentsInSource) return allFragmentsInSource;
   const foundFragmentStrings = findFragmentsIn("packages/lesswrong", "gql");
   const defaultFragmentStrings = generateDefaultFragments(collectionNameToTypeName);

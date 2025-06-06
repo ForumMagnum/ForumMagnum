@@ -13,9 +13,8 @@ import ErrorAccessDenied from "../../common/ErrorAccessDenied";
 import Error404 from "../../common/Error404";
 import Loading from "../../vulcan-core/Loading";
 import { PostFetchProps } from '@/components/hooks/useForeignCrosspost';
-import { PostsListWithVotes } from '@/lib/collections/posts/fragments';
-import { SequencesPageFragment } from '@/lib/collections/sequences/fragments';
 import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
+import { getFragmentByName } from '@/lib/vulcan-lib/fragments';
 
 const PostsWithNavigationAndRevisionQuery = gql(`
   query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {
@@ -50,13 +49,13 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   // it loads the rest.
   const apolloClient = useApolloClient();
   const postPreload = apolloClient.cache.readFragment<PostsListWithVotes>({
-    fragment: PostsListWithVotes,
+    fragment: getFragmentByName("PostsListWithVotes"),
     fragmentName: "PostsListWithVotes",
     id: 'Post:'+documentId,
   });
 
   const sequencePreload = apolloClient.cache.readFragment<SequencesPageFragment>({
-    fragment: SequencesPageFragment,
+    fragment: getFragmentByName("SequencesPageFragment"),
     fragmentName: "SequencesPageFragment",
     id: 'Sequence:'+sequenceId,
   });

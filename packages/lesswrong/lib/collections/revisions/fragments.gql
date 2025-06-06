@@ -1,0 +1,110 @@
+
+
+fragment RevisionDisplay on Revision {
+  _id
+  version
+  updateType
+  editedAt
+  userId
+  html
+  commitMessage
+  wordCount
+  htmlHighlight
+  plaintextDescription
+}
+
+fragment RevisionHTML on Revision {
+  _id
+  html
+}
+
+fragment RevisionEdit on Revision {
+  ...RevisionDisplay
+  originalContents {
+    type
+    data
+  }
+  markdown
+  ckEditorMarkup
+}
+
+fragment RevisionMetadata on Revision {
+  _id
+  version
+  editedAt
+  commitMessage
+  userId
+  
+  score
+  baseScore
+  extendedScore
+  voteCount
+  currentUserVote
+  currentUserExtendedVote
+}
+
+fragment RevisionMetadataWithChangeMetrics on Revision {
+  ...RevisionMetadata
+  changeMetrics
+  user {
+    ...UsersMinimumInfo
+  }
+}
+
+fragment RevisionHistoryEntry on Revision {
+  ...RevisionMetadata
+  documentId
+  collectionName
+  changeMetrics
+  legacyData
+  skipAttributions
+  user {
+    ...UsersMinimumInfo
+  }
+}
+
+fragment RevisionHistorySummaryEdit on Revision {
+  ...RevisionHistoryEntry
+  summary {
+    ...MultiDocumentMinimumInfo
+    parentTag {
+      _id
+      name
+    }
+    parentLens {
+      _id
+      title
+      tabTitle
+      tabSubtitle
+    }
+  }
+}
+
+fragment RevisionTagFragment on Revision {
+  ...RevisionHistoryEntry
+  tag {
+    ...TagHistoryFragment
+  }
+  lens {
+    ...MultiDocumentParentDocument
+  }
+}
+
+fragment RecentDiscussionRevisionTagFragment on Revision {
+  ...RevisionHistoryEntry
+  tag {
+    ...TagRecentDiscussion
+  }
+}
+
+fragment WithVoteRevision on Revision {
+  __typename
+  _id
+  currentUserVote
+  currentUserExtendedVote
+  baseScore
+  extendedScore
+  score
+  voteCount
+}
+

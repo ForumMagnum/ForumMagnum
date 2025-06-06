@@ -1,0 +1,44 @@
+
+
+fragment TagRelVotes on Vote {
+  _id
+  userId
+  voteType
+  power
+  documentId
+  votedAt
+  isUnvote
+  tagRel {
+    ...WithVoteTagRel
+  }
+}
+
+fragment TagVotingActivity on Vote {
+  ...TagRelVotes
+  tagRel {
+    ...TagRelFragment
+  }
+}
+
+fragment UserVotes on Vote {
+  _id
+  userId
+  voteType
+  power
+  cancelled
+  documentId
+  votedAt
+  isUnvote
+  collectionName
+}
+
+fragment UserVotesWithDocument on Vote {
+  ...UserVotes
+  comment {
+    ...CommentsListWithParentMetadata
+  }
+  post {
+    ...PostsListWithVotes
+  }
+}
+

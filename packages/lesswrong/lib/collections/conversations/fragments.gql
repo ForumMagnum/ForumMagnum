@@ -1,0 +1,28 @@
+
+
+fragment ConversationsMinimumInfo on Conversation {
+  _id
+  createdAt
+  latestActivity
+  title
+  participantIds
+  archivedByIds
+  messageCount
+  moderator
+}
+
+fragment ConversationsList on Conversation {
+  ...ConversationsMinimumInfo
+  participants {
+    ...UsersMinimumInfo
+  }
+  latestMessage {
+    ...messageListFragment
+  }
+}
+
+fragment ConversationsListWithReadStatus on Conversation {
+  ...ConversationsList
+  hasUnreadMessages
+}
+

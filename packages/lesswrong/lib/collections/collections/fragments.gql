@@ -1,0 +1,55 @@
+
+
+fragment CollectionContinueReadingFragment on Collection {
+  _id
+  title
+  slug
+  gridImageId
+}
+
+fragment CollectionsPageFragment on Collection {
+  _id
+  createdAt
+  slug
+  userId
+  user {
+    ...UsersMinimumInfo
+  }
+  title
+  contents {
+    ...RevisionDisplay
+  }
+  firstPageLink
+  gridImageId
+  books {
+    ...BookPageFragment
+  }
+  hideStartReadingButton
+  noindex
+}
+
+fragment CollectionsEditFragment on Collection {
+  ...CollectionsPageFragment
+  contents {
+    ...RevisionEdit
+  }
+}
+
+fragment CollectionsBestOfFragment on Collection {
+  _id
+  createdAt
+  slug
+  userId
+  user {
+    ...UsersMinimumInfo
+  }
+  title
+  gridImageId
+  noindex
+  postsCount
+  readPostsCount
+  contents {
+    ...RevisionDisplay
+  }
+}
+

@@ -1,0 +1,43 @@
+
+fragment newEventFragment on LWEvent {
+  _id
+  createdAt
+  userId
+  name
+  important
+  properties
+  intercom
+}
+
+fragment lastEventFragment on LWEvent {
+  _id
+  createdAt
+  documentId
+  userId
+  name
+  important
+  properties
+  intercom
+}
+
+fragment lwEventsAdminPageFragment on LWEvent {
+  _id
+  createdAt
+  userId
+  user {
+    ...UsersMinimumInfo
+  }
+  name
+  documentId
+  important
+  properties
+  intercom
+}
+
+fragment emailHistoryFragment on LWEvent {
+  _id
+  createdAt
+  userId
+  name
+  properties
+}

@@ -1,0 +1,37 @@
+
+
+fragment GardenCodeFragment on GardenCode {
+  _id
+  code
+  title
+  userId
+  deleted
+  slug
+  startTime
+  endTime
+  fbLink
+  type
+  afOnly
+  contents {
+    ...RevisionDisplay
+  }
+}
+
+fragment GardenCodeFragmentEdit on GardenCode {
+  _id
+  code
+  title
+  userId
+  deleted
+  slug
+  startTime
+  endTime
+  fbLink
+  type
+  afOnly
+  contents {
+    ...RevisionEdit
+  }
+}
+
+

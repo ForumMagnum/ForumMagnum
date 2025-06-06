@@ -1,0 +1,72 @@
+
+
+fragment ForumEventsMinimumInfo on ForumEvent {
+  _id
+  title
+  startDate
+  endDate
+  darkColor
+  lightColor
+  bannerTextColor
+  contrastColor
+  tagId
+  postId
+  commentId
+  bannerImageId
+  eventFormat
+  customComponent
+  commentPrompt
+  isGlobal
+
+  pollAgreeWording
+  pollDisagreeWording
+
+  maxStickersPerUser
+}
+
+fragment ForumEventsDisplay on ForumEvent {
+  ...ForumEventsMinimumInfo
+  publicData
+  voteCount
+
+  post {
+    ...PostsMinimumInfo
+  }
+  tag {
+    ...TagBasicInfo
+  }
+  frontpageDescription {
+    _id
+    html
+  }
+  frontpageDescriptionMobile {
+    _id
+    html
+  }
+  postPageDescription {
+    _id
+    html
+  }
+  pollQuestion {
+    _id
+    html
+    plaintextMainText
+  }
+}
+
+fragment ForumEventsEdit on ForumEvent {
+  ...ForumEventsMinimumInfo
+  frontpageDescription {
+    ...RevisionEdit
+  }
+  frontpageDescriptionMobile {
+    ...RevisionEdit
+  }
+  postPageDescription {
+    ...RevisionEdit
+  }
+  pollQuestion {
+    ...RevisionEdit
+  }
+}
+

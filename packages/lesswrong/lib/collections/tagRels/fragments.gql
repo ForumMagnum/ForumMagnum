@@ -1,0 +1,75 @@
+
+fragment TagRelBasicInfo on TagRel {
+  _id
+  score
+  baseScore
+  extendedScore
+  afBaseScore
+  voteCount
+  tagId
+  postId
+  autoApplied
+}
+
+fragment TagRelFragment on TagRel {
+  ...TagRelBasicInfo
+  tag {
+    ...TagPreviewFragment
+  }
+  post {
+    ...PostsList
+  }
+  currentUserVote
+  currentUserExtendedVote
+  currentUserCanVote
+}
+
+fragment TagRelHistoryFragment on TagRel {
+  ...TagRelBasicInfo
+  createdAt
+  user {
+    ...UsersMinimumInfo
+  }
+  post {
+    ...PostsList
+  }
+}
+
+fragment TagRelCreationFragment on TagRel {
+  ...TagRelBasicInfo
+  tag {
+    ...TagPreviewFragment
+  }
+  post {
+    ...PostsList
+    tagRelevance
+    tagRel(tagId: $tagId) {
+      ...WithVoteTagRel
+    }
+  }
+  currentUserVote
+  currentUserExtendedVote
+}
+
+fragment TagRelMinimumFragment on TagRel {
+  ...TagRelBasicInfo
+  tag {
+    ...TagPreviewFragment
+  }
+  currentUserVote
+  currentUserExtendedVote
+  currentUserCanVote
+}
+
+fragment WithVoteTagRel on TagRel {
+  __typename
+  _id
+  score
+  baseScore
+  extendedScore
+  afBaseScore
+  voteCount
+  currentUserVote
+  currentUserExtendedVote
+}
+

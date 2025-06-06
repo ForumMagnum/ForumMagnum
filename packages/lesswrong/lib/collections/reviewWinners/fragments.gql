@@ -1,0 +1,63 @@
+
+
+fragment ReviewWinnerEditDisplay on ReviewWinner {
+  _id
+  postId
+  reviewYear
+  curatedOrder
+  reviewRanking
+}
+
+fragment ReviewWinnerTopPostsDisplay on ReviewWinner {
+  _id
+  postId
+  post {
+    ...PostsTopItemInfo
+  }
+  reviewYear
+  curatedOrder
+  reviewRanking
+}
+
+fragment ReviewWinnerAll on ReviewWinner {
+  _id
+  category
+  curatedOrder
+  postId
+  reviewYear
+  reviewRanking
+  reviewWinnerArt {
+    ...ReviewWinnerArtImages
+  }
+  competitorCount
+}
+
+fragment ReviewWinnerTopPostsPage on ReviewWinner {
+  _id
+  category
+  curatedOrder
+  reviewYear
+  reviewRanking
+  reviewWinnerArt {
+    splashArtImageUrl
+    activeSplashArtCoordinates {
+      ...SplashArtCoordinatesEdit
+    }
+  }
+}
+
+fragment ReviewWinnerAnnouncement on ReviewWinner {
+  _id
+  category
+  curatedOrder
+  reviewYear
+  reviewRanking
+  competitorCount
+  postId
+  post {
+    _id
+    title
+    slug
+  }
+}
+

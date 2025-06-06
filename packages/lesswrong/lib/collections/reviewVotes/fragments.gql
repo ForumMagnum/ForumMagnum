@@ -1,0 +1,41 @@
+
+
+fragment reviewVoteFragment on ReviewVote {
+  _id
+  createdAt
+  userId
+  postId
+  qualitativeScore
+  quadraticScore
+  comment
+  year
+  dummy
+  reactions
+}
+
+
+fragment reviewVoteWithUserAndPost on ReviewVote {
+  ...reviewVoteFragment
+  user {
+    ...UsersMinimumInfo
+    email
+    emails
+  }
+  post {
+    ...PostsMinimumInfo
+  }
+}
+
+fragment reviewAdminDashboard on ReviewVote {
+  _id
+  createdAt
+  userId
+  user {
+    _id
+    displayName
+    karma
+  }
+}
+
+
+

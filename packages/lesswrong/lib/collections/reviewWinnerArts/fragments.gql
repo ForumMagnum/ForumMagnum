@@ -1,0 +1,12 @@
+
+
+fragment ReviewWinnerArtImages on ReviewWinnerArt {
+  _id
+  postId
+  splashArtImagePrompt
+  splashArtImageUrl
+  activeSplashArtCoordinates {
+    ...SplashArtCoordinatesEdit
+  }
+}
+

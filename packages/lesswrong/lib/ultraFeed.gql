@@ -1,0 +1,23 @@
+
+fragment FeedPostFragment on FeedPost {
+  _id
+  postMetaInfo
+  post {
+    ...PostsListWithVotes
+  }
+}
+
+fragment FeedCommentThreadFragment on FeedCommentThread {
+  _id
+  commentMetaInfos
+  comments {
+    ...UltraFeedComment
+  }
+}
+
+fragment FeedSpotlightFragment on FeedSpotlightItem {
+  _id
+  spotlight {
+    ...SpotlightDisplay
+  }
+}

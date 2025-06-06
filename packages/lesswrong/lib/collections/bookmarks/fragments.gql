@@ -1,0 +1,19 @@
+
+
+fragment BookmarksWithDocumentFragment on Bookmark {
+  ...BookmarksDefaultFragment
+  post {
+    ...PostsListWithVotes
+  }
+}
+
+fragment BookmarksFeedItemFragment on Bookmark {
+  ...BookmarksDefaultFragment
+  post {
+    ...PostsListWithVotes
+  }
+  comment {
+    ...UltraFeedComment
+  }
+}
+

@@ -1,0 +1,9 @@
+
+
+fragment PetrovDayLaunchInfo on PetrovDayLaunch {
+  _id
+  createdAt
+  launchCode
+  userId
+}
+

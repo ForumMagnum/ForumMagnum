@@ -11,8 +11,9 @@ import { typeDefs } from '../vulcan-lib/apollo-server/initGraphQL';
 import { generate } from '@graphql-codegen/cli'
 import { print } from 'graphql';
 import graphqlCodegenConfig from '@/../../codegen.ts';
+import { findFragmentsInSource } from './findGraphql';
 
-function enumerateFiles(dirPath: string): string[] {
+export function enumerateFiles(dirPath: string): string[] {
   let fileList: string[] = [];
 
   // Read the contents of the directory
@@ -128,6 +129,7 @@ export async function generateTypes(repoRoot?: string) {
 
     writeIfChanged(generateGraphQLSchemaFile(), "/packages/lesswrong/lib/generated/gqlSchema.gql");
     writeIfChanged(generateDefaultFragmentsFile(collectionNameToTypeName), "/packages/lesswrong/lib/generated/defaultFragments.ts");
+    writeIfChanged(generateFragmentsByNameFile(), "/packages/lesswrong/lib/generated/fragmentsByName.ts"),
     writeIfChanged(generateInputTypes(), "/packages/lesswrong/lib/generated/inputTypes.d.ts");
     writeIfChanged(generateFragmentTypes(collectionNameToTypeName, typeNameToCollectionName), "/packages/lesswrong/lib/generated/fragmentTypes.d.ts");
     writeIfChanged(generateDbTypes(), "/packages/lesswrong/lib/generated/databaseTypes.d.ts");
@@ -172,6 +174,22 @@ async function generateGraphQLCodegenTypes(): Promise<void> {
   }
 }
 
+async function generateFragmentsByNameFile(): Promise<string> {
+  const { collectionNameToTypeName, typeNameToCollectionName }: typeof import("@/lib/generated/collectionTypeNames") = require("@/lib/generated/collectionTypeNames");
+  const allFragments = findFragmentsInSource(collectionNameToTypeName);
+
+  const sb: string[] = [];
+  sb.push("# Generated file - run 'yarn generate' to update.\n\n");
+  sb.push("export const fragmentsByName = {\n");
+
+  for (const [fragmentName, fragment] of Object.entries(allFragments)) {
+    sb.push(`  ${JSON.stringify(fragmentName)}: ${JSON.stringify(fragment.fragmentText)}`);
+  }
+
+  sb.push("};\n");
+  return sb.join("");
+}
+
 function fileMightIncludeGql(filePath: string) {
   const content = fs.readFileSync(filePath, 'utf-8').toLowerCase();
   return content.includes('gql`') || content.includes('gql(');
@@ -182,6 +200,9 @@ function getFilesMaybeContainingGql(dir: string) {
   
   function traverse(currentDir: string) {
     const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+    if (currentDir.startsWith('packages/lesswrong/lib/generated')) {
+      return;
+    }
     
     for (const entry of entries) {
       const fullPath = path.join(currentDir, entry.name);
@@ -189,7 +210,7 @@ function getFilesMaybeContainingGql(dir: string) {
       if (entry.isDirectory()) {
         traverse(fullPath);
       } else if (entry.isFile()
-        && (entry.name.endsWith('.ts') || entry.name.endsWith('.tsx'))
+        && (entry.name.endsWith('.ts') || entry.name.endsWith('.tsx') || entry.name.endsWith('.gql'))
         && !entry.name.endsWith('.d.ts')
         && fileMightIncludeGql(fullPath)
       ) {

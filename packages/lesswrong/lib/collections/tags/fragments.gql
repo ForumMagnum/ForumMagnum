@@ -1,0 +1,448 @@
+
+fragment TagBasicInfo on Tag {
+  _id
+  userId
+  name
+  shortName
+  slug
+  core
+  postCount
+  adminOnly
+  canEditUserIds
+  suggestedAsFilter
+  needsReview
+  descriptionTruncationCount
+  createdAt
+  wikiOnly
+  deleted
+  isSubforum
+  noindex
+  isArbitalImport
+  isPlaceholderPage
+
+  baseScore
+  extendedScore
+  score
+  afBaseScore
+  afExtendedScore
+  voteCount
+  currentUserVote
+  currentUserExtendedVote
+}
+
+fragment TagDetailsFragment on Tag {
+  ...TagBasicInfo
+  subtitle
+  oldSlugs
+  isRead
+  defaultOrder
+  reviewedByUserId
+  wikiGrade
+  subforumModeratorIds
+  subforumModerators {
+    ...UsersMinimumInfo
+  }
+  moderationGuidelines {
+    _id
+    html
+  }
+  bannerImageId
+  squareImageId
+  lesswrongWikiImportSlug
+  lesswrongWikiImportRevision
+  sequence {
+    ...SequencesPageFragment
+  }
+}
+
+fragment TagFragment on Tag {
+  ...TagDetailsFragment
+  parentTag {
+    ...TagBasicInfo
+  }
+  subTags {
+    ...TagBasicInfo
+  }
+  description {
+    _id
+    html
+    htmlHighlight
+    plaintextDescription
+    version
+    editedAt
+  }
+  canVoteOnRels
+}
+
+fragment TagHistoryFragment on Tag {
+  ...TagFragment
+  textLastUpdatedAt
+  tableOfContents
+  user {
+    ...UsersMinimumInfo
+  }
+  lensesIncludingDeleted {
+    ...MultiDocumentContentDisplay
+  }
+}
+
+fragment TagCreationHistoryFragment on Tag {
+  ...TagFragment
+  user {
+    ...UsersMinimumInfo
+  }
+  description {
+    html
+  }
+}
+
+fragment TagRevisionFragment on Tag {
+  ...TagDetailsFragment
+  parentTag {
+    ...TagBasicInfo
+  }
+  subTags {
+    ...TagBasicInfo
+  }
+  isRead
+  description(version: $version) {
+    _id
+    version
+    html
+    htmlHighlight
+    plaintextDescription
+    editedAt
+    
+    user {
+      ...UsersMinimumInfo
+    }
+  }
+}
+
+fragment TagPreviewFragment on Tag {
+  ...TagBasicInfo
+  isRead
+  parentTag {
+    ...TagBasicInfo
+  }
+  subTags {
+    ...TagBasicInfo
+  }
+  description {
+    _id
+    htmlHighlight
+  }
+  canVoteOnRels
+  isArbitalImport
+}
+
+fragment TagSectionPreviewFragment on Tag {
+  ...TagBasicInfo
+  isRead
+  parentTag {
+    ...TagBasicInfo
+  }
+  subTags {
+    ...TagBasicInfo
+  }
+  description {
+    _id
+    htmlHighlightStartingAtHash(hash: $hash)
+  }
+  canVoteOnRels
+}
+
+fragment TagSubforumFragment on Tag {
+  ...TagPreviewFragment
+  subforumModeratorIds
+  tableOfContents
+  subforumWelcomeText {
+    _id
+    html
+  }
+}
+
+# TODO: would prefer to fetch subtags in fewer places
+fragment TagSubtagFragment on Tag {
+  _id
+  subforumModeratorIds
+  subTags {
+    ...TagPreviewFragment
+  }
+}
+
+fragment TagSubforumSidebarFragment on Tag {
+  ...TagBasicInfo
+}
+
+fragment TagDetailedPreviewFragment on Tag {
+  ...TagDetailsFragment
+  description {
+    _id
+    htmlHighlight
+  }
+}
+
+fragment TagWithFlagsFragment on Tag {
+  ...TagFragment
+  tagFlagsIds
+  tagFlags {
+    ...TagFlagFragment
+  }
+}
+
+fragment TagWithFlagsAndRevisionFragment on Tag {
+  ...TagRevisionFragment
+  tagFlagsIds
+  tagFlags {
+    ...TagFlagFragment
+  }
+}
+
+# This matches custom graphql type in arbitalLinkedPagesField.ts that's a resolver field on Tags and MultiDocuments
+fragment ArbitalLinkedPagesFragment on ArbitalLinkedPages {
+  faster {
+    _id
+    name
+    slug
+  }
+  slower {
+    _id
+    name
+    slug
+  }
+  moreTechnical {
+    _id
+    name
+    slug
+  }
+  lessTechnical {
+    _id
+    name
+    slug
+  }
+  requirements {
+    _id
+    name
+    slug
+  }
+  teaches {
+    _id
+    name
+    slug
+  }
+  parents {
+    _id
+    name
+    slug
+  }
+  children {
+    _id
+    name
+    slug
+  }
+}
+
+fragment TagPageArbitalContentFragment on Tag {
+  lenses {
+    ...MultiDocumentWithContributors
+  }
+  arbitalLinkedPages {
+    ...ArbitalLinkedPagesFragment
+  }
+}
+
+fragment TagPageFragment on Tag {
+  ...TagWithFlagsFragment
+  tableOfContents
+  postsDefaultSortOrder
+  subforumIntroPost {
+    ...PostsListWithVotes
+  }
+  subforumWelcomeText {
+    _id
+    html
+  }
+  contributors(limit: $contributorsLimit) {
+    totalCount
+    contributors {
+      user {
+        ...UsersMinimumInfo
+      }
+      contributionScore
+      currentAttributionCharCount
+      numCommits
+      voteCount
+    }
+  }
+  canVoteOnRels
+  forceAllowType3Audio
+  textLastUpdatedAt
+}
+
+fragment TagPageWithArbitalContentFragment on Tag {
+  ...TagPageFragment
+  ...TagPageArbitalContentFragment
+}
+
+fragment AllTagsPageFragment on Tag {
+  ...TagWithFlagsFragment
+  tableOfContents
+}
+
+fragment TagPageWithRevisionFragment on Tag {
+  ...TagWithFlagsAndRevisionFragment
+  tableOfContents(version: $version)
+  textLastUpdatedAt
+  postsDefaultSortOrder
+  subforumIntroPost {
+    ...PostsListWithVotes
+  }
+  subforumWelcomeText {
+    _id
+    html
+  }
+  contributors(limit: $contributorsLimit, version: $version) {
+    totalCount
+    contributors {
+      user {
+        ...UsersMinimumInfo
+      }
+      contributionScore
+      currentAttributionCharCount
+      numCommits
+      voteCount
+    }
+  }
+  canVoteOnRels
+  forceAllowType3Audio
+}
+
+fragment TagPageRevisionWithArbitalContentFragment on Tag {
+  ...TagPageWithRevisionFragment
+  ...TagPageArbitalContentFragment
+}
+
+fragment TagFullContributorsList on Tag {
+  contributors {
+    totalCount
+    contributors {
+      user {
+        ...UsersMinimumInfo
+      }
+      contributionScore
+      currentAttributionCharCount
+      numCommits
+      voteCount
+    }
+  }
+}
+
+fragment TagEditFragment on Tag {
+  ...TagDetailsFragment
+  isPostType
+  parentTagId
+  parentTag {
+    ...TagBasicInfo
+  }
+  subforumIntroPostId
+  tagFlagsIds
+  postsDefaultSortOrder
+  introSequenceId
+  canVoteOnRels
+  
+  autoTagModel
+  autoTagPrompt
+  
+  description {
+    ...RevisionEdit
+  }
+  subforumWelcomeText {
+    ...RevisionEdit
+  }
+  moderationGuidelines {
+    ...RevisionEdit
+  }
+}
+
+fragment TagRecentDiscussion on Tag {
+  ...TagFragment
+  lastVisitedAt
+  recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
+    ...CommentsList
+  }
+}
+
+fragment SunshineTagFragment on Tag {
+  ...TagFragment
+  user {
+    ...UsersMinimumInfo
+  }
+}
+
+fragment UserOnboardingTag on Tag {
+  _id
+  name
+  slug
+  bannerImageId
+  squareImageId
+}
+
+fragment TagName on Tag {
+  _id
+  name
+  slug
+}
+
+fragment ExplorePageTagFragment on Tag {
+  ...TagFragment
+  contributors(limit: $contributorsLimit) {
+    totalCount
+    contributors {
+      user {
+        ...UsersMinimumInfo
+      }
+      contributionScore
+      currentAttributionCharCount
+      numCommits
+      voteCount
+    }
+  }
+  legacyData
+}
+
+fragment ConceptItemFragment on Tag {
+  _id
+  core
+  name
+  slug
+  oldSlugs
+  postCount
+  baseScore
+  description {
+    _id
+    wordCount
+  }
+  wikiOnly
+  isArbitalImport
+  coreTagId
+  maxScore
+  usersWhoLiked {
+    _id
+    displayName
+  }
+}
+
+fragment TagPageWithArbitalContentAndLensRevisionFragment on Tag {
+  ...TagPageFragment
+  arbitalLinkedPages {
+    ...ArbitalLinkedPagesFragment
+  }
+  lenses(lensSlug: $lensSlug, version: $version) {
+    ...MultiDocumentWithContributorsRevision
+  }
+}
+
+fragment WithVoteTag on Tag {
+  ...TagBasicInfo
+}

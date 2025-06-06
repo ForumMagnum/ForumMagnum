@@ -1,4 +1,3 @@
-import { pascalCase } from 'change-case';
 import type { CodegenConfig } from '@graphql-codegen/cli';
 
 const config: CodegenConfig = {

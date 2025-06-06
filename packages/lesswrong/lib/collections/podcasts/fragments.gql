@@ -1,0 +1,7 @@
+
+
+fragment PodcastSelect on Podcast {
+  _id
+  title
+}
+

@@ -1,0 +1,27 @@
+
+
+fragment LlmConversationsFragment on LlmConversation {
+  _id
+  userId
+  title
+  createdAt
+  lastUpdatedAt
+  deleted
+}
+
+fragment LlmConversationsViewingPageFragment on LlmConversation {
+  ...LlmConversationsFragment
+  totalCharacterCount
+  user {
+    ...UsersMinimumInfo
+  }
+}
+
+
+fragment LlmConversationsWithMessagesFragment on LlmConversation {
+  ...LlmConversationsFragment
+  messages {
+    ...LlmMessagesFragment
+  }
+}
+

@@ -1,0 +1,13 @@
+
+
+fragment GoogleServiceAccountSessionInfo on GoogleServiceAccountSession {
+  _id
+  email
+}
+
+fragment GoogleServiceAccountSessionAdminInfo on GoogleServiceAccountSession {
+  _id
+  email
+  estimatedExpiry
+}
+

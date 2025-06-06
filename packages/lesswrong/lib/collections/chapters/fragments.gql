@@ -1,0 +1,25 @@
+
+
+fragment ChaptersFragment on Chapter {
+  _id
+  createdAt
+  title
+  subtitle
+  contents {
+    ...RevisionDisplay
+  }
+  number
+  sequenceId
+  postIds
+  posts {
+    ...PostsListWithVotes
+  }
+}
+
+fragment ChaptersEdit on Chapter {
+  ...ChaptersFragment
+  contents {
+    ...RevisionEdit
+  }
+}
+
