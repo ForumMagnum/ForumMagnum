@@ -1,6 +1,5 @@
-import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
-import { AnalyticsContext } from "../../lib/analyticsEvents";
+import React, { useState } from "react";
+import { AnalyticsContext, captureEvent } from "../../lib/analyticsEvents";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import { defineStyles, useStyles } from "../hooks/useStyles";
@@ -10,8 +9,11 @@ import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import CommentsMenu from "../dropdowns/comments/CommentsMenu";
 import CommentsItemDate from "../comments/CommentsItem/CommentsItemDate";
 import CommentUserName from "../comments/CommentsItem/CommentUserName";
-import CommentShortformIcon from "../comments/CommentsItem/CommentShortformIcon";
 import UltraFeedCommentActions from "./UltraFeedCommentActions";
+import SubdirectoryArrowLeft from "@/lib/vendor/@material-ui/icons/src/SubdirectoryArrowLeft";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
+import DebateIcon from "@/lib/vendor/@material-ui/icons/src/Forum";
 
 const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => ({
   root: {
@@ -56,12 +58,43 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
   commentShortformIconContainer: {
     position: 'relative',
     bottom: 0,
+    cursor: 'pointer',
+    "&:hover": {
+      opacity: 0.7,
+    },
   },
   commentShortformIcon: {
-    position: 'relative',
     [theme.breakpoints.down('sm')]: {
       bottom: 10
     },
+    cursor: "pointer",
+    color: theme.palette.grey[600],
+    width: 13,
+    height: 13,
+    marginLeft: -2,
+    marginRight: theme.spacing.unit,
+    position: "relative",
+    top: 2
+  },
+  debateIconContainer: {
+    position: 'relative',
+    bottom: 0,
+    display: 'flex',
+    alignItems: 'center',
+    cursor: 'pointer',
+    "&:hover": {
+      opacity: 0.7,
+    },
+  },
+  debateIcon: {
+    cursor: "pointer",
+    color: theme.palette.grey[500],
+    width: 16,
+    height: 16,
+    marginLeft: -2,
+    marginRight: 6,
+    position: "relative",
+    top: 2,
   },
   username: {
     marginRight: 8,
@@ -87,17 +120,25 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     maxWidth: '70%',
     position: 'relative',
     marginLeft: 'auto',
-    marginRight: 16,
+    marginRight: 8,
     cursor: 'pointer',
     overflow: "hidden",
     wordBreak: 'break-all',
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 1,
+    backgroundColor: 'transparent',
+    transition: 'background-color 1.5s ease-out',
+    padding: '2px 8px',
+    borderRadius: 4,
+  },
+  sameRowPostTitleHighlighted: {
+    backgroundColor: `${theme.palette.primary.main}3b`,
+    transition: 'none',
   },
   belowPostTitle: {
-    marginTop: 8,
-    marginRight: 12,
+    marginTop: 4,
+    marginRight: 4,
     color: theme.palette.link.dim,
     fontSize: theme.typography.body2.fontSize,
     lineHeight: theme.typography.body2.lineHeight,
@@ -111,6 +152,14 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     [theme.breakpoints.down('sm')]: {
       fontSize: theme.typography.ultraFeedMobileStyle.fontSize,
     },
+    backgroundColor: 'transparent',
+    transition: 'background-color 1.5s ease-out',
+    padding: '4px 8px',
+    borderRadius: 4,
+  },
+  belowPostTitleHighlighted: {
+    backgroundColor: `${theme.palette.primary.main}3b`,
+    transition: 'none',
   },
   postTitleReplyTo: {
     marginRight: 4,
@@ -129,13 +178,25 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
       display: 'none',
     },
   },
+  replyingToIcon: {
+    fontSize: 14,
+    transform: "rotate(90deg)",
+    marginRight: 4,
+  },
+  replyingToIconClickable: {
+    cursor: "pointer",
+    "&:hover": {
+      opacity: 0.7,
+    },
+  },
 }));
 
-const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick}: {
+const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick, highlighted}: {
   comment: UltraFeedComment,
   position: 'metarow' | 'below',
   enabled?: boolean,
   onPostTitleClick?: () => void,
+  highlighted?: boolean,
 }) => {
   const classes = useStyles(styles);
   const { post } = comment;
@@ -156,8 +217,10 @@ const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick}: {
     <div 
       className={classNames({
         [classes.sameRowPostTitle]: position === 'metarow',
+        [classes.sameRowPostTitleHighlighted]: position === 'metarow' && highlighted,
         [classes.hideOnMobile]: position === 'metarow' && !post.shortform,
         [classes.belowPostTitle]: position === 'below',
+        [classes.belowPostTitleHighlighted]: position === 'below' && highlighted,
         [classes.hideOnDesktop]: position === 'below',
       })}
     >
@@ -182,6 +245,8 @@ const UltraFeedCommentsItemMeta = ({
   hideActionsMenu,
   showPostTitle,
   onPostTitleClick,
+  parentAuthorName,
+  onReplyIconClick,
 }: {
   comment: UltraFeedComment,
   setShowEdit?: () => void,
@@ -189,9 +254,12 @@ const UltraFeedCommentsItemMeta = ({
   hideActionsMenu?: boolean,
   showPostTitle?: boolean,
   onPostTitleClick?: () => void,
+  parentAuthorName?: string | null,
+  onReplyIconClick?: () => void,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const [postTitleHighlighted, setPostTitleHighlighted] = useState(false);
   const { post } = comment;
 
   if (!post) {
@@ -209,6 +277,30 @@ const UltraFeedCommentsItemMeta = ({
   );
 
   const isNewContent = comment.postedAt && (new Date(comment.postedAt) > new Date(Date.now() - (7 * 24 * 60 * 60 * 1000)));
+  const isTopLevelComment = !comment.parentCommentId;
+
+  const handleReplyIconClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (onReplyIconClick) {
+      onReplyIconClick();
+    }
+  };
+
+  const handlePostTitleHighlight = (event: React.MouseEvent, iconType: 'shortform' | 'debate') => {
+    event.stopPropagation();
+    setPostTitleHighlighted(true);
+    
+    // Track the click event
+    captureEvent(iconType === 'shortform' ? "ultraFeedShortformIconClicked" : "ultraFeedDebateIconClicked", {
+      commentId: comment._id,
+      postId: post._id,
+    });
+    
+    // Remove highlight after a short delay
+    setTimeout(() => {
+      setPostTitleHighlighted(false);
+    }, 100);
+  };
 
   return (
     <div className={classes.root}>
@@ -220,33 +312,59 @@ const UltraFeedCommentsItemMeta = ({
         }
       </div>
       <div className={classes.metaRow}>
-          {comment.shortform && post && <div className={classes.commentShortformIconContainer}>
-            <CommentShortformIcon comment={comment} post={post} iconClassName={classes.commentShortformIcon}/>
-          </div>}
-          <CommentUserName
-            comment={comment}
-            className={classes.username}
-          />
-          {!hideDate && post && <span className={classNames({[classes.newContentDateStyling]: isNewContent})}>
-            <CommentsItemDate comment={comment} post={post} className={classes.date}/>
-          </span>}
-          {showModeratorCommentAnnotation &&
-            <span className={classes.moderatorHat}>
-              {moderatorCommentAnnotation}
-            </span>
-          }
-          <ReplyingToTitle enabled={showPostTitle} position="metarow" comment={comment} onPostTitleClick={onPostTitleClick} />
+        {!isTopLevelComment && (
+          <LWTooltip 
+            title={parentAuthorName ? `Replying to ${parentAuthorName}` : "Replying to parent comment"}
+            placement="top"
+          >
+            <SubdirectoryArrowLeft 
+              className={classNames(classes.replyingToIcon, {
+                [classes.replyingToIconClickable]: !!onReplyIconClick
+              })}
+              onClick={handleReplyIconClick}
+            />
+          </LWTooltip>
+        )}
+        {comment.shortform && !comment.topLevelCommentId && post && (
+          <LWTooltip
+            title={post.title}
+            placement="top"
+          >
+            <div className={classes.commentShortformIconContainer} onClick={(event) => handlePostTitleHighlight(event, 'shortform')}>
+              <ForumIcon icon="Shortform" className={classes.commentShortformIcon} />
+            </div>
+          </LWTooltip>
+        )}
+        {!comment.shortform && isTopLevelComment && post && (
+          <LWTooltip
+            title={`Replying to ${post.title}`}
+            placement="top"
+          >
+            <div className={classes.debateIconContainer} onClick={(event) => handlePostTitleHighlight(event, 'debate')}>
+              <DebateIcon className={classes.debateIcon} />
+            </div>
+          </LWTooltip>
+        )}
+        <CommentUserName
+          comment={comment}
+          className={classes.username}
+        />
+        {!hideDate && post && <span className={classNames({[classes.newContentDateStyling]: isNewContent})}>
+          <CommentsItemDate comment={comment} post={post} className={classes.date}/>
+        </span>}
+        {showModeratorCommentAnnotation &&
+          <span className={classes.moderatorHat}>
+            {moderatorCommentAnnotation}
+          </span>
+        }
+        <ReplyingToTitle enabled={showPostTitle} position="metarow" comment={comment} onPostTitleClick={onPostTitleClick} highlighted={postTitleHighlighted} />
       </div>
-      <ReplyingToTitle enabled={showPostTitle && !post?.shortform} position="below" comment={comment} onPostTitleClick={onPostTitleClick} />
+      <ReplyingToTitle enabled={showPostTitle && !post?.shortform} position="below" comment={comment} onPostTitleClick={onPostTitleClick} highlighted={postTitleHighlighted} />
     </div>
   );
 };
 
-export default registerComponent(
-  "UltraFeedCommentsItemMeta",
-  UltraFeedCommentsItemMeta
-);
-
+export default UltraFeedCommentsItemMeta;
 
 
  
