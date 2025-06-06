@@ -486,5 +486,5 @@ export const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimum
 };
 
 export function userCanEditCoauthors(user: UsersCurrent | null) {
-  return userIsAdminOrMod(user) || userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA);
+  return userIsAdminOrMod(user) || userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)(user);
 }
