@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { truncateWithGrace } from '../../lib/editor/ellipsize';
+import { truncateWithGrace, calculateTruncationStatus } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../../components/hooks/useStyles';
 import { generateTextFragment } from './textFragmentHelpers'
@@ -193,23 +193,6 @@ const FeedContentBody = ({
     }
   }, [breakpoints.length, expansionLevel, onExpand, wordCount]);
 
-  // By default links cause expansion to next level (until max), however clicks on links don't expand,
-  // just navigate, with the exeption of footnote links, which expand to max (because we need the full footnote for scrolling or modal)
-  const handleContentClick = useCallback((e: React.MouseEvent) => {
-    const target = e.target as HTMLElement;
-    const anchorElement = target.closest('a');
-
-    if (anchorElement) {
-      const href = anchorElement.getAttribute('href');
-      if (href && href.startsWith('#fn')) {
-        handleExpandToMax();
-      }
-      return;
-    }
-
-    handleExpand();
-  }, [handleExpand, handleExpandToMax]);
-
   const readMoreSuffixText = '(read more)';
 
   const calculateTruncationState = (): {
@@ -231,10 +214,19 @@ const FeedContentBody = ({
       truncatedHtml = html; // Render full HTML for CSS clamping
     } else {
       // Word count truncation logic (applies if no clampOverride OR expansionLevel > 0)
+      const { willTruncate, wordsRemaining } = calculateTruncationStatus(
+        wordCount,
+        currentWordLimit,
+        20
+      );
+      
       if (hideSuffix || (isMaxLevel && linkToDocumentOnFinalExpand)) {
         suffix = '...';
+      } else if (willTruncate && wordsRemaining > 200) {
+        // TODO: Add minimum word count threshold check here when specified
+        suffix = `...<span class="read-more-suffix" data-action="modal">${`(read ${wordsRemaining} more words)`}</span>`;
       } else {
-        suffix = `...<span class="read-more-suffix">${readMoreSuffixText}</span>`;
+        suffix = `...<span class="read-more-suffix" data-action="expand">${readMoreSuffixText}</span>`;
       }
 
       const result = truncateWithGrace(
@@ -247,20 +239,48 @@ const FeedContentBody = ({
 
       truncatedHtml = result.truncatedHtml;
       wasTruncated = result.wasTruncated;
-
-      if (wasTruncated) {
-        wordsLeft = Math.max(0, wordCount - currentWordLimit);
-      } else {
-        wordsLeft = 0;
-      }
+      wordsLeft = result.wordsLeft;
     }
 
     return { truncatedHtml, wasTruncated, wordsLeft, suffix };
   };
 
   const { truncatedHtml, wasTruncated, wordsLeft, suffix } = calculateTruncationState();
+
   // Get truncated HTML *without* the suffix for fragment generation
   const truncatedHtmlWithoutSuffix = truncatedHtml.replace(suffix, '');
+
+  // Handle clicks on inline read-more suffix and footnote links
+  const handleContentClick = useCallback((e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    
+    // Check if clicking on the read-more suffix
+    if (target.classList.contains('read-more-suffix')) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const action = target.getAttribute('data-action');
+      if (action === 'modal' && onContinueReadingClick) {
+        // For modal, generate text fragment and pass it
+        // Calculate it here to avoid dependency issues
+        const truncatedWithoutSuffix = truncatedHtml.replace(suffix, '');
+        const fragment = generateTextFragment(truncatedWithoutSuffix, html);
+        onContinueReadingClick({ textFragment: fragment });
+      } else if (action === 'expand') {
+        handleExpand();
+      }
+    }
+    
+    // Special handling for footnote links - expand to max to show footnotes
+    const anchorElement = target.closest('a');
+    if (anchorElement) {
+      const href = anchorElement.getAttribute('href');
+      if (href && href.startsWith('#fn')) {
+        e.preventDefault();
+        handleExpandToMax();
+      }
+    }
+  }, [handleExpand, handleExpandToMax, onContinueReadingClick, truncatedHtml, suffix, html]);
 
   const getLineClampClass = () => {
     if (!applyLineClamp || !clampOverride) return "";
@@ -281,7 +301,6 @@ const FeedContentBody = ({
   };
 
   const showContinueReadingAction = !applyLineClamp && isMaxLevel && wasTruncated && onContinueReadingClick;
-  const isClickableForExpansion = !isMaxLevel;
   const generatedFragment = onContinueReadingClick ? generateTextFragment(truncatedHtmlWithoutSuffix, html) : undefined;
 
   const styleType = serifStyle ? 'ultraFeedPost' : 'ultraFeed';
@@ -290,13 +309,11 @@ const FeedContentBody = ({
     <div
       className={classNames(
         classes.root,
-        className,
-        isClickableForExpansion && classes.clickableContent
+        className
       )}
-      onClick={isClickableForExpansion ? handleContentClick : undefined}
     >
       <ContentStyles contentType={styleType}>
-        <div>
+        <div onClick={handleContentClick}>
           <ContentItemBody
             dangerouslySetInnerHTML={{ __html: truncatedHtml }}
             nofollow={nofollow}
