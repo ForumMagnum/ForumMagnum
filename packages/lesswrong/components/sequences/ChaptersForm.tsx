@@ -13,7 +13,7 @@ import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { LegacyFormGroupLayout } from "../tanstack-form-components/LegacyFormGroupLayout";
-import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
+import { userIsAdmin, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import Error404 from "../common/Error404";
 
@@ -156,7 +156,8 @@ export const ChaptersForm = ({
         </form.Field>
       </div>
 
-      <LegacyFormGroupLayout
+      {/* The title, subtitle, and number fields are only editable by admins */}
+      {userIsAdmin(currentUser) && <LegacyFormGroupLayout
         label="Chapter Details"
         groupStyling
         startCollapsed={true}
@@ -196,7 +197,7 @@ export const ChaptersForm = ({
             )}
           </form.Field>
         </div>
-      </LegacyFormGroupLayout>
+      </LegacyFormGroupLayout>}
 
       <div className="form-submit">
         <Button
