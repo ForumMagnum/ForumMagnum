@@ -175,12 +175,12 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
     return authorsMap;
   }, [comments]);
   
-  const setDisplayStatus = (commentId: string, newStatus: "expanded" | "collapsed" | "hidden") => {
+  const setDisplayStatus = useCallback((commentId: string, newStatus: "expanded" | "collapsed" | "hidden") => {
     setCommentDisplayStatuses(prev => ({
       ...prev,
       [commentId]: newStatus,
     }));
-  };
+  }, []);
 
   const visibleComments = useMemo(
     () => comments.filter(c => commentDisplayStatuses[c._id] !== "hidden"),
