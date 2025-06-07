@@ -55,7 +55,6 @@ class JargonTermsRepo extends AbstractRepo<"JargonTerms"> {
       ORDER BY n."documentId";
     `, [documentIds]);
     const rowsById = keyBy(oldestAndNewestRevisionIds, r=>r.documentId);
-    console.log({ rowsById, documentIds });
     return documentIds.map((documentId: string) => {
       // TODO: In theory we shouldn't have JargonTerms that are missing revisions, but in practice
       // we have at least one.  Figure out a more principled fix for it later than just defaulting
