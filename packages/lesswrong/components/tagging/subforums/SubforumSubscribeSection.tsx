@@ -5,9 +5,9 @@ import { useDialog } from '../../common/withDialog';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useTracking } from "../../../lib/analyticsEvents";
-import { gql, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 import LoginPopup from "../../users/LoginPopup";
 import LWTooltip from "../../common/LWTooltip";
 
@@ -45,14 +45,13 @@ const SubforumSubscribeSection = ({
   const { openDialog } = useDialog();
   const { flash } = useMessages();
   const { captureEvent } = useTracking()
-  const [subforumMembershipMutation] = useMutation(gql`
+  const [subforumMembershipMutation] = useMutation(gql(`
     mutation UserUpdateSubforumMembership($tagId: String!, $member: Boolean!) {
       UserUpdateSubforumMembership(tagId: $tagId, member: $member) {
         ...UsersCurrent
       }
     }
-    ${fragmentTextForQuery("UsersCurrent")}
-  `, {refetchQueries: ['getCurrentUser']});
+  `), {refetchQueries: ['getCurrentUser']});
   const onSubscribe = async (e: React.MouseEvent<HTMLButtonElement>) => {
     try {
       e.preventDefault();

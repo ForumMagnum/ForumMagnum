@@ -15,6 +15,9 @@ import { viewTermsToQuery } from '../lib/utils/viewUtils';
 import { fetchFragment } from './fetchFragment';
 import { addStaticRoute } from "./vulcan-lib/staticRoutes";
 import { createAnonymousContext } from "./vulcan-lib/createContexts";
+import { PostsViews } from '@/lib/collections/posts/views';
+import { CommentsViews } from '@/lib/collections/comments/views';
+import { PostsRSSFeed } from '@/lib/collections/posts/fragments';
 
 export const getMeta = (url: string) => {
   const siteUrl = siteUrlSetting.get();
@@ -45,14 +48,14 @@ const servePostRSS = async (terms: RSSTerms, url?: string) => {
   url = url || rssTermsToUrl(terms); // Default value is the custom rss feed computed from terms
   const feed = new RSS(getMeta(url));
   const context = createAnonymousContext();
-  const parameters = viewTermsToQuery("Posts", terms, undefined, context);
+  const parameters = viewTermsToQuery(PostsViews, terms, undefined, context);
   delete parameters['options']['sort']['sticky'];
 
   parameters.options.limit = 10;
 
   const postsCursor = await fetchFragment({
     collectionName: "Posts",
-    fragmentName: "PostsRSSFeed",
+    fragmentDoc: PostsRSSFeed,
     currentUser: null,
     selector: parameters.selector,
     options: parameters.options,
@@ -68,9 +71,9 @@ const servePostRSS = async (terms: RSSTerms, url?: string) => {
                       : (karmaThreshold === 200) ? post.scoreExceeded200Date
                       : null;
     thresholdDate = thresholdDate || post.postedAt;
-    let viewDate = (terms.view === "frontpage-rss") ? post.frontpageDate
-                 : (terms.view === "curated-rss")   ? post.curatedDate
-                 : (terms.view === "meta-rss")      ? post.metaDate
+    let viewDate = (terms.view === "frontpageRss") ? post.frontpageDate
+                 : (terms.view === "curatedRss")   ? post.curatedDate
+                 : (terms.view === "metaRss")      ? post.metaDate
                  : null;
     viewDate = viewDate || post.postedAt;
 
@@ -103,7 +106,7 @@ const serveCommentRSS = async (terms: RSSTerms, req: any, res: any, url?: string
   const feed = new RSS(getMeta(url));
   const context = await getContextFromReqAndRes({req, res, isSSR: false});
 
-  let parameters = viewTermsToQuery("Comments", terms);
+  let parameters = viewTermsToQuery(CommentsViews, terms);
   parameters.options.limit = 50;
   const commentsCursor = await Comments.find(parameters.selector, parameters.options).fetch();
   const restrictedComments = await accessFilterMultiple(null, 'Comments', commentsCursor, context) as DbComment[];

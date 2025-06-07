@@ -65,9 +65,9 @@ export const updateNotificationGqlMutation = makeGqlUpdateMutation('Notification
 
 
 
-export const graphqlNotificationTypeDefs = gql`  
-  input UpdateNotificationDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+export const graphqlNotificationTypeDefs = gql`
+  input UpdateNotificationDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateNotificationInput {

@@ -32,7 +32,7 @@ const styles = defineStyles('EditLinkpostUrl', (theme: ThemeType) => ({
 }));
 
 interface EditLinkpostUrlProps {
-  field: TypedFieldApi<string>;
+  field: TypedFieldApi<string | null | undefined>;
   post: EditablePost;
 }
 

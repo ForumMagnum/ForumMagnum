@@ -8,6 +8,7 @@ import PostsItemDate from "../posts/PostsItemDate";
 import ForumIcon from "../common/ForumIcon";
 import LWTooltip from "../common/LWTooltip";
 import EventTime from "../localGroups/EventTime";
+import { maybeDate } from "@/lib/utils/dateUtils";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -64,7 +65,7 @@ const EAPostMeta = ({post, useEventStyles, useCuratedDate=true, className, class
         <ForumIcon icon="Calendar" className={classes.icon} />
         {post.startTime ? (
           <LWTooltip title={<EventTime post={post} />}>
-            <DateWithoutTime date={post.startTime} />
+            <DateWithoutTime date={maybeDate(post.startTime)} />
           </LWTooltip>
         ) : (
           <LWTooltip title={<span>To be determined</span>}>

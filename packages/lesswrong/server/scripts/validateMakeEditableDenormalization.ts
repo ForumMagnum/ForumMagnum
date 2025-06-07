@@ -1,4 +1,4 @@
-import { getEditableCollectionNames, getEditableFieldNamesForCollection, editableFieldIsNormalized } from '@/lib/editor/editableSchemaFieldHelpers';
+import { getEditableCollectionNames, getEditableFieldNamesForCollection, editableFieldIsNormalized } from '@/server/editor/editableSchemaFieldHelpers';
 import { Revisions } from '../../server/collections/revisions/collection';
 import { forEachDocumentBatchInCollection } from '../manualMigrations/migrationUtils';
 import * as _ from 'underscore';

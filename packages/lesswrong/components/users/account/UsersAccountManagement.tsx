@@ -2,12 +2,21 @@ import { registerComponent } from '@/lib/vulcan-lib/components';
 import React from 'react';
 import { userCanEditUser } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '@/components/common/withUser';
-import { useGetUserBySlug } from '@/components/hooks/useGetUserBySlug';
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
 import DummyFormGroup from "../../form-components/DummyFormGroup";
 import Loading from "../../vulcan-core/Loading";
 import DeactivateAccountSection from "./DeactivateAccountSection";
 import DeleteAccountSection from "./DeleteAccountSection";
+import { gql } from '@/lib/generated/gql-codegen';
+import { useQuery } from "@/lib/crud/useQuery";
+
+const GetUserBySlugQuery = gql(`
+  query UsersAccountManagementGetUserBySlug($slug: String!) {
+    GetUserBySlug(slug: $slug) {
+      ...UsersEdit
+    }
+  }
+`);
 
 const styles = (_theme: ThemeType) => ({
   actionsWrapper: {
@@ -24,7 +33,8 @@ const UsersAccountManagement = ({terms: { slug }, classes}: {
 }) => {
   const currentUser = useCurrentUser();
 
-  const { user } = useGetUserBySlug(slug, { fragmentName: 'UsersEdit' });
+  const { data } = useQuery(GetUserBySlugQuery, { variables: { slug } });
+  const user = data?.GetUserBySlug;
 
   if (!user) {
     return <Loading />

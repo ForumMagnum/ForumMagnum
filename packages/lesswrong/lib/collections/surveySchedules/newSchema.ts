@@ -106,8 +106,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "SurveyScheduleTarget",
+      inputType: "SurveyScheduleTarget!",
       canRead: ["admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],

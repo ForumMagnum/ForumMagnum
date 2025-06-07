@@ -46,7 +46,7 @@ export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, tagCommentT
   postSlug?: string | null,
   tagSlug?: string | null,
   tagCommentType?: TagCommentType | null,
-  commentId: string | null,
+  commentId?: string | null,
   permalink?: boolean,
   isAbsolute?: boolean,
 }): string {

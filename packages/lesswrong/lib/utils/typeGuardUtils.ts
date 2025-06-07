@@ -83,3 +83,13 @@ export const isNotNullOrUndefined = <T>(value: T | null | undefined): value is T
 export const objectKeys = <K extends string | number | symbol, V>(
   obj: Partial<Record<K, V>>,
 ): K[] => Object.keys(obj) as K[];
+
+export function returnIfValidNumber(value: string | undefined): number | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  const num = parseInt(value);
+  return isNaN(num) ? undefined : num;
+}
+

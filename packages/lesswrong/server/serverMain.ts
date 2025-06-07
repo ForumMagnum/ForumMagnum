@@ -36,7 +36,7 @@ export const serverMain = async ({shellMode, command}: CommandLineArguments) => 
     process.kill(buildProcessPid, 'SIGQUIT');
   } else if (!isAnyTest && !isMigrations) {
     watchForShellCommands();
-    startWebserver();
+    await startWebserver();
   }
 }
 

@@ -5,6 +5,9 @@
 import SimpleSchema, { SchemaDefinition } from 'simpl-schema';
 import { isAnyTest, isCodegen } from '../executionEnvironment';
 import '../utils/extendSimpleSchemaOptions';
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import GraphQLJSON from 'graphql-type-json';
+import type { GraphQLSchema } from 'graphql';
 
 // Collection imports
 import { default as AdvisorRequests } from '../collections/advisorRequests/newSchema';
@@ -97,7 +100,6 @@ import { default as UserTagRels } from '../collections/userTagRels/newSchema';
 import { default as UserActivities } from '../collections/useractivities/newSchema';
 import { default as Users } from '../collections/users/newSchema';
 import { default as Votes } from '../collections/votes/newSchema';
-import GraphQLJSON from 'graphql-type-json';
 
 let testSchemas: Record<never, never>;
 if (isAnyTest || isCodegen) {
@@ -130,7 +132,7 @@ export function getSchema<N extends CollectionNameString>(collectionName: N): Re
 }
 
 
-function getBaseType(typeString: string) {
+function getBaseType(typeString: string, graphqlSchema: GraphQLSchema) {
   switch (typeString) {
     case 'String':
       return String;
@@ -142,8 +144,13 @@ function getBaseType(typeString: string) {
       return Boolean;
     case 'Date':
       return Date;
-    default:
+    default: {
+      const type = graphqlSchema.getType(typeString);
+      if (type?.astNode?.kind === 'EnumTypeDefinition') {
+        return 'String';
+      }
       return Object;
+    }
   }
 }
 
@@ -163,7 +170,7 @@ function stripArray(typeString: string) {
   };
 }
 
-function getSimpleSchemaType(fieldName: string, graphqlSpec: GraphQLFieldSpecification<CollectionNameString>) {
+function getSimpleSchemaType(fieldName: string, graphqlSpec: GraphQLFieldSpecification<CollectionNameString>, graphqlSchema: GraphQLSchema) {
   const { validation = {} } = graphqlSpec;
   const { simpleSchema, ...remainingSimpleSchemaValidationFields } = validation;
   if (simpleSchema) {
@@ -206,7 +213,8 @@ function getSimpleSchemaType(fieldName: string, graphqlSpec: GraphQLFieldSpecifi
   const { typeString: outerTypeStringWithoutRequired, required: outerRequired } = stripRequired(validatorType);
   const { typeString: typeStringWithoutArray, array } = stripArray(outerTypeStringWithoutRequired);
   const { typeString: innerTypeWithoutRequired, required: innerRequired } = stripRequired(typeStringWithoutArray);
-  const baseType = getBaseType(array ? innerTypeWithoutRequired : outerTypeStringWithoutRequired);
+  const typeString = array ? innerTypeWithoutRequired : outerTypeStringWithoutRequired;
+  const baseType = getBaseType(typeString, graphqlSchema);
 
   if (array) {
     const outerType = {
@@ -241,13 +249,17 @@ function isPlausiblyFormField(field: CollectionFieldSpecification<CollectionName
 }
 
 function getSchemaDefinition(schema: SchemaType<CollectionNameString>): Record<string, SchemaDefinition> {
+  // We unfortunately need this while we still have SimpleSchema implemented, so that it doesn't barf on graphql enum types.
+  const { resolvers, typeDefs }: typeof import('@/server/vulcan-lib/apollo-server/initGraphQL') = require('@/server/vulcan-lib/apollo-server/initGraphQL');
+  const graphqlSchema = makeExecutableSchema({ typeDefs, resolvers });
+
   return Object.entries(schema).reduce((acc, [key, value]) => {
     if (!value.graphql) {
       return acc;
     }
 
     // type, optional, regEx, allowedValues, and blackbox are handled by getSimpleSchemaType
-    const typeDefs = getSimpleSchemaType(key, value.graphql);
+    const typeDefs = getSimpleSchemaType(key, value.graphql, graphqlSchema);
 
     // database field which is nontheless used for form generation
     const defaultValue = value.database?.defaultValue;

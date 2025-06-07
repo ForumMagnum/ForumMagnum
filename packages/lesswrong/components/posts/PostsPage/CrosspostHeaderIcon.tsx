@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const CrosspostHeaderIcon = ({post, classes}: {
-  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
+  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList|PostsEdit,
   classes: ClassesType<typeof styles>,
 }) => {
   if (!post.fmCrosspost) {

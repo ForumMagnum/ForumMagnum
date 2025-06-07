@@ -24,7 +24,7 @@ const styles = defineStyles('EditCommentTitle', (theme: ThemeType) => ({
 }));
 
 export const EditCommentTitle = ({ field, placeholder }: {
-  field: TypedFieldApi<string | null>;
+  field: TypedFieldApi<string | null | undefined>;
   placeholder: string;
 }) => {
   const classes = useStyles(styles);

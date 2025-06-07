@@ -327,7 +327,8 @@ export async function convertImagesInObject<N extends CollectionNameString>(
   const logger = loggerConstructor("image-conversion")
   let totalUploaded = 0;
   try {
-    const collection: CollectionBase<CollectionNameString> = context[collectionName];
+    // Cast instead of assignment to avoid an expensive mapped type inference
+    const collection = context[collectionName] as CollectionBase<CollectionNameString>;
     const obj = await collection.findOne({_id});
 
     if (!obj) {

@@ -82,16 +82,16 @@ export const updateCommentModeratorActionGqlMutation = makeGqlUpdateMutation('Co
 
 
 export const graphqlCommentModeratorActionTypeDefs = gql`
-  input CreateCommentModeratorActionDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateCommentModeratorActionDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateCommentModeratorActionInput {
     data: CreateCommentModeratorActionDataInput!
   }
   
-  input UpdateCommentModeratorActionDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateCommentModeratorActionDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateCommentModeratorActionInput {

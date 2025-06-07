@@ -218,16 +218,16 @@ export const getResponseCounts = ({ post, answers }: { post: PostWithCommentCoun
 
 export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date | null => {
   if (isAF) {
-    return post.afLastCommentedAt;
+    return post.afLastCommentedAt ? new Date(post.afLastCommentedAt) : null;
   } else {
-    return post.lastCommentedAt;
+    return post.lastCommentedAt ? new Date(post.lastCommentedAt) : null;
   }
 }
 
 export const postGetLastCommentPromotedAt = (post: PostsBase|DbPost): Date|null => {
   if (isAF) return null
   // TODO: add an afLastCommentPromotedAt
-  return post.lastCommentPromotedAt;
+  return post.lastCommentPromotedAt ? new Date(post.lastCommentPromotedAt) : null;
 }
 
 /**
@@ -321,7 +321,7 @@ export const userIsPostCoauthor = (user: UsersMinimumInfo|DbUser|null, post: Coa
   return userIds.indexOf(user._id) >= 0;
 }
 
-export const isNotHostedHere = (post: PostsEditQueryFragment|PostsPage|DbPost) => {
+export const isNotHostedHere = (post: PostsEdit|PostsEditQueryFragment|PostsPage|DbPost) => {
   return post?.fmCrosspost?.isCrosspost && !post?.fmCrosspost?.hostedHere
 }
 
@@ -443,13 +443,15 @@ export type EditablePost = UpdatePostDataInput & {
   _id: string;
   tags: Array<TagBasicInfo>;
   autoFrontpage?: DbPost['autoFrontpage'];
-  socialPreviewData: Post['socialPreviewData'];
+  socialPreviewData: SocialPreviewType | null | undefined;
   user: PostsEdit['user'];
   commentCount: number;
   afCommentCount: number;
   contents: CreateRevisionDataInput & { html: string | null } | null;
   debate: boolean;
-} & Pick<PostsListBase, 'postCategory' | 'createdAt'>;
+  createdAt: Date | null;
+  title: string;
+} & Pick<PostsListBase, 'postCategory'>;
 
 export interface PostSubmitMeta {
   redirectToEditor?: boolean;

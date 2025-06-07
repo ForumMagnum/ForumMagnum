@@ -15,7 +15,7 @@ import { isClient } from '../../lib/executionEnvironment';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
-import MixedTypeFeed from "../common/MixedTypeFeed";
+import { MixedTypeFeed } from "../common/MixedTypeFeed";
 import UltraFeedPostItem from "./UltraFeedPostItem";
 import FeedItemWrapper from "./FeedItemWrapper";
 import SectionTitle from "../common/SectionTitle";
@@ -25,6 +25,7 @@ import SpotlightFeedItem from "../spotlights/SpotlightFeedItem";
 import UltraFeedSettings from "./UltraFeedSettings";
 import UltraFeedThreadItem from "./UltraFeedThreadItem";
 import SpotlightItem from "../spotlights/SpotlightItem";
+import { UltraFeedQuery } from '../common/feeds/feedQueries';
 
 const ULTRAFEED_SESSION_ID_KEY = 'ultraFeedSessionId';
 
@@ -231,18 +232,18 @@ const UltraFeedContent = ({alwaysShow = false}: {
             
             <div className={classes.ultraFeedNewContentContainer}>
               <MixedTypeFeed
-                resolverName="UltraFeed"
-                sortKeyType="Date"
-                resolverArgs={{ sessionId: "String", settings: "JSON" }}
+                query={UltraFeedQuery}
+                variables={{
+                  sessionId,
+                  settings: JSON.stringify(resolverSettings),
+                }}
                 firstPageSize={15}
                 pageSize={30}
                 refetchRef={refetchSubscriptionContentRef}
-                resolverArgsValues={{ sessionId, settings: JSON.stringify(resolverSettings) }}
                 loadMoreDistanceProp={1000}
                 fetchPolicy="cache-first"
                 renderers={{
                   feedCommentThread: {
-                    fragmentName: 'FeedCommentThreadFragment',
                     render: (item: FeedCommentThreadFragment, index: number) => {
                       if (!item) {
                         return null;
@@ -260,7 +261,6 @@ const UltraFeedContent = ({alwaysShow = false}: {
                     }
                   },
                   feedPost: {
-                    fragmentName: 'FeedPostFragment',
                     render: (item: FeedPostFragment, index: number) => {
                       if (!item) {
                         return null;
@@ -279,7 +279,6 @@ const UltraFeedContent = ({alwaysShow = false}: {
                     }
                   },
                   feedSpotlight: {
-                    fragmentName: 'FeedSpotlightFragment',
                     render: (item: FeedSpotlightFragment, index: number) => {
                       const { spotlight } = item;
                       if (!spotlight) {

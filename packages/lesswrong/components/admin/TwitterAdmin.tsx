@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
-import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { userGetProfileUrl } from '@/lib/collections/users/helpers';
@@ -16,6 +15,8 @@ import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
 import ForumIcon from "../common/ForumIcon";
 import LWTooltip from "../common/LWTooltip";
 import LoadMore from "../common/LoadMore";
+import { gql } from '@/lib/generated/gql-codegen';
+import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -104,12 +105,24 @@ const TwitterAdmin = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
 
-  const { results, loading, error, loadMoreProps } = usePaginatedResolver({
-    resolverName: 'CrossedKarmaThreshold',
-    fragmentName: 'PostsTwitterAdmin',
-    limit: 20,
+  const initialLimit = 20;
+
+  const { data, loading, error, loadMoreProps } = useQueryWithLoadMore(gql(`
+    query CrossedKarmaThreshold($limit: Int!) {
+      CrossedKarmaThreshold(limit: $limit) {
+        results {
+          ...PostsTwitterAdmin
+        }
+      }
+    }
+  `), {
+    variables: { limit: initialLimit },
+    fetchPolicy: "cache-and-network",
+    nextFetchPolicy: "cache-only",
     itemsPerPage: 20,
   });
+
+  const results = data?.CrossedKarmaThreshold?.results;
 
   const authorExpandContainer = useRef<HTMLDivElement>(null);
 

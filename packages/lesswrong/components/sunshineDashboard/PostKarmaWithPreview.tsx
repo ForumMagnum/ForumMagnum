@@ -52,7 +52,7 @@ const PostKarmaWithPreview = ({ post, classes, displayTitle, reviewedAt }: {
       })}>
         <Link
           className={classNames({
-            [classes.highlight]: !reviewedAt || post.postedAt > reviewedAt,
+            [classes.highlight]: !reviewedAt || new Date(post.postedAt) > reviewedAt,
             [classes.draft]: post.draft,
             [classes.default]: !post.draft,
           })}

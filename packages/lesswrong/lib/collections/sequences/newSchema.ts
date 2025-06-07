@@ -308,7 +308,7 @@ const schema = {
   // This resolver isn't used within LessWrong AFAICT, but is used by an external API user
   chapters: {
     graphql: {
-      outputType: "[Chapter]",
+      outputType: "[Chapter!]!",
       canRead: ["guests"],
       resolver: async (sequence, args, context) => {
         const chapters = await context.Chapters.find(

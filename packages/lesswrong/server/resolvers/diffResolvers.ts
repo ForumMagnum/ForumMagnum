@@ -1,7 +1,7 @@
 import gql from "graphql-tag"
 import { isValidCollectionName } from '@/server/collections/allCollections';
 import { Revisions } from '../../server/collections/revisions/collection';
-import { getEditableCollectionNames, getEditableFieldNamesForCollection } from '@/lib/editor/editableSchemaFieldHelpers';
+import { getEditableCollectionNames, getEditableFieldNamesForCollection } from '@/server/editor/editableSchemaFieldHelpers';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { diffHtml } from './htmlDiff';
 import { getPrecedingRev } from '../editor/utils';

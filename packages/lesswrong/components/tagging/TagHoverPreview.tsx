@@ -44,7 +44,7 @@ export const TagHoverPreview = ({
   // element ID in the dom) eg: "Further_reading"
   const hashId = hash.slice(1);
 
-  const {tag, loading} = useTagPreview(slug, hashId, {skip: noPrefetch});
+  const {tag, loading} = useTagPreview(slug, hashId, noPrefetch);
   const { showPostCount: showPostCountQuery, useTagName: useTagNameQuery, } = targetLocation.query
   const lensQuery = targetLocation.query.lens ?? targetLocation.query.l;
   const showPostCount = showPostCountQuery === "true" // query parameters are strings

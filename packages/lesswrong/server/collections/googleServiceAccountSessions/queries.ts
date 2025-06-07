@@ -3,22 +3,26 @@ import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers";
 import gql from "graphql-tag";
+import { GoogleServiceAccountSessionsViews } from "@/lib/collections/googleServiceAccountSessions/views";
 
 export const graphqlGoogleServiceAccountSessionQueryTypeDefs = gql`
-  type GoogleServiceAccountSession {
-    ${getAllGraphQLFields(schema)}
-  }
-
+  type GoogleServiceAccountSession ${ getAllGraphQLFields(schema) }
+  
   input SingleGoogleServiceAccountSessionInput {
     selector: SelectorInput
     resolverArgs: JSON
-    allowNull: Boolean
   }
-
+  
   type SingleGoogleServiceAccountSessionOutput {
     result: GoogleServiceAccountSession
   }
-
+  
+  
+  
+  input GoogleServiceAccountSessionSelector {
+    default: EmptyViewInput
+  }
+  
   input MultiGoogleServiceAccountSessionInput {
     terms: JSON
     resolverArgs: JSON
@@ -27,15 +31,23 @@ export const graphqlGoogleServiceAccountSessionQueryTypeDefs = gql`
   }
   
   type MultiGoogleServiceAccountSessionOutput {
-    results: [GoogleServiceAccountSession]
+    results: [GoogleServiceAccountSession!]!
     totalCount: Int
   }
-
+  
   extend type Query {
-    googleServiceAccountSession(input: SingleGoogleServiceAccountSessionInput): SingleGoogleServiceAccountSessionOutput
-    googleServiceAccountSessions(input: MultiGoogleServiceAccountSessionInput): MultiGoogleServiceAccountSessionOutput
+    googleServiceAccountSession(
+      input: SingleGoogleServiceAccountSessionInput @deprecated(reason: "Use the selector field instead"),
+      selector: SelectorInput
+    ): SingleGoogleServiceAccountSessionOutput
+    googleServiceAccountSessions(
+      input: MultiGoogleServiceAccountSessionInput @deprecated(reason: "Use the selector field instead"),
+      selector: GoogleServiceAccountSessionSelector,
+      limit: Int,
+      offset: Int,
+      enableTotal: Boolean
+    ): MultiGoogleServiceAccountSessionOutput
   }
 `;
-
-export const googleServiceAccountSessionGqlQueryHandlers = getDefaultResolvers('GoogleServiceAccountSessions');
+export const googleServiceAccountSessionGqlQueryHandlers = getDefaultResolvers('GoogleServiceAccountSessions', GoogleServiceAccountSessionsViews);
 export const googleServiceAccountSessionGqlFieldResolvers = getFieldGqlResolvers('GoogleServiceAccountSessions', schema);

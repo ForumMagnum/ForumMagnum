@@ -86,16 +86,16 @@ export const updateConversationGqlMutation = makeGqlUpdateMutation('Conversation
 
 
 export const graphqlConversationTypeDefs = gql`
-  input CreateConversationDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateConversationDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateConversationInput {
     data: CreateConversationDataInput!
   }
   
-  input UpdateConversationDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateConversationDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateConversationInput {

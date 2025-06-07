@@ -32,7 +32,7 @@ const CommentBottomCaveats = ({comment, classes}: {
     { blockedReplies &&
       <div className={classes.blockedReplies}>
         A moderator has deactivated replies on this comment{" "}
-        {!blockIsForever && <>until <CalendarDate date={comment.repliesBlockedUntil}/></>}
+        {!blockIsForever && comment.repliesBlockedUntil && <>until <CalendarDate date={comment.repliesBlockedUntil}/></>}
       </div>
     }
     {comment.retracted

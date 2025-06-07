@@ -15,6 +15,59 @@ import RejectedCommentsList from "./RejectedCommentsList";
 import SectionTitle from "../../common/SectionTitle";
 import ToCColumn from "../../posts/TableOfContents/ToCColumn";
 import TableOfContents from "../../posts/TableOfContents/TableOfContents";
+import { gql } from '@/lib/generated/gql-codegen';
+import { NetworkStatus } from '@apollo/client';
+import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
+
+const DeletedCommentsModerationLogQuery = gql(`
+  query DeletedCommentsModerationLogQuery($selector: CommentSelector, $limit: Int) {
+    comments(selector: $selector, limit: $limit) {
+      results {
+        ...DeletedCommentsModerationLog
+      }
+    }
+  }
+`);
+
+const UsersBannedFromPostsModerationLogQuery = gql(`
+  query UsersBannedFromPostsModerationLogQuery($selector: PostSelector, $limit: Int) {
+    posts(selector: $selector, limit: $limit) {
+      results {
+        ...UsersBannedFromPostsModerationLog
+      }
+    }
+  }
+`);
+
+const UsersBannedFromUsersModerationLogQuery = gql(`
+  query UsersBannedFromUsersModerationLogQuery($selector: UserSelector, $limit: Int) {
+    users(selector: $selector, limit: $limit) {
+      results {
+        ...UsersBannedFromUsersModerationLog
+      }
+    }
+  }
+`);
+
+const ModeratorActionModerationLogQuery = gql(`
+  query ModeratorActionModerationLogQuery($selector: ModeratorActionSelector, $limit: Int) {
+    moderatorActions(selector: $selector, limit: $limit) {
+      results {
+        ...ModeratorActionDisplay
+      }
+    }
+  }
+`);
+
+const UserRateLimitModerationLogQuery = gql(`
+  query UserRateLimitModerationLogQuery($selector: UserRateLimitSelector, $limit: Int) {
+    userRateLimits(selector: $selector, limit: $limit) {
+      results {
+        ...UserRateLimitDisplay
+      }
+    }
+  }
+`);
 
 const shouldShowEndUserModerationToNonMods = forumSelect({
   EAForum: false,
@@ -198,47 +251,107 @@ const usersBannedFromUsersColumns: Column[] = [
   },
 ]
 
+const sectionData = {
+  html: "",
+  sections: [
+    {
+      title: "Deleted Comments",
+      anchor: "deleted-comments",
+      level: 1
+    },
+    {
+      title: "Users Banned From Posts",
+      anchor: "users-banned-from-posts",
+      level: 1
+    },
+    {
+      title: "Users Banned From Users",
+      anchor: "users-banned-from-users",
+      level: 1
+    },
+    {
+      title: "Moderated Users",
+      anchor: "moderated-users",
+      level: 1
+    },
+    {
+      title: "Rejected Posts",
+      anchor: "rejected-posts",
+      level: 1
+    },
+    {
+      title: "Rejected Comments",
+      anchor: "rejected-comments",
+      level: 1
+    },
+  ],
+};
+
 const ModerationLog = ({classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const currentUser = useCurrentUser()
-  const shouldShowEndUserModeration = (currentUser && isMod(currentUser)) ||
-    shouldShowEndUserModerationToNonMods
-  const sectionData = {
-    html: "",
-    sections: [
-      {
-        title: "Deleted Comments",
-        anchor: "deleted-comments",
-        level: 1
-      },
-      {
-        title: "Users Banned From Posts",
-        anchor: "users-banned-from-posts",
-        level: 1
-      },
-      {
-        title: "Users Banned From Users",
-        anchor: "users-banned-from-users",
-        level: 1
-      },
-      {
-        title: "Moderated Users",
-        anchor: "moderated-users",
-        level: 1
-      },
-      {
-        title: "Rejected Posts",
-        anchor: "rejected-posts",
-        level: 1
-      },
-      {
-        title: "Rejected Comments",
-        anchor: "rejected-comments",
-        level: 1
-      },
-    ],
-  }
+  const shouldShowEndUserModeration = (currentUser && isMod(currentUser)) || shouldShowEndUserModerationToNonMods;
+
+  const {
+    data: deletedCommentsData,
+    loading: deletedCommentsLoading,
+    networkStatus: deletedCommentsNetworkStatus,
+    loadMoreProps: { loadMore: deletedCommentsLoadMore, count: deletedCommentsCount, totalCount: deletedCommentsTotalCount },
+  } = useQueryWithLoadMore(DeletedCommentsModerationLogQuery, {
+    variables: { selector: { allCommentsDeleted: {} }, limit: 10, enableTotal: false },
+  });
+
+  const deletedCommentsResults = deletedCommentsData?.comments?.results ?? [];
+  const deletedCommentsLoadingMore = deletedCommentsNetworkStatus === NetworkStatus.fetchMore;
+
+  const {
+    data: usersBannedFromPostsData,
+    loading: usersBannedFromPostsLoading,
+    networkStatus: usersBannedFromPostsNetworkStatus,
+    loadMoreProps: { loadMore: usersBannedFromPostsLoadMore, count: usersBannedFromPostsCount, totalCount: usersBannedFromPostsTotalCount },
+  } = useQueryWithLoadMore(UsersBannedFromPostsModerationLogQuery, {
+    variables: { selector: { postsWithBannedUsers: {} }, limit: 10, enableTotal: false },
+  });
+
+  const usersBannedFromPostsResults = usersBannedFromPostsData?.posts?.results ?? [];
+  const usersBannedFromPostsLoadingMore = usersBannedFromPostsNetworkStatus === NetworkStatus.fetchMore;
+
+  const {
+    data: usersBannedFromUsersData,
+    loading: usersBannedFromUsersLoading,
+    networkStatus: usersBannedFromUsersNetworkStatus,
+    loadMoreProps: { loadMore: usersBannedFromUsersLoadMore, count: usersBannedFromUsersCount, totalCount: usersBannedFromUsersTotalCount },
+  } = useQueryWithLoadMore(UsersBannedFromUsersModerationLogQuery, {
+    variables: { selector: { usersWithBannedUsers: {} }, limit: 10, enableTotal: false },
+  });
+
+  const usersBannedFromUsersResults = usersBannedFromUsersData?.users?.results ?? [];
+  const usersBannedFromUsersLoadingMore = usersBannedFromUsersNetworkStatus === NetworkStatus.fetchMore;
+
+  const {
+    data: moderatorActionsData,
+    loading: moderatorActionsLoading,
+    networkStatus: moderatorActionsNetworkStatus,
+    loadMoreProps: { loadMore: moderatorActionsLoadMore, count: moderatorActionsCount, totalCount: moderatorActionsTotalCount },
+  } = useQueryWithLoadMore(ModeratorActionModerationLogQuery, {
+    variables: { selector: { restrictionModerationActions: {} }, limit: 10, enableTotal: false },
+  });
+
+  const moderatorActionsResults = moderatorActionsData?.moderatorActions?.results ?? [];
+  const moderatorActionsLoadingMore = moderatorActionsNetworkStatus === NetworkStatus.fetchMore;
+
+  const {
+    data: userRateLimitsData,
+    loading: userRateLimitsLoading,
+    networkStatus: userRateLimitsNetworkStatus,
+    loadMoreProps: { loadMore: userRateLimitsLoadMore, count: userRateLimitsCount, totalCount: userRateLimitsTotalCount },
+  } = useQueryWithLoadMore(UserRateLimitModerationLogQuery, {
+    variables: { selector: { activeUserRateLimits: {} }, limit: 10, enableTotal: false },
+  });
+
+  const userRateLimitsResults = userRateLimitsData?.userRateLimits?.results ?? [];
+  const userRateLimitsLoadingMore = userRateLimitsNetworkStatus === NetworkStatus.fetchMore;
 
   return (
     <ToCColumn tableOfContents={<TableOfContents
@@ -252,9 +365,12 @@ const ModerationLog = ({classes}: {
           <Datatable
             collectionName="Comments"
             columns={deletedCommentColumns}
-            fragmentName={'DeletedCommentsModerationLog'}
-            terms={{view: "allCommentsDeleted"}}
-            limit={10}
+            results={deletedCommentsResults}
+            loading={deletedCommentsLoading}
+            loadMore={deletedCommentsLoadMore}
+            count={deletedCommentsCount}
+            totalCount={deletedCommentsTotalCount ?? 0}
+            loadingMore={deletedCommentsLoadingMore}
           />
         </div>
         {shouldShowEndUserModeration && <>
@@ -263,9 +379,12 @@ const ModerationLog = ({classes}: {
             <Datatable
               collectionName="Posts"
               columns={usersBannedFromPostsColumns}
-              fragmentName={'UsersBannedFromPostsModerationLog'}
-              terms={{view: "postsWithBannedUsers"}}
-              limit={10}
+              results={usersBannedFromPostsResults}
+              loading={usersBannedFromPostsLoading}
+              loadMore={usersBannedFromPostsLoadMore}
+              count={usersBannedFromPostsCount}
+              totalCount={usersBannedFromPostsTotalCount ?? 0}
+              loadingMore={usersBannedFromPostsLoadingMore}
             />
           </div>
           <div className={classes.section}>
@@ -273,9 +392,12 @@ const ModerationLog = ({classes}: {
             <Datatable
               collectionName="Users"
               columns={usersBannedFromUsersColumns}
-              fragmentName={'UsersBannedFromUsersModerationLog'}
-              terms={{view: "usersWithBannedUsers"}}
-              limit={10}
+              results={usersBannedFromUsersResults}
+              loading={usersBannedFromUsersLoading}
+              loadMore={usersBannedFromUsersLoadMore}
+              count={usersBannedFromUsersCount}
+              totalCount={usersBannedFromUsersTotalCount ?? 0}
+              loadingMore={usersBannedFromUsersLoadingMore}
             />
           </div>
           <div className={classes.section}>
@@ -283,9 +405,12 @@ const ModerationLog = ({classes}: {
             <Datatable
               collectionName="ModeratorActions"
               columns={moderatorActionColumns}
-              terms={{view: "restrictionModerationActions"}}
-              fragmentName={'ModeratorActionDisplay'}
-              limit={10}
+              results={moderatorActionsResults}
+              loading={moderatorActionsLoading}
+              loadMore={moderatorActionsLoadMore}
+              count={moderatorActionsCount}
+              totalCount={moderatorActionsTotalCount ?? 0}
+              loadingMore={moderatorActionsLoadingMore}
             />
           </div>
           <div className={classes.section}>
@@ -293,9 +418,12 @@ const ModerationLog = ({classes}: {
             <Datatable
               collectionName="UserRateLimits"
               columns={userRateLimitColumns}
-              terms={{view: "activeUserRateLimits"}}
-              fragmentName={'UserRateLimitDisplay'}
-              limit={10}
+              results={userRateLimitsResults}
+              loading={userRateLimitsLoading}
+              loadMore={userRateLimitsLoadMore}
+              count={userRateLimitsCount}
+              totalCount={userRateLimitsTotalCount ?? 0}
+              loadingMore={userRateLimitsLoadingMore}
             />
           </div>
         </>}

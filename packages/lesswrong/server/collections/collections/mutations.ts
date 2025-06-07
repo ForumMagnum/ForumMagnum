@@ -134,16 +134,16 @@ export const updateCollectionGqlMutation = makeGqlUpdateMutation('Collections', 
 
 
 export const graphqlCollectionTypeDefs = gql`
-  input CreateCollectionDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateCollectionDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateCollectionInput {
     data: CreateCollectionDataInput!
   }
   
-  input UpdateCollectionDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateCollectionDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateCollectionInput {

@@ -4,8 +4,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlPetrovDayLaunchQueryTypeDefs = gql`
-  type PetrovDayLaunch {
-    ${getAllGraphQLFields(schema)}
+  type PetrovDayLaunch ${
+    getAllGraphQLFields(schema)
   }
 `;
 

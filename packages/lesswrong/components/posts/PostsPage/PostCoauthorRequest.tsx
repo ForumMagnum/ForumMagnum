@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { gql, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen';
 import classNames from 'classnames';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 import { Typography } from "../../common/Typography";
 import Loading from "../../vulcan-core/Loading";
 
@@ -55,14 +55,13 @@ const PostCoauthorRequest = ({post, currentUser, classes}: {
   const [error, setError] = useState<string|undefined>();
   const [loading, setLoading] = useState(false);
 
-  const [acceptCoauthorRequest] = useMutation(gql`
+  const [acceptCoauthorRequest] = useMutation(gql(`
     mutation AcceptCoauthorRequest($postId: String, $userId: String, $accept: Boolean) {
         acceptCoauthorRequest(postId: $postId, userId: $userId, accept: $accept) {
           ...PostsDetails
         }
     }
-    ${fragmentTextForQuery('PostsDetails')}
-  `)
+  `))
 
   if (!isRequestedCoauthor(post, currentUser)) {
     return null;

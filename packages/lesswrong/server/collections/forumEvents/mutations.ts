@@ -131,16 +131,16 @@ export const updateForumEventGqlMutation = makeGqlUpdateMutation('ForumEvents', 
 
 
 export const graphqlForumEventTypeDefs = gql`
-  input CreateForumEventDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateForumEventDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateForumEventInput {
     data: CreateForumEventDataInput!
   }
   
-  input UpdateForumEventDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateForumEventDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateForumEventInput {

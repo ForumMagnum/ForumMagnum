@@ -20,6 +20,7 @@ import type { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/
 import { sanitize } from "../../../lib/vulcan-lib/utils";
 import gql from 'graphql-tag';
 import { createJargonTerm } from "../../collections/jargonTerms/mutations";
+import { PostsPage } from '@/lib/collections/posts/fragments';
 
 interface JargonTermGenerationExampleParams {
   glossaryPrompt?: string;
@@ -293,7 +294,7 @@ const processedTerms = (jargonTerms: DbJargonTerm[]) => {
 export const createNewJargonTerms = async ({ postId, currentUser, context, ...exampleParams }: CreateJargonTermsQueryParams) => {
   const post = await fetchFragmentSingle({
     collectionName: 'Posts',
-    fragmentName: 'PostsPage',
+    fragmentDoc: PostsPage,
     currentUser,
     selector: { _id: postId },
   });

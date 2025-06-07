@@ -1,6 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, {useEffect, useState} from 'react';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from '@/lib/generated/gql-codegen';
 import moment from '../../lib/moment-timezone';
 import PetrovDayLossScreen from "./PetrovDayLossScreen";
 import PetrovDayButton from "./PetrovDayButton";
@@ -11,23 +12,23 @@ import PetrovDayButton from "./PetrovDayButton";
 
 const PetrovDayWrapper = () => {
   
-  const { data: internalData } = useQuery(gql`
+  const { data: internalData } = useQuery(gql(`
     query petrovDayLaunchResolvers {
       PetrovDayCheckIfIncoming {
         launched
         createdAt
       }
     }
-  `, {
+  `), {
     ssr: true
   });
   
   
-  if (internalData?.PetrovDayCheckIfIncoming.launched) {
+  if (internalData?.PetrovDayCheckIfIncoming?.launched) {
     return <PetrovDayLossScreen/>
   } else {
     return <PetrovDayButton
-      alreadyLaunched={internalData?.PetrovDayCheckIfIncoming?.launched}
+      alreadyLaunched={internalData?.PetrovDayCheckIfIncoming?.launched ?? undefined}
     />
   }
 }

@@ -3,7 +3,7 @@ import type { EditablePost } from "@/lib/collections/posts/helpers";
 // TODO: maybe sort by first use instead of frequency?
 export function countInstancesOfJargon(
   jargonTerm: JargonTermsPost | JargonTerms,
-  post: PostsWithNavigationAndRevision | PostsWithNavigation | PostsPage | PostsEditQueryFragment | EditablePost,
+  post: PostsWithNavigationAndRevision | PostsWithNavigation | PostsPage | PostsEditQueryFragment | Pick<EditablePost, 'contents'>,
   normalizedPostContents?: string
 ) {
   const postText = normalizedPostContents ?? (post.contents?.html ?? "").toLowerCase();

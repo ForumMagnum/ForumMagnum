@@ -1,4 +1,5 @@
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import React from "react";
 import { ContentItemBody } from "../contents/ContentItemBody";
@@ -6,11 +7,11 @@ import Loading from "../vulcan-core/Loading";
 import NoContent from "../common/NoContent";
 
 const PostsItemNewDialogueResponses = ({postId, unreadCount}: {postId: string, unreadCount: number}) => {
-  const { data, loading } = useQuery(gql`
+  const { data, loading } = useQuery(gql(`
     query LatestDialogueMessages($dialogueId: String!, $unreadCount: Int!) {
       latestDialogueMessages(dialogueId: $dialogueId, numMessages: $unreadCount)
     }
-  `, {variables: {dialogueId: postId, unreadCount  }});
+  `), {variables: {dialogueId: postId, unreadCount  }});
 
   return loading ? <Loading /> : data ? data.latestDialogueMessages && data.latestDialogueMessages.length ? <ContentItemBody
     dangerouslySetInnerHTML={{__html: data.latestDialogueMessages.join('')}} />

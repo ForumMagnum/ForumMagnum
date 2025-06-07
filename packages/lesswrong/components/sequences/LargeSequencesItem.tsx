@@ -159,7 +159,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
 
-  const posts = sequence.chapters?.flatMap(chapter => chapter.posts ?? []) ?? []
+  const posts = sequence.chapters.flatMap(chapter => chapter.posts)
   const [
     totalWordCount,
     totalReadTime,
@@ -216,7 +216,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
         </div>
       </div>
       <div className={classes.right}>
-        {sequence.chapters?.flatMap(({posts, title}, index) =>
+        {sequence.chapters.flatMap(({posts, title}, index) =>
           <React.Fragment key={index}>
             {title && <ChapterTitle title={title}/>}
             {posts.map((post) => (

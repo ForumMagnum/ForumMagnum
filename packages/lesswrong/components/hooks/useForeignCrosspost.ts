@@ -1,6 +1,7 @@
-import { ApolloError, gql, useQuery } from "@apollo/client";
+import { ApolloError, WatchQueryFetchPolicy } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import { postGetCommentCountStr } from "../../lib/collections/posts/helpers";
-import { UseSingleProps } from "../../lib/crud/withSingle";
+import { gql } from "@/lib/generated/gql-codegen";
 
 export type PostWithForeignId = {
   fmCrosspost: {
@@ -37,11 +38,11 @@ const overrideFields = [
   "readTimeMinutes",
 ] as const;
 
-const getCrosspostQuery = `
+const getCrosspostQuery = gql(`
   query GetCrosspostQuery($args: JSON) {
     getCrosspost(args: $args)
   }
-`;
+`);
 
 /**
  * These queries can be slow (and the timing is unpredictable), so use
@@ -50,8 +51,22 @@ const getCrosspostQuery = `
  */
 const crosspostBatchKey = "crosspost";
 
-type PostFetchProps<FragmentTypeName extends CrosspostFragments> =
-  Omit<UseSingleProps<FragmentTypeName>, "documentId" | "apolloClient">;
+// export type PostFetchProps<FragmentTypeName extends CrosspostFragments> =
+//   Omit<UseSingleProps<FragmentTypeName>, "documentId" | "apolloClient">;
+
+export type PostFetchProps<FragmentTypeName extends CrosspostFragments> = {
+  collectionName: 'Posts',
+  fragmentName?: FragmentTypeName,
+  fragment?: any,
+  extraVariables?: Record<string,any>,
+  extraVariablesValues?: any,
+  fetchPolicy?: WatchQueryFetchPolicy,
+  nextFetchPolicy?: WatchQueryFetchPolicy,
+  notifyOnNetworkStatusChange?: boolean,
+  allowNull?: boolean,
+  skip?: boolean,
+  ssr?: boolean,
+}
 
 /**
  * This lists the valid fragment names that can be passed to the foreign site
@@ -69,11 +84,7 @@ export const crosspostFragments = [
   "PostsPage",
 ] as const;
 
-type CrosspostFragments = typeof crosspostFragments[number];
-
-type MaybeCrosspostedPost<T extends FragmentTypes[CrosspostFragments]> = T extends PostWithForeignId ? true : false;
-
-type foo = MaybeCrosspostedPost<PostsList & PostWithForeignId>;
+export type CrosspostFragments = typeof crosspostFragments[number];
 
 /**
  * Load foreign crosspost data from the foreign site
@@ -96,15 +107,15 @@ export function useForeignCrosspost<Post extends FragmentTypes[CrosspostFragment
     throw new Error("Crosspost has not been created yet");
   }
 
-  const {data, loading, error} = useQuery(gql(getCrosspostQuery), {
+  const {data, loading, error} = useQuery(getCrosspostQuery, {
     variables: {
       args: {
         ...fetchProps,
         documentId: localPost.fmCrosspost?.foreignPostId,
       },
-      batchKey: crosspostBatchKey,
     },
-    skip
+    skip,
+    context: { batchKey: crosspostBatchKey },
   });
 
   const foreignPost: FragmentTypes[FragmentTypeName] = data?.getCrosspost;
@@ -161,7 +172,7 @@ export const usePostContents = <FragmentTypeName extends CrosspostFragments>({
   const isCrosspost = isPostWithForeignId(post);
   const isForeign = isCrosspost && !post.fmCrosspost.hostedHere;
 
-  const {data, loading, error} = useQuery(gql(getCrosspostQuery), {
+  const {data, loading, error} = useQuery(getCrosspostQuery, {
     variables: {
       args: {
         ...fetchProps,
@@ -169,9 +180,9 @@ export const usePostContents = <FragmentTypeName extends CrosspostFragments>({
         fragmentName,
         documentId: post.fmCrosspost?.foreignPostId,
       },
-      batchKey: crosspostBatchKey,
     },
     skip: !isForeign || skip,
+    context: { batchKey: crosspostBatchKey },
   });
 
   if (isForeign) {

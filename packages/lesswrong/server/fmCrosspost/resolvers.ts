@@ -22,8 +22,7 @@ import {
   connectCrossposterRoute,
   unlinkCrossposterRoute,
 } from "@/lib/fmCrosspost/routes";
-import { gql } from "apollo-server-express";
-import Users from "../collections/users/collection";
+import gql from "graphql-tag";
 
 const getUserId = (req?: Request) => {
   const userId = req?.user?._id;
@@ -116,7 +115,7 @@ export const fmCrosspostGraphQLMutations = {
   connectCrossposter: async (
     _root: void,
     {token}: ConnectCrossposterArgs,
-    {req, currentUser}: ResolverContext,
+    {req, currentUser, Users}: ResolverContext,
   ) => {
     const localUserId = getUserId(req);
     assertCrosspostingKarmaThreshold(currentUser);
@@ -130,7 +129,7 @@ export const fmCrosspostGraphQLMutations = {
     });
     return "success";
   },
-  unlinkCrossposter: async (_root: void, _args: {}, {req}: ResolverContext) => {
+  unlinkCrossposter: async (_root: void, _args: {}, {req, Users}: ResolverContext) => {
     const localUserId = getUserId(req);
     const foreignUserId = req?.user?.fmCrosspostUserId;
     if (foreignUserId) {

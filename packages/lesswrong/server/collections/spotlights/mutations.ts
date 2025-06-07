@@ -109,16 +109,16 @@ export const updateSpotlightGqlMutation = makeGqlUpdateMutation('Spotlights', up
 
 
 export const graphqlSpotlightTypeDefs = gql`
-  input CreateSpotlightDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateSpotlightDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateSpotlightInput {
     data: CreateSpotlightDataInput!
   }
   
-  input UpdateSpotlightDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateSpotlightDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateSpotlightInput {

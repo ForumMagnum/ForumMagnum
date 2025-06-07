@@ -100,16 +100,16 @@ export const updateUserJobAdGqlMutation = makeGqlUpdateMutation('UserJobAds', up
 
 
 export const graphqlUserJobAdTypeDefs = gql`
-  input CreateUserJobAdDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateUserJobAdDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateUserJobAdInput {
     data: CreateUserJobAdDataInput!
   }
   
-  input UpdateUserJobAdDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateUserJobAdDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateUserJobAdInput {

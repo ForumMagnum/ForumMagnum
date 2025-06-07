@@ -9,7 +9,8 @@ import type { NotificationDisplay } from "@/lib/notificationTypes";
 import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/helpers";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { NotificationsPopoverContext, NotifPopoverLink } from "./useNotificationsPopoverContext";
-import { gql, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
 import classNames from "classnames";
 import SectionTitle from "../common/SectionTitle";
 import NotificationsPageKarmaChangeList from "./NotificationsPage/NotificationsPageKarmaChangeList";
@@ -116,7 +117,7 @@ const NotificationsPopover = ({
   closePopover,
   classes,
 }: {
-  karmaChanges?: KarmaChanges,
+  karmaChanges?: UserKarmaChanges['karmaChanges'] | null,
   onOpenNotificationsPopover?: () => void,
   closePopover?: () => void,
   classes: ClassesType<typeof styles>,
@@ -146,11 +147,11 @@ const NotificationsPopover = ({
     closePopover?.();
   }, [closePopover, closeMenu]);
 
-  const [markAllAsReadMutation] = useMutation(gql`
+  const [markAllAsReadMutation] = useMutation(gql(`
     mutation MarkAllNotificationsAsRead {
       MarkAllNotificationsAsRead
     }
-  `);
+  `));
 
   const markAllAsRead = useCallback(async () => {
     try {

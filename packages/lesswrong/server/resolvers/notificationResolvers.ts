@@ -10,6 +10,7 @@ import { handleDialogueHtml } from '../editor/conversionUtils';
 import { createPaginatedResolver } from './paginatedResolver';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import gql from "graphql-tag"
+import { NotificationsViews } from '@/lib/collections/notifications/views';
 
 const {Query: NotificationDisplaysQuery, typeDefs: NotificationDisplaysTypeDefs} = createPaginatedResolver({
   name: "NotificationDisplays",
@@ -102,7 +103,7 @@ export const notificationResolversGqlQueries = {
     }
 
     const selector = {
-      ...getDefaultViewSelector("Notifications"),
+      ...getDefaultViewSelector(NotificationsViews),
       userId: currentUser._id,
     };
     const lastNotificationsCheck = currentUser.lastNotificationsCheck;

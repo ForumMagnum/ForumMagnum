@@ -236,7 +236,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "MultiDocumentCollectionName!",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
@@ -251,7 +251,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "MultiDocumentFieldName!",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {

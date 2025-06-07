@@ -3,7 +3,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface GardenCodesViewTerms extends ViewTermsBase {
-    view?: GardenCodesViewName //Allow useMulti with no view
+    view: GardenCodesViewName | 'default' //Allow useMulti with no view
     types?: Array<string>
     userId?: string
     code?: string

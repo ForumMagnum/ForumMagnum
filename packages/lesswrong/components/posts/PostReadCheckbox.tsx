@@ -3,10 +3,11 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import CheckBoxOutlineBlankIcon from '@/lib/vendor/@material-ui/icons/src/CheckBoxOutlineBlank';
 import CheckBoxTwoToneIcon from '@/lib/vendor/@material-ui/icons/src/CheckBoxTwoTone';
 import { useItemsRead } from '../hooks/useRecordPostView';
-import { useNamedMutation } from '../../lib/crud/withMutation';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import LWTooltip from "../common/LWTooltip";
+import { useMutation } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -32,17 +33,18 @@ export const PostReadCheckbox = ({classes, post, width=12}: {
 
   const isRead = post && ((post._id in postsRead) ? postsRead[post._id] : post.isRead)
 
-  const {mutate: markAsReadOrUnread} = useNamedMutation<{
-    postId: string, isRead: boolean,
-  }>({
-    name: 'markAsReadOrUnread',
-    graphqlArgs: {postId: 'String', isRead: 'Boolean'},
-  });
+  const [markAsReadOrUnread] = useMutation(gql(`
+    mutation markAsReadOrUnread($postId: String, $isRead: Boolean) {
+      markAsReadOrUnread(postId: $postId, isRead: $isRead)
+    }
+  `));
   
   const handleSetIsRead = (isRead: boolean) => {
     void markAsReadOrUnread({
-      postId: post._id,
-      isRead: isRead,
+      variables: {
+        postId: post._id,
+        isRead: isRead,
+      }
     });
     setPostRead(post._id, isRead);
   }

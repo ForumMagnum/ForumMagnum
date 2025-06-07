@@ -160,11 +160,11 @@ export type CrosspostPayload = t.TypeOf<typeof CrosspostPayloadValidator>;
 export type Crosspost = Pick<DbPost, "_id" | "userId" | "fmCrosspost" | "contents_latest"> & DenormalizedCrosspostData;
 
 const getCrosspostFragmentsType = () => {
-  const result: Partial<Record<FragmentName, null>> = {};
+  const result: Partial<Record<typeof crosspostFragments[number], null>> = {};
   for (const fragmentName of crosspostFragments) {
     result[fragmentName] = null;
   }
-  return t.keyof(result);
+  return t.keyof(result as Record<typeof crosspostFragments[number], null>);
 }
 
 /**

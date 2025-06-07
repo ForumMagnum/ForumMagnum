@@ -82,16 +82,16 @@ export const updateSurveyScheduleGqlMutation = makeGqlUpdateMutation('SurveySche
 
 
 export const graphqlSurveyScheduleTypeDefs = gql`
-  input CreateSurveyScheduleDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateSurveyScheduleDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateSurveyScheduleInput {
     data: CreateSurveyScheduleDataInput!
   }
   
-  input UpdateSurveyScheduleDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateSurveyScheduleDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateSurveyScheduleInput {

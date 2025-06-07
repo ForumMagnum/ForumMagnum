@@ -86,16 +86,16 @@ export const updateDigestGqlMutation = makeGqlUpdateMutation('Digests', updateDi
 
 
 export const graphqlDigestTypeDefs = gql`
-  input CreateDigestDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateDigestDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateDigestInput {
     data: CreateDigestDataInput!
   }
   
-  input UpdateDigestDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateDigestDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateDigestInput {

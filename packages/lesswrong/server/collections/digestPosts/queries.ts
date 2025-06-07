@@ -3,22 +3,24 @@ import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers";
 import gql from "graphql-tag";
+import { CollectionViewSet } from "@/lib/views/collectionViewSet";
 
 export const graphqlDigestPostQueryTypeDefs = gql`
-  type DigestPost {
-    ${getAllGraphQLFields(schema)}
-  }
-
+  type DigestPost ${ getAllGraphQLFields(schema) }
+  
   input SingleDigestPostInput {
     selector: SelectorInput
     resolverArgs: JSON
-    allowNull: Boolean
   }
-
+  
   type SingleDigestPostOutput {
     result: DigestPost
   }
-
+  
+  input DigestPostSelector {
+    default: EmptyViewInput
+  }
+  
   input MultiDigestPostInput {
     terms: JSON
     resolverArgs: JSON
@@ -27,15 +29,23 @@ export const graphqlDigestPostQueryTypeDefs = gql`
   }
   
   type MultiDigestPostOutput {
-    results: [DigestPost]
+    results: [DigestPost!]!
     totalCount: Int
   }
-
+  
   extend type Query {
-    digestPost(input: SingleDigestPostInput): SingleDigestPostOutput
-    digestPosts(input: MultiDigestPostInput): MultiDigestPostOutput
+    digestPost(
+      input: SingleDigestPostInput @deprecated(reason: "Use the selector field instead"),
+      selector: SelectorInput
+    ): SingleDigestPostOutput
+    digestPosts(
+      input: MultiDigestPostInput @deprecated(reason: "Use the selector field instead"),
+      selector: DigestPostSelector,
+      limit: Int,
+      offset: Int,
+      enableTotal: Boolean
+    ): MultiDigestPostOutput
   }
 `;
-
-export const digestPostGqlQueryHandlers = getDefaultResolvers('DigestPosts');
+export const digestPostGqlQueryHandlers = getDefaultResolvers('DigestPosts', new CollectionViewSet('DigestPosts', {}));
 export const digestPostGqlFieldResolvers = getFieldGqlResolvers('DigestPosts', schema);

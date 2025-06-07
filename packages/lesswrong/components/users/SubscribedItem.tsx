@@ -1,10 +1,12 @@
 import React, { ReactNode } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
-import { useSingle } from "@/lib/crud/withSingle";
+import { useQuery } from "@/lib/crud/useQuery";
 import Loading from "../vulcan-core/Loading";
 import NotifyMeButton from "../notifications/NotifyMeButton";
+import { SubscriptionType } from "@/lib/collections/subscriptions/helpers";
+import { TypedDocumentNode } from '@graphql-typed-document-node/core';
+import { defineStyles, useStyles } from "../hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SubscribedItem', (theme: ThemeType) => ({
   root: {
     marginLeft: -6,
     display: "flex",
@@ -24,39 +26,43 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.7,
     wordBreak: "keep-all"
   },
-});
+}));
 
-const SubscribedItem = ({
-  collectionName,
-  fragmentName,
+export default function SubscribedItem<TQuery, TExtractResult>({
+  query,
   subscription,
   renderDocument,
-  classes,
+  extractDocument,
 }: {
-  collectionName: CollectionNameString,
-  fragmentName: keyof FragmentTypes,
+  query: TypedDocumentNode<TQuery, { documentId: string }>,
   subscription: SubscriptionState,
-  renderDocument: (document: AnyBecauseTodo) => ReactNode,
-  classes: ClassesType<typeof styles>
-}) => {
-  const {document, loading} = useSingle({
-    documentId: subscription.documentId ?? undefined,
-    collectionName, fragmentName,
+  renderDocument: (document: NonNullable<TExtractResult>) => ReactNode,
+  extractDocument: (data: TQuery) => TExtractResult,
+}) {
+  const classes = useStyles(styles);
+  
+  const { data: fetchedResult, loading } = useQuery(query, {
+    variables: {
+      documentId: subscription.documentId ?? "",
+    },
     skip: !subscription.documentId,
   });
 
-  if (!document && !loading) {
-    return null;
-  }
+  const document = fetchedResult ? extractDocument(fetchedResult) : null;
+
   if (loading) {
     return <Loading/>;
+  }
+
+  if (!document) {
+    return null;
   }
 
   return (
     <div className={classes.root}>
       <NotifyMeButton
         document={document}
-        subscriptionType={subscription.type}
+        subscriptionType={(subscription.type ?? undefined) as SubscriptionType | undefined}
         subscribeMessage="Resubscribe"
         unsubscribeMessage="Unsubscribe"
         className={classes.unsubscribeButton}
@@ -67,11 +73,3 @@ const SubscribedItem = ({
     </div>
   );
 }
-
-export default registerComponent(
-  "SubscribedItem",
-  SubscribedItem,
-  {styles},
-);
-
-

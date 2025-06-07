@@ -48,3 +48,9 @@ export class InsufficientKarmaError extends ApiError {
     super(403, `You must have at least ${requiredKarma} karma to do this.`);
   }
 }
+
+export class PostNotFoundError extends ApiError {
+  constructor(postId: string) {
+    super(404, `Post with id ${postId} not found`);
+  }
+}

@@ -74,11 +74,13 @@ export const PrivateMessagesEmailConversation = ({conversation, messages, partic
   const currentUser = useCurrentUser();
   const sitename = siteNameWithArticleSetting.get()
   const conversationLink = conversationGetPageUrl(conversation, true);
+
+  const participantIds = conversation.participantIds ?? [];
   
   return (<React.Fragment>
     <p>Conversation with{" "}
       <EmailListOfUsers
-        users={conversation.participantIds
+        users={participantIds
           .filter((id: string)=>id!==currentUser!._id)
           .map((id: string)=>participantsById[id]!)
         }

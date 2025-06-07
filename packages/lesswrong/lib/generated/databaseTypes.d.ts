@@ -323,7 +323,7 @@ interface DbCurationNotice extends DbObject {
   createdAt: Date
   deleted: boolean
   legacyData: any | null
-  postId: string | null
+  postId: string
   userId: string
 }
 
@@ -1255,7 +1255,7 @@ interface DbRevision extends DbObject {
   originalContents: {
     type: string,
     data: string,
-  } | null
+  }
   score: number
   skipAttributions: boolean
   updateType: "initial" | "patch" | "minor" | "major" | null

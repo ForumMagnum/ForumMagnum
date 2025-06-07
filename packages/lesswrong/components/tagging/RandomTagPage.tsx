@@ -1,17 +1,18 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from '@/lib/generated/gql-codegen';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import PermanentRedirect from "../common/PermanentRedirect";
 import Loading from "../vulcan-core/Loading";
 import SingleColumnSection from "../common/SingleColumnSection";
 
 const RandomTagPage = () => {
-  const {data, loading} = useQuery(gql`
+  const {data, loading} = useQuery(gql(`
     query getRandomTag {
       RandomTag {slug}
     }
-  `, {
+  `), {
     fetchPolicy: "no-cache",
   });
   const tag = data?.RandomTag;

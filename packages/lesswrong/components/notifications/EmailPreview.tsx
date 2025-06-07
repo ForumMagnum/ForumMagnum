@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 export const EmailPreview = ({email, sentDate, classes}: {
-  email: any,
+  email: EmailPreview,
   sentDate?: Date,
   classes: ClassesType<typeof styles>,
 }) => {

@@ -93,16 +93,16 @@ export const updateModeratorActionGqlMutation = makeGqlUpdateMutation('Moderator
 
 
 export const graphqlModeratorActionTypeDefs = gql`
-  input CreateModeratorActionDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateModeratorActionDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateModeratorActionInput {
     data: CreateModeratorActionDataInput!
   }
   
-  input UpdateModeratorActionDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateModeratorActionDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateModeratorActionInput {

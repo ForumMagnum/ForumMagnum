@@ -30,6 +30,7 @@ import { createVote as createVoteMutator } from '@/server/collections/votes/muta
 import { createModeratorAction } from './collections/moderatorActions/mutations';
 import { getSchema } from '@/lib/schema/allSchemas';
 
+
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {
   document: DbVoteableType,

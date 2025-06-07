@@ -128,7 +128,7 @@ const ForumEventCommentForm = ({
   anchorEl: HTMLElement | null;
   post: PostsMinimumInfo;
   cancelCallback: () => Promise<void> | void;
-  successCallback: () => Promise<void> | void;
+  successCallback: () => Promise<unknown> | void;
   setEmoji?: (emoji: string) => void;
   title: ((post: PostsMinimumInfo, comment: ShortformComments | null) => React.ReactNode) | React.ReactNode;
   subtitle: ((post: PostsMinimumInfo, comment: ShortformComments | null) => React.ReactNode) | React.ReactNode;

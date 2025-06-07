@@ -1,10 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { useSingle } from "../../lib/crud/withSingle";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { useMulti } from "@/lib/crud/withMulti";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 import LWDialog from "../common/LWDialog";
 import FeedContentBody from "./FeedContentBody";
@@ -13,6 +11,29 @@ import Loading from "../vulcan-core/Loading";
 import CommentsListSection from "../comments/CommentsListSection";
 import ForumIcon from '../common/ForumIcon';
 import { DialogContent } from "../widgets/DialogContent";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/crud/wrapGql";
+
+const CommentsListMultiQuery = gql(`
+  query multiCommentUltraFeedPostDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsList
+      }
+      totalCount
+    }
+  }
+`);
+
+const UltraFeedPostFragmentQuery = gql(`
+  query UltraFeedPostDialog($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UltraFeedPostFragment
+      }
+    }
+  }
+`);
 
 const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   '@global': {
@@ -220,24 +241,24 @@ const UltraFeedPostDialog = ({
 }: UltraFeedPostDialogProps) => {
   const classes = useStyles(styles);
 
-  const { document: fetchedPost, loading: loadingPost } = useSingle({
-    documentId: postId,
-    collectionName: "Posts",
-    fragmentName: "UltraFeedPostFragment",
+  const { loading: loadingPost, data } = useQuery(UltraFeedPostFragmentQuery, {
+    variables: { documentId: postId },
     skip: !!post,
   });
+  const fetchedPost = data?.post?.result;
 
-  const { results: comments, loading: isCommentsLoading, totalCount: commentsTotalCount } = useMulti({
-    terms: {
-      view: "postCommentsTop",
-      postId: postId ?? post?._id,
+  const { data: dataCommentsList, loading: isCommentsLoading } = useQuery(CommentsListMultiQuery, {
+    variables: {
+      selector: { postCommentsTop: { postId: postId ?? post?._id } },
       limit: 100, // TODO: add load more
+      enableTotal: true,
     },
-    collectionName: "Comments",
-    fragmentName: "CommentsList",
     skip: !(postId ?? post?._id),
-    enableTotal: true,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const comments = dataCommentsList?.comments?.results;
+  const commentsTotalCount = dataCommentsList?.comments?.totalCount;
 
   const fullPost = post ?? fetchedPost;
   const isLoading = !!postId && loadingPost && !post;

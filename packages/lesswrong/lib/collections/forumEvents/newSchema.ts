@@ -125,6 +125,7 @@ const schema = {
     },
     graphql: {
       outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -139,6 +140,7 @@ const schema = {
     },
     graphql: {
       outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -153,6 +155,7 @@ const schema = {
     },
     graphql: {
       outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -285,6 +288,7 @@ const schema = {
     },
     graphql: {
       outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members"], // newCheck ensures this can only be false for user-created events
@@ -301,8 +305,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
-      inputType: "String",
+      outputType: "ForumEventFormat!",
+      inputType: "ForumEventFormat",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -384,7 +388,7 @@ const schema = {
       nullable: true,
     },
     graphql: {
-      outputType: "String",
+      outputType: "ForumEventCustomComponent",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],

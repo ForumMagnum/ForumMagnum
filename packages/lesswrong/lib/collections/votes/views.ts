@@ -4,7 +4,7 @@ import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 
 declare global {
   interface VotesViewTerms extends ViewTermsBase {
-    view?: VotesViewName,
+    view: VotesViewName,
     voteType?: string,
     collectionName?: CollectionNameString,
     collectionNames?: CollectionNameString[],

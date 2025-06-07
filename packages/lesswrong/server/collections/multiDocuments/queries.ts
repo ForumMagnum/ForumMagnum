@@ -3,22 +3,56 @@ import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers";
 import gql from "graphql-tag";
+import { MultiDocumentsViews } from "@/lib/collections/multiDocuments/views";
 
 export const graphqlMultiDocumentQueryTypeDefs = gql`
-  type MultiDocument {
-    ${getAllGraphQLFields(schema)}
-  }
+  type MultiDocument ${ getAllGraphQLFields(schema) }
 
+  enum MultiDocumentCollectionName {
+    Tags
+    MultiDocuments
+  }
+  
+  enum MultiDocumentFieldName {
+    description
+    summary
+  }
+  
   input SingleMultiDocumentInput {
     selector: SelectorInput
     resolverArgs: JSON
-    allowNull: Boolean
   }
-
+  
   type SingleMultiDocumentOutput {
     result: MultiDocument
   }
-
+  
+  input MultiDocumentDefaultViewInput {
+    excludedDocumentIds: [String!]
+  }
+  
+  input MultiDocumentsLensBySlugInput {
+    excludedDocumentIds: [String!]
+    slug: String
+  }
+  
+  input MultiDocumentsSummariesByParentIdInput {
+    excludedDocumentIds: [String!]
+    parentDocumentId: String
+  }
+  
+  input MultiDocumentsPingbackLensPagesInput {
+    excludedDocumentIds: [String!]
+    documentId: String
+  }
+  
+  input MultiDocumentSelector  {
+    default: MultiDocumentDefaultViewInput
+    lensBySlug: MultiDocumentsLensBySlugInput
+    summariesByParentId: MultiDocumentsSummariesByParentIdInput
+    pingbackLensPages: MultiDocumentsPingbackLensPagesInput
+  }
+  
   input MultiMultiDocumentInput {
     terms: JSON
     resolverArgs: JSON
@@ -27,15 +61,23 @@ export const graphqlMultiDocumentQueryTypeDefs = gql`
   }
   
   type MultiMultiDocumentOutput {
-    results: [MultiDocument]
+    results: [MultiDocument!]!
     totalCount: Int
   }
-
+  
   extend type Query {
-    multiDocument(input: SingleMultiDocumentInput): SingleMultiDocumentOutput
-    multiDocuments(input: MultiMultiDocumentInput): MultiMultiDocumentOutput
+    multiDocument(
+      input: SingleMultiDocumentInput @deprecated(reason: "Use the selector field instead"),
+      selector: SelectorInput
+    ): SingleMultiDocumentOutput
+    multiDocuments(
+      input: MultiMultiDocumentInput @deprecated(reason: "Use the selector field instead"),
+      selector: MultiDocumentSelector,
+      limit: Int,
+      offset: Int,
+      enableTotal: Boolean
+    ): MultiMultiDocumentOutput
   }
 `;
-
-export const multiDocumentGqlQueryHandlers = getDefaultResolvers('MultiDocuments');
+export const multiDocumentGqlQueryHandlers = getDefaultResolvers('MultiDocuments', MultiDocumentsViews);
 export const multiDocumentGqlFieldResolvers = getFieldGqlResolvers('MultiDocuments', schema);

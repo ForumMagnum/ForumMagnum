@@ -1,5 +1,7 @@
 import { useCallback } from "react";
-import { gql, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
 import { useUnreadNotifications } from "./useUnreadNotifications";
 
 type MarkConversationRead = (conversationId: string) => Promise<void>;
@@ -7,11 +9,11 @@ type MarkConversationRead = (conversationId: string) => Promise<void>;
 export const useMarkConversationRead = (): MarkConversationRead => {
   const {refetchUnreadNotifications} = useUnreadNotifications();
   const [markConversationRead] = useMutation(
-    gql`
+    gql(`
       mutation markConversationRead($conversationId: String!) {
         markConversationRead(conversationId: $conversationId)
       }
-    `,
+    `),
     {errorPolicy: "all"},
   );
   return useCallback(async (conversationId: string) => {

@@ -17,10 +17,10 @@ jest.mock('../components/hooks/useUpdateCurrentUser', () => ({
   useUpdateCurrentUser: jest.fn().mockReturnValue(jest.fn()),
 }))
 
-jest.mock('../lib/crud/withMulti', () => ({
-  useMulti: jest.fn()
+jest.mock('@apollo/client', () => ({
+  useQuery: jest.fn()
     .mockReturnValueOnce({
-      results: undefined,
+      data: undefined,
       loading: true,
       error: undefined,
     })
@@ -29,7 +29,14 @@ jest.mock('../lib/crud/withMulti', () => ({
       // did you know that if you don't run in strict mode, attempts to modify
       // the results will silently fail? And did you know that we don't run in
       // strict mode? I didn't. Now you do. You're welcome.
-      results: [Object.freeze({_id: '1', name: 'Paperclips'})],
+      // results: [Object.freeze({_id: '1', name: 'Paperclips'})],
+      // EDIT: we no longer have useMulti and just use useQuery directly.
+      // I have no idea if the above comment is still relevant.
+      data: {
+        tags: {
+          results: [Object.freeze({_id: '1', name: 'Paperclips'})],
+        },
+      },
       loading: false,
       error: null,
     })

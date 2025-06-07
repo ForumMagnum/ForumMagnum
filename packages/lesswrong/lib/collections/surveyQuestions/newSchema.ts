@@ -44,7 +44,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "SurveyQuestionFormat!",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["admins"],

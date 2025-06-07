@@ -1,5 +1,5 @@
-import { getAllSchemas } from '../schema/allSchemas';
-import type { EditableFieldCallbackOptions } from './makeEditableOptions';
+import { getAllSchemas } from '../../lib/schema/allSchemas';
+import type { EditableFieldCallbackOptions } from '../../lib/editor/makeEditableOptions';
 
 export interface EditableField<N extends CollectionNameString> extends CollectionFieldSpecification<N> {
   graphql: GraphQLFieldSpecification<N> & {

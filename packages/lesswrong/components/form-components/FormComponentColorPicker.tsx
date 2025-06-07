@@ -34,7 +34,7 @@ export const ColorPicker = ({ value, onChange, disabled, label }: {
 };
 
 interface FormComponentColorPickerProps {
-  field: TypedFieldApi<string | null>;
+  field: TypedFieldApi<string | null | undefined>;
   label: string;
   disabled?: boolean;
 }
@@ -45,7 +45,7 @@ export const FormComponentColorPicker = ({
   disabled,
 }: FormComponentColorPickerProps) => {
   return <ColorPicker
-    value={field.state.value}
+    value={field.state.value ?? null}
     onChange={(value) => field.handleChange(value)}
     disabled={disabled}
     label={label}

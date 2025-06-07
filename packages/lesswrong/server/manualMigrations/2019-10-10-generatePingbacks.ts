@@ -1,5 +1,5 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import { getEditableFieldsByCollection } from '@/lib/editor/editableSchemaFieldHelpers';
+import { getEditableFieldsByCollection } from '@/server/editor/editableSchemaFieldHelpers';
 import { getCollection } from '../collections/allCollections';
 import { htmlToPingbacks } from '../pingbacks';
 import Revisions from '@/server/collections/revisions/collection';

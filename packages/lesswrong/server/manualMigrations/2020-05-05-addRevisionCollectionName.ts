@@ -1,5 +1,5 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import { getEditableCollectionNames } from '@/lib/editor/editableSchemaFieldHelpers';
+import { getEditableCollectionNames } from '@/server/editor/editableSchemaFieldHelpers';
 import { getCollection } from '../collections/allCollections';
 import Revisions from '../../server/collections/revisions/collection'
 

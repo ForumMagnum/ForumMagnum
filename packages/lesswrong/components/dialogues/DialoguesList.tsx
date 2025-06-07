@@ -2,17 +2,16 @@ import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { Link } from '../../lib/reactRouterWrapper';
 import PostsItem from "../posts/PostsItem";
-import SectionButton from "../common/SectionButton";
 import SettingsButton from "../icons/SettingsButton";
 import LWTooltip from "../common/LWTooltip";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import SectionSubtitle from "../common/SectionSubtitle";
 import DialoguesSectionFrontpageSettings from "./DialoguesSectionFrontpageSettings";
-import { Typography } from "../common/Typography";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from '@/lib/generated/gql-codegen';
 
 const styles = (theme: ThemeType) => ({
   content: {
@@ -95,17 +94,39 @@ const DialoguesList = ({ currentUser, classes }: { currentUser: UsersCurrent, cl
   const isEvenDay = currentDate.getUTCDate() % 2 === 0;
   const showReciprocityRecommendations = (currentUser.karma > 100) && isEvenDay; // hide reciprocity recommendations if user has less than 100 karma, or if the current day is not an even number (just a hack to avoid spamming folks)
 
-  const { results: dialoguePosts } = usePaginatedResolver({
-    fragmentName: "PostsListWithVotes",
-    resolverName: "RecentlyActiveDialogues",
-    limit: 3,
+  const initialLimit = 3;
+
+  const { data } = useQuery(gql(`
+    query RecentlyActiveDialogues($limit: Int) {
+      RecentlyActiveDialogues(limit: $limit) {
+        results {
+          ...PostsListWithVotes
+        }
+      }
+    }
+  `), {
+    variables: { limit: initialLimit },
+    fetchPolicy: "cache-and-network",
+    nextFetchPolicy: "cache-only",
   }); 
 
-  const { results: myDialogues } = usePaginatedResolver({
-    fragmentName: "PostsListWithVotes",
-    resolverName: "MyDialogues",
-    limit: 3,
+  const dialoguePosts = data?.RecentlyActiveDialogues?.results;
+
+  const { data: myDialoguesData } = useQuery(gql(`
+    query MyDialogues($limit: Int) {
+      MyDialogues(limit: $limit) {
+        results {
+          ...PostsListWithVotes
+        }
+      }
+    }
+  `), {
+    variables: { limit: initialLimit },
+    fetchPolicy: "cache-and-network",
+    nextFetchPolicy: "cache-only",
   });
+
+  const myDialogues = myDialoguesData?.MyDialogues?.results;
 
   const renderMyDialogues = myDialogues?.length && currentUser.showMyDialogues;
 

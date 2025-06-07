@@ -172,7 +172,7 @@ const MultiSelectInner = ({
 }
 
 interface FormComponentMultiSelectProps {
-  field: TypedFieldApi<string[]> | TypedFieldApi<string[] | null>;
+  field: TypedFieldApi<string[]> | TypedFieldApi<string[] | null | undefined>;
   label?: string;
   placeholder?: string;
   separator?: string;

@@ -11,10 +11,10 @@ interface SelectOption {
 
 export const FormComponentSelect = ({ field, defaultValue, options, label, hideClear }: {
   field: {
-    name: TypedFieldApi<string | null>['name'];
-    state: Pick<TypedFieldApi<string | null>['state'], 'value' | 'meta'>;
-    handleChange: TypedFieldApi<string | null>['handleChange'];
-    handleBlur: TypedFieldApi<string | null>['handleBlur'];
+    name: TypedFieldApi<string | number | null | undefined>['name'];
+    state: Pick<TypedFieldApi<string | number | null | undefined>['state'], 'value' | 'meta'>;
+    handleChange: TypedFieldApi<string | number | null | undefined>['handleChange'];
+    handleBlur: TypedFieldApi<string | number | null | undefined>['handleBlur'];
   };
   defaultValue?: string | number;
   options: SelectOption[] | readonly SelectOption[];

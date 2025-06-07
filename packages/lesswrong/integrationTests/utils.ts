@@ -176,6 +176,7 @@ type TestPost = Omit<PartialDeep<DbPost>, 'postedAt'> & {
 export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data?: TestPost) => {
   user ||= await createDefaultUser()
   const postId = data?._id ?? randomId();
+  const postContents = data?.contents ?? { originalContents: { type: 'ckEditorMarkup', data: 'This is a test post' } };
   const revision = await createDummyRevision(user as DbUser, {
     _id: randomId(),
     collectionName: "Posts",
@@ -187,7 +188,7 @@ export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data
     commitMessage: "",
     userId: user!._id,
     draft: false,
-    ...data?.contents,
+    ...postContents,
   });
   const defaultData = {
     _id: postId,
@@ -358,7 +359,11 @@ export const createDummyRevision = async (user: DbUser, data?: Partial<DbRevisio
     editedAt: new Date(Date.now()),
     version: "1.0.0",
     wordCount: 0,
-    changeMetrics: {} // not nullable field
+    changeMetrics: {}, // not nullable field
+    originalContents: {
+      type: 'ckEditorMarkup',
+      data: 'This is a test revision'
+    },
   };
   const revisionData = {...defaultData, ...data};
   const userContext = await computeContextFromUser({user, isSSR: false});

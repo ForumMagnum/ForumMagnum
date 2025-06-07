@@ -23,7 +23,7 @@ export const karmaChangesTypeDefs = gql`
     postSlug: String
     tagSlug: String
     tagName: String
-    tagCommentType: String
+    tagCommentType: TagCommentType
     tagId: String
     addedReacts: [ReactionChange!]
     eaAddedReacts: JSON

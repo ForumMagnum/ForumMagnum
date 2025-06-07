@@ -14,10 +14,20 @@ export const tagHistoryFeedGraphQLTypeDefs = gql`
   type TagHistoryFeedQueryResults {
     cutoff: Date
     endOffset: Int!
-    results: [TagHistoryFeedEntryType!]
+    results: [TagHistoryFeedEntry!]
   }
-  type TagHistoryFeedEntryType {
-    type: String!
+  enum TagHistoryFeedEntryType {
+    tagCreated
+    tagApplied
+    tagRevision
+    tagDiscussionComment
+    lensRevision
+    summaryRevision
+    wikiMetadataChanged
+    lensOrSummaryMetadataChanged
+  }
+  type TagHistoryFeedEntry {
+    type: TagHistoryFeedEntryType!
     tagCreated: Tag
     tagApplied: TagRel
     tagRevision: Revision

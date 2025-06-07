@@ -1,10 +1,10 @@
-import { frag } from "@/lib/fragments/fragmentWrapper";
+import { gql } from "@/lib/crud/wrapGql";
 
-export const PetrovDayLaunchInfo = () => frag`
+export const PetrovDayLaunchInfo = gql(`
   fragment PetrovDayLaunchInfo on PetrovDayLaunch {
     _id
     createdAt
     launchCode
     userId
   }
-`
+`)
