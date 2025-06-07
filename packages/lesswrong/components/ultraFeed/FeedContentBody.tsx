@@ -3,7 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { truncateWithGrace, calculateTruncationStatus } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../../components/hooks/useStyles';
-import { generateTextFragment } from './textFragmentHelpers'
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
 
@@ -121,19 +120,18 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
 
 export interface FeedContentBodyProps {
   html: string;
-  breakpoints?: (number | null)[];
-  initialExpansionLevel?: number;
-  linkToDocumentOnFinalExpand?: boolean;
+  initialWordCount: number;
+  maxWordCount: number;
   onContinueReadingClick?: (params: { textFragment?: string }) => void;
   wordCount: number;
-  onExpand?: (level: number, maxLevelReached: boolean, wordCount: number) => void;
+  onExpand?: (expanded: boolean, wordCount: number) => void;
   nofollow?: boolean;
   className?: string;
   /** Override word truncation with line clamping (number of lines) */
   clampOverride?: number;
   /** If true, don't show the inline '(read more)' suffix */
   hideSuffix?: boolean;
-  /** when changed, resets expansion level to 0 */
+  /** When changed, resets to collapsed state */
   resetSignal?: number;
   /** If true, use serif style for the content */
   serifStyle?: boolean;
@@ -141,9 +139,8 @@ export interface FeedContentBodyProps {
 
 const FeedContentBody = ({
   html,
-  breakpoints = [],
-  initialExpansionLevel = 0,
-  linkToDocumentOnFinalExpand = true,
+  initialWordCount,
+  maxWordCount,
   onContinueReadingClick,
   wordCount,
   onExpand,
@@ -156,7 +153,7 @@ const FeedContentBody = ({
 }: FeedContentBodyProps) => {
 
   const classes = useStyles(styles);
-  const [expansionLevel, setExpansionLevel] = useState(initialExpansionLevel);
+  const [isExpanded, setIsExpanded] = useState(false);
   const firstRenderRef = React.useRef(true);
 
   useEffect(() => {
@@ -165,35 +162,19 @@ const FeedContentBody = ({
       return;
     }
     if (resetSignal !== undefined) {
-      setExpansionLevel(0);
+      setIsExpanded(false);
     }
   }, [resetSignal]);
 
-  const isMaxLevel = expansionLevel >= breakpoints.length - 1;
-  const currentWordLimit = breakpoints[expansionLevel];
-
-  const applyLineClamp = clampOverride && clampOverride > 0 && expansionLevel === 0;
+  const currentWordLimit = isExpanded ? maxWordCount : initialWordCount;
+  const applyLineClamp = clampOverride && clampOverride > 0 && !isExpanded;
 
   const handleExpand = useCallback(() => {
-    if (isMaxLevel || !breakpoints.length) {
-      return;
-    }
-
-    const newLevel = Math.min(expansionLevel + 1, breakpoints.length - 1);
-    const newMaxReached = newLevel >= breakpoints.length - 1;
-    setExpansionLevel(newLevel);
-    onExpand?.(newLevel, newMaxReached, wordCount);
-  }, [expansionLevel, breakpoints.length, onExpand, isMaxLevel, wordCount]);
-
-  const handleExpandToMax = useCallback(() => {
-    const maxLevel = breakpoints.length - 1;
-    if (expansionLevel < maxLevel) {
-      setExpansionLevel(maxLevel);
-      onExpand?.(maxLevel, true, wordCount);
-    }
-  }, [breakpoints.length, expansionLevel, onExpand, wordCount]);
-
-  const readMoreSuffixText = '(read more)';
+    if (isExpanded) return;
+    
+    setIsExpanded(true);
+    onExpand?.(true, wordCount);
+  }, [isExpanded, onExpand, wordCount]);
 
   const calculateTruncationState = (): {
     truncatedHtml: string;
@@ -206,27 +187,29 @@ const FeedContentBody = ({
     let wordsLeft = 0;
     let suffix = '';
 
-    if (!breakpoints.length || currentWordLimit == null) {
-      return { truncatedHtml: html, wasTruncated: false, wordsLeft: 0, suffix: '' };
-    } else if (applyLineClamp) {
+    if (applyLineClamp) {
       wasTruncated = true; // assume truncated when line clamp is active, nothing bad happens if it's not
       wordsLeft = 0; // Not used when applyLineClamp is true, set to 0
       truncatedHtml = html; // Render full HTML for CSS clamping
     } else {
-      // Word count truncation logic (applies if no clampOverride OR expansionLevel > 0)
+      // Word count truncation logic
       const { willTruncate, wordsRemaining } = calculateTruncationStatus(
         wordCount,
         currentWordLimit,
-        20
+        20 
       );
       
-      if (hideSuffix || (isMaxLevel && linkToDocumentOnFinalExpand)) {
+      if (hideSuffix) {
         suffix = '...';
-      } else if (willTruncate && wordsRemaining > 200) {
-        // TODO: Add minimum word count threshold check here when specified
-        suffix = `...<span class="read-more-suffix" data-action="modal">${`(read ${wordsRemaining} more words)`}</span>`;
-      } else {
-        suffix = `...<span class="read-more-suffix" data-action="expand">${readMoreSuffixText}</span>`;
+      } else if (willTruncate && !isExpanded) {
+        // Determine which action to take when content is truncated:
+        // 1. If total content exceeds maxWordCount → open modal (with word count)
+        // 2. If total content fits within maxWordCount → expand inline (no word count)
+        if (wordCount > maxWordCount) {
+          suffix = `...<span class="read-more-suffix" data-action="modal">read ${wordsRemaining} more ${wordsRemaining === 1 ? 'word' : 'words'} →</span>`;
+        } else {
+          suffix = '...<span class="read-more-suffix" data-action="expand">(read more)</span>';
+        }
       }
 
       const result = truncateWithGrace(
@@ -245,10 +228,7 @@ const FeedContentBody = ({
     return { truncatedHtml, wasTruncated, wordsLeft, suffix };
   };
 
-  const { truncatedHtml, wasTruncated, wordsLeft, suffix } = calculateTruncationState();
-
-  // Get truncated HTML *without* the suffix for fragment generation
-  const truncatedHtmlWithoutSuffix = truncatedHtml.replace(suffix, '');
+  const { truncatedHtml, wasTruncated, suffix } = calculateTruncationState();
 
   // Handle clicks on inline read-more suffix and footnote links
   const handleContentClick = useCallback((e: React.MouseEvent) => {
@@ -261,26 +241,22 @@ const FeedContentBody = ({
       
       const action = target.getAttribute('data-action');
       if (action === 'modal' && onContinueReadingClick) {
-        // For modal, generate text fragment and pass it
-        // Calculate it here to avoid dependency issues
-        const truncatedWithoutSuffix = truncatedHtml.replace(suffix, '');
-        const fragment = generateTextFragment(truncatedWithoutSuffix, html);
-        onContinueReadingClick({ textFragment: fragment });
+        onContinueReadingClick({});
       } else if (action === 'expand') {
         handleExpand();
       }
     }
     
-    // Special handling for footnote links - expand to max to show footnotes
+    // Expand to show footnotes
     const anchorElement = target.closest('a');
     if (anchorElement) {
       const href = anchorElement.getAttribute('href');
       if (href && href.startsWith('#fn')) {
         e.preventDefault();
-        handleExpandToMax();
+        handleExpand();
       }
     }
-  }, [handleExpand, handleExpandToMax, onContinueReadingClick, truncatedHtml, suffix, html]);
+  }, [onContinueReadingClick, truncatedHtml, suffix, html, handleExpand]);
 
   const getLineClampClass = () => {
     if (!applyLineClamp || !clampOverride) return "";
@@ -300,9 +276,6 @@ const FeedContentBody = ({
     }
   };
 
-  const showContinueReadingAction = !applyLineClamp && isMaxLevel && wasTruncated && onContinueReadingClick;
-  const generatedFragment = onContinueReadingClick ? generateTextFragment(truncatedHtmlWithoutSuffix, html) : undefined;
-
   const styleType = serifStyle ? 'ultraFeedPost' : 'ultraFeed';
 
   return (
@@ -318,23 +291,14 @@ const FeedContentBody = ({
             dangerouslySetInnerHTML={{ __html: truncatedHtml }}
             nofollow={nofollow}
             className={classNames({
-              [classes.maxHeight]: !applyLineClamp && !isMaxLevel && wasTruncated,
+              [classes.maxHeight]: !applyLineClamp && !isExpanded && wasTruncated,
               [classes.lineClamp]: applyLineClamp && wasTruncated,
               [getLineClampClass()]: applyLineClamp && wasTruncated,
-              [classes.levelZero]: expansionLevel === 0,
+              [classes.levelZero]: !isExpanded,
             })}
           />
         </div>
       </ContentStyles>
-      {showContinueReadingAction && <div
-        className={classes.readMoreButton}
-        onClick={(e) => {
-          e.stopPropagation();
-          onContinueReadingClick({ textFragment: generatedFragment });
-        }}
-      >
-        {`(Continue Reading - ${wordsLeft} words more)`}
-      </div>}
     </div>
   );
 };

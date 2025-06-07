@@ -54,10 +54,6 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     }
   },
   titleContainer: {
-    // padding: '20px 20px 0 20px',
-    // [theme.breakpoints.down('sm')]: {
-    //   padding: '0px 10px 0 10px',
-    // }
   },
   tripleDotMenu: {
     opacity: 0.7,
@@ -134,9 +130,9 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   },
   chevronButton: {
     cursor: 'pointer',
-    opacity: 0.8,
+    opacity: 0.6,
     marginRight: 12,
-    fontSize: 24,
+    fontSize: 36,
     '&:hover': {
       color: theme.palette.grey[700],
     },
@@ -180,37 +176,49 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
 }));
 
 type UltraFeedPostDialogProps = {
-  postId?: string;
   post?: never;
+  partialPost: PostsListWithVotes;
   onClose: () => void;
-  textFragment?: string;
 } | {
-  postId?: never;
   post: PostsPage | UltraFeedPostFragment;
+  partialPost?: never;
   onClose: () => void;
-  textFragment?: string;
 }
 
-const UltraFeedDialogContent = ({
+const UltraFeedPostDialog = ({
   post,
-  comments,
-  commentsLoading,
-  commentsTotalCount,
-  textFragment,
   onClose,
-}: {
-  post: PostsPage | UltraFeedPostFragment;
-  comments?: CommentsList[];
-  commentsLoading: boolean;
-  commentsTotalCount: number;
-  textFragment?: string;
-  onClose: () => void;
-}) => {
+  partialPost,
+}: UltraFeedPostDialogProps) => {
   const classes = useStyles(styles);
   const authorListRef = useRef<HTMLDivElement>(null);
   const isClosingViaBackRef = useRef(false);
-
   const navigate = useNavigate();
+
+  const postId = partialPost?._id ?? undefined;
+
+  const { document: fetchedPost, loading: loadingPost } = useSingle({
+    documentId: postId,
+    collectionName: "Posts",
+    fragmentName: "UltraFeedPostFragment",
+    skip: !!post,
+  });
+
+  const fullPostForContent = fetchedPost ?? post;
+
+  const { results: comments, loading: isCommentsLoading, totalCount: commentsTotalCount } = useMulti({
+    terms: {
+      view: "postCommentsTop",
+      postId: post?._id ?? partialPost?._id,
+      limit: 100, // TODO: add load more
+    },
+    collectionName: "Comments",
+    fragmentName: "CommentsList",
+    skip: !(post?._id ?? partialPost?._id),
+    enableTotal: true,
+  });
+
+  const displayPost = fetchedPost ?? post ?? partialPost;
 
   useEffect(() => {
     window.history.pushState({ dialogOpen: true }, '');
@@ -235,15 +243,27 @@ const UltraFeedDialogContent = ({
   }, [onClose]);
 
   useEffect(() => {
-    if (textFragment) {
-      // it would be nice to use navigate here, but it doesn't work to trigger scrolling and highlighting
-      window.location.hash = textFragment;
-    }
-
     return () => {
       navigate({ hash: "" }, { replace: true });
     };
-  }, [textFragment, navigate]);
+  }, [navigate]);
+
+  // Compute content props based on what data we have
+  let contentData = null;
+  
+  if (fullPostForContent?.contents?.html) {
+    contentData = {
+      html: fullPostForContent.contents.html,
+      wordCount: fullPostForContent.contents.wordCount ?? 0,
+      showLoading: false,
+    };
+  } else if (partialPost?.contents?.htmlHighlight) {
+    contentData = {
+      html: partialPost.contents.htmlHighlight,
+      wordCount: partialPost.contents.wordCount ?? 0,
+      showLoading: true,
+    };
+  }
 
   return (
     <LWDialog
@@ -253,143 +273,120 @@ const UltraFeedDialogContent = ({
       paperClassName={classes.dialogPaper}
     >
       <DialogContent className={classes.dialogContent}>
-        {post && <>
-          <div className={classes.stickyHeader}>
-            <ForumIcon 
-              icon="ThickChevronLeft" 
-              onClick={onClose} 
-              className={classes.chevronButton} 
-            />
-            <AnalyticsContext pageElementContext="tripleDotMenu">
-              <PostActionsButton
-                post={post}
-                vertical={true}
-                autoPlace
-                ActionsComponent={UltraFeedPostActions}
-                className={classes.tripleDotMenu}
-              />
-            </AnalyticsContext>
+        {!displayPost && (
+          <div className={classes.loadingContainer}>
+            <Loading />
           </div>
-          <div className={classes.scrollableContent}>
-            <div className={classes.titleContainer}>
-              <div className={classes.headerContent}>
-                <div className={classes.titleWrapper}>
-                  <Link
-                    to={postGetPageUrl(post)}
-                    className={classes.title}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onClose();
-                    }
+        )}
+        
+        {displayPost && (
+          <>
+            <div className={classes.stickyHeader}>
+              <ForumIcon 
+                icon="ThickChevronLeft" 
+                onClick={onClose} 
+                className={classes.chevronButton} 
+              />
+              <AnalyticsContext pageElementContext="tripleDotMenu">
+                <PostActionsButton
+                  post={displayPost}
+                  vertical={true}
+                  autoPlace
+                  ActionsComponent={UltraFeedPostActions}
+                  className={classes.tripleDotMenu}
+                />
+              </AnalyticsContext>
+            </div>
+            <div className={classes.scrollableContent}>
+              <div className={classes.titleContainer}>
+                <div className={classes.headerContent}>
+                  <div className={classes.titleWrapper}>
+                    <Link
+                      to={postGetPageUrl(displayPost)}
+                      className={classes.title}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onClose();
+                      }
                     }>
-                    {post.title}
-                  </Link>
-                </div>
-                <div className={classes.metaRow}>
-                  <TruncatedAuthorsList 
-                    post={post} 
-                    useMoreSuffix={false} 
-                    expandContainer={authorListRef}
-                    className={classes.authorsList} 
-                  />
-                  {post.postedAt && (
-                    <span className={classes.metaDateContainer}>
-                      <FormatDate date={post.postedAt} format="MMM D YYYY" />
-                    </span>
-                  )}
-                  {post.readTimeMinutes && (
-                    <span>{post.readTimeMinutes} min read</span>
-                  )}
+                      {displayPost.title}
+                    </Link>
+                  </div>
+                  <div className={classes.metaRow}>
+                    <TruncatedAuthorsList 
+                      post={displayPost} 
+                      useMoreSuffix={false} 
+                      expandContainer={authorListRef}
+                      className={classes.authorsList} 
+                    />
+                    {displayPost.postedAt && (
+                      <span className={classes.metaDateContainer}>
+                        <FormatDate date={displayPost.postedAt} format="MMM D YYYY" />
+                      </span>
+                    )}
+                    {displayPost.readTimeMinutes && (
+                      <span>{displayPost.readTimeMinutes} min read</span>
+                    )}
+                  </div>
                 </div>
               </div>
+
+              {contentData && (
+                <>
+                  <FeedContentBody
+                    html={contentData.html}
+                    wordCount={contentData.wordCount}
+                    initialWordCount={contentData.wordCount}
+                    maxWordCount={contentData.wordCount}
+                    hideSuffix
+                    serifStyle
+                  />
+                  {contentData.showLoading && (
+                    <div className={classes.loadingContainer}>
+                      <Loading />
+                    </div>
+                  )}
+                </>
+              )}
+              
+              {!contentData && (
+                <div className={classes.loadingContainer}>
+                  <Loading />
+                </div>
+              )}
+              
+              <UltraFeedItemFooter
+                document={displayPost}
+                collectionName="Posts"
+                metaInfo={{
+                  sources: [],
+                  displayStatus: "expanded",
+                }}
+                className={classes.footer}
+              />
+              {isCommentsLoading && fullPostForContent && (
+                <div className={classes.loadingContainer}><Loading /></div>
+              )}
+              {comments && (
+                <CommentsListSection
+                  post={fullPostForContent}
+                  comments={comments ?? []}
+                  totalComments={commentsTotalCount ?? 0}
+                  commentCount={(comments ?? []).length}
+                  loadMoreComments={() => { }}
+                  loadingMoreComments={false}
+                  highlightDate={undefined}
+                  setHighlightDate={() => { }}
+                  hideDateHighlighting={true}
+                  newForm={true}
+                />
+              )}
             </div>
-            {post?.contents?.html ? (
-              <FeedContentBody
-                html={post.contents.html}
-                wordCount={post.contents.wordCount || 0}
-                linkToDocumentOnFinalExpand={false}
-                hideSuffix
-                serifStyle
-              />
-            ) : (
-              <div>Post content not available.</div>
-            )}
-            <UltraFeedItemFooter
-              document={post}
-              collectionName="Posts"
-              metaInfo={{
-                sources: [],
-                displayStatus: "expanded",
-              }}
-              className={classes.footer}
-            />
-            {commentsLoading && <div className={classes.loadingContainer}><Loading /></div>}
-            {comments && (
-              <CommentsListSection
-                post={post}
-                comments={comments ?? []}
-                totalComments={commentsTotalCount ?? 0}
-                commentCount={(comments ?? []).length}
-                loadMoreComments={() => { }}
-                loadingMoreComments={false}
-                highlightDate={undefined}
-                setHighlightDate={() => { }}
-                hideDateHighlighting={true}
-                newForm={true}
-              />
-            )}
-          </div>
-        </>}
+          </>
+        )}
       </DialogContent>
     </LWDialog>
   );
-
-}
-
-
-const UltraFeedPostDialog = ({
-  postId,
-  post,
-  onClose,
-  textFragment,
-}: UltraFeedPostDialogProps) => {
-  const classes = useStyles(styles);
-
-  const { document: fetchedPost, loading: loadingPost } = useSingle({
-    documentId: postId,
-    collectionName: "Posts",
-    fragmentName: "UltraFeedPostFragment",
-    skip: !!post,
-  });
-
-  const { results: comments, loading: isCommentsLoading, totalCount: commentsTotalCount } = useMulti({
-    terms: {
-      view: "postCommentsTop",
-      postId: postId ?? post?._id,
-      limit: 100, // TODO: add load more
-    },
-    collectionName: "Comments",
-    fragmentName: "CommentsList",
-    skip: !(postId ?? post?._id),
-    enableTotal: true,
-  });
-
-  const fullPost = post ?? fetchedPost;
-  const isLoading = !!postId && loadingPost && !post;
-
-  return <>
-    {isLoading && <div className={classes.loadingContainer}>
-      <Loading />
-    </div>}
-    {fullPost && <UltraFeedDialogContent
-      post={fullPost}
-      comments={comments}
-      commentsLoading={isCommentsLoading}
-      commentsTotalCount={commentsTotalCount ?? 0}
-      textFragment={textFragment}
-      onClose={onClose}
-    />}
-  </>
 };
 
 export default UltraFeedPostDialog;

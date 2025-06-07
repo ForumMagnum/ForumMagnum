@@ -41,8 +41,11 @@ const BookmarksFeed = () => {
     ...DEFAULT_SETTINGS,
     displaySettings: {
       ...DEFAULT_SETTINGS.displaySettings,
-      postTruncationBreakpoints: [50, 2000],
-      commentTruncationBreakpoints: [50, 500, 1000],
+      postInitialWords: 50,
+      postMaxWords: 2000,
+      commentCollapsedInitialWords: 50,
+      commentExpandedInitialWords: 500,
+      commentMaxWords: 1000,
       postTitlesAreModals: true,
     },
     resolverSettings: {
