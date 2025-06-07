@@ -37,6 +37,7 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, 
     fragmentName: "BookmarksWithDocumentFragment",
     fetchPolicy: "cache-and-network",
     skip: !currentUser?._id,
+    alwaysShowLoadMore: true,
   });
   
   if (!currentUser) return null
