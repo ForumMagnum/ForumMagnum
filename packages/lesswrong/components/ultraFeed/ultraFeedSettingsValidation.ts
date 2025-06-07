@@ -9,34 +9,36 @@ const sourceWeightsShape = allFeedItemSourceTypes.reduce((acc, key) => {
 
 const sourceWeightsSchema = z.object(sourceWeightsShape);
 
-const strictlyAscendingNumbersDefinition = (arr: number[]) => {
-  let lastNumber: number | undefined;
-
-  for (const item of arr) {
-    if (lastNumber !== undefined && item <= lastNumber) return false;
-    lastNumber = item;
-  }
-  return true;
-};
-
-const displaySettingsSchema = z.object({
+const displaySettingsValidation = z.object({
   lineClampNumberOfLines: z.number().int()
-    .min(0, { message: "Value must be between 0 and 10" })
-    .max(10, { message: "Value must be between 0 and 10" })
+    .min(0, "Line clamp must be 0 or greater")
     .default(DEFAULT_SETTINGS.displaySettings.lineClampNumberOfLines),
-  postTruncationBreakpoints: z.array(z.number().int().min(0))
-    .max(3, { message: "At most 3 post breakpoints allowed" })
-    .refine(strictlyAscendingNumbersDefinition, {
-      message: "Post breakpoints must be non-negative, strictly ascending numbers."
-    })
-    .default(DEFAULT_SETTINGS.displaySettings.postTruncationBreakpoints),
-  commentTruncationBreakpoints: z.array(z.number().int().min(0))
-    .max(3, { message: "At most 3 comment breakpoints allowed" })
-    .refine(strictlyAscendingNumbersDefinition, {
-      message: "Comment breakpoints must be non-negative, strictly ascending numbers."
-    })
-    .default(DEFAULT_SETTINGS.displaySettings.commentTruncationBreakpoints),
-  postTitlesAreModals: z.boolean().default(DEFAULT_SETTINGS.displaySettings.postTitlesAreModals),
+  postInitialWords: z.number().int()
+    .min(0, "Initial words must be 0 or greater")
+    .default(DEFAULT_SETTINGS.displaySettings.postInitialWords),
+  postMaxWords: z.number().int()
+    .min(0, "Max words must be 0 or greater")
+    .default(DEFAULT_SETTINGS.displaySettings.postMaxWords),
+  commentCollapsedInitialWords: z.number().int()
+    .min(0, "Collapsed words must be 0 or greater")
+    .default(DEFAULT_SETTINGS.displaySettings.commentCollapsedInitialWords),
+  commentExpandedInitialWords: z.number().int()
+    .min(0, "Expanded words must be 0 or greater")
+    .default(DEFAULT_SETTINGS.displaySettings.commentExpandedInitialWords),
+  commentMaxWords: z.number().int()
+    .min(0, "Max words must be 0 or greater")
+    .default(DEFAULT_SETTINGS.displaySettings.commentMaxWords),
+  postTitlesAreModals: z.boolean()
+    .default(DEFAULT_SETTINGS.displaySettings.postTitlesAreModals),
+}).refine(data => data.postInitialWords <= data.postMaxWords, {
+  message: "Initial words must be less than or equal to max words",
+  path: ["postInitialWords"],
+}).refine(data => data.commentCollapsedInitialWords <= data.commentExpandedInitialWords, {
+  message: "Collapsed words must be less than or equal to expanded words",
+  path: ["commentCollapsedInitialWords"],
+}).refine(data => data.commentExpandedInitialWords <= data.commentMaxWords, {
+  message: "Expanded words must be less than or equal to max words",
+  path: ["commentExpandedInitialWords"],
 });
 
 const commentScoringSchema = z.object({
@@ -76,7 +78,7 @@ const resolverSettingsSchema = z.object({
 });
 
 export const ultraFeedSettingsSchema = z.object({
-  displaySettings: displaySettingsSchema.default(DEFAULT_SETTINGS.displaySettings),
+  displaySettings: displaySettingsValidation.default(DEFAULT_SETTINGS.displaySettings),
   resolverSettings: resolverSettingsSchema,
 }).partial()
 
