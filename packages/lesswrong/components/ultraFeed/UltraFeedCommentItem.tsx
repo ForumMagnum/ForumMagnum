@@ -291,7 +291,7 @@ export const UltraFeedCommentItem = ({
       initialWordCount: displayStatus === "collapsed" ? displaySettings.commentCollapsedInitialWords : displaySettings.commentExpandedInitialWords,
       maxWordCount: displaySettings.commentMaxWords
     };
-  }, [settings.displaySettings, displayStatus]);
+  }, [settings, displayStatus]);
 
   const collapseToFirst = () => {
     setResetSig((s)=>s+1);

@@ -256,7 +256,7 @@ const FeedContentBody = ({
         handleExpand();
       }
     }
-  }, [onContinueReadingClick, truncatedHtml, suffix, html, handleExpand]);
+  }, [onContinueReadingClick, handleExpand]);
 
   const getLineClampClass = () => {
     if (!applyLineClamp || !clampOverride) return "";

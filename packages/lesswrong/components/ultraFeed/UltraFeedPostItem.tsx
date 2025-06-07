@@ -360,6 +360,13 @@ const UltraFeedPostItem = ({
     return post.contents?.wordCount;
   })();
 
+  const truncationParams = useMemo(() => {
+    return {
+      initialWordCount: displaySettings.postInitialWords,
+      maxWordCount: displaySettings.postMaxWords
+    };
+  }, [displaySettings.postInitialWords, displaySettings.postMaxWords]);
+
   if (!displayHtml) {
     return <div>No post content found for post with id: {post._id}</div>; 
   }
@@ -368,13 +375,6 @@ const UltraFeedPostItem = ({
   if (!displayWordCount && displayWordCount !== 0) {
     return <div>No word count found for post with id: {post._id}</div>;
   }
-
-  const truncationParams = useMemo(() => {
-    return {
-      initialWordCount: displaySettings.postInitialWords,
-      maxWordCount: displaySettings.postMaxWords
-    };
-  }, [displaySettings.postInitialWords, displaySettings.postMaxWords]);
 
   return (
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index}>
