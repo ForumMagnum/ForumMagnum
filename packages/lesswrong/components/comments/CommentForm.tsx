@@ -324,6 +324,9 @@ export const CommentForm = ({
     update: (cache, { data }) => {
       cache.modify({
         fields: {
+          // This is a terrible hack where we check the name of the query in the apollo cache (which includes the inlined variable values passed into that instance of the query)
+          // to determine whether to add the new comment to the results of _that_ query (rather than to all `comments` queries in the cache).
+          // We also have to check things like the `drafts` argument; in some sense this is an incomplete replication of the old mingo functionality that we tossed out.
           comments(existingComments, { storeFieldName }) {
             const newComment = data?.createComment?.data;
             if (!newComment) {

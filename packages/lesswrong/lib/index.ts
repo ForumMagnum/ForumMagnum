@@ -21,10 +21,6 @@ import '@/allComponents';
 import '@/lib/generated/nonRegisteredComponents';
 
 // Alignment Forum
-import './alignment-forum/posts/helpers';
-
-import './alignment-forum/comments/helpers';
-
 import './alignment-forum/users/helpers';
 
 import './analyticsEvents';

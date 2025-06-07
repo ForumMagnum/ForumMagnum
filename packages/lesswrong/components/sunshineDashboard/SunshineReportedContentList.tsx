@@ -4,7 +4,6 @@ import SunshineListTitle from "./SunshineListTitle";
 import SunshineReportedItem from "./SunshineReportedItem";
 import SunshineListCount from "./SunshineListCount";
 import LoadMore from "../common/LoadMore";
-import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
@@ -19,15 +18,6 @@ const UnclaimedReportsListMultiQuery = gql(`
   }
 `);
 
-const UnclaimedReportsListUpdateMutation = gql(`
-  mutation updateReportSunshineReportedContentList($selector: SelectorInput!, $data: UpdateReportDataInput!) {
-    updateReport(selector: $selector, data: $data) {
-      data {
-        ...UnclaimedReportsList
-      }
-    }
-  }
-`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -47,10 +37,8 @@ const SunshineReportedContentList = ({ classes, currentUser }: {
     },
   });
 
-  const results = data?.reports?.results;
+  const results = data?.reports?.results.filter(report => !report.closedAt);
   const totalCount = data?.reports?.totalCount ?? 0;
-  
-  const [updateReport] = useMutation(UnclaimedReportsListUpdateMutation);
   
   if (results && results.length) {
     return (
@@ -63,7 +51,6 @@ const SunshineReportedContentList = ({ classes, currentUser }: {
             <SunshineReportedItem
               report={report}
               currentUser={currentUser}
-              updateReport={updateReport}
               refetch={refetch}
             />
           </div>

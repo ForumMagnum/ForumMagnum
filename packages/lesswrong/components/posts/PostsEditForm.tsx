@@ -3,7 +3,7 @@ import { useMessages } from '../common/withMessages';
 import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere, canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
-import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import { useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/constants';
 import { isEAForum, isLW } from '../../lib/instanceSettings';
@@ -12,7 +12,6 @@ import DeferRender from '../common/DeferRender';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { useMutation } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { EditorContext } from './EditorContext';
@@ -28,16 +27,6 @@ import DynamicTableOfContents from "./TableOfContents/DynamicTableOfContents";
 import NewPostModerationWarning from "../sunshineDashboard/NewPostModerationWarning";
 import NewPostHowToGuides from "./NewPostHowToGuides";
 import { withDateFields } from '@/lib/utils/dateUtils';
-
-const SuggestAlignmentPostUpdateMutation = gql(`
-  mutation updatePostPostsEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {
-    updatePost(selector: $selector, data: $data) {
-      data {
-        ...SuggestAlignmentPost
-      }
-    }
-  }
-`);
 
 const UsersCurrentPostRateLimitQuery = gql(`
   query PostsEditFormUser($documentId: String, $eventForm: Boolean) {
@@ -167,6 +156,7 @@ const PostsEditForm = ({ documentId, version }: {
   const currentUser = useCurrentUser();
 
   const [editorState, setEditorState] = useState<Editor|null>(null);
+  const afNonMemberSuccessHandling = useAfNonMemberSuccessHandling();
 
   const { loading, data: dataPost } = useQuery(PostsEditFormQuery, {
     variables: { documentId: documentId, version: version ?? 'draft' },
@@ -180,7 +170,6 @@ const PostsEditForm = ({ documentId, version }: {
   });
   const userWithRateLimit = dataUser?.user?.result;
 
-  const [updatePost] = useMutation(SuggestAlignmentPostUpdateMutation);
 
   const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost;
 
@@ -248,7 +237,7 @@ const PostsEditForm = ({ documentId, version }: {
               initialData={withDateFields(document, ['createdAt', 'postedAt', 'afDate', 'commentsLockedToAccountsCreatedAfter', 'frontpageDate', 'curatedDate', 'startTime', 'endTime'])}
               onSuccess={(post, options) => {
                 const alreadySubmittedToAF = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(post.userId!)
-                if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost})
+                if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling(post);
                 if (options?.submitOptions?.redirectToEditor) {
                   navigate(postGetEditUrl(post._id, false, post.linkSharingKey ?? undefined));
                 } else {

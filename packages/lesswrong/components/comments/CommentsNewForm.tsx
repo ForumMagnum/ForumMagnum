@@ -7,7 +7,7 @@ import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { requireNewUserGuidelinesAck, userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
-import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import { afNonMemberDisplayInitialPopup, useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
 import { isInFuture } from '../../lib/utils/timeUtil';
@@ -23,20 +23,9 @@ import ModerationGuidelinesBox from "./ModerationGuidelines/ModerationGuidelines
 import RecaptchaWarning from "../common/RecaptchaWarning";
 import NewCommentModerationWarning from "../sunshineDashboard/NewCommentModerationWarning";
 import RateLimitWarning from "../editor/RateLimitWarning";
-import { useMutation } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { useLocation } from '@/lib/routeUtil';
-
-const SuggestAlignmentCommentUpdateMutation = gql(`
-  mutation updateCommentCommentsNewForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
-    updateComment(selector: $selector, data: $data) {
-      data {
-        ...SuggestAlignmentComment
-      }
-    }
-  }
-`);
 
 const UsersCurrentCommentRateLimitQuery = gql(`
   query CommentsNewForm($documentId: String, $postId: String) {
@@ -219,7 +208,6 @@ const CommentsNewForm = ({
   const [_,setForceRefreshState] = useState(0);
 
   const { openDialog } = useDialog();
-  const [updateComment] = useMutation(SuggestAlignmentCommentUpdateMutation);
   
   // On focus (this bubbles out from the text editor), show moderation guidelines.
   // Defer this through a setTimeout, because otherwise clicking the Cancel button
@@ -246,9 +234,11 @@ const CommentsNewForm = ({
     }, 0);
   };
 
+  const afNonMemberSuccessHandling = useAfNonMemberSuccessHandling();
+
   const { pathname } = useLocation();
   const wrappedSuccessCallback = (comment: CommentsList) => {
-    afNonMemberSuccessHandling({currentUser, document: comment, openDialog, updateDocument: updateComment })
+    afNonMemberSuccessHandling(comment);
     if (comment.deleted && comment.deletedReason) {
       flash(comment.deletedReason);
     }

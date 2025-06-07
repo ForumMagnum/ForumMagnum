@@ -804,6 +804,7 @@ export const graphqlPostQueryTypeDefs = gql`
     curatedAfter: String
     onlineEvent: Boolean
     eventType: [String!]
+    filters: [String!]
   }
   
   input PostsNearbyEventsInput {
@@ -858,6 +859,7 @@ export const graphqlPostQueryTypeDefs = gql`
     curatedAfter: String
     globalEvent: Boolean
     onlineEvent: Boolean
+    filters: [String!]
   }
   
   input PostsEventsInTimeRangeInput {

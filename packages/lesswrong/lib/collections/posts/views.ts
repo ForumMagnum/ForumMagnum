@@ -812,6 +812,8 @@ function globalEvents(terms: PostsViewTerms) {
       {onlineEvent: false}, {onlineEvent: {$exists: false}}
     ]}
   }
+
+  const filtersField = terms.filters?.length ? { types: { $in: terms.filters } } : {};
   
   return {
     selector: {
@@ -828,6 +830,7 @@ function globalEvents(terms: PostsViewTerms) {
       $and: [
         timeSelector, onlineEventSelector
       ],
+      ...filtersField
     },
     options: {
       sort: {
@@ -850,9 +853,11 @@ function nearbyEvents(terms: PostsViewTerms) {
       {onlineEvent: false}, {onlineEvent: {$exists: false}}
     ]}
   }
+
+  const filtersField = terms.filters?.length ? { types: { $in: terms.filters } } : {};
   
   // Note: distance is in miles
-  let query: any = {
+  return {
     selector: {
       groupId: null,
       isEvent: true,
@@ -880,7 +885,8 @@ function nearbyEvents(terms: PostsViewTerms) {
         },
         {$and: [{mongoLocation: {$exists: false}}, {onlineEvent: true}]},
         {globalEvent: true} // also include events that are open to everyone around the world
-      ]
+      ],
+      ...filtersField,
     },
     options: {
       sort: {
@@ -889,12 +895,6 @@ function nearbyEvents(terms: PostsViewTerms) {
       }
     }
   };
-  if(Array.isArray(terms.filters) && terms.filters.length) {
-    query.selector.types = {$in: terms.filters};
-  } else if (typeof terms.filters === "string") { //If there is only single value we can't distinguish between Array and value
-    query.selector.types = {$in: [terms.filters]};
-  }
-  return query;
 }
 
 function events(terms: PostsViewTerms) {
@@ -919,6 +919,10 @@ function events(terms: PostsViewTerms) {
       {onlineEvent: false}, {onlineEvent: {$exists: false}}
     ]}
   }
+
+  const filtersField = terms.filters?.length ? { types: { $in: terms.filters } } : {};
+
+  console.log('filtersField', filtersField);
   
   return {
     selector: {
@@ -929,6 +933,7 @@ function events(terms: PostsViewTerms) {
       createdAt: {$gte: twoMonthsAgo},
       groupId: terms.groupId ? terms.groupId : null,
       baseScore: {$gte: 1},
+      ...filtersField
     },
     options: {
       sort: {

@@ -44,6 +44,16 @@ const CommentsListWithParentMetadataUpdateMutation = gql(`
   }
 `);
 
+const UnclaimedReportsListUpdateMutation = gql(`
+  mutation updateReportSunshineReportedContentList($selector: SelectorInput!, $data: UpdateReportDataInput!) {
+    updateReport(selector: $selector, data: $data) {
+      data {
+        ...UnclaimedReportsList
+      }
+    }
+  }
+`);
+
 const styles = (_theme: ThemeType) => ({
   reportedUser: {
     display: 'inline-flex',
@@ -56,26 +66,28 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const SunshineReportedItem = ({report, updateReport, classes, currentUser, refetch}: {
+const SunshineReportedItem = ({report, classes, currentUser, refetch}: {
   report: UnclaimedReportsList,
-  updateReport: WithUpdateFunction<"Reports">,
   classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
   refetch: () => void
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover();
+  const [updateReport] = useMutation(UnclaimedReportsListUpdateMutation);
   const [updateComment] = useMutation(CommentsListWithParentMetadataUpdateMutation);
   const [updatePost] = useMutation(PostsListUpdateMutation);
   
   const handleReview = () => {
     void updateReport({
-      selector: {_id: report._id},
-      data: {
-        closedAt: new Date(),
-        claimedUserId: currentUser!._id,
-        markedAsSpam: false
+      variables: {
+        selector: {_id: report._id},
+        data: {
+          closedAt: new Date(),
+          claimedUserId: currentUser!._id,
+          markedAsSpam: false
+        }
       }
-    })
+    });
   }
 
   const handleDelete = () => {
@@ -105,13 +117,15 @@ const SunshineReportedItem = ({report, updateReport, classes, currentUser, refet
         })
       }
       void updateReport({
-        selector: {_id: report._id},
-        data: {
-          closedAt: new Date(),
-          claimedUserId: currentUser!._id,
-          markedAsSpam: report.reportedAsSpam
+        variables: {
+          selector: {_id: report._id},
+          data: {
+            closedAt: new Date(),
+            claimedUserId: currentUser!._id,
+            markedAsSpam: report.reportedAsSpam
+          }
         }
-      })
+      });
     }
   }
 

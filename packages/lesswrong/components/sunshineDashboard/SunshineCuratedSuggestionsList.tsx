@@ -83,8 +83,8 @@ const hasCurationDrafts = (results: SunshineCurationPostsList[] | undefined): bo
   return results.some(post => post.curationNotices && post.curationNotices.length > 0);
 }
 
-const SunshineCuratedSuggestionsList = ({ terms, atBottom, classes, setCurationPost, setHasDrafts }: {
-  terms: PostsViewTerms,
+const SunshineCuratedSuggestionsList = ({ limit = 7, atBottom, classes, setCurationPost, setHasDrafts }: {
+  limit?: number,
   atBottom?: boolean,
   classes: ClassesType<typeof styles>,
   setCurationPost?: (post: PostsList) => void,
@@ -94,18 +94,16 @@ const SunshineCuratedSuggestionsList = ({ terms, atBottom, classes, setCurationP
 
   const [audioOnly, setAudioOnly] = useState<boolean>(false)
 
-  const { view, limit, ...rest } = terms;
-
   const { data, loadMoreProps } = useQueryWithLoadMore(SunshineCurationPostsListMultiQuery, {
     variables: {
-      selector: { [view]: { ...rest, audioOnly } },
-      limit: limit ?? 10,
+      selector: { sunshineCuratedSuggestions: { audioOnly } },
+      limit,
       enableTotal: true,
     },
     itemsPerPage: 60,
   });
 
-  const results = data?.posts?.results;
+  const results = data?.posts?.results.filter(post => !post.reviewForCuratedUserId);
 
   const showLoadMore = !loadMoreProps.hidden;
 

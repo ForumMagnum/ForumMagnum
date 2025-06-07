@@ -410,7 +410,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
             </AnalyticsContext>
             {hasEventsSetting.get() && <LocalGroupsList
-              terms={{view: 'userInactiveGroups', userId: currentUser?._id}}
+              view='userInactiveGroups'
+              terms={{userId: currentUser?._id}}
               showNoResults={false}
             />}
           </SingleColumnSection> }
@@ -443,11 +444,13 @@ const UsersProfileFn = ({terms, slug, classes}: {
             </AnalyticsContext>
           </SingleColumnSection>
           {/* Groups Section */
-            (ownPage || currentUser?.isAdmin) && <LocalGroupsList terms={{
-                view: 'userActiveGroups',
-                userId: user._id,
-                limit: 300
-              }} heading="Organizer of" showNoResults={false} />
+            (ownPage || currentUser?.isAdmin) && <LocalGroupsList
+              view='userActiveGroups'
+              limit={300}
+              terms={{userId: user._id}}
+              heading="Organizer of"
+              showNoResults={false}
+            />
           }
           {/* Wiki Section */}
           <SingleColumnSection>

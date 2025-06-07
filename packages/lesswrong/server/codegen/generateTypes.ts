@@ -122,7 +122,7 @@ export async function generateTypes(repoRoot?: string) {
     //
     // Also, we need to explicitly clear the cache before the dynamic require, because `require` could be caching it
     // from it being imported elsewhere (in unrelated code).
-    const collectionTypeNamesPath = require.resolve("@/lib/generated/collectionTypeNames");
+    const collectionTypeNamesPath = require.resolve("packages/lesswrong/lib/generated/collectionTypeNames");
     require.cache[collectionTypeNamesPath] = undefined;
     const { collectionNameToTypeName, typeNameToCollectionName }: typeof import("@/lib/generated/collectionTypeNames") = require("@/lib/generated/collectionTypeNames");
 
@@ -208,7 +208,7 @@ function getFilesMaybeContainingGql(dir: string) {
 }
 
 function normalizeFragments() {
-  const generatedGraphqlFilePath = require.resolve("@/lib/generated/gql-codegen/graphql");
+  const generatedGraphqlFilePath = require.resolve("packages/lesswrong/lib/generated/gql-codegen/graphql");
   require.cache[generatedGraphqlFilePath] = undefined;
   const generatedDocumentNodes: Record<string, DocumentNode> = require("@/lib/generated/gql-codegen/graphql");
 

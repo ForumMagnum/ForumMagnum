@@ -149,7 +149,7 @@ const ModerationDashboard = ({ classes }: {
     itemsPerPage: 50,
   });
 
-  const usersToReview = data?.users?.results ?? [];
+  const usersToReview = data?.users?.results.filter(user => user.needsReview) ?? [];
   const totalUsersToReviewCount = data?.users?.totalCount;
 
   const { data: dataSunshineUsersList, refetch: refetchAllUsers, loadMoreProps: allUsersLoadMoreProps } = useQueryWithLoadMore(SunshineUsersListMultiQuery, {

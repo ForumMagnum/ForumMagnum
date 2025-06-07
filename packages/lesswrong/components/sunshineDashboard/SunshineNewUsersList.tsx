@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 const SunshineNewUsersList = ({ classes, terms, currentUser }: {
-  terms: UsersViewTerms,
+  terms: { view: 'sunshineNewUsers' | 'allUsers', limit: number },
   classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
 }) => {
@@ -44,7 +44,10 @@ const SunshineNewUsersList = ({ classes, terms, currentUser }: {
     itemsPerPage: 60,
   });
 
-  const results = data?.users?.results;
+  const results = view === 'sunshineNewUsers'
+    ? data?.users?.results.filter(user => user.needsReview)
+    : data?.users?.results;
+  
   const totalCount = data?.users?.totalCount ?? 0;
 
   if (results && results.length && userCanDo(currentUser, "posts.moderate.all")) {

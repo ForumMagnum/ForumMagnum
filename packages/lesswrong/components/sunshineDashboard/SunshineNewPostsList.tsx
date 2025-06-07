@@ -29,20 +29,18 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineNewPostsList = ({ terms, classes }: {
-  terms: PostsViewTerms,
+const SunshineNewPostsList = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { view, limit, ...selectorTerms } = terms;
   const { data, refetch, loadMoreProps } = useQueryWithLoadMore(SunshinePostsListMultiQuery, {
     variables: {
-      selector: { [view]: selectorTerms },
-      limit: limit ?? 10,
+      selector: { sunshineNewPosts: {} },
+      limit: 10,
       enableTotal: true,
     },
   });
 
-  const results = data?.posts?.results;
+  const results = data?.posts?.results.filter(post => !post.reviewedByUserId);
 
   const totalCount = data?.posts?.totalCount ?? 0;
   const showLoadMore = !loadMoreProps.hidden;

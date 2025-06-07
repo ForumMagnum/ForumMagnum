@@ -2946,7 +2946,7 @@ export type LocalgroupcontentsArgs = {
 };
 
 export type LocalgroupDefaultViewInput = {
-  filters?: InputMaybe<Scalars['String']['input']>;
+  filters?: InputMaybe<Array<Scalars['String']['input']>>;
   includeInactive?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
@@ -2968,47 +2968,47 @@ export type LocalgroupSelector = {
 };
 
 export type LocalgroupsAllInput = {
-  filters?: InputMaybe<Scalars['String']['input']>;
+  filters?: InputMaybe<Array<Scalars['String']['input']>>;
   includeInactive?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type LocalgroupsLocalInput = {
-  filters?: InputMaybe<Scalars['String']['input']>;
+  filters?: InputMaybe<Array<Scalars['String']['input']>>;
   includeInactive?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type LocalgroupsNearbyInput = {
-  filters?: InputMaybe<Scalars['String']['input']>;
+  filters?: InputMaybe<Array<Scalars['String']['input']>>;
   includeInactive?: InputMaybe<Scalars['Boolean']['input']>;
-  lat?: InputMaybe<Scalars['String']['input']>;
-  lng?: InputMaybe<Scalars['String']['input']>;
+  lat?: InputMaybe<Scalars['Float']['input']>;
+  lng?: InputMaybe<Scalars['Float']['input']>;
 };
 
 export type LocalgroupsOnlineInput = {
-  filters?: InputMaybe<Scalars['String']['input']>;
+  filters?: InputMaybe<Array<Scalars['String']['input']>>;
   includeInactive?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type LocalgroupsSingleInput = {
-  filters?: InputMaybe<Scalars['String']['input']>;
+  filters?: InputMaybe<Array<Scalars['String']['input']>>;
   groupId?: InputMaybe<Scalars['String']['input']>;
   includeInactive?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type LocalgroupsUserActiveGroupsInput = {
-  filters?: InputMaybe<Scalars['String']['input']>;
+  filters?: InputMaybe<Array<Scalars['String']['input']>>;
   includeInactive?: InputMaybe<Scalars['Boolean']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type LocalgroupsUserInactiveGroupsInput = {
-  filters?: InputMaybe<Scalars['String']['input']>;
+  filters?: InputMaybe<Array<Scalars['String']['input']>>;
   includeInactive?: InputMaybe<Scalars['Boolean']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type LocalgroupsUserOrganizesGroupsInput = {
-  filters?: InputMaybe<Scalars['String']['input']>;
+  filters?: InputMaybe<Array<Scalars['String']['input']>>;
   includeInactive?: InputMaybe<Scalars['Boolean']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
@@ -6287,6 +6287,7 @@ export type PostsEventsInput = {
   excludeEvents?: InputMaybe<Scalars['Boolean']['input']>;
   filter?: InputMaybe<Scalars['String']['input']>;
   filterSettings?: InputMaybe<Scalars['JSON']['input']>;
+  filters?: InputMaybe<Array<Scalars['String']['input']>>;
   globalEvent?: InputMaybe<Scalars['Boolean']['input']>;
   groupId?: InputMaybe<Scalars['String']['input']>;
   hideCommunity?: InputMaybe<Scalars['Boolean']['input']>;
@@ -6384,6 +6385,7 @@ export type PostsGlobalEventsInput = {
   excludeEvents?: InputMaybe<Scalars['Boolean']['input']>;
   filter?: InputMaybe<Scalars['String']['input']>;
   filterSettings?: InputMaybe<Scalars['JSON']['input']>;
+  filters?: InputMaybe<Array<Scalars['String']['input']>>;
   groupId?: InputMaybe<Scalars['String']['input']>;
   hideCommunity?: InputMaybe<Scalars['Boolean']['input']>;
   includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
@@ -13151,17 +13153,6 @@ export type CommentPollVoteQuery = { __typename?: 'Query', forumEvent: { __typen
       & ForumEventsDisplay
     ) | null } | null };
 
-export type updateCommentCommentsNewFormMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateCommentDataInput;
-}>;
-
-
-export type updateCommentCommentsNewFormMutation = { __typename?: 'Mutation', updateComment: { __typename?: 'CommentOutput', data: (
-      { __typename?: 'Comment' }
-      & SuggestAlignmentComment
-    ) | null } | null };
-
 export type CommentsNewFormQueryVariables = Exact<{
   documentId?: InputMaybe<Scalars['String']['input']>;
   postId?: InputMaybe<Scalars['String']['input']>;
@@ -15496,6 +15487,17 @@ export type multiMessageConversationContentsQueryQuery = { __typename?: 'Query',
       & messageListFragment
     )> } | null };
 
+export type updateConversationInboxNavigationMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateConversationDataInput;
+}>;
+
+
+export type updateConversationInboxNavigationMutation = { __typename?: 'Mutation', updateConversation: { __typename?: 'ConversationOutput', data: (
+      { __typename?: 'Conversation' }
+      & ConversationsList
+    ) | null } | null };
+
 export type ConversationPageQueryVariables = Exact<{
   documentId?: InputMaybe<Scalars['String']['input']>;
 }>;
@@ -15572,17 +15574,6 @@ export type multiConversationInboxNavigationQueryQuery = { __typename?: 'Query',
       { __typename?: 'Conversation' }
       & ConversationsList
     )> } | null };
-
-export type updateConversationInboxNavigationMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateConversationDataInput;
-}>;
-
-
-export type updateConversationInboxNavigationMutation = { __typename?: 'Mutation', updateConversation: { __typename?: 'ConversationOutput', data: (
-      { __typename?: 'Conversation' }
-      & ConversationsList
-    ) | null } | null };
 
 export type MessageUserGetUserBySlugQueryVariables = Exact<{
   slug: Scalars['String']['input'];
@@ -16048,17 +16039,6 @@ export type multiCommentPostsDialogItemNewCommentsListQueryQuery = { __typename?
       { __typename?: 'Comment' }
       & CommentsList
     )> } | null };
-
-export type updatePostPostsEditFormMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdatePostDataInput;
-}>;
-
-
-export type updatePostPostsEditFormMutation = { __typename?: 'Mutation', updatePost: { __typename?: 'PostOutput', data: (
-      { __typename?: 'Post' }
-      & SuggestAlignmentPost
-    ) | null } | null };
 
 export type PostsEditFormUserQueryVariables = Exact<{
   documentId?: InputMaybe<Scalars['String']['input']>;
@@ -17931,17 +17911,6 @@ export type multiReportSunshineReportedContentListQueryQuery = { __typename?: 'Q
       & UnclaimedReportsList
     )> } | null };
 
-export type updateReportSunshineReportedContentListMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateReportDataInput;
-}>;
-
-
-export type updateReportSunshineReportedContentListMutation = { __typename?: 'Mutation', updateReport: { __typename?: 'ReportOutput', data: (
-      { __typename?: 'Report' }
-      & UnclaimedReportsList
-    ) | null } | null };
-
 export type updatePostSunshineReportedItem1MutationVariables = Exact<{
   selector: SelectorInput;
   data: UpdatePostDataInput;
@@ -17962,6 +17931,17 @@ export type updateCommentSunshineReportedItemMutationVariables = Exact<{
 export type updateCommentSunshineReportedItemMutation = { __typename?: 'Mutation', updateComment: { __typename?: 'CommentOutput', data: (
       { __typename?: 'Comment' }
       & CommentsListWithParentMetadata
+    ) | null } | null };
+
+export type updateReportSunshineReportedContentListMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateReportDataInput;
+}>;
+
+
+export type updateReportSunshineReportedContentListMutation = { __typename?: 'Mutation', updateReport: { __typename?: 'ReportOutput', data: (
+      { __typename?: 'Report' }
+      & UnclaimedReportsList
     ) | null } | null };
 
 export type multiModerationTemplateSunshineSendMessageWithDefaultsQueryQueryVariables = Exact<{
@@ -19655,6 +19635,28 @@ export type emailstestsQueryVariables = Exact<{
 export type emailstestsQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
       { __typename?: 'Post' }
       & PostsRevision
+    ) | null } | null };
+
+export type updateCommentCommentsNewFormMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateCommentDataInput;
+}>;
+
+
+export type updateCommentCommentsNewFormMutation = { __typename?: 'Mutation', updateComment: { __typename?: 'CommentOutput', data: (
+      { __typename?: 'Comment' }
+      & SuggestAlignmentComment
+    ) | null } | null };
+
+export type updatePostPostsEditFormMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdatePostDataInput;
+}>;
+
+
+export type updatePostPostsEditFormMutation = { __typename?: 'Mutation', updatePost: { __typename?: 'PostOutput', data: (
+      { __typename?: 'Post' }
+      & SuggestAlignmentPost
     ) | null } | null };
 
 export type AdvisorRequestsMinimumInfo = { __typename?: 'AdvisorRequest', _id: string, userId: string | null, createdAt: string, interestedInMetaculus: boolean | null, jobAds: any | null };

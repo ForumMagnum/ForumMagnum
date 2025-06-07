@@ -15,7 +15,6 @@ import SectionFooter from "../common/SectionFooter";
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import { Typography } from "../common/Typography";
 import LoadMore from "../common/LoadMore";
-import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
@@ -26,16 +25,6 @@ const ConversationsListMultiQuery = gql(`
         ...ConversationsList
       }
       totalCount
-    }
-  }
-`);
-
-const ConversationsListUpdateMutation = gql(`
-  mutation updateConversationInboxNavigation($selector: SelectorInput!, $data: UpdateConversationDataInput!) {
-    updateConversation(selector: $selector, data: $data) {
-      data {
-        ...ConversationsList
-      }
     }
   }
 `);
@@ -62,7 +51,6 @@ const InboxNavigation = ({
 
   const results = data?.conversations?.results;
   
-  const [updateConversation] = useMutation(ConversationsListUpdateMutation);
   const showArchive = query?.showArchive === "true"
   const expanded = query?.expanded === "true"
 
@@ -89,7 +77,7 @@ const InboxNavigation = ({
           </SectionFooter>
         </SectionTitle>
         {results?.length ?
-          results.map(conversation => <ConversationItem key={conversation._id} conversation={conversation} updateConversation={updateConversation} currentUser={currentUser} expanded={expanded}/>
+          results.map(conversation => <ConversationItem key={conversation._id} conversation={conversation} currentUser={currentUser} expanded={expanded}/>
           ) :
           loading ? <Loading /> : <Typography variant="body2">You are all done! You have no more open conversations.{isLWorAF && " Go and be free."}</Typography>
         }

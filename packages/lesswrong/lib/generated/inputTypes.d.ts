@@ -3316,53 +3316,53 @@ interface SingleLocalgroupOutput {
 }
 
 interface LocalgroupDefaultViewInput {
-  filters?: string | null;
+  filters?: Array<string> | null;
   includeInactive?: boolean | null;
 }
 
 interface LocalgroupsUserOrganizesGroupsInput {
-  filters?: string | null;
+  filters?: Array<string> | null;
   includeInactive?: boolean | null;
   userId?: string | null;
 }
 
 interface LocalgroupsUserActiveGroupsInput {
-  filters?: string | null;
+  filters?: Array<string> | null;
   includeInactive?: boolean | null;
   userId?: string | null;
 }
 
 interface LocalgroupsUserInactiveGroupsInput {
-  filters?: string | null;
+  filters?: Array<string> | null;
   includeInactive?: boolean | null;
   userId?: string | null;
 }
 
 interface LocalgroupsAllInput {
-  filters?: string | null;
+  filters?: Array<string> | null;
   includeInactive?: boolean | null;
 }
 
 interface LocalgroupsNearbyInput {
-  filters?: string | null;
+  filters?: Array<string> | null;
   includeInactive?: boolean | null;
-  lng?: string | null;
-  lat?: string | null;
+  lng?: number | null;
+  lat?: number | null;
 }
 
 interface LocalgroupsSingleInput {
-  filters?: string | null;
+  filters?: Array<string> | null;
   includeInactive?: boolean | null;
   groupId?: string | null;
 }
 
 interface LocalgroupsLocalInput {
-  filters?: string | null;
+  filters?: Array<string> | null;
   includeInactive?: boolean | null;
 }
 
 interface LocalgroupsOnlineInput {
-  filters?: string | null;
+  filters?: Array<string> | null;
   includeInactive?: boolean | null;
 }
 
@@ -4936,6 +4936,7 @@ interface PostsGlobalEventsInput {
   curatedAfter?: string | null;
   onlineEvent?: boolean | null;
   eventType?: Array<string> | null;
+  filters?: Array<string> | null;
 }
 
 interface PostsNearbyEventsInput {
@@ -4990,6 +4991,7 @@ interface PostsEventsInput {
   curatedAfter?: string | null;
   globalEvent?: boolean | null;
   onlineEvent?: boolean | null;
+  filters?: Array<string> | null;
 }
 
 interface PostsEventsInTimeRangeInput {

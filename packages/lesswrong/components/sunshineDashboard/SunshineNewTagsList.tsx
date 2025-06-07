@@ -37,8 +37,7 @@ const SunshineNewTagsList = ({ classes }: {classes: ClassesType<typeof styles>})
     itemsPerPage: 30,
   });
 
-  const innerData = data?.tags;
-  const results = innerData?.results ?? [];
+  const results = data?.tags?.results.filter(tag => tag.needsReview);
 
   const totalCount = data?.tags?.totalCount ?? 0;
   const currentUser = useCurrentUser();

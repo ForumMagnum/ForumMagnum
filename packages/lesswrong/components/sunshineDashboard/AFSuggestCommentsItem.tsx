@@ -1,7 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { commentSuggestForAlignment, commentUnSuggestForAlignment } from '../../lib/alignment-forum/comments/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
 import { useHover } from '../common/withHover'
@@ -9,7 +8,7 @@ import PlusOneIcon from '@/lib/vendor/@material-ui/icons/src/PlusOne';
 import UndoIcon from '@/lib/vendor/@material-ui/icons/src/Undo';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { defaultAFModeratorPMsTagSlug, afSubmissionHeader, afSubmissionHeaderText } from "./AFSuggestPostsItem";
+import { afSubmissionHeader, afSubmissionHeaderText } from "./AFSuggestPostsItem";
 import SunshineListItem from "./SunshineListItem";
 import SidebarHoverOver from "./SidebarHoverOver";
 import { Typography } from "../common/Typography";
@@ -23,6 +22,8 @@ import SidebarAction from "./SidebarAction";
 import OmegaIcon from "../icons/OmegaIcon";
 import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import uniq from 'lodash/uniq';
+import without from 'lodash/without';
 
 const SuggestAlignmentCommentUpdateMutation = gql(`
   mutation updateCommentAFSuggestCommentsItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -104,11 +105,25 @@ const AFSuggestCommentsItem = ({comment, classes}: {
         </SidebarInfo>
         { hover && <SidebarActionMenu>
           { userHasVoted ?
-            <SidebarAction title="Unendorse for Alignment" onClick={()=>commentUnSuggestForAlignment({currentUser, comment, updateComment})}>
+            <SidebarAction title="Unendorse for Alignment" onClick={() => (
+              updateComment({
+                variables: {
+                  selector: { _id: comment._id },
+                  data: {suggestForAlignmentUserIds: without(comment.suggestForAlignmentUserIds, currentUser._id)}
+                }
+              })
+            )}>
               <UndoIcon/>
             </SidebarAction>
             :
-            <SidebarAction title="Endorse for Alignment" onClick={()=>commentSuggestForAlignment({currentUser, comment, updateComment})}>
+            <SidebarAction title="Endorse for Alignment" onClick={() => (
+              updateComment({
+                variables: {
+                  selector: { _id: comment._id },
+                  data: {suggestForAlignmentUserIds: uniq([...comment.suggestForAlignmentUserIds, currentUser._id])}
+                }
+              })
+            )}>
               <PlusOneIcon/>
             </SidebarAction>
           }

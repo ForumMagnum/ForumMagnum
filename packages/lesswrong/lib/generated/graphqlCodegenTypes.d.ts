@@ -2943,7 +2943,7 @@ type LocalgroupcontentsArgs = {
 };
 
 type LocalgroupDefaultViewInput = {
-  filters?: InputMaybe<Scalars['String']['input']>;
+  filters?: InputMaybe<Array<Scalars['String']['input']>>;
   includeInactive?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
@@ -2965,47 +2965,47 @@ type LocalgroupSelector = {
 };
 
 type LocalgroupsAllInput = {
-  filters?: InputMaybe<Scalars['String']['input']>;
+  filters?: InputMaybe<Array<Scalars['String']['input']>>;
   includeInactive?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 type LocalgroupsLocalInput = {
-  filters?: InputMaybe<Scalars['String']['input']>;
+  filters?: InputMaybe<Array<Scalars['String']['input']>>;
   includeInactive?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 type LocalgroupsNearbyInput = {
-  filters?: InputMaybe<Scalars['String']['input']>;
+  filters?: InputMaybe<Array<Scalars['String']['input']>>;
   includeInactive?: InputMaybe<Scalars['Boolean']['input']>;
-  lat?: InputMaybe<Scalars['String']['input']>;
-  lng?: InputMaybe<Scalars['String']['input']>;
+  lat?: InputMaybe<Scalars['Float']['input']>;
+  lng?: InputMaybe<Scalars['Float']['input']>;
 };
 
 type LocalgroupsOnlineInput = {
-  filters?: InputMaybe<Scalars['String']['input']>;
+  filters?: InputMaybe<Array<Scalars['String']['input']>>;
   includeInactive?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 type LocalgroupsSingleInput = {
-  filters?: InputMaybe<Scalars['String']['input']>;
+  filters?: InputMaybe<Array<Scalars['String']['input']>>;
   groupId?: InputMaybe<Scalars['String']['input']>;
   includeInactive?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 type LocalgroupsUserActiveGroupsInput = {
-  filters?: InputMaybe<Scalars['String']['input']>;
+  filters?: InputMaybe<Array<Scalars['String']['input']>>;
   includeInactive?: InputMaybe<Scalars['Boolean']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type LocalgroupsUserInactiveGroupsInput = {
-  filters?: InputMaybe<Scalars['String']['input']>;
+  filters?: InputMaybe<Array<Scalars['String']['input']>>;
   includeInactive?: InputMaybe<Scalars['Boolean']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type LocalgroupsUserOrganizesGroupsInput = {
-  filters?: InputMaybe<Scalars['String']['input']>;
+  filters?: InputMaybe<Array<Scalars['String']['input']>>;
   includeInactive?: InputMaybe<Scalars['Boolean']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
@@ -6284,6 +6284,7 @@ type PostsEventsInput = {
   excludeEvents?: InputMaybe<Scalars['Boolean']['input']>;
   filter?: InputMaybe<Scalars['String']['input']>;
   filterSettings?: InputMaybe<Scalars['JSON']['input']>;
+  filters?: InputMaybe<Array<Scalars['String']['input']>>;
   globalEvent?: InputMaybe<Scalars['Boolean']['input']>;
   groupId?: InputMaybe<Scalars['String']['input']>;
   hideCommunity?: InputMaybe<Scalars['Boolean']['input']>;
@@ -6381,6 +6382,7 @@ type PostsGlobalEventsInput = {
   excludeEvents?: InputMaybe<Scalars['Boolean']['input']>;
   filter?: InputMaybe<Scalars['String']['input']>;
   filterSettings?: InputMaybe<Scalars['JSON']['input']>;
+  filters?: InputMaybe<Array<Scalars['String']['input']>>;
   groupId?: InputMaybe<Scalars['String']['input']>;
   hideCommunity?: InputMaybe<Scalars['Boolean']['input']>;
   includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
@@ -13375,24 +13377,6 @@ type CommentPollVoteQueryVariables = Exact<{
 
 type CommentPollVoteQuery = CommentPollVoteQuery_Query;
 
-type updateCommentCommentsNewFormMutation_updateComment_CommentOutput_data_Comment = (
-  { __typename?: 'Comment' }
-  & SuggestAlignmentComment
-);
-
-type updateCommentCommentsNewFormMutation_updateComment_CommentOutput = { __typename?: 'CommentOutput', data: updateCommentCommentsNewFormMutation_updateComment_CommentOutput_data_Comment | null };
-
-type updateCommentCommentsNewFormMutation_Mutation = { __typename?: 'Mutation', updateComment: updateCommentCommentsNewFormMutation_updateComment_CommentOutput | null };
-
-
-type updateCommentCommentsNewFormMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateCommentDataInput;
-}>;
-
-
-type updateCommentCommentsNewFormMutation = updateCommentCommentsNewFormMutation_Mutation;
-
 type CommentsNewFormQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
   & UsersCurrentCommentRateLimit
@@ -17176,6 +17160,24 @@ type multiMessageConversationContentsQueryQueryVariables = Exact<{
 
 type multiMessageConversationContentsQueryQuery = multiMessageConversationContentsQueryQuery_Query;
 
+type updateConversationInboxNavigationMutation_updateConversation_ConversationOutput_data_Conversation = (
+  { __typename?: 'Conversation' }
+  & ConversationsList
+);
+
+type updateConversationInboxNavigationMutation_updateConversation_ConversationOutput = { __typename?: 'ConversationOutput', data: updateConversationInboxNavigationMutation_updateConversation_ConversationOutput_data_Conversation | null };
+
+type updateConversationInboxNavigationMutation_Mutation = { __typename?: 'Mutation', updateConversation: updateConversationInboxNavigationMutation_updateConversation_ConversationOutput | null };
+
+
+type updateConversationInboxNavigationMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateConversationDataInput;
+}>;
+
+
+type updateConversationInboxNavigationMutation = updateConversationInboxNavigationMutation_Mutation;
+
 type ConversationPageQuery_conversation_SingleConversationOutput_result_Conversation = (
   { __typename?: 'Conversation' }
   & ConversationsList
@@ -17301,24 +17303,6 @@ type multiConversationInboxNavigationQueryQueryVariables = Exact<{
 
 
 type multiConversationInboxNavigationQueryQuery = multiConversationInboxNavigationQueryQuery_Query;
-
-type updateConversationInboxNavigationMutation_updateConversation_ConversationOutput_data_Conversation = (
-  { __typename?: 'Conversation' }
-  & ConversationsList
-);
-
-type updateConversationInboxNavigationMutation_updateConversation_ConversationOutput = { __typename?: 'ConversationOutput', data: updateConversationInboxNavigationMutation_updateConversation_ConversationOutput_data_Conversation | null };
-
-type updateConversationInboxNavigationMutation_Mutation = { __typename?: 'Mutation', updateConversation: updateConversationInboxNavigationMutation_updateConversation_ConversationOutput | null };
-
-
-type updateConversationInboxNavigationMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateConversationDataInput;
-}>;
-
-
-type updateConversationInboxNavigationMutation = updateConversationInboxNavigationMutation_Mutation;
 
 type MessageUserGetUserBySlugQuery_GetUserBySlug_User = (
   { __typename?: 'User' }
@@ -18077,24 +18061,6 @@ type multiCommentPostsDialogItemNewCommentsListQueryQueryVariables = Exact<{
 
 
 type multiCommentPostsDialogItemNewCommentsListQueryQuery = multiCommentPostsDialogItemNewCommentsListQueryQuery_Query;
-
-type updatePostPostsEditFormMutation_updatePost_PostOutput_data_Post = (
-  { __typename?: 'Post' }
-  & SuggestAlignmentPost
-);
-
-type updatePostPostsEditFormMutation_updatePost_PostOutput = { __typename?: 'PostOutput', data: updatePostPostsEditFormMutation_updatePost_PostOutput_data_Post | null };
-
-type updatePostPostsEditFormMutation_Mutation = { __typename?: 'Mutation', updatePost: updatePostPostsEditFormMutation_updatePost_PostOutput | null };
-
-
-type updatePostPostsEditFormMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdatePostDataInput;
-}>;
-
-
-type updatePostPostsEditFormMutation = updatePostPostsEditFormMutation_Mutation;
 
 type PostsEditFormUserQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
@@ -21120,24 +21086,6 @@ type multiReportSunshineReportedContentListQueryQueryVariables = Exact<{
 
 type multiReportSunshineReportedContentListQueryQuery = multiReportSunshineReportedContentListQueryQuery_Query;
 
-type updateReportSunshineReportedContentListMutation_updateReport_ReportOutput_data_Report = (
-  { __typename?: 'Report' }
-  & UnclaimedReportsList
-);
-
-type updateReportSunshineReportedContentListMutation_updateReport_ReportOutput = { __typename?: 'ReportOutput', data: updateReportSunshineReportedContentListMutation_updateReport_ReportOutput_data_Report | null };
-
-type updateReportSunshineReportedContentListMutation_Mutation = { __typename?: 'Mutation', updateReport: updateReportSunshineReportedContentListMutation_updateReport_ReportOutput | null };
-
-
-type updateReportSunshineReportedContentListMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateReportDataInput;
-}>;
-
-
-type updateReportSunshineReportedContentListMutation = updateReportSunshineReportedContentListMutation_Mutation;
-
 type updatePostSunshineReportedItem1Mutation_updatePost_PostOutput_data_Post = (
   { __typename?: 'Post' }
   & PostsList
@@ -21173,6 +21121,24 @@ type updateCommentSunshineReportedItemMutationVariables = Exact<{
 
 
 type updateCommentSunshineReportedItemMutation = updateCommentSunshineReportedItemMutation_Mutation;
+
+type updateReportSunshineReportedContentListMutation_updateReport_ReportOutput_data_Report = (
+  { __typename?: 'Report' }
+  & UnclaimedReportsList
+);
+
+type updateReportSunshineReportedContentListMutation_updateReport_ReportOutput = { __typename?: 'ReportOutput', data: updateReportSunshineReportedContentListMutation_updateReport_ReportOutput_data_Report | null };
+
+type updateReportSunshineReportedContentListMutation_Mutation = { __typename?: 'Mutation', updateReport: updateReportSunshineReportedContentListMutation_updateReport_ReportOutput | null };
+
+
+type updateReportSunshineReportedContentListMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateReportDataInput;
+}>;
+
+
+type updateReportSunshineReportedContentListMutation = updateReportSunshineReportedContentListMutation_Mutation;
 
 type multiModerationTemplateSunshineSendMessageWithDefaultsQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
   { __typename?: 'ModerationTemplate' }
@@ -23909,6 +23875,42 @@ type emailstestsQueryVariables = Exact<{
 
 
 type emailstestsQuery = emailstestsQuery_Query;
+
+type updateCommentCommentsNewFormMutation_updateComment_CommentOutput_data_Comment = (
+  { __typename?: 'Comment' }
+  & SuggestAlignmentComment
+);
+
+type updateCommentCommentsNewFormMutation_updateComment_CommentOutput = { __typename?: 'CommentOutput', data: updateCommentCommentsNewFormMutation_updateComment_CommentOutput_data_Comment | null };
+
+type updateCommentCommentsNewFormMutation_Mutation = { __typename?: 'Mutation', updateComment: updateCommentCommentsNewFormMutation_updateComment_CommentOutput | null };
+
+
+type updateCommentCommentsNewFormMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateCommentDataInput;
+}>;
+
+
+type updateCommentCommentsNewFormMutation = updateCommentCommentsNewFormMutation_Mutation;
+
+type updatePostPostsEditFormMutation_updatePost_PostOutput_data_Post = (
+  { __typename?: 'Post' }
+  & SuggestAlignmentPost
+);
+
+type updatePostPostsEditFormMutation_updatePost_PostOutput = { __typename?: 'PostOutput', data: updatePostPostsEditFormMutation_updatePost_PostOutput_data_Post | null };
+
+type updatePostPostsEditFormMutation_Mutation = { __typename?: 'Mutation', updatePost: updatePostPostsEditFormMutation_updatePost_PostOutput | null };
+
+
+type updatePostPostsEditFormMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdatePostDataInput;
+}>;
+
+
+type updatePostPostsEditFormMutation = updatePostPostsEditFormMutation_Mutation;
 
 type AdvisorRequestsMinimumInfo = { __typename?: 'AdvisorRequest', _id: string, userId: string | null, createdAt: string, interestedInMetaculus: boolean | null, jobAds: any | null };
 

@@ -12,6 +12,18 @@ import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
 import UsersName from "../users/UsersName";
 import FormatDate from "../common/FormatDate";
 import ConversationPreview from "./ConversationPreview";
+import { useMutation } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen';
+
+const ConversationsListUpdateMutation = gql(`
+  mutation updateConversationInboxNavigation($selector: SelectorInput!, $data: UpdateConversationDataInput!) {
+    updateConversation(selector: $selector, data: $data) {
+      data {
+        ...ConversationsList
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   ...postsItemLikeStyles(theme),
@@ -40,13 +52,14 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ConversationItem = ({conversation, updateConversation, currentUser, classes, expanded}: {
+const ConversationItem = ({conversation, currentUser, classes, expanded}: {
   conversation: ConversationsList,
-  updateConversation: any,
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
   expanded?: boolean
 }) => {
+  const [updateConversation] = useMutation(ConversationsListUpdateMutation);
+
   const isArchived = conversation?.archivedByIds?.includes(currentUser._id)
   if (!conversation) return null
 
@@ -55,9 +68,11 @@ const ConversationItem = ({conversation, updateConversation, currentUser, classe
       _.without(conversation.archivedByIds || [] , currentUser._id) :
       [...(conversation.archivedByIds || []), currentUser._id]
 
-    updateConversation({
-      selector: { _id: conversation._id },
-      data: {archivedByIds: newArchivedByIds}
+    void updateConversation({
+      variables: {
+        selector: { _id: conversation._id },
+        data: {archivedByIds: newArchivedByIds}
+      }
     })
   }
 

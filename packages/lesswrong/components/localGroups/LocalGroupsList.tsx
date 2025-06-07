@@ -9,6 +9,7 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const localGroupsHomeFragmentMultiQuery = gql(`
   query multiLocalgroupLocalGroupsListQuery($selector: LocalgroupSelector, $limit: Int, $enableTotal: Boolean) {
@@ -21,23 +22,24 @@ const localGroupsHomeFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LocalGroupsList', (theme: ThemeType) => ({
   localGroups: {
     boxShadow: theme.palette.boxShadow.default,
   }
-});
+}));
 
-const LocalGroupsList = ({terms, children, classes, showNoResults=true, heading}: {
-  terms: LocalgroupsViewTerms,
+const LocalGroupsList = <View extends keyof LocalgroupSelector>({view, terms, limit, children, showNoResults=true, heading}: {
+  view: View,
+  terms: { [k in keyof LocalgroupSelector]: LocalgroupSelector[k] }[View],
+  limit?: number,
   children?: React.ReactNode,
-  classes: ClassesType<typeof styles>,
   showNoResults?: boolean,
   heading?: string,
 }) => {
-  const { view, limit, ...selectorTerms } = terms;
+  const classes = useStyles(styles);
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(localGroupsHomeFragmentMultiQuery, {
     variables: {
-      selector: { [view]: selectorTerms },
+      selector: { [view]: terms },
       limit: limit ?? 10,
       enableTotal: false,
     },
@@ -77,6 +79,4 @@ const LocalGroupsList = ({terms, children, classes, showNoResults=true, heading}
   </MaybeTitleWrapper>;
 }
 
-export default registerComponent('LocalGroupsList', LocalGroupsList, {styles});
-
-
+export default LocalGroupsList;

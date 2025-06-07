@@ -151,17 +151,22 @@ const CommunityHome = ({classes}: {
   const canCreateGroups = currentUser && (!isEAForum || isAdmin);
 
   const render = () => {
-    const filters: string[] = (query?.filters as unknown as string[] | undefined) || [];
+    const queryFilters: string[] = query.filters
+      ? Array.isArray(query.filters)
+        ? query.filters
+        : [query.filters]
+      : [];
+
     const eventsListTerms = currentUserLocation.known ? {
       view: 'nearbyEvents',
       lat: currentUserLocation.lat,
       lng: currentUserLocation.lng,
       limit: 5,
-      filters: filters,
+      filters: queryFilters,
     } as const : {
       view: 'events',
       limit: 5,
-      filters: filters,
+      filters: queryFilters,
       globalEvent: false,
     } as const;
 
@@ -170,23 +175,9 @@ const CommunityHome = ({classes}: {
       limit: 10
     } as const;
 
-    const onlineGroupsListTerms: LocalgroupsViewTerms = {
-      view: 'online',
-      limit: 5,
-      filters: filters
-    };
-
-    const groupsListTerms: LocalgroupsViewTerms = {
-      view: 'nearby',
-      lat: currentUserLocation.lat,
-      lng: currentUserLocation.lng,
-      limit: 4,
-      filters: filters,
-    };
-
     const mapEventTerms: PostsViewTerms = {
       view: 'events',
-      filters: filters,
+      filters: queryFilters,
     };
 
     const title = forumTypeSetting.get() === 'EAForum' ? 'Community' : 'Welcome to the Community Section';
@@ -260,7 +251,7 @@ const CommunityHome = ({classes}: {
                 {canCreateGroups && <GroupFormLink isOnline={true} />}
               </SectionTitle>
               <AnalyticsContext listContext={"communityGroups"}>
-                <LocalGroupsList terms={onlineGroupsListTerms}/>
+                <LocalGroupsList view='online' terms={{ filters: queryFilters }} limit={5} />
               </AnalyticsContext>
             </SingleColumnSection>
             <SingleColumnSection>
@@ -269,8 +260,15 @@ const CommunityHome = ({classes}: {
               </SectionTitle>
               { currentUserLocation.loading
                 ? <Loading />
-                : <LocalGroupsList terms={groupsListTerms}>
-                      <Link to={"/allGroups"}>View All Groups</Link>
+                : <LocalGroupsList view='nearby'
+                    terms={{
+                      lat: currentUserLocation.lat,
+                      lng: currentUserLocation.lng,
+                      filters: queryFilters,
+                    }}
+                    limit={4}
+                  >
+                    <Link to={"/allGroups"}>View All Groups</Link>
                   </LocalGroupsList>
               }
             </SingleColumnSection>
