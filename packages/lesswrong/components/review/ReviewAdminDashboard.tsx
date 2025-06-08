@@ -12,7 +12,7 @@ import Error404 from "../common/Error404";
 import { Typography } from "../common/Typography";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const reviewAdminDashboardMultiQuery = gql(`
   query multiReviewVoteReviewAdminDashboardQuery($selector: ReviewVoteSelector, $limit: Int, $enableTotal: Boolean) {

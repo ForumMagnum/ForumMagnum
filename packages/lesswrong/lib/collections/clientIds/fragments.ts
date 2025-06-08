@@ -1,4 +1,4 @@
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 export const ModeratorClientIDInfo = gql(`
   fragment ModeratorClientIDInfo on ClientId {
     _id

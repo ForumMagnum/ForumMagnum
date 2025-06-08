@@ -7,7 +7,7 @@ import { useApolloClient } from '@apollo/client/react/hooks';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const CommentsListUpdateMutation = gql(`
   mutation updateCommentMoveToAnswersDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {

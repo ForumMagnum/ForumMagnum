@@ -5,7 +5,7 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import SunshineNewUsersInfo from "./SunshineNewUsersInfo";
 import SectionButton from "../common/SectionButton";
 

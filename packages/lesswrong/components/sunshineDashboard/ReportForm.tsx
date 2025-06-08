@@ -10,7 +10,7 @@ import { submitButtonStyles } from '@/components/tanstack-form-components/TanSta
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 import LWDialog from "../common/LWDialog";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const UnclaimedReportsListMutation = gql(`
   mutation createReportReportForm($data: CreateReportDataInput!) {

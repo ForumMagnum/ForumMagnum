@@ -11,7 +11,7 @@ import Loading from "../vulcan-core/Loading";
 import ContentItemTruncated from "../common/ContentItemTruncated";
 import ForumIcon from "../common/ForumIcon";
 import { MenuItem } from "../common/Menus";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const RevisionEditUpdateMutation = gql(`
   mutation updateRevisionCompareRevisions($selector: SelectorInput!, $data: UpdateRevisionDataInput!) {

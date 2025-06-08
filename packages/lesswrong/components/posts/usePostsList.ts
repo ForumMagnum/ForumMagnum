@@ -7,7 +7,7 @@ import type { Placement as PopperPlacementType } from "popper.js"
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { PostsItemConfig } from "./usePostsItem";
 import { PostsListViewType, usePostsListView } from "../hooks/usePostsListView";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
 
 const postsListWithVotesQuery = gql(`

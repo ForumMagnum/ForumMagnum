@@ -12,7 +12,7 @@ import markdownItSub from "markdown-it-sub";
 import markdownItSup from "markdown-it-sup";
 import { useMutation } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import { maybeDate } from '@/lib/utils/dateUtils';
 
 const LlmConversationsFragmentMultiQuery = gql(`

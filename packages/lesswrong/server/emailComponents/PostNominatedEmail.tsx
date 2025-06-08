@@ -3,7 +3,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { getNominationPhaseEnd, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const PostsRevisionQuery = gql(`
   query PostNominatedEmail($documentId: String, $version: String) {

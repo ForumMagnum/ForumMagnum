@@ -8,7 +8,7 @@ import SectionTitle from "../common/SectionTitle";
 import SpotlightItem from "./SpotlightItem";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const SpotlightDisplayMultiQuery = gql(`
   query multiSpotlightSpotlightHistoryQuery($selector: SpotlightSelector, $limit: Int, $enableTotal: Boolean) {

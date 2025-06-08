@@ -14,7 +14,7 @@ import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
 import LoadMore from "../common/LoadMore";
 import { NetworkStatus } from "@apollo/client";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const PostsRecentDiscussionMultiQuery = gql(`
   query multiPostRecentDiscussionThreadsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean, $commentsLimit: Int, $maxAgeHours: Int, $af: Boolean) {

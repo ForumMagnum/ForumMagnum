@@ -2,7 +2,7 @@ import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import { stripFootnotes } from "@/lib/collections/forumEvents/helpers";
 import LWTooltip from "../../common/LWTooltip";
 

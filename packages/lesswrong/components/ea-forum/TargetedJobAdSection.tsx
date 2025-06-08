@@ -7,7 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 import TargetedJobAd, { EAGWillingToRelocateOption, JOB_AD_DATA } from './TargetedJobAd';
 import { useMutation } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from '@/lib/generated/gql-codegen/gql';
+import { gql } from "@/lib/crud/wrapGql";
 import { FilterTag, filterModeIsSubscribed } from '../../lib/filterSettings';
 import difference from 'lodash/difference';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';

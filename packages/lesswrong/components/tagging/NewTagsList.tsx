@@ -7,7 +7,7 @@ import FormatDate from "../common/FormatDate";
 import MetaInfo from "../common/MetaInfo";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const SunshineTagFragmentMultiQuery = gql(`
   query multiTagNewTagsListQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {

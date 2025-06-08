@@ -1,6 +1,6 @@
 import { isValidBase36Id } from '../../lib/utils/base36id';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const CommentsListMultiQuery = gql(`
   query multiCommentuseCommentQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

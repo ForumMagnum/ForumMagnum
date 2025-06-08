@@ -7,7 +7,7 @@ import { Card } from "@/components/widgets/Paper";
 import { useCurrentUser } from "../common/withUser";
 import { taggingNameIsSet, taggingNamePluralCapitalSetting } from "../../lib/instanceSettings";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import LWPopper from "../common/LWPopper";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";

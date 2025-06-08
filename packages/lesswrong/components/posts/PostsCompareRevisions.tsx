@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { styles } from './PostsPage/PostsPage';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import CompareRevisions from "../revisions/CompareRevisions";
 import PostsPagePostHeader from "./PostsPage/PostsPagePostHeader";
 import RevisionComparisonNotice from "../revisions/RevisionComparisonNotice";

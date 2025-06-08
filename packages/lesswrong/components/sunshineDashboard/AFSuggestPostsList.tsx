@@ -5,7 +5,7 @@ import OmegaIcon from "../icons/OmegaIcon";
 import AFSuggestPostsItem from "./AFSuggestPostsItem";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const SuggestAlignmentPostMultiQuery = gql(`
   query multiPostAFSuggestPostsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {

@@ -9,7 +9,7 @@ import { isFriendlyUI } from "@/themes/forumTheme";
 import TagDiscussion from "./TagDiscussion";
 import PopperCard from "../common/PopperCard";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const CommentsListMultiQuery = gql(`
   query multiCommentTagDiscussionButtonQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

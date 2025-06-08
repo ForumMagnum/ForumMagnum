@@ -1,7 +1,7 @@
 import { MouseEvent, useCallback } from "react";
 import { useObserver } from "../hooks/useObserver";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 export const useRecommendationAnalytics = <
   T extends HTMLElement = HTMLDivElement,

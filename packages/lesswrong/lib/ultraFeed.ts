@@ -1,4 +1,4 @@
-import { gql } from "./generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 export const FeedPostFragment = gql(`
   fragment FeedPostFragment on FeedPost {

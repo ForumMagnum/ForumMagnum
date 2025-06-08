@@ -15,7 +15,7 @@ import { userIsAdmin, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import Error404 from "../common/Error404";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const ChaptersEditUpdateMutation = gql(`
   mutation updateChapterChaptersForm($selector: SelectorInput!, $data: UpdateChapterDataInput!) {

@@ -4,7 +4,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import LWTooltip from "../common/LWTooltip";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const ConversationsMinimumInfoMultiQuery = gql(`
   query multiConversationModeratorMessageCountQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {

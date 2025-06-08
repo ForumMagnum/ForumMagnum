@@ -18,7 +18,7 @@ import Error404 from "../common/Error404";
 import SectionTitle from "../common/SectionTitle";
 import ContentStyles from "../common/ContentStyles";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const UsersEditUpdateMutation = gql(`
   mutation updateUserEditPaymentInfoPage($selector: SelectorInput!, $data: UpdateUserDataInput!) {

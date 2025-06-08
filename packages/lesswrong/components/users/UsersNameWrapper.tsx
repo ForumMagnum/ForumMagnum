@@ -4,7 +4,7 @@ import type { Placement as PopperPlacementType } from "popper.js"
 import Loading from "../vulcan-core/Loading";
 import UsersNameDisplay from "./UsersNameDisplay";
 import UserNameDeleted from "./UserNameDeleted";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import { useQuery } from "@/lib/crud/useQuery";
 
 const UsersMinimumInfoQuery = gql(`

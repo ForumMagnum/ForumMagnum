@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import Loading from "../vulcan-core/Loading";
 import ChaptersItem from "./ChaptersItem";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const ChaptersFragmentMultiQuery = gql(`
   query multiChapterChaptersListQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {

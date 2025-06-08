@@ -3,7 +3,7 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { QueryLink } from "../../../lib/reactRouterWrapper";
 import { useNavigate } from "../../../lib/routeUtil";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import FormatDate from "../../common/FormatDate";
 import { MenuItem } from "../../common/Menus";
 

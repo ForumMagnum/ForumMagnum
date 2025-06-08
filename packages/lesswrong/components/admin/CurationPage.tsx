@@ -13,7 +13,7 @@ import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import CurationNoticesItem from "./CurationNoticesItem";
 import CommentsList from "../comments/CommentsList";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const CurationNoticesFragmentMultiQuery = gql(`
   query multiCurationNoticeCurationPageQuery($selector: CurationNoticeSelector, $limit: Int, $enableTotal: Boolean) {

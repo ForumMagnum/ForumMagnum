@@ -8,7 +8,7 @@ import { UltraFeedCommentItem, UltraFeedCompressedCommentsItem } from "./UltraFe
 import UltraFeedPostItem from "./UltraFeedPostItem";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 
 const PostsListWithVotesQuery = gql(`

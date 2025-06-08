@@ -22,7 +22,7 @@ import SunshineUserMessages from "./SunshineUserMessages";
 import FirstContentIcons from "./FirstContentIcons";
 import UserAutoRateLimitsDisplay from "./ModeratorUserInfo/UserAutoRateLimitsDisplay";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentUsersReviewInfoCardQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

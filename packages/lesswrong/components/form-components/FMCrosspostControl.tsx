@@ -14,7 +14,7 @@ import { useQuery } from "@/lib/crud/useQuery"
 import { useOnFocusTab } from "../hooks/useOnFocusTab";
 import { combineUrls } from "../../lib/vulcan-lib/utils";
 import { useCurrentUser } from "../common/withUser";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import { generateTokenRoute } from "@/lib/fmCrosspost/routes";
 import { TypedFieldApi } from "@/components/tanstack-form-components/BaseAppForm";
 import { defineStyles, useStyles } from "../hooks/useStyles";

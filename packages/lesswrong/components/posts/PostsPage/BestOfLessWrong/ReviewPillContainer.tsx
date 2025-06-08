@@ -10,7 +10,7 @@ import SmallSideVote from "../../../votes/SmallSideVote";
 import LWTooltip from "../../../common/LWTooltip";
 import UsersNameDisplay from "../../../users/UsersNameDisplay";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const CommentWithRepliesFragmentMultiQuery = gql(`
   query multiCommentReviewPillContainerQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

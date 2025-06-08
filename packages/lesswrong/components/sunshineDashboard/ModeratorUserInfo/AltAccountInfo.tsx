@@ -8,7 +8,7 @@ import flatMap from 'lodash/flatMap';
 import Loading from "../../vulcan-core/Loading";
 import LWTooltip from "../../common/LWTooltip";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserAltAccountInfoQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {

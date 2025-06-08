@@ -7,7 +7,7 @@ import { useLocation } from "@/lib/routeUtil";
 import { SurveyQuestionFormat, surveyQuestionFormats } from "@/lib/collections/surveyQuestions/constants";
 import type { SettingsOption } from "@/lib/collections/posts/dropdownOptions";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import Error404 from "../common/Error404";
 import EAOnboardingInput from "../ea-forum/onboarding/EAOnboardingInput";
 import EAButton from "../ea-forum/EAButton";

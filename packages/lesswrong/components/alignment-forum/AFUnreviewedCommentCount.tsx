@@ -2,7 +2,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import ContentStyles from '../common/ContentStyles';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const SuggestAlignmentCommentMultiQuery = gql(`
   query multiCommentAFUnreviewedCommentCountQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

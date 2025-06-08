@@ -3,7 +3,7 @@ import type { CommentTreeOptions } from './commentTree';
 import React from 'react';
 import classNames from 'classnames';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import CommentsItem from "./CommentsItem/CommentsItem";
 import Loading from "../vulcan-core/Loading";
 

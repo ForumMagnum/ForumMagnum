@@ -205,6 +205,10 @@ const sqlFragmentCache = new LRU<string, SqlFragment>({
   length: (_, key) => !key ? 10_000 : key.length * 4,
 });
 
+export function getSubfragmentNamesIn(fragmentText: string): string[] {
+  const matchedSubFragments = fragmentText.match(/\.{3}([_A-Za-z][_0-9A-Za-z]*)/g) || [];
+  return uniq(matchedSubFragments.map(f => f.replace('...', '')));
+}
 
 export function getSqlFragment(fragmentName: string, fragmentText: string): SqlFragment {
   // Remove comments from the fragment source text
@@ -225,8 +229,7 @@ function registerFragment(fragmentTextSource: string): FragmentDefinition {
   const fragmentText = fragmentTextSource.replace(/#.*\n/g, '\n');
 
   // extract subFragments from text
-  const matchedSubFragments = fragmentText.match(/\.{3}([_A-Za-z][_0-9A-Za-z]*)/g) || [];
-  const subFragments = uniq(matchedSubFragments.map(f => f.replace('...', '')));
+  const subFragments  = getSubfragmentNamesIn(fragmentText);
 
   const fragmentDefinition: FragmentDefinition = {
     fragmentText,

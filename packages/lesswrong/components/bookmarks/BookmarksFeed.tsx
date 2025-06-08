@@ -12,7 +12,7 @@ import FeedItemWrapper from "../ultraFeed/FeedItemWrapper";
 import UltraFeedPostItem from "../ultraFeed/UltraFeedPostItem";
 import UltraFeedThreadItem from "../ultraFeed/UltraFeedThreadItem";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const BookmarksFeedItemFragmentMultiQuery = gql(`
   query multiBookmarkBookmarksFeedQuery($selector: BookmarkSelector, $limit: Int, $enableTotal: Boolean) {

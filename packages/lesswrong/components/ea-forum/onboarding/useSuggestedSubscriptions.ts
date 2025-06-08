@@ -2,7 +2,7 @@ import { isE2E } from "../../../lib/executionEnvironment";
 import { filterNonnull } from "../../../lib/utils/typeGuardUtils";
 import keyBy from "lodash/keyBy";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const UserOnboardingAuthorMultiQuery = gql(`
   query multiUseruseSuggestedSubscriptionsQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {

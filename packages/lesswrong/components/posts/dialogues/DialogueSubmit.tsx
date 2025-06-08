@@ -11,7 +11,7 @@ import type { EditablePost } from '@/lib/collections/posts/helpers';
 import { defineStyles, useStyles } from '../../hooks/useStyles';
 import Row from "../../common/Row";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const CommentEditMutation = gql(`
   mutation createCommentDialogueSubmit($data: CreateCommentDataInput!) {

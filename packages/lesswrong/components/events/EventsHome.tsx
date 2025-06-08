@@ -29,7 +29,7 @@ import DistanceUnitToggle from "../community/modules/DistanceUnitToggle";
 import { MenuItem } from "../common/Menus";
 import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
 const PostsListMultiQuery = gql(`

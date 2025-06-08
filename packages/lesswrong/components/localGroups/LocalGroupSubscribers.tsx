@@ -5,7 +5,7 @@ import { Typography } from "../common/Typography";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const MembersOfGroupFragmentMultiQuery = gql(`
   query multiSubscriptionLocalGroupSubscribersQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {

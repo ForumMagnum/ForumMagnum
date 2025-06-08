@@ -12,7 +12,7 @@ import { useCurrentUser } from '../common/withUser';
 import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const SubscriptionStateMultiQuery = gql(`
   query multiSubscriptionFollowUserSearchQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {

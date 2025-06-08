@@ -44,7 +44,7 @@ import EmailConfirmationRequiredCheckbox from "../EmailConfirmationRequiredCheck
 import FormComponentCheckbox from "../../form-components/FormComponentCheckbox";
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
 import { withDateFields } from '@/lib/utils/dateUtils';
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 
 const UsersEditUpdateMutation = gql(`

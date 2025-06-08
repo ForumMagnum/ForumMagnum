@@ -1,5 +1,5 @@
 import { useMutation } from '@apollo/client';
-import { gql } from '@/lib/generated/gql-codegen/gql';
+import { gql } from "@/lib/crud/wrapGql";
 import React, { useCallback } from 'react';
 import { eligibleToNominate, REVIEW_NAME_IN_SITU, REVIEW_YEAR, VoteIndex } from '../../lib/reviewUtils';
 import { Link } from '../../lib/reactRouterWrapper';

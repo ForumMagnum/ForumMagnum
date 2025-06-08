@@ -9,7 +9,7 @@ import { useDialog } from '../common/withDialog';
 import LWDialog from "../common/LWDialog";
 import SequenceDraftsList from "./SequenceDraftsList";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const ChaptersFragmentUpdateMutation = gql(`
   mutation updateChapterAddDraftPostDialog($selector: SelectorInput!, $data: UpdateChapterDataInput!) {

@@ -11,7 +11,7 @@ import { useNotificationsPopoverContext } from "./useNotificationsPopoverContext
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import NotificationsPageItem from "./NotificationsPage/NotificationsPageItem";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const NotificationsListUpdateMutation = gql(`
   mutation updateNotificationNotificationsPopoverNotification($selector: SelectorInput!, $data: UpdateNotificationDataInput!) {

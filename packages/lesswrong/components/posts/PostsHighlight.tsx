@@ -9,7 +9,7 @@ import { captureException }from "@sentry/core";
 import classNames from 'classnames';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import ContentStyles from "../common/ContentStyles";
 import LinkPostMessage from "./LinkPostMessage";
 import ContentItemTruncated from "../common/ContentItemTruncated";

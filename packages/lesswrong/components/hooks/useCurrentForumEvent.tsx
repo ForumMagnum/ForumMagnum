@@ -1,7 +1,7 @@
 import React, { FC, ReactNode, createContext, useCallback, useContext, useEffect, useMemo } from "react";
 import { hasForumEvents } from "../../lib/betas";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const ForumEventsDisplayMultiQuery = gql(`
   query multiForumEventuseCurrentForumEventQuery($selector: ForumEventSelector, $limit: Int, $enableTotal: Boolean) {

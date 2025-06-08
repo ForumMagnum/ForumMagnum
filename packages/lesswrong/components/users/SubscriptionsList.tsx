@@ -9,7 +9,7 @@ import LoadMore from "../common/LoadMore";
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const SubscriptionStateMultiQuery = gql(`
   query multiSubscriptionSubscriptionsListQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {

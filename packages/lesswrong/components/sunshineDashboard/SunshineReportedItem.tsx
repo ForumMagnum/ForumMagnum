@@ -22,7 +22,7 @@ import SunshineCommentsItemOverview from "./SunshineCommentsItemOverview";
 import SunshineNewUsersInfo from "./SunshineNewUsersInfo";
 import UsersName from "../users/UsersName";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostSunshineReportedItem1($selector: SelectorInput!, $data: UpdatePostDataInput!) {

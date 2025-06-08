@@ -19,7 +19,7 @@ import MetaInfo from "../../common/MetaInfo";
 import SectionFooterCheckbox from "../../form-components/SectionFooterCheckbox";
 import Row from "../../common/Row";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserRecentlyActiveUsersQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {

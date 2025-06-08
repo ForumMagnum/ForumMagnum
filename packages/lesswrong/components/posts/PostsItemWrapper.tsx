@@ -5,7 +5,7 @@ import RemoveIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import AddIcon from '@/lib/vendor/@material-ui/icons/src/Add';
 import classNames from 'classnames';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import Loading from "../vulcan-core/Loading";
 import PostsTitle from "./PostsTitle";
 import PostsItem2MetaInfo from "./PostsItem2MetaInfo";

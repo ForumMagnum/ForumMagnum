@@ -9,7 +9,7 @@ import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { hasAuthorModeration } from '@/lib/betas';
 import { useMutation } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import { userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { sanitizeEditableFieldValues } from '../tanstack-form-components/helpers';
 import ErrorMessage from "../common/ErrorMessage";

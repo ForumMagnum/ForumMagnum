@@ -5,7 +5,7 @@ import SubforumSubscribeSection from "./SubforumSubscribeSection";
 import SubforumMember from "./SubforumMember";
 import Loading from "../../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const UsersProfileMultiQuery = gql(`
   query multiUserSidebarMembersBoxQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {

@@ -12,7 +12,7 @@ import MetaInfo from "../../common/MetaInfo";
 import LWTooltip from "../../common/LWTooltip";
 import { withDateFields } from '@/lib/utils/dateUtils';
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const ModeratorActionDisplayUpdateMutation = gql(`
   mutation updateModeratorActionModeratorActionItem($selector: SelectorInput!, $data: UpdateModeratorActionDataInput!) {

@@ -44,7 +44,7 @@ import React, {
 } from 'react';
 import { useCurrentUser } from "../common/withUser";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const UltraFeedEventsDefaultFragmentMutation = gql(`
   mutation createUltraFeedEventUltraFeedObserver($data: CreateUltraFeedEventDataInput!) {

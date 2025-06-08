@@ -9,7 +9,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_HANDBOOK_COOKIE } from '../../lib/cookies/cookies';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";

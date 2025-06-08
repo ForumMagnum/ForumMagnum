@@ -5,7 +5,7 @@ import { DialogContent } from '../../widgets/DialogContent';
 import LWDialog from "../../common/LWDialog";
 import EAButton from "../EAButton";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const DigestsMinimumInfoUpdateMutation = gql(`
   mutation updateDigestConfirmPublishDialog($selector: SelectorInput!, $data: UpdateDigestDataInput!) {

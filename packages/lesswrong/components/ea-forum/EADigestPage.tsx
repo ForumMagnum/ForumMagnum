@@ -3,7 +3,7 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import moment from "moment";
 import { useLocation } from "@/lib/routeUtil";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from '@/lib/generated/gql-codegen/gql';
+import { gql } from "@/lib/crud/wrapGql";
 import { useCurrentUser } from "../common/withUser";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useMessages } from "../common/withMessages";

@@ -27,7 +27,7 @@ import LoadMore from "../common/LoadMore";
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const PostsListWithVotesMultiQuery = gql(`
   query multiPostRecommendationsSamplePageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {

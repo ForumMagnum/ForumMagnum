@@ -14,7 +14,7 @@ import Row from "../common/Row";
 import ToCColumn from "../posts/TableOfContents/ToCColumn";
 import TableOfContents from "../posts/TableOfContents/TableOfContents";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const ModerationTemplateFragmentMultiQuery = gql(`
   query multiModerationTemplateModerationTemplatesPageQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {

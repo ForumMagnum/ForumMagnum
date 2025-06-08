@@ -8,7 +8,7 @@ import { scrollFocusOnElement } from '@/lib/scrollUtils';
 import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
 import { isBookUI } from '@/themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import Loading from "../vulcan-core/Loading";
 import Divider from "../common/Divider";
 import CommentOnPostWithReplies from "./CommentOnPostWithReplies";

@@ -11,7 +11,7 @@ import LoadMore from "../common/LoadMore";
 import ContentStyles from "../common/ContentStyles";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const CommentWithRepliesFragmentMultiQuery = gql(`
   query multiCommentReviewPostCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

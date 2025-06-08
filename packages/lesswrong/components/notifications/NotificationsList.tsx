@@ -4,7 +4,7 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import NotificationsItem from "./NotificationsItem";
 import Loading from "../vulcan-core/Loading";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const NotificationsListMultiQuery = gql(`
   query multiNotificationNotificationsListQuery($selector: NotificationSelector, $limit: Int, $enableTotal: Boolean) {

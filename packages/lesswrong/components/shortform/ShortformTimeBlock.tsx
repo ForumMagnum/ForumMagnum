@@ -6,7 +6,7 @@ import CommentsNodeInner from "../comments/CommentsNode";
 import LoadMore from "../common/LoadMore";
 import ContentType from "../posts/PostsPage/ContentType";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const ShortformCommentsMultiQuery = gql(`
   query multiCommentShortformTimeBlockQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

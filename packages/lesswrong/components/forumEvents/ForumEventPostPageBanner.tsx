@@ -8,7 +8,7 @@ import {
   forumEventBannerGradientBackground,
 } from "./ForumEventFrontpageBanner";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import CloudinaryImage2 from "../common/CloudinaryImage2";

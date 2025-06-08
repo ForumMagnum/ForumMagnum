@@ -7,7 +7,7 @@ import LWTooltip from "../common/LWTooltip";
 import LoadMore from "../common/LoadMore";
 import Loading from "../vulcan-core/Loading";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const PostsListMultiQuery = gql(`
   query multiPostPingbacksListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {

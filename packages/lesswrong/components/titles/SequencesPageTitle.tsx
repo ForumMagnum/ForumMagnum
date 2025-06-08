@@ -5,7 +5,7 @@ import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/help
 import { styles } from '../common/HeaderSubtitle';
 import { Helmet } from '../../lib/utils/componentsWithChildren';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const SequencesPageTitleFragmentQuery = gql(`

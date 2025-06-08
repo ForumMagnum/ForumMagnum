@@ -1,7 +1,7 @@
 import React from 'react';
 import { EmailUsername } from './EmailUsername';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const UsersMinimumInfoQuery = gql(`
   query EmailUsernameByID($documentId: String) {

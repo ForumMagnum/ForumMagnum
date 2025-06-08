@@ -8,7 +8,7 @@ import PetrovWorldmapWrapper from "./PetrovWorldmapWrapper";
 import PastWarnings from "./PastWarnings";
 import { useMutation } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery"
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const PetrovDayActionInfoMultiQuery = gql(`
   query multiPetrovDayActionPetrovLaunchConsoleQuery($selector: PetrovDayActionSelector, $limit: Int, $enableTotal: Boolean) {

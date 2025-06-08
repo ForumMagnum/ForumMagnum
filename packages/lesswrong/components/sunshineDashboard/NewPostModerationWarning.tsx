@@ -2,7 +2,7 @@ import React from 'react';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import Loading from "../vulcan-core/Loading";

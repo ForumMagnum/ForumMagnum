@@ -3,7 +3,7 @@ import difference from "lodash/difference";
 import groupBy from "lodash/groupBy";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
 import { NetworkStatus } from "@apollo/client";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 import { useQueryWithLoadMore } from "./useQueryWithLoadMore";
 
 const RecentOpportunitiesQuery = gql(`

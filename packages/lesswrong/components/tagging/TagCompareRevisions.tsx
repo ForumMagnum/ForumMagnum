@@ -11,7 +11,7 @@ import CompareRevisions from "../revisions/CompareRevisions";
 import RevisionComparisonNotice from "../revisions/RevisionComparisonNotice";
 import LoadingOrErrorPage from "../common/LoadingOrErrorPage";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const RevisionHistoryEntryMultiQuery = gql(`
   query multiRevisionTagCompareRevisionsQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {

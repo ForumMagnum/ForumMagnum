@@ -7,7 +7,7 @@ import { AnalyticsContext } from '../../lib/analyticsEvents';
 import ErrorBoundary from "../common/ErrorBoundary";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentLatestReviewQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

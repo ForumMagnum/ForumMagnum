@@ -8,7 +8,7 @@ import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import SingleColumnSection from "../../../common/SingleColumnSection";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const ReviewWinnerAnnouncementMultiQuery = gql(`
   query multiReviewWinnerBestOfLessWrongAnnouncementQuery($selector: ReviewWinnerSelector, $limit: Int, $enableTotal: Boolean) {

@@ -12,7 +12,7 @@ import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen/gql";
+import { gql } from "@/lib/crud/wrapGql";
 
 const ModerationTemplateFragmentMultiQuery = gql(`
   query multiModerationTemplateRejectContentDialogQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
