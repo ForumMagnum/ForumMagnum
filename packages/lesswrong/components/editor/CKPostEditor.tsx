@@ -15,12 +15,13 @@ import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 import sortBy from 'lodash/sortBy'
 import uniqBy from 'lodash/uniqBy';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
-import { gql, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
+import { gql } from "@/lib/generated/gql-codegen";
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import type { Node, RootElement, Writer, Element as CKElement, Selection, DocumentFragment } from '@ckeditor/ckeditor5-engine';
 import { EditorContext } from '../posts/EditorContext';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { useMulti } from '../../lib/crud/withMulti';
 import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
 import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
 import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder';
@@ -34,6 +35,17 @@ import { useCkEditorInspector } from '@/client/useCkEditorInspector';
 import EditConditionalVisibility from "./conditionalVisibilityBlock/EditConditionalVisibility";
 import DialogueEditorGuidelines from "../posts/dialogues/DialogueEditorGuidelines";
 import DialogueEditorFeedback from "../posts/dialogues/DialogueEditorFeedback";
+
+const PostsMinimumInfoMultiQuery = gql(`
+  query multiPostCKPostEditorQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsMinimumInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -456,14 +468,18 @@ const CKPostEditor = ({
   const ckEditorCloudConfigured = !!webSocketUrl;
   const initData = typeof(data) === "string" ? data : ""
 
-  const [sendNewDialogueMessageNotification] = useMutation(gql`
+  const [sendNewDialogueMessageNotification] = useMutation(gql(`
     mutation sendNewDialogueMessageNotification($postId: String!, $dialogueHtml: String!) {
       sendNewDialogueMessageNotification(postId: $postId, dialogueHtml: $dialogueHtml)
     }
-  `);
+  `));
 
   const dialogueParticipantNotificationCallback = async () => {
     const editorContents =  editorRef?.current?.editor?.getData()
+
+    if (!editorContents) {
+      return;
+    }
 
     await sendNewDialogueMessageNotification({
       variables: {
@@ -486,17 +502,18 @@ const CKPostEditor = ({
     },
   };
 
-  const {results: anyDialogue} = useMulti({
-    collectionName: "Posts",
-    terms: {
-      view: "hasEverDialogued",
-      userId,
+  const { data: dataPostsMinimumInfo } = useQuery(PostsMinimumInfoMultiQuery, {
+    variables: {
+      selector: { hasEverDialogued: { userId } },
       limit: 2,
+      enableTotal: false,
     },
-    fragmentName: "PostsMinimumInfo",
-    fetchPolicy: "cache-and-network",
     skip: !currentUser?._id,
-  })
+    fetchPolicy: "cache-and-network",
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const anyDialogue = dataPostsMinimumInfo?.posts?.results;
 
   const hasEverDialoguedBefore = !!anyDialogue && anyDialogue.length > 1;
 

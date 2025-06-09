@@ -43,7 +43,18 @@ import React, {
   useMemo,
 } from 'react';
 import { useCurrentUser } from "../common/withUser";
-import { useCreate } from "../../lib/crud/withCreate";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const UltraFeedEventsDefaultFragmentMutation = gql(`
+  mutation createUltraFeedEventUltraFeedObserver($data: CreateUltraFeedEventDataInput!) {
+    createUltraFeedEvent(data: $data) {
+      data {
+        ...UltraFeedEventsDefaultFragment
+      }
+    }
+  }
+`);
 
 type DocumentType = 'post' | 'comment' | 'spotlight';
 
@@ -89,10 +100,7 @@ const documentTypeToCollectionName = {
 export const UltraFeedObserverProvider = ({ children, incognitoMode }: { children: ReactNode, incognitoMode: boolean }) => {
   const currentUser = useCurrentUser();
   
-  const { create: createUltraFeedEvent } = useCreate({
-    collectionName: "UltraFeedEvents",
-    fragmentName: 'UltraFeedEventsDefaultFragment',
-  });
+  const [createUltraFeedEvent] = useMutation(UltraFeedEventsDefaultFragmentMutation);
   
   const observerRef = useRef<IntersectionObserver | null>(null);
 
@@ -116,7 +124,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
         }
       }
     };
-    void createUltraFeedEvent(eventPayload);
+    void createUltraFeedEvent({ variables: eventPayload });
   }, [createUltraFeedEvent, currentUser, incognitoMode]);
 
   const handleIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
@@ -272,7 +280,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
         }
       }
     };
-    void createUltraFeedEvent(eventData);
+    void createUltraFeedEvent({ variables: eventData });
   }, [createUltraFeedEvent, currentUser, incognitoMode]);
 
   const contextValue = useMemo(() => ({ 

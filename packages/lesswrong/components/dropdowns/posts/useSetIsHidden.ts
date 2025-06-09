@@ -1,22 +1,25 @@
-import { useMutation, gql } from '@apollo/client';
-import { fragmentTextForQuery } from '../../../lib/vulcan-lib/fragments';
+import { useMutation } from '@apollo/client';
 import { useCurrentUser } from '@/components/common/withUser';
 import some from 'lodash/some';
 import reject from 'lodash/reject';
+import { gql } from "@/lib/generated/gql-codegen";
 
 export const useSetIsHiddenMutation = () => {
   const currentUser = useCurrentUser();
   
-  const [setIsHiddenMutation] = useMutation(gql`
+  const [setIsHiddenMutation] = useMutation(gql(`
     mutation setIsHidden($postId: String!, $isHidden: Boolean!) {
       setIsHidden(postId: $postId, isHidden: $isHidden) {
         ...UsersCurrent
       }
     }
-    ${fragmentTextForQuery("UsersCurrent")}
-  `);
+  `));
   
   async function mutate(args: {postId: string, isHidden: boolean}) {
+    if (!currentUser) {
+      return;
+    }
+
     const { postId, isHidden } = args;
 
     // FIXME: this mutation logic is duplicated from the mutation - ideally we'd

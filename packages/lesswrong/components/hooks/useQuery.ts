@@ -1,7 +1,7 @@
 import { useApolloClient, useQuery as apolloUseQuery, NetworkStatus } from "@apollo/client";
 import type { ApolloError, QueryHookOptions, DocumentNode, TypedDocumentNode, OperationVariables } from "@apollo/client";
 
-export function useQueryWrapped<TData=any, TVariables=OperationVariables>(
+export function useQueryWrapped<TData=any, TVariables extends OperationVariables=OperationVariables>(
   query: DocumentNode | TypedDocumentNode<TData, TVariables>,
   options?: QueryHookOptions<TData, TVariables>
 ): {
@@ -29,7 +29,7 @@ export function useQueryWrapped<TData=any, TVariables=OperationVariables>(
     const existingResult = apolloClient.readQuery({ query, variables: options?.variables });
     if (existingResult) {
       return {
-        data: existingResult,
+        data: existingResult as TData,
         loading: false,
         refetch: async ()=>{},
         fetchMore: ()=>{},

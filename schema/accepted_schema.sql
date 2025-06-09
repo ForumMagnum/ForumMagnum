@@ -681,7 +681,7 @@ CREATE TABLE "CurationNotices" (
   "contents_latest" TEXT,
   "userId" VARCHAR(27) NOT NULL,
   "commentId" VARCHAR(27),
-  "postId" VARCHAR(27),
+  "postId" VARCHAR(27) NOT NULL,
   "deleted" BOOL NOT NULL DEFAULT FALSE
 );
 

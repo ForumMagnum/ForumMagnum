@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper";
+import { gql } from "@/lib/generated/gql-codegen";
 
-export const PetrovDayActionInfo = () => frag`
+export const PetrovDayActionInfo = gql(`
   fragment PetrovDayActionInfo on PetrovDayAction {
     _id
     createdAt
@@ -8,4 +8,4 @@ export const PetrovDayActionInfo = () => frag`
     actionType
     data
   }
-`
+`)

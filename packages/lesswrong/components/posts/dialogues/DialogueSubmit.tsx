@@ -4,13 +4,24 @@ import classNames from 'classnames';
 import { useCurrentUser } from "../../common/withUser";
 import { isLW } from "../../../lib/instanceSettings";
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { useCreate } from '../../../lib/crud/withCreate';
 import { EditorContext } from '../EditorContext';
 import { useNavigate } from '../../../lib/routeUtil';
 import type { TypedFormApi } from '../../tanstack-form-components/BaseAppForm';
 import type { EditablePost } from '@/lib/collections/posts/helpers';
 import { defineStyles, useStyles } from '../../hooks/useStyles';
 import Row from "../../common/Row";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const CommentEditMutation = gql(`
+  mutation createCommentDialogueSubmit($data: CreateCommentDataInput!) {
+    createComment(data: $data) {
+      data {
+        ...CommentEdit
+      }
+    }
+  }
+`);
 
 export const styles = defineStyles('DialogueSubmit', (theme: ThemeType) => ({
   formButton: {
@@ -64,10 +75,7 @@ export const DialogueSubmit = ({
   const currentUser = useCurrentUser();
   if (!currentUser) throw Error("must be logged in to post")
 
-  const { create: createShortform, loading, error } = useCreate({
-    collectionName: "Comments",
-    fragmentName: 'CommentEdit',
-  })
+  const [createShortform, { loading, error }] = useMutation(CommentEditMutation);
   const userShortformId = currentUser?.shortformFeedId;
   const [editor, _] = React.useContext(EditorContext)
 
@@ -109,15 +117,21 @@ export const DialogueSubmit = ({
           const shortformContents = {originalContents: {type: "ckEditorMarkup", data: shortformString}}
 
           const response = await createShortform({
-            data: {
-              contents: shortformContents,
-              shortform: true,
-              postId: userShortformId,
-              originalDialogueId: document._id,
+            variables: {
+              data: {
+                contents: shortformContents,
+                shortform: true,
+                postId: userShortformId,
+                originalDialogueId: document._id,
+              }
             }
           })
 
-          response.data && navigate(`/posts/${userShortformId}?commentId=${response.data.createComment.data._id}`)
+          const createdComment = response.data?.createComment?.data;
+
+          if (createdComment) {
+            navigate(`/posts/${userShortformId}?commentId=${createdComment._id}`)
+          }
         }}
       >{loading ? "Publishing to shortform ..." : `Publish to ${currentUser?.displayName}'s shortform`}</Button>
       }

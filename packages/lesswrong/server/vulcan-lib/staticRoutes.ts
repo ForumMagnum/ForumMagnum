@@ -25,12 +25,12 @@
 import type { IncomingMessage, ServerResponse } from 'http';
 import pathToRegexp from 'path-to-regexp';
 import URL from 'url';
-import type { NextFunction, ParamsDictionary, Query, Response } from 'express-serve-static-core';
-import type { RequestHandler } from 'express';
+import type { ParamsDictionary, Query } from 'express-serve-static-core';
+import type { NextFunction, RequestHandler, Response } from 'express';
 const urlParse = URL.parse;
 
 type Req = Parameters<RequestHandler>[0];
-type Res = Response<any, Record<string, any>, number>;
+type Res = Response<any, Record<string, any>>;
 type RouteCallback = (props: any, req: IncomingMessage, res: ServerResponse, next: NextFunction) => void | Promise<void>;
 
 let routes: (pathToRegexp.PathRegExp & { callback: any })[] = [];

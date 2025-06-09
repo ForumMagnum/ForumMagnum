@@ -133,16 +133,16 @@ export const updateTagGqlMutation = makeGqlUpdateMutation('Tags', updateTag, {
 
 
 export const graphqlTagTypeDefs = gql`
-  input CreateTagDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateTagDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateTagInput {
     data: CreateTagDataInput!
   }
   
-  input UpdateTagDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateTagDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateTagInput {

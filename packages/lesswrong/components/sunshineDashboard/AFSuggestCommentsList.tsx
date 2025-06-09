@@ -1,10 +1,22 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import SunshineListTitle from "./SunshineListTitle";
 import OmegaIcon from "../icons/OmegaIcon";
 import AFSuggestCommentsItem from "./AFSuggestCommentsItem";
 import LoadMore from "../common/LoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const SuggestAlignmentCommentMultiQuery = gql(`
+  query multiCommentAFSuggestCommentsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SuggestAlignmentComment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -16,13 +28,18 @@ const styles = (theme: ThemeType) => ({
 const AFSuggestCommentsList = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { results, loadMoreProps } = useMulti({
-    terms: {view:"alignmentSuggestedComments"},
-    enableTotal: true, itemsPerPage: 30,
-    collectionName: "Comments",
-    fragmentName: 'SuggestAlignmentComment',
+  const { data, loadMoreProps } = useQueryWithLoadMore(SuggestAlignmentCommentMultiQuery, {
+    variables: {
+      selector: { alignmentSuggestedComments: {} },
+      limit: 10,
+      enableTotal: true,
+    },
     fetchPolicy: 'cache-and-network',
+    itemsPerPage: 30,
   });
+
+  const results = data?.comments?.results;
+
   if (results && results.length) {
     return <div>
       <SunshineListTitle>

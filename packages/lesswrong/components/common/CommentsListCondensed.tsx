@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from './withUser';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox'
@@ -10,6 +9,19 @@ import ShortformListItem from "../shortform/ShortformListItem";
 import LoadMore from "./LoadMore";
 import SectionButton from "./SectionButton";
 import ShortformSubmitForm from "../shortform/ShortformSubmitForm";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const ShortformCommentsMultiQuery = gql(`
+  query multiCommentCommentsListCondensedQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ShortformComments
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (_: ThemeType) => ({
   subheader: {
@@ -37,14 +49,18 @@ const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTo
   const toggleShortformFeed = useCallback(() => {
     setShowShortformFeed(!showShortformFeed);
   }, [setShowShortformFeed, showShortformFeed]);
-  const { results, loading, count, totalCount, loadMoreProps, refetch } = useMulti({
-    terms: terms,
-    limit: initialLimit,
-    itemsPerPage,
-    enableTotal: true,
-    collectionName: "Comments",
-    fragmentName: 'ShortformComments',
+  const { view, limit, ...selectorTerms } = terms;
+  const { data, loading, refetch, loadMoreProps } = useQueryWithLoadMore(ShortformCommentsMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: initialLimit,
+      enableTotal: true,
+    },
   });
+
+  const results = data?.comments?.results;
+  const totalCount = data?.comments?.totalCount ?? undefined;
+  const count = results?.length ?? 0;
 
   if (loading && !results?.length) {
     return <Loading/>;

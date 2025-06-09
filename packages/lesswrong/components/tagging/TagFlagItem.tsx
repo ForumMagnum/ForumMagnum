@@ -1,6 +1,4 @@
 import React from "react"
-import { useMulti } from "../../lib/crud/withMulti";
-import { useSingle } from "../../lib/crud/withSingle";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from 'classnames';
 import { useHover } from "../common/withHover";
@@ -8,9 +6,32 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Card } from "@/components/widgets/Paper";
 import { useCurrentUser } from "../common/withUser";
 import { taggingNameIsSet, taggingNamePluralCapitalSetting } from "../../lib/instanceSettings";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import LWPopper from "../common/LWPopper";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
+
+const TagWithFlagsFragmentMultiQuery = gql(`
+  query multiTagTagFlagItemQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagWithFlagsFragment
+      }
+      totalCount
+    }
+  }
+`);
+
+const TagFlagFragmentQuery = gql(`
+  query TagFlagItem($documentId: String) {
+    tagFlag(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...TagFlagFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -47,12 +68,11 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
 }) => {
   const {eventHandlers, hover, anchorEl } = useHover();
   const currentUser = useCurrentUser();
-  const { document: tagFlag } = useSingle({
-    documentId,
-    collectionName: "TagFlags",
+  const { data } = useQuery(TagFlagFragmentQuery, {
+    variables: { documentId: documentId },
     fetchPolicy: "cache-first",
-    fragmentName: "TagFlagFragment",
-  })
+  });
+  const tagFlag = data?.tagFlag?.result;
   
   
   const TagFlagItemTerms: Record<ItemTypeName,TagsViewTerms> = {
@@ -61,14 +81,17 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
     tagFlagId: {view: "tagsByTagFlag", tagFlagId: tagFlag?._id}
   }
   
-  const { totalCount, loading } = useMulti({
-    terms: TagFlagItemTerms[itemType],
-    collectionName: "Tags",
-    fragmentName: "TagWithFlagsFragment",
-    limit: 0,
+  const { view, limit, ...selectorTerms } = TagFlagItemTerms[itemType];
+  const { data: dataTagWithFlags, loading } = useQuery(TagWithFlagsFragmentMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 0,
+      enableTotal: true,
+    },
     skip: !showNumber,
-    enableTotal: true
+    notifyOnNetworkStatusChange: true,
   });
+  const totalCount = dataTagWithFlags?.tags?.totalCount;
   
   const rootStyles = classNames(classes.root, {[classes.black]: style === "black", [classes.white]: style === "white"});
   

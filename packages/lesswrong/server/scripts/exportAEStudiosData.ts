@@ -5,6 +5,7 @@ import { writeFile } from "fs/promises";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { htmlToTextDefault } from "@/lib/htmlToText";
 import { createAnonymousContext } from "../vulcan-lib/createContexts";
+import { CommentsListWithParentMetadata } from "@/lib/collections/comments/fragments";
 
 type DateFieldOf<T> = {
   [k in keyof T & string]: IfAny<T[k], never, T[k] extends Date | null ? k : never>;
@@ -96,7 +97,7 @@ async function getCommentBatch(offsetDate: Date, context: ResolverContext) {
 
   const batch = await fetchFragment({
     collectionName: 'Comments',
-    fragmentName: 'CommentsListWithParentMetadata',
+    fragmentDoc: CommentsListWithParentMetadata,
     currentUser: null,
     context,
     selector: { postedAt: { $gt: offsetDate }, postId: { $exists: true } },
@@ -166,7 +167,7 @@ export async function exportAECommentRecords(offsetDate?: Date) {
           _id,
           user: {
             _id: user?._id,
-            displayName: userGetDisplayName(comment.user),
+            displayName: user ? userGetDisplayName(user) : null,
           },
           htmlBody: contents?.html,
           postId,

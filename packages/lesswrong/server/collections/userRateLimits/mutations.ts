@@ -100,16 +100,16 @@ export const updateUserRateLimitGqlMutation = makeGqlUpdateMutation('UserRateLim
 
 
 export const graphqlUserRateLimitTypeDefs = gql`
-  input CreateUserRateLimitDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateUserRateLimitDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateUserRateLimitInput {
     data: CreateUserRateLimitDataInput!
   }
   
-  input UpdateUserRateLimitDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateUserRateLimitDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateUserRateLimitInput {

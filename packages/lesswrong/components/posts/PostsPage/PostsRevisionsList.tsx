@@ -1,10 +1,22 @@
 import React from 'react'
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { useSingle } from '../../../lib/crud/withSingle';
 import { QueryLink } from "../../../lib/reactRouterWrapper";
 import { useNavigate } from "../../../lib/routeUtil";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import FormatDate from "../../common/FormatDate";
 import { MenuItem } from "../../common/Menus";
+
+
+const PostsRevisionsListQuery = gql(`
+  query PostsRevisionsList($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsRevisionsList
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   version: {
@@ -17,17 +29,16 @@ const PostsRevisionsList = ({post, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const navigate = useNavigate();
-  const { document, loading } = useSingle({
-    documentId: post._id,
-    collectionName: "Posts",
-    fetchPolicy: 'network-only', // Ensure that we load the list of revisions a new every time we click (this is useful after editing a post)
-    fragmentName: 'PostsRevisionsList'
+  const { loading, data } = useQuery(PostsRevisionsListQuery, {
+    variables: { documentId: post._id },
+    fetchPolicy: 'network-only',
   });
+  const document = data?.post?.result;
   if (loading || !document) {return <MenuItem disabled> Loading... </MenuItem>} 
   const { revisions } = document
   
   return <React.Fragment>
-    {revisions.map(({editedAt, version}) =>
+    {revisions?.map(({editedAt, version}) =>
       <QueryLink key={version} query={{revision: version}} merge>
         <MenuItem>
           <span className={classes.version}>View v{version}</span> (<FormatDate date={editedAt}/>)

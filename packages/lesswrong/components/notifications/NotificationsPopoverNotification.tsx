@@ -8,9 +8,20 @@ import type { NotificationDisplay } from "@/lib/notificationTypes";
 import classNames from "classnames";
 import moment from "moment";
 import { useNotificationsPopoverContext } from "./useNotificationsPopoverContext";
-import { useUpdate } from "@/lib/crud/withUpdate";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import NotificationsPageItem from "./NotificationsPage/NotificationsPageItem";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const NotificationsListUpdateMutation = gql(`
+  mutation updateNotificationNotificationsPopoverNotification($selector: SelectorInput!, $data: UpdateNotificationDataInput!) {
+    updateNotification(selector: $selector, data: $data) {
+      data {
+        ...NotificationsList
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -102,16 +113,15 @@ const NotificationsPopoverNotification = ({notification, refetch, classes}: {
   const {captureEvent} = useTracking();
   const {onClick: redirect} = useClickableCell({href: notification.link ?? "#"});
   const {closeNotifications} = useNotificationsPopoverContext();
-  const {mutate: updateNotification} = useUpdate({
-    collectionName: "Notifications",
-    fragmentName: "NotificationsList",
-  });
+  const [updateNotification] = useMutation(NotificationsListUpdateMutation);
 
   const onSelect = useCallback((ev: MouseEvent<HTMLDivElement>) => {
     closeNotifications();
     void updateNotification({
-      selector: {_id},
-      data: {viewed: true},
+      variables: {
+        selector: { _id },
+        data: { viewed: true }
+      }
     });
     refetch?.();
     captureEvent("notificationClick", {

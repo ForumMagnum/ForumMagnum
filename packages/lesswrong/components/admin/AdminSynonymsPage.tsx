@@ -1,6 +1,8 @@
 import React, { FC, useState, useEffect, useCallback, ChangeEvent } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { gql, useQuery, useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
 import TextField from "@/lib/vendor/@material-ui/core/src/TextField";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useCurrentUser } from "../common/withUser";
@@ -27,15 +29,15 @@ const styles = (theme: ThemeType) => ({
 
 const AdminSynonymsEditor: FC<{classes: ClassesType<typeof styles>}> = ({classes}) => {
   const [synonyms, setSynonyms] = useState<string[]>([]);
-  const {data, loading, error} = useQuery(gql`
+  const {data, loading, error} = useQuery(gql(`
     query SearchSynonyms {
       SearchSynonyms
     }
-  `);
+  `));
   const [updateSearchSynonyms, updateLoading] = useMutation(
-    gql`mutation UpdateSearchSynonyms($synonyms: [String!]!) {
+    gql(`mutation UpdateSearchSynonyms($synonyms: [String!]!) {
       UpdateSearchSynonyms(synonyms: $synonyms)
-    }`,
+    }`),
     {errorPolicy: "all"},
   );
 
@@ -62,7 +64,7 @@ const AdminSynonymsEditor: FC<{classes: ClassesType<typeof styles>}> = ({classes
         synonyms: validSynonyms,
       },
     });
-    setSynonyms(result?.data?.UpdateSearchSynonyms);
+    setSynonyms(result.data?.UpdateSearchSynonyms ?? []);
   }, [synonyms, updateSearchSynonyms]);
 
   const isLoading = loading || updateLoading?.loading;

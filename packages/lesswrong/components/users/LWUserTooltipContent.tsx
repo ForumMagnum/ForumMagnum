@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { truncate } from '../../lib/editor/ellipsize';
-import { useMulti } from '@/lib/crud/withMulti';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { commentBodyStyles } from '@/themes/stylePiping';
@@ -10,6 +9,19 @@ import TagSmallPostLink from "../tagging/TagSmallPostLink";
 import FollowUserButton from "./FollowUserButton";
 import UserMetaInfo from "./UserMetaInfo";
 import Loading from "../vulcan-core/Loading";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const PostsListMultiQuery = gql(`
+  query multiPostLWUserTooltipContentQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsList
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -72,17 +84,16 @@ export const LWUserTooltipContent = ({hideFollowButton=false, classes, user}: {
   const { htmlBio, displayName } = user;
   const truncatedBio = truncate(htmlBio, 500)
 
-  const { loading, results } = useMulti({
-    terms: {
-      userId: user._id,
-      view: "userPosts",
-      sortedBy: "new"
+  const { data, loading } = useQuery(PostsListMultiQuery, {
+    variables: {
+      selector: { userPosts: { userId: user._id, sortedBy: "new" } },
+      limit: 3,
+      enableTotal: false,
     },
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
-    enableTotal: false,
-    limit: 3,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.posts?.results;
 
 
   return (

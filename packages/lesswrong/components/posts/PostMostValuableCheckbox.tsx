@@ -1,10 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
-import { useUpdate } from '../../lib/crud/withUpdate';
-import { useCreate } from '../../lib/crud/withCreate';
 import { useCurrentUser } from '../common/withUser';
 import ForumIcon from "../common/ForumIcon";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
+import { gql } from "@/lib/generated/gql-codegen";
+
+const UserMostValuablePostInfoMultiQuery = gql(`
+  query multiUserMostValuablePostPostMostValuableCheckboxQuery($selector: UserMostValuablePostSelector, $limit: Int, $enableTotal: Boolean) {
+    userMostValuablePosts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UserMostValuablePostInfo
+      }
+      totalCount
+    }
+  }
+`);
+
+const UserMostValuablePostInfoUpdateMutation = gql(`
+  mutation updateUserMostValuablePostPostMostValuableCheckbox($selector: SelectorInput!, $data: UpdateUserMostValuablePostDataInput!) {
+    updateUserMostValuablePost(selector: $selector, data: $data) {
+      data {
+        ...UserMostValuablePostInfo
+      }
+    }
+  }
+`);
+
+const UserMostValuablePostInfoMutation = gql(`
+  mutation createUserMostValuablePostPostMostValuableCheckbox($data: CreateUserMostValuablePostDataInput!) {
+    createUserMostValuablePost(data: $data) {
+      data {
+        ...UserMostValuablePostInfo
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -27,22 +58,20 @@ export const PostMostValuableCheckbox = ({post, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
-  const { results, loading } = useMulti({
-    terms: {view: "currentUserPost", postId: post._id},
-    collectionName: "UserMostValuablePosts",
-    fragmentName: "UserMostValuablePostInfo",
-    limit: 1,
-  })
+  const { data, loading } = useQuery(UserMostValuablePostInfoMultiQuery, {
+    variables: {
+      selector: { currentUserPost: { postId: post._id } },
+      limit: 1,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = data?.userMostValuablePosts?.results;
   const userVote = results?.length ? results[0] : null
   
-  const { create: createMostValuable, loading: createMostValuableLoading } = useCreate({
-    collectionName: 'UserMostValuablePosts',
-    fragmentName: 'UserMostValuablePostInfo',
-  })
-  const { mutate: setMostValuable, loading: setMostValuableLoading } = useUpdate({
-    collectionName: "UserMostValuablePosts",
-    fragmentName: 'UserMostValuablePostInfo',
-  })
+  const [createMostValuable, { loading: createMostValuableLoading }] = useMutation(UserMostValuablePostInfoMutation);
+  const [setMostValuable, { loading: setMostValuableLoading }] = useMutation(UserMostValuablePostInfoUpdateMutation);
   
   const [checked, setChecked] = useState(false);
   useEffect(() => {
@@ -56,23 +85,35 @@ export const PostMostValuableCheckbox = ({post, classes}: {
     if (userVote) {
       setChecked(!!userVote.deleted)
       void setMostValuable({
-        selector: {
-          _id: userVote._id
-        },
-        data: {
-          deleted: !userVote.deleted
+        variables: {
+          selector: {
+            _id: userVote._id
+          },
+          data: {
+            deleted: !userVote.deleted
+          }
         },
         optimisticResponse: {
-          ...userVote,
-          deleted: !userVote.deleted
+          updateUserMostValuablePost: {
+            __typename: "UserMostValuablePostOutput",
+            data: {
+              __typename: "UserMostValuablePost",
+              ...{
+                ...userVote,
+                deleted: !userVote.deleted
+              }
+            }
+          }
         }
       })
     } else {
       setChecked(true)
       void createMostValuable({
-        data: {
-          userId: currentUser._id,
-          postId: post._id
+        variables: {
+          data: {
+            userId: currentUser._id,
+            postId: post._id
+          }
         }
       })
     }

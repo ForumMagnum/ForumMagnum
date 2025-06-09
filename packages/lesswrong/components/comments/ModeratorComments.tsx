@@ -1,12 +1,25 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { sectionTitleStyle } from '../common/SectionTitle';
 import CommentsNodeInner from "./CommentsNode";
 import Loading from "../vulcan-core/Loading";
 import LoadMore from "../common/LoadMore";
 import SingleColumnSection from "../common/SingleColumnSection";
 import { Typography } from "../common/Typography";
+import { NetworkStatus } from "@apollo/client";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const CommentsListWithParentMetadataMultiQuery = gql(`
+  query multiCommentModeratorCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsListWithParentMetadata
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) =>  ({
   root: {
@@ -27,12 +40,18 @@ const ModeratorComments = ({classes, terms={view: "moderatorComments"}, truncate
   truncated?: boolean,
   noResultsMessage?: string,
 }) => {
-  const { loadingInitial, loadMoreProps, results } = useMulti({
-    terms,
-    collectionName: "Comments",
-    fragmentName: 'CommentsListWithParentMetadata',
-    enableTotal: false,
+  const { view, limit, ...selectorTerms } = terms;
+  const { data, networkStatus, loadMoreProps } = useQueryWithLoadMore(CommentsListWithParentMetadataMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: limit ?? 10,
+      enableTotal: false,
+    },
   });
+
+  const results = data?.comments?.results;
+
+  const loadingInitial = networkStatus === NetworkStatus.loading;
   if (!loadingInitial && results && !results.length) {
     return (<Typography variant="body2">{noResultsMessage}</Typography>)
   }

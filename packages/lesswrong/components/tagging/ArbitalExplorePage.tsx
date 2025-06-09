@@ -2,11 +2,23 @@ import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 // import { arbitalPageData } from './ArbitalMockupData';
-import { useMulti } from '@/lib/crud/withMulti';
 import type { ArbitalPage, ArbitalPageNode } from './arbitalTypes';
 import WikiTagNestedList from "./WikiTagNestedList";
 import Loading from "../vulcan-core/Loading";
 import InlineSelect from "../common/InlineSelect";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const ExplorePageTagFragmentMultiQuery = gql(`
+  query multiTagArbitalExplorePageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean, $contributorsLimit: Int) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ExplorePageTagFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 // Helper function to build the tree
 function buildTree(items: ArbitalPage[], parentId: string | null = null): ArbitalPageNode[] {
@@ -45,14 +57,16 @@ const ArbitalExplorePage = () => {
   const [defaultCollapseAfterLevel, setDefaultCollapseAfterLevel] = useState<number>(0);
 
   // Fetch all Arbital pages
-  const { results: arbitalPages, loading } = useMulti({
-    collectionName: "Tags",
-    fragmentName: "ExplorePageTagFragment",
-    terms: {
-      view: "allArbitalTags",
+  const { data, loading } = useQuery(ExplorePageTagFragmentMultiQuery, {
+    variables: {
+      selector: { allArbitalTags: {} },
       limit: 2000,
+      enableTotal: false,
     },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const arbitalPages = data?.tags?.results;
 
   if (loading || !arbitalPages) {
     return <Loading />;

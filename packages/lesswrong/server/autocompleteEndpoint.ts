@@ -8,11 +8,40 @@ import { formatRelative } from "@/lib/utils/timeFormat";
 import { Readable } from 'stream';
 import { pipeline } from 'stream/promises'
 import { hyperbolicApiKey } from "@/lib/instanceSettings";
-import { runFragmentMultiQuery } from "./vulcan-lib/query";
+import { runQuery } from "./vulcan-lib/query";
 import Users from "@/server/collections/users/collection";
 import { clientIdMiddleware } from "./clientIdMiddleware";
+import { gql } from "@/lib/generated/gql-codegen";
 
+const postsForAutocompleteQuery = gql(`
+  query multiPostsForAutocompleteQuery($input: MultiPostInput) {
+    posts(input: $input) {
+      results {
+        ...PostsForAutocomplete
+      }
+    }
+  }
+`);
 
+const commentsForAutocompleteQuery = gql(`
+  query multiCommentsForAutocompleteQuery($input: MultiCommentInput) {
+    comments(input: $input) {
+      results {
+        ...CommentsForAutocomplete
+      }
+    }
+  }
+`);
+
+const commentsForAutocompleteWithParentsQuery = gql(`
+  query multiCommentsForAutocompleteWithParentsQuery($input: MultiCommentInput) {
+    comments(input: $input) {
+      results {
+        ...CommentsForAutocompleteWithParents
+      }
+    }
+  }
+`);
 
 const getParentComments = (comment: CommentsForAutocompleteWithParents) => {
   const parentComments: CommentsForAutocompleteWithParents[] = [];
@@ -75,20 +104,17 @@ async function constructMessageHistory(
   const messages: PromptCachingBetaMessageParam[] = [];
 
   // Make the fetches parallel to save time
-  const [posts, comments] = await Promise.all([
-    runFragmentMultiQuery({
-      collectionName: "Posts",
-      fragmentName: "PostsForAutocomplete",
-      terms: { postIds },
-      context,
-    }),
-    runFragmentMultiQuery({
-      collectionName: "Comments",
-      fragmentName: "CommentsForAutocomplete",
-      terms: { commentIds },
-      context,
-    }),
+  const [postsResponse, commentsResponse] = await Promise.all([
+    runQuery(postsForAutocompleteQuery, {
+      input: { terms: { postIds } }
+    }, context),
+    runQuery(commentsForAutocompleteQuery, {
+      input: { terms: { commentIds } }
+    }, context),
   ]);
+
+  const posts = postsResponse.data?.posts?.results?.filter((post): post is NonNullable<typeof post> => !!post) ?? [];
+  const comments = commentsResponse.data?.comments?.results?.filter((comment): comment is NonNullable<typeof comment> => !!comment) ?? [];
 
   // eslint-disable-next-line no-console
   console.log(`Converting ${posts.length} posts and ${comments.length} comments to messages`);
@@ -131,16 +157,15 @@ async function constructMessageHistory(
 
   if (replyingCommentId) {
     // Fetch the comment we're replying to
-    const replyingToCommentResponse = await runFragmentMultiQuery({
-      collectionName: "Comments",
-      fragmentName: "CommentsForAutocompleteWithParents",
-      terms: { commentIds: [replyingCommentId] },
-      context,
-    })
-    if (!replyingToCommentResponse || replyingToCommentResponse.length === 0) {
+    const replyingToCommentResponse = await runQuery(commentsForAutocompleteWithParentsQuery, {
+      input: { terms: { commentIds: [replyingCommentId] } }
+    }, context);
+    
+    const replyingToComments = replyingToCommentResponse.data?.comments?.results?.filter((comment): comment is NonNullable<typeof comment> => !!comment) ?? [];
+    if (replyingToComments.length === 0) {
       throw new Error("Comment not found");
     }
-    const replyingToComment = replyingToCommentResponse[0];
+    const replyingToComment = replyingToComments[0];
     const message = getCommentReplyMessageFormatted(replyingToComment, prefix, user)
 
     messages.push({
@@ -154,16 +179,15 @@ async function constructMessageHistory(
     });
   }
   else if (postId) {
-    const postResponse = await runFragmentMultiQuery({
-      collectionName: "Posts",
-      fragmentName: "PostsForAutocomplete",
-      terms: { postIds: [postId] },
-      context,
-    })
-    if (!postResponse || postResponse.length === 0) {
+    const postResponse = await runQuery(postsForAutocompleteQuery, {
+      input: { terms: { postIds: [postId] } }
+    }, context);
+    
+    const posts = postResponse.data?.posts?.results?.filter((post): post is NonNullable<typeof post> => !!post) ?? [];
+    if (posts.length === 0) {
       throw new Error("Post not found");
     }
-    const post = postResponse[0];
+    const post = posts[0];
 
     messages.push({
       role: "assistant",
@@ -200,21 +224,17 @@ async function construct405bPrompt(
 ): Promise<string> {
 
   // Make the fetches parallel to save time
-  const [posts, comments] = await Promise.all([
-    runFragmentMultiQuery({
-      collectionName: "Posts",
-      fragmentName: "PostsForAutocomplete",
-      terms: { postIds },
-      context,
-    }),
-    runFragmentMultiQuery({
-      collectionName: "Comments",
-      fragmentName: "CommentsForAutocomplete",
-      terms: { commentIds },
-      context,
-    }),
+  const [postsResponse, commentsResponse] = await Promise.all([
+    runQuery(postsForAutocompleteQuery, {
+      input: { terms: { postIds } }
+    }, context),
+    runQuery(commentsForAutocompleteQuery, {
+      input: { terms: { commentIds } }
+    }, context),
   ]);
 
+  const posts = postsResponse.data?.posts?.results?.filter((post) => !!post) ?? [];
+  const comments = commentsResponse.data?.comments?.results?.filter((comment) => !!comment) ?? [];
 
   // eslint-disable-next-line no-console
   console.log(`Converting ${posts.length} posts and ${comments.length} comments to messages`, postId, replyingCommentId);
@@ -223,29 +243,27 @@ async function construct405bPrompt(
 
   if (replyingCommentId) {
     // Fetch the comment we're replying to
-    const replyingToCommentResponse = await runFragmentMultiQuery({
-      collectionName: "Comments",
-      fragmentName: "CommentsForAutocompleteWithParents",
-      terms: { commentIds: [replyingCommentId] },
-      context,
-    })
-    if (!replyingToCommentResponse || replyingToCommentResponse.length === 0) {
+    const replyingToCommentResponse = await runQuery(commentsForAutocompleteWithParentsQuery, {
+      input: { terms: { commentIds: [replyingCommentId] } }
+    }, context);
+    
+    const replyingToComments = replyingToCommentResponse.data?.comments?.results?.filter((comment) => !!comment) ?? [];
+    if (replyingToComments.length === 0) {
       throw new Error("Comment not found");
     }
-    const replyingToComment = replyingToCommentResponse[0];
+    const replyingToComment = replyingToComments[0];
 
     finalSection = getCommentReplyMessageFormatted(replyingToComment, prefix, user)    
   } else if (postId) {
-    const postResponse = await runFragmentMultiQuery({
-      collectionName: "Posts",
-      fragmentName: "PostsForAutocomplete",
-      terms: { postIds: [postId] },
-      context,
-    })
-    if (!postResponse || postResponse.length === 0) {
+    const postResponse = await runQuery(postsForAutocompleteQuery, {
+      input: { terms: { postIds: [postId] } }
+    }, context);
+    
+    const posts = postResponse.data?.posts?.results?.filter((post) => !!post) ?? [];
+    if (posts.length === 0) {
       throw new Error("Post not found");
     }
-    const post = postResponse[0];
+    const post = posts[0];
 
     finalSection = getPostReplyMessageFormatted(post, user, prefix)
   } else {

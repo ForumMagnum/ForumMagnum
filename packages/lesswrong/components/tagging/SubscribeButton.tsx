@@ -11,8 +11,6 @@ import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings
 import { Paper }from '@/components/widgets/Paper';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useMulti } from '../../lib/crud/withMulti';
-import { useCreate } from '../../lib/crud/withCreate';
 import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil';
 import LoginPopup from "../users/LoginPopup";
 import LWClickAwayListener from "../common/LWClickAwayListener";
@@ -20,6 +18,30 @@ import LWPopper from "../common/LWPopper";
 import { Typography } from "../common/Typography";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
+import { gql } from "@/lib/generated/gql-codegen";
+
+const SubscriptionStateMultiQuery = gql(`
+  query multiSubscriptionSubscribeButtonQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
+    subscriptions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SubscriptionState
+      }
+      totalCount
+    }
+  }
+`);
+
+const SubscriptionStateMutation = gql(`
+  mutation createSubscriptionSubscribeButton($data: CreateSubscriptionDataInput!) {
+    createSubscription(data: $data) {
+      data {
+        ...SubscriptionState
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -125,23 +147,17 @@ const SubscribeButton = ({
   const anchorEl = useRef(null);
   // Get existing NOTIFICATIONS subscription, if there is one
   const subscriptionType = "newTagPosts"
-  const { results: notifSubscriptions } = useMulti({
-    terms: {
-      view: "subscriptionState",
-      documentId: tag._id,
-      userId: currentUser?._id,
-      type: subscriptionType,
-      collectionName: "Tags",
-      limit: 1
+  const { data } = useQuery(SubscriptionStateMultiQuery, {
+    variables: {
+      selector: { subscriptionState: { documentId: tag._id, userId: currentUser?._id, type: subscriptionType, collectionName: "Tags" } },
+      limit: 1,
+      enableTotal: false,
     },
-    collectionName: "Subscriptions",
-    fragmentName: 'SubscriptionState',
-    enableTotal: false,
+    notifyOnNetworkStatusChange: true,
   });
-  const { create: createSubscription } = useCreate({
-    collectionName: 'Subscriptions',
-    fragmentName: 'SubscriptionState',
-  });
+
+  const notifSubscriptions = data?.subscriptions?.results;
+  const [createSubscription] = useMutation(SubscriptionStateMutation);
 
   const isSubscribedToPostNotifs = useMemo(() => {
     if (notifSubscriptions?.length !== 1) { // due to `limit: 1` above, this should only happen if there is no subscription
@@ -167,7 +183,7 @@ const SubscribeButton = ({
         type: subscriptionType,
       } as const;
 
-      await createSubscription({data: newSubscription})
+      await createSubscription({ variables: { data: newSubscription } })
     } catch(error) {
       flash({messageString: error.message});
     }

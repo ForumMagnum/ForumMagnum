@@ -2,12 +2,24 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useEffect, useState, useRef } from 'react';
 import moment from '../../../lib/moment-timezone';
 import { useTracking } from "../../../lib/analyticsEvents";
-import { useSingle } from '../../../lib/crud/withSingle';
 import makeUrls from './makeUrls';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import LWTooltip from "../../common/LWTooltip";
 import LWPopper from "../../common/LWPopper";
+
+
+const PostsPlaintextDescriptionQuery = gql(`
+  query AddToCalendarButton($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsPlaintextDescription
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -55,7 +67,7 @@ const AddToCalendarIcon = ({className=''}) => {
 }
 
 const AddToCalendarButton = ({post, label, hideTooltip, hideIcon, iconClassName, classes}: {
-  post: PostsList|PostsWithNavigation|PostsWithNavigationAndRevision,
+  post: PostsList|PostsWithNavigation|PostsWithNavigationAndRevision|(PostsEdit & { contents?: PostsWithNavigation['contents']}),
   label?: string,
   hideTooltip?: boolean,
   hideIcon?: boolean,
@@ -85,15 +97,14 @@ const AddToCalendarButton = ({post, label, hideTooltip, hideIcon, iconClassName,
     setOpen(!open)
   }
   // we use the Facebook link as the default event details text
-  let eventDetails = post.facebookLink;
+  let eventDetails = post.facebookLink ?? null;
   // we try to use plaintextDescription instead if possible
   // (only PostsList should be missing the plaintextDescription, so we pull that in)
-  const { document: data } = useSingle({
-    collectionName: "Posts",
-    fragmentName: 'PostsPlaintextDescription',
-    documentId: post._id,
-    skip: !post.startTime || !post.contents || ('plaintextDescription' in post.contents)
+  const { data: rawData } = useQuery(PostsPlaintextDescriptionQuery, {
+    variables: { documentId: post._id },
+    skip: !post.startTime || !post.contents || ('plaintextDescription' in post.contents),
   });
+  const data = rawData?.post?.result;
   
   if (!post.startTime) {
     return null;
@@ -111,7 +122,7 @@ const AddToCalendarButton = ({post, label, hideTooltip, hideIcon, iconClassName,
   const urls = makeUrls({
     name: post.title,
     details: eventDetails,
-    location: post.onlineEvent ? post.joinEventLink : post.location,
+    location: (post.onlineEvent ? post.joinEventLink : post.location) ?? null,
     startsAt: moment(post.startTime).format(),
     endsAt: endTime.format()
   })

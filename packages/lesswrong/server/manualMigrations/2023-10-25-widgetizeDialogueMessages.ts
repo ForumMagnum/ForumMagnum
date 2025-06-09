@@ -8,6 +8,7 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { registerMigration } from './migrationUtils';
 import { sleep } from '../../lib/helpers';
 import { fetchFragment, fetchFragmentSingle } from '../fetchFragment';
+import { PostsOriginalContents } from '@/lib/collections/posts/fragments';
 
 const widgetizeDialogueMessages = (html: string, _postId: string) => {
   const $ = cheerioParse(html);
@@ -101,7 +102,7 @@ async function _migrateDialogue(dialogue: PostsOriginalContents) {
 export const migrateDialogue = async (postId: string) => {
   const dialogue = await fetchFragmentSingle({
     collectionName: "Posts",
-    fragmentName: "PostsOriginalContents",
+    fragmentDoc: PostsOriginalContents,
     selector: {_id: postId},
     currentUser: null,
     skipFiltering: true,
@@ -116,7 +117,7 @@ export default registerMigration({
   action: async () => {
     const dialogues = await fetchFragment({
       collectionName: "Posts",
-      fragmentName: "PostsOriginalContents",
+      fragmentDoc: PostsOriginalContents,
       selector: {collabEditorDialogue: true},
       currentUser: null,
       skipFiltering: true,

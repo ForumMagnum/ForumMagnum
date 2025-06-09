@@ -22,6 +22,7 @@ import PostsItemTrailingButtons from "./PostsItemTrailingButtons";
 import PostReadCheckbox from "./PostReadCheckbox";
 import PostsItemNewCommentsWrapper from "./PostsItemNewCommentsWrapper";
 import PostMostValuableCheckbox from "./PostMostValuableCheckbox";
+import { maybeDate } from "@/lib/utils/dateUtils";
 
 const KARMA_WIDTH = 50;
 const CARD_IMG_HEIGHT = 80;
@@ -517,7 +518,7 @@ const EAPostsItem = ({
                 terms={commentTerms}
                 post={post}
                 treeOptions={{
-                  highlightDate: post.lastVisitedAt ?? undefined,
+                  highlightDate: maybeDate(post.lastVisitedAt ?? undefined),
                   condensed: condensedAndHiddenComments,
                 }}
               />

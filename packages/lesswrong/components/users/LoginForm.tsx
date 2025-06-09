@@ -1,12 +1,13 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { reCaptchaSiteKeySetting } from '../../lib/publicSettings';
-import { gql, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen';
 import { isAF, isEAForum } from '../../lib/instanceSettings';
 import { useMessages } from '../common/withMessages';
 import { getUserABTestKey, useClientId } from '../../lib/abTestImpl';
 import { useLocation } from '../../lib/routeUtil';
-import type { GraphQLError } from 'graphql';
+import type { GraphQLFormattedError } from 'graphql';
 import {isFriendlyUI} from '../../themes/forumTheme.ts'
 import ContentStyles from "../common/ContentStyles";
 import ReCaptcha from "../common/ReCaptcha";
@@ -126,32 +127,32 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
   const [currentAction, setCurrentAction] = useState<possibleActions>(startingState)
   const [subscribeToCurated, setSubscribeToCurated] = useState<boolean>(hasSubscribeToCuratedCheckbox)
 
-  const [loginMutation] = useMutation(gql`
+  const [loginMutation] = useMutation(gql(`
     mutation login($username: String, $password: String) {
       login(username: $username, password: $password) {
         token
       }
     }
-  `, { errorPolicy: 'all' })
+  `), { errorPolicy: 'all' })
 
-  const [signupMutation] = useMutation(gql`
+  const [signupMutation] = useMutation(gql(`
     mutation signup($email: String, $username: String, $password: String, $subscribeToCurated: Boolean, $reCaptchaToken: String, $abTestKey: String) {
       signup(email: $email, username: $username, password: $password, subscribeToCurated: $subscribeToCurated, reCaptchaToken: $reCaptchaToken, abTestKey: $abTestKey) {
         token
       }
     }
-  `, { errorPolicy: 'all' })
+  `), { errorPolicy: 'all' })
 
-  const [pwResetMutation] = useMutation(gql`
+  const [pwResetMutation] = useMutation(gql(`
     mutation resetPassword($email: String) {
       resetPassword(email: $email)
     }
-  `, { errorPolicy: 'all' })
+  `), { errorPolicy: 'all' })
 
   const [displayedError, setDisplayedError] = useState<string|null>(null);
   const clientId = useClientId();
 
-  const showErrors = (errors: readonly GraphQLError[]) => {
+  const showErrors = (errors: readonly GraphQLFormattedError[]) => {
     setDisplayedError(errors.map(err => err.message).join('.\n'));
   }
   

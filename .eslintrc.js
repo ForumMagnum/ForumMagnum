@@ -44,7 +44,7 @@ module.exports = {
   },
   "rules": {
     "babel/generator-star-spacing": 0,
-    
+
     // A function with a name starting with an uppercase letter should only be
     // used as a constructor
     "babel/new-cap": [1, {
@@ -89,6 +89,23 @@ module.exports = {
     "react/no-unescaped-entities": 0,
     "react/display-name": 0,
     "react/jsx-no-comment-textnodes": 1,
+
+    // A function with a name starting with an uppercase letter should only be
+    // used as a constructor
+    "babel/new-cap": [1, {
+      "capIsNewExceptions": [
+        "Optional",
+        "OneOf",
+        "Maybe",
+        "MailChimpAPI",
+        "Juice",
+        "Run",
+        "AppComposer",
+        "Query",
+        "Map",
+        "List"
+      ]
+    }],
 
     // Warn if defining a component inside a function, which results in the
     // component's subtree and its state being destroyed on every render
@@ -351,6 +368,7 @@ module.exports = {
     "packages/lesswrong/viteClient",
     // You wouldn't have thought this was necessary would you
     ".eslintrc.js",
-    "packages/lesswrong/lib/vendor/@material-ui"
+    "packages/lesswrong/lib/vendor/@material-ui",
+    "packages/lesswrong/lib/generated/gql-codegen"
   ]
 }

@@ -13,6 +13,7 @@ import PostExcerpt from "../common/excerpts/PostExcerpt";
 import LinkPostMessage from "../posts/LinkPostMessage";
 import EAKarmaDisplay from "../common/EAKarmaDisplay";
 import PostsTitle from "../posts/PostsTitle";
+import { maybeDate } from "@/lib/utils/dateUtils";
 
 const styles = (theme: ThemeType) => ({
   header: {
@@ -65,7 +66,7 @@ const getItemProps = (
         user: post.user,
         action: "scheduled",
         post,
-        timestamp: post.postedAt,
+        timestamp: maybeDate(post.postedAt),
       };
     }
 
@@ -76,7 +77,7 @@ const getItemProps = (
       user: post.user,
       action: "posted",
       post,
-      timestamp: post.postedAt,
+      timestamp: maybeDate(post.postedAt),
     };
   }
 
@@ -87,7 +88,7 @@ const getItemProps = (
     user: comments[0].user,
     action: "commented on",
     post,
-    timestamp: comments[0].postedAt,
+    timestamp: maybeDate(comments[0].postedAt),
   };
 }
 

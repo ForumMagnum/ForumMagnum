@@ -1,5 +1,3 @@
-import { useCreate } from '@/lib/crud/withCreate';
-import { useUpdate } from '@/lib/crud/withUpdate';
 import { defaultEditorPlaceholder } from '@/lib/editor/make_editable';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { DialogContent } from "@/components/widgets/DialogContent";
@@ -18,6 +16,28 @@ import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm
 import Error404 from "../common/Error404";
 import LWDialog from "../common/LWDialog";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const TagFlagFragmentUpdateMutation = gql(`
+  mutation updateTagFlagTagFlagEditAndNewForm($selector: SelectorInput!, $data: UpdateTagFlagDataInput!) {
+    updateTagFlag(selector: $selector, data: $data) {
+      data {
+        ...TagFlagFragment
+      }
+    }
+  }
+`);
+
+const TagFlagFragmentMutation = gql(`
+  mutation createTagFlagTagFlagEditAndNewForm($data: CreateTagFlagDataInput!) {
+    createTagFlag(data: $data) {
+      data {
+        ...TagFlagFragment
+      }
+    }
+  }
+`);
 
 const formStyles = defineStyles('TagFlagsForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -42,21 +62,16 @@ const TagFlagEditAndNewForm = ({ initialData, onClose }: {
     addOnSuccessCallback
   } = useEditorFormCallbacks<TagFlagFragment>();
 
-  const { create } = useCreate({
-    collectionName: 'TagFlags',
-    fragmentName: 'TagFlagFragment',
-  });
+  const [create] = useMutation(TagFlagFragmentMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'TagFlags',
-    fragmentName: 'TagFlagFragment',
-  });
+  const [mutate] = useMutation(TagFlagFragmentUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
   const form = useForm({
     defaultValues: {
       ...initialData,
+      name: initialData?.name ?? '',
     },
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
@@ -65,15 +80,23 @@ const TagFlagEditAndNewForm = ({ initialData, onClose }: {
         let result: TagFlagFragment;
 
         if (formType === 'new') {
-          const { data } = await create({ data: formApi.state.values });
-          result = data?.createTagFlag.data;
+          const { data } = await create({ variables: { data: formApi.state.values } });
+          if (!data?.createTagFlag?.data) {
+            throw new Error('Failed to create tag flag');
+          }
+          result = data.createTagFlag.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updateTagFlag.data;
+          if (!data?.updateTagFlag?.data) {
+            throw new Error('Failed to update tag flag');
+          }
+          result = data.updateTagFlag.data;
         }
 
         onSuccessCallback.current?.(result);

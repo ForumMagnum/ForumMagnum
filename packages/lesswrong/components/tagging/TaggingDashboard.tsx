@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -8,7 +7,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
-import { useSingle } from '@/lib/crud/withSingle';
 import TagFlagEditAndNewForm from "./TagFlagEditAndNewForm";
 import SectionTitle from "../common/SectionTitle";
 import TagsDetailsItem from "./TagsDetailsItem";
@@ -19,6 +17,41 @@ import LoadMore from "../common/LoadMore";
 import TagActivityFeed from "./TagActivityFeed";
 import TagVoteActivity from "./TagVoteActivity";
 import SingleColumnSection from "../common/SingleColumnSection";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+
+const TagFlagFragmentMultiQuery = gql(`
+  query multiTagFlagTaggingDashboardQuery($selector: TagFlagSelector, $limit: Int, $enableTotal: Boolean) {
+    tagFlags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagFlagFragment
+      }
+      totalCount
+    }
+  }
+`);
+
+const TagWithFlagsFragmentMultiQuery = gql(`
+  query multiTagTaggingDashboardQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagWithFlagsFragment
+      }
+      totalCount
+    }
+  }
+`);
+
+const TagFlagEditFragmentQuery = gql(`
+  query TaggingDashboard($documentId: String) {
+    tagFlag(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...TagFlagEditFragment
+      }
+    }
+  }
+`);
 
 const SECTION_WIDTH = 960
 
@@ -92,40 +125,46 @@ const TaggingDashboard = ({classes}: {
   const [collapsed, setCollapsed] = useState(currentUser?.taggingDashboardCollapsed || false);
   
   const multiTerms = {
-      allPages: {view: "allPagesByNewest"},
-      myPages: {view: "userTags", userId: currentUser?._id},
-      //tagFlagId handled as default case below
+    allPages: {view: "allPagesByNewest"},
+    myPages: {view: "userTags", userId: currentUser?._id},
+    //tagFlagId handled as default case below
   } as const
     
-  const { results: tags, loading, loadMoreProps } = useMulti({
-    terms: fieldIn(query.focus, multiTerms) ? multiTerms[query.focus] : {view: "tagsByTagFlag", tagFlagId: query.focus},
-    collectionName: "Tags",
-    fragmentName: "TagWithFlagsFragment",
-    limit: 10,
+  const terms = fieldIn(query.focus, multiTerms) ? multiTerms[query.focus] : { view: "tagsByTagFlag", tagFlagId: query.focus };
+  const { view, ...selectorTerms } = terms;
+  const { data: dataTagsWithFlags, loading, loadMoreProps } = useQueryWithLoadMore(TagWithFlagsFragmentMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 10,
+      enableTotal: false,
+    },
     itemsPerPage: 50,
   });
+
+  const tags = dataTagsWithFlags?.tags?.results;
 
   const tagsFiltered = ["allPages", "myPages"].includes(query.focus)  //if not showing all tags, only show those with at least one non-deleted tag flag
     ? tags
     : tags?.filter(tag => (tag as TagWithFlagsFragment)?.tagFlags.some(tagFlag => !tagFlag.deleted))
   
-  const { results: tagFlags } = useMulti({
-    terms: {
-      view: "allTagFlags"
+  const { data: dataTagFlagFragment } = useQuery(TagFlagFragmentMultiQuery, {
+    variables: {
+      selector: { allTagFlags: {} },
+      limit: 100,
+      enableTotal: false,
     },
-    collectionName: "TagFlags",
-    fragmentName: "TagFlagFragment",
-    limit: 100,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const tagFlags = dataTagFlagFragment?.tagFlags?.results;
   
   const focusedTagFlagId = tagFlags?.find(tagFlag => tagFlag._id === query.focus)?._id;
 
-  const { document: focusedTagFlag } = useSingle({
-    documentId: focusedTagFlagId,
-    collectionName: "TagFlags",
-    fragmentName: "TagFlagEditFragment",
+  const { data } = useQuery(TagFlagEditFragmentQuery, {
+    variables: { documentId: focusedTagFlagId },
     skip: !focusedTagFlagId,
   });
+  const focusedTagFlag = data?.tagFlag?.result;
 
   const { openDialog } = useDialog();
   

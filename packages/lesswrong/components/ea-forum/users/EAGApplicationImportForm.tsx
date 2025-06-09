@@ -12,14 +12,26 @@ import { markdownToHtmlSimple } from '../../../lib/editor/utils';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import { useMessages } from '../../common/withMessages';
 import { AnalyticsContext, useTracking } from '../../../lib/analyticsEvents';
-import { useSingle } from '../../../lib/crud/withSingle';
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../../vulcan-core/Loading";
 import { Typography } from "../../common/Typography";
 import { MultiSelect } from "../../form-components/FormComponentMultiSelect";
 import PrefixedInput from "../../form-components/PrefixedInput";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+
+
+const UsersEditQuery = gql(`
+  query EAGApplicationImportForm($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UsersEdit
+      }
+    }
+  }
+`);
 
 const styles = defineStyles('EAGApplicationImportForm', (theme: ThemeType) => ({
   root: {
@@ -210,12 +222,11 @@ type EditorFormComponentRefType = {
 // edit bio, howICanHelpOthers.
 const EAGApplicationImportFormWrapper = () => {
   const currentUser = useCurrentUser()
-  const { document: currentUserEdit, loading } = useSingle({
-    documentId: currentUser?._id,
-    collectionName: "Users",
-    fragmentName: "UsersEdit",
+  const { data } = useQuery(UsersEditQuery, {
+    variables: { documentId: currentUser?._id },
     skip: !currentUser,
   });
+  const currentUserEdit = data?.user?.result;
   
   if (!currentUser || !currentUserEdit) {
     return <Loading/>

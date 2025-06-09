@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from "@/lib/generated/gql-codegen";
 
-export const SequencesPageTitleFragment = () => frag`
+export const SequencesPageTitleFragment = gql(`
   fragment SequencesPageTitleFragment on Sequence {
     _id
     title
@@ -10,9 +10,9 @@ export const SequencesPageTitleFragment = () => frag`
       title
     }
   }
-`
+`)
 
-export const SequencesPageFragment = () => frag`
+export const SequencesPageFragment = gql(`
   fragment SequencesPageFragment on Sequence {
     ...SequencesPageTitleFragment
     createdAt
@@ -37,31 +37,31 @@ export const SequencesPageFragment = () => frag`
     postsCount
     readPostsCount
   }
-`
+`)
 
-export const SequenceContinueReadingFragment = () => frag`
+export const SequenceContinueReadingFragment = gql(`
   fragment SequenceContinueReadingFragment on Sequence {
     _id
     title
     gridImageId
     canonicalCollectionSlug
   }
-`
+`)
 
-export const SequencesPageWithChaptersFragment = () => frag`
+export const SequencesPageWithChaptersFragment = gql(`
   fragment SequencesPageWithChaptersFragment on Sequence {
     ...SequencesPageFragment
     chapters {
       ...ChaptersFragment
     }
   }
-`
+`)
 
-export const SequencesEdit = () => frag`
+export const SequencesEdit = gql(`
   fragment SequencesEdit on Sequence {
     ...SequencesPageFragment
     contents { 
       ...RevisionEdit
     }
   }
-`
+`)

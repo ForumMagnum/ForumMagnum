@@ -1,10 +1,21 @@
 import "./integrationTestSetup";
 import React from 'react';
-import { useSingle } from '../lib/crud/withSingle';
 import { createDummyUser, createDummyPost } from './utils'
 import { emailDoctype, generateEmail } from '../server/emails/renderEmail';
 import { getUserEmail } from "../lib/collections/users/helpers";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles, withStyles } from "@/components/hooks/useStyles";
+
+const PostsRevisionQuery = gql(`
+  query emailstests($documentId: String, $version: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsRevision
+      }
+    }
+  }
+`);
 
 const unitTestBoilerplateGenerator = ({css,title,body}: {css: string, title: string, body: string}): string => {
   const styleTag = (css && css.length>0) ? `<style>${css}</style>` : "";
@@ -69,17 +80,10 @@ describe('renderEmail', () => {
     const post = await createDummyPost(user, { title: "Email unit test post" });
     
     const PostTitleComponent= ({documentId}: {documentId: string}) => {
-      const { document } = useSingle({
-        documentId,
-        collectionName: "Posts",
-        fragmentName: 'PostsRevision',
-        extraVariables: {
-          version: 'String'
-        },
-        extraVariablesValues: {
-          version: null,
-        },
+      const { data } = useQuery(PostsRevisionQuery, {
+        variables: { documentId: documentId, version: null },
       });
+      const document = data?.post?.result;
       return <div>{document?.title}</div>;
     }
     
@@ -94,17 +98,10 @@ describe('renderEmail', () => {
     const post = await createDummyPost(user, { title: "Email unit test post" });
     
     const PostTitleComponent = ({documentId}: {documentId: string}) => {
-      const { document } = useSingle({
-        documentId,
-        collectionName: "Posts",
-        fragmentName: 'PostsRevision',
-        extraVariables: {
-          version: 'String'
-        },
-        extraVariablesValues: {
-          version: null,
-        },
+      const { data } = useQuery(PostsRevisionQuery, {
+        variables: { documentId: documentId, version: null },
       });
+      const document = data?.post?.result;
       return <div>{document?.title}</div>
     }
     

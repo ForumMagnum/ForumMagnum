@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from "@/lib/generated/gql-codegen";
 
-export const RSSFeedMinimumInfo = () => frag`
+export const RSSFeedMinimumInfo = gql(`
   fragment RSSFeedMinimumInfo on RSSFeed {
     _id
     userId
@@ -14,9 +14,9 @@ export const RSSFeedMinimumInfo = () => frag`
     url
     importAsDraft
   }
-`
+`)
 
-export const newRSSFeedFragment = () => frag`
+export const newRSSFeedFragment = gql(`
   fragment newRSSFeedFragment on RSSFeed {
     _id
     userId
@@ -28,11 +28,11 @@ export const newRSSFeedFragment = () => frag`
     status
     importAsDraft
   }
-`
+`)
 
 
 
-export const RSSFeedMutationFragment = () => frag`
+export const RSSFeedMutationFragment = gql(`
   fragment RSSFeedMutationFragment on RSSFeed {
     _id
     userId
@@ -42,4 +42,4 @@ export const RSSFeedMutationFragment = () => frag`
     url
     importAsDraft
   }
-`
+`)

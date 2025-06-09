@@ -1,13 +1,25 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
-import { useMulti } from '../../lib/crud/withMulti';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { isEAForum } from '../../lib/instanceSettings';
 import PostsLoading from "../posts/PostsLoading";
 import PostsItem from "../posts/PostsItem";
 import LoadMore from "../common/LoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const BookmarksWithDocumentFragmentMultiQuery = gql(`
+  query multiBookmarkBookmarksListQuery($selector: BookmarkSelector, $limit: Int, $enableTotal: Boolean) {
+    bookmarks(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...BookmarksWithDocumentFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   empty: {
@@ -27,17 +39,18 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, 
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const {results: bookmarks, loading, loadMoreProps} = useMulti({
-    collectionName: "Bookmarks",
-    terms: {
-      view: "myBookmarkedPosts",
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(BookmarksWithDocumentFragmentMultiQuery, {
+    variables: {
+      selector: { myBookmarkedPosts: {} },
       limit,
+      enableTotal: false,
     },
-    itemsPerPage: 20,
-    fragmentName: "BookmarksWithDocumentFragment",
-    fetchPolicy: "cache-and-network",
     skip: !currentUser?._id,
+    fetchPolicy: "cache-and-network",
+    itemsPerPage: 20,
   });
+
+  const bookmarks = data?.bookmarks?.results;
   
   if (!currentUser) return null
 

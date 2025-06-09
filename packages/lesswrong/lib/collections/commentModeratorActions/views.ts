@@ -1,7 +1,7 @@
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 interface NoViewTerms extends ViewTermsBase {
-  view?: undefined;
+  view: undefined;
 }
 
 interface ActiveCommentModeratorActionsViewTerms extends ViewTermsBase {

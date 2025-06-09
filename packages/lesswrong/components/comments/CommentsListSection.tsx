@@ -173,7 +173,7 @@ const CommentsListSection = ({
           })}
         >
           {!isEAForum && <div className={classes.newCommentLabel}>{preferredHeadingCase("New Comment")}</div>}
-          {post?.isEvent && (post?.rsvps?.length > 0) && (
+          {post?.isEvent && !!post.rsvps?.length && (
             <div className={classes.newCommentSublabel}>
               Everyone who RSVP'd to this event will be notified.
             </div>

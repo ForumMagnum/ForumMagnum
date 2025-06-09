@@ -1,9 +1,21 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { CommentTreeOptions } from '../comments/commentTree';
 import NoContent from "../common/NoContent";
 import PostsItemNewCommentsListNode from "./PostsItemNewCommentsListNode";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const CommentsListMultiQuery = gql(`
+  query multiCommentPostsItemNewCommentsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsList
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({})
 
@@ -13,13 +25,18 @@ const PostsItemNewCommentsList = ({ terms, post, treeOptions }: {
   post: PostsList,
   treeOptions: CommentTreeOptions,
 }) => {
-  const { loading, results } = useMulti({
-    terms,
-    collectionName: "Comments",
-    fragmentName: 'CommentsList',
+  const { view, limit, ...selectorTerms } = terms;
+  const { data, loading } = useQuery(CommentsListMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: terms.limit ?? 5,
+      enableTotal: false,
+    },
     fetchPolicy: 'cache-first',
-    limit: 5,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.comments?.results;
   const noCommentsFound = !loading && results && !results.length;
 
   if (noCommentsFound) {

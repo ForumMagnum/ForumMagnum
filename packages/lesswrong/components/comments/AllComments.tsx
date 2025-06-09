@@ -76,7 +76,7 @@ const AllComments = () => {
     limit: 100,
     sortBy: settings.sortBy,
     minimumKarma: settings.minimumKarma,
-  } : query;
+  } : { ...query, view: (query.view as CommentsViewName | undefined) ?? 'default' };
 
   const toggleSettings = () => {
     setShowSettings(!showSettings);

@@ -13,6 +13,7 @@ import { artPrompt } from '@/components/review/GenerateImagesButton.tsx';
 import { createAdminContext } from '@/server/vulcan-lib/createContexts.ts';
 import { createReviewWinnerArt } from '@/server/collections/reviewWinnerArts/mutations.ts';
 import { createSplashArtCoordinate } from '@/server/collections/splashArtCoordinates/mutations.ts';
+import { PostsPage } from '@/lib/collections/posts/fragments.ts';
 
 /*
 This script makes AI-generated images for Best of LessWrong posts.
@@ -150,7 +151,7 @@ const getEssaysWithoutEnoughArt = async (): Promise<Essay[]> => {
 
   const essays = await fetchFragment({
     collectionName: "Posts",
-    fragmentName: "PostsPage",
+    fragmentDoc: PostsPage,
     selector: {_id: {$in: postIdsWithoutEnoughArt.map(p => p.postId)}},
     currentUser: null,
     skipFiltering: true,
@@ -330,7 +331,7 @@ export const generateCoverImagesForPost = async (postId: string, prompt?: string
   
   const post = await fetchFragment({
     collectionName: "Posts",
-    fragmentName: "PostsPage",
+    fragmentDoc: PostsPage,
     selector: {_id: postId},
     currentUser: null,
     skipFiltering: true,

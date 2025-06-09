@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
@@ -13,6 +12,20 @@ import ShortformSubmitForm from "../shortform/ShortformSubmitForm";
 import Loading from "../vulcan-core/Loading";
 import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
 import LoadMore from "../common/LoadMore";
+import { NetworkStatus } from "@apollo/client";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const PostsRecentDiscussionMultiQuery = gql(`
+  query multiPostRecentDiscussionThreadsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean, $commentsLimit: Int, $maxAgeHours: Int, $af: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsRecentDiscussion
+      }
+      totalCount
+    }
+  }
+`);
 
 const RecentDiscussionThreadsList = ({
   terms, commentsLimit, maxAgeHours, af,
@@ -29,22 +42,22 @@ const RecentDiscussionThreadsList = ({
   const [showShortformFeed, setShowShortformFeed] = useState(false);
   const currentUser = useCurrentUser();
   
-  const { results, loading, loadMore, loadingMore, refetch } = useMulti({
-    terms,
-    collectionName: "Posts",
-    fragmentName: 'PostsRecentDiscussion',
+  const { view, limit, ...selectorTerms } = terms;
+  const { data, loading, refetch, networkStatus, loadMoreProps } = useQueryWithLoadMore(PostsRecentDiscussionMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: limit ?? 10,
+      enableTotal: false,
+      ...{
+        commentsLimit, maxAgeHours, af
+      },
+    },
     fetchPolicy: 'cache-and-network',
-    enableTotal: false,
-    pollInterval: 0,
-    extraVariables: {
-      commentsLimit: 'Int',
-      maxAgeHours: 'Int',
-      af: 'Boolean',
-    },
-    extraVariablesValues: {
-      commentsLimit, maxAgeHours, af
-    },
   });
+
+  const results = data?.posts?.results;
+  const { loadMore } = loadMoreProps;
+  const loadingMore = networkStatus === NetworkStatus.fetchMore;
 
   useGlobalKeydown((event: KeyboardEvent) => {
     const F_Key = 70
@@ -83,7 +96,7 @@ const RecentDiscussionThreadsList = ({
               key={post._id}
               post={post}
               refetch={refetch}
-              comments={post.recentComments}
+              comments={post.recentComments ?? undefined}
               expandAllThreads={expandAll}
             />
           )}

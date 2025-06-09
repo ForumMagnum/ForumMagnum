@@ -2,7 +2,6 @@ import React, {CSSProperties, useCallback, useEffect, useMemo, useRef, useState}
 import { registerComponent } from '../../lib/vulcan-lib/components'
 import {AnalyticsContext, useTracking} from '../../lib/analyticsEvents.tsx'
 import classNames from 'classnames'
-import {useMulti} from '../../lib/crud/withMulti.ts'
 import debounce from 'lodash/debounce'
 import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent.tsx'
 import qs from 'qs'
@@ -11,6 +10,19 @@ import { useLocation, useNavigate } from "../../lib/routeUtil";
 import SingleColumnSection from "./SingleColumnSection";
 import ForumIcon from "./ForumIcon";
 import LWTooltip from "./LWTooltip";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const TagFragmentMultiQuery = gql(`
+  query multiTagHomeTagBarQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const eventTabStyles = (invertColors: boolean) => ({
   backgroundColor: invertColors
@@ -179,7 +191,7 @@ export type TopicsBarTab = {
   name: string,
   shortName?: string | null,
   slug?: string,
-  description?: TagFragment_description | null,
+  description?: TagFragment['description'] | null,
 }
 
 /**
@@ -214,12 +226,16 @@ const HomeTagBar = (
   // we store the topic bar scrollLeft offsets that correspond to displaying each "set" of topics
   const offsets = useRef<Array<number>>([0])
 
-  const {results: coreTopics, loading: coreTopicsLoading} = useMulti({
-    terms: {view: 'coreTags'},
-    collectionName: 'Tags',
-    fragmentName: 'TagFragment',
-    limit: 40,
-  })
+  const { data, loading: coreTopicsLoading } = useQuery(TagFragmentMultiQuery, {
+    variables: {
+      selector: { coreTags: {} },
+      limit: 40,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const coreTopics = data?.tags?.results;
 
   useEffect(() => {
     if (!tabsWindowRef.current || !topicsBarRef.current) return

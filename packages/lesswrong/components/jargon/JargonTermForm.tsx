@@ -1,5 +1,3 @@
-import { useCreate } from "@/lib/crud/withCreate";
-import { useUpdate } from "@/lib/crud/withUpdate";
 import { useForm } from "@tanstack/react-form";
 import React, { useState } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
@@ -12,6 +10,28 @@ import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm
 import Loading from "../vulcan-core/Loading";
 import LWTooltip from "../common/LWTooltip";
 import Error404 from "../common/Error404";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const JargonTermsUpdateMutation = gql(`
+  mutation updateJargonTermJargonTermForm($selector: SelectorInput!, $data: UpdateJargonTermDataInput!) {
+    updateJargonTerm(selector: $selector, data: $data) {
+      data {
+        ...JargonTerms
+      }
+    }
+  }
+`);
+
+const JargonTermsMutation = gql(`
+  mutation createJargonTermJargonTermForm($data: CreateJargonTermDataInput!) {
+    createJargonTerm(data: $data) {
+      data {
+        ...JargonTerms
+      }
+    }
+  }
+`);
 
 const formStyles = defineStyles('JargonTermForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -73,7 +93,7 @@ export const JargonTermForm = ({
   onSuccess,
   onCancel,
 }: {
-  initialData?: UpdateJargonTermDataInput & { _id: string };
+  initialData?: UpdateJargonTermDataInput & { _id: string; postId?: string | null };
   postId: string;
   onSuccess: (doc: JargonTerms) => void;
   onCancel: () => void;
@@ -88,22 +108,18 @@ export const JargonTermForm = ({
     addOnSuccessCallback
   } = useEditorFormCallbacks<JargonTerms>();
 
-  const { create } = useCreate({
-    collectionName: 'JargonTerms',
-    fragmentName: 'JargonTerms',
-  });
+  const [create] = useMutation(JargonTermsMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'JargonTerms',
-    fragmentName: 'JargonTerms',
-  });
+  const [mutate] = useMutation(JargonTermsUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
   const form = useForm({
     defaultValues: {
       ...initialData,
-      ...(formType === 'new' ? { postId } : {}),
+      postId: initialData?.postId ?? postId,
+      term: initialData?.term ?? '',
+      altTerms: initialData?.altTerms ?? [],
     },
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
@@ -112,15 +128,23 @@ export const JargonTermForm = ({
         let result: JargonTerms;
 
         if (formType === 'new') {
-          const { data } = await create({ data: formApi.state.values });
-          result = data?.createJargonTerm.data;
+          const { data } = await create({ variables: { data: formApi.state.values } });
+          if (!data?.createJargonTerm?.data) {
+            throw new Error('Failed to create jargon term');
+          }
+          result = data.createJargonTerm.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updateJargonTerm.data;
+          if (!data?.updateJargonTerm?.data) {
+            throw new Error('Failed to update jargon term');
+          }
+          result = data.updateJargonTerm.data;
         }
 
         onSuccessCallback.current?.(result);

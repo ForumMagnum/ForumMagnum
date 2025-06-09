@@ -323,8 +323,8 @@ export const graphqlRevisionTypeDefs = gql`
     googleDocMetadata: JSON
   }
 
-  input UpdateRevisionDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateRevisionDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateRevisionInput {

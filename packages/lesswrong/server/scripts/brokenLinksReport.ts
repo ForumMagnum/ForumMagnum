@@ -4,7 +4,8 @@ import htmlparser2 from 'htmlparser2';
 import { URL } from 'url';
 import fs from 'fs';
 import * as _ from 'underscore';
-import { fetchFragment } from '../fetchFragment';
+import { FetchedFragment, fetchFragment } from '../fetchFragment';
+import { PostsPage } from '@/lib/collections/posts/fragments';
 
 const whitelistedImageHosts = [
   "lesswrong.com",
@@ -76,7 +77,7 @@ const describePost = async (post: PostsPage) =>
 // (nothing broken), returns the empty string; otherwise the result (which is
 // meant to be handled by a person) includes the title/author/karma of the
 // post and a list of broken things within it.
-const checkPost = async (post: PostsPage) => {
+const checkPost = async (post: FetchedFragment<PostsPage, 'Posts'>) => {
   const { html } = post.contents || {}
   const images = getImagesInHtml(html ?? "");
   const links = getLinksInHtml(html ?? "");
@@ -147,7 +148,7 @@ export const findBrokenLinks = async (
   }
   const postsToCheck = await fetchFragment({
     collectionName: "Posts",
-    fragmentName: "PostsPage",
+    fragmentDoc: PostsPage,
     selector: filter,
     currentUser: null,
     skipFiltering: true,

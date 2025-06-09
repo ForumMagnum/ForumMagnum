@@ -1,4 +1,4 @@
-import { LoadMoreCallback, useMulti } from '../../lib/crud/withMulti';
+import { LoadMoreCallback } from '../hooks/useQueryWithLoadMore';
 import React from 'react';
 import { getFieldValue } from './Card';
 import _sortBy from 'lodash/sortBy';
@@ -7,6 +7,8 @@ import { useCurrentUser } from '../common/withUser';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import Loading from "./Loading";
 import LoadMore from "../common/LoadMore";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 
 type ColumnComponent = React.ComponentType<{column: any}>
 
@@ -27,20 +29,16 @@ const getColumnName = (column: Column) => (
 export const Datatable = <
   FragmentTypeName extends keyof FragmentTypes,
   CollectionName extends CollectionNameString = CollectionNamesByFragmentName[FragmentTypeName]
->({columns, collectionName, fragmentName, limit, terms}: {
+>({columns, results, loading, loadingMore, loadMore, count, totalCount, collectionName}: {
   columns: Column[],
+  results: AnyBecauseHard[],
+  loading: boolean,
+  loadingMore: boolean,
+  loadMore: LoadMoreCallback,
+  count: number,
+  totalCount: number,
   collectionName: CollectionNameString,
-  fragmentName: FragmentTypeName
-  limit?: number,
-  terms: ViewTermsByCollectionName[CollectionName]
 }) => {
-  const { results, loading, loadingMore, loadMore, count, totalCount } = useMulti({
-    collectionName,
-    fragmentName,
-    terms: terms,
-    limit,
-    enableTotal: true,
-  });
   return <DatatableLayout collectionName={collectionName}>
     <DatatableContents
       columns={columns}

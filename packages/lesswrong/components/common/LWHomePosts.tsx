@@ -12,18 +12,18 @@ import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
-import { useMulti } from '../../lib/crud/withMulti';
-import { ContinueReading, useContinueReading } from '../recommendations/withContinueReading';
+import { useContinueReading } from '../recommendations/withContinueReading';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import TabPicker, { TabRecord } from './TabPicker';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS, LAST_VISITED_FRONTPAGE_COOKIE, RECOMBEE_SETTINGS_COOKIE, SELECTED_FRONTPAGE_TAB_COOKIE } from '../../lib/cookies/cookies';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { PostFeedDetails, homepagePostFeedsSetting } from '../../lib/instanceSettings';
-import { ObservableQuery, gql, useMutation } from '@apollo/client';
+import { gql } from "@/lib/generated/gql-codegen";
+import { ObservableQuery, useMutation } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 import { vertexEnabledSetting } from '../../lib/publicSettings';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
-import { useSingle } from '@/lib/crud/withSingle';
 import { isServer } from '@/lib/executionEnvironment';
 import isEqual from 'lodash/isEqual';
 import { registerComponent } from "../../lib/vulcan-lib/components";
@@ -39,11 +39,32 @@ import CuratedPostsList from "../recommendations/CuratedPostsList";
 import RecombeePostsListSettings from "../posts/RecombeePostsListSettings";
 import BookmarksList from "../bookmarks/BookmarksList";
 import ContinueReadingList from "../recommendations/ContinueReadingList";
-import VertexPostsList from "../posts/VertexPostsList";
 import WelcomePostItem from "../recommendations/WelcomePostItem";
-import MixedTypeFeed from "./MixedTypeFeed";
+import { MixedTypeFeed } from "./MixedTypeFeed";
 import SuggestedFeedSubscriptions from "../subscriptions/SuggestedFeedSubscriptions";
 import PostsItem from "../posts/PostsItem";
+import { SubscribedFeedQuery } from './feeds/feedQueries';
+
+const SubscriptionStateMultiQuery = gql(`
+  query multiSubscriptionLWHomePostsQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
+    subscriptions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SubscriptionState
+      }
+      totalCount
+    }
+  }
+`);
+
+const PostsListWithVotesQuery = gql(`
+  query LWHomePosts($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsListWithVotes
+      }
+    }
+  }
+`);
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -267,7 +288,7 @@ function isTabEnabled(
   tab: PostFeedDetails,
   currentUser: UsersCurrent | null,
   query: Record<string, string>,
-  continueReading: ContinueReading[]
+  continueReading: ContinueReadingQueryQuery_ContinueReading_RecommendResumeSequence[]
 ): boolean {
   if (tab.disabled) {
     return false;
@@ -282,7 +303,7 @@ function isTabEnabled(
 
   const activeSubscribedTabDisabled = tab.name === 'forum-subscribed-authors' && !userHasSubscribeTabFeed(currentUser);
 
-  const hasBookmarks = (currentUser?.bookmarkedPostsMetadata.length ?? 0) >= 1;
+  const hasBookmarks = (currentUser?.bookmarkedPostsMetadata?.length ?? 0) >= 1;
   const activeBookmarkTabDisabled = tab.name === 'forum-bookmarks' && !hasBookmarks;
 
   const hasContinueReading = (continueReading?.length ?? 0) >= 1;
@@ -424,11 +445,11 @@ const LWHomePosts = ({ children, classes }: {
   const now = useCurrentTime();
   const { continueReading } = useContinueReading();
 
-  const [sendVertexViewHomePageEvent] = useMutation(gql`
+  const [sendVertexViewHomePageEvent] = useMutation(gql(`
     mutation sendVertexViewHomePageEventMutation {
       sendVertexViewHomePageEvent
     }
-  `, {
+  `), {
     ignoreResults: true
   });
 
@@ -464,29 +485,27 @@ const LWHomePosts = ({ children, classes }: {
   }, [refetchSubscriptionContentRef]);
 
   // TODO: refactor to pass this through SuggestedFeedSubscriptions > FollowUserSearch instead of calling it there, if we keep it here
-  const { results: userSubscriptions } = useMulti({
-    terms: {
-      view: "subscriptionsOfType",
-      userId: currentUser?._id,
-      collectionName: "Users",
-      subscriptionType: "newActivityForFeed",
-      limit: 1000
+  const { data: dataSubscriptionState } = useQuery(SubscriptionStateMultiQuery, {
+    variables: {
+      selector: { subscriptionsOfType: { userId: currentUser?._id, collectionName: "Users", subscriptionType: "newActivityForFeed" } },
+      limit: 1000,
+      enableTotal: false,
     },
-    collectionName: "Subscriptions",
-    fragmentName: "SubscriptionState",
-    skip: !currentUser || selectedTab !== 'forum-subscribed-authors'
+    skip: !currentUser || selectedTab !== 'forum-subscribed-authors',
+    notifyOnNetworkStatusChange: true,
   });
 
+  const userSubscriptions = dataSubscriptionState?.subscriptions?.results;
+
   const subscribedFeedProps = {
-    resolverName: 'SubscribedFeed',
+    query: SubscribedFeedQuery,
+    variables: {},
     firstPageSize: 10,
     pageSize: 20,
-    sortKeyType: 'Date',
     reorderOnRefetch: true,
     renderers: {
       postCommented: {
-        fragmentName: "SubscribedPostAndCommentsFeed",
-        render: (postCommented: SubscribedPostAndCommentsFeed) => {
+        render: (postCommented) => {
           const expandOnlyCommentIds = postCommented.expandCommentIds ? new Set<string>(postCommented.expandCommentIds) : undefined;
           const deemphasizeCommentsExcludingUserIds = userSubscriptions ? new Set(filterNonnull(userSubscriptions.map(({ documentId }) => documentId))) : undefined;
           return <FeedPostCommentsCard
@@ -498,9 +517,9 @@ const LWHomePosts = ({ children, classes }: {
             commentTreeOptions={{ expandOnlyCommentIds, deemphasizeCommentsExcludingUserIds }}
           />
         },
-      }
+      },
     }
-  } as const;
+  } satisfies ComponentProps<typeof MixedTypeFeed<typeof SubscribedFeedQuery>>;
 
   /* Intended behavior for filter settings button visibility:
   - DESKTOP
@@ -564,12 +583,11 @@ const LWHomePosts = ({ children, classes }: {
     </AnalyticsContext>
   );
 
-  const { document: subscribedTabAnnouncementPost } = useSingle({
-    documentId: '5rygaBBH7B4LNqQkz', 
-    collectionName: 'Posts', 
-    fragmentName: 'PostsListWithVotes',
-    skip: !currentUser || selectedTab !== 'forum-subscribed-authors'
+  const { data } = useQuery(PostsListWithVotesQuery, {
+    variables: { documentId: '5rygaBBH7B4LNqQkz' },
+    skip: !currentUser || selectedTab !== 'forum-subscribed-authors',
   });
+  const subscribedTabAnnouncementPost = data?.post?.result;
 
   const subscriptionSettingsElement = <>
     {settingsPotentiallyVisible && <div className={settingsVisibileClassName}>
@@ -671,11 +689,6 @@ const LWHomePosts = ({ children, classes }: {
               {/* JUST RECOMMENDATIONS */}
               {selectedTab === 'recombee-lesswrong-custom' && <AnalyticsContext feedType={selectedTab}>
                 <RecombeePostsList algorithm={'recombee-lesswrong-custom'} settings={scenarioConfig} />
-              </AnalyticsContext>}
-
-              {/* VERTEX RECOMMENDATIONS */}
-              {selectedTab.startsWith('vertex-') && <AnalyticsContext feedType={selectedTab}>
-                <VertexPostsList />  
               </AnalyticsContext>}
 
               {/* BOOKMARKS */}

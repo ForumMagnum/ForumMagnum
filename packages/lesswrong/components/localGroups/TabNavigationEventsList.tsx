@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
@@ -14,6 +13,19 @@ import { MenuItemLink } from "../common/Menus";
 import TimeTag from "../common/TimeTag";
 import FormatDate from "../common/FormatDate";
 import EventTime from "./EventTime";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const PostsListMultiQuery = gql(`
+  query multiPostTabNavigationEventsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsList
+      }
+      totalCount
+    }
+  }
+`);
 
 const YESTERDAY_STRING = "[Yesterday]"
 const TODAY_STRING = "[Today]"
@@ -105,13 +117,18 @@ const TabNavigationEventsList = ({ terms, onClick, classes }: {
   onClick: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { results } = useMulti({
-    terms,
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
-    enableTotal: false,
+  const { view, limit, ...selectorTerms } = terms;
+  const { data } = useQuery(PostsListMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: limit ?? 10,
+      enableTotal: false,
+    },
     fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.posts?.results;
 
   const abTestGroup = useABTest(twoLineEventsSidebarABTest);
   const EventComponent = (abTestGroup === "expanded") ? TabNavigationEventTwoLines : TabNavigationEventSingleLine;
