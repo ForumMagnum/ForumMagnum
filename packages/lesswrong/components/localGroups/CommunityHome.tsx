@@ -151,7 +151,7 @@ const CommunityHome = ({classes}: {
   const canCreateGroups = currentUser && (!isEAForum || isAdmin);
 
   const render = () => {
-    const queryFilters: string[] = query.filters
+    const filters: string[] = query.filters
       ? Array.isArray(query.filters)
         ? query.filters
         : [query.filters]
@@ -162,11 +162,11 @@ const CommunityHome = ({classes}: {
       lat: currentUserLocation.lat,
       lng: currentUserLocation.lng,
       limit: 5,
-      filters: queryFilters,
+      filters: filters,
     } as const : {
       view: 'events',
       limit: 5,
-      filters: queryFilters,
+      filters: filters,
       globalEvent: false,
     } as const;
 
@@ -177,7 +177,7 @@ const CommunityHome = ({classes}: {
 
     const mapEventTerms: PostsViewTerms = {
       view: 'events',
-      filters: queryFilters,
+      filters: filters,
     };
 
     const title = forumTypeSetting.get() === 'EAForum' ? 'Community' : 'Welcome to the Community Section';
@@ -251,7 +251,7 @@ const CommunityHome = ({classes}: {
                 {canCreateGroups && <GroupFormLink isOnline={true} />}
               </SectionTitle>
               <AnalyticsContext listContext={"communityGroups"}>
-                <LocalGroupsList view='online' terms={{ filters: queryFilters }} limit={5} />
+                <LocalGroupsList view='online' terms={{ filters }} limit={5} />
               </AnalyticsContext>
             </SingleColumnSection>
             <SingleColumnSection>
@@ -264,7 +264,7 @@ const CommunityHome = ({classes}: {
                     terms={{
                       lat: currentUserLocation.lat,
                       lng: currentUserLocation.lng,
-                      filters: queryFilters,
+                      filters,
                     }}
                     limit={4}
                   >

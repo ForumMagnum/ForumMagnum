@@ -921,8 +921,6 @@ function events(terms: PostsViewTerms) {
   }
 
   const filtersField = terms.filters?.length ? { types: { $in: terms.filters } } : {};
-
-  console.log('filtersField', filtersField);
   
   return {
     selector: {

@@ -155,7 +155,7 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
     })
   }, [center.lat, center.lng, zoom])
 
-  const { view, limit, ...selectorTerms } = eventTerms || { view: 'events' };
+  const { view, ...selectorTerms } = eventTerms || { view: 'events' };
   const { data } = useQuery(PostsListMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
