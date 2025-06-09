@@ -1,9 +1,7 @@
 import React, { useEffect, useRef } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { useLocation, useNavigate } from "@/lib/routeUtil";
 import LWDialog from "../common/LWDialog";
 import FeedContentBody from "./FeedContentBody";
 import UltraFeedItemFooter from "./UltraFeedItemFooter";
@@ -13,6 +11,11 @@ import ForumIcon from '../common/ForumIcon';
 import { DialogContent } from "../widgets/DialogContent";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { AnalyticsContext } from "@/lib/analyticsEvents";
+import PostActionsButton from "../dropdowns/posts/PostActionsButton";
+import UltraFeedPostActions from "./UltraFeedPostActions";
+import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
+import FormatDate from "../common/FormatDate";
 
 const CommentsListMultiQuery = gql(`
   query multiCommentUltraFeedPostDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -36,28 +39,87 @@ const UltraFeedPostFragmentQuery = gql(`
 `);
 
 const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
-  '@global': {
-    // Style the browser's text fragment highlighting
-    '::target-text': {
-      backgroundColor: `${theme.palette.secondary.light}4c`,
-    },
-    // fallback/common implementation
-    'mark': {
-      backgroundColor: `${theme.palette.secondary.light}4c`,
-    }
-  },
   dialogContent: {
-    padding: 20,
-    paddingTop: 0,
-    [theme.breakpoints.down('sm')]: {
-      padding: 10,
+    padding: 0,
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+    position: 'relative',
+    '&:first-child': {
       paddingTop: 0,
     }
   },
-  titleContainer: {
+  stickyHeader: {
     display: 'flex',
     alignItems: 'center',
-    marginBottom: 12,
+    justifyContent: 'space-between',
+    position: 'sticky',
+    top: 0,
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    zIndex: 10,
+    padding: '12px 20px',
+    [theme.breakpoints.down('sm')]: {
+      padding: '8px 10px',
+    }
+  },
+  titleContainer: {
+  },
+  tripleDotMenu: {
+    opacity: 0.7,
+    padding: 5,
+    marginLeft: 'auto',
+    "& svg": {
+      fontSize: 18,
+      cursor: "pointer",
+      color: theme.palette.text.dim,
+      transform: 'rotate(90deg)',
+    },
+  },
+  headerContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px',
+    marginBottom: 24,
+  },
+  titleWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+  },
+  metaRow: {
+    gap: "12px",
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "baseline",
+    rowGap: "6px",
+    color: theme.palette.text.dim,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: theme.typography.body2.fontSize,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 17,
+    },
+  },
+  metaDateContainer: {
+    marginRight: 8,
+  },
+  authorsList: {
+    fontSize: 'inherit',
+    color: 'inherit',
+    fontFamily: 'inherit',
+    marginRight: 8,
+    flexShrink: 1,
+    minWidth: 0,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+  },
+  scrollableContent: {
+    flex: 1,
+    overflowY: 'auto',
+    padding: '0 20px 20px 20px',
+    [theme.breakpoints.down('sm')]: {
+      padding: '0 10px 10px 10px',
+    }
   },
   title: {
     fontFamily: theme.palette.fonts.serifStack,
@@ -78,9 +140,9 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   },
   chevronButton: {
     cursor: 'pointer',
-    opacity: 0.8,
+    opacity: 0.6,
     marginRight: 12,
-    fontSize: 24,
+    fontSize: 36,
     '&:hover': {
       color: theme.palette.grey[700],
     },
@@ -91,6 +153,7 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   dialogPaper: {
     maxWidth: 765,
     height: '100dvh',
+    maxHeight: '100dvh',
   },
   loadingContainer: {
     display: "flex",
@@ -123,129 +186,33 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
 }));
 
 type UltraFeedPostDialogProps = {
-  postId?: string;
   post?: never;
+  partialPost: PostsListWithVotes;
   onClose: () => void;
-  textFragment?: string;
 } | {
-  postId?: never;
   post: PostsPage | UltraFeedPostFragment;
+  partialPost?: never;
   onClose: () => void;
-  textFragment?: string;
 }
-
-const UltraFeedDialogContent = ({
-  post,
-  comments,
-  commentsLoading,
-  commentsTotalCount,
-  textFragment,
-  onClose,
-}: {
-  post: PostsPage | UltraFeedPostFragment;
-  comments?: CommentsList[];
-  commentsLoading: boolean;
-  commentsTotalCount: number;
-  textFragment?: string;
-  onClose: () => void;
-}) => {
-  const classes = useStyles(styles);
-
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (textFragment) {
-      // it would be nice to use navigate here, but it doesn't work to trigger scrolling and highlighting
-      window.location.hash = textFragment;
-    }
-
-    return () => {
-      navigate({ hash: "" }, { replace: true });
-    };
-  }, [textFragment, navigate]);
-
-  return (
-    <LWDialog
-      open={true}
-      onClose={onClose}
-      fullWidth
-      paperClassName={classes.dialogPaper}
-    >
-      <DialogContent className={classes.dialogContent}>
-        {post && <div>
-          <div className={classes.titleContainer}>
-            <ForumIcon 
-              icon="ThickChevronLeft" 
-              onClick={onClose} 
-              className={classes.chevronButton} 
-            />
-            <Link
-              to={postGetPageUrl(post)}
-              className={classes.title}
-              onClick={(e) => {
-                e.stopPropagation();
-                onClose();
-              }
-              }>
-              {post.title}
-            </Link>
-          </div>
-          {post?.contents?.html ? (
-            <FeedContentBody
-              html={post.contents.html}
-              wordCount={post.contents.wordCount || 0}
-              linkToDocumentOnFinalExpand={false}
-              hideSuffix
-              serifStyle
-            />
-          ) : (
-            <div>Post content not available.</div>
-          )}
-        </div>}
-        <UltraFeedItemFooter
-          document={post}
-          collectionName="Posts"
-          metaInfo={{
-            sources: [],
-            displayStatus: "expanded",
-          }}
-          className={classes.footer}
-        />
-        {commentsLoading && <div className={classes.loadingContainer}><Loading /></div>}
-        {comments && (
-          <CommentsListSection
-            post={post}
-            comments={comments ?? []}
-            totalComments={commentsTotalCount ?? 0}
-            commentCount={(comments ?? []).length}
-            loadMoreComments={() => { }}
-            loadingMoreComments={false}
-            highlightDate={undefined}
-            setHighlightDate={() => { }}
-            hideDateHighlighting={true}
-            newForm={true}
-          />
-        )}
-      </DialogContent>
-    </LWDialog>
-  );
-
-}
-
 
 const UltraFeedPostDialog = ({
-  postId,
   post,
   onClose,
-  textFragment,
+  partialPost,
 }: UltraFeedPostDialogProps) => {
   const classes = useStyles(styles);
+  const authorListRef = useRef<HTMLDivElement>(null);
+  const isClosingViaBackRef = useRef(false);
+
+  const postId = partialPost?._id ?? undefined;
 
   const { loading: loadingPost, data } = useQuery(UltraFeedPostFragmentQuery, {
     variables: { documentId: postId },
     skip: !!post,
   });
   const fetchedPost = data?.post?.result;
+
+  const fullPostForContent = fetchedPost ?? post;
 
   const { data: dataCommentsList, loading: isCommentsLoading } = useQuery(CommentsListMultiQuery, {
     variables: {
@@ -260,22 +227,169 @@ const UltraFeedPostDialog = ({
   const comments = dataCommentsList?.comments?.results;
   const commentsTotalCount = dataCommentsList?.comments?.totalCount;
 
-  const fullPost = post ?? fetchedPost;
-  const isLoading = !!postId && loadingPost && !post;
+  const displayPost = fetchedPost ?? post ?? partialPost;
 
-  return <>
-    {isLoading && <div className={classes.loadingContainer}>
-      <Loading />
-    </div>}
-    {fullPost && <UltraFeedDialogContent
-      post={fullPost}
-      comments={comments}
-      commentsLoading={isCommentsLoading}
-      commentsTotalCount={commentsTotalCount ?? 0}
-      textFragment={textFragment}
+  useEffect(() => {
+    window.history.pushState({ dialogOpen: true }, '');
+
+    // Handle popstate (back button/swipe)
+    const handlePopState = (event: PopStateEvent) => {
+      if (!event.state?.dialogOpen) {
+        isClosingViaBackRef.current = true;
+        onClose();
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      // If dialog is closing normally (not via back), remove the history entry
+      if (!isClosingViaBackRef.current && window.history.state?.dialogOpen) {
+        window.history.back();
+      }
+    };
+  }, [onClose]);
+
+  // Compute content props based on what data we have
+  let contentData = null;
+  
+  if (fullPostForContent?.contents?.html) {
+    contentData = {
+      html: fullPostForContent.contents.html,
+      wordCount: fullPostForContent.contents.wordCount ?? 0,
+      showLoading: false,
+    };
+  } else if (partialPost?.contents?.htmlHighlight) {
+    contentData = {
+      html: partialPost.contents.htmlHighlight,
+      wordCount: partialPost.contents.wordCount ?? 0,
+      showLoading: true,
+    };
+  }
+
+  return (
+    <LWDialog
+      open={true}
       onClose={onClose}
-    />}
-  </>
+      fullWidth
+      paperClassName={classes.dialogPaper}
+    >
+      <DialogContent className={classes.dialogContent}>
+        {!displayPost && (
+          <div className={classes.loadingContainer}>
+            <Loading />
+          </div>
+        )}
+        
+        {displayPost && (
+          <>
+            <div className={classes.stickyHeader}>
+              <ForumIcon 
+                icon="ThickChevronLeft" 
+                onClick={onClose} 
+                className={classes.chevronButton} 
+              />
+              <AnalyticsContext pageElementContext="tripleDotMenu">
+                <PostActionsButton
+                  post={displayPost}
+                  vertical={true}
+                  autoPlace
+                  ActionsComponent={UltraFeedPostActions}
+                  className={classes.tripleDotMenu}
+                />
+              </AnalyticsContext>
+            </div>
+            <div className={classes.scrollableContent}>
+              <div className={classes.titleContainer}>
+                <div className={classes.headerContent}>
+                  <div className={classes.titleWrapper}>
+                    <Link
+                      to={postGetPageUrl(displayPost)}
+                      className={classes.title}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onClose();
+                      }
+                    }>
+                      {displayPost.title}
+                    </Link>
+                  </div>
+                  <div className={classes.metaRow}>
+                    <TruncatedAuthorsList 
+                      post={displayPost} 
+                      useMoreSuffix={false} 
+                      expandContainer={authorListRef}
+                      className={classes.authorsList} 
+                    />
+                    {displayPost.postedAt && (
+                      <span className={classes.metaDateContainer}>
+                        <FormatDate date={displayPost.postedAt} format="MMM D YYYY" />
+                      </span>
+                    )}
+                    {displayPost.readTimeMinutes && (
+                      <span>{displayPost.readTimeMinutes} min read</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {contentData && (
+                <>
+                  <FeedContentBody
+                    html={contentData.html}
+                    wordCount={contentData.wordCount}
+                    initialWordCount={contentData.wordCount}
+                    maxWordCount={contentData.wordCount}
+                    hideSuffix
+                    serifStyle
+                  />
+                  {contentData.showLoading && (
+                    <div className={classes.loadingContainer}>
+                      <Loading />
+                    </div>
+                  )}
+                </>
+              )}
+              
+              {!contentData && (
+                <div className={classes.loadingContainer}>
+                  <Loading />
+                </div>
+              )}
+              
+              <UltraFeedItemFooter
+                document={displayPost}
+                collectionName="Posts"
+                metaInfo={{
+                  sources: [],
+                  displayStatus: "expanded",
+                }}
+                className={classes.footer}
+              />
+              {isCommentsLoading && fullPostForContent && (
+                <div className={classes.loadingContainer}><Loading /></div>
+              )}
+              {comments && (
+                <CommentsListSection
+                  post={fullPostForContent}
+                  comments={comments ?? []}
+                  totalComments={commentsTotalCount ?? 0}
+                  commentCount={(comments ?? []).length}
+                  loadMoreComments={() => { }}
+                  loadingMoreComments={false}
+                  highlightDate={undefined}
+                  setHighlightDate={() => { }}
+                  hideDateHighlighting={true}
+                  newForm={true}
+                />
+              )}
+            </div>
+          </>
+        )}
+      </DialogContent>
+    </LWDialog>
+  );
 };
 
 export default UltraFeedPostDialog;

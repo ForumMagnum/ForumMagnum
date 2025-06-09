@@ -42,15 +42,45 @@ export const truncate = (
   return styles + truncatedHtml;
 }
 
+export const calculateTruncationStatus = (
+  totalWordCount: number, 
+  maxLengthWords: number, 
+  graceWords: number = 0
+): {
+  willTruncate: boolean,
+  wordsRemaining: number
+} => {
+  const wordsLeft = totalWordCount - maxLengthWords;
+  
+  if (wordsLeft < graceWords) {
+    return { willTruncate: false, wordsRemaining: 0 };
+  }
+  
+  return { willTruncate: true, wordsRemaining: wordsLeft };
+};
+
 export const truncateWithGrace = (html: string, maxLengthWords: number, graceWords: number, rawWordCount: number, suffix?: string): {
   truncatedHtml: string,
   wasTruncated: boolean,
   wordsLeft: number,
 } => {
-  const truncatedHtml = truncate(html, maxLengthWords, "words", suffix);
-  const wordsLeft = (truncatedHtml===html) ? 0 : rawWordCount-maxLengthWords;
+  const { willTruncate, wordsRemaining } = calculateTruncationStatus(
+    rawWordCount, 
+    maxLengthWords, 
+    graceWords
+  );
   
-  if (truncatedHtml === html || wordsLeft<graceWords) {
+  if (!willTruncate) {
+    return {
+      truncatedHtml: html,
+      wasTruncated: false,
+      wordsLeft: 0,
+    };
+  }
+  
+  const truncatedHtml = truncate(html, maxLengthWords, "words", suffix);
+  
+  if (truncatedHtml === html) {
     return {
       truncatedHtml: html,
       wasTruncated: false,
@@ -59,7 +89,8 @@ export const truncateWithGrace = (html: string, maxLengthWords: number, graceWor
   }
   
   return {
-    truncatedHtml, wordsLeft,
+    truncatedHtml,
+    wordsLeft: wordsRemaining,
     wasTruncated: true,
   };
 }
