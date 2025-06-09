@@ -720,11 +720,12 @@ export const tagResolversGraphQLQueries = {
       const relevantSummaryRevisions = contentfulRevisions.filter(rev=>summaryIdsByTagId[tag._id!]?.includes(rev.documentId!));
       const relevantRevisions = [...relevantTagRevisions, ...relevantLensRevisions, ...relevantSummaryRevisions];
 
-      const relevantDocumentDeletions = documentDeletionsByTagId[tag._id!];
+      const relevantDocumentDeletions = documentDeletionsByTagId[tag._id!] ?? [];
 
-      const relevantRootComments = rootComments.filter(c=>c.tagId===tag._id);
+      const relevantRootComments = rootComments.filter(c => c.tagId === tag._id);
       const relevantUsersIds = filterNonnull(_.uniq([...relevantTagRevisions.map(tr => tr.userId), ...relevantRootComments.map(rc => rc.userId)]));
-      const relevantUsers = relevantUsersIds.map(userId=>usersById[userId]);
+      // `usersById` might be missing a user for a given userId if that user is e.g. deleted
+      const relevantUsers = relevantUsersIds.map(userId => usersById[userId]).filter(user => !!user);
       
       return {
         tag,
