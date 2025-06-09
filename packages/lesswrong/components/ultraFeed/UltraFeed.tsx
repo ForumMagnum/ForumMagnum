@@ -331,7 +331,7 @@ const UltraFeed = ({alwaysShow = false, onShowingChange}: {
   const checkboxChecked = ultraFeedCookie[ULTRA_FEED_ENABLED_COOKIE] === "true";
 
   const showFeed = (alwaysShow || checkboxChecked || userIsAdminOrMod(currentUser)) && !!currentUser;
-  const showCheckbox = (checkboxChecked || hasVisitedFeedPage || alwaysShow || userIsAdminOrMod(currentUser)) && !!currentUser;
+  const showCheckbox = (checkboxChecked || hasVisitedFeedPage || alwaysShow) && !!currentUser && !userIsAdminOrMod(currentUser);
 
   useEffect(() => {
     onShowingChange?.(showFeed);
