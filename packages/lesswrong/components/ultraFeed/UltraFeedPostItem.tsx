@@ -236,6 +236,23 @@ const UltraFeedPostItemHeader = ({
   );
 };
 
+const calculateDisplayWordCount = (
+  fullPost: PostsPage | UltraFeedPostFragment | null | undefined,
+  post: PostsListWithVotes,
+  displayHtml: string | undefined
+): number | undefined => {
+  if (fullPost?.contents?.wordCount) {
+    return fullPost.contents.wordCount;
+  }
+  if (displayHtml === post.contents?.htmlHighlight && displayHtml) {
+    return Math.floor(displayHtml.length / 5);
+  }
+  if (post.shortform) {
+    return 0;
+  }
+  return post.contents?.wordCount;
+};
+
 const UltraFeedPostItem = ({
   post,
   postMetaInfo,
@@ -346,18 +363,7 @@ const UltraFeedPostItem = ({
   const displayHtml = fullPost?.contents?.html ?? post.contents?.htmlHighlight ?? shortformHtml;
   
   // Calculate the appropriate word count based on what content we're displaying
-  const displayWordCount = (() => {
-    if (fullPost?.contents?.wordCount) {
-      return fullPost.contents.wordCount;
-    }
-    if (displayHtml === post.contents?.htmlHighlight && displayHtml) {
-      return Math.floor(displayHtml.length / 5);
-    }
-    if (post.shortform) {
-      return 0;
-    }
-    return post.contents?.wordCount;
-  })();
+  const displayWordCount = calculateDisplayWordCount(fullPost, post, displayHtml);
 
   const truncationParams = useMemo(() => {
     return {
@@ -367,12 +373,7 @@ const UltraFeedPostItem = ({
   }, [displaySettings.postInitialWords, displaySettings.postMaxWords]);
 
   if (!displayHtml) {
-    return <div>No post content found for post with id: {post._id}</div>; 
-  }
-
-  // TODO: instead do something like set to 200 words and display and show warning
-  if (!displayWordCount && displayWordCount !== 0) {
-    return <div>No word count found for post with id: {post._id}</div>;
+    return null; 
   }
 
   return (
