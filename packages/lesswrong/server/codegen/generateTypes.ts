@@ -187,6 +187,7 @@ function getFilesMaybeContainingGql(dir: string) {
     const entries = fs.readdirSync(currentDir, { withFileTypes: true });
     
     for (const entry of entries) {
+      if (entry.name === 'gql-codegen') continue;
       const fullPath = path.join(currentDir, entry.name);
       
       if (entry.isDirectory()) {

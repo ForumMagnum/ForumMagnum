@@ -211,7 +211,7 @@ const schema = {
   originalContents: {
     database: {
       type: "JSONB",
-      nullable: false,
+      // nullable: false,
     },
     graphql: {
       outputType: "ContentType!",
@@ -229,7 +229,7 @@ const schema = {
           const post = await context.loaders["Posts"].load(document.documentId);
           return getOriginalContents(context.currentUser, post, document.originalContents, context);
         }
-        return document.originalContents;
+        return document.originalContents ?? { type: 'ckEditorMarkup', data: '' };
       },
     },
   },

@@ -32,12 +32,6 @@ export type RejectContentParams = {
 }
 
 export function useRejectContent ({collectionName, content}: RejectContentParams) {
-  // const fragmentName = collectionName === "Posts" ? "SunshinePostsList" : "CommentsListWithParentMetadata"
-  // const { mutate: updateContent } = useUpdate({
-  //   collectionName,
-  //   fragmentName
-  // });
-
   const [updateContent] = useMutation(collectionName === "Posts" ? rejectPostMutation : rejectCommentMutation);
   
   const rejectContent = useCallback((reason: string) => {

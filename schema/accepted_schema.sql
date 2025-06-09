@@ -2598,7 +2598,7 @@ CREATE TABLE "Revisions" (
   "commitMessage" TEXT,
   "userId" VARCHAR(27),
   "draft" BOOL,
-  "originalContents" JSONB NOT NULL,
+  "originalContents" JSONB,
   "html" TEXT,
   "wordCount" DOUBLE PRECISION NOT NULL,
   "changeMetrics" JSONB NOT NULL,

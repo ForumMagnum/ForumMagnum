@@ -1255,7 +1255,7 @@ interface DbRevision extends DbObject {
   originalContents: {
     type: string,
     data: string,
-  }
+  } | null
   score: number
   skipAttributions: boolean
   updateType: "initial" | "patch" | "minor" | "major" | null
