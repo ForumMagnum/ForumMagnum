@@ -235,8 +235,8 @@ export async function startWebserver() {
     includeStacktraceInErrorResponses: isDevelopment,
     
     schema: makeExecutableSchema({ typeDefs, resolvers }),
-    formatError: (e: GraphQLError): GraphQLFormattedError => {
-      Sentry.captureException(e);
+    formatError: (e): GraphQLFormattedError => {
+      Sentry.captureException(new GraphQLError(e.message, e));
       const {message, ...properties} = e;
       // eslint-disable-next-line no-console
       console.error(`[GraphQLError: ${message}]`, inspect(properties, {depth: null}));
@@ -246,6 +246,8 @@ export async function startWebserver() {
     },
     plugins: [new ApolloServerLogging()],
     allowBatchedHttpRequests: true,
+    // TODO: remove this after we poke Issa Rice to fix their reader to include the necessary headers
+    csrfPrevention: false,
   });
 
   app.use('/graphql', express.json({ limit: '50mb' }));
