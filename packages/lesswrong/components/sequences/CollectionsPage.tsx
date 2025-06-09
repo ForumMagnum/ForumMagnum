@@ -8,7 +8,7 @@ import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSectio
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import { BooksForm } from './BooksForm';
 import Loading from "../vulcan-core/Loading";
 import CollectionsEditForm from "./CollectionsEditForm";

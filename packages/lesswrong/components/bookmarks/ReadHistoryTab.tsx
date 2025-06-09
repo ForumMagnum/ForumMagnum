@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useCurrentUser } from '@/components/common/withUser'
 import moment from 'moment'
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";

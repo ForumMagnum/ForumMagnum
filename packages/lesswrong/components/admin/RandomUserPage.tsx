@@ -3,7 +3,7 @@ import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useLazyQuery } from '@apollo/client';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";

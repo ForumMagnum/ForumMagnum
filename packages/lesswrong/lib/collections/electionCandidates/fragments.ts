@@ -1,4 +1,4 @@
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 export const ElectionCandidateBasicInfo = gql(`
   fragment ElectionCandidateBasicInfo on ElectionCandidate {

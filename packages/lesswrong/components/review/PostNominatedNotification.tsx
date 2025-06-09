@@ -5,7 +5,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { POST_PREVIEW_WIDTH } from '../posts/PostsPreviewTooltip/helpers';
 import { notificationLoadingStyles } from '../posts/PostsPreviewTooltip/PostsPreviewLoading';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
 import PostsTitle from "../posts/PostsTitle";
 import ReviewPostButton from "./ReviewPostButton";

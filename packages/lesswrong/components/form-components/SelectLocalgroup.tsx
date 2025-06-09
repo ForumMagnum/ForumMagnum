@@ -5,7 +5,7 @@ import { FormComponentMultiSelect } from '@/components/form-components/FormCompo
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { MenuItem } from "../common/Menus";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const localGroupsBaseMultiQuery = gql(`
   query multiLocalgroupSelectLocalgroupQuery($selector: LocalgroupSelector, $limit: Int, $enableTotal: Boolean) {

@@ -13,7 +13,7 @@ import ContentStyles from "../common/ContentStyles";
 import ContentItemTruncated from "../common/ContentItemTruncated";
 import LWTooltip from "../common/LWTooltip";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const ChaptersFragmentMultiQuery = gql(`
   query multiChapterSequencesSummaryQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {

@@ -18,7 +18,7 @@ import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm
 import LWDialog from "../common/LWDialog";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const ConversationsListUpdateMutation = gql(`
   mutation updateConversationConversationTitleEditForm($selector: SelectorInput!, $data: UpdateConversationDataInput!) {

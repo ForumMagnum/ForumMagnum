@@ -7,7 +7,7 @@ import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isLW } from "../../lib/instanceSettings";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import { DialogActions } from '../widgets/DialogActions';
 import LWDialog from "../common/LWDialog";
 import { ContentItemBody } from "../contents/ContentItemBody";

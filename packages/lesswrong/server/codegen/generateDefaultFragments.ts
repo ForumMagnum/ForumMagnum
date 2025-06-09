@@ -95,7 +95,7 @@ export function generateDefaultFragments(collectionToTypeNameMap: Record<string,
 
 export function generateDefaultFragmentsFile(collectionToTypeNameMap: Record<string, string>): string {
   const executableSchema = makeExecutableSchema({ typeDefs, resolvers });
-  const sb: string[] = [`import { gql } from "@/lib/crud/wrapGql";`];
+  const sb: string[] = [`import { gql } from "@/lib/generated/gql-codegen";`];
   for (const [collectionName, schema] of Object.entries(allSchemas)) {
     const typeName = collectionToTypeNameMap[collectionName];
     if (!executableSchema.getType(typeName)) {

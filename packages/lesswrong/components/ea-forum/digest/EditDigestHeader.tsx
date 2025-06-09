@@ -11,7 +11,7 @@ import { DatePicker } from "../../form-components/FormComponentDateTime";
 import ForumIcon from "../../common/ForumIcon";
 import ImageUpload2 from "../../form-components/ImageUpload2";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const DigestsMinimumInfoUpdateMutation = gql(`
   mutation updateDigestEditDigestHeader($selector: SelectorInput!, $data: UpdateDigestDataInput!) {

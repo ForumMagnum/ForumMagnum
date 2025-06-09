@@ -19,7 +19,7 @@ import PostsItemDate from "../posts/PostsItemDate";
 import ForumIcon from "../common/ForumIcon";
 import SidebarDigestAd from "./digestAd/SidebarDigestAd";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsListMultiQuery = gql(`
   query multiPostEAHomeRightHandSideQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {

@@ -11,7 +11,7 @@ import ReviewsLeaderboard from "./ReviewsLeaderboard";
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentReviewsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

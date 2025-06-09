@@ -26,7 +26,7 @@ import SectionTitle from "../../common/SectionTitle";
 import ContentStyles from "../../common/ContentStyles";
 import Loading from "../../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const TagEditFragmentQuery = gql(`
   query SubforumWikiTab($documentId: String) {

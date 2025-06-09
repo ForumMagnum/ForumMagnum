@@ -21,7 +21,7 @@ import LWTooltip from "../common/LWTooltip";
 import { withDateFields } from '@/lib/utils/dateUtils';
 import { useMutation } from "@apollo/client";
 import { useQuery } from '@/lib/crud/useQuery';
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const UserRateLimitDisplayMultiQuery = gql(`
   query multiUserRateLimitUserRateLimitItemQuery($selector: UserRateLimitSelector, $limit: Int, $enableTotal: Boolean) {

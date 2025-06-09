@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid';
 import { hookToHoc } from '../../lib/hocUtils';
 import * as _ from 'underscore';
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const newEventFragmentMutation = gql(`
   mutation createLWEventwithNewEvents($data: CreateLWEventDataInput!) {

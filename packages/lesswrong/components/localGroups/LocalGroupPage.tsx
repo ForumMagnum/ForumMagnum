@@ -14,7 +14,7 @@ import { GROUP_CATEGORIES } from "@/lib/collections/localgroups/groupTypes";
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import Person from '@/lib/vendor/@material-ui/icons/src/Person';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import ForumIcon from "../common/ForumIcon";
 import HeadTags from "../common/HeadTags";
 import CommunityMapWrapper from "./CommunityMapWrapper";

@@ -15,7 +15,7 @@ import LoadMore from "../common/LoadMore";
 import PostsItem from "./PostsItem";
 import Loading from "../vulcan-core/Loading";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
 const PostsListWithVotesMultiQuery = gql(`

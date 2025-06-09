@@ -7,7 +7,7 @@ import CommentsNodeInner from "./CommentsNode";
 import LoadMore from "../common/LoadMore";
 import { NetworkStatus } from "@apollo/client";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentRecentCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const rejectPostMutation = gql(`
   mutation rejectPostMutation($selector: SelectorInput!, $data: UpdatePostDataInput!) {

@@ -21,7 +21,7 @@ import Loading from "../vulcan-core/Loading";
 import CoreTagsSection from "./CoreTagsSection";
 import SingleColumnSection from "../common/SingleColumnSection";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const TagEditFragmentQuery = gql(`
   query EAAllTagsPage($documentId: String) {

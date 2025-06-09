@@ -6,7 +6,7 @@ import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const lastEventFragmentMultiQuery = gql(`
   query multiLWEventLastVisitListQuery($selector: LWEventSelector, $limit: Int, $enableTotal: Boolean) {

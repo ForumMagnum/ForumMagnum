@@ -5,7 +5,7 @@ import PermanentRedirect from "../common/PermanentRedirect";
 import SingleColumnSection from "../common/SingleColumnSection";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsMinimumInfoMultiQuery = gql(`
   query multiPostCurrentOpenThreadPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {

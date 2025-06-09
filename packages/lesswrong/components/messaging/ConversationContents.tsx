@@ -13,7 +13,7 @@ import Loading from "../vulcan-core/Loading";
 import MessageItem from "./MessageItem";
 import Divider from "../common/Divider";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const messageListFragmentMultiQuery = gql(`
   query multiMessageConversationContentsQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {

@@ -20,7 +20,7 @@ import UserReviewMetadata from "./ModeratorUserInfo/UserReviewMetadata";
 import ModeratorActions from "./ModeratorActions";
 import NewUserDMSummary from "./ModeratorUserInfo/NewUserDMSummary";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentSunshineNewUsersInfoQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

@@ -9,7 +9,7 @@ import LoadMore from "../common/LoadMore";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { NetworkStatus } from "@apollo/client";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const RevisionTagFragmentMultiQuery = gql(`
   query multiRevisionTagEditsByUserQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {

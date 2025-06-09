@@ -6,7 +6,7 @@ import { postPageTitleStyles } from '../posts/PostsPage/PostsPageTitle';
 import { Link } from '../../lib/reactRouterWrapper';
 import KeyboardBackspaceIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardBackspace';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import ReviewPostComments from "./ReviewPostComments";
 import PostsHighlight from "../posts/PostsHighlight";

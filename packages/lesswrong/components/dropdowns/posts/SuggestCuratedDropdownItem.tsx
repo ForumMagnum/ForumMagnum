@@ -7,7 +7,7 @@ import { isAF } from '../../../lib/instanceSettings';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostSuggestCuratedDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {

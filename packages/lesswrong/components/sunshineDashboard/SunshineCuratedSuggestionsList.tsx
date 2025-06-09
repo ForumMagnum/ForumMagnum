@@ -13,7 +13,7 @@ import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import { useQuery } from "@/lib/crud/useQuery";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import { userIsMemberOf } from '@/lib/vulcan-users/permissions';
 
 const PostsListMultiQuery = gql(`

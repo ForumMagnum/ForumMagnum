@@ -3,7 +3,7 @@ import React from 'react';
 import { useFlashErrors } from '@/components/hooks/useFlashErrors';
 import ActionButtonSection from "./ActionButtonSection";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const UsersEditUpdateMutation = gql(`
   mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {

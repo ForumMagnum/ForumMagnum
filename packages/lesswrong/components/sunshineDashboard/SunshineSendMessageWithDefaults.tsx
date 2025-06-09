@@ -10,7 +10,7 @@ import { ContentItemBody } from "../contents/ContentItemBody";
 import LWTooltip from "../common/LWTooltip";
 import { MenuItem } from "../common/Menus";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const ModerationTemplateFragmentMultiQuery = gql(`
   query multiModerationTemplateSunshineSendMessageWithDefaultsQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {

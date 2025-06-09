@@ -13,7 +13,7 @@ import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import MetaInfo from "../common/MetaInfo";
 import { useMutation } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery"
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const RSSFeedMinimumInfoMultiQuery = gql(`
   query multiRSSFeedNewFeedButtonQuery($selector: RSSFeedSelector, $limit: Int, $enableTotal: Boolean) {

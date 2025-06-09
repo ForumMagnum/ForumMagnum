@@ -1,5 +1,5 @@
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const HeaderEventSubtitleSpotlightQuery = gql(`
   query HeaderEventSubtitleSpotlightQuery($selector: SpotlightSelector, $limit: Int) {

@@ -4,7 +4,7 @@ import { unflattenComments } from "../../lib/utils/unflatten";
 import CommentsList from "../comments/CommentsList";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const CommentsListMultiQuery = gql(`
   query multiCommentRepliesToCommentListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

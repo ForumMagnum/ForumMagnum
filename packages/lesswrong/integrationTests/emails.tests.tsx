@@ -4,7 +4,7 @@ import { createDummyUser, createDummyPost } from './utils'
 import { emailDoctype, generateEmail } from '../server/emails/renderEmail';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles, withStyles } from "@/components/hooks/useStyles";
 
 const PostsRevisionQuery = gql(`

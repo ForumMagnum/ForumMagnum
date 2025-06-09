@@ -9,7 +9,7 @@ import BookCheckout from "../review/BookCheckout";
 import BookAnimation from "./BookAnimation";
 import ContentStyles from "../common/ContentStyles";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserBookFrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {

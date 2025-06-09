@@ -11,7 +11,7 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import LWDialog from "../common/LWDialog";
 import Loading from "../vulcan-core/Loading";
 import { ContentItemBody } from "../contents/ContentItemBody";

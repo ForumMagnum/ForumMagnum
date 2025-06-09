@@ -16,7 +16,7 @@ import { Typography } from "../common/Typography";
 import PostsTagsList from "../tagging/PostsTagsList";
 import PostsLoading from "./PostsLoading";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsListWithVotesMultiQuery = gql(`
   query multiPostPostsTimeBlockQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {

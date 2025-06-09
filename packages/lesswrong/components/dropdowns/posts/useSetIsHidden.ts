@@ -2,7 +2,7 @@ import { useMutation } from '@apollo/client';
 import { useCurrentUser } from '@/components/common/withUser';
 import some from 'lodash/some';
 import reject from 'lodash/reject';
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 export const useSetIsHiddenMutation = () => {
   const currentUser = useCurrentUser();

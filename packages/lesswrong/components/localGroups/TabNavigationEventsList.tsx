@@ -14,7 +14,7 @@ import TimeTag from "../common/TimeTag";
 import FormatDate from "../common/FormatDate";
 import EventTime from "./EventTime";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsListMultiQuery = gql(`
   query multiPostTabNavigationEventsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {

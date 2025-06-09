@@ -13,7 +13,7 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import { isCollaborative } from './EditorFormComponent';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import EAButton from "../ea-forum/EAButton";
 import LWDialog from "../common/LWDialog";
 import Loading from "../vulcan-core/Loading";

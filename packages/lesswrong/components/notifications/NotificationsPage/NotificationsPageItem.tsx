@@ -4,7 +4,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import ForumIcon, { ForumIconName } from "../../common/ForumIcon";
 import classNames from "classnames";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import LWTooltip from "../../common/LWTooltip";
 import CommentsNodeInner from "../../comments/CommentsNode";
 import Loading from "../../vulcan-core/Loading";

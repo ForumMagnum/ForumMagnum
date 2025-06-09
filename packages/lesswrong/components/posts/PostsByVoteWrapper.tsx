@@ -7,7 +7,7 @@ import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 import LWPostsByVote from "./LWPostsByVote";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const UserVotesMultiQuery = gql(`
   query multiVotePostsByVoteWrapperQuery($selector: VoteSelector, $limit: Int, $enableTotal: Boolean) {

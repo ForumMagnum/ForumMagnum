@@ -7,7 +7,7 @@ import WikiTagNestedList from "./WikiTagNestedList";
 import Loading from "../vulcan-core/Loading";
 import InlineSelect from "../common/InlineSelect";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const ExplorePageTagFragmentMultiQuery = gql(`
   query multiTagArbitalExplorePageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean, $contributorsLimit: Int) {

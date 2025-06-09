@@ -29,7 +29,7 @@ import GroupFormLink from "../localGroups/GroupFormLink";
 import DistanceUnitToggle from "./modules/DistanceUnitToggle";
 import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const UsersProfileUpdateMutation = gql(`
   mutation updateUserCommunity($selector: SelectorInput!, $data: UpdateUserDataInput!) {

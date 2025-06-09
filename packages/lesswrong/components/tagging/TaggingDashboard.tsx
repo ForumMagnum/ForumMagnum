@@ -18,7 +18,7 @@ import TagActivityFeed from "./TagActivityFeed";
 import TagVoteActivity from "./TagVoteActivity";
 import SingleColumnSection from "../common/SingleColumnSection";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
 const TagFlagFragmentMultiQuery = gql(`

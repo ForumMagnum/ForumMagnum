@@ -8,7 +8,7 @@ import LoadMore from "../common/LoadMore";
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import LWTooltip from "../common/LWTooltip";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsListWithVotesMultiQuery = gql(`
   query multiPostLWPostsByVoteQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {

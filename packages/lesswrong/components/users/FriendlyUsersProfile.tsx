@@ -57,7 +57,7 @@ import DisplayNameWithMarkers from "../ea-forum/users/DisplayNameWithMarkers";
 import ForumIcon from "../common/ForumIcon";
 import { useQuery } from "@/lib/crud/useQuery";
 import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import CommentsDraftList from '../comments/CommentsDraftList';
 
 const PostsMinimumInfoMultiQuery = gql(`

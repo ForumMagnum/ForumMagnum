@@ -9,7 +9,7 @@ import { tagGetUrl } from "../../lib/collections/tags/helpers";
 import { useMutation } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery"
 import { useMessages } from "../common/withMessages";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import TagsSearchAutoComplete from "../search/TagsSearchAutoComplete";
 import { Typography } from "../common/Typography";
 import SingleColumnSection from "../common/SingleColumnSection";

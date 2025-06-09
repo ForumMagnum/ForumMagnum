@@ -11,7 +11,7 @@ import LWDialog from "../common/LWDialog";
 import Loading from "../vulcan-core/Loading";
 import EAButton from "../ea-forum/EAButton";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsEditMutation = gql(`
   mutation createPostNewDialogueDialog($data: CreatePostDataInput!) {

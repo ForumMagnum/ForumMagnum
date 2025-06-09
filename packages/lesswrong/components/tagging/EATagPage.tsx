@@ -45,7 +45,7 @@ import TagTableOfContents from "./TagTableOfContents";
 import TagVersionHistoryButton from "../editor/TagVersionHistory";
 import ContentStyles from "../common/ContentStyles";
 import CommentsListCondensed from "../common/CommentsListCondensed";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const TagWithFlagsFragmentMultiQuery = gql(`
   query multiTagEATagPageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {

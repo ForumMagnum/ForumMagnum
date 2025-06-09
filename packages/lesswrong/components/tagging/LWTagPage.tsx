@@ -67,7 +67,7 @@ import FormatDate from "../common/FormatDate";
 import InlineReactSelectionWrapper from "../votes/lwReactions/InlineReactSelectionWrapper";
 import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
 import PathInfo from "./PathInfo";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import { withDateFields } from "@/lib/utils/dateUtils";
 import type { TagBySlugQueryOptions } from "./useTag";
 

@@ -6,7 +6,7 @@ import { useCurrentUser } from '../../common/withUser';
 import { clone } from 'underscore';
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsPageUpdateMutation = gql(`
   mutation updatePostBanUserFromPostDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {

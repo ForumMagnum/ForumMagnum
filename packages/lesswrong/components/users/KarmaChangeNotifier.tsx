@@ -19,7 +19,7 @@ import { isEAForum } from '../../lib/instanceSettings';
 import { eaAnonymousEmojiPalette, eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
 import classNames from 'classnames';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import UsersName from "./UsersName";
 import { MenuItemLink } from "../common/Menus";
 import { Typography } from "../common/Typography";

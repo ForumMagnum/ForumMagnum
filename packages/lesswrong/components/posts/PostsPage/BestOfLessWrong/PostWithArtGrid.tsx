@@ -6,7 +6,7 @@ import GenerateImagesButton, { artPrompt } from "@/components/review/GenerateIma
 import classNames from "classnames";
 import LWTooltip from "../../../common/LWTooltip";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const SplashArtCoordinatesEditMutation = gql(`
   mutation createSplashArtCoordinatePostWithArtGrid($data: CreateSplashArtCoordinateDataInput!) {

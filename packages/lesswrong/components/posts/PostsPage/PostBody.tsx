@@ -12,7 +12,7 @@ import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import { SideCommentIcon } from "../../comments/SideCommentIcon";
 import InlineReactSelectionWrapper from "../../votes/lwReactions/InlineReactSelectionWrapper";
 import GlossarySidebar from "../../jargon/GlossarySidebar";

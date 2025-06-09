@@ -3,7 +3,7 @@ import type { ChecklistTag } from "../tagging/TagsChecklist";
 import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const TagPreviewFragmentMultiQuery = gql(`
   query multiTaguseQuickTakesTagsQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {

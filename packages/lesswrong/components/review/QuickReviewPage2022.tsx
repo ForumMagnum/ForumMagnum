@@ -12,7 +12,7 @@ import ReviewPhaseInformation from "./ReviewPhaseInformation";
 import ReviewDashboardButtons from "./ReviewDashboardButtons";
 import PostInteractionStripe from "./PostInteractionStripe";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsReviewVotingListMultiQuery = gql(`
   query multiPostQuickReviewPage2022Query($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {

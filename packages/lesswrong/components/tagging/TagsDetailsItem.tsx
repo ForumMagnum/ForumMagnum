@@ -13,7 +13,7 @@ import TagSmallPostLink from "./TagSmallPostLink";
 import Loading from "../vulcan-core/Loading";
 import TagFlagItem from "./TagFlagItem";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const TagRelFragmentMultiQuery = gql(`
   query multiTagRelTagsDetailsItemQuery($selector: TagRelSelector, $limit: Int, $enableTotal: Boolean) {

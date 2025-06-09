@@ -21,7 +21,7 @@ import Row from "../common/Row";
 import MetaInfo from "../common/MetaInfo";
 import EditUserJargonSettings from "./EditUserJargonSettings";
 import ForumIcon from "../common/ForumIcon";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
 
 const JargonTermsMultiQuery = gql(`

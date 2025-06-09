@@ -12,7 +12,7 @@ import SectionTitle from "../common/SectionTitle";
 import SectionButton from "../common/SectionButton";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const TagPreviewFragmentMultiQuery = gql(`
   query multiTagAllTagsAlphabeticalQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {

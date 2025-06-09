@@ -4,7 +4,7 @@ import Loading from "../vulcan-core/Loading";
 import EmailPreview from "../notifications/EmailPreview";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const emailHistoryFragmentMultiQuery = gql(`
   query multiLWEventEmailHistoryQuery($selector: LWEventSelector, $limit: Int, $enableTotal: Boolean) {

@@ -10,7 +10,7 @@ import RecentComments from "../comments/RecentComments";
 import LWTooltip from "../common/LWTooltip";
 import { MenuItem } from "../common/Menus";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserReviews2019($selector: SelectorInput!, $data: UpdateUserDataInput!) {

@@ -12,7 +12,7 @@ import LoadMore from "../common/LoadMore";
 import Loading from "../vulcan-core/Loading";
 import FirstContentIcons from "./FirstContentIcons";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserModerationDashboardQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {

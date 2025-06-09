@@ -8,7 +8,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import Loading from "./Loading";
 import LoadMore from "../common/LoadMore";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 type ColumnComponent = React.ComponentType<{column: any}>
 

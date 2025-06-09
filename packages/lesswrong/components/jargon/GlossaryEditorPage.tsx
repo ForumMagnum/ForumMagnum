@@ -14,7 +14,7 @@ import Row from "../common/Row";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import { useQuery } from "@/lib/crud/useQuery";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsEditQueryFragmentMultiQuery = gql(`
   query multiPostGlossaryEditorPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean, $version: String) {

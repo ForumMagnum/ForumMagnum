@@ -11,7 +11,7 @@ import UsersName from "../users/UsersName";
 import LWTooltip from "../common/LWTooltip";
 import MetaInfo from "../common/MetaInfo";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const ConversationsListMultiQuery = gql(`
   query multiConversationSunshineUserMessagesQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {

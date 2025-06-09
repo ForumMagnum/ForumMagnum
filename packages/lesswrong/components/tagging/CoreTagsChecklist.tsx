@@ -5,7 +5,7 @@ import { taggingNameSetting } from '../../lib/instanceSettings';
 import TagsChecklist from "./TagsChecklist";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const TagFragmentMultiQuery = gql(`
   query multiTagCoreTagsChecklistQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {

@@ -13,7 +13,7 @@ import { allowSubscribeToSequencePosts } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
 import DeferRender from '../common/DeferRender';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import { ChaptersForm } from './ChaptersForm';
 import Error404 from "../common/Error404";
 import Loading from "../vulcan-core/Loading";

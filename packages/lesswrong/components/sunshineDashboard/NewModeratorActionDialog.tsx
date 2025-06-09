@@ -13,7 +13,7 @@ import { FormUserSelect } from '@/components/form-components/UserSelect';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 import LWDialog from "../common/LWDialog";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const ModeratorActionDisplayMutation = gql(`
   mutation createModeratorActionNewModeratorActionDialog($data: CreateModeratorActionDataInput!) {

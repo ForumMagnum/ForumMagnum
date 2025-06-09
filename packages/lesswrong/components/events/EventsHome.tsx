@@ -29,7 +29,7 @@ import DistanceUnitToggle from "../community/modules/DistanceUnitToggle";
 import { MenuItem } from "../common/Menus";
 import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
 const PostsListMultiQuery = gql(`
@@ -382,7 +382,7 @@ const EventsHome = ({classes}: {
     ...filters,
   }
   
-  const { view, limit, ...selectorTerms } = eventsListTerms;
+  const { view, ...selectorTerms } = eventsListTerms;
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(PostsListMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },

@@ -12,7 +12,7 @@ import { useMessages } from '../common/withMessages';
 import ContentStyles from "../common/ContentStyles";
 import { Typography } from "../common/Typography";
 import Loading from "../vulcan-core/Loading";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import { maybeDate } from '@/lib/utils/dateUtils';
 
 const PostsListUpdateMutation = gql(`

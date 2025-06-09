@@ -6,7 +6,7 @@ import { useWindowSize } from '../../../hooks/useScreenWidth';
 import { COORDINATE_POSITIONS_TO_BOOK_OFFSETS, CoordinatePosition } from '../../../sequences/TopPostsPage';
 import classNames from 'classnames';
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const SplashArtCoordinatesMutation = gql(`
   mutation createSplashArtCoordinateImageCropPreview($data: CreateSplashArtCoordinateDataInput!) {

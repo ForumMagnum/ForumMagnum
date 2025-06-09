@@ -6,7 +6,7 @@ import EAButton from "../EAButton";
 import LWTooltip from "../../common/LWTooltip";
 import ForumIcon from "../../common/ForumIcon";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const DigestsMinimumInfoUpdateMutation = gql(`
   mutation updateDigestEditDigestActionButtons($selector: SelectorInput!, $data: UpdateDigestDataInput!) {

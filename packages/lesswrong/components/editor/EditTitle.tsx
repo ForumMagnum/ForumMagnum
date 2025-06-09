@@ -8,7 +8,7 @@ import { LW_POST_TITLE_FONT_SIZE } from '../posts/PostsPage/PostsPageTitle';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsMinimumInfoUpdateMutation = gql(`
   mutation updatePostEditTitle($selector: SelectorInput!, $data: UpdatePostDataInput!) {

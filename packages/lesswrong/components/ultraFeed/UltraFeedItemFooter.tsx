@@ -17,7 +17,7 @@ import OverallVoteAxis from "../votes/OverallVoteAxis";
 import AgreementVoteAxis from "../votes/AgreementVoteAxis";
 import { getDefaultVotingSystem } from "@/lib/collections/posts/newSchema";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import CondensedFooterReactions from "./CondensedFooterReactions";
 
 const UltraFeedEventsDefaultFragmentMutation = gql(`

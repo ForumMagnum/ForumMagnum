@@ -21,7 +21,7 @@ import ForumIcon from "../common/ForumIcon";
 import Loading from "../vulcan-core/Loading";
 import { useMutation } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery"
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const SubscriptionStateMutation = gql(`
   mutation createSubscriptionSuggestedFeedSubscriptions($data: CreateSubscriptionDataInput!) {

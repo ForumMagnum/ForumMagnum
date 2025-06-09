@@ -26,7 +26,7 @@ import SectionFooter from "../common/SectionFooter";
 import { Typography } from "../common/Typography";
 import SectionButton from "../common/SectionButton";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const UsersProfileUpdateMutation = gql(`
   mutation updateUserCommunityHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {

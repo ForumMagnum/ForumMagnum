@@ -12,7 +12,7 @@ import { getUpdatedFieldValues } from '@/components/tanstack-form-components/hel
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const CollectionsPageFragmentUpdateMutation = gql(`
   mutation updateCollectionCollectionsEditForm($selector: SelectorInput!, $data: UpdateCollectionDataInput!) {

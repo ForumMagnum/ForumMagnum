@@ -3,7 +3,7 @@ import { REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import CommentsNodeInner from "../comments/CommentsNode";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentSingleLineReviewsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

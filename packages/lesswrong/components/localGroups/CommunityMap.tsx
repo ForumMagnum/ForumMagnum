@@ -17,7 +17,7 @@ import LocalEventMarker from "./LocalEventMarker";
 import LocalGroupMarker from "./LocalGroupMarker";
 import StyledMapPopup from "./StyledMapPopup";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const UsersMapEntryMultiQuery = gql(`
   query multiUserCommunityMapQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {

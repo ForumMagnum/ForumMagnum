@@ -6,7 +6,7 @@ import flatten from "lodash/flatten";
 import PostsLoading from "../posts/PostsLoading";
 import EAPostsItem from "../posts/EAPostsItem";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsListWithVotesMultiQuery = gql(`
   query multiPostInstagramLandingPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {

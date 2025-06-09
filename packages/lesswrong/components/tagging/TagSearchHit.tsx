@@ -5,7 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { shouldHideTagForVoting } from '../../lib/collections/tags/permissions';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import PopperCard from "../common/PopperCard";
 import TagPreview from "./TagPreview";
 import Loading from "../vulcan-core/Loading";

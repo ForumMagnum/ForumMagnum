@@ -8,7 +8,7 @@ import LoadMore from "../common/LoadMore";
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const SequencesPageFragmentMultiQuery = gql(`
   query multiSequenceSequencesGridWrapperQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {

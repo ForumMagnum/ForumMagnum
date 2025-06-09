@@ -11,7 +11,7 @@ import { EmailFormatDate } from './EmailFormatDate';
 import { EmailUsername } from './EmailUsername';
 import { EmailContentItemBody } from './EmailContentItemBody';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import { maybeDate } from '@/lib/utils/dateUtils';
 
 const CommentsListWithParentMetadataQuery = gql(`

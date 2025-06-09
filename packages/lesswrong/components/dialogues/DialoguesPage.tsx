@@ -4,7 +4,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import PostsItem from "../posts/PostsItem";
 import LWTooltip from "../common/LWTooltip";
 import SingleColumnSection from "../common/SingleColumnSection";

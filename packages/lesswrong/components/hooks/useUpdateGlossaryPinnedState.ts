@@ -4,7 +4,7 @@ import { useTracking } from "@/lib/analyticsEvents";
 import { useCookiesWithConsent } from "./useCookiesWithConsent";
 import { PINNED_GLOSSARY_COOKIE } from "@/lib/cookies/cookies";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUseruseUpdateGlossaryPinnedState($selector: SelectorInput!, $data: UpdateUserDataInput!) {

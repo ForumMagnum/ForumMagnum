@@ -4,7 +4,7 @@ import { useTimezone } from '../../components/common/withTimezone';
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import PrettyEventDateTime from '@/components/events/modules/PrettyEventDateTime';
 
 const PostsBaseQuery = gql(`

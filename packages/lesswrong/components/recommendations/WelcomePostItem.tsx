@@ -6,7 +6,7 @@ import moment from "moment";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
 import { aboutPostIdSetting } from "@/lib/instanceSettings";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import PostsItem from "../posts/PostsItem";
 
 const PostsListWithVotesQuery = gql(`

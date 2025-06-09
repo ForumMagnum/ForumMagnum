@@ -19,7 +19,7 @@ import Loading from "../vulcan-core/Loading";
 import ContentStyles from "../common/ContentStyles";
 import { useMutation } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery"
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const TagRelFragmentMultiQuery = gql(`
   query multiTagRelSunshineNewTagsItemQuery($selector: TagRelSelector, $limit: Int, $enableTotal: Boolean) {

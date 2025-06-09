@@ -15,7 +15,7 @@ import { htmlToTextDefault } from '@/lib/htmlToText';
 import TagSmallPostLink from "./TagSmallPostLink";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsListMultiQuery = gql(`
   query multiPostTagPreviewQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {

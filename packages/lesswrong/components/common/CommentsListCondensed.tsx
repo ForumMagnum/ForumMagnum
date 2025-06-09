@@ -10,7 +10,7 @@ import LoadMore from "./LoadMore";
 import SectionButton from "./SectionButton";
 import ShortformSubmitForm from "../shortform/ShortformSubmitForm";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const ShortformCommentsMultiQuery = gql(`
   query multiCommentCommentsListCondensedQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

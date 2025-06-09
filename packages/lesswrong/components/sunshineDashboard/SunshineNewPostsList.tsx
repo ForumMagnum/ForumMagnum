@@ -7,7 +7,7 @@ import SunshineListTitle from "./SunshineListTitle";
 import SunshineNewPostsItem from "./SunshineNewPostsItem";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const SunshinePostsListMultiQuery = gql(`
   query multiPostSunshineNewPostsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {

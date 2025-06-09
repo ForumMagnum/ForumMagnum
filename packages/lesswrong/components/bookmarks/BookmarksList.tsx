@@ -8,7 +8,7 @@ import PostsLoading from "../posts/PostsLoading";
 import PostsItem from "../posts/PostsItem";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const BookmarksWithDocumentFragmentMultiQuery = gql(`
   query multiBookmarkBookmarksListQuery($selector: BookmarkSelector, $limit: Int, $enableTotal: Boolean) {

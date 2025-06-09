@@ -9,7 +9,7 @@ import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import PostsItem from "../posts/PostsItem";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const ChaptersEditQuery = gql(`
   query ChaptersItem($documentId: String) {

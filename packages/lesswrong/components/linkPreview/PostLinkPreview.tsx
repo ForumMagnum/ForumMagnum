@@ -11,7 +11,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import { visitedLinksHaveFilledInCircle } from '@/lib/betas';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import AnalyticsTracker from "../common/AnalyticsTracker";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";

@@ -1,7 +1,7 @@
 import React from 'react';
 import { DialogueMessageInfo, PostsPreviewTooltip } from './PostsPreviewTooltip';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import PostsPreviewLoading from "./PostsPreviewLoading";
 
 const TagRelFragmentQuery = gql(`

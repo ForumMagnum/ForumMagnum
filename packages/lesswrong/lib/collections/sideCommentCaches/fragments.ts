@@ -1,4 +1,4 @@
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 // The raw side comment cache objects are not actually visible to the client
 // and are only used internally to generate the user facing `sideComments`

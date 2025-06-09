@@ -11,7 +11,7 @@ import SingleColumnSection from "./SingleColumnSection";
 import ForumIcon from "./ForumIcon";
 import LWTooltip from "./LWTooltip";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const TagFragmentMultiQuery = gql(`
   query multiTagHomeTagBarQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {

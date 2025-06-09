@@ -30,7 +30,7 @@ import ForumIcon from "../common/ForumIcon";
 import CommentsNodeInner from "../comments/CommentsNode";
 import { useMutation } from "@apollo/client";
 import { useQuery } from '@/lib/crud/useQuery';
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import { withDateFields } from '@/lib/utils/dateUtils';
 
 const SpotlightDisplayUpdateMutation = gql(`

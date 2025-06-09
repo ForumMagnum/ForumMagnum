@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import CalendarDate from "../../common/CalendarDate";
 

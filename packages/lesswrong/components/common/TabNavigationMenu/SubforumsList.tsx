@@ -6,7 +6,7 @@ import { isEAForum } from "../../../lib/instanceSettings";
 import TabNavigationSubItem from "./TabNavigationSubItem";
 import { MenuItemLink, MenuItem } from "../Menus";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const TagSubforumSidebarFragmentMultiQuery = gql(`
   query multiTagSubforumsListQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {

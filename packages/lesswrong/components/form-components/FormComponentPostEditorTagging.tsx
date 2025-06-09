@@ -7,7 +7,7 @@ import TagsChecklist from "../tagging/TagsChecklist";
 import TagMultiselect from "./TagMultiselect";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const TagFragmentMultiQuery = gql(`
   query multiTagFormComponentPostEditorTaggingQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {

@@ -6,7 +6,7 @@ import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsListWithVotesMultiQuery = gql(`
   query multiPostPostsByVoteQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {

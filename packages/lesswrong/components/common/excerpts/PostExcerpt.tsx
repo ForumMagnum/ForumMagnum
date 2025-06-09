@@ -4,7 +4,7 @@ import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import { usePostContents } from "../../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../../hooks/useForeignApolloClient";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import ContentExcerpt, { CommonExcerptProps } from "./ContentExcerpt";
 import Loading from "../../vulcan-core/Loading";
 

@@ -30,7 +30,7 @@ import SubforumWikiTab from "./SubforumWikiTab";
 import SubforumSubforumTab from "./SubforumSubforumTab";
 import { useMutation } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery"
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const UserTagRelDetailsMultiQuery = gql(`
   query multiUserTagRelTagSubforumPage2Query($selector: UserTagRelSelector, $limit: Int, $enableTotal: Boolean) {

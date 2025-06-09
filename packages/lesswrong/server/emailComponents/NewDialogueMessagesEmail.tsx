@@ -3,7 +3,7 @@ import { getConfirmedCoauthorIds, postGetEditUrl, postGetPageUrl } from '../../l
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { EmailContentItemBody } from './EmailContentItemBody';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const UsersMinimumInfoQuery = gql(`
   query NewDialogueMessagesEmail1($documentId: String) {

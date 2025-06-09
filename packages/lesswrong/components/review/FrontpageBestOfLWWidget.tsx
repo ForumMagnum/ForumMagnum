@@ -6,7 +6,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
 import * as _ from 'underscore';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import SectionTitle from "../common/SectionTitle";
 import RecommendationsList from "../recommendations/RecommendationsList";
 import PostsItem from "../posts/PostsItem";

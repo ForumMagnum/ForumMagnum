@@ -6,7 +6,7 @@ import range from 'lodash/range';
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentReviewProgressNominationsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

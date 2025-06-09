@@ -8,7 +8,7 @@ import type { TagsTooltipPreviewWrapper } from "../TagsTooltip";
 import { stableSortTags } from "../../../lib/collections/tags/helpers";
 import { useMutation } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import ContentStyles from "../../common/ContentStyles";
 import FooterTag from "../FooterTag";
 import AddTagButton from "../AddTagButton";

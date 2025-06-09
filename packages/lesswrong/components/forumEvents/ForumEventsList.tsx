@@ -4,7 +4,7 @@ import { Link } from "../../lib/reactRouterWrapper";
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const ForumEventsMinimumInfoMultiQuery = gql(`
   query multiForumEventForumEventsListQuery($selector: ForumEventSelector, $limit: Int, $enableTotal: Boolean) {

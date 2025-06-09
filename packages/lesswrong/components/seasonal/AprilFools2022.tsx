@@ -9,7 +9,7 @@ import SectionTitle from "../common/SectionTitle";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import SectionFooter from "../common/SectionFooter";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const UsersProfileMultiQuery = gql(`
   query multiUserAprilFools2022Query($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {

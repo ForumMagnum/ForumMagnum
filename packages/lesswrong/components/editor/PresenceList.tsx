@@ -5,7 +5,7 @@ import keyBy from 'lodash/keyBy';
 import classNames from 'classnames';
 import CloudOff from "@/lib/vendor/@material-ui/icons/src/CloudOff";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import UsersName from "../users/UsersName";
 
 const UsersMinimumInfoQuery = gql(`

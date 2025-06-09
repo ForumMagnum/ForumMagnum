@@ -10,7 +10,7 @@ import PostsItemWrapper from "../posts/PostsItemWrapper";
 import LoadMore from "../common/LoadMore";
 import Loading from "../vulcan-core/Loading";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsListMultiQuery = gql(`
   query multiPostSequenceDraftsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {

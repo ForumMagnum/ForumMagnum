@@ -6,7 +6,7 @@ import { userCanDo, userOwns } from "../../../lib/vulcan-users/permissions";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const CommentsListUpdateMutation = gql(`
   mutation updateCommentShortformFrontpageDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {

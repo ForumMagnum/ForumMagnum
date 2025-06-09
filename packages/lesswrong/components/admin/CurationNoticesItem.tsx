@@ -10,7 +10,7 @@ import { CurationNoticesForm } from './CurationNoticesForm';
 import { ContentItemBody } from "../contents/ContentItemBody";
 import BasicFormStyles from "../form-components/BasicFormStyles";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostCurationNoticesItem1($selector: SelectorInput!, $data: UpdatePostDataInput!) {

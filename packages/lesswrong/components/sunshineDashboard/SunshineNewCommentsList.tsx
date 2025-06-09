@@ -4,7 +4,7 @@ import SunshineListCount from "./SunshineListCount";
 import SunshineNewCommentsItem from "./SunshineNewCommentsItem";
 import SunshineListTitle from "./SunshineListTitle";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentSunshineNewCommentsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

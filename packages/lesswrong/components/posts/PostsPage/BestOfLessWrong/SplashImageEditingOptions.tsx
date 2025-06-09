@@ -5,7 +5,7 @@ import { PostWithArtGrid } from './PostWithArtGrid';
 import GenerateImagesButton from '@/components/review/GenerateImagesButton';
 import Loading from "../../../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const ReviewWinnerArtImagesMultiQuery = gql(`
   query multiReviewWinnerArtSplashImageEditingOptionsQuery($selector: ReviewWinnerArtSelector, $limit: Int, $enableTotal: Boolean) {

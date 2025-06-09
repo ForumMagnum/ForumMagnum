@@ -14,7 +14,7 @@ import { userIsDefaultSubscribed, userSubscriptionStateIsFixed } from "../../lib
 import LoginPopup from "../users/LoginPopup";
 import { useMutation } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery"
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const SubscriptionStateMultiQuery = gql(`
   query multiSubscriptionuseNotifyMeQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {

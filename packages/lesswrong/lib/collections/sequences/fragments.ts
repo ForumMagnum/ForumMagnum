@@ -1,4 +1,4 @@
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 export const SequencesPageTitleFragment = gql(`
   fragment SequencesPageTitleFragment on Sequence {

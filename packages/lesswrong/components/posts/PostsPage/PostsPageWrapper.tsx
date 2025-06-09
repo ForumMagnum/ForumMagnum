@@ -7,7 +7,7 @@ import { useSubscribedLocation } from '../../../lib/routeUtil';
 import { useApolloClient } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery"
 import { registerComponent } from "../../../lib/vulcan-lib/components";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import PostsPage, { postCommentsThreadQuery, usePostCommentTerms } from './PostsPage';
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
 import Error404 from "../../common/Error404";

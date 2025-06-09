@@ -12,7 +12,7 @@ import { TooltipSpan } from '../FMTooltip';
 import { Typography } from "../Typography";
 import SimpleDivider from "../../widgets/SimpleDivider";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const FeaturedResourcesFragmentMultiQuery = gql(`
   query multiFeaturedResourceFeaturedResourceBannerQuery($selector: FeaturedResourceSelector, $limit: Int, $enableTotal: Boolean) {

@@ -16,7 +16,7 @@ import Row from "../common/Row";
 import ReactionDescription from "./lwReactions/ReactionDescription";
 import MetaInfo from "../common/MetaInfo";
 import { useMutation } from "@apollo/client";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserReactionsPalette($selector: SelectorInput!, $data: UpdateUserDataInput!) {

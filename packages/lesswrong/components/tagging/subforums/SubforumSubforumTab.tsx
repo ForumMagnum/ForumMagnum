@@ -19,7 +19,7 @@ import ShortformSubmitForm from "../../shortform/ShortformSubmitForm";
 import LoginForm from "../../users/LoginForm";
 import PostsListSortDropdown from "../../posts/PostsListSortDropdown";
 import PostsLayoutDropdown from "../../posts/PostsLayoutDropdown";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 import { SubforumFeedQueries } from '@/components/common/feeds/feedQueries';
 
 const UserTagRelDetailsUpdateMutation = gql(`

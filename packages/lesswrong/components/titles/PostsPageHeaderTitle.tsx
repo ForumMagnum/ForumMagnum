@@ -2,7 +2,7 @@ import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { Helmet } from '../../lib/utils/componentsWithChildren';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsBaseQuery = gql(`
   query PostsPageHeaderTitle($documentId: String) {

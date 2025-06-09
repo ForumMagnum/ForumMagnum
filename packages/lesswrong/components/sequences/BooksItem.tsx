@@ -13,7 +13,7 @@ import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import SequencesGrid from "./SequencesGrid";
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/crud/wrapGql";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const BookEditQuery = gql(`
   query BooksItem($documentId: String) {
