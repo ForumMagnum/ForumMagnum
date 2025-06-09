@@ -4,7 +4,6 @@ import { useSingle } from "../../lib/crud/withSingle";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { useMulti } from "@/lib/crud/withMulti";
-import { useNavigate } from "@/lib/routeUtil";
 import LWDialog from "../common/LWDialog";
 import FeedContentBody from "./FeedContentBody";
 import UltraFeedItemFooter from "./UltraFeedItemFooter";
@@ -19,16 +18,6 @@ import UltraFeedPostActions from "./UltraFeedPostActions";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
-  '@global': {
-    // Style the browser's text fragment highlighting
-    '::target-text': {
-      backgroundColor: `${theme.palette.secondary.light}4c`,
-    },
-    // fallback/common implementation
-    'mark': {
-      backgroundColor: `${theme.palette.secondary.light}4c`,
-    }
-  },
   dialogContent: {
     padding: 0,
     height: '100%',
@@ -193,7 +182,6 @@ const UltraFeedPostDialog = ({
   const classes = useStyles(styles);
   const authorListRef = useRef<HTMLDivElement>(null);
   const isClosingViaBackRef = useRef(false);
-  const navigate = useNavigate();
 
   const postId = partialPost?._id ?? undefined;
 
@@ -241,12 +229,6 @@ const UltraFeedPostDialog = ({
       }
     };
   }, [onClose]);
-
-  useEffect(() => {
-    return () => {
-      navigate({ hash: "" }, { replace: true });
-    };
-  }, [navigate]);
 
   // Compute content props based on what data we have
   let contentData = null;

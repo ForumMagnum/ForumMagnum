@@ -160,7 +160,7 @@ const sourceIconMap: Array<{ source: FeedItemSourceType, icon: any, tooltip: str
 interface UltraFeedPostItemHeaderProps {
   post: PostsListWithVotes;
   isRead: boolean;
-  handleOpenDialog: (params?: { textFragment?: string }) => void;
+  handleOpenDialog: () => void;
   postTitlesAreModals: boolean;
   sources: FeedItemSourceType[];
 }
@@ -325,8 +325,7 @@ const UltraFeedPostItem = ({
     setIsContentExpanded(false);
   };
 
-  const handleOpenDialog = useCallback((params?: {textFragment?: string}) => {
-    const textFragment = params?.textFragment;
+  const handleOpenDialog = useCallback(() => {
     captureEvent("ultraFeedPostItemTitleClicked", {postId: post._id});
     openDialog({
       name: "UltraFeedPostDialog",

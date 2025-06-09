@@ -122,7 +122,7 @@ export interface FeedContentBodyProps {
   html: string;
   initialWordCount: number;
   maxWordCount: number;
-  onContinueReadingClick?: (params: { textFragment?: string }) => void;
+  onContinueReadingClick?: () => void;
   wordCount: number;
   onExpand?: (expanded: boolean, wordCount: number) => void;
   nofollow?: boolean;
@@ -241,7 +241,7 @@ const FeedContentBody = ({
       
       const action = target.getAttribute('data-action');
       if (action === 'modal' && onContinueReadingClick) {
-        onContinueReadingClick({});
+        onContinueReadingClick();
       } else if (action === 'expand') {
         handleExpand();
       }
