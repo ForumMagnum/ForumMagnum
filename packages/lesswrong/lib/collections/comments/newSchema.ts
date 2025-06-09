@@ -198,6 +198,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       canCreate: ["members"],
+      canUpdate: ["admins"],
       validation: {
         optional: true,
       },
@@ -219,6 +220,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       canCreate: ["members"],
+      canUpdate: ["admins"],
       validation: {
         optional: true,
       },

@@ -5309,6 +5309,8 @@ input UpdateCommentDataInput {
   legacyData: JSON
   contents: CreateRevisionDataInput
   postedAt: Date
+  postId: String
+  tagId: String
   subforumStickyPriority: Float
   authorIsUnreviewed: Boolean
   answer: Boolean
