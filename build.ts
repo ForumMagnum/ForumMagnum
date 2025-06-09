@@ -470,7 +470,7 @@ async function main() {
   });
   
   let serverCli: string[] = [
-    "node",
+    "bun",
     ...(!isProduction ? ["--inspect"] : []),
     "--enable-source-maps",
     "--", `${getOutputDir()}/server/js/serverBundle.js`,
@@ -526,7 +526,7 @@ async function main() {
       "fsevents", "chokidar", "auth0", "dd-trace", "pg-formatter",
       "gpt-3-encoder", "@elastic/elasticsearch", "zod", "node-abort-controller",
       "cheerio", "vite", "@vitejs/plugin-react", "@google-cloud", "@aws-sdk",
-      "@anthropic-ai/sdk", "openai", "@googlemaps"
+      "@anthropic-ai/sdk", "openai", "@googlemaps", "@dqbd/tiktoken"
     ],
   })
   

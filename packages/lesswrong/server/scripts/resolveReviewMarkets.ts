@@ -7,7 +7,7 @@ const manifoldAPIKey = manifoldAPIKeySetting.get()
 
 export const getMarketInfoFromManifold = async (marketId: string): Promise<LiteMarket | null > => {
 
-  const result = await fetch(`https://api.manifold.markets./v0/market/${marketId}`, {
+  const result = await fetch(`https://api.manifold.markets/v0/market/${marketId}`, {
     method: "GET",
     headers: {
       "content-type": "application/json"

@@ -79,7 +79,7 @@ const manifoldAPIKey = manifoldAPIKeySetting.get()
 export const postGetMarketInfoFromManifold = async (post: DbPost): Promise<AnnualReviewMarketInfo | null > => {
   if (!post.manifoldReviewMarketId) return null;
 
-  const result = await fetch(`https://api.manifold.markets./v0/market/${post.manifoldReviewMarketId}`, {
+  const result = await fetch(`https://api.manifold.markets/v0/market/${post.manifoldReviewMarketId}`, {
     method: "GET",
     headers: {
       "content-type": "application/json"
