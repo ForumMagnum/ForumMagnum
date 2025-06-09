@@ -15,14 +15,8 @@ const fragmentFileHeader = generatedFileHeader+`//
 
 export function generateFragmentTypes(collectionNameToTypeName: Record<string, string>, typeNameToCollectionName: Record<string, string>): string {
   const allFragments = findFragmentsInSource(collectionNameToTypeName);
-  const fragmentNames = Object.keys(allFragments);
-  const sortedFragmentNames: Array<string> = orderBy(fragmentNames, f=>f);
 
   const sb: Array<string> = [];
-  // for (let fragmentName of sortedFragmentNames) {
-  //   sb.push(generateFragmentTypeDefinition(allFragments[fragmentName], typeNameToCollectionName));
-  // }
-  
   sb.push(generateFragmentsIndexType(allFragments));
   sb.push(generateCollectionNamesByFragmentNameType(allFragments, typeNameToCollectionName));
   sb.push(generateCollectionNamesIndexType());
