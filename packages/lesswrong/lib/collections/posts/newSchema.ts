@@ -200,7 +200,9 @@ async function getUpdatedLocalStartTime(post: DbPost, context: ResolverContext) 
   if (!post.startTime) return null;
   const googleLocation = post.googleLocation || (await getDefaultPostLocationFields(post, context)).googleLocation;
   if (!googleLocation) return null;
-  return await getLocalTime(post.startTime, googleLocation);
+  const localTime = await getLocalTime(post.startTime, googleLocation);
+  if (localTime) return localTime;
+  return post.startTime;
 }
 
 function postHasEndTimeOrGoogleLocation(data: Partial<DbPost> | CreatePostDataInput | UpdatePostDataInput) {
@@ -211,7 +213,9 @@ async function getUpdatedLocalEndTime(post: DbPost, context: ResolverContext) {
   if (!post.endTime) return null;
   const googleLocation = post.googleLocation || (await getDefaultPostLocationFields(post, context)).googleLocation;
   if (!googleLocation) return null;
-  return await getLocalTime(post.endTime, googleLocation);
+  const localTime = await getLocalTime(post.endTime, googleLocation);
+  if (localTime) return localTime;
+  return post.endTime;
 }
 
 function postHasGoogleLocation(data: Partial<DbPost> | CreatePostDataInput | UpdatePostDataInput) {
