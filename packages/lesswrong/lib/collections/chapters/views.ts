@@ -2,7 +2,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface ChaptersViewTerms extends ViewTermsBase {
-    view?: ChaptersViewName
+    view: ChaptersViewName
     sequenceId?: string
   }
 }

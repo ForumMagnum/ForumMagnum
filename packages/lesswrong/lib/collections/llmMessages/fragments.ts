@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper";
+import { gql } from "@/lib/generated/gql-codegen";
 
-export const LlmMessagesFragment = () => frag`
+export const LlmMessagesFragment = gql(`
   fragment LlmMessagesFragment on LlmMessage {
     _id
     userId
@@ -9,4 +9,4 @@ export const LlmMessagesFragment = () => frag`
     content
     createdAt
   }
-`
+`)

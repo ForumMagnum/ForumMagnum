@@ -4,17 +4,28 @@ import { userIsAdminOrMod } from "../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import { taggingNameCapitalSetting, taggingNameSetting } from "../../lib/instanceSettings";
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
-import { useSingle } from "../../lib/crud/withSingle";
 import { Link } from "../../lib/reactRouterWrapper";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
-import { gql, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
 import { useMessages } from "../common/withMessages";
+import { gql } from "@/lib/generated/gql-codegen";
 import TagsSearchAutoComplete from "../search/TagsSearchAutoComplete";
 import { Typography } from "../common/Typography";
 import SingleColumnSection from "../common/SingleColumnSection";
 import Loading from "../vulcan-core/Loading";
 import EAButton from "../ea-forum/EAButton";
 import LWTooltip from "../common/LWTooltip";
+
+const TagFragmentQuery = gql(`
+  query TagMergePage($documentId: String) {
+    tag(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...TagFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -75,7 +86,7 @@ const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const [transferSubtags, setTransferSubtags] = useState<boolean>(true);
   const [redirectSource, setDeleteSource] = useState<boolean>(false);
 
-  const [mergeTags, {loading: mutationLoading}] = useMutation(gql`
+  const [mergeTags, {loading: mutationLoading}] = useMutation(gql(`
     mutation mergeTags(
       $sourceTagId: String!
       $targetTagId: String!
@@ -89,33 +100,27 @@ const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
         redirectSource: $redirectSource
       )
     }
-  `);
+  `));
 
-  const {
-    document: sourceTag,
-    loading: sourceTagLoading,
-    refetch: refetchSource,
-  } = useSingle({
-    documentId: sourceTagId ?? "",
-    collectionName: "Tags",
-    fragmentName: "TagFragment",
-    fetchPolicy: "network-only",
+  const { loading: sourceTagLoading, refetch: refetchSource, data } = useQuery(TagFragmentQuery, {
+    variables: { documentId: sourceTagId ?? "" },
     skip: !sourceTagId,
-  });
-
-  const {
-    document: targetTag,
-    loading: targetTagLoading,
-    refetch: refetchTarget,
-  } = useSingle({
-    documentId: targetTagId ?? "",
-    collectionName: "Tags",
-    fragmentName: "TagFragment",
     fetchPolicy: "network-only",
-    skip: !targetTagId,
   });
+  const sourceTag = data?.tag?.result;
+
+  const { loading: targetTagLoading, refetch: refetchTarget, data: dataTarget } = useQuery(TagFragmentQuery, {
+    variables: { documentId: targetTagId ?? "" },
+    skip: !targetTagId,
+    fetchPolicy: "network-only",
+  });
+  const targetTag = dataTarget?.tag?.result;
 
   const onSubmit = useCallback(async () => {
+    if (!sourceTagId || !targetTagId) {
+      flash({ messageString: "Please select a source and target tag" });
+      return;
+    }
     try {
       await mergeTags({ variables: { sourceTagId, targetTagId, transferSubtags, redirectSource } });
 

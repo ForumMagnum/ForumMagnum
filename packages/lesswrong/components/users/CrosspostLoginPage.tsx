@@ -3,7 +3,9 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useCurrentUser } from "../common/withUser";
 import { forumHeaderTitleSetting } from '@/lib/instanceSettings';
-import { gql, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
 import { hasProminentLogoSetting } from "../../lib/publicSettings";
 import { isE2E } from "@/lib/executionEnvironment";
 import { useLocation } from "@/lib/routeUtil";
@@ -40,11 +42,11 @@ const styles = (theme: ThemeType) => ({
 const CrosspostLoginPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const [connectCrossposter, loading] = useMutation(gql`
+  const [connectCrossposter, loading] = useMutation(gql(`
     mutation connectCrossposter($token: String) {
       connectCrossposter(token: $token)
     }
-  `, {errorPolicy: "all"});
+  `), {errorPolicy: "all"});
   const [error, setError] = useState<string | null>(null);
   const currentUser = useCurrentUser();
   const {query: {token}} = useLocation();

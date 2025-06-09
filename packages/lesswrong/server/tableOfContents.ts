@@ -1,14 +1,13 @@
-import { questionAnswersSortings } from '../lib/collections/comments/views';
+import { CommentsViews, questionAnswersSortings } from '../lib/collections/comments/views';
 import { isAF } from '../lib/instanceSettings';
 import { updateDenormalizedHtmlAttributions, UpdateDenormalizedHtmlAttributionsOptions } from './tagging/updateDenormalizedHtmlAttributions';
 import { annotateAuthors } from './attributeEdits';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import { extractTableOfContents, getTocAnswers, getTocComments, shouldShowTableOfContents, ToCData } from '../lib/tableOfContents';
 import { parseDocumentFromString } from '../lib/domParser';
-import type { FetchedFragment } from './fetchFragment';
 import { getLatestContentsRevision } from './collections/revisions/helpers';
 import { applyCustomArbitalScripts } from './utils/arbital/arbitalCustomScripts';
-import { getEditableFieldNamesForCollection } from '@/lib/editor/editableSchemaFieldHelpers';
+import { getEditableFieldNamesForCollection } from '@/server/editor/editableSchemaFieldHelpers';
 import { getCollectionAccessFilter } from './permissions/accessFilters';
 
 async function getTocAnswersServer(document: DbPost, context: ResolverContext) {
@@ -33,7 +32,7 @@ async function getTocCommentsServer(document: DbPost, context: ResolverContext) 
   const { Comments } = context;
 
   const commentSelector: any = {
-    ...getDefaultViewSelector("Comments"),
+    ...getDefaultViewSelector(CommentsViews),
     answer: false,
     draft: false,
     parentAnswerId: null,
@@ -103,7 +102,7 @@ async function getHtmlWithContributorAnnotations({
 }
 
 export const getToCforPost = async ({document, version, context}: {
-  document: DbPost|FetchedFragment<"PostsHTML">,
+  document: DbPost | (PostsHTML & DbPost),
   version: string|null,
   context: ResolverContext,
 }): Promise<ToCData|null> => {

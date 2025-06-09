@@ -4,12 +4,10 @@ import {
   DEFAULT_SOURCE_WEIGHTS, 
   DEFAULT_SETTINGS,
   TruncationLevel,
-  levelToCommentLinesMap,
-  levelToCommentBreakpointMap,
-  levelToPostBreakpointMap,
-  getCommentBreakpointLevel,
-  getFirstCommentLevel,
-  getPostBreakpointLevel,
+  levelToWordCountMap,
+  levelToPostWordCountMap,
+  getCommentWordCountLevel,
+  getPostWordCountLevel,
   SettingsFormState,
   ThreadInterestModelFormState,
   CommentScoringFormState,
@@ -249,8 +247,11 @@ const deriveFormValuesFromSettings = (settings: UltraFeedSettingsType): Settings
     incognitoMode: resolverSettings.incognitoMode ?? defaultResolverSettings.incognitoMode,
     displaySetting: {
       lineClampNumberOfLines: displaySettings.lineClampNumberOfLines ?? defaultDisplaySettings.lineClampNumberOfLines,
-      postTruncationBreakpoints: [...(displaySettings.postTruncationBreakpoints || [])],
-      commentTruncationBreakpoints: [...(displaySettings.commentTruncationBreakpoints || [])],
+      postInitialWords: displaySettings.postInitialWords ?? defaultDisplaySettings.postInitialWords,
+      postMaxWords: displaySettings.postMaxWords ?? defaultDisplaySettings.postMaxWords,
+      commentCollapsedInitialWords: displaySettings.commentCollapsedInitialWords ?? defaultDisplaySettings.commentCollapsedInitialWords,
+      commentExpandedInitialWords: displaySettings.commentExpandedInitialWords ?? defaultDisplaySettings.commentExpandedInitialWords,
+      commentMaxWords: displaySettings.commentMaxWords ?? defaultDisplaySettings.commentMaxWords,
       postTitlesAreModals: displaySettings.postTitlesAreModals ?? defaultDisplaySettings.postTitlesAreModals,
     },
     commentScoring: mergeWith(
@@ -267,12 +268,11 @@ const deriveFormValuesFromSettings = (settings: UltraFeedSettingsType): Settings
 };
 
 const deriveSimpleViewTruncationLevelsFromSettings = (settings: UltraFeedSettingsType) => ({
-  commentLevel0: getFirstCommentLevel(settings.displaySettings.lineClampNumberOfLines, settings.displaySettings.commentTruncationBreakpoints?.[0]),
-  commentLevel1: getCommentBreakpointLevel(settings.displaySettings.commentTruncationBreakpoints?.[1]),
-  commentLevel2: getCommentBreakpointLevel(settings.displaySettings.commentTruncationBreakpoints?.[2]),
-  postLevel0: getPostBreakpointLevel(settings.displaySettings.postTruncationBreakpoints?.[0]),
-  postLevel1: getPostBreakpointLevel(settings.displaySettings.postTruncationBreakpoints?.[1]),
-  postLevel2: getPostBreakpointLevel(settings.displaySettings.postTruncationBreakpoints?.[2]),
+  commentCollapsedInitialLevel: getCommentWordCountLevel(settings.displaySettings.commentCollapsedInitialWords),
+  commentExpandedInitialLevel: getCommentWordCountLevel(settings.displaySettings.commentExpandedInitialWords),
+  commentMaxLevel: getCommentWordCountLevel(settings.displaySettings.commentMaxWords),
+  postInitialLevel: getPostWordCountLevel(settings.displaySettings.postInitialWords),
+  postMaxLevel: getPostWordCountLevel(settings.displaySettings.postMaxWords),
 });
 
 const ViewModeButton: React.FC<{
@@ -413,27 +413,17 @@ const UltraFeedSettings = ({
     }
   }, [updateDisplaySettingForm]);
 
-  const handleBreakpointChange = useCallback((
-    kind: 'post' | 'comment',
-    index: number,
+  const handleWordCountChange = useCallback((
+    field: 'postInitialWords' | 'postMaxWords' | 'commentCollapsedInitialWords' | 'commentExpandedInitialWords' | 'commentMaxWords',
     value: string | number
   ) => {
-    const field = kind === 'post' ? 'postTruncationBreakpoints' : 'commentTruncationBreakpoints';
-    updateDisplaySettingForm(field, (prev: (number | '')[]) => {
-      const currentArray = [...prev];
-      if (value === '') {
-        currentArray[index] = '';
-      } else if (typeof value === 'string') {
-        const parsed = parseInt(value, 10);
-        currentArray[index] = isNaN(parsed) ? '' : parsed;
-      } else {
-        currentArray[index] = value;
-      }
-      while (currentArray.length < 3) {
-        currentArray.push('');
-      }
-      return currentArray.slice(0, 3);
-    });
+    const strValue = String(value).trim();
+    if (strValue === '') {
+      updateDisplaySettingForm(field, '');
+    } else {
+      const numValue = parseInt(strValue, 10);
+      updateDisplaySettingForm(field, isNaN(numValue) ? '' : numValue);
+    }
   }, [updateDisplaySettingForm]);
 
   const handleCommentScoringFieldChange = useCallback((
@@ -520,47 +510,49 @@ const UltraFeedSettings = ({
       displaySettings: {
         postTitlesAreModals: formValues.displaySetting.postTitlesAreModals,
         lineClampNumberOfLines: 0, // Placeholder, will be set below
-        postTruncationBreakpoints: [], // Placeholder, will be set below
-        commentTruncationBreakpoints: [], // Placeholder, will be set below
+        postInitialWords: 0, // Placeholder, will be set below
+        postMaxWords: 0, // Placeholder, will be set below
+        commentCollapsedInitialWords: 0, // Placeholder, will be set below
+        commentExpandedInitialWords: 0, // Placeholder, will be set below
+        commentMaxWords: 0, // Placeholder, will be set below
       }
     };
     
     if (viewMode === 'simple') {
-      settingsToUpdate.displaySettings!.lineClampNumberOfLines = levelToCommentLinesMap[simpleViewTruncationLevels.commentLevel0];
-
-      const commentLevels = [simpleViewTruncationLevels.commentLevel0, simpleViewTruncationLevels.commentLevel1, simpleViewTruncationLevels.commentLevel2];
-      settingsToUpdate.displaySettings!.commentTruncationBreakpoints = commentLevels
-        .map(lvl => levelToCommentBreakpointMap[lvl])
-        .filter(bp => bp !== undefined)
-
-      const postLevels = [simpleViewTruncationLevels.postLevel0, simpleViewTruncationLevels.postLevel1, simpleViewTruncationLevels.postLevel2];
-      settingsToUpdate.displaySettings!.postTruncationBreakpoints = postLevels
-        .map(lvl => levelToPostBreakpointMap[lvl])
-        .filter(bp => bp !== undefined)
+      // In simple mode, convert truncation levels back to word counts
+      settingsToUpdate.displaySettings!.lineClampNumberOfLines = 0; // No line clamping in simple mode
+      settingsToUpdate.displaySettings!.commentCollapsedInitialWords = levelToWordCountMap[simpleViewTruncationLevels.commentCollapsedInitialLevel];
+      settingsToUpdate.displaySettings!.commentExpandedInitialWords = levelToWordCountMap[simpleViewTruncationLevels.commentExpandedInitialLevel];
+      settingsToUpdate.displaySettings!.commentMaxWords = levelToWordCountMap[simpleViewTruncationLevels.commentMaxLevel];
+      settingsToUpdate.displaySettings!.postInitialWords = levelToPostWordCountMap[simpleViewTruncationLevels.postInitialLevel];
+      settingsToUpdate.displaySettings!.postMaxWords = levelToPostWordCountMap[simpleViewTruncationLevels.postMaxLevel];
       
     } else {
+      // In advanced mode, use the form values directly
       settingsToUpdate.displaySettings!.lineClampNumberOfLines = parseNumericInputAsZeroOrNumber(
         formValues.displaySetting.lineClampNumberOfLines,
         0 
       );
-          
-      settingsToUpdate.displaySettings!.postTruncationBreakpoints = formValues.displaySetting.postTruncationBreakpoints
-        .map(val => {
-          if (val === '') return undefined;
-          const num = Number(val);
-          if (isNaN(num)) return undefined;
-          return num; 
-        })
-        .filter(bp => bp !== undefined) 
-      
-      settingsToUpdate.displaySettings!.commentTruncationBreakpoints = formValues.displaySetting.commentTruncationBreakpoints
-        .map(val => {
-          if (val === '') return undefined;
-          const num = Number(val);
-          if (isNaN(num)) return undefined;
-          return num; 
-        })
-        .filter(bp => bp !== undefined) 
+      settingsToUpdate.displaySettings!.postInitialWords = parseNumericInputAsZeroOrNumber(
+        formValues.displaySetting.postInitialWords,
+        DEFAULT_SETTINGS.displaySettings.postInitialWords
+      );
+      settingsToUpdate.displaySettings!.postMaxWords = parseNumericInputAsZeroOrNumber(
+        formValues.displaySetting.postMaxWords,
+        DEFAULT_SETTINGS.displaySettings.postMaxWords
+      );
+      settingsToUpdate.displaySettings!.commentCollapsedInitialWords = parseNumericInputAsZeroOrNumber(
+        formValues.displaySetting.commentCollapsedInitialWords,
+        DEFAULT_SETTINGS.displaySettings.commentCollapsedInitialWords
+      );
+      settingsToUpdate.displaySettings!.commentExpandedInitialWords = parseNumericInputAsZeroOrNumber(
+        formValues.displaySetting.commentExpandedInitialWords,
+        DEFAULT_SETTINGS.displaySettings.commentExpandedInitialWords
+      );
+      settingsToUpdate.displaySettings!.commentMaxWords = parseNumericInputAsZeroOrNumber(
+        formValues.displaySetting.commentMaxWords,
+        DEFAULT_SETTINGS.displaySettings.commentMaxWords
+      );
     }
 
     const result = ultraFeedSettingsSchema.safeParse(settingsToUpdate);
@@ -593,19 +585,22 @@ const UltraFeedSettings = ({
     levels: simpleViewTruncationLevels,
     onChange: handleSimpleTruncationLevelChange,
     originalSettings: settings,
-    postBreakpointError: zodErrors?.displaySettings?.postTruncationBreakpoints?._errors?.[0],
-    commentBreakpointError: zodErrors?.displaySettings?.commentTruncationBreakpoints?._errors?.[0],
+    postBreakpointError: zodErrors?.displaySettings?.postInitialWords?._errors?.[0] || zodErrors?.displaySettings?.postMaxWords?._errors?.[0],
+    commentBreakpointError: zodErrors?.displaySettings?.commentCollapsedInitialWords?._errors?.[0] || zodErrors?.displaySettings?.commentExpandedInitialWords?._errors?.[0] || zodErrors?.displaySettings?.commentMaxWords?._errors?.[0],
   };
   
   const advancedTruncationProps = {
     values: formValues.displaySetting,
     errors: {
       lineClampNumberOfLines: zodErrors?.displaySettings?.lineClampNumberOfLines?._errors?.[0],
-      postTruncationBreakpoints: zodErrors?.displaySettings?.postTruncationBreakpoints,
-      commentTruncationBreakpoints: zodErrors?.displaySettings?.commentTruncationBreakpoints,
+      postInitialWords: zodErrors?.displaySettings?.postInitialWords?._errors?.[0],
+      postMaxWords: zodErrors?.displaySettings?.postMaxWords?._errors?.[0],
+      commentCollapsedInitialWords: zodErrors?.displaySettings?.commentCollapsedInitialWords?._errors?.[0],
+      commentExpandedInitialWords: zodErrors?.displaySettings?.commentExpandedInitialWords?._errors?.[0],
+      commentMaxWords: zodErrors?.displaySettings?.commentMaxWords?._errors?.[0],
     },
     onLineClampChange: handleLineClampChange,
-    onBreakpointChange: handleBreakpointChange,
+    onWordCountChange: handleWordCountChange,
   };
   
   const miscSettingsProps = {

@@ -4,8 +4,6 @@ import { useCurrentUser } from "../common/withUser";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 import { Link } from "@/lib/reactRouterWrapper";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { useCreate } from "@/lib/crud/withCreate";
-import { useUpdate } from "@/lib/crud/withUpdate";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import { useStyles, defineStyles } from "../hooks/useStyles";
@@ -15,7 +13,6 @@ import { submitButtonStyles } from "@/components/tanstack-form-components/TanSta
 import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { surveyScheduleTargets } from "@/lib/collections/surveySchedules/constants";
-import { useSingle } from "@/lib/crud/withSingle";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { z } from "zod";
 import Error404 from "../common/Error404";
@@ -23,6 +20,40 @@ import LWTooltip from "../common/LWTooltip";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+import { withDateFields } from "@/lib/utils/dateUtils";
+
+const SurveyScheduleEditUpdateMutation = gql(`
+  mutation updateSurveyScheduleSurveyScheduleEditPage($selector: SelectorInput!, $data: UpdateSurveyScheduleDataInput!) {
+    updateSurveySchedule(selector: $selector, data: $data) {
+      data {
+        ...SurveyScheduleEdit
+      }
+    }
+  }
+`);
+
+const SurveyScheduleEditMutation = gql(`
+  mutation createSurveyScheduleSurveyScheduleEditPage($data: CreateSurveyScheduleDataInput!) {
+    createSurveySchedule(data: $data) {
+      data {
+        ...SurveyScheduleEdit
+      }
+    }
+  }
+`);
+
+const SurveyScheduleEditQuery = gql(`
+  query SurveyScheduleEditPage($documentId: String) {
+    surveySchedule(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...SurveyScheduleEdit
+      }
+    }
+  }
+`);
 
 const styles = defineStyles('SurveyScheduleEditPage', (theme: ThemeType) => ({
   root: {
@@ -43,27 +74,24 @@ const SurveySchedulesForm = ({
   initialData,
   onSuccess,
 }: {
-  initialData?: Required<Omit<UpdateSurveyScheduleDataInput, 'clientIds' | 'legacyData'>> & { _id?: string; target?: DbSurveySchedule['target'] };
+  initialData?: Required<Omit<UpdateSurveyScheduleDataInput, 'clientIds' | 'legacyData'>> & { _id?: string; };
   onSuccess: (doc: SurveyScheduleEdit) => void;
 }) => {
   const classes = useStyles(styles);
 
   const formType = initialData ? 'edit' : 'new';
 
-  const { create } = useCreate({
-    collectionName: 'SurveySchedules',
-    fragmentName: 'SurveyScheduleEdit',
-  });
+  const [create] = useMutation(SurveyScheduleEditMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'SurveySchedules',
-    fragmentName: 'SurveyScheduleEdit',
-  });
+  const [mutate] = useMutation(SurveyScheduleEditUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
   const defaultValues = {
-    ...(initialData ?? { target: 'allUsers', startDate: null, endDate: null, deactivated: null } as const),
+    ...(initialData
+        ? { ...initialData, name: initialData.name ?? '', surveyId: initialData.surveyId ?? '', target: initialData.target ?? 'allUsers' }
+        : { target: 'allUsers', surveyId: '', name: '', startDate: null, endDate: null, deactivated: null } as const
+    )
   };
 
   const form = useForm({
@@ -73,15 +101,23 @@ const SurveySchedulesForm = ({
         let result: SurveyScheduleEdit;
 
         if (formType === 'new') {
-          const { data } = await create({ data: value });
-          result = data?.createSurveySchedule.data;
+          const { data } = await create({ variables: { data: value } });
+          if (!data?.createSurveySchedule?.data) {
+            throw new Error('Failed to create survey schedule');
+          }
+          result = data.createSurveySchedule.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updateSurveySchedule.data;
+          if (!data?.updateSurveySchedule?.data) {
+            throw new Error('Failed to update survey schedule');
+          }
+          result = data.updateSurveySchedule.data;
         }
 
         onSuccess(result);
@@ -246,12 +282,11 @@ const SurveyScheduleEditor = () => {
   const navigate = useNavigate();
   const isNewForm = !id;
 
-  const { document: initialData } = useSingle({
-    collectionName: 'SurveySchedules',
-    fragmentName: 'SurveyScheduleEdit',
-    documentId: id,
+  const { data } = useQuery(SurveyScheduleEditQuery, {
+    variables: { documentId: id },
     skip: isNewForm,
   });
+  const initialData = data?.surveySchedule?.result ?? undefined;
 
   const onCreate = useCallback(() => {
     navigate("/admin/surveys");
@@ -263,7 +298,7 @@ const SurveyScheduleEditor = () => {
       </Link>
       <SectionTitle title={`${isNewForm ? "New" : "Edit"} survey schedule`} />
       <SurveySchedulesForm
-        initialData={initialData}
+        initialData={withDateFields(initialData, ['startDate', 'endDate'])}
         onSuccess={onCreate}
       />
     </SingleColumnSection>

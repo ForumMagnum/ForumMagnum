@@ -146,16 +146,16 @@ export const updateJargonTermGqlMutation = makeGqlUpdateMutation('JargonTerms', 
 
 
 export const graphqlJargonTermTypeDefs = gql`
-  input CreateJargonTermDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateJargonTermDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateJargonTermInput {
     data: CreateJargonTermDataInput!
   }
   
-  input UpdateJargonTermDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateJargonTermDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateJargonTermInput {

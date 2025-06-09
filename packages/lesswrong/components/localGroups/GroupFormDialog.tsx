@@ -7,7 +7,6 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useForm } from '@tanstack/react-form';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
-import { useSingle } from '@/lib/crud/withSingle';
 import { localGroupTypeFormOptions, GROUP_CATEGORIES } from '@/lib/collections/localgroups/groupTypes';
 import { isEAForum, isLW } from '@/lib/instanceSettings';
 import { MultiSelectButtons } from '@/components/form-components/MultiSelectButtons';
@@ -17,8 +16,6 @@ import { FormUserMultiselect } from '@/components/form-components/UserMultiselec
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
 import { ImageUpload } from '@/components/form-components/ImageUpload';
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
-import { useCreate } from '@/lib/crud/withCreate';
-import { useUpdate } from '@/lib/crud/withUpdate';
 import { GroupFormSubmit } from './GroupFormSubmit';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
@@ -28,6 +25,40 @@ import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import LWDialog from "../common/LWDialog";
 import Loading from "../vulcan-core/Loading";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+import { withDateFields } from '@/lib/utils/dateUtils';
+
+const localGroupsHomeFragmentUpdateMutation = gql(`
+  mutation updateLocalgroupGroupFormDialog($selector: SelectorInput!, $data: UpdateLocalgroupDataInput!) {
+    updateLocalgroup(selector: $selector, data: $data) {
+      data {
+        ...localGroupsHomeFragment
+      }
+    }
+  }
+`);
+
+const localGroupsHomeFragmentMutation = gql(`
+  mutation createLocalgroupGroupFormDialog($data: CreateLocalgroupDataInput!) {
+    createLocalgroup(data: $data) {
+      data {
+        ...localGroupsHomeFragment
+      }
+    }
+  }
+`);
+
+const localGroupsEditQuery = gql(`
+  query GroupFormDialog($documentId: String) {
+    localgroup(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...localGroupsEdit
+      }
+    }
+  }
+`);
 
 const styles = defineStyles('GroupFormDialog', (theme: ThemeType) => ({
   localGroupForm: {
@@ -83,21 +114,15 @@ const LocalGroupForm = ({
     addOnSuccessCallback
   } = useEditorFormCallbacks<localGroupsHomeFragment>();
 
-  const { create } = useCreate({
-    collectionName: 'Localgroups',
-    fragmentName: 'localGroupsHomeFragment',
-  });
+  const [create] = useMutation(localGroupsHomeFragmentMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'Localgroups',
-    fragmentName: 'localGroupsHomeFragment',
-  });
+  const [mutate] = useMutation(localGroupsHomeFragmentUpdateMutation);
   
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
   const form = useForm({
     defaultValues: {
-      ...initialData,
+      ...withDateFields(initialData, ['createdAt', 'lastActivity']),
       types: initialData?.types ?? ["LW"],
       categories: initialData?.categories ?? [],
       isOnline: initialIsOnline ?? initialData?.isOnline ?? false,
@@ -111,15 +136,23 @@ const LocalGroupForm = ({
         let result: localGroupsHomeFragment;
 
         if (formType === 'new') {
-          const { data } = await create({ data: formApi.state.values });
-          result = data?.createLocalgroup.data;
+          const { data } = await create({ variables: { data: formApi.state.values } });
+          if (!data?.createLocalgroup?.data) {
+            throw new Error('Failed to create local group');
+          }
+          result = data.createLocalgroup.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updateLocalgroup.data;
+          if (!data?.updateLocalgroup?.data) {
+            throw new Error('Failed to update local group');
+          }
+          result = data.updateLocalgroup.data;
         }
 
         onSuccessCallback.current?.(result);
@@ -377,12 +410,11 @@ const GroupFormDialog = ({ onClose, documentId, isOnline }: {
   const navigate = useNavigate();
   const classes = useStyles(styles);
 
-  const { document: initialData, loading } = useSingle({
-    documentId,
-    collectionName: 'Localgroups',
-    fragmentName: 'localGroupsEdit',
+  const { loading, data } = useQuery(localGroupsEditQuery, {
+    variables: { documentId: documentId },
     skip: !documentId,
   });
+  const initialData = data?.localgroup?.result ?? undefined;
 
   const handleSuccess = (group: localGroupsHomeFragment) => {
     onClose();

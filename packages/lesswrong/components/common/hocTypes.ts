@@ -1,5 +1,4 @@
-import type { FetchResult } from '@apollo/client';
-import { RouterLocation } from '../../lib/vulcan-lib/routes';
+import type { RouterLocation } from '../../lib/vulcan-lib/routes';
 import type { JssStylesCallback } from '@/lib/jssStyles';
 import type { StyleDefinition } from '@/server/styleGeneration';
 
@@ -47,27 +46,5 @@ interface WithGlobalKeydownProps {
 type DbObjectForCollectionBase<C> = C extends CollectionBase<infer T> ? T : never
 
 type NullablePartial<T> = { [K in keyof T]?: T[K]|null|undefined }
-
-type WithUpdateFunction<N extends CollectionNameString, F extends FragmentName = FragmentName> = (args: {
-  selector: MongoSelector<ObjectsByCollectionName[N]>,
-  data: NullablePartial<DbInsertion<ObjectsByCollectionName[N]>>,
-  optimisticResponse?: FragmentTypes[F],
-  extraVariables?: any,
-}) => Promise<FetchResult>;
-
-type WithCreateFunction<N extends CollectionNameString> = (args: {
-  data: NullablePartial<DbInsertion<ObjectsByCollectionName[N]>>,
-  extraVariables?: any,
-}) => Promise<FetchResult>;
-
-interface WithUpdateUserProps {
-  updateUser: WithUpdateFunction<"Users">
-}
-interface WithUpdateCommentProps {
-  updateComment: WithUpdateFunction<"Comments">
-}
-interface WithUpdatePostProps {
-  updatePost: WithUpdateFunction<"Posts">
-}
 
 }

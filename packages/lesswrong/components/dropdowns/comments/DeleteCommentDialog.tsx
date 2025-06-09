@@ -28,7 +28,7 @@ const DeleteCommentDialog = ({comment, onClose, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [deletedReason, setDeletedReason] = useState("");
-  const {moderateCommentMutation} = useModerateComment({fragmentName: "CommentsList"});
+  const {moderateCommentMutation} = useModerateComment();
   const { flash } = useMessages();
 
   const handleDelete = (event: React.MouseEvent) => {

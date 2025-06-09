@@ -1,13 +1,14 @@
 import React, { useCallback, useState } from "react";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { getDraftMessageHtml } from "../../lib/collections/messages/helpers";
-import { useSingle } from "../../lib/crud/withSingle";
 import { TemplateQueryStrings } from "./NewConversationButton";
 import classNames from "classnames";
 import { FormDisplayMode } from "../comments/CommentsNewForm";
 import {isFriendlyUI} from '../../themes/forumTheme'
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { useCreate } from "@/lib/crud/withCreate";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { useForm } from "@tanstack/react-form";
 import { defineStyles, useStyles } from "../hooks/useStyles";
@@ -20,6 +21,26 @@ import Loading from "../vulcan-core/Loading";
 import ForumIcon from "../common/ForumIcon";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import Error404 from "../common/Error404";
+
+const messageListFragmentMutation = gql(`
+  mutation createMessageMessagesNewForm($data: CreateMessageDataInput!) {
+    createMessage(data: $data) {
+      data {
+        ...messageListFragment
+      }
+    }
+  }
+`);
+
+const ModerationTemplateFragmentQuery = gql(`
+  query MessagesNewForm($documentId: String) {
+    moderationTemplate(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...ModerationTemplateFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -132,10 +153,7 @@ const InnerMessagesNewForm = ({
     addOnSuccessCallback
   } = useEditorFormCallbacks<messageListFragment>();
 
-  const { create } = useCreate({
-    collectionName: 'Messages',
-    fragmentName: 'messageListFragment',
-  });
+  const [create] = useMutation(messageListFragmentMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
@@ -153,8 +171,11 @@ const InnerMessagesNewForm = ({
         const { noEmail, ...rest } = formApi.state.values;
         const submitData = userIsAdmin(currentUser) ? { ...rest, noEmail } : rest;
 
-        const { data } = await create({ data: submitData });
-        result = data?.createMessage.data;
+        const { data } = await create({ variables: { data: submitData } });
+        if (!data?.createMessage?.data) {
+          throw new Error('Failed to create message');
+        }
+        result = data.createMessage.data;
 
         onSuccessCallback.current?.(result);
 
@@ -238,7 +259,7 @@ export const MessagesNewForm = ({
 }: {
   conversationId: string;
   templateQueries?: TemplateQueryStrings;
-  successEvent: () => void;
+  successEvent: (newMessage: messageListFragment) => void;
   submitLabel?: string,
   formStyle?: FormDisplayMode;
   classes: ClassesType<typeof styles>;
@@ -246,12 +267,11 @@ export const MessagesNewForm = ({
   const skip = !templateQueries?.templateId;
   const isMinimalist = formStyle === "minimalist"
 
-  const { document: template, loading: loadingTemplate } = useSingle({
-    documentId: templateQueries?.templateId,
-    collectionName: "ModerationTemplates",
-    fragmentName: "ModerationTemplateFragment",
+  const { loading: loadingTemplate, data } = useQuery(ModerationTemplateFragmentQuery, {
+    variables: { documentId: templateQueries?.templateId },
     skip,
   });
+  const template = data?.moderationTemplate?.result;
 
   // For some reason loading returns true even if we're skipping the query?
   if (!skip && loadingTemplate) return <Loading />;
@@ -275,7 +295,7 @@ export const MessagesNewForm = ({
             },
           },
         }}
-        onSuccess={() => successEvent()}
+        onSuccess={(newMessage) => successEvent(newMessage)}
       />
     </div>
   );

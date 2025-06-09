@@ -36,7 +36,7 @@ export const testSchema: SchemaType<CollectionNameString> = {
       type: "TEXT[]",
     },
     graphql: {
-      outputType: "[String]",
+      outputType: "[String!]",
       canRead: ["guests"],
     },
   },

@@ -1,11 +1,23 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useUpdate } from '../../lib/crud/withUpdate';
-import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import SunshineListTitle from "./SunshineListTitle";
 import SunshineReportedItem from "./SunshineReportedItem";
 import SunshineListCount from "./SunshineListCount";
 import LoadMore from "../common/LoadMore";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+
+const UnclaimedReportsListMultiQuery = gql(`
+  query multiReportSunshineReportedContentListQuery($selector: ReportSelector, $limit: Int, $enableTotal: Boolean) {
+    reports(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UnclaimedReportsList
+      }
+      totalCount
+    }
+  }
+`);
+
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -17,16 +29,16 @@ const SunshineReportedContentList = ({ classes, currentUser }: {
   classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
 }) => {
-  const { results, totalCount, loadMoreProps, refetch } = useMulti({
-    terms: {view:"sunshineSidebarReports", limit: 30},
-    collectionName: "Reports",
-    fragmentName: 'UnclaimedReportsList',
-    enableTotal: true,
+  const { data, refetch, loadMoreProps } = useQueryWithLoadMore(UnclaimedReportsListMultiQuery, {
+    variables: {
+      selector: { sunshineSidebarReports: {} },
+      limit: 30,
+      enableTotal: true,
+    },
   });
-  const { mutate: updateReport } = useUpdate({
-    collectionName: "Reports",
-    fragmentName: 'UnclaimedReportsList',
-  });
+
+  const results = data?.reports?.results.filter(report => !report.closedAt);
+  const totalCount = data?.reports?.totalCount ?? 0;
   
   if (results && results.length) {
     return (
@@ -39,7 +51,6 @@ const SunshineReportedContentList = ({ classes, currentUser }: {
             <SunshineReportedItem
               report={report}
               currentUser={currentUser}
-              updateReport={updateReport}
               refetch={refetch}
             />
           </div>

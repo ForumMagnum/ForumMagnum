@@ -62,8 +62,8 @@ const SunshineSidebar = ({classes}: {classes: ClassesType<typeof styles>}) => {
     <div className={classes.root}>
       {showInitialSidebar && <div className={classes.background}>
         <SunshineGoogleServiceAccount />
-        <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 7}}/>
-        <SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
+        <SunshineCuratedSuggestionsList limit={7}/>
+        <SunshineNewPostsList/>
         <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 10}} currentUser={currentUser}/>
         <SunshineReportedContentList currentUser={currentUser}/>
         <SunshineNewTagsList />
@@ -74,7 +74,7 @@ const SunshineSidebar = ({classes}: {classes: ClassesType<typeof styles>}) => {
           <AFSuggestCommentsList />
           <AFSuggestUsersList />
         </div>}
-        <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 7}} atBottom/>
+        <SunshineCuratedSuggestionsList limit={7} atBottom/>
       </div>}
 
       { userCanDo(currentUser, 'posts.moderate.all') && <div>

@@ -1,7 +1,6 @@
 import React, { ReactNode } from 'react';
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
 import { Card } from "@/components/widgets/Paper";
-import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
 import { useCommentByLegacyId } from '../comments/useComment';
@@ -12,12 +11,46 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import { visitedLinksHaveFilledInCircle } from '@/lib/betas';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
+import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import AnalyticsTracker from "../common/AnalyticsTracker";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import SequencesTooltip from "../sequences/SequencesTooltip";
 import LWPopper from "../common/LWPopper";
 import ContentStyles from "../common/ContentStyles";
+import ErrorBoundary from '../common/ErrorBoundary';
+import { apolloSSRFlag } from '@/lib/helpers';
+
+
+const SequencesPageFragmentQuery = gql(`
+  query PostLinkPreviewSequence($documentId: String, $allowNull: Boolean) {
+    sequence(input: { selector: { documentId: $documentId }, allowNull: $allowNull }) {
+      result {
+        ...SequencesPageFragment
+      }
+    }
+  }
+`);
+
+const CommentsListQuery = gql(`
+  query PostLinkPreviewComment($documentId: String, $allowNull: Boolean) {
+    comment(input: { selector: { documentId: $documentId }, allowNull: $allowNull }) {
+      result {
+        ...CommentsList
+      }
+    }
+  }
+`);
+
+const PostsListQuery = gql(`
+  query PostLinkPreviewPost($documentId: String, $allowNull: Boolean) {
+    post(input: { selector: { documentId: $documentId }, allowNull: $allowNull }) {
+      result {
+        ...PostsList
+      }
+    }
+  }
+`);
 
 let missingLinkPreviewsLogged = new Set<string>();
 
@@ -48,17 +81,18 @@ export const PostLinkPreview = ({href, targetLocation, id, children}: {
 }) => {
   const postID = targetLocation.params._id;
 
-  const { document: post, loading, error } = useSingle({
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
+  const { loading, error, data } = useQuery(PostsListQuery, {
+    variables: {
+      documentId: postID,
+      allowNull: true,
+    },
     fetchPolicy: 'cache-first',
-    ssr: false,
-    documentId: postID,
-    allowNull: true,
+    ssr: apolloSSRFlag(false),
   });
+  const post = data?.post?.result;
   
-  if (!loading && !post) {
-    logMissingLinkPreview(`Link preview: No post found with ID ${postID}`);
+  if ((!loading && !post) || error) {
+    logMissingLinkPreview(`Link preview: No post found with ID ${postID}, error: ${error}`);
   }
 
   return <PostLinkPreviewVariantCheck
@@ -79,17 +113,15 @@ export const PostLinkPreviewSequencePost = ({href, targetLocation, id, children}
 }) => {
   const postID = targetLocation.params.postId;
 
-  const { document: post, loading, error } = useSingle({
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
+  const { loading, error, data } = useQuery(PostsListQuery, {
+    variables: { documentId: postID, allowNull: true },
     fetchPolicy: 'cache-first',
     ssr: false,
-    documentId: postID,
-    allowNull: true,
   });
+  const post = data?.post?.result;
 
-  if (!loading && !post) {
-    logMissingLinkPreview(`Link preview: No post found with ID ${postID}`);
+  if ((!loading && !post) || error ) {
+    logMissingLinkPreview(`Link preview: No post found with ID ${postID}, error: ${error}`);
   }
 
   return <PostLinkPreviewVariantCheck post={post||null} targetLocation={targetLocation} error={error} href={href} id={id}>
@@ -157,17 +189,15 @@ export const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, id, ch
   const postId = targetLocation.params._id;
   const commentId = targetLocation.params.commentId;
 
-  const { document: post, loading } = useSingle({
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
+  const { loading, data, error   } = useQuery(PostsListQuery, {
+    variables: { documentId: postId, allowNull: true },
     fetchPolicy: 'cache-first',
     ssr: false,
-    documentId: postId,
-    allowNull: true,
   });
+  const post = data?.post?.result;
 
-  if (!loading && !post) {
-    logMissingLinkPreview(`Link preview: No post found with ID ${postId}`);
+  if ((!loading && !post) || error) {
+    logMissingLinkPreview(`Link preview: No post found with ID ${postId}, error: ${error}`);
   }
   return <PostLinkCommentPreview href={href} commentId={commentId} post={post||null} id={id}>
     {children}
@@ -343,17 +373,15 @@ const PostLinkCommentPreview = ({href, commentId, post, id, children}: {
   children: ReactNode,
 }) => {
 
-  const { document: comment, loading, error } = useSingle({
-    collectionName: "Comments",
-    fragmentName: 'CommentsList',
+  const { loading, error, data } = useQuery(CommentsListQuery, {
+    variables: { documentId: commentId, allowNull: true },
     fetchPolicy: 'cache-first',
     ssr: false,
-    documentId: commentId,
-    allowNull: true,
   });
+  const comment = data?.comment?.result;
 
-  if (!loading && !comment) {
-    logMissingLinkPreview(`Link preview: No comment found with ID ${commentId}`);
+  if ((!loading && !comment) || error) {
+    logMissingLinkPreview(`Link preview: No comment found with ID ${commentId}, error: ${error}`);
   }
   if (comment) {
     return <CommentLinkPreviewWithComment comment={comment} post={post} error={error} href={href} id={id}>
@@ -436,17 +464,15 @@ export const SequencePreview = ({targetLocation, href, children}: {
   
   const sequenceId = targetLocation.params._id;
 
-  const { document: sequence, loading } = useSingle({
-    documentId: sequenceId,
-    collectionName: "Sequences",
-    fragmentName: 'SequencesPageFragment',
+  const { loading, data, error  } = useQuery(SequencesPageFragmentQuery, {
+    variables: { documentId: sequenceId, allowNull: true },
     fetchPolicy: 'cache-first',
     ssr: false,
-    allowNull: true,
   });
+  const sequence = data?.sequence?.result;
 
-  if (!sequence && !loading) {
-    logMissingLinkPreview(`Link preview: No sequence  found with ID ${sequenceId}`);
+  if ((!sequence && !loading) || error) {
+    logMissingLinkPreview(`Link preview: No sequence  found with ID ${sequenceId}, error: ${error}`);
   }
 
   return (
@@ -771,16 +797,19 @@ export const ArbitalPreview = ({href, id, children}: {
   const { anchorEl, hover, eventHandlers } = useHover();
   const [match, www, arbitalSlug] = href.match(/^http(?:s?):\/\/(www\.)?arbital\.com\/p\/([a-zA-Z0-9_]+)+/) || []
 
-  const { data: rawData, loading } = useQuery(gql`
-    query ArbitalPageRequest {
-      ArbitalPageData(pageAlias: "${arbitalSlug}") {
+  const { data: rawData, loading } = useQuery(gql(`
+    query ArbitalPageRequest($arbitalSlug: String!) {
+      ArbitalPageData(pageAlias: $arbitalSlug) {
         title
         html
       }
     }
-  `, {
+  `), {
     ssr: true,
     skip: !arbitalSlug,
+    variables: {
+      arbitalSlug,
+    },
   });
 
   if (!arbitalSlug || loading) {
@@ -802,7 +831,7 @@ export const ArbitalPreview = ({href, id, children}: {
               <a href={href}><h2>{rawData?.ArbitalPageData?.title}</h2></a>
               <a href="https://arbital.com" title="This article is hosted on Arbital.com"><div className={classes.logo}><ArbitalLogo/></div></a>
             </div>
-            <div dangerouslySetInnerHTML={{__html: rawData?.ArbitalPageData?.html}} id={id} />
+            <div dangerouslySetInnerHTML={{__html: rawData?.ArbitalPageData?.html ?? ""}} id={id} />
           </ContentStyles>
         </Card>
       </LWPopper>

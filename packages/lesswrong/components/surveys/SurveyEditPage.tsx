@@ -1,13 +1,13 @@
 import React, { useCallback, useState } from "react";
-import { gql, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { useQuery } from '@/lib/crud/useQuery';
 import { Link } from "@/lib/reactRouterWrapper";
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from "@/lib/routeUtil";
-import { useSingle } from "@/lib/crud/withSingle";
 import { SurveyQuestionFormat, surveyQuestionFormats } from "@/lib/collections/surveyQuestions/constants";
 import type { SettingsOption } from "@/lib/collections/posts/dropdownOptions";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
+import { gql } from "@/lib/generated/gql-codegen";
 import Error404 from "../common/Error404";
 import EAOnboardingInput from "../ea-forum/onboarding/EAOnboardingInput";
 import EAButton from "../ea-forum/EAButton";
@@ -17,6 +17,16 @@ import ForumDropdown from "../common/ForumDropdown";
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
 import SingleColumnSection from "../common/SingleColumnSection";
+
+const SurveyMinimumInfoQuery = gql(`
+  query SurveyEditPage($documentId: String) {
+    survey(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...SurveyMinimumInfo
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -104,7 +114,7 @@ export type SurveyQuestionInfo = {
 
 const SurveyForm = ({survey, refetch, classes}: {
   survey: SurveyMinimumInfo,
-  refetch?: () => Promise<void>,
+  refetch?: () => Promise<AnyBecauseHard>,
   classes: ClassesType<typeof styles>,
 }) => {
   const [error, setError] = useState("");
@@ -161,14 +171,13 @@ const SurveyForm = ({survey, refetch, classes}: {
     }]);
   }, []);
 
-  const [updateSurvey] = useMutation(gql`
+  const [updateSurvey] = useMutation(gql(`
     mutation editSurvey($surveyId: String!, $name: String!, $questions: [SurveyQuestionInfo!]!) {
       editSurvey(surveyId: $surveyId, name: $name, questions: $questions) {
         ...SurveyMinimumInfo
       }
     }
-    ${fragmentTextForQuery("SurveyMinimumInfo")}
-  `);
+  `));
 
   const onSubmit = useCallback(async () => {
     setError("");
@@ -265,11 +274,11 @@ const SurveyEditor = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {params: {id}} = useLocation();
-  const {document: survey, loading, refetch} = useSingle({
-    collectionName: "Surveys",
-    fragmentName: "SurveyMinimumInfo",
-    documentId: id,
+  const { loading, refetch, data } = useQuery(SurveyMinimumInfoQuery, {
+    variables: { documentId: id },
   });
+  const survey = data?.survey?.result;
+
   return (
     <SingleColumnSection className={classes.root}>
       <Link to="/admin/surveys" className={classes.surveyAdmin}>

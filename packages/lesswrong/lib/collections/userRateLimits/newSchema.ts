@@ -32,7 +32,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "UserRateLimitType!",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
@@ -47,7 +47,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "UserRateLimitIntervalUnit!",
       canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],

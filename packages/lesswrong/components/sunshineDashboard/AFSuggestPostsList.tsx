@@ -1,10 +1,22 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import SunshineListTitle from "./SunshineListTitle";
 import OmegaIcon from "../icons/OmegaIcon";
 import AFSuggestPostsItem from "./AFSuggestPostsItem";
 import LoadMore from "../common/LoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const SuggestAlignmentPostMultiQuery = gql(`
+  query multiPostAFSuggestPostsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SuggestAlignmentPost
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -16,12 +28,17 @@ const styles = (theme: ThemeType) => ({
 const AFSuggestPostsList = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { results, loadMoreProps } = useMulti({
-    terms: {view:"alignmentSuggestedPosts"},
-    collectionName: "Posts",
-    fragmentName: 'SuggestAlignmentPost',
+  const { data, loadMoreProps } = useQueryWithLoadMore(SuggestAlignmentPostMultiQuery, {
+    variables: {
+      selector: { alignmentSuggestedPosts: {} },
+      limit: 10,
+      enableTotal: false,
+    },
     fetchPolicy: 'cache-and-network',
   });
+
+  const results = data?.posts?.results;
+
   if (results && results.length) {
     return <div>
       <SunshineListTitle>

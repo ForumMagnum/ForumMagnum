@@ -1,7 +1,6 @@
 const { extract } = require('@extractus/article-extractor')
 import { ArxivExtractor } from '../extractors/arxivExtractor'
 import { getLatestContentsRevision } from '@/server/collections/revisions/helpers';
-
 import { fetchFragmentSingle } from '../fetchFragment'
 import Users from '@/server/collections/users/collection'
 import { ExternalPostImportData } from '@/components/posts/ExternalPostImporter'
@@ -9,10 +8,19 @@ import { eligibleToNominate } from '@/lib/reviewUtils';
 import { sanitize } from "../../lib/vulcan-lib/utils";
 import gql from 'graphql-tag';
 import { createPost } from "../collections/posts/mutations";
+import { PostsEditQueryFragment } from '@/lib/collections/posts/fragments';
+
+interface ExternalPostImportDataWithDates extends Omit<ExternalPostImportData, 'post'> {
+  post: Omit<ExternalPostImportData['post'], 'postedAt' | 'createdAt' | 'modifiedAt'> & {
+    postedAt: Date | null;
+    createdAt: Date | null;
+    modifiedAt: Date | null;
+  }
+}
 
 // todo various url validation
 // mostly client side, but also mb avoid links to lw, eaf, etc
-export async function importUrlAsDraftPost(url: string, context: ResolverContext): Promise<ExternalPostImportData> {
+export async function importUrlAsDraftPost(url: string, context: ResolverContext): Promise<ExternalPostImportDataWithDates> {
   if (!context.currentUser) {
     throw new Error('You must be logged in to fetch website HTML.')
   }
@@ -24,7 +32,7 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
 
   const existingPost = await fetchFragmentSingle({
     collectionName: 'Posts',
-    fragmentName: 'PostsEditQueryFragment',
+    fragmentDoc: PostsEditQueryFragment,
     currentUser: context.currentUser,
     selector: {url, userId: reviewUser._id, deletedDraft: false},
     context,
@@ -129,7 +137,7 @@ export const importUrlAsDraftPostTypeDefs = gql`
     modifiedAt: Date
     draft: Boolean
     content: String
-    coauthorStatuses: [CoauthorStatus]
+    coauthorStatuses: [CoauthorStatus!]
   }
   type ExternalPostImportData {
     alreadyExists: Boolean
@@ -141,7 +149,7 @@ export const importUrlAsDraftPostTypeDefs = gql`
 `
 
 export const importUrlAsDraftPostGqlMutation = {
-  async importUrlAsDraftPost (_root: void, {url}: { url: string }, context: ResolverContext): Promise<ExternalPostImportData> {
+  async importUrlAsDraftPost (_root: void, {url}: { url: string }, context: ResolverContext): Promise<ExternalPostImportDataWithDates> {
     if (!context.currentUser || !eligibleToNominate(context.currentUser)) {
       throw new Error('You are not eligible to import external posts');
     }

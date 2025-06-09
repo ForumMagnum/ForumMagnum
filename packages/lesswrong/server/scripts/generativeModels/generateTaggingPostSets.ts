@@ -13,6 +13,7 @@ import fs from 'fs';
 import { getSiteUrl } from '../../../lib/vulcan-lib/utils';
 import { FetchedFragment, fetchFragment } from '../../fetchFragment';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
+import { PostsHTML } from '@/lib/collections/posts/fragments';
 
 const postEndMarker  = "===TAGS===";
 
@@ -85,7 +86,7 @@ const frontpagePrompt = "Is this post of broad relevance, timeless, apolitical, 
 
 async function generateClassifierTuningFile({description, posts, postBodyCache, outputFilename, promptSuffix, classifyPost}: {
   description: string,
-  posts: FetchedFragment<"PostsHTML">[],
+  posts: FetchedFragment<PostsHTML, "Posts">[],
   outputFilename: string,
   promptSuffix: string,
   classifyPost: (post: DbPost) => boolean,
@@ -131,14 +132,14 @@ export const generateTagClassifierData = async (args: {
 
   const trainingSet = await fetchFragment({
     collectionName: "Posts",
-    fragmentName: "PostsHTML",
+    fragmentDoc: PostsHTML,
     selector: {_id: {$in: trainingSetPostIds}},
     currentUser: null,
     skipFiltering: true,
   });
   const testSet = await fetchFragment({
     collectionName: "Posts",
-    fragmentName: "PostsHTML",
+    fragmentDoc: PostsHTML,
     selector: {_id: {$in: testSetPostIds}},
     currentUser: null,
     skipFiltering: true,
@@ -200,14 +201,14 @@ export const generateIsFrontpageClassifierData = async () => {
 
   const trainingSet = await fetchFragment({
     collectionName: "Posts",
-    fragmentName: "PostsHTML",
+    fragmentDoc: PostsHTML,
     selector: {_id: {$in: trainingSetPostIds}},
     currentUser: null,
     skipFiltering: true,
   });
   const testSet = await fetchFragment({
     collectionName: "Posts",
-    fragmentName: "PostsHTML",
+    fragmentDoc: PostsHTML,
     selector: {_id: {$in: testSetPostIds}},
     currentUser: null,
     skipFiltering: true,
@@ -239,7 +240,7 @@ export const evaluateTagModels = async (testSetPostIdsFilename: string, outputFi
   const testSetPostIds = JSON.parse(fs.readFileSync(testSetPostIdsFilename, 'utf-8'));
   const posts = await fetchFragment({
     collectionName: "Posts",
-    fragmentName: "PostsHTML",
+    fragmentDoc: PostsHTML,
     selector: {_id: {$in: testSetPostIds}},
     currentUser: null,
     skipFiltering: true,
@@ -283,7 +284,7 @@ export const evaluateFrontPageClassifier = async (testSetPostIdsFilename: string
   const template = await wikiSlugToTemplate("lm-config-autotag", context);
   const posts = await fetchFragment({
     collectionName: "Posts",
-    fragmentName: "PostsHTML",
+    fragmentDoc: PostsHTML,
     selector: {_id: {$in: testSetPostIds}},
     currentUser: null,
     skipFiltering: true,

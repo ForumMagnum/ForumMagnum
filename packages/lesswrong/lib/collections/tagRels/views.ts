@@ -2,7 +2,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface TagRelsViewTerms extends ViewTermsBase {
-    view?: TagRelsViewName
+    view: TagRelsViewName | 'default'
     tagId?: string
     postId?: string
   }

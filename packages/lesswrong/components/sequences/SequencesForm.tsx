@@ -1,5 +1,3 @@
-import { useCreate } from "@/lib/crud/withCreate";
-import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { preferredHeadingCase } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
@@ -20,6 +18,28 @@ import { LegacyFormGroupLayout } from "../tanstack-form-components/LegacyFormGro
 import LWTooltip from "../common/LWTooltip";
 import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const SequencesEditUpdateMutation = gql(`
+  mutation updateSequenceSequencesForm($selector: SelectorInput!, $data: UpdateSequenceDataInput!) {
+    updateSequence(selector: $selector, data: $data) {
+      data {
+        ...SequencesEdit
+      }
+    }
+  }
+`);
+
+const SequencesEditMutation = gql(`
+  mutation createSequenceSequencesForm($data: CreateSequenceDataInput!) {
+    createSequence(data: $data) {
+      data {
+        ...SequencesEdit
+      }
+    }
+  }
+`);
 
 const formStyles = defineStyles('SequencesForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -52,22 +72,19 @@ export const SequencesForm = ({
     addOnSuccessCallback
   } = useEditorFormCallbacks<SequencesEdit>();
 
-  const { create } = useCreate({
-    collectionName: 'Sequences',
-    fragmentName: 'SequencesEdit',
-  });
+  const [create] = useMutation(SequencesEditMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'Sequences',
-    fragmentName: 'SequencesEdit',
-  });
+  const [mutate] = useMutation(SequencesEditUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
+  const defaultValues = {
+    ...initialData,
+    title: initialData?.title ?? '',
+  };
+
   const form = useForm({
-    defaultValues: {
-      ...initialData,
-    },
+    defaultValues,
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
@@ -75,15 +92,23 @@ export const SequencesForm = ({
         let result: SequencesEdit;
 
         if (formType === 'new') {
-          const { data } = await create({ data: formApi.state.values });
-          result = data?.createSequence.data;
+          const { data } = await create({ variables: { data: formApi.state.values } });
+          if (!data?.createSequence?.data) {
+            throw new Error('Failed to create sequence');
+          }
+          result = data.createSequence.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updateSequence.data;
+          if (!data?.updateSequence?.data) {
+            throw new Error('Failed to update sequence');
+          }
+          result = data.updateSequence.data;
         }
 
         onSuccessCallback.current?.(result);

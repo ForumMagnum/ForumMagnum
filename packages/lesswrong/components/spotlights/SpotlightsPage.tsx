@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
@@ -14,6 +13,19 @@ import SpotlightEditorStyles from "./SpotlightEditorStyles";
 import ToCColumn from "../posts/TableOfContents/ToCColumn";
 import TableOfContents from "../posts/TableOfContents/TableOfContents";
 import LoadMore from "../common/LoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const SpotlightDisplayMultiQuery = gql(`
+  query multiSpotlightSpotlightsPageQuery($selector: SpotlightSelector, $limit: Int, $enableTotal: Boolean) {
+    spotlights(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SpotlightDisplay
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   form: {
@@ -33,17 +45,21 @@ export const SpotlightsPage = ({classes}: {
   const onlyDrafts = query.drafts === 'true';
   const noDrafts = query.drafts === 'false';
 
-  const { results: spotlights = [], loading, refetch, loadMoreProps } = useMulti({
-    collectionName: 'Spotlights',
-    fragmentName: 'SpotlightDisplay',
-    terms: {
-      view: onlyDrafts ? "spotlightsPageDraft" : "spotlightsPage",
-      limit: 500
+  const { view, limit, ...selectorTerms } = {
+    view: onlyDrafts ? "spotlightsPageDraft" : "spotlightsPage",
+    limit: 500
+  };
+  const { data, loading, refetch, loadMoreProps } = useQueryWithLoadMore(SpotlightDisplayMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 500,
+      enableTotal: true,
     },
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
-    enableTotal:  true
   });
+
+  const spotlights = useMemo(() => data?.spotlights?.results ?? [], [data?.spotlights?.results]);
 
   const spotlightsInDisplayOrder = useMemo(() => {
     if (!spotlights.length) return spotlights;

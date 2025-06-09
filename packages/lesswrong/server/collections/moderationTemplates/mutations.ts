@@ -119,16 +119,16 @@ export const updateModerationTemplateGqlMutation = makeGqlUpdateMutation('Modera
 
 
 export const graphqlModerationTemplateTypeDefs = gql`
-  input CreateModerationTemplateDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateModerationTemplateDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateModerationTemplateInput {
     data: CreateModerationTemplateDataInput!
   }
   
-  input UpdateModerationTemplateDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateModerationTemplateDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateModerationTemplateInput {

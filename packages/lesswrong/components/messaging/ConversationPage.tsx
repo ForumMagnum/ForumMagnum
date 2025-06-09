@@ -1,16 +1,28 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import SingleColumnSection from "../common/SingleColumnSection";
 import ConversationContents from "./ConversationContents";
 import Error404 from "../common/Error404";
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 import ConversationDetails from "./ConversationDetails";
+
+
+const ConversationsListQuery = gql(`
+  query ConversationPage($documentId: String) {
+    conversation(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...ConversationsList
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   conversationSection: {
@@ -43,11 +55,11 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { document: conversation, loading } = useSingle({
-    documentId: conversationId,
-    collectionName: "Conversations",
-    fragmentName: 'ConversationsList',
+  const { loading, data } = useQuery(ConversationsListQuery, {
+    variables: { documentId: conversationId },
   });
+  const conversation = data?.conversation?.result;
+
   if (loading) return <Loading />
   if (!conversation) return <Error404 />
 

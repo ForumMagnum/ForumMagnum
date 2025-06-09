@@ -1,5 +1,4 @@
 import React from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import LoadMore from "../common/LoadMore";
@@ -7,6 +6,19 @@ import TagsListItem from "./TagsListItem";
 import FormatDate from "../common/FormatDate";
 import MetaInfo from "../common/MetaInfo";
 import UsersNameDisplay from "../users/UsersNameDisplay";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const SunshineTagFragmentMultiQuery = gql(`
+  query multiTagNewTagsListQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SunshineTagFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -37,13 +49,16 @@ const NewTagsList = ({classes, showHeaders = true}: {
   classes: ClassesType<typeof styles>,
   showHeaders?: boolean
 }) => {
-  const { results, loadMoreProps } = useMulti({
-    terms: {view:"newTags", limit: 4 },
-    collectionName: "Tags",
-    fragmentName: "SunshineTagFragment",
-    enableTotal: true,
+  const { data, loadMoreProps } = useQueryWithLoadMore(SunshineTagFragmentMultiQuery, {
+    variables: {
+      selector: { newTags: {} },
+      limit: 4,
+      enableTotal: true,
+    },
     itemsPerPage: 20,
   });
+
+  const results = data?.tags?.results;
 
   return <div className={classes.root}>
     {showHeaders && <h2>New {taggingNamePluralCapitalSetting.get()}</h2>}

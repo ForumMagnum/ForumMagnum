@@ -1,10 +1,10 @@
 import React, { useCallback, useState } from 'react';
-import { useMutation, gql } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen';
 import { useTracking } from "../../lib/analyticsEvents";
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import classNames from 'classnames';
 import { useMessages } from '../common/withMessages';
-import { handleUpdateMutation, updateEachQueryResultOfType } from '../../lib/crud/cacheUpdates';
 import { SearchBox, Configure } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient } from '../../lib/search/searchUtil';
 import { useCurrentUser } from '../common/withUser';
@@ -14,7 +14,6 @@ import { formatFacetFilters } from '../search/SearchAutoComplete';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { Hits, InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 import LoginPopup from "../users/LoginPopup";
 import SearchPagination from "../search/SearchPagination";
 import PostsListEditorSearchHit from "../search/PostsListEditorSearchHit";
@@ -108,18 +107,13 @@ const AddPostsToTag = ({classes, tag}: {
   const [ searchOpen, setSearchOpen ] = useState(false)  
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
-  const [mutate] = useMutation(gql`
-    mutation addOrUpvoteTag($tagId: String, $postId: String) {
+  const [mutate] = useMutation(gql(`
+    mutation addPostsToTag($tagId: String, $postId: String) {
       addOrUpvoteTag(tagId: $tagId, postId: $postId) {
         ...TagRelCreationFragment
       }
     }
-    ${fragmentTextForQuery("TagRelCreationFragment")}
-  `, {
-    update(cache, { data: {addOrUpvoteTag: TagRel}  }) {
-      updateEachQueryResultOfType({ func: handleUpdateMutation, store: cache, typeName: "Post",  document: TagRel.post })
-    }
-  });
+  `));
 
   const onPostSelected = useCallback(async (postId: string) => {
     if (!currentUser) {

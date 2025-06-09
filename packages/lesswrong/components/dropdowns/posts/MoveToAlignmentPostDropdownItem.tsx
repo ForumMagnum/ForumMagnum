@@ -8,20 +8,24 @@ import DropdownItem from "../DropdownItem";
 
 const MoveToAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
-  const {setAlignmentPostMutation} = useSetAlignmentPost({fragmentName: "PostsList"});
+  const {setAlignmentPostMutation} = useSetAlignmentPost();
 
   const handleMoveToAlignmentForum = () => {
     void setAlignmentPostMutation({
-      postId: post._id,
-      af: true,
-    })
+      variables: {
+        postId: post._id,
+        af: true,
+      }
+    });
   }
 
   const handleRemoveFromAlignmentForum = () => {
     void setAlignmentPostMutation({
-      postId: post._id,
-      af: false,
-    })
+      variables: {
+        postId: post._id,
+        af: false,
+      }
+    });
   }
 
   if (

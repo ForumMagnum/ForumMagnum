@@ -1,21 +1,8 @@
-import { useQuery, gql } from '@apollo/client';
-import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from '@/lib/generated/gql-codegen';
 
-export interface ContinueReading {
-  sequence: SequenceContinueReadingFragment,
-  collection: CollectionContinueReadingFragment,
-  nextPost: PostsListWithVotes,
-  numRead: number,
-  numTotal: number,
-  lastReadTime: Date,
-}
-
-export const useContinueReading = (): {
-  continueReading: ContinueReading[],
-  loading: boolean,
-  error: any,
-}=> {
-  const continueReadingQuery = gql`
+export const useContinueReading = () => {
+  const continueReadingQuery = gql(`
     query ContinueReadingQuery {
       ContinueReading {
         sequence {
@@ -32,15 +19,14 @@ export const useContinueReading = (): {
         lastReadTime
       }
     }
-    ${fragmentTextForQuery(["SequenceContinueReadingFragment","CollectionContinueReadingFragment","PostsListWithVotes"])}
-  `;
+  `);
   
   const { data, loading, error } = useQuery(continueReadingQuery, {
     ssr: true,
   });
   
   return {
-    continueReading: data?.ContinueReading,
+    continueReading: data?.ContinueReading ?? [],
     loading, error
   };
 }

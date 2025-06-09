@@ -1,7 +1,18 @@
 import React from 'react';
-import { useSingle } from '../../lib/crud/withSingle';
 import { registerComponent } from '../../lib/vulcan-lib/components';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
+
+const TagRelFragmentQuery = gql(`
+  query TagRelNotificationItem($documentId: String) {
+    tagRel(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...TagRelFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   meta: {
@@ -19,11 +30,10 @@ export const TagRelNotificationItem = ({classes, tagRelId}: {
   classes: ClassesType<typeof styles>,
   tagRelId: string
 }) => {
-  const { document: tagRel, loading } = useSingle({
-    documentId: tagRelId,
-    collectionName: "TagRels",
-    fragmentName: 'TagRelFragment',
+  const { loading, data } = useQuery(TagRelFragmentQuery, {
+    variables: { documentId: tagRelId },
   });
+  const tagRel = data?.tagRel?.result;
 
   if (loading) return <Loading/>
   if (!tagRel) {return null;}

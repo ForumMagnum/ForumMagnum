@@ -31,8 +31,8 @@ export interface DocumentDeletion {
   userId: string | null,
   documentId: string,
   netChange: 'deleted' | 'restored',
-  type: 'lens' | 'summary',
-  docFields?: Pick<Partial<DbMultiDocument>, 'slug' | 'tabTitle' | 'tabSubtitle'>,
+  type: 'lens' | 'summary' | null,
+  docFields?: Pick<Partial<DbMultiDocument>, 'slug' | 'tabTitle' | 'tabSubtitle'> | null,
   createdAt: Date,
 }
 

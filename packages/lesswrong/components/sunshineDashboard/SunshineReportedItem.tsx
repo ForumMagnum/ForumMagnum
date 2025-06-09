@@ -1,5 +1,4 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import React from 'react';
 import { useHover } from '../common/withHover'
@@ -22,6 +21,38 @@ import { Typography } from "../common/Typography";
 import SunshineCommentsItemOverview from "./SunshineCommentsItemOverview";
 import SunshineNewUsersInfo from "./SunshineNewUsersInfo";
 import UsersName from "../users/UsersName";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const PostsListUpdateMutation = gql(`
+  mutation updatePostSunshineReportedItem1($selector: SelectorInput!, $data: UpdatePostDataInput!) {
+    updatePost(selector: $selector, data: $data) {
+      data {
+        ...PostsList
+      }
+    }
+  }
+`);
+
+const CommentsListWithParentMetadataUpdateMutation = gql(`
+  mutation updateCommentSunshineReportedItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
+    updateComment(selector: $selector, data: $data) {
+      data {
+        ...CommentsListWithParentMetadata
+      }
+    }
+  }
+`);
+
+const UnclaimedReportsListUpdateMutation = gql(`
+  mutation updateReportSunshineReportedContentList($selector: SelectorInput!, $data: UpdateReportDataInput!) {
+    updateReport(selector: $selector, data: $data) {
+      data {
+        ...UnclaimedReportsList
+      }
+    }
+  }
+`);
 
 const styles = (_theme: ThemeType) => ({
   reportedUser: {
@@ -35,63 +66,66 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const SunshineReportedItem = ({report, updateReport, classes, currentUser, refetch}: {
+const SunshineReportedItem = ({report, classes, currentUser, refetch}: {
   report: UnclaimedReportsList,
-  updateReport: WithUpdateFunction<"Reports">,
   classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
   refetch: () => void
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover();
-  const { mutate: updateComment } = useUpdate({
-    collectionName: "Comments",
-    fragmentName: 'CommentsListWithParentMetadata',
-  });
-  const { mutate: updatePost } = useUpdate({
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
-  });
+  const [updateReport] = useMutation(UnclaimedReportsListUpdateMutation);
+  const [updateComment] = useMutation(CommentsListWithParentMetadataUpdateMutation);
+  const [updatePost] = useMutation(PostsListUpdateMutation);
   
   const handleReview = () => {
     void updateReport({
-      selector: {_id: report._id},
-      data: {
-        closedAt: new Date(),
-        claimedUserId: currentUser!._id,
-        markedAsSpam: false
+      variables: {
+        selector: {_id: report._id},
+        data: {
+          closedAt: new Date(),
+          claimedUserId: currentUser!._id,
+          markedAsSpam: false
+        }
       }
-    })
+    });
   }
 
   const handleDelete = () => {
     if (confirm(`Are you sure you want to immediately delete this ${report.comment ? "comment" : "post"}?`)) {
       if (report.comment) {
         void updateComment({
-          selector: {_id: report.comment._id},
-          data: {
-            deleted: true,
-            deletedDate: new Date(),
-            deletedByUserId: currentUser!._id,
-            deletedReason: "spam"
+          variables: {
+            selector: { _id: report.comment._id },
+            data: {
+              deleted: true,
+              deletedDate: new Date(),
+              deletedByUserId: currentUser!._id,
+              deletedReason: "spam"
+            }
           }
         })
       } else if (report.post) {
         void updatePost({
-          selector: {_id: report.post._id},
-          data: { status: report.reportedAsSpam
-            ? postStatuses.STATUS_SPAM
-            : postStatuses.STATUS_DELETED
+          variables: {
+            selector: { _id: report.post._id },
+            data: {
+              status: report.reportedAsSpam
+                ? postStatuses.STATUS_SPAM
+                : postStatuses.STATUS_DELETED
+            }
           }
         })
       }
       void updateReport({
-        selector: {_id: report._id},
-        data: {
-          closedAt: new Date(),
-          claimedUserId: currentUser!._id,
-          markedAsSpam: report.reportedAsSpam
+        variables: {
+          selector: {_id: report._id},
+          data: {
+            closedAt: new Date(),
+            claimedUserId: currentUser!._id,
+            markedAsSpam: report.reportedAsSpam
+          }
         }
-      })
+      });
     }
   }
 

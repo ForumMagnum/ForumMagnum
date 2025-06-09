@@ -7,9 +7,13 @@ import { ZodFormattedError } from 'zod';
 
 
 export interface UltraFeedDisplaySettings {
-  postTruncationBreakpoints: number[];
+  postInitialWords: number;
+  postMaxWords: number;
   lineClampNumberOfLines: number;
-  commentTruncationBreakpoints: number[];
+  commentCollapsedInitialWords: number;
+  commentExpandedInitialWords: number;
+  commentMaxWords: number;
+  
   postTitlesAreModals: boolean;
 }
 
@@ -26,9 +30,12 @@ export interface UltraFeedSettingsType {
 }
 
 const DEFAULT_DISPLAY_SETTINGS: UltraFeedDisplaySettings = {
-  postTruncationBreakpoints: [200, 2000],
+  postInitialWords: 200,
+  postMaxWords: 2000,
   lineClampNumberOfLines: 0,
-  commentTruncationBreakpoints: [50, 200, 1000],
+  commentCollapsedInitialWords: 50,
+  commentExpandedInitialWords: 200,
+  commentMaxWords: 1000,
   postTitlesAreModals: true,
 };
 
@@ -130,75 +137,54 @@ export const sourceWeightConfigs: SourceWeightConfig[] = [
   },
 ];
 
-export const truncationLevels = ['Very Short', 'Short', 'Medium', 'Long', 'Full', 'Unset'] as const;
+export const truncationLevels = ['Very Short', 'Short', 'Medium', 'Long', 'Full'] as const;
 export type TruncationLevel = typeof truncationLevels[number];
 
-export const levelToCommentLinesMap: Record<TruncationLevel, number> = {
-  'Very Short': 0,
-  'Short': 0,
-  'Medium': 0,
-  'Long': 0,
-  'Full': 0,
-  'Unset': 0,
-};
-
-export const levelToCommentBreakpointMap: Record<TruncationLevel, number | undefined> = {
+export const levelToWordCountMap: Record<TruncationLevel, number> = {
   'Very Short': 50,
   'Short': 100,
   'Medium': 200,
   'Long': 1000,
   'Full': SHOW_ALL_BREAKPOINT_VALUE,
-  'Unset': undefined  // not present
 };
 
-export const levelToPostBreakpointMap: Record<TruncationLevel, number | undefined> = {
+export const levelToPostWordCountMap: Record<TruncationLevel, number> = {
   'Very Short': 50,
   'Short': 100,
   'Medium': 200,
   'Long': 2000,
   'Full': SHOW_ALL_BREAKPOINT_VALUE,
-  'Unset': undefined  // not present
 };
 
-const getBreakpointLevelInternal = (
-  breakpoint: number | undefined,
-  levelMap: Record<TruncationLevel, number | undefined> 
+export const getWordCountLevel = (
+  wordCount: number | undefined,
+  levelMap: Record<TruncationLevel, number> = levelToWordCountMap
 ): TruncationLevel => {
-  if (breakpoint === undefined || breakpoint <= 0) return 'Unset';
-  if (breakpoint === SHOW_ALL_BREAKPOINT_VALUE) return 'Full';
+  if (wordCount === undefined || wordCount <= 0) return 'Very Short';
+  if (wordCount >= SHOW_ALL_BREAKPOINT_VALUE) return 'Full';
 
   let closestLevel: TruncationLevel = 'Very Short';
   let minDiff = Infinity;
 
   for (const level of truncationLevels) {
-    if (level === 'Full' || level === 'Unset') continue;
     const mapVal = levelMap[level]; 
-    if (mapVal === undefined || mapVal === null) continue;
-    const diff = Math.abs(mapVal - breakpoint);
+    const diff = Math.abs(mapVal - wordCount);
     if (diff < minDiff) {
       minDiff = diff;
       closestLevel = level;
-    } else if (diff === minDiff && levelMap[level]! > levelMap[closestLevel]!) { 
+    } else if (diff === minDiff && levelMap[level] > levelMap[closestLevel]) { 
       closestLevel = level;
     }
   }
   return closestLevel;
 };
 
-export const getCommentBreakpointLevel = (breakpoint: number | undefined): TruncationLevel => {
-  return getBreakpointLevelInternal(breakpoint, levelToCommentBreakpointMap);
+export const getCommentWordCountLevel = (wordCount: number | undefined): TruncationLevel => {
+  return getWordCountLevel(wordCount, levelToWordCountMap);
 };
 
-export const getFirstCommentLevel = (lines: number, breakpoint: number): TruncationLevel => {
-  // uncomment if we reintroduce line clamp as default
-  // if (lines === 2) {
-  //   return 'Very Short';
-  // }
-  return getCommentBreakpointLevel(breakpoint);
-};
-
-export const getPostBreakpointLevel = (breakpoint: number | undefined): TruncationLevel => {
-  return getBreakpointLevelInternal(breakpoint, levelToPostBreakpointMap);
+export const getPostWordCountLevel = (wordCount: number | undefined): TruncationLevel => {
+  return getWordCountLevel(wordCount, levelToPostWordCountMap);
 };
 
 export interface SettingsFormState {
@@ -212,8 +198,11 @@ export interface SettingsFormState {
 export interface SettingsFormErrors {
   sourceWeights?: Record<FeedItemSourceType, boolean>;
   lineClampNumberOfLines?: boolean;
-  postBreakpoints?: boolean;
-  commentBreakpoints?: boolean;
+  postInitialWords?: boolean;
+  postMaxWords?: boolean;
+  commentCollapsedInitialWords?: boolean;
+  commentExpandedInitialWords?: boolean;
+  commentMaxWords?: boolean;
   commentScoring?: ZodFormattedError<CommentScoringFormState, string> | null;
   threadInterestModel?: ZodFormattedError<ThreadInterestModelFormState, string> | null;
 }

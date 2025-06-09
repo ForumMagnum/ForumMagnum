@@ -23,9 +23,12 @@ export const getOriginalContents = async <N extends CollectionNameString>(
     document
   ) || (await userIsPostGroupOrganizer(currentUser, document as DbPost, context));
 
-  if (userHasReadPermissions) {
+  if (userHasReadPermissions && originalContents) {
     return originalContents;
   }
 
-  return null;
+  return {
+    type: originalContents?.type ?? 'ckEditorMarkup',
+    data: '',
+  };
 };

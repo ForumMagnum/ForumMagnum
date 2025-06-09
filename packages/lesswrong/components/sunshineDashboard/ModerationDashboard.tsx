@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import qs from 'qs';
 import React from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
@@ -12,6 +11,19 @@ import UsersReviewInfoCard from "./UsersReviewInfoCard";
 import LoadMore from "../common/LoadMore";
 import Loading from "../vulcan-core/Loading";
 import FirstContentIcons from "./FirstContentIcons";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const SunshineUsersListMultiQuery = gql(`
+  query multiUserModerationDashboardQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SunshineUsersList
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   page: {
@@ -128,20 +140,28 @@ const ModerationDashboard = ({ classes }: {
     });
   };
 
-  const { results: usersToReview = [], totalCount: totalUsersToReviewCount, loadMoreProps, refetch, loading } = useMulti({
-    terms: {view: "sunshineNewUsers", limit: 10},
-    collectionName: "Users",
-    fragmentName: 'SunshineUsersList',
-    enableTotal: true,
-    itemsPerPage: 50
-  });
-
-  const { results: allUsers = [], loadMoreProps: allUsersLoadMoreProps, refetch: refetchAllUsers } = useMulti({
-    terms: {view: "allUsers", limit: 10},
-    collectionName: "Users",
-    fragmentName: 'SunshineUsersList',
+  const { data, loading: loadingSunshineUsersList, refetch: refetchSunshineUsersList, loadMoreProps } = useQueryWithLoadMore(SunshineUsersListMultiQuery, {
+    variables: {
+      selector: { sunshineNewUsers: {} },
+      limit: 10,
+      enableTotal: true,
+    },
     itemsPerPage: 50,
   });
+
+  const usersToReview = data?.users?.results.filter(user => user.needsReview) ?? [];
+  const totalUsersToReviewCount = data?.users?.totalCount;
+
+  const { data: dataSunshineUsersList, refetch: refetchAllUsers, loadMoreProps: allUsersLoadMoreProps } = useQueryWithLoadMore(SunshineUsersListMultiQuery, {
+    variables: {
+      selector: { allUsers: {} },
+      limit: 10,
+      enableTotal: false,
+    },
+    itemsPerPage: 50,
+  });
+
+  const allUsers = dataSunshineUsersList?.users?.results ?? [];
 
   if (!currentUser || !userIsAdminOrMod(currentUser)) {
     return null;
@@ -185,7 +205,7 @@ const ModerationDashboard = ({ classes }: {
               onClick={() => changeView("sunshineNewUsers")}
               className={classNames(classes.tabButton, { [classes.tabButtonSelected]: currentView === 'sunshineNewUsers' })} 
             >
-              Unreviewed Users {loading ? <Loading/> : <>({totalUsersToReviewCount})</>}
+              Unreviewed Users {loadingSunshineUsersList ? <Loading/> : <>({totalUsersToReviewCount})</>}
             </div>
             <div 
               onClick={() => changeView("allUsers")}
@@ -201,7 +221,7 @@ const ModerationDashboard = ({ classes }: {
           <div className={classNames({ [classes.hidden]: currentView !== 'sunshineNewUsers' })}>
             {usersToReview.map(user =>
               <div key={user._id} id={user._id}>
-                <UsersReviewInfoCard user={user} refetch={refetch} currentUser={currentUser}/>
+                <UsersReviewInfoCard user={user} refetch={refetchSunshineUsersList} currentUser={currentUser}/>
               </div>
             )}
           </div>

@@ -19,7 +19,6 @@ const styles = defineStyles("LWDialog", theme => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    pointerEvents: "none", // to prevent interfering with clickaway
   },
   paper: {
     position: "relative",
@@ -28,7 +27,6 @@ const styles = defineStyles("LWDialog", theme => ({
     maxHeight: 'calc(100% - 96px)',
     flexDirection: 'column',
     margin: '48px auto',
-    pointerEvents: "auto",
   },
   paperFullScreen: {
     margin: 0,

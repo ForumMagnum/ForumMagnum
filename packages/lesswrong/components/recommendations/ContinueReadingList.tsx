@@ -3,13 +3,12 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDismissRecommendation } from './withDismissRecommendation';
 import { captureEvent, AnalyticsContext } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
-import { ContinueReading } from './withContinueReading';
 import PostsItem from "../posts/PostsItem";
 import PostsLoading from "../posts/PostsLoading";
 import SectionFooter from "../common/SectionFooter";
 
 const ContinueReadingList = ({ continueReading, continueReadingLoading, limit=3, shuffle }: {
-  continueReading: ContinueReading[],
+  continueReading: ContinueReadingQueryQuery_ContinueReading_RecommendResumeSequence[],
   continueReadingLoading?: boolean,
   limit?: number,
   // randomly select posts from your reading list if your reading list is longer than the limit
@@ -28,7 +27,7 @@ const ContinueReadingList = ({ continueReading, continueReadingLoading, limit=3,
     captureEvent("continueReadingDismissed", {"postId": postId});
   }
   
-  const limitResumeReading = (resumeReadingList: ContinueReading[]): { entries: ContinueReading[], showAllLink: boolean } => {
+  const limitResumeReading = (resumeReadingList: ContinueReadingQueryQuery_ContinueReading_RecommendResumeSequence[]): { entries: ContinueReadingQueryQuery_ContinueReading_RecommendResumeSequence[], showAllLink: boolean } => {
     // Filter out dismissed recommendations
     const filtered = _.filter(resumeReadingList, r=>!dismissedRecommendations[r.nextPost._id]);
     
@@ -43,7 +42,7 @@ const ContinueReadingList = ({ continueReading, continueReadingLoading, limit=3,
         showAllLink: false,
       };
     } else if (shuffle) {
-      const sampled = _.sample(sorted, limit) as ContinueReading[]; // _.sample doesn't preserve type
+      const sampled = _.sample<ContinueReadingQueryQuery_ContinueReading_RecommendResumeSequence>(sorted, limit);
       sorted = _.sortBy(sampled, r =>r.lastReadTime); // need to sort again because _.sample doesn't guarantee order
       sorted.reverse();
       return {

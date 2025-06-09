@@ -2,8 +2,8 @@ import { useCallback } from "react";
 import { useCurrentUser } from "../common/withUser";
 import { useMessages } from "../common/withMessages";
 import { useTracking } from "../../lib/analyticsEvents";
-import { gql, useMutation } from "@apollo/client";
-import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
 
 /**
  * Hook to initiate a conversation with a user. This get's the existing conversation (first conversation
@@ -26,14 +26,13 @@ export const useInitiateConversation = (props?: {
   const skip = !currentUser;
 
 
-  const [initateConversation, { data, loading }] = useMutation<{ initiateConversation: ConversationsMinimumInfo }>(gql`
+  const [initateConversation, { data, loading }] = useMutation(gql(`
     mutation initiateConversation($participantIds: [String!]!, $af: Boolean, $moderator: Boolean) {
       initiateConversation(participantIds: $participantIds, af: $af, moderator: $moderator) {
         ...ConversationsMinimumInfo
       }
     }
-    ${fragmentTextForQuery('ConversationsMinimumInfo')}
-  `, {
+  `), {
     onError: (error) => {
       flash({messageString: "Error initiating conversation", type: "error"});
     },

@@ -1,16 +1,16 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from "@/lib/generated/gql-codegen";
 
-export const GoogleServiceAccountSessionInfo = () => frag`
+export const GoogleServiceAccountSessionInfo = gql(`
   fragment GoogleServiceAccountSessionInfo on GoogleServiceAccountSession {
     _id
     email
   }
-`
+`)
 
-export const GoogleServiceAccountSessionAdminInfo = () => frag`
+export const GoogleServiceAccountSessionAdminInfo = gql(`
   fragment GoogleServiceAccountSessionAdminInfo on GoogleServiceAccountSession {
     _id
     email
     estimatedExpiry
   }
-`
+`)

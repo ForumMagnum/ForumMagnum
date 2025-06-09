@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import { singleLineStyles } from '../comments/SingleLineComment';
 import { CONDENSED_MARGIN_BOTTOM } from '../comments/CommentFrame';
@@ -10,6 +9,20 @@ import SubSection from "../common/SubSection";
 import CommentOnPostWithReplies from "../comments/CommentOnPostWithReplies";
 import LoadMore from "../common/LoadMore";
 import ContentStyles from "../common/ContentStyles";
+import { maybeDate } from '@/lib/utils/dateUtils';
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const CommentWithRepliesFragmentMultiQuery = gql(`
+  query multiCommentReviewPostCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentWithRepliesFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -42,13 +55,18 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
   hideReviewVoteButtons?: boolean
   singleLineCollapse?: boolean
 }) => {
-  const { loading, results, loadMoreProps } = useMulti({
-    terms,
-    collectionName: "Comments",
-    fragmentName: 'CommentWithRepliesFragment',
+  const { view, limit, ...selectorTerms } = terms;
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(CommentWithRepliesFragmentMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 5,
+      enableTotal: false,
+    },
     fetchPolicy: 'cache-and-network',
-    limit: 5
   });
+
+  const results = data?.comments?.results;
+
   const lastCommentId = results && results[0]?._id
   const nestedComments = results ? unflattenComments(results) : [];
   const placeholderArray = new Array(placeholderCount).fill(1)
@@ -77,7 +95,7 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
         {singleLine ? <CommentsList
           treeOptions={{
             lastCommentId: lastCommentId,
-            highlightDate: post.lastVisitedAt ?? undefined,
+            highlightDate: maybeDate(post.lastVisitedAt ?? undefined),
             hideSingleLineMeta: true,
             hideReviewVoteButtons: hideReviewVoteButtons,
             singleLineCollapse: singleLineCollapse,

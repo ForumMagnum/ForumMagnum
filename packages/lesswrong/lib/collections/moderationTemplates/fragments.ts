@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper";
+import { gql } from "@/lib/generated/gql-codegen";
 
-export const ModerationTemplateFragment = () => frag`
+export const ModerationTemplateFragment = gql(`
   fragment ModerationTemplateFragment on ModerationTemplate {
     _id
     name
@@ -11,4 +11,4 @@ export const ModerationTemplateFragment = () => frag`
       ...RevisionEdit
     }
   }
-`
+`)

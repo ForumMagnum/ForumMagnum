@@ -2,13 +2,25 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import moment from 'moment';
-import { useMulti } from '../../lib/crud/withMulti';
 import { commentsNodeRootMarginBottom, maxSmallish, maxTiny } from '../../themes/globalStyles/globalStyles';
 import Loading from "../vulcan-core/Loading";
 import SectionTitle from "../common/SectionTitle";
 import PostsItem from "../posts/PostsItem";
 import CommentsNodeInner from "../comments/CommentsNode";
 import LoadMore from "../common/LoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const UserVotesWithDocumentMultiQuery = gql(`
+  query multiVoteVoteHistoryTabQuery($selector: VoteSelector, $limit: Int, $enableTotal: Boolean) {
+    votes(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UserVotesWithDocument
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   empty: {
@@ -40,17 +52,17 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const defaultLimit = 10;
   const pageSize = 30;
 
-  const { results: votes, loading, loadMoreProps } = useMulti({
-    terms: {
-      view: "userVotes",
-      collectionNames: ["Posts", "Comments"],
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(UserVotesWithDocumentMultiQuery, {
+    variables: {
+      selector: { userVotes: { collectionNames: ["Posts", "Comments"] } },
+      limit: defaultLimit,
+      enableTotal: false,
     },
-    collectionName: "Votes",
-    fragmentName: 'UserVotesWithDocument',
-    limit: defaultLimit,
     itemsPerPage: pageSize,
-  })
-  
+  });
+
+  const votes = data?.votes?.results;
+
   /**
    * Returns either a PostItem or CommentsNode, depending on the content type
   */

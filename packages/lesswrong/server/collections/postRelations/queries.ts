@@ -3,22 +3,29 @@ import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers";
 import gql from "graphql-tag";
+import { PostRelationsViews } from "@/lib/collections/postRelations/views";
 
 export const graphqlPostRelationQueryTypeDefs = gql`
-  type PostRelation {
-    ${getAllGraphQLFields(schema)}
-  }
-
+  type PostRelation ${ getAllGraphQLFields(schema) }
+  
   input SinglePostRelationInput {
     selector: SelectorInput
     resolverArgs: JSON
-    allowNull: Boolean
   }
-
+  
   type SinglePostRelationOutput {
     result: PostRelation
   }
-
+  
+  input PostRelationsAllPostRelationsInput {
+    postId: String
+  }
+  
+  input PostRelationSelector {
+    default: EmptyViewInput
+    allPostRelations: PostRelationsAllPostRelationsInput
+  }
+  
   input MultiPostRelationInput {
     terms: JSON
     resolverArgs: JSON
@@ -27,15 +34,23 @@ export const graphqlPostRelationQueryTypeDefs = gql`
   }
   
   type MultiPostRelationOutput {
-    results: [PostRelation]
+    results: [PostRelation!]!
     totalCount: Int
   }
-
+  
   extend type Query {
-    postRelation(input: SinglePostRelationInput): SinglePostRelationOutput
-    postRelations(input: MultiPostRelationInput): MultiPostRelationOutput
+    postRelation(
+      input: SinglePostRelationInput @deprecated(reason: "Use the selector field instead"),
+      selector: SelectorInput
+    ): SinglePostRelationOutput
+    postRelations(
+      input: MultiPostRelationInput @deprecated(reason: "Use the selector field instead"),
+      selector: PostRelationSelector,
+      limit: Int,
+      offset: Int,
+      enableTotal: Boolean
+    ): MultiPostRelationOutput
   }
 `;
-
-export const postRelationGqlQueryHandlers = getDefaultResolvers('PostRelations');
+export const postRelationGqlQueryHandlers = getDefaultResolvers('PostRelations', PostRelationsViews);
 export const postRelationGqlFieldResolvers = getFieldGqlResolvers('PostRelations', schema);

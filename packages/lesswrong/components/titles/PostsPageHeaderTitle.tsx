@@ -1,18 +1,28 @@
 import React from 'react';
-import { useSingle } from '../../lib/crud/withSingle';
 import { useLocation } from '../../lib/routeUtil';
 import { Helmet } from '../../lib/utils/componentsWithChildren';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const PostsBaseQuery = gql(`
+  query PostsPageHeaderTitle($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsBase
+      }
+    }
+  }
+`);
 
 export const PostsPageHeaderTitle = ({siteName}: {
   siteName: string,
 }) => {
 
   const { params: {_id, postId} } = useLocation();
-  const { document: post, loading } = useSingle({
-    documentId: _id || postId,
-    collectionName: "Posts",
-    fragmentName: "PostsBase",
+  const { loading, data } = useQuery(PostsBaseQuery, {
+    variables: { documentId: _id || postId },
   });
+  const post = data?.post?.result;
 
   if (!post || loading) return null;
   const titleString = `${post.title} — ${siteName}`

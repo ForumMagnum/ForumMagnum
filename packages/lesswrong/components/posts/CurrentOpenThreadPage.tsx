@@ -1,20 +1,34 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import PermanentRedirect from "../common/PermanentRedirect";
 import SingleColumnSection from "../common/SingleColumnSection";
 import Loading from "../vulcan-core/Loading";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const PostsMinimumInfoMultiQuery = gql(`
+  query multiPostCurrentOpenThreadPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsMinimumInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 const CurrentOpenThreadPage = () => {
-  const {results, loading} = useMulti({
-    collectionName: "Posts",
-    terms: {
-      view: "currentOpenThread",
-      limit: 1
+  const { data, loading } = useQuery(PostsMinimumInfoMultiQuery, {
+    variables: {
+      selector: { currentOpenThread: {} },
+      limit: 1,
+      enableTotal: false,
     },
-    fragmentName: "PostsMinimumInfo",
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.posts?.results;
 
   if (loading) {
     return <Loading />

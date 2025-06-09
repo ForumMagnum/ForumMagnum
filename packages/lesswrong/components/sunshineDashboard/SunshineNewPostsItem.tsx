@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { postGetCommentCount, postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
@@ -12,7 +11,6 @@ import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person'
 import HomeIcon from '@/lib/vendor/@material-ui/icons/src/Home';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import VisibilityOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/VisibilityOutlined';
-import { useCreate } from '../../lib/crud/withCreate';
 import { MANUAL_FLAG_ALERT } from "@/lib/collections/moderatorActions/constants";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import MetaInfo from "../common/MetaInfo";
@@ -27,6 +25,28 @@ import { Typography } from "../common/Typography";
 import ContentStyles from "../common/ContentStyles";
 import SmallSideVote from "../votes/SmallSideVote";
 import ForumIcon from "../common/ForumIcon";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const PostsListUpdateMutation = gql(`
+  mutation updatePostSunshineNewPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
+    updatePost(selector: $selector, data: $data) {
+      data {
+        ...PostsList
+      }
+    }
+  }
+`);
+
+const ModeratorActionsDefaultFragmentMutation = gql(`
+  mutation createModeratorActionSunshineNewPostsItem($data: CreateModeratorActionDataInput!) {
+    createModeratorAction(data: $data) {
+      data {
+        ...ModeratorActionsDefaultFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -67,35 +87,33 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();
   
-  const {mutate: updatePost} = useUpdate({
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
-  });
+  const [updatePost] = useMutation(PostsListUpdateMutation);
 
-  const { create: createModeratorAction } = useCreate({
-    collectionName: 'ModeratorActions',
-    fragmentName: 'ModeratorActionsDefaultFragment'
-  });
+  const [createModeratorAction] = useMutation(ModeratorActionsDefaultFragmentMutation);
   
   const handlePersonal = () => {
     void updatePost({
-      selector: { _id: post._id},
-      data: {
-        frontpageDate: null,
-        reviewedByUserId: currentUser!._id,
-        authorIsUnreviewed: false
-      },
+      variables: {
+        selector: { _id: post._id },
+        data: {
+          frontpageDate: null,
+          reviewedByUserId: currentUser!._id,
+          authorIsUnreviewed: false
+        }
+      }
     })
   }
 
   const handlePromote = () => {
     void updatePost({
-      selector: { _id: post._id},
-      data: {
-        frontpageDate: new Date(),
-        reviewedByUserId: currentUser!._id,
-        authorIsUnreviewed: false
-      },
+      variables: {
+        selector: { _id: post._id },
+        data: {
+          frontpageDate: new Date(),
+          reviewedByUserId: currentUser!._id,
+          authorIsUnreviewed: false
+        }
+      }
     })
   }
   
@@ -103,24 +121,28 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
     if (confirm("Are you sure you want to move this post to the author's draft?")) {
       window.open(userGetProfileUrl(post.user), '_blank');
       void updatePost({
-        selector: { _id: post._id},
-        data: {
-          draft: true,
+        variables: {
+          selector: { _id: post._id },
+          data: {
+            draft: true,
+          }
         }
       })
     }
   }
 
-  const lastManualUserFlag = post.user?.moderatorActions.find(action => action.type === MANUAL_FLAG_ALERT);
+  const lastManualUserFlag = post.user?.moderatorActions?.find(action => action.type === MANUAL_FLAG_ALERT);
   const isUserAlreadyFlagged = post.user?.needsReview || lastManualUserFlag?.active;
 
   const handleFlagUser = async () => {
     if (isUserAlreadyFlagged) return;
 
     await createModeratorAction({
-      data: {
-        type: MANUAL_FLAG_ALERT,
-        userId: post.userId,
+      variables: {
+        data: {
+          type: MANUAL_FLAG_ALERT,
+          userId: post.userId,
+        }
       }
     });
     

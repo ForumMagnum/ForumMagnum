@@ -1,15 +1,15 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from "@/lib/generated/gql-codegen";
 
-export const SurveyScheduleMinimumInfo = () => frag`
+export const SurveyScheduleMinimumInfo = gql(`
   fragment SurveyScheduleMinimumInfo on SurveySchedule {
     _id
     survey {
       ...SurveyMinimumInfo
     }
   }
-`
+`)
 
-export const SurveyScheduleEdit = () => frag`
+export const SurveyScheduleEdit = gql(`
   fragment SurveyScheduleEdit on SurveySchedule {
     ...SurveyScheduleMinimumInfo
     surveyId
@@ -24,4 +24,4 @@ export const SurveyScheduleEdit = () => frag`
     deactivated
     createdAt
   }
-`
+`)

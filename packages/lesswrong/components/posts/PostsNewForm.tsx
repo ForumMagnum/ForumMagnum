@@ -4,11 +4,12 @@ import pick from 'lodash/pick';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { isAF } from '../../lib/instanceSettings';
-import { useSingle } from '../../lib/crud/withSingle';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-import { useCreate } from '@/lib/crud/withCreate';
 import { hasAuthorModeration } from '@/lib/betas';
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import { userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { sanitizeEditableFieldValues } from '../tanstack-form-components/helpers';
 import ErrorMessage from "../common/ErrorMessage";
@@ -17,6 +18,66 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import { Typography } from "../common/Typography";
 import Loading from "../vulcan-core/Loading";
 
+const PostsEditMutation = gql(`
+  mutation createPostPostsNewForm($data: CreatePostDataInput!) {
+    createPost(data: $data) {
+      data {
+        ...PostsEdit
+      }
+    }
+  }
+`);
+
+const UsersEditQuery = gql(`
+  query PostsNewForm4($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UsersEdit
+      }
+    }
+  }
+`);
+
+const PostsEditMutationFragmentQuery = gql(`
+  query PostsNewForm3($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsEditMutationFragment
+      }
+    }
+  }
+`);
+
+const localGroupsIsOnlineQuery = gql(`
+  query PostsNewForm2($documentId: String) {
+    localgroup(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...localGroupsIsOnline
+      }
+    }
+  }
+`);
+
+const PostsEditQueryFragmentQuery = gql(`
+  query PostsNewForm1($documentId: String, $version: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsEditQueryFragment
+      }
+    }
+  }
+`);
+
+const PostsPageQuery = gql(`
+  query PostsNewForm($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsPage
+      }
+    }
+  }
+`);
+
 type EventTemplateFields =
   | "contents"
   | "activateRSVPs"
@@ -24,8 +85,6 @@ type EventTemplateFields =
   | "googleLocation"
   | "onlineEvent"
   | "globalEvent"
-  | "startTime"
-  | "endTime"
   | "eventRegistrationLink"
   | "joinEventLink"
   | "website"
@@ -52,7 +111,11 @@ type PrefilledPostFields =
   | "generateDraftJargon"
   | "postCategory";
 
-type PrefilledEventTemplate = Pick<PostsEditMutationFragment, EventTemplateFields>;
+type PrefilledEventTemplate = Pick<PostsEditMutationFragment, EventTemplateFields> & {
+  startTime?: Date;
+  endTime?: Date;
+};
+
 type PrefilledPostBase = Pick<PostsEditMutationFragment, PrefilledPostFields>;
 
 type PrefilledPost = Partial<PrefilledEventTemplate | PrefilledPostBase> & {
@@ -62,7 +125,7 @@ type PrefilledPost = Partial<PrefilledEventTemplate | PrefilledPostBase> & {
 };
 
 const prefillFromTemplate = (template: PostsEditMutationFragment, currentUser: UsersCurrent | null): PrefilledEventTemplate => {
-  return pick(
+  const { startTime, endTime, ...fields } = pick(
     template,
     [
       "contents",
@@ -86,7 +149,13 @@ const prefillFromTemplate = (template: PostsEditMutationFragment, currentUser: U
       "hasCoauthorPermission",
       ...(userCanEditCoauthors(currentUser) ? ["coauthorStatuses"] as const : []),
     ] as const
-  )
+  );
+
+  return {
+    ...fields,
+    ...(startTime && { startTime: new Date(startTime) }),
+    ...(endTime && { endTime: new Date(endTime) }),
+  }
 }
 
 function getPostCategory(query: Record<string, string>, questionInQuery: boolean) {
@@ -106,29 +175,25 @@ function getPostCategory(query: Record<string, string>, questionInQuery: boolean
  * We don't rely on fetching the document with the initial `useSingle`, but only on the refetch - this is basically a hacky way to imperatively run a query on demand
  */
 function usePrefetchForAutosaveRedirect() {
-  const { refetch: fetchAutosavedPostForEditPage } = useSingle({
-    documentId: undefined,
-    collectionName: "Posts",
-    fragmentName: 'PostsPage',
+  const { refetch: fetchAutosavedPostForEditPage, data: dataPost } = useQuery(PostsPageQuery, {
+    variables: { documentId: undefined },
     skip: true,
   });
+  const document = dataPost?.post?.result;
 
   const extraVariablesValues = { version: 'draft' };
 
-  const { refetch: fetchAutosavedPostForEditForm } = useSingle({
-    documentId: undefined,
-    collectionName: "Posts",
-    fragmentName: 'PostsEditQueryFragment',
-    extraVariables: { version: 'String' },
-    extraVariablesValues,
-    fetchPolicy: 'network-only',
+  const { refetch: fetchAutosavedPostForEditForm, data: dataUser } = useQuery(PostsEditQueryFragmentQuery, {
+    variables: { documentId: undefined },
     skip: true,
+    fetchPolicy: 'network-only',
   });
+  const documentUser = dataUser?.post?.result;
 
   const prefetchPostFragmentsForRedirect = (postId: string) => {
     return Promise.all([
-      fetchAutosavedPostForEditPage({ input: { selector: { documentId: postId } } }),
-      fetchAutosavedPostForEditForm({ input: { selector: { documentId: postId }, resolverArgs: extraVariablesValues }, ...extraVariablesValues })
+      fetchAutosavedPostForEditPage({ documentId: postId }),
+      fetchAutosavedPostForEditForm({ documentId: postId, ...extraVariablesValues })
     ]);
   };
 
@@ -149,27 +214,24 @@ const PostsNewForm = () => {
 
   // if we are trying to create an event in a group,
   // we want to prefill the "onlineEvent" checkbox if the group is online
-  const { document: groupData } = useSingle({
-    collectionName: "Localgroups",
-    fragmentName: 'localGroupsIsOnline',
-    documentId: query && query.groupId,
-    skip: !query || !query.groupId
+  const { data: dataGroup } = useQuery(localGroupsIsOnlineQuery, {
+    variables: { documentId: query && query.groupId },
+    skip: !query || !query.groupId,
   });
+  const groupData = dataGroup?.localgroup?.result;
 
-  const { document: templateDocument, loading: templateLoading } = useSingle({
-    documentId: templateId,
-    collectionName: "Posts",
-    fragmentName: 'PostsEditMutationFragment',
+  const { loading: templateLoading, data: dataPost } = useQuery(PostsEditMutationFragmentQuery, {
+    variables: { documentId: templateId },
     skip: !templateId,
   });
+  const templateDocument = dataPost?.post?.result;
 
   // `UsersCurrent` doesn't have the editable field with their originalContents for performance reasons, so we need to fetch them explicitly
-  const { document: currentUserWithModerationGuidelines } = useSingle({
-    documentId: currentUser?._id,
-    collectionName: "Users",
-    fragmentName: "UsersEdit",
+  const { data: dataUser } = useQuery(UsersEditQuery, {
+    variables: { documentId: currentUser?._id },
     skip: !currentUser,
   });
+  const currentUserWithModerationGuidelines = dataUser?.user?.result;
 
   let prefilledProps: PrefilledPost = templateDocument ? prefillFromTemplate(templateDocument, currentUser) : {
     isEvent: query && !!query.eventForm,
@@ -200,10 +262,7 @@ const PostsNewForm = () => {
     }
   }
 
-  const createPost = useCreate({
-    collectionName: "Posts",
-    fragmentName: "PostsEdit",
-  });
+  const [createPost] = useMutation(PostsEditMutation);
 
   const attemptedToCreatePostRef = useRef(false);
   useEffect(() => {
@@ -219,16 +278,21 @@ const PostsNewForm = () => {
           : {};
 
         try {
-          const { data } = await createPost.create({
-            data: {
-              title: "Untitled Draft",
-              draft: true,
-              ...sanitizedPrefilledProps,
-              ...moderationGuidelinesField,
+          const { data } = await createPost({
+            variables: {
+              data: {
+                title: "Untitled Draft",
+                draft: true,
+                ...sanitizedPrefilledProps,
+                ...moderationGuidelinesField,
+              }
             },
           });
-          if (data) {
-            navigate(postGetEditUrl(data.createPost.data._id, false, data.linkSharingKey), {replace: true});
+
+          const createdPost = data?.createPost?.data;
+
+          if (createdPost) {
+            navigate(postGetEditUrl(createdPost._id, false, createdPost.linkSharingKey ?? undefined), {replace: true});
           }
         } catch(e) {
           setError(e.message);

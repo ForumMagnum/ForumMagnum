@@ -1,11 +1,8 @@
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import moment from 'moment';
 import React, { useState } from 'react';
-import { useCreate } from '../../lib/crud/withCreate';
-import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear'
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -21,6 +18,61 @@ import { MenuItem } from "../common/Menus";
 import Loading from "../vulcan-core/Loading";
 import MetaInfo from "../common/MetaInfo";
 import LWTooltip from "../common/LWTooltip";
+import { withDateFields } from '@/lib/utils/dateUtils';
+import { useMutation } from "@apollo/client";
+import { useQuery } from '@/lib/crud/useQuery';
+import { gql } from "@/lib/generated/gql-codegen";
+
+const UserRateLimitDisplayMultiQuery = gql(`
+  query multiUserRateLimitUserRateLimitItemQuery($selector: UserRateLimitSelector, $limit: Int, $enableTotal: Boolean) {
+    userRateLimits(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UserRateLimitDisplay
+      }
+      totalCount
+    }
+  }
+`);
+
+const UserRateLimitsDefaultFragmentUpdateMutation = gql(`
+  mutation updateUserRateLimitUserRateLimitItem1($selector: SelectorInput!, $data: UpdateUserRateLimitDataInput!) {
+    updateUserRateLimit(selector: $selector, data: $data) {
+      data {
+        ...UserRateLimitsDefaultFragment
+      }
+    }
+  }
+`);
+
+const UserRateLimitDisplayUpdateMutation = gql(`
+  mutation updateUserRateLimitUserRateLimitItem($selector: SelectorInput!, $data: UpdateUserRateLimitDataInput!) {
+    updateUserRateLimit(selector: $selector, data: $data) {
+      data {
+        ...UserRateLimitDisplay
+      }
+    }
+  }
+`);
+
+const UserRateLimitsDefaultFragmentMutation = gql(`
+  mutation createUserRateLimitUserRateLimitItem1($data: CreateUserRateLimitDataInput!) {
+    createUserRateLimit(data: $data) {
+      data {
+        ...UserRateLimitsDefaultFragment
+      }
+    }
+  }
+`);
+
+const UserRateLimitDisplayMutation = gql(`
+  mutation createUserRateLimitUserRateLimitItem($data: CreateUserRateLimitDataInput!) {
+    createUserRateLimit(data: $data) {
+      data {
+        ...UserRateLimitDisplay
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   rateLimitForm: {
@@ -161,7 +213,10 @@ const formStyles = defineStyles('SurveySchedulesForm', (theme: ThemeType) => ({
   cancelButton: cancelButtonStyles(theme),
 }));
 
-type EditableUserRateLimit = Required<Omit<UpdateUserRateLimitDataInput, 'legacyData'>> & { _id: string; intervalUnit: DbUserRateLimit['intervalUnit']; type: DbUserRateLimit['type'] };
+
+type EditableUserRateLimit = Required<Omit<{
+  [k in keyof UpdateUserRateLimitDataInput]-?: NonNullable<UpdateUserRateLimitDataInput[k]>
+}, 'legacyData'>> & { _id: string; };
 
 type EditableUserRateLimitFormData = {
   onSuccess: (doc: UserRateLimitDisplay) => void;
@@ -186,15 +241,9 @@ export const UserRateLimitsForm = ({
   const classes = useStyles(formStyles);
   const formType = initialData ? 'edit' : 'new';
 
-  const { create } = useCreate({
-    collectionName: 'UserRateLimits',
-    fragmentName: 'UserRateLimitDisplay',
-  });
+  const [create] = useMutation(UserRateLimitDisplayMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'UserRateLimits',
-    fragmentName: 'UserRateLimitDisplay',
-  });
+  const [mutate] = useMutation(UserRateLimitDisplayUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
@@ -207,15 +256,23 @@ export const UserRateLimitsForm = ({
         let result: UserRateLimitDisplay;
 
         if (formType === 'new') {
-          const { data } = await create({ data: value });
-          result = data?.createUserRateLimit.data;
+          const { data } = await create({ variables: { data: value } });
+          if (!data?.createUserRateLimit?.data) {
+            throw new Error('Failed to create user rate limit');
+          }
+          result = data.createUserRateLimit.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updateUserRateLimit.data;
+          if (!data?.updateUserRateLimit?.data) {
+            throw new Error('Failed to update user rate limit');
+          }
+          result = data.updateUserRateLimit.data;
         }
 
         onSuccess(result);
@@ -333,21 +390,20 @@ export const UserRateLimitItem = ({ userId, classes }: {
   const [createNewRateLimit, setCreateNewRateLimit] = useState(false);
   const [editingExistingRateLimitId, setEditingExistingRateLimitId] = useState<string>();
 
-  const { results: existingRateLimits, refetch } = useMulti({
-    collectionName: 'UserRateLimits',
-    fragmentName: 'UserRateLimitDisplay',
-    terms: { view: 'userRateLimits', userIds: [userId], active: true }
+  const { data, refetch } = useQuery(UserRateLimitDisplayMultiQuery, {
+    variables: {
+      selector: { userRateLimits: { userIds: [userId], active: true } },
+      limit: 10,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
 
-  const { create } = useCreate({
-    collectionName: 'UserRateLimits',
-    fragmentName: 'UserRateLimitsDefaultFragment',
-  });
+  const existingRateLimits = data?.userRateLimits?.results;
 
-  const { mutate } = useUpdate({
-    collectionName: 'UserRateLimits',
-    fragmentName: 'UserRateLimitsDefaultFragment'
-  });
+  const [create] = useMutation(UserRateLimitsDefaultFragmentMutation);
+
+  const [mutate] = useMutation(UserRateLimitsDefaultFragmentUpdateMutation);
 
   const createRateLimit = async (rateLimitName: string) => {
     if (rateLimitName === 'custom') {
@@ -355,7 +411,7 @@ export const UserRateLimitItem = ({ userId, classes }: {
     } else {
       const newRateLimit = DEFAULT_RATE_LIMITS[rateLimitName](userId);
       await create({
-        data: newRateLimit
+        variables: { data: newRateLimit }
       });
       await refetch();
     }
@@ -363,8 +419,10 @@ export const UserRateLimitItem = ({ userId, classes }: {
 
   const endExistingRateLimit = async (rateLimitId: string) => {
     await mutate({
-      selector: { _id: rateLimitId },
-      data: { endedAt: new Date() }
+      variables: {
+        selector: { _id: rateLimitId },
+        data: { endedAt: new Date() }
+      }
     });
     await refetch();
   }
@@ -376,7 +434,7 @@ export const UserRateLimitItem = ({ userId, classes }: {
   }
 
   const existingRateLimit = existingRateLimits.find(rateLimit => rateLimit._id === editingExistingRateLimitId);
-  const existingOrDefaultValue = existingRateLimit ? { initialData: existingRateLimit } : { prefilledProps: prefilledCustomFormProps };
+  const existingOrDefaultValue = existingRateLimit ? { initialData: withDateFields(existingRateLimit, ['endedAt']) } : { prefilledProps: prefilledCustomFormProps };
 
   return <div>
     {/** Doesn't have both a comment and post rate limit */}
