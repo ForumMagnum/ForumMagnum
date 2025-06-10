@@ -34,6 +34,8 @@ import { SparkleIcon } from "../icons/sparkleIcon";
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
     position: 'relative',
+    paddingTop: 12,
+    paddingBottom: 12,
     paddingLeft: 16,
     paddingRight: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -43,7 +45,6 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   mainContent: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px',
   },
   tripleDotMenu: {
     opacity: 0.7,
@@ -62,6 +63,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: '4px',
+    marginBottom: 12,
   },
   titleContainer: {
     display: 'flex',
@@ -122,6 +124,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     marginRight: 8,
   },
   footer: {
+    marginTop: 12,
   },
   loadingContainer: {
     display: "flex",
