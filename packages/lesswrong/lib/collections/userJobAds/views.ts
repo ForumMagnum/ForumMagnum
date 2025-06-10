@@ -2,7 +2,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface UserJobAdsViewTerms extends ViewTermsBase {
-    view?: UserJobAdsViewName
+    view: UserJobAdsViewName
     userId?: string
   }
 }

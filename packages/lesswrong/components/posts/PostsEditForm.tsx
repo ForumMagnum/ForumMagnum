@@ -1,11 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere, canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
-import { useUpdate } from "../../lib/crud/withUpdate";
-import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import { useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/constants';
 import { isEAForum, isLW } from '../../lib/instanceSettings';
@@ -14,6 +12,8 @@ import DeferRender from '../common/DeferRender';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import { EditorContext } from './EditorContext';
 import Loading from "../vulcan-core/Loading";
 import PermanentRedirect from "../common/PermanentRedirect";
@@ -26,6 +26,27 @@ import PostForm from "./PostForm";
 import DynamicTableOfContents from "./TableOfContents/DynamicTableOfContents";
 import NewPostModerationWarning from "../sunshineDashboard/NewPostModerationWarning";
 import NewPostHowToGuides from "./NewPostHowToGuides";
+import { withDateFields } from '@/lib/utils/dateUtils';
+
+const UsersCurrentPostRateLimitQuery = gql(`
+  query PostsEditFormUser($documentId: String, $eventForm: Boolean) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UsersCurrentPostRateLimit
+      }
+    }
+  }
+`);
+
+const PostsEditFormQuery = gql(`
+  query PostsEditFormPost($documentId: String, $version: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsEditQueryFragment
+      }
+    }
+  }
+`);
 
 const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
   postForm: {
@@ -135,33 +156,20 @@ const PostsEditForm = ({ documentId, version }: {
   const currentUser = useCurrentUser();
 
   const [editorState, setEditorState] = useState<Editor|null>(null);
+  const afNonMemberSuccessHandling = useAfNonMemberSuccessHandling();
 
-  const { document, loading } = useSingle({
-    documentId,
-    collectionName: "Posts",
-    fragmentName: 'PostsEditQueryFragment',
-    extraVariables: {
-      version: 'String'
-    },
-    extraVariablesValues: {
-      version: version ?? 'draft'
-    },
+  const { loading, data: dataPost } = useQuery(PostsEditFormQuery, {
+    variables: { documentId: documentId, version: version ?? 'draft' },
     fetchPolicy: 'network-only',
   });
+  const document = dataPost?.post?.result;
 
-  const { document: userWithRateLimit } = useSingle({
-    documentId: currentUser?._id,
-    collectionName: "Users",
-    fragmentName: "UsersCurrentPostRateLimit",
+  const { data: dataUser } = useQuery(UsersCurrentPostRateLimitQuery, {
+    variables: { documentId: currentUser?._id, eventForm: document?.isEvent },
     skip: !currentUser,
-    extraVariables: { eventForm: 'Boolean' },
-    extraVariablesValues: { eventForm: document?.isEvent }
   });
+  const userWithRateLimit = dataUser?.user?.result;
 
-  const { mutate: updatePost } = useUpdate({
-    collectionName: "Posts",
-    fragmentName: 'SuggestAlignmentPost',
-  });
 
   const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost;
 
@@ -226,10 +234,10 @@ const PostsEditForm = ({ documentId, version }: {
         <DeferRender ssr={false}>
           <EditorContext.Provider value={[editorState, setEditorState]}>
             <PostForm
-              initialData={document}
+              initialData={withDateFields(document, ['createdAt', 'postedAt', 'afDate', 'commentsLockedToAccountsCreatedAfter', 'frontpageDate', 'curatedDate', 'startTime', 'endTime'])}
               onSuccess={(post, options) => {
                 const alreadySubmittedToAF = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(post.userId!)
-                if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost})
+                if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling(post);
                 if (options?.submitOptions?.redirectToEditor) {
                   navigate(postGetEditUrl(post._id, false, post.linkSharingKey ?? undefined));
                 } else {

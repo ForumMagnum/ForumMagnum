@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '@/lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { userCanPassivelyGenerateJargonTerms } from '@/lib/betas';
 import { useLocation } from '@/lib/routeUtil';
@@ -13,6 +12,20 @@ import ContentStyles from "../common/ContentStyles";
 import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import Row from "../common/Row";
 import UsersNameDisplay from "../users/UsersNameDisplay";
+import { useQuery } from "@/lib/crud/useQuery";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const PostsEditQueryFragmentMultiQuery = gql(`
+  query multiPostGlossaryEditorPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean, $version: String) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsEditQueryFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -37,18 +50,20 @@ export const GlossaryEditorPage = ({classes}: {
   const { query } = useLocation();
   const limit = query.limit ? parseInt(query.limit) : 5;
   const showAll = query.all === 'true' && currentUser?.isAdmin;
-  const view: PostsViewName = ["new", "top"].includes(query.view ?? '') ? query.view as PostsViewName : 'new'
+  // TODO: this didn't seem to be used even before any of the gql refactoring
+  // const view: PostsViewName = ["new", "top"].includes(query.view ?? '') ? query.view as PostsViewName : 'new'
 
-  const { results: posts = [], loadMoreProps, refetch } = useMulti({
-    terms: {
-      view: "top",
-      userId: showAll ? undefined : currentUser?._id,
-      limit: limit
+  const { data,  loadMoreProps } = useQueryWithLoadMore(PostsEditQueryFragmentMultiQuery, {
+    variables: {
+      selector: { top: { userId: showAll ? undefined : currentUser?._id } },
+      limit: limit,
+      enableTotal: false,
     },
     itemsPerPage: 50,
-    collectionName: "Posts",
-    fragmentName: 'PostsEditQueryFragment',
-  })
+  });
+
+  const posts = data?.posts?.results ?? [];
+
   if (!currentUser) {
     return <SingleColumnSection><ErrorAccessDenied/></SingleColumnSection>;
   }

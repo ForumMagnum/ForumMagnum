@@ -1,6 +1,5 @@
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { MouseEventHandler } from 'react';
-import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -8,6 +7,19 @@ import { requireCssVar } from '../../../themes/cssVars';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import CommunityMapWrapper from "../../localGroups/CommunityMapWrapper";
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const localGroupsHomeFragmentMultiQuery = gql(`
+  query multiLocalgroupLocalGroupsQuery($selector: LocalgroupSelector, $limit: Int, $enableTotal: Boolean) {
+    localgroups(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...localGroupsHomeFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   noResults: {
@@ -173,8 +185,7 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
   toggleIncludeInactive: MouseEventHandler,
   classes: ClassesType<typeof styles>,
 }) => {
-  let groupsListTerms: LocalgroupsViewTerms = {}
-  groupsListTerms = userLocation.known ? {
+  const groupsListTerms: LocalgroupsViewTerms = userLocation.known ? {
     view: 'nearby',
     lat: userLocation.lat,
     lng: userLocation.lng,
@@ -184,15 +195,20 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
     includeInactive,
   }
   
-  const { results, loading } = useMulti({
-    terms: groupsListTerms,
-    collectionName: "Localgroups",
-    fragmentName: 'localGroupsHomeFragment',
+  const { view, limit, ...selectorTerms } = groupsListTerms;
+  const { data, loading } = useQuery(localGroupsHomeFragmentMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 300,
+      enableTotal: false,
+    },
+    skip: userLocation.loading,
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    limit: 300,
-    skip: userLocation.loading
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.localgroups?.results;
   
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
   

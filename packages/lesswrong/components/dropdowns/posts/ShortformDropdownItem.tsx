@@ -2,17 +2,25 @@ import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 
 import { useCurrentUser } from "../../common/withUser";
-import { useUpdate } from "../../../lib/crud/withUpdate";
 import { userCanDo } from "../../../lib/vulcan-users/permissions";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
 import DropdownItem from "../DropdownItem";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const UsersCurrentUpdateMutation = gql(`
+  mutation updateUserShortformDropdownItem($selector: SelectorInput!, $data: UpdateUserDataInput!) {
+    updateUser(selector: $selector, data: $data) {
+      data {
+        ...UsersCurrent
+      }
+    }
+  }
+`);
 
 const ShortformDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
-  const {mutate: updateUser} = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersCurrent',
-  });
+  const [updateUser] = useMutation(UsersCurrentUpdateMutation);
 
   if (post.shortform || !userCanDo(currentUser, "posts.edit.all")) {
     return null;
@@ -20,10 +28,12 @@ const ShortformDropdownItem = ({post}: {post: PostsBase}) => {
 
   const handleMakeShortform = () => {
     void updateUser({
-      selector: {_id: post.userId},
-      data: {
-        shortformFeedId: post._id,
-      },
+      variables: {
+        selector: { _id: post.userId },
+        data: {
+          shortformFeedId: post._id,
+        }
+      }
     });
   }
 

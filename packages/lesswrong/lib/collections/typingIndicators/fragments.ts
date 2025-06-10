@@ -1,10 +1,10 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from "@/lib/generated/gql-codegen";
 
-export const TypingIndicatorInfo = () => frag`
+export const TypingIndicatorInfo = gql(`
   fragment TypingIndicatorInfo on TypingIndicator {
     _id
     userId
     documentId
     lastUpdated
   }
-`
+`)

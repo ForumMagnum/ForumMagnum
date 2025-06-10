@@ -1,6 +1,5 @@
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { MouseEventHandler } from 'react';
-import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -8,6 +7,19 @@ import { requireCssVar } from '../../../themes/cssVars';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const localGroupsHomeFragmentMultiQuery = gql(`
+  query multiLocalgroupOnlineGroupsQuery($selector: LocalgroupSelector, $limit: Int, $enableTotal: Boolean) {
+    localgroups(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...localGroupsHomeFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   noResults: {
@@ -150,14 +162,18 @@ const OnlineGroups = ({keywordSearch, includeInactive, toggleIncludeInactive, cl
   toggleIncludeInactive: MouseEventHandler,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { results, loading } = useMulti({
-    terms: {view: 'online', includeInactive},
-    collectionName: "Localgroups",
-    fragmentName: 'localGroupsHomeFragment',
+  const { data, loading } = useQuery(localGroupsHomeFragmentMultiQuery, {
+    variables: {
+      selector: { online: { includeInactive } },
+      limit: 200,
+      enableTotal: false,
+    },
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    limit: 200,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.localgroups?.results;
   
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
   

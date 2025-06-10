@@ -1,4 +1,4 @@
-import type { GraphQLSchema, SourceLocation } from "graphql";
+import { GraphQLSchema, SourceLocation } from "graphql";
 import { SchemaLink } from '@apollo/client/link/schema';
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { onError } from '@apollo/client/link/error';
@@ -47,7 +47,7 @@ export const createHttpLink = (baseUrl = '/') => {
 
     // If the operation has a batchKey variable, add that to the batch key.
     // This is to manually separate out very slow queries
-    const explicitBatchKey = operation.variables?.batchKey;
+    const explicitBatchKey = context.batchKey;
 
     return explicitBatchKey && typeof explicitBatchKey === "string" ? defaultBatchKey : defaultBatchKey + explicitBatchKey;
   };
@@ -77,7 +77,8 @@ export const headerLink = new ApolloLink((operation, forward) => {
     const path = url.pathname + url.search
 
     const headers = {
-      'request-origin-path': path
+      'request-origin-path': path,
+      'x-apollo-operation-name': operation.operationName,
     };
 
     operation.setContext({

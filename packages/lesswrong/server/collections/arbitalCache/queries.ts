@@ -4,8 +4,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlArbitalCachesQueryTypeDefs = gql`
-  type ArbitalCaches {
-    ${getAllGraphQLFields(schema)}
+  type ArbitalCaches ${
+    getAllGraphQLFields(schema)
   }
 `;
 

@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useTagBySlug } from '../tagging/useTag';
-import { useMulti } from '../../lib/crud/withMulti';
 import { tagGetRevisionLink, tagGetUrl } from '../../lib/collections/tags/helpers';
 import { tagUrlBaseSetting } from '../../lib/instanceSettings';
 import { Link } from "../../lib/reactRouterWrapper";
@@ -11,6 +10,19 @@ import Loading from "../vulcan-core/Loading";
 import RevisionSelect from "./RevisionSelect";
 import TagRevisionItem from "../tagging/TagRevisionItem";
 import LoadMore from "../common/LoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const RevisionHistoryEntryMultiQuery = gql(`
+  query multiRevisionTagPageRevisionSelectQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
+    revisions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...RevisionHistoryEntry
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
 });
@@ -23,19 +35,21 @@ const TagPageRevisionSelect = ({ classes }: {
   const focusedUser = query.user;
   const navigate = useNavigate();
   const { tag, loading: loadingTag } = useTagBySlug(slug, "TagBasicInfo");
-  const { results: revisions, loadMoreProps, count, totalCount } = useMulti({
-    skip: !tag,
-    terms: {
-      view: "revisionsOnDocument",
-      documentId: tag?._id,
-      fieldName: "description",
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(RevisionHistoryEntryMultiQuery, {
+    variables: {
+      selector: { revisionsOnDocument: { documentId: tag?._id, fieldName: "description" } },
+      limit: 10,
+      enableTotal: true,
     },
-    fetchPolicy: "cache-then-network" as any,
-    collectionName: "Revisions",
-    fragmentName: "RevisionHistoryEntry",
-    enableTotal: true,
+    skip: !tag,
+    fetchPolicy: 'cache-first',
     itemsPerPage: 30,
   });
+
+  const revisions = data?.revisions?.results;
+
+  const totalCount = data?.revisions?.totalCount ?? 0;
+  const count = revisions?.length ?? 0;
   
   const compareRevs = useCallback(({before,after}: {before: RevisionMetadata, after: RevisionMetadata}) => {
     if (!tag) return;

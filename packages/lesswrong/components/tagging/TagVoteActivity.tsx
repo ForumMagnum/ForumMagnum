@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { useVote } from '../votes/withVote';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
@@ -13,6 +12,19 @@ import TagSmallPostLink from "./TagSmallPostLink";
 import SingleColumnSection from "../common/SingleColumnSection";
 import LoadMore from "../common/LoadMore";
 import NewTagsList from "./NewTagsList";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const TagVotingActivityMultiQuery = gql(`
+  query multiVoteTagVoteActivityQuery($selector: VoteSelector, $limit: Int, $enableTotal: Boolean) {
+    votes(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagVotingActivity
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   voteRow: {
@@ -110,13 +122,16 @@ const TagVoteActivity = ({classes, showHeaders = true, showNewTags = true, limit
   limit?: number,
   itemsPerPage?: number
 }) => {
-  const { results: votes, loadMoreProps } = useMulti({
-    terms: {view:"tagVotes"},
-    collectionName: "Votes",
-    fragmentName: 'TagVotingActivity',
-    limit: limit,
-    itemsPerPage: itemsPerPage,
-  })
+  const { data, loadMoreProps } = useQueryWithLoadMore(TagVotingActivityMultiQuery, {
+    variables: {
+      selector: { tagVotes: {} },
+      limit: limit,
+      enableTotal: false,
+    },
+    itemsPerPage,
+  });
+
+  const votes = data?.votes?.results;
 
   return <SingleColumnSection>
     {showNewTags && <NewTagsList />}

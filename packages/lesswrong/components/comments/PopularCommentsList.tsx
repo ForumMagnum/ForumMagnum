@@ -1,11 +1,12 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import LoadMore from "../common/LoadMore";
 import FriendlyPopularComment from "./FriendlyPopularComment";
 import LWPopularComment from "./LWPopularComment";
+import { useQueryWithLoadMore } from "../hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -20,12 +21,24 @@ const styles = (theme: ThemeType) => ({
 });
 
 const PopularCommentsList = ({classes}: {classes: ClassesType<typeof styles>}) => {
-  const {loadMoreProps, results} = usePaginatedResolver({
-    fragmentName: "CommentsListWithParentMetadata",
-    resolverName: "PopularComments",
-    limit: 3,
+  const initialLimit = 3;
+  const { data, loadMoreProps } = useQueryWithLoadMore(gql(`
+    query PopularComments($limit: Int) {
+      PopularComments(limit: $limit) {
+        results {
+          ...CommentsListWithParentMetadata
+        }
+      }
+    }
+  `), {
+    variables: { limit: initialLimit },
+    fetchPolicy: "cache-and-network",
+    nextFetchPolicy: "cache-only",
     itemsPerPage: 5,
   });
+
+  const results = data?.PopularComments?.results;
+
   const CommentComponent = isFriendlyUI ? FriendlyPopularComment : LWPopularComment;
   return (
     <AnalyticsContext pageSectionContext="popularCommentsList">

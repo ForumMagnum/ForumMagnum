@@ -10,8 +10,8 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
   commentTreeOptions = {},
   initialExpandAllThreads,
 }: {
-  post: PostsRecentDiscussion,
-  comments?: T[],
+  post: PostsList,
+  comments?: T[] | null,
   refetch: () => void,
   commentTreeOptions?: CommentTreeOptions,
   initialExpandAllThreads?: boolean,
@@ -50,7 +50,7 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
     [recordPostCommentsView, post]
   );
 
-  const lastCommentId = comments && comments[0]?._id;
+  const lastCommentId = comments?.[0]?._id;
   const nestedComments = unflattenComments<T>(comments ?? []);
 
   const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt
@@ -73,7 +73,7 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
   const treeOptions: CommentTreeOptions = {
     scrollOnExpand: true,
     lastCommentId: lastCommentId,
-    highlightDate: lastVisitedAt ?? undefined,
+    highlightDate: lastVisitedAt ? new Date(lastVisitedAt) : undefined,
     refetch: refetch,
     condensed: true,
     post,

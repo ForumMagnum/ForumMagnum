@@ -1,24 +1,25 @@
 import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
-
 import { useItemsRead } from "../../hooks/useRecordPostView";
-import { useNamedMutation } from "../../../lib/crud/withMutation";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
 import DropdownItem from "../DropdownItem";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const MarkAsReadDropdownItem = ({post}: {post: PostsBase}) => {
   const {postsRead, setPostRead} = useItemsRead();
-  const {mutate: markAsReadOrUnread} = useNamedMutation<{
-    postId: string, isRead: boolean,
-  }>({
-    name: "markAsReadOrUnread",
-    graphqlArgs: {postId: "String", isRead: "Boolean"},
-  });
+  const [markAsReadOrUnread] = useMutation(gql(`
+    mutation markAsReadOrUnread($postId: String, $isRead: Boolean) {
+      markAsReadOrUnread(postId: $postId, isRead: $isRead)
+    }
+  `));
 
   const setRead = (value: boolean) => {
     void markAsReadOrUnread({
-      postId: post._id,
-      isRead: value,
+      variables: {
+        postId: post._id,
+        isRead: value,
+      }
     });
     setPostRead(post._id, value);
   }

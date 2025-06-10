@@ -3,6 +3,7 @@ import {createNotifications} from '../notificationCallbacksHelpers'
 import {notificationDocumentTypes} from '../../lib/notificationTypes'
 import {isBeingUndrafted} from './utils'
 import {canMention} from '../../lib/pingback'
+import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames'
 
 export interface PingbackDocumentPartial {
   _id: string,
@@ -17,10 +18,12 @@ export const notifyUsersAboutMentions = async (currentUser: DbUser, collectionNa
   // Todo(PR): this works, but not sure if it's generally a correct conversion. 
   //  TagRels for example won't work, though they don't have content either.
   //  should we define an explicit mapping?
-  const notificationType = collectionName.toLowerCase()
+  const notificationType = collectionNameToTypeName[collectionName].toLowerCase();
 
   const newDocPingbackCount = getPingbacks(document).length
-  if (!canMention(currentUser, newDocPingbackCount).result || !notificationDocumentTypes.has(notificationType)) return
+  if (!canMention(currentUser, newDocPingbackCount).result || !notificationDocumentTypes.has(notificationType)) {
+    return
+  }
 
   return createNotifications({
     notificationType: 'newMention',

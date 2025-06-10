@@ -1,5 +1,3 @@
-import { useCreate } from "@/lib/crud/withCreate";
-import { useUpdate } from "@/lib/crud/withUpdate";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
@@ -33,9 +31,33 @@ import Error404 from "../common/Error404";
 import FormGroupNoStyling from "../form-components/FormGroupNoStyling";
 import FormGroupQuickTakes from "../form-components/FormGroupQuickTakes";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import { withDateFields } from "@/lib/utils/dateUtils";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
 import { hasDraftComments } from '@/lib/betas';
 import CommentsSubmitDropdown from "./CommentsSubmitDropdown";
 import { useTracking } from "@/lib/analyticsEvents";
+import { CommentsList } from "@/lib/collections/comments/fragments";
+
+const CommentsListUpdateMutation = gql(`
+  mutation updateCommentCommentForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
+    updateComment(selector: $selector, data: $data) {
+      data {
+        ...CommentsList
+      }
+    }
+  }
+`);
+
+const CommentsListMutation = gql(`
+  mutation createCommentCommentForm($data: CreateCommentDataInput!) {
+    createComment(data: $data) {
+      data {
+        ...CommentsList
+      }
+    }
+  }
+`);
 
 const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -249,7 +271,7 @@ export const CommentForm = ({
   onCancel,
   onError,
 }: {
-  initialData?: UpdateCommentDataInput & { _id: string; tagCommentType: TagCommentType };
+  initialData?: CommentEdit;
   prefilledProps?: {
     postId?: string;
     parentAnswerId?: string;
@@ -298,21 +320,56 @@ export const CommentForm = ({
     addOnSuccessCallback
   } = useEditorFormCallbacks<CommentsList>();
 
-  const { create } = useCreate({
-    collectionName: 'Comments',
-    fragmentName: 'CommentsList',
+  const [create] = useMutation(CommentsListMutation, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          // This is a terrible hack where we check the name of the query in the apollo cache (which includes the inlined variable values passed into that instance of the query)
+          // to determine whether to add the new comment to the results of _that_ query (rather than to all `comments` queries in the cache).
+          // We also have to check things like the `drafts` argument; in some sense this is an incomplete replication of the old mingo functionality that we tossed out.
+          comments(existingComments, { storeFieldName }) {
+            const newComment = data?.createComment?.data;
+            if (!newComment) {
+              return existingComments;
+            } else if (newComment.draft && !storeFieldName.includes('"drafts"')) {
+              return existingComments;
+            } else if (!newComment.postId && !newComment.tagId) {
+              return existingComments;
+            } else if (newComment.postId && !storeFieldName.includes(newComment.postId)) {
+              return existingComments;
+            } else if (newComment.tagId && !storeFieldName.includes(newComment.tagId)) {
+              return existingComments;
+            }
+
+            const newCommentRef = cache.writeFragment({
+              fragment: CommentsList,
+              data: data?.createComment?.data,
+              fragmentName: "CommentsList",
+            });
+
+            if (!existingComments || !existingComments.results) {
+              return [newCommentRef];
+            }
+
+            const newResults = [...existingComments.results, newCommentRef];
+
+            return {
+              ...existingComments,
+              results: newResults,
+            };
+          }
+        }
+      });
+    }
   });
 
-  const { mutate } = useUpdate({
-    collectionName: 'Comments',
-    fragmentName: 'CommentsList',
-  });
+  const [mutate] = useMutation(CommentsListUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
   const form = useForm({
     defaultValues: {
-      ...initialData,
+      ...withDateFields(initialData, ['repliesBlockedUntil', 'afDate', 'postedAt', 'lastEditedAt', 'lastSubthreadActivity']),
       ...(formType === 'new' ? prefilledProps : {}),
     },
     onSubmitMeta: {
@@ -331,15 +388,24 @@ export const CommentForm = ({
           const { af, ...rest } = formApi.state.values;
           const submitData = (showAfCheckbox || isAF) ? { ...rest, af } : rest;
 
-          const { data } = await create({ data: { draft, ...submitData } });
-          result = data?.createComment.data;
+          const { data } = await create({ variables: { data: { ...submitData, draft } } });
+          if (!data?.createComment?.data) {
+            throw new Error('Failed to create comment');
+          }
+          result = data.createComment.data;
+
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: { draft, ...updatedFields },
+            variables: {
+              selector: { _id: initialData?._id },
+              data: { ...updatedFields, draft }
+            }
           });
-          result = data?.updateComment.data;
+          if (!data?.updateComment?.data) {
+            throw new Error('Failed to update comment');
+          }
+          result = data.updateComment.data;
         }
 
         onSuccessCallback.current?.(result);

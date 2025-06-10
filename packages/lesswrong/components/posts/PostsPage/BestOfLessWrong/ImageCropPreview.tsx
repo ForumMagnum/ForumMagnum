@@ -2,10 +2,21 @@ import React, { useState, useCallback, RefObject } from 'react';
 import { registerComponent } from '../../../../lib/vulcan-lib/components';
 import { useImageContext, ReviewWinnerImageInfo } from '../ImageContext';
 import { useEventListener } from '../../../hooks/useEventListener';
-import { useCreate } from '../../../../lib/crud/withCreate';
 import { useWindowSize } from '../../../hooks/useScreenWidth';
 import { COORDINATE_POSITIONS_TO_BOOK_OFFSETS, CoordinatePosition } from '../../../sequences/TopPostsPage';
 import classNames from 'classnames';
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const SplashArtCoordinatesMutation = gql(`
+  mutation createSplashArtCoordinateImageCropPreview($data: CreateSplashArtCoordinateDataInput!) {
+    createSplashArtCoordinate(data: $data) {
+      data {
+        ...SplashArtCoordinates
+      }
+    }
+  }
+`);
 
 const initialHeight = 480;
 const initialWidth = 360 * 3;
@@ -326,10 +337,7 @@ const ImageCropPreview = ({ imgRef, classes, flipped }: {
   useEventListener('mousemove', handleBox);
   useEventListener('mouseup', endMouseDown);
 
-  const { create: createSplashArtCoordinateMutation, loading, error } = useCreate({
-    collectionName: 'SplashArtCoordinates',
-    fragmentName: 'SplashArtCoordinates'
-  });
+  const [createSplashArtCoordinateMutation, { loading, error }] = useMutation(SplashArtCoordinatesMutation);
 
   const saveAllCoordinates = useCallback(async () => {
     if (!imgRef.current) {
@@ -375,7 +383,7 @@ const ImageCropPreview = ({ imgRef, classes, flipped }: {
         rightFlipped: coordsRight.flipped
       };
   
-      const { errors } = await createSplashArtCoordinateMutation({ data: splashArtData });
+      const { errors } = await createSplashArtCoordinateMutation({ variables: { data: splashArtData } });
       
       if (errors) {
         // eslint-disable-next-line no-console

@@ -99,16 +99,16 @@ export const updateAdvisorRequestGqlMutation = makeGqlUpdateMutation('AdvisorReq
 
 
 export const graphqlAdvisorRequestTypeDefs = gql`
-  input CreateAdvisorRequestDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateAdvisorRequestDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateAdvisorRequestInput {
     data: CreateAdvisorRequestDataInput!
   }
   
-  input UpdateAdvisorRequestDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateAdvisorRequestDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateAdvisorRequestInput {

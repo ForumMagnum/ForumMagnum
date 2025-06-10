@@ -2,14 +2,47 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useCreate } from '../../lib/crud/withCreate';
-import { useMulti } from '../../lib/crud/withMulti';
 import debounce from 'lodash/debounce';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { EditablePost } from '@/lib/collections/posts/helpers';
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
+import { gql } from "@/lib/generated/gql-codegen";
+
+const PodcastEpisodeFullMultiQuery = gql(`
+  query multiPodcastEpisodePodcastEpisodeInputQuery($selector: PodcastEpisodeSelector, $limit: Int, $enableTotal: Boolean) {
+    podcastEpisodes(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PodcastEpisodeFull
+      }
+      totalCount
+    }
+  }
+`);
+
+const PodcastSelectMultiQuery = gql(`
+  query multiPodcastPodcastEpisodeInputQuery($selector: PodcastSelector, $limit: Int, $enableTotal: Boolean) {
+    podcasts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PodcastSelect
+      }
+      totalCount
+    }
+  }
+`);
+
+const PodcastEpisodesDefaultFragmentMutation = gql(`
+  mutation createPodcastEpisodePodcastEpisodeInput($data: CreatePodcastEpisodeDataInput!) {
+    createPodcastEpisode(data: $data) {
+      data {
+        ...PodcastEpisodesDefaultFragment
+      }
+    }
+  }
+`);
 
 const styles = defineStyles('PodcastEpisodeInput', (theme: ThemeType) => ({
   podcastEpisodeName: {
@@ -22,7 +55,7 @@ const styles = defineStyles('PodcastEpisodeInput', (theme: ThemeType) => ({
 }));
 
 export const PodcastEpisodeInput = ({ field, document }: {
-  field: TypedFieldApi<string | null>;
+  field: TypedFieldApi<string | null | undefined>;
   document: EditablePost;
 }) => {
   const classes = useStyles(styles);
@@ -30,34 +63,34 @@ export const PodcastEpisodeInput = ({ field, document }: {
   const value = field.state.value ?? '';
   const { title: postTitle } = document;
 
-  const { results: podcasts = [], loading } = useMulti({
-    collectionName: 'Podcasts',
-    fragmentName: 'PodcastSelect',
-    terms: {}
+  const { data, loading } = useQuery(PodcastSelectMultiQuery, {
+    variables: {
+      selector: { default: {} },
+      limit: 10,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const podcasts = useMemo(() => data?.podcasts?.results ?? [], [data?.podcasts?.results]);
 
   const [externalEpisodeId, setExternalEpisodeId] = useState('');
 
-  const terms: PodcastEpisodesViewTerms = useMemo(
-    () => externalEpisodeId
-      ? { view: 'episodeByExternalId', externalEpisodeId }
-      : { view: 'episodeByExternalId', _id: value },
-    [externalEpisodeId, value]
-  );
-
   // If the post already has an attached episode, fetch it by _id.  Otherwise, refetch it by externalEpisodeId (only when `refetchPodcastEpisode` is called)
-  const { results: [existingPodcastEpisode] = [], refetch: refetchPodcastEpisode, loading: episodeLoading } = useMulti({
-    collectionName: 'PodcastEpisodes',
-    fragmentName: 'PodcastEpisodeFull',
-    terms,
+  const { data: dataPodcastEpisodeFull, loading: episodeLoading, refetch: refetchPodcastEpisode } = useQuery(PodcastEpisodeFullMultiQuery, {
+    variables: {
+      selector: { episodeByExternalId: externalEpisodeId ? { externalEpisodeId } : { _id: value } },
+      limit: 10,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
 
-  const { create: createEpisodeMutation, data: createdEpisode } = useCreate({
-    collectionName: 'PodcastEpisodes',
-    fragmentName: 'PodcastEpisodesDefaultFragment'
-  });
+  const [existingPodcastEpisode] = useMemo(() => dataPodcastEpisodeFull?.podcastEpisodes?.results ?? [], [dataPodcastEpisodeFull?.podcastEpisodes?.results]);
 
-  const [podcastEpisodeId, setPodcastEpisodeId] = useState(createdEpisode?._id ?? value ?? undefined);
+  const [createEpisodeMutation, { data: createdEpisode }] = useMutation(PodcastEpisodesDefaultFragmentMutation);
+
+  const [podcastEpisodeId, setPodcastEpisodeId] = useState(createdEpisode?.createPodcastEpisode?.data?._id ?? value ?? undefined);
 
   const syncPodcastEpisodeId = useCallback((id: string) => {
     setPodcastEpisodeId(id);
@@ -127,7 +160,7 @@ export const PodcastEpisodeInput = ({ field, document }: {
       title: episodeTitle
     };
 
-    await createEpisodeMutation({ data: episodeData });
+    await createEpisodeMutation({ variables: { data: episodeData } });
   }, [podcastId, externalEpisodeId, episodeLink, episodeTitle, createEpisodeMutation]);
 
   useEffect(() => {

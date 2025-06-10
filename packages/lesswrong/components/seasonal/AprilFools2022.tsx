@@ -1,5 +1,4 @@
 import React from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import FavoriteIcon from '@/lib/vendor/@material-ui/icons/src/Favorite';
 import classNames from 'classnames';
@@ -9,6 +8,19 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import SectionFooter from "../common/SectionFooter";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const UsersProfileMultiQuery = gql(`
+  query multiUserAprilFools2022Query($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UsersProfile
+      }
+      totalCount
+    }
+  }
+`);
 
 export const enableGoodHeartProject = new DatabasePublicSetting<boolean>('enableGoodHeartProject',false) // enables UI for 2022 LW April Fools
 
@@ -83,15 +95,16 @@ const styles = (theme: ThemeType) => ({
 export const AprilFools2022 = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {results} = useMulti({
-      terms: {
-        // view: 'usersByGoodHeartTokens'
-      },
-      collectionName: "Users",
-      fragmentName: 'UsersProfile',
-      enableTotal: false,
+  const { data } = useQuery(UsersProfileMultiQuery, {
+    variables: {
+      selector: { default: {} },
       limit: 15,
-    });
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = data?.users?.results;
 
   if (!enableGoodHeartProject.get()) return null
 

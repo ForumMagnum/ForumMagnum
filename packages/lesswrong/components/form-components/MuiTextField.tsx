@@ -23,7 +23,7 @@ function getUpdatedNumericValue(event: React.ChangeEvent<HTMLInputElement | HTML
   return isNaN(value) ? null : value;
 }
 
-interface MuiTextFieldProps<T extends string | number | null | undefined> {
+interface MuiTextFieldProps<T extends string | string[] | number | null | undefined> {
   field: {
     name: TypedFieldApi<T>['name'];
     state: Pick<TypedFieldApi<T>['state'], 'value' | 'meta'>;
@@ -45,7 +45,7 @@ interface MuiTextFieldProps<T extends string | number | null | undefined> {
   overrideClassName?: string;
 }
 
-export function MuiTextField<T extends string | number | null | undefined>({
+export function MuiTextField<T extends string | string[] | number | null | undefined>({
   field,
   label,
   children,

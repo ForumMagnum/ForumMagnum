@@ -6,7 +6,6 @@ import classNames from 'classnames';
 import AppsIcon from '@/lib/vendor/@material-ui/icons/src/Apps';
 import ViewListIcon from '@/lib/vendor/@material-ui/icons/src/ViewList';
 import { useCurrentUser } from '../common/withUser';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { useTracking } from "../../lib/analyticsEvents";
 import debounce from "lodash/debounce";
 import type { Placement as PopperPlacementType } from "popper.js"
@@ -16,6 +15,18 @@ import LWTooltip from "../common/LWTooltip";
 import Row from "../common/Row";
 import ReactionDescription from "./lwReactions/ReactionDescription";
 import MetaInfo from "../common/MetaInfo";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const UsersCurrentUpdateMutation = gql(`
+  mutation updateUserReactionsPalette($selector: SelectorInput!, $data: UpdateUserDataInput!) {
+    updateUser(selector: $selector, data: $data) {
+      data {
+        ...UsersCurrent
+      }
+    }
+  }
+`);
 
 const styles = defineStyles('ReactionsPalette', (theme: ThemeType) => ({
   moreReactions: {
@@ -148,8 +159,6 @@ const styles = defineStyles('ReactionsPalette', (theme: ThemeType) => ({
   }
 }));
 
-type paletteView = "listView"|"gridView";
-
 const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
   getCurrentUserReactionVote: (name: EmojiReactName, quote: QuoteLocator|null) => VoteOnReactionType|null,
   toggleReaction: (reactionName: string, quote: QuoteLocator|null) => void,
@@ -161,25 +170,24 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
   const reactPaletteStyle = currentUser?.reactPaletteStyle ?? "listView";
   const [searchText,setSearchText] = useState("");
   const [showAll, setShowAll] = useState(false);
-  const [displayStyle, setDisplayStyle] = useState<paletteView>(reactPaletteStyle);
+  const [displayStyle, setDisplayStyle] = useState<ReactPaletteStyle>(reactPaletteStyle);
   const debouncedCaptureEvent = useRef(debounce(captureEvent, 500))
   
   const activeReacts = namesAttachedReactions.filter(r=>!r.deprecated);
   const reactionsToShow = reactionsSearch(activeReacts, searchText);
 
-  const {mutate: updateUser} = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersCurrent',
-  });
+  const [updateUser] = useMutation(UsersCurrentUpdateMutation);
 
-  const handleChangeView = (view: paletteView) => {
+  const handleChangeView = (view: ReactPaletteStyle) => {
     setDisplayStyle(view);
     captureEvent("reactionPaletteChangeViewClicked", {view})
     if (!currentUser) return;
     void updateUser({
-      selector: {_id: currentUser._id},
-      data: {
-        reactPaletteStyle: view
+      variables: {
+        selector: { _id: currentUser._id },
+        data: {
+          reactPaletteStyle: view
+        }
       }
     })
   }

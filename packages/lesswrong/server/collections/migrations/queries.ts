@@ -4,8 +4,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlMigrationQueryTypeDefs = gql`
-  type Migration {
-    ${getAllGraphQLFields(schema)}
+  type Migration ${
+    getAllGraphQLFields(schema)
   }
 `;
 

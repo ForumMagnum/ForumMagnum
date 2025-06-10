@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { useMulti } from '@/lib/crud/withMulti';
-import { useSingle } from '@/lib/crud/withSingle';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
@@ -10,6 +8,8 @@ import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { isEmpty } from 'underscore';
 import qs from 'qs';
 import { Link } from '../../lib/reactRouterWrapper';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox/Checkbox";
 import Loading from "../vulcan-core/Loading";
 import Error404 from "../common/Error404";
@@ -18,6 +18,28 @@ import FormatDate from "../common/FormatDate";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import { LlmChatMessage } from "./LanguageModelChat";
 import SectionTitle from "../common/SectionTitle";
+
+const LlmConversationsViewingPageFragmentMultiQuery = gql(`
+  query multiLlmConversationLlmConversationsViewingPageQuery($selector: LlmConversationSelector, $limit: Int, $enableTotal: Boolean) {
+    llmConversations(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...LlmConversationsViewingPageFragment
+      }
+      totalCount
+    }
+  }
+`);
+
+
+const LlmConversationsWithMessagesFragmentQuery = gql(`
+  query LlmConversationsViewingPage($documentId: String) {
+    llmConversation(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...LlmConversationsWithMessagesFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -155,12 +177,16 @@ const LlmConversationSelector = ({currentConversationId, setCurrentConversationI
   const [showDeleted, setShowDeleted] = useState(false);
   const [showAdmin, setShowAdmin] = useState(true);
 
-  const { results, loading } = useMulti({
-    collectionName: "LlmConversations",
-    fragmentName: "LlmConversationsViewingPageFragment",
-    terms: { view: "llmConversationsAll", showDeleted },
-    limit: 200,
+  const { data, loading } = useQuery(LlmConversationsViewingPageFragmentMultiQuery, {
+    variables: {
+      selector: { llmConversationsAll: { showDeleted } },
+      limit: 200,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.llmConversations?.results;
 
   const filteredResults = results?.filter((conversation) => {
     if (!showAdmin && userIsAdmin(conversation.user)) {
@@ -222,12 +248,11 @@ const LlmConversationViewer = ({conversationId, classes}: {
   conversationId?: string
   classes: ClassesType<typeof styles>,
 }) => {
-  const { document: conversation, loading } = useSingle({
-    collectionName: "LlmConversations",
-    fragmentName: "LlmConversationsWithMessagesFragment",
-    documentId: conversationId,
-    skip: !conversationId
+  const { loading, data } = useQuery(LlmConversationsWithMessagesFragmentQuery, {
+    variables: { documentId: conversationId },
+    skip: !conversationId,
   });
+  const conversation = data?.llmConversation?.result;
 
 
   if (!conversationId) {

@@ -45,9 +45,9 @@ const PrefixedInput = ({
   classes,
 }: {
   field: {
-    name: TypedFieldApi<string | null>['name'];
-    state: Pick<TypedFieldApi<string | null>['state'], 'value'>;
-    handleChange: TypedFieldApi<string | null>['handleChange'];
+    name: TypedFieldApi<string | null | undefined>['name'];
+    state: Pick<TypedFieldApi<string | null | undefined>['state'], 'value'>;
+    handleChange: TypedFieldApi<string | null | undefined>['handleChange'];
   };
   inputPrefix?: string,
   heading?: string,
@@ -66,7 +66,7 @@ const PrefixedInput = ({
 
   return (
     <FormComponentFriendlyTextInput
-      value={value}
+      value={value ?? null}
       startAdornment={
         <InputAdornment position="start" className={classes.inputAdornment}>
           {icon}

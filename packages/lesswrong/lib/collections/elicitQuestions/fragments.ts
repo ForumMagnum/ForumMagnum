@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper";
+import { gql } from "@/lib/generated/gql-codegen";
 
-export const ElicitQuestionFragment = () => frag`
+export const ElicitQuestionFragment = gql(`
   fragment ElicitQuestionFragment on ElicitQuestion {
     _id
     title
@@ -8,4 +8,4 @@ export const ElicitQuestionFragment = () => frag`
     resolution
     resolvesBy
   }
-`;
+`);

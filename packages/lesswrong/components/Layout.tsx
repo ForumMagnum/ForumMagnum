@@ -1,6 +1,5 @@
 import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
 import { registerComponent } from '../lib/vulcan-lib/components';
-import { useUpdate } from '../lib/crud/withUpdate';
 import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';
 import { useLocation } from '../lib/routeUtil';
@@ -63,6 +62,18 @@ import LWBackgroundImage from "./LWBackgroundImage";
 import IntercomWrapper from "./common/IntercomWrapper";
 import CookieBanner from "./common/CookieBanner/CookieBanner";
 import { defineStyles, useStyles } from './hooks/useStyles';
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const UsersCurrentUpdateMutation = gql(`
+  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {
+    updateUser(selector: $selector, data: $data) {
+      data {
+        ...UsersCurrent
+      }
+    }
+  }
+`);
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -279,17 +290,16 @@ const Layout = ({currentUser, children}: {
   const renderCommunityMap = false // replace with following line to enable during ACX Everywhere
   // (isLW) && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
-  const {mutate: updateUser} = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersCurrent',
-  });
+  const [updateUser] = useMutation(UsersCurrentUpdateMutation);
   
   const toggleStandaloneNavigation = useCallback(() => {
     if (currentUser) {
       void updateUser({
-        selector: {_id: currentUser._id},
-        data: {
-          hideNavigationSidebar: !hideNavigationSidebar
+        variables: {
+          selector: { _id: currentUser._id },
+          data: {
+            hideNavigationSidebar: !hideNavigationSidebar
+          }
         }
       })
     }

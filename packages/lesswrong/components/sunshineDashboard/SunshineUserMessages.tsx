@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
-import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
@@ -11,6 +10,19 @@ import MessagesNewForm from "../messaging/MessagesNewForm";
 import UsersName from "../users/UsersName";
 import LWTooltip from "../common/LWTooltip";
 import MetaInfo from "../common/MetaInfo";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const ConversationsListMultiQuery = gql(`
+  query multiConversationSunshineUserMessagesQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
+    conversations(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ConversationsList
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (_theme: ThemeType) => ({
   row: {
@@ -44,13 +56,17 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
     }
   }
 
-  const { results } = useMulti({
-    terms: {view: "moderatorConversations", userId: user._id},
-    collectionName: "Conversations",
-    fragmentName: 'ConversationsList',
+  const { data } = useQuery(ConversationsListMultiQuery, {
+    variables: {
+      selector: { moderatorConversations: { userId: user._id } },
+      limit: 10,
+      enableTotal: true,
+    },
     fetchPolicy: 'cache-and-network',
-    enableTotal: true
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.conversations?.results;
 
   return <div>
     {results?.map(conversation => <div key={conversation._id}>
@@ -59,7 +75,7 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
           <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
           <span>
             Conversation with{" "} 
-            {conversation.participants.filter(participant => participant._id !== user._id).map(participant => {
+            {conversation.participants?.filter(participant => participant._id !== user._id).map(participant => {
               return <MetaInfo key={`${conversation._id}${participant._id}`}>
                 <UsersName simple user={participant}/>
               </MetaInfo>

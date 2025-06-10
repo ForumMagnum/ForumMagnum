@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { gql, useApolloClient, useQuery } from '@apollo/client';
+import { useApolloClient, useMutation } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useDialog } from '../../common/withDialog';
 import { useCurrentUser } from '../../common/withUser';
@@ -7,12 +9,22 @@ import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers'
 import RssFeed from "@/lib/vendor/@material-ui/icons/src/RssFeed";
 import { DialogActions } from '@/components/widgets/DialogActions';
 import { DialogContent } from '../../widgets/DialogContent';
-import { useUpdate } from '../../../lib/crud/withUpdate';
 import DropdownItem from "../DropdownItem";
 import ContentStyles from "../../common/ContentStyles";
 import { ContentItemBody } from "../../contents/ContentItemBody";
 import LWDialog from "../../common/LWDialog";
 import Loading from "../../vulcan-core/Loading";
+
+const PostsEditUpdateMutation = gql(`
+  mutation updatePostResyncRssDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
+    updatePost(selector: $selector, data: $data) {
+      data {
+        ...PostsEdit
+      }
+    }
+  }
+`);
+
 
 const styles = (theme: ThemeType) => ({
   diffExplanation: {
@@ -80,7 +92,7 @@ const ResyncRssDialog = ({onClose, post, classes}: {
   // Query to get a diff between the post HTML and the HTML seen in the RSS feed
   // (see server/rss-integration/cron). HTML returned from this is already
   // sanitized.
-  const { data, loading, error } = useQuery(gql`
+  const { data, loading, error } = useQuery(gql(`
     query getRssPostChanges($postId: String!) {
       RssPostChanges(postId: $postId) {
         isChanged
@@ -88,17 +100,13 @@ const ResyncRssDialog = ({onClose, post, classes}: {
         htmlDiff
       }
     }
-  `, {
+  `), {
     variables: {
       postId: post._id,
     },
   });
 
-  const { mutate: updatePost } = useUpdate({
-    collectionName: "Posts",
-    fragmentName: "PostsEdit",
-    skipCacheUpdate: true,
-  });
+  const [updatePost] = useMutation(PostsEditUpdateMutation);
   const [isSaving, setIsSaving] = useState(false);
   
   function cancel() {
@@ -109,19 +117,21 @@ const ResyncRssDialog = ({onClose, post, classes}: {
     void (async () => {
       setIsSaving(true);
       await updatePost({
-        selector: {
-          _id: post._id,
-        },
-        data: {
-          // Contents is a resolver only field, but there is handling for it
-          // in `createMutator`/`updateMutator`
-          contents: {
-            originalContents: {
-              type: "html",
-              data: data.RssPostChanges.newHtml,
-            }
+        variables: {
+          selector: {
+            _id: post._id,
           },
-        } as AnyBecauseHard,
+          data: {
+            // Contents is a resolver only field, but there is handling for it
+            // in `createMutator`/`updateMutator`
+            contents: {
+              originalContents: {
+                type: "html",
+                data: data?.RssPostChanges.newHtml,
+              }
+            },
+          } as AnyBecauseHard
+        }
       });
 
       onClose();

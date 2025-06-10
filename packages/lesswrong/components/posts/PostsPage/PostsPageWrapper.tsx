@@ -3,17 +3,39 @@ import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib
 import PostsPageCrosspostWrapper, { isPostWithForeignId } from "./PostsPageCrosspostWrapper";
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers';
 import { useCurrentUser } from '../../common/withUser';
-import { useMulti } from '../../../lib/crud/withMulti';
 import { useSubscribedLocation } from '../../../lib/routeUtil';
-import { isValidCommentView } from '../../../lib/commentViewOptions';
-import PostsPage, { postsCommentsThreadMultiOptions } from './PostsPage';
-import { useDisplayedPost } from '../usePost';
 import { useApolloClient } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery"
 import { registerComponent } from "../../../lib/vulcan-lib/components";
-import { getFragment } from '@/lib/vulcan-lib/fragments';
+import { gql } from "@/lib/generated/gql-codegen";
+import PostsPage, { postCommentsThreadQuery, usePostCommentTerms } from './PostsPage';
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
 import Error404 from "../../common/Error404";
 import Loading from "../../vulcan-core/Loading";
+import { PostFetchProps } from '@/components/hooks/useForeignCrosspost';
+import { PostsListWithVotes } from '@/lib/collections/posts/fragments';
+import { SequencesPageFragment } from '@/lib/collections/sequences/fragments';
+import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
+
+const PostsWithNavigationAndRevisionQuery = gql(`
+  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsWithNavigationAndRevision
+      }
+    }
+  }
+`);
+
+const PostsWithNavigationQuery = gql(`
+  query PostsPageWrapper($documentId: String, $sequenceId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsWithNavigation
+      }
+    }
+  }
+`);
 
 const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   sequenceId: string|null,
@@ -28,13 +50,13 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   // it loads the rest.
   const apolloClient = useApolloClient();
   const postPreload = apolloClient.cache.readFragment<PostsListWithVotes>({
-    fragment: getFragment("PostsListWithVotes"),
+    fragment: PostsListWithVotes,
     fragmentName: "PostsListWithVotes",
     id: 'Post:'+documentId,
   });
 
   const sequencePreload = apolloClient.cache.readFragment<SequencesPageFragment>({
-    fragment: getFragment("SequencesPageFragment"),
+    fragment: SequencesPageFragment,
     fragmentName: "SequencesPageFragment",
     id: 'Sequence:'+sequenceId,
   });
@@ -44,7 +66,31 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     sequence: sequencePreload,
   } : postPreload;
 
-  const { document: post, refetch, loading, error, fetchProps } = useDisplayedPost(documentId, sequenceId, version);
+  const { loading: postWithoutRevisionLoading, error: postWithoutRevisionError, refetch: refetchPostWithoutRevision, data: postWithoutRevisionData } = useQuery(PostsWithNavigationQuery, {
+    variables: { documentId: documentId, sequenceId },
+    skip: !!version,
+    context: { batchKey: "singlePost" },
+  });
+  const postWithoutRevision = postWithoutRevisionData?.post?.result ?? undefined;
+
+  const { loading: postWithRevisionLoading, error: postWithRevisionError, refetch: refetchPostWithRevision, data: postWithRevisionData } = useQuery(PostsWithNavigationAndRevisionQuery, {
+    variables: { documentId: documentId, sequenceId, version },
+    skip: !version,
+    context: { batchKey: "singlePost" },
+  });
+  const postWithRevision = postWithRevisionData?.post?.result ?? undefined;
+
+  const post = version ? postWithRevision : postWithoutRevision;
+  const loading = version ? postWithRevisionLoading : postWithoutRevisionLoading;
+  const error = version ? postWithRevisionError : postWithoutRevisionError;
+  const refetch = version ? refetchPostWithRevision : refetchPostWithoutRevision;
+
+  const crosspostFetchProps: PostFetchProps<'PostsWithNavigation' | 'PostsWithNavigationAndRevision'> = {
+    collectionName: 'Posts',
+    fragmentName: version ? 'PostsWithNavigationAndRevision' : 'PostsWithNavigation',
+    extraVariables: { sequenceId: 'String', ...(version ? { version: 'String' } : {}) },
+    extraVariablesValues: { sequenceId, ...(version ? { version } : {}) },
+  };
 
   // This section is a performance optimisation to make comment fetching start as soon as possible rather than waiting for
   // the post to be fetched first. This is mainly beneficial in SSR. We don't preload comments if the post was preloaded
@@ -55,24 +101,27 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   // less than 1/1000 posts have it set. If it is set the consequences are that the comments will be fetched twice. This shouldn't
   // cause any rerendering or significant performance cost (relative to only fetching them once) because the second fetch doesn't wait
   // for the first to finish.
-  const defaultView = commentGetDefaultView(null, currentUser)
-  // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
-  const commentOpts = {includeAdminViews: currentUser?.isAdmin};
-  const terms: CommentsViewTerms = isValidCommentView(query.view, commentOpts)
-    ? {...(query as CommentsViewTerms), limit:1000}
-    : {view: defaultView, limit: 1000, postId: documentId}
+  const defaultView = commentGetDefaultView(null, currentUser);
+  const defaultTerms = { view: defaultView, limit: 1000, postId: documentId };
+  const { terms, view, limit } = usePostCommentTerms(currentUser, defaultTerms, query);
 
   // Don't pass in the eagerPostComments if we skipped the query,
   // otherwise PostsPage will skip the lazy query if the terms change
   const skipEagerComments = !!postPreload;
-  const commentQueryResult = useMulti({
-    terms,
+
+  const commentQueryResult = useQueryWithLoadMore(postCommentsThreadQuery, {
+    variables: {
+      selector: { [view]: terms },
+      limit,
+      enableTotal: true,
+    },
     skip: skipEagerComments,
-    ...postsCommentsThreadMultiOptions,
+    fetchPolicy: 'cache-and-network' as const,
   });
+
   const eagerPostComments = skipEagerComments
     ? undefined
-    : { terms, queryResponse: commentQueryResult };
+    : { terms: { ...terms, view }, queryResponse: commentQueryResult };
     
   // End of performance section
   if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
@@ -90,7 +139,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   } else if (!post && !postPreloadWithSequence) {
     return <Error404/>
   } else if (post && isPostWithForeignId(post)) {
-    return <PostsPageCrosspostWrapper post={post} eagerPostComments={eagerPostComments} refetch={refetch} fetchProps={fetchProps} />
+    return <PostsPageCrosspostWrapper post={post} eagerPostComments={eagerPostComments} refetch={refetch} fetchProps={crosspostFetchProps} />
   }
 
   return (

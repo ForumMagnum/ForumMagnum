@@ -24,7 +24,7 @@ export const conversationGetFriendlyTitle = (conversation: ConversationsList, cu
     return conversation.title
   }
 
-  const otherParticipants = conversation.participants.filter((u)=> u._id !== currentUser._id)
+  const otherParticipants = conversation.participants?.filter((u)=> u._id !== currentUser._id) ?? [];
   const participantNames = otherParticipants.map(participant => participant.displayName);
 
   if (participantNames.length > 0) {

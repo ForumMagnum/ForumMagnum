@@ -1,4 +1,3 @@
-import { useUpdate } from '@/lib/crud/withUpdate';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { isBookUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useForm } from '@tanstack/react-form';
@@ -18,6 +17,18 @@ import LWTooltip from "../common/LWTooltip";
 import Error404 from "../common/Error404";
 import SectionTitle from "../common/SectionTitle";
 import ContentStyles from "../common/ContentStyles";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const UsersEditUpdateMutation = gql(`
+  mutation updateUserEditPaymentInfoPage($selector: SelectorInput!, $data: UpdateUserDataInput!) {
+    updateUser(selector: $selector, data: $data) {
+      data {
+        ...UsersEdit
+      }
+    }
+  }
+`);
 
 const styles = defineStyles('EditPaymentInfoPage', (theme: ThemeType) => ({
   root: {
@@ -45,10 +56,7 @@ const UserPaymentInfoForm = ({
   const classes = useStyles(styles);
   const formType = initialData ? 'edit' : 'new';
 
-  const { mutate } = useUpdate({
-    collectionName: 'Users',
-    fragmentName: 'UsersEdit',
-  });
+  const [mutate] = useMutation(UsersEditUpdateMutation);
 
   const form = useForm({
     defaultValues: {
@@ -59,10 +67,15 @@ const UserPaymentInfoForm = ({
 
       const updatedFields = getUpdatedFieldValues(formApi);
       const { data } = await mutate({
-        selector: { _id: initialData?._id },
-        data: updatedFields,
+        variables: {
+          selector: { _id: initialData?._id },
+          data: updatedFields
+        }
       });
-      result = data?.updateUser.data;
+      if (!data?.updateUser?.data) {
+        throw new Error('Failed to update user');
+      }
+      result = data.updateUser.data;
 
       onSuccess(result);
     },

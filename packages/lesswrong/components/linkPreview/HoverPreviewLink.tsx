@@ -100,65 +100,65 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
         if (PreviewComponent) {
           return <AnalyticsContext pageElementContext="linkPreview" href={destinationUrl} hoverPreviewType={previewComponentName} onsite>
             <NoSideItems>
-              <PreviewComponent href={destinationUrl} targetLocation={parsedUrl} id={id} noPrefetch={noPrefetch}>
+              <PreviewComponent href={destinationUrl} targetLocation={parsedUrl} id={id} noPrefetch={noPrefetch} className={className}>
                 {children}
               </PreviewComponent>
             </NoSideItems>
           </AnalyticsContext>
         } else {
-          return <DefaultPreview href={href} id={id} rel={rel}>
+          return <DefaultPreview href={href} id={id} rel={rel} className={className}>
             {children}
           </DefaultPreview>
         }
       }
     } else {
       if (linkTargetAbsolute.host === "metaculus.com" || linkTargetAbsolute.host === "www.metaculus.com") {
-        return <MetaculusPreview href={href} id={id}>
+        return <MetaculusPreview href={href} id={id} className={className}>
           {children}
         </MetaculusPreview>
       }
       if (linkTargetAbsolute.host === "manifold.markets" || linkTargetAbsolute.host === "www.manifold.markets") {
-        return <ManifoldPreview href={href} id={id}>
+        return <ManifoldPreview href={href} id={id} className={className}>
           {children}
         </ManifoldPreview>
       }
 
       if (linkTargetAbsolute.host === "fatebook.io" || linkTargetAbsolute.host === "www.fatebook.io") {
-        return <FatebookPreview href={href} id={id}>
+        return <FatebookPreview href={href} id={id} className={className}>
           {children}
         </FatebookPreview>
       }
       if (linkTargetAbsolute.host === "neuronpedia.org" || linkTargetAbsolute.host === "www.neuronpedia.org") {
-        return <NeuronpediaPreview href={href} id={id}>
+        return <NeuronpediaPreview href={href} id={id} className={className}>
           {children}
         </NeuronpediaPreview>
       }
       if (linkTargetAbsolute.host === "metaforecast.org" || linkTargetAbsolute.host === "www.metaforecast.org") {
-        return <MetaforecastPreview href={href} id={id}>
+        return <MetaforecastPreview href={href} id={id} className={className}>
           {children}
         </MetaforecastPreview>
       }
       if (linkTargetAbsolute.host === "ourworldindata.org") {
-        return <OWIDPreview href={href} id={id}>
+        return <OWIDPreview href={href} id={id} className={className}>
           {children}
         </OWIDPreview>
       }
       if (linkTargetAbsolute.host === "arbital.com" || linkTargetAbsolute.host === "www.arbital.com") {
-        return <ArbitalPreview href={href} id={id}>
+        return <ArbitalPreview href={href} id={id} className={className}>
           {children}
         </ArbitalPreview>
       }
       if (linkTargetAbsolute.host === "estimaker.app" || linkTargetAbsolute.host === "www.estimaker.app") {
-        return <EstimakerPreview href={href} id={id}>
+        return <EstimakerPreview href={href} id={id} className={className}>
           {children}
         </EstimakerPreview>
       }
       if (linkTargetAbsolute.host === "viewpoints.xyz" || linkTargetAbsolute.host === "www.viewpoints.xyz") {
-        return <ViewpointsPreview href={href} id={id}>
+        return <ViewpointsPreview href={href} id={id} className={className}>
           {children}
         </ViewpointsPreview>
       }
-      return <DefaultPreview href={href} id={id} rel={rel}>
+      return <DefaultPreview href={href} id={id} rel={rel} className={className}>
         {children}
       </DefaultPreview>
     }

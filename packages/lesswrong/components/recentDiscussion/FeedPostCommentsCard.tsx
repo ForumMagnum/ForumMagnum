@@ -174,8 +174,8 @@ const FeedPostCommentsCard = ({
   commentTreeOptions = {},
   classes,
 }: {
-  post: PostsRecentDiscussion,
-  comments?: Array<CommentsList>,
+  post: PostsList,
+  comments?: Array<CommentsList> | null,
   refetch: () => void,
   expandPost?: boolean,
   expandAllThreads?: boolean,

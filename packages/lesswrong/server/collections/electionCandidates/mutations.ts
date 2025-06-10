@@ -87,16 +87,16 @@ export const updateElectionCandidateGqlMutation = makeGqlUpdateMutation('Electio
 
 
 export const graphqlElectionCandidateTypeDefs = gql`
-  input CreateElectionCandidateDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateElectionCandidateDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateElectionCandidateInput {
     data: CreateElectionCandidateDataInput!
   }
   
-  input UpdateElectionCandidateDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateElectionCandidateDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateElectionCandidateInput {

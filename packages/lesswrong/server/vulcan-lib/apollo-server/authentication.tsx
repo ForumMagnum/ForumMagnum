@@ -7,7 +7,6 @@ import { getClientIP } from '@/server/utils/getClientIP';
 import Users from "../../../server/collections/users/collection";
 import { hashLoginToken, userIsBanned } from "../../loginTokens";
 import { LegacyData } from '../../../server/collections/legacyData/collection';
-import { AuthenticationError } from 'apollo-server'
 import { emailTokenTypesByName } from "../../emails/emailTokens";
 import { wrapAndSendEmail } from '../../emails/renderEmail';
 import SimpleSchema from 'simpl-schema';
@@ -166,11 +165,11 @@ export const loginDataGraphQLMutations = {
     await promisifiedAuthenticate(req, res, 'graphql-local', { username, password }, (err, user, info) => {
       return new Promise((resolve, reject) => {
         if (err) throw Error(err)
-        if (!user) throw new AuthenticationError("Invalid username/password")
-        if (userIsBanned(user)) throw new AuthenticationError("This user is banned")
+        if (!user) throw new Error("Invalid username/password")
+        if (userIsBanned(user)) throw new Error("This user is banned")
 
         req!.logIn(user, async (err: AnyBecauseTodo) => {
-          if (err) throw new AuthenticationError(err)
+          if (err) throw new Error(err)
           token = await createAndSetToken(req, res, user)
           resolve(token)
         })

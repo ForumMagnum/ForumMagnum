@@ -1,11 +1,23 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { useMulti } from '../../../lib/crud/withMulti';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import LWDialog from "../../common/LWDialog";
 import SubforumSubscribeSection from "./SubforumSubscribeSection";
 import SubforumMember from "./SubforumMember";
 import Loading from "../../vulcan-core/Loading";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const UsersProfileMultiQuery = gql(`
+  query multiUserSubforumMembersDialogQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UsersProfile
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   titleRow: {
@@ -39,12 +51,17 @@ const SubforumMembersDialog = ({classes, onClose, tag}: {
   onClose: () => void,
   tag: TagSubforumFragment,
 }) => {
-  const { results: members, loading } = useMulti({
-    terms: {view: 'tagCommunityMembers', profileTagId: tag?._id, limit: 100},
-    collectionName: 'Users',
-    fragmentName: 'UsersProfile',
-    skip: !tag
-  })
+  const { data, loading } = useQuery(UsersProfileMultiQuery, {
+    variables: {
+      selector: { tagCommunityMembers: { profileTagId: tag?._id } },
+      limit: 100,
+      enableTotal: false,
+    },
+    skip: !tag,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const members = data?.users?.results;
   
   const organizers: UsersProfile[] = []
   const otherMembers: UsersProfile[] = []

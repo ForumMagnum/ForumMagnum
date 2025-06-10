@@ -1,5 +1,5 @@
 import { registerMigration, migrateDocuments } from './migrationUtils';
-import { getEditableCollectionNames } from '@/lib/editor/editableSchemaFieldHelpers';
+import { getEditableCollectionNames } from '@/server/editor/editableSchemaFieldHelpers';
 import { getCollection } from '../collections/allCollections';
 import * as _ from 'underscore';
 

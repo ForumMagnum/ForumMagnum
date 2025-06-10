@@ -39,7 +39,7 @@ const styles = defineStyles('MultiSelectButtons', (theme: ThemeType) => ({
 }));
 
 interface MultiSelectButtonsProps {
-  field: TypedFieldApi<string[]> | TypedFieldApi<string[] | null>;
+  field: TypedFieldApi<string[]> | TypedFieldApi<string[] | null | undefined>;
   label?: string;
   options: Array<{ value: string; label?: string }>;
   className?: string;

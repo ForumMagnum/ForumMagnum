@@ -16,7 +16,7 @@ import { updateDenormalizedContributorsList } from "@/server/utils/contributorsU
 import { buildRevision } from "@/server/editor/conversionUtils";
 import { Users } from "@/server/collections/users/collection";
 import { getCollection } from "@/server/collections/allCollections";
-import { getEditableFieldInCollection } from '@/lib/editor/editableSchemaFieldHelpers';
+import { getEditableFieldInCollection } from '@/server/editor/editableSchemaFieldHelpers';
 
 export const reconvertArbitalMarkdown  = async (mysqlConnectionString: string, options: ArbitalImportOptions) => {
   const optionsWithDefaults: ArbitalImportOptions = {...defaultArbitalImportOptions, ...options};

@@ -9,7 +9,6 @@ import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsType
 import { useUltraFeedObserver } from "./UltraFeedObserver";
 import { useRecordPostView } from "../hooks/useRecordPostView";
 import classnames from "classnames";
-import { useSingle } from "../../lib/crud/withSingle";
 import { highlightMaxChars } from "../../lib/editor/ellipsize";
 import { useOverflowNav } from "./OverflowNavObserverContext";
 import { useDialog } from "../common/withDialog";
@@ -24,12 +23,34 @@ import FeedContentBody from "./FeedContentBody";
 import UltraFeedItemFooter from "./UltraFeedItemFooter";
 import Loading from "../vulcan-core/Loading";
 import OverflowNavButtons from "./OverflowNavButtons";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import UltraFeedPostActions from "./UltraFeedPostActions";
 import BookmarksIcon from "@/lib/vendor/@material-ui/icons/src/Bookmarks";
 import ClockIcon from "@/lib/vendor/@material-ui/icons/src/AccessTime";
 import SubscriptionsIcon from "@/lib/vendor/@material-ui/icons/src/NotificationsNone";
 import LWTooltip from "../common/LWTooltip";
 import { SparkleIcon } from "../icons/sparkleIcon";
+
+const localPostQuery = gql(`
+  query LocalPostQuery($documentId: String!) {
+    post(selector: { _id: $documentId }) {
+      result {
+        ...UltraFeedPostFragment
+      }
+    }
+  }
+`);
+
+const foreignPostQuery = gql(`
+  query ForeignPostQuery($documentId: String!) {
+    post(selector: { _id: $documentId }) {
+      result {
+        ...PostsPage
+      }
+    }
+  }
+`);
 
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
@@ -288,14 +309,29 @@ const UltraFeedPostItem = ({
   const [resetSig, setResetSig] = useState(0);
   const [isContentExpanded, setIsContentExpanded] = useState(false);
 
-  const { document: fullPost, loading: loadingFullPost } = useSingle({
-    documentId,
-    collectionName: "Posts",
-    apolloClient: isForeignCrosspost ? apolloClient : undefined,
-    fragmentName: isForeignCrosspost ? "PostsPage" : "UltraFeedPostFragment",
+  const { data: localPostData, loading: loadingLocalPost } = useQuery(localPostQuery, {
+    skip: isForeignCrosspost || !isLoadingFull,
     fetchPolicy: "cache-first",
-    skip: !isLoadingFull
+    variables: {
+      documentId,
+    },
   });
+
+  const localPost = localPostData?.post?.result;
+
+  const { data: foreignPostData, loading: loadingForeignPost } = useQuery(foreignPostQuery, {
+    skip: !isForeignCrosspost || !isLoadingFull,
+    fetchPolicy: "cache-first",
+    variables: {
+      documentId,
+    },
+    client: apolloClient,
+  });
+
+  const foreignPost = foreignPostData?.post?.result;
+
+  const fullPost = isForeignCrosspost ? foreignPost : localPost;
+  const loadingFullPost = isForeignCrosspost ? loadingForeignPost : loadingLocalPost;
 
   useEffect(() => {
     const currentElement = elementRef.current;

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useCurrentUser } from "../common/withUser";
 import { userIsAdminOrMod } from "../../lib/vulcan-users/permissions";
-import { useMulti } from "../../lib/crud/withMulti";
 import { getUserFromResults } from "../users/UsersProfile";
 import { useMultiPostAnalytics } from "../hooks/useAnalytics";
 import classNames from "classnames";
@@ -21,6 +20,19 @@ import ForumIcon from "../common/ForumIcon";
 import LWTooltip from "../common/LWTooltip";
 import AnalyticsPostItem from "./AnalyticsPostItem";
 import AnalyticsPostItemSkeleton from "./AnalyticsPostItemSkeleton";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const UsersMinimumInfoMultiQuery = gql(`
+  query multiUserAuthorAnalyticsPageQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UsersMinimumInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 export const mdTitleWidth = 60;
 export const smTitleWidth = 50;
@@ -169,13 +181,17 @@ const AuthorAnalyticsPage = ({ classes }: {
   const slug = slugify(params.slug);
   const currentUser = useCurrentUser();
 
-  const {results} = useMulti({
-    terms: { view: "usersProfile", slug },
-    collectionName: "Users",
-    fragmentName: "UsersMinimumInfo",
-    enableTotal: false,
+  const { data: userData } = useQuery(UsersMinimumInfoMultiQuery, {
+    variables: {
+      selector: { usersProfile: { slug } },
+      limit: 10,
+      enableTotal: false,
+    },
     fetchPolicy: "cache-and-network",
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = userData?.users?.results;
   const user = getUserFromResults(results);
 
   const { sortBy, sortDesc: sortDescRaw } = query;

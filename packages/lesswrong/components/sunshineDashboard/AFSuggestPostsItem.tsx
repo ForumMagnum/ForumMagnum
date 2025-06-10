@@ -1,7 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { postSuggestForAlignment, postUnSuggestForAlignment } from '../../lib/alignment-forum/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
@@ -11,7 +10,6 @@ import UndoIcon from '@/lib/vendor/@material-ui/icons/src/Undo';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
 import {DatabasePublicSetting} from "../../lib/publicSettings";
-import { useUpdate } from '../../lib/crud/withUpdate';
 import SunshineListItem from "./SunshineListItem";
 import SidebarHoverOver from "./SidebarHoverOver";
 import ContentStyles from "../common/ContentStyles";
@@ -23,6 +21,20 @@ import FormatDate from "../common/FormatDate";
 import SidebarActionMenu from "./SidebarActionMenu";
 import SidebarAction from "./SidebarAction";
 import OmegaIcon from "../icons/OmegaIcon";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen/gql";
+import uniq from 'lodash/uniq';
+import without from 'lodash/without';
+
+const SuggestAlignmentPostUpdateMutation = gql(`
+  mutation updatePostAFSuggestPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
+    updatePost(selector: $selector, data: $data) {
+      data {
+        ...SuggestAlignmentPost
+      }
+    }
+  }
+`);
 
 export const defaultAFModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultAFModeratorPMsTagSlug', "af-default-moderator-responses")
 
@@ -55,27 +67,28 @@ const AFSuggestPostsItem = ({post, classes}: {
   const currentUser = useCurrentUser();
   const { hover, anchorEl, eventHandlers } = useHover();
   
-  const { mutate: updatePost } = useUpdate({
-    collectionName: "Posts",
-    fragmentName: 'SuggestAlignmentPost',
-  });
+  const [updatePost] = useMutation(SuggestAlignmentPostUpdateMutation);
 
   const handleMoveToAlignment = () => {
     void updatePost({
-      selector: {_id: post._id},
-      data: {
-        reviewForAlignmentUserId: currentUser!._id,
-        afDate: new Date(),
-        af: true,
+      variables: {
+        selector: { _id: post._id },
+        data: {
+          reviewForAlignmentUserId: currentUser!._id,
+          afDate: new Date(),
+          af: true,
+        }
       }
     })
   }
 
   const handleDisregardForAlignment = () => {
     void updatePost({
-      selector: {_id: post._id},
-      data: {
-        reviewForAlignmentUserId: currentUser!._id,
+      variables: {
+        selector: { _id: post._id },
+        data: {
+          reviewForAlignmentUserId: currentUser!._id,
+        }
       }
     })
   }
@@ -125,11 +138,25 @@ const AFSuggestPostsItem = ({post, classes}: {
         </SidebarInfo>
         { hover && <SidebarActionMenu>
           { userHasVoted ?
-            <SidebarAction title="Unendorse for Alignment" onClick={()=>postUnSuggestForAlignment({currentUser, post, updatePost})}>
+            <SidebarAction title="Unendorse for Alignment" onClick={() => (
+              void updatePost({
+                variables: {
+                  selector: { _id: post._id },
+                  data: { suggestForAlignmentUserIds: without(post.suggestForAlignmentUserIds, currentUser._id) }
+                }
+              })
+            )}>
               <UndoIcon/>
             </SidebarAction>
             :
-            <SidebarAction title="Endorse for Alignment" onClick={()=>postSuggestForAlignment({currentUser, post, updatePost})}>
+            <SidebarAction title="Endorse for Alignment" onClick={() => (
+              void updatePost({
+                variables: {
+                  selector: { _id: post._id },
+                  data: { suggestForAlignmentUserIds: uniq([...post.suggestForAlignmentUserIds, currentUser._id]) }
+                }
+              })
+            )}>
               <PlusOneIcon/>
             </SidebarAction>
           }

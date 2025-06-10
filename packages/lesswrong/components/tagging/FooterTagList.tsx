@@ -1,6 +1,7 @@
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
-import { useMutation, gql } from '@apollo/client';
+import { useMutation, NetworkStatus } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from '@/lib/generated/gql-codegen';
 import { useCurrentUser } from '../common/withUser';
 import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
 import { contentTypes } from '../posts/PostsPage/ContentType';
@@ -17,13 +18,13 @@ import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { AnnualReviewMarketInfo } from '../../lib/collections/posts/annualReviewMarkets';
 import { stableSortTags } from '../../lib/collections/tags/helpers';
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 import HoverOver from "../common/HoverOver";
 import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
 import AddTagButton from "./AddTagButton";
 import CoreTagsChecklist from "./CoreTagsChecklist";
 import PostsAnnualReviewMarketTag from "../posts/PostsAnnualReviewMarketTag";
+import { apolloSSRFlag } from "@/lib/helpers";
 
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI ? {
@@ -142,7 +143,7 @@ const FooterTagList = ({
   neverCoreStyling = false,
   tagRight = true,
 }: {
-  post: Pick<PostsListBase, '_id' | 'createdAt' | 'tags' | 'curatedDate' | 'frontpageDate' | 'reviewedByUserId' | 'isEvent' | 'postCategory'>,
+  post: Pick<PostsList, '_id' | 'createdAt' | 'tags' | 'curatedDate' | 'frontpageDate' | 'reviewedByUserId' | 'isEvent' | 'postCategory'>,
   hideScore?: boolean,
   hideAddTag?: boolean,
   useAltAddTagButton?: boolean,
@@ -178,18 +179,30 @@ const FooterTagList = ({
   // - (somewhat speculative) It allows the mutation to be handled more seamlessly
   // (incrementing the score and reordering the tags) by updating the result of
   // this query
-  const { results, loading, loadingInitial, refetch } = useMulti({
-    terms: {
-      view: "tagsOnPost",
-      postId: post._id,
+  // The fragment in this query must match the mutation below
+  const { data, loading, refetch, networkStatus } = useQuery(gql(`
+    query multiTagRelFooterTagListQuery($selector: TagRelSelector, $limit: Int, $enableTotal: Boolean) {
+      tagRels(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+        results {
+          ...TagRelMinimumFragment
+        }
+        totalCount
+      }
+    }
+  `), {
+    variables: {
+      selector: { tagsOnPost: { postId: post._id } },
+      limit: 100,
+      enableTotal: false,
     },
-    collectionName: "TagRels",
-    fragmentName: "TagRelMinimumFragment", // Must match the fragment in the mutation
-    limit: 100,
     fetchPolicy: 'cache-and-network',
     // Only fetch this as a follow-up query on the client
-    ssr: false,
+    ssr: apolloSSRFlag(false),
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.tagRels?.results;
+  const loadingInitial = networkStatus === NetworkStatus.loading;
 
   const checkShouldDisplayShowAll = useCallback(() => {
     if (!showAll && rootRef.current) {
@@ -232,14 +245,14 @@ const FooterTagList = ({
     skip: isLWorAF || !tagIds.length || loading
   });
 
-  const [mutate] = useMutation(gql`
+  // The fragment in this mutation must match the query above
+  const [mutate] = useMutation(gql(`
     mutation addOrUpvoteTag($tagId: String, $postId: String) {
       addOrUpvoteTag(tagId: $tagId, postId: $postId) {
         ...TagRelMinimumFragment
       }
     }
-    ${fragmentTextForQuery("TagRelMinimumFragment")}
-  `);
+  `));
 
   const onTagSelected = useCallback(async ({tagId, tagName}: {tagId: string, tagName: string}) => {
     try {
@@ -251,7 +264,7 @@ const FooterTagList = ({
         },
       });
       setIsAwaiting(false);
-      refetch();
+      void refetch();
       captureEvent("tagAddedToItem", {tagId, tagName});
     } catch (e) {
       setIsAwaiting(false);

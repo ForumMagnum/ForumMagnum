@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from "@/lib/generated/gql-codegen";
 
-export const ConversationsMinimumInfo = () => frag`
+export const ConversationsMinimumInfo = gql(`
   fragment ConversationsMinimumInfo on Conversation {
     _id
     createdAt
@@ -11,9 +11,9 @@ export const ConversationsMinimumInfo = () => frag`
     messageCount
     moderator
   }
-`
+`)
 
-export const ConversationsList = () => frag`
+export const ConversationsList = gql(`
   fragment ConversationsList on Conversation {
     ...ConversationsMinimumInfo
     participants {
@@ -23,11 +23,11 @@ export const ConversationsList = () => frag`
       ...messageListFragment
     }
   }
-`
+`)
 
-export const ConversationsListWithReadStatus = () => frag`
+export const ConversationsListWithReadStatus = gql(`
   fragment ConversationsListWithReadStatus on Conversation {
     ...ConversationsList
     hasUnreadMessages
   }
-`
+`)

@@ -1,10 +1,22 @@
 import React from 'react';
 import { registerComponent } from '../../../../lib/vulcan-lib/components';
-import { useMulti } from '../../../../lib/crud/withMulti';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { PostWithArtGrid } from './PostWithArtGrid';
 import GenerateImagesButton from '@/components/review/GenerateImagesButton';
 import Loading from "../../../vulcan-core/Loading";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const ReviewWinnerArtImagesMultiQuery = gql(`
+  query multiReviewWinnerArtSplashImageEditingOptionsQuery($selector: ReviewWinnerArtSelector, $limit: Int, $enableTotal: Boolean) {
+    reviewWinnerArts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ReviewWinnerArtImages
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = defineStyles("SplashImageEditingOptions", (theme: ThemeType) => ({
   root: { 
@@ -38,15 +50,16 @@ export const SplashImageEditingOptions = ({ post }: {
 }) => {
   const classes = useStyles(styles);
 
-  const { results: images, loading } = useMulti({
-    collectionName: 'ReviewWinnerArts',
-    fragmentName: 'ReviewWinnerArtImages',
-    terms: {
-      view: 'postArt',
-      postId: post._id,
+  const { data, loading } = useQuery(ReviewWinnerArtImagesMultiQuery, {
+    variables: {
+      selector: { postArt: { postId: post._id } },
       limit: 200,
-    }
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const images = data?.reviewWinnerArts?.results;
 
   return (
     <div className={classes.root}>

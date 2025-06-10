@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from "@/lib/generated/gql-codegen";
 
-export const newEventFragment = () => frag`
+export const newEventFragment = gql(`
   fragment newEventFragment on LWEvent {
     _id
     createdAt
@@ -10,9 +10,9 @@ export const newEventFragment = () => frag`
     properties
     intercom
   }
-`
+`)
 
-export const lastEventFragment = () => frag`
+export const lastEventFragment = gql(`
   fragment lastEventFragment on LWEvent {
     _id
     createdAt
@@ -23,9 +23,9 @@ export const lastEventFragment = () => frag`
     properties
     intercom
   }
-`
+`)
 
-export const lwEventsAdminPageFragment = () => frag`
+export const lwEventsAdminPageFragment = gql(`
   fragment lwEventsAdminPageFragment on LWEvent {
     _id
     createdAt
@@ -39,9 +39,9 @@ export const lwEventsAdminPageFragment = () => frag`
     properties
     intercom
   }
-`
+`)
 
-export const emailHistoryFragment = () => frag`
+export const emailHistoryFragment = gql(`
   fragment emailHistoryFragment on LWEvent {
     _id
     createdAt
@@ -49,4 +49,4 @@ export const emailHistoryFragment = () => frag`
     name
     properties
   }
-`
+`)

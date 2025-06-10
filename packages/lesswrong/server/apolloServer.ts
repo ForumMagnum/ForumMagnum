@@ -1,12 +1,14 @@
-import { ApolloServer, makeExecutableSchema } from 'apollo-server-express';
+import { ApolloServer, ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from '@apollo/server';
+import { expressMiddleware } from '@as-integrations/express5';
+import { makeExecutableSchema } from '@graphql-tools/schema';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
+import cors from 'cors';
 
 import { isDevelopment, isE2E } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
 import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
-import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
-import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
+import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql'; 
 import { getUserFromReq, configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
@@ -43,7 +45,7 @@ import { botRedirectMiddleware } from './botRedirect';
 import { hstsMiddleware } from './hsts';
 import { getClientBundle } from './utils/bundleUtils';
 import ElasticController from './search/elastic/ElasticController';
-import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
+// import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
 import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
 import { createAnonymousContext } from './vulcan-lib/createContexts';
@@ -116,7 +118,7 @@ const maybePrefetchResources = ({
 };
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
-  requestDidStart({ request, context }: GraphQLRequestContext<ResolverContext>): GraphQLRequestListener<ResolverContext> {
+  async requestDidStart({ request, contextValue: context }: GraphQLRequestContext<ResolverContext>) {
     const { operationName = 'unknownGqlOperation', query, variables } = request;
 
     //remove sensitive data from variables such as password
@@ -143,7 +145,7 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
     }
     
     return {
-      willSendResponse() { // hook for transaction finished
+      async willSendResponse() { // hook for transaction finished
         if (performanceMetricLoggingEnabled.get()) {
           closePerfMetric(startedRequestMetric);
         }
@@ -154,11 +156,13 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
       }
     };
   }
+
+
 }
 
 export type AddMiddlewareType = typeof app.use;
 
-export function startWebserver() {
+export async function startWebserver() {
   const addMiddleware: AddMiddlewareType = (...args: any[]) => app.use(...args);
   const config = { path: '/graphql' };
   const expressSessionSecret = expressSessionSecretSetting.get()
@@ -226,14 +230,13 @@ export function startWebserver() {
   // create server
   // given options contains the schema
   const apolloServer = new ApolloServer({
-    // graphql playground (replacement to graphiql), available on the app path
-    playground: getPlaygroundConfig(config.path),
+
     introspection: true,
-    debug: isDevelopment,
+    includeStacktraceInErrorResponses: isDevelopment,
     
     schema: makeExecutableSchema({ typeDefs, resolvers }),
-    formatError: (e: GraphQLError): GraphQLFormattedError => {
-      Sentry.captureException(e);
+    formatError: (e): GraphQLFormattedError => {
+      Sentry.captureException(new GraphQLError(e.message, e));
       const {message, ...properties} = e;
       // eslint-disable-next-line no-console
       console.error(`[GraphQLError: ${message}]`, inspect(properties, {depth: null}));
@@ -241,20 +244,35 @@ export function startWebserver() {
       // and that doesn't require a cast here
       return formatError(e) as any;
     },
-    //tracing: isDevelopment,
-    tracing: false,
-    context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
-      const context = await getContextFromReqAndRes({req, res, isSSR: false});
-      configureSentryScope(context);
-      return context;
-    },
     plugins: [new ApolloServerLogging()],
+    allowBatchedHttpRequests: true,
   });
 
   app.use('/graphql', express.json({ limit: '50mb' }));
   app.use('/graphql', express.text({ type: 'application/graphql' }));
   app.use('/graphql', clientIdMiddleware, perfMetricMiddleware);
-  apolloServer.applyMiddleware({ app })
+
+  await apolloServer.start();
+
+  // This sets Access-Control-Allow-Origin to *.
+  // As of v4, Apollo Server has a CSRF prevention feature enabled by default.
+  // It requires that clients either send a content-type header that indicates the request must have already been pre-flighted,
+  // or include one of the `x-apollo-operation-name` or `apollo-require-preflight` headers.
+  // Confusingly, I experienced the CSRF-prevention error in both the github action and locally when testing crossposting,
+  // in the _preflight_ OPTIONS request, which of course doesn't have any of those headers.
+  // I... don't really understand why setting the Access-Control-Allow-Origin header here prevents Apollo Server from
+  // rejecting the preflight request, but it does seem to do that.
+  // (Their docs say "You can also choose to omit CORS middleware entirely to disable cross-origin requests",
+  // but if the preflight request was getting rejected for that reason, then it seems like a bug that the server
+  // was returning the CSRF-prevention error in response, which contains instructions that wouldn't help at all.)
+  app.use('/graphql', cors());
+  app.use('/graphql', expressMiddleware(apolloServer, {
+    context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
+      const context = await getContextFromReqAndRes({req, res, isSSR: false});
+      configureSentryScope(context);
+      return context;
+    },
+  }))
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
     const {hash: bundleHash, content: bundleBuffer, brotli: bundleBrotliBuffer} = getClientBundle().resource;

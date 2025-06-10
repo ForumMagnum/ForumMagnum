@@ -1,4 +1,4 @@
-import { generateFragmentTypes, generateFragmentsGqlFile } from './generateFragmentTypes';
+import { generateFragmentTypes } from './generateFragmentTypes';
 import { generateDbTypes } from './generateDbTypes';
 import { generateViewTypes } from './generateViewTypes';
 import { generateSQLSchema } from '../scripts/generateSQLSchema';
@@ -8,7 +8,9 @@ import { generateCollectionTypeNames } from './generateCollectionTypeNames';
 import { generateInputTypes } from './generateInputTypes';
 import { generateDefaultFragmentsFile } from './generateDefaultFragments';
 import { typeDefs } from '../vulcan-lib/apollo-server/initGraphQL';
-import { print } from 'graphql';
+import { generate } from '@graphql-codegen/cli'
+import { DefinitionNode, DocumentNode, FragmentDefinitionNode, Kind, print, visit } from 'graphql';
+import graphqlCodegenConfig from '@/../../codegen.ts';
 
 function enumerateFiles(dirPath: string): string[] {
   let fileList: string[] = [];
@@ -87,7 +89,7 @@ function extractComponentNames(content: string): string[] {
   return components;
 }
 
-export function generateTypes(repoRoot?: string) {
+export async function generateTypes(repoRoot?: string) {
   function writeIfChanged(contents: string, path: string) {
     if (repoRoot) {
       const absPath = repoRoot+path;
@@ -120,10 +122,11 @@ export function generateTypes(repoRoot?: string) {
     //
     // Also, we need to explicitly clear the cache before the dynamic require, because `require` could be caching it
     // from it being imported elsewhere (in unrelated code).
-    const collectionTypeNamesPath = require.resolve("@/lib/generated/collectionTypeNames");
+    const collectionTypeNamesPath = require.resolve("packages/lesswrong/lib/generated/collectionTypeNames");
     require.cache[collectionTypeNamesPath] = undefined;
     const { collectionNameToTypeName, typeNameToCollectionName }: typeof import("@/lib/generated/collectionTypeNames") = require("@/lib/generated/collectionTypeNames");
 
+    writeIfChanged(generateGraphQLSchemaFile(), "/packages/lesswrong/lib/generated/gqlSchema.gql");
     writeIfChanged(generateDefaultFragmentsFile(collectionNameToTypeName), "/packages/lesswrong/lib/generated/defaultFragments.ts");
     writeIfChanged(generateInputTypes(), "/packages/lesswrong/lib/generated/inputTypes.d.ts");
     writeIfChanged(generateFragmentTypes(collectionNameToTypeName, typeNameToCollectionName), "/packages/lesswrong/lib/generated/fragmentTypes.d.ts");
@@ -131,7 +134,7 @@ export function generateTypes(repoRoot?: string) {
     writeIfChanged(generateViewTypes(), "/packages/lesswrong/lib/generated/viewTypes.ts");
     writeIfChanged(generateAllComponents(), "/packages/lesswrong/lib/generated/allComponents.ts");
     writeIfChanged(generateNonRegisteredComponentFiles(), "/packages/lesswrong/lib/generated/nonRegisteredComponents.ts");
-    writeIfChanged(generateGraphQLAndFragmentsSchemaFile(collectionNameToTypeName), "/packages/lesswrong/lib/generated/gqlSchemaAndFragments.gql");
+    await generateGraphQLCodegenTypes();
   } catch(e) {
     // eslint-disable-next-line no-console
     console.error(e);
@@ -140,9 +143,9 @@ export function generateTypes(repoRoot?: string) {
 
 // After running this you still need to run:
 //   yarn graphql-codegen --config codegen.yml
-export const generateTypesAndSQLSchema = (rootDir?: string) => {
+export const generateTypesAndSQLSchema = async (rootDir?: string) => {
   generateSQLSchema(rootDir);
-  generateTypes(rootDir);
+  await generateTypes(rootDir);
 }
 
 function generateGraphQLSchemaFile(): string {
@@ -152,6 +155,305 @@ function generateGraphQLSchemaFile(): string {
   return sb.join("");
 }
 
-function generateGraphQLAndFragmentsSchemaFile(collectionNameToTypeName: Record<string,string>): string {
-  return generateGraphQLSchemaFile() + generateFragmentsGqlFile(collectionNameToTypeName);
+async function generateGraphQLCodegenTypes(): Promise<void> {
+  // For some godforsaken reason, manually scanning the `packages/lesswrong` directory
+  // for files that might even plausibly contain any gql makes the codegen faster than 
+  // if we pass in the `packages/lesswrong` directory to the `documents` option.
+  // (~6 seconds vs ~20 seconds.)
+  //
+  // We could hoist this to `generateTypes` to re-use the list of files in `generateFragmentTypes`,
+  // but the scanning is ~100ms and doesn't seem worth it.
+  const filesContainingGql = getFilesMaybeContainingGql("packages/lesswrong");
+
+  graphqlCodegenConfig.documents = filesContainingGql;
+  const fileOutputs = await generate(graphqlCodegenConfig)
+  for (const fileOutput of fileOutputs) {
+    fs.writeFileSync(fileOutput.filename, fileOutput.content.replace("InputMaybe<T> = Maybe<T>", "InputMaybe<T> = T | null | undefined"));
+  }
+  
+  // Normalize fragments to reduce bundle size
+  normalizeFragments();
+}
+
+function fileMightIncludeGql(filePath: string) {
+  const content = fs.readFileSync(filePath, 'utf-8').toLowerCase();
+  return content.includes('gql`') || content.includes('gql(');
+}
+
+function getFilesMaybeContainingGql(dir: string) {
+  const files: string[] = [];
+  
+  function traverse(currentDir: string) {
+    const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+    
+    for (const entry of entries) {
+      if (entry.name === 'gql-codegen') continue;
+      const fullPath = path.join(currentDir, entry.name);
+      
+      if (entry.isDirectory()) {
+        traverse(fullPath);
+      } else if (entry.isFile()
+        && (entry.name.endsWith('.ts') || entry.name.endsWith('.tsx'))
+        && !entry.name.endsWith('.d.ts')
+        && fileMightIncludeGql(fullPath)
+      ) {
+        files.push(fullPath);
+      }
+    }
+  }
+  
+  traverse(dir);
+  // These two files contain dynamically concatenated gql strings, which graphql-codegen isn't a fan of.
+  // Filtering them out is fine as long as we don't define any gql types/operations in them which we need to be codegen'd.
+  return files.filter(f => !f.endsWith('paginatedResolver.ts') && !f.endsWith('votingGraphQL.ts'));;
+}
+
+function normalizeFragments() {
+  const generatedGraphqlFilePath = require.resolve("packages/lesswrong/lib/generated/gql-codegen/graphql");
+  require.cache[generatedGraphqlFilePath] = undefined;
+  const generatedDocumentNodes: Record<string, DocumentNode> = require("@/lib/generated/gql-codegen/graphql");
+
+  // Read the original file content to preserve type definitions
+  const originalContent = fs.readFileSync(generatedGraphqlFilePath, 'utf-8');
+  
+  // Extract imports and type definitions from the original file
+  const importsAndTypes = extractImportsAndTypes(originalContent);
+  
+  // Map to store unique fragment definitions by name
+  const uniqueFragments = new Map<string, FragmentDefinitionNode>();
+  
+  // Map to track which fragments depend on which other fragments
+  const fragmentDependencies = new Map<string, Set<string>>();
+  
+  // Extract all unique fragment definitions from all document nodes
+  for (const [exportName, documentNode] of Object.entries(generatedDocumentNodes)) {
+    if (isDocumentNode(documentNode)) {
+      const doc = documentNode;
+      
+      for (const definition of doc.definitions) {
+        if (definition.kind === Kind.FRAGMENT_DEFINITION) {
+          const fragmentName = definition.name.value;
+          
+          if (!uniqueFragments.has(fragmentName)) {
+            uniqueFragments.set(fragmentName, definition);
+            
+            // Track dependencies - only done once per fragment
+            const dependencies = new Set<string>();
+            visit(definition, {
+              FragmentSpread(node) {
+                dependencies.add(node.name.value);
+              }
+            });
+            
+            fragmentDependencies.set(fragmentName, dependencies);
+          }
+        }
+      }
+    }
+  }
+  
+  // Perform topological sort to order fragments by dependencies
+  const sortedFragmentNames = topologicalSort(fragmentDependencies);
+  
+  // Generate the normalized code
+  const normalizedCode = generateNormalizedGraphQLCode(
+    generatedDocumentNodes,
+    uniqueFragments,
+    sortedFragmentNames,
+    fragmentDependencies,
+    importsAndTypes,
+    originalContent
+  );
+  
+  // Write the normalized code back to the file
+  fs.writeFileSync(generatedGraphqlFilePath, normalizedCode);
+}
+
+function isDocumentNode(obj: any): obj is DocumentNode {
+  return obj && typeof obj === 'object' && 'kind' in obj && obj.kind === Kind.DOCUMENT;
+}
+
+function extractImportsAndTypes(content: string): string {
+  // Extract everything before the first export const
+  const match = content.match(/^([\s\S]*?)(?=export const)/);
+  return match ? match[1] : '';
+}
+
+function generateNormalizedGraphQLCode(
+  documentNodes: Record<string, DocumentNode>,
+  uniqueFragments: Map<string, FragmentDefinitionNode>,
+  sortedFragmentNames: string[],
+  fragmentDependencies: Map<string, Set<string>>,
+  importsAndTypes: string,
+  originalContent: string
+): string {
+  const lines: string[] = [];
+  
+  // Add imports and type definitions
+  lines.push(importsAndTypes.trim());
+  lines.push('');
+  
+  // Generate shared fragment definition objects
+  lines.push('// Shared fragment definitions');
+  for (const fragmentName of sortedFragmentNames) {
+    const fragment = uniqueFragments.get(fragmentName)!;
+    lines.push(`const ${fragmentName}FragmentDef = ${JSON.stringify(fragment)};`);
+  }
+  lines.push('');
+  
+  // Generate normalized document nodes
+  for (const [exportName, documentNode] of Object.entries(documentNodes)) {
+    if (isDocumentNode(documentNode)) {
+      const doc = documentNode;
+      
+      // Create a new document with deduplicated fragments
+      const normalizedDoc = normalizeDocument(doc, fragmentDependencies, exportName);
+      
+      // Generate the export
+      const typeParams = extractTypeParams(exportName, originalContent);
+      lines.push(`export const ${exportName} = ${stringifyDocumentWithFragmentRefs(normalizedDoc)} as unknown as DocumentNode<${typeParams}>;`);
+    } else {
+      // Non-document exports (keep as-is)
+      lines.push(`export const ${exportName} = ${JSON.stringify(documentNode)};`);
+    }
+  }
+  
+  return lines.join('\n');
+}
+
+function normalizeDocument(
+  doc: DocumentNode, 
+  fragmentDependencies: Map<string, Set<string>>, 
+  exportName: string
+) {
+  // Check if this is a fragment document (all definitions are fragments)
+  const isFragmentDocument = doc.definitions.every(def => def.kind === Kind.FRAGMENT_DEFINITION);
+  
+  // Collect directly referenced fragments from this document
+  const directlyReferencedFragments = new Set<string>();
+  const mainDefinitions: DefinitionNode[] = [];
+  let primaryFragmentName: string | null = null;
+  
+  // Single pass through definitions
+  for (const definition of doc.definitions) {
+    if (definition.kind === Kind.FRAGMENT_DEFINITION) {
+      const fragmentName = definition.name.value;
+      
+      // For fragment documents, identify the primary fragment
+      if (isFragmentDocument && exportName === `${fragmentName}Doc`) {
+        primaryFragmentName = fragmentName;
+      }
+    } else {
+      // Keep non-fragment definitions (queries, mutations, subscriptions)
+      mainDefinitions.push(definition);
+    }
+    
+    // Find fragment spreads in any type of definition
+    visit(definition, {
+      FragmentSpread(node) {
+        directlyReferencedFragments.add(node.name.value);
+      }
+    });
+  }
+  
+  // Build the complete set of fragments including transitive dependencies
+  const allFragments = new Set<string>();
+  
+  // Helper to add fragment and all its transitive dependencies
+  function addFragmentWithDependencies(fragmentName: string) {
+    if (allFragments.has(fragmentName)) return;
+    allFragments.add(fragmentName);
+    
+    // Use pre-computed dependencies instead of re-traversing
+    const deps = fragmentDependencies.get(fragmentName);
+    if (deps) {
+      for (const dep of deps) {
+        addFragmentWithDependencies(dep);
+      }
+    }
+  }
+  
+  // For fragment documents, start with the primary fragment
+  if (isFragmentDocument && primaryFragmentName) {
+    addFragmentWithDependencies(primaryFragmentName);
+  }
+  
+  // Add all directly referenced fragments and their dependencies
+  for (const fragmentName of directlyReferencedFragments) {
+    addFragmentWithDependencies(fragmentName);
+  }
+  
+  return {
+    kind: Kind.DOCUMENT,
+    definitions: mainDefinitions,
+    _fragmentRefs: Array.from(allFragments)
+  };
+}
+
+function stringifyDocumentWithFragmentRefs(doc: { definitions: DefinitionNode[], _fragmentRefs: string[] }): string {
+  const { _fragmentRefs, ...docWithoutRefs } = doc;
+  
+  if (!_fragmentRefs || _fragmentRefs.length === 0) {
+    return JSON.stringify(docWithoutRefs);
+  }
+  
+  // Build the document object with fragment references
+  let result = '{"kind":"Document","definitions":[';
+  
+  // Add main definitions
+  const definitions = docWithoutRefs.definitions;
+  for (let i = 0; i < definitions.length; i++) {
+    result += JSON.stringify(definitions[i]);
+    result += ',';
+  }
+  
+  // Add fragment references
+  for (let i = 0; i < _fragmentRefs.length; i++) {
+    result += `${_fragmentRefs[i]}FragmentDef`;
+    if (i < _fragmentRefs.length - 1) {
+      result += ',';
+    }
+  }
+  
+  result += ']}';
+  
+  return result;
+}
+
+function extractTypeParams(exportName: string, originalContent: string): string {
+  // Extract the type parameters from the original export
+  const regex = new RegExp(`export const ${exportName}[^;]*as DocumentNode<([^>]+)>`, 's');
+  const match = originalContent.match(regex);
+  return match ? match[1] : 'any, any';
+}
+
+function topologicalSort(dependencies: Map<string, Set<string>>): string[] {
+  const sorted: string[] = [];
+  const visited = new Set<string>();
+  const visiting = new Set<string>();
+  
+  function visit(node: string) {
+    if (visited.has(node)) return;
+    if (visiting.has(node)) {
+      throw new Error(`Circular dependency detected involving fragment: ${node}`);
+    }
+    
+    visiting.add(node);
+    
+    const deps = dependencies.get(node) || new Set();
+    for (const dep of deps) {
+      visit(dep);
+    }
+    
+    visiting.delete(node);
+    visited.add(node);
+    sorted.push(node);
+  }
+  
+  // Visit all nodes
+  for (const node of dependencies.keys()) {
+    visit(node);
+  }
+  
+  return sorted;
 }

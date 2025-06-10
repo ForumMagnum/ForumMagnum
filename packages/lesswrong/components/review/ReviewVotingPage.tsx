@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
-import { useMutation, gql } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery"
+import { gql } from '@/lib/generated/gql-codegen';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import * as _ from "underscore"
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
 import { getCostData, getReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import { useLocation } from '../../lib/routeUtil';
 import ReviewVoteTableRow, { voteTooltipType } from './ReviewVoteTableRow';
@@ -21,10 +21,20 @@ import ReviewVotingPageMenu, { sortingInfo } from './ReviewVotingPageMenu';
 import { useCommentBox } from '../hooks/useCommentBox';
 import { useDialog } from '../common/withDialog';
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 import ReviewPostForm from "./ReviewPostForm";
 import PostsTagsList from "../tagging/PostsTagsList";
 import LWTooltip from "../common/LWTooltip";
+
+const PostsReviewVotingListMultiQuery = gql(`
+  query multiPostReviewVotingPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsReviewVotingList
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -116,29 +126,34 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
     reviewPhase = query.phase as ReviewPhase
   }
 
-  const { results, loading: postsLoading, error: postsError } = useMulti({
-    terms: {
-      view: reviewPhase === "VOTING" ? "reviewFinalVoting" : "reviewVoting",
-      before: `${reviewYear+1}-01-01`,
-      reviewPhase: reviewPhase,
-      after: `${reviewYear}-01-01`,
+  const { view, limit, ...selectorTerms } = {
+    view: reviewPhase === "VOTING" ? "reviewFinalVoting" : "reviewVoting",
+    before: `${reviewYear + 1}-01-01`,
+    reviewPhase: reviewPhase,
+    after: `${reviewYear}-01-01`,
+    limit: 600,
+  };
+  const { data, error: postsError, loading: postsLoading } = useQuery(PostsReviewVotingListMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
       limit: 600,
+      enableTotal: false,
     },
-    collectionName: "Posts",
-    fragmentName: 'PostsReviewVotingList',
+    skip: !reviewYear,
     fetchPolicy: 'cache-and-network',
-    skip: !reviewYear
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.posts?.results;
   const postsResults = results ?? null;
 
-  const [submitVote] = useMutation(gql`
+  const [submitVote] = useMutation(gql(`
     mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $newQuadraticScore: Int, $comment: String, $year: String, $dummy: Boolean) {
       submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticChange: $quadraticChange, comment: $comment, newQuadraticScore: $newQuadraticScore, year: $year, dummy: $dummy) {
         ...PostsReviewVotingList
       }
     }
-    ${fragmentTextForQuery("PostsReviewVotingList")} 
-  `);
+  `));
 
   const [sortedPosts, setSortedPosts] = useState(postsResults)
   const [loading, setLoading] = useState(false)
@@ -201,21 +216,22 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
   const dispatchQualitativeVote = useCallback(async ({_id, postId, score}: SyntheticQualitativeVote) => {
     
     const post = postsResults?.find(post => post._id === postId)
-    const newPost = {
-      __typename: "Post",
+    const newPost = post ? {
+      __typename: "Post" as const,
       ...post,
       currentUserReviewVote: {
-        __typename: "ReviewVote",
+        __typename: "ReviewVote" as const,
         _id: _id || randomId(),
-        qualitativeScore: score
+        qualitativeScore: score,
+        quadraticScore: 0
       }
-    }
+    } : undefined;
 
     return await submitVote({
       variables: {postId, qualitativeScore: score, year: reviewYear+"", dummy: false},
-      optimisticResponse: {
+      optimisticResponse: newPost ? {
         submitReviewVote: newPost
-      }
+      } : undefined
     })
   }, [submitVote, postsResults, reviewYear]);
 
