@@ -7,6 +7,8 @@ import { updatePost } from "../collections/posts/mutations";
 import Posts from "../collections/posts/collection";
 import Users from "../collections/users/collection";
 
+let marker = 0;
+
 export default registerMigration({
   name: "denormalizeCrossposts",
   dateWritten: "2025-05-21",
@@ -21,6 +23,9 @@ export default registerMigration({
       },
       callback: async (batch) => {
         for (const post of batch) {
+          if (marker++) {
+            break;
+          }
           try {
             const {foreignPostId} = post.fmCrosspost;
             if (!foreignPostId) {
@@ -69,6 +74,7 @@ export default registerMigration({
                 },
               },
             }, context);
+            console.log("DID", post._id);
           } catch (e) {
             console.error(`Error backfilling post ${post._id}:`, e);
           }
