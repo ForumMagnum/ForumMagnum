@@ -1,7 +1,7 @@
 import Cookies from "universal-cookie";
-import { initDatadog } from "../../client/datadogRum";
+import { initDatadog } from "@/client/datadogRum";
 import { ALL_COOKIES, CookieType, isCookieAllowed } from "./utils";
-import { initReCaptcha } from "../../client/reCaptcha";
+import { initReCaptcha } from "@/client/reCaptcha";
 
 type CookiePreferencesChangedCallbackProps = {
   cookiePreferences: CookieType[];
