@@ -336,9 +336,13 @@ const UltraFeedPostItem = ({
   useEffect(() => {
     const currentElement = elementRef.current;
     if (currentElement) {
-      observe(currentElement, { documentId: post._id, documentType: 'post' });
+      observe(currentElement, { 
+        documentId: post._id, 
+        documentType: 'post',
+        servedEventId: postMetaInfo.servedEventId
+      });
     }
-  }, [observe, post._id]);
+  }, [observe, post._id, postMetaInfo.servedEventId]);
 
   const handleContentExpand = useCallback((expanded: boolean, wordCount: number) => {
     setIsContentExpanded(expanded);
@@ -353,6 +357,7 @@ const UltraFeedPostItem = ({
       level: expanded ? 1 : 0,
       maxLevelReached: expanded,
       wordCount,
+      servedEventId: postMetaInfo.servedEventId,
     });
 
     captureEvent("ultraFeedPostItemExpanded", {
@@ -374,6 +379,7 @@ const UltraFeedPostItem = ({
     hasRecordedViewOnExpand, 
     isLoadingFull, 
     fullPost,
+    postMetaInfo.servedEventId,
   ]);
 
   const handleCollapse = () => {
@@ -383,17 +389,41 @@ const UltraFeedPostItem = ({
 
   const handleOpenDialog = useCallback(() => {
     captureEvent("ultraFeedPostItemTitleClicked", {postId: post._id});
+    trackExpansion({
+      documentId: post._id,
+      documentType: 'post',
+      level: 1,
+      maxLevelReached: true,
+      wordCount: post.contents?.wordCount ?? 0,
+      servedEventId: postMetaInfo.servedEventId,
+    });
+    
+    if (!hasRecordedViewOnExpand) {
+      void recordPostView({ post, extraEventProperties: { type: 'ultraFeedExpansion' } });
+      setHasRecordedViewOnExpand(true);
+    }
+    
     openDialog({
       name: "UltraFeedPostDialog",
       closeOnNavigate: true,
       contents: ({ onClose }) => (
         <UltraFeedPostDialog
           {...(fullPost ? { post: fullPost } : { partialPost: post })}
+          postMetaInfo={postMetaInfo}
           onClose={onClose}
         />
       )
     });
-  }, [openDialog, post, captureEvent, fullPost]);
+  }, [
+    openDialog,
+    post,
+    captureEvent,
+    fullPost,
+    trackExpansion,
+    postMetaInfo.servedEventId,
+    hasRecordedViewOnExpand,
+    recordPostView,
+  ]);
 
   const shortformHtml = post.shortform 
     ? `This is a special post for quick takes (aka "shortform"). Only the owner can create top-level comments.`

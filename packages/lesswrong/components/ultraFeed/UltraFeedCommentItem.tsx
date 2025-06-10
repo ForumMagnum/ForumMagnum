@@ -214,7 +214,8 @@ export const UltraFeedCommentItem = ({
       observe(currentElement, {
         documentId: comment._id,
         documentType: 'comment',
-        postId: comment.postId ?? undefined
+        postId: comment.postId ?? undefined,
+        servedEventId: metaInfo.servedEventId
       });
     }
 
@@ -223,7 +224,7 @@ export const UltraFeedCommentItem = ({
         unobserve(currentElement);
       }
     };
-  }, [observe, unobserve, comment._id, comment.postId]);
+  }, [observe, unobserve, comment._id, comment.postId, metaInfo.servedEventId]);
 
   useEffect(() => {
     const initialHighlightState = highlight && !hasBeenLongViewed(comment._id) ? 'highlighted-unviewed' : 'never-highlighted';
@@ -252,6 +253,7 @@ export const UltraFeedCommentItem = ({
       level: expanded ? 1 : 0,
       maxLevelReached: expanded,
       wordCount,
+      servedEventId: metaInfo.servedEventId,
     });
     
     captureEvent("ultraFeedCommentItemExpanded", {
@@ -267,7 +269,7 @@ export const UltraFeedCommentItem = ({
       onChangeDisplayStatus("expanded");
     }
 
-  }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus]);
+  }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus, metaInfo.servedEventId]);
 
   const handleContinueReadingClick = useCallback(() => {
     captureEvent("ultraFeedCommentItemContinueReadingClicked", { commentId: comment._id, postId: comment.postId });
