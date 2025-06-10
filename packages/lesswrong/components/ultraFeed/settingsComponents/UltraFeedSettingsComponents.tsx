@@ -430,7 +430,8 @@ const checkForNonstandardValues = (originalSettings: UltraFeedSettingsType) => {
 
   const { displaySettings } = originalSettings;
 
-  if (displaySettings.lineClampNumberOfLines !== 0) return true;
+  // Temporarily commenting out lineclamp check while broken
+  // if (displaySettings.lineClampNumberOfLines !== 0) return true;
 
   // Check if the current word count settings match standard truncation levels
   if (!allowedCommentValues.has(displaySettings.commentCollapsedInitialWords)) return true;
@@ -580,6 +581,7 @@ export const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProp
 
       <div className={classes.truncationSection}>
         <h4 className={classes.truncationSectionTitle}>Comments</h4>
+        {/* Temporarily commenting out lineclamp settings while broken
         <TruncationInput
           field="lineClampNumberOfLines"
           value={values.lineClampNumberOfLines}
@@ -595,6 +597,7 @@ export const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProp
             When line clamp is non-zero, deemphasized comments are truncated based on number of lines instead of word count.
           </p>
         )}
+        */}
         <p className={classes.groupDescription}>
           Some comments are deemphasized and will be truncated to a shorter length.
         </p>
@@ -604,7 +607,6 @@ export const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProp
           onChange={onWordCountChange}
           label="Initial (deemphasized)"
           error={errors.commentCollapsedInitialWords}
-          disabled={values.lineClampNumberOfLines !== 0 && values.lineClampNumberOfLines !== ''}
         />
         <TruncationInput
           field="commentExpandedInitialWords"

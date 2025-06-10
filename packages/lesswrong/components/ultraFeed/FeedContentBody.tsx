@@ -167,7 +167,7 @@ const FeedContentBody = ({
   }, [resetSignal]);
 
   const currentWordLimit = isExpanded ? maxWordCount : initialWordCount;
-  const applyLineClamp = clampOverride && clampOverride > 0 && !isExpanded;
+  const applyLineClamp = false //clampOverride && clampOverride > 0 && !isExpanded; //to-do fix and reenable
 
   const handleExpand = useCallback(() => {
     if (isExpanded) return;
