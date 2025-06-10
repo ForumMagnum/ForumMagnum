@@ -195,7 +195,6 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
       });
       ev.preventDefault();
     } else {
-      console.log("Expanding collapsed footnotes and following link");
       window.dispatchEvent(new CustomEvent(EXPAND_FOOTNOTES_EVENT, {detail: href}));
     }
   }, [href, footnoteHTML, openDialog]);
