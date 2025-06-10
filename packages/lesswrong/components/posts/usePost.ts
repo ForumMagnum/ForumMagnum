@@ -1,8 +1,19 @@
-import { useMulti } from '../../lib/crud/withMulti';
 import { ApolloError } from '@apollo/client';
-import { useSingle, UseSingleProps } from '../../lib/crud/withSingle';
+import { useQuery } from "@/lib/crud/useQuery"
+import { gql } from "@/lib/generated/gql-codegen";
 
-export const usePostBySlug = ({slug}: {slug: string}):
+const PostsPageMultiQuery = gql(`
+  query multiPostusePostQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsPage
+      }
+      totalCount
+    }
+  }
+`);
+
+export const usePostBySlug = ({slug, ssr=true}: {slug: string, ssr?: boolean}):
   {
     post: PostsPage,
     loading: false,
@@ -12,17 +23,17 @@ export const usePostBySlug = ({slug}: {slug: string}):
     loading: boolean,
     error: ApolloError|null,
   } => {
-  const { results, loading, error } = useMulti({
-    terms: {
-      view: "slugPost",
-      slug: slug,
+  const { data, error, loading } = useQuery(PostsPageMultiQuery, {
+    variables: {
+      selector: { slugPost: { slug: slug } },
+      limit: 1,
+      enableTotal: false,
     },
-    
-    collectionName: "Posts",
-    fragmentName: 'PostsPage',
-    limit: 1,
-    enableTotal: false,
+    notifyOnNetworkStatusChange: true,
+    ssr,
   });
+
+  const results = data?.posts?.results;
   
   if (results && results.length>0 && results[0]._id) {
     return {
@@ -39,7 +50,10 @@ export const usePostBySlug = ({slug}: {slug: string}):
   }
 }
 
-export const usePostByLegacyId = ({ legacyId }: {legacyId: string}):
+export const usePostByLegacyId = ({ legacyId, ssr=true }: {
+  legacyId: string
+  ssr?: boolean
+}):
   {
     post: PostsPage,
     loading: false,
@@ -49,17 +63,17 @@ export const usePostByLegacyId = ({ legacyId }: {legacyId: string}):
     loading: boolean,
     error: ApolloError|null,
   } => {
-  const { results, loading, error } = useMulti({
-    terms: {
-      view: "legacyIdPost",
-      legacyId: legacyId,
+  const { data: dataPostsPage, error, loading } = useQuery(PostsPageMultiQuery, {
+    variables: {
+      selector: { legacyIdPost: { legacyId: legacyId } },
+      limit: 1,
+      enableTotal: false,
     },
-    
-    collectionName: "Posts",
-    fragmentName: 'PostsPage',
-    limit: 1,
-    enableTotal: false,
+    notifyOnNetworkStatusChange: true,
+    ssr,
   });
+
+  const results = dataPostsPage?.posts?.results;
   
   if (results && results.length>0 && results[0]._id) {
     return {
@@ -75,31 +89,3 @@ export const usePostByLegacyId = ({ legacyId }: {legacyId: string}):
     }
   }
 }
-
-type AdditionalDisplayedPostProps = Omit<
-  UseSingleProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision">,
-  'collectionName' | 'fragmentName' | 'extraVariables' | 'extraVariableValues' | 'documentId' | 'slug'
->;
-
-/**
- * An optimized wrapper around a `useSingle` to make the main post body load more quickly.
- * Works by including a batchKey to ensure the post query is sent separately from other queries during client-side navigation (not SSR)
- */
-export const useDisplayedPost = (postId: string, sequenceId: string | null, version?: string, additionalProps?: AdditionalDisplayedPostProps) => {
-  const extraVariables = {sequenceId: 'String', ...(version && {version: 'String'}) }
-  const extraVariablesValues = {sequenceId, batchKey: "singlePost", ...(version && {version}) }
-  const fragmentName = version ? 'PostsWithNavigationAndRevision' : 'PostsWithNavigation'
-
-  const fetchProps: UseSingleProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision"> = {
-    collectionName: "Posts",
-    fragmentName,
-    extraVariables,
-    extraVariablesValues,
-    documentId: postId,
-    ...additionalProps
-  };
-
-  const result = useSingle<"PostsWithNavigation"|"PostsWithNavigationAndRevision">(fetchProps);
-
-  return { ...result, fetchProps };
-};

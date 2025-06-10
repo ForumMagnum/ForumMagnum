@@ -3,8 +3,8 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { useCurrentUser } from "../common/withUser";
 import { useEventListener } from "../hooks/useEventListener";
-import { gql, useMutation } from "@apollo/client";
-import { useMulti } from "@/lib/crud/withMulti";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
@@ -19,12 +19,44 @@ import { parseDocumentFromString, ServerSafeNode } from "@/lib/domParser";
 import { PartialDeep } from "type-fest";
 import { stripFootnotes } from "@/lib/collections/forumEvents/helpers";
 import { useMessages } from "../common/withMessages";
-import { useSingle } from "@/lib/crud/withSingle";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import UsersProfileImage from "../users/UsersProfileImage";
 import ForumEventCommentForm from "./ForumEventCommentForm";
 import Loading from "../vulcan-core/Loading";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const ShortformCommentsMultiQuery = gql(`
+  query multiCommentForumEventPollQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ShortformComments
+      }
+      totalCount
+    }
+  }
+`);
+
+const UsersMinimumInfoMultiQuery = gql(`
+  query multiUserForumEventPollQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UsersMinimumInfo
+      }
+      totalCount
+    }
+  }
+`);
+
+const ForumEventsDisplayQuery = gql(`
+  query ForumEventPoll($documentId: String) {
+    forumEvent(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...ForumEventsDisplay
+      }
+    }
+  }
+`);
 
 const SLIDER_MAX_WIDTH = 1120;
 const RESULT_ICON_MAX_HEIGHT = 27;
@@ -494,12 +526,11 @@ export const ForumEventPoll = ({
   const { captureEvent } = useTracking();
   const { flash } = useMessages();
 
-  const { document: eventFromId, refetch: refetchOverrideEvent } = useSingle({
-    collectionName: "ForumEvents",
-    fragmentName: "ForumEventsDisplay",
-    documentId: forumEventId,
+  const { refetch: refetchOverrideEvent, data } = useQuery(ForumEventsDisplayQuery, {
+    variables: { documentId: forumEventId },
     skip: !forumEventId,
   });
+  const eventFromId = data?.forumEvent?.result;
 
   const event = forumEventId ? eventFromId : currentForumEvent;
   const refetch = forumEventId ? refetchOverrideEvent : refectCurrentEvent;
@@ -558,31 +589,35 @@ export const ForumEventPoll = ({
   // Get profile image and display name for all other users who voted, to display on the slider.
   // The `useRef` is to handle `voters` being briefly undefined when refetching, which causes flickering
   const votersRef = useRef<UsersMinimumInfo[]>([])
-  const { results: voters } = useMulti({
-    terms: {
-      view: 'usersByUserIds',
-      userIds: event?.publicData
-        ? Object.keys(event?.publicData)
-        : [],
+  const { data: dataUsersMinimumInfo } = useQuery(UsersMinimumInfoMultiQuery, {
+    variables: {
+      selector: {
+        usersByUserIds: {
+          userIds: event?.publicData
+            ? Object.keys(event?.publicData)
+            : []
+        }
+      },
       limit: 1000,
+      enableTotal: false,
     },
-    collectionName: "Users",
-    fragmentName: 'UsersMinimumInfo',
-    enableTotal: false,
     skip: !event?.publicData,
+    notifyOnNetworkStatusChange: true,
   });
-  const { results: comments, refetch: refetchComments } = useMulti({
-    terms: {
-      view: 'forumEventComments',
-      forumEventId: event?._id,
+
+  const voters = dataUsersMinimumInfo?.users?.results;
+  const { data: dataShortformComments, refetch: refetchComments } = useQuery(ShortformCommentsMultiQuery, {
+    variables: {
+      selector: { forumEventComments: { forumEventId: event?._id } },
       limit: 1000,
+      enableTotal: false,
     },
-    collectionName: "Comments",
-    fragmentName: 'ShortformComments',
-    enableTotal: false,
     // Don't run on the first pass, to prioritise loading the user images
     skip: !event?._id || !voters,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const comments = dataShortformComments?.comments?.results;
 
   if (voters !== undefined) {
     votersRef.current = voters;
@@ -600,16 +635,16 @@ export const ForumEventPoll = ({
     return comments?.find(comment => comment.userId === currentUser?._id) || null;
   }, [comments, currentUser]);
 
-  const [addVote] = useMutation(gql`
+  const [addVote] = useMutation(gql(`
     mutation AddForumEventVote($forumEventId: String!, $x: Float!, $delta: Float, $postIds: [String]) {
       AddForumEventVote(forumEventId: $forumEventId, x: $x, delta: $delta, postIds: $postIds)
     }
-  `);
-  const [removeVote] = useMutation(gql`
+  `));
+  const [removeVote] = useMutation(gql(`
     mutation RemoveForumEventVote($forumEventId: String!) {
       RemoveForumEventVote(forumEventId: $forumEventId)
     }
-  `);
+  `));
 
   /**
    * When the user clicks the "x" icon, or when a logged out user tries to vote,
@@ -623,7 +658,7 @@ export const ForumEventPoll = ({
           await removeVote({ variables: { forumEventId: event._id } });
           setVoteCount((count) => count - 1);
           setCommentFormOpen(false);
-          refetch?.();
+          void refetch?.();
         }
         setCurrentBucketIndex(DEFAULT_VOTE_INDEX);
         setCurrentUserVote(null);
@@ -704,7 +739,7 @@ export const ForumEventPoll = ({
         setVoteCount((count) => count + 1);
         setCurrentUserVote(newVotePos);
         await addVote({ variables: voteData });
-        refetch?.();
+        void refetch?.();
 
         return;
       }
@@ -719,7 +754,7 @@ export const ForumEventPoll = ({
             ...(postId && { postIds: [postId] }),
           },
         });
-        refetch?.();
+        void refetch?.();
       }
     } catch (e) {
       setCurrentBucketIndex(initialBucketIndex);
@@ -787,6 +822,7 @@ export const ForumEventPoll = ({
         commentPrompt
       }
     },
+    parentCommentId: event.commentId,
     ...(!event.isGlobal && {
       contents: {
         originalContents: {

@@ -17,9 +17,12 @@ const schema = {
       typescriptType: "EditableFieldContents",
     },
     graphql: {
+      // Normally making the output type required for a denormalized field is a bad idea,
+      // but curationNotices are only accessible to admins who can pass the collection-level
+      // access filter, and who will also be able to access revisions.
       outputType: "Revision",
       inputType: "CreateRevisionDataInput",
-      canRead: [documentIsNotDeleted],
+      canRead: ["guests"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
       editableFieldOptions: { pingbacks: false, normalized: false },
@@ -39,16 +42,15 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
-      canRead: ["sunshineRegiment", "admins"],
+      outputType: "String!",
+      canRead: ["guests"],
       canCreate: ["sunshineRegiment", "admins"],
     },
   },
   user: {
     graphql: {
       outputType: "User",
-      canRead: ["sunshineRegiment", "admins"],
+      canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
@@ -60,7 +62,7 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      canRead: ["sunshineRegiment", "admins"],
+      canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
       validation: {
@@ -71,7 +73,7 @@ const schema = {
   comment: {
     graphql: {
       outputType: "Comment",
-      canRead: ["sunshineRegiment", "admins"],
+      canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Comments", fieldName: "commentId" }),
     },
   },
@@ -79,18 +81,18 @@ const schema = {
     database: {
       type: "VARCHAR(27)",
       foreignKey: "Posts",
+      nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
-      canRead: ["sunshineRegiment", "admins"],
+      outputType: "String!",
+      canRead: ["guests"],
       canCreate: ["sunshineRegiment", "admins"],
     },
   },
   post: {
     graphql: {
       outputType: "Post",
-      canRead: ["sunshineRegiment", "admins"],
+      canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "postId" }),
     },
   },
@@ -102,8 +104,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Boolean",
-      canRead: ["sunshineRegiment", "admins"],
+      outputType: "Boolean!",
+      canRead: ["guests"],
       canUpdate: ["sunshineRegiment", "admins"],
       validation: {
         optional: true,

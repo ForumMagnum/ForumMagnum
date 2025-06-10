@@ -9,7 +9,9 @@ const AllGroupsPage = () => {
     <SingleColumnSection>
       <SectionTitle title="All Groups"/>
       <LocalGroupsList
-        terms={{view: "all", limit: 1000}}
+        view="all"
+        limit={1000}
+        terms={{}}
       />
     </SingleColumnSection>
   )

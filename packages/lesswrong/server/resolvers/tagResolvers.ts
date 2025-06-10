@@ -36,6 +36,9 @@ import { getLatestRev } from '../editor/utils';
 import gql from 'graphql-tag';
 import { createAdminContext } from "@/server/vulcan-lib/createContexts";
 import { updateTag } from '../collections/tags/mutations';
+import { WithDateFields } from '@/lib/utils/dateUtils';
+import { getDefaultViewSelector, mergeSelectors, mergeWithDefaultViewSelector } from '@/lib/utils/viewUtils';
+import { CommentsViews } from '@/lib/collections/comments/views';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -87,6 +90,7 @@ const createSubforumFeedResolver = <SortKeyType extends number | Date>(sorting: 
       collection: Posts,
       ...sorting.posts,
       context,
+      includeDefaultSelector: true,
       selector: {
         [`tagRelevance.${tagId}`]: {$gte: 1},
         hiddenRelatedQuestion: undefined,
@@ -101,6 +105,7 @@ const createSubforumFeedResolver = <SortKeyType extends number | Date>(sorting: 
       collection: Comments,
       ...sorting.comments,
       context,
+      includeDefaultSelector: true,
       selector: {
         $or: [{tagId: tagId, tagCommentType: "SUBFORUM"}, {relevantTagIds: tagId}],
         topLevelCommentId: {$exists: false},
@@ -116,6 +121,7 @@ const createSubforumFeedResolver = <SortKeyType extends number | Date>(sorting: 
       sortDirection: "asc",
       sticky: true,
       context,
+      includeDefaultSelector: true,
       selector: {
         tagId,
         tagCommentType: "SUBFORUM",
@@ -131,10 +137,15 @@ export const subForumFeedGraphQLTypeDefs = gql(subforumSortings.map(sorting => `
   type Subforum${subforumSortingToResolverName(sorting)}FeedQueryResults {
     cutoff: Date
     endOffset: Int!
-    results: [Subforum${subforumSortingToResolverName(sorting)}FeedEntryType!]
+    results: [Subforum${subforumSortingToResolverName(sorting)}FeedEntry!]
   }
-  type Subforum${subforumSortingToResolverName(sorting)}FeedEntryType {
-    type: String!
+  enum Subforum${subforumSortingToResolverName(sorting)}FeedEntryType {
+    tagSubforumPosts
+    tagSubforumComments
+    tagSubforumStickyComments
+  }
+  type Subforum${subforumSortingToResolverName(sorting)}FeedEntry {
+    type: Subforum${subforumSortingToResolverName(sorting)}FeedEntryType!
     tagSubforumPosts: Post
     tagSubforumComments: Comment
     tagSubforumStickyComments: Comment
@@ -158,25 +169,33 @@ export const subForumFeedGraphQLQueries = {
 }
 
 export const tagGraphQLTypeDefs = gql`
+  enum DocumentDeletionNetChange {
+    deleted
+    restored
+  }
+  enum MultiDocumentType {
+    lens
+    summary
+  }
   type DocumentDeletion {
     userId: String
     documentId: String!
-    netChange: String!
-    type: String
+    netChange: DocumentDeletionNetChange!
+    type: MultiDocumentType
     docFields: MultiDocument
     createdAt: Date!
   }
   type TagUpdates {
     tag: Tag!
-    revisionIds: [String!]
-    commentCount: Int
-    commentIds: [String!]
+    revisionIds: [String!]!
+    commentCount: Int!
+    commentIds: [String!]!
     lastRevisedAt: Date
     lastCommentedAt: Date
-    added: Int
-    removed: Int
-    users: [User!]
-    documentDeletions: [DocumentDeletion!]
+    added: Int!
+    removed: Int!
+    users: [User!]!
+    documentDeletions: [DocumentDeletion!]!
   }
   type TagPreviewWithSummaries {
     tag: Tag!
@@ -192,7 +211,7 @@ export const tagGraphQLTypeDefs = gql`
     promoteLensToMain(lensId: String!): Boolean
   }
   extend type Query {
-    TagUpdatesInTimeBlock(before: Date!, after: Date!): [TagUpdates!]
+    TagUpdatesInTimeBlock(before: Date!, after: Date!): [TagUpdates!]!
     TagUpdatesByUser(userId: String!, limit: Int!, skip: Int!): [TagUpdates!]
     RandomTag: Tag!
     ActiveTagCount: Int!
@@ -203,25 +222,25 @@ export const tagGraphQLTypeDefs = gql`
 
 interface TagUpdates {
   tag: Partial<DbTag>;
-  revisionIds: string[] | null;
+  revisionIds: string[];
   commentCount: number | null;
-  commentIds: string[] | null;
+  commentIds: string[];
   lastRevisedAt: Date | null;
   lastCommentedAt: Date | null;
   added: number | null;
   removed: number | null;
-  users: Partial<DbUser>[] | null;
-  documentDeletions: CategorizedDeletionEvent[] | null;
+  users: Partial<DbUser>[];
+  documentDeletions: CategorizedDeletionEvent[];
 }
 
-function getRootCommentsInTimeBlockSelector(before: Date, after: Date) {
-  return {
+function getRootCommentsInTimeBlockSelector(before: Date, after: Date): MongoSelector<DbComment> {
+  return mergeWithDefaultViewSelector(CommentsViews, {
     deleted: false,
     postedAt: {$lt: before, $gt: after},
     topLevelCommentId: null,
     tagId: {$exists: true, $ne: null},
     tagCommentType: "DISCUSSION",
-  };
+  });
 }
 
 function getDocumentDeletionsInTimeBlockSelector(documentIds: string[], before: Date, after: Date) {
@@ -304,7 +323,7 @@ function getNetDeletionsByDocumentId(documentDeletions: DbLWEvent[]) {
         return null;
       }
 
-      const netChange = endingDeleted ? 'deleted' : 'restored';
+      const netChange = endingDeleted ? 'deleted' as const : 'restored' as const;
       const netChangeEvent = {
         userId: lastDeletionEvent.userId,
         documentId,
@@ -334,7 +353,7 @@ interface CategorizedDeletionEvent {
   createdAt: Date;
 }
 
-function hydrateDocumentDeletionEvent(deletionEvent: CategorizedDeletionEvent, lenses: Partial<DbMultiDocument>[], summaries: Partial<DbMultiDocument>[]): CategorizedDeletionEvent {
+function hydrateDocumentDeletionEvent<T extends CategorizedDeletionEvent>(deletionEvent: T, lenses: Partial<DbMultiDocument>[], summaries: Partial<DbMultiDocument>[]): T {
   const { documentId } = deletionEvent;
   const lens = lenses.find(lens => lens._id === documentId);
   if (lens) {
@@ -389,13 +408,13 @@ async function getDocumentDeletionsInTimeBlock({before, after, lensesByTagId, su
   const documentDeletionEvents = getNetDeletionsByDocumentId(documentDeletions);
 
   // First, categorize the deletions by whether they were for a lens or summary
-  const categorizedDeletionEvents: Record<string, CategorizedDeletionEvent> = mapValues(
+  const categorizedDeletionEvents = mapValues(
     documentDeletionEvents,
     (deletionEvent) => hydrateDocumentDeletionEvent(deletionEvent, lenses, summaries)
   );
 
   // Then group by the tag that each deletion event's document is a child of
-  const deletionEventsByTagId: Record<string, CategorizedDeletionEvent[]> = {};
+  const deletionEventsByTagId: Record<string, (CategorizedDeletionEvent & { netChange: DocumentDeletionNetChange })[]> = {};
 
   Object.values(categorizedDeletionEvents).reduce((acc, deletionEvent) => {
     const { documentId } = deletionEvent;
@@ -701,11 +720,12 @@ export const tagResolversGraphQLQueries = {
       const relevantSummaryRevisions = contentfulRevisions.filter(rev=>summaryIdsByTagId[tag._id!]?.includes(rev.documentId!));
       const relevantRevisions = [...relevantTagRevisions, ...relevantLensRevisions, ...relevantSummaryRevisions];
 
-      const relevantDocumentDeletions = documentDeletionsByTagId[tag._id!];
+      const relevantDocumentDeletions = documentDeletionsByTagId[tag._id!] ?? [];
 
-      const relevantRootComments = rootComments.filter(c=>c.tagId===tag._id);
+      const relevantRootComments = rootComments.filter(c => c.tagId === tag._id);
       const relevantUsersIds = filterNonnull(_.uniq([...relevantTagRevisions.map(tr => tr.userId), ...relevantRootComments.map(rc => rc.userId)]));
-      const relevantUsers = relevantUsersIds.map(userId=>usersById[userId]);
+      // `usersById` might be missing a user for a given userId if that user is e.g. deleted
+      const relevantUsers = relevantUsersIds.map(userId => usersById[userId]).filter(user => !!user);
       
       return {
         tag,

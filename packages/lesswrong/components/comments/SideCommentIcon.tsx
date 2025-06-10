@@ -7,9 +7,12 @@ import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import classNames from 'classnames';
 import { Badge } from "@/components/widgets/Badge";
 import some from 'lodash/some';
-import { useSingleWithPreload } from '@/lib/crud/useSingleWithPreload';
 import { useIsMobile } from '../hooks/useScreenWidth';
 import { useDialog } from '../common/withDialog';
+import { useApolloClient } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
+import { CommentWithRepliesFragment } from '@/lib/collections/comments/fragments';
+import { gql } from "@/lib/generated/gql-codegen";
 import LWDialog from "../common/LWDialog";
 import { SideItem } from "../contents/SideItems";
 import SideItemLine from "../contents/SideItemLine";
@@ -259,6 +262,16 @@ const SideCommentHover = ({commentIds, post, closeDialog}: {
   </div>
 }
 
+const SideCommentSingleQuery = gql(`
+  query SideCommentSingle($commentId: String!) {
+    comment(input: { selector: { _id: $commentId } }) {
+      result {
+        ...CommentWithRepliesFragment
+      }
+    }
+  }
+`);
+
 const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, closeDialog, classes}: {
   commentId: string,
   post: PostsList,
@@ -268,19 +281,29 @@ const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, closeDialog
 }) => {
   const theme = useTheme();
   const hoverColor = theme.palette.blockquoteHighlight.commentHovered;
-  const { bestResult: comment, fetchedResult: { document: loadedComment } } = useSingleWithPreload({
-    collectionName: 'Comments',
-    fragmentName: 'CommentWithRepliesFragment',
-    preloadFragmentName: 'CommentsList',
-    documentId: commentId,
+
+  const apolloClient = useApolloClient();
+
+  const cachedComment = apolloClient.cache.readFragment({
+    fragment: CommentWithRepliesFragment,
+    fragmentName: "CommentWithRepliesFragment",
+    id: `Comments:`+commentId,
   });
 
-  const optimisticComment: CommentWithRepliesFragment | null = comment
+  const { data: fetchedResult } = useQuery(SideCommentSingleQuery, {
+    variables: { commentId },
+  });
+
+  const fetchedComment = fetchedResult?.comment?.result;
+
+  const bestComment = fetchedComment ?? cachedComment;
+
+  const optimisticComment = bestComment
     ? {
-      ...comment,
+      ...bestComment,
       post: post,
       tag: null,
-      latestChildren: loadedComment?.latestChildren ?? [],
+      latestChildren: fetchedComment?.latestChildren ?? [],
     }
     : null;
 

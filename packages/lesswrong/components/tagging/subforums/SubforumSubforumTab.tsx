@@ -5,13 +5,12 @@ import { MAX_COLUMN_WIDTH } from '@/components/posts/PostsPage/constants';
 import { useCurrentUser } from '../../common/withUser';
 import { defaultSubforumSorting, SubforumSorting, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumHelpers';
 import { tagPostTerms } from '../TagPageUtils';
-import { useUpdate } from '../../../lib/crud/withUpdate';
 import { TAG_POSTS_SORT_ORDER_OPTIONS } from "@/lib/collections/tags/helpers";
 import difference from 'lodash/fp/difference';
 import { PostsLayout } from '../../../lib/collections/posts/dropdownOptions';
-import { ObservableQuery } from '@apollo/client';
+import { ObservableQuery, useMutation } from '@apollo/client';
 import CommentPermalink from "../../comments/CommentPermalink";
-import MixedTypeFeed from "../../common/MixedTypeFeed";
+import { MixedTypeFeed } from "../../common/MixedTypeFeed";
 import RecentDiscussionThread from "../../recentDiscussion/RecentDiscussionThread";
 import CommentWithReplies from "../../comments/CommentWithReplies";
 import PostsList2 from "../../posts/PostsList2";
@@ -20,6 +19,18 @@ import ShortformSubmitForm from "../../shortform/ShortformSubmitForm";
 import LoginForm from "../../users/LoginForm";
 import PostsListSortDropdown from "../../posts/PostsListSortDropdown";
 import PostsLayoutDropdown from "../../posts/PostsLayoutDropdown";
+import { gql } from "@/lib/generated/gql-codegen";
+import { SubforumFeedQueries } from '@/components/common/feeds/feedQueries';
+
+const UserTagRelDetailsUpdateMutation = gql(`
+  mutation updateUserTagRelSubforumSubforumTab($selector: SelectorInput!, $data: UpdateUserTagRelDataInput!) {
+    updateUserTagRel(selector: $selector, data: $data) {
+      data {
+        ...UserTagRelDetails
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   centralColumn: {
@@ -90,14 +101,16 @@ const SubforumSubforumTab = ({
 
   const hideIntroPost = currentUser && userTagRel && !!userTagRel?.subforumHideIntroPost
 
-  const { mutate: updateUserTagRel } = useUpdate({
-    collectionName: 'UserTagRels',
-    fragmentName: 'UserTagRelDetails',
-  });
+  const [updateUserTagRel] = useMutation(UserTagRelDetailsUpdateMutation);
 
   const dismissIntroPost = useCallback(() => {
     if (!userTagRel) return;
-    void updateUserTagRel({selector: {_id: userTagRel?._id}, data: {subforumHideIntroPost: true}})
+    void updateUserTagRel({
+      variables: {
+        selector: { _id: userTagRel?._id },
+        data: { subforumHideIntroPost: true }
+      }
+    })
   }, [updateUserTagRel, userTagRel])
 
   const excludeSorting = layout === "card" ? ["relevance", "topAdjusted"] : []
@@ -122,6 +135,8 @@ const SubforumSubforumTab = ({
   };
   const maxAgeHours = 18;
   const commentsLimit = 3;
+
+  const feedQuery = SubforumFeedQueries[`Subforum${subforumSortingToResolverName(sortBy as SubforumSorting)}Feed`];
   
   const cardLayoutComponent = <>
     {tag.subforumIntroPost && !hideIntroPost && (
@@ -139,31 +154,18 @@ const SubforumSubforumTab = ({
       </div>
     )}
     <MixedTypeFeed
+      query={feedQuery}
       firstPageSize={15}
       pageSize={20}
       refetchRef={refetchRef}
-      // type is guaranteed to be SubforumSorting by the `sortByOptions` logic above
-      resolverName={`Subforum${subforumSortingToResolverName(sortBy as SubforumSorting)}Feed`}
-      sortKeyType={(subforumSortingTypes as AnyBecauseTodo)[sortBy]}
-      resolverArgs={{
-        tagId: "String!",
-        af: "Boolean",
-      }}
-      resolverArgsValues={{
+      variables={{
         tagId: tag._id,
         af: false,
-      }}
-      fragmentArgs={{
-        maxAgeHours: "Int",
-        commentsLimit: "Int",
-      }}
-      fragmentArgsValues={{
         maxAgeHours,
         commentsLimit,
       }}
       renderers={{
         tagSubforumPosts: {
-          fragmentName: "PostsRecentDiscussion",
           render: (post: PostsRecentDiscussion) => {
             // Remove the intro post from the feed IFF it has not been dismissed from the top
             return !(post._id === tag.subforumIntroPost?._id && !hideIntroPost) && (
@@ -171,7 +173,7 @@ const SubforumSubforumTab = ({
                 <RecentDiscussionThread
                   key={post._id}
                   post={{ ...post }}
-                  comments={post.recentComments}
+                  comments={post.recentComments ?? undefined}
                   commentTreeOptions={{forceSingleLine: true}}
                   maxLengthWords={50}
                   refetch={refetch}
@@ -182,7 +184,6 @@ const SubforumSubforumTab = ({
           },
         },
         tagSubforumComments: {
-          fragmentName: "CommentWithRepliesFragment",
           render: (comment: CommentWithRepliesFragment) => (
             <CommentWithReplies
               key={comment._id}
@@ -194,7 +195,6 @@ const SubforumSubforumTab = ({
           ),
         },
         tagSubforumStickyComments: {
-          fragmentName: "StickySubforumCommentFragment",
           render: (comment: CommentWithRepliesFragment) => (
             <CommentWithReplies
               key={comment._id}

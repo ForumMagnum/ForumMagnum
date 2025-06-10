@@ -72,6 +72,8 @@ import { captureException } from "@sentry/core";
 import keyBy from "lodash/keyBy";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from "graphql-tag";
+import { CommentsViews } from "../comments/views";
+import { commentIncludedInCounts } from "../comments/helpers";
 
 export const graphqlTypeDefs = gql`
   type SocialPreviewType {
@@ -88,7 +90,7 @@ export const graphqlTypeDefs = gql`
   }
 
   input SocialPreviewInput {
-    imageId: String
+    imageId: String!
     text: String
   }
 
@@ -105,7 +107,7 @@ export const graphqlTypeDefs = gql`
   }
 
   type SocialPreviewOutput {
-    imageId: String
+    imageId: String!
     text: String
   }
 
@@ -199,7 +201,9 @@ async function getUpdatedLocalStartTime(post: DbPost, context: ResolverContext) 
   if (!post.startTime) return null;
   const googleLocation = post.googleLocation || (await getDefaultPostLocationFields(post, context)).googleLocation;
   if (!googleLocation) return null;
-  return await getLocalTime(post.startTime, googleLocation);
+  const localTime = await getLocalTime(post.startTime, googleLocation);
+  if (localTime) return localTime;
+  return post.startTime;
 }
 
 function postHasEndTimeOrGoogleLocation(data: Partial<DbPost> | CreatePostDataInput | UpdatePostDataInput) {
@@ -210,7 +214,9 @@ async function getUpdatedLocalEndTime(post: DbPost, context: ResolverContext) {
   if (!post.endTime) return null;
   const googleLocation = post.googleLocation || (await getDefaultPostLocationFields(post, context)).googleLocation;
   if (!googleLocation) return null;
-  return await getLocalTime(post.endTime, googleLocation);
+  const localTime = await getLocalTime(post.endTime, googleLocation);
+  if (localTime) return localTime;
+  return post.endTime;
 }
 
 function postHasGoogleLocation(data: Partial<DbPost> | CreatePostDataInput | UpdatePostDataInput) {
@@ -265,7 +271,7 @@ const schema = {
   contents_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   revisions: {
     graphql: {
-      outputType: "[Revision]",
+      outputType: "[Revision!]",
       canRead: ["guests"],
       arguments: "limit: Int = 5",
       resolver: getRevisionsResolver("contents"),
@@ -422,15 +428,14 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
-      inputType: "String",
+      outputType: "PostCategory!",
+      inputType: "PostCategory",
       canRead: ["guests"],
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members"],
       validation: {
         allowedValues: ["post", "linkpost", "question"],
-        optional: true,
-      },
+      }
     },
   },
   title: {
@@ -1599,9 +1604,9 @@ const schema = {
   },
   tags: {
     graphql: {
-      outputType: "[Tag]",
+      outputType: "[Tag!]!",
       canRead: ["guests"],
-      resolver: async (post, args, context) => {
+      resolver: async (post, args, context): Promise<Partial<DbTag>[]> => {
         const { currentUser } = context;
         const tagRelevanceRecord = post.tagRelevance || {};
         const tagIds = Object.keys(tagRelevanceRecord).filter((id) => tagRelevanceRecord[id] > 0);
@@ -2374,7 +2379,7 @@ const schema = {
   },
   socialPreviewData: {
     graphql: {
-      outputType: "SocialPreviewType",
+      outputType: "SocialPreviewType!",
       canRead: ["guests"],
       resolver: async (post, args, context): Promise<SocialPreviewType> => {
         const { imageId = null, text = null } = post.socialPreview || {};
@@ -3562,7 +3567,7 @@ const schema = {
           Partial<Pick<DbComment, "contents">>;
 
         const comments: CommentForSideComments[] = await Comments.find({
-          ...getDefaultViewSelector("Comments"),
+          ...getDefaultViewSelector(CommentsViews),
           postId: post._id,
           ...(cacheIsValid && {
             _id: {
@@ -3582,7 +3587,9 @@ const schema = {
 
         if (cacheIsValid) {
           unfilteredResult = {
-            annotatedHtml: cache.annotatedHtml ?? "",
+            // We know that annotatedHtml is not null, it just looks that way cos of GraphQL-based perms
+            // TODO: rip out the GraphQL stuff for sideCommentsCache
+            annotatedHtml: cache.annotatedHtml!,
             commentsByBlock: cache.commentsByBlock,
           };
         } else {
@@ -3803,8 +3810,7 @@ const schema = {
         fieldName: "commentCount",
         foreignCollectionName: "Comments",
         foreignFieldName: "postId",
-        filterFn: (comment) =>
-          !comment.deleted && !comment.rejected && !comment.debateResponse && !comment.authorIsUnreviewed,
+        filterFn: commentIncludedInCounts,
       }),
       nullable: false,
     },
@@ -3816,8 +3822,7 @@ const schema = {
       countOfReferences: {
         foreignCollectionName: "Comments",
         foreignFieldName: "postId",
-        filterFn: (comment) =>
-          !comment.deleted && !comment.rejected && !comment.debateResponse && !comment.authorIsUnreviewed,
+        filterFn: commentIncludedInCounts,
         resyncElastic: false,
       },
       validation: {
@@ -3837,7 +3842,7 @@ const schema = {
         fieldName: "topLevelCommentCount",
         foreignCollectionName: "Comments",
         foreignFieldName: "postId",
-        filterFn: (comment) => !comment.deleted && !comment.parentCommentId,
+        filterFn: (comment) => commentIncludedInCounts(comment) && !comment.parentCommentId,
       }),
       nullable: false,
     },
@@ -3849,7 +3854,7 @@ const schema = {
       countOfReferences: {
         foreignCollectionName: "Comments",
         foreignFieldName: "postId",
-        filterFn: (comment) => !comment.deleted && !comment.parentCommentId,
+        filterFn: (comment) => commentIncludedInCounts(comment) && !comment.parentCommentId,
         resyncElastic: false,
       },
       validation: {
@@ -3859,7 +3864,7 @@ const schema = {
   },
   recentComments: {
     graphql: {
-      outputType: "[Comment]",
+      outputType: "[Comment!]",
       canRead: ["guests"],
       arguments: "commentsLimit: Int, maxAgeHours: Int, af: Boolean",
       // commentsLimit for some reason can receive a null (which was happening in one case)
@@ -3872,8 +3877,9 @@ const schema = {
         const timeCutoff = new Date(lastCommentedOrNow.getTime() - (maxAgeHours * oneHourInMs));
         const loaderName = af ? "recentCommentsAf" : "recentComments";
         const filter = {
-          ...getDefaultViewSelector("Comments"),
+          ...getDefaultViewSelector(CommentsViews),
           score: { $gt: 0 },
+          draft: false,
           deletedPublic: false,
           postedAt: { $gt: timeCutoff },
           ...(af ? { af: true } : {}),
@@ -4097,7 +4103,7 @@ const schema = {
         const { Comments } = context;
         const firstComment = await Comments.findOne(
           {
-            ...getDefaultViewSelector("Comments"),
+            ...getDefaultViewSelector(CommentsViews),
             postId: post._id,
             // This actually forces `deleted: false` by combining with the default view selector
             deletedPublic: false,
@@ -4226,7 +4232,7 @@ const schema = {
         fieldName: "afCommentCount",
         foreignCollectionName: "Comments",
         foreignFieldName: "postId",
-        filterFn: (comment) => comment.af && !comment.deleted && !comment.debateResponse,
+        filterFn: (comment) => commentIncludedInCounts(comment) && comment.af,
       }),
       nullable: false,
     },
@@ -4238,7 +4244,7 @@ const schema = {
       countOfReferences: {
         foreignCollectionName: "Comments",
         foreignFieldName: "postId",
-        filterFn: (comment) => comment.af && !comment.deleted && !comment.debateResponse,
+        filterFn: (comment) => commentIncludedInCounts(comment) && comment.af,
         resyncElastic: false,
       },
       validation: {
@@ -4380,7 +4386,7 @@ const schema = {
   },
   curationNotices: {
     graphql: {
-      outputType: "[CurationNotice]",
+      outputType: "[CurationNotice!]",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
         const { currentUser, CurationNotices } = context;
@@ -4397,7 +4403,7 @@ const schema = {
   // reviews that appear on SpotlightItem
   reviews: {
     graphql: {
-      outputType: "[Comment]",
+      outputType: "[Comment!]",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
         const { currentUser, Comments } = context;

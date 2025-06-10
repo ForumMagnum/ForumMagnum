@@ -1,6 +1,6 @@
 import {extractVersionsFromSemver} from '../../lib/editor/utils'
 import {htmlToPingbacks} from '../pingbacks'
-import { isEditableField } from '../../lib/editor/editableSchemaFieldHelpers'
+import { isEditableField } from './editableSchemaFieldHelpers'
 import { collectionNameToTypeName } from '../../lib/generated/collectionTypeNames'
 import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-notify'
 import {getLatestRev, getNextVersion, htmlToChangeMetrics, isBeingUndrafted, MaybeDrafteable} from './utils'
@@ -12,6 +12,7 @@ import type { MakeEditableOptions } from '@/lib/editor/makeEditableOptions'
 import { createRevision } from '../collections/revisions/mutations'
 import { buildRevision } from './conversionUtils'
 import { updateDenormalizedHtmlAttributionsDueToRev, upvoteOwnTagRevision } from '../callbacks/revisionCallbacks'
+import { RevisionMetadata } from '@/lib/collections/revisions/fragments'
 
 interface CreateBeforeEditableCallbackProperties<N extends CollectionNameString> {
   doc: CreateInputsByCollectionName[N]['data'];
@@ -187,7 +188,7 @@ async function createUpdateRevision<N extends CollectionNameString>(
     const oldRevision = oldRevisionId
       ? await fetchFragmentSingle({
         collectionName: "Revisions",
-        fragmentName: "RevisionMetadata",
+        fragmentDoc: RevisionMetadata,
         selector: {_id: oldRevisionId},
         currentUser: null,
         skipFiltering: true,
@@ -294,10 +295,8 @@ async function notifyUsersAboutPingbackMentionsInCreate<N extends CollectionName
 ) {
   const { pingbacks = false, collectionName } = options;
 
-  const typeName = collectionNameToTypeName[collectionName];
-
   if (currentUser && pingbacks && 'pingbacks' in newDocument) {
-    await notifyUsersAboutMentions(currentUser, typeName, newDocument)
+    await notifyUsersAboutMentions(currentUser, collectionName, newDocument)
   }
 
   return newDocument

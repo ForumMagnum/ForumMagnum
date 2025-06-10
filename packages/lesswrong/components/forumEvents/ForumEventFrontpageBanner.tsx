@@ -8,7 +8,7 @@ import classNames from "classnames";
 import { HEADER_HEIGHT } from "../common/Header";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import ContentStyles from "../common/ContentStyles";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import ForumIcon from "../common/ForumIcon";
 import ForumEventPoll from "./ForumEventPoll";
@@ -295,7 +295,7 @@ const ForumEventFrontpageBannerBasic = ({classes}: {
   }
 
   const {title, bannerImageId, startDate, endDate} = currentForumEvent;
-  const date = endDate ? formatDate({ startDate, endDate }) : null;
+  const date = endDate ? formatDate({ startDate: new Date(startDate), endDate: new Date(endDate) }) : null;
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerBasic">
       <div className={classNames(classes.root, classes.rootWithGradient)}>
@@ -338,7 +338,7 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
   }
 
   const {title, bannerImageId, frontpageDescription, frontpageDescriptionMobile, startDate, endDate} = currentForumEvent;
-  const date = endDate && formatDate({startDate, endDate});
+  const date = endDate && formatDate({ startDate: new Date(startDate), endDate: new Date(endDate) });
   const mobileDescription = frontpageDescriptionMobile?.html ?? frontpageDescription?.html
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerWithPoll">

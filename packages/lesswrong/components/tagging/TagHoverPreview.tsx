@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useTagPreview } from './useTag';
-import { linkStyle } from '../linkPreview/PostLinkPreview';
+import { linkStyles } from '../linkPreview/PostLinkPreview';
 import { removeUrlParameters } from '../../lib/routeUtil';
 import classNames from 'classnames';
 import { hasWikiLenses } from '@/lib/betas';
@@ -10,7 +10,6 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import TagsTooltip from "./TagsTooltip";
 
 const styles = defineStyles('TagHoverPreview', (theme: ThemeType) => ({
-  ...linkStyle(theme),
   count: {
     color: theme.palette.secondary.main, // grey[500],
     fontSize: ".9em",
@@ -38,13 +37,14 @@ export const TagHoverPreview = ({
   children: React.ReactNode,
 }) => {
   const classes = useStyles(styles);
+  const linkClasses = useStyles(linkStyles);
   
   const { params: {slug}, hash } = targetLocation;
   // Slice the hash to remove the leading # (which won't be a part of the
   // element ID in the dom) eg: "Further_reading"
   const hashId = hash.slice(1);
 
-  const {tag, loading} = useTagPreview(slug, hashId, {skip: noPrefetch});
+  const {tag, loading} = useTagPreview(slug, hashId, noPrefetch);
   const { showPostCount: showPostCountQuery, useTagName: useTagNameQuery, } = targetLocation.query
   const lensQuery = targetLocation.query.lens ?? targetLocation.query.l;
   const showPostCount = showPostCountQuery === "true" // query parameters are strings
@@ -66,9 +66,9 @@ export const TagHoverPreview = ({
     >
       <Link
         className={classNames(
-          !showPostCount && classes.link,
+          !showPostCount && linkClasses.link,
           isRead && "visited",
-          isRedLink && classes.redLink,
+          isRedLink && linkClasses.redLink,
         )}
         to={linkTarget}
       >

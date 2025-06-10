@@ -12,7 +12,7 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 
 export const EditTagForm = ({tag, successCallback, cancelCallback, changeCallback, warnUnsavedChanges}: {
-  tag: UpdateTagDataInput & { _id: string; canVoteOnRels: DbTag['canVoteOnRels'] },
+  tag: UpdateTagDataInput & { _id: string; },
   successCallback?: any,
   cancelCallback?: any,
   changeCallback?: any,

@@ -12,7 +12,7 @@ const styles = defineStyles('MultiSelectButtons', (theme: ThemeType) => ({
     // Material UI v0 happened to use.)
     fontWeight: isFriendlyUI ? 600 : 500,
     fontSize: "16px",
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : "Roboto, sans-serif",
+    fontFamily: theme.palette.fonts.sansSerifStack,
   },
 
   selected: {
@@ -39,7 +39,7 @@ const styles = defineStyles('MultiSelectButtons', (theme: ThemeType) => ({
 }));
 
 interface MultiSelectButtonsProps {
-  field: TypedFieldApi<string[]> | TypedFieldApi<string[] | null>;
+  field: TypedFieldApi<string[]> | TypedFieldApi<string[] | null | undefined>;
   label?: string;
   options: Array<{ value: string; label?: string }>;
   className?: string;

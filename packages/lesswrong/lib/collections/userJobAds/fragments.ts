@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from "@/lib/generated/gql-codegen";
 
-export const UserJobAdsMinimumInfo = () => frag`
+export const UserJobAdsMinimumInfo = gql(`
   fragment UserJobAdsMinimumInfo on UserJobAd {
     _id
     userId
@@ -10,4 +10,4 @@ export const UserJobAdsMinimumInfo = () => frag`
     adState
     reminderSetAt
   }
-`
+`)

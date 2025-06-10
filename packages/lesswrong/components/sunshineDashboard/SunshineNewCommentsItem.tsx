@@ -1,5 +1,4 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper'
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
@@ -17,21 +16,32 @@ import CommentBody from "../comments/CommentsItem/CommentBody";
 import SunshineCommentsItemOverview from "./SunshineCommentsItemOverview";
 import SidebarActionMenu from "./SidebarActionMenu";
 import SidebarAction from "./SidebarAction";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const CommentsListWithParentMetadataUpdateMutation = gql(`
+  mutation updateCommentSunshineNewCommentsItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
+    updateComment(selector: $selector, data: $data) {
+      data {
+        ...CommentsListWithParentMetadata
+      }
+    }
+  }
+`);
 
 const SunshineNewCommentsItem = ({comment}: {
   comment: CommentsListWithParentMetadata
 }) => {
   const currentUser = useCurrentUser();
   const { hover, anchorEl, eventHandlers } = useHover();
-  const { mutate: updateComment } = useUpdate({
-    collectionName: 'Comments',
-    fragmentName: 'CommentsListWithParentMetadata',
-  });
+  const [updateComment] = useMutation(CommentsListWithParentMetadataUpdateMutation);
   
   const handleReview = () => {
     void updateComment({
-      selector: {_id: comment._id},
-      data: {reviewedByUserId : currentUser!._id}
+      variables: {
+        selector: { _id: comment._id },
+        data: { reviewedByUserId: currentUser!._id }
+      }
     })
   }
 
@@ -39,12 +49,14 @@ const SunshineNewCommentsItem = ({comment}: {
     if (confirm("Are you sure you want to immediately delete this comment?")) {
       window.open(userGetProfileUrl(comment.user), '_blank');
       void updateComment({
-        selector: {_id: comment._id},
-        data: {
-          deleted: true,
-          deletedDate: new Date(),
-          deletedByUserId: currentUser!._id,
-          deletedReason: "spam"
+        variables: {
+          selector: { _id: comment._id },
+          data: {
+            deleted: true,
+            deletedDate: new Date(),
+            deletedByUserId: currentUser!._id,
+            deletedReason: "spam"
+          }
         }
       })
     }

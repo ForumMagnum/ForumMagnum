@@ -1,12 +1,26 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 import SingleLineTagUpdates from "./SingleLineTagUpdates";
 import LoadMore from "../common/LoadMore";
+import { maybeDate } from '@/lib/utils/dateUtils';
+import { NetworkStatus } from "@apollo/client";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const RevisionTagFragmentMultiQuery = gql(`
+  query multiRevisionTagEditsByUserQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
+    revisions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...RevisionTagFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -29,13 +43,19 @@ const TagEditsByUser = ({userId, limit, classes}: {
   classes: ClassesType<typeof styles>
 }) => {
 
-  const { loadingInitial, loadMoreProps, results } = useMulti({
-    terms: {view: "revisionsByUser", userId, limit},
-    collectionName: "Revisions",
-    fragmentName: 'RevisionTagFragment',
+  const { data, networkStatus, loadMoreProps } = useQueryWithLoadMore(RevisionTagFragmentMultiQuery, {
+    variables: {
+      selector: { revisionsByUser: { userId } },
+      limit: 10,
+      enableTotal: false,
+    },
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-only",
   });
+
+  const results = data?.revisions?.results;
+
+  const loadingInitial = networkStatus === NetworkStatus.loading;
 
   if (loadingInitial || !results) {
     return <Loading />
@@ -62,7 +82,7 @@ const TagEditsByUser = ({userId, limit, classes}: {
         tag={topLevelTag!}
         revisionIds={[tagUpdates._id]}
         changeMetrics={{added: tagUpdates.changeMetrics.added, removed: tagUpdates.changeMetrics.removed}}
-        lastRevisedAt={tagUpdates.editedAt}
+        lastRevisedAt={maybeDate(tagUpdates.editedAt)}
       />
     })}
     <LoadMore {...loadMoreProps} />

@@ -2,14 +2,12 @@ import { hasSidenotes, userCanCreateAndEditJargonTerms } from "@/lib/betas";
 import { localGroupTypeFormOptions } from "@/lib/collections/localgroups/groupTypes";
 import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels, EVENT_TYPES } from "@/lib/collections/posts/constants";
 import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, MINIMUM_COAUTHOR_KARMA, userPassesCrosspostingKarmaThreshold, userCanEditCoauthors } from "@/lib/collections/posts/helpers";
-import { useCreate } from "@/lib/crud/withCreate";
-import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum, isLWorAF, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from "@/lib/instanceSettings";
 import { allOf } from "@/lib/utils/functionUtils";
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";
 import { registerComponent } from "@/lib/vulcan-lib/components";
-import { userIsAdmin, userIsAdminOrMod, userIsMemberOf, userOverNKarmaOrApproved, userOwns } from "@/lib/vulcan-users/permissions";
+import { OwnableDocument, userIsAdmin, userIsAdminOrMod, userIsMemberOf, userOverNKarmaOrApproved, userOwns } from "@/lib/vulcan-users/permissions";
 import { isFriendlyUI, preferredHeadingCase } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
@@ -47,6 +45,28 @@ import Error404 from "../common/Error404";
 import FormGroupPostTopBar from "../form-components/FormGroupPostTopBar";
 import FooterTagList from "../tagging/FooterTagList";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const PostsEditMutationFragmentUpdateMutation = gql(`
+  mutation updatePostPostForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {
+    updatePost(selector: $selector, data: $data) {
+      data {
+        ...PostsEditMutationFragment
+      }
+    }
+  }
+`);
+
+const PostsEditMutationFragmentMutation = gql(`
+  mutation createPostPostForm($data: CreatePostDataInput!) {
+    createPost(data: $data) {
+      data {
+        ...PostsEditMutationFragment
+      }
+    }
+  }
+`);
 
 const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -63,17 +83,26 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
 
 function getFooterTagListPostInfo(post: EditablePost) {
   const {
-    _id, createdAt, tags, postCategory, isEvent,
+    _id, tags, createdAt, postCategory, isEvent,
     curatedDate = null,
     frontpageDate = null,
     reviewedByUserId = null,
   } = post;
 
-  return { _id, createdAt, tags, curatedDate, frontpageDate, reviewedByUserId, postCategory, isEvent: isEvent ?? false };
+  return {
+    _id,
+    tags,
+    createdAt: createdAt?.toISOString() ?? null,
+    curatedDate: curatedDate?.toISOString() ?? null,
+    frontpageDate: frontpageDate?.toISOString() ?? null,
+    reviewedByUserId,
+    postCategory,
+    isEvent: isEvent ?? false,
+  };
 }
 
-function userCanEditCrosspostSettings(user: UsersCurrent | null) {
-  return userIsAdmin(user) || allOf(userOwns, userPassesCrosspostingKarmaThreshold);
+function userCanEditCrosspostSettings(user: UsersCurrent | null, document: OwnableDocument) {
+  return userIsAdmin(user) || allOf(userOwns, userPassesCrosspostingKarmaThreshold)(user, document);
 }
 
 function getVotingSystemOptions(user: UsersCurrent | null) {
@@ -139,21 +168,16 @@ const PostForm = ({
     addOnSuccessCallback: addOnSuccessCallbackModerationGuidelines
   } = useEditorFormCallbacks<PostsEditMutationFragment>();
 
-  const { create } = useCreate({
-    collectionName: 'Posts',
-    fragmentName: 'PostsEditMutationFragment',
-  });
+  const [create] = useMutation(PostsEditMutationFragmentMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'Posts',
-    fragmentName: 'PostsEditMutationFragment',
-  });
+  const [mutate] = useMutation(PostsEditMutationFragmentUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
   const form = useForm({
     defaultValues: {
       ...initialData,
+      title: initialData?.title ?? "Untitled Draft",
     },
     onSubmitMeta: ON_SUBMIT_META,
     onSubmit: async ({ formApi, meta }) => {
@@ -167,15 +191,23 @@ const PostForm = ({
         let result: PostsEditMutationFragment;
 
         if (formType === 'new') {
-          const { data } = await create({ data: formApi.state.values });
-          result = data?.createPost.data;
+          const { data } = await create({ variables: { data: formApi.state.values } });
+          if (!data?.createPost?.data) {
+            throw new Error('Failed to create post');
+          }
+          result = data.createPost.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents', 'customHighlight', 'moderationGuidelines']);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updatePost.data;
+          if (!data?.updatePost?.data) {
+            throw new Error('Failed to update post');
+          }
+          result = data.updatePost.data;
         }
 
         onSuccessCallback.current?.(result, meta);
@@ -202,7 +234,7 @@ const PostForm = ({
 
   const hideSocialPreviewGroup = (isLWorAF && !!initialData.collabEditorDialogue) || (isEAForum && !!initialData.isEvent);
 
-  const hideCrosspostControl = !fmCrosspostSiteNameSetting.get() || isEvent || !userCanEditCrosspostSettings(currentUser);
+  const hideCrosspostControl = !fmCrosspostSiteNameSetting.get() || isEvent;
   const crosspostControlTooltip = fmCrosspostBaseUrlSetting.get()?.includes("forum.effectivealtruism.org")
     ? "The EA Forum is for discussions that are relevant to doing good effectively. If you're not sure what this means, consider exploring the Forum's Frontpage before posting on it."
     : undefined;
@@ -1035,7 +1067,7 @@ const PostForm = ({
       </LegacyFormGroupLayout>}
 
       <LegacyFormGroupLayout label="Options" startCollapsed={true}>
-        {!hideCrosspostControl && <div className={classes.fieldWrapper}>
+        {!hideCrosspostControl && form.state.values.userId && userCanEditCrosspostSettings(currentUser, { userId: form.state.values.userId }) && <div className={classes.fieldWrapper}>
           <form.Field name="fmCrosspost">
             {(field) => (
               <LWTooltip title={crosspostControlTooltip}>
@@ -1181,13 +1213,13 @@ const PostForm = ({
 
       {userCanCreateAndEditJargonTerms(currentUser) && <LegacyFormGroupLayout label="Glossary" startCollapsed={false} hideHeader>
         <div className={classes.fieldWrapper}>
-          <form.Field name="glossary">
-            {(field) => (
+          {/* <form.Field name="glossary">
+            {(field) => ( */}
               <GlossaryEditFormWrapper
                 document={form.state.values}
               />
-            )}
-          </form.Field>
+            {/* )}
+          </form.Field> */}
         </div>
       </LegacyFormGroupLayout>}
 

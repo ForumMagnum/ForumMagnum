@@ -8,10 +8,15 @@ export const allTagsActivityFeedGraphQLTypeDefs = gql`
   type AllTagsActivityFeedQueryResults {
     cutoff: Date
     endOffset: Int!
-    results: [AllTagsActivityFeedEntryType!]
+    results: [AllTagsActivityFeedEntry!]
   }
-  type AllTagsActivityFeedEntryType {
-    type: String!
+  enum AllTagsActivityFeedEntryType {
+    tagCreated
+    tagRevision
+    tagDiscussionComment
+  }
+  type AllTagsActivityFeedEntry {
+    type: AllTagsActivityFeedEntryType!
     tagCreated: Tag
     tagRevision: Revision
     tagDiscussionComment: Comment
@@ -39,6 +44,7 @@ export const allTagsActivityFeedGraphQLQueries = {
           collection: Tags,
           sortField: "createdAt",
           context,
+          includeDefaultSelector: false,
           selector: {}
         }),
         // Tag revisions
@@ -47,6 +53,7 @@ export const allTagsActivityFeedGraphQLQueries = {
           collection: Revisions,
           sortField: "editedAt",
           context,
+          includeDefaultSelector: false,
           selector: {
             collectionName: "Tags",
             fieldName: "description",
@@ -66,6 +73,7 @@ export const allTagsActivityFeedGraphQLQueries = {
           collection: Comments,
           sortField: "postedAt",
           context,
+          includeDefaultSelector: false,
           selector: {
             tagId: {$ne: null},
           },

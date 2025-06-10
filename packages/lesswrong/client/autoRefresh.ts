@@ -1,10 +1,9 @@
-import type { MessageEvent, OpenEvent, CloseEvent } from 'ws';
 import { getCommandLineArguments } from '@/server/commandLine';
 
 // In development, make a websocket connection (on a different port) to get
 // notified when the server has restarted with a new version.
 
-let connectedWebsocket: any = null;
+let connectedWebsocket: WebSocket | null = null;
 let buildTimestamp: string|null = null;
 
 function connectWebsocket() {
@@ -13,7 +12,7 @@ function connectWebsocket() {
   const websocketPort = getCommandLineArguments().localhostUrlPort + 1;
   connectedWebsocket = new WebSocket(`ws://localhost:${websocketPort}`);
 
-  connectedWebsocket.addEventListener("message", (event: MessageEvent) => {
+  connectedWebsocket.addEventListener("message", (event) => {
     try {
       const data = JSON.parse(event.data+"");
       if (data.latestBuildTimestamp) {
@@ -33,12 +32,12 @@ function connectWebsocket() {
       console.log(e);
     }
   });
-  connectedWebsocket.addEventListener("open", (event: OpenEvent) => {
+  connectedWebsocket.addEventListener("open", (event) => {
   });
-  connectedWebsocket.addEventListener("error", (event: CloseEvent) => {
+  connectedWebsocket.addEventListener("error", (event) => {
     disconnectWebsocket();
   });
-  connectedWebsocket.addEventListener("close", (event: CloseEvent) => {
+  connectedWebsocket.addEventListener("close", (event) => {
     disconnectWebsocket();
   });
 }

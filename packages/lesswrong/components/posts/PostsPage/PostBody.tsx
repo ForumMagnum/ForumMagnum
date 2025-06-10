@@ -1,23 +1,36 @@
 import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
-import { useSingle } from '../../../lib/crud/withSingle';
 import mapValues from 'lodash/mapValues';
 import { SideItemVisibilityContext } from '../../dropdowns/posts/SetSideItemVisibility';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
-import ContentItemBody, { type ContentItemBodyImperative, type ContentReplacedSubstringComponentInfo } from '../../common/ContentItemBody';
+import { type ContentItemBodyImperative, type ContentReplacedSubstringComponentInfo } from '../../contents/contentBodyUtil';
+import { ContentItemBody } from '@/components/contents/ContentItemBody';
 import { hasSideComments, inlineReactsHoverEnabled } from '../../../lib/betas';
 import { VotingProps } from '@/components/votes/votingProps';
 import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { useTracking } from '@/lib/analyticsEvents';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import { SideCommentIcon } from "../../comments/SideCommentIcon";
 import InlineReactSelectionWrapper from "../../votes/lwReactions/InlineReactSelectionWrapper";
 import GlossarySidebar from "../../jargon/GlossarySidebar";
 
+
+const PostSideCommentsQuery = gql(`
+  query PostBody($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostSideComments
+      }
+    }
+  }
+`);
+
 const enableInlineReactsOnPosts = inlineReactsHoverEnabled;
 
-function useDisplayGlossary(post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes) {
+function useDisplayGlossary(post: PostsWithNavigation | PostsWithNavigationAndRevision| PostsListWithVotes) {
   const { captureEvent } = useTracking();
   const [showAllTerms, setShowAllTerms] = useState(false);
 
@@ -56,7 +69,7 @@ function useDisplayGlossary(post: PostsWithNavigation|PostsWithNavigationAndRevi
 }
 
 const PostBody = ({post, html, isOldVersion, voteProps}: {
-  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
+  post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsListWithVotes,
   html: string,
   isOldVersion: boolean
   voteProps: VotingProps<PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes>
@@ -71,12 +84,11 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
     sideCommentMode &&
     sideCommentMode !== "hidden";
 
-  const { document } = useSingle({
-    documentId: post._id,
-    collectionName: "Posts",
-    fragmentName: 'PostSideComments',
+  const { data } = useQuery(PostSideCommentsQuery, {
+    variables: { documentId: post._id },
     skip: !includeSideComments,
   });
+  const document = data?.post?.result;
   
   const votingSystemName = post.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);

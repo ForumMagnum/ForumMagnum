@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
@@ -20,6 +19,19 @@ import SidebarAction from "./SidebarAction";
 import SidebarActionMenu from "./SidebarActionMenu";
 import ForumIcon from "../common/ForumIcon";
 import FormatDate from "../common/FormatDate";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+import { isEAForum } from '@/lib/instanceSettings';
+
+const SunshineCurationPostsListUpdateMutation = gql(`
+  mutation updatePostSunshineCuratedSuggestionsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
+    updatePost(selector: $selector, data: $data) {
+      data {
+        ...SunshineCurationPostsList
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   audioIcon: {
@@ -49,26 +61,27 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
 }) => {
   const currentUser = useCurrentUser();
   const { hover, anchorEl, eventHandlers } = useHover();
-  const { mutate: updatePost } = useUpdate({
-    collectionName: "Posts",
-    fragmentName: 'SunshineCurationPostsList',
-  });
+  const [updatePost] = useMutation(SunshineCurationPostsListUpdateMutation);
 
   const handleCurate = () => {
     void updatePost({
-      selector: {_id: post._id},
-      data: {
-        reviewForCuratedUserId: currentUser!._id,
-        curatedDate: new Date(),
+      variables: {
+        selector: { _id: post._id },
+        data: {
+          reviewForCuratedUserId: currentUser!._id,
+          curatedDate: new Date(),
+        }
       }
     })
   }
 
   const handleDisregardForCurated = () => {
     void updatePost({
-      selector: {_id: post._id},
-      data: {
-        reviewForCuratedUserId: currentUser!._id,
+      variables: {
+        selector: { _id: post._id },
+        data: {
+          reviewForCuratedUserId: currentUser!._id,
+        }
       }
     })
   }
@@ -79,8 +92,10 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
       suggestUserIds.push(currentUser!._id)
     }
     void updatePost({
-      selector: {_id: post._id},
-      data: {suggestForCuratedUserIds:suggestUserIds}
+      variables: {
+        selector: { _id: post._id },
+        data: { suggestForCuratedUserIds: suggestUserIds }
+      }
     })
   }
 
@@ -90,12 +105,15 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
       suggestUserIds = _.without(suggestUserIds, currentUser!._id);
     }
     void updatePost({
-      selector: {_id: post._id},
-      data: {suggestForCuratedUserIds:suggestUserIds}
+      variables: {
+        selector: { _id: post._id },
+        data: { suggestForCuratedUserIds: suggestUserIds }
+      }
     })
   }
 
-  const hasCurationNotice = post.curationNotices && post.curationNotices.length > 0
+  // On the EA Forum, only admins can curate and remove from curation suggestions
+  const canCurate = isEAForum ? currentUser?.isAdmin : true;
 
   return (
     <span {...eventHandlers}>
@@ -107,12 +125,12 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
             </Link>
           </Typography>
           <br/>
-          {!post.curatedDate && post.curationNotices.map(curationNotice => <CurationNoticesItem key={curationNotice._id} curationNotice={curationNotice}/>)}
+          {!post.curatedDate && post.curationNotices?.map(curationNotice => <CurationNoticesItem key={curationNotice._id} curationNotice={curationNotice}/>)}
           <PostsHighlight post={post} maxLengthWords={600}/>
         </SidebarHoverOver>
         <Link to={postGetPageUrl(post)}
           className={classNames(classes.postTitle, {
-            [classes.titleWithCurationNotice]: !!(post.curationNotices.length > 0),
+            [classes.titleWithCurationNotice]: !!(!!post.curationNotices?.length),
           })}
         >
             {post.title}
@@ -151,14 +169,15 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
               <ForumIcon icon="Undo"/>
             </SidebarAction>
           }
-          { timeForCuration &&
+          { timeForCuration && canCurate &&
             <SidebarAction title="Curate Post" onClick={handleCurate}>
               <ForumIcon icon="Star" />
             </SidebarAction>
           }
-          <SidebarAction title="Remove from Curation Suggestions" onClick={handleDisregardForCurated}>
-            <ForumIcon icon="Clear"/>
-          </SidebarAction>
+          { canCurate && <SidebarAction title="Remove from Curation Suggestions" onClick={handleDisregardForCurated}>
+              <ForumIcon icon="Clear"/>
+            </SidebarAction>
+          }
         </SidebarActionMenu>}
       </SunshineListItem>
     </span>

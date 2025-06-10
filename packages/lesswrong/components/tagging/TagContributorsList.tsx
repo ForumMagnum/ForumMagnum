@@ -1,12 +1,24 @@
 import React, {useState} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import Loading from "../vulcan-core/Loading";
 import LWTooltip from "../common/LWTooltip";
+
+
+const TagFullContributorsListQuery = gql(`
+  query TagContributorsList($documentId: String) {
+    tag(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...TagFullContributorsList
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -48,16 +60,15 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
 }) => {
   const [expandLoadMore,setExpandLoadMore] = useState(false);
   
-  const {document: tagWithExpandedList, loading: loadingMore} = useSingle({
-    documentId: tag._id,
-    collectionName: "Tags",
-    fragmentName: "TagFullContributorsList",
+  const { loading: loadingMore, data } = useQuery(TagFullContributorsListQuery, {
+    variables: { documentId: tag._id },
     skip: !expandLoadMore,
   });
+  const tagWithExpandedList = data?.tag?.result;
   const expandedList = tagWithExpandedList?.contributors?.contributors;
   const loadMore = () => setExpandLoadMore(true);
   
-  const contributorsList = expandedList || tag.contributors.contributors;
+  const contributorsList = expandedList ?? tag.contributors?.contributors;
   
   // Filter out tag-contributor entries where the user is null (which happens
   // if the contribution is by a deleted account)

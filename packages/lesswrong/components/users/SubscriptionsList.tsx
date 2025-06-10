@@ -1,15 +1,28 @@
 import React, { ReactNode } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { commentBodyStyles } from "@/themes/stylePiping";
 import { useCurrentUser } from "../common/withUser";
-import { useMulti } from "@/lib/crud/withMulti";
 import { useCountItemsContext } from "../hooks/CountItemsContext";
 import SubscribedItem from "./SubscribedItem";
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
 import LoadMore from "../common/LoadMore";
+import { TypedDocumentNode } from '@graphql-typed-document-node/core';
+import { defineStyles, useStyles } from "../hooks/useStyles";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
 
-const styles = (theme: ThemeType) => ({
+const SubscriptionStateMultiQuery = gql(`
+  query multiSubscriptionSubscriptionsListQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
+    subscriptions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SubscriptionState
+      }
+      totalCount
+    }
+  }
+`);
+
+const styles = defineStyles('SubscriptionsList', (theme: ThemeType) => ({
   root: {
     ...commentBodyStyles(theme),
   },
@@ -20,41 +33,40 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 10,
     fontStyle: "italic",
   },
-});
+}));
 
-const SubscriptionsList = ({
+export default function SubscriptionsList<TQuery, TExtractResult>({
   collectionName,
-  fragmentName,
   subscriptionType,
+  query,
+  extractDocument,
   renderDocument,
   title,
   subscriptionTypeDescription,
-  classes,
 }: {
   collectionName: CollectionNameString,
-  fragmentName: keyof FragmentTypes,
   subscriptionType: string,
-  renderDocument: (document: AnyBecauseTodo) => ReactNode,
+  query: TypedDocumentNode<TQuery, { documentId: string }>,
+  extractDocument: (data: TQuery) => TExtractResult,
+  renderDocument: (document: NonNullable<TExtractResult>) => ReactNode,
   title: React.ReactNode,
   subscriptionTypeDescription?: string
-  classes: ClassesType<typeof styles>,
-}) => {
+}) {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const countItemsContext = useCountItemsContext();
 
-  const {results, loading, loadMoreProps, showLoadMore} = useMulti({
-    terms: {
-      view: "subscriptionsOfType",
-      userId: currentUser?._id,
-      collectionName: collectionName,
-      subscriptionType: subscriptionType,
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(SubscriptionStateMultiQuery, {
+    variables: {
+      selector: { subscriptionsOfType: { userId: currentUser?._id, collectionName: collectionName, subscriptionType: subscriptionType } },
       limit: 20,
+      enableTotal: true,
     },
-    collectionName: "Subscriptions",
-    fragmentName: "SubscriptionState",
     itemsPerPage: 100,
-    enableTotal: true
   });
+
+  const results = data?.subscriptions?.results;
+  const showLoadMore = !loadMoreProps.hidden;
 
   if (!currentUser) {
     return null;
@@ -82,8 +94,8 @@ const SubscriptionsList = ({
       {results.map(result =>
         <SubscribedItem
           key={result._id}
-          collectionName={collectionName}
-          fragmentName={fragmentName}
+          query={query}
+          extractDocument={extractDocument}
           subscription={result}
           renderDocument={renderDocument}
         />
@@ -92,11 +104,3 @@ const SubscriptionsList = ({
     </div>
   );
 }
-
-export default registerComponent(
-  "SubscriptionsList",
-  SubscriptionsList,
-  {styles},
-);
-
-

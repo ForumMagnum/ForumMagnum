@@ -138,16 +138,16 @@ export const updateSequenceGqlMutation = makeGqlUpdateMutation('Sequences', upda
 
 
 export const graphqlSequenceTypeDefs = gql`
-  input CreateSequenceDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateSequenceDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateSequenceInput {
     data: CreateSequenceDataInput!
   }
   
-  input UpdateSequenceDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateSequenceDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateSequenceInput {

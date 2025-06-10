@@ -1,9 +1,11 @@
 import _ from 'underscore';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
-import { getDefaultViewSelector, mergeSelectors, replaceSpecialFieldSelectors } from '../../lib/utils/viewUtils';
+import { getDefaultViewSelector, mergeSelectors, mergeWithDefaultViewSelector, replaceSpecialFieldSelectors } from '../../lib/utils/viewUtils';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { FieldChanges } from '@/server/collections/fieldChanges/collection';
 import gql from 'graphql-tag';
+import { allViews } from '@/lib/views/allViews';
+import { CollectionViewSet } from '@/lib/views/collectionViewSet';
 
 type FeedSubquery<ResultType extends {}, SortKeyType> = {
   type: string,
@@ -29,6 +31,7 @@ type ViewBasedSubqueryProps<
   collection: CollectionBase<N>,
   context: ResolverContext,
   selector: MongoSelector<ObjectsByCollectionName[N]>,
+  includeDefaultSelector: boolean,
   sticky?: boolean,
 } & SubquerySortField<ObjectsByCollectionName[N], SortFieldName>;
 
@@ -37,13 +40,16 @@ export function viewBasedSubquery<
   SortKeyType,
   SortFieldName extends keyof ObjectsByCollectionName[N]
 >(props: ViewBasedSubqueryProps<N, SortFieldName>): FeedSubquery<ObjectsByCollectionName[N], SortKeyType> {
-  props.sortDirection ??= "desc";
-  const {type, collection, context, selector, sticky, sortField, sortDirection} = props;
+  const {type, collection, context, selector, includeDefaultSelector, sticky, sortField, sortDirection="desc"} = props;
   return {
     type,
     getSortKey: (item: ObjectsByCollectionName[N]) => item[props.sortField] as unknown as SortKeyType,
     isNumericallyPositioned: !!sticky,
     doQuery: async (limit: number, cutoff: SortKeyType): Promise<Partial<ObjectsByCollectionName[N]>[]> => {
+      const viewSet = allViews[collection.collectionName] as CollectionViewSet<N, Record<string, ViewFunction<N>>>;
+      const selectorWithDefaults = includeDefaultSelector
+        ? mergeWithDefaultViewSelector(viewSet, selector)
+        : selector;
       const results = await queryWithCutoff({context, collection, selector, limit, cutoffField: sortField, cutoff, sortDirection});
       return await accessFilterMultiple(context.currentUser, collection.collectionName, results, context);
     }
@@ -217,8 +223,11 @@ async function queryWithCutoff<N extends CollectionNameString>({
   const cutoffSelector = cutoff
     ? {[cutoffField]: {[sortDirection === "asc" ? "$gt" : "$lt"]: cutoff}}
     : {};
+
+  // TODO: figure out how to get the appropriate collection's default view piped through here without going through allViews, if possible
+  const viewSet: CollectionViewSet<CollectionNameString, any> = allViews[collectionName];
   const mergedSelector = mergeSelectors(
-    getDefaultViewSelector(collectionName),
+    getDefaultViewSelector(viewSet),
     selector,
     cutoffSelector
   )

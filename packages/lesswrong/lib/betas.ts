@@ -101,13 +101,14 @@ export const commentsTableOfContentsEnabled = hasCommentsTableOfContentSetting.g
 export const fullHeightToCEnabled = isLWorAF;
 export const hasForumEvents = isEAForum;
 export const hasSurveys = isFriendlyUI && !isBotSiteSetting.get();
-export const hasCollapsedFootnotes = !isLWorAF;
+export const hasCollapsedFootnotes = false; // TODO re-enable for EAF once https://github.com/ForumMagnum/ForumMagnum/issues/10912 is fixed
 export const useCurationEmailsCron = isLW;
 export const hasSidenotes = isLWorAF;
 export const visitedLinksHaveFilledInCircle = isLWorAF;
 export const hasWikiLenses = isLWorAF;
 export const hasSubforums = isEAForum;
 export const hasPolls = isEAForum;
+export const hasDraftComments = isEAForum;
 
 // EA Forum disabled the author's ability to moderate posts. We disregard this
 // check in tests as the tests run in EA Forum mode, but we want to be able to

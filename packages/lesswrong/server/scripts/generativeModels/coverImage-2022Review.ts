@@ -10,6 +10,7 @@ import { filterNonnull } from '../../../lib/utils/typeGuardUtils.ts';
 import { fetchFragment } from '../../fetchFragment.ts';
 import { createAdminContext } from "../../vulcan-lib/createContexts";
 import { createReviewWinnerArt } from '@/server/collections/reviewWinnerArts/mutations.ts';
+import { PostsPage } from '@/lib/collections/posts/fragments.ts';
 
 const myMidjourneyKey = myMidjourneyAPIKeySetting.get()
 
@@ -74,7 +75,7 @@ const getEssaysWithoutEnoughArt = async (): Promise<Essay[]> => {
 
   const essays = await fetchFragment({
     collectionName: "Posts",
-    fragmentName: "PostsPage",
+    fragmentDoc: PostsPage,
     selector: {_id: {$in: postsToFind.map(p => p.postId)}},
     currentUser: null,
     skipFiltering: true,

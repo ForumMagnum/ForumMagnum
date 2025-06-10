@@ -1,5 +1,3 @@
-import { useCreate } from "@/lib/crud/withCreate";
-import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
@@ -15,6 +13,28 @@ import { getUpdatedFieldValues } from "@/components/tanstack-form-components/hel
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const BookPageFragmentUpdateMutation = gql(`
+  mutation updateBookBooksForm($selector: SelectorInput!, $data: UpdateBookDataInput!) {
+    updateBook(selector: $selector, data: $data) {
+      data {
+        ...BookPageFragment
+      }
+    }
+  }
+`);
+
+const BookPageFragmentMutation = gql(`
+  mutation createBookBooksForm($data: CreateBookDataInput!) {
+    createBook(data: $data) {
+      data {
+        ...BookPageFragment
+      }
+    }
+  }
+`);
 
 const formStyles = defineStyles('BooksForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -47,22 +67,16 @@ export const BooksForm = ({
     addOnSuccessCallback
   } = useEditorFormCallbacks<BookPageFragment>();
 
-  const { create } = useCreate({
-    collectionName: 'Books',
-    fragmentName: 'BookPageFragment',
-  });
+  const [create] = useMutation(BookPageFragmentMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'Books',
-    fragmentName: 'BookPageFragment',
-  });
+  const [mutate] = useMutation(BookPageFragmentUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
   const form = useForm({
     defaultValues: {
       ...initialData,
-      ...(formType === 'new' ? { collectionId } : {}),
+      collectionId: initialData?.collectionId ?? collectionId,
     },
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
@@ -71,15 +85,23 @@ export const BooksForm = ({
         let result: BookPageFragment;
 
         if (formType === 'new') {
-          const { data } = await create({ data: formApi.state.values });
-          result = data?.createBook.data;
+          const { data } = await create({ variables: { data: formApi.state.values } });
+          if (!data?.createBook?.data) {
+            throw new Error('Failed to create book');
+          }
+          result = data.createBook.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updateBook.data;
+          if (!data?.updateBook?.data) {
+            throw new Error('Failed to update book');
+          }
+          result = data.updateBook.data;
         }
 
         onSuccessCallback.current?.(result);

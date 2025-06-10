@@ -3,21 +3,32 @@ import {
   fmCrosspostSiteNameSetting,
   fmCrosspostBaseUrlSetting,
 } from "../../lib/instanceSettings";
-import { useSingle } from "../../lib/crud/withSingle";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import FormControlLabel from "@/lib/vendor/@material-ui/core/src/FormControlLabel";
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import LoginIcon from "@/lib/vendor/@material-ui/icons/src/LockOpen"
 import UnlinkIcon from "@/lib/vendor/@material-ui/icons/src/RemoveCircle";
-import { gql, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
 import { useOnFocusTab } from "../hooks/useOnFocusTab";
 import { combineUrls } from "../../lib/vulcan-lib/utils";
 import { useCurrentUser } from "../common/withUser";
+import { gql } from "@/lib/generated/gql-codegen";
 import { generateTokenRoute } from "@/lib/fmCrosspost/routes";
 import { TypedFieldApi } from "@/components/tanstack-form-components/BaseAppForm";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import Loading from "../vulcan-core/Loading";
+
+const UsersCrosspostInfoQuery = gql(`
+  query FMCrosspostControl($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UsersCrosspostInfo
+      }
+    }
+  }
+`);
 
 const styles = defineStyles('FMCrosspostControl', (theme: ThemeType) => ({
   root: {
@@ -60,12 +71,11 @@ const FMCrosspostAccount = ({fmCrosspostUserId}: {
 }) => {
   const classes = useStyles(styles);
   const apolloClient = useForeignApolloClient();
-  const {document, loading} = useSingle({
-    documentId: fmCrosspostUserId,
-    collectionName: "Users",
-    fragmentName: "UsersCrosspostInfo",
-    apolloClient,
+  const { loading, data } = useQuery(UsersCrosspostInfoQuery, {
+    variables: { documentId: fmCrosspostUserId },
+    client: apolloClient,
   });
+  const document = data?.user?.result;
 
   const link = `${fmCrosspostBaseUrlSetting.get()}users/${document?.slug}`;
   if (!document || loading) {
@@ -125,31 +135,30 @@ const FMCrosspostAuth = ({fmCrosspostUserId, loading, onClickLogin, onClickUnlin
  * platform.
  */
 export const FMCrosspostControl = ({ field }: {
-  field: TypedFieldApi<{ isCrosspost: boolean, hostedHere?: boolean | null, foreignPostId?: string | null }>
+  field: TypedFieldApi<{ isCrosspost: boolean, hostedHere?: boolean | null, foreignPostId?: string | null } | null | undefined>
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const {isCrosspost} = field.state.value ?? {};
   if (!currentUser) throw new Error("FMCrosspostControl should only appear when logged in");
 
-  const [unlink, {loading: loadingUnlink}] = useMutation(gql`
+  const [unlink, {loading: loadingUnlink}] = useMutation(gql(`
     mutation unlinkCrossposter {
       unlinkCrossposter
     }
-  `, {errorPolicy: "all"});
-  const {document, refetch, loading: loadingDocument} = useSingle({
-    documentId: currentUser._id,
-    collectionName: "Users",
-    fragmentName: "UsersCrosspostInfo",
+  `), {errorPolicy: "all"});
+  const { refetch, loading: loadingDocument, data } = useQuery(UsersCrosspostInfoQuery, {
+    variables: { documentId: currentUser._id },
     notifyOnNetworkStatusChange: true,
   });
+  const document = data?.user?.result;
   const [error, setError] = useState<string | null>(null);
 
   const loading = loadingUnlink || loadingDocument;
 
   useOnFocusTab(() => {
     if (!loading && !document?.fmCrosspostUserId) {
-      refetch();
+      void refetch();
     }
   });
 

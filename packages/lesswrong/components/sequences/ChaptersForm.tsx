@@ -1,5 +1,3 @@
-import { useCreate } from "@/lib/crud/withCreate";
-import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
@@ -13,9 +11,31 @@ import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { LegacyFormGroupLayout } from "../tanstack-form-components/LegacyFormGroupLayout";
-import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
+import { userIsAdmin, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import Error404 from "../common/Error404";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const ChaptersEditUpdateMutation = gql(`
+  mutation updateChapterChaptersForm($selector: SelectorInput!, $data: UpdateChapterDataInput!) {
+    updateChapter(selector: $selector, data: $data) {
+      data {
+        ...ChaptersEdit
+      }
+    }
+  }
+`);
+
+const ChaptersEditMutation = gql(`
+  mutation createChapterChaptersForm($data: CreateChapterDataInput!) {
+    createChapter(data: $data) {
+      data {
+        ...ChaptersEdit
+      }
+    }
+  }
+`);
 
 const formStyles = defineStyles('ChaptersForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -51,23 +71,24 @@ export const ChaptersForm = ({
     addOnSuccessCallback
   } = useEditorFormCallbacks<ChaptersEdit>();
 
-  const { create } = useCreate({
-    collectionName: 'Chapters',
-    fragmentName: 'ChaptersEdit',
-  });
+  const [create] = useMutation(ChaptersEditMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'Chapters',
-    fragmentName: 'ChaptersEdit',
-  });
+  const [mutate] = useMutation(ChaptersEditUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
+  const defaultValues = {
+    ...initialData,
+    ...(formType === 'new' && prefilledProps ? prefilledProps : {}),
+  };
+
+  const defaultValuesWithRequiredFields = {
+    ...defaultValues,
+    postIds: defaultValues.postIds ?? [],
+  };
+
   const form = useForm({
-    defaultValues: {
-      ...initialData,
-      ...(formType === 'new' && prefilledProps ? prefilledProps : {}),
-    },
+    defaultValues: defaultValuesWithRequiredFields,
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
@@ -75,15 +96,23 @@ export const ChaptersForm = ({
         let result: ChaptersEdit;
 
         if (formType === 'new') {
-          const { data } = await create({ data: formApi.state.values });
-          result = data?.createChapter.data;
+          const { data } = await create({ variables: { data: formApi.state.values } });
+          if (!data?.createChapter?.data) {
+            throw new Error('Failed to create chapter');
+          }
+          result = data.createChapter.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updateChapter.data;
+          if (!data?.updateChapter?.data) {
+            throw new Error('Failed to update chapter');
+          }
+          result = data.updateChapter.data;
         }
 
         onSuccessCallback.current?.(result);
@@ -156,7 +185,8 @@ export const ChaptersForm = ({
         </form.Field>
       </div>
 
-      <LegacyFormGroupLayout
+      {/* The title, subtitle, and number fields are only editable by admins */}
+      {userIsAdmin(currentUser) && <LegacyFormGroupLayout
         label="Chapter Details"
         groupStyling
         startCollapsed={true}
@@ -196,7 +226,7 @@ export const ChaptersForm = ({
             )}
           </form.Field>
         </div>
-      </LegacyFormGroupLayout>
+      </LegacyFormGroupLayout>}
 
       <div className="form-submit">
         <Button

@@ -72,7 +72,7 @@ const styles = (theme: ThemeType) => ({
       fill: theme.palette.grey[600],
     },
   },
-  karma: {
+  leadingInfo: {
     display:"inline-block",
     textAlign: "center",
     paddingTop: SINGLE_LINE_PADDING_TOP,
@@ -177,7 +177,9 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   const contentToRender = comment.title || comment.contents?.plaintextMainText;
   const displayHoverOver = hover && ((comment.baseScore ?? 0) > -5) && !isMobile() && enableHoverPreview
   const renderHighlight = ((comment.baseScore ?? 0) > -5) && !comment.deleted
-  const actuallyDisplayTagIcon = !!(displayTagIcon && comment.tag && coreTagIconMap[comment.tag.slug])
+
+  const parentTag = comment.tag;
+  const actuallyDisplayTagIcon = !!(displayTagIcon && parentTag && coreTagIconMap[parentTag.slug])
   
   const effectiveNestingLevel = nestingLevel + (treeOptions.switchAlternatingHighlights ? 1 : 0);
   
@@ -196,7 +198,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
       >
         {post && <div className={classes.shortformIcon}><CommentShortformIcon comment={comment} post={post} simple={true} /></div>}
         {actuallyDisplayTagIcon && <div className={classes.tagIcon}>
-          <CoreTagIcon tag={comment.tag} />
+          <CoreTagIcon tag={parentTag} />
         </div>}
 
         {/* We're often comparing null to undefined, so we need to explicitly use a double-eq-negation */}
@@ -204,8 +206,11 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         {!hideParentCommentToggle && parentCommentId!=comment.parentCommentId && <span className={classes.parentComment}>
           <ShowParentComment comment={comment} />
         </span>}
-        {!hideKarma && <span className={classes.karma}>
+        {!hideKarma && !comment.draft && <span className={classes.leadingInfo}>
           {commentGetKarma(comment)}
+        </span>}
+        {comment.draft && <span className={classes.leadingInfo}>
+          [Draft]
         </span>}
         <CommentUserName
           comment={comment}
@@ -243,9 +248,11 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
               treeOptions={{
                 ...treeOptions,
                 hideReply: true,
+                initialShowEdit: false,
                 forceSingleLine: false,
                 forceNotSingleLine: true,
                 switchAlternatingHighlights: false,
+                showEditInContext: false
               }}
               hoverPreview
             />

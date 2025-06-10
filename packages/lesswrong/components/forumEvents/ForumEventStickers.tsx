@@ -1,5 +1,6 @@
-import { useMulti } from "@/lib/crud/withMulti";
-import { gql, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
+import { gql } from "@/lib/generated/gql-codegen";
 import React, { FC, useCallback, useMemo, useRef, useState } from "react";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import { useCurrentUser } from "../common/withUser";
@@ -18,6 +19,28 @@ import { useModerateComment } from "../dropdowns/comments/withModerateComment";
 import { useMessages } from "../common/withMessages";
 import ForumEventCommentForm from "./ForumEventCommentForm";
 import ForumEventSticker from "./ForumEventSticker";
+
+const ShortformCommentsMultiQuery = gql(`
+  query multiCommentForumEventStickersQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ShortformComments
+      }
+      totalCount
+    }
+  }
+`);
+
+const UsersMinimumInfoMultiQuery = gql(`
+  query multiUserForumEventStickersQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UsersMinimumInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   stickersContainer: {
@@ -73,28 +96,29 @@ const ForumEventStickers: FC<{
   const uniqueUserIds = Array.from(new Set(stickers.map(sticker => sticker.userId).filter(id => id)));
   const uniqueCommentIds = Array.from(new Set(stickers.map(sticker => sticker.commentId).filter(id => id)));
 
-  const { results: users } = useMulti({
-    terms: {
-      view: 'usersByUserIds',
-      userIds: uniqueUserIds,
+  const { data } = useQuery(UsersMinimumInfoMultiQuery, {
+    variables: {
+      selector: { usersByUserIds: { userIds: uniqueUserIds } },
       limit: 1000,
+      enableTotal: false,
     },
-    collectionName: "Users",
-    fragmentName: 'UsersMinimumInfo',
-    enableTotal: false,
     skip: !stickers,
+    notifyOnNetworkStatusChange: true,
   });
-  const { results: comments, refetch: refetchComments } = useMulti({
-    terms: {
-      commentIds: uniqueCommentIds,
+
+  const users = data?.users?.results;
+  const { data: dataShortformComments, refetch: refetchComments } = useQuery(ShortformCommentsMultiQuery, {
+    variables: {
+      selector: { default: { commentIds: uniqueCommentIds } },
       limit: 1000,
+      enableTotal: false,
     },
-    collectionName: "Comments",
-    fragmentName: 'ShortformComments',
-    enableTotal: false,
     // Don't run on the first pass, to speed up SSR
     skip: !uniqueCommentIds || !uniqueCommentIds.length || !users,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const comments = dataShortformComments?.comments?.results;
 
   const usersById = keyBy(users, "_id")
   const commentsById = keyBy(comments, "_id")
@@ -132,12 +156,12 @@ const ForumEventStickers: FC<{
     [containerRef]
   );
 
-  const [removeSticker] = useMutation(gql`
+  const [removeSticker] = useMutation(gql(`
     mutation RemoveForumEventSticker($forumEventId: String!, $stickerId: String!) {
       RemoveForumEventSticker(forumEventId: $forumEventId, stickerId: $stickerId)
     }
-  `);
-  const {moderateCommentMutation} = useModerateComment({fragmentName: "CommentsList"});
+  `));
+  const {moderateCommentMutation} = useModerateComment();
 
   const currentUserStickerCount = stickers.filter(s => s.userId === currentUser?._id).length
   const allowAddingSticker = currentUserStickerCount < (currentForumEvent?.maxStickersPerUser ?? 0)

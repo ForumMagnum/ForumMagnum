@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper";
+import { gql } from "@/lib/generated/gql-codegen";
 
-export const FeedPostFragment = () => frag`
+export const FeedPostFragment = gql(`
   fragment FeedPostFragment on FeedPost {
     _id
     postMetaInfo
@@ -8,9 +8,9 @@ export const FeedPostFragment = () => frag`
       ...PostsListWithVotes
     }
   }
-`;
+`)
 
-export const FeedCommentThreadFragment = () => frag`
+export const FeedCommentThreadFragment = gql(`
   fragment FeedCommentThreadFragment on FeedCommentThread {
     _id
     commentMetaInfos
@@ -18,14 +18,14 @@ export const FeedCommentThreadFragment = () => frag`
       ...UltraFeedComment
     }
   }
-`;
+`)
 
-export const FeedSpotlightFragment = () => frag`
+export const FeedSpotlightFragment = gql(`
   fragment FeedSpotlightFragment on FeedSpotlightItem {
     _id
     spotlight {
       ...SpotlightDisplay
     }
   }
-`;
+`)
 

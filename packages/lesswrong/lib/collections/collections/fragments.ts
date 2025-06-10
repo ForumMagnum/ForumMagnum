@@ -1,24 +1,21 @@
-import { frag } from "@/lib/fragments/fragmentWrapper";
-import { UsersMinimumInfo } from "../users/fragments"
-import { BookPageFragment } from "../books/fragments"
-
-export const CollectionContinueReadingFragment = () => frag`
+import { gql } from "@/lib/generated/gql-codegen";
+export const CollectionContinueReadingFragment = gql(`
   fragment CollectionContinueReadingFragment on Collection {
     _id
     title
     slug
     gridImageId
   }
-`
+`)
 
-export const CollectionsPageFragment = () => frag`
+export const CollectionsPageFragment = gql(`
   fragment CollectionsPageFragment on Collection {
     _id
     createdAt
     slug
     userId
     user {
-      ${UsersMinimumInfo}
+      ...UsersMinimumInfo
     }
     title
     contents {
@@ -27,30 +24,30 @@ export const CollectionsPageFragment = () => frag`
     firstPageLink
     gridImageId
     books {
-      ${BookPageFragment}
+      ...BookPageFragment
     }
     hideStartReadingButton
     noindex
   }
-`
+`)
 
-export const CollectionsEditFragment = () => frag`
+export const CollectionsEditFragment = gql(`
   fragment CollectionsEditFragment on Collection {
-    ${CollectionsPageFragment}
+    ...CollectionsPageFragment
     contents {
       ...RevisionEdit
     }
   }
-`
+`)
 
-export const CollectionsBestOfFragment = () => frag`
+export const CollectionsBestOfFragment = gql(`
   fragment CollectionsBestOfFragment on Collection {
     _id
     createdAt
     slug
     userId
     user {
-      ${UsersMinimumInfo}
+      ...UsersMinimumInfo
     }
     title
     gridImageId
@@ -61,4 +58,4 @@ export const CollectionsBestOfFragment = () => frag`
       ...RevisionDisplay
     }
   }
-`
+`)

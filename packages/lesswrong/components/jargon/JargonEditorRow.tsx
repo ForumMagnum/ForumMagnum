@@ -1,13 +1,24 @@
 import React, { useState } from 'react';
 import { commentBodyStyles } from '@/themes/stylePiping';
 import classNames from 'classnames';
-import { useUpdate } from '@/lib/crud/withUpdate';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { JargonTermForm } from './JargonTermForm';
 import JargonTooltip from "./JargonTooltip";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import LWTooltip from "../common/LWTooltip";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const JargonTermsUpdateMutation = gql(`
+  mutation updateJargonTermJargonEditorRow($selector: SelectorInput!, $data: UpdateJargonTermDataInput!) {
+    updateJargonTerm(selector: $selector, data: $data) {
+      data {
+        ...JargonTerms
+      }
+    }
+  }
+`);
 
 export const formStyles = {
   '& .form-section-default > div': {
@@ -165,37 +176,54 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, se
 
   const [edit, setEdit] = useState(false);
 
-  const {mutate: updateJargonTerm} = useUpdate({
-    collectionName: "JargonTerms",
-    fragmentName: 'JargonTerms',
-  });
+  const [updateJargonTerm] = useMutation(JargonTermsUpdateMutation);
 
   const handleActiveChange = () => {
     const newDeleteStatus = !jargonTerm.approved ? false : jargonTerm.deleted;
 
     void updateJargonTerm({
-      selector: { _id: jargonTerm._id },
-      data: {
-        approved: !jargonTerm.approved,
-        deleted: newDeleteStatus,
+      variables: {
+        selector: { _id: jargonTerm._id },
+        data: {
+          approved: !jargonTerm.approved,
+          deleted: newDeleteStatus,
+        }
       },
       optimisticResponse: {
-        ...jargonTerm,
-        approved: !jargonTerm.approved,
-        deleted: newDeleteStatus,
+        updateJargonTerm: {
+          __typename: "JargonTermOutput",
+          data: {
+            __typename: "JargonTerm",
+            ...{
+              ...jargonTerm,
+              approved: !jargonTerm.approved,
+              deleted: newDeleteStatus,
+            }
+          }
+        }
       }
     })
   }
 
   const handleDelete = () => {
     void updateJargonTerm({
-      selector: { _id: jargonTerm._id },
-      data: {
-        deleted: true
+      variables: {
+        selector: { _id: jargonTerm._id },
+        data: {
+          deleted: true
+        }
       },
       optimisticResponse: {
-        ...jargonTerm,
-        deleted: true,
+        updateJargonTerm: {
+          __typename: "JargonTermOutput",
+          data: {
+            __typename: "JargonTerm",
+            ...{
+              ...jargonTerm,
+              deleted: true,
+            }
+          }
+        }
       }
     })
   }

@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { useStyles, defineStyles } from '@/components/hooks/useStyles';
-import { useMulti } from '@/lib/crud/withMulti';
 import { HashLink } from '@/components/common/HashLink';
 import { hideScrollBars } from '@/themes/styleUtils';
 import UsersName from "../../../users/UsersName";
@@ -10,6 +9,19 @@ import CommentBody from "../../../comments/CommentsItem/CommentBody";
 import SmallSideVote from "../../../votes/SmallSideVote";
 import LWTooltip from "../../../common/LWTooltip";
 import UsersNameDisplay from "../../../users/UsersNameDisplay";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const CommentWithRepliesFragmentMultiQuery = gql(`
+  query multiCommentReviewPillContainerQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentWithRepliesFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = defineStyles("ReviewPillContainer", (theme: ThemeType) => ({ 
   root: {
@@ -89,17 +101,22 @@ const ReviewPreview = ({review}: {review: CommentsList}) => {
 const ReviewPillContainer = ({postId}: {postId: string}) => {
   const classes = useStyles(styles);
 
-  const { results: reviews } = useMulti({
-    terms: {
-      view: "reviews",
-      postId: postId,
-      minimumKarma: 5
+  const { data } = useQuery(CommentWithRepliesFragmentMultiQuery, {
+    variables: {
+      selector: { reviews: { postId: postId, minimumKarma: 5 } },
+      limit: 5,
+      enableTotal: false,
     },
-    collectionName: "Comments",
-    fragmentName: 'CommentWithRepliesFragment',
     fetchPolicy: 'cache-and-network',
-    limit: 5
+    notifyOnNetworkStatusChange: true,
   });
+
+  const reviews = data?.comments?.results;
+  
+  if (!reviews?.length) {
+    return null;
+  }
+  
   return <AnalyticsContext pageElementContext="reviewPillContainer">
     <div className={classes.root}>
       {reviews?.map((review) => (

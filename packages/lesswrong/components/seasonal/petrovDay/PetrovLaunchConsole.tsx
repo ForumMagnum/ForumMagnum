@@ -1,13 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useTracking } from '@/lib/analyticsEvents';
-import { useCreate } from '@/lib/crud/withCreate';
-import { useMulti } from '@/lib/crud/withMulti';
 import classNames from 'classnames';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import type { PetrovDayActionType } from "@/lib/collections/petrovDayActions/constants";
 import PetrovWorldmapWrapper from "./PetrovWorldmapWrapper";
 import PastWarnings from "./PastWarnings";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
+import { gql } from "@/lib/generated/gql-codegen";
+
+const PetrovDayActionInfoMultiQuery = gql(`
+  query multiPetrovDayActionPetrovLaunchConsoleQuery($selector: PetrovDayActionSelector, $limit: Int, $enableTotal: Boolean) {
+    petrovDayActions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PetrovDayActionInfo
+      }
+      totalCount
+    }
+  }
+`);
+
+const PetrovDayActionInfoMutation = gql(`
+  mutation createPetrovDayActionPetrovLaunchConsole($data: CreatePetrovDayActionDataInput!) {
+    createPetrovDayAction(data: $data) {
+      data {
+        ...PetrovDayActionInfo
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -76,34 +98,34 @@ export const PetrovLaunchConsole = ({classes, side, currentUser}: {
   const [openCodes, setOpenCodes] = useState(false)
   const [launchCode, setLaunchCode] = useState('')
 
-  const { results: petrovDayActions = [], refetch: refetchPetrovDayActions } = useMulti({
-    collectionName: 'PetrovDayActions',
-    fragmentName: 'PetrovDayActionInfo',
-    terms: {
-      view: 'launchDashboard',
-      side: side,
-      limit: 200
+  const { data, refetch: refetchPetrovDayActions } = useQuery(PetrovDayActionInfoMultiQuery, {
+    variables: {
+      selector: { launchDashboard: { side: side } },
+      limit: 200,
+      enableTotal: false,
     },
-    skip: !currentUser
-  })
+    skip: !currentUser,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const petrovDayActions = data?.petrovDayActions?.results ?? [];
   const petrovReportActionTypes: PetrovDayActionType[] = side === 'east' ? ['eastPetrovAllClear', 'eastPetrovNukesIncoming'] : ['westPetrovAllClear', 'westPetrovNukesIncoming']
-  const petrovReports = petrovDayActions.filter((action) => petrovReportActionTypes.includes(action.actionType))
+  // const petrovReports = petrovDayActions.filter((action) => petrovReportActionTypes.includes(action.actionType))
 
   const launchActionType = side === 'east' ? 'nukeTheWest' : 'nukeTheEast'
   const launchAction = petrovDayActions.find((action) => action.actionType === launchActionType) || launched
 
-  const { create: createPetrovDayAction } = useCreate({
-    collectionName: 'PetrovDayActions',
-    fragmentName: 'PetrovDayActionInfo'
-  })
+  const [createPetrovDayAction] = useMutation(PetrovDayActionInfoMutation);
 
   const handleLaunch = () => {
     if (launchAction || launchCode !== "000000") return
     const attackActionType = side === 'east' ? 'nukeTheWest' : 'nukeTheEast'
     void createPetrovDayAction({  
-      data: {
-        userId: currentUser._id,
-        actionType: attackActionType,
+      variables: {
+        data: {
+          userId: currentUser._id,
+          actionType: attackActionType,
+        }
       }
     }) 
     setLaunched(true)
@@ -114,7 +136,7 @@ export const PetrovLaunchConsole = ({classes, side, currentUser}: {
   useEffect(() => {
     const interval = setInterval(() => {
       if (currentUser) {
-        refetchPetrovDayActions();
+        void refetchPetrovDayActions();
       }
     }, 30000);
     return () => clearInterval(interval);

@@ -17,7 +17,8 @@ import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import type { ContentItemBodyImperative } from '../../common/ContentItemBody';
+import type { TagCommentType } from '@/lib/collections/comments/types';
+import type { ContentItemBodyImperative } from '../../contents/contentBodyUtil';
 import CommentsEditForm from "../CommentsEditForm";
 import CommentExcerpt from "../../common/excerpts/CommentExcerpt";
 import CommentBody from "./CommentBody";
@@ -210,7 +211,7 @@ export const CommentsItem = ({
 }) => {
   const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
-  const [showEditState, setShowEditState] = useState(false);
+  const [showEditState, setShowEditState] = useState(treeOptions.initialShowEdit || false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
   const isMinimalist = treeOptions.formStyle === "minimalist"
   const currentUser = useCurrentUser();
@@ -220,7 +221,7 @@ export const CommentsItem = ({
     moderatedCommentId, hideParentCommentToggleForTopLevel,
   } = treeOptions;
 
-  const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !comment.deleted && !showEditState)
+  const showCommentTitle = !!(commentAllowTitle({tagCommentType: comment.tagCommentType as TagCommentType, parentCommentId: comment.parentCommentId}) && comment.title && !comment.deleted && !showEditState)
 
   const openReplyForm = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -244,6 +245,9 @@ export const CommentsItem = ({
 
   const editCancelCallback = () => {
     setShowEditState(false);
+    if (comment.draft) {
+      setSingleLine?.(true);
+    }
   }
 
   const editSuccessCallback = () => {
@@ -251,6 +255,9 @@ export const CommentsItem = ({
       refetch()
     }
     setShowEditState(false);
+    if (comment.draft) {
+      setSingleLine?.(true);
+    }
   }
 
   const toggleShowParent = () => {
@@ -296,7 +303,7 @@ export const CommentsItem = ({
           prefilledProps={{
             parentAnswerId: parentAnswerId ? parentAnswerId : null
           }}
-          type="reply"
+          interactionType="reply"
           enableGuidelines={enableGuidelines}
           formStyle={treeOptions.formStyle}
         />
@@ -387,7 +394,7 @@ export const CommentsItem = ({
           {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
             Pinned by {comment.promotedByUser.displayName}
           </div>}
-          {comment.rejected && <p><RejectedReasonDisplay reason={comment.rejectedReason}/></p>}
+          {comment.rejected && <p><RejectedReasonDisplay reason={comment.rejectedReason ?? null}/></p>}
           {renderBodyOrEditor(voteProps)}
           {!comment.deleted && !collapsed && <CommentBottom
             comment={comment}

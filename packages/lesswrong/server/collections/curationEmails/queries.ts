@@ -4,8 +4,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlCurationEmailQueryTypeDefs = gql`
-  type CurationEmail {
-    ${getAllGraphQLFields(schema)}
+  type CurationEmail ${
+    getAllGraphQLFields(schema)
   }
 `;
 

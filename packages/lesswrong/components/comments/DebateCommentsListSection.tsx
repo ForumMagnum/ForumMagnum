@@ -70,7 +70,7 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
 }) => {
   const currentUser = useCurrentUser();
   const commentTree = unflattenComments(comments);
-  const highlightDate = post?.lastVisitedAt && new Date(post.lastVisitedAt);
+  const highlightDate = post?.lastVisitedAt ? new Date(post.lastVisitedAt) : undefined;
 
   const postAuthor = post.user;
 
@@ -91,7 +91,7 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
           <div className={classes.newCommentLabel}>New Comment</div>
           <CommentsNewForm
             post={post}
-            type="comment"
+            interactionType="comment"
             {...newFormProps}
           />
         </div>

@@ -3,16 +3,27 @@ import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { getBookAnchor } from '../../lib/collections/books/helpers';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { BooksForm } from './BooksForm';
-import { useSingle } from '@/lib/crud/withSingle';
 import Loading from "../vulcan-core/Loading";
 import BooksProgressBar from "./BooksProgressBar";
 import SectionTitle from "../common/SectionTitle";
 import SectionButton from "../common/SectionButton";
 import LargeSequencesItem from "./LargeSequencesItem";
 import SequencesPostsList from "./SequencesPostsList";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import SequencesGrid from "./SequencesGrid";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const BookEditQuery = gql(`
+  query BooksItem($documentId: String) {
+    book(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...BookEdit
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   description: {
@@ -47,12 +58,11 @@ const BooksItem = ({ book, canEdit, classes }: {
   const [edit,setEdit] = useState(false);
 
   const { html = "" } = book.contents || {}
-  const { document: editableBook, loading } = useSingle({
-    collectionName: 'Books',
-    documentId: book._id,
-    fragmentName: 'BookEdit',
+  const { loading, data } = useQuery(BookEditQuery, {
+    variables: { documentId: book._id },
     skip: !edit,
   });
+  const editableBook = data?.book?.result ?? undefined;
   
   const showEdit = useCallback(() => {
     setEdit(true);

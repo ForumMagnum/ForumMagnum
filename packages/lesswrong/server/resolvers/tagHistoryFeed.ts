@@ -14,10 +14,20 @@ export const tagHistoryFeedGraphQLTypeDefs = gql`
   type TagHistoryFeedQueryResults {
     cutoff: Date
     endOffset: Int!
-    results: [TagHistoryFeedEntryType!]
+    results: [TagHistoryFeedEntry!]
   }
-  type TagHistoryFeedEntryType {
-    type: String!
+  enum TagHistoryFeedEntryType {
+    tagCreated
+    tagApplied
+    tagRevision
+    tagDiscussionComment
+    lensRevision
+    summaryRevision
+    wikiMetadataChanged
+    lensOrSummaryMetadataChanged
+  }
+  type TagHistoryFeedEntry {
+    type: TagHistoryFeedEntryType!
     tagCreated: Tag
     tagApplied: TagRel
     tagRevision: Revision
@@ -84,6 +94,7 @@ export const tagHistoryFeedGraphQLQueries = {
           collection: TagRels,
           sortField: "createdAt",
           context,
+          includeDefaultSelector: false,
           selector: {tagId},
         }) : null),
         // Tag revisions
@@ -92,6 +103,7 @@ export const tagHistoryFeedGraphQLQueries = {
           collection: Revisions,
           sortField: "editedAt",
           context,
+          includeDefaultSelector: false,
           selector: {
             documentId: tagId,
             collectionName: "Tags",
@@ -112,6 +124,7 @@ export const tagHistoryFeedGraphQLQueries = {
           collection: Comments,
           sortField: "postedAt",
           context,
+          includeDefaultSelector: true,
           selector: {
             parentCommentId: null,
             tagId,

@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper";
+import { gql } from "@/lib/generated/gql-codegen";
 
-export const CommentsList = () => frag`
+export const CommentsList = gql(`
   fragment CommentsList on Comment {
     _id
     postId
@@ -28,6 +28,7 @@ export const CommentsList = () => frag`
     lastEditedAt
     repliesBlockedUntil
     userId
+    draft
     deleted
     deletedPublic
     deletedByUserId
@@ -80,18 +81,18 @@ export const CommentsList = () => frag`
     forumEventId
     forumEventMetadata
   }
-`
+`)
 
-export const CommentsListWithTopLevelComment = () => frag`
+export const CommentsListWithTopLevelComment = gql(`
   fragment CommentsListWithTopLevelComment on Comment {
     ...CommentsList
     topLevelComment {
       ...CommentsList
     }
   }
-`
+`)
 
-export const UltraFeedComment = () => frag`
+export const UltraFeedComment = gql(`
   fragment UltraFeedComment on Comment {
     ...CommentsList
     post {
@@ -99,9 +100,9 @@ export const UltraFeedComment = () => frag`
       votingSystem
     }
   }
-`
+`)
 
-export const ShortformComments = () => frag`
+export const ShortformComments = gql(`
   fragment ShortformComments on Comment {
     ...CommentsList
     post {
@@ -111,9 +112,24 @@ export const ShortformComments = () => frag`
       ...TagPreviewFragment
     }
   }
-`
+`)
 
-export const CommentWithRepliesFragment = () => frag`
+export const DraftComments = gql(`
+  fragment DraftComments on Comment {
+    ...CommentsList
+    post {
+      ...PostsMinimumInfo
+    }
+    parentComment {
+      _id
+      user {
+        ...UsersMinimumInfo
+      }
+    }
+  }
+`)
+
+export const CommentWithRepliesFragment = gql(`
   fragment CommentWithRepliesFragment on Comment {
     ...CommentsList
     lastSubthreadActivity
@@ -127,9 +143,9 @@ export const CommentWithRepliesFragment = () => frag`
       ...PostsBase
     }
   }
-`
+`)
 
-export const CommentEdit = () => frag`
+export const CommentEdit = gql(`
   fragment CommentEdit on Comment {
     ...CommentsList
     relevantTagIds
@@ -137,9 +153,9 @@ export const CommentEdit = () => frag`
       ...RevisionEdit
     }
   }
-`
+`)
 
-export const DeletedCommentsMetaData = () => frag`
+export const DeletedCommentsMetaData = gql(`
   fragment DeletedCommentsMetaData on Comment {
     _id
     deleted
@@ -151,9 +167,9 @@ export const DeletedCommentsMetaData = () => frag`
     deletedReason
     deletedPublic
   }
-`
+`)
 
-export const DeletedCommentsModerationLog = () => frag`
+export const DeletedCommentsModerationLog = gql(`
   fragment DeletedCommentsModerationLog on Comment {
     ...DeletedCommentsMetaData
     user {
@@ -165,9 +181,9 @@ export const DeletedCommentsModerationLog = () => frag`
       _id
     }
   }
-`
+`)
 
-export const CommentsListWithParentMetadata = () => frag`
+export const CommentsListWithParentMetadata = gql(`
   fragment CommentsListWithParentMetadata on Comment {
     ...CommentsList
     post {
@@ -178,20 +194,20 @@ export const CommentsListWithParentMetadata = () => frag`
       ...TagBasicInfo
     }
   }
-`
+`)
 
 // TODO: This is now the same as CommentWithRepliesFragment, now that said
 // fragment gets the tag field
-export const StickySubforumCommentFragment = () => frag`
+export const StickySubforumCommentFragment = gql(`
   fragment StickySubforumCommentFragment on Comment {
     ...CommentWithRepliesFragment
     tag {
       ...TagBasicInfo
     }
   }
-`
+`)
 
-export const WithVoteComment = () => frag`
+export const WithVoteComment = gql(`
   fragment WithVoteComment on Comment {
     __typename
     _id
@@ -204,18 +220,18 @@ export const WithVoteComment = () => frag`
     afExtendedScore
     voteCount
   }
-`
+`)
 
-export const CommentsListWithModerationMetadata = () => frag`
+export const CommentsListWithModerationMetadata = gql(`
   fragment CommentsListWithModerationMetadata on Comment {
     ...CommentWithRepliesFragment
     allVotes {
       voteType
     }
   }
-`
+`)
 
-export const CommentsListWithModGPTAnalysis = () => frag`
+export const CommentsListWithModGPTAnalysis = gql(`
   fragment CommentsListWithModGPTAnalysis on Comment {
     ...CommentsList
     post {
@@ -223,9 +239,9 @@ export const CommentsListWithModGPTAnalysis = () => frag`
     }
     modGPTAnalysis
   }
-`
+`)
 
-export const CommentsForAutocomplete = () => frag`
+export const CommentsForAutocomplete = gql(`
   fragment CommentsForAutocomplete on Comment {
     _id
     postId
@@ -241,7 +257,8 @@ export const CommentsForAutocomplete = () => frag`
     post {
       ...PostsForAutocomplete
     }
-  }`
+  }
+`)
 
 /**
  * Fragment that gets a comment with parents recursed up to 10 times. This was
@@ -249,7 +266,7 @@ export const CommentsForAutocomplete = () => frag`
  * recursive function, but that didn't work well with codegen so it's now
  * fully unrolled.
  */
-export const CommentsForAutocompleteWithParents = () => frag`
+export const CommentsForAutocompleteWithParents = gql(`
   fragment CommentsForAutocompleteWithParents on Comment {
     ...CommentsForAutocomplete
     parentComment {
@@ -283,9 +300,9 @@ export const CommentsForAutocompleteWithParents = () => frag`
       }
     }
   }
-`
+`)
 
-export const SuggestAlignmentComment = () => frag`
+export const SuggestAlignmentComment = gql(`
   fragment SuggestAlignmentComment on Comment {
     ...CommentsList
     post {
@@ -296,4 +313,5 @@ export const SuggestAlignmentComment = () => frag`
       _id
       displayName
     }
-  }`
+  }
+`)

@@ -1,5 +1,4 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanPost } from '@/lib/collections/users/helpers';
@@ -7,7 +6,6 @@ import { useCurrentUser } from '../common/withUser';
 import qs from 'qs'
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
-import { useMulti } from '../../lib/crud/withMulti';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { FacebookIcon, MeetupIcon, RoundFacebookIcon, SlackIcon } from './GroupLinks';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
@@ -15,6 +13,8 @@ import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn';
 import { GROUP_CATEGORIES } from "@/lib/collections/localgroups/groupTypes";
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import Person from '@/lib/vendor/@material-ui/icons/src/Person';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import ForumIcon from "../common/ForumIcon";
 import HeadTags from "../common/HeadTags";
 import CommunityMapWrapper from "./CommunityMapWrapper";
@@ -26,7 +26,7 @@ import SectionButton from "../common/SectionButton";
 import NotifyMeButton from "../notifications/NotifyMeButton";
 import SectionFooter from "../common/SectionFooter";
 import GroupFormLink from "./GroupFormLink";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import Error404 from "../common/Error404";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import EventCards from "../events/modules/EventCards";
@@ -36,6 +36,28 @@ import { Typography } from "../common/Typography";
 import HoverOver from "../common/HoverOver";
 import LocalGroupSubscribers from "./LocalGroupSubscribers";
 import UsersNameDisplay from "../users/UsersNameDisplay";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+
+const PostsListMultiQuery = gql(`
+  query multiPostLocalGroupPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsList
+      }
+      totalCount
+    }
+  }
+`);
+
+const localGroupsHomeFragmentQuery = gql(`
+  query LocalGroupPage($documentId: String) {
+    localgroup(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...localGroupsHomeFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {},
@@ -252,54 +274,50 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   groupId?: string,
 }) => {
   const currentUser = useCurrentUser();
-  const { document: group, loading: groupLoading } = useSingle({
-    collectionName: "Localgroups",
-    fragmentName: 'localGroupsHomeFragment',
-    documentId: groupId
-  })
+
+  const { loading: groupLoading, data } = useQuery(localGroupsHomeFragmentQuery, {
+    variables: { documentId: groupId },
+  });
+  const group = data?.localgroup?.result;
   
-  const {
-    results: upcomingEvents,
-    loading: upcomingEventsLoading,
-    loadMoreProps: upcomingEventsLoadMoreProps
-  } = useMulti({
-    terms: {view: 'upcomingEvents', groupId: groupId},
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
+  const { data: dataUpcomingEvents, loading: upcomingEventsLoading, loadMoreProps: upcomingEventsLoadMoreProps } = useQueryWithLoadMore(PostsListMultiQuery, {
+    variables: {
+      selector: { upcomingEvents: { groupId } },
+      limit: 2,
+      enableTotal: true,
+    },
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    limit: 2,
     itemsPerPage: 6,
-    enableTotal: true,
   });
-  const {
-    results: tbdEvents,
-    loading: tbdEventsLoading,
-    loadMoreProps: tbdEventsLoadMoreProps
-  } = useMulti({
-    terms: {view: 'tbdEvents', groupId: groupId},
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
+
+  const upcomingEvents = dataUpcomingEvents?.posts?.results;
+
+  const { data: dataTbdEvents, loading: tbdEventsLoading, loadMoreProps: tbdEventsLoadMoreProps } = useQueryWithLoadMore(PostsListMultiQuery, {
+    variables: {
+      selector: { tbdEvents: { groupId } },
+      limit: 2,
+      enableTotal: true,
+    },
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    limit: 2,
     itemsPerPage: 6,
-    enableTotal: true,
   });
-  const {
-    results: pastEvents,
-    loading: pastEventsLoading,
-    loadMoreProps: pastEventsLoadMoreProps
-  } = useMulti({
-    terms: {view: 'pastEvents', groupId: groupId},
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
+
+  const tbdEvents = dataTbdEvents?.posts?.results;
+
+  const { data: dataPostsList, loading: pastEventsLoading, loadMoreProps: pastEventsLoadMoreProps } = useQueryWithLoadMore(PostsListMultiQuery, {
+    variables: {
+      selector: { pastEvents: { groupId } },
+      limit: 2,
+      enableTotal: true,
+    },
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
-    limit: 2,
     itemsPerPage: 6,
-    enableTotal: true,
   });
+
+  const pastEvents = dataPostsList?.posts?.results;
 
   if (groupLoading) return <Loading />
   if (!group || group.deleted) return <Error404 />
@@ -440,7 +458,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
               <LocationIcon className={classes.groupLocationIcon} />
               {group.isOnline ? 'Online Group' : group.location}
             </div>
-            {group.categories?.length > 0 && <div className={classes.groupCategories}>
+            {!!group.categories?.length && <div className={classes.groupCategories}>
               {group.categories.map(category => {
                 return <div key={category} className={classes.groupCategory}>{GROUP_CATEGORIES.find(option => option.value === category)?.label}</div>
               })}

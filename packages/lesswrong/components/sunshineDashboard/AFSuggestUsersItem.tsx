@@ -8,32 +8,42 @@ import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import withErrorBoundary from '../common/withErrorBoundary'
 import * as _ from 'underscore';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import SunshineListItem from "./SunshineListItem";
 import SidebarHoverOver from "./SidebarHoverOver";
 import { Typography } from "../common/Typography";
 import MetaInfo from "../common/MetaInfo";
 import SidebarActionMenu from "./SidebarActionMenu";
 import SidebarAction from "./SidebarAction";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const SunshineUsersListUpdateMutation = gql(`
+  mutation updateUserAFSuggestUsersItem($selector: SelectorInput!, $data: UpdateUserDataInput!) {
+    updateUser(selector: $selector, data: $data) {
+      data {
+        ...SunshineUsersList
+      }
+    }
+  }
+`);
 
 const AFSuggestUsersItem = ({user}: {
   user: SuggestAlignmentUser,
 }) => {
   const currentUser = useCurrentUser();
   const [show, setShow] = useState(true);
-  const { mutate: updateUser } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'SunshineUsersList',
-  });
+  const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
   
   // TODO This shouldn't be necessary, but for some weird reason this particular sidebar item doesn't update when you edit it and remove itself from the sidebar. (If you don't manually set the state it doesn't disappear until refresh )
 
   const handleReview = () => {
     void updateUser({
-      selector: { _id: user._id },
-      data: {
-        reviewForAlignmentForumUserId: currentUser!._id,
-        groups: _.unique([...(user.groups || []), 'alignmentForum'])
+      variables: {
+        selector: { _id: user._id },
+        data: {
+          reviewForAlignmentForumUserId: currentUser!._id,
+          groups: _.unique([...(user.groups || []), 'alignmentForum'])
+        }
       }
     })
     setShow(false);
@@ -41,8 +51,10 @@ const AFSuggestUsersItem = ({user}: {
 
   const handleIgnore = () => {
     void updateUser({
-      selector: { _id: user._id },
-      data: { reviewForAlignmentForumUserId: currentUser!._id }
+      variables: {
+        selector: { _id: user._id },
+        data: { reviewForAlignmentForumUserId: currentUser!._id }
+      }
     })
     setShow(false);
   }

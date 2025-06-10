@@ -1,5 +1,3 @@
-import { useCreate } from "@/lib/crud/withCreate";
-import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useForm } from "@tanstack/react-form";
@@ -12,9 +10,31 @@ import { getUpdatedFieldValues } from "@/components/tanstack-form-components/hel
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const CurationNoticesFragmentUpdateMutation = gql(`
+  mutation updateCurationNoticeCurationNoticesForm($selector: SelectorInput!, $data: UpdateCurationNoticeDataInput!) {
+    updateCurationNotice(selector: $selector, data: $data) {
+      data {
+        ...CurationNoticesFragment
+      }
+    }
+  }
+`);
+
+const CurationNoticesFragmentMutation = gql(`
+  mutation createCurationNoticeCurationNoticesForm($data: CreateCurationNoticeDataInput!) {
+    createCurationNotice(data: $data) {
+      data {
+        ...CurationNoticesFragment
+      }
+    }
+  }
+`);
 
 interface CurationNoticesFormProps {
-  initialData?: UpdateCurationNoticeDataInput & { _id: string; };
+  initialData?: UpdateCurationNoticeDataInput & { _id: string; userId: string };
   currentUser: UsersCurrent;
   postId: string;
   onSuccess?: (doc: CurationNoticesFragment) => void;
@@ -44,25 +64,18 @@ export const CurationNoticesForm = ({
     addOnSuccessCallback
   } = useEditorFormCallbacks<CurationNoticesFragment>();
 
-  const { create } = useCreate({
-    collectionName: 'CurationNotices',
-    fragmentName: 'CurationNoticesFragment',
-  });
+  const [create] = useMutation(CurationNoticesFragmentMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'CurationNotices',
-    fragmentName: 'CurationNoticesFragment',
-  });
+  const [mutate] = useMutation(CurationNoticesFragmentUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
   const form = useForm({
     defaultValues: {
+      // If we're editing an existing curation notice, the userId will be overwritten by the one in initialData
+      userId: currentUser._id,
       ...initialData,
-      ...(formType === 'new' ? {
-        userId: currentUser._id,
-        postId,
-      } : {}),
+      postId,
     },
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
@@ -71,15 +84,23 @@ export const CurationNoticesForm = ({
         let result: CurationNoticesFragment;
 
         if (formType === 'new') {
-          const { data } = await create({ data: formApi.state.values });
-          result = data?.createCurationNotice.data;
+          const { data } = await create({ variables: { data: formApi.state.values } });
+          if (!data?.createCurationNotice?.data) {
+            throw new Error('Failed to create curation notice');
+          }
+          result = data.createCurationNotice.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['contents']);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updateCurationNotice.data;
+          if (!data?.updateCurationNotice?.data) {
+            throw new Error('Failed to update curation notice');
+          }
+          result = data.updateCurationNotice.data;
         }
 
         onSuccessCallback.current?.(result);

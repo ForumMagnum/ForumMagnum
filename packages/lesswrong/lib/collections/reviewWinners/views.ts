@@ -2,7 +2,7 @@ import { REVIEW_YEAR } from '@/lib/reviewUtils';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 interface PostReviewWinnersViewTerms extends ViewTermsBase {
-  view?: 'reviewWinnerSingle'|'bestOfLessWrongAnnouncement';
+  view: 'reviewWinnerSingle'|'bestOfLessWrongAnnouncement';
   reviewYear?: number;
   reviewRanking?: number;
   category?: string;

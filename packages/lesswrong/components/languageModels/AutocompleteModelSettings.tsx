@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from "../common/withUser";
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
@@ -15,6 +14,31 @@ import ForumIcon from "../common/ForumIcon";
 import SingleColumnSection from "../common/SingleColumnSection";
 import Loading from "../vulcan-core/Loading";
 import LoadMore from "../common/LoadMore";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+
+const CommentsListMultiQuery = gql(`
+  query multiCommentAutocompleteModelSettingsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsList
+      }
+      totalCount
+    }
+  }
+`);
+
+const PostsListWithVotesMultiQuery = gql(`
+  query multiPostAutocompleteModelSettingsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsListWithVotes
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -196,19 +220,27 @@ const calculateTokens = (
 };
 
 function useGetAuthorContent(authorId: string): {posts: PostsListWithVotes[], comments: CommentsList[]} {
-  const { results: posts } = useMulti({
-    terms: { view: "userPosts", userId: authorId, limit: 100, sortedBy: "top" },
-    collectionName: "Posts",
-    fragmentName: "PostsListWithVotes",
-    enableTotal: true,
+  const { data } = useQuery(PostsListWithVotesMultiQuery, {
+    variables: {
+      selector: { userPosts: { userId: authorId, sortedBy: "top" } },
+      limit: 100,
+      enableTotal: true,
+    },
+    notifyOnNetworkStatusChange: true,
   });
 
-  const { results: comments } = useMulti({
-    terms: { view: "profileComments", userId: authorId, limit: 200, sortBy: "top" },
-    collectionName: "Comments",
-    fragmentName: "CommentsList",
-    enableTotal: true,
+  const posts = data?.posts?.results;
+
+  const { data: dataCommentsList } = useQuery(CommentsListMultiQuery, {
+    variables: {
+      selector: { profileComments: { userId: authorId, sortBy: "top" } },
+      limit: 200,
+      enableTotal: true,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const comments = dataCommentsList?.comments?.results;
 
   const results = useMemo(() => ({posts: posts ?? [], comments: comments ?? []}), [posts, comments]);
   return results;
@@ -366,26 +398,25 @@ const AutocompleteModelSettings = ({ classes }: { classes: ClassesType<typeof st
   });
   const [tokenCount, setTokenCount] = useState(0);
 
-  const {
-    results: posts,
-    error: postsError,
-    loadMoreProps: postsLoadMoreProps,
-  } = useMulti({
-    terms: { view: "userPosts", userId: currentUser?._id, limit: 20, sortedBy: "top" },
-    collectionName: "Posts",
-    fragmentName: "PostsListWithVotes",
-    enableTotal: true,
+  const { data: dataPostsListWithVotes, error: postsError, loadMoreProps: postsLoadMoreProps } = useQueryWithLoadMore(PostsListWithVotesMultiQuery, {
+    variables: {
+      selector: { userPosts: { userId: currentUser?._id, sortedBy: "top" } },
+      limit: 20,
+      enableTotal: true,
+    },
   });
 
-  const {
-    results: comments,
-    error: commentsError,
-    loadMoreProps: commentsLoadMoreProps,
-  } = useMulti({ terms: { view: "profileComments", userId: currentUser?._id, limit: 30, sortBy: "top"},
-    collectionName: "Comments",
-    fragmentName: "CommentsList",
-    enableTotal: true,
+  const posts = dataPostsListWithVotes?.posts?.results;
+
+  const { data: dataCommentsList, error: commentsError, loadMoreProps: commentsLoadMoreProps } = useQueryWithLoadMore(CommentsListMultiQuery, {
+    variables: {
+      selector: { profileComments: { userId: currentUser?._id, sortBy: "top" } },
+      limit: 30,
+      enableTotal: true,
+    },
   });
+
+  const comments = dataCommentsList?.comments?.results;
 
   const authorContent = useGetFeaturedAuthorsContent()
 

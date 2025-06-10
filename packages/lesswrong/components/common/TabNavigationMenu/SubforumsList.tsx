@@ -1,11 +1,23 @@
 import React, { useCallback, useState } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { useMulti } from "../../../lib/crud/withMulti";
 import { tagGetSubforumUrl, tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { isEAForum } from "../../../lib/instanceSettings";
 import TabNavigationSubItem from "./TabNavigationSubItem";
 import { MenuItemLink, MenuItem } from "../Menus";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const TagSubforumSidebarFragmentMultiQuery = gql(`
+  query multiTagSubforumsListQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagSubforumSidebarFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = ((theme: ThemeType) => ({
   menuItem: {
@@ -41,14 +53,18 @@ const SubforumsList = ({ onClick, classes }: {
   onClick: () => void
   classes: ClassesType<typeof styles>
 }) => {
-  const { results } = useMulti({
-    terms: {view: 'coreTags', limit: 100},
-    collectionName: "Tags",
-    fragmentName: 'TagSubforumSidebarFragment',
-    enableTotal: false,
+  const { data } = useQuery(TagSubforumSidebarFragmentMultiQuery, {
+    variables: {
+      selector: { coreTags: {} },
+      limit: 100,
+      enableTotal: false,
+    },
+    skip: !isEAForum,
     fetchPolicy: 'cache-and-network',
-    skip: !isEAForum
-  })
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = data?.tags?.results;
   const [showAll, setShowAll] = useState(false)
 
   const onClickShowMoreOrLess = useCallback((e: React.MouseEvent) => {

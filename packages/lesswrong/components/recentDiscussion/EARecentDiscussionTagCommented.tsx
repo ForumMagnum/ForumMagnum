@@ -9,6 +9,7 @@ import type { CommentTreeOptions } from "../comments/commentTree";
 import EARecentDiscussionItem from "./EARecentDiscussionItem";
 import TagExcerpt from "../common/excerpts/TagExcerpt";
 import CommentsNodeInner from "../comments/CommentsNode";
+import { maybeDate } from "@/lib/utils/dateUtils";
 
 const styles = (theme: ThemeType) => ({
   heading: {
@@ -54,7 +55,7 @@ const EARecentDiscussionTagCommented = ({
   const treeOptions: CommentTreeOptions = {
     scrollOnExpand: true,
     lastCommentId: lastCommentId,
-    highlightDate: tag.lastVisitedAt ?? undefined,
+    highlightDate: maybeDate(tag.lastVisitedAt ?? undefined),
     refetch,
     condensed: true,
     tag,
@@ -70,7 +71,7 @@ const EARecentDiscussionTagCommented = ({
       user={comments[0].user}
       action="commented on tag"
       tag={tag}
-      timestamp={comments[0].postedAt}
+      timestamp={maybeDate(comments[0].postedAt)}
     >
       <div className={classes.heading}>
         <Link to={tagGetUrl(tag)} className={classes.tagName}>

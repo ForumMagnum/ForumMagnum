@@ -1,12 +1,23 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useMessages } from '../../common/withMessages';
 import { userCanDo, userOwns } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { useApolloClient } from '@apollo/client/react/hooks';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import DropdownItem from "../DropdownItem";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const CommentsListUpdateMutation = gql(`
+  mutation updateCommentMoveToAnswersDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
+    updateComment(selector: $selector, data: $data) {
+      data {
+        ...CommentsList
+      }
+    }
+  }
+`);
 
 const MoveToAnswersDropdownItem = ({comment, post}: {
   comment: CommentsList,
@@ -16,10 +27,7 @@ const MoveToAnswersDropdownItem = ({comment, post}: {
   const { flash } = useMessages();
   const client = useApolloClient();
 
-  const {mutate: updateComment} = useUpdate({
-    collectionName: "Comments",
-    fragmentName: "CommentsList",
-  });
+  const [updateComment] = useMutation(CommentsListUpdateMutation);
 
   if (
     comment.topLevelCommentId ||
@@ -31,10 +39,12 @@ const MoveToAnswersDropdownItem = ({comment, post}: {
 
   const handleMoveToAnswers = async () => {
     await updateComment({
-      selector: { _id: comment._id},
-      data: {
-        answer: true,
-      },
+      variables: {
+        selector: { _id: comment._id },
+        data: {
+          answer: true,
+        }
+      }
     })
     flash("Comment moved to the Answers section.")
     await client.resetStore()
@@ -42,10 +52,12 @@ const MoveToAnswersDropdownItem = ({comment, post}: {
 
   const handleMoveToComments = async () => {
     await updateComment({
-      selector: { _id: comment._id},
-      data: {
-        answer: false,
-      },
+      variables: {
+        selector: { _id: comment._id },
+        data: {
+          answer: false,
+        }
+      }
     })
     flash("Answer moved to the Comments section.")
     await client.resetStore()

@@ -3,29 +3,29 @@
 
   <div class="options">
     <label class="option">
-      <input type="radio" name="preference" value="basic" data-not-wants="62d,62f" onchange="handleRadioChange(this)" checked />
-      <span>I want to have a basic theoretical and practical understanding of the Bayes' rule.</span>
+      <input id="bayes-guide-basic-radio" type="radio" name="preference" value="basic" data-not-wants="62d,62f" onchange="handleRadioChange(document.getElementById('bayes-guide-basic-radio'))" />
+      <span for="bayes-guide-basic-radio">I want to have a basic theoretical and practical understanding of the Bayes' rule.</span>
     </label>
 
     <label class="option">
-      <input type="radio" name="preference" value="quick" data-wants="62d" data-not-wants="62f" onchange="handleRadioChange(this)" />
-      <span
+      <input id="bayes-guide-quick-radio" type="radio" name="preference" value="quick" data-wants="62d" data-not-wants="62f" onchange="handleRadioChange(document.getElementById('bayes-guide-quick-radio'))" />
+      <span for="bayes-guide-quick-radio"
         >I can easily read algebra and don't mind the explanation moving at a fast pace. Just give me the basics,
         quick!</span
       >
     </label>
 
     <label class="option">
-      <input type="radio" name="preference" value="theoretical" data-wants="62f" data-not-wants="62d" onchange="handleRadioChange(this)" />
-      <span
+      <input id="bayes-guide-theoretical-radio" type="radio" name="preference" value="theoretical" data-wants="62f" data-not-wants="62d" onchange="handleRadioChange(document.getElementById('bayes-guide-theoretical-radio'))" />
+      <span for="bayes-guide-theoretical-radio"
         >I want the basics, but I'm also interested in reading more about the theoretical implications and the reasons
         why Bayes' rule is considered so important.</span
       >
     </label>
 
     <label class="option">
-      <input type="radio" name="preference" value="deep" data-wants="62d,62f" onchange="handleRadioChange(this)" />
-      <span
+      <input id="bayes-guide-deep-radio" type="radio" name="preference" value="deep" data-wants="62d,62f" onchange="handleRadioChange(document.getElementById('bayes-guide-deep-radio'))" />
+      <span for="bayes-guide-deep-radio"
         >I'd like to read everything! I want to have a <em>deep</em> theoretical and practical understanding of the
         Bayes' rule.</span
       >

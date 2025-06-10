@@ -3,7 +3,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { EditableUser, getUserEmail, SOCIAL_MEDIA_PROFILE_FIELDS, userCanEditUser, userGetDisplayName, userGetProfileUrl } from '@/lib/collections/users/helpers';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '@/components/common/withUser';
-import { gql, useMutation, useApolloClient } from '@apollo/client';
+import { useMutation, useApolloClient } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery"
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, verifyEmailsSetting } from '@/lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from '@/components/themes/useTheme';
 import { captureEvent } from '@/lib/analyticsEvents';
@@ -11,7 +12,6 @@ import { configureDatadogRum } from '@/client/datadogRum';
 import { isBookUI, isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useLocation, useNavigate } from '@/lib/routeUtil.tsx';
 import { registerComponent } from "@/lib/vulcan-lib/components";
-import { useGetUserBySlug } from '@/components/hooks/useGetUserBySlug';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { LegacyFormGroupLayout } from '@/components/tanstack-form-components/LegacyFormGroupLayout';
@@ -20,7 +20,6 @@ import { useEditorFormCallbacks, EditorFormComponent } from '@/components/editor
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { FormUserMultiselect } from '@/components/form-components/UserMultiselect';
-import { useUpdate } from '@/lib/crud/withUpdate';
 import { defaultEditorPlaceholder } from '@/lib/editor/make_editable';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
@@ -44,6 +43,27 @@ import UsersEmailVerification from "../UsersEmailVerification";
 import EmailConfirmationRequiredCheckbox from "../EmailConfirmationRequiredCheckbox";
 import FormComponentCheckbox from "../../form-components/FormComponentCheckbox";
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
+import { withDateFields } from '@/lib/utils/dateUtils';
+import { gql } from "@/lib/generated/gql-codegen";
+import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
+
+const UsersEditUpdateMutation = gql(`
+  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {
+    updateUser(selector: $selector, data: $data) {
+      data {
+        ...UsersEdit
+      }
+    }
+  }
+`);
+
+const GetUserBySlugQuery = gql(`
+  query UsersEditFormGetUserBySlug($slug: String!) {
+    GetUserBySlug(slug: $slug) {
+      ...UsersEdit
+    }
+  }
+`);
 
 const styles = defineStyles('UsersEditForm', (theme: ThemeType) => ({
   root: {
@@ -141,6 +161,8 @@ const UsersForm = ({
   
   const formType = 'edit';
 
+  initialData?.banned
+
   const {
     onSubmitCallback: onSubmitBiographyCallback,
     onSuccessCallback: onSuccessBiographyCallback,
@@ -155,14 +177,13 @@ const UsersForm = ({
     addOnSuccessCallback: addOnSuccessModerationGuidelinesCallback
   } = useEditorFormCallbacks<UsersEdit>();
 
-  const { mutate } = useUpdate({
-    collectionName: 'Users',
-    fragmentName: 'UsersEdit',
-  });
+  const [mutate] = useMutation(UsersEditUpdateMutation);
+
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
   const form = useForm({
     defaultValues: {
-      ...initialData,
+      ...withDateFields(initialData, ['createdAt']),
 
       sunshineFlagged: initialData?.sunshineFlagged ?? false,
       needsReview: initialData?.needsReview ?? false,
@@ -177,19 +198,28 @@ const UsersForm = ({
         onSubmitModerationGuidelinesCallback.current?.(),
       ]);
 
-      let result: UsersEdit;
+      try {
+        let result: UsersEdit;
 
-      const updatedFields = getUpdatedFieldValues(formApi, ['biography', 'moderationGuidelines']);
-      const { data } = await mutate({
-        selector: { _id: initialData?._id },
-        data: updatedFields,
-      });
-      result = data?.updateUser.data;
+        const updatedFields = getUpdatedFieldValues(formApi, ['biography', 'moderationGuidelines']);
+        const { data } = await mutate({
+          variables: {
+            selector: { _id: initialData?._id },
+            data: updatedFields
+          }
+        });
+        if (!data?.updateUser?.data) {
+          throw new Error('Failed to update user');
+        }
+        result = data.updateUser.data;
 
-      onSuccessBiographyCallback.current?.(result);
-      onSuccessModerationGuidelinesCallback.current?.(result);
-      
-      onSuccess(result);
+        onSuccessBiographyCallback.current?.(result);
+        onSuccessModerationGuidelinesCallback.current?.(result);
+        
+        onSuccess(result);
+      } catch (error) {
+        setCaughtError(error);
+      }
     },
   });
 
@@ -205,6 +235,7 @@ const UsersForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+      {displayedErrorComponent}
       <div className={classes.defaultGroup}>
         {!isFriendlyUI && (userHasntChangedName(form.state.values) || userIsAdminOrMod(currentUser)) && <div className={classes.fieldWrapper}>
           <form.Field name="displayName">
@@ -1292,6 +1323,7 @@ const UsersForm = ({
           )}
         </form.Subscribe>
       </div>
+      {displayedErrorComponent}
     </form>
   );
 };
@@ -1304,17 +1336,22 @@ const UsersEditForm = ({ terms }: {
   const { flash } = useMessages();
   const navigate = useNavigate();
   const client = useApolloClient();
-  const [mutate, loading] = useMutation(gql`
+  const [mutate, loading] = useMutation(gql(`
     mutation resetPassword($email: String) {
       resetPassword(email: $email)
     }
-  `, { errorPolicy: 'all' })
+  `), { errorPolicy: 'all' })
   const currentThemeOptions = useThemeOptions();
   const setTheme = useSetTheme();
 
   const userHasEditAccess = userCanEditUser(currentUser, terms);
 
-  const { user: userBySlug, loading: loadingUser } = useGetUserBySlug(terms.slug, { fragmentName: 'UsersEdit', skip: !userHasEditAccess });
+  const { data: userBySlugData, loading: loadingUser } = useQuery(GetUserBySlugQuery, {
+    variables: { slug: terms.slug },
+    skip: !userHasEditAccess,
+  });
+
+  const userBySlug = userBySlugData?.GetUserBySlug;
 
   if (!userHasEditAccess || !currentUser) {
     return <ErrorAccessDenied />;
@@ -1327,6 +1364,10 @@ const UsersEditForm = ({ terms }: {
   // currently we disable it below
   const requestPasswordReset = async () => {
     const { data } = await mutate({ variables: { email: getUserEmail(currentUser) } })
+    if (!data?.resetPassword) {
+      flash({ messageString: "Password reset may have failed.  Try it and see; ping us on Intercom if you can't get it working." });
+      return;
+    }
     flash(data?.resetPassword)
   }
 
@@ -1366,7 +1407,7 @@ const UsersEditForm = ({ terms }: {
       {loadingUser && <Loading />}
       {!loadingUser && userBySlug && (
         <UsersForm
-          initialData={userBySlug}
+          initialData={withDateFields(userBySlug, ['banned', 'hideJobAdUntil', 'karmaChangeLastOpened', 'lastNotificationsCheck', 'permanentDeletionRequestedAt', 'petrovLaunchCodeDate', 'petrovPressedButtonDate', 'whenConfirmationEmailSent'])}
           currentUser={currentUser}
           onSuccess={onSuccess}
         />

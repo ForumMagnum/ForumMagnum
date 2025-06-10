@@ -20,7 +20,7 @@ import NewLensDialog from "./lenses/NewLensDialog";
 import LWTooltip from "../common/LWTooltip";
 import NotifyMeButton from "../notifications/NotifyMeButton";
 import TagDiscussionButton from "./TagDiscussionButton";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import ForumIcon from "../common/ForumIcon";
 import { TagOrLensLikeButton } from "./lenses/LensTab";
 import { TagPageActionsMenuButton } from "./TagPageActionsMenu";
@@ -134,7 +134,7 @@ export function useTagEditingRestricted(tag: TagPageWithRevisionFragment | TagPa
   if (!tag) return { canEdit: false, noEditNotAuthor: false, noEditKarmaTooLow: false };
 
   const restricted = tag.canEditUserIds && tag.canEditUserIds.length > 0;
-  const noEditNotAuthor = restricted && (!currentUser || (!currentUser.isAdmin && !tag.canEditUserIds.includes(currentUser._id)));
+  const noEditNotAuthor = restricted && (!currentUser || (!currentUser.isAdmin && !tag.canEditUserIds?.includes(currentUser._id)));
   const noEditKarmaTooLow = !restricted && currentUser && !tagUserHasSufficientKarma(currentUser, "edit");
   const canEdit = !alreadyEditing && !noEditKarmaTooLow && !noEditNotAuthor;
 
@@ -159,7 +159,7 @@ const TagPageButtonRow = ({
   setEditing: (editing: boolean) => void;
   hideLabels?: boolean;
   className?: string;
-  refetchTag?: () => Promise<void>;
+  refetchTag?: () => Promise<AnyBecauseHard>;
   updateSelectedLens?: (lensId: string) => void;
   toggleEmbeddedPlayer?: () => void;
   showEmbeddedPlayer?: boolean;

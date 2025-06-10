@@ -1,6 +1,6 @@
 import Users from '../../server/collections/users/collection';
 import { Revisions } from '../../server/collections/revisions/collection';
-import { getEditableFieldNamesForCollection, editableFieldIsNormalized } from '@/lib/editor/editableSchemaFieldHelpers';
+import { getEditableFieldNamesForCollection, editableFieldIsNormalized } from '@/server/editor/editableSchemaFieldHelpers';
 import ReadStatuses from '../../server/collections/readStatus/collection';
 import { Votes } from '../../server/collections/votes/collection';
 import { Conversations } from '../../server/collections/conversations/collection'
@@ -240,7 +240,7 @@ const transferServices = async (sourceUser: DbUser, targetUser: DbUser, dryRun: 
   const profilePaths = ["github", "facebook", "google"]
 
   for (const profilePath of profilePaths) {
-    const sourceProfile = sourceUser.services[profilePath]
+    const sourceProfile = sourceUser.services?.[profilePath]
     if (sourceProfile && !targetUser.services[profilePath]) {
       // eslint-disable-next-line no-console
       console.log(`  Copying ${profilePath} profile from ${sourceUser._id} to ${targetUser._id}`)

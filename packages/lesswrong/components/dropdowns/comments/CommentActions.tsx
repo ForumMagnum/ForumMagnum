@@ -1,7 +1,8 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
-import { useSingle } from '../../../lib/crud/withSingle';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import EditCommentDropdownItem from "./EditCommentDropdownItem";
 import ReportCommentDropdownItem from "./ReportCommentDropdownItem";
 import DeleteCommentDropdownItem from "./DeleteCommentDropdownItem";
@@ -16,9 +17,20 @@ import ToggleIsModeratorCommentDropdownItem from "./ToggleIsModeratorCommentDrop
 import PinToProfileDropdownItem from "./PinToProfileDropdownItem";
 import DropdownMenu from "../DropdownMenu";
 import ShortformFrontpageDropdownItem from "./ShortformFrontpageDropdownItem";
-import CommentSubscriptionsDropdownItem from "./CommentSubscriptionsDropdownItem";
+import { CommentSubscriptionsDropdownItem } from "./CommentSubscriptionsDropdownItem";
 import BanUserFromPostDropdownItem from "./BanUserFromPostDropdownItem";
 import LockThreadDropdownItem from "./LockThreadDropdownItem";
+
+
+const PostsDetailsQuery = gql(`
+  query CommentActions($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsDetails
+      }
+    }
+  }
+`);
 
 const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   currentUser: UsersCurrent, // Must be logged in
@@ -27,13 +39,12 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   tag?: TagBasicInfo,
   showEdit: () => void,
 }) => {
-  const {document: postDetails} = useSingle({
+  const { data } = useQuery(PostsDetailsQuery, {
+    variables: { documentId: post?._id },
     skip: !post,
-    documentId: post?._id,
-    collectionName: "Posts",
     fetchPolicy: "cache-first",
-    fragmentName: "PostsDetails",
   });
+  const postDetails = data?.post?.result ?? undefined;
 
   // WARNING: Clickable items in this menu must be full-width, and
   // ideally should use the <DropdownItem> component. In particular,

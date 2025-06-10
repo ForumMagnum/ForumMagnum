@@ -1,17 +1,40 @@
 import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { useMulti } from '@/lib/crud/withMulti';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { tagUrlBaseSetting } from '@/lib/instanceSettings';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { ApolloError } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery"
 import { Link } from "../../lib/reactRouterWrapper";
 import { useNavigate } from "../../lib/routeUtil";
 import SingleColumnSection from "../common/SingleColumnSection";
 import { Typography } from "../common/Typography";
 import ContentStyles from "../common/ContentStyles";
 import Error404 from "../common/Error404";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const MultiDocumentMinimumInfoMultiQuery = gql(`
+  query multiMultiDocumentRedlinkTagPageQuery($selector: MultiDocumentSelector, $limit: Int, $enableTotal: Boolean) {
+    multiDocuments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...MultiDocumentMinimumInfo
+      }
+      totalCount
+    }
+  }
+`);
+
+const TagBasicInfoMultiQuery = gql(`
+  query multiTagRedlinkTagPageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagBasicInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = defineStyles("RedlinkTagPage", theme => ({
   title: {
@@ -46,39 +69,33 @@ export const useRedLinkPingbacks = (documentId: string|undefined, excludedDocume
   loading: boolean
   error: ApolloError|undefined
 } => {
-  const tagPingbacks = useMulti({
-    terms: {
-      view: "pingbackWikiPages",
-      tagId: documentId,
-      excludedTagIds: excludedDocumentIds,
+  const tagPingbacks = useQuery(TagBasicInfoMultiQuery, {
+    variables: {
+      selector: { pingbackWikiPages: { tagId: documentId, excludedTagIds: excludedDocumentIds } },
+      limit: 10,
+      enableTotal: true,
     },
-    collectionName: "Tags",
-    fragmentName: "TagBasicInfo",
-    limit: 10,
-    enableTotal: true,
     skip: !documentId,
+    notifyOnNetworkStatusChange: true,
   });
 
-  const lensPingbacks = useMulti({
-    terms: {
-      view: "pingbackLensPages",
-      documentId: documentId,
-      excludedDocumentIds: excludedDocumentIds,
+  const lensPingbacks = useQuery(MultiDocumentMinimumInfoMultiQuery, {
+    variables: {
+      selector: { pingbackLensPages: { documentId: documentId, excludedDocumentIds: excludedDocumentIds } },
+      limit: 10,
+      enableTotal: true,
     },
-    collectionName: "MultiDocuments",
-    fragmentName: "MultiDocumentMinimumInfo",
-    limit: 10,
-    enableTotal: true,
     skip: !documentId,
+    notifyOnNetworkStatusChange: true,
   });
 
   const results: RedLinkPingback[] = [
-    ...(tagPingbacks.results ?? []).map(t => ({
+    ...(tagPingbacks.data?.tags?.results ?? []).map(t => ({
       _id: t._id,
       slug: t.slug,
       name: t.name,
     })),
-    ...(lensPingbacks.results ?? []).map(l => ({
+    ...(lensPingbacks.data?.multiDocuments?.results ?? []).map(l => ({
       _id: l._id,
       slug: l.slug,
       name: getDisplayedLensName(l)
@@ -87,7 +104,7 @@ export const useRedLinkPingbacks = (documentId: string|undefined, excludedDocume
 
   return { 
     results,
-    totalCount: (tagPingbacks.totalCount ?? 0) + (lensPingbacks.totalCount ?? 0),
+    totalCount: (tagPingbacks.data?.tags?.totalCount ?? 0) + (lensPingbacks.data?.multiDocuments?.totalCount ?? 0),
     loading: tagPingbacks.loading || lensPingbacks.loading,
     error: tagPingbacks.error ?? lensPingbacks.error
   }

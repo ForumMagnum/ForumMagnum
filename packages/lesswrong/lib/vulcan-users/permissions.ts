@@ -9,12 +9,10 @@ export function getAllUserGroups() {
   return allUserGroupsByName;
 }
 
-export type PermissionableUser = UsersMinimumInfo & Pick<DbUser,
+export type PermissionableUser = UsersMinimumInfo & Pick<UsersDefaultFragment,
   "groups" |
   "banned" |
-  "allCommentingDisabled" |
-  "isAdmin" |
-  "reviewedByUserId"
+  "allCommentingDisabled"
 >;
 
 // get a list of a user's groups
@@ -39,7 +37,7 @@ export const userGetGroups = (user: PermissionableUser|DbUser|null): Array<strin
 };
 
 // Get a list of all the actions a user can perform
-export const userGetActions = (user: UsersProfile|DbUser|null): Array<string> => {
+export const userGetActions = (user: PermissionableUser|DbUser|null): Array<string> => {
   let groups = userGetGroups(user);
   if (!groups.includes('guests')) {
     // always give everybody permission for guests actions, too
@@ -69,7 +67,7 @@ export const userIsPodcaster = (user: UsersProfile|UsersProfile|DbUser|null): bo
 };
 
 // Check if a user can perform at least one of the specified actions
-export const userCanDo = (user: UsersProfile|DbUser|null, actionOrActions: string|Array<string>): boolean => {
+export const userCanDo = (user: PermissionableUser|DbUser|null, actionOrActions: string|Array<string>): boolean => {
   const authorizedActions = userGetActions(user);
   const actions = Array.isArray(actionOrActions) ? actionOrActions : [actionOrActions];
   return userIsAdmin(user) || intersection(authorizedActions, actions).length > 0;
@@ -105,7 +103,7 @@ export const userOwnsAndOnLW = function (user: UsersMinimumInfo|DbUser|null, doc
 }
 
 export const documentIsNotDeleted = (
-  user: PermissionableUser|DbUser|null,
+  user: DbUser|PermissionableUser|null,
   document: OwnableDocument,
 ) => {
   // Admins and mods can see deleted content
@@ -124,6 +122,7 @@ export const documentIsNotDeleted = (
     (document as unknown as DbSequence).isDeleted
   );
 }
+
 
 export const userCanComment = (user: PermissionableUser|DbUser|null): boolean => {
   if (!user) {
@@ -192,7 +191,7 @@ export const userIsAdminOrMod = function <T extends PermissionableUser|DbUser|nu
 
 // Check if a user can view a field
 export const userCanReadField = <N extends CollectionNameString>(
-  user: UsersCurrent | DbUser | null,
+  user: DbUser | null,
   canRead: FieldPermissions | undefined,
   document: ObjectsByCollectionName[N],
 ): boolean => {
@@ -204,7 +203,7 @@ export const userCanReadField = <N extends CollectionNameString>(
 };
 
 const userHasFieldPermissions = <T extends DbObject>(
-  user: UsersCurrent|DbUser|null,
+  user: DbUser|null,
   userGroups: string[],
   canRead: FieldPermissions,
   document: T
@@ -239,17 +238,17 @@ const userHasFieldPermissions = <T extends DbObject>(
 // @param {Object} document - The document being returned by the resolver
 // TODO: Integrate permissions-filtered DbObjects into the type system
 export function restrictViewableFields<N extends CollectionNameString>(
-  user: UsersCurrent|DbUser|null,
+  user: DbUser|null,
   collectionName: N,
   docOrDocs: ObjectsByCollectionName[N] | undefined | null,
 ): Partial<ObjectsByCollectionName[N]>;
 export function restrictViewableFields<N extends CollectionNameString>(
-  user: UsersCurrent|DbUser|null,
+  user: DbUser|null,
   collectionName: N,
   docOrDocs: ObjectsByCollectionName[N][] | undefined | null,
 ): Partial<ObjectsByCollectionName[N]>[];
 export function restrictViewableFields<N extends CollectionNameString>(
-  user: UsersCurrent|DbUser|null,
+  user: DbUser|null,
   collectionName: N,
   docOrDocs?: ObjectsByCollectionName[N][] | undefined | null,
 ): Partial<ObjectsByCollectionName[N]> | Partial<ObjectsByCollectionName[N]>[] {
@@ -261,7 +260,7 @@ export function restrictViewableFields<N extends CollectionNameString>(
 };
 
 export const restrictViewableFieldsMultiple = function <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
-  user: UsersCurrent|DbUser|null,
+  user: DbUser|null,
   collectionName: N,
   docs: DocType[],
 ): Partial<DocType>[] {
@@ -270,7 +269,7 @@ export const restrictViewableFieldsMultiple = function <N extends CollectionName
 };
 
 export const restrictViewableFieldsSingle = function <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
-  user: UsersCurrent|DbUser|null,
+  user: DbUser|null,
   collectionName: N,
   doc: DocType | undefined | null,
 ): Partial<DocType> {
@@ -297,7 +296,7 @@ export const restrictViewableFieldsSingle = function <N extends CollectionNameSt
 
 // Check if a user can submit a field
 export const userCanCreateField = (
-  user: DbUser | UsersCurrent | null,
+  user: DbUser | null,
   canCreate: FieldCreatePermissions | undefined,
 ): boolean => {
   if (canCreate) {
@@ -318,7 +317,7 @@ export const userCanCreateField = (
 
 // Check if a user can edit a field
 export const userCanUpdateField = <N extends CollectionNameString>(
-  user: DbUser | UsersCurrent | null,
+  user: DbUser | null,
   canUpdate: FieldPermissions | undefined,
   document: Partial<ObjectsByCollectionName[N]>,
 ): boolean => {

@@ -1,5 +1,5 @@
 import React from "react";
-import { commentIsHidden } from "@/lib/collections/comments/helpers";
+import { commentIsHiddenPendingReview, commentIsNotPublicForAnyReason } from "@/lib/collections/comments/helpers";
 import { ForumEventCommentMetadata } from "@/lib/collections/forumEvents/types";
 import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/constants";
 import { tagGetDiscussionUrl, EA_FORUM_COMMUNITY_TOPIC_ID } from "@/lib/collections/tags/helpers";
@@ -41,6 +41,7 @@ import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateUser } from "../collections/users/mutations";
 import { updateComment } from "../collections/comments/mutations";
 import { EmailComment } from "../emailComponents/EmailComment";
+import { PostsOriginalContents, PostsRevision } from "@/lib/collections/posts/fragments";
 
 interface SendModerationPMParams {
   action: 'deleted' | 'rejected',
@@ -565,7 +566,7 @@ export async function assignPostVersion(comment: CreateCommentDataInput) {
   
   const post = await fetchFragmentSingle({
     collectionName: "Posts",
-    fragmentName: "PostsRevision",
+    fragmentDoc: PostsRevision,
     currentUser: null,
     selector: {
       _id: comment.postId,
@@ -890,7 +891,7 @@ export async function checkModGPTOnCommentCreate({document, context}: AfterCreat
   // only have ModGPT check comments on posts tagged with "Community"
   const post = await fetchFragmentSingle({
     collectionName: "Posts",
-    fragmentName: "PostsOriginalContents",
+    fragmentDoc: PostsOriginalContents,
     currentUser: null,
     skipFiltering: true,
     selector: {_id: document.postId},
@@ -921,7 +922,7 @@ export async function commentsAlignmentNew(comment: DbComment, context: Resolver
 
 export async function commentsNewNotifications(comment: DbComment, context: ResolverContext) {
   // if the site is currently hiding comments by unreviewed authors, do not send notifications if this comment should be hidden
-  if (commentIsHidden(comment)) return
+  if (commentIsNotPublicForAnyReason(comment)) return
   
   void utils.sendNewCommentNotifications(comment, context)
 }
@@ -939,6 +940,18 @@ export function updatePostLastCommentPromotedAt(data: UpdateCommentDataInput, { 
     return { ...data, promotedByUserId };
   }
 
+  return data;
+}
+
+export function handleDraftState(data: UpdateCommentDataInput, { oldDocument }: UpdateCallbackProperties<'Comments'>) {
+  // Prevent converting a comment back to draft
+  if (data.draft === true && oldDocument.draft === false) {
+    throw new Error("You cannot convert a published comment back to draft.");
+  }
+  // Update postedAt when a comment is moved out of drafts.
+  if (data.draft === false && oldDocument.draft) {
+    data.postedAt = new Date();
+  }
   return data;
 }
 
@@ -1096,7 +1109,7 @@ export async function checkModGPTOnCommentUpdate({oldDocument, newDocument, cont
   // only have ModGPT check comments on posts tagged with "Community"
   const post = await fetchFragmentSingle({
     collectionName: "Posts",
-    fragmentName: "PostsOriginalContents",
+    fragmentDoc: PostsOriginalContents,
     currentUser: null,
     skipFiltering: true,
     selector: {_id: newDocument.postId},
@@ -1133,8 +1146,7 @@ export async function commentsEditSoftDeleteCallback(comment: DbComment, oldComm
 }
 
 export async function commentsPublishedNotifications(comment: DbComment, oldComment: DbComment, context: ResolverContext) {
-  // if the site is currently hiding comments by unreviewed authors, send the proper "new comment" notifications once the comment author is reviewed
-  if (commentIsHidden(oldComment) && !commentIsHidden(comment)) {
+  if (commentIsNotPublicForAnyReason(oldComment) && !commentIsNotPublicForAnyReason(comment)) {
     void utils.sendNewCommentNotifications(comment, context)
   }
 }

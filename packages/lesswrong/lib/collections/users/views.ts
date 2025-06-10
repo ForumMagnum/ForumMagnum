@@ -7,7 +7,7 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 
 declare global {
   interface UsersViewTerms extends ViewTermsBase {
-    view?: UsersViewName
+    view: UsersViewName
     sort?: {
       createdAt?: number,
       karma?: number,
@@ -250,6 +250,22 @@ function alignmentSuggestedUsers() {
   }
 }
 
+ function usersTopKarma(terms: UsersViewTerms) {
+  return {
+    selector: {
+      deleted: {$ne: true},
+      $or: [
+        {banned: {$exists: false}},
+        {banned: {$lt: new Date()}}
+      ]
+    },
+    options: {
+      sort: { 
+        karma: -1 
+      },
+    },
+  }
+};
 
 // Create the CollectionViewSet instance
 export const UsersViews = new CollectionViewSet('Users', {
@@ -268,6 +284,7 @@ export const UsersViews = new CollectionViewSet('Users', {
   usersWithPaymentInfo,
   usersWithOptedInToDialogueFacilitation,
   alignmentSuggestedUsers,
+  usersTopKarma,
   // Commented out in the original code:
   // areWeNuked
 });

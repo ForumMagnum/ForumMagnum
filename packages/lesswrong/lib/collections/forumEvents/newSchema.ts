@@ -125,6 +125,7 @@ const schema = {
     },
     graphql: {
       outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -139,6 +140,7 @@ const schema = {
     },
     graphql: {
       outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -153,6 +155,7 @@ const schema = {
     },
     graphql: {
       outputType: "String!",
+      inputType: "String",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -219,6 +222,29 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "postId" }),
     },
   },
+  commentId: {
+    database: {
+      type: "VARCHAR(27)",
+      foreignKey: "Comments",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      canUpdate: ["members"],
+      canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  comment: {
+    graphql: {
+      outputType: "Comment",
+      canRead: ["guests"],
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Comments", fieldName: "commentId" }),
+    },
+  },
   bannerImageId: {
     database: {
       type: "TEXT",
@@ -262,6 +288,7 @@ const schema = {
     },
     graphql: {
       outputType: "Boolean!",
+      inputType: "Boolean",
       canRead: ["guests"],
       canUpdate: ["admins"],
       canCreate: ["members"], // newCheck ensures this can only be false for user-created events
@@ -278,8 +305,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
-      inputType: "String",
+      outputType: "ForumEventFormat!",
+      inputType: "ForumEventFormat",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],
@@ -361,7 +388,7 @@ const schema = {
       nullable: true,
     },
     graphql: {
-      outputType: "String",
+      outputType: "ForumEventCustomComponent",
       canRead: ["guests"],
       canUpdate: ["members"],
       canCreate: ["members"],

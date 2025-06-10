@@ -1,12 +1,24 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { userCanQuickTake } from '../../lib/vulcan-users/permissions';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import LoadMore from "../common/LoadMore";
 import CommentOnPostWithReplies from "../comments/CommentOnPostWithReplies";
 import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const CommentWithRepliesFragmentMultiQuery = gql(`
+  query multiCommentShortformThreadListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentWithRepliesFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   shortformItem: {
@@ -18,17 +30,18 @@ const ShortformThreadList = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const {results, loadMoreProps, refetch} = useMulti({
-    terms: {
-      view: 'shortform',
-      limit:20
+  
+  const { data, refetch, loadMoreProps } = useQueryWithLoadMore(CommentWithRepliesFragmentMultiQuery, {
+    variables: {
+      selector: { shortform: {} },
+      limit: 20,
+      enableTotal: false,
     },
-    collectionName: "Comments",
-    fragmentName: 'CommentWithRepliesFragment',
     fetchPolicy: 'cache-and-network',
-    enableTotal: false,
-    pollInterval: 0,
   });
+
+  const results = data?.comments?.results;
+
   return (
     <div>
       {(userCanQuickTake(currentUser) || !currentUser) &&

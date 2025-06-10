@@ -83,7 +83,7 @@ const batchingMessages: Record<KarmaChangeUpdateFrequency, string> = {
 };
 
 const NotificationsPageFeed = ({karmaChanges, classes}: {
-  karmaChanges?: KarmaChanges|null,
+  karmaChanges?: UserKarmaChanges['karmaChanges']|null,
   classes: ClassesType<typeof styles>,
 }) => {
   const [limit, setLimit] = useState(DEFAULT_LIMIT);

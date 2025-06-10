@@ -3,22 +3,24 @@ import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers";
 import gql from "graphql-tag";
+import { CollectionViewSet } from "@/lib/views/collectionViewSet";
 
 export const graphqlCkEditorUserSessionQueryTypeDefs = gql`
-  type CkEditorUserSession {
-    ${getAllGraphQLFields(schema)}
-  }
-
+  type CkEditorUserSession ${ getAllGraphQLFields(schema) }
+  
   input SingleCkEditorUserSessionInput {
     selector: SelectorInput
     resolverArgs: JSON
-    allowNull: Boolean
   }
-
+  
   type SingleCkEditorUserSessionOutput {
     result: CkEditorUserSession
   }
-
+  
+  input CkEditorUserSessionSelector {
+    default: EmptyViewInput
+  }
+  
   input MultiCkEditorUserSessionInput {
     terms: JSON
     resolverArgs: JSON
@@ -27,15 +29,23 @@ export const graphqlCkEditorUserSessionQueryTypeDefs = gql`
   }
   
   type MultiCkEditorUserSessionOutput {
-    results: [CkEditorUserSession]
+    results: [CkEditorUserSession!]!
     totalCount: Int
   }
-
+  
   extend type Query {
-    ckEditorUserSession(input: SingleCkEditorUserSessionInput): SingleCkEditorUserSessionOutput
-    ckEditorUserSessions(input: MultiCkEditorUserSessionInput): MultiCkEditorUserSessionOutput
+    ckEditorUserSession(
+      input: SingleCkEditorUserSessionInput @deprecated(reason: "Use the selector field instead"),
+      selector: SelectorInput
+    ): SingleCkEditorUserSessionOutput
+    ckEditorUserSessions(
+      input: MultiCkEditorUserSessionInput @deprecated(reason: "Use the selector field instead"),
+      selector: CkEditorUserSessionSelector,
+      limit: Int,
+      offset: Int,
+      enableTotal: Boolean
+    ): MultiCkEditorUserSessionOutput
   }
 `;
-
-export const ckEditorUserSessionGqlQueryHandlers = getDefaultResolvers('CkEditorUserSessions');
+export const ckEditorUserSessionGqlQueryHandlers = getDefaultResolvers('CkEditorUserSessions', new CollectionViewSet('CkEditorUserSessions', {}));
 export const ckEditorUserSessionGqlFieldResolvers = getFieldGqlResolvers('CkEditorUserSessions', schema);

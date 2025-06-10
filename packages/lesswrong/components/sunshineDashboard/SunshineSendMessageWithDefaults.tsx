@@ -3,13 +3,25 @@ import { Menu } from '@/components/widgets/Menu';
 import { Link } from "../../lib/reactRouterWrapper";
 import EditIcon from "@/lib/vendor/@material-ui/icons/src/Edit";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from '../common/withUser';
 import NewConversationButton, { TemplateQueryStrings } from '../messaging/NewConversationButton'
 import { commentBodyStyles } from '../../themes/stylePiping';
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import LWTooltip from "../common/LWTooltip";
 import { MenuItem } from "../common/Menus";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const ModerationTemplateFragmentMultiQuery = gql(`
+  query multiModerationTemplateSunshineSendMessageWithDefaultsQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
+    moderationTemplates(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ModerationTemplateFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const MODERATION_TEMPLATES_URL = "/admin/moderationTemplates"
 
@@ -59,12 +71,16 @@ const SunshineSendMessageWithDefaults = ({ user, embedConversation, classes }: {
   const currentUser = useCurrentUser()
   const [anchorEl, setAnchorEl] = useState<any>(null);
   
-  const { results: defaultResponses } = useMulti({
-    terms:{view:"moderationTemplatesList", collectionName: "Messages"},
-    collectionName: "ModerationTemplates",
-    fragmentName: 'ModerationTemplateFragment',
-    limit: 50
+  const { data } = useQuery(ModerationTemplateFragmentMultiQuery, {
+    variables: {
+      selector: { moderationTemplatesList: { collectionName: "Messages" } },
+      limit: 50,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const defaultResponses = data?.moderationTemplates?.results;
 
   if (!(user && currentUser)) return null
   

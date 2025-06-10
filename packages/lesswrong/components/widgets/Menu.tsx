@@ -39,7 +39,7 @@ export function Menu({open, anchorEl, onClose, onClick, minWidth, className, chi
         <Paper>
           {children}
         </Paper>
-     ,</LWClickAwayListener>
+      </LWClickAwayListener>
     </div>
   </MenuPopper>
 }
@@ -85,8 +85,11 @@ function getMenuPositionStyles(anchorEl: HTMLElement, element: HTMLElement, plac
   const anchorRect = anchorEl.getBoundingClientRect();
   const elementRect = element.getBoundingClientRect();
   const placedRect = placeRectOverlapping(anchorRect, elementRect, placement);
-  const finalRect = pushRectInFromOffScreen(placedRect);
-  return rectToCSS(finalRect, placement);
+  const {rect: finalRect, anchorFromRight} = pushRectInFromOffScreen({
+    rect: placedRect,
+    anchorFromRight: ["bottom-end", "top-end"].includes(placement)
+  });
+  return rectToCSS(finalRect, anchorFromRight);
 }
 
 function getOffScreeStyles(): React.CSSProperties {
@@ -104,8 +107,7 @@ function placeRectOverlapping(anchorRect: DOMRect, elementRect: DOMRect, placeme
 /**
  * Make CSS that places a div at the given position, using `top` and either `left` or `right`.
  */
-function rectToCSS(rect: DOMRect, placement: PopperPlacementType): React.CSSProperties {
-  const anchorFromRight = ["bottom-end", "top-end"].includes(placement);
+function rectToCSS(rect: DOMRect, anchorFromRight: boolean): React.CSSProperties {
   if (anchorFromRight) {
     return {
       right: window.innerWidth - rect.right - window.scrollX,
@@ -123,8 +125,16 @@ function rectToCSS(rect: DOMRect, placement: PopperPlacementType): React.CSSProp
 
 /**
  * If the given rect is fully or partially off-screen, push it into the viewport.
+ * If it was pushed in from the right edge but not the left edge, then switch
+ * its anchoring to the right.
  */
-function pushRectInFromOffScreen(rect: DOMRect): DOMRect {
+function pushRectInFromOffScreen({rect, anchorFromRight}: {
+  rect: DOMRect
+  anchorFromRight: boolean
+}): {
+  rect: DOMRect,
+  anchorFromRight: boolean
+} {
   // Get viewport dimensions
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
@@ -140,6 +150,7 @@ function pushRectInFromOffScreen(rect: DOMRect): DOMRect {
   // Push in from the right edge
   if (newRect.right > viewportWidth) {
     newRect.x = viewportWidth - newRect.width;
+    anchorFromRight = true;
   }
   
   // Push in from the bottom edge
@@ -150,6 +161,7 @@ function pushRectInFromOffScreen(rect: DOMRect): DOMRect {
   // Push in from the left edge
   if (newRect.x < 0) {
     newRect.x = 0;
+    anchorFromRight = false;
   }
   
   // Push in from the top edge
@@ -168,5 +180,8 @@ function pushRectInFromOffScreen(rect: DOMRect): DOMRect {
     newRect.height = viewportHeight;
   }
   
-  return newRect;
+  return {
+    rect: newRect,
+    anchorFromRight
+  };
 }

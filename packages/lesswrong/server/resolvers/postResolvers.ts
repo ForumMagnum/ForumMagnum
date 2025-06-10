@@ -87,6 +87,7 @@ const {Query: MyDialoguesQuery, typeDefs: MyDialoguesTypeDefs } = createPaginate
   cacheMaxAgeMs: 0, 
 });
 
+// TODO: remove this and all the Vertex-related code after 2025-06-21 (giving clients that might be querying it some time to cycle out)
 const {Query: GoogleVertexPostsQuery, typeDefs: GoogleVertexPostsTypeDefs } = createPaginatedResolver({
   name: "GoogleVertexPosts",
   graphQLType: "VertexRecommendedPost",
@@ -470,8 +471,8 @@ export const postGqlTypeDefs = gql`
     ): UserReadHistoryResult
 
     PostIsCriticism(args: JSON): Boolean
-    DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost]
-    DigestPosts(num: Int): [Post]
+    DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
+    DigestPosts(num: Int): [Post!]
 
     CanAccessGoogleDoc(fileUrl: String!): Boolean
   }
@@ -499,9 +500,9 @@ export const postGqlTypeDefs = gql`
   }
 
   type DigestPlannerPost {
-    post: Post
+    post: Post!
     digestPost: DigestPost
-    rating: Int
+    rating: Int!
   }
 
   type RecombeeRecommendedPost {
@@ -520,7 +521,7 @@ export const postGqlTypeDefs = gql`
 
   type PostWithApprovedJargon {
     post: Post!
-    jargonTerms: [JargonTerm!]
+    jargonTerms: [JargonTerm!]!
   }
   ${DigestHighlightsTypeDefs}
   ${DigestPostsThisWeekTypeDefs}

@@ -1,11 +1,22 @@
 import React, { useState } from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
-import { useCreate } from '@/lib/crud/withCreate';
 import { CreateClaimDialogProps } from './claimsConfigType';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import LWDialog from "../../common/LWDialog";
 import { Typography } from "../../common/Typography";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const ElicitQuestionFragmentMutation = gql(`
+  mutation createElicitQuestionCreateClaimDialog($data: CreateElicitQuestionDataInput!) {
+    createElicitQuestion(data: $data) {
+      data {
+        ...ElicitQuestionFragment
+      }
+    }
+  }
+`);
 
 const styles = defineStyles("CreateClaimDialog", (theme: ThemeType) => ({
   root: {
@@ -33,21 +44,20 @@ const CreateClaimDialog = ({initialTitle, onSubmit, onCancel, onClose}: CreateCl
 }) => {
   const classes = useStyles(styles);
   const [title,setTitle] = useState(initialTitle);
-  const {create} = useCreate({
-    collectionName: "ElicitQuestions",
-    fragmentName: "ElicitQuestionFragment",
-  });
+  const [create] = useMutation(ElicitQuestionFragmentMutation);
 
   function submit() {
     void (async () => {
       const {data} = await create({
-        data: {
-          title,
-          notes: "",
+        variables: {
+          data: {
+            title,
+            notes: "",
+          }
         },
       });
       if (data) {
-        const result = data.createElicitQuestion.data as ElicitQuestionFragment;
+        const result = data.createElicitQuestion?.data;
         onSubmit(result);
       }
       onClose();

@@ -17,8 +17,8 @@ export const defaultSubforumSorting: SubforumSorting = "magic";
 
 export const subforumSortings = Object.keys(subforumSortingTypes) as SubforumSorting[];
 
-export const subforumSortingToResolverName = (sort: SubforumSorting) =>
-  sort[0].toUpperCase() + sort.slice(1);
+export const subforumSortingToResolverName = <T extends SubforumSorting>(sort: T): Capitalize<T> =>
+  sort[0].toUpperCase() + sort.slice(1) as Capitalize<T>;
 
 export const isSubforumSorting = (sort: string): sort is SubforumSorting =>
   (subforumSortings as string []).includes(sort);

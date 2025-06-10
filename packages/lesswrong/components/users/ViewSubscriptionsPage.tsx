@@ -16,6 +16,14 @@ import { CountItemsContextProvider, useCountItemsContext } from '../hooks/CountI
 import SingleColumnSection from "../common/SingleColumnSection";
 import SubscriptionsList from "./SubscriptionsList";
 import UsersNameDisplay from "./UsersNameDisplay";
+import {
+  subscribedUserQuery,
+  subscribedPostQuery,
+  subscribedCommentQuery,
+  subscribedLocalgroupQuery,
+  subscribedTagQuery,
+  subscribedSequenceQuery
+} from './subscriptionQueries';
 
 const styles = (theme: ThemeType) => ({
   noSubscriptions: {
@@ -65,8 +73,9 @@ const ViewSubscriptionsList = ({currentUser, classes}: {
           title="Users You Are Following"
           collectionName="Users"
           subscriptionType="newActivityForFeed"
-          fragmentName="UsersMinimumInfo"
-          renderDocument={(user: UsersMinimumInfo) => <UsersNameDisplay user={user} tooltipPlacement='top' hideFollowButton />}
+          query={subscribedUserQuery}
+          extractDocument={(data) => data?.user?.result}
+          renderDocument={(user) => <UsersNameDisplay user={user} tooltipPlacement='top' hideFollowButton />}
           subscriptionTypeDescription="These users will appear in the feed on your frontpage Subscribed Tab"
         />
       }
@@ -75,8 +84,9 @@ const ViewSubscriptionsList = ({currentUser, classes}: {
         title="Notifications for New Posts by Users"
         collectionName="Users"
         subscriptionType="newPosts"
-        fragmentName="UsersMinimumInfo"
-        renderDocument={(user: UsersMinimumInfo) => <UsersNameDisplay user={user}/>}
+        query={subscribedUserQuery}
+        extractDocument={(data) => data?.user?.result}
+        renderDocument={(user) => <UsersNameDisplay user={user}/>}
         subscriptionTypeDescription="Manage onsite and offsite notification preferences in your account settings"
       />
 
@@ -84,8 +94,9 @@ const ViewSubscriptionsList = ({currentUser, classes}: {
         title="Notifications for All New Comments by Users"
         collectionName="Users"
         subscriptionType="newUserComments"
-        fragmentName="UsersMinimumInfo"
-        renderDocument={(user: UsersMinimumInfo) => <UsersNameDisplay user={user}/>}
+        query={subscribedUserQuery}
+        extractDocument={(data) => data?.user?.result}
+        renderDocument={(user) => <UsersNameDisplay user={user}/>}
         subscriptionTypeDescription="Manage onsite and offsite (email) notification preferences in your account settings"
       />}
 
@@ -93,8 +104,9 @@ const ViewSubscriptionsList = ({currentUser, classes}: {
         title="Notifications of Comments on Posts"
         collectionName="Posts"
         subscriptionType="newComments"
-        fragmentName="PostsList"
-        renderDocument={(post: PostsList) => post.title}
+        query={subscribedPostQuery}
+        extractDocument={(data) => data?.post?.result}
+        renderDocument={(post) => post.title}
         subscriptionTypeDescription="You will receive notifications for any new comments on these posts"
       />
 
@@ -102,8 +114,9 @@ const ViewSubscriptionsList = ({currentUser, classes}: {
         title="Notification of Dialogue Activity (as a reader)"
         collectionName="Posts"
         subscriptionType="newPublishedDialogueMessages"
-        fragmentName="PostsList"
-        renderDocument={(post: PostsList) => post.title}
+        query={subscribedPostQuery}
+        extractDocument={(data) => data?.post?.result}
+        renderDocument={(post) => post.title}
         subscriptionTypeDescription="You will be notified of new activity in these dialogues."
       />
 
@@ -111,8 +124,9 @@ const ViewSubscriptionsList = ({currentUser, classes}: {
         title="Notification of Dialogue Activity (as a participant)"
         collectionName="Posts"
         subscriptionType="newDialogueMessages"
-        fragmentName="PostsList"
-        renderDocument={(post: PostsList) => post.title}
+        query={subscribedPostQuery}
+        extractDocument={(data) => data?.post?.result}
+        renderDocument={(post) => post.title}
         subscriptionTypeDescription="You will be notified of new activity by your dialogue partners on these dialogues."
       />
 
@@ -120,24 +134,27 @@ const ViewSubscriptionsList = ({currentUser, classes}: {
         title="Subscribed to Old-Style Dialogues (as a reader)"
         collectionName="Posts"
         subscriptionType="newDebateComments"
-        fragmentName="PostsList"
-        renderDocument={(post: PostsList) => post.title}
+        query={subscribedPostQuery}
+        extractDocument={(data) => data?.post?.result}
+        renderDocument={(post) => post.title}
       />}
 
       <SubscriptionsList
         title="Subscribed to Old-Style dialogues (as a participant)"
         collectionName="Posts"
         subscriptionType="newDebateReplies"
-        fragmentName="PostsList"
-        renderDocument={(post: PostsList) => post.title}
+        query={subscribedPostQuery}
+        extractDocument={(data) => data?.post?.result}
+        renderDocument={(post) => post.title}
       />
 
       <SubscriptionsList
         title="Notifications of Comment Replies"
         collectionName="Comments"
         subscriptionType="newReplies"
-        fragmentName="CommentsListWithParentMetadata"
-        renderDocument={(comment: CommentsListWithParentMetadata) => <Link to={commentGetPageUrlFromIds({postId: comment?.post?._id, postSlug: comment?.post?.slug, tagSlug: comment?.tag?.slug, tagCommentType: comment?.tagCommentType, commentId: comment?._id, permalink: true})}>
+        query={subscribedCommentQuery}
+        extractDocument={(data) => data?.comment?.result}
+        renderDocument={(comment) => <Link to={commentGetPageUrlFromIds({postId: comment?.post?._id, postSlug: comment?.post?.slug, tagSlug: comment?.tag?.slug, tagCommentType: comment?.tagCommentType, commentId: comment?._id, permalink: true})}>
           author: {comment?.user?.displayName}, post: {comment?.post?.title}
         </Link>}
         subscriptionTypeDescription="You will get notifications on replies to these comments."
@@ -147,8 +164,9 @@ const ViewSubscriptionsList = ({currentUser, classes}: {
         title="Notifications of Local Groups Activity"
         collectionName="Localgroups"
         subscriptionType="newEvents"
-        fragmentName="localGroupsBase"
-        renderDocument={(group: localGroupsBase) => group.name}
+        query={subscribedLocalgroupQuery}
+        extractDocument={(data) => data?.localgroup?.result}
+        renderDocument={(group) => group.name}
         subscriptionTypeDescription="You will be notified of new events from these Local Groups"
       />
 
@@ -156,8 +174,9 @@ const ViewSubscriptionsList = ({currentUser, classes}: {
         title="Notification of New Posts with Tags"
         collectionName="Tags"
         subscriptionType="newTagPosts"
-        fragmentName="TagPreviewFragment"
-        renderDocument={(tag: TagPreviewFragment) => <Link to={tagGetUrl(tag)}>{tag.name}</Link>}
+        query={subscribedTagQuery}
+        extractDocument={(data) => data?.tag?.result}
+        renderDocument={(tag) => <Link to={tagGetUrl(tag)}>{tag.name}</Link>}
         subscriptionTypeDescription="You will be notified when posts have these tags added"
       />
 
@@ -165,8 +184,9 @@ const ViewSubscriptionsList = ({currentUser, classes}: {
         title="Notifications of New Post Added to Sequences"
         collectionName="Sequences"
         subscriptionType="newSequencePosts"
-        fragmentName="SequencesPageTitleFragment"
-        renderDocument={(sequence: SequencesPageTitleFragment) => <Link to={sequenceGetPageUrl(sequence)}>{sequence.title}</Link>}
+        query={subscribedSequenceQuery}
+        extractDocument={(data) => data?.sequence?.result}
+        renderDocument={(sequence) => <Link to={sequenceGetPageUrl(sequence)}>{sequence.title}</Link>}
         subscriptionTypeDescription="You will be notified when new posts are added to these sequences"
       />}
 

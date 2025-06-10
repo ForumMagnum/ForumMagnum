@@ -1,5 +1,4 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import React, { useEffect, useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -48,7 +47,7 @@ import NewConversationButton from "../messaging/NewConversationButton";
 import TagEditsByUser from "../tagging/TagEditsByUser";
 import DialogGroup from "../common/DialogGroup";
 import SettingsButton from "../icons/SettingsButton";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import Loading from "../vulcan-core/Loading";
 import PermanentRedirect from "../common/PermanentRedirect";
 import HeadTags from "../common/HeadTags";
@@ -57,6 +56,19 @@ import ContentStyles from "../common/ContentStyles";
 import ReportUserButton from "./ReportUserButton";
 import UserNotifyDropdown from "../notifications/UserNotifyDropdown";
 import CommentsSortBySelector from "../comments/CommentsSortBySelector";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const UsersProfileMultiQuery = gql(`
+  query multiUserUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UsersProfile
+      }
+      totalCount
+    }
+  }
+`);
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -157,12 +169,17 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   
-  const {loading, results} = useMulti({
-    terms,
-    collectionName: "Users",
-    fragmentName: 'UsersProfile',
-    enableTotal: false,
+  const { view, limit, ...selectorTerms } = terms;
+  const { data, loading } = useQuery(UsersProfileMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 10,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.users?.results;
   const user = getUserFromResults(results)
   
   const { query } = useLocation()
@@ -393,7 +410,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
             </AnalyticsContext>
             {hasEventsSetting.get() && <LocalGroupsList
-              terms={{view: 'userInactiveGroups', userId: currentUser?._id}}
+              view='userInactiveGroups'
+              terms={{userId: currentUser?._id}}
               showNoResults={false}
             />}
           </SingleColumnSection> }
@@ -426,11 +444,13 @@ const UsersProfileFn = ({terms, slug, classes}: {
             </AnalyticsContext>
           </SingleColumnSection>
           {/* Groups Section */
-            (ownPage || currentUser?.isAdmin) && <LocalGroupsList terms={{
-                view: 'userActiveGroups',
-                userId: user._id,
-                limit: 300
-              }} heading="Organizer of" showNoResults={false} />
+            (ownPage || currentUser?.isAdmin) && <LocalGroupsList
+              view='userActiveGroups'
+              limit={300}
+              terms={{userId: user._id}}
+              heading="Organizer of"
+              showNoResults={false}
+            />
           }
           {/* Wiki Section */}
           <SingleColumnSection>

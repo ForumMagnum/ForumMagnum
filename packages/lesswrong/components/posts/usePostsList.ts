@@ -1,5 +1,4 @@
 import {useState, useCallback, ReactNode} from 'react'
-import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from "../common/withUser";
 import { sortBy } from 'underscore';
 import { postGetLastCommentedAt } from "../../lib/collections/posts/helpers";
@@ -8,6 +7,30 @@ import type { Placement as PopperPlacementType } from "popper.js"
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { PostsItemConfig } from "./usePostsItem";
 import { PostsListViewType, usePostsListView } from "../hooks/usePostsListView";
+import { gql } from "@/lib/generated/gql-codegen";
+import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
+
+const postsListWithVotesQuery = gql(`
+  query postsListWithVotes($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsListWithVotes
+      }
+      totalCount
+    }
+  }
+`);
+
+const postsListTagWithVotesQuery = gql(`
+  query postsListTagWithVotes($selector: PostSelector, $limit: Int, $enableTotal: Boolean, $tagId: String) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsListTagWithVotes
+      }
+      totalCount
+    }
+  }
+`);
 
 export type PostsListConfig = {
   /** Child elements will be put in a footer section */
@@ -131,17 +154,25 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
     } as const
     : {};
 
-  const {results, loading, error, loadMore, loadMoreProps, limit} = useMulti({
-    terms,
-    collectionName: "Posts",
-    fragmentName: !!tagId ? 'PostsListTagWithVotes' : 'PostsListWithVotes',
-    enableTotal,
+  const query = !!tagId ? postsListWithVotesQuery : postsListTagWithVotesQuery;
+  const { view = 'default', limit = 10, ...selectorTerms } = terms ?? {};
+
+  const { data, error, loading, loadMoreProps } = useQueryWithLoadMore(query, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit,
+      enableTotal,
+      ...tagVariables.extraVariablesValues,
+    },
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
     itemsPerPage,
     alwaysShowLoadMore,
-    ...tagVariables
   });
+
+  const results: (PostsListTagWithVotes | PostsListWithVotes)[] | undefined = data?.posts?.results;
+
+  const { loadMore } = loadMoreProps;
 
   // Map from post._id to whether to hide it. Used for client side post filtering
   // like e.g. hiding read posts
@@ -203,7 +234,7 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
   if (defaultToShowUnreadComments && results) {
     orderedResults = sortBy(results, (post) => {
       const postLastCommentedAt = postGetLastCommentedAt(post)
-      return !post.lastVisitedAt || !postLastCommentedAt || (post.lastVisitedAt >= postLastCommentedAt);
+      return !post.lastVisitedAt || !postLastCommentedAt || (new Date(post.lastVisitedAt) >= postLastCommentedAt);
     })
   }
 
@@ -258,7 +289,7 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
   }));
 
   const onLoadMore = useCallback(() => {
-    loadMore();
+    void loadMore();
     setHaveLoadedMore(true);
   }, [loadMore]);
 

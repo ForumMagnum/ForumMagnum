@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -36,7 +35,7 @@ import NewConversationButton from "../messaging/NewConversationButton";
 import TagEditsByUser from "../tagging/TagEditsByUser";
 import LoadMore from "../common/LoadMore";
 import PostsList2 from "../posts/PostsList2";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import Loading from "../vulcan-core/Loading";
 import PermanentRedirect from "../common/PermanentRedirect";
 import HeadTags from "../common/HeadTags";
@@ -56,6 +55,43 @@ import UserNotifyDropdown from "../notifications/UserNotifyDropdown";
 import FooterTag from "../tagging/FooterTag";
 import DisplayNameWithMarkers from "../ea-forum/users/DisplayNameWithMarkers";
 import ForumIcon from "../common/ForumIcon";
+import { useQuery } from "@/lib/crud/useQuery";
+import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
+import { gql } from "@/lib/generated/gql-codegen";
+import CommentsDraftList from '../comments/CommentsDraftList';
+
+const PostsMinimumInfoMultiQuery = gql(`
+  query multiPostFriendlyUsersProfileQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsMinimumInfo
+      }
+      totalCount
+    }
+  }
+`);
+
+const localGroupsHomeFragmentMultiQuery = gql(`
+  query multiLocalgroupFriendlyUsersProfileQuery($selector: LocalgroupSelector, $limit: Int, $enableTotal: Boolean) {
+    localgroups(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...localGroupsHomeFragment
+      }
+      totalCount
+    }
+  }
+`);
+
+const UsersProfileMultiQuery = gql(`
+  query multiUserFriendlyUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UsersProfile
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -213,13 +249,18 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
-  const {loading, results} = useMulti({
-    terms,
-    collectionName: "Users",
-    fragmentName: 'UsersProfile',
-    enableTotal: false,
-    fetchPolicy: 'cache-and-network'
+  const { view, limit, ...selectorTerms } = terms;
+  const { data, loading } = useQuery(UsersProfileMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit,
+      enableTotal: false,
+    },
+    fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.users?.results;
   const user = getUserFromResults(results)
 
   const {query, hash} = useLocation();
@@ -266,28 +307,30 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
   // show/hide the "Posts" section sort/filter settings
   const [showPostSettings, setShowPostSettings] = useState(false)
 
-  const { results: userOrganizesGroups, loadMoreProps: userOrganizesGroupsLoadMoreProps } = useMulti({
-    terms: {view: 'userOrganizesGroups', userId: user?._id, limit: 300},
-    collectionName: "Localgroups",
-    fragmentName: 'localGroupsHomeFragment',
-    enableTotal: false,
-    skip: !user
-  })
+  const { data: dataLocalGroupsHomeFragment, loadMoreProps: userOrganizesGroupsLoadMoreProps } = useQueryWithLoadMore(localGroupsHomeFragmentMultiQuery, {
+    variables: {
+      selector: { userOrganizesGroups: { userId: user?._id } },
+      limit: 300,
+      enableTotal: false,
+    },
+    skip: !user,
+  });
+
+  const userOrganizesGroups = dataLocalGroupsHomeFragment?.localgroups?.results;
 
   // count posts here rather than using user.postCount,
   // because the latter doesn't include posts where the user is a coauthor
-  const { totalCount: userPostsCount } = useMulti({
-    terms: {
-      view: 'userPosts',
-      userId: user?._id,
-      authorIsUnreviewed: currentUser?.isAdmin ? null : false,
-      limit: 0
+  const { data: dataPostsMinimumInfo } = useQuery(PostsMinimumInfoMultiQuery, {
+    variables: {
+      selector: { userPosts: { userId: user?._id, authorIsUnreviewed: currentUser?.isAdmin ? null : false } },
+      limit: 0,
+      enableTotal: true,
     },
-    collectionName: "Posts",
-    fragmentName: 'PostsMinimumInfo',
-    enableTotal: true,
-    skip: !user
-  })
+    skip: !user,
+    notifyOnNetworkStatusChange: true,
+  });
+  const userPostsCount = dataPostsMinimumInfo?.posts?.totalCount;
+  
   if (loading) {
     return <Loading/>
   }
@@ -363,6 +406,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
         </Link>}
       </div>
       <SequencesGridWrapper terms={{view: "userProfilePrivate", userId: user._id, limit: 3}} showLoadMore={true} />
+      <CommentsDraftList userId={user._id} initialLimit={5} />
     </>
   }]
   if (userOrganizesGroups?.length) {
@@ -458,7 +502,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
       count: user.commentCount,
       body: <AnalyticsContext pageSectionContext="commentsSection">
         <RecentComments
-          terms={{view: 'profileComments', sortBy: "new", authorIsUnreviewed: null, limit: 10, userId: user._id}}
+          terms={{view: 'profileComments', sortBy: "new", authorIsUnreviewed: null, limit: 10, userId: user._id, drafts: "exclude"}}
           showPinnedOnProfile
         />
       </AnalyticsContext>

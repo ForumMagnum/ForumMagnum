@@ -18,7 +18,7 @@ import { HIDE_LLM_CHAT_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { AutosaveEditorStateContext } from '../editor/EditorFormComponent';
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
@@ -391,8 +391,8 @@ export const ChatInterface = ({classes}: {
 
   const exportHistoryToClipboard = () => {
     if (!currentConversation) return
-    const conversationHistory = currentConversation.messages.filter(({role}) => ['user', 'assistant', 'user-context'].includes(role))
-    const formattedChatHistory = conversationHistory.map(({role, content}) => `<strong>${role.toUpperCase()}:</strong> ${content}`).join("\n")
+    const conversationHistory = currentConversation.messages.filter(({role}) => role && ['user', 'assistant', 'user-context'].includes(role))
+    const formattedChatHistory = conversationHistory.map(({role, content}) => `<strong>${role?.toUpperCase()}:</strong> ${content}`).join("\n")
     void navigator.clipboard.writeText(formattedChatHistory)
     flash('Chat history copied to clipboard')
   }

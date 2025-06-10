@@ -1,16 +1,15 @@
 import React, { CSSProperties } from "react";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { useMulti } from "../../lib/crud/withMulti";
 import moment from "moment";
 import { useLocation } from "@/lib/routeUtil";
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import { useCurrentUser } from "../common/withUser";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useMessages } from "../common/withMessages";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { digestLink } from "./EABestOfPage";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import Error404 from "../common/Error404";
 import HeadTags from "../common/HeadTags";
 import PostsLoading from "../posts/PostsLoading";
@@ -19,6 +18,17 @@ import CloudinaryImage2 from "../common/CloudinaryImage2";
 import ForumIcon from "../common/ForumIcon";
 import LWTooltip from "../common/LWTooltip";
 import EAButton from "./EAButton";
+
+const DigestsMinimumInfoMultiQuery = gql(`
+  query multiDigestEADigestPageQuery($selector: DigestSelector, $limit: Int, $enableTotal: Boolean) {
+    digests(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...DigestsMinimumInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -176,27 +186,27 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const digestNum = parseInt(params.num)
   
   // get the digest based on the num from the URL
-  const {results, loading: digestLoading} = useMulti({
-    terms: {
-      view: "findByNum",
-      num: digestNum
+  const { data: dataDigests, loading: digestLoading } = useQuery(DigestsMinimumInfoMultiQuery, {
+    variables: {
+      selector: { findByNum: { num: digestNum } },
+      limit: 1,
+      enableTotal: false,
     },
-    collectionName: "Digests",
-    fragmentName: 'DigestsMinimumInfo',
-    limit: 1,
-    skip: !digestNum
-  })
+    skip: !digestNum,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = dataDigests?.digests?.results;
   const digest = results?.[0]
   
   // get the list of posts in this digest
-  const { data, loading } = useQuery(gql`
+  const { data, loading } = useQuery(gql(`
     query getDigestPosts($num: Int) {
       DigestPosts(num: $num) {
         ...PostsListWithVotes
       }
     }
-    ${fragmentTextForQuery('PostsListWithVotes')}
-  `, {
+  `), {
     ssr: true,
     skip: !digestNum || !digest,
     variables: {num: digestNum},
@@ -235,7 +245,7 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     return <Error404 />
   }
 
-  const posts: PostsListWithVotes[] = data?.DigestPosts
+  const posts = data?.DigestPosts
   
   const postsList = loading ? (
     <PostsLoading placeholderCount={20} viewType="card" />

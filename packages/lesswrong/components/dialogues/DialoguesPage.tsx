@@ -2,39 +2,70 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
-import { Link } from '../../lib/reactRouterWrapper';
-import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import PostsItem from "../posts/PostsItem";
 import LWTooltip from "../common/LWTooltip";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import SectionFooter from "../common/SectionFooter";
 import LoadMore from "../common/LoadMore";
+import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
+
+const PostsListWithVotesQuery = gql(`
+  query DialoguesPage($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsListWithVotes
+      }
+    }
+  }
+`);
 
 const DialoguesPage = () => {
-  const { results: dialoguePosts, loadMoreProps } = usePaginatedResolver({
-    fragmentName: "PostsPage",
-    resolverName: "RecentlyActiveDialogues",
-    limit: 20,
-  }); 
+  const initialLimit = 20;
+
+  const { data: recentlyActiveDialoguesData, loadMoreProps: dialoguePostsLoadMoreProps } = useQueryWithLoadMore(gql(`
+    query RecentlyActiveDialogues($limit: Int) {
+      RecentlyActiveDialogues(limit: $limit) {
+        results {
+          ...PostsListWithVotes
+        }
+      }
+    }
+  `), {
+    variables: { limit: initialLimit },
+    fetchPolicy: "cache-and-network",
+    nextFetchPolicy: "cache-only",
+  });
+
+  const dialoguePosts = recentlyActiveDialoguesData?.RecentlyActiveDialogues?.results;
   
-  const { results: myDialogues, loadMoreProps: myDialoguesLoadMoreProps } = usePaginatedResolver({
-    fragmentName: "PostsPage",
-    resolverName: "MyDialogues",
-    limit: 10,
-  }); 
+  const { data: myDialoguesData, loadMoreProps: myDialoguesLoadMoreProps } = useQueryWithLoadMore(gql(`
+    query MyDialogues($limit: Int) {
+      MyDialogues(limit: $limit) {
+        results {
+          ...PostsListWithVotes
+        }
+      }
+    }
+  `), {
+    variables: { limit: 10 },
+    fetchPolicy: "cache-and-network",
+    nextFetchPolicy: "cache-only",
+  });
+
+  const myDialogues = myDialoguesData?.MyDialogues?.results;
 
   const currentUser = useCurrentUser();
 
   const renderMyDialogues = currentUser && myDialogues?.length
 
-  const { document: announcementPost } = useSingle({
-    documentId: "kQuSZG8ibfW6fJYmo",
-    collectionName: "Posts",
-    fragmentName: "PostsListWithVotes",
+  const { data } = useQuery(PostsListWithVotesQuery, {
+    variables: { documentId: "kQuSZG8ibfW6fJYmo" },
   });
+  const announcementPost = data?.post?.result;
 
   const dialoguesTooltip = <div>
     <p>Dialogues between a small group of users.</p>
@@ -79,7 +110,7 @@ const DialoguesPage = () => {
           />
         )}
         <SectionFooter>
-          <LoadMore {...loadMoreProps}/>
+          <LoadMore {...dialoguePostsLoadMoreProps}/>
         </SectionFooter>
       </AnalyticsContext>
    </SingleColumnSection>

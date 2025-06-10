@@ -1,24 +1,34 @@
 import React, { useCallback } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
-import { useUpdate } from "../../../lib/crud/withUpdate";
 import { useCurrentUser } from "../../common/withUser";
 
 import { userCanDo, userOwns } from "../../../lib/vulcan-users/permissions";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
 import DropdownItem from "../DropdownItem";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const CommentsListUpdateMutation = gql(`
+  mutation updateCommentShortformFrontpageDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
+    updateComment(selector: $selector, data: $data) {
+      data {
+        ...CommentsList
+      }
+    }
+  }
+`);
 
 const ShortformFrontpageDropdownItem = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();
-  const { mutate: updateComment } = useUpdate({
-    collectionName: "Comments",
-    fragmentName: "CommentsList",
-  });
+  const [updateComment] = useMutation(CommentsListUpdateMutation);
 
   const handleChange = useCallback(
     (value: boolean) => () => {
       void updateComment({
-        selector: {_id: comment._id},
-        data: {shortformFrontpage: value},
+        variables: {
+          selector: { _id: comment._id },
+          data: { shortformFrontpage: value }
+        }
       });
     },
     [updateComment, comment._id],

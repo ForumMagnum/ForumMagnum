@@ -248,7 +248,7 @@ addStaticRoute('/promoted', (params, req, res, next) => {
 
 // Route for old promoted RSS (promoted posts)
 addStaticRoute('/promoted/.rss', (params, req, res, next) => {
-  return makeRedirect(res, '/feed.xml?view=curated-rss');
+  return makeRedirect(res, '/feed.xml?view=curatedRss');
 });
 
 

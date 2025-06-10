@@ -1,5 +1,6 @@
 import React, { useContext, useCallback, useState, useMemo } from 'react';
-import { useMutation, gql } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen';
 import { useCurrentUser } from '../common/withUser';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { hookToHoc } from '../../lib/hocUtils';
@@ -7,6 +8,7 @@ import { recombeeApi } from '../../lib/recombee/client';
 import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { useClientId } from '@/lib/abTestImpl';
+
 
 export type ItemsReadContextType = {
   postsRead: Record<string,boolean>,
@@ -45,27 +47,27 @@ interface RecordPostViewArgs {
 }
 
 export const useRecordPostView = (post: ViewablePost) => {
-  const [increasePostViewCount] = useMutation(gql`
+  const [increasePostViewCount] = useMutation(gql(`
     mutation increasePostViewCountMutation($postId: String) {
       increasePostViewCount(postId: $postId)
     }
-  `, {
+  `), {
     ignoreResults: true
   });
 
-  const [sendVertexViewItemEvent] = useMutation(gql`
+  const [sendVertexViewItemEvent] = useMutation(gql(`
     mutation sendVertexViewItemEventMutation($postId: String!, $attributionId: String) {
       sendVertexViewItemEvent(postId: $postId, attributionId: $attributionId)
     }
-  `, {
+  `), {
     ignoreResults: true
   });
 
-  const [markPostCommentsRead] = useMutation(gql`
+  const [markPostCommentsRead] = useMutation(gql(`
     mutation markPostCommentsRead($postId: String!) {
       markPostCommentsRead(postId: $postId)
     }
-  `, {
+  `), {
     ignoreResults: true
   });
   
@@ -210,10 +212,16 @@ export const ItemsReadContextWrapper = ({children}: {children: React.ReactNode})
     postsRead, tagsRead,
     
     setPostRead: (postId: string, isRead: boolean): void => {
-      setPostsRead({...postsRead, [postId]: isRead});
+      setPostsRead(postsRead => {
+        if (postsRead[postId] === isRead) return postsRead;
+        else return {...postsRead, [postId]: isRead}
+      });
     },
     setTagRead: (tagId: string, isRead: boolean): void => {
-      setTagsRead({...tagsRead, [tagId]: isRead});
+      setTagsRead(tagsRead => {
+        if (tagsRead[tagId] === isRead) return tagsRead;
+        else return {...tagsRead, [tagId]: isRead}
+      });
     },
   }), [postsRead, tagsRead]);
   

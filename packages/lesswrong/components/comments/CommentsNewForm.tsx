@@ -3,13 +3,11 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useDialog } from '../common/withDialog';
-import { useSingle } from '../../lib/crud/withSingle';
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { requireNewUserGuidelinesAck, userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
-import { useUpdate } from "../../lib/crud/withUpdate";
-import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import { afNonMemberDisplayInitialPopup, useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
 import { isInFuture } from '../../lib/utils/timeUtil';
@@ -19,12 +17,25 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { COMMENTS_NEW_FORM_PADDING } from '@/lib/collections/comments/constants';
-import { CommentForm } from './CommentForm';
+import { CommentForm, type CommentInteractionType } from './CommentForm';
 import NewUserGuidelinesDialog from "./NewUserGuidelinesDialog";
 import ModerationGuidelinesBox from "./ModerationGuidelines/ModerationGuidelinesBox";
 import RecaptchaWarning from "../common/RecaptchaWarning";
 import NewCommentModerationWarning from "../sunshineDashboard/NewCommentModerationWarning";
 import RateLimitWarning from "../editor/RateLimitWarning";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+import { useLocation } from '@/lib/routeUtil';
+
+const UsersCurrentCommentRateLimitQuery = gql(`
+  query CommentsNewForm($documentId: String, $postId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UsersCurrentCommentRateLimit
+      }
+    }
+  }
+`);
 
 export type FormDisplayMode = "default" | "minimalist"
 
@@ -91,9 +102,9 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export type CommentSuccessCallback = (
+export type CommentSuccessCallback = ((
   comment: CommentsList,
-) => void | Promise<void>;
+) => void | Promise<void>) | (() => Promise<unknown>);
 
 export type CommentCancelCallback = (...args: unknown[]) => void | Promise<void>;
 
@@ -114,13 +125,13 @@ const getSubmitLabel = (isQuickTake: boolean, isAnswer?: boolean) => {
 
 export type CommentsNewFormProps = {
   prefilledProps?: any,
-  post?: PostsMinimumInfo,
+  post?: PostsMinimumInfo & { question?: boolean },
   tag?: TagBasicInfo,
   tagCommentType?: TagCommentType,
   parentComment?: CommentsList,
   successCallback?: CommentSuccessCallback,
   cancelCallback?: CommentCancelCallback,
-  type: string,
+  interactionType: CommentInteractionType,
   // RM: this no longer does anything; it's used in two places to remove the `af` field
   // but I don't think it really matters.
   removeFields?: any,
@@ -147,7 +158,7 @@ const CommentsNewForm = ({
   tagCommentType="DISCUSSION",
   parentComment,
   successCallback,
-  type,
+  interactionType,
   cancelCallback,
   removeFields,
   formProps,
@@ -165,17 +176,14 @@ const CommentsNewForm = ({
   const { captureEvent } = useTracking({eventProps: { postId: post?._id, tagId: tag?._id, tagCommentType}});
   const commentSubmitStartTimeRef = useRef(Date.now());
   
-  const userWithRateLimit = useSingle({
-    documentId: currentUser?._id,
-    collectionName: "Users",
-    fragmentName: "UsersCurrentCommentRateLimit",
-    extraVariables: { postId: 'String' },
-    extraVariablesValues: { postId: post?._id },
-    fetchPolicy: "cache-and-network",
+  const { refetch, data } = useQuery(UsersCurrentCommentRateLimitQuery, {
+    variables: { documentId: currentUser?._id, postId: post?._id },
     skip: !currentUser,
-    ssr: false
+    fetchPolicy: "cache-and-network",
+    ssr: false,
   });
-  const userNextAbleToComment = userWithRateLimit?.document?.rateLimitNextAbleToComment;
+  const document = data?.user?.result;
+  const userNextAbleToComment = document?.rateLimitNextAbleToComment;
   const lastRateLimitExpiry: Date|null = (userNextAbleToComment && new Date(userNextAbleToComment.nextEligible)) ?? null;
   const rateLimitMessage = userNextAbleToComment ? userNextAbleToComment.rateLimitMessage : null
   
@@ -200,10 +208,6 @@ const CommentsNewForm = ({
   const [_,setForceRefreshState] = useState(0);
 
   const { openDialog } = useDialog();
-  const { mutate: updateComment } = useUpdate({
-    collectionName: "Comments",
-    fragmentName: 'SuggestAlignmentComment',
-  })
   
   // On focus (this bubbles out from the text editor), show moderation guidelines.
   // Defer this through a setTimeout, because otherwise clicking the Cancel button
@@ -230,10 +234,16 @@ const CommentsNewForm = ({
     }, 0);
   };
 
+  const afNonMemberSuccessHandling = useAfNonMemberSuccessHandling();
+
+  const { pathname } = useLocation();
   const wrappedSuccessCallback = (comment: CommentsList) => {
-    afNonMemberSuccessHandling({currentUser, document: comment, openDialog, updateDocument: updateComment })
+    afNonMemberSuccessHandling(comment);
     if (comment.deleted && comment.deletedReason) {
       flash(comment.deletedReason);
+    }
+    if (comment.draft && comment.shortform && pathname === '/') {
+      flash("Quick take saved as draft, visit your profile to edit it.");
     }
     if (successCallback) {
       void successCallback(comment);
@@ -241,7 +251,7 @@ const CommentsNewForm = ({
     setLoading(false)
     const timeElapsed = Date.now() - commentSubmitStartTimeRef.current;
     captureEvent("wrappedSuccessCallbackFinished", {timeElapsed, commentId: comment._id})
-    userWithRateLimit.refetch();
+    void refetch();
   };
 
   const wrappedCancelCallback = (...args: unknown[]) => {
@@ -317,13 +327,11 @@ const CommentsNewForm = ({
   }), [isQuickTake, classes.quickTakesForm, extraFormProps, formProps, answerFormProps]);
 
   const commentSubmitProps = useMemo(() => ({
-    isMinimalist,
     formDisabledDueToRateLimit,
     isQuickTake,
     quickTakesSubmitButtonAtBottom,
-    type,
     loading,
-  }), [isMinimalist, formDisabledDueToRateLimit, isQuickTake, quickTakesSubmitButtonAtBottom, type, loading]);
+  }), [formDisabledDueToRateLimit, isQuickTake, quickTakesSubmitButtonAtBottom, loading]);
   
   // @ts-ignore FIXME: Not enforcing that the post-author fragment has enough fields for userIsAllowedToComment
   if (currentUser && !userCanDo(currentUser, `posts.moderate.all`) && !userIsAllowedToComment(currentUser, prefilledProps, post?.user, !!parentComment)
@@ -360,6 +368,9 @@ const CommentsNewForm = ({
             <CommentForm
               prefilledProps={prefilledProps}
               commentSubmitProps={commentSubmitProps}
+              // Note: This is overly restrictive at the moment to focus on the core use case first, many of these would work
+              disableSubmitDropdown={isAnswer || post?.question || prefilledProps.tagId}
+              interactionType={interactionType}
               alignmentForumPost={post?.af}
               quickTakesFormGroup={isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI)}
               formClassName={mergedFormProps.formClassName}

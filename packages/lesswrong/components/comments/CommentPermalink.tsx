@@ -1,18 +1,30 @@
 import React from 'react';
-import { commentIsHidden } from '../../lib/collections/comments/helpers';
+import { commentIsHiddenPendingReview } from '../../lib/collections/comments/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { useSingle } from '../../lib/crud/withSingle';
 import { isLWorAF } from '../../lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isNotRandomId } from '@/lib/random';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
 import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
 import { isBookUI } from '@/themes/forumTheme';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
 import Divider from "../common/Divider";
 import CommentOnPostWithReplies from "./CommentOnPostWithReplies";
 import HeadTags from "../common/HeadTags";
 import CommentWithReplies from "./CommentWithReplies";
+
+
+const CommentWithRepliesFragmentQuery = gql(`
+  query CommentPermalink($documentId: String) {
+    comment(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...CommentWithRepliesFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -63,13 +75,12 @@ const CommentPermalink = ({
 }) => {
   const hasInContextComments = commentPermalinkStyleSetting.get() === 'in-context'
 
-  const { document: comment, data, loading, error } = useSingle({
-    documentId,
-    collectionName: "Comments",
-    fragmentName: 'CommentWithRepliesFragment',
-    skip: isNotRandomId(documentId)
+  const { data, loading, error, refetch } = useQuery(CommentWithRepliesFragmentQuery, {
+    variables: { documentId: documentId },
+    skip: isNotRandomId(documentId),
   });
-  const refetch = data?.refetch;
+  const comment = data?.comment?.result;
+
   if (silentLoading && !comment) return null;
 
   if (error || (!comment && !loading)) return <div>Comment not found</div>
@@ -79,7 +90,7 @@ const CommentPermalink = ({
   if (!comment || !documentId) return null
   
   // if the site is currently hiding comments by unreviewed authors, check if we need to hide this comment
-  if (commentIsHidden(comment) && !comment.rejected) return <div className={classes.root}>
+  if (commentIsHiddenPendingReview(comment) && !comment.rejected) return <div className={classes.root}>
     <div className={classes.permalinkLabel}>
       Comment Permalink 
       <p>Error: Sorry, this comment is hidden</p>
