@@ -18,6 +18,7 @@ import { createAnonymousContext } from "./vulcan-lib/createContexts";
 import { PostsViews } from '@/lib/collections/posts/views';
 import { CommentsViews } from '@/lib/collections/comments/views';
 import { PostsRSSFeed } from '@/lib/collections/posts/fragments';
+import { camelCaseify } from '@/lib/vulcan-lib/utils';
 
 export const getMeta = (url: string) => {
   const siteUrl = siteUrlSetting.get();
@@ -47,6 +48,12 @@ const servePostRSS = async (terms: RSSTerms, url?: string) => {
   let karmaThreshold = terms.karmaThreshold = roundKarmaThreshold(parseInt(terms.karmaThreshold, 10));
   url = url || rssTermsToUrl(terms); // Default value is the custom rss feed computed from terms
   const feed = new RSS(getMeta(url));
+
+  // We renamed the rss views to no longer have dashes in them
+  if (terms.view?.includes('-')) {
+    terms.view = camelCaseify(terms.view);
+  }
+
   const context = createAnonymousContext();
   const parameters = viewTermsToQuery(PostsViews, terms, undefined, context);
   delete parameters['options']['sort']['sticky'];
