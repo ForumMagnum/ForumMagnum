@@ -1,3 +1,21 @@
 {
-  "extends": "./tsconfig-shared.json"
+  "extends": "./tsconfig-shared.json",
+  "compilerOptions": {
+    "strict": false,
+    "incremental": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
+  },
+  "include": [
+    "packages/lesswrong",
+    "ckEditor/src/editorConfigs.js",
+    "playwright",
+    "./build.ts",
+    ".next/types/**/*.ts"
+  ]
 }
