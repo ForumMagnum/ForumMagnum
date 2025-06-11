@@ -447,7 +447,7 @@ const UltraFeedPostItem = ({
     captureEvent,
     fullPost,
     trackExpansion,
-    postMetaInfo.servedEventId,
+    postMetaInfo,
     hasRecordedViewOnExpand,
     recordPostView,
   ]);

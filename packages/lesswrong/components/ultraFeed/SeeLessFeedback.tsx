@@ -92,8 +92,6 @@ const styles = defineStyles("SeeLessFeedback", (theme: ThemeType) => ({
   buttonContainer: {
     display: 'flex',
     justifyContent: 'center',
-    // marginTop: 8,
-    // marginBottom: 12,
   },
   undoButton: {
     padding: '6px 24px',
