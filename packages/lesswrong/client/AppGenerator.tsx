@@ -1,6 +1,6 @@
 // Client-side React wrapper/context provider
 import React, { useEffect, useMemo, useState, useTransition } from 'react';
-import { ApolloProvider } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client/react';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { ForeignApolloClientProvider } from '../components/hooks/useForeignApolloClient';
 import { PrefersDarkModeProvider } from '../components/themes/usePrefersDarkMode';
@@ -19,8 +19,8 @@ import { HelmetProvider } from 'react-helmet-async';
 // the server-side version, which differs in how it sets up the wrappers for
 // routing and cookies and such.
 const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, themeOptions, ssrMetadata }: {
-  apolloClient: ApolloClient<NormalizedCacheObject>,
-  foreignApolloClient: ApolloClient<NormalizedCacheObject>,
+  apolloClient: ApolloClient,
+  foreignApolloClient: ApolloClient,
   abTestGroupsUsed: RelevantTestGroupAllocation,
   themeOptions: AbstractThemeOptions,
   ssrMetadata?: SSRMetadata,

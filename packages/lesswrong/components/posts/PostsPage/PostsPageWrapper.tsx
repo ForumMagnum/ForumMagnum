@@ -4,7 +4,7 @@ import PostsPageCrosspostWrapper, { isPostWithForeignId } from "./PostsPageCross
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { useSubscribedLocation } from '../../../lib/routeUtil';
-import { useApolloClient } from '@apollo/client';
+import { useApolloClient } from '@apollo/client/react';
 import { useQuery } from "@/lib/crud/useQuery"
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { gql } from "@/lib/generated/gql-codegen";

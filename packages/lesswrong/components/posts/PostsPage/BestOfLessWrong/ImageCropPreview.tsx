@@ -5,7 +5,7 @@ import { useEventListener } from '../../../hooks/useEventListener';
 import { useWindowSize } from '../../../hooks/useScreenWidth';
 import { COORDINATE_POSITIONS_TO_BOOK_OFFSETS, CoordinatePosition } from '../../../sequences/TopPostsPage';
 import classNames from 'classnames';
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const SplashArtCoordinatesMutation = gql(`

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { type OperationVariables, type QueryHookOptions, type ObservableQueryFields } from "@apollo/client";
+import { type OperationVariables, type QueryHookOptions, type ObservableQueryFields } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import type { TypedDocumentNode } from "@graphql-typed-document-node/core";
 import { Kind } from "graphql";

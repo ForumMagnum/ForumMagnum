@@ -5,7 +5,7 @@ import { useNotifyMe } from '../hooks/useNotifyMe';
 import { useOptimisticToggle } from '../hooks/useOptimisticToggle';
 import classNames from 'classnames';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import LWTooltip from "../common/LWTooltip";
 

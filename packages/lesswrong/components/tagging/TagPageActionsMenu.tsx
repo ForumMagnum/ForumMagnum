@@ -4,7 +4,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { Menu } from '@/components/widgets/Menu';
 import { MAIN_TAB_ID, TagLens } from '@/lib/arbital/useTagLenses';
 import { useTracking } from '@/lib/analyticsEvents';
-import { useMutation, gql, useApolloClient } from '@apollo/client';
+import { useMutation, useApolloClient } from '@apollo/client/react';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
 import { useMessages } from '../common/withMessages';
@@ -17,6 +17,7 @@ import DropdownItem from "../dropdowns/DropdownItem";
 import { MenuItem } from "../common/Menus";
 import LWTooltip from "../common/LWTooltip";
 import AnalyticsTracker from "../common/AnalyticsTracker";
+import { gql } from '@/lib/generated/gql-codegen';
 
 const styles = defineStyles("TagPageActionsMenu", (theme: ThemeType) => ({
   tagPageTripleDotMenu: {

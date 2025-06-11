@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { DialogContent } from "@/components/widgets/DialogContent";
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';

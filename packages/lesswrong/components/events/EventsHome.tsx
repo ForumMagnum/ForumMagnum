@@ -28,7 +28,7 @@ import Loading from "../vulcan-core/Loading";
 import DistanceUnitToggle from "../community/modules/DistanceUnitToggle";
 import { MenuItem } from "../common/Menus";
 import ForumIcon from "../common/ForumIcon";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 

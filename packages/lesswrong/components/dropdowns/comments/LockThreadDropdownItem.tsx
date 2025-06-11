@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useDialog } from '../../common/withDialog';
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';

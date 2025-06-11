@@ -29,7 +29,7 @@ import SidebarSubtagsBox from "./SidebarSubtagsBox";
 import SubforumWikiTab from "./SubforumWikiTab";
 import SubforumSubforumTab from "./SubforumSubforumTab";
 import { StructuredData } from '@/components/common/StructuredData';
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
 

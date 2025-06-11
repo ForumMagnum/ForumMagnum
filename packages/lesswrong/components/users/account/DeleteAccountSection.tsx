@@ -7,7 +7,7 @@ import { useFlashErrors } from '@/components/hooks/useFlashErrors';
 import DeleteAccountConfirmationModal from "./DeleteAccountConfirmationModal";
 import ActionButtonSection from "./ActionButtonSection";
 import FormatDate from "../../common/FormatDate";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const UsersEditUpdateMutation = gql(`

@@ -6,7 +6,7 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useMessages } from "../common/withMessages";
 import {

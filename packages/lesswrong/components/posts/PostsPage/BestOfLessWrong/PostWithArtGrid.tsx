@@ -5,7 +5,7 @@ import { useImageContext } from "../ImageContext";
 import GenerateImagesButton, { artPrompt } from "@/components/review/GenerateImagesButton";
 import classNames from "classnames";
 import LWTooltip from "../../../common/LWTooltip";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const SplashArtCoordinatesEditMutation = gql(`

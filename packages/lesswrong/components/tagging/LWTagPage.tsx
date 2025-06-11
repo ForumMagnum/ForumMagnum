@@ -1,4 +1,4 @@
-import { useApolloClient } from "@apollo/client";
+import { useApolloClient } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import classNames from 'classnames';
 import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'react';

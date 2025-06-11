@@ -4,7 +4,7 @@ import { useIsInView } from "../../lib/analyticsEvents";
 import { useCurrentUser } from './withUser';
 import { RecombeeViewPortionProps, recombeeApi } from '../../lib/recombee/client';
 import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { useClientId } from '@/lib/abTestImpl';
 import { gql } from "@/lib/generated/gql-codegen";

@@ -63,7 +63,7 @@ import IntercomWrapper from "./common/IntercomWrapper";
 import CookieBanner from "./common/CookieBanner/CookieBanner";
 import { defineStyles, useStyles } from './hooks/useStyles';
 import Loading from './vulcan-core/Loading';
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const UsersCurrentUpdateMutation = gql(`

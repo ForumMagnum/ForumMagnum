@@ -20,7 +20,7 @@ import { HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS, LAST_VISITED_FRONTPAGE_COOKIE, RE
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { PostFeedDetails, homepagePostFeedsSetting } from '../../lib/instanceSettings';
 import { gql } from "@/lib/generated/gql-codegen";
-import { ObservableQuery, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import { useQuery } from "@/lib/crud/useQuery";
 import { vertexEnabledSetting } from '../../lib/publicSettings';
 import { userHasSubscribeTabFeed } from '@/lib/betas';

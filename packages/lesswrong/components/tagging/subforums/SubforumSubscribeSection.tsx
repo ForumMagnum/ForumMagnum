@@ -5,7 +5,7 @@ import { useDialog } from '../../common/withDialog';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useTracking } from "../../../lib/analyticsEvents";
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import LoginPopup from "../../users/LoginPopup";

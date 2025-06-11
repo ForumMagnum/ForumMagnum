@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMessages } from '../../common/withMessages';
-import { useApolloClient } from '@apollo/client/react/hooks';
+import { useApolloClient } from '@apollo/client/react';
 import { useCurrentUser } from '../../common/withUser';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import ListItemIcon from '@/lib/vendor/@material-ui/core/src/ListItemIcon';
@@ -9,7 +9,7 @@ import ArrowRightAlt from '@/lib/vendor/@material-ui/icons/src/ArrowRightAlt';
 import Undo from '@/lib/vendor/@material-ui/icons/src/Undo';
 import DropdownItem from "../DropdownItem";
 import OmegaIcon from "../../icons/OmegaIcon";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const CommentsListUpdateMutation = gql(`

@@ -20,7 +20,7 @@ import LWTooltip from "../common/LWTooltip";
 import Error404 from "../common/Error404";
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { withDateFields } from "@/lib/utils/dateUtils";

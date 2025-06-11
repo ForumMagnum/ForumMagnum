@@ -7,7 +7,7 @@ import { isE2E } from '../../lib/executionEnvironment';
 import { LW_POST_TITLE_FONT_SIZE } from '../posts/PostsPage/PostsPageTitle';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsMinimumInfoUpdateMutation = gql(`

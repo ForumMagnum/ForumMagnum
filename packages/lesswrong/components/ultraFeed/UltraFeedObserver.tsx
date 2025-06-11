@@ -43,7 +43,7 @@ import React, {
   useMemo,
 } from 'react';
 import { useCurrentUser } from "../common/withUser";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const UltraFeedEventsDefaultFragmentMutation = gql(`

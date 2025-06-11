@@ -1,7 +1,7 @@
 import { createContext, useContext } from "react";
 // eslint-disable-next-line no-restricted-imports
-import { useQuery as useQueryApollo, useSuspenseQuery } from "@apollo/client";
-import type { SuspenseQueryHookFetchPolicy, FetchPolicy } from "@apollo/client";
+import { useQuery as useQueryApollo, useSuspenseQuery } from "@apollo/client/react";
+import type { SuspenseQueryHookFetchPolicy } from "@apollo/client/react";
 
 export const EnableSuspenseContext = createContext(false);
 

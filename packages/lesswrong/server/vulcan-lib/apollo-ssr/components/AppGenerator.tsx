@@ -1,5 +1,5 @@
 import React from 'react';
-import { ApolloProvider } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client/react';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import type { Request } from 'express';
 // eslint-disable-next-line no-restricted-imports
@@ -26,8 +26,8 @@ const AppGenerator = ({ req, onHeadBlockSent, responseManager, apolloClient, for
   req: Request,
   onHeadBlockSent: (name: string) => void,
   responseManager: ResponseManager,
-  apolloClient: ApolloClient<NormalizedCacheObject>,
-  foreignApolloClient: ApolloClient<NormalizedCacheObject>,
+  apolloClient: ApolloClient,
+  foreignApolloClient: ApolloClient,
   serverRequestStatus: ServerRequestStatusContextType,
   abTestGroupsUsed: RelevantTestGroupAllocation,
   ssrMetadata: SSRMetadata,

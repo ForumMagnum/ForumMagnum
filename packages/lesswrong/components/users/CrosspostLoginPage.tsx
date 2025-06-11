@@ -3,7 +3,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useCurrentUser } from "../common/withUser";
 import { forumHeaderTitleSetting } from '@/lib/instanceSettings';
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 import { hasProminentLogoSetting } from "../../lib/publicSettings";
