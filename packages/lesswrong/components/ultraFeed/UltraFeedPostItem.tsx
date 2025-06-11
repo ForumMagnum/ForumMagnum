@@ -31,6 +31,9 @@ import ClockIcon from "@/lib/vendor/@material-ui/icons/src/AccessTime";
 import SubscriptionsIcon from "@/lib/vendor/@material-ui/icons/src/NotificationsNone";
 import LWTooltip from "../common/LWTooltip";
 import { SparkleIcon } from "../icons/sparkleIcon";
+import SeeLessFeedback, { FeedbackOptions } from "./SeeLessFeedback";
+import { recombeeApi } from "@/lib/recombee/client";
+import { useCurrentUser } from "../common/withUser";
 
 const localPostQuery = gql(`
   query LocalPostQuery($documentId: String!) {
@@ -52,6 +55,18 @@ const foreignPostQuery = gql(`
   }
 `);
 
+// TODO: This mutation needs to be implemented server-side
+// const updateUltraFeedEventMutation = gql(`
+//   mutation updateUltraFeedEvent($eventId: String!, $data: JSON!) {
+//     updateUltraFeedEvent(eventId: $eventId, data: $data) {
+//       data {
+//         _id
+//         event
+//       }
+//     }
+//   }
+// `);
+
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
     position: 'relative',
@@ -66,6 +81,11 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   mainContent: {
     display: 'flex',
     flexDirection: 'column',
+  },
+  greyedOut: {
+    opacity: 0.5,
+    filter: 'blur(0.5px)',
+    pointerEvents: 'none',
   },
   tripleDotMenu: {
     opacity: 0.7,
@@ -301,6 +321,7 @@ const UltraFeedPostItem = ({
   const isForeignCrosspost = isPostWithForeignId(post) && !post.fmCrosspost.hostedHere
   const { displaySettings } = settings;
   const apolloClient = useForeignApolloClient();
+  const currentUser = useCurrentUser();
   
   const documentId = isForeignCrosspost ? (post.fmCrosspost.foreignPostId ?? undefined) : post._id;
   
@@ -308,6 +329,12 @@ const UltraFeedPostItem = ({
   const [isLoadingFull, setIsLoadingFull] = useState(isForeignCrosspost || needsFullPostInitially);
   const [resetSig, setResetSig] = useState(0);
   const [isContentExpanded, setIsContentExpanded] = useState(false);
+  
+  // See less state
+  const [isSeeLessMode, setIsSeeLessMode] = useState(false);
+  const [seeLessEventId, setSeeLessEventId] = useState<string | null>(null);
+  // TODO: Uncomment when updateUltraFeedEvent mutation is implemented
+  // const [updateUltraFeedEvent] = useMutation(updateUltraFeedEventMutation);
 
   const { data: localPostData, loading: loadingLocalPost } = useQuery(localPostQuery, {
     skip: isForeignCrosspost || !isLoadingFull,
@@ -441,6 +468,62 @@ const UltraFeedPostItem = ({
     };
   }, [displaySettings.postInitialWords, displaySettings.postMaxWords]);
 
+  const handleSeeLess = useCallback((eventId: string) => {
+    setIsSeeLessMode(true);
+    setSeeLessEventId(eventId);
+  }, []);
+
+  const handleUndoSeeLess = useCallback(async () => {
+    if (!currentUser || !seeLessEventId) return;
+    
+    setIsSeeLessMode(false);
+    
+    // TODO: Update the event to mark it as cancelled when mutation is available
+    // await updateUltraFeedEvent({
+    //   variables: {
+    //     eventId: seeLessEventId,
+    //     data: { cancelled: true }
+    //   }
+    // });
+    
+    // Send opposite rating to Recombee
+    if (postMetaInfo.recommInfo?.recommId) {
+      void recombeeApi.createRating(
+        post._id,
+        currentUser._id,
+        "bigUpvote",
+        postMetaInfo.recommInfo.recommId
+      );
+    }
+    
+    // Track the undo action
+    captureEvent("ultraFeedSeeLessUndone", {
+      postId: post._id,
+      eventId: seeLessEventId,
+    });
+    
+    setSeeLessEventId(null);
+  }, [currentUser, seeLessEventId, post._id, postMetaInfo.recommInfo?.recommId, captureEvent]);
+
+  const handleFeedbackChange = useCallback(async (feedback: FeedbackOptions) => {
+    if (!seeLessEventId) return;
+    
+    // TODO: Update the event with feedback when mutation is available
+    // await updateUltraFeedEvent({
+    //   variables: {
+    //     eventId: seeLessEventId,
+    //     data: { feedbackReasons: feedback }
+    //   }
+    // });
+    
+    // Track feedback analytics
+    captureEvent("ultraFeedSeeLessFeedback", {
+      postId: post._id,
+      eventId: seeLessEventId,
+      feedback,
+    });
+  }, [seeLessEventId, post._id, captureEvent]);
+
   if (!displayHtml) {
     return null; 
   }
@@ -448,7 +531,7 @@ const UltraFeedPostItem = ({
   return (
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index}>
     <div className={classes.root}>
-      <div ref={elementRef} className={classes.mainContent}>
+      <div ref={elementRef} className={classnames(classes.mainContent, { [classes.greyedOut]: isSeeLessMode })}>
         <AnalyticsContext pageElementContext="tripleDotMenu">
           <PostActionsButton
             post={post}
@@ -486,8 +569,22 @@ const UltraFeedPostItem = ({
           </div>
         )}
 
-        <UltraFeedItemFooter document={post} collectionName="Posts" metaInfo={postMetaInfo} className={classes.footer} />
+        <UltraFeedItemFooter 
+          document={post} 
+          collectionName="Posts" 
+          metaInfo={postMetaInfo} 
+          className={classes.footer}
+          onSeeLess={handleSeeLess}
+        />
       </div>
+      
+      {isSeeLessMode && (
+        <SeeLessFeedback
+          onUndo={handleUndoSeeLess}
+          onFeedbackChange={handleFeedbackChange}
+        />
+      )}
+      
       {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={isContentExpanded ? handleCollapse : undefined} />}
     </div>
     </AnalyticsContext>

@@ -115,7 +115,13 @@ export interface InteractedEventData {
 }
 
 export interface SeeLessEventData {
-  // No additional data needed for seeLess events
+  feedbackReasons?: {
+    author?: boolean;
+    topic?: boolean;
+    contentType?: boolean;
+    other?: boolean;
+  };
+  cancelled?: boolean;
 }
 
 // Use Pick on the generated DB type (adjust type name 'DbUltraFeedEvent' if needed)

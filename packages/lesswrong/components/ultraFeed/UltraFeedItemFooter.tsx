@@ -204,6 +204,7 @@ interface UltraFeedItemFooterCoreProps {
   collectionName: "Posts" | "Comments" | "Spotlights";
   metaInfo?: FeedPostMetaInfo | FeedCommentMetaInfo;
   className?: string;
+  onSeeLess?: (eventId: string) => void;
 }
 
 const UltraFeedItemFooterCore = ({
@@ -216,6 +217,7 @@ const UltraFeedItemFooterCore = ({
   collectionName,
   metaInfo,
   className,
+  onSeeLess,
 }: UltraFeedItemFooterCoreProps) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -247,7 +249,7 @@ const UltraFeedItemFooterCore = ({
     }
   };
 
-  const handleSeeLessClick = () => {
+  const handleSeeLessClick = async () => {
     if (!currentUser || !voteProps.document) return;
 
     captureEvent("ultraFeedSeeLessClicked", {
@@ -256,7 +258,6 @@ const UltraFeedItemFooterCore = ({
       sources: metaInfo?.sources,
       servedEventId: metaInfo?.servedEventId,
     });
-
     
     const eventData = {
       data: {
@@ -265,10 +266,24 @@ const UltraFeedItemFooterCore = ({
         documentId: voteProps.document._id,
         collectionName,
         feedItemId: metaInfo?.servedEventId,
-        event: {}
+        event: {
+          feedbackReasons: {
+            author: false,
+            topic: false,
+            contentType: false,
+            other: false,
+          },
+          cancelled: false,
+        }
       }
     };
-    void createUltraFeedEvent({ variables: eventData });
+    
+    const result = await createUltraFeedEvent({ variables: eventData });
+    const eventId = result.data?.createUltraFeedEvent?.data?._id;
+    
+    if (eventId && onSeeLess) {
+      onSeeLess(eventId);
+    }
 
     if (collectionName === "Posts" && metaInfo && 'recommInfo' in metaInfo && voteProps.document) {
       const postMetaInfo = metaInfo
@@ -355,7 +370,7 @@ const UltraFeedItemFooterCore = ({
 };
 
 
-const UltraFeedPostFooter = ({ post, metaInfo, className }: { post: PostsListWithVotes, metaInfo: FeedPostMetaInfo, className?: string }) => {
+const UltraFeedPostFooter = ({ post, metaInfo, className, onSeeLess }: { post: PostsListWithVotes, metaInfo: FeedPostMetaInfo, className?: string, onSeeLess?: (eventId: string) => void }) => {
   const { openDialog } = useDialog();
 
   const votingSystem = getVotingSystemByName(post?.votingSystem || "default");
@@ -387,12 +402,13 @@ const UltraFeedPostFooter = ({ post, metaInfo, className }: { post: PostsListWit
       collectionName="Posts"
       metaInfo={metaInfo}
       className={className}
+      onSeeLess={onSeeLess}
     />
   );
 }
 
 
-const UltraFeedCommentFooter = ({ comment, metaInfo, className }: { comment: UltraFeedComment, metaInfo: FeedCommentMetaInfo, className?: string }) => {
+const UltraFeedCommentFooter = ({ comment, metaInfo, className, onSeeLess }: { comment: UltraFeedComment, metaInfo: FeedCommentMetaInfo, className?: string, onSeeLess?: (eventId: string) => void }) => {
   const { openDialog } = useDialog();
 
   const parentPost = comment.post;
@@ -425,6 +441,7 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className }: { comment: Ult
       collectionName={"Comments"}
       metaInfo={metaInfo}
       className={className}
+      onSeeLess={onSeeLess}
     />
   );
 }
@@ -435,6 +452,7 @@ interface UltraFeedPostFooterProps {
   collectionName: "Posts";
   metaInfo: FeedPostMetaInfo;
   className?: string;
+  onSeeLess?: (eventId: string) => void;
 }
 
 interface UltraFeedCommentFooterProps {
@@ -442,15 +460,16 @@ interface UltraFeedCommentFooterProps {
   collectionName: "Comments";
   metaInfo: FeedCommentMetaInfo;
   className?: string;
+  onSeeLess?: (eventId: string) => void;
 }
 
 type UltraFeedItemFooterProps = UltraFeedPostFooterProps | UltraFeedCommentFooterProps;
 
-const UltraFeedItemFooter = ({ document, collectionName, metaInfo, className }: UltraFeedItemFooterProps) => {
+const UltraFeedItemFooter = ({ document, collectionName, metaInfo, className, onSeeLess }: UltraFeedItemFooterProps) => {
   if (collectionName === "Posts") {
-    return <UltraFeedPostFooter post={document} metaInfo={metaInfo} className={className} />;
+    return <UltraFeedPostFooter post={document} metaInfo={metaInfo} className={className} onSeeLess={onSeeLess} />;
   } else if (collectionName === "Comments") {
-    return <UltraFeedCommentFooter comment={document} metaInfo={metaInfo} className={className} />;
+    return <UltraFeedCommentFooter comment={document} metaInfo={metaInfo} className={className} onSeeLess={onSeeLess} />;
   }
   return null;
 };
