@@ -80,7 +80,6 @@ const BookmarksFeed = () => {
             const postMetaInfo: FeedPostMetaInfo = {
               sources: ["bookmarks"],
               displayStatus: "expanded" as FeedItemDisplayStatus,
-              servedEventId: '' // served bookmarks are not tracked
             };
             return (
               <FeedItemWrapper key={typedBookmark._id || `post-${index}`}>
@@ -103,7 +102,6 @@ const BookmarksFeed = () => {
                 lastInteracted: null,
                 postedAt: commentData.postedAt,
                 directDescendentCount: commentData.directChildrenCount,
-                servedEventId: '' // served bookmarks are not tracked
               }
             };
             const threadData: DisplayFeedCommentThread = {
