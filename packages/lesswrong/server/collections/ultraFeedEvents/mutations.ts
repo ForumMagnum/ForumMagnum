@@ -57,6 +57,14 @@ export async function updateUltraFeedEvent(args: { selector: SelectorInput, data
     throw new Error('UltraFeedEvent not found');
   }
   
+  // Validate text length if updating a seeLess event with text feedback
+  if ('event' in inputData && inputData.event?.feedbackReasons?.text) {
+    const textLength = inputData.event.feedbackReasons.text.length;
+    if (textLength > 500) {
+      throw new Error('Feedback text must be 500 characters or less');
+    }
+  }
+  
   const updateData: Partial<DbUltraFeedEvent> = {};
   if ('event' in inputData && inputData.event !== undefined) {
     updateData.event = inputData.event;

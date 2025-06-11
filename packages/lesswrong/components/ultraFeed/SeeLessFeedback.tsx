@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import CheckIcon from '@/lib/vendor/@material-ui/icons/src/Check';
@@ -38,12 +38,11 @@ const styles = defineStyles("SeeLessFeedback", (theme: ThemeType) => ({
   message: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 16,
-    marginBottom: 20,
+    marginBottom: 4,
     textAlign: 'center',
     color: theme.palette.text.normal,
     [theme.breakpoints.down('sm')]: {
       fontSize: 14,
-      marginBottom: 16,
     },
   },
   feedbackOptions: {
@@ -93,24 +92,47 @@ const styles = defineStyles("SeeLessFeedback", (theme: ThemeType) => ({
   buttonContainer: {
     display: 'flex',
     justifyContent: 'center',
-    marginTop: 8,
-    marginBottom: 12,
+    // marginTop: 8,
+    // marginBottom: 12,
   },
   undoButton: {
-    padding: '8px 24px',
+    padding: '6px 24px',
     backgroundColor: 'transparent',
     cursor: 'pointer',
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 16,
+    fontSize: 14,
     color: theme.palette.text.normal,
-    opacity: 0.5,
-    transition: 'all 0.2s ease',
+    opacity: 0.7,
     '&:hover': {
       opacity: 1,
     },
   },
+  textAreaContainer: {
+    width: '100%',
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  textArea: {
+    width: '100%',
+    minHeight: 50,
+    padding: '8px 12px',
+    borderRadius: 4,
+    border: `1px solid ${theme.palette.text.dim}`,
+    backgroundColor: theme.palette.panelBackground.default,
+    color: theme.palette.text.normal,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 14,
+    resize: 'vertical',
+    '&:focus': {
+      outline: 'none',
+      borderColor: theme.palette.primary.main,
+    },
+    '&::placeholder': {
+      color: theme.palette.text.dim3,
+    },
+  },
   betaDisclaimer: {
-    width: 200,
+    width: 250,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 14,
     fontStyle: 'italic',
@@ -129,6 +151,7 @@ export interface FeedbackOptions {
   topic: boolean;
   contentType: boolean;
   other: boolean;
+  text?: string;
 }
 
 const SeeLessFeedback = ({ onUndo, onFeedbackChange }: SeeLessFeedbackProps) => {
@@ -138,9 +161,21 @@ const SeeLessFeedback = ({ onUndo, onFeedbackChange }: SeeLessFeedbackProps) => 
     topic: false,
     contentType: false,
     other: false,
+    text: '',
   });
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleToggle = (option: keyof FeedbackOptions) => {
+  const debouncedOnChange = (newFeedback: FeedbackOptions) => {
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+    
+    debounceTimeoutRef.current = setTimeout(() => {
+      onFeedbackChange(newFeedback);
+    }, 500); // 500ms debounce for text input
+  };
+
+  const handleToggle = (option: keyof Omit<FeedbackOptions, 'text'>) => {
     const newFeedback = {
       ...feedback,
       [option]: !feedback[option],
@@ -149,7 +184,24 @@ const SeeLessFeedback = ({ onUndo, onFeedbackChange }: SeeLessFeedbackProps) => 
     onFeedbackChange(newFeedback);
   };
 
-  const options: Array<{ key: keyof FeedbackOptions; label: string }> = [
+  const handleTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newFeedback = {
+      ...feedback,
+      text: event.target.value,
+    };
+    setFeedback(newFeedback);
+    debouncedOnChange(newFeedback); // Debounced for text
+  };
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const options: Array<{ key: keyof Omit<FeedbackOptions, 'text'>; label: string }> = [
     { key: 'author', label: 'See less from this author' },
     { key: 'topic', label: 'See less of this topic' },
     { key: 'contentType', label: 'See less of this content type' },
@@ -161,6 +213,11 @@ const SeeLessFeedback = ({ onUndo, onFeedbackChange }: SeeLessFeedbackProps) => 
       <div className={classes.contentBox}>
         <div className={classes.message}>
           You've requested to see less like this
+        </div>
+        <div className={classes.buttonContainer}>
+          <button className={classes.undoButton} onClick={onUndo}>
+            Undo
+          </button>
         </div>
         
         <div className={classes.feedbackOptions}>
@@ -181,13 +238,18 @@ const SeeLessFeedback = ({ onUndo, onFeedbackChange }: SeeLessFeedbackProps) => 
           ))}
         </div>
 
-        <div className={classes.buttonContainer}>
-          <button className={classes.undoButton} onClick={onUndo}>
-            Undo
-          </button>
+        <div className={classes.textAreaContainer}>
+          <textarea
+            className={classes.textArea}
+            placeholder="Tell us more (autosaved)"
+            value={feedback.text || ''}
+            onChange={handleTextChange}
+            maxLength={500}
+          />
         </div>
+
         <div className={classes.betaDisclaimer}>
-          During beta, we are still figuring out how to remove undesired content from your feed and you might still see some like this.
+          Note: Effects of "see less" might not be immediate as we are still developing the algorithm.
         </div>
       </div>
     </div>

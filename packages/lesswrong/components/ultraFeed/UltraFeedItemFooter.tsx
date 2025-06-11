@@ -272,6 +272,7 @@ const UltraFeedItemFooterCore = ({
             topic: false,
             contentType: false,
             other: false,
+            text: '',
           },
           cancelled: false,
         }

@@ -121,6 +121,7 @@ export interface SeeLessEventData {
     topic?: boolean;
     contentType?: boolean;
     other?: boolean;
+    text?: string;
   };
   cancelled?: boolean;
 }
