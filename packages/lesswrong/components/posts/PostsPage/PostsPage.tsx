@@ -563,7 +563,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
     return [...recentUserComments, ...rawComments.filter((c) => !recentUserComments.includes(c))];
     // Ignore `now` to make this more stable
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [commentTerms.view, rawComments, currentUser?._id]);
+  }, [view, rawComments, currentUser?._id]);
 
   const displayedPublicCommentCount = comments?.filter(c => commentIncludedInCounts(c))?.length ?? 0;
   const { commentCount: totalComments } = getResponseCounts({ post, answers })

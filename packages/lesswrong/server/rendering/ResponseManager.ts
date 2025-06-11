@@ -243,6 +243,7 @@ export class ResponseManager {
   _write(data: string) {
     if (debugStreamTiming) {
       this.res.write(`<!-- ${new Date().getTime() - this.startTimeMs}ms -->`);
+      // eslint-disable-next-line no-console
       console.log(`Wrote ${data.length}b`);
     }
     this.res.write(data);
@@ -308,6 +309,7 @@ export class ResponseForwarderStream extends Writable {
         } else {
           this.res.write(chunk);
         }
+        // eslint-disable-next-line no-console
         console.log(`Wrote ${chunkStr.length}b`);
       } else {
         this.res.write(chunk);
