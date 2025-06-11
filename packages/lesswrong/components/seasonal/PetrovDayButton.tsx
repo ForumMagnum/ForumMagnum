@@ -6,7 +6,8 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
-import { useMutation, gql } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen';
 import { useMessages } from "../common/withMessages";
 import {
   getPetrovDayKarmaThreshold,
@@ -152,14 +153,13 @@ const PetrovDayButton = ({classes, alreadyLaunched }: {
   const [launchCode, setLaunchCode] = useState('')
 
 
-  const [ mutate ] = useMutation(gql`
-    mutation petrovDayLaunchResolvers($launchCode: String) {
+  const [ mutate ] = useMutation(gql(`
+    mutation launchPetrovMissile($launchCode: String) {
       PetrovDayLaunchMissile(launchCode: $launchCode) {
         launchCode
       }
     }
-  `
-  );
+  `));
   
   const { flash } = useMessages();
   const updateCurrentUser = useUpdateCurrentUser();

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
-import { useMulti } from '../../../lib/crud/withMulti';
 import { useCurrentUser } from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
@@ -19,6 +18,19 @@ import FormatDate from "../../common/FormatDate";
 import MetaInfo from "../../common/MetaInfo";
 import SectionFooterCheckbox from "../../form-components/SectionFooterCheckbox";
 import Row from "../../common/Row";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const SunshineUsersListMultiQuery = gql(`
+  query multiUserRecentlyActiveUsersQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SunshineUsersList
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -134,14 +146,16 @@ const RecentlyActiveUsers = ({ classes }: {
   const {query} = useLocation();
   const limit = parseInt(query.limit) || 200 // this is using || instead of ?? because it correclty handles NaN 
 
-  const { results = [], loadMoreProps: recentlyActiveLoadMoreProps, refetch } = useMulti({
-    terms: {view: "recentlyActive", limit:limit},
-    collectionName: "Users",
-    fragmentName: 'SunshineUsersList',
+  const { data, refetch, loadMoreProps: recentlyActiveLoadMoreProps } = useQueryWithLoadMore(SunshineUsersListMultiQuery, {
+    variables: {
+      selector: { recentlyActive: {} },
+      limit: limit,
+      enableTotal: true,
+    },
     itemsPerPage: 200,
-    enableTotal: true
   });
 
+  const results = data?.users?.results ?? [];
 
   const handleExpand = (id: string) => {
     if (expandId === id) {

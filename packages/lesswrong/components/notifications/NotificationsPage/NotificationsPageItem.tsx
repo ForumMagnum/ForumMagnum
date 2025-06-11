@@ -1,12 +1,23 @@
 import React, { FC, ReactNode } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { useSingle } from "../../../lib/crud/withSingle";
 import ForumIcon, { ForumIconName } from "../../common/ForumIcon";
 import classNames from "classnames";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import LWTooltip from "../../common/LWTooltip";
 import CommentsNodeInner from "../../comments/CommentsNode";
 import Loading from "../../vulcan-core/Loading";
+
+const CommentsListWithParentMetadataQuery = gql(`
+  query NotificationsPageItem($documentId: String) {
+    comment(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...CommentsListWithParentMetadata
+      }
+    }
+  }
+`);
 
 const ICON_WIDTH = 24;
 
@@ -122,15 +133,12 @@ export const NotificationsPageItem = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const showPreviewComment = !!previewCommentId;
-  const {
-    document: previewComment,
-    loading: previewCommentLoading,
-  } = useSingle({
+  const { loading: previewCommentLoading, data } = useQuery(CommentsListWithParentMetadataQuery, {
+    variables: { documentId: previewCommentId },
     skip: !showPreviewComment,
-    documentId: previewCommentId,
-    collectionName: "Comments",
-    fragmentName: "CommentsListWithParentMetadata",
   });
+  const previewComment = data?.comment?.result;
+  
   return (
     <AnalyticsContext pageSubSectionContext="notificationsPageItem">
       <div className={classes.root}>

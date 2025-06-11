@@ -3,8 +3,8 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
-import { gql } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from '@/lib/generated/gql-codegen';
 import SingleColumnSection from "../common/SingleColumnSection";
 import Loading from "../vulcan-core/Loading";
 import EmailPreview from "./EmailPreview";
@@ -19,11 +19,11 @@ const NotificationEmailPreviewPage = () => {
   const { query } = useLocation();
   const notificationIds = parseIds(query?.notificationIds);
   const postId = query?.postId;
-  const { data, loading } = useQuery(gql`
+  const { data, loading } = useQuery(gql(`
       query EmailPreviewQuery($notificationIds: [String], $postId: String) {
         EmailPreview(notificationIds: $notificationIds, postId: $postId) { to subject html text }
       }
-  `, {
+  `), {
     variables: {notificationIds, postId},
     ssr: true
   });
@@ -52,7 +52,7 @@ const NotificationEmailPreviewPage = () => {
       <br/><br/>
       
       {loading && <Loading/>}
-      {!loading && emails && emails.map((email: any, i: number) =>
+      {!loading && emails && emails.filter(email => !!email).map((email, i: number) =>
         <EmailPreview key={i} email={email}/>
       )}
   </SingleColumnSection>

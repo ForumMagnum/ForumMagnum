@@ -1,5 +1,4 @@
 import React from 'react';
-import { useMulti } from "../../lib/crud/withMulti";
 import { REVIEW_YEAR } from "../../lib/reviewUtils";
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -7,6 +6,19 @@ import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import ErrorBoundary from "../common/ErrorBoundary";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const CommentsListWithParentMetadataMultiQuery = gql(`
+  query multiCommentLatestReviewQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsListWithParentMetadata
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -34,12 +46,16 @@ const styles = (theme: ThemeType) => ({
 })
 
 const LatestReview = ({classes}: { classes: ClassesType<typeof styles> }) => {
-  const { results: commentResults } = useMulti({
-    terms:{ view: "reviews", reviewYear: REVIEW_YEAR, sortBy: "new"},
-    collectionName: "Comments",
-    fragmentName: 'CommentsListWithParentMetadata',
-    limit: 1
+  const { data } = useQuery(CommentsListWithParentMetadataMultiQuery, {
+    variables: {
+      selector: { reviews: { reviewYear: REVIEW_YEAR, sortBy: "new" } },
+      limit: 1,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const commentResults = data?.comments?.results;
 
   if (!commentResults?.length) return null
   const comment = commentResults[0]

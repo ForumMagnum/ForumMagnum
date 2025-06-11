@@ -8,10 +8,22 @@ import { isLeftClick } from '../search/UsersSearchHit';
 import { SearchHitComponentProps } from '../search/types';
 import { useNotifyMe } from '../hooks/useNotifyMe';
 import classNames from 'classnames';
-import { useMulti } from '@/lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const SubscriptionStateMultiQuery = gql(`
+  query multiSubscriptionFollowUserSearchQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
+    subscriptions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SubscriptionState
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -88,17 +100,16 @@ const FollowUserSearch = ({onUserSelected, currentUser, classes}: {
   }, []);
 
   //get all existing subscriptions
-  const { results } = useMulti({
-    terms: {
-      view: "subscriptionsOfType",
-      userId: currentUser?._id,
-      collectionName: "Users",
-      subscriptionType: "newActivityForFeed",
-      limit: 1000
+  const { data } = useQuery(SubscriptionStateMultiQuery, {
+    variables: {
+      selector: { subscriptionsOfType: { userId: currentUser?._id, collectionName: "Users", subscriptionType: "newActivityForFeed" } },
+      limit: 1000,
+      enableTotal: false,
     },
-    collectionName: "Subscriptions",
-    fragmentName: "SubscriptionState",
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.subscriptions?.results;
 
   const existingSubscriptionIds = results?.map(sub => sub.documentId).filter(id => id !== null) ?? [];
   

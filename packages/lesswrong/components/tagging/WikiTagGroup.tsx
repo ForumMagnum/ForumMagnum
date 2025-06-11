@@ -1,14 +1,14 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { gql, NetworkStatus } from '@apollo/client';
+import { NetworkStatus } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import LoadMore from "../common/LoadMore";
 import ConceptItem from "./ConceptItem";
 import Loading from "../vulcan-core/Loading";
+import { gql } from '@/lib/generated/gql-codegen';
 
 // TODO: single source for here and ConceptItem, must be kept in sync
 const CONCEPT_ITEM_WIDTH = 280;
@@ -81,7 +81,7 @@ const WikiTagGroup = ({
 
   const coreTagId = coreTag._id === 'uncategorized-root' ? null : coreTag._id;
 
-  const { data, loading, fetchMore, networkStatus } = useQuery(gql`
+  const { data, loading, fetchMore, networkStatus } = useQuery(gql(`
     query GetTagsByCoreTagId(
       $coreTagId: String,
       $limit: Int,
@@ -98,8 +98,7 @@ const WikiTagGroup = ({
         totalCount
       }
     }
-    ${fragmentTextForQuery('ConceptItemFragment')}
-  `, {
+  `), {
     ssr: true,
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: 'cache-only',

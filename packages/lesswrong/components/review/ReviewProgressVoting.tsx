@@ -1,11 +1,23 @@
 import React from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { ReviewYear } from '../../lib/reviewUtils';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import CropSquareIcon from '@/lib/vendor/@material-ui/icons/src/CropSquare';
 import range from 'lodash/range';
 import LWTooltip from "../common/LWTooltip";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const reviewVoteFragmentMultiQuery = gql(`
+  query multiReviewVoteReviewProgressVotingQuery($selector: ReviewVoteSelector, $limit: Int, $enableTotal: Boolean) {
+    reviewVotes(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...reviewVoteFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -39,18 +51,18 @@ export const ReviewProgressVoting = ({classes, reviewYear}: {
 }) => {
 
   const currentUser = useCurrentUser()
-  const { results: reviewsResults, totalCount } = useMulti({
-    terms: {
-      view: "reviewVotesFromUser",
-      userId: currentUser?._id,
-      year: reviewYear.toString()
+  const { data } = useQuery(reviewVoteFragmentMultiQuery, {
+    variables: {
+      selector: { reviewVotesFromUser: { userId: currentUser?._id, year: reviewYear.toString() } },
+      limit: TARGET_REVIEW_VOTING_NUM,
+      enableTotal: true,
     },
-    collectionName: "ReviewVotes",
-    fragmentName: 'reviewVoteFragment',
-    enableTotal: true,
     skip: !currentUser,
-    limit: TARGET_REVIEW_VOTING_NUM
+    notifyOnNetworkStatusChange: true,
   });
+
+  const reviewsResults = data?.reviewVotes?.results;
+  const totalCount = data?.reviewVotes?.totalCount;
 
   if (!reviewsResults) return null
 

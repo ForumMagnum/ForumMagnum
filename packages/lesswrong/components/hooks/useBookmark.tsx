@@ -1,13 +1,24 @@
 import React, { useState, MouseEvent, useEffect, useCallback } from "react";
-import { gql, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
+import { gql } from "@/lib/generated/gql-codegen";
 import { useCurrentUser } from "@/components/common/withUser";
 import { useDialog } from "@/components/common/withDialog";
 import { useTracking } from "@/lib/analyticsEvents";
 import type { ForumIconName } from "@/components/common/ForumIcon";
-import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
-import { useMulti } from "@/lib/crud/withMulti";
 import { BookmarkableCollectionName } from "@/lib/collections/bookmarks/constants";
 import LoginPopup from "../users/LoginPopup";
+
+const BookmarksDefaultFragmentMultiQuery = gql(`
+  query multiBookmarkuseBookmarkQuery($selector: BookmarkSelector, $limit: Int, $enableTotal: Boolean) {
+    bookmarks(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...BookmarksDefaultFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 export interface UseBookmarkResult {
   isBookmarked: boolean;
@@ -26,7 +37,7 @@ export const useBookmark = (
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking();
 
-  const TOGGLE_BOOKMARK_MUTATION = gql`
+  const TOGGLE_BOOKMARK_MUTATION = gql(`
     mutation ToggleBookmarkMutation($input: ToggleBookmarkInput!) {
       toggleBookmark(input: $input) {
         data {
@@ -34,25 +45,22 @@ export const useBookmark = (
         }
       }
     }
-    ${fragmentTextForQuery('BookmarksDefaultFragment')}
-  `;
+  `);
 
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
 
-  const { results: bookmarkDocs, loading: multiLoading } = useMulti({
-    collectionName: "Bookmarks",
-    fragmentName: "BookmarksDefaultFragment",
-    terms: {
-      view: "userDocumentBookmark",
-      documentId,
-      collectionName,
-      userId: currentUser?._id,
+  const { data, loading: multiLoading } = useQuery(BookmarksDefaultFragmentMultiQuery, {
+    variables: {
+      selector: { userDocumentBookmark: { documentId, collectionName, userId: currentUser?._id } },
+      limit: 1,
+      enableTotal: false,
     },
-    limit: 1,
-    enableTotal: false,
-    fetchPolicy: "cache-and-network",
     skip: !currentUser || !collectionName,
+    fetchPolicy: "cache-and-network",
+    notifyOnNetworkStatusChange: true,
   });
+
+  const bookmarkDocs = data?.bookmarks?.results;
 
   useEffect(() => {
     const bookmarkIsActive = !!(bookmarkDocs && bookmarkDocs.length > 0 && bookmarkDocs[0].active);

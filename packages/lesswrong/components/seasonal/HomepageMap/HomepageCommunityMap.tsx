@@ -6,15 +6,26 @@ import { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { defaultCenter } from '../../localGroups/CommunityMap';
 import { ArrowSVG } from '../../localGroups/Icons';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
-import { useSingle } from '../../../lib/crud/withSingle';
 import { ACX_EVENTS_LAST_UPDATED, LocalEvent, localEvents } from './acxEvents';
 import classNames from 'classnames';
 import moment from 'moment';
 import { componentWithChildren } from '../../../lib/utils/componentsWithChildren';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import StyledMapPopup from "../../localGroups/StyledMapPopup";
 import GroupLinks from "../../localGroups/GroupLinks";
 import HomepageMapFilter from "./HomepageMapFilter";
 import { WrappedReactMapGL } from '@/components/community/WrappedReactMapGL';
+
+const PostsListQuery = gql(`
+  query HomepageCommunityMap($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsList
+      }
+    }
+  }
+`);
 
 const Marker = componentWithChildren(BadlyTypedMarker);
 
@@ -54,11 +65,10 @@ export const LocalEventWrapperPopUp = ({localEvent, handleClose}: {
   localEvent: LocalEvent,
   handleClose: (eventId: string) => void
 }) => {
-  const { document, loading } = useSingle({
-    documentId: localEvent._id,
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
+  const { loading, data } = useQuery(PostsListQuery, {
+    variables: { documentId: localEvent._id },
   });
+  const document = data?.post?.result;
 
   if (loading) return null
 

@@ -100,16 +100,16 @@ export const updateUserEAGDetailGqlMutation = makeGqlUpdateMutation('UserEAGDeta
 
 
 export const graphqlUserEAGDetailTypeDefs = gql`
-  input CreateUserEAGDetailDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateUserEAGDetailDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateUserEAGDetailInput {
     data: CreateUserEAGDetailDataInput!
   }
   
-  input UpdateUserEAGDetailDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateUserEAGDetailDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateUserEAGDetailInput {

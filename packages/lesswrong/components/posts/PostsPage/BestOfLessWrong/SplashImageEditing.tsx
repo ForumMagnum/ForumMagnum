@@ -1,8 +1,8 @@
 import React, { RefObject } from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useHover } from '@/components/common/withHover';
-import { gql, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen';
 import SplashImageEditingOptions from "./SplashImageEditingOptions";
 import ImageCropPreview from "./ImageCropPreview";
 import LWPopper from "../../../common/LWPopper";
@@ -50,15 +50,19 @@ const SplashImageEditing = ({ imgRef, imageFlipped, setImageFlipped, post }: { i
   const classes = useStyles(styles);
   const { anchorEl, hover, eventHandlers } = useHover();
 
-  const [flipMutation] = useMutation(gql`
+  const [flipMutation] = useMutation(gql(`
     mutation flipSplashArtImage($reviewWinnerArtId: String!) {
       flipSplashArtImage(reviewWinnerArtId: $reviewWinnerArtId)
     }
-  `); 
+  `)); 
 
   const toggleImageFlip = async () => {
+    if (!post.reviewWinner?.reviewWinnerArt?._id) {
+      return;
+    }
+    
     setImageFlipped(!imageFlipped);
-    await flipMutation({ variables: { reviewWinnerArtId: post.reviewWinner?.reviewWinnerArt?._id } }); 
+    await flipMutation({ variables: { reviewWinnerArtId: post.reviewWinner.reviewWinnerArt._id } }); 
   }
 
   return <div className={classes.root}>

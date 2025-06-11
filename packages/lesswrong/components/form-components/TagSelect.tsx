@@ -1,10 +1,21 @@
-import { Chip } from '@/components/widgets/Chip';
 import React from 'react';
-import { useSingle } from '../../lib/crud/withSingle';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+import { Chip } from '@/components/widgets/Chip';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import ErrorBoundary from "../common/ErrorBoundary";
 import TagsSearchAutoComplete from "../search/TagsSearchAutoComplete";
+
+const TagBasicInfoQuery = gql(`
+  query TagSelect($documentId: String) {
+    tag(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...TagBasicInfo
+      }
+    }
+  }
+`);
 
 const styles = defineStyles('TagSelect', (theme: ThemeType) => ({
   root: {
@@ -19,7 +30,7 @@ const styles = defineStyles('TagSelect', (theme: ThemeType) => ({
 }));
 
 interface TagSelectProps {
-  field: TypedFieldApi<string | null>;
+  field: TypedFieldApi<string | null | undefined>;
   label: string;
 }
 
@@ -27,12 +38,12 @@ export const TagSelect = ({ field, label }: TagSelectProps) => {
   const classes = useStyles(styles);
   const value = field.state.value;
 
-  const {document: selectedTag, loading} = useSingle({
+  const { loading, data } = useQuery(TagBasicInfoQuery, {
+    variables: { documentId: value },
     skip: !value,
-    documentId: value!,
-    collectionName: "Tags",
-    fragmentName: 'TagBasicInfo',
   });
+  
+  const selectedTag = data?.tag?.result;
 
   return (
     <div className={classes.root}>

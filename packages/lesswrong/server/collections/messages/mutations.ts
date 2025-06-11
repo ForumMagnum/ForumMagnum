@@ -127,16 +127,16 @@ export const updateMessageGqlMutation = makeGqlUpdateMutation('Messages', update
 
 
 export const graphqlMessageTypeDefs = gql`
-  input CreateMessageDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateMessageDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateMessageInput {
     data: CreateMessageDataInput!
   }
   
-  input UpdateMessageDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateMessageDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateMessageInput {

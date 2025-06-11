@@ -9,6 +9,7 @@ import PostKarmaWithPreview from "../PostKarmaWithPreview";
 import CommentKarmaWithPreview from "../CommentKarmaWithPreview";
 import Loading from "../../vulcan-core/Loading";
 import Row from "../../common/Row";
+import { maybeDate } from '@/lib/utils/dateUtils';
 
 const styles = (theme: ThemeType) => ({
   contentSummaryRow: {
@@ -114,7 +115,7 @@ export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
           <DescriptionIcon className={classes.hoverPostIcon}/>
         </span>
       </LWTooltip>
-      {postKarmaPreviews.map(post => <PostKarmaWithPreview key={post._id} post={post} reviewedAt={user.reviewedAt ?? undefined} displayTitle={contentDisplay === "titles"}/>)}
+      {postKarmaPreviews.map(post => <PostKarmaWithPreview key={post._id} post={post} reviewedAt={maybeDate(user.reviewedAt) ?? undefined} displayTitle={contentDisplay === "titles"}/>)}
       { hiddenPostCount ? <span> ({hiddenPostCount} drafted or rejected)</span> : null}
       {averagePostKarma}
     </div>
@@ -126,7 +127,7 @@ export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
           <MessageIcon className={classes.icon}/>
         </span>
       </LWTooltip>
-      {commentKarmaPreviews.map(comment => <CommentKarmaWithPreview key={comment._id} reviewedAt={user.reviewedAt ?? undefined} comment={comment} displayTitle={contentDisplay === "titles"}/>)}
+      {commentKarmaPreviews.map(comment => <CommentKarmaWithPreview key={comment._id} reviewedAt={maybeDate(user.reviewedAt) ?? undefined} comment={comment} displayTitle={contentDisplay === "titles"}/>)}
       { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted or rejected)</span> : null}
       {averageCommentKarma}
       </div>

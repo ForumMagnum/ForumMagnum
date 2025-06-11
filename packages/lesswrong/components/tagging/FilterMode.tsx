@@ -3,7 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { FilterMode as FilterModeType, isCustomFilterMode, getStandardFilterModes } from '../../lib/filterSettings';
 import classNames from 'classnames';
 import { useHover } from '../common/withHover';
-import { useSingle } from '../../lib/crud/withSingle';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
@@ -15,10 +14,23 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import VisibilityOff from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import LWTooltip from "../common/LWTooltip";
 import PopperCard from "../common/PopperCard";
 import TagPreview from "./TagPreview";
 import ContentStyles from "../common/ContentStyles";
+
+
+const TagPreviewFragmentQuery = gql(`
+  query FilterMode($documentId: String) {
+    tag(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...TagPreviewFragment
+      }
+    }
+  }
+`);
 
 const LATEST_POSTS_NAME = isFriendlyUI ? 'Frontpage Posts' : 'Latest Posts';
 const INPUT_PAUSE_MILLISECONDS = 1500;
@@ -164,12 +176,11 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   });
 
   const currentUser = useCurrentUser()
-  const { document: tag } = useSingle({
-    documentId: tagId,
-    collectionName: "Tags",
-    fragmentName: "TagPreviewFragment",
-    skip: !tagId
-  })
+  const { data } = useQuery(TagPreviewFragmentQuery, {
+    variables: { documentId: tagId },
+    skip: !tagId,
+  });
+  const tag = data?.tag?.result;
 
   const standardFilterModes = getStandardFilterModes();
 

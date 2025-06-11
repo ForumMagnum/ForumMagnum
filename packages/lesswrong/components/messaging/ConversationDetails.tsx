@@ -44,7 +44,7 @@ const ConversationDetails = ({conversation, hideOptions = false, classes}: {
         {conversation.participants.map((user, i) => <MetaInfo key={user._id}>
           <UsersName key={user._id} user={user}/>
           {/* inserts a comma for all but the last username */}
-          { i < conversation.participants.length-1 && ","}
+          { i < (conversation.participants?.length ?? 0) - 1 && ","}
         </MetaInfo>)}
       </span>
       {!hideOptions && <span onClick={openConversationOptions}>

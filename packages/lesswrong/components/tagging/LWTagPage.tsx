@@ -1,11 +1,11 @@
 import { useApolloClient } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
 import classNames from 'classnames';
 import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers';
 import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma, isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
-import { useMulti, UseMultiOptions } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -40,7 +40,6 @@ import { useDisplayedContributors, HeadingContributorsList, ToCContributorsList 
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../lib/cookies/cookies';
 import { LensForm } from "./lenses/LensForm";
-import { useSingle } from "@/lib/crud/withSingle";
 import ErrorPage from "../common/ErrorPage";
 import RedlinkTagPage from "./RedlinkTagPage";
 import { SideItem, SideItemsContainer } from "../contents/SideItems";
@@ -69,6 +68,30 @@ import InlineReactSelectionWrapper from "../votes/lwReactions/InlineReactSelecti
 import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
 import PathInfo from "./PathInfo";
 import { StructuredData } from "../common/StructuredData";
+import { gql } from "@/lib/generated/gql-codegen";
+import { withDateFields } from "@/lib/utils/dateUtils";
+import type { TagBySlugQueryOptions } from "./useTag";
+
+const TagWithFlagsFragmentMultiQuery = gql(`
+  query multiTagLWTagPageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagWithFlagsFragment
+      }
+      totalCount
+    }
+  }
+`);
+
+const TagEditFragmentQuery = gql(`
+  query LWTagPage($documentId: String) {
+    tag(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...TagEditFragment
+      }
+    }
+  }
+`);
 
 const AUDIO_PLAYER_WIDTH = 325;
 
@@ -361,7 +384,7 @@ const EditLensForm = ({lens, successCallback, changeCallback, cancelCallback}: {
 
   return <LensForm
     key={lens._id + mountKey}
-    initialData={lens.originalLensDocument ?? undefined}
+    initialData={withDateFields(lens.originalLensDocument ?? undefined, ['createdAt'])}
     onSuccess={() => successCallback().then(() => setMountKey(mountKey + 1))}
     onCancel={cancelCallback}
     onChange={changeCallback}
@@ -500,36 +523,23 @@ function getTagQueryOptions(
   contributorsLimit: number
 ): {
   tagFragmentName: ArbitalTagPageFragmentNames;
-  tagQueryOptions: Partial<UseMultiOptions<ArbitalTagPageFragmentNames, "Tags">>;
+  tagQueryOptions: TagBySlugQueryOptions;
 } {
   let tagFragmentName: ArbitalTagPageFragmentNames = "TagPageWithArbitalContentFragment";
-  let tagQueryOptions: Required<Pick<UseMultiOptions<ArbitalTagPageFragmentNames, "Tags">, "extraVariables" | "extraVariablesValues">> = {
-    extraVariables: {
-      contributorsLimit: 'Int',
-    },
-    extraVariablesValues: {
-      contributorsLimit,
-    },
-  };
+  const extraVariables: TagBySlugQueryOptions['extraVariables'] = { contributorsLimit };
 
   if (revision && !lensSlug) {
     tagFragmentName = "TagPageRevisionWithArbitalContentFragment";
-
-    tagQueryOptions.extraVariables.version = 'String';
-    tagQueryOptions.extraVariablesValues.version = revision;
+    extraVariables.version = revision;
   }
 
   if (revision && lensSlug) {
     tagFragmentName = "TagPageWithArbitalContentAndLensRevisionFragment";
-    
-    tagQueryOptions.extraVariables.version = 'String';
-    tagQueryOptions.extraVariables.lensSlug = 'String';
-
-    tagQueryOptions.extraVariablesValues.version = revision;
-    tagQueryOptions.extraVariablesValues.lensSlug = lensSlug;
+    extraVariables.version = revision;
+    extraVariables.lensSlug = lensSlug;
   }
 
-  return { tagFragmentName, tagQueryOptions };
+  return { tagFragmentName, tagQueryOptions: { extraVariables } };
 }
 
 const LWTagPage = () => {
@@ -569,13 +579,12 @@ const LWTagPage = () => {
   const { tagFragmentName, tagQueryOptions } = getTagQueryOptions(revision, lensSlug, contributorsLimit);
   const { tag, loadingTag, tagError, refetchTag, lens, loadingLens } = useTagOrLens(slug, tagFragmentName, tagQueryOptions);
 
-  const { document: editableTag } = useSingle({
-    documentId: tag?._id,
-    collectionName: 'Tags',
-    fragmentName: 'TagEditFragment',
+  const { data } = useQuery(TagEditFragmentQuery, {
+    variables: { documentId: tag?._id },
     skip: !tag,
     ssr: false,
   });
+  const editableTag = data?.tag?.result;
 
   const [truncated, setTruncated] = useState(false)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
@@ -603,13 +612,18 @@ const LWTagPage = () => {
     //tagFlagId handled as default case below
   }
 
-  const { results: otherTagsWithNavigation } = useMulti({
-    terms: ["allPages", "myPages"].includes(query.focus) ? multiTerms[query.focus] : {view: "tagsByTagFlag", tagFlagId: query.focus},
-    collectionName: "Tags",
-    fragmentName: 'TagWithFlagsFragment',
-    limit: 1500,
-    skip: !query.flagId
-  })
+  const { view, limit, ...selectorTerms } = ["allPages", "myPages"].includes(query.focus) ? multiTerms[query.focus] : { view: "tagsByTagFlag", tagFlagId: query.focus };
+  const { data: dataTagsWithFlags } = useQuery(TagWithFlagsFragmentMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 1500,
+      enableTotal: false,
+    },
+    skip: !query.flagId,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const otherTagsWithNavigation = dataTagsWithFlags?.tags?.results;
 
   useOnSearchHotkey(() => setTruncated(false));
 
@@ -814,8 +828,8 @@ const LWTagPage = () => {
         <SideItem>
           <ArbitalLinkedPagesRightSidebar tag={tag} selectedLens={selectedLens} arbitalLinkedPages={selectedLens?.arbitalLinkedPages ?? undefined} />
         </SideItem>
-        { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>
-          You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
+        { revision && tag.description && 'user' in tag.description && <div className={classes.pastRevisionNotice}>
+          You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={tag.description.user}/>
         </div>}
         {/* <TagEditorProvider> */}
         <DeferRender ssr={false}>

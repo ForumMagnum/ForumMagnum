@@ -6,8 +6,9 @@ import { useCurrentUser } from '../common/withUser';
 import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, isBlank, serializeEditorContents, EditorTypeString, styles, FormProps, shouldSubmitContents, isValidEditorType, type LegacyEditorTypeString } from './Editor';
 import withErrorBoundary from '../common/withErrorBoundary';
 import * as _ from 'underscore';
-import { gql, useLazyQuery, useMutation } from '@apollo/client';
-import { isEAForum } from '../../lib/instanceSettings';
+import { useLazyQuery, useMutation } from '@apollo/client';
+import { gql } from "@/lib/generated/gql-codegen";
+import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import Transition from 'react-transition-group/Transition';
 import { useTracking } from '../../lib/analyticsEvents';
 import { PostCategory } from '../../lib/collections/posts/helpers';
@@ -19,7 +20,6 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { CKEditorPortalProvider } from '../editor/CKEditorPortalProvider';
-import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import LastEditedInWarning from "./LastEditedInWarning";
@@ -50,11 +50,11 @@ export const AutosaveEditorStateContext = React.createContext<AutosaveEditorStat
   setAutosaveEditorState: _ => {},
 });
 
-export function isCollaborative(post: Pick<DbPost, '_id' | 'shareWithUsers' | 'sharingSettings' | 'collabEditorDialogue'>, fieldName: string): boolean {
+export function isCollaborative(post: Pick<DbPost | PostsBase, '_id' | 'shareWithUsers' | 'sharingSettings' | 'collabEditorDialogue'>, fieldName: string): boolean {
   if (!post) return false;
   if (!post._id) return false;
   if (fieldName !== "contents") return false;
-  if (post.shareWithUsers.length > 0) return true;
+  if (!!post.shareWithUsers?.length) return true;
   if (post.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
     return true;
   if (post.collabEditorDialogue) return true;
@@ -220,11 +220,11 @@ function InnerEditorFormComponent<S, R>({
     })
   }
   
-  const [checkPostIsCriticism] = useLazyQuery(gql`
+  const [checkPostIsCriticism] = useLazyQuery(gql(`
     query getPostIsCriticism($args: JSON) {
       PostIsCriticism(args: $args)
     }
-    `, {
+    `), {
       onCompleted: (data) => {
         // SC 2024-09-18: We are temporarily hiding the user-facing card,
         // as we are testing using gpt-4o-mini directly instead of a fine-tuned model.
@@ -318,14 +318,13 @@ function InnerEditorFormComponent<S, R>({
     }
   }, [getLocalStorageHandlers, currentEditorType, document, fieldName]);
 
-  const [autosaveRevision] = useMutation(gql`
+  const [autosaveRevision] = useMutation(gql(`
     mutation autosaveRevision($postId: String!, $contents: AutosaveContentType!) {
       autosaveRevision(postId: $postId, contents: $contents) {
         ...RevisionEdit
       }
     }
-    ${fragmentTextForQuery('RevisionEdit')}
-  `);
+  `));
 
   const saveRemoteBackup = useCallback(async (newContents: EditorContents): Promise<void> => {
     // If a post hasn't ever been saved before, "submit" the form in order to create a draft post

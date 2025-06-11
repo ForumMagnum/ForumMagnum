@@ -1,5 +1,4 @@
 import React from 'react';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
@@ -9,6 +8,18 @@ import LoginPopup from "../users/LoginPopup";
 import BookCheckout from "../review/BookCheckout";
 import BookAnimation from "./BookAnimation";
 import ContentStyles from "../common/ContentStyles";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const UsersCurrentUpdateMutation = gql(`
+  mutation updateUserBookFrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {
+    updateUser(selector: $selector, data: $data) {
+      data {
+        ...UsersCurrent
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -128,10 +139,7 @@ const BookFrontpageWidget = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { mutate: updateUser } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersCurrent',
-  });
+  const [updateUser] = useMutation(UsersCurrentUpdateMutation);
   const { openDialog } = useDialog();
 
   if (currentUser?.hideFrontpageBookAd) return null
@@ -139,10 +147,12 @@ const BookFrontpageWidget = ({ classes }: {
   const hideClickHandler = async () => {
     if (currentUser) {
       await updateUser({
-        selector: { _id: currentUser._id },
-        data: {
-          hideFrontpageBookAd: true
-        },
+        variables: {
+          selector: { _id: currentUser._id },
+          data: {
+            hideFrontpageBookAd: true
+          }
+        }
       })
     } else {
       openDialog({

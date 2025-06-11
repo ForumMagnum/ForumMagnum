@@ -1,7 +1,7 @@
 import { isServer } from '../../executionEnvironment';
 import {forumTypeSetting, isEAForum, verifyEmailsSetting} from '../../instanceSettings'
 import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
-import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
+import { userOwns, userCanDo, userIsMemberOf, PermissionableUser } from '../../vulcan-users/permissions';
 import { useEffect, useState } from 'react';
 import * as _ from 'underscore';
 import { getBrowserLocalStorage } from '../../../components/editor/localStorageHandlers';
@@ -19,7 +19,7 @@ export const ACCOUNT_DELETION_COOLING_OFF_DAYS = 14;
 
 export const spamRiskScoreThreshold = 0.16 // Corresponds to recaptchaScore of 0.2
 
-export type UserDisplayNameInfo = { username: string | null, fullName?: string | null, displayName: string | null };
+export type UserDisplayNameInfo = { username?: string | null, fullName?: string | null, displayName: string | null };
 
 // Get a user's display name (not unique, can take special characters and spaces)
 export const userGetDisplayName = (user: UserDisplayNameInfo | null): string => {
@@ -33,7 +33,7 @@ export const userGetDisplayName = (user: UserDisplayNameInfo | null): string => 
 };
 
 // Get a user's username (unique, no special characters or spaces)
-export const getUserName = function(user: {username: string | null } | null): string|null {
+export const getUserName = function(user: {username?: string | null } | null): string|null {
   try {
     if (user?.username) return user.username;
   } catch (error) {
@@ -78,7 +78,7 @@ export const isNewUser = (user: UsersMinimumInfo): boolean => {
 
 export interface SharableDocument {
   coauthorStatuses?: DbPost["coauthorStatuses"]
-  shareWithUsers?: DbPost["shareWithUsers"]
+  shareWithUsers?: DbPost["shareWithUsers"] | null
   sharingSettings?: DbPost["sharingSettings"]
 }
 
@@ -203,7 +203,7 @@ export const userCanCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBa
   )
 }
 
-export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|DbUser|null): boolean => {
+export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PostsDetails|DbPost, postAuthor: PermissionableUser|DbUser|null): boolean => {
   if (!post) return false;
   return !!(
     post.bannedUserIds?.includes(user._id) &&
@@ -211,7 +211,7 @@ export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PostsD
   )
 }
 
-export const userIsBannedFromAllPosts = (user: UsersCurrent|DbUser, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|DbUser|null): boolean => {
+export const userIsBannedFromAllPosts = (user: UsersCurrent|DbUser, post: PostsDetails|DbPost, postAuthor: PermissionableUser|DbUser|null): boolean => {
   return !!(
     // @ts-ignore FIXME: Not enforcing that the fragment includes bannedUserIds
     postAuthor?.bannedUserIds?.includes(user._id) &&
@@ -221,7 +221,7 @@ export const userIsBannedFromAllPosts = (user: UsersCurrent|DbUser, post: PostsD
   )
 }
 
-export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|DbUser|null): boolean => {
+export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post: PostsDetails|DbPost, postAuthor: PermissionableUser|DbUser|null): boolean => {
   return !!(
     // @ts-ignore FIXME: Not enforcing that the fragment includes bannedUserIds
     postAuthor?.bannedPersonalUserIds?.includes(user._id) &&
@@ -231,7 +231,7 @@ export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post
   )
 }
 
-export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost|null, postAuthor: PostsAuthors_user|DbUser|null, isReply: boolean): boolean => {
+export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost|null, postAuthor: PermissionableUser|DbUser|null, isReply: boolean): boolean => {
   if (!user) return false
   if (user.deleted) return false
   if (user.allCommentingDisabled) return false
@@ -638,12 +638,14 @@ export const karmaChangeNotifierDefaultSettings = new DeferredForumSelect<KarmaC
   },
 } as const);
 
-export type EditableUser = Omit<UpdateUserDataInput & UsersEdit, 'howOthersCanHelpMe' | 'howICanHelpOthers' | 'legacyData'> & {
+type UserInputDateFields = KeysOfType<UpdateUserDataInput, Date | null | undefined>;
+
+export type EditableUser = Omit<UpdateUserDataInput & Omit<UsersEdit, UserInputDateFields>, 'howOthersCanHelpMe' | 'howICanHelpOthers' | 'legacyData'> & {
   _id: string;
   hasAuth0Id?: boolean | null;
-  reactPaletteStyle?: DbUser['reactPaletteStyle'];
-  subforumPreferredLayout?: DbUser['subforumPreferredLayout'];
 };
+
+type ff = EditableUser['banned']
 
 export const CAREER_STAGES: CareerStage[] = [
   { value: "highSchool", label: "In high school", icon: "School", EAGLabel: "Student (high school)" },

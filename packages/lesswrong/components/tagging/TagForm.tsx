@@ -1,6 +1,4 @@
 import { userIsSubforumModerator, TAG_POSTS_SORT_ORDER_OPTIONS } from "@/lib/collections/tags/helpers";
-import { useCreate } from "@/lib/crud/withCreate";
-import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
 import { isEAForum, isLW, isLWorAF } from "@/lib/instanceSettings";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
@@ -24,7 +22,29 @@ import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm
 import LWTooltip from "../common/LWTooltip";
 import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
 import ContentStyles from "../common/ContentStyles";
+
+const TagWithFlagsFragmentUpdateMutation = gql(`
+  mutation updateTagTagForm($selector: SelectorInput!, $data: UpdateTagDataInput!) {
+    updateTag(selector: $selector, data: $data) {
+      data {
+        ...TagWithFlagsFragment
+      }
+    }
+  }
+`);
+
+const TagWithFlagsFragmentMutation = gql(`
+  mutation createTagTagForm($data: CreateTagDataInput!) {
+    createTag(data: $data) {
+      data {
+        ...TagWithFlagsFragment
+      }
+    }
+  }
+`);
 
 const formStyles = defineStyles('TagForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -88,7 +108,7 @@ export const TagForm = ({
   onCancel,
   onChange,
 }: {
-  initialData?: UpdateTagDataInput & { _id: string; canVoteOnRels: DbTag['canVoteOnRels'] };
+  initialData?: UpdateTagDataInput & { _id: string; };
   prefilledProps?: {
     name: string;
     wikiOnly: boolean;
@@ -109,23 +129,24 @@ export const TagForm = ({
     addOnSuccessCallback
   } = useEditorFormCallbacks<TagWithFlagsFragment>();
 
-  const { create } = useCreate({
-    collectionName: 'Tags',
-    fragmentName: 'TagWithFlagsFragment',
-  });
+  const [create] = useMutation(TagWithFlagsFragmentMutation);
 
-  const { mutate } = useUpdate({
-    collectionName: 'Tags',
-    fragmentName: 'TagWithFlagsFragment',
-  });
+  const [mutate] = useMutation(TagWithFlagsFragmentUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
+  const defaultValues = {
+    ...initialData,
+    ...(formType === 'new' ? prefilledProps : {}),
+  };
+
+  const defaultValuesWithRequiredFields = {
+    ...defaultValues,
+    name: defaultValues.name ?? '',
+  };
+
   const form = useForm({
-    defaultValues: {
-      ...initialData,
-      ...(formType === 'new' ? prefilledProps : {}),
-    },
+    defaultValues: defaultValuesWithRequiredFields,
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
 
@@ -136,15 +157,23 @@ export const TagForm = ({
           const { wikiOnly, ...rest } = formApi.state.values;
           const createData = showWikiOnlyField(currentUser, formType) ? { ...rest, wikiOnly } : rest;
 
-          const { data } = await create({ data: createData });
-          result = data?.createTag.data;
+          const { data } = await create({ variables: { data: createData } });
+          if (!data?.createTag?.data) {
+            throw new Error('Failed to create tag');
+          }
+          result = data.createTag.data;
         } else {
           const updatedFields = getUpdatedFieldValues(formApi, ['description', 'moderationGuidelines', 'subforumWelcomeText']);
           const { data } = await mutate({
-            selector: { _id: initialData?._id },
-            data: updatedFields,
+            variables: {
+              selector: { _id: initialData?._id },
+              data: updatedFields
+            }
           });
-          result = data?.updateTag.data;
+          if (!data?.updateTag?.data) {
+            throw new Error('Failed to update tag');
+          }
+          result = data.updateTag.data;
         }
 
         onSuccessCallback.current?.(result);

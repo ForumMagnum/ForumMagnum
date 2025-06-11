@@ -15,6 +15,7 @@ declare global {
   type ElectionCandidatesSort = UnionOf<typeof electionCandidateSortOptions>;
 
   interface ElectionCandidatesViewTerms extends ViewTermsBase {
+    view: 'default' | undefined,
     electionName?: string,
     sortBy?: ElectionCandidatesSort,
   }

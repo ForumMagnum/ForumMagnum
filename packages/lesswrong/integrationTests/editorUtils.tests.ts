@@ -6,6 +6,7 @@ import { runQuery } from "../server/vulcan-lib/query";
 import { syncDocumentWithLatestRevision } from "../server/editor/utils";
 import { fetchFragmentSingle } from "../server/fetchFragment";
 import { createAnonymousContext } from "../server/vulcan-lib/createContexts";
+import { PostsOriginalContents } from "@/lib/collections/posts/fragments";
 async function updatePost(user: DbUser, postId: string, newMarkup: string) {
   const query = `
     mutation PostsEdit {
@@ -39,7 +40,7 @@ describe("syncDocumentWithLatestRevision", () => {
 
     const postAfterUpdate = await fetchFragmentSingle({
       collectionName: "Posts",
-      fragmentName: "PostsOriginalContents",
+      fragmentDoc: PostsOriginalContents,
       currentUser: user,
       selector: {_id: post._id},
     });
@@ -59,7 +60,7 @@ describe("syncDocumentWithLatestRevision", () => {
 
     const postAfterSync = await fetchFragmentSingle({
       collectionName: "Posts",
-      fragmentName: "PostsOriginalContents",
+      fragmentDoc: PostsOriginalContents,
       currentUser: user,
       selector: {_id: post._id},
     });

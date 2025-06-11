@@ -2,12 +2,12 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
-import { gql } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery";
 import MigrationsDashboardRow, { rowStyles } from './MigrationsDashboardRow';
 import SingleColumnSection from "../../common/SingleColumnSection";
 import Loading from "../../vulcan-core/Loading";
 import SectionTitle from "../../common/SectionTitle";
+import { gql } from '@/lib/generated/gql-codegen';
 
 const styles = (theme: ThemeType) => ({
   ...rowStyles,
@@ -24,7 +24,7 @@ const MigrationsDashboard = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { data, loading } = useQuery(gql`
+  const { data, loading } = useQuery(gql(`
     query MigrationsDashboardQuery {
       MigrationsDashboard {
         migrations {
@@ -35,7 +35,7 @@ const MigrationsDashboard = ({classes}: {
         }
       }
     }
-  `, { ssr: true });
+  `), { ssr: true });
   
   if (!userIsAdmin(currentUser)) {
     return <SingleColumnSection>Sorry, you need to be logged in as an admin to use this page.</SingleColumnSection>;

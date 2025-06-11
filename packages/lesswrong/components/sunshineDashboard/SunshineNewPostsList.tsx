@@ -1,5 +1,4 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
@@ -7,6 +6,19 @@ import SunshineListCount from "./SunshineListCount";
 import SunshineListTitle from "./SunshineListTitle";
 import SunshineNewPostsItem from "./SunshineNewPostsItem";
 import LoadMore from "../common/LoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const SunshinePostsListMultiQuery = gql(`
+  query multiPostSunshineNewPostsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SunshinePostsList
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -17,16 +29,22 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const SunshineNewPostsList = ({ terms, classes }: {
-  terms: PostsViewTerms,
+const SunshineNewPostsList = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { results, totalCount, refetch, loadMoreProps, showLoadMore } = useMulti({
-    terms,
-    collectionName: "Posts",
-    fragmentName: 'SunshinePostsList',
-    enableTotal: true,
+  const { data, refetch, loadMoreProps } = useQueryWithLoadMore(SunshinePostsListMultiQuery, {
+    variables: {
+      selector: { sunshineNewPosts: {} },
+      limit: 10,
+      enableTotal: true,
+    },
   });
+
+  const results = data?.posts?.results.filter(post => !post.reviewedByUserId);
+
+  const totalCount = data?.posts?.totalCount ?? 0;
+  const showLoadMore = !loadMoreProps.hidden;
+
   const currentUser = useCurrentUser();
   if (results && results.length && userCanDo(currentUser, "posts.moderate.all")) {
     return (

@@ -1,6 +1,5 @@
 import React, { MouseEvent, useCallback } from "react";
 import { useTracking } from "../../lib/analyticsEvents";
-import { useCreate } from "../../lib/crud/withCreate";
 import { graphqlTypeToCollectionName } from "../../lib/vulcan-lib/collections";
 import { useDialog } from "../common/withDialog";
 import { useMessages } from "../common/withMessages";
@@ -10,10 +9,33 @@ import {
   isDefaultSubscriptionType,
 } from "../../lib/collections/subscriptions/mutations";
 import type { SubscriptionType } from "../../lib/collections/subscriptions/helpers";
-import { useMulti } from "../../lib/crud/withMulti";
 import { max } from "underscore";
 import { userIsDefaultSubscribed, userSubscriptionStateIsFixed } from "../../lib/subscriptionUtil";
 import LoginPopup from "../users/LoginPopup";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
+import { gql } from "@/lib/generated/gql-codegen";
+
+const SubscriptionStateMultiQuery = gql(`
+  query multiSubscriptionuseNotifyMeQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
+    subscriptions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SubscriptionState
+      }
+      totalCount
+    }
+  }
+`);
+
+const SubscriptionStateMutation = gql(`
+  mutation createSubscriptionuseNotifyMe($data: CreateSubscriptionDataInput!) {
+    createSubscription(data: $data) {
+      data {
+        ...SubscriptionState
+      }
+    }
+  }
+`);
 
 export type NotifyMeDocument =
   UsersProfile |
@@ -24,8 +46,8 @@ export type NotifyMeDocument =
   CommentsList |
   PostsBase |
   PostsMinimumInfo |
-  PostsBase_group |
-  PostsAuthors_user;
+  PostsBase['group'] |
+  PostsAuthors['user'];
 
 const currentUserIsSubscribed = (
   currentUser: UsersCurrent|null,
@@ -83,10 +105,7 @@ export const useNotifyMe = ({
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
   const {flash} = useMessages();
-  const {create: createSubscription} = useCreate({
-    collectionName: "Subscriptions",
-    fragmentName: "SubscriptionState",
-  });
+  const [createSubscription] = useMutation(SubscriptionStateMutation);
 
   const collectionName = graphqlTypeToCollectionName(document.__typename);
   if (!isDefaultSubscriptionType(collectionName)) {
@@ -102,20 +121,17 @@ export const useNotifyMe = ({
   });
 
   // Get existing subscription, if there is one
-  const {results, loading, invalidateCache} = useMulti({
-    terms: {
-      view: "subscriptionState",
-      documentId: document._id,
-      userId: currentUser?._id,
-      type: subscriptionType,
-      collectionName,
+  const { data, loading } = useQuery(SubscriptionStateMultiQuery, {
+    variables: {
+      selector: { subscriptionState: { documentId: document._id, userId: currentUser?._id, type: subscriptionType, collectionName } },
       limit: 1,
+      enableTotal: false,
     },
-    collectionName: "Subscriptions",
-    fragmentName: "SubscriptionState",
-    enableTotal: false,
-    skip: !currentUser
+    skip: !currentUser,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.subscriptions?.results;
 
   const isSubscribed = currentUser ?
     currentUserIsSubscribed(
@@ -148,13 +164,14 @@ export const useNotifyMe = ({
         type: subscriptionType,
       } as const;
 
-      await createSubscription({data: newSubscription});
+      await createSubscription({ variables: { data: newSubscription } });
 
       // We have to manually invalidate the cache as this hook can sometimes be
       // unmounted before the create mutation has finished (eg; when used inside
       // a dropdown item) which means that the automatic cache invalidation code
       // won't be able to find the relevant query
-      invalidateCache();
+      // May 7, 2025: I am removing this because I don't think it's worth the complexity
+      // invalidateCache();
 
       // Success message will be for example posts.subscribed
       if (!hideFlashes) {
@@ -169,8 +186,7 @@ export const useNotifyMe = ({
     }
   }, [
     currentUser, openDialog, isSubscribed, captureEvent, document._id,
-    collectionName, subscriptionType, createSubscription, invalidateCache,
-    flash, hideFlashes,
+    collectionName, subscriptionType, createSubscription, flash, hideFlashes,
   ]);
 
   // If we are hiding the notify element, don't return an onSubscribe.

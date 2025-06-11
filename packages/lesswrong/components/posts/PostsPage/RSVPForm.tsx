@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { DialogContent } from "@/components/widgets/DialogContent";
-import { gql, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -10,7 +11,6 @@ import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useNavigate } from '../../../lib/routeUtil';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
 import LWDialog from "../../common/LWDialog";
 import { MenuItem } from "../../common/Menus";
 
@@ -37,14 +37,13 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
   onClose?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const [registerRSVP] = useMutation(gql`
+  const [registerRSVP] = useMutation(gql(`
     mutation RegisterRSVP($postId: String, $name: String, $email: String, $private: Boolean, $response: String) {
         RSVPToEvent(postId: $postId, name: $name, email: $email, private: $private, response: $response) {
         ...PostsDetails
         }
     }
-    ${fragmentTextForQuery("PostsDetails")}
-  `)
+  `))
   const navigate = useNavigate();
   const currentUser = useCurrentUser()
   const [name, setName] = useState(currentUser?.displayName || "")

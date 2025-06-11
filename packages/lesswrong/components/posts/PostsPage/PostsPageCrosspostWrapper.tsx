@@ -1,8 +1,7 @@
 import React, { createContext, useContext } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
-import { UseSingleProps } from "../../../lib/crud/withSingle";
 import { isMissingDocumentError, isOperationNotAllowedError } from "../../../lib/utils/errorUtil";
-import { useForeignCrosspost } from "../../hooks/useForeignCrosspost";
+import { PostFetchProps, useForeignCrosspost } from "../../hooks/useForeignCrosspost";
 import PostsPage, { EagerPostComments } from "./PostsPage";
 import Error404 from "../../common/Error404";
 import Loading from "../../vulcan-core/Loading";
@@ -37,7 +36,7 @@ export const isPostWithForeignId = (post: PostType): post is PostWithForeignId =
 const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
   post: PostWithForeignId,
   refetch: () => Promise<void>,
-  fetchProps: UseSingleProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision">,
+  fetchProps: PostFetchProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision">,
 }) => {
   const {
     loading,

@@ -1,5 +1,4 @@
 import React from "react";
-import { useSingle } from "../../lib/crud/withSingle";
 import { useLocation } from "../../lib/routeUtil";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
@@ -13,11 +12,24 @@ import { useMultiPostAnalytics } from "../hooks/useAnalytics";
 import { Link } from "../../lib/reactRouterWrapper";
 import AnalyticsGraph, { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
 import classNames from "classnames";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import SingleColumnSection from "../common/SingleColumnSection";
 import LoginForm from "../users/LoginForm";
 import HeadTags from "../common/HeadTags";
 import { Typography } from "../common/Typography";
 import LWTooltip from "../common/LWTooltip";
+import { maybeDate } from "@/lib/utils/dateUtils";
+
+const PostsPageQuery = gql(`
+  query PostsAnalyticsPage($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsPage
+      }
+    }
+  }
+`);
 
 function formatBounceRate(denominator?: number, numerator?: number) {
   if (!denominator || numerator === undefined || numerator === null) return null
@@ -97,12 +109,11 @@ const styles = (theme: ThemeType) => ({
 const PostsAnalyticsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { query } = useLocation();
 
-  const {document: post, error} = useSingle({
-    documentId: query.postId,
-    collectionName: "Posts",
-    fragmentName: "PostsPage",
+  const { error, data } = useQuery(PostsPageQuery, {
+    variables: { documentId: query.postId },
     skip: !query.postId,
   });
+  const post = data?.post?.result;
   const currentUser = useCurrentUser();
 
   const { data: postAnalytics } = useMultiPostAnalytics({
@@ -215,7 +226,7 @@ const PostsAnalyticsPage = ({ classes }: { classes: ClassesType<typeof styles> }
         </div>
         <AnalyticsGraph
           postIds={post ? [post._id] : []}
-          disclaimerEarliestDate={post?.createdAt ?? new Date()}
+          disclaimerEarliestDate={maybeDate(post?.createdAt ?? undefined)}
         />
       </SingleColumnSection>
     </>

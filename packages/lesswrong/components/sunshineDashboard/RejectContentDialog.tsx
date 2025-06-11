@@ -4,7 +4,6 @@ import { Paper, Card }from '@/components/widgets/Paper';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import classNames from 'classnames';
 import React, { useState } from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import EditIcon from '@/lib/vendor/@material-ui/icons/src/Edit'
 import { Link } from '../../lib/reactRouterWrapper';
@@ -12,6 +11,19 @@ import LWTooltip from "../common/LWTooltip";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import LoadMore from "../common/LoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const ModerationTemplateFragmentMultiQuery = gql(`
+  query multiModerationTemplateRejectContentDialogQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
+    moderationTemplates(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ModerationTemplateFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   dialogContent: {
@@ -70,13 +82,15 @@ const RejectContentDialog = ({classes, rejectContent}: {
   const [rejectedReason, setRejectedReason] = useState('');
   const [showMore, setShowMore] = useState(false)
 
-  const { results: rejectionTemplates, loadMoreProps } = useMulti({
-    collectionName: 'ModerationTemplates',
-    terms: { view: 'moderationTemplatesList', collectionName: "Rejections" },
-    fragmentName: 'ModerationTemplateFragment',
-    enableTotal: true,
-    limit: 25
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(ModerationTemplateFragmentMultiQuery, {
+    variables: {
+      selector: { moderationTemplatesList: { collectionName: "Rejections" } },
+      limit: 25,
+      enableTotal: true,
+    },
   });
+
+  const rejectionTemplates = data?.moderationTemplates?.results;
 
   if (!rejectionTemplates) return null;
   

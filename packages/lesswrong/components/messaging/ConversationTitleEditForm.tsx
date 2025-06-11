@@ -3,7 +3,6 @@ import { DialogContent } from "@/components/widgets/DialogContent";
 import { DialogTitle } from "@/components/widgets/DialogTitle";
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { useUpdate } from '@/lib/crud/withUpdate';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -18,6 +17,18 @@ import { useCurrentUser } from '../common/withUser';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 import LWDialog from "../common/LWDialog";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const ConversationsListUpdateMutation = gql(`
+  mutation updateConversationConversationTitleEditForm($selector: SelectorInput!, $data: UpdateConversationDataInput!) {
+    updateConversation(selector: $selector, data: $data) {
+      data {
+        ...ConversationsList
+      }
+    }
+  }
+`);
 
 const formStyles = defineStyles('ConversationTitleEditForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -38,10 +49,7 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
 
-  const { mutate } = useUpdate({
-    collectionName: 'Conversations',
-    fragmentName: 'ConversationsList',
-  });
+  const [mutate] = useMutation(ConversationsListUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
@@ -57,8 +65,10 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
 
       try {
         await mutate({
-          selector: { _id: conversation._id },
-          data: updatedFields,
+          variables: {
+            selector: { _id: conversation._id },
+            data: updatedFields
+          }
         });
       } catch (error) {
         setCaughtError(error);

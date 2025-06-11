@@ -141,7 +141,7 @@ export function topologicalSort(fragments: Record<string, string>): [string, str
  * `SqlFragment` contains the logic for parsing GraphQL fragments into a
  * form that can be efficiently converted into SQL projections. As this is
  * relatively expensive, each fragment group is parsed only once when it is first
- * requested and the value is then memoized globally (see `allFragments.ts`).
+ * requested and the value is then memoized globally (see `sqlFragments.ts`).
  *
  * The man external interface here is the `buildProjection` method that
  * generates a `ProjectionContext` corresponding to a specific query with

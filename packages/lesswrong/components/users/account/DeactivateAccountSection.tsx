@@ -1,18 +1,26 @@
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import React from 'react';
-import { useUpdate } from '@/lib/crud/withUpdate';
 import { useFlashErrors } from '@/components/hooks/useFlashErrors';
 import ActionButtonSection from "./ActionButtonSection";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const UsersEditUpdateMutation = gql(`
+  mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {
+    updateUser(selector: $selector, data: $data) {
+      data {
+        ...UsersEdit
+      }
+    }
+  }
+`);
 
 const DeactivateAccountSection = ({
   user,
 }: {
   user: UsersEdit,
 }) => {
-  const { mutate: rawUpdateUser, loading } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersEdit',
-  });
+  const [rawUpdateUser, { loading }] = useMutation(UsersEditUpdateMutation);
   const updateUser = useFlashErrors(rawUpdateUser);
 
   const disableDeactivateButton = !!user.permanentDeletionRequestedAt && !!user.deleted;
@@ -25,8 +33,10 @@ const DeactivateAccountSection = ({
       loading={loading}
       onClick={() => {
         void updateUser({
-          selector: { _id: user._id },
-          data: { deleted: !user.deleted },
+          variables: {
+            selector: { _id: user._id },
+            data: { deleted: !user.deleted },
+          }
         });
       }}
     />

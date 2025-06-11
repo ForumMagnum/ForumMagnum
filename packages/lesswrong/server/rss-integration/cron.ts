@@ -14,6 +14,7 @@ import { createPost } from '../collections/posts/mutations';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateRSSFeed } from '../collections/rssfeeds/mutations';
+import { PostsOriginalContents } from '@/lib/collections/posts/fragments';
 
 export const runRSSImport = async () => {
   const feeds = await RSSFeeds.find({status: {$ne: 'inactive'}}).fetch()
@@ -114,7 +115,7 @@ export const cronGraphQLQueries = {
 
     const post = await fetchFragmentSingle({
       collectionName: "Posts",
-      fragmentName: "PostsOriginalContents",
+      fragmentDoc: PostsOriginalContents,
       currentUser: context.currentUser,
       selector: {_id: args.postId},
       context,

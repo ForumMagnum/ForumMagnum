@@ -129,8 +129,8 @@ export function useDebouncedCallback<T>(fn: (args: T) => void, options: Debounce
   }, []);
 }
 
-export function useStabilizedCallback<T>(fn: (args: T) => void): (args: T) => void {
-  const callback = useRef<(args: T) => void>(fn);
+export function useStabilizedCallback<T, O>(fn: (args: T) => O): (args: T) => O {
+  const callback = useRef<(args: T) => O>(fn);
   const wrapper = useRef((args: T) => {
     return callback.current(args);
   });

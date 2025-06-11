@@ -1,6 +1,5 @@
-import { gql } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery";
-import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
+import { gql } from '@/lib/generated/gql-codegen';
 import { apolloSSRFlag } from '../../lib/helpers';
 import { defaultAlgorithmSettings, RecommendationsAlgorithm } from "../../lib/collections/users/recommendationSettings";
 
@@ -15,20 +14,19 @@ export const useRecommendations = ({
   recommendations: PostsListWithVotesAndSequence[] | undefined;
 } => {
   const { data, loading } = useQuery(
-    gql`
+    gql(`
       query RecommendationsQuery($count: Int, $algorithm: JSON) {
         Recommendations(count: $count, algorithm: $algorithm) {
           ...PostsListWithVotesAndSequence
         }
       }
-      ${fragmentTextForQuery("PostsListWithVotesAndSequence")}
-    `,
+    `),
     {
       variables: {
         count: algorithm?.count || 10,
         algorithm: algorithm || defaultAlgorithmSettings,
-        batchKey: "recommendations",
       },
+      context: { batchKey: "recommendations" },
       // This is a workaround for a bug in apollo where setting `ssr: false` makes it not fetch
       // the query on the client (see https://github.com/apollographql/apollo-client/issues/5918)
       ssr: apolloSSRFlag(ssr),
@@ -36,6 +34,6 @@ export const useRecommendations = ({
   );
   return {
     recommendationsLoading: loading,
-    recommendations: data?.Recommendations,
+    recommendations: data?.Recommendations ?? undefined,
   };
 };

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Table } from '@/components/widgets/Table';
 import { TableRow } from '@/components/widgets/TableRow';
@@ -15,6 +14,19 @@ import LoadMore from "../common/LoadMore";
 import UserTooltip from "../users/UserTooltip";
 import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import ForumIcon from "../common/ForumIcon";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const UsersProfileMultiQuery = gql(`
+  query multiUserAdminPaymentsPageQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UsersProfile
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -54,13 +66,16 @@ const styles = (theme: ThemeType) => ({
 export const AdminPaymentsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { results, loading, loadMoreProps } = useMulti({
-    terms: {view: "usersWithPaymentInfo", limit: 500},
-    collectionName: "Users",
-    fragmentName: 'UsersProfile',
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(UsersProfileMultiQuery, {
+    variables: {
+      selector: { usersWithPaymentInfo: {} },
+      limit: 500,
+      enableTotal: true,
+    },
     fetchPolicy: 'cache-and-network',
-    enableTotal: true
   });
+
+  const results = data?.users?.results;
 
   const [search, setSearch] = useState<string>("")
   const filteredResults = results?.filter(user => {

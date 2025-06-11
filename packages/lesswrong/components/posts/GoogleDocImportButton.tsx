@@ -1,12 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useMutation, gql } from "@apollo/client";
-import { useQuery } from "@/lib/crud/useQuery";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
 import { extractGoogleDocId, googleDocIdToUrl, postGetEditUrl } from "../../lib/collections/posts/helpers";
 import { useMessages } from "../common/withMessages";
-import { useMulti } from "../../lib/crud/withMulti";
 import { useTracking } from "../../lib/analyticsEvents";
-import type { GoogleDocMetadata } from "../../server/collections/revisions/helpers";
-import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
@@ -15,6 +12,18 @@ import ForumIcon from "../common/ForumIcon";
 import PopperCard from "../common/PopperCard";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import Loading from "../vulcan-core/Loading";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const GoogleServiceAccountSessionInfoMultiQuery = gql(`
+  query multiGoogleServiceAccountSessionGoogleDocImportButtonQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {
+    googleServiceAccountSessions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...GoogleServiceAccountSessionInfo
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   button: {
@@ -110,19 +119,19 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; 
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { data: latestGoogleDocMetadataQuery } = useQuery<{ latestGoogleDocMetadata: GoogleDocMetadata }>(
-    gql`
+  const { data: latestGoogleDocMetadataQuery } = useQuery(
+    gql(`
       query latestGoogleDocMetadata($postId: String!, $version: String) {
         latestGoogleDocMetadata(postId: $postId, version: $version)
       }
-    `,
+    `),
     {
       variables: {
-        postId,
+        postId: postId!,
         version,
-        batchKey: "docImportInfo"
       },
       skip: !postId,
+      context: { batchKey: "docImportInfo" },
     }
   );
   const previousDocId = latestGoogleDocMetadataQuery?.latestGoogleDocMetadata?.id
@@ -139,12 +148,12 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; 
     data: canAccessQuery,
     loading: canAccessQueryLoading,
     refetch,
-  } = useQuery<{ CanAccessGoogleDoc: boolean }>(
-    gql`
+  } = useQuery(
+    gql(`
       query CanAccessGoogleDoc($fileUrl: String!) {
         CanAccessGoogleDoc(fileUrl: $fileUrl)
       }
-    `,
+    `),
     {
       variables: {
         fileUrl: googleDocUrl,
@@ -194,26 +203,27 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; 
     }
   }, [canAccessQuery?.CanAccessGoogleDoc, fileId])
 
-  const { results: serviceAccounts, loading: serviceAccountsLoading } = useMulti({
-    terms: {},
-    collectionName: "GoogleServiceAccountSessions",
-    fragmentName: 'GoogleServiceAccountSessionInfo',
-    enableTotal: false,
-    extraVariablesValues: {
-      batchKey: "docImportInfo"
-    }
-  })
+  const { data, loading: serviceAccountsLoading } = useQuery(GoogleServiceAccountSessionInfoMultiQuery, {
+    variables: {
+      selector: { default: {} },
+      limit: 10,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
+    context: { batchKey: "docImportInfo" },
+  });
+
+  const serviceAccounts = data?.googleServiceAccountSessions?.results;
   const email = serviceAccounts?.[0]?.email
 
   const [importGoogleDocMutation, {loading: mutationLoading}] = useMutation(
-    gql`
+    gql(`
       mutation ImportGoogleDoc($fileUrl: String!, $postId: String) {
         ImportGoogleDoc(fileUrl: $fileUrl, postId: $postId) {
           ...PostsBase
         }
       }
-      ${fragmentTextForQuery("PostsBase")}
-    `,
+    `),
     {
       onCompleted: (data: { ImportGoogleDoc: PostsBase }) => {
         const postId = data?.ImportGoogleDoc?._id;

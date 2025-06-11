@@ -1,12 +1,23 @@
 import React, { useEffect, useRef } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
-import { useSingle } from "../../../lib/crud/withSingle";
 import { useCurrentUser } from "../../common/withUser";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useUnreadNotifications } from "../../hooks/useUnreadNotifications";
 import { NotificationsPageTabContextProvider } from "./notificationsPageTabs";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import LoginForm from "../../users/LoginForm";
 import NotificationsPageFeed from "./NotificationsPageFeed";
+
+const UserKarmaChangesQuery = gql(`
+  query NotificationsPage($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UserKarmaChanges
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -28,18 +39,17 @@ export const NotificationsPage = ({classes}: {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const {notificationsOpened} = useUnreadNotifications();
-  const {document: fetchedKarmaChanges} = useSingle({
-    documentId: currentUser?._id,
-    collectionName: "Users",
-    fragmentName: "UserKarmaChanges",
+  const { data } = useQuery(UserKarmaChangesQuery, {
+    variables: { documentId: currentUser?._id },
     skip: !currentUser,
     fetchPolicy: "network-only",
     nextFetchPolicy: "cache-only",
   });
+  const fetchedKarmaChanges = data?.user?.result;
 
   // Save the initial karma changes to display, as they'll be marked as read
   // once the user visits the page and they'll dissapear
-  const karmaChanges = useRef<KarmaChanges|null>(null);
+  const karmaChanges = useRef<UserKarmaChanges['karmaChanges']|null>(null);
   if (fetchedKarmaChanges && !karmaChanges.current) {
     karmaChanges.current = fetchedKarmaChanges.karmaChanges;
   }
@@ -51,8 +61,8 @@ export const NotificationsPage = ({classes}: {
   useEffect(() => {
     if (karmaChanges.current) {
       void updateCurrentUser({
-        karmaChangeLastOpened: karmaChanges.current.endDate,
-        karmaChangeBatchStart: karmaChanges.current.startDate,
+        karmaChangeLastOpened: karmaChanges.current.endDate ? new Date(karmaChanges.current.endDate) : null,
+        karmaChangeBatchStart: karmaChanges.current.startDate ? new Date(karmaChanges.current.startDate) : null,
       });
     }
   }, [fetchedKarmaChanges, updateCurrentUser]);

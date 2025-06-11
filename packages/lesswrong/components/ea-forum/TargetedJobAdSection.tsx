@@ -4,12 +4,10 @@ import moment from 'moment';
 import { useIsInView, useTracking } from '../../lib/analyticsEvents';
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
-import { useCreate } from '../../lib/crud/withCreate';
-import { useMulti } from '../../lib/crud/withMulti';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import TargetedJobAd, { EAGWillingToRelocateOption, JOB_AD_DATA } from './TargetedJobAd';
-import { gql } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import { FilterTag, filterModeIsSubscribed } from '../../lib/filterSettings';
 import difference from 'lodash/difference';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
@@ -17,6 +15,48 @@ import { getCountryCode, isInPoliticalEntity } from '../../lib/geocoding';
 import intersection from 'lodash/intersection';
 import union from 'lodash/fp/union';
 import { CAREER_STAGES } from "@/lib/collections/users/helpers";
+
+const UserEAGDetailsMinimumInfoMultiQuery = gql(`
+  query multiUserEAGDetailTargetedJobAdSectionQuery($selector: UserEAGDetailSelector, $limit: Int, $enableTotal: Boolean) {
+    userEAGDetails(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UserEAGDetailsMinimumInfo
+      }
+      totalCount
+    }
+  }
+`);
+
+const UserJobAdsMinimumInfoMultiQuery = gql(`
+  query multiUserJobAdTargetedJobAdSectionQuery($selector: UserJobAdSelector, $limit: Int, $enableTotal: Boolean) {
+    userJobAds(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UserJobAdsMinimumInfo
+      }
+      totalCount
+    }
+  }
+`);
+
+const UserJobAdsMinimumInfoUpdateMutation = gql(`
+  mutation updateUserJobAdTargetedJobAdSection($selector: SelectorInput!, $data: UpdateUserJobAdDataInput!) {
+    updateUserJobAd(selector: $selector, data: $data) {
+      data {
+        ...UserJobAdsMinimumInfo
+      }
+    }
+  }
+`);
+
+const UserJobAdsMinimumInfoMutation = gql(`
+  mutation createUserJobAdTargetedJobAdSection($data: CreateUserJobAdDataInput!) {
+    createUserJobAd(data: $data) {
+      data {
+        ...UserJobAdsMinimumInfo
+      }
+    }
+  }
+`);
 
 type UserCoreTagReads = {
   tagId: string,
@@ -35,47 +75,51 @@ const TargetedJobAdSection = () => {
   const { flash } = useMessages()
   const recordCreated = useRef<boolean>(false)
 
-  const { create: createUserJobAd } = useCreate({
-    collectionName: 'UserJobAds',
-    fragmentName: 'UserJobAdsMinimumInfo',
-  })
-  const { mutate: updateUserJobAd } = useUpdate({
-    collectionName: 'UserJobAds',
-    fragmentName: 'UserJobAdsMinimumInfo',
-  })
-  const { results: userJobAds, loading: userJobAdsLoading, refetch: refetchUserJobAds } = useMulti({
-    terms: {view: 'adsByUser', userId: currentUser?._id},
-    collectionName: 'UserJobAds',
-    fragmentName: 'UserJobAdsMinimumInfo',
-    skip: !currentUser
-  })
+  const [createUserJobAd] = useMutation(UserJobAdsMinimumInfoMutation);
+  const [updateUserJobAd] = useMutation(UserJobAdsMinimumInfoUpdateMutation);
+  const { data, loading: userJobAdsLoading, refetch: refetchUserJobAds } = useQuery(UserJobAdsMinimumInfoMultiQuery, {
+    variables: {
+      selector: { adsByUser: { userId: currentUser?._id } },
+      limit: 10,
+      enableTotal: false,
+    },
+    skip: !currentUser,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const userJobAds = data?.userJobAds?.results;
   
-  const { results: userEAGDetails, loading: userEAGDetailsLoading } = useMulti({
-    terms: {view: 'dataByUser', userId: currentUser?._id},
-    collectionName: 'UserEAGDetails',
-    fragmentName: 'UserEAGDetailsMinimumInfo',
-    skip: !currentUser
-  })
+  const { data: dataUserEAGDetailsMinimumInfo, loading: userEAGDetailsLoading } = useQuery(UserEAGDetailsMinimumInfoMultiQuery, {
+    variables: {
+      selector: { dataByUser: { userId: currentUser?._id } },
+      limit: 10,
+      enableTotal: false,
+    },
+    skip: !currentUser,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const userEAGDetails = useMemo(() => dataUserEAGDetailsMinimumInfo?.userEAGDetails?.results ?? [], [dataUserEAGDetailsMinimumInfo?.userEAGDetails?.results]);
   
   // check the amount that the user has read core tags to help target ads
   const { data: coreTagReadsData, loading: coreTagReadsLoading } = useQuery(
-    gql`
+    gql(`
       query getUserReadsPerCoreTag($userId: String!) {
         UserReadsPerCoreTag(userId: $userId) {
           tagId
           userReadCount
         }
       }
-    `,
+    `),
     {
       variables: {
-        userId: currentUser?._id,
+        userId: currentUser?._id ?? '',
       },
       ssr: true,
       skip: !currentUser,
     }
   )
-  const coreTagReads: UserCoreTagReads[]|undefined = coreTagReadsData?.UserReadsPerCoreTag
+  const coreTagReads = useMemo(() => coreTagReadsData?.UserReadsPerCoreTag ?? [], [coreTagReadsData?.UserReadsPerCoreTag]);
   
   // we only advertise up to one job per page view
   const [activeJob, setActiveJob] = useState<string>()
@@ -95,7 +139,7 @@ const TargetedJobAdSection = () => {
       }
 
       const userJobAdState = ads.find(ad => ad.jobName === jobName)?.adState
-      const userEAGData = userEAGDetails?.[0]
+      const userEAGData = userEAGDetails[0]
       
       /** Check if the job fits the user's interests */
 
@@ -196,10 +240,12 @@ const TargetedJobAdSection = () => {
     // make sure to only create up to one record per view
     recordCreated.current = true
     void createUserJobAd({
-      data: {
-        userId: currentUser._id,
-        jobName: activeJob,
-        adState: 'seen'
+      variables: {
+        data: {
+          userId: currentUser._id,
+          jobName: activeJob,
+          adState: 'seen'
+        }
       }
     }).finally(refetchUserJobAds)
   }, [currentUser, userJobAds, userJobAdsLoading, refetchUserJobAds, activeJob, entry, createUserJobAd])
@@ -215,9 +261,11 @@ const TargetedJobAdSection = () => {
     const ad = userJobAds.find(ad => ad.jobName === activeJob)
     if (ad) {
       void updateUserJobAd({
-        selector: {_id: ad._id},
-        data: {
-          adState: 'applied'
+        variables: {
+          selector: { _id: ad._id },
+          data: {
+            adState: 'applied'
+          }
         }
       })
     }
@@ -230,10 +278,12 @@ const TargetedJobAdSection = () => {
     if (ad) {
       // email is sent via cron
       void updateUserJobAd({
-        selector: {_id: ad._id},
-        data: {
-          adState: 'reminderSet',
-          reminderSetAt: new Date()
+        variables: {
+          selector: { _id: ad._id },
+          data: {
+            adState: 'reminderSet',
+            reminderSetAt: new Date()
+          }
         }
       })
     }

@@ -42,15 +42,45 @@ export const truncate = (
   return styles + truncatedHtml;
 }
 
+export const calculateTruncationStatus = (
+  totalWordCount: number, 
+  maxLengthWords: number, 
+  graceWords: number = 0
+): {
+  willTruncate: boolean,
+  wordsRemaining: number
+} => {
+  const wordsLeft = totalWordCount - maxLengthWords;
+  
+  if (wordsLeft < graceWords) {
+    return { willTruncate: false, wordsRemaining: 0 };
+  }
+  
+  return { willTruncate: true, wordsRemaining: wordsLeft };
+};
+
 export const truncateWithGrace = (html: string, maxLengthWords: number, graceWords: number, rawWordCount: number, suffix?: string): {
   truncatedHtml: string,
   wasTruncated: boolean,
   wordsLeft: number,
 } => {
-  const truncatedHtml = truncate(html, maxLengthWords, "words", suffix);
-  const wordsLeft = (truncatedHtml===html) ? 0 : rawWordCount-maxLengthWords;
+  const { willTruncate, wordsRemaining } = calculateTruncationStatus(
+    rawWordCount, 
+    maxLengthWords, 
+    graceWords
+  );
   
-  if (truncatedHtml === html || wordsLeft<graceWords) {
+  if (!willTruncate) {
+    return {
+      truncatedHtml: html,
+      wasTruncated: false,
+      wordsLeft: 0,
+    };
+  }
+  
+  const truncatedHtml = truncate(html, maxLengthWords, "words", suffix);
+  
+  if (truncatedHtml === html) {
     return {
       truncatedHtml: html,
       wasTruncated: false,
@@ -59,7 +89,8 @@ export const truncateWithGrace = (html: string, maxLengthWords: number, graceWor
   }
   
   return {
-    truncatedHtml, wordsLeft,
+    truncatedHtml,
+    wordsLeft: wordsRemaining,
     wasTruncated: true,
   };
 }
@@ -75,7 +106,7 @@ export function getTruncationCharCount (comment: CommentsList, currentUser?: Use
   const commentIsByGPT2 = !!(comment && comment.user && comment.user.displayName === "GPT2")
   if (commentIsByGPT2) return GTP2_TRUNCATION_CHAR_COUNT
 
-  const commentIsRecent = comment.postedAt > new Date(new Date().getTime()-(2*24*60*60*1000)); // past 2 days
+  const commentIsRecent = new Date(comment.postedAt) > new Date(new Date().getTime()-(2*24*60*60*1000)); // past 2 days
   const commentIsHighKarma = typeof comment.baseScore === 'number' && comment.baseScore >= TRUNCATION_KARMA_THRESHOLD
   
   if (postPage) {

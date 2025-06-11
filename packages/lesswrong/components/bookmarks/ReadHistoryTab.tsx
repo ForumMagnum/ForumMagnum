@@ -1,16 +1,16 @@
-import React, {useState} from 'react'
-import {AnalyticsContext} from '../../lib/analyticsEvents'
-import {useCurrentUser} from '../common/withUser'
-import {gql, NetworkStatus} from '@apollo/client'
-import { useQuery } from "@/lib/crud/useQuery";
+import React, { useState } from 'react';
+import { useCurrentUser } from '@/components/common/withUser'
 import moment from 'moment'
+import { gql } from "@/lib/generated/gql-codegen";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
 import PostsItem from "../posts/PostsItem";
 import LoadMore from "../common/LoadMore";
 import { Typography } from "../common/Typography";
+import { NetworkStatus } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
+import { AnalyticsContext } from '@/lib/analyticsEvents';
 
 const styles = (theme: ThemeType) => ({
   loadMore: {
@@ -39,7 +39,7 @@ const useUserReadHistory = ({currentUser, limit, filter, sort}: {
     karma?: boolean,
   },
 }) => {
-  const {data, loading, fetchMore, networkStatus} = useQuery(gql`
+  const {data, loading, fetchMore, networkStatus} = useQuery(gql(`
       query getReadHistory($limit: Int, $filter: PostReviewFilter, $sort: PostReviewSort) {
         UserReadHistory(limit: $limit, filter: $filter, sort: $sort) {
           posts {
@@ -48,8 +48,7 @@ const useUserReadHistory = ({currentUser, limit, filter, sort}: {
           }
         }
       }
-      ${fragmentTextForQuery('PostsListWithVotes')}
-    `,
+    `),
     {
       ssr: true,
       fetchPolicy: 'cache-and-network',
@@ -85,7 +84,7 @@ const ReadHistoryTab = ({classes, groupByDate = true, filter, sort}: {
     filter,
     sort,
   })
-  const readHistory: (PostsListWithVotes & {lastVisitedAt: Date})[] = data?.UserReadHistory?.posts
+  const readHistory = data?.UserReadHistory?.posts;
   
   if (loading && networkStatus !== NetworkStatus.fetchMore) {
     return <Loading />

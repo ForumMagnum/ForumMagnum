@@ -5,7 +5,6 @@ import { userGetProfileUrl } from "../../lib/collections/users/helpers";
 import { useRecentOpportunities } from "../hooks/useRecentOpportunities";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useRecommendations } from "./withRecommendations";
-import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
 import ToCColumn, { MAX_CONTENT_WIDTH } from "../posts/TableOfContents/ToCColumn";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import PostsLoading from "../posts/PostsLoading";
@@ -13,6 +12,8 @@ import EAPostsItem from "../posts/EAPostsItem";
 import EALargePostsItem from "../posts/EALargePostsItem";
 import UserTooltip from "../users/UserTooltip";
 import PostsItem from "../posts/PostsItem";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -88,15 +89,22 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
     ssr
   });
 
-  const {
-    results: curatedAndPopularPosts,
-    loading: curatedAndPopularLoading,
-  } = usePaginatedResolver({
-    fragmentName: "PostsListWithVotes",
-    resolverName: "CuratedAndPopularThisWeek",
-    limit: 3,
+  const { data: curatedAndPopularData, loading: curatedAndPopularLoading } = useQuery(gql(`
+    query CuratedAndPopularThisWeek($limit: Int) {
+      CuratedAndPopularThisWeek(limit: $limit) {
+        results {
+          ...PostsListWithVotes
+        }
+      }
+    }
+  `), {
+    variables: { limit: 3 },
+    fetchPolicy: "cache-and-network",
+    nextFetchPolicy: "cache-only",
     ssr
   });
+
+  const curatedAndPopularPosts = curatedAndPopularData?.CuratedAndPopularThisWeek?.results;
 
   const {
     results: opportunityPosts,
@@ -112,8 +120,8 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
 
   const profileUrl = userGetProfileUrl(post.user);
 
-  const hasUserPosts = post.user &&
-    (moreFromAuthorLoading || !!moreFromAuthorPosts?.length);
+  const postAuthor = post.user;
+  const hasUserPosts = postAuthor && (moreFromAuthorLoading || !!moreFromAuthorPosts?.length);
   return (
     <AnalyticsContext pageSectionContext="postPageFooterRecommendations">
       <div className={classes.root}>
@@ -123,8 +131,8 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
               <div className={classes.section}>
                 <div className={classes.sectionHeading}>
                   More from{" "}
-                  <UserTooltip user={post.user} inlineBlock={false}>
-                    <Link to={profileUrl}>{post.user.displayName}</Link>
+                  <UserTooltip user={postAuthor} inlineBlock={false}>
+                    <Link to={profileUrl}>{postAuthor.displayName}</Link>
                   </UserTooltip>
                 </div>
                 {moreFromAuthorLoading && !moreFromAuthorPosts?.length &&

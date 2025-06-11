@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { useMutation, gql } from '@apollo/client';
-import { useMulti } from '@/lib/crud/withMulti';
+import { useMutation } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery"
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { useUpdate } from '@/lib/crud/withUpdate';
 import classNames from 'classnames';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import JargonEditorRow, { formStyles } from './JargonEditorRow';
@@ -12,7 +11,6 @@ import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { useLocalStorageState } from '../hooks/useLocalStorageState';
 import { removeJargonDot } from './GlossarySidebar';
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import { JargonTermForm } from './JargonTermForm';
 import { EditablePost } from '@/lib/collections/posts/helpers';
 import LoadMore from "../common/LoadMore";
@@ -23,6 +21,39 @@ import Row from "../common/Row";
 import MetaInfo from "../common/MetaInfo";
 import EditUserJargonSettings from "./EditUserJargonSettings";
 import ForumIcon from "../common/ForumIcon";
+import { gql } from "@/lib/generated/gql-codegen";
+import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
+
+const JargonTermsMultiQuery = gql(`
+  query multiJargonTermGlossaryEditFormQuery($selector: JargonTermSelector, $limit: Int, $enableTotal: Boolean) {
+    jargonTerms(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...JargonTerms
+      }
+      totalCount
+    }
+  }
+`);
+
+const JargonTermsUpdateMutation = gql(`
+  mutation updateJargonTermGlossaryEditForm1($selector: SelectorInput!, $data: UpdateJargonTermDataInput!) {
+    updateJargonTerm(selector: $selector, data: $data) {
+      data {
+        ...JargonTerms
+      }
+    }
+  }
+`);
+
+const PostsEditUpdateMutation = gql(`
+  mutation updatePostGlossaryEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {
+    updatePost(selector: $selector, data: $data) {
+      data {
+        ...PostsEdit
+      }
+    }
+  }
+`);
 
 // Integrity Alert! This is currently designed so if the model changes, users are informed
 // about what model is being used in the jargon generation process.
@@ -291,18 +322,17 @@ const getRowCount = (showDeletedTerms: boolean, nonDeletedTerms: JargonTerms[], 
 
 export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   classes: ClassesType<typeof styles>,
-  document: EditablePost,
+  document: Pick<EditablePost, '_id' | 'generateDraftJargon' | 'contents' | 'userId' | 'draft'>,
   showTitle?: boolean,
 }) => {
-  const { mutate: updatePost } = useUpdate({
-    collectionName: "Posts",
-    fragmentName: 'PostsEdit',
-  });
+  const [updatePost] = useMutation(PostsEditUpdateMutation);
 
   const updatePostAutoGenerate = (autoGenerate: boolean) => {
     void updatePost({
-      selector: { _id: document._id },
-      data: { generateDraftJargon: autoGenerate },
+      variables: {
+        selector: { _id: document._id },
+        data: { generateDraftJargon: autoGenerate }
+      }
     });
   }
 
@@ -323,15 +353,15 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   const { exampleAltTerm, setExampleAltTerm } = useLocalStorageState("exampleAltTerm", getPromptExampleStorageKey, defaultExampleAltTerm);
   const { exampleDefinition, setExampleDefinition } = useLocalStorageState("exampleDefinition", getPromptExampleStorageKey, defaultExampleDefinition);
 
-  const { results: glossary = [], loadMoreProps, refetch } = useMulti({
-    terms: {
-      view: "postEditorJargonTerms",
-      postId: document._id,
-      limit: 500
+  const { data, refetch, loadMoreProps } = useQueryWithLoadMore(JargonTermsMultiQuery, {
+    variables: {
+      selector: { postEditorJargonTerms: { postId: document._id } },
+      limit: 500,
+      enableTotal: false,
     },
-    collectionName: "JargonTerms",
-    fragmentName: 'JargonTerms',
-  })
+  });
+
+  const glossary = data?.jargonTerms?.results ?? [];
 
   const { sortedTerms, getCount } = useJargonCounts(document, glossary);
 
@@ -340,14 +370,13 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   const sortedApprovedTerms = nonDeletedTerms.filter((item) => item.approved);
   const sortedUnapprovedTerms = nonDeletedTerms.filter((item) => !item.approved);
 
-  const [getNewJargonTerms, { data, loading: mutationLoading, error }] = useMutation(gql`
+  const [getNewJargonTerms, { loading: mutationLoading, error }] = useMutation(gql(`
     mutation getNewJargonTerms($postId: String!, $glossaryPrompt: String, $examplePost: String, $exampleTerm: String, $exampleAltTerm: String, $exampleDefinition: String) {
       getNewJargonTerms(postId: $postId, glossaryPrompt: $glossaryPrompt, examplePost: $examplePost, exampleTerm: $exampleTerm, exampleAltTerm: $exampleAltTerm, exampleDefinition: $exampleDefinition) {
         ...JargonTerms
       }
     }
-    ${fragmentTextForQuery("JargonTerms")}
-  `);
+  `));
 
   const autogenerateJargonTerms = async () => {
     if (!glossaryPrompt) return;
@@ -360,29 +389,36 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       await getNewJargonTerms({ 
         variables: { postId: document._id, glossaryPrompt, examplePost, exampleTerm, exampleAltTerm, exampleDefinition }
       });
-      refetch();
+      void refetch();
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error(err);
     }
   };
 
-  const {mutate: updateJargonTerm} = useUpdate({
-    collectionName: "JargonTerms",
-    fragmentName: 'JargonTerms',
-  });
+  const [updateJargonTerm] = useMutation(JargonTermsUpdateMutation);
 
   const handleSetApproveAll = (approve: boolean) => {
     const termsToUpdate = approve ? sortedUnapprovedTerms : sortedApprovedTerms;
     for (const jargonTerm of termsToUpdate) {
       void updateJargonTerm({
-        selector: { _id: jargonTerm._id },
-        data: {
-          approved: approve
+        variables: {
+          selector: { _id: jargonTerm._id },
+          data: {
+            approved: approve
+          }
         },
         optimisticResponse: {
-          ...jargonTerm,
-          approved: approve,
+          updateJargonTerm: {
+            __typename: "JargonTermOutput",
+            data: {
+              __typename: "JargonTerm",
+              ...{
+                ...jargonTerm,
+                approved: approve,
+              }
+            }
+          }
         }
       });
     }
@@ -392,15 +428,25 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
     const termsToUpdate = sortedUnapprovedTerms;
     for (const jargonTerm of termsToUpdate) {
       void updateJargonTerm({
-        selector: { _id: jargonTerm._id },
-        data: {
-          approved: false,
-          deleted: true,
+        variables: {
+          selector: { _id: jargonTerm._id },
+          data: {
+            approved: false,
+            deleted: true,
+          }
         },
         optimisticResponse: {
-          ...jargonTerm,
-          approved: false,
-          deleted: true,
+          updateJargonTerm: {
+            __typename: "JargonTermOutput",
+            data: {
+              __typename: "JargonTerm",
+              ...{
+                ...jargonTerm,
+                approved: false,
+                deleted: true,
+              }
+            }
+          }
         }
       });
     }
@@ -409,11 +455,21 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   const handleUnhideAll = () => {
     for (const jargonTerm of deletedTerms) {
       void updateJargonTerm({
-        selector: { _id: jargonTerm._id }, 
-        data: { deleted: false },
+        variables: {
+          selector: { _id: jargonTerm._id },
+          data: { deleted: false }
+        },
         optimisticResponse: {
-          ...jargonTerm,
-          deleted: false,
+          updateJargonTerm: {
+            __typename: "JargonTermOutput",
+            data: {
+              __typename: "JargonTerm",
+              ...{
+                ...jargonTerm,
+                deleted: false,
+              }
+            }
+          }
         }
       });
     }

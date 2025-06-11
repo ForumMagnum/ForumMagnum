@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
-import { useUpdate } from '@/lib/crud/withUpdate';
 import moment from 'moment';
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS } from '@/lib/collections/users/helpers';
 import { useDialog } from '@/components/common/withDialog';
@@ -8,6 +7,18 @@ import { useFlashErrors } from '@/components/hooks/useFlashErrors';
 import DeleteAccountConfirmationModal from "./DeleteAccountConfirmationModal";
 import ActionButtonSection from "./ActionButtonSection";
 import FormatDate from "../../common/FormatDate";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const UsersEditUpdateMutation = gql(`
+  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {
+    updateUser(selector: $selector, data: $data) {
+      data {
+        ...UsersEdit
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   warningButton: {
@@ -27,10 +38,7 @@ const DeleteAccountSection = ({
   user: UsersEdit,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { mutate: rawUpdateUser, loading } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersEdit',
-  });
+  const [rawUpdateUser, { loading }] = useMutation(UsersEditUpdateMutation);
   const updateUser = useFlashErrors(rawUpdateUser);
   const { openDialog } = useDialog();
 
@@ -68,10 +76,12 @@ const DeleteAccountSection = ({
 
     const confirmAction = async () => {
       await updateUser({
-        selector: { _id: user._id },
-        data: {
-          permanentDeletionRequestedAt,
-          deleted,
+        variables: {
+          selector: { _id: user._id },
+          data: {
+            permanentDeletionRequestedAt,
+            deleted,
+          },
         },
       });
     }

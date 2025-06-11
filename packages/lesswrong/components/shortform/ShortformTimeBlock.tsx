@@ -1,11 +1,23 @@
 import React, { FC, useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import QuickTakesListItem from "../quickTakes/QuickTakesListItem";
 import CommentsNodeInner from "../comments/CommentsNode";
 import LoadMore from "../common/LoadMore";
 import ContentType from "../posts/PostsPage/ContentType";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const ShortformCommentsMultiQuery = gql(`
+  query multiCommentShortformTimeBlockQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ShortformComments
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (_: ThemeType) => ({
   shortformGroup: {
@@ -48,18 +60,21 @@ const ShortformTimeBlock  = ({reportEmpty, before, after, terms, classes}: {
   terms: CommentsViewTerms,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {totalCount, loadMore, loading, results: comments} = useMulti({
-    terms: {
-      ...terms,
-      before, after,
+  const { view, ...rest } = terms;
+  const { data, loading, loadMoreProps } = useQueryWithLoadMore(ShortformCommentsMultiQuery, {
+    variables: {
+      selector: { [view]: { ...rest, before, after } },
+      limit: 5,
+      enableTotal: true,
     },
-    collectionName: "Comments",
-    fragmentName: 'ShortformComments',
     fetchPolicy: 'cache-and-network',
-    enableTotal: true,
-    limit: 5,
     itemsPerPage: 50,
   });
+
+  const comments = data?.comments?.results;
+  const { loadMore } = loadMoreProps;
+
+  const totalCount = data?.comments?.totalCount ?? 0;
 
   useEffect(() => {
     if (!loading && !comments?.length && reportEmpty) {

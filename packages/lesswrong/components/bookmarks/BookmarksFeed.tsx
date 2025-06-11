@@ -5,27 +5,40 @@ import { FeedPostMetaInfo, FeedCommentMetaInfo, DisplayFeedCommentThread, FeedIt
 import { DEFAULT_SETTINGS, UltraFeedSettingsType } from '../ultraFeed/ultraFeedSettingsTypes';
 import { UltraFeedObserverProvider } from '../ultraFeed/UltraFeedObserver';
 import { OverflowNavObserverProvider } from '../ultraFeed/OverflowNavObserverContext';
-import { useMulti } from '../../lib/crud/withMulti';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
 import FeedItemWrapper from "../ultraFeed/FeedItemWrapper";
 import UltraFeedPostItem from "../ultraFeed/UltraFeedPostItem";
 import UltraFeedThreadItem from "../ultraFeed/UltraFeedThreadItem";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const BookmarksFeedItemFragmentMultiQuery = gql(`
+  query multiBookmarkBookmarksFeedQuery($selector: BookmarkSelector, $limit: Int, $enableTotal: Boolean) {
+    bookmarks(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...BookmarksFeedItemFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const BookmarksFeed = () => {
   const currentUser = useCurrentUser();
 
-  const { results: bookmarks = [], loading, error } = useMulti({
-    collectionName: "Bookmarks",
-    fragmentName: "BookmarksFeedItemFragment",
-    terms: {
-      view: "myBookmarks",
-      userId: currentUser?._id,
+  const { data, error, loading } = useQuery(BookmarksFeedItemFragmentMultiQuery, {
+    variables: {
+      selector: { myBookmarks: {} },
       limit: 20,
+      enableTotal: false,
     },
     skip: !currentUser,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const bookmarks = data?.bookmarks?.results ?? [];
   
   if (!currentUser || (loading && !bookmarks.length)) {
     return <SingleColumnSection>
@@ -41,8 +54,11 @@ const BookmarksFeed = () => {
     ...DEFAULT_SETTINGS,
     displaySettings: {
       ...DEFAULT_SETTINGS.displaySettings,
-      postTruncationBreakpoints: [50, 2000],
-      commentTruncationBreakpoints: [50, 500, 1000],
+      postInitialWords: 50,
+      postMaxWords: 2000,
+      commentCollapsedInitialWords: 50,
+      commentExpandedInitialWords: 500,
+      commentMaxWords: 1000,
       postTitlesAreModals: true,
     },
     resolverSettings: {

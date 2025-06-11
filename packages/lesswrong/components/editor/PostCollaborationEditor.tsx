@@ -6,9 +6,7 @@ import { getPostCollaborateUrl, canUserEditPostMetadata, postGetEditUrl, isNotHo
 import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
 import { isMissingDocumentError } from '../../lib/utils/errorUtil';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
-import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
-import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from '@apollo/client';
+import { useQuery } from '@/lib/crud/useQuery';
 import DeferRender from '../common/DeferRender';
 import Error404 from "../common/Error404";
 import PostsAuthors from "../posts/PostsPage/PostsAuthors";
@@ -21,6 +19,7 @@ import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import PermanentRedirect from "../common/PermanentRedirect";
 import ForeignCrosspostEditForm from "../posts/ForeignCrosspostEditForm";
 import PostVersionHistoryButton from './PostVersionHistory';
+import { gql } from '@/lib/generated/gql-codegen';
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -50,21 +49,24 @@ const PostCollaborationEditor = ({ classes }: {
 
   const { query: { postId, key } } = useLocation();
 
-  const { data, loading, error } = useQuery(gql`
+  const { data, loading, error } = useQuery(gql(`
     query LinkSharingQuery($postId: String!, $linkSharingKey: String!) {
       getLinkSharedPost(postId: $postId, linkSharingKey: $linkSharingKey) {
         ...PostsEdit
       }
     }
-    ${fragmentTextForQuery("PostsEdit")}
-  `, {
+  `), {
     variables: {
       postId,
       linkSharingKey: key||"",
     },
     ssr: true,
   });
-  const post: PostsPage = data?.getLinkSharedPost;
+
+  // Many downstream components expect something with `contents`, which PostsEdit doesn't have.
+  // I don't know whether a bunch of this functionality was just broken in the context of the collaborative editor
+  // because the types used to be wrong, or if none of it mattered.
+  const post: PostsPage | undefined = data?.getLinkSharedPost ? { ...data.getLinkSharedPost, contents: null } : undefined;
   
   // Error handling and loading state
   if (error) {

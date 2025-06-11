@@ -11,7 +11,6 @@ import { cloudinaryCloudNameSetting, recombeeEnabledSetting, vertexEnabledSettin
 import classNames from 'classnames';
 import { hasPostRecommendations, commentsTableOfContentsEnabled, hasDigests, hasSidenotes } from '../../../lib/betas';
 import { useDialog } from '../../common/withDialog';
-import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
 import { PostsPageContext } from './PostsPageContext';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
@@ -84,6 +83,22 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { ReadingProgressBar } from './ReadingProgressBar';
 import { StructuredData } from '@/components/common/StructuredData';
 import { LWCommentCount } from '../TableOfContents/LWCommentCount';
+import { NetworkStatus, QueryResult } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
+import { gql } from "@/lib/generated/gql-codegen";
+import { returnIfValidNumber } from '@/lib/utils/typeGuardUtils';
+import { useQueryWithLoadMore, LoadMoreProps } from '@/components/hooks/useQueryWithLoadMore';
+
+const CommentsListMultiQuery = gql(`
+  query multiCommentPostsPageQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsList
+      }
+      totalCount
+    }
+  }
+`);
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
@@ -259,7 +274,7 @@ const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsLis
 
 export type EagerPostComments = {
   terms: CommentsViewTerms,
-  queryResponse: UseMultiResult<'CommentsList'>,
+  queryResponse: QueryResult<postCommentsThreadQueryQuery> & { loadMoreProps: LoadMoreProps },
 }
 
 export const postsCommentsThreadMultiOptions = {
@@ -268,6 +283,41 @@ export const postsCommentsThreadMultiOptions = {
   fetchPolicy: 'cache-and-network' as const,
   enableTotal: true,
 }
+
+export const postCommentsThreadQuery = gql(`
+  query postCommentsThreadQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsList
+      }
+      totalCount
+    }
+  }
+`);
+
+export function usePostCommentTerms<T extends CommentsViewTerms>(currentUser: UsersCurrent | null, defaultTerms: T, query: Record<string, string>) {
+  const commentOpts = { includeAdminViews: currentUser?.isAdmin };
+  // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
+  let terms;
+  let view;
+  let limit;
+  if (isValidCommentView(query.view, commentOpts)) {
+    const { view: queryView, limit: queryLimit, ...rest } = query;
+    terms = rest;
+    view = queryView;
+    limit = returnIfValidNumber(queryLimit);
+  } else {
+    const { view: defaultView, limit: defaultLimit, ...rest } = defaultTerms;
+    terms = rest;
+    view = defaultView;
+    limit = defaultLimit;
+  }
+
+  limit ??= 1000;
+  
+  return useMemo(() => ({ terms, view, limit }), [terms, view, limit]);
+}
+
 
 const PostsPage = ({fullPost, postPreload, refetch}: {
   refetch: () => void,
@@ -283,7 +333,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
   const now = useCurrentTime();
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
-  const [highlightDate,setHighlightDate] = useState<Date|undefined|null>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
+  const [highlightDate,setHighlightDate] = useState<Date|undefined|null>(post?.lastVisitedAt ? new Date(post.lastVisitedAt) : undefined);
   const { currentForumEvent } = useCurrentAndRecentForumEvents();
 
   const { captureEvent } = useTracking();
@@ -346,57 +396,58 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
   }, [navigate, location.location, openDialog, fullPost, query]);
 
   const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
-  const { results: answersAndReplies } = useMulti({
-    terms: {
-      view: "answersAndReplies",
-      postId: post._id,
+  const { data } = useQuery(CommentsListMultiQuery, {
+    variables: {
+      selector: { answersAndReplies: { postId: post._id, sortBy } },
       limit: MAX_ANSWERS_AND_REPLIES_QUERIED,
-      sortBy
+      enableTotal: true,
     },
-    collectionName: "Comments",
-    fragmentName: 'CommentsList',
-    fetchPolicy: 'cache-and-network',
-    enableTotal: true,
     skip: !post.question,
+    fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
   });
+
+  const answersAndReplies = data?.comments?.results;
   const answers = answersAndReplies?.filter(c => c.answer) ?? [];
 
   // note: these are from a debate feature that was deprecated in favor of collabEditorDialogue.
   // we're leaving it for now to keep supporting the few debates that were made with it, but
   // may want to migrate them at some point.
-  const { results: debateResponses=[], refetch: refetchDebateResponses } = useMulti({
-    terms: {
-      view: 'debateResponses',
-      postId: post._id,
+  const { data: dataDebateResponses, refetch: refetchDebateResponses } = useQuery(CommentsListMultiQuery, {
+    variables: {
+      selector: { debateResponses: { postId: post._id } },
+      limit: 1000,
+      enableTotal: false,
     },
-    collectionName: 'Comments',
-    fragmentName: 'CommentsList',
     skip: !post.debate,
-    limit: 1000
+    notifyOnNetworkStatusChange: true,
   });
+
+  const debateResponses = dataDebateResponses?.comments?.results ?? [];
   
   useOnServerSentEvent('notificationCheck', currentUser, (message) => {
     if (currentUser && isDialogueParticipant(currentUser._id, post)) {
-      refetchDebateResponses();
+      void refetchDebateResponses();
     }
   });
 
-  const defaultView = commentGetDefaultView(post, currentUser)
-  // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
-  const commentOpts = {includeAdminViews: currentUser?.isAdmin};
-  const defaultCommentTerms = useMemo(() => ({view: defaultView, limit: 1000}), [defaultView])
-  const commentTerms: CommentsViewTerms = isValidCommentView(query.view, commentOpts)
-    ? {...(query as CommentsViewTerms), limit:1000}
-    : defaultCommentTerms;
+  const defaultView = commentGetDefaultView(post, currentUser);
+  const defaultTerms = { view: defaultView, limit: 1000 };
+  const { terms, view, limit } = usePostCommentTerms(currentUser, defaultTerms, query);
 
   // these are the replies to the debate responses (see earlier comment about deprecated feature)
-  const { results: debateReplies } = useMulti({
-    terms: {...commentTerms, postId: post._id},
-    collectionName: "Comments",
-    fragmentName: 'CommentsList',
+  const { data: dataDebateResponseReplies } = useQuery(CommentsListMultiQuery, {
+    variables: {
+      selector: { [view]: { ...terms, postId: post._id } },
+      limit,
+      enableTotal: false,
+    },
+    skip: !post.debate || !fullPost,
     fetchPolicy: 'cache-and-network',
-    skip: !post.debate || !fullPost
+    notifyOnNetworkStatusChange: true,
   });
+
+  const debateReplies = dataDebateResponseReplies?.comments?.results;
 
   useEffect(() => {
     const recommId = query[RECOMBEE_RECOMM_ID_QUERY_PARAM];
@@ -486,14 +537,22 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
 
   const marketInfo = getMarketInfo(post)
 
-  const { loading, results: rawComments, loadMore, loadingMore } = useMulti({
-    terms: {...commentTerms, postId: post._id},
-    ...postsCommentsThreadMultiOptions,
+  const lazyResults = useQueryWithLoadMore(postCommentsThreadQuery, {
+    variables: {
+      selector: { [view]: { ...terms, postId: post._id } },
+      limit,
+      enableTotal: true,
+    },
+    fetchPolicy: 'cache-and-network' as const,
   });
+
+  const { loading, data: rawData, networkStatus, loadMoreProps: { loadMore } } = lazyResults;
+  const rawComments = rawData?.comments?.results;
+  const loadingMore = networkStatus === NetworkStatus.fetchMore;
 
   // If the user has just posted a comment, and they are sorting by magic, put it at the top of the list for them
   const comments = useMemo(() => {
-    if (!isEAForum || !rawComments || commentTerms.view !== "postCommentsMagic") return rawComments;
+    if (!isEAForum || !rawComments || view !== "postCommentsMagic") return rawComments;
 
     const recentUserComments = rawComments
       .filter((c) => c.userId === currentUser?._id && now.getTime() - new Date(c.postedAt).getTime() < 60000)

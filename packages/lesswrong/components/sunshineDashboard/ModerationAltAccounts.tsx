@@ -1,13 +1,11 @@
 import React, {useState} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
-import { useMulti } from '../../lib/crud/withMulti';
-import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from '@apollo/client';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
+import { gql } from "@/lib/generated/gql-codegen";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import { MenuItem } from "../common/Menus";
@@ -15,6 +13,39 @@ import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
 import FormatDate from "../common/FormatDate";
 import UsersNameDisplay from "../users/UsersNameDisplay";
+
+const ModeratorClientIDInfoMultiQuery = gql(`
+  query multiClientIdModerationAltAccountsQuery($selector: ClientIdSelector, $limit: Int, $enableTotal: Boolean) {
+    clientIds(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ModeratorClientIDInfo
+      }
+      totalCount
+    }
+  }
+`);
+
+const UserAltAccountsFragmentMultiQuery = gql(`
+  query multiUserModerationAltAccountsQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UserAltAccountsFragment
+      }
+      totalCount
+    }
+  }
+`);
+
+
+const UserAltAccountsFragmentQuery = gql(`
+  query ModerationAltAccounts($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UserAltAccountsFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   selectUser: {
@@ -133,12 +164,17 @@ const AltAccountsNodeUserBySlug = ({slug, classes}: {
   slug: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {results,loading} = useMulti({
-    collectionName: "Users",
-    fragmentName: "UserAltAccountsFragment",
-    terms: { view: "usersProfile", slug },
+  const { data, loading } = useQuery(UserAltAccountsFragmentMultiQuery, {
+    variables: {
+      selector: { usersProfile: { slug } },
+      limit: 10,
+      enableTotal: false,
+    },
     skip: !slug,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.users?.results;
   const user = results?.[0];
   if (!slug) {
     return <ContentStyles contentType="comment"><i>Select a user to continue</i></ContentStyles>
@@ -159,11 +195,11 @@ const AltAccountsNodeUserByID = ({userId, classes}: {
   userId: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {document: user, loading} = useSingle({
-    documentId: userId,
-    collectionName: "Users",
-    fragmentName: "UserAltAccountsFragment",
+  const { loading, data } = useQuery(UserAltAccountsFragmentQuery, {
+    variables: { documentId: userId },
   });
+  const user = data?.user?.result;
+  
   if (loading) return <Loading/>;
   if (!user) return <>{`Couldn't find user with ID ${userId}`}</>
   return <AltAccountsNodeUser user={user} classes={classes}/>
@@ -185,26 +221,26 @@ const AltAccountsNodeUser = ({user, classes}: {
         ? <li className={classes.openListItem}>
             <div>Client IDs</div>
             <ul>
-              {user.associatedClientIds.map(clientId => <li key={clientId.clientId}>
+              {user.associatedClientIds?.map(clientId => <li key={clientId.clientId}>
                 <AltAccountsNodeClientID clientId={clientId.clientId!} classes={classes}/>
               </li>)}
             </ul>
           </li>
         : <li onClick={() => setExpandedClientIDs(true)} className={classes.closedListItem}>
-            Client IDs: {user.associatedClientIds.map(clientId => clientId.clientId).join(", ")}
+            Client IDs: {user.associatedClientIds?.map(clientId => clientId.clientId).join(", ")}
           </li>
       }
       {expandedIPs
         ? <li className={classes.openListItem}>
             <div>IP Addresses</div>
             <ul>
-              {user.IPs.map(ip => <li key={ip}>
+              {user.IPs?.map(ip => <li key={ip}>
                 <AltAccountsNodeIPAddress ipAddress={ip} classes={classes}/>
               </li>)}
             </ul>
           </li>
         : <li onClick={() => setExpandedIPs(true)} className={classes.closedListItem}>
-            IP addresses: {user.IPs.length}x (click to expand)
+            IP addresses: {user.IPs?.length}x (click to expand)
           </li>
       }
     </ul>
@@ -217,15 +253,17 @@ const AltAccountsNodeClientID = ({clientId, classes}: {
 }) => {
   const [expanded,setExpanded] = useState(false);
   
-  const { results, loading } = useMulti({
-    collectionName: "ClientIds",
-    fragmentName: "ModeratorClientIDInfo",
-    terms: {
-      view: "getClientId",
-      clientId
+  const { data: dataModeratorClientIDInfo, loading } = useQuery(ModeratorClientIDInfoMultiQuery, {
+    variables: {
+      selector: { getClientId: { clientId } },
+      limit: 10,
+      enableTotal: false,
     },
     skip: !clientId,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = dataModeratorClientIDInfo?.clientIds?.results;
   const clientIdInfo = (results?.length===1 ? results[0] : null);
   
   return <div>
@@ -240,13 +278,13 @@ const AltAccountsNodeClientID = ({clientId, classes}: {
           ? <li className={classes.openListItem}>
               <div>Associated users</div>
               <ul>
-                {clientIdInfo.users.map(u => <li key={u._id}>
+                {clientIdInfo.users?.map(u => <li key={u._id}>
                   <AltAccountsNodeUserByID userId={u._id} classes={classes}/>
                 </li>)}
               </ul>
             </li>
           : <li className={classes.closedListItem} onClick={() => setExpanded(true)}>
-              {`Associated users: ${clientIdInfo.users.length}x (click to reveal)`}
+              {`Associated users: ${clientIdInfo.users?.length}x (click to reveal)`}
             </li>
         }
       </ul>
@@ -259,14 +297,14 @@ const AltAccountsNodeIPAddress = ({ipAddress, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [expanded,setExpanded] = useState(false);
-  const {data, loading} = useQuery(gql`
+  const {data, loading} = useQuery(gql(`
     query ModeratorIPAddressInfo($ipAddress: String!) {
       moderatorViewIPAddress(ipAddress: $ipAddress) {
         ip
         userIds
       }
     }
-  `, {
+  `), {
     variables: {ipAddress}
   });
   

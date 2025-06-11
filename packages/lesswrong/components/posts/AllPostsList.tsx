@@ -23,6 +23,7 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 import PostsTimeframeList from "./PostsTimeframeList";
 import PostsTimeframeListExponential from "./PostsTimeframeListExponential";
 import PostsList2 from "./PostsList2";
+import { returnIfValidNumber } from "@/lib/utils/typeGuardUtils";
 
 // Number of weeks to display in the timeframe view
 const forumAllPostsNumWeeksSetting = new DatabasePublicSetting<number>("forum.numberOfWeeks", 4);
@@ -59,7 +60,8 @@ const AllPostsList = ({
   const {query} = useLocation();
 
   const baseTerms: PostsViewTerms = {
-    karmaThreshold: query.karmaThreshold || (currentShowLowKarma
+    view: 'default',
+    karmaThreshold: returnIfValidNumber(query.karmaThreshold) ?? (currentShowLowKarma
       ? MAX_LOW_KARMA_THRESHOLD
       : DEFAULT_LOW_KARMA_THRESHOLD),
     excludeEvents: !currentIncludeEvents && currentFilter !== "events",
@@ -73,7 +75,7 @@ const AllPostsList = ({
     return (
       <AnalyticsContext
         listContext={"allPostsPage"}
-        terms={{view: "allTime" as PostsViewName, ...baseTerms}}
+        terms={{ ...baseTerms, view: "allTime" as PostsViewName }}
       >
         <PostsList2
           terms={{
@@ -91,8 +93,8 @@ const AllPostsList = ({
   const timeBlock = timeframeToTimeBlock[currentTimeframe as TimeframeType];
 
   const postListParameters: PostsViewTerms = {
-    view: "timeframe",
     ...baseTerms,
+    view: "timeframe",
   };
 
   if (parseInt(query.limit)) {

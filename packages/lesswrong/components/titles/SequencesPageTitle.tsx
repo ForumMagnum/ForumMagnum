@@ -1,11 +1,22 @@
 import React from 'react';
-import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
 import { styles } from '../common/HeaderSubtitle';
 import { Helmet } from '../common/Helmet';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles, useStyles } from '../hooks/useStyles';
+
+const SequencesPageTitleFragmentQuery = gql(`
+  query SequencesPageTitle($documentId: String) {
+    sequence(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...SequencesPageTitleFragment
+      }
+    }
+  }
+`);
 
 const titleComponentStyles = defineStyles('SequencesPageTitle', styles);
 
@@ -17,12 +28,11 @@ export const SequencesPageTitle = ({isSubtitle, siteName}: {
 
   const { params: {_id} } = useLocation();
   
-  const { document: sequence, loading } = useSingle({
-    documentId: _id,
-    collectionName: "Sequences",
-    fragmentName: "SequencesPageTitleFragment",
+  const { loading, data } = useQuery(SequencesPageTitleFragmentQuery, {
+    variables: { documentId: _id },
     fetchPolicy: 'cache-only',
   });
+  const sequence = data?.sequence?.result;
   
   if (!sequence || loading) return null;
   const titleString = `${sequence.title} - ${siteName}`

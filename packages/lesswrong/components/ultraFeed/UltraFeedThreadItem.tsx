@@ -1,13 +1,25 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { DisplayFeedCommentThread, FeedCommentMetaInfo, FeedItemDisplayStatus } from "./ultraFeedTypes";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
-import { useSingle } from "@/lib/crud/withSingle";
 import { UltraFeedCommentItem, UltraFeedCompressedCommentsItem } from "./UltraFeedCommentItem";
 import UltraFeedPostItem from "./UltraFeedPostItem";
 import Loading from "../vulcan-core/Loading";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+import { userGetDisplayName } from "@/lib/collections/users/helpers";
+
+const PostsListWithVotesQuery = gql(`
+  query UltraFeedThreadItem($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsListWithVotes
+      }
+    }
+  }
+`);
 
 const itemSeparator = (theme: ThemeType) => ({
   content: '""',
@@ -147,13 +159,13 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
   const { comments, commentMetaInfos } = thread;
   const {captureEvent} = useTracking();
   const [ postExpanded, setPostExpanded ] = useState(false);
+  const [animatingCommentIds, setAnimatingCommentIds] = useState<Set<string>>(new Set());
 
-  const { document: post, loading } = useSingle({
-    documentId: comments[0].postId ?? undefined,
-    collectionName: 'Posts',
-    fragmentName: 'PostsListWithVotes',
+  const { loading, data } = useQuery(PostsListWithVotesQuery, {
+    variables: { documentId: comments[0].postId ?? undefined },
     skip: !comments[0].postId || !postExpanded,
   });
+  const post = data?.post?.result;
 
   const postMetaInfo = {
     sources: commentMetaInfos?.[comments[0]._id]?.sources ?? [],
@@ -164,12 +176,21 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
   const initialHighlightStatuses = initializeHighlightStatuses(initialDisplayStatuses, commentMetaInfos);
   const [commentDisplayStatuses, setCommentDisplayStatuses] = useState<CommentDisplayStatusMap>(initialDisplayStatuses);
   const [highlightStatuses] = useState<Record<string, boolean>>(initialHighlightStatuses);
-  const setDisplayStatus = (commentId: string, newStatus: "expanded" | "collapsed" | "hidden") => {
+  
+  const commentAuthorsMap = useMemo(() => {
+    const authorsMap: Record<string, string | null> = {};
+    comments.forEach(comment => {
+      authorsMap[comment._id] = userGetDisplayName(comment.user) ?? null;
+    });
+    return authorsMap;
+  }, [comments]);
+  
+  const setDisplayStatus = useCallback((commentId: string, newStatus: "expanded" | "collapsed" | "hidden") => {
     setCommentDisplayStatuses(prev => ({
       ...prev,
       [commentId]: newStatus,
     }));
-  };
+  }, []);
 
   const visibleComments = useMemo(
     () => comments.filter(c => commentDisplayStatuses[c._id] !== "hidden"),
@@ -179,6 +200,40 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
   const compressedItems = useMemo(() => {
     return compressCollapsedComments(commentDisplayStatuses, visibleComments);
   }, [visibleComments, commentDisplayStatuses]);
+
+  const triggerParentHighlight = useCallback((commentId: string) => {
+    const comment = comments.find(c => c._id === commentId);
+    if (comment?.parentCommentId) {
+      const parentCommentId = comment.parentCommentId;
+      
+      const parentStatus = commentDisplayStatuses[parentCommentId];
+      const wasCollapsed = parentStatus === "collapsed" || parentStatus === "hidden";
+      
+      if (wasCollapsed) {
+        setDisplayStatus(parentCommentId, "expanded");
+      }
+      
+      const highlightDelay = wasCollapsed ? 300 : 0;
+      
+      setTimeout(() => {
+        setAnimatingCommentIds(prev => new Set(prev).add(parentCommentId));
+        
+        setTimeout(() => {
+          setAnimatingCommentIds(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(parentCommentId);
+            return newSet;
+          });
+        }, 100);
+      }, highlightDelay);
+      
+      captureEvent("ultraFeedReplyIconClicked", {
+        commentId,
+        parentCommentId: parentCommentId,
+        wasCollapsed,
+      });
+    }
+  }, [comments, commentDisplayStatuses, setDisplayStatus, captureEvent]);
 
   return (
     <AnalyticsContext pageSubSectionContext="ultraFeedThread" ultraFeedCardId={thread._id} ultraFeedCardIndex={index}>
@@ -213,6 +268,8 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
               const cId = item._id;
               const isFirstItem = index === 0;
               const isLastItem = index === compressedItems.length - 1;
+              const parentAuthorName = item.parentCommentId ? commentAuthorsMap[item.parentCommentId] : null;
+              const isAnimating = animatingCommentIds.has(cId);
               
               return (
                 <div key={cId} className={classes.commentItem}>
@@ -226,6 +283,9 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
                     isFirstComment={isFirstItem}
                     isLastComment={isLastItem}
                     settings={settings}
+                    parentAuthorName={parentAuthorName}
+                    onReplyIconClick={() => triggerParentHighlight(cId)}
+                    isHighlightAnimating={isAnimating}
                   />
                 </div>
               );

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
-import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import LoadMore from "../../common/LoadMore";
@@ -11,6 +10,19 @@ import PostsTooltip from "../../posts/PostsPreviewTooltip/PostsTooltip";
 import CommentBody from "../../comments/CommentsItem/CommentBody";
 import Row from "../../common/Row";
 import ForumIcon from "../../common/ForumIcon";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const CommentsListWithParentMetadataMultiQuery = gql(`
+  query multiCommentRejectedCommentsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsListWithParentMetadata
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   commentPadding: {
@@ -38,12 +50,15 @@ export const RejectedCommentsList = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [expanded,setExpanded] = useState(false);
-  const { results, loadMoreProps } = useMulti({
-    terms:{view: 'rejected', limit: 10},
-    collectionName: "Comments",
-    fragmentName: 'CommentsListWithParentMetadata',
-    enableTotal: false,
+  const { data, loadMoreProps } = useQueryWithLoadMore(CommentsListWithParentMetadataMultiQuery, {
+    variables: {
+      selector: { rejected: {} },
+      limit: 10,
+      enableTotal: false,
+    },
   });
+
+  const results = data?.comments?.results;
   
   return <div>
     {results?.map(comment =>

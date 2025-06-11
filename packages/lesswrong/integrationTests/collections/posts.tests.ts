@@ -55,7 +55,7 @@ describe('PostsEdit', () => {
 });
 
 describe('Posts RSS Views', () => {
-  it("only shows curated posts in curated-rss view", async () => {
+  it("only shows curated posts in curatedRss view", async () => {
     const user = await createDummyUser();
     const frontpagePost1 = await createDummyPost(user, {frontpageDate: new Date(), baseScore: 10});
     const frontpagePost2 = await createDummyPost(user, {frontpageDate: new Date(), baseScore: 10});
@@ -67,7 +67,7 @@ describe('Posts RSS Views', () => {
 
     const query = `
       query {
-        posts(input:{terms:{view: "curated-rss"}}) {
+        posts(input:{terms:{view: "curatedRss"}}) {
           results {
             _id
           }
@@ -94,7 +94,7 @@ describe('Posts RSS Views', () => {
 
     const query = `
       query {
-        posts(input:{terms:{view: "curated-rss"}}) {
+        posts(input:{terms:{view: "curatedRss"}}) {
           results {
             _id
           }
@@ -107,7 +107,7 @@ describe('Posts RSS Views', () => {
     (idList.indexOf(curatedPost1._id) as any).should.be.below(idList.indexOf(curatedPost2._id));
     (idList.indexOf(curatedPost2._id) as any).should.be.below(idList.indexOf(curatedPost3._id));
   });
-  it("only shows frontpage posts in frontpage-rss view", async () => {
+  it("only shows frontpage posts in frontpageRss view", async () => {
     const user = await createDummyUser();
     const frontpagePost1 = await createDummyPost(user, {frontpageDate: new Date(), baseScore: 10});
     const frontpagePost2 = await createDummyPost(user, {curatedDate: new Date(), frontpageDate: new Date(), baseScore: 10});
@@ -124,7 +124,7 @@ describe('Posts RSS Views', () => {
 
     const query = `
       query {
-        posts(input:{terms:{view: "frontpage-rss"}}) {
+        posts(input:{terms:{view: "frontpageRss"}}) {
           results {
             _id
           }

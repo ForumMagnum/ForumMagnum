@@ -3,17 +3,39 @@ import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib
 import PostsPageCrosspostWrapper, { isPostWithForeignId } from "./PostsPageCrosspostWrapper";
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers';
 import { useCurrentUser } from '../../common/withUser';
-import { useMulti } from '../../../lib/crud/withMulti';
 import { useSubscribedLocation } from '../../../lib/routeUtil';
-import { isValidCommentView } from '../../../lib/commentViewOptions';
-import PostsPage, { postsCommentsThreadMultiOptions } from './PostsPage';
-import { useDisplayedPost } from '../usePost';
 import { useApolloClient } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery"
 import { registerComponent } from "../../../lib/vulcan-lib/components";
-import { getFragment } from '@/lib/vulcan-lib/fragments';
+import { gql } from "@/lib/generated/gql-codegen";
+import PostsPage, { postCommentsThreadQuery, usePostCommentTerms } from './PostsPage';
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
 import Error404 from "../../common/Error404";
 import Loading from "../../vulcan-core/Loading";
+import { PostFetchProps } from '@/components/hooks/useForeignCrosspost';
+import { PostsListWithVotes } from '@/lib/collections/posts/fragments';
+import { SequencesPageFragment } from '@/lib/collections/sequences/fragments';
+import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
+
+const PostsWithNavigationAndRevisionQuery = gql(`
+  query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsWithNavigationAndRevision
+      }
+    }
+  }
+`);
+
+const PostsWithNavigationQuery = gql(`
+  query PostsPageWrapper($documentId: String, $sequenceId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsWithNavigation
+      }
+    }
+  }
+`);
 
 const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   sequenceId: string|null,
@@ -28,13 +50,13 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   // it loads the rest.
   const apolloClient = useApolloClient();
   const postPreload = apolloClient.cache.readFragment<PostsListWithVotes>({
-    fragment: getFragment("PostsListWithVotes"),
+    fragment: PostsListWithVotes,
     fragmentName: "PostsListWithVotes",
     id: 'Post:'+documentId,
   });
 
   const sequencePreload = apolloClient.cache.readFragment<SequencesPageFragment>({
-    fragment: getFragment("SequencesPageFragment"),
+    fragment: SequencesPageFragment,
     fragmentName: "SequencesPageFragment",
     id: 'Sequence:'+sequenceId,
   });
@@ -44,7 +66,34 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     sequence: sequencePreload,
   } : postPreload;
 
-  const { document: post, refetch, loading, error, fetchProps } = useDisplayedPost(documentId, sequenceId, version);
+  const { loading: postWithoutRevisionLoading, error: postWithoutRevisionError, refetch: refetchPostWithoutRevision, data: postWithoutRevisionData } = useQuery(PostsWithNavigationQuery, {
+    variables: { documentId: documentId, sequenceId },
+    skip: !!version,
+    context: { batchKey: "singlePost" },
+  });
+  const postWithoutRevision = postWithoutRevisionData?.post?.result ?? undefined;
+
+  const { loading: postWithRevisionLoading, error: postWithRevisionError, refetch: refetchPostWithRevision, data: postWithRevisionData } = useQuery(PostsWithNavigationAndRevisionQuery, {
+    variables: { documentId: documentId, sequenceId, version },
+    skip: !version,
+    context: { batchKey: "singlePost" },
+  });
+  const postWithRevision = postWithRevisionData?.post?.result ?? undefined;
+
+  const post = version ? postWithRevision : postWithoutRevision;
+  const loading = version ? postWithRevisionLoading : postWithoutRevisionLoading;
+  const error = version ? postWithRevisionError : postWithoutRevisionError;
+  const refetch = async () => {
+    if (version) await refetchPostWithRevision();
+    else await refetchPostWithoutRevision();
+  };
+
+  const crosspostFetchProps: PostFetchProps<'PostsWithNavigation' | 'PostsWithNavigationAndRevision'> = {
+    collectionName: 'Posts',
+    fragmentName: version ? 'PostsWithNavigationAndRevision' : 'PostsWithNavigation',
+    extraVariables: { sequenceId: 'String', ...(version ? { version: 'String' } : {}) },
+    extraVariablesValues: { sequenceId, ...(version ? { version } : {}) },
+  };
 
   // End of performance section
   if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
@@ -62,7 +111,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   } else if (!post && !postPreloadWithSequence) {
     return <Error404/>
   } else if (post && isPostWithForeignId(post)) {
-    return <PostsPageCrosspostWrapper post={post} refetch={refetch} fetchProps={fetchProps} />
+    return <PostsPageCrosspostWrapper post={post} refetch={refetch} fetchProps={crosspostFetchProps} />
   }
 
   return (

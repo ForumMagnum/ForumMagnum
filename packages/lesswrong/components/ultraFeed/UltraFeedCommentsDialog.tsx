@@ -1,14 +1,35 @@
 import React, { useEffect } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { useSingle } from "../../lib/crud/withSingle";
-import { useMulti } from "../../lib/crud/withMulti";
 import { DialogContent } from "../widgets/DialogContent";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
 import LWDialog from "../common/LWDialog";
 import CommentsListSection from "../comments/CommentsListSection";
 import Loading from "../vulcan-core/Loading";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const CommentsListMultiQuery = gql(`
+  query multiCommentUltraFeedCommentsDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsList
+      }
+      totalCount
+    }
+  }
+`);
+
+const PostsDetailsQuery = gql(`
+  query UltraFeedCommentsDialog($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsDetails
+      }
+    }
+  }
+`);
 
 const styles = defineStyles("UltraFeedCommentsDialog", (theme: ThemeType) => ({
   dialogContent: {
@@ -72,36 +93,37 @@ const UltraFeedCommentsDialog = ({
   const postTitle = isPost ? document.title : comment?.post?.title;
   const targetCommentId = !isPost ? document._id : undefined;
 
-  const { document: postDataForTree, loading: loadingPost } = useSingle({
-    documentId: postId,
-    collectionName: "Posts",
-    fragmentName: "PostsDetails",
+  const { loading: loadingPost, data } = useQuery(PostsDetailsQuery, {
+    variables: { documentId: postId },
     skip: !postId,
   });
+  const postDataForTree = data?.post?.result;
 
-  const { results: postComments, loading: loadingPostComments, totalCount: postCommentsTotalCount } = useMulti({
-    terms: {
-      view: "postCommentsTop",
-      postId,
+  const { data: dataPostComments, loading: loadingPostComments } = useQuery(CommentsListMultiQuery, {
+    variables: {
+      selector: { postCommentsTop: { postId } },
       limit: 50, // Consider pagination later if needed
+      enableTotal: true,
     },
-    collectionName: "Comments",
-    fragmentName: "CommentsList",
     skip: !isPost || !postId,
-    enableTotal: true,
+    notifyOnNetworkStatusChange: true,
   });
 
-  const { results: threadComments, loading: loadingThreadComments, totalCount: threadCommentsTotalCount } = useMulti({
-    terms: {
-      view: "repliesToCommentThreadIncludingRoot",
-      topLevelCommentId,
+  const postComments = dataPostComments?.comments?.results;
+  const postCommentsTotalCount = dataPostComments?.comments?.totalCount;
+
+  const { data: dataThreadComments, loading: loadingThreadComments } = useQuery(CommentsListMultiQuery, {
+    variables: {
+      selector: { repliesToCommentThreadIncludingRoot: { topLevelCommentId: topLevelCommentId ?? '' } },
       limit: 50, // Fetch a large number to get the whole thread initially
+      enableTotal: true,
     },
-    collectionName: "Comments",
-    fragmentName: "CommentsList",
     skip: isPost || !topLevelCommentId, // Only run if collectionName is Comments and we have the ID
-    enableTotal: true,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const threadComments = dataThreadComments?.comments?.results;
+  const threadCommentsTotalCount = dataThreadComments?.comments?.totalCount;
 
   const isLoading = loadingPost || (isPost ? loadingPostComments : loadingThreadComments);
   const comments = isPost ? postComments : threadComments;

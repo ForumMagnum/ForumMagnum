@@ -1,12 +1,24 @@
 import React, { FC, ReactNode, createContext, useCallback, useContext, useEffect, useMemo } from 'react';
-import { gql } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from "@/lib/crud/useQuery";
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useOnFocusTab } from '../hooks/useOnFocusTab';
-import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from './useUpdateCurrentUser';
 import { faviconUrlSetting, faviconWithBadgeSetting } from '../../lib/instanceSettings';
+import { maybeDate, withDateFields } from '@/lib/utils/dateUtils';
+
+const NotificationsListMultiQuery = gql(`
+  query multiNotificationuseUnreadNotificationsQuery($selector: NotificationSelector, $limit: Int, $enableTotal: Boolean) {
+    notifications(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...NotificationsList
+      }
+      totalCount
+    }
+  }
+`);
+
 
 export type NotificationCountsResult = {
   checkedAt: Date,
@@ -106,7 +118,7 @@ export const UnreadNotificationsContextProvider: FC<{
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   
-  function updateFavicon(result: { unreadNotificationCounts: NotificationCountsResult }) {
+  function updateFavicon(unreadNotificationCounts: NotificationCountsResult) {
     /*
      * TODO: this is disabled right now because it's not a great experience showing up on all tabs for all notifications.
      * Will re-enable it when we figure out a better ontology, i.e. showing it only on dialogue pages for new dialogue content,
@@ -116,7 +128,7 @@ export const UnreadNotificationsContextProvider: FC<{
     // setFaviconBadge(faviconBadgeNumber);
   }
   
-  const { data, refetch: refetchCounts } = useQuery(gql`
+  const { data, refetch: refetchCounts } = useQuery(gql(`
     query UnreadNotificationCountQuery {
       unreadNotificationCounts {
         unreadNotifications
@@ -125,30 +137,28 @@ export const UnreadNotificationsContextProvider: FC<{
         checkedAt
       }
     }
-  `, {
+  `), {
     ssr: true,
-    onCompleted: updateFavicon,
+    onCompleted: (data) => updateFavicon(withDateFields(data.unreadNotificationCounts, ['checkedAt'])),
   });
 
   const unreadNotifications = data?.unreadNotificationCounts?.unreadNotifications ?? 0;
   const unreadPrivateMessages = data?.unreadNotificationCounts?.unreadPrivateMessages ?? 0;
   const faviconBadgeNumber = data?.unreadNotificationCounts?.faviconBadgeNumber ?? 0;
-  const checkedAt = data?.unreadNotificationCounts?.checkedAt || null;
+  const checkedAt = maybeDate(data?.unreadNotificationCounts?.checkedAt || null);
   
   // Prefetch notifications. This matches the view that the notifications sidebar
   // opens to by default (in `NotificationsMenu`); it isn't actually *used* here
   // but having fetched it puts it into the cache, which saves a load-spinner
   // in the crucial "click the notifications icon after site load" interaction.
-  const { refetch: refetchNotifications } = useMulti({
-    terms: {
-      view: "userNotifications",
-      userId: currentUser?._id,
+  const { refetch: refetchNotifications } = useQuery(NotificationsListMultiQuery, {
+    variables: {
+      selector: { userNotifications: { userId: currentUser?._id } },
+      limit: 20,
+      enableTotal: false,
     },
-    collectionName: "Notifications",
-    fragmentName: 'NotificationsList',
-    limit: 20,
-    enableTotal: false,
     skip: !currentUser?._id,
+    notifyOnNetworkStatusChange: true,
   });
   
   const refetchBoth = useCallback(async () => {
@@ -156,7 +166,7 @@ export const UnreadNotificationsContextProvider: FC<{
       void refetchNotifications();
 
       const newCounts = await refetchCounts();
-      updateFavicon(newCounts.data);
+      updateFavicon(withDateFields(newCounts.data.unreadNotificationCounts, ['checkedAt']));
     }
   }, [currentUser?._id, refetchCounts, refetchNotifications]);
 

@@ -9,6 +9,14 @@ import { isFriendlyUI } from '../themes/forumTheme';
 import type VotesRepo from './repos/VotesRepo';
 import { karmaChangeNotifierDefaultSettings, KarmaChangeSettingsType, KarmaChangeUpdateFrequency } from '@/lib/collections/users/helpers';
 
+// Our graphql type codegen returns output types with Dates as strings because
+// that's what we get on the client, but isn't what we return from the resolver(s).
+type KarmaChangesResult = Omit<KarmaChanges, 'startDate' | 'endDate' | 'nextBatchDate'> & {
+  startDate: Date;
+  endDate: Date;
+  nextBatchDate: Date | null;
+}
+
 // Use html-to-text's compile() wrapper (baking in the default options) to make it faster when called repeatedly
 const htmlToTextDefault = compileHtmlToText();
 
@@ -61,7 +69,7 @@ const getEAKarmaChanges = async (
   args: KarmaChangesArgs,
   nextBatchDate: Date|null,
   updateFrequency: KarmaChangeUpdateFrequency,
-): Promise<KarmaChanges> => {
+): Promise<KarmaChangesResult> => {
   const changes = await votesRepo.getEAKarmaChanges(args);
   const newChanges = categorizeKarmaChanges(changes)
   
@@ -158,7 +166,7 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
   nextBatchDate?: Date|null,
   af?: boolean,
   context: ResolverContext,
-}): Promise<KarmaChanges> => {
+}): Promise<KarmaChangesResult> => {
   if (!user) throw new Error("Missing required argument: user");
   if (!startDate) throw new Error("Missing required argument: startDate");
   if (!endDate) throw new Error("Missing required argument: endDate");

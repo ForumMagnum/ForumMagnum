@@ -1,7 +1,18 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { useSingle } from '../../../lib/crud/withSingle';
 import React from 'react';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import CalendarDate from "../../common/CalendarDate";
+
+const DeletedCommentsMetaDataQuery = gql(`
+  query CommentDeletedMetadata($documentId: String) {
+    comment(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...DeletedCommentsMetaData
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -18,11 +29,10 @@ const CommentDeletedMetadata = ({documentId, classes}: {
   documentId: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { document } = useSingle({
-    documentId,
-    collectionName: "Comments",
-    fragmentName: 'DeletedCommentsMetaData',
+  const { data } = useQuery(DeletedCommentsMetaDataQuery, {
+    variables: { documentId: documentId },
   });
+  const document = data?.comment?.result;
   if (document && document.deleted) {
     const deletedByUsername = document.deletedByUser && document.deletedByUser.displayName;
     return (

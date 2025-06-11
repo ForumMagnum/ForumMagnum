@@ -31,7 +31,7 @@ export const elicitPredictionsGraphQLTypeDefs = gql`
     notes: String
     resolvesBy: Date
     resolution: Boolean
-    predictions: [ElicitPrediction]
+    predictions: [ElicitPrediction!]
   }
   extend type Query {
     ElicitBlockData(questionId: String): ElicitBlockData

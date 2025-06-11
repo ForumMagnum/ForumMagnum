@@ -1,12 +1,35 @@
 import React, { useCallback } from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
-import { useMulti } from '../../lib/crud/withMulti';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import SingleColumnSection from "../common/SingleColumnSection";
 import RevisionSelect from "./RevisionSelect";
 import Loading from "../vulcan-core/Loading";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+
+const RevisionMetadataWithChangeMetricsMultiQuery = gql(`
+  query multiRevisionPostsRevisionSelectQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
+    revisions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...RevisionMetadataWithChangeMetrics
+      }
+      totalCount
+    }
+  }
+`);
+
+
+const PostsDetailsQuery = gql(`
+  query PostsRevisionSelect($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsDetails
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   revisionList: {
@@ -20,22 +43,23 @@ const PostsRevisionSelect = ({ classes }: {
   const navigate = useNavigate();
   const postId = params._id;
   
-  const { document: post, loading: loadingPost } = useSingle({
-    documentId: postId,
-    collectionName: "Posts",
-    fragmentName: "PostsDetails",
+  const { loading: loadingPost, data } = useQuery(PostsDetailsQuery, {
+    variables: { documentId: postId },
   });
-  const { results: revisions, loading: loadingRevisions, loadMoreProps } = useMulti({
-    skip: !post,
-    terms: {
-      view: "revisionsOnDocument",
-      documentId: post?._id,
-      fieldName: "contents",
+  
+  const post = data?.post?.result;
+
+  const { data: dataRevisionsOnDocument, loading: loadingRevisions, loadMoreProps } = useQueryWithLoadMore(RevisionMetadataWithChangeMetricsMultiQuery, {
+    variables: {
+      selector: { revisionsOnDocument: { documentId: post?._id, fieldName: "contents" } },
+      limit: 10,
+      enableTotal: false,
     },
-    fetchPolicy: "cache-first",
-    collectionName: "Revisions",
-    fragmentName: "RevisionMetadataWithChangeMetrics",
+    skip: !post,
+    fetchPolicy: 'cache-first',
   });
+
+  const revisions = dataRevisionsOnDocument?.revisions?.results;
   
   const compareRevs = useCallback(({before,after}: {before: RevisionMetadata, after: RevisionMetadata}) => {
     if (!post) return;

@@ -11,9 +11,19 @@ import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { taggingNamePluralSetting, taggingNameCapitalSetting } from "@/lib/instanceSettings";
 import { algoliaPrefixSetting } from "@/lib/publicSettings";
 import qs from "qs";
-import { useMulti } from "@/lib/crud/withMulti";
-import { gql } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const TagNameMultiQuery = gql(`
+  query multiTagusePeopleDirectoryQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagName
+      }
+      totalCount
+    }
+  }
+`);
 
 type PeopleDirectoryView = "list" | "map";
 
@@ -77,20 +87,22 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   const [page, setPage] = useState(0);
   const [numPages, setNumPages] = useState(0);
 
-  const {results: coreTags} = useMulti({
-    collectionName: "Tags",
-    fragmentName: "TagName",
-    terms: {
-      view: "coreTags",
+  const { data } = useQuery(TagNameMultiQuery, {
+    variables: {
+      selector: { coreTags: {} },
       limit: MULTISELECT_SUGGESTION_LIMIT,
+      enableTotal: false,
     },
+    notifyOnNetworkStatusChange: true,
   });
 
-  const {data: tagCountResult} = useQuery(gql`
+  const coreTags = data?.tags?.results;
+
+  const {data: tagCountResult} = useQuery(gql(`
     query ActiveTagCount {
       ActiveTagCount
     }
-  `);
+  `));
   const tagCount = tagCountResult?.ActiveTagCount ?? 0;
 
   const roles = useSearchableMultiSelect({

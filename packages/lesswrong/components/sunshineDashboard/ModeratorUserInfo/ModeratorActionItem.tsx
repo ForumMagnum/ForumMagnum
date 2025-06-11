@@ -7,10 +7,22 @@ import { sortBy } from 'underscore';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done'
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear'
-import { useUpdate } from '../../../lib/crud/withUpdate';
 import classNames from 'classnames';
 import MetaInfo from "../../common/MetaInfo";
 import LWTooltip from "../../common/LWTooltip";
+import { withDateFields } from '@/lib/utils/dateUtils';
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const ModeratorActionDisplayUpdateMutation = gql(`
+  mutation updateModeratorActionModeratorActionItem($selector: SelectorInput!, $data: UpdateModeratorActionDataInput!) {
+    updateModeratorAction(selector: $selector, data: $data) {
+      data {
+        ...ModeratorActionDisplay
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -85,33 +97,37 @@ export const ModeratorActionItem = ({classes, user, moderatorAction, comments, p
     }
   };
 
-  const { mutate: updateModeratorAction } = useUpdate({
-    collectionName: "ModeratorActions",
-    fragmentName: 'ModeratorActionDisplay',
-  });
+  const [updateModeratorAction] = useMutation(ModeratorActionDisplayUpdateMutation);
 
   const handleUpdateEndAfterDays = async () => {
     await updateModeratorAction({
-      selector: {_id: moderatorAction._id},
-      data: { endedAt: getNewEndsInDays() }
+      variables: {
+        selector: { _id: moderatorAction._id },
+        data: { endedAt: getNewEndsInDays() }
+      }
     })
     setEditing(false)
   }
 
   const handleEndModerationAction = async () => {
     await updateModeratorAction({
-      selector: {_id: moderatorAction._id},
-      data: { endedAt: new Date() }
+      variables: {
+        selector: { _id: moderatorAction._id },
+        data: { endedAt: new Date() }
+      }
     })
     setEditing(false)
   }
 
+  const sortableComments = (comments ?? []).map(c => withDateFields(c, ['postedAt']));
+  const sortablePosts = (posts ?? []).map(p => withDateFields(p, ['postedAt']));
+  
   let averageContentKarma: number | undefined;
   if (moderatorAction.type === LOW_AVERAGE_KARMA_COMMENT_ALERT) {
-    const mostRecentComments = sortBy(comments ?? [], 'postedAt').reverse();
+    const mostRecentComments = sortBy(sortableComments, 'postedAt').reverse();
     ({ averageContentKarma } = isLowAverageKarmaContent(mostRecentComments ?? [], 'comment'));
   } else if (moderatorAction.type === LOW_AVERAGE_KARMA_POST_ALERT) {
-    const mostRecentPosts = sortBy(posts ?? [], 'postedAt').reverse();
+    const mostRecentPosts = sortBy(sortablePosts, 'postedAt').reverse();
     ({ averageContentKarma } = isLowAverageKarmaContent(mostRecentPosts ?? [], 'post'));
   }
 

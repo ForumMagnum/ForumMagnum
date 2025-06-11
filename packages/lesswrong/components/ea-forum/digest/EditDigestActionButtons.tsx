@@ -1,11 +1,22 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useDialog } from '../../common/withDialog';
 import ConfirmPublishDialog from "./ConfirmPublishDialog";
 import EAButton from "../EAButton";
 import LWTooltip from "../../common/LWTooltip";
 import ForumIcon from "../../common/ForumIcon";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const DigestsMinimumInfoUpdateMutation = gql(`
+  mutation updateDigestEditDigestActionButtons($selector: SelectorInput!, $data: UpdateDigestDataInput!) {
+    updateDigest(selector: $selector, data: $data) {
+      data {
+        ...DigestsMinimumInfo
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   questionMark: {
@@ -28,19 +39,18 @@ const EditDigestActionButtons = ({digest, classes}: {
   const { openDialog } = useDialog()
   const isPublished = !!digest.publishedDate
   
-  const { mutate: updateDigest } = useUpdate({
-    collectionName: 'Digests',
-    fragmentName: 'DigestsMinimumInfo',
-  })
+  const [updateDigest] = useMutation(DigestsMinimumInfoUpdateMutation);
   
   /**
    * Set the end date for this digest. A callback will automatically create the next digest.
    */
   const handleStartNewWeek = () => {
     void updateDigest({
-      selector: {_id: digest._id},
-      data: {
-        endDate: new Date()
+      variables: {
+        selector: { _id: digest._id },
+        data: {
+          endDate: new Date()
+        }
       }
     })
   }
@@ -53,9 +63,11 @@ const EditDigestActionButtons = ({digest, classes}: {
     // if the digest has an endDate set, then we know it's already been published
     if (digest.endDate) {
       void updateDigest({
-        selector: {_id: digest._id},
-        data: {
-          publishedDate: isPublished ? null : new Date()
+        variables: {
+          selector: { _id: digest._id },
+          data: {
+            publishedDate: isPublished ? null : new Date()
+          }
         }
       })
     } else {

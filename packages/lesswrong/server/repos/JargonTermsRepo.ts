@@ -56,7 +56,10 @@ class JargonTermsRepo extends AbstractRepo<"JargonTerms"> {
     `, [documentIds]);
     const rowsById = keyBy(oldestAndNewestRevisionIds, r=>r.documentId);
     return documentIds.map((documentId: string) => {
-      const { oldest_revision_user_id, newest_revision_user_id } = rowsById[documentId];
+      // TODO: In theory we shouldn't have JargonTerms that are missing revisions, but in practice
+      // we have at least one.  Figure out a more principled fix for it later than just defaulting
+      // to editedByHumans (bc comparing with undefined) here.
+      const { oldest_revision_user_id, newest_revision_user_id } = rowsById[documentId] ?? {};
       const madeByAI = oldest_revision_user_id === botAccountId;
       const editedByHumans = newest_revision_user_id !== botAccountId;
       if (madeByAI && editedByHumans) {

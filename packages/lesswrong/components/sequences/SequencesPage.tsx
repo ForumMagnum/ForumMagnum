@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
@@ -13,6 +12,8 @@ import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 import { allowSubscribeToSequencePosts } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
 import DeferRender from '../common/DeferRender';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import { ChaptersForm } from './ChaptersForm';
 import Error404 from "../common/Error404";
 import Loading from "../vulcan-core/Loading";
@@ -30,6 +31,26 @@ import { Typography } from "../common/Typography";
 import SectionButton from "../common/SectionButton";
 import ContentStyles from "../common/ContentStyles";
 import NotifyMeButton from "../notifications/NotifyMeButton";
+
+const SequencesPageFragmentQuery = gql(`
+  query SequencesPage($documentId: String) {
+    sequence(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...SequencesPageFragment
+      }
+    }
+  }
+`);
+
+const SequencesEditQuery = gql(`
+  query SequencesEdit($documentId: String) {
+    sequence(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...SequencesEdit
+      }
+    }
+  }
+`);
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -179,18 +200,16 @@ const SequencesPage = ({ documentId, classes }: {
   const nextSuggestedNumberRef = useRef(1);
 
   const currentUser = useCurrentUser();
-  const { document, loading } = useSingle({
-    documentId,
-    collectionName: "Sequences",
-    fragmentName: 'SequencesPageFragment',
+  const { loading, data } = useQuery(SequencesPageFragmentQuery, {
+    variables: { documentId: documentId },
   });
+  const document = data?.sequence?.result;
 
-  const { document: editDocument, loading: editLoading } = useSingle({
-    documentId,
-    collectionName: "Sequences",
-    fragmentName: 'SequencesEdit',
+  const { data: editDocument, loading: editLoading } = useQuery(SequencesEditQuery, {
+    variables: { documentId: documentId },
     skip: !edit,
   });
+  const editableDocument = editDocument?.sequence?.result ?? undefined;
 
   const showEdit = useCallback(() => {
     setEdit(true);
@@ -217,12 +236,12 @@ const SequencesPage = ({ documentId, classes }: {
     if (editLoading) {
       return <Loading />
     }
-    if (!editDocument) {
+    if (!editableDocument) {
       return <Error404/>
     }
     return (
       <SequencesEditForm
-        sequence={editDocument}
+        sequence={editableDocument}
         currentUser={currentUser}
         successCallback={showSequence}
         cancelCallback={showSequence}

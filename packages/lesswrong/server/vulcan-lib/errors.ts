@@ -1,4 +1,4 @@
-import { UserInputError } from 'apollo-server';
+import { GraphQLError } from "graphql";
 
 /*
 
@@ -10,6 +10,7 @@ An error should have:
 
 */
 export function throwError(error: { id: string; data?: Record<string, AnyBecauseTodo> }): never {
-  const { id, } = error;
-  throw new UserInputError(id, error);
+  const { id } = error;
+  throw new GraphQLError(id)
+  // throw new Error(`${error.id}: ${error.data}`);
 };

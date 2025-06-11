@@ -9,12 +9,11 @@ import React, {
   useState,
 } from "react";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-import { gql } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import { useRecommendations } from "@/components/recommendations/withRecommendations";
 import { getTopAuthor, getTotalReactsReceived } from "./wrappedHelpers";
 import { userCanStartConversations } from "@/lib/collections/conversations/helpers";
-import { LoadMoreProps, useMulti } from "@/lib/crud/withMulti";
 import WrappedWelcomeSection from "./WrappedWelcomeSection";
 import WrappedTimeSpentSection from "./WrappedTimeSpentSection";
 import WrappedDaysVisitedSection from "./WrappedDaysVisitedSection";
@@ -32,6 +31,30 @@ import WrappedSummarySection from "./WrappedSummarySection";
 import WrappedRecommendationsSection from "./WrappedRecommendationsSection";
 import WrappedMostValuablePostsSection from "./WrappedMostValuablePostsSection";
 import WrappedThankYouSection from "./WrappedThankYouSection";
+import { useQueryWithLoadMore, LoadMoreProps } from "@/components/hooks/useQueryWithLoadMore";
+import { apolloSSRFlag } from "@/lib/helpers";
+
+const PostsListWithVotesMultiQuery = gql(`
+  query multiPosthooksQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsListWithVotes
+      }
+      totalCount
+    }
+  }
+`);
+
+const UserVotesMultiQuery = gql(`
+  query multiVotehooksQuery($selector: VoteSelector, $limit: Int, $enableTotal: Boolean) {
+    votes(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UserVotes
+      }
+      totalCount
+    }
+  }
+`);
 
 // When adding a new year you'll need to run the server command to update the
 // analytics views:
@@ -129,7 +152,7 @@ type WrappedDataQueryResult = {
 };
 
 export const useForumWrapped = ({ userId, year }: { userId?: string | null; year: number }) => {
-  const { data, loading } = useQuery<WrappedDataQueryResult>(gql`
+  const { data, loading } = useQuery<WrappedDataQueryResult>(gql(`
     query getWrappedData($userId: String!, $year: Int!) {
       UserWrappedDataByYear(userId: $userId, year: $year) {
         engagementPercentile
@@ -204,7 +227,7 @@ export const useForumWrapped = ({ userId, year }: { userId?: string | null; year
         personality
       }
     }
-  `, {
+  `), {
     variables: {
       userId,
       year,
@@ -308,20 +331,18 @@ type ForumWrappedContext = {
 
 const forumWrappedContext = createContext<ForumWrappedContext | null>(null);
 
-const useVotes = (year: WrappedYear, voteType: string) => {
-  const {results} = useMulti({
-    terms: {
-      view: "userPostVotes",
-      collectionName: "Posts",
-      voteType,
-      after: `${year}-01-01`,
-      before: `${year + 1}-01-01`,
+const useVotes = (year: WrappedYear, voteType: VoteType) => {
+  const { data } = useQuery(UserVotesMultiQuery, {
+    variables: {
+      selector: { userPostVotes: { collectionName: "Posts", voteType, after: `${year}-01-01`, before: `${year + 1}-01-01` } },
+      limit: 100,
+      enableTotal: false,
     },
-    collectionName: "Votes",
-    fragmentName: "UserVotes",
-    limit: 100,
-    ssr: false,
+    ssr: apolloSSRFlag(false),
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.votes?.results;
   return (results ?? []).map(({documentId}) => documentId);
 }
 
@@ -361,20 +382,16 @@ export const ForumWrappedProvider = ({
   const bigUpvotePostIds = useVotes(year, "bigUpvote");
   const smallUpvotePostIds = useVotes(year, "smallUpvote");
 
-  const {
-    results: mostValuablePosts = [],
-    loading: mostValuablePostsLoading,
-    loadMoreProps: mostValuablePostsLoadMoreProps,
-  } = useMulti({
-    terms: {
-      view: "nominatablePostsByVote",
-      postIds: [...bigUpvotePostIds, ...smallUpvotePostIds],
+  const { data: dataPostsListWithVotes, loading: mostValuablePostsLoading, loadMoreProps: mostValuablePostsLoadMoreProps } = useQueryWithLoadMore(PostsListWithVotesMultiQuery, {
+    variables: {
+      selector: { nominatablePostsByVote: { postIds: [...bigUpvotePostIds, ...smallUpvotePostIds] } },
+      limit: 20,
+      enableTotal: false,
     },
-    collectionName: "Posts",
-    fragmentName: "PostsListWithVotes",
-    limit: 20,
     itemsPerPage: 40,
   });
+
+  const mostValuablePosts = dataPostsListWithVotes?.posts?.results ?? [];
 
   const thinkingVideoRef = useRef<HTMLVideoElement>(null);
   const personalityVideoRef = useRef<HTMLVideoElement>(null);

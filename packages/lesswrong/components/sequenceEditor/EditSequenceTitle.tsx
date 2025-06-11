@@ -61,7 +61,7 @@ const styles = defineStyles('EditSequenceTitle', (theme: ThemeType) => ({
 }));
 
 interface EditSequenceTitleProps {
-  field: TypedFieldApi<string>;
+  field: TypedFieldApi<string | null | undefined>;
   placeholder?: string;
 }
 
@@ -75,7 +75,7 @@ export const EditSequenceTitle = ({ field, placeholder }: EditSequenceTitleProps
         <Input
           className={classes.input}
           placeholder={placeholder}
-          value={field.state.value}
+          value={field.state.value ?? ''}
           onChange={(event) => field.handleChange(event.target.value)}
           disableUnderline
         />

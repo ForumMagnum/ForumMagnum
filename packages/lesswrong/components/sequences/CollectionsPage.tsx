@@ -1,6 +1,5 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useSingle } from '../../lib/crud/withSingle';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -8,6 +7,8 @@ import { useCurrentUser } from '../common/withUser';
 import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import { BooksForm } from './BooksForm';
 import Loading from "../vulcan-core/Loading";
 import CollectionsEditForm from "./CollectionsEditForm";
@@ -21,6 +22,26 @@ import ErrorBoundary from "../common/ErrorBoundary";
 import CollectionTableOfContents from "./CollectionTableOfContents";
 import ToCColumn from "../posts/TableOfContents/ToCColumn";
 import HeadTags from "../common/HeadTags";
+
+const CollectionsPageFragmentQuery = gql(`
+  query CollectionsPage($documentId: String) {
+    collection(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...CollectionsPageFragment
+      }
+    }
+  }
+`);
+
+const CollectionsEditFragmentQuery = gql(`
+  query CollectionsEdit($documentId: String) {
+    collection(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...CollectionsEditFragment
+      }
+    }
+  }
+`);
 
 const PADDING = 36
 const COLLECTION_WIDTH = SECTION_WIDTH + (PADDING * 2)
@@ -82,18 +103,25 @@ const CollectionsPage = ({ documentId, classes }: {
   const currentUser = useCurrentUser();
   const [edit, setEdit] = useState(false);
   const [addingBook, setAddingBook] = useState(false);
-  const { document, loading } = useSingle({
-    documentId,
-    collectionName: "Collections",
-    fragmentName: 'CollectionsPageFragment',
+  const { loading, data } = useQuery(CollectionsPageFragmentQuery, {
+    variables: { documentId: documentId },
   });
+  const document = data?.collection?.result;
 
-  const { document: editDocument } = useSingle({
-    documentId,
-    collectionName: "Collections",
-    fragmentName: 'CollectionsEditFragment',
+  const { data: editData } = useQuery(CollectionsEditFragmentQuery, {
+    variables: { documentId: documentId },
     skip: !edit,
   });
+
+  const editDocument = useMemo(() => {
+    const result = editData?.collection?.result;
+    if (!result) return result;
+
+    return {
+      ...result,
+      createdAt: new Date(result.createdAt),
+    }
+  }, [editData?.collection?.result]);
 
   const showEdit = useCallback(() => {
     setEdit(true);
@@ -123,7 +151,7 @@ const CollectionsPage = ({ documentId, classes }: {
     // hidden wordcount logged for admin convenience 
     // we don't show to users because it'd be too intimidating
     // (more info in BooksProgressBar for users)
-    const posts = collection.books.flatMap(book => book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts)))
+    const posts = collection.books?.flatMap(book => book?.sequences.flatMap(sequence => sequence.chapters?.flatMap(chapter => chapter?.posts)))
     // this shouldn't be enabled in production
     // const wordCount = posts.reduce((i, post) => i + (post?.contents?.wordCount || 0), 0)
     // // eslint-disable-next-line no-console
@@ -167,8 +195,8 @@ const CollectionsPage = ({ documentId, classes }: {
           }
         </div>
         <div>
-          {collection.books.map(book => <div className={classes.section} key={`collectionsPage${book._id}`}>
-            <BooksItem key={book._id} book={book} canEdit={canEdit} />
+          {collection.books?.map(book => <div className={classes.section} key={`collectionsPage${book?._id}`}>
+            <BooksItem key={book?._id} book={book} canEdit={canEdit} />
           </div>)}
         </div>
         

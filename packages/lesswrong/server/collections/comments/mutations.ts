@@ -215,16 +215,16 @@ export const updateCommentGqlMutation = makeGqlUpdateMutation('Comments', update
 
 
 export const graphqlCommentTypeDefs = gql`
-  input CreateCommentDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateCommentDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateCommentInput {
     data: CreateCommentDataInput!
   }
   
-  input UpdateCommentDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateCommentDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateCommentInput {
