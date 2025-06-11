@@ -1,9 +1,9 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { FeedPostMetaInfo } from "./ultraFeedTypes";
+import { FeedPostMetaInfo, FeedItemSourceType } from "./ultraFeedTypes";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
@@ -25,6 +25,11 @@ import UltraFeedItemFooter from "./UltraFeedItemFooter";
 import Loading from "../vulcan-core/Loading";
 import OverflowNavButtons from "./OverflowNavButtons";
 import UltraFeedPostActions from "./UltraFeedPostActions";
+import BookmarksIcon from "@/lib/vendor/@material-ui/icons/src/Bookmarks";
+import ClockIcon from "@/lib/vendor/@material-ui/icons/src/AccessTime";
+import SubscriptionsIcon from "@/lib/vendor/@material-ui/icons/src/NotificationsNone";
+import LWTooltip from "../common/LWTooltip";
+import { SparkleIcon } from "../icons/sparkleIcon";
 
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
@@ -60,8 +65,8 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
   titleContainer: {
     display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
     width: '100%',
     [theme.breakpoints.down('sm')]: {
     },
@@ -103,6 +108,16 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
       fontSize: "1.3rem",
     },
   },
+  sourceIcon: {
+    width: 16,
+    height: 16,
+    marginRight: 8,
+    color: theme.palette.grey[600],
+    opacity: 0.7,
+    position: 'relative',
+    top: 3,
+    flexShrink: 0,
+  },
   metaDateContainer: {
     marginRight: 8,
   },
@@ -135,11 +150,19 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
 }));
 
+const sourceIconMap: Array<{ source: FeedItemSourceType, icon: any, tooltip: string }> = [
+  { source: 'bookmarks' as FeedItemSourceType, icon: BookmarksIcon, tooltip: "From your bookmarks" },
+  { source: 'subscriptions' as FeedItemSourceType, icon: SubscriptionsIcon, tooltip: "From users you follow" },
+  { source: 'recombee-lesswrong-custom' as FeedItemSourceType, icon: SparkleIcon, tooltip: "Recommended for you" },
+  { source: 'hacker-news' as FeedItemSourceType, icon: ClockIcon, tooltip: "Latest posts" },
+];
+
 interface UltraFeedPostItemHeaderProps {
   post: PostsListWithVotes;
   isRead: boolean;
-  handleOpenDialog: (params?: { textFragment?: string }) => void;
+  handleOpenDialog: () => void;
   postTitlesAreModals: boolean;
+  sources: FeedItemSourceType[];
 }
 
 const UltraFeedPostItemHeader = ({
@@ -147,6 +170,7 @@ const UltraFeedPostItemHeader = ({
   isRead,
   handleOpenDialog,
   postTitlesAreModals,
+  sources,
 }: UltraFeedPostItemHeaderProps) => {
   const classes = useStyles(styles);
   const authorListRef = useRef<HTMLDivElement>(null);
@@ -158,10 +182,13 @@ const UltraFeedPostItemHeader = ({
     }
   };
 
+  const sourceIcons = sourceIconMap
+    .filter(({ source }) => sources.includes(source))
+    .map(({ source, icon, tooltip }) => ({ icon, tooltip, key: source }));
+
   return (
     <div className={classes.header}>
       <div className={classes.titleContainer}>
-        {/* Mobile version: Respects postTitlesAreModals */}
         <div className={classes.hideOnDesktop}>
           {postTitlesAreModals ? (
             <a
@@ -191,6 +218,13 @@ const UltraFeedPostItemHeader = ({
         </div>
       </div>
       <div className={classes.metaRow}>
+        {sourceIcons.map((iconInfo) => (
+          <LWTooltip key={iconInfo.key} title={iconInfo.tooltip} placement="top">
+            <span>
+              <iconInfo.icon className={classes.sourceIcon} />
+            </span>
+          </LWTooltip>
+        ))}
         <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={authorListRef} className={classes.authorsList} />
         {post.postedAt && (
           <span className={classes.metaDateContainer}>
@@ -200,6 +234,23 @@ const UltraFeedPostItemHeader = ({
       </div>
     </div>
   );
+};
+
+const calculateDisplayWordCount = (
+  fullPost: PostsPage | UltraFeedPostFragment | null | undefined,
+  post: PostsListWithVotes,
+  displayHtml: string | undefined
+): number | undefined => {
+  if (fullPost?.contents?.wordCount) {
+    return fullPost.contents.wordCount;
+  }
+  if (displayHtml === post.contents?.htmlHighlight && displayHtml) {
+    return Math.floor(displayHtml.length / 5);
+  }
+  if (post.shortform) {
+    return 0;
+  }
+  return post.contents?.wordCount;
 };
 
 const UltraFeedPostItem = ({
@@ -224,14 +275,15 @@ const UltraFeedPostItem = ({
   const { recordPostView, isRead } = useRecordPostView(post);
   const [hasRecordedViewOnExpand, setHasRecordedViewOnExpand] = useState(false);
   const isForeignCrosspost = isPostWithForeignId(post) && !post.fmCrosspost.hostedHere
-  const [isLoadingFull, setIsLoadingFull] = useState(isForeignCrosspost);
-  const [shouldShowLoading, setShouldShowLoading] = useState(false);
-  const [resetSig, setResetSig] = useState(0);
-
   const { displaySettings } = settings;
   const apolloClient = useForeignApolloClient();
   
   const documentId = isForeignCrosspost ? (post.fmCrosspost.foreignPostId ?? undefined) : post._id;
+  
+  const needsFullPostInitially = displaySettings.postInitialWords > (highlightMaxChars / 5);
+  const [isLoadingFull, setIsLoadingFull] = useState(isForeignCrosspost || needsFullPostInitially);
+  const [resetSig, setResetSig] = useState(0);
+  const [isContentExpanded, setIsContentExpanded] = useState(false);
 
   const { document: fullPost, loading: loadingFullPost } = useSingle({
     documentId,
@@ -242,7 +294,6 @@ const UltraFeedPostItem = ({
     skip: !isLoadingFull
   });
 
-
   useEffect(() => {
     const currentElement = elementRef.current;
     if (currentElement) {
@@ -250,33 +301,24 @@ const UltraFeedPostItem = ({
     }
   }, [observe, post._id]);
 
-  const handleContentExpand = useCallback((level: number, maxReached: boolean, wordCount: number) => {
-    // Start loading the full post on first expand
-    if (level > 0 && !isLoadingFull && !fullPost) {
+  const handleContentExpand = useCallback((expanded: boolean, wordCount: number) => {
+    setIsContentExpanded(expanded);
+    
+    if (expanded && !isLoadingFull && !fullPost) {
       setIsLoadingFull(true);
     }
-
-    // Show loading spinner only if we need more content than what we have
-    // Compare requested breakpoint (word count) against highlight char limit
-    // This is an approximation, but better than using full post word count
-    const requestedWordCount = displaySettings.postTruncationBreakpoints?.[level - 1];
-    const needsMoreContentThanHighlight = requestedWordCount ? requestedWordCount > (highlightMaxChars / 5) : false;
-    
-    const showLoading = isLoadingFull && needsMoreContentThanHighlight && !fullPost;
-    setShouldShowLoading(showLoading);
 
     trackExpansion({
       documentId: post._id,
       documentType: 'post',
-      level,
-      maxLevelReached: maxReached,
+      level: expanded ? 1 : 0,
+      maxLevelReached: expanded,
       wordCount,
     });
 
     captureEvent("ultraFeedPostItemExpanded", {
       postId: post._id,
-      level,
-      maxLevelReached: maxReached,
+      expanded,
       wordCount,
     });
 
@@ -293,46 +335,46 @@ const UltraFeedPostItem = ({
     hasRecordedViewOnExpand, 
     isLoadingFull, 
     fullPost,
-    displaySettings.postTruncationBreakpoints
   ]);
 
   const handleCollapse = () => {
     setResetSig((s) => s + 1);
+    setIsContentExpanded(false);
   };
 
-  const handleOpenDialog = useCallback((params?: {textFragment?: string}) => {
-    const textFragment = params?.textFragment;
+  const handleOpenDialog = useCallback(() => {
     captureEvent("ultraFeedPostItemTitleClicked", {postId: post._id});
     openDialog({
       name: "UltraFeedPostDialog",
       closeOnNavigate: true,
       contents: ({ onClose }) => (
         <UltraFeedPostDialog
-          {...(fullPost ? { post: fullPost } : { postId: post._id })}
-          textFragment={textFragment}
+          {...(fullPost ? { post: fullPost } : { partialPost: post })}
           onClose={onClose}
         />
       )
     });
-  }, [openDialog, post._id, captureEvent, fullPost]);
+  }, [openDialog, post, captureEvent, fullPost]);
 
   const shortformHtml = post.shortform 
     ? `This is a special post for quick takes (aka "shortform"). Only the owner can create top-level comments.`
     : undefined
 
   const displayHtml = fullPost?.contents?.html ?? post.contents?.htmlHighlight ?? shortformHtml;
-  const displayWordCount = fullPost?.contents?.wordCount ?? post.contents?.wordCount ?? (post.shortform ? 0 : undefined);
+  
+  // Calculate the appropriate word count based on what content we're displaying
+  const displayWordCount = calculateDisplayWordCount(fullPost, post, displayHtml);
+
+  const truncationParams = useMemo(() => {
+    return {
+      initialWordCount: displaySettings.postInitialWords,
+      maxWordCount: displaySettings.postMaxWords
+    };
+  }, [displaySettings.postInitialWords, displaySettings.postMaxWords]);
 
   if (!displayHtml) {
-    return <div>No post content found for post with id: {post._id}</div>; 
+    return null; 
   }
-
-
-  // TODO: instead do something like set to 200 words and display and show warning
-  if (!displayWordCount && (!post.shortform && displayWordCount === 0)) {
-    return <div>No word count found for post with id: {post._id}</div>;
-  }
-
 
   return (
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index}>
@@ -353,32 +395,31 @@ const UltraFeedPostItem = ({
           isRead={isRead}
           handleOpenDialog={handleOpenDialog}
           postTitlesAreModals={displaySettings.postTitlesAreModals}
+          sources={postMetaInfo.sources}
         />
 
-        {shouldShowLoading && loadingFullPost ? (
+        <FeedContentBody
+          html={displayHtml}
+          initialWordCount={truncationParams.initialWordCount}
+          maxWordCount={truncationParams.maxWordCount}
+          wordCount={displayWordCount ?? 200}
+          nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
+          onContinueReadingClick={handleOpenDialog}
+          onExpand={handleContentExpand}
+          hideSuffix={loadingFullPost}
+          resetSignal={resetSig}
+        />
+        
+        {/* Show loading indicator below content if we're loading the full post */}
+        {loadingFullPost && displayHtml && (
           <div className={classes.loadingContainer}>
             <Loading />
           </div>
-        ) : (
-          <FeedContentBody
-            html={displayHtml}
-            breakpoints={displaySettings.postTruncationBreakpoints}
-            initialExpansionLevel={0}
-            wordCount={displayWordCount!} // assertion because of shortform case that will at least be zero but isn't detected as such
-            nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-            onContinueReadingClick={handleOpenDialog}
-            onExpand={handleContentExpand}
-            hideSuffix={false}
-            resetSignal={resetSig}
-          />
         )}
-        {loadingFullPost && <div className={classes.loadingContainer}>
-          <Loading />
-        </div>}
 
         <UltraFeedItemFooter document={post} collectionName="Posts" metaInfo={postMetaInfo} className={classes.footer} />
       </div>
-      {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={handleCollapse} />}
+      {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={isContentExpanded ? handleCollapse : undefined} />}
     </div>
     </AnalyticsContext>
   );

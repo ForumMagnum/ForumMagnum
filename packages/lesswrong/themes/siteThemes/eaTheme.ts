@@ -135,8 +135,6 @@ export const eaForumTheme: SiteThemeSpecification = {
         fontDownloads: [
           "https://fonts.googleapis.com/css?family=Merriweather:300,300italic,400,400italic,500,500italic,600,600italic,700,700italic&subset=all",
           "https://fonts.googleapis.com/css?family=Inter:300,300italic,400,400italic,450,450italic,500,500italic,600,600italic,700,700italic",
-          // TODO we need to find where this is used in material ui and remove
-          "https://fonts.googleapis.com/css?family=Roboto:300,400,500",
         ],
         cloudinaryFont: {
           stack: "'Inter', sans-serif",

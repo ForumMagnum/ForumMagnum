@@ -11,6 +11,7 @@ import { getUrlClass } from '@/server/utils/getUrlClass';
 import type { ContentStyleType } from '../common/ContentStyles';
 import { DefaultPreview, MetaculusPreview, ManifoldPreview, FatebookPreview, NeuronpediaPreview, MetaforecastPreview, OWIDPreview, ArbitalPreview, EstimakerPreview, ViewpointsPreview } from './PostLinkPreview';
 import FootnotePreview from "./FootnotePreview";
+import { NoSideItems } from '../contents/SideItems';
 
 export const parseRouteWithErrors = (onsiteUrl: string, contentSourceDescription?: string) => {
   return parseRoute({
@@ -98,9 +99,11 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
 
         if (PreviewComponent) {
           return <AnalyticsContext pageElementContext="linkPreview" href={destinationUrl} hoverPreviewType={previewComponentName} onsite>
-            <PreviewComponent href={destinationUrl} targetLocation={parsedUrl} id={id} noPrefetch={noPrefetch}>
-              {children}
-            </PreviewComponent>
+            <NoSideItems>
+              <PreviewComponent href={destinationUrl} targetLocation={parsedUrl} id={id} noPrefetch={noPrefetch}>
+                {children}
+              </PreviewComponent>
+            </NoSideItems>
           </AnalyticsContext>
         } else {
           return <DefaultPreview href={href} id={id} rel={rel}>

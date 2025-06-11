@@ -1,5 +1,4 @@
 import React, { useCallback, useState, useMemo, useEffect, useRef } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
@@ -23,16 +22,24 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   root: {
     position: 'relative',
     paddingTop: commentHeaderPaddingDesktop,
+    backgroundColor: 'transparent',
+    transition: 'background-color 1.0s ease-out',
+  },
+  rootWithAnimation: {
+    backgroundColor: `${theme.palette.primary.main}3b`,
+    transition: 'none',
   },
   mainContent: {
     display: 'flex',
     flexDirection: 'row',
+    maxWidth: '100%',
   },
   compressedRoot: {
     display: 'flex',
     flexDirection: 'row',
   },
   commentContentWrapper: {
+    maxWidth: '100%',
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
@@ -168,6 +175,9 @@ export interface UltraFeedCommentItemProps {
   isLastComment?: boolean;
   onPostTitleClick?: () => void;
   settings?: UltraFeedSettingsType;
+  parentAuthorName?: string | null;
+  onReplyIconClick?: () => void;
+  isHighlightAnimating?: boolean;
 }
 
 export const UltraFeedCommentItem = ({
@@ -180,6 +190,9 @@ export const UltraFeedCommentItem = ({
   isLastComment = false,
   onPostTitleClick,
   settings = DEFAULT_SETTINGS,
+  parentAuthorName,
+  onReplyIconClick,
+  isHighlightAnimating = false,
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
   const { observe, unobserve, trackExpansion, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView } = useUltraFeedObserver();
@@ -231,27 +244,26 @@ export const UltraFeedCommentItem = ({
     };
   }, [highlight, comment._id, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView]);
 
-  const handleContentExpand = useCallback((level: number, maxReached: boolean, wordCount: number) => {
+  const handleContentExpand = useCallback((expanded: boolean, wordCount: number) => {
     trackExpansion({
       documentId: comment._id,
       documentType: 'comment',
       postId: comment.postId ?? undefined,
-      level,
-      maxLevelReached: maxReached,
+      level: expanded ? 1 : 0,
+      maxLevelReached: expanded,
       wordCount,
     });
     
     captureEvent("ultraFeedCommentItemExpanded", {
       commentId: comment._id,
       postId: comment.postId,
-      level,
-      maxLevelReached: maxReached,
+      expanded,
       wordCount,
     });
 
-    // If the comment was previously collapsed and is now expanding (level > 0),
+    // If the comment was previously collapsed and is now expanding,
     // update its display status in the parent component.
-    if (displayStatus === "collapsed" && level > 0) {
+    if (displayStatus === "collapsed" && expanded) {
       onChangeDisplayStatus("expanded");
     }
 
@@ -272,9 +284,14 @@ export const UltraFeedCommentItem = ({
     });
   }, [openDialog, comment]);
 
-  const truncationBreakpoints = useMemo(() => {
-    return displaySettings.commentTruncationBreakpoints || [];
-  }, [displaySettings.commentTruncationBreakpoints]);
+  const truncationParams = useMemo(() => {
+    const { displaySettings } = settings;
+    
+    return {
+      initialWordCount: displayStatus === "collapsed" ? displaySettings.commentCollapsedInitialWords : displaySettings.commentExpandedInitialWords,
+      maxWordCount: displaySettings.commentMaxWords
+    };
+  }, [settings, displayStatus]);
 
   const collapseToFirst = () => {
     setResetSig((s)=>s+1);
@@ -283,7 +300,9 @@ export const UltraFeedCommentItem = ({
 
   return (
     <AnalyticsContext ultraFeedElementType="feedComment" ultraFeedCardId={comment._id}>
-    <div className={classes.root}>
+    <div className={classNames(classes.root, {
+      [classes.rootWithAnimation]: isHighlightAnimating
+    })}>
       <div className={classes.mainContent}>
         <div className={classes.verticalLineContainer}>
           <div className={classNames(
@@ -302,14 +321,17 @@ export const UltraFeedCommentItem = ({
               comment={comment}
               setShowEdit={() => {}}
               showPostTitle={showPostTitle}
-              onPostTitleClick={onPostTitleClick} />
+              onPostTitleClick={onPostTitleClick}
+              parentAuthorName={parentAuthorName}
+              onReplyIconClick={onReplyIconClick}
+            />
           </div>
           <div className={classes.contentWrapper}>
             <FeedContentBody
               html={comment.contents?.html ?? ""}
-              breakpoints={truncationBreakpoints ?? []}
+              initialWordCount={truncationParams.initialWordCount}
+              maxWordCount={truncationParams.maxWordCount}
               wordCount={comment.contents?.wordCount ?? 0}
-              initialExpansionLevel={displayStatus === "expanded" ? 1 : 0}
               nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
               clampOverride={displaySettings.lineClampNumberOfLines}
               onExpand={handleContentExpand}
