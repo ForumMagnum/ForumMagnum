@@ -35,18 +35,18 @@ export interface FeedPostMetaInfo {
   lastViewed?: Date | null;
   lastInteracted?: Date | null;
   displayStatus: FeedItemDisplayStatus;
-  servedEventId: string;
+  servedEventId?: string;
 }
 export interface FeedCommentMetaInfo {
-  sources: FeedItemSourceType[] | null;
+  sources: FeedItemSourceType[];
   directDescendentCount: number;
-  lastServed: Date | null;
-  lastViewed: Date | null;
-  lastInteracted: Date | null;
-  postedAt: Date | null;
-  displayStatus?: FeedItemDisplayStatus;
+  lastServed?: Date | null;
+  lastViewed?: Date | null;
+  lastInteracted?: Date | null;
+  postedAt?: Date | null;
   highlight?: boolean;
-  servedEventId: string;
+  displayStatus?: FeedItemDisplayStatus;
+  servedEventId?: string;
 }
 
 export interface FeedCommentFromDb {

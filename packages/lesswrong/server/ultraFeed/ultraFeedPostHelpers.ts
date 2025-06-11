@@ -84,7 +84,7 @@ export async function getSubscribedPostsForUltraFeed(
   return postIdsFromRepo.map(({ postId }): FeedPostStub => ({
     postId: postId,
     postMetaInfo: {
-      sources: ['subscriptions' as const],
+      sources: ['subscriptions'] as const,
       displayStatus: 'expanded',
     },
   }));
