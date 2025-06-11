@@ -4336,6 +4336,7 @@ type Mutation = {
   updateSurveySchedule?: Maybe<SurveyScheduleOutput>;
   updateTag?: Maybe<TagOutput>;
   updateTagFlag?: Maybe<TagFlagOutput>;
+  updateUltraFeedEvent?: Maybe<UltraFeedEventOutput>;
   updateUser?: Maybe<UserOutput>;
   updateUserEAGDetail?: Maybe<UserEAGDetailOutput>;
   updateUserJobAd?: Maybe<UserJobAdOutput>;
@@ -5214,6 +5215,12 @@ type MutationupdateTagArgs = {
 
 type MutationupdateTagFlagArgs = {
   data: UpdateTagFlagDataInput;
+  selector: SelectorInput;
+};
+
+
+type MutationupdateUltraFeedEventArgs = {
+  data: UpdateUltraFeedEventDataInput;
   selector: SelectorInput;
 };
 
@@ -11833,6 +11840,15 @@ type UpdateTagFlagInput = {
 
 type UpdateTagInput = {
   data: UpdateTagDataInput;
+  selector: SelectorInput;
+};
+
+type UpdateUltraFeedEventDataInput = {
+  event?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+type UpdateUltraFeedEventInput = {
+  data: UpdateUltraFeedEventDataInput;
   selector: SelectorInput;
 };
 
@@ -23182,6 +23198,21 @@ type ForeignPostQueryQueryVariables = Exact<{
 
 
 type ForeignPostQueryQuery = ForeignPostQueryQuery_Query;
+
+type updateUltraFeedEventMutation_updateUltraFeedEvent_UltraFeedEventOutput_data_UltraFeedEvent = { __typename?: 'UltraFeedEvent', _id: string, event: any | null };
+
+type updateUltraFeedEventMutation_updateUltraFeedEvent_UltraFeedEventOutput = { __typename?: 'UltraFeedEventOutput', data: updateUltraFeedEventMutation_updateUltraFeedEvent_UltraFeedEventOutput_data_UltraFeedEvent | null };
+
+type updateUltraFeedEventMutation_Mutation = { __typename?: 'Mutation', updateUltraFeedEvent: updateUltraFeedEventMutation_updateUltraFeedEvent_UltraFeedEventOutput | null };
+
+
+type updateUltraFeedEventMutationVariables = Exact<{
+  eventId: Scalars['String']['input'];
+  data: UpdateUltraFeedEventDataInput;
+}>;
+
+
+type updateUltraFeedEventMutation = updateUltraFeedEventMutation_Mutation;
 
 type UltraFeedThreadItemQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }

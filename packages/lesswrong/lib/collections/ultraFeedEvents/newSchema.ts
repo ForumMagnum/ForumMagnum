@@ -76,6 +76,7 @@ const schema = {
       inputType: "JSON",
       canRead: ["admins"],
       canCreate: ["members"],
+      canUpdate: ["members"],
       validation: {
         optional: true,
         blackbox: true,

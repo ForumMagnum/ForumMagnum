@@ -359,6 +359,7 @@ interface Mutation {
   createTag: TagOutput | null;
   updateTag: TagOutput | null;
   createUltraFeedEvent: UltraFeedEventOutput | null;
+  updateUltraFeedEvent: UltraFeedEventOutput | null;
   createUserEAGDetail: UserEAGDetailOutput | null;
   updateUserEAGDetail: UserEAGDetailOutput | null;
   createUserJobAd: UserJobAdOutput | null;
@@ -9149,6 +9150,15 @@ interface CreateUltraFeedEventInput {
   data: CreateUltraFeedEventDataInput;
 }
 
+interface UpdateUltraFeedEventDataInput {
+  event?: any;
+}
+
+interface UpdateUltraFeedEventInput {
+  selector: SelectorInput;
+  data: UpdateUltraFeedEventDataInput;
+}
+
 interface UltraFeedEventOutput {
   data: UltraFeedEvent | null;
 }
@@ -10630,6 +10640,8 @@ interface GraphQLTypeMap {
   TagOutput: TagOutput;
   CreateUltraFeedEventDataInput: CreateUltraFeedEventDataInput;
   CreateUltraFeedEventInput: CreateUltraFeedEventInput;
+  UpdateUltraFeedEventDataInput: UpdateUltraFeedEventDataInput;
+  UpdateUltraFeedEventInput: UpdateUltraFeedEventInput;
   UltraFeedEventOutput: UltraFeedEventOutput;
   CreateUserEAGDetailDataInput: CreateUserEAGDetailDataInput;
   CreateUserEAGDetailInput: CreateUserEAGDetailInput;
@@ -10791,6 +10803,7 @@ interface UpdateInputsByCollectionName {
   Surveys: UpdateSurveyInput;
   TagFlags: UpdateTagFlagInput;
   Tags: UpdateTagInput;
+  UltraFeedEvents: UpdateUltraFeedEventInput;
   UserEAGDetails: UpdateUserEAGDetailInput;
   UserJobAds: UpdateUserJobAdInput;
   UserMostValuablePosts: UpdateUserMostValuablePostInput;
@@ -10844,7 +10857,6 @@ interface UpdateInputsByCollectionName {
   TagRels: never;
   Tweets: never;
   TypingIndicators: never;
-  UltraFeedEvents: never;
   UserActivities: never;
   Votes: never;
 }

@@ -9984,12 +9984,22 @@ input CreateUltraFeedEventInput {
   data: CreateUltraFeedEventDataInput!
 }
 
+input UpdateUltraFeedEventDataInput {
+  event: JSON
+}
+
+input UpdateUltraFeedEventInput {
+  selector: SelectorInput!
+  data: UpdateUltraFeedEventDataInput!
+}
+
 type UltraFeedEventOutput {
   data: UltraFeedEvent
 }
 
 extend type Mutation {
   createUltraFeedEvent(data: CreateUltraFeedEventDataInput!): UltraFeedEventOutput
+  updateUltraFeedEvent(selector: SelectorInput!, data: UpdateUltraFeedEventDataInput!): UltraFeedEventOutput
 }
 
 input CreateUserEAGDetailDataInput {

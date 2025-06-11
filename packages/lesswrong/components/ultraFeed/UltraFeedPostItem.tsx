@@ -34,6 +34,7 @@ import { SparkleIcon } from "../icons/sparkleIcon";
 import SeeLessFeedback, { FeedbackOptions } from "./SeeLessFeedback";
 import { recombeeApi } from "@/lib/recombee/client";
 import { useCurrentUser } from "../common/withUser";
+import { useMutation } from "@apollo/client";
 
 const localPostQuery = gql(`
   query LocalPostQuery($documentId: String!) {
@@ -55,17 +56,16 @@ const foreignPostQuery = gql(`
   }
 `);
 
-// TODO: This mutation needs to be implemented server-side
-// const updateUltraFeedEventMutation = gql(`
-//   mutation updateUltraFeedEvent($eventId: String!, $data: JSON!) {
-//     updateUltraFeedEvent(eventId: $eventId, data: $data) {
-//       data {
-//         _id
-//         event
-//       }
-//     }
-//   }
-// `);
+const updateUltraFeedEventMutation = gql(`
+  mutation updateUltraFeedEvent($eventId: String!, $data: UpdateUltraFeedEventDataInput!) {
+    updateUltraFeedEvent(selector: { _id: $eventId }, data: $data) {
+      data {
+        _id
+        event
+      }
+    }
+  }
+`);
 
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
@@ -333,8 +333,8 @@ const UltraFeedPostItem = ({
   // See less state
   const [isSeeLessMode, setIsSeeLessMode] = useState(false);
   const [seeLessEventId, setSeeLessEventId] = useState<string | null>(null);
-  // TODO: Uncomment when updateUltraFeedEvent mutation is implemented
-  // const [updateUltraFeedEvent] = useMutation(updateUltraFeedEventMutation);
+  const [updateUltraFeedEvent] = useMutation(updateUltraFeedEventMutation);
+  const feedbackUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const { data: localPostData, loading: loadingLocalPost } = useQuery(localPostQuery, {
     skip: isForeignCrosspost || !isLoadingFull,
@@ -478,51 +478,66 @@ const UltraFeedPostItem = ({
     
     setIsSeeLessMode(false);
     
-    // TODO: Update the event to mark it as cancelled when mutation is available
-    // await updateUltraFeedEvent({
-    //   variables: {
-    //     eventId: seeLessEventId,
-    //     data: { cancelled: true }
-    //   }
-    // });
+    await updateUltraFeedEvent({
+      variables: {
+        eventId: seeLessEventId,
+        data: { 
+          event: { cancelled: true }
+        }
+      }
+    });
     
-    // Send opposite rating to Recombee
+    // Send neutral rating to Recombee to undo the downvote
     if (postMetaInfo.recommInfo?.recommId) {
       void recombeeApi.createRating(
         post._id,
         currentUser._id,
-        "bigUpvote",
+        "neutral",
         postMetaInfo.recommInfo.recommId
       );
     }
     
-    // Track the undo action
     captureEvent("ultraFeedSeeLessUndone", {
       postId: post._id,
       eventId: seeLessEventId,
     });
     
     setSeeLessEventId(null);
-  }, [currentUser, seeLessEventId, post._id, postMetaInfo.recommInfo?.recommId, captureEvent]);
+  }, [currentUser, seeLessEventId, post._id, postMetaInfo.recommInfo?.recommId, captureEvent, updateUltraFeedEvent]);
 
   const handleFeedbackChange = useCallback(async (feedback: FeedbackOptions) => {
     if (!seeLessEventId) return;
     
-    // TODO: Update the event with feedback when mutation is available
-    // await updateUltraFeedEvent({
-    //   variables: {
-    //     eventId: seeLessEventId,
-    //     data: { feedbackReasons: feedback }
-    //   }
-    // });
+    if (feedbackUpdateTimeoutRef.current) {
+      clearTimeout(feedbackUpdateTimeoutRef.current);
+    }
     
-    // Track feedback analytics
-    captureEvent("ultraFeedSeeLessFeedback", {
-      postId: post._id,
-      eventId: seeLessEventId,
-      feedback,
-    });
-  }, [seeLessEventId, post._id, captureEvent]);
+    // we debounce in case the user is selecting multiple inputs at once
+    feedbackUpdateTimeoutRef.current = setTimeout(async () => {
+      await updateUltraFeedEvent({
+        variables: {
+          eventId: seeLessEventId,
+          data: { 
+            event: { feedbackReasons: feedback }
+          }
+        }
+      });
+      
+      captureEvent("ultraFeedSeeLessFeedback", {
+        postId: post._id,
+        eventId: seeLessEventId,
+        feedback,
+      });
+    }, 1000);
+  }, [seeLessEventId, post._id, captureEvent, updateUltraFeedEvent]);
+
+  useEffect(() => {
+    return () => {
+      if (feedbackUpdateTimeoutRef.current) {
+        clearTimeout(feedbackUpdateTimeoutRef.current);
+      }
+    };
+  }, []);
 
   if (!displayHtml) {
     return null; 
