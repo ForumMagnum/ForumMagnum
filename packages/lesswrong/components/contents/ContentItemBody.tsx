@@ -145,7 +145,7 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
       />)
 
       if (classNames.includes("footnotes") && hasCollapsedFootnotes) {
-        return <CollapsedFootnotes attributes={attribs} footnoteElements={mappedChildren}/>
+        return <CollapsedFootnotes TagName={TagName} attributes={attribs} footnoteElements={mappedChildren}/>
       }
 
       if (attribs['data-replacements'] && replacedSubstrings) {
