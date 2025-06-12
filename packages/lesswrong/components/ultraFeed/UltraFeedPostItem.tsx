@@ -333,6 +333,7 @@ const UltraFeedPostItem = ({
   // See less state
   const [isSeeLessMode, setIsSeeLessMode] = useState(false);
   const [seeLessEventId, setSeeLessEventId] = useState<string | null>(null);
+  const [extraGap, setExtraGap] = useState(0);
   const [updateUltraFeedEvent] = useMutation(updateUltraFeedEventMutation);
   const feedbackUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -545,7 +546,7 @@ const UltraFeedPostItem = ({
 
   return (
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index}>
-    <div className={classes.root}>
+    <div className={classes.root} style={{ marginBottom: Math.ceil(extraGap/2), marginTop: Math.floor(extraGap/2) }}>
       <div ref={elementRef} className={classnames(classes.mainContent, { [classes.greyedOut]: isSeeLessMode })}>
         <AnalyticsContext pageElementContext="tripleDotMenu">
           <PostActionsButton
@@ -597,6 +598,8 @@ const UltraFeedPostItem = ({
         <SeeLessFeedback
           onUndo={handleUndoSeeLess}
           onFeedbackChange={handleFeedbackChange}
+          cardHeight={elementRef.current?.getBoundingClientRect().height ?? 0}
+          onHeightChange={(gap) => setExtraGap(gap)}
         />
       )}
       

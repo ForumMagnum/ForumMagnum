@@ -37,7 +37,7 @@ const styles = defineStyles("SeeLessFeedback", (theme: ThemeType) => ({
   },
   message: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 16,
+    fontSize: 14,
     marginBottom: 4,
     textAlign: 'center',
     color: theme.palette.text.normal,
@@ -86,7 +86,7 @@ const styles = defineStyles("SeeLessFeedback", (theme: ThemeType) => ({
   },
   checkboxLabel: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 14,
+    fontSize: 12,
     color: theme.palette.text.normal,
   },
   buttonContainer: {
@@ -119,7 +119,7 @@ const styles = defineStyles("SeeLessFeedback", (theme: ThemeType) => ({
     backgroundColor: theme.palette.panelBackground.default,
     color: theme.palette.text.normal,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 14,
+    fontSize: 12,
     resize: 'vertical',
     '&:focus': {
       outline: 'none',
@@ -132,7 +132,7 @@ const styles = defineStyles("SeeLessFeedback", (theme: ThemeType) => ({
   betaDisclaimer: {
     width: 250,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 14,
+    fontSize: 12,
     fontStyle: 'italic',
     color: theme.palette.text.dim,
     textAlign: 'center',
@@ -142,6 +142,8 @@ const styles = defineStyles("SeeLessFeedback", (theme: ThemeType) => ({
 interface SeeLessFeedbackProps {
   onUndo: () => void;
   onFeedbackChange: (feedback: FeedbackOptions) => void;
+  cardHeight: number;
+  onHeightChange: (extraHeight: number) => void; // report extra height needed
 }
 
 export interface FeedbackOptions {
@@ -152,7 +154,7 @@ export interface FeedbackOptions {
   text?: string;
 }
 
-const SeeLessFeedback = ({ onUndo, onFeedbackChange }: SeeLessFeedbackProps) => {
+const SeeLessFeedback = ({ onUndo, onFeedbackChange, cardHeight, onHeightChange }: SeeLessFeedbackProps) => {
   const classes = useStyles(styles);
   const [feedback, setFeedback] = useState<FeedbackOptions>({
     author: false,
@@ -162,6 +164,7 @@ const SeeLessFeedback = ({ onUndo, onFeedbackChange }: SeeLessFeedbackProps) => 
     text: '',
   });
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const overlayRef = useRef<HTMLDivElement | null>(null);
 
   const debouncedOnChange = (newFeedback: FeedbackOptions) => {
     if (debounceTimeoutRef.current) {
@@ -192,12 +195,22 @@ const SeeLessFeedback = ({ onUndo, onFeedbackChange }: SeeLessFeedbackProps) => 
   };
 
   useEffect(() => {
+    const computeExtra = () => {
+      if (!overlayRef.current) return;
+      const overlayH = overlayRef.current.getBoundingClientRect().height;
+      const extra = Math.max(0, overlayH - cardHeight);
+      onHeightChange(extra);
+    };
+    computeExtra();
+    window.addEventListener('resize', computeExtra);
     return () => {
+      window.removeEventListener('resize', computeExtra);
+      onHeightChange(0);
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current);
       }
     };
-  }, []);
+  }, [cardHeight, onHeightChange]);
 
   const options: Array<{ key: keyof Omit<FeedbackOptions, 'text'>; label: string }> = [
     { key: 'author', label: 'See less from this author' },
@@ -208,7 +221,7 @@ const SeeLessFeedback = ({ onUndo, onFeedbackChange }: SeeLessFeedbackProps) => 
 
   return (
     <div className={classes.overlay}>
-      <div className={classes.contentBox}>
+      <div className={classes.contentBox} ref={overlayRef}>
         <div className={classes.message}>
           You've requested to see less like this
         </div>
