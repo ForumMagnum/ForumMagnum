@@ -237,6 +237,11 @@
   resolved "https://registry.yarnpkg.com/@as-integrations/express5/-/express5-1.0.0.tgz#5970ab083000efa8a4953a08634e36f14eec7cc9"
   integrity sha512-bCR+QIdax14GY9c8faPfwHp7r3UM+A8M/LMaL7gbOQssHI+AD3uwr18/sCLbFWrMMvilmDZt8jeUdHRIj3ggTQ==
 
+"@as-integrations/next@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@as-integrations/next/-/next-3.2.0.tgz#8f92c93c9369d4ea2a7b3a4b91307808884e9f62"
+  integrity sha512-JTVtRwHdOQTixIacmvfdUukSqNytEHfgvg+K9P8cW7JeF4SCPXat+i9abSII3/cbR6/GQwFZ6gq+c4R0nmSzMg==
+
 "@aws-crypto/ie11-detection@^3.0.0":
   version "3.0.0"
   resolved "https://registry.npmjs.org/@aws-crypto/ie11-detection/-/ie11-detection-3.0.0.tgz"
