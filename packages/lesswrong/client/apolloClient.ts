@@ -10,6 +10,5 @@ export const createApolloClient = (baseUrl = '/'): ApolloClient => {
   return new ApolloClient({
     link: ApolloLink.from([headerLink, createErrorLink(), createHttpLink(baseUrl)]),
     cache,
-    ssrForceFetchDelay: 1,
   });
 };
