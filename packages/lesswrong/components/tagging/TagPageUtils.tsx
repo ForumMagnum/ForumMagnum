@@ -1,5 +1,6 @@
 import React from "react";
 import LWTooltip from "../common/LWTooltip";
+import { isEAForum } from "@/lib/instanceSettings";
 
 export const tagPageHeaderStyles = (theme: ThemeType) => ({
   postListMeta: {
@@ -19,7 +20,10 @@ export const tagPageHeaderStyles = (theme: ThemeType) => ({
 
 export const tagPostTerms = (tag: Pick<TagBasicInfo, "_id" | "name"> | null, query: any) => {
   if (!tag) return
+  
+  // EA Forum defaults to top sort order for tag pages
   return ({
+    ...(isEAForum && {sortedBy: "top"}),
     ...query,
     filterSettings: {tags:[{tagId: tag._id, tagName: tag.name, filterMode: "Required"}]},
     view: "tagRelevance",
