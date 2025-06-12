@@ -3,7 +3,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 // eslint-disable-next-line no-restricted-imports
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 // eslint-disable-next-line no-restricted-imports
 import type { LinkProps } from 'react-router-dom';
 import { useNavigate } from '@/lib/routeUtil';
@@ -111,7 +111,7 @@ export function HashLink(props: HashLinkProps) {
       {props.children}
     </a>
   } else {
-    return <Link to={to} ref={anchorRef} {...filteredProps} onClick={handleClick}>
+    return <Link href={to} ref={anchorRef} {...filteredProps} onClick={handleClick}>
       {props.children}
     </Link>
   }

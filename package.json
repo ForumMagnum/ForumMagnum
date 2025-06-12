@@ -2,7 +2,7 @@
   "name": "lesswrong",
   "version": "2.1.0",
   "scripts": {
-    "run-next": "next dev",
+    "run-next": "next dev --turbopack",
     "postinstall": "scripts/postinstall.sh",
     "checktypes": "scripts/lint_and_checktypes.sh",
     "lint": "scripts/lint_and_checktypes.sh",
@@ -247,6 +247,7 @@
     "intl": "^1.2.4",
     "io-ts": "^2.2.19",
     "jimp": "^0.22.12",
+    "js-tiktoken": "^1.0.20",
     "jsdom": "^16.5.0",
     "json-stringify-deterministic": "^1.0.8",
     "jsonwebtoken": "^9.0.0",

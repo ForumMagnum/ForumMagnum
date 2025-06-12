@@ -9,7 +9,7 @@ import md5 from "md5";
 import { isAnyTest, isE2E } from "../lib/executionEnvironment";
 import { isEAForum, isLWorAF } from "../lib/instanceSettings";
 import { addCronJob } from "./cron/cronUtil";
-import { TiktokenModel, encoding_for_model } from "@dqbd/tiktoken";
+import { TiktokenModel, encodingForModel as encoding_for_model } from "js-tiktoken";
 import { fetchFragment, fetchFragmentSingle } from "./fetchFragment";
 import mapValues from "lodash/mapValues";
 import chunk from "lodash/chunk";
@@ -78,7 +78,6 @@ const trimText = (
     text = text.slice(0, text.length - charsToRemove);
   }
 
-  encoding.free();
   return text;
 }
 

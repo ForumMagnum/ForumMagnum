@@ -40,7 +40,8 @@ export class DatabasePublicSetting<SettingValueType> {
   }
   get(): SettingValueType {
     // eslint-disable-next-line no-console
-    if (!getPublicSettingsLoaded()) throw Error(`Tried to access public setting ${this.settingName} before it was initialized`)
+    // TODO: come back to this when we get to the point where we need database settings available on the client
+    // if (!getPublicSettingsLoaded()) throw Error(`Tried to access public setting ${this.settingName} before it was initialized`)
     const cacheValue = getNestedProperty(getPublicSettings(), this.settingName)
     if (typeof cacheValue === 'undefined') return this.defaultValue
     return cacheValue

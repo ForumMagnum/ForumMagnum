@@ -8,6 +8,7 @@ export default function RootLayout({
 }) {
   return (
     <html>
+      <style id="jss-insertion-start"></style><style id="jss-insertion-end"></style>
       <body>
         <AppGenerator
           abTestGroupsUsed={{}}

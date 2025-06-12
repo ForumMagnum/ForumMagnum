@@ -4,6 +4,7 @@ import { useTracking } from '../lib/analyticsEvents';
 import * as reactRouter from 'react-router';
 // eslint-disable-next-line no-restricted-imports
 import * as reactRouterDom from 'react-router-dom';
+import NextLink from 'next/link';
 import { HashLink, HashLinkProps } from "../components/common/HashLink";
 import { classifyHost } from './routeUtil';
 import { parseQuery } from './vulcan-core/appContext'
@@ -75,9 +76,12 @@ export const QueryLink: FC<Omit<reactRouterDom.LinkProps, "to"> & {
   const newSearchString = merge
     ? qs.stringify({...parseQuery(location), ...query})
     : qs.stringify(query);
-  return <reactRouterDom.Link
+  
+  // TODO: this isn't really tested, just implemented to unblock in case it was imported somewhere downstream of LWHome
+  const url = `${location.pathname}${newSearchString ? `?${newSearchString}` : ''}${location.hash ? `#${location.hash}` : ''}`;
+  return <NextLink
     {...rest}
-    to={{...location, search: newSearchString}}
+    href={url}
   />
 }
 
