@@ -77,6 +77,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.panelBackground.default,
     borderRadius: 4,
+    transition: 'margin 1.0s ease-in-out',
   },
   mainContent: {
     display: 'flex',
@@ -330,7 +331,6 @@ const UltraFeedPostItem = ({
   const [resetSig, setResetSig] = useState(0);
   const [isContentExpanded, setIsContentExpanded] = useState(false);
   
-  // See less state
   const [isSeeLessMode, setIsSeeLessMode] = useState(false);
   const [seeLessEventId, setSeeLessEventId] = useState<string | null>(null);
   const [extraGap, setExtraGap] = useState(0);

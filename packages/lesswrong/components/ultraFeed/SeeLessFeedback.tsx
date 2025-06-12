@@ -15,7 +15,7 @@ const styles = defineStyles("SeeLessFeedback", (theme: ThemeType) => ({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
+    padding: 16,
     borderRadius: 4,
     zIndex: theme.zIndexes.sidebarHoverOver,
     [theme.breakpoints.down('sm')]: {
@@ -26,19 +26,25 @@ const styles = defineStyles("SeeLessFeedback", (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    gap: 6,
     backgroundColor: theme.palette.panelBackground.default,
     borderRadius: 8,
-    padding: 24,
+    padding: 16,
     border: theme.palette.border.commentBorder,
     boxShadow: theme.palette.boxShadow.default,
     [theme.breakpoints.down('sm')]: {
       padding: 16,
     },
   },
+  messageRow: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   message: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 14,
-    marginBottom: 4,
     textAlign: 'center',
     color: theme.palette.text.normal,
     [theme.breakpoints.down('sm')]: {
@@ -48,8 +54,6 @@ const styles = defineStyles("SeeLessFeedback", (theme: ThemeType) => ({
   feedbackOptions: {
     display: 'flex',
     flexDirection: 'column',
-    // gap: 2,
-    // marginBottom: 12,
     width: '100%',
     maxWidth: 250,
   },
@@ -94,7 +98,7 @@ const styles = defineStyles("SeeLessFeedback", (theme: ThemeType) => ({
     justifyContent: 'center',
   },
   undoButton: {
-    padding: '6px 24px',
+    padding: '4px 6px',
     backgroundColor: 'transparent',
     cursor: 'pointer',
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -107,8 +111,6 @@ const styles = defineStyles("SeeLessFeedback", (theme: ThemeType) => ({
   },
   textAreaContainer: {
     width: '100%',
-    marginTop: 8,
-    marginBottom: 8,
   },
   textArea: {
     width: '100%',
@@ -222,12 +224,12 @@ const SeeLessFeedback = ({ onUndo, onFeedbackChange, cardHeight, onHeightChange 
   return (
     <div className={classes.overlay}>
       <div className={classes.contentBox} ref={overlayRef}>
-        <div className={classes.message}>
-          You've requested to see less like this
-        </div>
-        <div className={classes.buttonContainer}>
+        <div className={classes.messageRow}>
+          <span className={classes.message}>
+            You've requested to see less like this
+          </span>
           <button className={classes.undoButton} onClick={onUndo}>
-            Undo
+            (undo)
           </button>
         </div>
         
