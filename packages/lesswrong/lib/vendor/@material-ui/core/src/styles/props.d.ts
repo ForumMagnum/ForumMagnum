@@ -52,7 +52,6 @@ import { ModalProps } from '../Modal';
 import { NativeSelectProps } from '../NativeSelect';
 import { PaperProps } from '../Paper';
 import { PopoverProps } from '../Popover';
-import { RadioGroupProps } from '../RadioGroup';
 import { RadioProps } from '../Radio';
 import { SelectProps } from '../Select';
 import { SnackbarContentProps } from '../SnackbarContent';
