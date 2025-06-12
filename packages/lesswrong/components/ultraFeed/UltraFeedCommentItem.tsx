@@ -13,6 +13,8 @@ import UltraFeedCommentsItemMeta from "./UltraFeedCommentsItemMeta";
 import FeedContentBody from "./FeedContentBody";
 import UltraFeedItemFooter from "./UltraFeedItemFooter";
 import OverflowNavButtons from "./OverflowNavButtons";
+import SeeLessFeedback from "./SeeLessFeedback";
+import { useSeeLess } from "./useSeeLess";
 
 const commentHeaderPaddingDesktop = 12;
 const commentHeaderPaddingMobile = 12;
@@ -128,6 +130,21 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   footer: {
     marginBottom: 12,
   },
+  greyedOut: {
+    opacity: 0.5,
+    filter: 'blur(0.5px)',
+    pointerEvents: 'none',
+  },
+  footerGreyedOut: {
+    opacity: 0.5,
+    filter: 'blur(0.5px)',
+    '& > *': {
+      pointerEvents: 'none',
+    },
+    '& .SeeLessButton-root': {
+      pointerEvents: 'auto !important',
+    },
+  },
 }));
 
 type HighlightStateType = 'never-highlighted' | 'highlighted-unviewed' | 'highlighted-viewed';
@@ -199,12 +216,21 @@ export const UltraFeedCommentItem = ({
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { openDialog } = useDialog();
   const overflowNav = useOverflowNav(elementRef);
-  const { post } = comment;
   const { displayStatus } = metaInfo;
 
   const initialHighlightState = (highlight && !hasBeenLongViewed(comment._id)) ? 'highlighted-unviewed' : 'never-highlighted';
   const [highlightState, setHighlightState] = useState<HighlightStateType>(initialHighlightState);
   const [resetSig, setResetSig] = useState(0);
+  
+  const {
+    isSeeLessMode,
+    handleSeeLess,
+    handleUndoSeeLess,
+    handleFeedbackChange,
+  } = useSeeLess({
+    documentId: comment._id,
+    documentType: 'comment',
+  });
 
   const { displaySettings } = settings;
 
@@ -318,7 +344,7 @@ export const UltraFeedCommentItem = ({
           )} />
         </div>
         <div ref={elementRef} className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
-          <div className={classes.commentHeader}>
+          <div className={classNames(classes.commentHeader, { [classes.greyedOut]: isSeeLessMode })}>
             <UltraFeedCommentsItemMeta
               comment={comment}
               setShowEdit={() => {}}
@@ -328,25 +354,35 @@ export const UltraFeedCommentItem = ({
               onReplyIconClick={onReplyIconClick}
             />
           </div>
-          <div className={classes.contentWrapper}>
-            <FeedContentBody
-              html={comment.contents?.html ?? ""}
-              initialWordCount={truncationParams.initialWordCount}
-              maxWordCount={truncationParams.maxWordCount}
-              wordCount={comment.contents?.wordCount ?? 0}
-              nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-              clampOverride={displaySettings.lineClampNumberOfLines}
-              onExpand={handleContentExpand}
-              onContinueReadingClick={handleContinueReadingClick}
-              hideSuffix={false}
-              resetSignal={resetSig}
+          {isSeeLessMode && (
+            <SeeLessFeedback
+              onUndo={handleUndoSeeLess}
+              onFeedbackChange={handleFeedbackChange}
             />
-          </div>
+          )}
+          {!isSeeLessMode && (
+            <div className={classes.contentWrapper}>
+              <FeedContentBody
+                html={comment.contents?.html ?? ""}
+                initialWordCount={truncationParams.initialWordCount}
+                maxWordCount={truncationParams.maxWordCount}
+                wordCount={comment.contents?.wordCount ?? 0}
+                nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
+                clampOverride={displaySettings.lineClampNumberOfLines}
+                onExpand={handleContentExpand}
+                onContinueReadingClick={handleContinueReadingClick}
+                hideSuffix={false}
+                resetSignal={resetSig}
+              />
+            </div>
+          )}
           <UltraFeedItemFooter
             document={comment}
             collectionName="Comments"
             metaInfo={metaInfo}
-            className={classes.footer}
+            className={classNames(classes.footer, { [classes.footerGreyedOut]: isSeeLessMode })}
+            onSeeLess={isSeeLessMode ? handleUndoSeeLess : handleSeeLess}
+            isSeeLessMode={isSeeLessMode}
           />
         </div>
       </div>

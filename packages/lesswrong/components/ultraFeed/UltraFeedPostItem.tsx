@@ -31,10 +31,9 @@ import ClockIcon from "@/lib/vendor/@material-ui/icons/src/AccessTime";
 import SubscriptionsIcon from "@/lib/vendor/@material-ui/icons/src/NotificationsNone";
 import LWTooltip from "../common/LWTooltip";
 import { SparkleIcon } from "../icons/sparkleIcon";
-import SeeLessFeedback, { FeedbackOptions } from "./SeeLessFeedback";
-import { recombeeApi } from "@/lib/recombee/client";
+import SeeLessFeedback from "./SeeLessFeedback";
 import { useCurrentUser } from "../common/withUser";
-import { useMutation } from "@apollo/client";
+import { useSeeLess } from "./useSeeLess";
 
 const localPostQuery = gql(`
   query LocalPostQuery($documentId: String!) {
@@ -51,17 +50,6 @@ const foreignPostQuery = gql(`
     post(selector: { _id: $documentId }) {
       result {
         ...PostsPage
-      }
-    }
-  }
-`);
-
-const updateUltraFeedEventMutation = gql(`
-  mutation updateUltraFeedEvent($eventId: String!, $data: UpdateUltraFeedEventDataInput!) {
-    updateUltraFeedEvent(selector: { _id: $eventId }, data: $data) {
-      data {
-        _id
-        event
       }
     }
   }
@@ -340,11 +328,16 @@ const UltraFeedPostItem = ({
   const [resetSig, setResetSig] = useState(0);
   const [isContentExpanded, setIsContentExpanded] = useState(false);
   
-  const [isSeeLessMode, setIsSeeLessMode] = useState(false);
-  const [seeLessEventId, setSeeLessEventId] = useState<string | null>(null);
-  const [pendingFeedback, setPendingFeedback] = useState<FeedbackOptions | null>(null);
-  const [updateUltraFeedEvent] = useMutation(updateUltraFeedEventMutation);
-  const feedbackUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const {
+    isSeeLessMode,
+    handleSeeLess,
+    handleUndoSeeLess,
+    handleFeedbackChange,
+  } = useSeeLess({
+    documentId: post._id,
+    documentType: 'post',
+    recommId: postMetaInfo.recommInfo?.recommId,
+  });
 
   const { data: localPostData, loading: loadingLocalPost } = useQuery(localPostQuery, {
     skip: isForeignCrosspost || !isLoadingFull,
@@ -477,101 +470,6 @@ const UltraFeedPostItem = ({
       maxWordCount: displaySettings.postMaxWords
     };
   }, [displaySettings.postInitialWords, displaySettings.postMaxWords]);
-
-  const handleSeeLess = useCallback((eventId: string) => {
-    if (eventId === 'pending') {
-      // Immediately show the UI
-      setIsSeeLessMode(true);
-    } else if (eventId) {
-      // Update with the real event ID when it arrives
-      setSeeLessEventId(eventId);
-      // If we're not already in see less mode, set it now
-      if (!isSeeLessMode) {
-        setIsSeeLessMode(true);
-      }
-    }
-  }, [isSeeLessMode]);
-
-  const handleUndoSeeLess = useCallback(async () => {
-    if (!currentUser) return;
-    
-    setIsSeeLessMode(false);
-    
-    // Only update the event if we have a real eventId
-    if (seeLessEventId && seeLessEventId !== 'pending') {
-      await updateUltraFeedEvent({
-        variables: {
-          eventId: seeLessEventId,
-          data: { 
-            event: { cancelled: true }
-          }
-        }
-      });
-    }
-    
-    // Send neutral rating to Recombee to undo the downvote
-    if (postMetaInfo.recommInfo?.recommId) {
-      void recombeeApi.createRating(
-        post._id,
-        currentUser._id,
-        "neutral",
-        postMetaInfo.recommInfo.recommId
-      );
-    }
-    
-    captureEvent("ultraFeedSeeLessUndone", {
-      postId: post._id,
-      eventId: seeLessEventId,
-    });
-    
-    setSeeLessEventId(null);
-  }, [currentUser, seeLessEventId, post._id, postMetaInfo.recommInfo?.recommId, captureEvent, updateUltraFeedEvent]);
-
-  const handleFeedbackChange = useCallback(async (feedback: FeedbackOptions) => {
-    // Don't send updates until we have a real event ID
-    if (!seeLessEventId || seeLessEventId === 'pending') {
-      // Store the feedback to send later
-      setPendingFeedback(feedback);
-      return;
-    }
-    
-    if (feedbackUpdateTimeoutRef.current) {
-      clearTimeout(feedbackUpdateTimeoutRef.current);
-    }
-    
-    // we debounce in case the user is selecting multiple inputs at once
-    feedbackUpdateTimeoutRef.current = setTimeout(async () => {
-      await updateUltraFeedEvent({
-        variables: {
-          eventId: seeLessEventId,
-          data: { 
-            event: { feedbackReasons: feedback }
-          }
-        }
-      });
-      
-      captureEvent("ultraFeedSeeLessFeedback", {
-        postId: post._id,
-        eventId: seeLessEventId,
-        feedback,
-      });
-    }, 1000);
-  }, [seeLessEventId, post._id, captureEvent, updateUltraFeedEvent]);
-
-  useEffect(() => {
-    if (seeLessEventId && seeLessEventId !== 'pending' && pendingFeedback) {
-      void handleFeedbackChange(pendingFeedback);
-      setPendingFeedback(null);
-    }
-  }, [seeLessEventId, pendingFeedback, handleFeedbackChange]);
-
-  useEffect(() => {
-    return () => {
-      if (feedbackUpdateTimeoutRef.current) {
-        clearTimeout(feedbackUpdateTimeoutRef.current);
-      }
-    };
-  }, []);
 
   if (!displayHtml) {
     return null; 
