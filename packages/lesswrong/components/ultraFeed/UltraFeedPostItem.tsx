@@ -77,7 +77,6 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.panelBackground.default,
     borderRadius: 4,
-    transition: 'margin 1.0s ease-in-out',
   },
   mainContent: {
     display: 'flex',
@@ -167,6 +166,16 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
   footer: {
     marginTop: 12,
+  },
+  footerGreyedOut: {
+    opacity: 0.5,
+    filter: 'blur(0.5px)',
+    '& > *': {
+      pointerEvents: 'none',
+    },
+    '& .SeeLessButton-root': {
+      pointerEvents: 'auto !important',
+    },
   },
   loadingContainer: {
     display: "flex",
@@ -333,7 +342,7 @@ const UltraFeedPostItem = ({
   
   const [isSeeLessMode, setIsSeeLessMode] = useState(false);
   const [seeLessEventId, setSeeLessEventId] = useState<string | null>(null);
-  const [extraGap, setExtraGap] = useState(0);
+  const [pendingFeedback, setPendingFeedback] = useState<FeedbackOptions | null>(null);
   const [updateUltraFeedEvent] = useMutation(updateUltraFeedEventMutation);
   const feedbackUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -470,23 +479,35 @@ const UltraFeedPostItem = ({
   }, [displaySettings.postInitialWords, displaySettings.postMaxWords]);
 
   const handleSeeLess = useCallback((eventId: string) => {
-    setIsSeeLessMode(true);
-    setSeeLessEventId(eventId);
-  }, []);
+    if (eventId === 'pending') {
+      // Immediately show the UI
+      setIsSeeLessMode(true);
+    } else if (eventId) {
+      // Update with the real event ID when it arrives
+      setSeeLessEventId(eventId);
+      // If we're not already in see less mode, set it now
+      if (!isSeeLessMode) {
+        setIsSeeLessMode(true);
+      }
+    }
+  }, [isSeeLessMode]);
 
   const handleUndoSeeLess = useCallback(async () => {
-    if (!currentUser || !seeLessEventId) return;
+    if (!currentUser) return;
     
     setIsSeeLessMode(false);
     
-    await updateUltraFeedEvent({
-      variables: {
-        eventId: seeLessEventId,
-        data: { 
-          event: { cancelled: true }
+    // Only update the event if we have a real eventId
+    if (seeLessEventId && seeLessEventId !== 'pending') {
+      await updateUltraFeedEvent({
+        variables: {
+          eventId: seeLessEventId,
+          data: { 
+            event: { cancelled: true }
+          }
         }
-      }
-    });
+      });
+    }
     
     // Send neutral rating to Recombee to undo the downvote
     if (postMetaInfo.recommInfo?.recommId) {
@@ -507,7 +528,12 @@ const UltraFeedPostItem = ({
   }, [currentUser, seeLessEventId, post._id, postMetaInfo.recommInfo?.recommId, captureEvent, updateUltraFeedEvent]);
 
   const handleFeedbackChange = useCallback(async (feedback: FeedbackOptions) => {
-    if (!seeLessEventId) return;
+    // Don't send updates until we have a real event ID
+    if (!seeLessEventId || seeLessEventId === 'pending') {
+      // Store the feedback to send later
+      setPendingFeedback(feedback);
+      return;
+    }
     
     if (feedbackUpdateTimeoutRef.current) {
       clearTimeout(feedbackUpdateTimeoutRef.current);
@@ -533,6 +559,13 @@ const UltraFeedPostItem = ({
   }, [seeLessEventId, post._id, captureEvent, updateUltraFeedEvent]);
 
   useEffect(() => {
+    if (seeLessEventId && seeLessEventId !== 'pending' && pendingFeedback) {
+      void handleFeedbackChange(pendingFeedback);
+      setPendingFeedback(null);
+    }
+  }, [seeLessEventId, pendingFeedback, handleFeedbackChange]);
+
+  useEffect(() => {
     return () => {
       if (feedbackUpdateTimeoutRef.current) {
         clearTimeout(feedbackUpdateTimeoutRef.current);
@@ -546,40 +579,51 @@ const UltraFeedPostItem = ({
 
   return (
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index}>
-    <div className={classes.root} style={{ marginBottom: Math.ceil(extraGap/2), marginTop: Math.floor(extraGap/2) }}>
-      <div ref={elementRef} className={classnames(classes.mainContent, { [classes.greyedOut]: isSeeLessMode })}>
+    <div className={classes.root}>
+      <div ref={elementRef} className={classes.mainContent}>
         <AnalyticsContext pageElementContext="tripleDotMenu">
           <PostActionsButton
             post={post}
             vertical={true}
             autoPlace
             ActionsComponent={UltraFeedPostActions}
-            className={classes.tripleDotMenu}
+            className={classnames(classes.tripleDotMenu, { [classes.greyedOut]: isSeeLessMode })}
           />
         </AnalyticsContext>
 
-        <UltraFeedPostItemHeader
-          post={post}
-          isRead={isRead}
-          handleOpenDialog={handleOpenDialog}
-          postTitlesAreModals={displaySettings.postTitlesAreModals}
-          sources={postMetaInfo.sources}
-        />
+        <div className={classnames({ [classes.greyedOut]: isSeeLessMode })}>
+          <UltraFeedPostItemHeader
+            post={post}
+            isRead={isRead}
+            handleOpenDialog={handleOpenDialog}
+            postTitlesAreModals={displaySettings.postTitlesAreModals}
+            sources={postMetaInfo.sources}
+          />
+        </div>
 
-        <FeedContentBody
-          html={displayHtml}
-          initialWordCount={truncationParams.initialWordCount}
-          maxWordCount={truncationParams.maxWordCount}
-          wordCount={displayWordCount ?? 200}
-          nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-          onContinueReadingClick={handleOpenDialog}
-          onExpand={handleContentExpand}
-          hideSuffix={loadingFullPost}
-          resetSignal={resetSig}
-        />
+        {isSeeLessMode && (
+          <SeeLessFeedback
+            onUndo={handleUndoSeeLess}
+            onFeedbackChange={handleFeedbackChange}
+          />
+        )}
+        
+        {!isSeeLessMode && (
+          <FeedContentBody
+            html={displayHtml}
+            initialWordCount={truncationParams.initialWordCount}
+            maxWordCount={truncationParams.maxWordCount}
+            wordCount={displayWordCount ?? 200}
+            nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
+            onContinueReadingClick={handleOpenDialog}
+            onExpand={handleContentExpand}
+            hideSuffix={loadingFullPost}
+            resetSignal={resetSig}
+          />
+        )}
         
         {/* Show loading indicator below content if we're loading the full post */}
-        {loadingFullPost && displayHtml && (
+        {loadingFullPost && displayHtml && !isSeeLessMode && (
           <div className={classes.loadingContainer}>
             <Loading />
           </div>
@@ -589,19 +633,11 @@ const UltraFeedPostItem = ({
           document={post} 
           collectionName="Posts" 
           metaInfo={postMetaInfo} 
-          className={classes.footer}
-          onSeeLess={handleSeeLess}
+          className={classnames(classes.footer, { [classes.footerGreyedOut]: isSeeLessMode })}
+          onSeeLess={isSeeLessMode ? handleUndoSeeLess : handleSeeLess}
+          isSeeLessMode={isSeeLessMode}
         />
       </div>
-      
-      {isSeeLessMode && (
-        <SeeLessFeedback
-          onUndo={handleUndoSeeLess}
-          onFeedbackChange={handleFeedbackChange}
-          cardHeight={elementRef.current?.getBoundingClientRect().height ?? 0}
-          onHeightChange={(gap) => setExtraGap(gap)}
-        />
-      )}
       
       {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={isContentExpanded ? handleCollapse : undefined} />}
     </div>

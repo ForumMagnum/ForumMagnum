@@ -128,9 +128,10 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   seeLessButton: {
     position: "relative",
-    top: 2,
+    top: 1,
     opacity: 0.5,
     cursor: "pointer",
+    pointerEvents: 'auto !important',
     "& svg": {
       color: `${theme.palette.ultraFeed.dim} !important`,
       opacity: 0.7,
@@ -143,9 +144,30 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       opacity: 1,
     },
     [theme.breakpoints.down('sm')]: {
-      top: 5,
+      top: 4,
       opacity: 1,
     },
+  },
+  seeLessButtonActive: {
+    opacity: 1,
+    pointerEvents: 'auto !important',
+    "& svg": {
+      opacity: 1,
+    },
+  },
+  seeLessButtonInner: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 4,
+    padding: 2,
+    transition: 'background-color 0.2s ease',
+    "&:hover": {
+      backgroundColor: theme.palette.panelBackground.hoverHighlightGrey,
+    },
+  },
+  seeLessButtonInnerActive: {
+    backgroundColor: theme.palette.panelBackground.hoverHighlightGrey,
   },
   overallVoteButtons: {
     position: 'relative',
@@ -205,6 +227,7 @@ interface UltraFeedItemFooterCoreProps {
   metaInfo?: FeedPostMetaInfo | FeedCommentMetaInfo;
   className?: string;
   onSeeLess?: (eventId: string) => void;
+  isSeeLessMode?: boolean;
 }
 
 const UltraFeedItemFooterCore = ({
@@ -218,6 +241,7 @@ const UltraFeedItemFooterCore = ({
   metaInfo,
   className,
   onSeeLess,
+  isSeeLessMode = false,
 }: UltraFeedItemFooterCoreProps) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -250,7 +274,16 @@ const UltraFeedItemFooterCore = ({
   };
 
   const handleSeeLessClick = async () => {
-    if (!currentUser || !voteProps.document) return;
+    if (!currentUser || !voteProps.document || !onSeeLess) return;
+
+    // If already in see less mode, just call the callback (which will be handleUndoSeeLess)
+    if (isSeeLessMode) {
+      onSeeLess(''); // Pass empty string since handleUndoSeeLess doesn't use the parameter
+      return;
+    }
+
+    // Immediately show the see less UI with a placeholder
+    onSeeLess('pending');
 
     captureEvent("ultraFeedSeeLessClicked", {
       documentId: voteProps.document._id,
@@ -282,7 +315,7 @@ const UltraFeedItemFooterCore = ({
     const result = await createUltraFeedEvent({ variables: eventData });
     const eventId = result.data?.createUltraFeedEvent?.data?._id;
     
-    if (eventId && onSeeLess) {
+    if (eventId) {
       onSeeLess(eventId);
     }
 
@@ -360,9 +393,11 @@ const UltraFeedItemFooterCore = ({
           </div>
         )}
         
-        <div className={classes.seeLessButton} onClick={handleSeeLessClick}>
-          <LWTooltip title="Show me less like this">
-            <CloseIcon />
+        <div className={classNames(classes.seeLessButton, { [classes.seeLessButtonActive]: isSeeLessMode })} onClick={handleSeeLessClick}>
+          <LWTooltip title={isSeeLessMode ? "Undo see less" : "Show me less like this"}>
+            <span className={classNames("SeeLessButton-root", classes.seeLessButtonInner, { [classes.seeLessButtonInnerActive]: isSeeLessMode })}>
+              <CloseIcon />
+            </span>
           </LWTooltip>
         </div>
       </div>
@@ -371,7 +406,7 @@ const UltraFeedItemFooterCore = ({
 };
 
 
-const UltraFeedPostFooter = ({ post, metaInfo, className, onSeeLess }: { post: PostsListWithVotes, metaInfo: FeedPostMetaInfo, className?: string, onSeeLess?: (eventId: string) => void }) => {
+const UltraFeedPostFooter = ({ post, metaInfo, className, onSeeLess, isSeeLessMode }: { post: PostsListWithVotes, metaInfo: FeedPostMetaInfo, className?: string, onSeeLess?: (eventId: string) => void, isSeeLessMode?: boolean }) => {
   const { openDialog } = useDialog();
 
   const votingSystem = getVotingSystemByName(post?.votingSystem || "default");
@@ -404,12 +439,13 @@ const UltraFeedPostFooter = ({ post, metaInfo, className, onSeeLess }: { post: P
       metaInfo={metaInfo}
       className={className}
       onSeeLess={onSeeLess}
+      isSeeLessMode={isSeeLessMode}
     />
   );
 }
 
 
-const UltraFeedCommentFooter = ({ comment, metaInfo, className, onSeeLess }: { comment: UltraFeedComment, metaInfo: FeedCommentMetaInfo, className?: string, onSeeLess?: (eventId: string) => void }) => {
+const UltraFeedCommentFooter = ({ comment, metaInfo, className, onSeeLess, isSeeLessMode }: { comment: UltraFeedComment, metaInfo: FeedCommentMetaInfo, className?: string, onSeeLess?: (eventId: string) => void, isSeeLessMode?: boolean }) => {
   const { openDialog } = useDialog();
 
   const parentPost = comment.post;
@@ -443,6 +479,7 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className, onSeeLess }: { c
       metaInfo={metaInfo}
       className={className}
       onSeeLess={onSeeLess}
+      isSeeLessMode={isSeeLessMode}
     />
   );
 }
@@ -454,6 +491,7 @@ interface UltraFeedPostFooterProps {
   metaInfo: FeedPostMetaInfo;
   className?: string;
   onSeeLess?: (eventId: string) => void;
+  isSeeLessMode?: boolean;
 }
 
 interface UltraFeedCommentFooterProps {
@@ -462,15 +500,16 @@ interface UltraFeedCommentFooterProps {
   metaInfo: FeedCommentMetaInfo;
   className?: string;
   onSeeLess?: (eventId: string) => void;
+  isSeeLessMode?: boolean;
 }
 
 type UltraFeedItemFooterProps = UltraFeedPostFooterProps | UltraFeedCommentFooterProps;
 
-const UltraFeedItemFooter = ({ document, collectionName, metaInfo, className, onSeeLess }: UltraFeedItemFooterProps) => {
+const UltraFeedItemFooter = ({ document, collectionName, metaInfo, className, onSeeLess, isSeeLessMode }: UltraFeedItemFooterProps) => {
   if (collectionName === "Posts") {
-    return <UltraFeedPostFooter post={document} metaInfo={metaInfo} className={className} onSeeLess={onSeeLess} />;
+    return <UltraFeedPostFooter post={document} metaInfo={metaInfo} className={className} onSeeLess={onSeeLess} isSeeLessMode={isSeeLessMode} />;
   } else if (collectionName === "Comments") {
-    return <UltraFeedCommentFooter comment={document} metaInfo={metaInfo} className={className} onSeeLess={onSeeLess} />;
+    return <UltraFeedCommentFooter comment={document} metaInfo={metaInfo} className={className} onSeeLess={onSeeLess} isSeeLessMode={isSeeLessMode} />;
   }
   return null;
 };

@@ -5,36 +5,15 @@ import CheckIcon from '@/lib/vendor/@material-ui/icons/src/Check';
 import classNames from 'classnames';
 
 const styles = defineStyles("SeeLessFeedback", (theme: ThemeType) => ({
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-    borderRadius: 4,
-    zIndex: theme.zIndexes.sidebarHoverOver,
-    [theme.breakpoints.down('sm')]: {
-      padding: 16,
-    },
+  root: {
+    maxWidth: 500,
+    margin: '0 auto',
   },
   contentBox: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: 6,
-    backgroundColor: theme.palette.panelBackground.default,
-    borderRadius: 8,
-    padding: 16,
-    border: theme.palette.border.commentBorder,
-    boxShadow: theme.palette.boxShadow.default,
-    [theme.breakpoints.down('sm')]: {
-      padding: 16,
-    },
+    gap: 12,
   },
   messageRow: {
     display: 'flex',
@@ -144,8 +123,6 @@ const styles = defineStyles("SeeLessFeedback", (theme: ThemeType) => ({
 interface SeeLessFeedbackProps {
   onUndo: () => void;
   onFeedbackChange: (feedback: FeedbackOptions) => void;
-  cardHeight: number;
-  onHeightChange: (extraHeight: number) => void; // report extra height needed
 }
 
 export interface FeedbackOptions {
@@ -156,7 +133,7 @@ export interface FeedbackOptions {
   text?: string;
 }
 
-const SeeLessFeedback = ({ onUndo, onFeedbackChange, cardHeight, onHeightChange }: SeeLessFeedbackProps) => {
+const SeeLessFeedback = ({ onUndo, onFeedbackChange }: SeeLessFeedbackProps) => {
   const classes = useStyles(styles);
   const [feedback, setFeedback] = useState<FeedbackOptions>({
     author: false,
@@ -166,7 +143,6 @@ const SeeLessFeedback = ({ onUndo, onFeedbackChange, cardHeight, onHeightChange 
     text: '',
   });
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const overlayRef = useRef<HTMLDivElement | null>(null);
 
   const debouncedOnChange = (newFeedback: FeedbackOptions) => {
     if (debounceTimeoutRef.current) {
@@ -197,22 +173,12 @@ const SeeLessFeedback = ({ onUndo, onFeedbackChange, cardHeight, onHeightChange 
   };
 
   useEffect(() => {
-    const computeExtra = () => {
-      if (!overlayRef.current) return;
-      const overlayH = overlayRef.current.getBoundingClientRect().height;
-      const extra = Math.max(0, overlayH - cardHeight);
-      onHeightChange(extra);
-    };
-    computeExtra();
-    window.addEventListener('resize', computeExtra);
     return () => {
-      window.removeEventListener('resize', computeExtra);
-      onHeightChange(0);
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current);
       }
     };
-  }, [cardHeight, onHeightChange]);
+  }, []);
 
   const options: Array<{ key: keyof Omit<FeedbackOptions, 'text'>; label: string }> = [
     { key: 'author', label: 'See less from this author' },
@@ -222,8 +188,8 @@ const SeeLessFeedback = ({ onUndo, onFeedbackChange, cardHeight, onHeightChange 
   ];
 
   return (
-    <div className={classes.overlay}>
-      <div className={classes.contentBox} ref={overlayRef}>
+    <div className={classes.root}>
+      <div className={classes.contentBox}>
         <div className={classes.messageRow}>
           <span className={classes.message}>
             You've requested to see less like this
