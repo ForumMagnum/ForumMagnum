@@ -6,6 +6,20 @@ import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-li
 import { assignUserIdToData, insertAndReturnDocument, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { convertDocumentIdToIdInSelector, UpdateSelector } from "@/lib/vulcan-lib/utils";
 import gql from "graphql-tag";
+import { z } from "zod";
+import { logFieldChanges } from "@/server/fieldChanges";
+import { userOwns } from "@/lib/vulcan-users/permissions";
+
+const seeLessEventDataSchema = z.object({
+  feedbackReasons: z.object({
+    author: z.boolean().optional(),
+    topic: z.boolean().optional(),
+    contentType: z.boolean().optional(),
+    other: z.boolean().optional(),
+    text: z.string().max(500, "Feedback text must be 500 characters or less").optional(),
+  }).optional(),
+  cancelled: z.boolean().optional(),
+});
 
 export const graphqlUltraFeedEventTypeDefs = gql`
   input CreateUltraFeedEventDataInput ${
@@ -46,9 +60,9 @@ export async function createUltraFeedEvent({ data }: CreateUltraFeedEventInput, 
   return document;
 }
 
-export async function updateUltraFeedEvent(args: { selector: SelectorInput, data: CreateUltraFeedEventDataInput }, context: ResolverContext) {
+export async function updateUltraFeedEvent(args: { selector: SelectorInput, data: UpdateUltraFeedEventDataInput }, context: ResolverContext) {
   const { selector, data: inputData } = args;
-  const { UltraFeedEvents } = context;
+  const { UltraFeedEvents, currentUser } = context;
 
   const documentSelector = convertDocumentIdToIdInSelector(selector as UpdateSelector);
   const existingDoc = await context.loaders.UltraFeedEvents.load(documentSelector._id);
@@ -57,20 +71,24 @@ export async function updateUltraFeedEvent(args: { selector: SelectorInput, data
     throw new Error('UltraFeedEvent not found');
   }
   
-  // Validate text length if updating a seeLess event with text feedback
-  if ('event' in inputData && inputData.event?.feedbackReasons?.text) {
-    const textLength = inputData.event.feedbackReasons.text.length;
-    if (textLength > 500) {
-      throw new Error('Feedback text must be 500 characters or less');
+  if (existingDoc.eventType !== 'seeLess') {
+    throw new Error('Updates are only allowed for seeLess events');
+  }
+  
+  if (inputData.event) {
+    try {
+      seeLessEventDataSchema.parse(inputData.event);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        throw new Error(`Invalid event data: ${error.errors.map(e => e.message).join(', ')}`);
+      }
+      throw error;
     }
   }
   
-  const updateData: Partial<DbUltraFeedEvent> = {};
-  if ('event' in inputData && inputData.event !== undefined) {
-    updateData.event = inputData.event;
-  }
+  void logFieldChanges({ currentUser, collection: UltraFeedEvents, oldDocument: existingDoc, data: inputData });
   
-  const updatedDocument = await updateAndReturnDocument(updateData, UltraFeedEvents, documentSelector, context);
+  const updatedDocument = await updateAndReturnDocument(inputData, UltraFeedEvents, documentSelector, context);
 
   return updatedDocument;
 }
@@ -84,7 +102,8 @@ export const createUltraFeedEventGqlMutation = makeGqlCreateMutation('UltraFeedE
 
 export const updateUltraFeedEventGqlMutation = makeGqlUpdateMutation('UltraFeedEvents', updateUltraFeedEvent, {
   editCheck: async (user: DbUser | null, document: DbUltraFeedEvent | null, context: ResolverContext) => {
-    return !!user && !!document && document.userId === user._id;
+    if (!user || !document) return false;
+    return userOwns(user, document);
   },
   accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'UltraFeedEvents', rawResult, context)
 });
