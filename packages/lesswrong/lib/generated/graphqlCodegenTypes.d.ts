@@ -10159,7 +10159,7 @@ type Site = {
 };
 
 type SocialPreviewInput = {
-  imageId: Scalars['String']['input'];
+  imageId?: InputMaybe<Scalars['String']['input']>;
   text?: InputMaybe<Scalars['String']['input']>;
 };
 
