@@ -4,10 +4,11 @@ import { useIsInView } from "../../lib/analyticsEvents";
 import { useCurrentUser } from './withUser';
 import { RecombeeViewPortionProps, recombeeApi } from '../../lib/recombee/client';
 import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
-import { useMutation } from "@apollo/client/react";
+import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { useClientId } from '@/lib/abTestImpl';
 import { gql } from "@/lib/generated/gql-codegen";
+
 interface AttributionEventProps {
   post: PostsListBase;
   portion: number;
@@ -29,13 +30,11 @@ const AttributionInViewTracker = ({eventProps, observerProps, children}: {
     (eventProps: RecombeeViewPortionProps) => recombeeApi.createViewPortion(eventProps),
   []);
 
-  const [sendVertexMediaCompleteEvent] = useMutation(gql(`
+  const [sendVertexMediaCompleteEvent] = useMutationNoCache(gql(`
     mutation sendVertexMediaCompleteEventMutation($postId: String!, $attributionId: String) {
       sendVertexMediaCompleteEvent(postId: $postId, attributionId: $attributionId)
     }
-  `), {
-    ignoreResults: true
-  });
+  `));
 
   useEffect(() => {
     const attributedUserId = currentUser?._id ?? clientId;

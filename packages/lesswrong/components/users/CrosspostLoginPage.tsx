@@ -61,8 +61,8 @@ const CrosspostLoginPage = ({classes}: {
     if (result?.data?.connectCrossposter === "success") {
       setError(null);
       window.close();
-    } else if (result?.errors?.length) {
-      setError(result.errors[0].message);
+    } else if (result?.error) {
+      setError(result.error.message);
     } else {
       setError("Failed to connect accounts");
     }

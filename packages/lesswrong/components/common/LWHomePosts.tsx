@@ -20,7 +20,7 @@ import { HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS, LAST_VISITED_FRONTPAGE_COOKIE, RE
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { PostFeedDetails, homepagePostFeedsSetting } from '../../lib/instanceSettings';
 import { gql } from "@/lib/generated/gql-codegen";
-import { useMutation } from '@apollo/client/react';
+import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { useQuery } from "@/lib/crud/useQuery";
 import { vertexEnabledSetting } from '../../lib/publicSettings';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
@@ -44,6 +44,7 @@ import { MixedTypeFeed } from "./MixedTypeFeed";
 import SuggestedFeedSubscriptions from "../subscriptions/SuggestedFeedSubscriptions";
 import PostsItem from "../posts/PostsItem";
 import { SubscribedFeedQuery } from './feeds/feedQueries';
+import { ObservableQuery } from '@apollo/client';
 
 const SubscriptionStateMultiQuery = gql(`
   query multiSubscriptionLWHomePostsQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -445,13 +446,11 @@ const LWHomePosts = ({ children, classes }: {
   const now = useCurrentTime();
   const { continueReading } = useContinueReading();
 
-  const [sendVertexViewHomePageEvent] = useMutation(gql(`
+  const [sendVertexViewHomePageEvent] = useMutationNoCache(gql(`
     mutation sendVertexViewHomePageEventMutation {
       sendVertexViewHomePageEvent
     }
-  `), {
-    ignoreResults: true
-  });
+  `));
 
   const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get()
   const enabledTabs = availableTabs.filter(tab => isTabEnabled(tab, currentUser, query, continueReading));
@@ -631,7 +630,7 @@ const LWHomePosts = ({ children, classes }: {
 
   useEffect(() => {
     if (currentUser && vertexEnabledSetting.get()) {
-      void sendVertexViewHomePageEvent();
+      void sendVertexViewHomePageEvent({});
     }
     // We explicitly only want to send it once on page load, no matter what changes
     // eslint-disable-next-line react-hooks/exhaustive-deps

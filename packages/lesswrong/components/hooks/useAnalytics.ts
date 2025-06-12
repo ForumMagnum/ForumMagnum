@@ -1,10 +1,11 @@
-import { gql, type ApolloError } from "@apollo/client";
+import { type ErrorLike } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TupleSet, UnionOf } from "../../lib/utils/typeGuardUtils";
 import moment from "moment";
 import { generateDateSeries } from "../../lib/helpers";
 import stringify from "json-stringify-deterministic";
+import { gql } from "@/lib/generated/gql-codegen";
 
 export const analyticsFieldsList = ['views', 'reads', 'karma', 'comments'] as const
 export const analyticsFields = new TupleSet(analyticsFieldsList);
@@ -67,7 +68,7 @@ export const useMultiPostAnalytics = ({
     limit,
   }), [userId, postIds, sortBy, desc, limit]);
 
-  const { data, loading, error, fetchMore } = useQuery<MultiPostAnalyticsQueryResult>(gql`
+  const { data, loading, error, fetchMore } = useQuery<MultiPostAnalyticsQueryResult>(gql(`
     query MultiPostAnalyticsQuery($userId: String, $postIds: [String], $sortBy: String, $desc: Boolean, $limit: Int) {
       MultiPostAnalytics(userId: $userId, postIds: $postIds, sortBy: $sortBy, desc: $desc, limit: $limit) {
         posts {
@@ -85,7 +86,7 @@ export const useMultiPostAnalytics = ({
         totalCount
       }
     }
-  `, {
+  `), {
     variables,
     skip: !userId && (!postIds || postIds.length === 0),
   });
@@ -151,7 +152,7 @@ export type UseAnalyticsSeriesProps = {
 export const useAnalyticsSeries = (props: UseAnalyticsSeriesProps): {
   analyticsSeries: AnalyticsSeriesValue[];
   loading: boolean;
-  error?: ApolloError
+  error?: ErrorLike
 } => {
   const { userId, postIds, startDate: propsStartDate, endDate: propsEndDate } = props;
   // Convert to UTC to ensure args passed to useQuery are consistent between SSR and client
@@ -180,7 +181,7 @@ export const useAnalyticsSeries = (props: UseAnalyticsSeriesProps): {
   const variablesAreActive = stringify(activeVariables) === stringify({ userId, postIds, startDate, endDate });
 
   const variables = { userId, postIds, startDate, endDate };
-  const { data, loading, error } = useQuery<AnalyticsSeriesQueryResult>(gql`
+  const { data, loading, error } = useQuery<AnalyticsSeriesQueryResult>(gql(`
     query AnalyticsSeriesQuery($userId: String, $postIds: [String], $startDate: Date, $endDate: Date) {
       AnalyticsSeries(userId: $userId, postIds: $postIds, startDate: $startDate, endDate: $endDate) {
         date
@@ -190,7 +191,7 @@ export const useAnalyticsSeries = (props: UseAnalyticsSeriesProps): {
         comments
       }
     }
-  `, {
+  `), {
     variables,
     skip: !userId && (!postIds || postIds.length === 0),
   });

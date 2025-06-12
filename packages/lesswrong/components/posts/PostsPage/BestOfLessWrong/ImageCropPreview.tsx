@@ -383,11 +383,11 @@ const ImageCropPreview = ({ imgRef, classes, flipped }: {
         rightFlipped: coordsRight.flipped
       };
   
-      const { errors } = await createSplashArtCoordinateMutation({ variables: { data: splashArtData } });
+      const { error } = await createSplashArtCoordinateMutation({ variables: { data: splashArtData } });
       
-      if (errors) {
+      if (error) {
         // eslint-disable-next-line no-console
-        console.error('Error(s) when saving coordinates', { errors: JSON.stringify(errors, null, 2) });
+        console.error('Error(s) when saving coordinates', { error: JSON.stringify(error, null, 2) });
         setShowSaveSuccess(false);
       } else {
         setShowSaveSuccess(true);

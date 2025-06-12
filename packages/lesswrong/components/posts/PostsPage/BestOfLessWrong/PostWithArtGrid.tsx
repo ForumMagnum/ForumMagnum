@@ -96,7 +96,7 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
 
   const handleSaveCoordinates = async (image: ReviewWinnerArtImages) => {
     // This makes a best-guess about how to crop the image for the /bestoflesswrongpage
-    const { errors } = await createSplashArtCoordinateMutation({
+    const { error } = await createSplashArtCoordinateMutation({
       variables: {
         data: {
           reviewWinnerArtId: image._id,
@@ -121,9 +121,9 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
         }
       } });
 
-    if (errors) {
+    if (error) {
       // eslint-disable-next-line no-console
-      console.error('Error saving coordinates', errors);
+      console.error('Error saving coordinates', error);
     } else {
       setImageInfo(image);
     }

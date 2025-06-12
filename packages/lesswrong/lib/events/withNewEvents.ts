@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { v4 as uuid } from 'uuid';
 import { hookToHoc } from '../../lib/hocUtils';
 import * as _ from 'underscore';
-import { useMutation } from "@apollo/client/react";
+import { useMutationNoCache } from '../crud/useMutationNoCache';
 import { gql } from "@/lib/generated/gql-codegen";
 
 const newEventFragmentMutation = gql(`
@@ -17,9 +17,7 @@ const newEventFragmentMutation = gql(`
 
 export const useNewEvents = () => {
   const [events, setEvents] = useState<any>({});
-  const [createLWEvent] = useMutation(newEventFragmentMutation, {
-    ignoreResults: true,
-  });
+  const [createLWEvent] = useMutationNoCache(newEventFragmentMutation);
   
   const recordEvent = useCallback((name: string, closeOnLeave: boolean, properties: any): string => {
     const { userId, documentId, important, intercom, ...rest} = properties;

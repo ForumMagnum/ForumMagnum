@@ -104,7 +104,7 @@ const getDraftSelector = ({ drafts = "include-my-draft-replies", context }: { dr
   }
 };
 
-function defaultView(terms: CommentsViewTerms, _: ApolloClienttext) {
+function defaultView(terms: CommentsViewTerms, _: ApolloClient, context?: ResolverContext) {
   const validFields = pick(terms, 'userId', 'authorIsUnreviewed');
 
   const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}

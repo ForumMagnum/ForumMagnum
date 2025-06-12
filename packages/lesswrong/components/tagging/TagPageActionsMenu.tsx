@@ -98,11 +98,11 @@ const TagPageActionsMenu = ({tagOrLens, handleEditClick, createLens}: {
   const isLensPage = tagOrLens._id !== MAIN_TAB_ID;
   const classes = useStyles(styles);
   
-  const [promoteLensMutation] = useMutation(gql`
+  const [promoteLensMutation] = useMutation(gql(`
     mutation promoteLensToMain($lensId: String!) {
       promoteLensToMain(lensId: $lensId)
     }
-  `);
+  `));
   async function promoteLens() {
     try {
       const {data: _} = await promoteLensMutation({

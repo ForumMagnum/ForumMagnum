@@ -139,7 +139,7 @@ export const UnreadNotificationsContextProvider: FC<{
     }
   `), {
     ssr: true,
-    onCompleted: (data) => updateFavicon(withDateFields(data.unreadNotificationCounts, ['checkedAt'])),
+    //onCompleted: (data) => updateFavicon(withDateFields(data.unreadNotificationCounts, ['checkedAt'])),
   });
 
   const unreadNotifications = data?.unreadNotificationCounts?.unreadNotifications ?? 0;
@@ -166,7 +166,7 @@ export const UnreadNotificationsContextProvider: FC<{
       void refetchNotifications();
 
       const newCounts = await refetchCounts();
-      updateFavicon(withDateFields(newCounts.data.unreadNotificationCounts, ['checkedAt']));
+      //updateFavicon(withDateFields(newCounts.data.unreadNotificationCounts, ['checkedAt']));
     }
   }, [currentUser?._id, refetchCounts, refetchNotifications]);
 

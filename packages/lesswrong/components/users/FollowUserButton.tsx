@@ -5,7 +5,7 @@ import { useNotifyMe } from '../hooks/useNotifyMe';
 import { useOptimisticToggle } from '../hooks/useOptimisticToggle';
 import classNames from 'classnames';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
-import { useMutation } from "@apollo/client/react";
+import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { gql } from '@/lib/generated/gql-codegen';
 import LWTooltip from "../common/LWTooltip";
 
@@ -44,13 +44,11 @@ export const FollowUserButton = ({user, classes}: {
     onSubscribeWithDM
   );
 
-  const [sendNewFollowDM] = useMutation(gql(`
+  const [sendNewFollowDM] = useMutationNoCache(gql(`
     mutation sendEventTriggeredDM($eventType: String!) {
       sendEventTriggeredDM(eventType: $eventType)
     }
-  `), {
-    ignoreResults: true
-  });
+  `));
 
   const handleSubscribe = (ev: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     void toggleSubscribed(ev);

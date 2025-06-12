@@ -5,7 +5,7 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import {commentBodyStyles, postBodyStyles} from "../../themes/stylePiping";
-import { useMutation } from "@apollo/client/react";
+import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { useQuery } from "@/lib/crud/useQuery"
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
@@ -117,15 +117,13 @@ const TagVersionHistory = ({tagId, onClose, classes}: {
   const [selectedRevisionId,setSelectedRevisionId] = useState<string|null>(null);
   const [revertInProgress,setRevertInProgress] = useState(false);
   // We need the $contributorsLimit arg to satisfy the fragment, other graphql complains, even though we don't use any results that come back.
-  const [revertMutation] = useMutation(gql(`
+  const [revertMutation] = useMutationNoCache(gql(`
     mutation revertToRevision($tagId: String!, $revertToRevisionId: String!, $contributorsLimit: Int) {
       revertTagToRevision(tagId: $tagId, revertToRevisionId: $revertToRevisionId) {
         ...TagPageFragment
       }
     }
-  `), {
-    ignoreResults: true
-  });
+  `));
   const [revertLoading, setRevertLoading] = useState(false);
   const canRevert = tagUserHasSufficientKarma(currentUser, 'edit');
 

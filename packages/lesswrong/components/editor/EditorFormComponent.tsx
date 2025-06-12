@@ -225,7 +225,7 @@ function InnerEditorFormComponent<S, R>({
       PostIsCriticism(args: $args)
     }
     `), {
-      onCompleted: (data) => {
+      //onCompleted: (data) => {
         // SC 2024-09-18: We are temporarily hiding the user-facing card,
         // as we are testing using gpt-4o-mini directly instead of a fine-tuned model.
         
@@ -234,7 +234,7 @@ function InnerEditorFormComponent<S, R>({
         // if (isCriticism && !postFlaggedAsCriticism) {
         //   captureEvent('criticismTipsShown', {postId: document._id})
         // }
-      }
+      //}
     }
   )
 
