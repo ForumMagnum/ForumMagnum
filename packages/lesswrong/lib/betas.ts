@@ -35,7 +35,7 @@ const adminOrBeta = (user: UsersCurrent|DbUser|null): boolean => adminOnly(user)
 // Features in progress                                                     //
 //////////////////////////////////////////////////////////////////////////////
 
-export const userCanEditTagPortal = isEAForum ? moderatorOnly : adminOnly;
+export const userCanEditTagPortal = moderatorOnly;
 export const userHasBoldPostItems = disabled
 export const userHasEAHomeHandbook = adminOnly
 export const userCanCreateCommitMessages = moderatorOnly;
@@ -72,14 +72,14 @@ export const userHasLlmChat = (currentUser: UsersCurrent|DbUser|null): currentUs
   return isLW && (isAdmin(currentUser) || userIdsWithAccess.includes(currentUser._id));
 }
 
-export const userHasDarkModeHotkey = isEAForum ? adminOnly : shippedFeature;
+export const userHasDarkModeHotkey = isEAForum ? adminOnly : shippedFeature; // TODO change to dev thing
 
 export const userHasPostAutosave = isLWorAF ? adminOnly : disabled;
 
 // Non-user-specific features
 export const dialoguesEnabled = hasDialoguesSetting.get();
 export const ckEditorUserSessionsEnabled = isLWorAF;
-export const inlineReactsHoverEnabled = hasPostInlineReactionsSetting.get();
+export const inlineReactsHoverEnabled = hasPostInlineReactionsSetting.get(); // EAF would like if free, but not worthwhile
 export const allowSubscribeToUserComments = true;
 export const allowSubscribeToSequencePosts = isFriendlyUI;
 /** On the post page, do we show users other content they might want to read */
@@ -94,6 +94,7 @@ export const hasNewsletter = isEAForum;
  * with manual posting too.
  */
 export const hasTwitterFeatures = isEAForum;
+<<<<<<< Updated upstream
 export const hasAccountDeletionFlow = isEAForum;
 export const hasSideComments = hasSideCommentsSetting.get();
 export const useElicitApi = false;
@@ -109,6 +110,23 @@ export const hasWikiLenses = isLWorAF;
 export const hasSubforums = isEAForum;
 export const hasPolls = isEAForum;
 export const hasDraftComments = isEAForum;
+=======
+export const hasAccountDeletionFlow = isEAForum; // LW may adopt
+export const hasSideComments = hasSideCommentsSetting.get(); // EAF may adopt
+export const useElicitApi = false; // Can remove
+export const commentsTableOfContentsEnabled = hasCommentsTableOfContentSetting.get(); // EAF may adopt
+export const fullHeightToCEnabled = isLWorAF; // EAF will not adopt
+export const hasForumEvents = isEAForum; // LW will probably not adopt
+export const hasSurveys = isFriendlyUI && !isBotSiteSetting.get(); // LW will not adopt
+export const hasCollapsedFootnotes = !isLWorAF; // LW will not adopt
+export const useCurationEmailsCron = isLW; // Major product decision (Logic is "Curating is creating common knowledge"). Maybe we should offer people the option.
+export const hasSidenotes = isLWorAF; // EAF will not adopt
+export const visitedLinksHaveFilledInCircle = isLWorAF; // Seems good, EAF will adopt
+export const hasWikiLenses = isLWorAF; // EAF will not adopt
+export const hasSubforums = isEAForum; // LW will not adopt
+export const hasPolls = isEAForum; // LW may adopt, probably not
+export const hasDraftComments = isEAForum; // LW will probably adopt
+>>>>>>> Stashed changes
 
 // EA Forum disabled the author's ability to moderate posts. We disregard this
 // check in tests as the tests run in EA Forum mode, but we want to be able to
