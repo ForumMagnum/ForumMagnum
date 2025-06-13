@@ -4189,7 +4189,7 @@ const schema = {
     graphql: {
       outputType: "Boolean",
       canRead: [userOwns, "admins"],
-      canUpdate: ["admins"],
+      canUpdate: [userOwns, "admins"],
       canCreate: ["admins"],
       validation: {
         optional: true,

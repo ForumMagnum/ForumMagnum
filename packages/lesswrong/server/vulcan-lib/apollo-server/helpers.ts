@@ -44,10 +44,22 @@ export function makeGqlCreateMutation<
   };
 }
 
+function getDocumentId(selector: SelectorInput | string) {
+  if (typeof selector === 'string') {
+    return selector;
+  }
+
+  if (isEmpty(selector)) {
+    throw new Error('Selector cannot be empty');
+  }
+
+  return convertDocumentIdToIdInSelector(selector as UpdateSelector)._id;
+}
+
 export function makeGqlUpdateMutation<
   N extends CollectionNameString,
   D extends CreateInputsByCollectionName[N]['data'],
-  T extends (args: { selector: SelectorInput, data: D }, context: ResolverContext) => Promise<any>,
+  T extends (args: { selector: SelectorInput | string, data: D }, context: ResolverContext) => Promise<any>,
   O extends UpdateMutationOptions<ObjectsByCollectionName[N], R>,
   R extends { [ACCESS_FILTERED]: true } | null
 >(collectionName: N, func: T, options: O) {
@@ -56,22 +68,17 @@ export function makeGqlUpdateMutation<
     const { loaders, currentUser } = context;
     const { selector, data } = args;
 
-    if (isEmpty(selector)) {
-      throw new Error('Selector cannot be empty');
-    }
-
-    // get entire unmodified document from database
-    const documentSelector = convertDocumentIdToIdInSelector(selector as UpdateSelector);
-    const oldDocument = await loaders[collectionName].load(documentSelector._id);
+    const id = getDocumentId(selector);
+    const oldDocument = await loaders[collectionName].load(id);
 
     if (!oldDocument) {
-      throwError({ id: 'app.document_not_found', data: { documentId: documentSelector._id } });
+      throwError({ id: 'app.document_not_found', data: { documentId: id } });
     }
 
     const previewDocument = getPreviewDocument(data, oldDocument);
 
     if (!(await editCheck(currentUser, oldDocument, context, previewDocument))) {
-      throwError({ id: 'app.operation_not_allowed', data: { documentId: documentSelector._id } });
+      throwError({ id: 'app.operation_not_allowed', data: { documentId: id } });
     }
 
     const validationErrors = validateData<N>(data, previewDocument, collectionName, context);

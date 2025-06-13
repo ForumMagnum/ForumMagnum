@@ -421,7 +421,7 @@ interface CoauthorStatusInput {
 }
 
 interface SocialPreviewInput {
-  imageId: string;
+  imageId?: string | null;
   text?: string | null;
 }
 
