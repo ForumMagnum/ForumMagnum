@@ -79,7 +79,7 @@ const BookmarksFeed = () => {
           if (typedBookmark.collectionName === 'Posts' && typedBookmark.post) {
             const postMetaInfo: FeedPostMetaInfo = {
               sources: ["bookmarks"],
-              displayStatus: "expanded" as FeedItemDisplayStatus
+              displayStatus: "expanded" as FeedItemDisplayStatus,
             };
             return (
               <FeedItemWrapper key={typedBookmark._id || `post-${index}`}>
@@ -101,7 +101,7 @@ const BookmarksFeed = () => {
                 lastViewed: null, 
                 lastInteracted: null,
                 postedAt: commentData.postedAt,
-                directDescendentCount: commentData.directChildrenCount
+                directDescendentCount: commentData.directChildrenCount,
               }
             };
             const threadData: DisplayFeedCommentThread = {
