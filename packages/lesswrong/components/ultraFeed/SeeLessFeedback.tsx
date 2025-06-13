@@ -65,7 +65,7 @@ const styles = defineStyles("SeeLessFeedback", (theme: ThemeType) => ({
   checkIconSelected: {
     backgroundColor: theme.palette.primary.main,
     borderColor: theme.palette.primary.main,
-    color: 'white',
+    color: theme.palette.text.alwaysWhite
   },
   checkboxLabel: {
     fontFamily: theme.palette.fonts.sansSerifStack,
