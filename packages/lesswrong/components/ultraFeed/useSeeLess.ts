@@ -8,11 +8,10 @@ import { FeedbackOptions } from './SeeLessFeedback';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
 
 const updateUltraFeedEventMutation = gql(`
-  mutation updateUltraFeedEvent($eventId: String!, $data: UpdateUltraFeedEventDataInput!) {
-    updateUltraFeedEvent(selector: { _id: $eventId }, data: $data) {
+  mutation updateUltraFeedEvent($selector: String!, $data: UpdateUltraFeedEventDataInput!) {
+    updateUltraFeedEvent(selector: $selector, data: $data) {
       data {
         _id
-        event
       }
     }
   }
@@ -46,7 +45,7 @@ export const useSeeLess = ({ documentId, documentType, recommId }: UseSeeLessOpt
     if (seeLessEventId && seeLessEventId !== 'pending') {
       await updateUltraFeedEvent({
         variables: {
-          eventId: seeLessEventId,
+          selector: seeLessEventId,
           data: { 
             event: { cancelled: true } as any
           }
@@ -77,7 +76,7 @@ export const useSeeLess = ({ documentId, documentType, recommId }: UseSeeLessOpt
     
     await updateUltraFeedEvent({
       variables: {
-        eventId: seeLessEventId,
+        selector: seeLessEventId,
         data: { 
           event: { feedbackReasons: feedback } as any
         }

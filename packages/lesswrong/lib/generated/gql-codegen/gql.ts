@@ -600,8 +600,8 @@ type Documents = {
     "\n  query UltraFeedPostDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": typeof types.UltraFeedPostDialogDocument,
     "\n  query LocalPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": typeof types.LocalPostQueryDocument,
     "\n  query ForeignPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.ForeignPostQueryDocument,
-    "\n  mutation updateUltraFeedEvent($eventId: String!, $data: UpdateUltraFeedEventDataInput!) {\n    updateUltraFeedEvent(selector: { _id: $eventId }, data: $data) {\n      data {\n        _id\n        event\n      }\n    }\n  }\n": typeof types.updateUltraFeedEventDocument,
     "\n  query UltraFeedThreadItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.UltraFeedThreadItemDocument,
+    "\n  mutation updateUltraFeedEvent($selector: String!, $data: UpdateUltraFeedEventDataInput!) {\n    updateUltraFeedEvent(selector: $selector, data: $data) {\n      data {\n        _id\n      }\n    }\n  }\n": typeof types.updateUltraFeedEventDocument,
     "\n    mutation connectCrossposter($token: String) {\n      connectCrossposter(token: $token)\n    }\n  ": typeof types.connectCrossposterDocument,
     "\n  mutation updateUserEditProfileForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserEditProfileFormDocument,
     "\n  query EditProfileForm($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersProfileEdit\n      }\n    }\n  }\n": typeof types.EditProfileFormDocument,
@@ -1592,8 +1592,8 @@ const documents: Documents = {
     "\n  query UltraFeedPostDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": types.UltraFeedPostDialogDocument,
     "\n  query LocalPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": types.LocalPostQueryDocument,
     "\n  query ForeignPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": types.ForeignPostQueryDocument,
-    "\n  mutation updateUltraFeedEvent($eventId: String!, $data: UpdateUltraFeedEventDataInput!) {\n    updateUltraFeedEvent(selector: { _id: $eventId }, data: $data) {\n      data {\n        _id\n        event\n      }\n    }\n  }\n": types.updateUltraFeedEventDocument,
     "\n  query UltraFeedThreadItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.UltraFeedThreadItemDocument,
+    "\n  mutation updateUltraFeedEvent($selector: String!, $data: UpdateUltraFeedEventDataInput!) {\n    updateUltraFeedEvent(selector: $selector, data: $data) {\n      data {\n        _id\n      }\n    }\n  }\n": types.updateUltraFeedEventDocument,
     "\n    mutation connectCrossposter($token: String) {\n      connectCrossposter(token: $token)\n    }\n  ": types.connectCrossposterDocument,
     "\n  mutation updateUserEditProfileForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserEditProfileFormDocument,
     "\n  query EditProfileForm($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersProfileEdit\n      }\n    }\n  }\n": types.EditProfileFormDocument,
@@ -4359,11 +4359,11 @@ export function gql(source: "\n  query ForeignPostQuery($documentId: String!) {\
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  mutation updateUltraFeedEvent($eventId: String!, $data: UpdateUltraFeedEventDataInput!) {\n    updateUltraFeedEvent(selector: { _id: $eventId }, data: $data) {\n      data {\n        _id\n        event\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUltraFeedEvent($eventId: String!, $data: UpdateUltraFeedEventDataInput!) {\n    updateUltraFeedEvent(selector: { _id: $eventId }, data: $data) {\n      data {\n        _id\n        event\n      }\n    }\n  }\n"];
+export function gql(source: "\n  query UltraFeedThreadItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"): (typeof documents)["\n  query UltraFeedThreadItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query UltraFeedThreadItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"): (typeof documents)["\n  query UltraFeedThreadItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"];
+export function gql(source: "\n  mutation updateUltraFeedEvent($selector: String!, $data: UpdateUltraFeedEventDataInput!) {\n    updateUltraFeedEvent(selector: $selector, data: $data) {\n      data {\n        _id\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUltraFeedEvent($selector: String!, $data: UpdateUltraFeedEventDataInput!) {\n    updateUltraFeedEvent(selector: $selector, data: $data) {\n      data {\n        _id\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

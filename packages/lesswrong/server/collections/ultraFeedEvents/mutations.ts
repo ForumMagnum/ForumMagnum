@@ -34,18 +34,13 @@ export const graphqlUltraFeedEventTypeDefs = gql`
     getUpdatableGraphQLFields(schema)
   }
 
-  input UpdateUltraFeedEventInput {
-    selector: SelectorInput!
-    data: UpdateUltraFeedEventDataInput!
-  }
-
   type UltraFeedEventOutput {
     data: UltraFeedEvent
   }
 
   extend type Mutation {
     createUltraFeedEvent(data: CreateUltraFeedEventDataInput!): UltraFeedEventOutput
-    updateUltraFeedEvent(selector: SelectorInput!, data: UpdateUltraFeedEventDataInput!): UltraFeedEventOutput
+    updateUltraFeedEvent(selector: String!, data: UpdateUltraFeedEventDataInput!): UltraFeedEventOutput
   }
 `;
 
@@ -60,12 +55,12 @@ export async function createUltraFeedEvent({ data }: CreateUltraFeedEventInput, 
   return document;
 }
 
-export async function updateUltraFeedEvent(args: { selector: SelectorInput, data: UpdateUltraFeedEventDataInput }, context: ResolverContext) {
+export async function updateUltraFeedEvent(args: { selector: string, data: UpdateUltraFeedEventDataInput }, context: ResolverContext) {
   const { selector, data: inputData } = args;
   const { UltraFeedEvents, currentUser } = context;
 
-  const documentSelector = convertDocumentIdToIdInSelector(selector as UpdateSelector);
-  const existingDoc = await context.loaders.UltraFeedEvents.load(documentSelector._id);
+
+  const existingDoc = await context.loaders.UltraFeedEvents.load(selector);
   
   if (!existingDoc) {
     throw new Error('UltraFeedEvent not found');
@@ -88,7 +83,7 @@ export async function updateUltraFeedEvent(args: { selector: SelectorInput, data
   
   void logFieldChanges({ currentUser, collection: UltraFeedEvents, oldDocument: existingDoc, data: inputData });
   
-  const updatedDocument = await updateAndReturnDocument(inputData, UltraFeedEvents, documentSelector, context);
+  const updatedDocument = await updateAndReturnDocument(inputData, UltraFeedEvents, { _id: selector }, context);
 
   return updatedDocument;
 }
