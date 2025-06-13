@@ -65,6 +65,7 @@ import { defineStyles, useStyles } from './hooks/useStyles';
 import Loading from './vulcan-core/Loading';
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { DelayedLoading } from './common/DelayedLoading';
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -468,7 +469,7 @@ const Layout = ({currentUser, children}: {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    <Suspense fallback={<Loading/>}>
+                    <Suspense fallback={<DelayedLoading/>}>
                       {children}
                       {!isIncompletePath && isEAForum ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
                     </Suspense>
