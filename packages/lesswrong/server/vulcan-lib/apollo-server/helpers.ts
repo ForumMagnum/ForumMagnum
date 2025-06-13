@@ -79,17 +79,17 @@ type UpdateFunc<N extends CollectionNameString, D extends CreateInputsByCollecti
     }
 
     // get entire unmodified document from database
-    const documentSelector = convertDocumentIdToIdInSelector(selector as UpdateSelector);
-    const oldDocument = await loaders[collectionName].load(documentSelector._id);
+    const id = getDocumentId(selector);
+    const oldDocument = await loaders[collectionName].load(id);
 
     if (!oldDocument) {
-      throwError({ id: 'app.document_not_found', data: { documentId: documentSelector._id } });
+      throwError({ id: 'app.document_not_found', data: { documentId: id } });
     }
 
     const previewDocument = getPreviewDocument(data, oldDocument);
 
     if (!(await editCheck(currentUser, oldDocument, context, previewDocument))) {
-      throwError({ id: 'app.operation_not_allowed', data: { documentId: documentSelector._id } });
+      throwError({ id: 'app.operation_not_allowed', data: { documentId: id } });
     }
 
     const validationErrors = validateData<N>(data, previewDocument, collectionName, context);
