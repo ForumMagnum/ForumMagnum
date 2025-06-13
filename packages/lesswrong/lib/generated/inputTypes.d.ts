@@ -7751,6 +7751,8 @@ interface UpdateCommentDataInput {
   legacyData?: any;
   contents?: CreateRevisionDataInput | null;
   postedAt?: Date | null;
+  postId?: string | null;
+  tagId?: string | null;
   subforumStickyPriority?: number | null;
   authorIsUnreviewed?: boolean | null;
   answer?: boolean | null;

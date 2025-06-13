@@ -11220,6 +11220,7 @@ type UpdateCommentDataInput = {
   needsReview?: InputMaybe<Scalars['Boolean']['input']>;
   nominatedForReview?: InputMaybe<Scalars['String']['input']>;
   originalDialogueId?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
   postedAt?: InputMaybe<Scalars['Date']['input']>;
   promoted?: InputMaybe<Scalars['Boolean']['input']>;
   promotedByUserId?: InputMaybe<Scalars['String']['input']>;
@@ -11237,6 +11238,7 @@ type UpdateCommentDataInput = {
   spam?: InputMaybe<Scalars['Boolean']['input']>;
   subforumStickyPriority?: InputMaybe<Scalars['Float']['input']>;
   suggestForAlignmentUserIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  tagId?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
