@@ -8,7 +8,7 @@ import LoginPopup from "../users/LoginPopup";
 import BookCheckout from "../review/BookCheckout";
 import BookAnimation from "./BookAnimation";
 import ContentStyles from "../common/ContentStyles";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const UsersCurrentUpdateMutation = gql(`

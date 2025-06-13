@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useUserLocation } from '../../../lib/collections/users/helpers';
@@ -36,8 +36,10 @@ export const EventsList = ({currentUser, onClick}: {
   }
   return <span>
     <AnalyticsContext pageSubSectionContext="menuEventsList">
-      <TabNavigationEventsList onClick={onClick} terms={globalTerms} />
-      {!isEAForum && <TabNavigationEventsList onClick={onClick} terms={eventsListTerms} />}
+      <Suspense>
+        <TabNavigationEventsList onClick={onClick} terms={globalTerms} />
+        {!isEAForum && <TabNavigationEventsList onClick={onClick} terms={eventsListTerms} />}
+      </Suspense>
     </AnalyticsContext>
   </span>
 }

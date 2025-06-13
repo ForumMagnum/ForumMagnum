@@ -1,4 +1,4 @@
-import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
+import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo, Suspense} from 'react';
 import { registerComponent } from '../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';
@@ -14,7 +14,7 @@ import { DatabasePublicSetting, blackBarTitle, googleTagManagerIdSetting } from 
 import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { userCanDo } from '../lib/vulcan-users/permissions';
-import { Helmet } from '../lib/utils/componentsWithChildren';
+import { Helmet } from "./common/Helmet";
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
@@ -62,8 +62,10 @@ import LWBackgroundImage from "./LWBackgroundImage";
 import IntercomWrapper from "./common/IntercomWrapper";
 import CookieBanner from "./common/CookieBanner/CookieBanner";
 import { defineStyles, useStyles } from './hooks/useStyles';
-import { useMutation } from "@apollo/client";
+import Loading from './vulcan-core/Loading';
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { DelayedLoading } from './common/DelayedLoading';
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -402,7 +404,7 @@ const Layout = ({currentUser, children}: {
           {buttonBurstSetting.get() && <GlobalButtonBurst />}
           <DialogManager>
             <CommentBoxManager>
-              <Helmet>
+              <Helmet name="fonts">
                 {theme.typography.fontDownloads &&
                   theme.typography.fontDownloads.map(
                     (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
@@ -444,7 +446,7 @@ const Layout = ({currentUser, children}: {
               }
               )}>
                 {isFriendlyUI && !isWrapped && <AdminToggle />}
-                {standaloneNavigation &&
+                {standaloneNavigation && <Suspense fallback={<span/>}>
                   <MaybeStickyWrapper sticky={friendlyHomeLayout}>
                     <DeferRender ssr={true} clientTiming='mobile-aware'>
                       <NavigationStandalone
@@ -454,7 +456,7 @@ const Layout = ({currentUser, children}: {
                       />
                     </DeferRender>
                   </MaybeStickyWrapper>
-                }
+                </Suspense>}
                 {/* {isLWorAF && navigationFooterBar && <TabNavigationMenuFooter />} */}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
@@ -467,8 +469,10 @@ const Layout = ({currentUser, children}: {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {children}
-                    {!isIncompletePath && isEAForum ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
+                    <Suspense fallback={<DelayedLoading/>}>
+                      {children}
+                      {!isIncompletePath && isEAForum ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
+                    </Suspense>
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>

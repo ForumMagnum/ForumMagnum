@@ -1,4 +1,4 @@
-import { ApolloError, WatchQueryFetchPolicy } from "@apollo/client";
+import { ErrorLike, WatchQueryFetchPolicy } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery";
 import { postGetCommentCountStr } from "../../lib/collections/posts/helpers";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -94,7 +94,7 @@ export function useForeignCrosspost<Post extends FragmentTypes[CrosspostFragment
   fetchProps: PostFetchProps<FragmentTypeName>,
 ): {
   loading: boolean,
-  error?: ApolloError,
+  error?: ErrorLike,
   localPost: Post,
   foreignPost?: FragmentTypes[FragmentTypeName],
   combinedPost?: Post & FragmentTypes[FragmentTypeName] & PostWithForeignId,
@@ -167,7 +167,7 @@ export const usePostContents = <FragmentTypeName extends CrosspostFragments>({
 }): {
   postContents?: FragmentTypes[FragmentTypeName]["contents"],
   loading: boolean,
-  error?: ApolloError,
+  error?: ErrorLike,
 } => {
   const isCrosspost = isPostWithForeignId(post);
   const isForeign = isCrosspost && !post.fmCrosspost.hostedHere;

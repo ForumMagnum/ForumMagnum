@@ -27,7 +27,7 @@ function tagVotes(terms: VotesViewTerms) {
   }
 }
 
-function userPostVotes(terms: VotesViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
+function userPostVotes(terms: VotesViewTerms, _: ApolloClient, context?: ResolverContext) {
   const { voteType, collectionName, after, before } = terms;
   const votedAtFilter = []
   if (after) {
@@ -54,7 +54,7 @@ function userPostVotes(terms: VotesViewTerms, _: ApolloClient<NormalizedCacheObj
   }
 }
 
-function userVotes(terms: VotesViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
+function userVotes(terms: VotesViewTerms, _: ApolloClient, context?: ResolverContext) {
   const { collectionNames } = terms;
   const currentUserId = context?.currentUser?._id;
   return {

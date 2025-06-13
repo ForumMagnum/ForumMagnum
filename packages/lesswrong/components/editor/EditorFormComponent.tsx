@@ -6,7 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, isBlank, serializeEditorContents, EditorTypeString, styles, FormProps, shouldSubmitContents, isValidEditorType, type LegacyEditorTypeString } from './Editor';
 import withErrorBoundary from '../common/withErrorBoundary';
 import * as _ from 'underscore';
-import { useLazyQuery, useMutation } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client/react';
 import { gql } from "@/lib/generated/gql-codegen";
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import Transition from 'react-transition-group/Transition';
@@ -225,7 +225,7 @@ function InnerEditorFormComponent<S, R>({
       PostIsCriticism(args: $args)
     }
     `), {
-      onCompleted: (data) => {
+      //onCompleted: (data) => {
         // SC 2024-09-18: We are temporarily hiding the user-facing card,
         // as we are testing using gpt-4o-mini directly instead of a fine-tuned model.
         
@@ -234,7 +234,7 @@ function InnerEditorFormComponent<S, R>({
         // if (isCriticism && !postFlaggedAsCriticism) {
         //   captureEvent('criticismTipsShown', {postId: document._id})
         // }
-      }
+      //}
     }
   )
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { showReviewOnFrontPageIfActive, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive } from '../../lib/publicSettings';
@@ -21,6 +21,7 @@ import QuickTakesSection from "../quickTakes/QuickTakesSection";
 import LWHomePosts from "./LWHomePosts";
 import HeadTags from "./HeadTags";
 import UltraFeed from "../ultraFeed/UltraFeed";
+import { StructuredData } from './StructuredData';
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -56,7 +57,7 @@ const LWHome = () => {
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
-          <HeadTags structuredData={getStructuredData()}/>
+          <StructuredData generate={() => getStructuredData()}/>
           <UpdateLastVisitCookie />
           {reviewIsActive() && <>
             {getReviewPhase() !== "RESULTS" && <SingleColumnSection>
@@ -64,23 +65,29 @@ const LWHome = () => {
             </SingleColumnSection>}
           </>}
           {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
-          <DismissibleSpotlightItem current/> 
+            <Suspense>
+              <DismissibleSpotlightItem current/> 
+            </Suspense>
           </SingleColumnSection>}
           <AnalyticsInViewTracker
             eventProps={{inViewType: "homePosts"}}
             observerProps={{threshold:[0, 0.5, 1]}}
           >
             <LWHomePosts>
-              <QuickTakesSection />
-              <EAPopularCommentsSection />
-              <UltraFeed onShowingChange={setIsUltraFeedShowing} />
-              {!isUltraFeedShowing && (
-                <RecentDiscussionFeed
+              <Suspense>
+                <QuickTakesSection />
+              </Suspense>
+              <Suspense>
+                <EAPopularCommentsSection />
+              </Suspense>
+              <Suspense>
+                <UltraFeed onShowingChange={setIsUltraFeedShowing} />
+                {!isUltraFeedShowing && <RecentDiscussionFeed
                   af={false}
                   commentsLimit={4}
                   maxAgeHours={18}
-                />
-              )}
+                />}
+              </Suspense>
             </LWHomePosts>
           </AnalyticsInViewTracker>
         </React.Fragment>

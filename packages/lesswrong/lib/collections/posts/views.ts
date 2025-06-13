@@ -115,7 +115,7 @@ export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
  * as it is *inclusive*. The parameters callback that handles it outputs
  * ~ $lt: before.endOf('day').
  */
-function defaultView(terms: PostsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
+function defaultView(terms: PostsViewTerms, _: ApolloClient, context?: ResolverContext) {
   const validFields: any = pick(terms, 'userId', 'groupId', 'af','question', 'authorIsUnreviewed');
   // Also valid fields: before, after, curatedAfter, timeField (select on postedAt), excludeEvents, and
   // karmaThreshold (selects on baseScore).
@@ -1183,7 +1183,7 @@ function voting2019(terms: PostsViewTerms) {
   }
 }
 
-function stickied(terms: PostsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
+function stickied(terms: PostsViewTerms, _: ApolloClient, context?: ResolverContext) {
   return {
     selector: {
       sticky: true,
@@ -1197,7 +1197,7 @@ function stickied(terms: PostsViewTerms, _: ApolloClient<NormalizedCacheObject>,
   }
 }
 
-function nominatablePostsByVote(terms: PostsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
+function nominatablePostsByVote(terms: PostsViewTerms, _: ApolloClient, context?: ResolverContext) {
   const nominationFilter = terms.requiredUnnominated ? {positiveReviewVoteCount: { $lt: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD }} : {}
   const frontpageFilter = terms.requiredFrontpage ? {frontpageDate: {$exists: true}} : {}
   return {

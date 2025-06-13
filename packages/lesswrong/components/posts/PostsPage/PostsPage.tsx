@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { getResponseCounts, isDialogueParticipant, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView, commentIncludedInCounts } from '../../../lib/collections/comments/helpers'
@@ -6,7 +6,7 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import {forumTitleSetting, isAF, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
+import {isAF, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting, recombeeEnabledSetting, vertexEnabledSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
 import { hasPostRecommendations, commentsTableOfContentsEnabled, hasDigests, hasSidenotes } from '../../../lib/betas';
@@ -14,24 +14,18 @@ import { useDialog } from '../../common/withDialog';
 import { PostsPageContext } from './PostsPageContext';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
-import { isServer } from '../../../lib/executionEnvironment';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
-import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
-import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { useOnServerSentEvent } from '../../hooks/useUnreadNotifications';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/helpers';
-import { CommentTreeNode, unflattenComments } from '../../../lib/utils/unflatten';
+import { unflattenComments } from '../../../lib/utils/unflatten';
 import PostsAudioPlayerWrapper, { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import { ImageProvider } from './ImageContext';
 import { getMarketInfo, highlightMarket } from '../../../lib/collections/posts/annualReviewMarkets';
-import isEqual from 'lodash/isEqual';
-import { usePostReadProgress } from '../usePostReadProgress';
 import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
 import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
-import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 import { useVote } from '@/components/votes/withVote';
 import { getVotingSystemByName } from '@/lib/voting/getVotingSystem';
 import DeferRender from '@/components/common/DeferRender';
@@ -44,7 +38,6 @@ import { BestOfLWPostsPageSplashImage } from './BestOfLessWrong/BestOfLWPostsPag
 import { useNavigate, useSubscribedLocation } from "@/lib/routeUtil";
 import { useCurrentAndRecentForumEvents } from '@/components/hooks/useCurrentForumEvent';
 import SharePostPopup from "../SharePostPopup";
-import ReplyCommentDialog from "../../comments/ReplyCommentDialog";
 import { SideItemsSidebar, SideItemsContainer } from "../../contents/SideItems";
 import MultiToCLayout from "../TableOfContents/MultiToCLayout";
 import HeadTags from "../../common/HeadTags";
@@ -74,7 +67,7 @@ import PostsPageQuestionContent from "../../questions/PostsPageQuestionContent";
 import AFUnreviewedCommentCount from "../../alignment-forum/AFUnreviewedCommentCount";
 import CommentsListSection from "../../comments/CommentsListSection";
 import CommentsTableOfContents from "../../comments/CommentsTableOfContents";
-import StickyDigestAd from "../../ea-forum/digestAd/StickyDigestAd";
+import { MaybeStickyDigestAd } from "../../ea-forum/digestAd/StickyDigestAd";
 import AttributionInViewTracker from "../../common/AttributionInViewTracker";
 import ForumEventPostPagePollSection from "../../forumEvents/ForumEventPostPagePollSection";
 import NotifyMeButton from "../../notifications/NotifyMeButton";
@@ -85,6 +78,11 @@ import PostPageReviewButton from "./PostPageReviewButton";
 import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
 import FixedPositionToCHeading from '../TableOfContents/PostFixedPositionToCHeading';
 import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RECOMBEE_RECOMM_ID_QUERY_PARAM, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, SHARE_POPUP_QUERY_PARAM, sidenotesHiddenBreakpoint, VERTEX_ATTRIBUTION_ID_QUERY_PARAM } from './constants';
+import { getPostDescription, getStructuredData } from './structuredData';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { ReadingProgressBar } from './ReadingProgressBar';
+import { StructuredData } from '@/components/common/StructuredData';
+import { LWCommentCount } from '../TableOfContents/LWCommentCount';
 import { NetworkStatus, QueryResult } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
@@ -105,195 +103,10 @@ const CommentsListMultiQuery = gql(`
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
 
-const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
-  /cross-? ?posted/i,
-  /epistemic status/i,
-  /acknowledgements/i
-];
-
 const getRecommendationsPosition = (): "right" | "underPost" => "underPost";
 
-/** Get a og:description-appropriate description for a post */
-export const getPostDescription = (post: {
-  contents?: { plaintextDescription: string | null } | null;
-  customHighlight?: { plaintextDescription: string | null } | null;
-  socialPreviewData?: { text?: string | null } | null;
-  shortform?: boolean | null;
-  user: { displayName: string } | null;
-}) => {
-  if (post.socialPreviewData?.text) {
-    return post.socialPreviewData.text;
-  }
-
-  const longDescription = post.customHighlight?.plaintextDescription || post.contents?.plaintextDescription;
-  if (longDescription) {
-    // concatenate the first few paragraphs together up to some reasonable length
-    const plaintextPars = longDescription
-      // paragraphs in the plaintext description are separated by double-newlines
-      .split(/\n\n/)
-      // get rid of bullshit opening text ('epistemic status' or 'crossposted from' etc)
-      .filter((par) => !POST_DESCRIPTION_EXCLUSIONS.some((re) => re.test(par)));
-
-    if (!plaintextPars.length) return "";
-
-    // concatenate paragraphs together with a delimiter, until they reach an
-    // acceptable length (target is 100-200 characters)
-    // this will return a longer description if one of the first couple of
-    // paragraphs is longer than 200
-    let firstFewPars = plaintextPars[0];
-    for (const par of plaintextPars.slice(1)) {
-      const concat = `${firstFewPars} • ${par}`;
-      // If we're really short, we need more
-      if (firstFewPars.length < 40) {
-        firstFewPars = concat;
-        continue;
-      }
-      // Otherwise, if we have room for the whole next paragraph, concatenate it
-      if (concat.length < 150) {
-        firstFewPars = concat;
-        continue;
-      }
-      // If we're here, we know we have enough and couldn't fit the last
-      // paragraph, so we should stop
-      break;
-    }
-    if (firstFewPars.length > 148) {
-      return firstFewPars.slice(0, 149).trim() + "…";
-    }
-    return firstFewPars + " …";
-  }
-  if (post.shortform)
-    return `A collection of shorter posts ${
-      post.user ? `by ${forumTitleSetting.get()} user ${post.user.displayName}` : ""
-    }`;
-  return null;
-};
-
-
-const getCommentStructuredData = ({
-  comment
-}: {
-  comment: CommentTreeNode<CommentsList>
-}): Record<string, any> => ({
-  "@type": "Comment",
-  text: comment.item.contents?.html,
-  datePublished: new Date(comment.item.postedAt).toISOString(),
-  author: [{
-    "@type": "Person",
-    name: comment.item.user?.displayName,
-    url: userGetProfileUrl(comment.item.user, true),
-    interactionStatistic: [
-      {
-        "@type": "InteractionCounter",
-        interactionType: {
-          "@type": "http://schema.org/CommentAction",
-        },
-        userInteractionCount: comment.item.user?.[isAF ? "afCommentCount" : "commentCount"],
-      },
-      {
-        "@type": "InteractionCounter",
-        interactionType: {
-          "@type": "http://schema.org/WriteAction",
-        },
-        userInteractionCount: comment.item.user?.[isAF ? "afPostCount" : "postCount"],
-      },
-    ],
-  }],
-  ...(comment.children.length > 0 && {comment: comment.children.map(child => getCommentStructuredData({comment: child}))})
-})
-
-/**
- * Build structured data for a post to help with SEO.
- */
-const getStructuredData = ({
-  post,
-  description,
-  commentTree,
-  answersTree
-}: {
-  post: PostsWithNavigation | PostsWithNavigationAndRevision;
-  description: string | null;
-  commentTree: CommentTreeNode<CommentsList>[];
-  answersTree: CommentTreeNode<CommentsList>[];
-}) => {
-  const { user, coauthors } = post;
-  const hasUser = !!user;
-  const hasCoauthors = !!coauthors && coauthors.length > 0;
-  const answersAndComments = [...answersTree, ...commentTree];
-  // Get comments from Apollo Cache
-
-  return {
-    "@context": "http://schema.org",
-    "@type": "DiscussionForumPosting",
-    "url": postGetPageUrl(post, true),
-    "text": post.contents?.html ?? description,
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": postGetPageUrl(post, true),
-    },
-    headline: post.title,
-    ...(description && { description: description }),
-    datePublished: new Date(post.postedAt).toISOString(),
-    about: post.tags.filter(tag => !!tag.description?.htmlHighlight).map(tag => ({
-      "@type": "Thing",
-      name: tag.name,
-      url: tagGetUrl(tag, undefined, true),
-      description: tag.description?.htmlHighlight,
-    })),
-    ...(hasUser && {
-      author: [
-        {
-          "@type": "Person",
-          name: user.displayName,
-          url: userGetProfileUrl(post.user, true),
-        },
-        ...(hasCoauthors
-          ? coauthors
-              .filter(({ _id }) => !postCoauthorIsPending(post, _id))
-              .map(coauthor => ({
-                "@type": "Person",
-                "name": coauthor.displayName,
-                url: userGetProfileUrl(post.user, true),
-              }))
-          : []),
-      ],
-    }),
-    ...(answersAndComments.length > 0 && {comment: answersAndComments.map(comment => getCommentStructuredData({comment}))}),
-    interactionStatistic: [
-      {
-        "@type": "InteractionCounter",
-        interactionType: {
-          "@type": "http://schema.org/CommentAction",
-        },
-        userInteractionCount: post.commentCount,
-      },
-      {
-        "@type": "InteractionCounter",
-        interactionType: {
-          "@type": "http://schema.org/LikeAction",
-        },
-        userInteractionCount: post.baseScore,
-      },
-    ],
-  };
-};
-
-
 // Also used in PostsCompareRevisions
-export const styles = (theme: ThemeType) => ({
-  readingProgressBar: {
-    position: 'fixed',
-    top: 0,
-    height: 4,
-    width: 'var(--scrollAmount)',
-    background: theme.palette.primary.main,
-    '--scrollAmount': '0%',
-    zIndex: theme.zIndexes.commentBoxPopup,
-    [theme.breakpoints.down('sm')]: {
-      marginLeft: -8,
-      marginRight: -8
-    }
-  },
+export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   title: {
     marginBottom: 32,
     [theme.breakpoints.down('sm')]: {
@@ -452,7 +265,7 @@ export const styles = (theme: ThemeType) => ({
     marginTop: 60,
     marginBottom: -20 // to account or voting UI padding
   },
-})
+}));
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
   comment: debateResponse,
@@ -482,7 +295,6 @@ export const postCommentsThreadQuery = gql(`
   }
 `);
 
-
 export function usePostCommentTerms<T extends CommentsViewTerms>(currentUser: UsersCurrent | null, defaultTerms: T, query: Record<string, string>) {
   const commentOpts = { includeAdminViews: currentUser?.isAdmin };
   // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
@@ -506,14 +318,14 @@ export function usePostCommentTerms<T extends CommentsViewTerms>(currentUser: Us
   return useMemo(() => ({ terms, view, limit }), [terms, view, limit]);
 }
 
-const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}: {
-  eagerPostComments?: EagerPostComments,
+
+const PostsPage = ({fullPost, postPreload, refetch}: {
   refetch: () => void,
-  classes: ClassesType<typeof styles>,
 } & (
   { fullPost: PostsWithNavigation|PostsWithNavigationAndRevision, postPreload: undefined }
   | { fullPost: undefined, postPreload: PostsListWithVotes }
 )) => {
+  const classes = useStyles(styles);
   const post = fullPost ?? postPreload;
   const location = useSubscribedLocation();
   const navigate = useNavigate();
@@ -521,7 +333,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const now = useCurrentTime();
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
-  const [showDigestAd, setShowDigestAd] = useState(false)
   const [highlightDate,setHighlightDate] = useState<Date|undefined|null>(post?.lastVisitedAt ? new Date(post.lastVisitedAt) : undefined);
   const { currentForumEvent } = useCurrentAndRecentForumEvents();
 
@@ -551,39 +362,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     });
     setShowEmbeddedPlayer(!showEmbeddedPlayer);
   } : undefined;
-
-  const disableProgressBar = (isBookUI || isServer || post.isEvent || post.question || post.debate || post.shortform || post.readTimeMinutes < 3);
-
-  const { readingProgressBarRef } = usePostReadProgress({
-    updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
-    disabled: disableProgressBar,
-    useFixedToCScrollCalculation: false
-  });
-  
-  // postReadCount is currently only used by StickyDigestAd, to only show the ad after the client has visited multiple posts.
-  const ls = getBrowserLocalStorage()
-  useEffect(() => {
-    if (ls && hasDigests) {
-      const postReadCount = ls.getItem('postReadCount') ?? '0'
-      ls.setItem('postReadCount', `${parseInt(postReadCount) + 1}`)
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // On the EA Forum, show a digest ad at the bottom of the screen after the user scrolled down.
-  useEffect(() => {
-    if (!isEAForum || isServer || post.isEvent || post.question || post.shortform) return
-
-    checkShowDigestAd()
-    window.addEventListener('scroll', checkShowDigestAd)
-
-    return () => {
-      window.removeEventListener('scroll', checkShowDigestAd)
-    };
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-  const checkShowDigestAd = () => {
-    // Ad stays visible once shown
-    setShowDigestAd((showAd) => showAd || window.scrollY > 1000)
-  }
 
   const getSequenceId = () => {
     return params.sequenceId || fullPost?.canonicalSequenceId || null;
@@ -750,17 +528,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDebateResponseLink, linkedCommentId]);
 
-  const onClickCommentOnSelection = useCallback((html: string) => {
-    openDialog({
-      name: "ReplyCommentDialog",
-      contents: ({onClose}) => <ReplyCommentDialog
-        onClose={onClose}
-        post={post}
-        initialHtml={html}
-      />
-    })
-  }, [openDialog, post]);
-
   const isCrosspostedQuestion = post.question &&
     post.fmCrosspost?.isCrosspost &&
     !post.fmCrosspost?.hostedHere;
@@ -770,41 +537,37 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
 
   const marketInfo = getMarketInfo(post)
 
-  // check for deep equality between terms and eagerPostComments.terms
-  const useEagerResults = eagerPostComments && isEqual({ ...terms, view }, eagerPostComments?.terms);
-
   const lazyResults = useQueryWithLoadMore(postCommentsThreadQuery, {
     variables: {
       selector: { [view]: { ...terms, postId: post._id } },
       limit,
       enableTotal: true,
     },
-    skip: useEagerResults,
     fetchPolicy: 'cache-and-network' as const,
   });
 
-  const { loading, data: rawData, networkStatus, loadMoreProps: { loadMore } } = useEagerResults ? eagerPostComments.queryResponse : lazyResults;
-  const rawResults = rawData?.comments?.results;
+  const { loading, data: rawData, networkStatus, loadMoreProps: { loadMore } } = lazyResults;
+  const rawComments = rawData?.comments?.results;
   const loadingMore = networkStatus === NetworkStatus.fetchMore;
 
   // If the user has just posted a comment, and they are sorting by magic, put it at the top of the list for them
-  const results = useMemo(() => {
-    if (!isEAForum || !rawResults || view !== "postCommentsMagic") return rawResults;
+  const comments = useMemo(() => {
+    if (!isEAForum || !rawComments || view !== "postCommentsMagic") return rawComments;
 
-    const recentUserComments = rawResults
+    const recentUserComments = rawComments
       .filter((c) => c.userId === currentUser?._id && now.getTime() - new Date(c.postedAt).getTime() < 60000)
       .sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
 
-    if (!recentUserComments.length) return rawResults;
+    if (!recentUserComments.length) return rawComments;
 
-    return [...recentUserComments, ...rawResults.filter((c) => !recentUserComments.includes(c))];
+    return [...recentUserComments, ...rawComments.filter((c) => !recentUserComments.includes(c))];
     // Ignore `now` to make this more stable
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, rawResults, currentUser?._id]);
+  }, [view, rawComments, currentUser?._id]);
 
-  const displayedPublicCommentCount = results?.filter(c => commentIncludedInCounts(c))?.length ?? 0;
+  const displayedPublicCommentCount = comments?.filter(c => commentIncludedInCounts(c))?.length ?? 0;
   const { commentCount: totalComments } = getResponseCounts({ post, answers })
-  const commentTree = unflattenComments(results ?? []);
+  const commentTree = unflattenComments(comments ?? []);
   const answersTree = unflattenComments(answersAndReplies ?? []);
   const answerCount = post.question ? answersTree.length : undefined;
 
@@ -828,8 +591,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const hashCommentId = location.hash.length >= 1 ? location.hash.slice(1) : null;
   // If the comment reference in the hash doesn't appear in the page, try and load it separately as a permalinked comment
   const showHashCommentFallback = useMemo(() => (
-    hashCommentId && !loading && ![...(results ?? []), ...(answersAndReplies ?? [])].map(({ _id }) => _id).includes(hashCommentId)
-  ), [answersAndReplies, hashCommentId, loading, results]);
+    hashCommentId && !loading && ![...(comments ?? []), ...(answersAndReplies ?? [])].map(({ _id }) => _id).includes(hashCommentId)
+  ), [answersAndReplies, hashCommentId, loading, comments]);
 
   const [permalinkedCommentId, setPermalinkedCommentId] = useState((fullPost && !isDebateResponseLink) ? (linkedCommentId ?? null) : null)
   // Don't show loading state if we are are getting the id from the hash, because it might be a hash referencing a non-comment id in the page
@@ -859,8 +622,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
         title={post.title}
         description={description}
         noIndex={noIndex}
-        structuredData={getStructuredData({post: fullPost, description, commentTree, answersTree})}
       />
+      <StructuredData generate={() => getStructuredData({post: fullPost, description, commentTree, answersTree})}/>
       <CitationTags
         title={post.title}
         author={post.user?.displayName}
@@ -958,7 +721,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
         <PostBodyPrefix post={post} query={query}/>
         <AnalyticsContext pageSectionContext="postBody">
           <HoveredReactionContextProvider voteProps={voteProps}>
-          <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
+          <CommentOnSelectionContentWrapper post={post}>
           <div id="postContent">
             {htmlWithAnchors && <>
               <PostBody
@@ -1048,7 +811,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
         <div className={classes.commentsSection}>
           <AnalyticsContext pageSectionContext="commentsSection">
             {fullPost && <CommentsListSection
-              comments={results ?? []}
+              comments={comments ?? []}
               loadMoreComments={loadMore}
               totalComments={totalComments}
               commentCount={displayedPublicCommentCount}
@@ -1061,7 +824,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
             />}
             {isAF && <AFUnreviewedCommentCount post={post}/>}
           </AnalyticsContext>
-          {isFriendlyUI && Math.max(post.commentCount, results?.length ?? 0) < 1 &&
+          {isFriendlyUI && Math.max(post.commentCount, comments?.length ?? 0) < 1 &&
             <div className={classes.noCommentsPlaceholder}>
               <div>No comments on this post yet.</div>
               <div>Be the first to respond.</div>
@@ -1086,7 +849,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     <SideItemsContainer>
     <ImageProvider>
     <SideItemVisibilityContextProvider post={fullPost}>
-    <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
+    <ReadingProgressBar post={post}/>
     {splashHeaderImage}
     {commentsTableOfContentsEnabled
       ? <MultiToCLayout
@@ -1108,8 +871,10 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
           ]}
           tocRowMap={[0, 0, 2, 2]}
           showSplashPageHeader={showSplashPageHeader}
-          answerCount={answerCount}
-          commentCount={displayedPublicCommentCount}
+          sharedToCFooter={<LWCommentCount
+            answerCount={answerCount}
+            commentCount={displayedPublicCommentCount}
+          />}
         />
       : <ToCColumn
           tableOfContents={tableOfContents}
@@ -1122,7 +887,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
         </ToCColumn>
     }
   
-    {isEAForum && showDigestAd && <DeferRender ssr={false}><StickyDigestAd /></DeferRender>}
+    {isEAForum && <DeferRender ssr={false}><MaybeStickyDigestAd post={post} /></DeferRender>}
     {hasPostRecommendations && fullPost && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
       <PostBottomRecommendations
         post={post}
@@ -1138,7 +903,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
 }
 
 export default registerComponent('PostsPage', PostsPage, {
-  styles, hocs: [withErrorBoundary],
+  hocs: [withErrorBoundary],
   areEqual: "auto",
 });
 

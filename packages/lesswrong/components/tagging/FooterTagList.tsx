@@ -1,5 +1,6 @@
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { useMutation, NetworkStatus } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
+import { NetworkStatus } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useCurrentUser } from '../common/withUser';

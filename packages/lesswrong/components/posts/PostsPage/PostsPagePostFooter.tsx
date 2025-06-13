@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { userHasPingbacks } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
@@ -95,11 +95,13 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
 
   return <>
     {isLWorAF && !post.shortform && !post.isEvent &&
-      <AnalyticsContext pageSectionContext="tagFooter">
-        <div className={classes.footerTagList}>
-          <FooterTagList post={post}/>
-        </div>
-      </AnalyticsContext>
+      <Suspense>
+        <AnalyticsContext pageSectionContext="tagFooter">
+          <div className={classes.footerTagList}>
+            <FooterTagList post={post}/>
+          </div>
+        </AnalyticsContext>
+      </Suspense>
     }
     {!post.shortform && (isLW || isEAEmojis) &&
       <>
@@ -134,9 +136,11 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
       </AnalyticsContext>}
     </div>}
 
-    {userHasPingbacks(currentUser) && <AnalyticsContext pageSectionContext="pingbacks">
-      <PingbacksList postId={post._id}/>
-    </AnalyticsContext>}
+    {userHasPingbacks(currentUser) && <Suspense>
+      <AnalyticsContext pageSectionContext="pingbacks">
+        <PingbacksList postId={post._id}/>
+      </AnalyticsContext>
+    </Suspense>}
   </>
 }
 

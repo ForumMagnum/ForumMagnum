@@ -1,6 +1,6 @@
 import React, { FC, ReactNode, createContext, useCallback, useContext, useEffect, useMemo } from 'react';
-import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
+import { useQuery } from "@/lib/crud/useQuery";
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useOnFocusTab } from '../hooks/useOnFocusTab';
 import { useCurrentUser } from '../common/withUser';
@@ -139,7 +139,7 @@ export const UnreadNotificationsContextProvider: FC<{
     }
   `), {
     ssr: true,
-    onCompleted: (data) => updateFavicon(withDateFields(data.unreadNotificationCounts, ['checkedAt'])),
+    //onCompleted: (data) => updateFavicon(withDateFields(data.unreadNotificationCounts, ['checkedAt'])),
   });
 
   const unreadNotifications = data?.unreadNotificationCounts?.unreadNotifications ?? 0;
@@ -166,7 +166,7 @@ export const UnreadNotificationsContextProvider: FC<{
       void refetchNotifications();
 
       const newCounts = await refetchCounts();
-      updateFavicon(withDateFields(newCounts.data.unreadNotificationCounts, ['checkedAt']));
+      //updateFavicon(withDateFields(newCounts.data.unreadNotificationCounts, ['checkedAt']));
     }
   }, [currentUser?._id, refetchCounts, refetchNotifications]);
 
