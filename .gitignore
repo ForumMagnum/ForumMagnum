@@ -108,3 +108,6 @@ client_stats.html
 playwright-report
 test-results
 .next
+
+# Dependency cruiser output
+dependency-graph.svg
