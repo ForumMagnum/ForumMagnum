@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper";
+import { gql } from "@/lib/generated/gql-codegen";
 
-export const DialogueMatchPreferenceInfo = () => frag`
+export const DialogueMatchPreferenceInfo = gql(`
   fragment DialogueMatchPreferenceInfo on DialogueMatchPreference {
     _id
     dialogueCheckId
@@ -12,4 +12,4 @@ export const DialogueMatchPreferenceInfo = () => frag`
     generatedDialogueId
     deleted
   }
-`
+`)

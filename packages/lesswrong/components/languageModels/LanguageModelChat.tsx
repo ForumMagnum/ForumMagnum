@@ -391,8 +391,8 @@ export const ChatInterface = ({classes}: {
 
   const exportHistoryToClipboard = () => {
     if (!currentConversation) return
-    const conversationHistory = currentConversation.messages.filter(({role}) => ['user', 'assistant', 'user-context'].includes(role))
-    const formattedChatHistory = conversationHistory.map(({role, content}) => `<strong>${role.toUpperCase()}:</strong> ${content}`).join("\n")
+    const conversationHistory = currentConversation.messages.filter(({role}) => role && ['user', 'assistant', 'user-context'].includes(role))
+    const formattedChatHistory = conversationHistory.map(({role, content}) => `<strong>${role?.toUpperCase()}:</strong> ${content}`).join("\n")
     void navigator.clipboard.writeText(formattedChatHistory)
     flash('Chat history copied to clipboard')
   }

@@ -45,6 +45,10 @@ export function isGraphQLField(field: [string, GraphQLFieldSpecification<Collect
 }
 
 export function getAllGraphQLFields(schema: SchemaType<CollectionNameString>, padding = '    ') {
+  return `{\n${getAllGraphQLFieldsWithoutBraces(schema, padding)}\n}`;
+}
+
+export function getAllGraphQLFieldsWithoutBraces(schema: SchemaType<CollectionNameString>, padding = '    ') {
   const fieldDescriptions = Object.entries(schema)
     .map(([fieldName, fieldSpec]) => [fieldName, fieldSpec.graphql] as const)
     .filter(isGraphQLField)
@@ -67,6 +71,10 @@ export function getAllGraphQLFields(schema: SchemaType<CollectionNameString>, pa
 }
 
 export function getCreatableGraphQLFields(schema: SchemaType<CollectionNameString>, padding = '    ') {
+  return `{\n${getCreatableGraphQLFieldsWithoutBraces(schema, padding)}\n}`;
+}
+
+export function getCreatableGraphQLFieldsWithoutBraces(schema: SchemaType<CollectionNameString>, padding = '    ') {
   const fieldDescriptions = Object.entries(schema)
     .map(([fieldName, fieldSpec]) => [fieldName, fieldSpec.graphql] as const)
     .filter((field): field is [string, GraphQLFieldSpecification<CollectionNameString>] => !!field[1]?.canCreate?.length)
@@ -86,6 +94,10 @@ export function getCreatableGraphQLFields(schema: SchemaType<CollectionNameStrin
 }
 
 export function getUpdatableGraphQLFields(schema: SchemaType<CollectionNameString>, padding = '    ') {
+  return `{\n${getUpdatableGraphQLFieldsWithoutBraces(schema, padding)}\n}`;
+}
+
+export function getUpdatableGraphQLFieldsWithoutBraces(schema: SchemaType<CollectionNameString>, padding = '    ') {
   const fieldDescriptions = Object.entries(schema)
     .map(([fieldName, fieldSpec]) => [fieldName, fieldSpec.graphql] as const)
     .filter((field): field is [string, GraphQLFieldSpecification<CollectionNameString>] => !!field[1]?.canUpdate?.length)

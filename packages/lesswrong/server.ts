@@ -140,7 +140,6 @@ import './server/inactiveUserSurveyCron';
 import "./server/languageModels/autoTagCallbacks";
 import './server/languageModels/languageModelIntegration';
 
-import './server/codegen/generateTypes';
 import './server/styleGeneration';
 
 import './server/embeddings';

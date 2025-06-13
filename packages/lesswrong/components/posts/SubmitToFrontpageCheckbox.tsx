@@ -80,7 +80,7 @@ const DefaultTooltip = () => {
 }
 
 export const SubmitToFrontpageCheckbox = ({ field, label, tooltip }: {
-  field: TypedFieldApi<boolean>;
+  field: TypedFieldApi<boolean | null | undefined>;
   label?: string;
   tooltip?: string;
 }) => {
@@ -104,7 +104,7 @@ export const SubmitToFrontpageCheckbox = ({ field, label, tooltip }: {
     <TooltipSpan title={displayedTooltip}>
       <div className={classes.submitToFrontpage}>
         <InputLabel className={classes.checkboxLabel}>
-          <Checkbox checked={field.state.value} onClick={handleClick} className={classes.checkbox} />
+          <Checkbox checked={!!field.state.value} onClick={handleClick} className={classes.checkbox} />
           {displayedLabel}
         </InputLabel>
       </div>

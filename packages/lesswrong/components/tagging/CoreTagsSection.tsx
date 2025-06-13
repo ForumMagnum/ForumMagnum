@@ -1,8 +1,20 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import CoreTagCard from "./CoreTagCard";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const TagDetailsFragmentMultiQuery = gql(`
+  query multiTagCoreTagsSectionQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagDetailsFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -28,15 +40,16 @@ const INITIAL_LIMIT = 8;
 const CoreTagsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { results } = useMulti({
-    terms: {
-      view: "coreTags",
+  const { data } = useQuery(TagDetailsFragmentMultiQuery, {
+    variables: {
+      selector: { coreTags: {} },
       limit: 100,
+      enableTotal: false,
     },
-    collectionName: "Tags",
-    fragmentName: "TagDetailsFragment",
-    enableTotal: false,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.tags?.results;
 
   const [showAll, setShowAll] = useState(false);
   const resultsToDisplay = showAll ? results : results?.slice(0, INITIAL_LIMIT);

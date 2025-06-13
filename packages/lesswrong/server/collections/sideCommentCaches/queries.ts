@@ -4,8 +4,8 @@ import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers"
 import gql from "graphql-tag";
 
 export const graphqlSideCommentCacheQueryTypeDefs = gql`
-  type SideCommentCache {
-    ${getAllGraphQLFields(schema)}
+  type SideCommentCache ${
+    getAllGraphQLFields(schema)
   }
 `;
 

@@ -1,7 +1,7 @@
 import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client';
 import { createSchemaLink, createHttpLink, createErrorLink } from '../../../lib/apollo/links';
 import { fmCrosspostBaseUrlSetting } from "../../../lib/instanceSettings";
-import { makeExecutableSchema } from 'graphql-tools';
+import { makeExecutableSchema } from '@graphql-tools/schema';
 import { typeDefs, resolvers } from '../apollo-server/initGraphQL';
 
 // This client is used to prefetch data server side (necessary for SSR)
@@ -15,10 +15,14 @@ export const createClient = async (context: ResolverContext | null, foreign = fa
     links.push(createErrorLink());
     links.push(createHttpLink(fmCrosspostBaseUrlSetting.get() ?? "/"));
   } else if (context) {
+    links.push(createErrorLink());
     const schema = makeExecutableSchema({ typeDefs, resolvers });
     // schemaLink will fetch data directly based on the executable schema
     // context here is the resolver context
     links.push(createSchemaLink(schema, context));
+  } else {
+    // eslint-disable-next-line no-console
+    console.error("createClient called with no context");
   }
 
   const client = new ApolloClient({

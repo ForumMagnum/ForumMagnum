@@ -1,14 +1,15 @@
 import React, {useState} from 'react'
-import {AnalyticsContext} from '../../lib/analyticsEvents.tsx'
-import {useCurrentUser} from '../common/withUser.tsx'
-import {gql, NetworkStatus, useQuery} from '@apollo/client'
-import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab.tsx'
+import {AnalyticsContext} from '../../lib/analyticsEvents'
+import {useCurrentUser} from '../common/withUser'
+import {NetworkStatus} from '@apollo/client'
+import { useQuery } from "@/lib/crud/useQuery"
+import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import Loading from "../vulcan-core/Loading";
 import PostsItem from "../posts/PostsItem";
 import LoadMore from "../common/LoadMore";
 import { Typography } from "../common/Typography";
+import { gql } from "@/lib/generated/gql-codegen/index"
 
 const styles = (theme: ThemeType) => ({
   loadMore: {
@@ -30,7 +31,7 @@ const usePostsUserCommentedOn = ({currentUser, limit, filter, sort}: {
     karma?: boolean,
   },
 }) => {
-  const {data, loading, fetchMore, networkStatus} = useQuery(gql`
+  const {data, loading, fetchMore, networkStatus} = useQuery(gql(`
       query getPostsUserCommentedOn($limit: Int, $filter: PostReviewFilter, $sort: PostReviewSort) {
         PostsUserCommentedOn(limit: $limit, filter: $filter, sort: $sort) {
           posts {
@@ -38,8 +39,7 @@ const usePostsUserCommentedOn = ({currentUser, limit, filter, sort}: {
           }
         }
       }
-      ${fragmentTextForQuery('PostsListWithVotes')}
-    `,
+    `),
     {
       skip: !currentUser,
       variables: {

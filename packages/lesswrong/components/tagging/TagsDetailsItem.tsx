@@ -4,16 +4,37 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link, QueryLink } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { EditTagForm } from './EditTagPage';
-import { useMulti } from '../../lib/crud/withMulti';
 import { useLocation } from '../../lib/routeUtil';
 import classNames from 'classnames'
-import { useSingle } from '@/lib/crud/withSingle';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import LinkCard from "../common/LinkCard";
 import TagPreviewDescription from "./TagPreviewDescription";
 import TagSmallPostLink from "./TagSmallPostLink";
 import Loading from "../vulcan-core/Loading";
 import TagFlagItem from "./TagFlagItem";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const TagRelFragmentMultiQuery = gql(`
+  query multiTagRelTagsDetailsItemQuery($selector: TagRelSelector, $limit: Int, $enableTotal: Boolean) {
+    tagRels(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagRelFragment
+      }
+      totalCount
+    }
+  }
+`);
+
+const TagEditFragmentQuery = gql(`
+  query TagsDetailsItem($documentId: String) {
+    tag(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...TagEditFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -96,23 +117,23 @@ const TagsDetailsItem = ({ tag, classes, showFlags = false, flagId, collapse = f
   const [editing, setEditing] = useState(false)
   const { query } = useLocation();
 
-  const { document: editableTag } = useSingle({
-    documentId: tag._id,
-    collectionName: 'Tags',
-    fragmentName: 'TagEditFragment',
+  const { data } = useQuery(TagEditFragmentQuery, {
+    variables: { documentId: tag._id },
     skip: !editing,
   });
+  const editableTag = data?.tag?.result;
 
-  const { results: tagRels, loading } = useMulti({
-    skip: !(tag._id) || showFlags,
-    terms: {
-      view: "postsWithTag",
-      tagId: tag._id,
+  const { data: dataTagRels, loading } = useQuery(TagRelFragmentMultiQuery, {
+    variables: {
+      selector: { postsWithTag: { tagId: tag._id } },
+      limit: 3,
+      enableTotal: false,
     },
-    collectionName: "TagRels",
-    fragmentName: "TagRelFragment",
-    limit: 3,
+    skip: !(tag._id) || showFlags,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const tagRels = dataTagRels?.tagRels?.results;
 
   const editTagForm = (
     editableTag

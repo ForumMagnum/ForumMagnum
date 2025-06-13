@@ -1,10 +1,9 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments'; 
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from '@/lib/generated/gql-codegen';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
-import { useMulti } from '@/lib/crud/withMulti';
 import groupBy from 'lodash/groupBy';
 import { getCloudinaryThumbnail, PostWithArtGrid } from '../posts/PostsPage/BestOfLessWrong/PostWithArtGrid';
 import { defineStyles, useStyles } from '../hooks/useStyles'; 
@@ -14,6 +13,17 @@ import { useCurrentUser } from '../common/withUser';
 import GenerateImagesButton from './GenerateImagesButton';
 import { useLocation } from '@/lib/routeUtil';
 import Loading from "../vulcan-core/Loading";
+
+const ReviewWinnerArtImagesMultiQuery = gql(`
+  query multiReviewWinnerArtBestOfLessWrongAdminQuery($selector: ReviewWinnerArtSelector, $limit: Int, $enableTotal: Boolean) {
+    reviewWinnerArts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ReviewWinnerArtImages
+      }
+      totalCount
+    }
+  }
+`);
 
 const previewWidth = 300;
 
@@ -121,29 +131,29 @@ export const BestOfLessWrongAdmin = () => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
-  const { data, loading: reviewWinnersLoading } = useQuery(gql`
-    query GetAllReviewWinners {
+  const { data, loading: reviewWinnersLoading } = useQuery(gql(`
+    query BestOfLessWrongAdmin {
       GetAllReviewWinners {
         ...PostsTopItemInfo
       }
     }
-    ${fragmentTextForQuery('PostsTopItemInfo')}
-  `);
-  const reviewWinners: PostsTopItemInfo[] = data?.GetAllReviewWinners ?? [];
+  `));
+  const reviewWinners = data?.GetAllReviewWinners ?? [];
   const reviewWinnersWithoutArt = reviewWinners.filter((reviewWinner: PostsTopItemInfo) => !reviewWinner.reviewWinner?.reviewWinnerArt);
 
   const { params: { year } } = useLocation()
 
-  const { results: images, loading: imagesLoading, refetch: refetchImages } = useMulti({
-    collectionName: 'ReviewWinnerArts',
-    fragmentName: 'ReviewWinnerArtImages',
-    terms: {
-      view: 'allForYear',
-      year: parseInt(year),
+  const { data: dataReviewWinnerArtImages, loading: imagesLoading, refetch: refetchImages } = useQuery(ReviewWinnerArtImagesMultiQuery, {
+    variables: {
+      selector: { allForYear: { year: parseInt(year) } },
       limit: 5000,
+      enableTotal: false,
     },
     skip: !year || !userIsAdmin(currentUser),
+    notifyOnNetworkStatusChange: true,
   });
+
+  const images = dataReviewWinnerArtImages?.reviewWinnerArts?.results;
   const groupedImages = groupBy(images, (image) => image.postId);
   
   if (!userIsAdmin(currentUser)) {

@@ -6,11 +6,23 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { isFriendlyUI } from '@/themes/forumTheme';
-import { useMulti } from '@/lib/crud/withMulti';
 import SingleColumnSection from "../common/SingleColumnSection";
 import CompareRevisions from "../revisions/CompareRevisions";
 import RevisionComparisonNotice from "../revisions/RevisionComparisonNotice";
 import LoadingOrErrorPage from "../common/LoadingOrErrorPage";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const RevisionHistoryEntryMultiQuery = gql(`
+  query multiRevisionTagCompareRevisionsQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
+    revisions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...RevisionHistoryEntry
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = defineStyles('TagCompareRevisions', (theme) => ({
   title: {
@@ -32,16 +44,17 @@ const TagCompareRevisions = () => {
   const { tag, loading: loadingTag, error: tagError } = useTagBySlug(slug, "TagFragment");
   
   // Load the after- revision
-  const { results: revisionResults, loading: loadingRevision, error: revisionError } = useMulti({
-    collectionName: "Revisions",
-    fragmentName: "RevisionHistoryEntry",
-    terms: {
-      view: "revisionByVersionNumber",
-      documentId: tag?._id,
-      version: versionAfter,
+  const { data, error: revisionError, loading: loadingRevision } = useQuery(RevisionHistoryEntryMultiQuery, {
+    variables: {
+      selector: { revisionByVersionNumber: { documentId: tag?._id, version: versionAfter } },
+      limit: 10,
+      enableTotal: false,
     },
     skip: !tag || !versionAfter,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const revisionResults = data?.revisions?.results;
   
   if (!tag) {
     return <LoadingOrErrorPage loading={loadingTag} error={tagError} />

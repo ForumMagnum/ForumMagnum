@@ -1,7 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { useMulti } from '../../lib/crud/withMulti';
 import * as _ from 'underscore';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { CONTENT_LIMIT, DEFAULT_BIO_WORDCOUNT, MAX_BIO_WORDCOUNT } from './UsersReviewInfoCard';
@@ -20,6 +19,19 @@ import ModeratorMessageCount from "./ModeratorMessageCount";
 import UserReviewMetadata from "./ModeratorUserInfo/UserReviewMetadata";
 import ModeratorActions from "./ModeratorActions";
 import NewUserDMSummary from "./ModeratorUserInfo/NewUserDMSummary";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const CommentsListWithParentMetadataMultiQuery = gql(`
+  query multiCommentSunshineNewUsersInfoQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsListWithParentMetadata
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -107,13 +119,17 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
 
   const { posts = [], loading: postsLoading } = usePublishedPosts(user._id, CONTENT_LIMIT);
 
-  const { results: comments = [], loading: commentsLoading } = useMulti({
-    terms:{view:"sunshineNewUsersComments", userId: user._id},
-    collectionName: "Comments",
-    fragmentName: 'CommentsListWithParentMetadata',
+  const { data, loading: commentsLoading } = useQuery(CommentsListWithParentMetadataMultiQuery, {
+    variables: {
+      selector: { sunshineNewUsersComments: { userId: user._id } },
+      limit: CONTENT_LIMIT,
+      enableTotal: false,
+    },
     fetchPolicy: 'cache-and-network',
-    limit: CONTENT_LIMIT
+    notifyOnNetworkStatusChange: true,
   });
+
+  const comments = data?.comments?.results ?? [];
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
   const bioHtml = truncate(user.htmlBio, bioWordcount, "words")
   

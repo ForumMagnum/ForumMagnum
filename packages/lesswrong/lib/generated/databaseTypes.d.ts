@@ -323,7 +323,7 @@ interface DbCurationNotice extends DbObject {
   createdAt: Date
   deleted: boolean
   legacyData: any | null
-  postId: string | null
+  postId: string
   userId: string
 }
 

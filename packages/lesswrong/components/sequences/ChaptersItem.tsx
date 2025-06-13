@@ -1,7 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { useSingle } from '@/lib/crud/withSingle';
 import ChaptersEditForm from "./ChaptersEditForm";
 import ChapterTitle from "./ChapterTitle";
 import SectionFooter from "../common/SectionFooter";
@@ -9,6 +8,18 @@ import SectionButton from "../common/SectionButton";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import PostsItem from "../posts/PostsItem";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const ChaptersEditQuery = gql(`
+  query ChaptersItem($documentId: String) {
+    chapter(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...ChaptersEdit
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   description: {
@@ -39,12 +50,11 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
 }) => {
   const [edit,setEdit] = useState(false);
 
-  const { document: editableChapter } = useSingle({
-    collectionName: 'Chapters',
-    fragmentName: 'ChaptersEdit',
-    documentId: chapter._id,
+  const { data } = useQuery(ChaptersEditQuery, {
+    variables: { documentId: chapter._id },
     skip: !canEdit,
   });
+  const editableChapter = data?.chapter?.result;
 
   const showEdit = useCallback(() => {
     setEdit(true);

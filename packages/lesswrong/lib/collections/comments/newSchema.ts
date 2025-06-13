@@ -1,6 +1,7 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { documentIsNotDeleted, userIsAdminOrMod, userOwns } from "../../vulcan-users/permissions";
 import {
+  accessFilterMultiple,
   arrayOfForeignKeysOnCreate,
   generateIdResolverMulti,
   generateIdResolverSingle,
@@ -17,6 +18,7 @@ import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
 import { customBaseScoreReadAccess } from "./voting";
+import { CommentsViews } from "./views";
 
 function isCommentOnPost(data: Partial<DbComment> | CreateCommentDataInput | UpdateCommentDataInput) {
   return "postId" in data;
@@ -282,8 +284,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
-      inputType: "String",
+      outputType: "TagCommentType!",
+      inputType: "TagCommentType",
       canRead: ["guests"],
       canCreate: ["members"],
       validation: {
@@ -493,15 +495,16 @@ const schema = {
   },
   latestChildren: {
     graphql: {
-      outputType: "[Comment]",
+      outputType: "[Comment!]!",
       canRead: ["guests"],
       resolver: async (comment, args, context) => {
-        const { Comments } = context;
-        const params = viewTermsToQuery("Comments", {
+        const { currentUser, Comments } = context;
+        const params = viewTermsToQuery(CommentsViews, {
           view: "shortformLatestChildren",
           topLevelCommentId: comment._id,
         });
-        return await Comments.find(params.selector, params.options).fetch();
+        const comments = await Comments.find(params.selector, params.options).fetch();
+        return await accessFilterMultiple(currentUser, "Comments", comments, context);
       },
     },
   },
@@ -1367,7 +1370,7 @@ const schema = {
   currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,
   allVotes: {
     graphql: {
-      outputType: "[Vote]",
+      outputType: "[Vote!]",
       canRead: ["guests"],
       resolver: async (document, args, context) => {
         const { currentUser } = context;

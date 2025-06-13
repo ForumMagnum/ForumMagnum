@@ -1,9 +1,21 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import { unflattenComments } from "../../lib/utils/unflatten";
 import CommentsList from "../comments/CommentsList";
 import Loading from "../vulcan-core/Loading";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const CommentsListMultiQuery = gql(`
+  query multiCommentRepliesToCommentListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsList
+      }
+      totalCount
+    }
+  }
+`);
 
 const RepliesToCommentList = ({ post, parentCommentId, directReplies = false }: {
   post: PostsBase,
@@ -19,11 +31,17 @@ const RepliesToCommentList = ({ post, parentCommentId, directReplies = false }: 
     topLevelCommentId: parentCommentId,
     limit: 500,
   }
-  const { loading, results } = useMulti({
-    terms,
-    collectionName: "Comments",
-    fragmentName: "CommentsList",
+  const { view, limit, ...selectorTerms } = terms;
+  const { data, loading } = useQuery(CommentsListMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: limit ?? 10,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.comments?.results;
   
   if (loading || !results)
     return <Loading/>

@@ -1,5 +1,4 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
@@ -8,6 +7,19 @@ import SunshineListCount from "./SunshineListCount";
 import SunshineListTitle from "./SunshineListTitle";
 import SunshineNewTagsItem from "./SunshineNewTagsItem";
 import LoadMore from "../common/LoadMore";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const SunshineTagFragmentMultiQuery = gql(`
+  query multiTagSunshineNewTagsListQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SunshineTagFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -16,12 +28,18 @@ const styles = (theme: ThemeType) => ({
 })
 
 const SunshineNewTagsList = ({ classes }: {classes: ClassesType<typeof styles>}) => {
-  const { results, totalCount, loadMoreProps } = useMulti({
-    terms: {view:"unreviewedTags", limit: 30 },
-    collectionName: "Tags",
-    fragmentName: "SunshineTagFragment",
-    enableTotal: true, itemsPerPage: 30,
+  const { data, loadMoreProps } = useQueryWithLoadMore(SunshineTagFragmentMultiQuery, {
+    variables: {
+      selector: { unreviewedTags: {} },
+      limit: 30,
+      enableTotal: true,
+    },
+    itemsPerPage: 30,
   });
+
+  const results = data?.tags?.results.filter(tag => tag.needsReview);
+
+  const totalCount = data?.tags?.totalCount ?? 0;
   const currentUser = useCurrentUser();
   if (results && results.length && userCanDo(currentUser, "posts.moderate.all")) {
     return (

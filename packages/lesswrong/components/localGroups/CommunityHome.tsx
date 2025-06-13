@@ -9,7 +9,6 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions'
 import LibraryAddIcon from '@/lib/vendor/@material-ui/icons/src/LibraryAdd';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { useGoogleMaps } from '../form-components/LocationFormComponent';
 import { WithMessagesFunctions } from '../common/FlashMessages';
@@ -26,6 +25,18 @@ import GroupFormLink from "./GroupFormLink";
 import SectionFooter from "../common/SectionFooter";
 import { Typography } from "../common/Typography";
 import SectionButton from "../common/SectionButton";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const UsersProfileUpdateMutation = gql(`
+  mutation updateUserCommunityHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {
+    updateUser(selector: $selector, data: $data) {
+      data {
+        ...UsersProfile
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   link: {
@@ -57,10 +68,7 @@ const CommunityHome = ({classes}: {
   const { openDialog } = useDialog();
   const { query } = useLocation();
   
-  const { mutate: updateUser } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersProfile',
-  });
+  const [updateUser] = useMutation(UsersProfileUpdateMutation);
   
   const isEAForum = forumTypeSetting.get() === 'EAForum';
   
@@ -86,10 +94,12 @@ const CommunityHome = ({classes}: {
         if (results?.length) {
           const location = pickBestReverseGeocodingResult(results)
           void updateUser({
-            selector: {_id: currentUser._id},
-            data: {
-              location: location?.formatted_address,
-              googleLocation: location
+            variables: {
+              selector: { _id: currentUser._id },
+              data: {
+                location: location?.formatted_address,
+                googleLocation: location
+              }
             }
           })
         }
@@ -141,7 +151,12 @@ const CommunityHome = ({classes}: {
   const canCreateGroups = currentUser && (!isEAForum || isAdmin);
 
   const render = () => {
-    const filters = query?.filters || [];
+    const filters: string[] = query.filters
+      ? Array.isArray(query.filters)
+        ? query.filters
+        : [query.filters]
+      : [];
+
     const eventsListTerms = currentUserLocation.known ? {
       view: 'nearbyEvents',
       lat: currentUserLocation.lat,
@@ -159,20 +174,6 @@ const CommunityHome = ({classes}: {
       view: 'globalEvents',
       limit: 10
     } as const;
-
-    const onlineGroupsListTerms: LocalgroupsViewTerms = {
-      view: 'online',
-      limit: 5,
-      filters: filters
-    };
-
-    const groupsListTerms: LocalgroupsViewTerms = {
-      view: 'nearby',
-      lat: currentUserLocation.lat,
-      lng: currentUserLocation.lng,
-      limit: 4,
-      filters: filters,
-    };
 
     const mapEventTerms: PostsViewTerms = {
       view: 'events',
@@ -250,7 +251,7 @@ const CommunityHome = ({classes}: {
                 {canCreateGroups && <GroupFormLink isOnline={true} />}
               </SectionTitle>
               <AnalyticsContext listContext={"communityGroups"}>
-                <LocalGroupsList terms={onlineGroupsListTerms}/>
+                <LocalGroupsList view='online' terms={{ filters }} limit={5} />
               </AnalyticsContext>
             </SingleColumnSection>
             <SingleColumnSection>
@@ -259,8 +260,15 @@ const CommunityHome = ({classes}: {
               </SectionTitle>
               { currentUserLocation.loading
                 ? <Loading />
-                : <LocalGroupsList terms={groupsListTerms}>
-                      <Link to={"/allGroups"}>View All Groups</Link>
+                : <LocalGroupsList view='nearby'
+                    terms={{
+                      lat: currentUserLocation.lat,
+                      lng: currentUserLocation.lng,
+                      filters,
+                    }}
+                    limit={4}
+                  >
+                    <Link to={"/allGroups"}>View All Groups</Link>
                   </LocalGroupsList>
               }
             </SingleColumnSection>

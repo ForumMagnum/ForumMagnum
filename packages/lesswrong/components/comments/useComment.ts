@@ -1,5 +1,17 @@
-import { useMulti } from '../../lib/crud/withMulti';
 import { isValidBase36Id } from '../../lib/utils/base36id';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const CommentsListMultiQuery = gql(`
+  query multiCommentuseCommentQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsList
+      }
+      totalCount
+    }
+  }
+`);
 
 export const useCommentByLegacyId = ({ legacyId, ssr=true }: { legacyId: string, ssr?: boolean }): {
   comment: CommentsList|null,
@@ -8,19 +20,18 @@ export const useCommentByLegacyId = ({ legacyId, ssr=true }: { legacyId: string,
 }=> {
   const isValidId = isValidBase36Id(legacyId);
   
-  const { results, loading, error } = useMulti({
-    terms: {
-      view: "legacyIdComment",
-      legacyId: legacyId,
+  const { data, error, loading } = useQuery(CommentsListMultiQuery, {
+    variables: {
+      selector: { legacyIdComment: { legacyId: legacyId } },
+      limit: 1,
+      enableTotal: false,
     },
-    
     skip: !isValidId,
-    collectionName: "Comments",
-    fragmentName: 'CommentsList',
-    limit: 1,
-    enableTotal: false,
+    notifyOnNetworkStatusChange: true,
     ssr,
   });
+
+  const results = data?.comments?.results;
   
   if (!isValidId) {
     return {

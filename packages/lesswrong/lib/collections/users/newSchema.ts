@@ -732,7 +732,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
+      outputType: "ReactPaletteStyle",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       validation: {
@@ -2616,6 +2616,7 @@ const schema = {
       outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
+      canUpdate: ["admins"],
       validation: {
         optional: true,
       },
@@ -3224,7 +3225,7 @@ const schema = {
   },
   posts: {
     graphql: {
-      outputType: "[Post]",
+      outputType: "[Post!]",
       canRead: ["guests"],
       arguments: "limit: Int = 5",
       resolver: async (user, args: { limit: number }, context) => {
@@ -3878,7 +3879,7 @@ const schema = {
   },
   moderatorActions: {
     graphql: {
-      outputType: "[ModeratorAction]",
+      outputType: "[ModeratorAction!]",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (doc, args, context) => {
         const { ModeratorActions, loaders } = context;
@@ -3893,7 +3894,7 @@ const schema = {
       type: "TEXT",
     },
     graphql: {
-      outputType: "String",
+      outputType: "SubforumPreferredLayout",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"], // only editable by changing the setting from the subforum page
       canCreate: ["members", "admins"],
@@ -4188,7 +4189,7 @@ const schema = {
     graphql: {
       outputType: "Boolean",
       canRead: [userOwns, "admins"],
-      canUpdate: ["admins"],
+      canUpdate: [userOwns, "admins"],
       canCreate: ["admins"],
       validation: {
         optional: true,

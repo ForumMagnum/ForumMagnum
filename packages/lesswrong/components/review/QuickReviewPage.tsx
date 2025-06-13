@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useMulti } from '../../lib/crud/withMulti';
 import { getReviewPhase, REVIEW_YEAR, ReviewYear } from '../../lib/reviewUtils';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import sortBy from 'lodash/sortBy';
@@ -10,6 +9,19 @@ import PostsItem from "../posts/PostsItem";
 import SectionFooter from "../common/SectionFooter";
 import Loading from "../vulcan-core/Loading";
 import PostInteractionStripe from "./PostInteractionStripe";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const PostsReviewVotingListMultiQuery = gql(`
+  query multiPostQuickReviewPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PostsReviewVotingList
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: { 
@@ -51,20 +63,19 @@ export const QuickReviewPage = ({classes, reviewYear}: {
   const [truncatePosts, setTruncatePosts] = useState<boolean>(true)
   const currentUser = useCurrentUser()
 
-  const { results: posts, loadMore, loading, totalCount } = useMulti({
-    terms: {
-      view: "reviewQuickPage",
-      before: `${reviewYear+1}-01-01`,
-      after: `${reviewYear}-01-01`,
+  const { data, loading, loadMoreProps: { loadMore } } = useQueryWithLoadMore(PostsReviewVotingListMultiQuery, {
+    variables: {
+      selector: { reviewQuickPage: { before: `${reviewYear + 1}-01-01`, after: `${reviewYear}-01-01` } },
       limit: 60,
+      enableTotal: true,
     },
-    collectionName: "Posts",
-    fragmentName: 'PostsReviewVotingList',
+    skip: !reviewYear,
     fetchPolicy: 'cache-and-network',
-    enableTotal: true,
     itemsPerPage: 1000,
-    skip: !reviewYear
   });
+
+  const posts = data?.posts?.results;
+  const totalCount = data?.posts?.totalCount;
 
   function comparePosts(post1: PostsReviewVotingList, post2: PostsReviewVotingList) {
     const post1QuadraticScore = post1.currentUserReviewVote?.quadraticScore ?? 0
@@ -98,7 +109,7 @@ export const QuickReviewPage = ({classes, reviewYear}: {
     if (truncatePosts) {
       setTruncatePosts(false)
     } else {
-      loadMore()
+      void loadMore()
     }
   }
 

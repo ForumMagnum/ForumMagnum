@@ -1,5 +1,3 @@
-import { useCreate } from '@/lib/crud/withCreate';
-import { useMulti } from '@/lib/crud/withMulti';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import React, { useState } from 'react';
@@ -8,6 +6,30 @@ import { useCurrentUser } from '../../common/withUser';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import LWTooltip from "../../common/LWTooltip";
 import LoginPopupButton from "../../users/LoginPopupButton";
+import { useMutation } from "@apollo/client";
+import { useQuery } from '@/lib/crud/useQuery';
+import { gql } from "@/lib/generated/gql-codegen";
+
+const PetrovDayActionInfoMultiQuery = gql(`
+  query multiPetrovDayActionOptIntoPetrovButtonQuery($selector: PetrovDayActionSelector, $limit: Int, $enableTotal: Boolean) {
+    petrovDayActions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...PetrovDayActionInfo
+      }
+      totalCount
+    }
+  }
+`);
+
+const PetrovDayActionInfoMutation = gql(`
+  mutation createPetrovDayActionOptIntoPetrovButton($data: CreatePetrovDayActionDataInput!) {
+    createPetrovDayAction(data: $data) {
+      data {
+        ...PetrovDayActionInfo
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -148,26 +170,23 @@ const OptIntoPetrovButton = ({classes }: {
   const [error, setError] = useState('')
   const [displayOptedIn, setDisplayOptedIn] = useState(false)
 
-  const { results: petrovDayActions, refetch: refetchPetrovDayActions } = useMulti({
-    collectionName: 'PetrovDayActions',
-    fragmentName: 'PetrovDayActionInfo',
-    terms: {
-      view: 'getAction',
-      userId: currentUser?._id,
-      actionType: 'optIn',
-      limit: 1
+  const { data, refetch: refetchPetrovDayActions } = useQuery(PetrovDayActionInfoMultiQuery, {
+    variables: {
+      selector: { getAction: { userId: currentUser?._id, actionType: 'optIn' } },
+      limit: 1,
+      enableTotal: false,
     },
-    skip: !currentUser
-  })
+    skip: !currentUser,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const petrovDayActions = data?.petrovDayActions?.results;
   const currentUserOptedIn = !!petrovDayActions?.length
 
   const optedIn = currentUserOptedIn || displayOptedIn
   const updateCurrentUser = useUpdateCurrentUser();
 
-  const { create: createPetrovDayAction } = useCreate({
-    collectionName: 'PetrovDayActions',
-    fragmentName: 'PetrovDayActionInfo'
-  })
+  const [createPetrovDayAction] = useMutation(PetrovDayActionInfoMutation);
   
   const pressButton = () => {
     setPressed(true)
@@ -187,9 +206,11 @@ const OptIntoPetrovButton = ({classes }: {
     }
     if (confirmationCode === currentUser.displayName) {
       void createPetrovDayAction({  
-        data: {
-          userId: currentUser._id,
-          actionType: 'optIn',
+        variables: {
+          data: {
+            userId: currentUser._id,
+            actionType: 'optIn',
+          }
         }
       }) 
       setDisplayOptedIn(true)

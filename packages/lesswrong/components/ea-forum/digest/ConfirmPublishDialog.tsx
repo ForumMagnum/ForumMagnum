@@ -2,9 +2,20 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { DialogActions } from '@/components/widgets/DialogActions';
 import { DialogContent } from '../../widgets/DialogContent';
-import { useUpdate } from '../../../lib/crud/withUpdate';
 import LWDialog from "../../common/LWDialog";
 import EAButton from "../EAButton";
+import { useMutation } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const DigestsMinimumInfoUpdateMutation = gql(`
+  mutation updateDigestConfirmPublishDialog($selector: SelectorInput!, $data: UpdateDigestDataInput!) {
+    updateDigest(selector: $selector, data: $data) {
+      data {
+        ...DigestsMinimumInfo
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -27,20 +38,19 @@ const ConfirmPublishDialog = ({ digest, onClose, classes }: {
   onClose?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { mutate: updateDigest } = useUpdate({
-    collectionName: 'Digests',
-    fragmentName: 'DigestsMinimumInfo',
-  })
+  const [updateDigest] = useMutation(DigestsMinimumInfoUpdateMutation);
 
   const handlePublish = () => {
     // this dialog should only appear if the digest has never been published,
     // so we need to set its endDate as well
     const now = new Date()
     void updateDigest({
-      selector: {_id: digest._id},
-      data: {
-        publishedDate: now,
-        endDate: now
+      variables: {
+        selector: { _id: digest._id },
+        data: {
+          publishedDate: now,
+          endDate: now
+        }
       }
     })
     onClose?.()

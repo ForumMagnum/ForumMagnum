@@ -1,15 +1,26 @@
 import React from 'react';
-import { useSingle } from '../../lib/crud/withSingle';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { POST_PREVIEW_WIDTH } from '../posts/PostsPreviewTooltip/helpers';
 import { notificationLoadingStyles } from '../posts/PostsPreviewTooltip/PostsPreviewLoading';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
 import PostsTitle from "../posts/PostsTitle";
 import ReviewPostButton from "./ReviewPostButton";
 import LWTooltip from "../common/LWTooltip";
 import ContentStyles from "../common/ContentStyles";
+
+const PostsListQuery = gql(`
+  query PostNominatedNotification($documentId: String) {
+    post(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...PostsList
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -26,12 +37,12 @@ const styles = (theme: ThemeType) => ({
 })
 
 const PostNominatedNotification = ({classes, postId}: {classes: ClassesType<typeof styles>, postId: string}) => {
-  const { document: post, loading } = useSingle({
-    collectionName: "Posts",
-    fragmentName: 'PostsList',
-    fetchPolicy: 'cache-then-network' as any, //TODO
-    documentId: postId
+  const { loading, data } = useQuery(PostsListQuery, {
+    variables: { documentId: postId },
+    fetchPolicy: 'cache-first',
   });
+  
+  const post = data?.post?.result;
 
   if (loading) return <div className={classes.loading}>
     <Loading/>

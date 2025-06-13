@@ -1,14 +1,35 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {userNeedsAFNonMemberWarning} from "./users/helpers";
-import {commentSuggestForAlignment} from "./comments/helpers";
-import {postSuggestForAlignment} from "./posts/helpers";
-import {OpenDialogContextType} from "../../components/common/withDialog";
+import {OpenDialogContextType, useDialog} from "../../components/common/withDialog";
 import AFNonMemberInitialPopup from '@/components/alignment-forum/AFNonMemberInitialPopup';
 import AFNonMemberSuccessPopup from '@/components/alignment-forum/AFNonMemberSuccessPopup';
+import { useMutation } from '@apollo/client';
+import { gql } from '@/lib/generated/gql-codegen';
+import uniq from 'lodash/uniq';
+import { useCurrentUser } from '@/components/common/withUser';
 
+const SuggestAlignmentCommentUpdateMutation = gql(`
+  mutation updateCommentCommentsNewForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
+    updateComment(selector: $selector, data: $data) {
+      data {
+        ...SuggestAlignmentComment
+      }
+    }
+  }
+`);
+
+const SuggestAlignmentPostUpdateMutation = gql(`
+  mutation updatePostPostsEditForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {
+    updatePost(selector: $selector, data: $data) {
+      data {
+        ...SuggestAlignmentPost
+      }
+    }
+  }
+`);
 
 const isComment = (document: PostsBase | CommentsList): document is CommentsList => {
-  if (document.hasOwnProperty("answer")) return true //only comments can be answers
+  if ('answer' in document) return true //only comments can be answers
   return false
 }
 
@@ -23,34 +44,45 @@ export const afNonMemberDisplayInitialPopup = (currentUser: UsersCurrent|null, o
   return false;
 }
 
-export const afNonMemberSuccessHandling = ({currentUser, document, openDialog, updateDocument}: {
-  currentUser: UsersCurrent|null,
-  document: PostsBase | CommentsList,
-  openDialog: OpenDialogContextType["openDialog"],
-  updateDocument: WithUpdateFunction<"Comments" | "Posts">
-}) => {
-  //displays explanation of what happens upon non-member submission and submits to queue
-
-  if (!!currentUser && userNeedsAFNonMemberWarning(currentUser, false)) {
-    if (isComment(document)) {
-      void commentSuggestForAlignment({currentUser, comment: document, updateComment: updateDocument})
-      openDialog({
-        name: "AFNonMemberSuccessPopup",
-        contents: ({onClose}) => <AFNonMemberSuccessPopup
-          _id={document._id}
-          postId={document.postId ?? undefined}
-          onClose={onClose}
-        />,
-      })
-    } else {
-      void postSuggestForAlignment({currentUser, post: document, updatePost: updateDocument})
-      openDialog({
-        name: "AFNonMemberSuccessPopup",
-        contents: ({onClose}) => <AFNonMemberSuccessPopup
-          onClose={onClose}
-          _id={document._id}
-        />,
-      })
+//displays explanation of what happens upon non-member submission and submits to queue
+export const useAfNonMemberSuccessHandling = () => {
+  const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
+  const [updateComment] = useMutation(SuggestAlignmentCommentUpdateMutation);
+  const [updatePost] = useMutation(SuggestAlignmentPostUpdateMutation);
+  
+  return useCallback((document: PostsBase | CommentsList) => {
+    if (!!currentUser && userNeedsAFNonMemberWarning(currentUser, false)) {
+      if (isComment(document)) {
+        void updateComment({
+          variables: {
+            selector: { _id: document._id},
+            data: {suggestForAlignmentUserIds: uniq([...document.suggestForAlignmentUserIds, currentUser._id])}
+          }
+        });
+        openDialog({
+          name: "AFNonMemberSuccessPopup",
+          contents: ({onClose}) => <AFNonMemberSuccessPopup
+            _id={document._id}
+            postId={document.postId ?? undefined}
+            onClose={onClose}
+          />,
+        })
+      } else {
+        void updatePost({
+          variables: {
+            selector: { _id: document._id },
+            data: { suggestForAlignmentUserIds: uniq([...document.suggestForAlignmentUserIds, currentUser._id]) }
+          }
+        })
+        openDialog({
+          name: "AFNonMemberSuccessPopup",
+          contents: ({onClose}) => <AFNonMemberSuccessPopup
+            onClose={onClose}
+            _id={document._id}
+          />,
+        })
+      }
     }
-  }
+  }, [currentUser, openDialog, updateComment, updatePost]);
 }

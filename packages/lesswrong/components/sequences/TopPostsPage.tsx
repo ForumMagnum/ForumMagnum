@@ -5,7 +5,8 @@ import { useLocation } from '../../lib/routeUtil';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from '@/lib/generated/gql-codegen';
 import classNames from 'classnames';
 import range from 'lodash/range';
 import { useCurrentUser } from '../common/withUser';
@@ -16,7 +17,6 @@ import { getSpotlightUrl } from '@/lib/collections/spotlights/helpers';
 import { CoordinateInfo, ReviewYearGroupInfo, ReviewSectionInfo, reviewWinnerYearGroupsInfo, reviewWinnerSectionsInfo } from '@/lib/publicSettings';
 import { ReviewYear, ReviewWinnerCategory, reviewWinnerCategories, BEST_OF_LESSWRONG_PUBLISH_YEAR, PublishedReviewYear, publishedReviewYears } from '@/lib/reviewUtils';
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import SectionTitle from "../common/SectionTitle";
 import HeadTags from "../common/HeadTags";
 import ContentStyles from "../common/ContentStyles";
@@ -66,7 +66,7 @@ interface PostGridCellContentsProps extends Omit<PostGridContentsProps, 'postsIn
 }
 
 interface GetSplashArtUrlArgs {
-  reviewWinnerArt: ReviewWinnerTopPostsPage_reviewWinnerArt;
+  reviewWinnerArt: NonNullable<ReviewWinnerTopPostsPage['reviewWinnerArt']>;
   leftBookOffset: number;
   dpr: Dpr;
 }
@@ -597,7 +597,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-function sortReviewWinners(reviewWinners: GetAllReviewWinnersQueryResult) {
+function sortReviewWinners<T extends { reviewWinner: { curatedOrder: number | null, reviewRanking: number } | null }>(reviewWinners: T[]) {
   const sortedReviewWinners = [...reviewWinners];
   return sortedReviewWinners.sort((a, b) => {
     const aCuratedOrder = a.reviewWinner?.curatedOrder ?? Number.MAX_SAFE_INTEGER
@@ -610,7 +610,7 @@ function sortReviewWinners(reviewWinners: GetAllReviewWinnersQueryResult) {
     }
   
     // Otherwise sort by finalReviewVoteScoreHighKarma in descending order
-    return a.reviewWinner.reviewRanking - b.reviewWinner.reviewRanking;
+    return (a.reviewWinner?.reviewRanking ?? 0) - (b.reviewWinner?.reviewRanking ?? 0);
   });
 }
 
@@ -732,16 +732,15 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     }
   };
 
-  const { data, loading } = useQuery(gql`
+  const { data, loading } = useQuery(gql(`
     query GetAllReviewWinners {
       GetAllReviewWinners {
         ...PostsTopItemInfo
       }
     }
-    ${fragmentTextForQuery('PostsTopItemInfo')}
-  `);
+  `));
 
-  const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...data?.GetAllReviewWinners ?? []];
+  const reviewWinnersWithPosts = [...data?.GetAllReviewWinners ?? []];
   const sortedReviewWinners = sortReviewWinners(reviewWinnersWithPosts);
 
   function getPostsImageGrid(posts: PostsTopItemInfo[], img: string, coords: CoordinateInfo, header: string, id: string, gridPosition: number, expandedNotYetMoved: boolean) {

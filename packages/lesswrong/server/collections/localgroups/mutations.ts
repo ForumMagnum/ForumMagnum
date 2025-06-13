@@ -130,16 +130,16 @@ export const updateLocalgroupGqlMutation = makeGqlUpdateMutation('Localgroups', 
 
 
 export const graphqlLocalgroupTypeDefs = gql`
-  input CreateLocalgroupDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateLocalgroupDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateLocalgroupInput {
     data: CreateLocalgroupDataInput!
   }
   
-  input UpdateLocalgroupDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateLocalgroupDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateLocalgroupInput {

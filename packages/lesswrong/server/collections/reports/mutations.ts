@@ -103,16 +103,16 @@ export const updateReportGqlMutation = makeGqlUpdateMutation('Reports', updateRe
 
 
 export const graphqlReportTypeDefs = gql`
-  input CreateReportDataInput {
-    ${getCreatableGraphQLFields(schema)}
+  input CreateReportDataInput ${
+    getCreatableGraphQLFields(schema)
   }
 
   input CreateReportInput {
     data: CreateReportDataInput!
   }
   
-  input UpdateReportDataInput {
-    ${getUpdatableGraphQLFields(schema)}
+  input UpdateReportDataInput ${
+    getUpdatableGraphQLFields(schema)
   }
 
   input UpdateReportInput {

@@ -3,7 +3,6 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Card } from "@/components/widgets/Paper";
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
-import { useMulti } from '../../../lib/crud/withMulti';
 import moment from 'moment';
 import sample from 'lodash/sample';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
@@ -12,6 +11,19 @@ import { HIDE_FEATURED_RESOURCE_COOKIE } from '../../../lib/cookies/cookies';
 import { TooltipSpan } from '../FMTooltip';
 import { Typography } from "../Typography";
 import SimpleDivider from "../../widgets/SimpleDivider";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const FeaturedResourcesFragmentMultiQuery = gql(`
+  query multiFeaturedResourceFeaturedResourceBannerQuery($selector: FeaturedResourceSelector, $limit: Int, $enableTotal: Boolean) {
+    featuredResources(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...FeaturedResourcesFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   card: {
@@ -87,12 +99,17 @@ const FeaturedResourceBanner = ({terms, classes}: {
 }) => {
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_FEATURED_RESOURCE_COOKIE])
   const [resource, setResource] = useState<FeaturedResourcesFragment | undefined>(undefined)
-  const { results, loading } = useMulti({
-    terms,
-    collectionName: 'FeaturedResources',
-    fragmentName: 'FeaturedResourcesFragment',
-    enableTotal: false,
+  const { view } = terms;
+  const { data, loading } = useQuery(FeaturedResourcesFragmentMultiQuery, {
+    variables: {
+      selector: { [view]: {} },
+      limit: 10,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.featuredResources?.results;
   useEffect(() => {
     if (loading || !results?.length) {
       return;

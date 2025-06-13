@@ -1,27 +1,21 @@
-import { throwError } from "@/server/vulcan-lib/errors";
-import { logGroupConstructor, loggerConstructor } from "@/lib/utils/logging";
-import { maxAllowedApiSkip } from "@/lib/instanceSettings";
-import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from "@/lib/vulcan-users/permissions.ts";
-import { asyncFilter } from "@/lib/utils/asyncUtils";
-import { getSqlClientOrThrow } from "../sql/sqlClient";
-import { describeTerms, viewTermsToQuery } from "@/lib/utils/viewUtils";
-import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
-import { captureException } from "@sentry/core";
-import isEqual from "lodash/isEqual";
-import { convertDocumentIdToIdInSelector, CamelCaseify } from "@/lib/vulcan-lib/utils";
-import { getCollectionAccessFilter } from "../permissions/accessFilters";
 import { getMultiResolverName, getSingleResolverName } from "@/lib/crud/utils";
 import { collectionNameToTypeName } from "@/lib/generated/collectionTypeNames";
-import type { Pluralize } from "@/lib/vulcan-lib/pluralize";
-import { print, type FieldNode, type FragmentDefinitionNode, type GraphQLResolveInfo } from "graphql";
+import { maxAllowedApiSkip } from "@/lib/instanceSettings";
+import { asyncFilter } from "@/lib/utils/asyncUtils";
+import { logGroupConstructor, loggerConstructor } from "@/lib/utils/logging";
+import { describeTerms, viewTermsToQuery } from "@/lib/utils/viewUtils";
+import { Pluralize } from "@/lib/vulcan-lib/pluralize";
+import { CamelCaseify, convertDocumentIdToIdInSelector } from "@/lib/vulcan-lib/utils";
+import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from "@/lib/vulcan-users/permissions.ts";
+import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
+import { throwError } from "@/server/vulcan-lib/errors";
+import { captureException } from "@sentry/core";
+import { Kind, print, type FieldNode, type FragmentDefinitionNode, type GraphQLResolveInfo } from "graphql";
+import isEqual from "lodash/isEqual";
+import { getCollectionAccessFilter } from "../permissions/accessFilters";
+import { getSqlClientOrThrow } from "../sql/sqlClient";
+import { CollectionViewSet } from "@/lib/views/collectionViewSet";
 
-export interface DefaultResolverOptions {
-  cacheMaxAge: number
-}
-
-const defaultOptions: DefaultResolverOptions = {
-  cacheMaxAge: 300,
-};
 
 const getFragmentInfo = ({ fieldName, fieldNodes, fragments }: GraphQLResolveInfo, resultFieldName: string, typeName: string) => {
   const query = fieldNodes.find(
@@ -42,20 +36,20 @@ const getFragmentInfo = ({ fieldName, fieldNodes, fragments }: GraphQLResolveInf
   // because because we need to handle the possibility of fields directly selected from the root
   // rather than being nested inside a subfragment.
   const implicitFragment: FragmentDefinitionNode = {
-    kind: 'FragmentDefinition',
+    kind: Kind.FRAGMENT_DEFINITION,
     name: {
-      kind: 'Name',
+      kind: Kind.NAME,
       value: fieldName,
     },
     typeCondition: {
-      kind: 'NamedType',
+      kind: Kind.NAMED_TYPE,
       name: {
-        kind: 'Name',
+        kind: Kind.NAME,
         value: typeName,
       },
     },
     selectionSet: {
-      kind: 'SelectionSet',
+      kind: Kind.SELECTION_SET,
       selections: resultSelections,
     },
   };
@@ -79,11 +73,11 @@ type DefaultMultiResolverHandler<N extends CollectionNameString> = {
 };
 
 export const getDefaultResolvers = <N extends CollectionNameString>(
-  collectionName: N, 
-  collectionOptions?: Partial<DefaultResolverOptions>,
+  collectionName: N,
+  viewSet: CollectionViewSet<N, Record<string, ViewFunction<N>>>,
+  
 ): DefaultSingleResolverHandler<N> & DefaultMultiResolverHandler<N> => {
   type T = ObjectsByCollectionName[N];
-  const resolverOptions = {...defaultOptions, ...collectionOptions};
   const typeName = collectionNameToTypeName[collectionName];
 
   const multiResolver = async (
@@ -92,19 +86,36 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       input?: {
         terms: ViewTermsBase & Record<string, unknown>,
         enableTotal?: boolean,
-        resolverArgs?: Record<string, unknown>
+        resolverArgs?: Record<string, unknown>,
       },
+      selector?: Record<string, Omit<ViewTermsBase, 'view'> & Record<string, unknown>>,
+      limit?: number,
+      offset?: number,
+      enableTotal?: boolean,
       [resolverArgKeys: string]: unknown
     },
     context: ResolverContext,
     info: GraphQLResolveInfo,
-  ) => {
+  ): Promise<{ results: Partial<T>[]; totalCount?: number }> => {
     const collection = context[collectionName] as CollectionBase<N>;
-    const { input } = args ?? { input: {} };
-    const { terms = {}, enableTotal = false, resolverArgs = {} } = input ?? {};
+    const { input, selector, limit, offset, enableTotal } = args ?? { input: {} };
+
+    // We used to handle selector terms just using a generic "terms" object, but now we use a more structured approach
+    // with multiple named views. This translates this new input format into the old one.
+    const [selectorViewName, selectorViewTerms] = Object.entries(selector ?? {})?.[0] ?? [undefined, undefined];
+    const selectorTerms = { view: selectorViewName === 'default' ? undefined : selectorViewName, ...selectorViewTerms } as ViewTermsBase & Record<string, unknown>;
+
+    // Use the legacy input terms if `input` is provided; otherwise use the new selector terms
+    // const { terms = selectorTerms, enableTotal = false } = input ?? {};
+    const terms = input?.terms ?? { ...selectorTerms,
+      limit: selectorTerms.limit ?? limit,
+      offset: selectorTerms.offset ?? offset,
+    };
     const logger = loggerConstructor(`views-${collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
     logger('multi resolver()')
     logger('multi terms', terms)
+
+    const { input: _input, selector: _selector, ...otherQueryVariables } = info.variableValues;
 
     // Terms and resolverArgs are both passed into the `SelectFragmentQuery` in the same place,
     // so if we have any overlapping keys, they need to have the same value or we're probably doing something wrong by having one clobber the other.
@@ -119,19 +130,19 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     // We continue to permit overlapping keys as long as they have the same value because there's a few tag-related pieces of code that do that
     // and it'd be a headache to refactor them right now.  But we probably ought to clean that up at some point.
     const termKeys = Object.keys(terms);
-    const conflictingKeys = Object.keys(resolverArgs).filter(termKey => {
+    const conflictingKeys = Object.keys(otherQueryVariables).filter(termKey => {
       if (!termKeys.includes(termKey)) {
         return false;
       }
 
-      return !isEqual(terms[termKey], resolverArgs[termKey]);
+      return !isEqual(terms[termKey as keyof typeof terms], otherQueryVariables[termKey as keyof typeof otherQueryVariables]);
     });
 
     if (conflictingKeys.length) {
       captureException(`Got a ${collectionName} multi request with conflicting term and resolverArg keys: ${conflictingKeys.join(', ')}`);
       throwError({
         id: 'app.conflicting_term_and_resolver_arg_keys',
-        data: { terms, resolverArgs, collectionName },
+        data: { terms, otherQueryVariables, collectionName },
       });
     }
 
@@ -151,7 +162,8 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
 
     // Get selector and options from terms and perform Mongo query
     // Downcasts terms because there are collection-specific terms but this function isn't collection-specific
-    const parameters = viewTermsToQuery(collectionName, terms, {}, context);
+    // Also downcast the generic to avoid a very expensive but useless type inference that indexes over all view terms by collection
+    const parameters = viewTermsToQuery<CollectionNameString>(viewSet, terms, {}, context);
 
     // get fragment from GraphQL AST
     const fragmentInfo = getFragmentInfo(info, "results", typeName);
@@ -159,12 +171,12 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     let fetchDocs: () => Promise<T[]>;
     if (fragmentInfo) {
       // Make a dynamic require here to avoid our circular dependency lint rule, since really by this point we should be fine
-      const getSqlFragment: typeof import('../../lib/fragments/allFragments').getSqlFragment = require('../../lib/fragments/allFragments').getSqlFragment;
+      const getSqlFragment: typeof import('../../lib/fragments/sqlFragments').getSqlFragment = require('../../lib/fragments/sqlFragments').getSqlFragment;
       const sqlFragment = getSqlFragment(fragmentInfo.fragmentName, fragmentInfo.fragmentText);
       const query = new SelectFragmentQuery(
         sqlFragment,
         currentUser,
-        {...resolverArgs, ...terms},
+        {...otherQueryVariables, ...terms},
         parameters.selector,
         parameters.syntheticFields,
         {
@@ -200,7 +212,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     // prime the cache
     restrictedDocs.forEach((doc: AnyBecauseTodo) => context.loaders[collectionName].prime(doc._id, doc));
 
-    const data: any = { results: restrictedDocs };
+    const data: { results: Partial<T>[]; totalCount?: number } = { results: restrictedDocs };
 
     if (enableTotal) {
       // get total count of documents matching the selector
@@ -218,17 +230,18 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
 
   const singleResolver = async (
     _root: void,
-    {input = {}}: {input: AnyBecauseTodo},
+    { input = {}, selector, allowNull }: { input: AnyBecauseTodo, selector?: SelectorInput, allowNull?: boolean },
     context: ResolverContext,
     info: GraphQLResolveInfo,
   ) => {
     const collection = context[collectionName] as CollectionBase<N>;
-    const {allowNull = false, resolverArgs} = input;
+    const { input: _input, selector: _selector, ...otherQueryVariables } = info.variableValues;
+    allowNull ??= input.allowNull ?? false;
     // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
     // it has none of the methods you would usually associate with objects like `toString`. This causes various problems
     // down the line. See https://stackoverflow.com/questions/56298481/how-to-fix-object-null-prototype-title-product
     // So we copy it here to give it back those methoods
-    const selector = {...(input.selector || {})}
+    const usedSelector = { ...(input.selector ?? selector ?? {}) };
 
     const logger = loggerConstructor(`resolvers-${collectionName.toLowerCase()}`)
     const {logGroupStart, logGroupEnd} = logGroupConstructor(`resolvers-${collectionName.toLowerCase()}`)
@@ -236,17 +249,16 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     logGroupStart(
       `--------------- start \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`
     );
-    logger(`Options: ${JSON.stringify(resolverOptions)}`);
-    logger(`Selector: ${JSON.stringify(selector)}`);
+    logger(`Selector: ${JSON.stringify(usedSelector)}`);
 
-    const { currentUser }: {currentUser: DbUser|null} = context;
+    const { currentUser } = context;
 
     // useSingle allows passing in `_id` as `documentId`
-    if (selector.documentId) {
-      selector._id = selector.documentId;
-      delete selector.documentId;
+    if (usedSelector.documentId) {
+      usedSelector._id = usedSelector.documentId;
+      delete usedSelector.documentId;
     }
-    const documentId = selector._id;
+    const documentId = usedSelector._id;
 
     // get fragment from GraphQL AST
     const fragmentInfo = getFragmentInfo(info, "result", typeName);
@@ -254,13 +266,13 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     let doc: ObjectsByCollectionName[N] | null;
     if (fragmentInfo) {
       // Make a dynamic require here to avoid our circular dependency lint rule, since really by this point we should be fine
-      const getSqlFragment: typeof import('../../lib/fragments/allFragments').getSqlFragment = require('../../lib/fragments/allFragments').getSqlFragment;
+      const getSqlFragment: typeof import('../../lib/fragments/sqlFragments').getSqlFragment = require('../../lib/fragments/sqlFragments').getSqlFragment;
       const sqlFragment = getSqlFragment(fragmentInfo.fragmentName, fragmentInfo.fragmentText);
       const query = new SelectFragmentQuery(
         sqlFragment,
         currentUser,
-        resolverArgs,
-        selector,
+        otherQueryVariables,
+        usedSelector,
         undefined,
         {limit: 1},
       );
@@ -268,7 +280,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       const db = getSqlClientOrThrow();
       doc = await db.oneOrNone(compiledQuery.sql, compiledQuery.args);
     } else {
-      doc = await collection.findOne(convertDocumentIdToIdInSelector(selector));
+      doc = await collection.findOne(convertDocumentIdToIdInSelector(usedSelector));
     }
 
     if (!doc) {

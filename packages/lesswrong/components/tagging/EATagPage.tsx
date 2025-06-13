@@ -1,11 +1,11 @@
 import { useApolloClient } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
 import classNames from 'classnames';
 import React, { FC, Fragment, useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers';
 import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { useMulti } from '../../lib/crud/withMulti';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -23,7 +23,6 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 import DeferRender from "../common/DeferRender";
 import {quickTakesTagsEnabledSetting} from '../../lib/publicSettings'
 import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
-import { useSingle } from "@/lib/crud/withSingle";
 import SectionTitle from "../common/SectionTitle";
 import PostsListSortDropdown from "../posts/PostsListSortDropdown";
 import PostsList2 from "../posts/PostsList2";
@@ -46,6 +45,28 @@ import TagTableOfContents from "./TagTableOfContents";
 import TagVersionHistoryButton from "../editor/TagVersionHistory";
 import ContentStyles from "../common/ContentStyles";
 import CommentsListCondensed from "../common/CommentsListCondensed";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const TagWithFlagsFragmentMultiQuery = gql(`
+  query multiTagEATagPageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
+    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...TagWithFlagsFragment
+      }
+      totalCount
+    }
+  }
+`);
+
+const TagEditFragmentQuery = gql(`
+  query EATagPage($documentId: String) {
+    tag(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...TagEditFragment
+      }
+    }
+  }
+`);
 
 const sidePaddingStyle = (theme: ThemeType) => ({
   paddingLeft: 42,
@@ -223,12 +244,6 @@ const EATagPage = ({classes}: {
   const contributorsLimit = 7;
   const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagPageWithRevisionFragment" : "TagPageFragment", {
     extraVariables: revision ? {
-      version: 'String',
-      contributorsLimit: 'Int',
-    } : {
-      contributorsLimit: 'Int',
-    },
-    extraVariablesValues: revision ? {
       version: revision,
       contributorsLimit,
     } : {
@@ -236,13 +251,12 @@ const EATagPage = ({classes}: {
     },
   });
 
-  const { document: editableTag } = useSingle({
-    documentId: tag?._id,
-    collectionName: 'Tags',
-    fragmentName: 'TagEditFragment',
+  const { data } = useQuery(TagEditFragmentQuery, {
+    variables: { documentId: tag?._id },
     skip: !tag || !editing,
     ssr: false,
   });
+  const editableTag = data?.tag?.result;
   
   const [truncated, setTruncated] = useState(true)
   const [hoveredContributorId, setHoveredContributorId] = useState<string|null>(null);
@@ -255,13 +269,18 @@ const EATagPage = ({classes}: {
     //tagFlagId handled as default case below
   }
 
-  const { results: otherTagsWithNavigation } = useMulti({
-    terms: ["allPages", "myPages"].includes(query.focus) ? multiTerms[query.focus] : {view: "tagsByTagFlag", tagFlagId: query.focus},
-    collectionName: "Tags",
-    fragmentName: 'TagWithFlagsFragment',
-    limit: 1500,
-    skip: !query.flagId
-  })
+  const { view, limit, ...selectorTerms } = ["allPages", "myPages"].includes(query.focus) ? multiTerms[query.focus] : { view: "tagsByTagFlag", tagFlagId: query.focus };
+  const { data: dataTagWithFlags } = useQuery(TagWithFlagsFragmentMultiQuery, {
+    variables: {
+      selector: { [view]: selectorTerms },
+      limit: 1500,
+      enableTotal: false,
+    },
+    skip: !query.flagId,
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const otherTagsWithNavigation = dataTagWithFlags?.tags?.results;
   
   useOnSearchHotkey(() => setTruncated(false));
 
@@ -434,8 +453,8 @@ const EATagPage = ({classes}: {
         </div>: <></>}
         <div className={classNames(classes.wikiSection,classes.centralColumn)}>
           <AnalyticsContext pageSectionContext="wikiSection">
-            { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>
-              You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
+            { revision && tag.description && 'user' in tag.description && <div className={classes.pastRevisionNotice}>
+              You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={tag.description.user}/>
             </div>}
             {editableTag ? <div>
               {editTagForm}

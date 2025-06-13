@@ -1,6 +1,6 @@
-import { frag } from "@/lib/fragments/fragmentWrapper"
+import { gql } from "@/lib/generated/gql-codegen";
 
-export const SurveyMinimumInfo = () => frag`
+export const SurveyMinimumInfo = gql(`
   fragment SurveyMinimumInfo on Survey {
     _id
     name
@@ -9,4 +9,4 @@ export const SurveyMinimumInfo = () => frag`
     }
     createdAt
   }
-`
+`)

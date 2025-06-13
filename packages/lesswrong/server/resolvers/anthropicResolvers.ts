@@ -17,9 +17,10 @@ import express, { Express } from "express";
 import { captureException } from "@sentry/core";
 import { clientIdMiddleware } from "../clientIdMiddleware";
 import { getContextFromReqAndRes } from "../vulcan-lib/apollo-server/context";
-import { runFragmentMultiQuery, runFragmentSingleQuery } from "../vulcan-lib/query";
+import { runQuery } from "../vulcan-lib/query";
 import { createLlmConversation } from "../collections/llmConversations/mutations";
 import { createLlmMessage } from "../collections/llmMessages/mutations";
+import { gql } from "@/lib/generated/gql-codegen";
 
 interface InitializeConversationArgs {
   newMessage: ClientMessage;
@@ -387,33 +388,59 @@ async function sendMessagesToClaude({ previousMessages, newMessages, conversatio
   });
 }
 
+const draftPostQuery = gql(`
+  query singleDraftPostForLLMQuery($input: SinglePostInput, $version: String) {
+    post(input: $input) {
+      result {
+        ...PostsEditQueryFragment
+      }
+    }
+  }
+`);
+
+const publishedPostQuery = gql(`
+  query singlePublishedPostForLLMQuery($input: SinglePostInput) {
+    post(input: $input) {
+      result {
+        ...PostsPage
+      }
+    }
+  }
+`);
+
+const postsMultiQuery = gql(`
+  query multiPostsForLLMQuery($input: MultiPostInput) {
+    posts(input: $input) {
+      results {
+        ...PostsPage
+      }
+    }
+  }
+`);
+
 async function getPostWithContents({ postId, postContext, context }: GetPostWithContentsArgs): Promise<LlmPost | null> {
   const resolverArgs = postContext === 'post-editor'
     ? { extraVariables: { version: 'String' }, extraVariablesValues: { version: 'draft' } } as const
     : {};
 
-  const fragmentName: FragmentTypesByCollection['Posts'] = postContext === 'post-editor'
-    ? 'PostsEditQueryFragment'
-    : 'PostsPage';
+  const query = postContext === 'post-editor'
+    ? draftPostQuery
+    : publishedPostQuery;
 
-  const post = await runFragmentSingleQuery({
-    collectionName: 'Posts',
-    fragmentName,
-    documentId: postId,
-    context,
-    ...resolverArgs
-  });
+  const { data } = await runQuery(query, {
+    input: { selector: { documentId: postId }, resolverArgs: resolverArgs.extraVariablesValues },
+    ...resolverArgs.extraVariablesValues
+  }, context);
 
-  return post ?? null;
+  return data?.post?.result ?? null;
 }
 
-async function getPostsWithContents(postIds: string[], context: ResolverContext) {
-  return runFragmentMultiQuery({
-    collectionName: 'Posts',
-    fragmentName: 'PostsPage',
-    terms: { postIds },
-    context,
-  });
+async function getPostsWithContents(postIds: string[], context: ResolverContext): Promise<LlmPost[]> {
+  const { data } = await runQuery(postsMultiQuery, {
+    input: { terms: { postIds } }
+  }, context);
+
+  return data?.posts?.results?.filter((post) => !!post) ?? [];
 }
 
 async function getContextMessages({ content, ragMode, currentPost, postContext, context }: GetContextMessageArgs) {

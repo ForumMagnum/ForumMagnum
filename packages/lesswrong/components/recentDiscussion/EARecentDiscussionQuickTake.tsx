@@ -7,6 +7,7 @@ import EARecentDiscussionItem, { EARecentDiscussionItemProps } from "./EARecentD
 import classNames from "classnames";
 import CommentsItem from "../comments/CommentsItem/CommentsItem";
 import CommentsNodeInner from "../comments/CommentsNode";
+import { maybeDate } from "@/lib/utils/dateUtils";
 
 const styles = (_theme: ThemeType) => ({
   quickTakeBody: {
@@ -43,7 +44,7 @@ const getItemProps = (
         postSlug: post.slug,
       }),
       post,
-      timestamp: item.postedAt,
+      timestamp: maybeDate(item.postedAt),
     }
     : {
       // We have a new quick take without comments yet
@@ -58,7 +59,7 @@ const getItemProps = (
         postSlug: post.slug,
       }),
       post,
-      timestamp: item.postedAt,
+      timestamp: maybeDate(item.postedAt),
     };
 }
 

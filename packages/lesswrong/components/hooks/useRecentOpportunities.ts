@@ -1,8 +1,30 @@
 import moment from "moment";
-import { UseMultiResult, useMulti } from "../../lib/crud/withMulti";
 import difference from "lodash/difference";
 import groupBy from "lodash/groupBy";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
+import { NetworkStatus } from "@apollo/client";
+import { gql } from "@/lib/generated/gql-codegen";
+import { useQueryWithLoadMore } from "./useQueryWithLoadMore";
+
+const RecentOpportunitiesQuery = gql(`
+  query RecentOpportunitiesQuery($selector: PostSelector, $limit: Int) {
+    posts(selector: $selector, limit: $limit) {
+      results {
+        ...PostsListWithVotes
+      }
+    }
+  }
+`);
+
+const RecentOpportunitiesWithSequenceQuery = gql(`
+  query RecentOpportunitiesWithSequenceQuery($selector: PostSelector, $limit: Int) {
+    posts(selector: $selector, limit: $limit) {
+      results {
+        ...PostsListWithVotesAndSequence
+      }
+    }
+  }
+`);
 
 const requiredTags: string[] = [
   "z8qFsGt5iXyZiLbjN", // Opportunities to take action
@@ -37,7 +59,11 @@ export const useRecentOpportunities =<
   post?: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList,
   ssr?: boolean,
   skip?: boolean,
-}): UseMultiResult<FragmentTypeName> & {coreTagLabel: string | null} => {
+}): {
+  results?: PostsListWithVotes[],
+  loading: boolean,
+  coreTagLabel: string | null
+} => {
   const coreTags =
     post?.tags
       ?.filter((tag) => tag.core && !requiredTags.includes(tag._id))
@@ -54,10 +80,9 @@ export const useRecentOpportunities =<
 
   const now = useCurrentTime();
   const dateCutoff = moment(now).subtract(maxAgeInDays*24, "hours").startOf('hour').toISOString();
-  const { results, ...useMultiResult } = useMulti<FragmentTypeName, "Posts">({
-    collectionName: "Posts",
-    terms: {
-      view: "magic",
+
+  const selector = {
+    magic: {
       filterSettings: {
         tags: [
           ...requiredTags.map((tagId) => ({ tagId, filterMode: "Required" })),
@@ -66,14 +91,37 @@ export const useRecentOpportunities =<
         ],
       },
       after: dateCutoff,
-      limit,
     },
-    fragmentName,
-    enableTotal: false,
-    ssr,
-    fetchPolicy: "cache-and-network",
+  } satisfies PostSelector;
+
+  const queryToUse = fragmentName === "PostsListWithVotesAndSequence" ? RecentOpportunitiesWithSequenceQuery : RecentOpportunitiesQuery;
+  
+  const { data, loading, error, networkStatus, refetch, loadMoreProps } = useQueryWithLoadMore(queryToUse, {
+    variables: { selector, limit },
     skip,
+    fetchPolicy: "cache-and-network",
+    ssr,
   });
+
+  const results = data?.posts?.results;
+
+  const loadingInitial = networkStatus === NetworkStatus.loading;
+  const loadingMore = networkStatus === NetworkStatus.fetchMore;
+  const showLoadMore = !loadMoreProps.hidden;
+
+  const useMultiResult = {
+    loading,
+    loadingInitial,
+    loadingMore,
+    refetch,
+    showLoadMore,
+    loadMore: loadMoreProps.loadMore,
+    loadMoreProps,
+    limit: loadMoreProps.limit,
+    error,
+    count: results?.length,
+    totalCount: loadMoreProps.totalCount,
+  }
 
   // If all results have the same core tag as one on the input post, set this as the coreTagLabel. If there are multiple that
   // satisfy this choose the lowest alphabetically

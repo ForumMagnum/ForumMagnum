@@ -1,9 +1,7 @@
 import React from 'react';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '../common/withUser';
-import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { useCreate } from '@/lib/crud/withCreate';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -13,6 +11,30 @@ import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm
 import Loading from "../vulcan-core/Loading";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import MetaInfo from "../common/MetaInfo";
+import { useMutation } from "@apollo/client";
+import { useQuery } from "@/lib/crud/useQuery"
+import { gql } from "@/lib/generated/gql-codegen";
+
+const RSSFeedMinimumInfoMultiQuery = gql(`
+  query multiRSSFeedNewFeedButtonQuery($selector: RSSFeedSelector, $limit: Int, $enableTotal: Boolean) {
+    rSSFeeds(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...RSSFeedMinimumInfo
+      }
+      totalCount
+    }
+  }
+`);
+
+const newRSSFeedFragmentMutation = gql(`
+  mutation createRSSFeedNewFeedButton($data: CreateRSSFeedDataInput!) {
+    createRSSFeed(data: $data) {
+      data {
+        ...newRSSFeedFragment
+      }
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -40,12 +62,9 @@ const RSSFeedsForm = ({
 }) => {
   const classes = useStyles(formStyles);
 
-  const { create } = useCreate({
-    collectionName: 'RSSFeeds',
-    fragmentName: 'newRSSFeedFragment',
-  });
+  const [create] = useMutation(newRSSFeedFragmentMutation);
 
-  const defaultValues: Required<Omit<CreateRSSFeedDataInput, 'legacyData' | 'rawFeed'>> = {
+  const defaultValues: Required<Omit<CreateRSSFeedDataInput, 'legacyData'>> = {
     nickname: '',
     url: '',
     userId,
@@ -53,6 +72,7 @@ const RSSFeedsForm = ({
     displayFullContent: null,
     setCanonicalUrl: null,
     importAsDraft: null,
+    rawFeed: null,
   };
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
@@ -63,8 +83,11 @@ const RSSFeedsForm = ({
       try {
         let result: newRSSFeedFragment;
 
-        const { data } = await create({ data: value });
-        result = data?.createRSSFeed.data;
+        const { data } = await create({ variables: { data: value } });
+        if (!data?.createRSSFeed?.data) {
+          throw new Error('Failed to create RSS feed');
+        }
+        result = data.createRSSFeed.data;
 
         onSuccess(result);
         setCaughtError(undefined);
@@ -173,11 +196,16 @@ const NewFeedButton = ({classes, user, closeModal}: {
   closeModal?: any
 }) => {
   const currentUser = useCurrentUser();
-  const { results: feeds, loading } = useMulti({
-    terms: {view: "usersFeed", userId: user._id},
-    collectionName: "RSSFeeds",
-    fragmentName: "RSSFeedMinimumInfo"
+  const { data, loading } = useQuery(RSSFeedMinimumInfoMultiQuery, {
+    variables: {
+      selector: { usersFeed: { userId: user._id } },
+      limit: 10,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const feeds = data?.rSSFeeds?.results;
   
   if (currentUser) {
     return (

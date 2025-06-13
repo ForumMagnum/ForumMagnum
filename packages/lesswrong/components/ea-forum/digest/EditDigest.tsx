@@ -1,18 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useMulti } from '../../../lib/crud/withMulti';
-import { gql, useQuery } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import { SettingsOption } from '../../../lib/collections/posts/dropdownOptions';
 import FilterIcon from '@/lib/vendor/@material-ui/icons/src/FilterList';
 import { useMessages } from '../../common/withMessages';
-import { useCreate } from '../../../lib/crud/withCreate';
-import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useLocation } from '../../../lib/routeUtil';
 import { DIGEST_STATUS_OPTIONS, InDigestStatusOption, StatusField, getEmailDigestPostListData, getStatusFilterOptions } from '../../../lib/collections/digests/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
-import { fragmentTextForQuery } from "../../../lib/vulcan-lib/fragments";
 import Loading from "../../vulcan-core/Loading";
 import EditDigestHeader from "./EditDigestHeader";
 import ForumDropdown from "../../common/ForumDropdown";
@@ -22,6 +20,38 @@ import LWTooltip from "../../common/LWTooltip";
 import EditDigestActionButtons from "./EditDigestActionButtons";
 import EditDigestTableRow from "./EditDigestTableRow";
 import Error404 from "../../common/Error404";
+
+const DigestsMinimumInfoMultiQuery = gql(`
+  query multiDigestEditDigestQuery($selector: DigestSelector, $limit: Int, $enableTotal: Boolean) {
+    digests(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...DigestsMinimumInfo
+      }
+      totalCount
+    }
+  }
+`);
+
+const DigestPostsMinimumInfoUpdateMutation = gql(`
+  mutation updateDigestPostEditDigest($selector: SelectorInput!, $data: UpdateDigestPostDataInput!) {
+    updateDigestPost(selector: $selector, data: $data) {
+      data {
+        ...DigestPostsMinimumInfo
+      }
+    }
+  }
+`);
+
+const DigestPostsMinimumInfoMutation = gql(`
+  mutation createDigestPostEditDigest($data: CreateDigestPostDataInput!) {
+    createDigestPost(data: $data) {
+      data {
+        ...DigestPostsMinimumInfo
+      }
+    }
+  }
+`);
+
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -168,20 +198,21 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const currentUser = useCurrentUser()
   
   // get the digest based on the num from the URL
-  const {results} = useMulti({
-    terms: {
-      view: "findByNum",
-      num: parseInt(params.num)
+  const { data: dataDigests } = useQuery(DigestsMinimumInfoMultiQuery, {
+    variables: {
+      selector: { findByNum: { num: parseInt(params.num) } },
+      limit: 1,
+      enableTotal: false,
     },
-    collectionName: "Digests",
-    fragmentName: 'DigestsMinimumInfo',
-    limit: 1,
-    skip: !userIsAdmin(currentUser)
-  })
+    skip: !userIsAdmin(currentUser),
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const results = dataDigests?.digests?.results;
   const digest = results?.[0]
 
   // get the list of posts eligible for this digest
-  const { data } = useQuery(gql`
+  const { data } = useQuery(gql(`
     query getDigestPlannerData($digestId: String, $startDate: Date, $endDate: Date) {
       DigestPlannerData(digestId: $digestId, startDate: $startDate, endDate: $endDate) {
         post {
@@ -195,14 +226,17 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
         rating
       }
     }
-    ${fragmentTextForQuery("PostsListWithVotes")}
-    `, {
+  `), {
       ssr: true,
       skip: !digest,
-      variables: {digestId: digest?._id, startDate: digest?.startDate, endDate: digest?.endDate},
+      variables: {
+        digestId: digest?._id,
+        startDate: digest?.startDate ? new Date(digest.startDate) : undefined,
+        endDate: digest?.endDate ? new Date(digest.endDate) : undefined
+      },
     }
   )
-  const eligiblePosts: DigestPlannerPostData[] = useMemo(() => data?.DigestPlannerData, [data])
+  const eligiblePosts = useMemo(() => data?.DigestPlannerData, [data])
 
   // save the list of all eligible posts, along with their ratings
   const [posts, setPosts] = useState<Array<PostWithRating>>()
@@ -224,8 +258,8 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
       newPosts.push({...postData.post, rating: postData.rating})
       newPostStatuses[postData.post._id] = {
         _id: postData.digestPost?._id,
-        emailDigestStatus: postData.digestPost?.emailDigestStatus ?? 'pending',
-        onsiteDigestStatus: postData.digestPost?.onsiteDigestStatus ?? 'pending'
+        emailDigestStatus: (postData.digestPost?.emailDigestStatus as InDigestStatusOption | undefined) ?? 'pending',
+        onsiteDigestStatus: (postData.digestPost?.onsiteDigestStatus as InDigestStatusOption | undefined) ?? 'pending'
       }
     })
     // sort the list by curated, then suggested for curation, then rating, then karma
@@ -243,14 +277,8 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
   }, [eligiblePosts])
   
   // the digest status of each post is saved on a DigestPost record
-  const { create: createDigestPost } = useCreate({
-    collectionName: 'DigestPosts',
-    fragmentName: 'DigestPostsMinimumInfo',
-  })
-  const { mutate: updateDigestPost } = useUpdate({
-    collectionName: 'DigestPosts',
-    fragmentName: 'DigestPostsMinimumInfo',
-  })
+  const [createDigestPost] = useMutation(DigestPostsMinimumInfoMutation);
+  const [updateDigestPost] = useMutation(DigestPostsMinimumInfoUpdateMutation);
   
   // track the table filters
   const [emailDigestFilter, setEmailDigestFilter] = useState<InDigestStatusOption[]>([...DIGEST_STATUS_OPTIONS])
@@ -324,21 +352,25 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
     if (digestPostId) {
       // we don't save the "pending" status in the db, we just use null
       void updateDigestPost({
-        selector: {_id: digestPostId},
-        data: {
-          [statusField]: (newStatus === 'pending') ? null : newStatus
+        variables: {
+          selector: { _id: digestPostId },
+          data: {
+            [statusField]: (newStatus === 'pending') ? null : newStatus
+          }
         }
       })
     } else if (digest) {
       // this should only happen when setting a status to "yes"
       const response = await createDigestPost({
-        data: {
-          postId,
-          digestId: digest._id,
-          [statusField]: newStatus
+        variables: {
+          data: {
+            postId,
+            digestId: digest._id,
+            [statusField]: newStatus
+          }
         }
       })
-      newPostStatuses[postId]._id = response.data?.createDigestPost.data._id
+      newPostStatuses[postId]._id = response.data?.createDigestPost?.data?._id
     }
     
     // update the page state

@@ -1,5 +1,4 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -7,15 +6,32 @@ import RecentComments from "../comments/RecentComments";
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
 import Error404 from "../common/Error404";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+
+const UsersProfileMultiQuery = gql(`
+  query multiUserUserReviewsQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UsersProfile
+      }
+      totalCount
+    }
+  }
+`);
 
 const UserReviews = () => {
   const { params: { slug, year } } = useLocation();
-  const { results, loading } = useMulti({
-    collectionName: "Users",
-    fragmentName: 'UsersProfile',
-    enableTotal: false,
-    terms: {view: 'usersProfile', slug}
+  const { data, loading } = useQuery(UsersProfileMultiQuery, {
+    variables: {
+      selector: { usersProfile: { slug } },
+      limit: 10,
+      enableTotal: false,
+    },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const results = data?.users?.results;
 
   const user = results?.length ? results[0] : null
   if (loading) return <Loading />

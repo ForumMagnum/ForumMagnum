@@ -26,7 +26,7 @@ const styles = defineStyles('FormComponentCheckbox', (theme: ThemeType) => ({
 }));
 
 export interface FormComponentCheckboxProps {
-  field: TypedFieldApi<boolean> | TypedFieldApi<boolean | null>;
+  field: TypedFieldApi<boolean> | TypedFieldApi<boolean | null | undefined>;
   label?: string;
   disabled?: boolean;
   className?: string;
