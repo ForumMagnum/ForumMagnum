@@ -71,13 +71,9 @@ export async function updateUltraFeedEvent(args: { selector: string, data: Updat
   }
   
   if (inputData.event) {
-    try {
-      seeLessEventDataSchema.parse(inputData.event);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        throw new Error(`Invalid event data: ${error.errors.map(e => e.message).join(', ')}`);
-      }
-      throw error;
+    const result = seeLessEventDataSchema.safeParse(inputData.event);
+    if (!result.success) {
+      throw new Error(`Invalid event data: ${result.error.errors.map(e => e.message).join(', ')}`);
     }
   }
   

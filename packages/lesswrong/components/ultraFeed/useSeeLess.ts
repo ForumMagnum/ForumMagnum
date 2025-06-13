@@ -47,7 +47,7 @@ export const useSeeLess = ({ documentId, documentType, recommId }: UseSeeLessOpt
         variables: {
           selector: seeLessEventId,
           data: { 
-            event: { cancelled: true } as any
+            event: { cancelled: true }
           }
         }
       });
@@ -78,7 +78,7 @@ export const useSeeLess = ({ documentId, documentType, recommId }: UseSeeLessOpt
       variables: {
         selector: seeLessEventId,
         data: { 
-          event: { feedbackReasons: feedback } as any
+          event: { feedbackReasons: feedback }
         }
       }
     });
