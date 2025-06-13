@@ -359,6 +359,7 @@ interface Mutation {
   createTag: TagOutput | null;
   updateTag: TagOutput | null;
   createUltraFeedEvent: UltraFeedEventOutput | null;
+  updateUltraFeedEvent: UltraFeedEventOutput | null;
   createUserEAGDetail: UserEAGDetailOutput | null;
   updateUserEAGDetail: UserEAGDetailOutput | null;
   createUserJobAd: UserJobAdOutput | null;
@@ -7750,6 +7751,8 @@ interface UpdateCommentDataInput {
   legacyData?: any;
   contents?: CreateRevisionDataInput | null;
   postedAt?: Date | null;
+  postId?: string | null;
+  tagId?: string | null;
   subforumStickyPriority?: number | null;
   authorIsUnreviewed?: boolean | null;
   answer?: boolean | null;
@@ -9147,6 +9150,10 @@ interface CreateUltraFeedEventDataInput {
 
 interface CreateUltraFeedEventInput {
   data: CreateUltraFeedEventDataInput;
+}
+
+interface UpdateUltraFeedEventDataInput {
+  event?: any;
 }
 
 interface UltraFeedEventOutput {
@@ -10630,6 +10637,7 @@ interface GraphQLTypeMap {
   TagOutput: TagOutput;
   CreateUltraFeedEventDataInput: CreateUltraFeedEventDataInput;
   CreateUltraFeedEventInput: CreateUltraFeedEventInput;
+  UpdateUltraFeedEventDataInput: UpdateUltraFeedEventDataInput;
   UltraFeedEventOutput: UltraFeedEventOutput;
   CreateUserEAGDetailDataInput: CreateUserEAGDetailDataInput;
   CreateUserEAGDetailInput: CreateUserEAGDetailInput;

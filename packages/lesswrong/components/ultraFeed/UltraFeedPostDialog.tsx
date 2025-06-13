@@ -16,6 +16,7 @@ import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 import UltraFeedPostActions from "./UltraFeedPostActions";
 import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
 import FormatDate from "../common/FormatDate";
+import { FeedPostMetaInfo } from "./ultraFeedTypes";
 
 const CommentsListMultiQuery = gql(`
   query multiCommentUltraFeedPostDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -188,17 +189,20 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
 type UltraFeedPostDialogProps = {
   post?: never;
   partialPost: PostsListWithVotes;
+  postMetaInfo: FeedPostMetaInfo;
   onClose: () => void;
 } | {
   post: PostsPage | UltraFeedPostFragment;
   partialPost?: never;
+  postMetaInfo: FeedPostMetaInfo;
   onClose: () => void;
 }
 
 const UltraFeedPostDialog = ({
   post,
-  onClose,
   partialPost,
+  postMetaInfo,
+  onClose,
 }: UltraFeedPostDialogProps) => {
   const classes = useStyles(styles);
   const authorListRef = useRef<HTMLDivElement>(null);
@@ -361,10 +365,7 @@ const UltraFeedPostDialog = ({
               <UltraFeedItemFooter
                 document={displayPost}
                 collectionName="Posts"
-                metaInfo={{
-                  sources: [],
-                  displayStatus: "expanded",
-                }}
+                metaInfo={postMetaInfo}
                 className={classes.footer}
               />
               {isCommentsLoading && fullPostForContent && (
