@@ -7,7 +7,8 @@ export const EnableSuspenseContext = createContext(false);
 
 type UseQueryOptions = {
   fetchPolicy: SuspenseQueryHookFetchPolicy,
-  ssr: boolean,
+  ssr?: boolean,
+  skip?: boolean,
 };
 
 export const useQuery: typeof useQueryApollo = ((query: any, options: UseQueryOptions) => {
@@ -17,6 +18,10 @@ export const useQuery: typeof useQueryApollo = ((query: any, options: UseQueryOp
     return useSuspenseQuery(query, options);
   } else {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useQueryApollo(query, options);
+    const result = useQueryApollo(query, options);
+    return {
+      ...result,
+      loading: result.loading && !options.skip,
+    };
   }
 }) as any;
