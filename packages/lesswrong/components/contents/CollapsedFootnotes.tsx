@@ -1,9 +1,10 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Collapse from "@/lib/vendor/@material-ui/core/src/Collapse";
 import { InteractionWrapper } from '@/components/common/useClickableCell';
 import { useLocation } from "@/lib/routeUtil";
 import classNames from 'classnames';
+import { useOnSearchHotkey } from '../common/withGlobalKeydown';
 
 const styles = defineStyles("CollapsedFootnotes", (theme: ThemeType) => ({
   collapse: {
@@ -35,7 +36,8 @@ export const locationHashIsFootnote = (hash: string) =>
 export const locationHashIsFootnoteBackreference = (hash: string) =>
   hash.startsWith("#fnref");
 
-export function CollapsedFootnotes({ previewCount=3, attributes, footnoteElements }: {
+export function CollapsedFootnotes({ TagName, previewCount=3, attributes, footnoteElements }: {
+  TagName: AnyBecauseHard
   previewCount?: number,
   attributes: Record<string, unknown>,
   footnoteElements: React.ReactNode[],
@@ -49,8 +51,29 @@ export function CollapsedFootnotes({ previewCount=3, attributes, footnoteElement
   const preview = footnoteElements.slice(0, previewCount);
   const rest = footnoteElements.slice(previewCount);
 
+  useEffect(() => {
+    const handler = (e: CustomEvent<string>) => {
+      setCollapsed(false);
+      setTimeout(() => {
+        document.querySelector(e.detail)?.scrollIntoView();
+      }, fullyExpanded ? 0 : TRANSITION_DURATION);
+    };
+    window.addEventListener(EXPAND_FOOTNOTES_EVENT, handler);
+    return () => window.removeEventListener(EXPAND_FOOTNOTES_EVENT, handler);
+  }, [fullyExpanded]);
+
+
+  useOnSearchHotkey(() => setCollapsed(false));
+  if (!rest.length) {
+    return (
+      <TagName {...attributes}>
+        {preview}
+      </TagName>
+    );
+  }
+
   return (
-    <div {...attributes}>
+    <TagName {...attributes}>
       {preview}
       <Collapse
         in={!collapsed}
@@ -73,6 +96,6 @@ export function CollapsedFootnotes({ previewCount=3, attributes, footnoteElement
           </span>
         </InteractionWrapper>
       </Collapse>
-    </div>
+    </TagName>
   );
 }

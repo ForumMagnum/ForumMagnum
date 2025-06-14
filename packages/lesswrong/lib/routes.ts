@@ -725,6 +725,21 @@ export function initLegacyRoutes() {
       // TODO: Pingback comment
     }
   );
+
+  if (isEAForum) {
+    addRoute(
+      {
+        name: "whatSmallThingsCanEADo",
+        path: "/ea/7k/what_small_things_can_an_ea_do",
+        redirect: () => "https://www.effectivealtruism.org/take-action",
+      },
+      {
+        name: "introductionToEffectiveAltruism",
+        path: "/ea/6x/introduction_to_effective_altruism",
+        redirect: () => "https://www.effectivealtruism.org/articles/introduction-to-effective-altruism",
+      },
+    )
+  }
 }
 
 const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
