@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useMemo, useEffect, forwardRef } from 'react';
 import { getForumTheme } from '../../themes/forumTheme';
 import { AbstractThemeOptions, ThemeOptions, abstractThemeToConcrete } from '../../themes/themeNames';

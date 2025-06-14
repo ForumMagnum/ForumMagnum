@@ -4,13 +4,13 @@ import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';
 import { useLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
-import { UserContext } from './common/withUser';
+import { UserContext } from './common/sharedContexts';
 import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { commentBodyStyles, pBodyStyle } from '../themes/stylePiping';
-import { DatabasePublicSetting, blackBarTitle, googleTagManagerIdSetting } from '../lib/publicSettings';
+import { blackBarTitle, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { userCanDo } from '../lib/vulcan-users/permissions';
@@ -27,9 +27,6 @@ import { isFriendlyUI } from '../themes/forumTheme';
 import { requireCssVar } from '../themes/cssVars';
 import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
 import { CurrentAndRecentForumEventsProvider } from './hooks/useCurrentForumEvent';
-export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
-export const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
-
 import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 import DeferRender from './common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';

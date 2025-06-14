@@ -78,7 +78,7 @@
     "create-collection": "scripts/createCollection.sh",
     "graphql-codegen": "graphql-codegen --config codegen.ts",
     "depcruise": "dependency-cruiser packages app --config .dependency-cruiser.js",
-    "depcruise:validate": "dependency-cruiser packages app --validate .dependency-cruiser.js",
+    "depcruise:validate": "dependency-cruiser packages app --validate .dependency-cruiser.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.1",

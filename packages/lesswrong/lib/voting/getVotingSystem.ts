@@ -1,4 +1,6 @@
-import { isEAForum } from "../instanceSettings";
+'use client';
+
+import { getVotingSystemNameForDocument } from "../collections/comments/helpers";
 import { namesAttachedReactionsVotingSystem } from "./namesAttachedReactions";
 import { reactionsAndLikesVotingSystem } from "./reactionsAndLikes";
 import { defaultVotingSystem, eaEmojisVotingSystem, emojiReactionsVotingSystem, reactsBallotVotingSystem, twoAxisVotingSystem, type VotingSystem } from "./votingSystems";
@@ -48,22 +50,6 @@ const getAllVotingSystems = (() => {
 export function getVotingSystems(): VotingSystem[] {
   const votingSystems = getAllVotingSystems();
   return Object.keys(votingSystems).map(k => votingSystems[k]!);
-}
-
-export async function getVotingSystemNameForDocument(document: VoteableType, collectionName: VoteableCollectionName, context: ResolverContext): Promise<string> {
-  if (collectionName === "MultiDocuments" || collectionName === "Tags") {
-    return "reactionsAndLikes";
-  }
-  if ((document as DbComment).tagId) {
-    return isEAForum ? "eaEmojis" : "namesAttachedReactions";
-  }
-  if ((document as DbComment).postId) {
-    const post = await context.loaders.Posts.load((document as DbComment).postId!);
-    if (post?.votingSystem) {
-      return post.votingSystem;
-    }
-  }
-  return (document as DbPost)?.votingSystem ?? "default";
 }
 
 export async function getVotingSystemForDocument(document: VoteableType, collectionName: VoteableCollectionName, context: ResolverContext) {

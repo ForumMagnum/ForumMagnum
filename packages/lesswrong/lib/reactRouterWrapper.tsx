@@ -1,15 +1,14 @@
+'use client';
+
 import React, { CSSProperties, FC } from 'react';
 import { useTracking } from '../lib/analyticsEvents';
-// eslint-disable-next-line no-restricted-imports
-import * as reactRouter from 'react-router';
-// eslint-disable-next-line no-restricted-imports
-import * as reactRouterDom from 'react-router-dom';
 import NextLink from 'next/link';
 import { HashLink, HashLinkProps } from "../components/common/HashLink";
 import { classifyHost } from './routeUtil';
 import { parseQuery } from './vulcan-core/appContext'
 import qs from 'qs'
 import { getUrlClass } from '@/server/utils/getUrlClass';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 export type LinkProps = {
   to?: HashLinkProps['to']|null
@@ -60,7 +59,7 @@ export const Link = ({eventProps, ...props}: LinkProps) => {
   }
 }
 
-export const QueryLink: FC<Omit<reactRouterDom.LinkProps, "to"> & {
+export const QueryLink: FC<Omit<LinkProps, "to"> & {
   query: AnyBecauseTodo,
   /**
    * Merge determines whether we do a shallow merge with the existing query
@@ -72,7 +71,16 @@ export const QueryLink: FC<Omit<reactRouterDom.LinkProps, "to"> & {
   merge=false,
   ...rest
 }) => {
-  const location = reactRouter.useLocation();
+  // TODO: confirm that this is correct or otherwise replace link functionality
+  const pathname = usePathname();
+  const params = useSearchParams();
+  const location = {
+    pathname,
+    search: params.toString(),
+    // TODO: figure out hash
+    hash: ''
+  };
+
   const newSearchString = merge
     ? qs.stringify({...parseQuery(location), ...query})
     : qs.stringify(query);
@@ -95,4 +103,3 @@ function isOffsiteLink(url: string): boolean {
   }
 }
 
-export const Redirect = reactRouter.Redirect;

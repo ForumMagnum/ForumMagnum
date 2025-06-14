@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';

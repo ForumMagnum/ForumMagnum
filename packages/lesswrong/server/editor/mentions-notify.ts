@@ -1,6 +1,6 @@
 import * as _ from 'underscore'
 import {createNotifications} from '../notificationCallbacksHelpers'
-import {notificationDocumentTypes} from '../../lib/notificationTypes'
+import { notificationDocumentTypes } from '../collections/notifications/constants'
 import {isBeingUndrafted} from './utils'
 import {canMention} from '../../lib/pingback'
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames'

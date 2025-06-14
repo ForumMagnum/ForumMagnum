@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { isCollaborative } from '../../components/editor/EditorFormComponent';
+import { isCollaborative } from '@/lib/collections/posts/helpers';
 import { Posts } from '../../server/collections/posts/collection';
 import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { Revisions } from '../../server/collections/revisions/collection';

@@ -5,7 +5,7 @@ import { sanitizeAllowedTags } from '../../lib/vulcan-lib/utils';
 import Comments from '../../server/collections/comments/collection';
 import { dataToHTML } from '../editor/conversionUtils';
 import OpenAI from 'openai';
-import { captureEvent } from '../../lib/analyticsEvents';
+import { serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
 import difference from 'lodash/difference';
 import { truncatise } from '../../lib/truncatise';
 import { FetchedFragment } from '../fetchFragment';

@@ -11,7 +11,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import Transition from 'react-transition-group/Transition';
 import { useTracking } from '../../lib/analyticsEvents';
-import { PostCategory } from '../../lib/collections/posts/helpers';
+import { isCollaborative, PostCategory } from '../../lib/collections/posts/helpers';
 import { DynamicTableOfContentsContext } from '../posts/TableOfContents/DynamicTableOfContents';
 import isEqual from 'lodash/isEqual';
 import { useDebouncedCallback, useStabilizedCallback } from '../hooks/useDebouncedCallback';
@@ -49,17 +49,6 @@ export const AutosaveEditorStateContext = React.createContext<AutosaveEditorStat
   autosaveEditorState: null,
   setAutosaveEditorState: _ => {},
 });
-
-export function isCollaborative(post: Pick<DbPost | PostsBase, '_id' | 'shareWithUsers' | 'sharingSettings' | 'collabEditorDialogue'>, fieldName: string): boolean {
-  if (!post) return false;
-  if (!post._id) return false;
-  if (fieldName !== "contents") return false;
-  if (!!post.shareWithUsers?.length) return true;
-  if (post.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
-    return true;
-  if (post.collabEditorDialogue) return true;
-  return false;
-}
 
 const getPostPlaceholder = (post: PostsBase) => {
   const { question, postCategory } = post;

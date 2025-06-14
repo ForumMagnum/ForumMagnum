@@ -1,10 +1,3 @@
-import React from 'react';
-import { annualReviewAnnouncementPostPathSetting, DatabasePublicSetting } from "../../publicSettings";
-import QuestionAnswerIcon from '@/lib/vendor/@material-ui/icons/src/QuestionAnswer';
-import ArrowForwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowForward';
-import AllInclusiveIcon from '@/lib/vendor/@material-ui/icons/src/AllInclusive';
-import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
-import { isEAForum } from '../../instanceSettings';
 import { REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD } from '@/lib/reviewUtils';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '@/lib/utils/viewConstants';
 
@@ -41,27 +34,6 @@ export const postStatusLabels = [
   }
 ];
 
-const amaTagIdSetting = new DatabasePublicSetting<string | null>('amaTagId', null)
-export const openThreadTagIdSetting = new DatabasePublicSetting<string>('openThreadTagId', 'eTLv8KzwBGcDip9Wi')
-export const startHerePostIdSetting = new DatabasePublicSetting<string | null>('startHerePostId', null)
-
-// Cute hack
-const reviewPostIdSetting = {
-  get: () => isEAForum ?
-    annualReviewAnnouncementPostPathSetting.get()?.match(/^\/posts\/([a-zA-Z\d]+)/)?.[1] :
-    null
-}
-
-export const tagSettingIcons = new Map<DatabasePublicSetting<string | null>, React.ComponentType<React.SVGProps<SVGElement>>>([
-  [amaTagIdSetting, QuestionAnswerIcon], 
-  [openThreadTagIdSetting, AllInclusiveIcon],
-]);
-
-export const idSettingIcons = new Map([
-  [startHerePostIdSetting, ArrowForwardIcon],
-  // use an imposter to avoid duplicating annualReviewAnnouncementPostPathSetting, which is a path not a post id
-  [reviewPostIdSetting as DatabasePublicSetting<string | null>, StarIcon]
-]);
 
 export const sideCommentFilterMinKarma = 10;
 export const sideCommentAlwaysExcludeKarma = -1;
@@ -179,4 +151,18 @@ export const EVENT_TYPES = [
   { value: "course", label: "Course" },
   { value: "conference", label: "Conference" },
 ];
+
+export type RsvpResponse = "yes" | "maybe" | "no";
+
+export const responseToText: Record<RsvpResponse, string> = {
+  yes: "Going",
+  maybe: "Maybe",
+  no: "Can't Go"
+};
+
+export const stickiedPostTerms = {
+  view: 'stickied',
+  limit: 4, // seriously, shouldn't have more than 4 stickied posts
+  forum: true
+} satisfies PostsViewTerms;
 

@@ -1,7 +1,7 @@
-import { importAllComponents } from '../lib/vulcan-lib/components';
+import { importAllComponents } from '@/lib/vulcan-lib/importAllComponents';
 import { getForumTheme } from '../themes/forumTheme';
 import * as _ from 'underscore';
-import { topLevelStyleDefinitions } from '@/components/hooks/useStyles';
+import { topLevelStyleDefinitions } from "@/lib/styles/defineStyles";
 import type { JssStyles } from '@/lib/jssStyles';
 
 /*

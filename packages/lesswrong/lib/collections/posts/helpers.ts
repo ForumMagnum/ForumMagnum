@@ -488,3 +488,13 @@ export const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimum
 export function userCanEditCoauthors(user: UsersCurrent | null) {
   return userIsAdminOrMod(user) || userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)(user);
 }
+export function isCollaborative(post: Pick<DbPost | PostsBase, '_id' | 'shareWithUsers' | 'sharingSettings' | 'collabEditorDialogue'>, fieldName: string): boolean {
+  if (!post) return false;
+  if (!post._id) return false;
+  if (fieldName !== "contents") return false;
+  if (!!post.shareWithUsers?.length) return true;
+  if (post.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
+    return true;
+  if (post.collabEditorDialogue) return true;
+  return false;
+}

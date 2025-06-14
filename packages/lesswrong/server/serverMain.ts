@@ -1,4 +1,4 @@
-import { startWebserver } from './apolloServer';
+// import { startWebserver } from './apolloServer';
 import { scheduleQueueProcessing } from './cache/swr';
 import { initRenderQueueLogging } from './vulcan-lib/apollo-ssr/renderPage';
 import { serverInitSentry, startMemoryUsageMonitor } from './logging';
@@ -15,7 +15,7 @@ import chokidar from 'chokidar';
 import fs from 'fs';
 import { basename, join } from 'path';
 import type { CommandLineArguments } from './commandLine';
-import { captureEvent } from '@/lib/analyticsEvents';
+import { serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
 import { updateStripeIntentsCache } from './lesswrongFundraiser/stripeIntentsCache';
 
 /**
@@ -23,22 +23,22 @@ import { updateStripeIntentsCache } from './lesswrongFundraiser/stripeIntentsCac
  * or is a worker process). By the time this is called, we should already be
  * connected to the database and have loaded settings from it.
  */
-export const serverMain = async ({shellMode, command}: CommandLineArguments) => {
-  await runServerOnStartupFunctions();
+// export const serverMain = async ({shellMode, command}: CommandLineArguments) => {
+//   await runServerOnStartupFunctions();
 
-  if (shellMode) {
-    initShell();
-  } else if (command) {
-    const func = compileWithGlobals(command);
-    const result = await func();
-    // eslint-disable-next-line no-console
-    console.log("Finished. Result: ", result);
-    process.kill(buildProcessPid, 'SIGQUIT');
-  } else if (!isAnyTest && !isMigrations) {
-    watchForShellCommands();
-    await startWebserver();
-  }
-}
+//   if (shellMode) {
+//     initShell();
+//   } else if (command) {
+//     const func = compileWithGlobals(command);
+//     const result = await func();
+//     // eslint-disable-next-line no-console
+//     console.log("Finished. Result: ", result);
+//     process.kill(buildProcessPid, 'SIGQUIT');
+//   } else if (!isAnyTest && !isMigrations) {
+//     watchForShellCommands();
+//     await startWebserver();
+//   }
+// }
 
 export async function runServerOnStartupFunctions() {
   startAnalyticsWriter();
@@ -59,27 +59,27 @@ export async function runServerOnStartupFunctions() {
 }
 
 
-function initShell() {
-  const repl = require('repl');
-  /*const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-    prompt: "> ",
-  });
-  rl.on('line', line => {
-    console.log(`Got input: ${line}`);
-    rl.prompt();
-  });
-  rl.prompt();*/
+// function initShell() {
+//   const repl = require('repl');
+//   /*const rl = readline.createInterface({
+//     input: process.stdin,
+//     output: process.stdout,
+//     prompt: "> ",
+//   });
+//   rl.on('line', line => {
+//     console.log(`Got input: ${line}`);
+//     rl.prompt();
+//   });
+//   rl.prompt();*/
 
-  const r = repl.start({
-    prompt: "> ",
-    terminal: true,
-    preview: true,
-    breakEvalOnSigint: true,
-    useGlobal: true,
-  });
-}
+//   const r = repl.start({
+//     prompt: "> ",
+//     terminal: true,
+//     preview: true,
+//     breakEvalOnSigint: true,
+//     useGlobal: true,
+//   });
+// }
 
 const compileWithGlobals = (code: string) => {
   // This is basically just eval() but done in a way that:
@@ -102,26 +102,26 @@ const compileWithGlobals = (code: string) => {
 // written there, run it then delete it. Security-wise this is okay because
 // write-access inside the repo directory is already equivalent to script
 // execution.
-const watchForShellCommands = () => {
-  const watcher = chokidar.watch('./tmp/pendingShellCommands');
-  watcher.on('add', async (path) => {
-    const fileContents = fs.readFileSync(path, 'utf8');
-    // eslint-disable-next-line no-console
-    console.log(`Running shell command: ${fileContents}`);
-    const newPath = join("tmp/runningShellCommands", basename(path));
-    fs.renameSync(path, newPath);
-    try {
-      const func = compileWithGlobals(fileContents);
-      const result = await func();
-      // eslint-disable-next-line no-console
-      console.log("Finished. Result: ", result);
-    } catch(e) {
-      // eslint-disable-next-line no-console
-      console.log("Failed.");
-      // eslint-disable-next-line no-console
-      console.log(e);
-    } finally {
-      fs.unlinkSync(newPath);
-    }
-  });
-}
+// const watchForShellCommands = () => {
+//   const watcher = chokidar.watch('./tmp/pendingShellCommands');
+//   watcher.on('add', async (path) => {
+//     const fileContents = fs.readFileSync(path, 'utf8');
+//     // eslint-disable-next-line no-console
+//     console.log(`Running shell command: ${fileContents}`);
+//     const newPath = join("tmp/runningShellCommands", basename(path));
+//     fs.renameSync(path, newPath);
+//     try {
+//       const func = compileWithGlobals(fileContents);
+//       const result = await func();
+//       // eslint-disable-next-line no-console
+//       console.log("Finished. Result: ", result);
+//     } catch(e) {
+//       // eslint-disable-next-line no-console
+//       console.log("Failed.");
+//       // eslint-disable-next-line no-console
+//       console.log(e);
+//     } finally {
+//       fs.unlinkSync(newPath);
+//     }
+//   });
+// }

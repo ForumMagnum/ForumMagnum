@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { calculateVotePower } from './voteTypes';
 import { eaEmojiNames } from './eaEmojiPalette';
@@ -8,9 +10,9 @@ import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
 import pickBy from 'lodash/pickBy';
 import fromPairs from 'lodash/fromPairs';
-import { VotingProps } from '../../components/votes/votingProps';
+import type { VotingProps } from '../../components/votes/votingProps';
 import type { ContentItemBodyImperative, ContentReplacedSubstringComponentInfo } from '../../components/contents/contentBodyUtil';
-import { TagLens } from '../arbital/useTagLenses';
+import type { TagLens } from '../arbital/useTagLenses';
 import EAEmojisVoteOnComment from '@/components/votes/EAEmojisVoteOnComment';
 import EAEmojisVoteOnPost from '@/components/votes/EAEmojisVoteOnPost';
 import EAEmojisVoteOnPostSecondary from '@/components/votes/EAEmojisVoteOnPostSecondary';

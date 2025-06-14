@@ -3,7 +3,7 @@ import AppGenerator from './AppGenerator';
 
 import { createApolloClient } from './apolloClient';
 import { fmCrosspostBaseUrlSetting } from "../lib/instanceSettings";
-import { populateComponentsAppDebug } from '../lib/vulcan-lib/components';
+import { populateComponentsAppDebug } from '@/lib/vulcan-lib/importAllComponents';
 import { initServerSentEvents } from "./serverSentEventsClient";
 import { hydrateRoot } from 'react-dom/client';
 

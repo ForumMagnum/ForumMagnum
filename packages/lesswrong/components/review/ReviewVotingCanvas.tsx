@@ -8,7 +8,7 @@ import CloudinaryImage2, { CloudinaryPropsType } from "../common/CloudinaryImage
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from "../../lib/routeUtil";
 import { REVIEW_YEAR, eligibleToNominate, reviewElectionName } from "../../lib/reviewUtils";
-import { TARGET_REVIEW_VOTING_NUM } from "./ReviewProgressVoting";
+import { TARGET_REVIEW_VOTING_NUM } from '@/lib/collections/reviewVotes/constants';
 import { useMessages } from "../common/withMessages";
 import DeferRender from "../common/DeferRender";
 import LWTooltip from "../common/LWTooltip";

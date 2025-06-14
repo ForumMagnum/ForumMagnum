@@ -7,7 +7,7 @@
 // environment. The docstring must be the first thing in the file.
 
 import { renderHook, act } from '@testing-library/react'
-import { useFilterSettings } from '../lib/filterSettings'
+import { useFilterSettings } from '@/components/hooks/useFilterSettings'
 
 jest.mock('../components/common/withUser', () => ({
   useCurrentUser: () => ({}),

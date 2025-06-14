@@ -9,7 +9,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { inferRedLinkTitle, useRedLinkPingbacks } from "./RedlinkTagPage";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import { useTagPageContext } from "./TagPageContext";
-import { MAIN_TAB_ID } from "@/lib/arbital/useTagLenses";
+import { MAIN_TAB_ID } from "@/lib/collections/tags/constants";
 import { TagHoverPreview } from "./TagHoverPreview";
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";

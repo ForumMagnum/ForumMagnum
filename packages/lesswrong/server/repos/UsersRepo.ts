@@ -1,12 +1,11 @@
 import AbstractRepo from "./AbstractRepo";
 import Users from "../../server/collections/users/collection";
-import { calculateVotePower } from "../../lib/voting/voteTypes";
 import { ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isEAForum } from "../../lib/instanceSettings";
 import { userLoginTokensView } from "../postgresView";
 import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
-import { MULTISELECT_SUGGESTION_LIMIT } from "@/components/hooks/useSearchableMultiSelect";
+import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
 import { getViewablePostsSelector } from "./helpers";
 
 const GET_USERS_BY_EMAIL_QUERY = `

@@ -50,7 +50,7 @@ export const getUtmParamsForNotificationType = (notificationType: string): Parti
  * Precondition: All notifications in a batch share a notification type
  */
 const sendNotificationBatch = async ({userId, notificationIds, notificationType}: {userId: string, notificationIds: Array<string>, notificationType: string}) => {
-  const { wrapAndSendEmail }: typeof import('./emails/renderEmail') = require('./emails/renderEmail');
+  const { wrapAndSendEmail } = await import('./emails/renderEmail');
   if (!notificationIds || !notificationIds.length)
     throw new Error("Missing or invalid argument: notificationIds (must be a nonempty array)");
   
@@ -118,7 +118,7 @@ const notificationBatchToEmails = async ({user, notificationType, notifications,
 
 export const graphqlQueries = {
   async EmailPreview(root: void, {notificationIds, postId}: {notificationIds?: Array<string>, postId?: string}, context: ResolverContext) {
-    const { wrapAndRenderEmail }: typeof import('./emails/renderEmail') = require('./emails/renderEmail');
+    const { wrapAndRenderEmail } = await import('./emails/renderEmail');
     const { currentUser } = context;
     if (!currentUser || !userIsAdmin(currentUser)) {
       throw new Error("This debug feature is only available to admin accounts");

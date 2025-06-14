@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { conversationGetPageUrl } from '../../lib/collections/conversations/helpers';
 import { useCurrentUser } from '../../components/common/withUser';

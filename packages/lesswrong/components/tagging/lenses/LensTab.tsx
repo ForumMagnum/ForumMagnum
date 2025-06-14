@@ -1,7 +1,8 @@
 import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { MAIN_TAB_ID, TagLens } from '@/lib/arbital/useTagLenses';
+import { TagLens } from '@/lib/arbital/useTagLenses';
+import { MAIN_TAB_ID } from "@/lib/collections/tags/constants";
 import { getVotingSystemByName } from "@/lib/voting/getVotingSystem";
 import classNames from 'classnames';
 import { ReactionsAndLikesVote } from "../../votes/lwReactions/ReactionsAndLikesVote";

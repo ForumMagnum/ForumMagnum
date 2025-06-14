@@ -5,8 +5,7 @@ import { userGetProfileUrl } from '../lib/collections/users/helpers';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
 import { DebouncerTiming } from './debouncer';
-import {getDocument, getNotificationTypeByName, NotificationDocument} from '../lib/notificationTypes'
-import { notificationDebouncers } from './notificationBatching';
+import type { NotificationDocument } from './collections/notifications/constants';
 import { defaultNotificationTypeSettings, NotificationChannelSettings, NotificationTypeSettings, legacyToNewNotificationTypeSettings } from "@/lib/collections/users/notificationFieldHelpers";
 import * as _ from 'underscore';
 import { createAnonymousContext } from './vulcan-lib/createContexts';
@@ -102,11 +101,14 @@ const getNotificationTiming = (typeSettings: NotificationChannelSettings): Debou
 }
 
 const notificationMessage = async (notificationType: string, documentType: NotificationDocument|null, documentId: string|null, extraData: Record<string,any>, context: ResolverContext) => {
+  const { getNotificationTypeByName } = await import('@/lib/notificationTypes');
   return await getNotificationTypeByName(notificationType)
     .getMessage({documentType, documentId, extraData, context});
 }
 
 const getLink = async (context: ResolverContext, notificationTypeName: string, documentType: NotificationDocument|null, documentId: string|null, extraData: any) => {
+  const { getNotificationTypeByName, getDocument } = await import('@/lib/notificationTypes');
+  
   const { Posts } = context
   let document = await getDocument(documentType, documentId, context);
   const notificationType = getNotificationTypeByName(notificationTypeName);
@@ -181,6 +183,9 @@ export const createNotification = async ({
 
   context: ResolverContext,
 }) => {
+  const { getNotificationTypeByName } = await import('@/lib/notificationTypes');
+  const { notificationDebouncers } = await import('./notificationBatching');
+
   let user = await Users.findOne({ _id:userId });
   if (!user) throw Error(`Wasn't able to find user to create notification for with id: ${userId}`)
   const userSettingField = getNotificationTypeByName(notificationType).userSettingField;

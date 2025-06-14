@@ -1,7 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useUserLocation } from '../../lib/collections/users/helpers';
+import { useUserLocation } from '../hooks/useUserLocation';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { useDialog } from '../common/withDialog'

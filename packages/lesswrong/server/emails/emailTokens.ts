@@ -7,27 +7,27 @@ import gql from 'graphql-tag';
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateEmailToken } from '../collections/emailTokens/mutations';
 import { updateUser } from '../collections/users/mutations';
-import { EmailTokenResult } from '@/components/users/EmailTokenResult';
+import type { EmailTokenResult } from '@/components/users/EmailTokenResult';
 import { userEmailAddressIsVerified } from '@/lib/collections/users/helpers';
 import UsersRepo from '../repos/UsersRepo';
 import { createPasswordHash, validatePassword } from '../vulcan-lib/apollo-server/passwordHelpers';
 
-const emailTokenResultComponents = {
-  EmailTokenResult,
+type emailTokenResultComponents = {
+  EmailTokenResult: typeof EmailTokenResult,
 };
 
-export type EmailTokenResultComponentName = keyof typeof emailTokenResultComponents;
+export type EmailTokenResultComponentName = keyof emailTokenResultComponents;
 
 export class EmailTokenType<T extends EmailTokenResultComponentName> {
   name: DbEmailTokens['tokenType']
-  onUseAction: (user: DbUser, params: any, args: any) => Promise<ComponentProps<typeof emailTokenResultComponents[T]>>
+  onUseAction: (user: DbUser, params: any, args: any) => Promise<ComponentProps<emailTokenResultComponents[T]>>
   resultComponentName: T
   reusable: boolean
   path: string
   
   constructor({ name, onUseAction, resultComponentName, reusable=false, path = "emailToken" }: {
     name: DbEmailTokens['tokenType'],
-    onUseAction: (user: DbUser, params: any, args: any) => Promise<ComponentProps<typeof emailTokenResultComponents[T]>>,
+    onUseAction: (user: DbUser, params: any, args: any) => Promise<ComponentProps<emailTokenResultComponents[T]>>,
     resultComponentName: T,
     reusable?: boolean,
     path?: string,

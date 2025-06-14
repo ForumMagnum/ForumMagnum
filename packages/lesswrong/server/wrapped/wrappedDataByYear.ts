@@ -1,4 +1,4 @@
-import { WrappedYear } from "@/components/ea-forum/wrapped/hooks";
+import { WrappedYear } from "@/components/ea-forum/wrapped/constants";
 import { getConfirmedCoauthorIds, userIsPostCoauthor } from "@/lib/collections/posts/helpers";
 import { userCanEditUser } from "@/lib/collections/users/helpers";
 import countBy from "lodash/countBy";

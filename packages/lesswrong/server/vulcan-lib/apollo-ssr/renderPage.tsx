@@ -35,7 +35,7 @@ import { responseIsCacheable } from '../../cacheControlMiddleware';
 import moment from 'moment';
 import { preloadScrollToCommentScript } from '@/lib/scrollUtils';
 import { ensureClientId } from '@/server/clientIdMiddleware';
-import { captureEvent } from '@/lib/analyticsEvents';
+import { serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
 import { getSqlBytesDownloaded } from '@/server/sqlConnection';
 import { measureSqlBytesDownloaded } from '@/server/sql/sqlClient';
 

@@ -1,5 +1,7 @@
 import React from 'react';
-import { convertToHTML } from 'draft-convert';
+// import { convertToHTML } from 'draft-convert';
+const convertToHTML = (converters: AnyBecauseHard) => '';
+
 
 export const draftToHTML = convertToHTML({
   //eslint-disable-next-line react/display-name

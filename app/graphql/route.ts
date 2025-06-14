@@ -6,6 +6,7 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import { ApolloServer } from '@apollo/server';
 import { getContextFromReqAndRes } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/context';
 import { initDatabases, initPostgres, initSettings } from '../../packages/lesswrong/server/serverStartup';
+import { NextRequest } from 'next/server';
 // import { createVoteableUnionType } from '@/server/votingGraphQL';
 
 
@@ -23,13 +24,16 @@ await initSettings();
 const server = new ApolloServer({
  schema,
  introspection: true,
+ allowBatchedHttpRequests: true,
+ csrfPrevention: false,
 });
 
 
-const handler = startServerAndCreateNextHandler(server, {
- context: async (req, res) =>
-   await getContextFromReqAndRes({ req, res, isSSR: false }),
+const handler = startServerAndCreateNextHandler<NextRequest>(server, {
+ context: async (req, res) => await getContextFromReqAndRes({ req, res, isSSR: false }),
 });
 
 
-export default handler
+
+
+export { handler as GET, handler as POST };

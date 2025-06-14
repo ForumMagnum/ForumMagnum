@@ -1,3 +1,5 @@
+'use client';
+
 import React, { ComponentType, MouseEventHandler, CSSProperties } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";

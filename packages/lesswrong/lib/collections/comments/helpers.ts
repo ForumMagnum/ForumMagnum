@@ -1,4 +1,4 @@
-import { isAF, taggingNameSetting } from '../../instanceSettings';
+import { isAF, isEAForum, taggingNameSetting } from '../../instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { postGetPageUrl } from '../posts/helpers';
 import { userCanDo } from '../../vulcan-users/permissions';
@@ -125,3 +125,19 @@ export const commentIncludedInCounts = (comment: Pick<DbComment, '_id' | 'delete
   !comment.authorIsUnreviewed &&
   !comment.draft
 );
+
+export async function getVotingSystemNameForDocument(document: VoteableType, collectionName: VoteableCollectionName, context: ResolverContext): Promise<string> {
+  if (collectionName === "MultiDocuments" || collectionName === "Tags") {
+    return "reactionsAndLikes";
+  }
+  if ((document as DbComment).tagId) {
+    return isEAForum ? "eaEmojis" : "namesAttachedReactions";
+  }
+  if ((document as DbComment).postId) {
+    const post = await context.loaders.Posts.load((document as DbComment).postId!);
+    if (post?.votingSystem) {
+      return post.votingSystem;
+    }
+  }
+  return (document as DbPost)?.votingSystem ?? "default";
+}

@@ -1929,9 +1929,9 @@ const schema = {
       canUpdate: ["admins", "sunshineRegiment"],
       // This differs from the `defaultValue` because it varies by forum-type
       // and we don't have a setup for `accepted_schema.sql` to vary by forum type.
-      onCreate: ({ document }) => {
+      onCreate: async ({ document }) => {
         // This is to break an annoying import cycle that causes a crash on start.
-        const { getVotingSystemByName }: typeof import('@/lib/voting/getVotingSystem') = require('@/lib/voting/getVotingSystem');
+        const { getVotingSystemByName } = await import('@/lib/voting/getVotingSystem');
         const votingSystem = ('votingSystem' in document && !!getVotingSystemByName(document.votingSystem as string))
           ? document.votingSystem
           : getDefaultVotingSystem();

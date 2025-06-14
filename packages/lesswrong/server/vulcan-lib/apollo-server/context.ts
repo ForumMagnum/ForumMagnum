@@ -26,6 +26,7 @@ import { getCookieFromReq } from '../../utils/httpUtil';
 import { isEAForum } from '../../../lib/instanceSettings';
 import { asyncLocalStorage } from '../../perfMetrics';
 import { visitorGetsDynamicFrontpage } from '../../../lib/betas';
+import type { NextRequest, NextResponse } from 'next/server';
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
 export const getUser = async (loginToken: string): Promise<DbUser|null> => {
@@ -114,8 +115,8 @@ export function requestIsFromIssaRiceReader(req?: Request): boolean {
 
 export const computeContextFromUser = async ({user, req, res, isSSR}: {
   user: DbUser|null,
-  req?: Request,
-  res?: Response,
+  req?: NextRequest,
+  res?: NextResponse,
   isSSR: boolean
 }): Promise<ResolverContext> => {
   let visitorActivity: DbUserActivity|null = null;
@@ -129,7 +130,7 @@ export const computeContextFromUser = async ({user, req, res, isSSR}: {
   let context: ResolverContext = {
     ...getAllCollectionsByName(),
     ...generateDataLoaders(),
-    req: req as any,
+    req: req,
     res,
     headers: (req as any)?.headers,
     locale: (req as any)?.headers ? getHeaderLocale((req as any).headers, null) : "en-US",
@@ -182,8 +183,8 @@ export const getUserFromReq = (req: AnyBecauseTodo): DbUser|null => {
 }
 
 export async function getContextFromReqAndRes({req, res, isSSR}: {
-  req: Request,
-  res: Response,
+  req: NextRequest,
+  res: NextResponse,
   isSSR: boolean
 }): Promise<ResolverContext> {
   const user = getUserFromReq(req);

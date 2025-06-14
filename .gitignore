@@ -111,3 +111,5 @@ test-results
 
 # Dependency cruiser output
 dependency-graph.svg
+
+.env

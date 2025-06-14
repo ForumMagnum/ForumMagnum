@@ -20,11 +20,10 @@ import { useMapStyle } from '../hooks/useMapStyle';
 import LWTooltip from "../common/LWTooltip";
 import LoginPopupButton from "../users/LoginPopupButton";
 import { Typography } from "../common/Typography";
+import { petrovDayLaunchCode } from '@/lib/collections/petrovDayActions/constants';
 
 export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
 export const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
-export const petrovDayLaunchCode = 'whatwouldpetrovdo?'
-
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
 // see this post:
 // https://www.lesswrong.com/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019

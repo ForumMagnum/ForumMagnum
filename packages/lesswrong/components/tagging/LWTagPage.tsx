@@ -22,7 +22,8 @@ import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtil
 import { useStyles, defineStyles } from "../hooks/useStyles";
 import { HEADER_HEIGHT } from "../common/Header";
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/constants';
-import { MAIN_TAB_ID, TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
+import { TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
+import { MAIN_TAB_ID } from "@/lib/collections/tags/constants";
 import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
 import { isClient } from "@/lib/executionEnvironment";
 import qs from "qs";

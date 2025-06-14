@@ -13,13 +13,7 @@ import { useNavigate } from '../../../lib/routeUtil';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import LWDialog from "../../common/LWDialog";
 import { MenuItem } from "../../common/Menus";
-
-export type RsvpResponse = "yes"|"maybe"|"no";
-export const responseToText: Record<RsvpResponse,string> = {
-  yes: "Going",
-  maybe: "Maybe",
-  no: "Can't Go"
-}
+import { responseToText } from '@/lib/collections/posts/constants';
 
 const styles = (theme: ThemeType) => ({
   emailMessage: isFriendlyUI

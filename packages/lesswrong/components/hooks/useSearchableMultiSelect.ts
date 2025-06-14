@@ -6,8 +6,7 @@ import { captureException } from "@sentry/core";
 import { getSearchClient } from "@/lib/search/searchUtil";
 import { algoliaPrefixSetting } from "@/lib/publicSettings";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
-
-export const MULTISELECT_SUGGESTION_LIMIT = 8;
+import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
 
 export type SearchableMultiSelectState = MultiSelectState & {
   /**

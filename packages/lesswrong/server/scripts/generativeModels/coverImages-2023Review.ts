@@ -9,7 +9,7 @@ import { moveImageToCloudinary } from '../convertImagesToCloudinary.ts';
 import { fal } from '@fal-ai/client';
 import sample from 'lodash/sample';
 import { falApiKey } from '@/lib/instanceSettings.ts';
-import { artPrompt } from '@/components/review/GenerateImagesButton.tsx';
+import { artPrompt } from '@/lib/collections/reviewWinnerArts/constants.ts';
 import { createAdminContext } from '@/server/vulcan-lib/createContexts.ts';
 import { createReviewWinnerArt } from '@/server/collections/reviewWinnerArts/mutations.ts';
 import { createSplashArtCoordinate } from '@/server/collections/splashArtCoordinates/mutations.ts';

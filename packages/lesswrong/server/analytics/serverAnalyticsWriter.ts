@@ -1,10 +1,14 @@
-import { isDevelopment } from '@/lib/executionEnvironment';
+import { isDevelopment, isE2E } from '@/lib/executionEnvironment';
 import { randomId } from '@/lib/random';
 import { PublicInstanceSetting, performanceMetricLoggingBatchSize } from '@/lib/instanceSettings';
 import { addStaticRoute } from '@/server/vulcan-lib/staticRoutes';
 import { pgPromiseLib, getAnalyticsConnection } from './postgresConnection'
 import chunk from 'lodash/chunk';
 import gql from 'graphql-tag';
+import type { EventProps } from '@/lib/analyticsEvents';
+import { getShowAnalyticsDebug } from '@/lib/analyticsDebugging';
+import { ColorHash } from '@/lib/vendor/colorHash';
+import moment from 'moment';
 
 // Since different environments are connected to the same DB, this setting cannot be moved to the database
 export const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning")
@@ -230,6 +234,40 @@ export function serverWriteEvent(event: AnyBecauseTodo) {
       serverId: serverId,
     }
   }]);
+}
+
+function serverConsoleLogAnalyticsEvent(event: any) {
+  const [r,g,b] = new ColorHash({lightness: 0.5}).rgb(event.type);
+  const colorEscapeSeq = `\x1b[38;2;0;${r};${g};${b}m`;
+  const endColorEscapeSeq = '\x1b[0m';
+  // eslint-disable-next-line no-console
+  console.log(`Analytics event: ${colorEscapeSeq}${event.type}${endColorEscapeSeq}`, {
+    ...event.props,
+    '[[time of day]]': moment().format('HH:mm:ss.SSS')
+  });
+}
+
+export function serverCaptureEvent(eventType: string, eventProps?: EventProps, suppressConsoleLog = false) {
+  if (isE2E) {
+    return;
+  }
+
+  try {
+    const event = {
+      type: eventType,
+      timestamp: new Date(),
+      props: {
+        ...eventProps
+      }
+    }
+    if (!suppressConsoleLog && getShowAnalyticsDebug()) {
+      serverConsoleLogAnalyticsEvent(event);
+    }
+    serverWriteEvent(event);
+  } catch(e) {
+    // eslint-disable-next-line no-console
+    console.error("Error while capturing analytics event: ", e);
+  }
 }
 
 // Analytics events that were recorded during startup before we were ready

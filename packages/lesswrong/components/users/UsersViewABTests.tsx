@@ -1,6 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useAllABTests, useClientId, getUserABTestKey, getABTestsMetadata } from '../../lib/abTestImpl';
+import { useClientId, getUserABTestKey, getABTestsMetadata } from '../../lib/abTestImpl';
+import { useAllABTests } from '../hooks/useAbTests';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';

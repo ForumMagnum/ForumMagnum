@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { useUserLocation } from '../../../lib/collections/users/helpers';
+import { useUserLocation } from '@/components/hooks/useUserLocation';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';

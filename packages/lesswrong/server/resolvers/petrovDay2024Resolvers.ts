@@ -1,7 +1,7 @@
 import PetrovDayActions from "@/server/collections/petrovDayActions/collection";
-import { petrovBeforeTime } from "@/components/Layout";
+import { petrovBeforeTime } from '@/lib/publicSettings';
 import { DatabaseServerSetting } from "../databaseSettings";
-import { inWarningWindow } from "@/components/seasonal/petrovDay/PetrovWarningConsole";
+import { inWarningWindow } from '@/lib/collections/petrovDayActions/helpers';
 import gql from "graphql-tag";
 
 const petrovFalseAlarmMissileCount = new DatabaseServerSetting<number[]>('petrovFalseAlarmMissileCount', [])

@@ -1,7 +1,8 @@
-import React, { ForwardedRef, createContext, forwardRef, useContext } from 'react';
-import { ApolloQueryResult, NetworkStatus, OperationVariables } from '@apollo/client';
+'use client';
 
-export const UserContext = createContext<UsersCurrent|null>(null);
+import { ForwardedRef, createContext, useContext } from 'react';
+import { ApolloQueryResult, NetworkStatus, OperationVariables } from '@apollo/client';
+import { UserContext } from './sharedContexts';
 
 // React hook for getting the currently logged in user (or null, if not logged
 // in). Note that some components are meant to only be used if the user is
@@ -14,15 +15,6 @@ interface WithUserProps {
   ref: ForwardedRef<unknown>;
 };
 
-// Higher-order component for providing the currently logged in user, assuming
-// the component is a descendant of Layout. This is much faster than Vulcan's
-// withCurrentUser, which creates a graphql query for each component.
-export default function withUser(Component: React.FC<WithUserProps>) {
-  return forwardRef((props, ref) => {
-    const currentUser = useCurrentUser();
-    return <Component ref={ref} {...props} currentUser={currentUser} />
-  })
-}
 
 export type RefetchCurrentUserFunction = (
   variables?: Partial<OperationVariables>,

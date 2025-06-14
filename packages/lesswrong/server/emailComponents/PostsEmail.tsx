@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { postGetPageUrl, postGetLink, postGetLinkTarget } from '../../lib/collections/posts/helpers';

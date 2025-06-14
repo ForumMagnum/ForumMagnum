@@ -1,5 +1,5 @@
 import { datadogRum } from '@datadog/browser-rum';
-import { EditableUser, getDatadogUser } from '../lib/collections/users/helpers';
+import { EditableUser, getUserEmail } from '../lib/collections/users/helpers';
 import { isEAForum } from '../lib/instanceSettings';
 import { ddRumSampleRate, ddSessionReplaySampleRate, ddTracingSampleRate } from '../lib/publicSettings';
 import { getCookiePreferences } from '../lib/cookies/utils';
@@ -62,5 +62,21 @@ export function configureDatadogRum(user: UsersCurrent | UsersEdit | EditableUse
     console.log("Session Replay enabled")
     datadogRum.startSessionReplayRecording();
   }
+}
+
+type DatadogUser = {
+  id: string;
+  email?: string;
+  name?: string;
+  slug?: string;
+};
+
+export function getDatadogUser(user: UsersCurrent | UsersEdit | EditableUser | DbUser): DatadogUser {
+  return {
+    id: user._id,
+    email: getUserEmail(user),
+    name: user.displayName ?? user.username ?? '[missing displayName and username]',
+    slug: user.slug ?? 'missing slug',
+  };
 }
 

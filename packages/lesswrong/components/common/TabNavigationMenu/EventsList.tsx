@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { useUserLocation } from '../../../lib/collections/users/helpers';
+import { useUserLocation } from '@/components/hooks/useUserLocation';
 import { isEAForum } from '../../../lib/instanceSettings';
 import TabNavigationEventsList from "../../localGroups/TabNavigationEventsList";
 

@@ -3,14 +3,16 @@ import React from 'react';
 import { useServerRequestStatus } from '../../lib/routeUtil'
 import { isFriendlyUI } from '../../themes/forumTheme';
 import SingleColumnSection from "./SingleColumnSection";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('Error404', (theme: ThemeType) => ({
   root: {
     fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : theme.palette.fonts.serifStack,
   },
-});
+}));
 
-const Error404 = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const Error404 = () => {
+  const classes = useStyles(styles);
   const serverRequestStatus = useServerRequestStatus()
   if (serverRequestStatus) serverRequestStatus.status = 404
   
@@ -22,6 +24,6 @@ const Error404 = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
 };
 
-export default registerComponent('Error404', Error404, {styles});
+export default registerComponent('Error404', Error404);
 
 

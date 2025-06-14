@@ -5,7 +5,7 @@ import PostsIcon from '@/lib/vendor/@material-ui/icons/src/Description';
 import CommentsIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import EventIcon from '@/lib/vendor/@material-ui/icons/src/Event';
 import MailIcon from '@/lib/vendor/@material-ui/icons/src/Mail';
-import { responseToText } from '../components/posts/PostsPage/RSVPForm';
+import { responseToText } from './collections/posts/constants';
 import sortBy from 'lodash/sortBy';
 import { REVIEW_NAME_IN_SITU } from './reviewUtils';
 import SupervisedUserCircleIcon from '@/lib/vendor/@material-ui/icons/src/SupervisedUserCircle';
@@ -14,7 +14,6 @@ import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import startCase from 'lodash/startCase';
 import { GiftIcon } from '../components/icons/giftIcon';
 import { userGetDisplayName } from './collections/users/helpers'
-import { TupleSet, UnionOf } from './utils/typeGuardUtils'
 import DebateIcon from '@/lib/vendor/@material-ui/icons/src/Forum';
 import { Link } from './reactRouterWrapper';
 import { isFriendlyUI } from '../themes/forumTheme';
@@ -25,6 +24,7 @@ import { NotificationChannel } from "./collections/users/notificationFieldHelper
 import keyBy from 'lodash/keyBy';
 import ForumIcon from '@/components/common/ForumIcon';
 import CommentOnYourDraftNotificationHover from '@/components/notifications/CommentOnYourDraftNotificationHover';
+import type { NotificationDocument } from '@/server/collections/notifications/constants';
 
 // We need enough fields here to render the user tooltip
 type NotificationDisplayUser = Pick<
@@ -90,9 +90,6 @@ export type NotificationDisplay =
     localgroup?: NotificationDisplayLocalgroup,
     tagRelId?: string,
   };
-
-export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'sequence', 'localgroup', 'dialogueCheck', 'dialogueMatchPreference'] as const)
-export type NotificationDocument = UnionOf<typeof notificationDocumentTypes>
 
 interface GetMessageProps {
   documentType: NotificationDocument | null

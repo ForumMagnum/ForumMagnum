@@ -1,3 +1,5 @@
+'use client';
+
 import React from "react";
 import { JOB_AD_DATA } from "../../components/ea-forum/TargetedJobAd";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";

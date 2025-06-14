@@ -219,3 +219,11 @@ export const auth0FacebookLoginEnabled = new DatabasePublicSetting<boolean>(
 export const mapsAPIKeySetting = new DatabasePublicSetting<string | null>('googleMaps.apiKey', null);
 
 export const siteImageSetting = new DatabasePublicSetting<string>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg'); // An image used to represent the site on social media
+
+export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0);
+export const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0);
+
+export const openThreadTagIdSetting = new DatabasePublicSetting<string>('openThreadTagId', 'eTLv8KzwBGcDip9Wi');
+export const startHerePostIdSetting = new DatabasePublicSetting<string | null>('startHerePostId', null);
+export const amaTagIdSetting = new DatabasePublicSetting<string | null>('amaTagId', null);
+

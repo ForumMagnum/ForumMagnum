@@ -1,6 +1,10 @@
+'use client';
+
 import React, { useState } from "react";
 import { useTheme } from "../themes/useTheme";
-import { createStylesContext, setClientMountedStyles, StylesContext, StylesContextType } from "./useStyles";
+import { StylesContext, StylesContextType } from "./useStyles";
+import { setClientMountedStyles } from "@/lib/styles/defineStyles";
+import { createStylesContext } from "@/lib/jssStyles";
 import { isClient } from "@/lib/executionEnvironment";
 
 export const FMJssProvider = ({stylesContext, children}: {

@@ -19,21 +19,22 @@ import { MessageContextProvider } from '../common/FlashMessages';
 import HeadTags from '../common/HeadTags';
 import { RefetchCurrentUserContext } from '../common/withUser';
 import ScrollToTop from '../vulcan-core/ScrollToTop';
-import type { RouterLocation } from '@/lib/vulcan-lib/routes';
 import type { History } from 'history'
 import { useQueryCurrentUser } from '@/lib/crud/withCurrentUser';
-import { useParams, usePathname } from 'next/navigation';
+import { useParams, usePathname, useSearchParams, useRouter } from 'next/navigation';
 import Layout from '../Layout';
-import { useHistory } from 'react-router';
 
 const AppComponent = ({children}: {children: React.ReactNode}) => {
+  const searchParams = useSearchParams();
   const pathname = usePathname();
   const params: Record<string, string> = useParams();
+  // TODO: don't override the undefined case, actually fix it
+  const sanitizedQuery = Object.fromEntries(searchParams.entries());
   // TODO: implement the location and subscribed location values properly
-  const locationContext = useRef<RouterLocation | null>({ params, pathname, query: {}, hash: '', redirected: false, currentRoute: null, RouteComponent: null, location: { pathname, search: '', hash: '' }, url: '' });
-  const subscribeLocationContext = useRef<RouterLocation | null>({ params, pathname, query: {}, hash: '', redirected: false, currentRoute: null, RouteComponent: null, location: { pathname, search: '', hash: '' }, url: '' });
+  const location = { params, pathname, query: sanitizedQuery, hash: '', redirected: false, currentRoute: null, RouteComponent: null, location: { pathname, search: '', hash: '' }, url: '' };
+  const subscribeLocation = location;
 
-  const history = useHistory();
+  const history = useRouter();
   const navigationContext = useRef<{ history: History<unknown> } | null>({ history });
 
   const {currentUser, refetchCurrentUser, currentUserLoading} = useQueryCurrentUser();
@@ -75,9 +76,9 @@ const AppComponent = ({children}: {children: React.ReactNode}) => {
   // }
 
 
-  return <LocationContext.Provider value={locationContext.current}>
+  return <LocationContext.Provider value={location}>
   <NavigationContext.Provider value={navigationContext.current}>
-  <SubscribeLocationContext.Provider value={subscribeLocationContext.current}>
+  <SubscribeLocationContext.Provider value={subscribeLocation}>
   <ServerRequestStatusContext.Provider value={/*serverRequestStatus||*/null}>
   <RefetchCurrentUserContext.Provider value={refetchCurrentUser}>
     <MessageContextProvider>

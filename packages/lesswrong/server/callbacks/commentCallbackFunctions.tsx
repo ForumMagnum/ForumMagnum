@@ -18,7 +18,7 @@ import { rateLimitDateWhenUserNextAbleToComment } from "../rateLimitUtils";
 import { recombeeApi } from "../recombee/client";
 import { getCommentAncestorIds, getCommentSubtree } from "../utils/commentTreeUtils";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
-import { captureEvent } from "@/lib/analyticsEvents";
+import { serverCaptureEvent as captureEvent } from "@/server/analytics/serverAnalyticsWriter";
 import { akismetKeySetting, commentAncestorsToNotifySetting } from "../databaseSettings";
 import { checkForAkismetSpam } from "../akismet";
 import { getUsersToNotifyAboutEvent } from "../notificationCallbacks";

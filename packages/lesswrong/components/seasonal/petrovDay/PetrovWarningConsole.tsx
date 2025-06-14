@@ -5,6 +5,8 @@ import { useQuery } from "@/lib/crud/useQuery";
 import PetrovWorldmapWrapper from "./PetrovWorldmapWrapper";
 import PastWarnings from "./PastWarnings";
 import { gql } from "@/lib/generated/gql-codegen";
+import { inWarningWindow } from '@/lib/collections/petrovDayActions/helpers';
+import { STARTING_MINUTE } from '@/lib/collections/petrovDayActions/constants';
 
 const PetrovDayActionInfoMultiQuery = gql(`
   query multiPetrovDayActionPetrovWarningConsoleQuery($selector: PetrovDayActionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -47,12 +49,6 @@ const styles = (theme: ThemeType) => ({
     }
   }
 });
-
-const STARTING_MINUTE = 50
-
-export const inWarningWindow = (currentMinute: number) => {
-  return currentMinute >= STARTING_MINUTE || currentMinute < 17
-}
 
 export const PetrovWarningConsole = ({classes, currentUser, side}: {
   classes: ClassesType<typeof styles>,

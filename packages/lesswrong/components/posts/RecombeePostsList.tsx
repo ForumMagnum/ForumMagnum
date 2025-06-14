@@ -15,6 +15,7 @@ import PostsItem from "./PostsItem";
 import SectionFooter from "../common/SectionFooter";
 import PostsLoading from "./PostsLoading";
 import { gql } from '@/lib/generated/gql-codegen';
+import { stickiedPostTerms } from '@/lib/collections/posts/constants';
 
 type LoadMoreSettings = {
   loadMore: (RecombeeConfiguration | HybridRecombeeConfiguration)['loadMore'];
@@ -114,12 +115,6 @@ const getLoadMoreSettings = (resolverName: RecombeeResolver, results: getRecombe
     }
   }
 }
-
-export const stickiedPostTerms = {
-  view: 'stickied',
-  limit: 4, // seriously, shouldn't have more than 4 stickied posts
-  forum: true
-} satisfies PostsViewTerms;
 
 export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: {
   algorithm: string,

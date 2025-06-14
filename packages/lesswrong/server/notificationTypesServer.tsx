@@ -12,7 +12,8 @@ import keyBy from 'lodash/keyBy';
 import Users from '../server/collections/users/collection';
 import { userGetDisplayName, userGetProfileUrl } from '../lib/collections/users/helpers';
 import * as _ from 'underscore';
-import {getDocumentSummary, taggedPostMessage, NotificationDocument, getDocument} from '../lib/notificationTypes'
+import {getDocumentSummary, taggedPostMessage, getDocument} from '../lib/notificationTypes'
+import type { NotificationDocument } from './collections/notifications/constants';
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { getReviewTitle, REVIEW_YEAR } from '../lib/reviewUtils';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
@@ -21,8 +22,8 @@ import Tags from '../server/collections/tags/collection';
 import { tagGetSubforumUrl } from '../lib/collections/tags/helpers';
 import uniq from 'lodash/uniq';
 import startCase from 'lodash/startCase';
-import { DialogueMessageEmailInfo, NewDialogueMessagesEmail } from './emailComponents/NewDialogueMessagesEmail';
 import Sequences from '../server/collections/sequences/collection';
+import { DialogueMessageEmailInfo, NewDialogueMessagesEmail } from './emailComponents/NewDialogueMessagesEmail';
 import { PostsEmail } from './emailComponents/PostsEmail';
 import { EmailCommentBatch } from './emailComponents/EmailComment';
 import { PostNominatedEmail } from './emailComponents/PostNominatedEmail';
@@ -830,18 +831,19 @@ export const NewMentionNotification = createServerNotificationType({
     return `${summary.associatedUserName} mentioned you in ${summary.displayName}`;
   },
   emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
-    const summary = await getDocumentSummary(notifications[0].documentType as NotificationDocument, notifications[0].documentId, context);
+    const notification = notifications[0];
+    const summary = await getDocumentSummary(notification.documentType as NotificationDocument, notification.documentId, context);
     if (!summary) {
-      throw Error(`Can't find document for notification: ${notifications[0]}`);
+      throw Error(`Can't find document for notification: ${notification}`);
     }
 
-    if (!notifications[0].link) {
-      throw Error(`Can't link for notification: ${notifications[0]}`);
+    if (!notification.link) {
+      throw Error(`Can't link for notification: ${notification}`);
     }
 
     return (
       <p>
-        {summary.associatedUserName} mentioned you in <a href={makeAbsolute(notifications[0].link)}>{summary.displayName}</a>.
+        {summary.associatedUserName} mentioned you in <a href={makeAbsolute(notification.link)}>{summary.displayName}</a>.
       </p>
     );
   },

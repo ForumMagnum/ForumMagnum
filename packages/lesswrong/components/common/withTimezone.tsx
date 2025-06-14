@@ -1,13 +1,13 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
-import { hookToHoc } from '../../lib/hocUtils';
 import moment from '../../lib/moment-timezone';
 import { useCurrentUser } from './withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { TIMEZONE_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { DEFAULT_TIMEZONE, EnvironmentOverrideContext } from '../../lib/utils/timeUtil';
-
-export const TimezoneContext = React.createContext<string|null>(null);
+import { TimezoneContext } from './sharedContexts';
+import { EnvironmentOverrideContext, DEFAULT_TIMEZONE } from '@/lib/utils/timeUtil';
 
 // If we know the user's timezone, then timezone is that timezone (a string,
 // for use with moment-timezone, such as "America/New_York") and timezoneIsKnown is true;

@@ -3,7 +3,7 @@ import { getWrappedDataByYear } from "./wrappedDataByYear";
 import { getWrappedEngagement } from "./wrappedEngagment";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { getAllRepos } from "../repos";
-import type { WrappedYear } from "@/components/ea-forum/wrapped/hooks";
+import type { WrappedYear } from "@/components/ea-forum/wrapped/constants";
 import sampleSize from "lodash/fp/sampleSize";
 import chunk from "lodash/chunk";
 import { createAnonymousContext } from "../vulcan-lib/createContexts";

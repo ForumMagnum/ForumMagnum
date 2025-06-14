@@ -1,3 +1,5 @@
+'use client';
+
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import React from 'react';

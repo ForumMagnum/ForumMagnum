@@ -1,7 +1,7 @@
 import { isPostAllowedType3Audio, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { DatabaseServerSetting } from "./databaseSettings";
 import { Posts } from "@/server/collections/posts/collection.ts";
-import { captureEvent } from "@/lib/analyticsEvents";
+import { serverCaptureEvent as captureEvent } from "@/server/analytics/serverAnalyticsWriter";
 import { isTagAllowedType3Audio, tagGetUrl } from "@/lib/collections/tags/helpers";
 import { Tags } from "@/server/collections/tags/collection";
 

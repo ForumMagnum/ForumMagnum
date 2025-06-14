@@ -1,6 +1,14 @@
 import { trimLatexAndAddCSS, preProcessLatex } from './latexUtils';
 import { randomId } from '../../lib/random';
-import { convertFromRaw } from 'draft-js';
+// import { convertFromRaw } from 'draft-js';
+import type { ContentState } from 'draft-js';
+// TODO: !!!
+const convertFromRaw = () => {
+  return {
+    blocks: [],
+    entityMap: {},
+  } as unknown as ContentState;
+};
 import { draftToHTML } from '../draftConvert';
 import { captureException } from '@sentry/core';
 import TurndownService from 'turndown';

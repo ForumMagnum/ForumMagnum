@@ -11,7 +11,6 @@ import { isAnyTest, isE2E } from "@/lib/executionEnvironment";
 import { eaFrontpageDateDefault, isEAForum, requireReviewToFrontpagePostsSetting } from "@/lib/instanceSettings";
 import { recombeeEnabledSetting, vertexEnabledSetting } from "@/lib/publicSettings";
 import { asyncForeachSequential } from "@/lib/utils/asyncUtils";
-import { isWeekend } from "@/lib/utils/timeUtil";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from "../curationEmails/cron";
 import { autoFrontpageSetting, tagBotActiveTimeSetting } from "../databaseSettings";
@@ -52,6 +51,32 @@ import { updateNotification } from "../collections/notifications/mutations";
 import { EmailCuratedAuthors } from "../emailComponents/EmailCuratedAuthors";
 import { EventUpdatedEmail } from "../emailComponents/EventUpdatedEmail";
 import { PostsHTML } from "@/lib/collections/posts/fragments";
+
+
+/**
+ * Check whether it's after 5pm UK time on Friday and before 9am ET on Monday
+ */
+function isWeekend(): boolean {
+  const nowUK = moment().tz("Europe/London");
+  const nowET = moment().tz("America/New_York");
+
+  const dayOfWeekUK = nowUK.day();
+  const hourOfDayUK = nowUK.hour();
+  const dayOfWeekET = nowET.day();
+  const hourOfDayET = nowET.hour();
+
+  if (dayOfWeekUK === 5 && hourOfDayUK >= 17) {
+    return true;
+  }
+  if (dayOfWeekUK === 6 || dayOfWeekUK === 0) {
+    return true;
+  }
+  if (dayOfWeekET === 1 && hourOfDayET < 9) {
+    return true;
+  }
+
+  return false;
+}
 
 /** Create notifications for a new post being published */
 export async function sendNewPostNotifications(post: DbPost) {

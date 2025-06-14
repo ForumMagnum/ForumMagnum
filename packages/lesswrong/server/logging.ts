@@ -1,5 +1,4 @@
 import { captureException } from '@sentry/core';
-import { captureEvent } from '../lib/analyticsEvents';
 import { isAnyTest } from '../lib/executionEnvironment';
 import { DatabaseServerSetting } from './databaseSettings';
 import { printInFlightRequests } from './vulcan-lib/apollo-ssr/pageCache';

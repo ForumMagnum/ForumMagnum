@@ -107,6 +107,11 @@ export function HashLink(props: HashLinkProps) {
         navigate(to);
         ev.preventDefault();
       }}
+      onClick={(ev) => {
+        if (doOnDown) {
+          ev.preventDefault();
+        }
+      }}
     >
       {props.children}
     </a>

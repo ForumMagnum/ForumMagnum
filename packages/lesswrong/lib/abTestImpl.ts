@@ -1,5 +1,6 @@
-import React, { useContext } from 'react';
-import { useCurrentUser } from '../components/common/withUser';
+'use client';
+
+import React from 'react';
 import * as _ from 'underscore';
 import rng from './seedrandom';
 import { CLIENT_ID_COOKIE } from './cookies/cookies';
@@ -136,30 +137,6 @@ export function weightedRandomPick<T extends string>(options: Record<T,number>, 
   throw new Error("Out of range value in weightedRandomPick");
 }
 
-
-// Returns the name of the A/B test group that the current user/client is in.
-// `forceGroup` is a way to conveniently bypass this (for logged out users), to
-// make the page suitable for caching.
-export function useABTest<Group extends string>(abtest: ABTest<Group>, forceGroup?: string): Group {
-  const currentUser = useCurrentUser();
-  const clientId = useClientId();
-  const abTestGroupsUsed = useContext(ABTestGroupsUsedContext);
-
-  if (forceGroup) {
-    return forceGroup as Group;
-  }
-
-  const group = getUserABTestGroup(currentUser ? {user: currentUser} : {clientId}, abtest);
-
-  abTestGroupsUsed[abtest.name] = group;
-  return group;
-}
-
-export function useABTestProperties(abtest: ABTest): ABTestGroup {
-  const groupName = useABTest(abtest);
-  return abtest.groups[groupName];
-}
-
 // Returns the user's clientID. This is stored in a cookie separately from
 // accounts; a user may have multiple clientIDs (eg if they have multiple
 // devices) and a clientID may correspond to multiple users (if they log out and
@@ -171,22 +148,6 @@ export function useABTestProperties(abtest: ABTest): ABTestGroup {
 export function useClientId(): string | undefined {
   const [cookies] = useCookiesWithConsent([CLIENT_ID_COOKIE]);
   return cookies[CLIENT_ID_COOKIE];
-}
-
-// Return a complete mapping of A/B test names to A/B test groups. This is used
-// on the page that shows you what A/B tests you're in; it should otherwise be
-// avoided, since it interferes with caching.
-export function useAllABTests(): CompleteTestGroupAllocation {
-  const currentUser = useCurrentUser();
-  const clientId = useClientId();
-  
-  const abTestGroupsUsed: CompleteTestGroupAllocation = useContext(ABTestGroupsUsedContext);
-  
-  const testGroups = getAllUserABTestGroups(currentUser ? {user: currentUser} : {clientId});
-  for (let abTestKey in testGroups)
-    abTestGroupsUsed[abTestKey] = testGroups[abTestKey];
-  
-  return testGroups;
 }
 
 export function classesForAbTestGroups(groups: CompleteTestGroupAllocation) {

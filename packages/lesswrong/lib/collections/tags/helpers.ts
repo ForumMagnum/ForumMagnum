@@ -9,6 +9,7 @@ import type { Request, Response } from 'express';
 import type { TagLens } from "@/lib/arbital/useTagLenses";
 import { allowTypeIIIPlayerSetting } from "../posts/helpers";
 import { SORT_ORDER_OPTIONS, SettingsOption } from "../posts/dropdownOptions";
+import { TagHistorySettings } from "@/components/tagging/history/TagHistoryPage";
 
 export const tagMinimumKarmaPermissions = forumSelect({
   // Topic spampocalypse defense
@@ -149,4 +150,15 @@ export const TAG_POSTS_SORT_ORDER_OPTIONS = {
   relevance: { label: preferredHeadingCase("Most Relevant") },
   ...SORT_ORDER_OPTIONS,
 } satisfies Record<string, SettingsOption>;
+
+export const defaultTagHistorySettings: TagHistorySettings = {
+  //displayFormat: "dense",
+  displayFormat: "expanded",
+  showEdits: true,
+  showSummaryEdits: true,
+  showComments: true,
+  showTagging: true,
+  showMetadata: true,
+  lensId: "all",
+};
 

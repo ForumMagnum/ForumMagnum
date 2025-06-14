@@ -1,4 +1,4 @@
-import { petrovBeforeTime } from "../components/Layout";
+import { petrovBeforeTime } from './publicSettings';
 import moment from "moment";
 
 export const getPetrovDayKarmaThreshold = (): number => {

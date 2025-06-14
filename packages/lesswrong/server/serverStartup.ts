@@ -95,13 +95,13 @@ export const initServer = async (commandLineArguments: CommandLineArguments) => 
   }
   await initDatabases(commandLineArguments);
   await initSettings();
-  importAllServerFiles();
+  // importAllServerFiles();
   await initPostgres();
 }
 
-function importAllServerFiles() {
-  require('../server.ts');
-}
+// function importAllServerFiles() {
+//   require('../server.ts');
+// }
 
 function getClusterRole(): "standalone"|"primary"|"worker" {
   if (!clusterSetting.get()) {
@@ -114,46 +114,46 @@ function getClusterRole(): "standalone"|"primary"|"worker" {
   }
 }
 
-export const serverStartup = async () => {
-  const commandLineArguments = getCommandLineArguments();
-  const clusterRole = getClusterRole();
+// export const serverStartup = async () => {
+//   const commandLineArguments = getCommandLineArguments();
+//   const clusterRole = getClusterRole();
 
-  // Use OS load balancing (as opposed to round-robin)
-  // In principle, this should give better performance because it is aware of resource (cpu) usage
-  if (clusterRole !== "standalone") {
-    cluster.schedulingPolicy = cluster.SCHED_NONE
-  }
+//   // Use OS load balancing (as opposed to round-robin)
+//   // In principle, this should give better performance because it is aware of resource (cpu) usage
+//   if (clusterRole !== "standalone") {
+//     cluster.schedulingPolicy = cluster.SCHED_NONE
+//   }
 
-  if (clusterRole === "primary") {
-    // Initialize db connection and a few other things such as settings, but don't start a webserver.
-    console.log("Initializing primary process");
-    await initServer(commandLineArguments);
+//   if (clusterRole === "primary") {
+//     // Initialize db connection and a few other things such as settings, but don't start a webserver.
+//     console.log("Initializing primary process");
+//     await initServer(commandLineArguments);
 
-    const numWorkers = numWorkersSetting.get();
+//     const numWorkers = numWorkersSetting.get();
 
-    console.log(`Running in cluster mode with ${numWorkers} workers (vs ${numCPUs} cpus)`);
-    console.log(`Primary ${process.pid} is running, about to fork workers`);
+//     console.log(`Running in cluster mode with ${numWorkers} workers (vs ${numCPUs} cpus)`);
+//     console.log(`Primary ${process.pid} is running, about to fork workers`);
 
-    // Fork workers.
-    for (let i = 0; i < numWorkers; i++) {
-      cluster.fork();
-    }
+//     // Fork workers.
+//     for (let i = 0; i < numWorkers; i++) {
+//       cluster.fork();
+//     }
 
-    cluster.on('exit', (worker, _code, _signal) => {
-      console.log(`Worker ${worker.process.pid} died`);
-      setTimeout(() => cluster.fork(), processRestartDelay);
-    });
-  } else {
-    if (clusterRole !== "standalone") {
-      console.log(`Starting worker ${process.pid}`);
-    }
+//     cluster.on('exit', (worker, _code, _signal) => {
+//       console.log(`Worker ${worker.process.pid} died`);
+//       setTimeout(() => cluster.fork(), processRestartDelay);
+//     });
+//   } else {
+//     if (clusterRole !== "standalone") {
+//       console.log(`Starting worker ${process.pid}`);
+//     }
     
-    await initServer(commandLineArguments);
-    const { serverMain } = require('./serverMain');
-    await serverMain(commandLineArguments);
+//     await initServer(commandLineArguments);
+//     const { serverMain } = require('./serverMain');
+//     await serverMain(commandLineArguments);
 
-    if (clusterRole !== "standalone") {
-      console.log(`Worker ${process.pid} started`);
-    }
-  }
-}
+//     if (clusterRole !== "standalone") {
+//       console.log(`Worker ${process.pid} started`);
+//     }
+//   }
+// }

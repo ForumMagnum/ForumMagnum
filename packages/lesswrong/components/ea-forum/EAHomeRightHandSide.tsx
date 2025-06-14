@@ -4,7 +4,7 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { useUserLocation } from '../../lib/collections/users/helpers';
+import { useUserLocation } from '../hooks/useUserLocation';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { getCityName } from '../localGroups/TabNavigationEventsList';
 import { userHasEAHomeRHS } from '../../lib/betas';

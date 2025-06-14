@@ -7,7 +7,7 @@ import { truncate } from '../../lib/editor/ellipsize';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { aboutPostIdSetting, recombeeCacheTtlMsSetting, recombeeDatabaseIdSetting, recombeePrivateApiTokenSetting } from '../../lib/instanceSettings';
 import { viewTermsToQuery } from '../../lib/utils/viewUtils';
-import { stickiedPostTerms } from '../../components/posts/RecombeePostsList';
+import { stickiedPostTerms } from '@/lib/collections/posts/constants';
 import groupBy from 'lodash/groupBy';
 import uniq from 'lodash/uniq';
 import { recommendationsTabManuallyStickiedPostIdsSetting } from '../../lib/publicSettings';

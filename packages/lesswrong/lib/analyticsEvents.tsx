@@ -1,17 +1,19 @@
+'use client';
+
 import { RateLimiter } from './rateLimiter';
 import React, { useContext, useEffect, useState, useRef, useCallback, ReactNode } from 'react'
 import { hookToHoc } from './hocUtils'
-import { isClient, isServer, isDevelopment, isAnyTest, isE2E } from './executionEnvironment';
+import { isClient, isServer, isE2E } from './executionEnvironment';
 import { ColorHash } from './vendor/colorHash';
 import { DatabasePublicSetting } from './publicSettings';
-import { getPublicSettingsLoaded } from './settingsCache';
 import { throttle } from 'underscore';
 import moment from 'moment';
-import { serverWriteEvent } from '@/server/analytics/serverAnalyticsWriter';
+import { serverCaptureEvent } from '@/server/analytics/serverAnalyticsWriter';
 import { FeedItemType, UltraFeedAnalyticsContext } from '@/components/ultraFeed/ultraFeedTypes';
 import { RelevantTestGroupAllocation } from './abTestImpl';
+import { getShowAnalyticsDebug } from './analyticsDebugging';
 
-const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "dev");
+export const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "dev");
 const flushIntervalSetting = new DatabasePublicSetting<number>("analyticsFlushInterval", 1000);
 
 // clientContextVars: A dictionary of variables that will be added to every
@@ -24,18 +26,6 @@ export const clientContextVars: {
   abTestGroupsUsed?: RelevantTestGroupAllocation
 } = {};
 
-function getShowAnalyticsDebug() {
-  if (isAnyTest)
-    return false;
-  const debug = getPublicSettingsLoaded() ? showAnalyticsDebug.get() : "dev";
-  if (debug==="always")
-    return true;
-  else if (debug==="dev")
-    return isDevelopment;
-  else
-    return false;
-}
-
 export type EventProps = AnalyticsProps | Record<string, Json | undefined>;
 
 export function captureEvent(eventType: string, eventProps?: EventProps, suppressConsoleLog = false) {
@@ -46,17 +36,7 @@ export function captureEvent(eventType: string, eventProps?: EventProps, suppres
     if (isServer) {
       // If run from the server, we can run this immediately except for a few
       // events during startup.
-      const event = {
-        type: eventType,
-        timestamp: new Date(),
-        props: {
-          ...eventProps
-        }
-      }
-      if (!suppressConsoleLog && getShowAnalyticsDebug()) {
-        serverConsoleLogAnalyticsEvent(event);
-      }
-      serverWriteEvent(event);
+      serverCaptureEvent(eventType, eventProps, suppressConsoleLog);
     } else if (isClient) {
       // If run from the client, make a graphQL mutation
       const event = {

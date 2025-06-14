@@ -6,7 +6,7 @@ import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 import moment from "moment";
 import { HIDE_EAG_BANNER_COOKIE } from "@/lib/cookies/cookies";
 import { Link } from "@/lib/reactRouterWrapper";
-import { useUserLocation } from "@/lib/collections/users/helpers";
+import { useUserLocation } from '../hooks/useUserLocation';
 import { distance } from "../community/modules/LocalGroups";
 import { getCachedUserCountryCode } from "../common/CookieBanner/geolocation";
 import { lightbulbIcon } from "../icons/lightbulbIcon";

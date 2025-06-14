@@ -1,7 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useEffect } from 'react';
 import { useServerRequestStatus } from '../../lib/routeUtil'
-import { Redirect } from '../../lib/reactRouterWrapper';
+import { permanentRedirect } from 'next/navigation';
 
 /**
  * If this component appears in the DOM, this page is a redirect to the given
@@ -38,7 +38,8 @@ const PermanentRedirect = ({url, status}: {
   if(urlIsAbsolute(url)) {
     return <></>;
   } else {
-    return <Redirect to={url}/>;
+    // return <Redirect to={url}/>;
+    permanentRedirect(url);
   }
 };
 

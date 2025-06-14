@@ -6,7 +6,7 @@
  * --skipLibCheck just ignores all .d.ts files.
  */
 import type DataLoader from 'dataloader';
-import type { Request, Response } from 'express';
+import type { NextRequest, NextResponse } from 'next/server';
 import type { CollectionAggregationOptions, CollationDocument } from 'mongodb';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import type { CollectionVoteOptions } from '../make_voteable';
@@ -347,8 +347,8 @@ interface ResolverContext extends CollectionsByName {
     [CollectionName in CollectionNameString]: DataLoader<string,ObjectsByCollectionName[CollectionName]>
   }
   extraLoaders: Record<string,any>
-  req?: Request & {logIn: any, logOut: any, cookies: any, headers: any},
-  res?: Response,
+  req?: NextRequest & {logIn: any, logOut: any, cookies: any, headers: any},
+  res?: NextResponse,
   repos: Repos,
   perfMetric?: IncompletePerfMetric,
 }

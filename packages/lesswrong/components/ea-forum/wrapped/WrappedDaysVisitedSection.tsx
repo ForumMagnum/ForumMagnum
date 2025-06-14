@@ -1,6 +1,7 @@
 import React, { FC, Fragment } from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
-import { WrappedYear, useForumWrappedContext } from "./hooks";
+import { useForumWrappedContext } from "./hooks";
+import { WrappedYear } from "./constants";
 import range from "lodash/range";
 import moment from "moment";
 import classNames from "classnames";

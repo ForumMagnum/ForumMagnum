@@ -1,6 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState, useEffect } from 'react';
-import { useUserLocation } from '../../lib/collections/users/helpers';
+import { useUserLocation } from '../hooks/useUserLocation';
 import { useCurrentUser } from '../common/withUser';
 import FilterIcon from '@/lib/vendor/@material-ui/icons/src/FilterList';
 import { useDialog } from '../common/withDialog'

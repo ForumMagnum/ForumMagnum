@@ -1,4 +1,4 @@
-import { getDatadogUser } from '../../lib/collections/users/helpers'
+import { getDatadogUser } from '@/client/datadogRum';
 import type { Request } from 'express';
 import tracer from './tracer'
 

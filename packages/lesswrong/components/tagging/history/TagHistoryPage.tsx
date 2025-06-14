@@ -10,7 +10,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { hasWikiLenses } from '@/lib/betas';
-import { tagGetUrl } from '@/lib/collections/tags/helpers';
+import { defaultTagHistorySettings, tagGetUrl } from '@/lib/collections/tags/helpers';
 import classNames from 'classnames';
 import DeferRender from '@/components/common/DeferRender';
 import ErrorPage from "../../common/ErrorPage";
@@ -77,17 +77,6 @@ export interface TagHistorySettings {
   showMetadata: boolean,
   lensId: string
 }
-
-export const defaultTagHistorySettings: TagHistorySettings = {
-  //displayFormat: "dense",
-  displayFormat: "expanded",
-  showEdits: true,
-  showSummaryEdits: true,
-  showComments: true,
-  showTagging: true,
-  showMetadata: true,
-  lensId: "all",
-};
 
 const TagHistoryPage = () => {
   const classes = useStyles(tagHistoryStyles);

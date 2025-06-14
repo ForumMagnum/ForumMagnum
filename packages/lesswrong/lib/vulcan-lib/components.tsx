@@ -49,11 +49,6 @@ interface ComponentsTableEntry {
   options?: ComponentOptions,
 }
 
-type EmailRenderContextType = {
-  isEmailRender: boolean
-}
-
-export const EmailRenderContext = React.createContext<EmailRenderContextType|null>(null);
 
 /**
  * Takes a props type, and, if it doesn't mention `ref`, set its type to
@@ -94,16 +89,6 @@ export function registerComponent<PropType>(
   rawComponent.displayName = name;
   
   return composeComponent({ name, rawComponent, hocs, options });
-}
-
-// If true, `importComponent` imports immediately (rather than deferring until
-// first use) and checks that the file registered the components named, with a
-// lot of log-spam.
-const debugComponentImports = false;
-
-
-export function importAllComponents() {
-  require('@/lib/generated/allComponents');
 }
 
 const composeComponent = (componentMeta: ComponentsTableEntry) => {
@@ -201,13 +186,4 @@ const memoizeComponent = (areEqual: AreEqualOption, component: any, name: string
   }
 }
 
-/**
- * Called once on app startup
- *
- * See debugComponentImports for intended use
- */
-export const populateComponentsAppDebug = (): void => {
-  if (debugComponentImports) {
-    importAllComponents();
-  }
-};
+

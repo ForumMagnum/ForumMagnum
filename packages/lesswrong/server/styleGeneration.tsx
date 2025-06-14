@@ -1,7 +1,5 @@
-import React from 'react';
-import { importAllComponents } from '../lib/vulcan-lib/components';
+import { importAllComponents } from '@/lib/vulcan-lib/importAllComponents';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
-import sortBy from 'lodash/sortBy';
 import miscStyles from '../themes/globalStyles/miscStyles';
 import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
 import type { ForumTypeString } from '../lib/instanceSettings';
@@ -10,10 +8,9 @@ import { minify } from 'csso';
 import { requestedCssVarsToString } from '../themes/cssVars';
 import stringify from 'json-stringify-deterministic';
 import { brotliCompressResource, CompressedCacheResource } from './utils/bundleUtils';
-import { getJss, type StylesContextType, topLevelStyleDefinitions } from '@/components/hooks/useStyles';
-import keyBy from 'lodash/keyBy';
+import { topLevelStyleDefinitions } from "@/lib/styles/defineStyles";
 import type { JssStyles } from '@/lib/jssStyles';
-import { SheetsRegistry } from 'jss';
+import { stylesToStylesheet } from './styleHelpers';
 
 export type ClassNameProxy<T extends string = string> = Record<T,string>
 export type StyleDefinition<T extends string = string, N extends string = string> = {
@@ -61,26 +58,6 @@ function getAllStylesByName() {
   };
 }
 
-function stylesToStylesheet(allStyles: Record<string,StyleDefinition>, theme: ThemeType, themeOptions: ThemeOptions): string {
-  const stylesByName = sortBy(Object.keys(allStyles), n=>n);
-  const stylesByNameAndPriority = sortBy(stylesByName, n=>allStyles[n].options?.stylePriority ?? 0);
-
-  const _jss = getJss();
-  const sheetsRegistry = new SheetsRegistry();
-  stylesByNameAndPriority.map(name => {
-    const styles = allStyles[name].styles(theme);
-    const sheet = _jss.createStyleSheet(styles, {
-      generateId: (rule) => {
-        if (rule.type === 'keyframes') {
-          return (rule as AnyBecauseHard).name;
-        }
-        return `${name}-${rule.key}`;
-      },
-    });
-    sheetsRegistry.add(sheet);
-  }).join("\n");
-  return sheetsRegistry.toString();
-}
 
 type StylesheetAndHash = {
   resource: CompressedCacheResource,
@@ -115,17 +92,6 @@ export const getMergedStylesheet = (theme: ThemeOptions): StylesheetAndHash => {
   const mergedStylesheet = mergedStylesheets[themeKey]!;
   
   return mergedStylesheet;
-}
-
-export function generateEmailStylesheet({stylesContext, theme, themeOptions}: {
-  stylesContext: StylesContextType,
-  theme: ThemeType
-  themeOptions: ThemeOptions
-}): string {
-  const mountedStyles = stylesContext.mountedStyles;
-  const usedStyleDefinitions = [...mountedStyles.values()].map(s => s.styleDefinition)
-  const usedStylesByName = keyBy(usedStyleDefinitions, s=>s.name);
-  return stylesToStylesheet(usedStylesByName, theme, themeOptions);
 }
 
 addStaticRoute("/allStyles", async ({query}, req, res, next) => {

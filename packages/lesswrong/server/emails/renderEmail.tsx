@@ -4,14 +4,12 @@ import { sendEmailSmtp } from './sendEmail';
 import React from 'react';
 import { ApolloProvider } from '@apollo/client';
 import { getDataFromTree } from '@apollo/client/react/ssr';
-import { renderToString } from 'react-dom/server';
-import { TimezoneContext } from '../../components/common/withTimezone';
-import { UserContext } from '../../components/common/withUser';
+// import { renderToString } from 'react-dom/server';
+import { TimezoneContext, UserContext } from '../../components/common/sharedContexts';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { forumTitleSetting, isLWorAF } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
-import { EmailRenderContext } from '../../lib/vulcan-lib/components';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { emailTokenTypesByName } from '../emails/emailTokens';
 import { captureException } from '@sentry/core';
@@ -20,14 +18,16 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 import { createLWEvent } from '../collections/lwevents/mutations';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
-import { FMJssProvider } from '@/components/hooks/FMJssProvider';
-import { createStylesContext } from '@/components/hooks/useStyles';
-import { generateEmailStylesheet } from '../styleGeneration';
-import { ThemeContextProvider } from '@/components/themes/useTheme';
+import { createStylesContext } from "@/lib/jssStyles";
+import { generateEmailStylesheet } from '../styleHelpers';
 import { ThemeOptions } from '@/themes/themeNames';
 import { EmailWrapper } from '../emailComponents/EmailWrapper';
 import CookiesProvider from '@/lib/vendor/react-cookie/CookiesProvider';
 import { utmifyForumBacklinks, UtmParam } from '../analytics/utm-tracking';
+import dynamic from 'next/dynamic';
+import { ThemeContextProvider } from '@/components/themes/useTheme';
+import { FMJssProvider } from '@/components/hooks/FMJssProvider';
+import { EmailRenderContext } from './EmailRenderContext';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -147,6 +147,8 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
 {
   if (!subject) throw new Error("Missing required argument: subject");
   if (!bodyComponent) throw new Error("Missing required argument: bodyComponent");
+
+  const { renderToString } = await import('react-dom/server');
   
   // Set up Apollo
   const { createClient }: typeof import('../vulcan-lib/apollo-ssr/apolloClient') = require('../vulcan-lib/apollo-ssr/apolloClient');
@@ -168,7 +170,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     <CookiesProvider>
     <ThemeContextProvider options={themeOptions}>
     <FMJssProvider stylesContext={stylesContext}>
-    <UserContext.Provider value={user as unknown as UsersCurrent | null /*FIXME*/}>
+    <UserContext.Provider value={user as unknown as UsersCurrent | null /*FIXME> */}>
     <TimezoneContext.Provider value={timezone}>
       {bodyComponent}
     </TimezoneContext.Provider>

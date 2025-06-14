@@ -5,7 +5,7 @@ import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 import { truncate } from '../../lib/editor/ellipsize';
 import { twoLineEventsSidebarABTest } from '../../lib/abTests';
-import { useABTest } from '../../lib/abTestImpl';
+import { useABTest } from '../hooks/useAbTests';
 import classNames from 'classnames';
 import LWTooltip from "../common/LWTooltip";
 import TabNavigationSubItem from "../common/TabNavigationMenu/TabNavigationSubItem";

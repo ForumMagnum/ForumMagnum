@@ -3,7 +3,7 @@ import { isAnyTest, isProduction } from '../../lib/executionEnvironment';
 import sanitizeHtml from 'sanitize-html';
 import { isEAForum } from '../../lib/instanceSettings';
 import OpenAI from 'openai';
-import { captureEvent } from '../../lib/analyticsEvents';
+import { serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
 import type { PostIsCriticismRequest } from '../resolvers/postResolvers';
 import { sanitizeHtmlOptions } from './modGPT';
 

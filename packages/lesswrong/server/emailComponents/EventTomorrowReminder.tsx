@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import type { RSVPType } from "@/lib/collections/posts/helpers";
 import { PostsEmail } from './PostsEmail';

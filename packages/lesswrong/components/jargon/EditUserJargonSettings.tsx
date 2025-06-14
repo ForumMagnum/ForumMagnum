@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import { JARGON_LLM_MODEL } from './GlossaryEditForm';
+import { JARGON_LLM_MODEL } from '@/lib/collections/jargonTerms/constants';
 import LWTooltip from "../common/LWTooltip";
 import MetaInfo from "../common/MetaInfo";
 

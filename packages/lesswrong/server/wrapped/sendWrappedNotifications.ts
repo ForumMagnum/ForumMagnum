@@ -2,7 +2,7 @@ import uniq from "lodash/uniq";
 import ReadStatuses from "../../server/collections/readStatus/collection";
 import Users from "../../server/collections/users/collection";
 import { createNotifications } from "../notificationCallbacksHelpers";
-import { WrappedYear, isWrappedYear } from "@/components/ea-forum/wrapped/hooks";
+import { WrappedYear, isWrappedYear } from "@/components/ea-forum/wrapped/constants";
 
 export const getWrappedUsers = async (
   year: WrappedYear,

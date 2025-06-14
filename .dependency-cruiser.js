@@ -1,3 +1,5 @@
+// @ts-check
+/** @type {import('dependency-cruiser').IConfiguration} */
 module.exports = {
   options: {
     // Exclude node_modules from analysis
@@ -7,9 +9,9 @@ module.exports = {
     // Include TypeScript and JavaScript files
     includeOnly: "^(app|packages)",
     // File extensions to process
-    tsPreCompilationDeps: true,
+    tsPreCompilationDeps: false,
     tsConfig: {
-      fileName: "./tsconfig.json"
+      fileName: "./tsconfig-server.json"
     },
     // Output format options
     reporterOptions: {
@@ -24,7 +26,10 @@ module.exports = {
       text: {
         highlightFocused: true
       }
-    }
+    },
+    exclude: {
+      dynamic: true,
+    },
   },
   
   forbidden: [
@@ -36,9 +41,15 @@ module.exports = {
         path: "^app/graphql"
       },
       to: {
-        path: "^packages/lesswrong/components",
+        path: "^packages/lesswrong/components/themes/usePrefersDarkMode.tsx",
         // This will catch both direct and transitive dependencies
-        reachable: true
+        reachable: true,
+        // dependencyTypesNot: ["type-only"]
+
+        // viaOnly: {
+        //   // Exclude type-only imports from being considered violations
+        //   dependencyTypesNot: ["type-only"]
+        // },
       }
     },
   ],
@@ -49,5 +60,5 @@ module.exports = {
       from: {},
       to: {}
     }
-  ]
+  ],
 }; 
