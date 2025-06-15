@@ -90,7 +90,7 @@ export const graphqlTypeDefs = gql`
   }
 
   input SocialPreviewInput {
-    imageId: String!
+    imageId: String
     text: String
   }
 
@@ -2373,7 +2373,7 @@ const schema = {
       inputType: "SocialPreviewInput",
       validation: { blackbox: true },
       canRead: ["guests"],
-      canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members", "sunshineRegiment", "admins"],
     },
   },

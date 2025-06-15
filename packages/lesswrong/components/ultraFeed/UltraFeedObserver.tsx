@@ -62,6 +62,7 @@ interface ObserveData {
   documentId: string;
   documentType: DocumentType;
   postId?: string;
+  servedEventId?: string;
 }
 
 interface TrackExpansionData {
@@ -71,6 +72,7 @@ interface TrackExpansionData {
   level: number;
   maxLevelReached: boolean;
   wordCount: number;
+  servedEventId?: string;
 }
 
 interface UltraFeedObserverContextType {
@@ -119,6 +121,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
         eventType: 'viewed' as const,
         documentId: elementData.documentId,
         collectionName: documentTypeToCollectionName[elementData.documentType],
+        feedItemId: elementData.servedEventId,
         event: { 
           durationMs: durationMs
         }
@@ -273,6 +276,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
         eventType: 'expanded' as const,
         documentId: data.documentId,
         collectionName: documentTypeToCollectionName[data.documentType],
+        feedItemId: data.servedEventId,
         event: {
           expansionLevel: data.level,
           maxExpansionReached: data.maxLevelReached,

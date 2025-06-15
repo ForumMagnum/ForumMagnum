@@ -44,13 +44,31 @@ export function makeGqlCreateMutation<
   };
 }
 
-export function makeGqlUpdateMutation<
+function getDocumentId(selector: SelectorInput | string) {
+  if (typeof selector === 'string') {
+    return selector;
+  }
+
+  if (isEmpty(selector)) {
+    throw new Error('Selector cannot be empty');
+  }
+
+  return convertDocumentIdToIdInSelector(selector as UpdateSelector)._id;
+}
+
+// Historically we allowed update selectors shaped like { _id: string | null, documentId: string | null }
+// Moving forward, it'd be nice to allow string (_id) selectors.
+type UpdateFunc<N extends CollectionNameString, D extends CreateInputsByCollectionName[N]['data']> = 
+  | ((args: { selector: SelectorInput, data: D }, context: ResolverContext) => Promise<any>)
+  | ((args: { selector: string, data: D }, context: ResolverContext) => Promise<any>);
+
+  export function makeGqlUpdateMutation<
   N extends CollectionNameString,
   D extends CreateInputsByCollectionName[N]['data'],
-  T extends (args: { selector: SelectorInput, data: D }, context: ResolverContext) => Promise<any>,
+  T extends UpdateFunc<N, D>,
   O extends UpdateMutationOptions<ObjectsByCollectionName[N], R>,
   R extends { [ACCESS_FILTERED]: true } | null
->(collectionName: N, func: T, options: O) {
+>(collectionName: N, func: T, options: O): (root: void, args: Parameters<T>[0], context: ResolverContext) => Promise<{ data: Awaited<ReturnType<O['accessFilter']>> }> {
   return async (root: void, args: Parameters<T>[0], context: ResolverContext): Promise<{ data: Awaited<ReturnType<O['accessFilter']>> }> => {
     const { editCheck, accessFilter } = options;
     const { loaders, currentUser } = context;
@@ -61,27 +79,32 @@ export function makeGqlUpdateMutation<
     }
 
     // get entire unmodified document from database
-    const documentSelector = convertDocumentIdToIdInSelector(selector as UpdateSelector);
-    const oldDocument = await loaders[collectionName].load(documentSelector._id);
+    const id = getDocumentId(selector);
+    const oldDocument = await loaders[collectionName].load(id);
 
     if (!oldDocument) {
-      throwError({ id: 'app.document_not_found', data: { documentId: documentSelector._id } });
+      throwError({ id: 'app.document_not_found', data: { documentId: id } });
     }
 
     const previewDocument = getPreviewDocument(data, oldDocument);
 
     if (!(await editCheck(currentUser, oldDocument, context, previewDocument))) {
-      throwError({ id: 'app.operation_not_allowed', data: { documentId: documentSelector._id } });
+      throwError({ id: 'app.operation_not_allowed', data: { documentId: id } });
     }
 
     const validationErrors = validateData<N>(data, previewDocument, collectionName, context);
     if (validationErrors.length) {
       const ValidationError = createError('app.validation_error', { message: JSON.stringify(validationErrors) });
       throw new ValidationError({ data: { break: true, errors: validationErrors } });
-      // throwError({ id: 'app.validation_error', data: { break: true, errors: validationErrors } });
     }
     
-    const rawResult = await func(args, context);
+    // Unfortunately, because `func` is a union type, the first argument it accepts turns into an intersection,
+    // so we can't actually satisify it properly.  In practice, this ends up working correctly because the function
+    // we return is correct constrained to accept the same element of the union as the one we pass in.
+    // (Though even that doesn't _really_ matter, since we aren't constraining this output to match up to the
+    // function type that the mutation resolver needs to have, so we could theoretically get some completely
+    // random input and have no way of knowing it.)
+    const rawResult = await func(args as AnyBecauseHard, context);
     const filteredResult = await accessFilter(rawResult, context);
     return { data: filteredResult as Awaited<ReturnType<O['accessFilter']>> };
   };
