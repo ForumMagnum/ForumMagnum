@@ -7907,6 +7907,7 @@ type User {
   shortformFeed: Post
   viewUnreviewedComments: Boolean
   partiallyReadSequences: [PartiallyReadSequenceItemOutput!]
+  hasContinueReading: Boolean!
   beta: Boolean
   reviewVotesQuadratic: Boolean
   reviewVotesQuadratic2019: Boolean

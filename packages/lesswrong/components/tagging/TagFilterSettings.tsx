@@ -10,6 +10,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import AddTagButton from "./AddTagButton";
 import LWTooltip from "../common/LWTooltip";
 import FilterMode, { filteringStyles } from './FilterMode';
+import { SuspenseWrapper } from '../common/SuspenseWrapper';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -81,51 +82,52 @@ const TagFilterSettings = ({
     tooltip: personalBlogpostTooltip,
   } = usePersonalBlogpostInfo();
 
-  
   return <span className={classes.root}>
-    {filterSettings.tags.map(tagSettings =>
-      <FilterMode
-        label={tagSettings.tagName}
-        key={tagSettings.tagId}
-        tagId={tagSettings.tagId}
-        mode={tagSettings.filterMode}
-        canRemove={true}
-        onChangeMode={(mode: FilterModeType) => {
-          // If user has clicked on, eg, "Hidden" after it's already selected, return it to default
-          // ... but don't apply that to manually input filter settings
-          const newMode = mode === tagSettings.filterMode && !isCustomFilterMode(mode) ? 0 : mode
-          setTagFilter({tagId: tagSettings.tagId, tagName: tagSettings.tagName, filterMode: newMode})
-        }}
-        onRemove={() => {
-          removeTagFilter(tagSettings.tagId)
-        }}
-      />
-    )}
-
-    {/* Combine these two in one div to make sure that there's never a single element on the second row, if there's overflow */}
-    <div className={classes.personalAndPlus}>
-      <FilterMode
-        label={personalBlogpostName}
-        description={personalBlogpostTooltip}
-        mode={filterSettings.personalBlog}
-        canRemove={false}
-        onChangeMode={(mode: FilterModeType) => {
-          setPersonalBlogFilter(mode)
-        }}
-      />
-
-      {<LWTooltip title={`Add ${taggingNameCapitalSetting.get()} Filter`}>
-          <AddTagButton hasTooltip={false} onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
-            if (!filterSettings.tags.some(t=>t.tagId===tagId)) {
-              const defaultFilterMode = userHasNewTagSubscriptions(currentUser) ? 25 : "Default"
-              setTagFilter({tagId, tagName, filterMode: defaultFilterMode})
-            }
-          }}>
-            <span className={classes.addButton}>+</span>
-          </AddTagButton>
-      </LWTooltip>}
-    </div>
-    {flexWrapEndGrow && <div className={classes.flexWrapEndGrow} />}
+    <SuspenseWrapper name="TagFilterSettings">
+      {filterSettings.tags.map(tagSettings =>
+        <FilterMode
+          label={tagSettings.tagName}
+          key={tagSettings.tagId}
+          tagId={tagSettings.tagId}
+          mode={tagSettings.filterMode}
+          canRemove={true}
+          onChangeMode={(mode: FilterModeType) => {
+            // If user has clicked on, eg, "Hidden" after it's already selected, return it to default
+            // ... but don't apply that to manually input filter settings
+            const newMode = mode === tagSettings.filterMode && !isCustomFilterMode(mode) ? 0 : mode
+            setTagFilter({tagId: tagSettings.tagId, tagName: tagSettings.tagName, filterMode: newMode})
+          }}
+          onRemove={() => {
+            removeTagFilter(tagSettings.tagId)
+          }}
+        />
+      )}
+  
+      {/* Combine these two in one div to make sure that there's never a single element on the second row, if there's overflow */}
+      <div className={classes.personalAndPlus}>
+        <FilterMode
+          label={personalBlogpostName}
+          description={personalBlogpostTooltip}
+          mode={filterSettings.personalBlog}
+          canRemove={false}
+          onChangeMode={(mode: FilterModeType) => {
+            setPersonalBlogFilter(mode)
+          }}
+        />
+  
+        {<LWTooltip title={`Add ${taggingNameCapitalSetting.get()} Filter`}>
+            <AddTagButton hasTooltip={false} onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
+              if (!filterSettings.tags.some(t=>t.tagId===tagId)) {
+                const defaultFilterMode = userHasNewTagSubscriptions(currentUser) ? 25 : "Default"
+                setTagFilter({tagId, tagName, filterMode: defaultFilterMode})
+              }
+            }}>
+              <span className={classes.addButton}>+</span>
+            </AddTagButton>
+        </LWTooltip>}
+      </div>
+      {flexWrapEndGrow && <div className={classes.flexWrapEndGrow} />}
+    </SuspenseWrapper>
   </span>
 }
 

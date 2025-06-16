@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
@@ -27,6 +27,7 @@ import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
 import AlignmentCrosspostLink from "../AlignmentCrosspostLink";
 import ReadTime from "./ReadTime";
 import LWCommentCount from "../TableOfContents/LWCommentCount";
+import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 
 export const LW_POST_PAGE_PADDING = 110;
 
@@ -320,9 +321,9 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
     {post.isEvent && <div className={classes.eventData}>
       <PostsPageEventData post={post}/>
     </div>}
-    <Suspense>
+    <SuspenseWrapper name="ReviewPillContainer">
       <ReviewPillContainer postId={post._id} />
-    </Suspense>
+    </SuspenseWrapper>
   </div>
 }
 

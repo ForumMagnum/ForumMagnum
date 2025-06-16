@@ -3022,6 +3022,16 @@ const schema = {
       canUpdate: [userOwns],
     },
   },
+  hasContinueReading: {
+    graphql: {
+      outputType: "Boolean!",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
+        const sequences = user.partiallyReadSequences;
+        return sequences && sequences.length>0;
+      }
+    },
+  },
   beta: {
     database: {
       type: "BOOL",

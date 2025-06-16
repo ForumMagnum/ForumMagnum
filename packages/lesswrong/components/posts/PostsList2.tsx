@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { decodeIntlError } from '../../lib/vulcan-lib/utils';
 import classNames from 'classnames';
@@ -11,6 +11,7 @@ import PostsNoResults from "./PostsNoResults";
 import SectionFooter from "../common/SectionFooter";
 import PostsItem from "./PostsItem";
 import PostsLoading from "./PostsLoading";
+import { SuspenseWrapper } from '../common/SuspenseWrapper';
 
 const Error = ({error}: any) => <div>
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
@@ -40,16 +41,20 @@ const styles = defineStyles("PostsList2", (theme: ThemeType) => ({
 
 type PostsList2Props = PostsListConfig;
 
-const PostsList2 = (props: PostsList2Props) => {
-  return <Suspense fallback={
-    <PostsLoading
-      placeholderCount={props.placeholderCount ?? props.terms?.limit ?? 1}
-      showFinalBottomBorder={props.showFinalBottomBorder}
-      viewType={"list"}
-    />
-  }>
-    <PostsListLoaded {...props}/>
-  </Suspense>
+const PostsList2 = (props: PostsList2Props & {noSuspenseBoundary?: boolean}) => {
+  if (props.noSuspenseBoundary) {
+    return <PostsListLoaded {...props}/>
+  } else {
+    return <SuspenseWrapper name="PostsList2" fallback={
+      <PostsLoading
+        placeholderCount={props.placeholderCount ?? props.terms?.limit ?? 1}
+        showFinalBottomBorder={props.showFinalBottomBorder}
+        viewType={"list"}
+      />
+    }>
+      <PostsListLoaded {...props}/>
+    </SuspenseWrapper>
+  }
 }
 
 /** A list of posts, defined by a query that returns them. */

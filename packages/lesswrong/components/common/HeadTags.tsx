@@ -1,9 +1,10 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { combineUrls, getBasePath, getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { taglineSetting, tabTitleSetting, tabLongTitleSetting, noIndexSetting } from '../../lib/instanceSettings';
 import { toEmbeddableJson } from '../../lib/utils/jsonUtils';
 import { Helmet } from "./Helmet";
+import { SuspenseWrapper } from './SuspenseWrapper';
 
 const HeadTags = ({
   ogUrl: ogUrlProp,
@@ -41,9 +42,9 @@ const HeadTags = ({
     return (
       <React.Fragment>
         { TitleComponent
-            ? <Suspense>
+            ? <SuspenseWrapper name="TitleComponent">
                 <TitleComponent siteName={tabShortTitle} isSubtitle={false} />
-              </Suspense>
+              </SuspenseWrapper>
             : <Helmet name="title"><title>
                 {titleString
                   ? `${titleString} — ${tabShortTitle}`

@@ -1,9 +1,10 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useUserLocation } from '../../../lib/collections/users/helpers';
 import { isEAForum } from '../../../lib/instanceSettings';
 import TabNavigationEventsList from "../../localGroups/TabNavigationEventsList";
+import { SuspenseWrapper } from '../SuspenseWrapper';
 
 export const EventsList = ({currentUser, onClick}: {
   currentUser: UsersCurrent | null,
@@ -36,10 +37,10 @@ export const EventsList = ({currentUser, onClick}: {
   }
   return <span>
     <AnalyticsContext pageSubSectionContext="menuEventsList">
-      <Suspense>
+      <SuspenseWrapper name="TabNavigationEventsList">
         <TabNavigationEventsList onClick={onClick} terms={globalTerms} />
         {!isEAForum && <TabNavigationEventsList onClick={onClick} terms={eventsListTerms} />}
-      </Suspense>
+      </SuspenseWrapper>
     </AnalyticsContext>
   </span>
 }

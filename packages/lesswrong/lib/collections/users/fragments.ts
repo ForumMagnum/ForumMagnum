@@ -114,6 +114,7 @@ export const UsersCurrent = gql(`
     hideIntercom
     hideNavigationSidebar
     hideCommunitySection
+    hasContinueReading
     expandedFrontpageSections {
       community
       recommendations

@@ -32,6 +32,7 @@ const currentAndRecentForumEventsContext = createContext<ForumEventsContext>(def
 export const CurrentAndRecentForumEventsProvider: FC<{
   children: ReactNode,
 }> = ({children}) => {
+  // ea-forum-look-here FIXME: This query will waterfall with pageload
   const { data, refetch } = useQuery(ForumEventsDisplayMultiQuery, {
     variables: {
       selector: { currentAndRecentForumEvents: {} },

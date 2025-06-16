@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { userHasPingbacks } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
@@ -15,6 +15,7 @@ import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
 import BottomNavigation from "../../sequences/BottomNavigation";
 import PingbacksList from "../PingbacksList";
 import FooterTagList from "../../tagging/FooterTagList";
+import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 
 const styles = (theme: ThemeType) => ({
   footerSection: {
@@ -95,13 +96,13 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
 
   return <>
     {isLWorAF && !post.shortform && !post.isEvent &&
-      <Suspense>
+      <SuspenseWrapper name="FooterTagList">
         <AnalyticsContext pageSectionContext="tagFooter">
           <div className={classes.footerTagList}>
             <FooterTagList post={post}/>
           </div>
         </AnalyticsContext>
-      </Suspense>
+      </SuspenseWrapper>
     }
     {!post.shortform && (isLW || isEAEmojis) &&
       <>
@@ -136,11 +137,11 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
       </AnalyticsContext>}
     </div>}
 
-    {userHasPingbacks(currentUser) && <Suspense>
+    {userHasPingbacks(currentUser) && <SuspenseWrapper name="pingbacks">
       <AnalyticsContext pageSectionContext="pingbacks">
         <PingbacksList postId={post._id}/>
       </AnalyticsContext>
-    </Suspense>}
+    </SuspenseWrapper>}
   </>
 }
 

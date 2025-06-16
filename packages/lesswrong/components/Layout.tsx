@@ -1,4 +1,4 @@
-import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo, Suspense} from 'react';
+import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
 import { registerComponent } from '../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';
@@ -66,6 +66,7 @@ import Loading from './vulcan-core/Loading';
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { DelayedLoading } from './common/DelayedLoading';
+import { SuspenseWrapper } from './common/SuspenseWrapper';
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -426,17 +427,25 @@ const Layout = ({currentUser, children}: {
               {/* Google Tag Manager i-frame fallback */}
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
 
-              {!currentRoute?.standalone && <Header
-                searchResultsArea={searchResultsAreaRef}
-                standaloneNavigationPresent={standaloneNavigation}
-                sidebarHidden={hideNavigationSidebar}
-                toggleStandaloneNavigation={toggleStandaloneNavigation}
-                stayAtTop={!!currentRoute?.staticHeader}
-                backgroundColor={headerBackgroundColor}
-              />}
-              <ForumEventBanner />
+              {!currentRoute?.standalone && <SuspenseWrapper name="Header">
+                <Header
+                  searchResultsArea={searchResultsAreaRef}
+                  standaloneNavigationPresent={standaloneNavigation}
+                  sidebarHidden={hideNavigationSidebar}
+                  toggleStandaloneNavigation={toggleStandaloneNavigation}
+                  stayAtTop={!!currentRoute?.staticHeader}
+                  backgroundColor={headerBackgroundColor}
+                />
+              </SuspenseWrapper>}
+              <SuspenseWrapper name="ForumEventBanner">
+                <ForumEventBanner />
+              </SuspenseWrapper>
               {/* enable during ACX Everywhere */}
-              {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
+              {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}>
+                <SuspenseWrapper name="HomepageCommunityMap">
+                  <HomepageCommunityMap dontAskUserLocation={true}/>
+                </SuspenseWrapper>
+              </span>}
 
               <div className={classNames({
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
@@ -446,17 +455,19 @@ const Layout = ({currentUser, children}: {
               }
               )}>
                 {isFriendlyUI && !isWrapped && <AdminToggle />}
-                {standaloneNavigation && <Suspense fallback={<span/>}>
+                {standaloneNavigation && <SuspenseWrapper fallback={<span/>} name="NavigationStandalone" >
                   <MaybeStickyWrapper sticky={friendlyHomeLayout}>
                     <DeferRender ssr={true} clientTiming='mobile-aware'>
-                      <NavigationStandalone
-                        sidebarHidden={hideNavigationSidebar}
-                        unspacedGridLayout={unspacedGridLayout}
-                        noTopMargin={friendlyHomeLayout}
-                      />
+                      <SuspenseWrapper name="NavigationStandalone">
+                        <NavigationStandalone
+                          sidebarHidden={hideNavigationSidebar}
+                          unspacedGridLayout={unspacedGridLayout}
+                          noTopMargin={friendlyHomeLayout}
+                        />
+                      </SuspenseWrapper>
                     </DeferRender>
                   </MaybeStickyWrapper>
-                </Suspense>}
+                </SuspenseWrapper>}
                 {/* {isLWorAF && navigationFooterBar && <TabNavigationMenuFooter />} */}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
@@ -469,10 +480,12 @@ const Layout = ({currentUser, children}: {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    <Suspense fallback={<DelayedLoading/>}>
+                    <SuspenseWrapper name="Route" fallback={<DelayedLoading/>}>
                       {children}
+                    </SuspenseWrapper>
+                    <SuspenseWrapper name="OnboardingFlow">
                       {!isIncompletePath && isEAForum ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
-                    </Suspense>
+                    </SuspenseWrapper>
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
@@ -481,13 +494,17 @@ const Layout = ({currentUser, children}: {
                   friendlyHomeLayout &&
                   <MaybeStickyWrapper sticky={friendlyHomeLayout}>
                     <DeferRender ssr={true} clientTiming='mobile-aware'>
-                      <EAHomeRightHandSide />
+                      <SuspenseWrapper name="EAHomeRightHandSide">
+                        <EAHomeRightHandSide />
+                      </SuspenseWrapper>
                     </DeferRender>
                   </MaybeStickyWrapper>
                 }
                 {renderSunshineSidebar && <div className={classes.sunshine}>
                   <DeferRender ssr={false}>
-                    <SunshineSidebar/>
+                    <SuspenseWrapper name="SunshineSidebar">
+                      <SunshineSidebar/>
+                    </SuspenseWrapper>
                   </DeferRender>
                 </div>}
                 {renderLanguageModelChatLauncher && <div>

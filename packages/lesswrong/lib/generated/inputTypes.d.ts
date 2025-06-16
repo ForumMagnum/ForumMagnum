@@ -7324,6 +7324,7 @@ interface User {
   shortformFeed: Post | null;
   viewUnreviewedComments: boolean | null;
   partiallyReadSequences: Array<PartiallyReadSequenceItemOutput> | null;
+  hasContinueReading: boolean;
   beta: boolean | null;
   reviewVotesQuadratic: boolean | null;
   reviewVotesQuadratic2019: boolean | null;

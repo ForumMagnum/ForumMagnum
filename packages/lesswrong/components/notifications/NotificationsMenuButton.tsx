@@ -15,6 +15,9 @@ import ForumIcon from "../common/ForumIcon";
 import LWPopper from "../common/LWPopper";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import NotificationsPopover from "./NotificationsPopover";
+import { useReadQuery } from '@apollo/client/react';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { SuspenseWrapper } from '../common/SuspenseWrapper';
 
 const UserKarmaChangesQuery = gql(`
   query NotificationsMenuButton($documentId: String) {
@@ -30,7 +33,7 @@ const UserKarmaChangesQuery = gql(`
  * These same styles are also used by `MessagesMenuButton`, so changes here
  * should also be checked there as well.
  */
-export const styles = (theme: ThemeType) => ({
+export const styles = defineStyles("NotificationsMenuButton", (theme: ThemeType) => ({
   badgeContainer: {
     padding: "none",
     verticalAlign: "inherit",
@@ -112,22 +115,23 @@ export const styles = (theme: ThemeType) => ({
     padding: "5px 13px",
     transform: "translateY(5px)",
   },
-});
+}), {stylePriority: -1});
 
 type NotificationsMenuButtonProps = {
   open: boolean,
   toggle: () => void,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }
 
-const BookNotificationsMenuButton = ({
+const BookNotificationsMenuButtonInner = ({
   open,
   toggle,
   className,
-  classes,
 }: NotificationsMenuButtonProps) => {
-  const {unreadNotifications} = useUnreadNotifications();
+  const classes = useStyles(styles);
+  const {unreadNotificationCountsQueryRef} = useUnreadNotifications();
+  const {data} = useReadQuery(unreadNotificationCountsQueryRef!);
+  const {unreadNotifications} = data?.unreadNotificationCounts ?? 0;
   const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
   return (
     <Badge
@@ -143,6 +147,13 @@ const BookNotificationsMenuButton = ({
       </IconButton>
     </Badge>
   );
+}
+
+const BookNotificationsMenuButtonPlaceholder = () => {
+  const classes = useStyles(styles);
+  return <IconButton classes={{ root: classes.buttonClosed }} >
+    <ForumIcon icon="BellBorder"/>
+  </IconButton>
 }
 
 const hasKarmaChange = (
@@ -165,22 +176,24 @@ const hasKarmaChange = (
   return lastOpened < (endDate ?? new Date(0)) || updateFrequency === "realtime";
 }
 
-const FriendlyNotificationsMenuButton = ({
+const FriendlyNotificationsMenuButtonInner = ({
   toggle,
   className,
-  classes,
 }: NotificationsMenuButtonProps) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const {pathname} = useLocation();
-  const {unreadNotifications, notificationsOpened} = useUnreadNotifications();
+  const {unreadNotificationCountsQueryRef, notificationsOpened} = useUnreadNotifications();
+  const {data} = useReadQuery(unreadNotificationCountsQueryRef!);
+  const {unreadNotifications} = data?.unreadNotificationCounts ?? 0;
   const [open, setOpen] = useState(false);
   const anchorEl = useRef<HTMLDivElement>(null);
-  const { refetch, data } = useQuery(UserKarmaChangesQuery, {
+  const { refetch, data: karmaChangesData } = useQuery(UserKarmaChangesQuery, {
     variables: { documentId: currentUser?._id },
     skip: !currentUser,
   });
-  const karmaChanges = data?.user?.result;
+  const karmaChanges = karmaChangesData?.user?.result;
 
   const showKarmaStar = hasKarmaChange(currentUser, karmaChanges);
   const hasBadge = unreadNotifications > 0;
@@ -270,14 +283,33 @@ const FriendlyNotificationsMenuButton = ({
   );
 }
 
-export default registerComponent(
-  "NotificationsMenuButton",
-  isFriendlyUI ? FriendlyNotificationsMenuButton : BookNotificationsMenuButton,
-  {
-    styles,
-    stylePriority: -1,
-    areEqual: "auto",
-  },
-);
+const FriendlyNotificationsMenuButtonPlaceholder = () => {
+  // ea-forum-look-here
+  // This component is a loading-placeholder that will be shown briefly (less
+  // than a second) during pageload. It should visually match
+  // FriendlyNotificationsMenuButtonInner (but with zero notifications). Not
+  // implementing this will cause mild visual jank during loading (the buttons
+  // will be hidden, causing things next to them to shift horizontally.)
+  return null; // TODO
+}
+
+const NotificationsMenuButton = ({ open, toggle, className }: NotificationsMenuButtonProps) => {
+  return <SuspenseWrapper
+    name="NotificationsMenuButton"
+    fallback={isFriendlyUI
+      ? <FriendlyNotificationsMenuButtonPlaceholder/>
+      : <BookNotificationsMenuButtonPlaceholder/>
+    }
+  >
+    {isFriendlyUI
+      ? <FriendlyNotificationsMenuButtonInner open={open} toggle={toggle} className={className}/>
+      : <BookNotificationsMenuButtonInner open={open} toggle={toggle} className={className}/>
+    }
+  </SuspenseWrapper>
+}
+
+export default registerComponent("NotificationsMenuButton", NotificationsMenuButton, {
+  areEqual: "auto",
+});
 
 
