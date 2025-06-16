@@ -172,9 +172,9 @@ export const UnreadNotificationsContextProvider: FC<{
 
   return (
     <unreadNotificationsContext.Provider value={providedContext}>
-      <SuspenseWrapper name="useUnreadNotifications">
-        <NotificationsEffects queryRef={unreadNotificationCountsQueryRef!} refetchCounts={refetchCounts} refetchBoth={refetchBoth} />
-      </SuspenseWrapper>
+      {unreadNotificationCountsQueryRef && <SuspenseWrapper name="useUnreadNotifications">
+        <NotificationsEffects queryRef={unreadNotificationCountsQueryRef} refetchCounts={refetchCounts} refetchBoth={refetchBoth} />
+      </SuspenseWrapper>}
       {children}
     </unreadNotificationsContext.Provider>
   );
