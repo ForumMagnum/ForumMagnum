@@ -1,6 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { FilterSettings, FilterMode as FilterModeType, isCustomFilterMode } from '../../lib/filterSettings';
+import { FilterSettings, FilterMode as FilterModeType, isCustomFilterMode, FilterTag, useReadSuggestedTags, type TagBasicInfoMultiQuery } from '../../lib/filterSettings';
 import { useCurrentUser } from '../common/withUser';
 import { tagStyle } from './FooterTag';
 import { usePersonalBlogpostInfo } from './usePersonalBlogpostInfo';
@@ -11,8 +10,11 @@ import AddTagButton from "./AddTagButton";
 import LWTooltip from "../common/LWTooltip";
 import FilterMode, { filteringStyles } from './FilterMode';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import { type QueryRef } from '@apollo/client/react';
+import { type ResultOf } from '@graphql-typed-document-node/core';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagFilterSettings", (theme: ThemeType) => ({
   root: {
     marginLeft: "auto",
     ...theme.typography.commentStyle,
@@ -52,39 +54,34 @@ const styles = (theme: ThemeType) => ({
       alignItems: "center"
     }),
   }
-});
+}));
 
-/**
- * Adjust the weighting the frontpage gives to posts with the given tags
- *
- * See the documentation for useFilterSettings for more information about the
- * behavior of filter settings.
- */
-const TagFilterSettings = ({
+const TagFilterSettingsInner = ({
   filterSettings,
+  suggestedTagsQueryRef,
   setPersonalBlogFilter,
   setTagFilter,
   removeTagFilter,
   flexWrapEndGrow = true,
-  classes
 }: {
   filterSettings: FilterSettings,
+  suggestedTagsQueryRef: QueryRef<ResultOf<typeof TagBasicInfoMultiQuery>>
   setPersonalBlogFilter: (filterMode: FilterModeType) => void,
   setTagFilter: (args: {tagId: string, tagName?: string, filterMode: FilterModeType}) => void,
   removeTagFilter: (tagId: string) => void,
   flexWrapEndGrow?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
+  const suggestedTags = useReadSuggestedTags(filterSettings, suggestedTagsQueryRef);
 
   const {
     name: personalBlogpostName,
     tooltip: personalBlogpostTooltip,
   } = usePersonalBlogpostInfo();
 
-  return <span className={classes.root}>
-    <SuspenseWrapper name="TagFilterSettings">
-      {filterSettings.tags.map(tagSettings =>
+  return <>
+      {[...filterSettings.tags, ...suggestedTags].map(tagSettings =>
         <FilterMode
           label={tagSettings.tagName}
           key={tagSettings.tagId}
@@ -127,10 +124,45 @@ const TagFilterSettings = ({
         </LWTooltip>}
       </div>
       {flexWrapEndGrow && <div className={classes.flexWrapEndGrow} />}
+  </>
+}
+
+/**
+ * Adjust the weighting the frontpage gives to posts with the given tags
+ *
+ * See the documentation for useFilterSettings for more information about the
+ * behavior of filter settings.
+ */
+const TagFilterSettings = ({
+  filterSettings,
+  suggestedTagsQueryRef,
+  setPersonalBlogFilter,
+  setTagFilter,
+  removeTagFilter,
+  flexWrapEndGrow = true,
+}: {
+  filterSettings: FilterSettings,
+  suggestedTagsQueryRef: QueryRef<ResultOf<typeof TagBasicInfoMultiQuery>>
+  setPersonalBlogFilter: (filterMode: FilterModeType) => void,
+  setTagFilter: (args: {tagId: string, tagName?: string, filterMode: FilterModeType}) => void,
+  removeTagFilter: (tagId: string) => void,
+  flexWrapEndGrow?: boolean,
+}) => {
+  const classes = useStyles(styles);
+  return <span className={classes.root}>
+    <SuspenseWrapper name="TagFilterSettings">
+      <TagFilterSettingsInner
+        filterSettings={filterSettings}
+        suggestedTagsQueryRef={suggestedTagsQueryRef}
+        setPersonalBlogFilter={setPersonalBlogFilter}
+        setTagFilter={setTagFilter}
+        removeTagFilter={removeTagFilter}
+        flexWrapEndGrow={flexWrapEndGrow}
+      />
     </SuspenseWrapper>
   </span>
 }
 
-export default registerComponent("TagFilterSettings", TagFilterSettings, {styles});
+export default TagFilterSettings;
 
 
