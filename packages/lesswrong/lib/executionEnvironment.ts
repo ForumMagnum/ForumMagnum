@@ -1,18 +1,18 @@
 // import * as _ from 'underscore';
 
-// declare global {
-//   let bundleIsServer: boolean;
-//   let bundleIsTest: boolean;
-//   let bundleIsIntegrationTest: boolean;
-//   let bundleIsCodegen: boolean;
-//   let bundleIsE2E: boolean;
-//   let bundleIsProduction: boolean;
-//   let bundleIsMigrations: boolean;
-//   let defaultSiteAbsoluteUrl: string;
-//   let buildProcessPid: number;
-//   let ddEnv: string;
-//   let enableVite: boolean;
-// }
+declare global {
+  let bundleIsServer: boolean;
+  let bundleIsTest: boolean;
+  let bundleIsIntegrationTest: boolean;
+  let bundleIsCodegen: boolean;
+  let bundleIsE2E: boolean;
+  let bundleIsProduction: boolean;
+  let bundleIsMigrations: boolean;
+  let defaultSiteAbsoluteUrl: string;
+  let buildProcessPid: number;
+  let ddEnv: string;
+  let enableVite: boolean;
+}
 
 // export const isClient = !bundleIsServer
 // export const isServer = bundleIsServer

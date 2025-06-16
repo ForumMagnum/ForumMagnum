@@ -1,12 +1,7 @@
 import * as _ from 'underscore';
 // eslint-disable-next-line no-restricted-imports
-// import {matchPath} from 'react-router'
-// TODO: !!!
-const matchPath = (...args: AnyBecauseHard[]) => {
-  return {
-    params: {}
-  }
-};
+import {matchPath} from 'react-router'
+
 import type { Request, Response } from 'express';
 
 export type PingbackDocument = {

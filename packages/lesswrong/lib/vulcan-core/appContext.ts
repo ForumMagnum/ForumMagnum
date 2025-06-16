@@ -2,13 +2,7 @@
 
 import React from 'react';
 // eslint-disable-next-line no-restricted-imports
-// import { matchPath } from 'react-router';
-// TODO: !!!
-const matchPath = (...args: AnyBecauseHard[]) => {
-  return {
-    params: {}
-  }
-};
+import { matchPath } from 'react-router';
 
 import qs from 'qs'
 import { captureException } from '@sentry/core';
