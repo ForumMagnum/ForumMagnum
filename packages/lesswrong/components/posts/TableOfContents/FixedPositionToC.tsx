@@ -170,14 +170,16 @@ const styles = (theme: ThemeType) => ({
   rowDot: {
     fontSize: 9,
     height: 9,
+    lineHeight: '9px',
     background: theme.palette.background.pageActiveAreaBackground,
     marginLeft: 2,
     marginRight: 8,
     zIndex: 1,
-    color: theme.palette.grey[700]
+    color: theme.palette.grey[700],
   },
   tocWrapper: {
     marginLeft: 13,
+    paddingLeft: 10,
   },
   //Use our PostTitle styling with small caps
   tocTitle: {
@@ -236,7 +238,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayOptions, classes, hover}: {
+const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayOptions, classes, hover, scrollContainerRef}: {
   tocSections: ToCSection[],
   title: string|null,
   heading?: React.ReactNode,
@@ -244,6 +246,7 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType<typeof styles>,
   hover?: boolean,
+  scrollContainerRef?: React.RefObject<HTMLElement>,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -257,13 +260,97 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
 
   const { readingProgressBarRef } = usePostReadProgress({
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
-    disabled: disableProgressBar || !hasLoaded,
+    disabled: disableProgressBar || !hasLoaded || !!scrollContainerRef,
     setScrollWindowHeight: (element, height) => element.style.setProperty("--windowHeight", `${height}px`)
   });
+
+  // If a custom scroll container is provided, manage progress bar manually
+  useEffect(() => {
+    const container = scrollContainerRef?.current;
+    if (!container || disableProgressBar) return;
+
+    const update = () => {
+      const postContentElement = document.getElementById('postContent');
+      if (!postContentElement) return;
+
+      // Get the position of the post content relative to the container
+      const containerRect = container.getBoundingClientRect();
+      const postContentRect = postContentElement.getBoundingClientRect();
+      
+      // Calculate the offset of post content from the top of the container
+      const postContentOffsetInContainer = postContentRect.top - containerRect.top + container.scrollTop;
+      const postContentHeight = postContentElement.offsetHeight;
+      
+      // Calculate where the viewport BOTTOM is relative to the post content
+      // This matches the "fixed ToC" calculation in usePostReadProgress
+      const viewportBottomInContainer = container.scrollTop + container.clientHeight;
+      const distanceFromPostTopToViewportBottom = viewportBottomInContainer - postContentOffsetInContainer;
+      
+      // The scroll percent represents how far the viewport bottom has traveled through the post
+      const scrollPercent = Math.max(0, Math.min(100, (distanceFromPostTopToViewportBottom / postContentHeight) * 100));
+      
+      // Calculate the window height as a percentage of the post content
+      const viewportHeightAsPercentOfPost = (container.clientHeight / postContentHeight) * 100;
+      
+      if (readingProgressBarRef.current) {
+        // The progress bar uses flex, so scrollPercent represents the portion above the indicator
+        // But we need to adjust it to represent where the viewport TOP is
+        const adjustedScrollPercent = Math.max(0, scrollPercent - viewportHeightAsPercentOfPost);
+        readingProgressBarRef.current.style.setProperty("--scrollAmount", `${adjustedScrollPercent}%`);
+        
+        // Set window height as percentage of the progress bar container
+        const progressBarHeight = readingProgressBarRef.current.offsetHeight;
+        const windowHeightInPixels = (viewportHeightAsPercentOfPost / 100) * progressBarHeight;
+        readingProgressBarRef.current.style.setProperty("--windowHeight", `${windowHeightInPixels}px`);
+      }
+    };
+    update();
+    container.addEventListener('scroll', update);
+    return () => container.removeEventListener('scroll', update);
+  }, [scrollContainerRef, disableProgressBar, readingProgressBarRef]);
 
   const jumpToAnchor = (anchor: string) => {
     if (isServer) return;
 
+    const anchorElement = document.getElementById(anchor);
+    console.log('jumpToAnchor called:', { anchor, anchorElement, scrollContainerRef });
+    if (!anchorElement) return;
+
+    const container = scrollContainerRef?.current;
+    console.log('container:', container);
+
+    // Prefer scrolling inside the provided scroll container if available
+    if (container) {
+      const containerRect = container.getBoundingClientRect();
+      const anchorRect = anchorElement.getBoundingClientRect();
+      const offsetInsideContainer = anchorRect.top - containerRect.top;
+      console.log('scrolling container:', { containerRect, anchorRect, offsetInsideContainer });
+
+      const scrollTopBefore = container.scrollTop;
+      const targetScrollTop = container.scrollTop + offsetInsideContainer - (container.clientHeight * 0.2);
+      console.log('scroll calculation:', { scrollTopBefore, targetScrollTop, clientHeight: container.clientHeight });
+
+      container.scrollTo({
+        top: targetScrollTop, // keep heading ~20% from top
+        behavior: 'smooth',
+      });
+      
+      // Check if scroll actually happened
+      setTimeout(() => {
+        console.log('scroll after:', container.scrollTop);
+      }, 100);
+
+      // Update URL hash for consistency
+      delete query.commentId;
+      navigate({
+        search: isEmpty(query) ? '' : `?${qs.stringify(query)}`,
+        hash: `#${anchor}`,
+      });
+      return;
+    }
+    console.log('falling back to window scroll');
+
+    // Fallback to original window-scrolling behaviour
     const anchorY = getAnchorY(anchor);
     if (anchorY !== null) {
       delete query.commentId;
@@ -271,11 +358,10 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
         search: isEmpty(query) ? '' : `?${qs.stringify(query)}`,
         hash: `#${anchor}`,
       });
-      let sectionYdocumentSpace = anchorY + window.scrollY;
+      const sectionYdocumentSpace = anchorY + window.scrollY;
 
-      // This is forum-gating of a fairly subtle change in scroll behaviour, LW may want to adopt scrollFocusOnElement
       if (!isLWorAF) {
-        scrollFocusOnElement({ id: anchor, options: {behavior: "smooth"}})
+        scrollFocusOnElement({ id: anchor, options: { behavior: 'smooth' } });
       } else {
         jumpToY(sectionYdocumentSpace);
       }
@@ -342,7 +428,7 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
   const titleRow = (
     <div className={classes.rowWrapper} key={"#"}>
       <div className={classes.rowDotContainer}>
-        <span className={classNames(HOVER_CLASSNAME, classes.rowOpacity, classes.tocWrapper)}>
+        <span className={classes.rowOpacity}>
           <TableOfContentsRow
             indentLevel={1}
             key="postTitle"
@@ -354,7 +440,12 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
               if (isRegularClick(ev)) {
                 void handleClick(ev, () => {
                   navigate("#");
-                  jumpToY(0)
+                  const container = scrollContainerRef?.current;
+                  if (container) {
+                    container.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else {
+                    jumpToY(0);
+                  }
                 });
               }
             }}
