@@ -31,6 +31,9 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../lib/cookies/cookies';
 import PostsAudioPlayerWrapper, { postHasAudioPlayer } from '../posts/PostsPage/PostsAudioPlayerWrapper';
 import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
+import IconButton from "@/lib/vendor/@material-ui/core/src/IconButton";
+import TocIcon from "@/lib/vendor/@material-ui/icons/src/Toc";
+import NavigationDrawer from "../common/TabNavigationMenu/NavigationDrawer";
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300;
 
@@ -144,12 +147,14 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     },
   },
   closeButton: {
-    backgroundColor: theme.palette.grey[300],
+    width: 36, 
+    height: 36,
+    color: theme.palette.grey[600],
+    backgroundColor: theme.palette.grey[200],
     borderRadius: 4,
-    padding: 4,
+    padding: 6,
     cursor: 'pointer',
-    opacity: 0.6,
-    marginRight: 12,
+    marginRight: 8,
     fontSize: 36,
     '&:hover': {
       color: theme.palette.grey[700],
@@ -157,6 +162,22 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     '& svg': {
       display: 'block',
     }
+  },
+  hamburgerMenuButton: {
+    display: 'none',
+    width: 36, 
+    height: 36,
+    backgroundColor: theme.palette.grey[200],
+    borderRadius: 4,
+    marginRight: 'auto',
+    alignItems: 'center',
+    justifyContent: 'center',
+    [theme.breakpoints.down('sm')]: {
+      display: 'flex',
+    },
+  },
+  hamburgerIcon: {
+    color: theme.palette.grey[700],
   },
   dialogPaper: {
     width: '100vw',
@@ -316,6 +337,7 @@ const UltraFeedPostDialog = ({
   const scrollableContentRef = useRef<HTMLDivElement>(null);
   const dialogInnerRef = useRef<HTMLDivElement>(null);
   const isClosingViaBackRef = useRef(false);
+  const [navigationOpen, setNavigationOpen] = useState(false);
 
   const postId = partialPost?._id ?? undefined;
 
@@ -454,6 +476,20 @@ const UltraFeedPostDialog = ({
     contentData = { ...contentData, html: finalHtml } as typeof contentData;
   }
 
+  const tocButton = <div className={classes.hamburgerMenuButton}>
+  <IconButton
+             onClick={(e: React.MouseEvent) => {
+     e.preventDefault();
+     e.stopPropagation();
+     console.log('navigationOpen', navigationOpen);
+     setNavigationOpen(!navigationOpen);
+   }}
+    className={classes.hamburgerIcon}
+  >
+    <TocIcon />
+  </IconButton>
+</div>
+
   return (
     <LWDialog
       open={true}
@@ -477,6 +513,7 @@ const UltraFeedPostDialog = ({
                   onClick={onClose}
                   className={classes.closeButton}
                 />
+                {tocButton}
                 <div className={classes.headerActions}>
                   <BookmarkButton documentId={displayPost._id} collectionName="Posts" className={classes.bookmarkButton} placement="bottom-start" />
                   <div className={classes.audioToggle}>
@@ -603,6 +640,12 @@ const UltraFeedPostDialog = ({
                   <LWCommentCount commentCount={displayPost.commentCount} />
                 </div>
               )}
+              <NavigationDrawer
+                open={navigationOpen}
+                handleOpen={() => setNavigationOpen(true)}
+                handleClose={() => setNavigationOpen(false)}
+                toc={tocData}
+              />
             </>
           )}
         </div>
