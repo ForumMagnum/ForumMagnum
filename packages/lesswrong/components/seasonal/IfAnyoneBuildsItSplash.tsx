@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
+import classNames from 'classnames';
 
 // TODO: comment this out after we're done with the book promotion
 export const bookPromotionEndDate = new Date('2025-09-17T00:00:00Z') // Day after book release
@@ -15,7 +16,7 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     width: '100vw',
     height: '100vh',
-    background: '#111',
+    background: '#222',
     zIndex: -1,
     [theme.breakpoints.down(1300)]: {
       display: 'none'
@@ -27,12 +28,12 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     width: '100%',
     height: '100%',
-    background: '#111',
+    background: '#222',
     overflow: 'hidden',
   },
   blackSphere: {
     position: 'absolute',
-    background: 'radial-gradient(circle, #111 40%, rgba(0,0,0,0.8) 60%, transparent 80%)',
+    background: 'radial-gradient(circle, #222 40%, rgba(0,0,0,0.8) 60%, transparent 80%)',
     borderRadius: '50%',
     transform: 'translate(-50%, -50%)',
     left: 'calc(100% - 20vw)',
@@ -44,20 +45,15 @@ const styles = (theme: ThemeType) => ({
   },
   bookContainer: {
     position: 'fixed',
-    bottom: 100,
+    bottom: 120,
     right: 50,
     width: 280,
     textAlign: 'center',
     zIndex: 10,
-    [theme.breakpoints.down(1600)]: {
-      right: 20,
-      bottom: 80,
-      width: 240,
-    },
     [theme.breakpoints.down(1400)]: {
-      right: 10,
-      bottom: 60,
-      width: 200,
+      right: 50,
+      bottom: 120,
+      width: 150,
     },
     [theme.breakpoints.down(1300)]: {
       display: 'none'
@@ -98,9 +94,6 @@ const styles = (theme: ThemeType) => ({
     lineHeight: 1.2,
     textTransform: 'uppercase',
     letterSpacing: '0.02em',
-    [theme.breakpoints.down(1400)]: {
-      fontSize: '1.4rem',
-    }
   },
   subtitle: {
     fontFamily: theme.typography.fontFamily,
@@ -110,9 +103,6 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 12,
     textTransform: 'uppercase',
     letterSpacing: '0.02em',
-    [theme.breakpoints.down(1400)]: {
-      fontSize: '1.1rem',
-    }
   },
   authors: {
     fontFamily: theme.typography.fontFamily,
@@ -140,9 +130,12 @@ const styles = (theme: ThemeType) => ({
       fontSize: '0.8rem',
     }
   },
+  preorderButtonAmazon: {
+    marginTop: 30,
+    marginBottom: 10,
+  },
   preorderButton: {
     display: 'inline-block',
-    marginTop: 30,
     padding: '10px 24px',
     border: '2px solid #fff',
     color: '#fff',
@@ -164,11 +157,24 @@ const styles = (theme: ThemeType) => ({
   // Override the main layout background when this component is active
   '@global': {
     'body.ifAnyoneBuildsItActive': {
-      backgroundColor: '#111 !important',
+      backgroundColor: '#222 !important',
     },
     '.Layout-whiteBackground': {
       backgroundColor: 'transparent !important',
     }
+  },
+  altPreorderButton: {
+    marginTop: 10,
+    marginBottom: 30,
+    color: '#fff',
+    fontFamily: theme.typography.fontFamily,
+    letterSpacing: '0.05em',
+  },
+  altPreorderLinks: {
+    display: 'flex',
+    gap: '20px',
+    justifyContent: 'center',
+    width: '100%',
   }
 });
 
@@ -223,7 +229,7 @@ const IfAnyoneBuildsItSplash = ({
 
     // Animation loop
     const animate = () => {
-      ctx.fillStyle = '#111';
+      ctx.fillStyle = '#222';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
       const time = Date.now() * 0.001;
@@ -355,10 +361,15 @@ const IfAnyoneBuildsItSplash = ({
           href="https://www.amazon.com/gp/product/0316595640"
           target="_blank"
           rel="noopener noreferrer"
-          className={classes.preorderButton}
+          className={classNames(classes.preorderButton, classes.preorderButtonAmazon)}
         >
-          Pre-order Now
+          Pre-order on Amazon
         </a>
+        <div className={classes.altPreorderLinks}>
+          <a href="https://ifanyonebuildsit.com/" target="_blank" rel="noopener noreferrer" className={classes.altPreorderButton}>
+            Other Options
+          </a>
+        </div>
       </div>
     </>
   );
