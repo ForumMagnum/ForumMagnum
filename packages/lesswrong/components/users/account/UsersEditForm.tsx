@@ -785,6 +785,17 @@ const UsersForm = ({
         </div>
 
         <div className={classes.fieldWrapper}>
+          <form.Field name="notificationNewPingback">
+            {(field) => (
+              <NotificationTypeSettingsWidget
+                field={field}
+                label="Someone has mentioned my post or comment"
+              />
+            )}
+          </form.Field>
+        </div>
+
+        <div className={classes.fieldWrapper}>
           <form.Field name="notificationDialogueMessages">
             {(field) => (
               <NotificationTypeSettingsWidget

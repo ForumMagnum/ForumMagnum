@@ -8,10 +8,12 @@ export async function getPostPingbackById(parsedUrl: RouterLocation, postId: str
   if (!postId)
     return null
 
+  if (parsedUrl.query.commentId) {
+    return {collectionName: 'Comments', documentId: parsedUrl.query.commentId}
+  }
+
   // If the URL contains a hash, it leads to either a comment, a landmark within
   // the post, or a builtin ID.
-  // TODO: In the case of a comment, we should generate a comment-specific
-  // pingback in addition to the pingback to the post the comment is on.
   // TODO: In the case of a landmark, we want to customize the hover preview to
   // reflect where in the post the link was to.
   return ({collectionName: 'Posts', documentId: postId})

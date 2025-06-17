@@ -1690,6 +1690,7 @@ export const UsersDefaultFragment = `
     notificationPostsNominatedReview
     notificationSubforumUnread
     notificationNewMention
+    notificationNewPingback
     notificationDialogueMessages
     notificationPublishedDialogueMessages
     notificationAddedAsCoauthor

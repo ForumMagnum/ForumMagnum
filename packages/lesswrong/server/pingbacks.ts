@@ -10,7 +10,7 @@ import { getCollection } from '@/server/collections/allCollections';
 import { getLatestRev } from './editor/utils';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 
-type PingbacksIndex = Partial<Record<CollectionNameString, string[]>>
+export type PingbacksIndex = Partial<Record<CollectionNameString, string[]>>
 
 // Given an HTML document, extract the links from it and convert them to a set
 // of pingbacks, formatted as a dictionary from collection name -> array of
