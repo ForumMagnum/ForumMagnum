@@ -168,12 +168,18 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
       header: {
         background: 'rgba(50,50,50,.75)',
       },
+      ultrafeedModalHeader: {
+        background: 'rgba(50,50,50,.98)',
+      },
       background: {
         translucentBackgroundHeavy: "rgba(0,0,0,.75)",
         translucentBackground: "rgba(0,0,0,.5)",
       }
     },
     default: {
+      ultrafeedModalHeader: {
+        background: shadePalette.greyAlpha(.98),
+      },
       background: {
         translucentBackgroundHeavy: "rgba(0,0,0,.75)",
         translucentBackground: "rgba(0,0,0,.5)",

@@ -513,6 +513,9 @@ declare global {
       text: ColorString,
       background: ColorString,
     },
+    ultrafeedModalHeader: {
+      background: ColorString,
+    },
     datePicker: {
       selectedDate: ColorString,
     },
