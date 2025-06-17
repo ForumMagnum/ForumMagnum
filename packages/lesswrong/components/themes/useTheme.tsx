@@ -10,6 +10,7 @@ import stringify from 'json-stringify-deterministic';
 import { FMJssProvider } from '../hooks/FMJssProvider';
 // eslint-disable-next-line no-restricted-imports
 import { useLocation } from 'react-router-dom';
+import { is } from 'cheerio/lib/api/attributes';
 
 type ThemeContextObj = {
   theme: ThemeType,
@@ -101,36 +102,38 @@ export const ThemeContextProvider = ({options, children}: {
   options: AbstractThemeOptions,
   children: React.ReactNode,
 }) => {
-  const [_cookies, setCookie, removeCookie] = useCookiesWithConsent([THEME_COOKIE]);
-  const [themeOptions, setThemeOptions] = useState(options);
-  const prefersDarkMode = usePrefersDarkMode();
-  const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode);
-
   const location = useLocation();
-  const isHomePage = location?.pathname === '/' || location?.pathname === '';
+  const isHomePage = location.pathname === '/' || location.pathname === '';
+  const [_cookies, setCookie, removeCookie] = useCookiesWithConsent([THEME_COOKIE]);
+  const [oldThemeOptions, setThemeOptions] = useState(options);
+  const prefersDarkMode = usePrefersDarkMode();
+  const themeOptions = isHomePage ? {name: 'dark' as const} : oldThemeOptions;
+  const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode);
+  
+  
 
   useEffect(() => {
     if (stringify(themeOptions) !== stringify(window.themeOptions)) {
       window.themeOptions = themeOptions;
       if (isEAForum) {
         removeCookie(THEME_COOKIE, {path: "/"});
-      } else {
+      } else if (stringify(oldThemeOptions) !== stringify(window.themeOptions)) {
         setCookie(THEME_COOKIE, stringify(themeOptions), {
           path: "/",
           expires: moment().add(2, 'years').toDate(),
         });
       }
       const stylesId = "main-styles";
-      const tempStylesId = stylesId + "-temp";
+      const tempStylesId = stylesId + "-temp" + Math.random();
       const oldStyles = document.getElementById(stylesId);
-      if (oldStyles) {
-        oldStyles.setAttribute("id", tempStylesId);
+      if (oldStyles || isHomePage) {
+        oldStyles?.setAttribute("id", tempStylesId);
         const onFinish = (error?: string | Event) => {
           if (error) {
             // eslint-disable-next-line no-console
             console.error("Failed to load stylesheet for theme:", themeOptions, "Error:", error);
           } else {
-            oldStyles.parentElement!.removeChild(oldStyles);
+            oldStyles?.parentElement!.removeChild(oldStyles);
           }
         }
         if (themeOptions.name === "auto") {
