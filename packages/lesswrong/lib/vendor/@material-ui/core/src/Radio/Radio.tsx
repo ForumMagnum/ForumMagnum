@@ -46,7 +46,7 @@ export const styles = defineStyles("MuiRadio", theme => ({
 }), {stylePriority: -10});
 
 function Radio(props: RadioProps) {
-  const { classes: classesOverride, color, ...other } = props;
+  const { classes: classesOverride, color="secondary", ...other } = props;
   const classes = useStyles(styles, classesOverride);
 
   return (
@@ -66,9 +66,5 @@ function Radio(props: RadioProps) {
     />
   );
 }
-
-Radio.defaultProps = {
-  color: 'secondary',
-};
 
 export default Radio;
