@@ -152,11 +152,11 @@ type DocumentSummary =
 export const getDocumentSummary = async (documentType: NotificationDocument | null, documentId: string | null, context: ResolverContext): Promise<DocumentSummary | null> => {
   if (!documentId) return null
 
-  const { Posts, Comments, Users, Messages, Conversations, Localgroups, TagRels, Sequences } = context;
+  const { Posts, Comments, Users, Messages, Conversations, Localgroups, TagRels, Sequences } = context.loaders;
 
   switch (documentType) {
     case 'post':
-      const post = await Posts.findOne(documentId)
+      const post = await Posts.load(documentId)
       return post && {
         type: documentType,
         document: post,
@@ -164,15 +164,22 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         associatedUserName: await postGetAuthorName(post, context),
       }
     case 'comment':
-      const comment = await Comments.findOne(documentId)
-      return comment && {
+      const comment = await Comments.load(documentId)
+      if (!comment) {
+        return null;
+      }
+      const [displayName, associatedUserName] = await Promise.all([
+        getCommentParentTitle(comment, context),
+        commentGetAuthorName(comment, context),
+      ]);
+      return {
         type: documentType,
         document: comment,
-        displayName: await getCommentParentTitle(comment, context),
-        associatedUserName: await commentGetAuthorName(comment, context),
+        displayName,
+        associatedUserName,
       }
     case 'user':
-      const user = await Users.findOne(documentId)
+      const user = await Users.load(documentId)
       return user && {
         type: documentType,
         document: user,
@@ -180,11 +187,13 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         associatedUserName: userGetDisplayName(user),
       }
     case 'message':
-      const message = await Messages.findOne(documentId)
+      const message = await Messages.load(documentId)
       if (!message) return null
 
-      const conversation = await Conversations.findOne(message.conversationId)
-      const author = await Users.findOne(message.userId)
+      const [conversation, author] = await Promise.all([
+        Conversations.load(message.conversationId),
+        Users.load(message.userId),
+      ]);
       return {
         type: documentType,
         document: message,
@@ -192,7 +201,7 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         associatedUserName: userGetDisplayName(author),
       }
     case 'localgroup':
-      const localgroup = await Localgroups.findOne(documentId)
+      const localgroup = await Localgroups.load(documentId)
       return localgroup && {
         type: documentType,
         document: localgroup,
@@ -200,7 +209,7 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         associatedUserName: null,
       }
     case 'tagRel':
-      const tagRel = await TagRels.findOne(documentId)
+      const tagRel = await TagRels.load(documentId)
       return tagRel && {
         type: documentType,
         document: tagRel,
@@ -208,7 +217,7 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         associatedUserName: null,
       }
     case 'sequence':
-      const sequence = await Sequences.findOne(documentId)
+      const sequence = await Sequences.load(documentId)
       return sequence && {
         type: documentType,
         document: sequence,
@@ -936,6 +945,29 @@ export const NewMentionNotification = createNotificationType({
   },
 })
 
+export const NewPingbackNotification = createNotificationType({
+  name: "newPingback",
+  userSettingField: "notificationNewMention",
+  async getMessage({documentType, documentId, extraData, context}: GetMessageProps) {
+    const summary = await getDocumentSummary(documentType, documentId, context)
+    const prefix = documentType === "comment" ? "their comment on " : "";
+    return `${summary?.associatedUserName} mentioned your ${extraData?.pingbackType} in ${prefix}${summary?.displayName}`
+  },
+  getIcon() {
+    return <CommentsIcon style={iconStyles}/>
+  },
+  Display: ({User, Comment, Post, Tag, notification: {comment, tag, extraData}}) => {
+    if (tag) {
+      return (
+        <><User /> mentioned your ${extraData?.pingbackType} in <Tag /></>
+      );
+    }
+    return (
+      <><User /> mentioned your ${extraData?.pingbackType} in {comment ? <>their <Comment /> on </> : ""}<Post /></>
+    );
+  },
+})
+
 const notificationTypesArray: NotificationType[] = [
   NewPostNotification,
   NewUserCommentNotification,
@@ -976,6 +1008,7 @@ const notificationTypesArray: NotificationType[] = [
   CoauthorRequestNotification,
   CoauthorAcceptNotification,
   NewMentionNotification,
+  NewPingbackNotification,
 ];
 const notificationTypes: Record<string,NotificationType> = keyBy(notificationTypesArray, n=>n.name);
 

@@ -847,6 +847,61 @@ export const NewMentionNotification = createServerNotificationType({
   },
 });
 
+export const NewPingbackNotification = createServerNotificationType({
+  name: "newPingback",
+  emailSubject: async ({ notifications, context }: {
+    user: DbUser,
+    notifications: DbNotification[],
+    context: ResolverContext,
+  }) => {
+    const notification = notifications[0];
+    if (!notification) {
+      throw Error("Missing notification for newPingback");
+    }
+    const summary = await getDocumentSummary(
+      notification.documentType as NotificationDocument,
+      notification.documentId,
+      context,
+    );
+    if (!summary) {
+      throw Error(`Can't find document for notification: ${notification}`);
+    }
+    const prefix = notification.documentType === "comment"
+      ? "their comment on "
+      : "";
+    return `${summary.associatedUserName} mentioned your ${notification.extraData?.pingbackType} in ${prefix}${summary.displayName}`;
+  },
+  emailBody: async ({ notifications, context }: {
+    user: DbUser,
+    notifications: DbNotification[],
+    context: ResolverContext,
+  }) => {
+    const notification = notifications[0];
+    if (!notification) {
+      throw Error("Missing notification for newPingback");
+    }
+    const summary = await getDocumentSummary(
+      notification.documentType as NotificationDocument,
+      notification.documentId,
+      context,
+    );
+    if (!summary) {
+      throw Error(`Can't find document for notification: ${notification}`);
+    }
+    if (!notification.link) {
+      throw Error(`Can't link for notification: ${notification}`);
+    }
+    const prefix = notification.documentType === "comment"
+      ? "their comment on "
+      : "";
+    return (
+      <p>
+        {summary.associatedUserName} mentioned your {notification.extraData?.pingbackType} in {prefix}<a href={makeAbsolute(notification.link)}>{summary.displayName}</a>.
+      </p>
+    );
+  },
+});
+
 const serverNotificationTypesArray: ServerNotificationType[] = [
   NewPostNotification,
   PostApprovedNotification,
@@ -883,6 +938,7 @@ const serverNotificationTypesArray: ServerNotificationType[] = [
   PostCoauthorAcceptNotification,
   NewSubforumMemberNotification,
   NewMentionNotification,
+  NewPingbackNotification,
 ];
 const serverNotificationTypes: Record<string,ServerNotificationType> = keyBy(serverNotificationTypesArray, n=>n.name);
 
