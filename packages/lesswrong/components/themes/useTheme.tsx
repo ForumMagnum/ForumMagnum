@@ -107,7 +107,6 @@ export const ThemeContextProvider = ({options, children}: {
   const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode);
 
   const location = useLocation();
-  console.log('location', location);
   const isHomePage = location.pathname === '/' || location.pathname === '';
 
   useEffect(() => {
@@ -153,10 +152,8 @@ export const ThemeContextProvider = ({options, children}: {
   
   const themeContext = useMemo(() => {
     if (isHomePage) {
-      console.log('dark theme', theme.palette.background.default);
       return {theme, themeOptions: {name: 'dark' as const}, setThemeOptions};
     } else {
-      console.log('normal theme', theme.palette.background.default);
       return {theme, themeOptions, setThemeOptions};
     }
   }, [theme, themeOptions, setThemeOptions, isHomePage]);
