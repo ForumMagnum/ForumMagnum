@@ -179,9 +179,7 @@ export const UsersCurrent = gql(`
     recommendationSettings
     theme
 
-    bookmarkedPostsMetadata {
-      postId
-    }
+    hasAnyBookmarks
 
     hiddenPostsMetadata {
       postId

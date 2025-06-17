@@ -174,7 +174,7 @@ const LWRecommendations = ({
 
 
     const bookmarksLimit = (settings.hideFrontpage && settings.hideContinueReading) ? 6 : 3
-    const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
+    const renderBookmarks = currentUser?.hasAnyBookmarks && !settings.hideBookmarks
 
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
 

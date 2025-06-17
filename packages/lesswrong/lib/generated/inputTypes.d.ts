@@ -7216,6 +7216,7 @@ interface User {
   bannedUserIds: Array<string> | null;
   bannedPersonalUserIds: Array<string> | null;
   bookmarkedPostsMetadata: Array<PostMetadataOutput> | null;
+  hasAnyBookmarks: boolean;
   bookmarkedPosts: Array<Post> | null;
   hiddenPostsMetadata: Array<PostMetadataOutput> | null;
   hiddenPosts: Array<Post> | null;

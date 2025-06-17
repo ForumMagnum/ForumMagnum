@@ -306,7 +306,7 @@ function isTabEnabled(
 
   const activeSubscribedTabDisabled = tab.name === 'forum-subscribed-authors' && !userHasSubscribeTabFeed(currentUser);
 
-  const hasBookmarks = (currentUser?.bookmarkedPostsMetadata?.length ?? 0) >= 1;
+  const hasBookmarks = currentUser?.hasAnyBookmarks ?? false;
   const activeBookmarkTabDisabled = tab.name === 'forum-bookmarks' && !hasBookmarks;
 
   const activeContinueReadingTabDisabled = tab.name === 'forum-continue-reading' && !hasContinueReading;
