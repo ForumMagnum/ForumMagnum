@@ -8,6 +8,7 @@ import { THEME_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import stringify from 'json-stringify-deterministic';
 import { FMJssProvider } from '../hooks/FMJssProvider';
+// eslint-disable-next-line no-restricted-imports
 import { useLocation } from 'react-router-dom';
 
 type ThemeContextObj = {
