@@ -947,7 +947,7 @@ export const NewMentionNotification = createNotificationType({
 
 export const NewPingbackNotification = createNotificationType({
   name: "newPingback",
-  userSettingField: "notificationNewMention",
+  userSettingField: "notificationNewPingback",
   async getMessage({documentType, documentId, extraData, context}: GetMessageProps) {
     const summary = await getDocumentSummary(documentType, documentId, context)
     const prefix = documentType === "comment" ? "their comment on " : "";
