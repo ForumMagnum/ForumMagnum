@@ -107,7 +107,7 @@ export const ThemeContextProvider = ({options, children}: {
   const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode);
 
   const location = useLocation();
-  const isHomePage = location.pathname === '/' || location.pathname === '';
+  const isHomePage = location?.pathname === '/' || location?.pathname === '';
 
   useEffect(() => {
     if (stringify(themeOptions) !== stringify(window.themeOptions)) {
