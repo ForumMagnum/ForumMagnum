@@ -255,7 +255,7 @@ const IfAnyoneBuildsItSplash = ({
           sizeMultiplier = 1 + (redShift * 3); // Up to 3x size at the edge
         } else if (distance < currentSphereRadius * 1.5) {
           // Apply redshift to stars further out for more visible effect
-          redShift = (currentSphereRadius * 3 - distance) / (currentSphereRadius * 0.5);
+          redShift = ((currentSphereRadius * 3) - distance) / (currentSphereRadius * 0.5);
           redShift = Math.max(0, Math.min(1, redShift)); // Clamp between 0 and 1
           // Gradually increase size as stars approach the danger zone
           sizeMultiplier = 1 + (redShift * 1); // Up to 2x size in the approach zone
