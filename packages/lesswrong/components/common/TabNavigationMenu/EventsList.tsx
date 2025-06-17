@@ -21,7 +21,9 @@ export const EventsList = ({currentUser, onClick}: {
     }
     return <span>
       <AnalyticsContext pageSubSectionContext="menuEventsList">
-        <TabNavigationEventsList onClick={onClick} terms={nearbyTerms} />
+        <SuspenseWrapper name="TabNavigationEventsList">
+          <TabNavigationEventsList onClick={onClick} terms={nearbyTerms} />
+        </SuspenseWrapper>
       </AnalyticsContext>
     </span>
   }
