@@ -8,6 +8,7 @@ import { THEME_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import stringify from 'json-stringify-deterministic';
 import { FMJssProvider } from '../hooks/FMJssProvider';
+import { useLocation } from 'react-router-dom';
 
 type ThemeContextObj = {
   theme: ThemeType,
@@ -104,6 +105,10 @@ export const ThemeContextProvider = ({options, children}: {
   const prefersDarkMode = usePrefersDarkMode();
   const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode);
 
+  const location = useLocation();
+  console.log('location', location);
+  const isHomePage = location.pathname === '/' || location.pathname === '';
+
   useEffect(() => {
     if (stringify(themeOptions) !== stringify(window.themeOptions)) {
       window.themeOptions = themeOptions;
@@ -137,14 +142,23 @@ export const ThemeContextProvider = ({options, children}: {
     }
   }, [themeOptions, concreteTheme, setCookie, removeCookie]);
 
-  const theme: any = useMemo(() =>
-    getForumTheme(concreteTheme),
-    [concreteTheme]
-  );
-  const themeContext = useMemo(() => (
-    {theme, themeOptions, setThemeOptions}),
-    [theme, themeOptions, setThemeOptions]
-  );
+  const theme: any = useMemo(() => {
+    if (isHomePage) {
+      return getForumTheme({name: 'dark' as const});
+    } else {
+      return getForumTheme(concreteTheme);
+    }
+  }, [concreteTheme, isHomePage]);
+  
+  const themeContext = useMemo(() => {
+    if (isHomePage) {
+      console.log('dark theme', theme.palette.background.default);
+      return {theme, themeOptions: {name: 'dark' as const}, setThemeOptions};
+    } else {
+      console.log('normal theme', theme.palette.background.default);
+      return {theme, themeOptions, setThemeOptions};
+    }
+  }, [theme, themeOptions, setThemeOptions, isHomePage]);
   
   return <ThemeContext.Provider value={themeContext}>
     <FMJssProvider>

@@ -28,19 +28,19 @@ const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, the
     <ApolloProvider client={apolloClient}>
       <ForeignApolloClientProvider value={foreignApolloClient}>
         <CookiesProvider>
-          <ThemeContextProvider options={themeOptions}>
           <BrowserRouter>
-            <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
-              <PrefersDarkModeProvider>
-                <LayoutOptionsContextProvider>
-                  <EnvironmentOverrideContextProvider ssrMetadata={ssrMetadata}>
-                    <AppComponent apolloClient={apolloClient} />
-                  </EnvironmentOverrideContextProvider>
-                </LayoutOptionsContextProvider>
-              </PrefersDarkModeProvider>
-            </ABTestGroupsUsedContext.Provider>
+            <ThemeContextProvider options={themeOptions}>
+              <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
+                <PrefersDarkModeProvider>
+                  <LayoutOptionsContextProvider>
+                    <EnvironmentOverrideContextProvider ssrMetadata={ssrMetadata}>
+                      <AppComponent apolloClient={apolloClient} />
+                    </EnvironmentOverrideContextProvider>
+                  </LayoutOptionsContextProvider>
+                </PrefersDarkModeProvider>
+              </ABTestGroupsUsedContext.Provider>
+            </ThemeContextProvider>
           </BrowserRouter>
-          </ThemeContextProvider>
         </CookiesProvider>
       </ForeignApolloClientProvider>
     </ApolloProvider>
