@@ -3981,6 +3981,7 @@ interface User {
   expandedFrontpageSections: ExpandedFrontpageSectionsSettingsOutput | null;
   showCommunityInRecentDiscussion: boolean;
   hidePostsRecommendations: boolean;
+  keywordAlerts: Array<string>;
   petrovOptOut: boolean;
   optedOutOfSurveys: boolean | null;
   postGlossariesPinned: boolean | null;
@@ -6076,6 +6077,7 @@ interface CreateUserDataInput {
   expandedFrontpageSections?: ExpandedFrontpageSectionsSettingsInput | null;
   showCommunityInRecentDiscussion?: boolean | null;
   hidePostsRecommendations?: boolean | null;
+  keywordAlerts?: Array<string> | null;
   petrovOptOut?: boolean | null;
   optedOutOfSurveys?: boolean | null;
   postGlossariesPinned?: boolean | null;
@@ -6244,6 +6246,7 @@ interface UpdateUserDataInput {
   expandedFrontpageSections?: ExpandedFrontpageSectionsSettingsInput | null;
   showCommunityInRecentDiscussion?: boolean | null;
   hidePostsRecommendations?: boolean | null;
+  keywordAlerts?: Array<string> | null;
   petrovOptOut?: boolean | null;
   optedOutOfSurveys?: boolean | null;
   postGlossariesPinned?: boolean | null;

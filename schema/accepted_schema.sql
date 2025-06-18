@@ -3315,6 +3315,7 @@ CREATE TABLE "Users" (
   "expandedFrontpageSections" JSONB,
   "showCommunityInRecentDiscussion" BOOL NOT NULL DEFAULT FALSE,
   "hidePostsRecommendations" BOOL NOT NULL DEFAULT FALSE,
+  "keywordAlerts" TEXT[] NOT NULL DEFAULT '{}',
   "petrovOptOut" BOOL NOT NULL DEFAULT FALSE,
   "optedOutOfSurveys" BOOL,
   "postGlossariesPinned" BOOL NOT NULL DEFAULT FALSE,

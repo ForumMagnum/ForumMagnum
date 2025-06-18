@@ -4205,6 +4205,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly hideCommunitySection: boolean,
   readonly showCommunityInRecentDiscussion: boolean,
   readonly hidePostsRecommendations: boolean,
+  readonly keywordAlerts: Array<string>,
   readonly petrovOptOut: boolean,
   readonly optedOutOfSurveys: boolean|null,
   readonly postGlossariesPinned: boolean|null,

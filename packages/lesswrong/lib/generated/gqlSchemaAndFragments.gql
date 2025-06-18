@@ -4767,6 +4767,7 @@ type User {
   expandedFrontpageSections: ExpandedFrontpageSectionsSettingsOutput
   showCommunityInRecentDiscussion: Boolean!
   hidePostsRecommendations: Boolean!
+  keywordAlerts: [String!]!
   petrovOptOut: Boolean!
   optedOutOfSurveys: Boolean
   postGlossariesPinned: Boolean
@@ -7088,6 +7089,7 @@ input CreateUserDataInput {
   expandedFrontpageSections: ExpandedFrontpageSectionsSettingsInput
   showCommunityInRecentDiscussion: Boolean
   hidePostsRecommendations: Boolean
+  keywordAlerts: [String!]
   petrovOptOut: Boolean
   optedOutOfSurveys: Boolean
   postGlossariesPinned: Boolean
@@ -7256,6 +7258,7 @@ input UpdateUserDataInput {
   expandedFrontpageSections: ExpandedFrontpageSectionsSettingsInput
   showCommunityInRecentDiscussion: Boolean
   hidePostsRecommendations: Boolean
+  keywordAlerts: [String!]
   petrovOptOut: Boolean
   optedOutOfSurveys: Boolean
   postGlossariesPinned: Boolean
@@ -12217,6 +12220,7 @@ fragment UsersDefaultFragment on User {
   hideCommunitySection
   showCommunityInRecentDiscussion
   hidePostsRecommendations
+  keywordAlerts
   petrovOptOut
   optedOutOfSurveys
   postGlossariesPinned

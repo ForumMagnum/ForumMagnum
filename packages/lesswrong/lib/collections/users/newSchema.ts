@@ -977,6 +977,24 @@ const schema = {
       },
     },
   },
+  keywordAlerts: {
+    database: {
+      type: "TEXT[]",
+      defaultValue: [],
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "[String!]!",
+      inputType: "[String!]",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   petrovOptOut: {
     database: {
       type: "BOOL",
