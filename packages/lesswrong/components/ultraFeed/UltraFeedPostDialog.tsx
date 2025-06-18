@@ -67,10 +67,6 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     '&:first-child': {
       paddingTop: 0,
     },
-    // When hovering over the ToC column, show comment count
-    '&:has($tocColumnWrapper:hover) $commentCount, &:has($commentCount:hover) $commentCount': {
-      opacity: 1,
-    },
   },
   stickyHeader: {
     height: 64,
@@ -78,14 +74,19 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     alignItems: 'center',
     justifyContent: 'space-between',
     position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
+    top: 12,
+    left: 12,
+    right: 12,
     backgroundColor: theme.palette.ultrafeedModalHeader.background,
     borderBottom: theme.palette.border.faint,
+    borderRadius: '12px 12px 0 0',
     zIndex: theme.zIndexes.ultrafeedModalHeader,
     padding: '12px 20px',
     [theme.breakpoints.down('sm')]: {
+      top: 0,
+      left: 0,
+      right: 0,
+      borderRadius: 0,
       padding: '4px 6px',
     }
   },
@@ -190,13 +191,21 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     color: theme.palette.grey[700],
   },
   dialogPaper: {
-    width: '100vw',
-    maxWidth: '100vw',
-    height: '100dvh',
-    maxHeight: '100dvh',
-    margin: 0,
-    borderRadius: 0,
+    width: 'calc(100vw - 24px)',
+    maxWidth: 'calc(100vw - 24px)',
+    height: 'calc(100dvh - 24px)',
+    maxHeight: 'calc(100dvh - 24px)',
+    margin: 12,
+    borderRadius: 12,
     overflow: 'auto',
+    [theme.breakpoints.down('sm')]: {
+      width: '100vw',
+      maxWidth: '100vw',
+      height: '100dvh',
+      maxHeight: '100dvh',
+      margin: 0,
+      borderRadius: 0,
+    },
   },
   contentColumn: {
     maxWidth: 720,
@@ -248,7 +257,7 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   tocColumnWrapper: {
     position: 'sticky',
     top: 20, // Sticky to top of scrollable container (which has padding for header)
-    height: 'calc(100vh - 64px - 60px)', // Account for header and comment count height
+    height: 'calc(100vh - 24px - 64px - 60px)', // Account for modal margins, header and comment count height
     overflowY: 'hidden', // Prevent independent scrolling
     paddingBottom: 30,
     paddingLeft: 16,
@@ -258,7 +267,7 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     },
 
     '& .FixedPositionToC-root': {
-      maxHeight: 'calc(100vh - 64px - 50px)', // Account for header height
+      maxHeight: 'calc(100vh - 24px - 64px - 50px)', // Account for modal margins and header height
     },
     // Override FixedPositionToC opacity classes to ensure they're visible
     '& .FixedPositionToC-rowOpacity, & .FixedPositionToC-headingOpacity': {
@@ -283,16 +292,14 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     paddingTop: 12,
     paddingBottom: 20,
     height: 50,
-    bottom: 0,
-    left: 0,
+    bottom: 12,
+    left: 12,
     width: 240,
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    borderRadius: '0 0 0 12px',
     zIndex: 1000,
-    opacity: 0,
+    opacity: 1,
     transition: 'opacity .25s',
-    '&:hover': {
-      opacity: 1,
-    },
     [theme.breakpoints.down('sm')]: {
       display: 'none',
     },
