@@ -2475,6 +2475,10 @@ interface ReportsDefaultFragment { // fragment on Reports
   readonly reportedAsSpam: boolean|null,
 }
 
+interface ReportsSlackPreview extends UnclaimedReportsList { // fragment on Reports
+  readonly comment: CommentsListWithParentMetadata|null,
+}
+
 interface ReviewVotesDefaultFragment { // fragment on ReviewVotes
   readonly _id: string,
   readonly schemaVersion: number,
@@ -5701,6 +5705,7 @@ interface FragmentTypes {
   RecentDiscussionRevisionTagFragment: RecentDiscussionRevisionTagFragment
   RecommendationsCachesDefaultFragment: RecommendationsCachesDefaultFragment
   ReportsDefaultFragment: ReportsDefaultFragment
+  ReportsSlackPreview: ReportsSlackPreview
   ReviewVotesDefaultFragment: ReviewVotesDefaultFragment
   ReviewWinnerAll: ReviewWinnerAll
   ReviewWinnerAnnouncement: ReviewWinnerAnnouncement
@@ -5931,7 +5936,7 @@ interface FragmentTypesByCollection {
   RSSFeeds: "RSSFeedMinimumInfo"|"RSSFeedMutationFragment"|"RSSFeedsDefaultFragment"|"newRSSFeedFragment"
   ReadStatuses: "ReadStatusesDefaultFragment"
   RecommendationsCaches: "RecommendationsCachesDefaultFragment"
-  Reports: "ReportsDefaultFragment"|"UnclaimedReportsList"
+  Reports: "ReportsDefaultFragment"|"ReportsSlackPreview"|"UnclaimedReportsList"
   ReviewVotes: "ReviewVotesDefaultFragment"|"reviewAdminDashboard"|"reviewVoteFragment"|"reviewVoteWithUserAndPost"
   ReviewWinnerArts: "ReviewWinnerArtImages"|"ReviewWinnerArtsDefaultFragment"
   ReviewWinners: "ReviewWinnerAll"|"ReviewWinnerAnnouncement"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsDisplay"|"ReviewWinnerTopPostsPage"|"ReviewWinnersDefaultFragment"
@@ -6146,6 +6151,7 @@ interface CollectionNamesByFragmentName {
   RecentDiscussionRevisionTagFragment: "Revisions"
   RecommendationsCachesDefaultFragment: "RecommendationsCaches"
   ReportsDefaultFragment: "Reports"
+  ReportsSlackPreview: "Reports"
   ReviewVotesDefaultFragment: "ReviewVotes"
   ReviewWinnerAll: "ReviewWinners"
   ReviewWinnerAnnouncement: "ReviewWinners"

@@ -10181,6 +10181,13 @@ fragment ReportsDefaultFragment on Report {
   reportedAsSpam
 }
 
+fragment ReportsSlackPreview on Report {
+  ...UnclaimedReportsList
+  comment {
+    ...CommentsListWithParentMetadata
+  }
+}
+
 fragment ReviewVotesDefaultFragment on ReviewVote {
   _id
   schemaVersion
