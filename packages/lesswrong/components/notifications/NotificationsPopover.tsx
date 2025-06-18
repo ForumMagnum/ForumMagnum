@@ -126,6 +126,7 @@ const NotificationsPopover = ({
   const [limit, setLimit] = useState(defaultLimit);
   const {
     data,
+    previousData,
     loading: notificationsLoading,
     refetch,
   } = useNotificationDisplays(limit);
@@ -165,7 +166,10 @@ const NotificationsPopover = ({
     }
   }, [markAllAsReadMutation, refetch]);
 
-  const notifs: NotificationDisplay[] = data?.NotificationDisplays?.results ?? [];
+  const notifs: NotificationDisplay[] =
+    data?.NotificationDisplays?.results ??
+    previousData?.NotificationDisplays?.results ??
+    [];
 
   useEffect(() => {
     if (!notificationsLoading && notifs.length <= defaultLimit) {
