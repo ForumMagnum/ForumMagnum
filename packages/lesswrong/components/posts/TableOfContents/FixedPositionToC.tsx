@@ -313,32 +313,22 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
     if (isServer) return;
 
     const anchorElement = document.getElementById(anchor);
-    console.log('jumpToAnchor called:', { anchor, anchorElement, scrollContainerRef });
     if (!anchorElement) return;
 
     const container = scrollContainerRef?.current;
-    console.log('container:', container);
 
     // Prefer scrolling inside the provided scroll container if available
     if (container) {
       const containerRect = container.getBoundingClientRect();
       const anchorRect = anchorElement.getBoundingClientRect();
       const offsetInsideContainer = anchorRect.top - containerRect.top;
-      console.log('scrolling container:', { containerRect, anchorRect, offsetInsideContainer });
 
-      const scrollTopBefore = container.scrollTop;
       const targetScrollTop = container.scrollTop + offsetInsideContainer - (container.clientHeight * 0.2);
-      console.log('scroll calculation:', { scrollTopBefore, targetScrollTop, clientHeight: container.clientHeight });
 
       container.scrollTo({
         top: targetScrollTop, // keep heading ~20% from top
         behavior: 'smooth',
       });
-      
-      // Check if scroll actually happened
-      setTimeout(() => {
-        console.log('scroll after:', container.scrollTop);
-      }, 100);
 
       // Update URL hash for consistency
       delete query.commentId;
@@ -348,7 +338,6 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
       });
       return;
     }
-    console.log('falling back to window scroll');
 
     // Fallback to original window-scrolling behaviour
     const anchorY = getAnchorY(anchor);
