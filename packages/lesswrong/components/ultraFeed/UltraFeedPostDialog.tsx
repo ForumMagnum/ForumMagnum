@@ -91,6 +91,9 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   },
   titleContainer: {
     marginTop: 24,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 0,
+    }
   },
   headerContent: {
     display: 'flex',
@@ -137,7 +140,7 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     paddingTop: 84,
     [theme.breakpoints.down('sm')]: {
       padding: '0 10px 10px 10px',
-      paddingTop: 74,
+      paddingTop: 36,
       overflowY: 'auto',
     }
   },
@@ -145,6 +148,9 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     ...postPageTitleStyles(theme),
     width: '100%',
     textWrap: 'balance',
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 24,
+    },
     '&:hover': {
       opacity: 0.9,
       textDecoration: 'none',
