@@ -791,18 +791,18 @@ export const PostCoauthorAcceptNotification = createServerNotificationType({
 });
 
 export const KeywordAlertNotification = createServerNotificationType({
-  name: "keywordAlertNotification",
+  name: "keywordAlert",
   canCombineEmails: false,
   emailSubject: async ({ notifications }: {notifications: DbNotification[]}) => {
     const {extraData} = notifications[0];
-    return `${extraData?.count} new alerts for "${extraData?.keyword}"`;
+    const alerts = extraData?.count === 1 ? "alert" : "alerts";
+    return `${extraData?.count} new ${alerts} for "${extraData?.keyword}"`;
   },
   emailBody: async ({ notifications }: {notifications: DbNotification[]}) => {
     const {extraData} = notifications[0];
+    const alerts = extraData?.count === 1 ? "alert" : "alerts";
     return (
-      <p>
-        {extraData?.count} new alerts for "{extraData?.keyword}"
-      </p>
+      <p>{extraData?.count} new {alerts} for "{extraData?.keyword}"</p>
     );
   },
 });

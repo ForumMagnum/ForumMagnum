@@ -915,17 +915,29 @@ export const CoauthorAcceptNotification = createNotificationType({
 })
 
 export const KeywordAlertNotification = createNotificationType({
-  name: 'keywordAlertNotification',
+  name: 'keywordAlert',
   userSettingField: 'notificationKeywordAlert',
+  getLink: ({extraData}) => {
+    if (!extraData || !extraData.keyword || !extraData.startDate) {
+      throw new Error("Invalid keyword alert");
+    }
+    const {keyword, startDate} = extraData;
+    const start = new Date(startDate);
+    return `/keywords/${keyword}?start=${start.toISOString()}`;
+  },
   async getMessage({extraData}: GetMessageProps) {
-    return `${extraData?.count} new alerts for "${extraData?.keyword}"`;
+    const alerts = extraData?.count === 1 ? "alert" : "alerts";
+    return `${extraData?.count} new ${alerts} for "${extraData?.keyword}"`;
   },
   getIcon() {
-    return <DoneIcon style={iconStyles} />
+    return <PostsIcon style={iconStyles} />
   },
-  Display: ({notification: {extraData}}) => (
-    <>{extraData?.count} new alerts for {extraData?.keyword}</>
-  ),
+  Display: ({notification: {extraData}}) => {
+    const alerts = extraData?.count === 1 ? "alert" : "alerts";
+    return (
+      <>{extraData?.count} new {alerts} for {extraData?.keyword}</>
+    )
+  },
 })
 
 export const NewMentionNotification = createNotificationType({
