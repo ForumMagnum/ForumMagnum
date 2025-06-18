@@ -420,7 +420,7 @@ const UltraFeedPostDialog = ({
 
   const tocData = useDynamicTableOfContents({
     html: fullPostForContent?.contents?.html ?? null,
-    post: fullPostForContent as any,
+    post: fullPostForContent ?? null,
     answers: [],
   });
   const hasTocData = !!tocData && (tocData.sections ?? []).length > 0;
