@@ -11,7 +11,7 @@ import qs from 'qs';
 import { getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getTagPingbackBySlug, getUserPingbackBySlug } from './pingback';
 import EASequencesHome, { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
 import { forumSpecificRoutes } from './forumSpecificRoutes';
-import { hasPostRecommendations, hasSurveys } from './betas';
+import { hasKeywordsAlerts, hasPostRecommendations, hasSurveys } from './betas';
 import { postRouteWillDefinitelyReturn200 } from './collections/posts/helpers';
 import { sequenceRouteWillDefinitelyReturn200 } from './collections/sequences/helpers';
 import { tagGetUrl, tagRouteWillDefinitelyReturn200 } from './collections/tags/helpers';
@@ -167,6 +167,8 @@ import EAAllTagsPage from '@/components/tagging/EAAllTagsPage';
 import AllWikiTagsPage from '@/components/tagging/AllWikiTagsPage';
 import { communityPath, getAllTagsPath, getAllTagsRedirectPaths } from './pathConstants';
 import LeaderboardComponent from '@/components/users/Leaderboard';
+import KeywordsPage from '@/components/keywords/KeywordsPage';
+import KeywordResultsPage from '@/components/keywords/KeywordResultsPage';
 
 const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Groups' : 'Community' };
 
@@ -1914,6 +1916,23 @@ if (isLW) {
     path: '/postsWithApprovedJargon',
     component: PostsWithApprovedJargonPage,
   });
+}
+
+if (hasKeywordsAlerts) {
+  addRoute(
+    {
+      name: "keywords",
+      path: "/keywords",
+      component: KeywordsPage,
+      title: "Keywords",
+    },
+    {
+      name: "keywordResults",
+      path: "/keywords/:keyword",
+      component: KeywordResultsPage,
+      title: "Keyword Results",
+    },
+  );
 }
 
 if (hasSurveys) {

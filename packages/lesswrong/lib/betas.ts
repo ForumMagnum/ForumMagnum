@@ -121,6 +121,8 @@ export const userCanViewUnapprovedJargonTerms = (user: UsersCurrent|DbUser|null)
 /* if this is reduced to 0, we need to make sure to handle spam somehow */
 export const userCanPassivelyGenerateJargonTerms = (user: UsersCurrent|DbUser|null) => isLW && !!user && user.karma >= 100
 
+export const hasKeywordsAlerts = isFriendlyUI;
+
 // Shipped Features
 export const userCanManageTags = shippedFeature;
 export const userCanCreateTags = shippedFeature;
