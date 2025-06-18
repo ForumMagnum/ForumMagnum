@@ -1,6 +1,6 @@
 import * as _ from 'underscore'
 import {createNotifications} from '../notificationCallbacksHelpers'
-import {notificationDocumentTypes} from '../../lib/notificationTypes'
+import type {NotificationDocument} from '../../lib/notificationTypes'
 import {isBeingUndrafted} from './utils'
 import {canMention} from '../../lib/pingback'
 
@@ -11,16 +11,29 @@ export interface PingbackDocumentPartial {
   }
 }
 
+const collectionNotificationTypes: Partial<Record<CollectionNameString, NotificationDocument>> = {
+  Posts: "post",
+  Comments: "comment",
+  Users: "user",
+  Messages: "message",
+  TagRels: "tagRel",
+  Localgroups: "localgroup",
+  DialogueChecks: "dialogueCheck",
+  DialogueMatchPreferences: "dialogueMatchPreference",
+};
+
 export const notifyUsersAboutMentions = async (currentUser: DbUser, collectionName: CollectionNameString, document: PingbackDocumentPartial, oldDocument?: PingbackDocumentPartial) => {
   const pingbacksToSend = getPingbacksToSend(currentUser, collectionName, document, oldDocument)
 
-  // Todo(PR): this works, but not sure if it's generally a correct conversion. 
-  //  TagRels for example won't work, though they don't have content either.
-  //  should we define an explicit mapping?
-  const notificationType = collectionName.toLowerCase()
+  const notificationType = collectionNotificationTypes[collectionName];
+  if (!notificationType) {
+    return;
+  }
 
   const newDocPingbackCount = getPingbacks(document).length
-  if (!canMention(currentUser, newDocPingbackCount).result || !notificationDocumentTypes.has(notificationType)) return
+  if (!canMention(currentUser, newDocPingbackCount).result) {
+    return;
+  }
 
   return createNotifications({
     notificationType: 'newMention',
