@@ -293,9 +293,9 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
       });
 
       // Update URL hash for consistency
-      delete query.commentId;
+      const { commentId, ...restQuery } = query;
       navigate({
-        search: isEmpty(query) ? '' : `?${qs.stringify(query)}`,
+        search: isEmpty(restQuery) ? '' : `?${qs.stringify(restQuery)}`,
         hash: `#${anchor}`,
       });
       return;
@@ -304,9 +304,9 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
     // Fallback to original window-scrolling behaviour
     const anchorY = getAnchorY(anchor);
     if (anchorY !== null) {
-      delete query.commentId;
+      const { commentId, ...restQuery } = query;
       navigate({
-        search: isEmpty(query) ? '' : `?${qs.stringify(query)}`,
+        search: isEmpty(restQuery) ? '' : `?${qs.stringify(restQuery)}`,
         hash: `#${anchor}`,
       });
       const sectionYdocumentSpace = anchorY + window.scrollY;
