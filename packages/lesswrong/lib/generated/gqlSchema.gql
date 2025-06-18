@@ -8423,6 +8423,8 @@ input UpdateCommentDataInput {
   legacyData: JSON
   contents: CreateRevisionDataInput
   postedAt: Date
+  postId: String
+  tagId: String
   subforumStickyPriority: Float
   authorIsUnreviewed: Boolean
   answer: Boolean
@@ -9984,12 +9986,17 @@ input CreateUltraFeedEventInput {
   data: CreateUltraFeedEventDataInput!
 }
 
+input UpdateUltraFeedEventDataInput {
+  event: JSON
+}
+
 type UltraFeedEventOutput {
   data: UltraFeedEvent
 }
 
 extend type Mutation {
   createUltraFeedEvent(data: CreateUltraFeedEventDataInput!): UltraFeedEventOutput
+  updateUltraFeedEvent(selector: String!, data: UpdateUltraFeedEventDataInput!): UltraFeedEventOutput
 }
 
 input CreateUserEAGDetailDataInput {

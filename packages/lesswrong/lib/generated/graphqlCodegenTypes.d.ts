@@ -4336,6 +4336,7 @@ type Mutation = {
   updateSurveySchedule?: Maybe<SurveyScheduleOutput>;
   updateTag?: Maybe<TagOutput>;
   updateTagFlag?: Maybe<TagFlagOutput>;
+  updateUltraFeedEvent?: Maybe<UltraFeedEventOutput>;
   updateUser?: Maybe<UserOutput>;
   updateUserEAGDetail?: Maybe<UserEAGDetailOutput>;
   updateUserJobAd?: Maybe<UserJobAdOutput>;
@@ -5215,6 +5216,12 @@ type MutationupdateTagArgs = {
 type MutationupdateTagFlagArgs = {
   data: UpdateTagFlagDataInput;
   selector: SelectorInput;
+};
+
+
+type MutationupdateUltraFeedEventArgs = {
+  data: UpdateUltraFeedEventDataInput;
+  selector: Scalars['String']['input'];
 };
 
 
@@ -11213,6 +11220,7 @@ type UpdateCommentDataInput = {
   needsReview?: InputMaybe<Scalars['Boolean']['input']>;
   nominatedForReview?: InputMaybe<Scalars['String']['input']>;
   originalDialogueId?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
   postedAt?: InputMaybe<Scalars['Date']['input']>;
   promoted?: InputMaybe<Scalars['Boolean']['input']>;
   promotedByUserId?: InputMaybe<Scalars['String']['input']>;
@@ -11230,6 +11238,7 @@ type UpdateCommentDataInput = {
   spam?: InputMaybe<Scalars['Boolean']['input']>;
   subforumStickyPriority?: InputMaybe<Scalars['Float']['input']>;
   suggestForAlignmentUserIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  tagId?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -11834,6 +11843,10 @@ type UpdateTagFlagInput = {
 type UpdateTagInput = {
   data: UpdateTagDataInput;
   selector: SelectorInput;
+};
+
+type UpdateUltraFeedEventDataInput = {
+  event?: InputMaybe<Scalars['JSON']['input']>;
 };
 
 type UpdateUserDataInput = {
@@ -23199,6 +23212,21 @@ type UltraFeedThreadItemQueryVariables = Exact<{
 
 
 type UltraFeedThreadItemQuery = UltraFeedThreadItemQuery_Query;
+
+type updateUltraFeedEventMutation_updateUltraFeedEvent_UltraFeedEventOutput_data_UltraFeedEvent = { __typename?: 'UltraFeedEvent', _id: string };
+
+type updateUltraFeedEventMutation_updateUltraFeedEvent_UltraFeedEventOutput = { __typename?: 'UltraFeedEventOutput', data: updateUltraFeedEventMutation_updateUltraFeedEvent_UltraFeedEventOutput_data_UltraFeedEvent | null };
+
+type updateUltraFeedEventMutation_Mutation = { __typename?: 'Mutation', updateUltraFeedEvent: updateUltraFeedEventMutation_updateUltraFeedEvent_UltraFeedEventOutput | null };
+
+
+type updateUltraFeedEventMutationVariables = Exact<{
+  selector: Scalars['String']['input'];
+  data: UpdateUltraFeedEventDataInput;
+}>;
+
+
+type updateUltraFeedEventMutation = updateUltraFeedEventMutation_Mutation;
 
 type connectCrossposterMutation_Mutation = { __typename?: 'Mutation', connectCrossposter: string | null };
 

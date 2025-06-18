@@ -170,6 +170,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
   const postMetaInfo = {
     sources: commentMetaInfos?.[comments[0]._id]?.sources ?? [],
     displayStatus: "expanded" as FeedItemDisplayStatus,
+    servedEventId: commentMetaInfos?.[comments[0]._id]?.servedEventId ?? '', // attach servedId of the first comment in thread
   }
 
   const initialDisplayStatuses = calculateInitialDisplayStatuses(comments, commentMetaInfos);
@@ -275,7 +276,10 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
                 <div key={cId} className={classes.commentItem}>
                   <UltraFeedCommentItem
                     comment={item}
-                    metaInfo={commentMetaInfos?.[cId]}
+                    metaInfo={{
+                      ...commentMetaInfos?.[cId],
+                      displayStatus: commentDisplayStatuses[cId] ?? commentMetaInfos?.[cId]?.displayStatus ?? "collapsed"
+                    }}
                     onPostTitleClick={() => setPostExpanded(true)}
                     onChangeDisplayStatus={(newStatus) => setDisplayStatus(cId, newStatus)}
                     showPostTitle={isFirstItem}

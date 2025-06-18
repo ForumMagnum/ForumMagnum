@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
 const AudioToggle = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer}: {
   classes: ClassesType<typeof styles>,
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
-  toggleEmbeddedPlayer?: () => void,
+  toggleEmbeddedPlayer?: (e: React.MouseEvent) => void,
   showEmbeddedPlayer?: boolean,
 }) => {
   if (!postHasAudioPlayer(post)) {
@@ -43,7 +43,7 @@ const AudioToggle = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer}: 
   }
 
   return <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
-    <a href="#" onClick={toggleEmbeddedPlayer}>
+    <a href="#" onClick={(e: React.MouseEvent) => toggleEmbeddedPlayer?.(e)}>
       <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {[classes.audioIconOn]: showEmbeddedPlayer})} />
     </a>
   </LWTooltip>
