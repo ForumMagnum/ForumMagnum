@@ -8,7 +8,7 @@ import { getUpdatedFieldValues } from "@/components/tanstack-form-components/hel
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
-import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
 import { EditCommentTitle } from "@/components/editor/EditCommentTitle";

@@ -1,5 +1,5 @@
 import { userIsSubforumModerator, TAG_POSTS_SORT_ORDER_OPTIONS } from "@/lib/collections/tags/helpers";
-import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { isEAForum, isLW, isLWorAF } from "@/lib/instanceSettings";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { userIsAdmin, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";

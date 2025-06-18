@@ -1,16 +1,11 @@
-// import './reactFactoryShim';
-// import '@/server.ts';
 import { typeDefs, resolvers } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/initGraphQL';
 import { startServerAndCreateNextHandler } from '@as-integrations/next';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { ApolloServer } from '@apollo/server';
 import { getContextFromReqAndRes } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/context';
 import { initDatabases, initPostgres, initSettings } from '../../packages/lesswrong/server/serverStartup';
-import { NextRequest } from 'next/server';
-// import { createVoteableUnionType } from '@/server/votingGraphQL';
+import type { NextRequest, NextResponse } from 'next/server';
 
-
-// createVoteableUnionType();
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
 await initDatabases({
@@ -21,7 +16,7 @@ await initPostgres();
 await initSettings();
 
 
-const server = new ApolloServer({
+const server = new ApolloServer<ResolverContext>({
  schema,
  introspection: true,
  allowBatchedHttpRequests: true,
@@ -29,7 +24,7 @@ const server = new ApolloServer({
 });
 
 
-const handler = startServerAndCreateNextHandler<NextRequest>(server, {
+const handler = startServerAndCreateNextHandler<NextRequest, ResolverContext>(server, {
  context: async (req, res) => await getContextFromReqAndRes({ req, res, isSSR: false }),
 });
 

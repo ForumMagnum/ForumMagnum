@@ -28,7 +28,8 @@
     "packages/lesswrong",
     "ckEditor/src/editorConfigs.js",
     "playwright",
-    "./build.ts"
+    "./build.ts",
+    "app"
   ],
   "exclude": [
     "node_modules",

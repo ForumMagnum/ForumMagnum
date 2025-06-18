@@ -51,7 +51,7 @@ addStaticRoute('/analyticsEvent', ({query}, req, res, next) => {
   res.end("ok");
 });
 
-async function handleAnalyticsEventWriteRequest(events: AnyBecauseTodo, clientTime: AnyBecauseTodo) {
+export async function handleAnalyticsEventWriteRequest(events: AnyBecauseTodo, clientTime: AnyBecauseTodo) {
   // Adjust timestamps to account for server-client clock skew
   // The mutation comes with a timestamp on each event from the client
   // clock, and a timestamp representing when events were flushed, also
@@ -102,54 +102,6 @@ async function writeEventsToAnalyticsDB(events: {type: string, timestamp: Date, 
         return;
       }
       
-      
-      inFlightRequestCounter.inFlightRequests++;
-      try {
-        await connection?.none(query);
-      } finally {
-        inFlightRequestCounter.inFlightRequests--;
-      }
-    } catch (err){
-      //eslint-disable-next-line no-console
-      console.error("Error sending events to analytics DB:");
-      //eslint-disable-next-line no-console
-      console.error(err);
-    }
-  }
-}
-
-const queuedPerfMetrics: PerfMetric[] = [];
-
-export function queuePerfMetric(perfMetric: PerfMetric) {
-  queuedPerfMetrics.push(perfMetric);
-  void flushPerfMetrics();
-}
-
-async function flushPerfMetrics() {
-  const batchSize = performanceMetricLoggingBatchSize.get()
-
-  if (queuedPerfMetrics.length < batchSize) return;
-
-  const connection = getAnalyticsConnection();
-  if (!connection) return;
-
-  // I really needed to break an import cycle involving `analyticsEvents.tsx` and `Table.ts`
-  // This seemed like the least-bad place to do it.
-  // TODO: If you can figure out a better way, please do.
-  const {
-    constructPerfMetricBatchInsertQuery,
-    insertAndCacheNormalizedDataInBatch,
-    perfMetricsColumnSet
-  }: typeof import('@/server/perfMetricsWriter/perfMetricsWriter') = require('@/server/perfMetricsWriter/perfMetricsWriter');
-   
-  const metricsToWrite = queuedPerfMetrics.splice(0);
-  for (const batch of chunk(metricsToWrite, batchSize)) {
-    try {
-      await insertAndCacheNormalizedDataInBatch(batch, connection);
-
-      const environmentDescription = isDevelopment ? "development" : environmentDescriptionSetting.get();
-      const valuesToInsert = constructPerfMetricBatchInsertQuery(batch, environmentDescription);
-      const query = pgPromiseLib.helpers.insert(valuesToInsert, perfMetricsColumnSet);
       
       inFlightRequestCounter.inFlightRequests++;
       try {

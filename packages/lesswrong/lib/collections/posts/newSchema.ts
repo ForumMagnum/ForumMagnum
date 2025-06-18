@@ -33,7 +33,6 @@ import { loadByIds, getWithLoader, getWithCustomLoader } from "../../loaders";
 import SimpleSchema from "simpl-schema";
 import { getCollaborativeEditorAccess } from "./collabEditingPermissions";
 import { eaFrontpageDateDefault, isEAForum, isLWorAF, requireReviewToFrontpagePostsSetting, reviewUserBotSetting } from "../../instanceSettings";
-import { forumSelect } from "../../forumTypeUtils";
 import * as _ from "underscore";
 import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from "../users/helpers";
 import {
@@ -42,7 +41,7 @@ import {
   sequenceContainsPost,
   getPrevPostIdFromPrevSequence,
   getNextPostIdFromNextSequence,
-} from "../sequences/helpers";
+} from '../sequences/sequenceServerHelpers';
 import { allOf } from "../../utils/functionUtils";
 import { getDefaultViewSelector } from "../../utils/viewUtils";
 import { hasSideComments, userCanViewJargonTerms } from "../../betas";
@@ -74,6 +73,7 @@ import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from "graphql-tag";
 import { CommentsViews } from "../comments/views";
 import { commentIncludedInCounts } from "../comments/helpers";
+import { getDefaultVotingSystem } from "./helpers";
 
 export const graphqlTypeDefs = gql`
   type SocialPreviewType {
@@ -120,15 +120,6 @@ export const graphqlTypeDefs = gql`
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
-
-export function getDefaultVotingSystem() {
-  return forumSelect({
-    EAForum: "eaEmojis",
-    LessWrong: "namesAttachedReactions",
-    AlignmentForum: "namesAttachedReactions",
-    default: "default",
-  });
-}
 
 const rsvpType = new SimpleSchema({
   name: {

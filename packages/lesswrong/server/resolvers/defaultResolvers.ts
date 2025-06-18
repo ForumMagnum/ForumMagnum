@@ -6,7 +6,7 @@ import { logGroupConstructor, loggerConstructor } from "@/lib/utils/logging";
 import { describeTerms, viewTermsToQuery } from "@/lib/utils/viewUtils";
 import { Pluralize } from "@/lib/vulcan-lib/pluralize";
 import { CamelCaseify, convertDocumentIdToIdInSelector } from "@/lib/vulcan-lib/utils";
-import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from "@/lib/vulcan-users/permissions.ts";
+import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from '@/lib/vulcan-users/restrictViewableFields';
 import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
 import { throwError } from "@/server/vulcan-lib/errors";
 import { captureException } from "@sentry/core";
@@ -207,7 +207,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       : docs;
 
     // take the remaining documents and remove any fields that shouldn't be accessible
-    const restrictedDocs = restrictViewableFieldsMultiple(currentUser, collectionName, viewableDocs);
+    const restrictedDocs = await restrictViewableFieldsMultiple(currentUser, collectionName, viewableDocs);
 
     // prime the cache
     restrictedDocs.forEach((doc: AnyBecauseTodo) => context.loaders[collectionName].prime(doc._id, doc));
@@ -314,7 +314,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       }
     }
 
-    const restrictedDoc = restrictViewableFieldsSingle(currentUser, collection.collectionName, doc);
+    const restrictedDoc = await restrictViewableFieldsSingle(currentUser, collection.collectionName, doc);
 
     logGroupEnd();
     logger(`--------------- end \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`);

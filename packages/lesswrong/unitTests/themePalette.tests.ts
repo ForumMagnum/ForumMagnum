@@ -10,7 +10,8 @@ import type { JssStyles } from '@/lib/jssStyles';
  * need this import to actually get the components _into_ the deferred
  * components table in the first place.
  */
-import '../lib/generated/allComponents';
+// TODO: figure this out in NextJS world.
+// import '../lib/generated/allComponents';
 
 describe('JSS', () => {
   /**

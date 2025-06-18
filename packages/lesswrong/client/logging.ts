@@ -60,7 +60,7 @@ function addUserIdToGoogleAnalytics(user: UsersCurrent | null) {
 export function onUserChanged(user: UsersCurrent | null) {
   identifyUserToSentry(user);
   addUserIdToGoogleAnalytics(user);
-  configureDatadogRum(user);
+  void configureDatadogRum(user);
 }
 
 window.addEventListener('load', ev => {

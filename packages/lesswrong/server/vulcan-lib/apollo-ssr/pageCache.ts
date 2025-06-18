@@ -5,7 +5,6 @@ import type { Request, Response } from 'express';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
 import { isValidSerializedThemeOptions, getDefaultThemeOptions } from '../../../themes/themeNames';
 import sumBy from 'lodash/sumBy';
-import { dogstatsd } from '../../datadog/tracer';
 import { healthCheckUserAgentSetting } from './renderUtil';
 import PageCacheRepo, { maxCacheAgeMs } from '../../repos/PageCacheRepo';
 import { DatabaseServerSetting } from '../../databaseSettings';
@@ -297,15 +296,15 @@ const clearExpiredCacheEntries = (): void => {
 let cacheHits = 0;
 let cacheQueriesTotal = 0;
 
-export function recordDatadogCacheEvent(cacheEvent: {path: string, userAgent: string, type: "hit"|"miss"|"bypass"}) {
-  // Bots are _mostly_ already redirected by botRedirect.ts, so assume every request that is not a health check is a real user
-  const userType = cacheEvent.userAgent === healthCheckUserAgentSetting.get() ? "health_check" : "likely_real_user";
+// export function recordDatadogCacheEvent(cacheEvent: {path: string, userAgent: string, type: "hit"|"miss"|"bypass"}) {
+//   // Bots are _mostly_ already redirected by botRedirect.ts, so assume every request that is not a health check is a real user
+//   const userType = cacheEvent.userAgent === healthCheckUserAgentSetting.get() ? "health_check" : "likely_real_user";
 
-  const expandedCacheEvent = {...cacheEvent, userType};
-  if (isDatadogEnabled && dogstatsd) {
-    dogstatsd.increment("cache_event", expandedCacheEvent)
-  }
-}
+//   const expandedCacheEvent = {...cacheEvent, userType};
+//   if (isDatadogEnabled && dogstatsd) {
+//     dogstatsd.increment("cache_event", expandedCacheEvent)
+//   }
+// }
 
 export function recordCacheHit(cacheEvent: {path: string, userAgent: string}) {
   // recordDatadogCacheEvent({...cacheEvent, type: "hit"}); // Useful for debugging, but expensive to track all the time

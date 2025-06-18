@@ -2,7 +2,7 @@ import { Images } from '../../server/collections/images/collection';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { ckEditorUploadUrlSetting, cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { randomId } from '../../lib/random';
-import cloudinary, { UploadApiResponse } from 'cloudinary';
+import type { UploadApiResponse } from 'cloudinary';
 import cheerio from 'cheerio';
 import { cheerioParse } from '../utils/htmlUtil';
 import { URL } from 'url';
@@ -63,6 +63,7 @@ export async function findAlreadyMovedImage(identifier: string): Promise<string|
  * Exported to allow use in "yarn repl"
  */
 export async function moveImageToCloudinary({oldUrl, originDocumentId}: {oldUrl: string, originDocumentId: string}): Promise<string|null> {
+  const cloudinary = await import('cloudinary');
   const upload = async (credentials: CloudinaryCredentials) => {
     // First try mirroring the existing URL. If that fails, try retrieving the
     // image from archive.org. If that still fails, let the exception escape,
@@ -111,6 +112,7 @@ export async function moveImageToCloudinary({oldUrl, originDocumentId}: {oldUrl:
  * (identified by SHA256 hash) it will return the existing cloudinary URL.
  */
 export async function uploadBufferToCloudinary(buffer: Buffer) {
+  const cloudinary = await import('cloudinary');
   const hash = crypto.createHash('sha256').update(buffer).digest('hex');
   const upload = async (credentials: CloudinaryCredentials) => new Promise<UploadApiResponse>((resolve) => {
     cloudinary.v2.uploader
@@ -147,6 +149,7 @@ export async function getOrCreateCloudinaryImage({
   identifierType: string;
   upload: (credentials: CloudinaryCredentials) => Promise<UploadApiResponse>;
 }) {
+  const cloudinary = await import('cloudinary');
   const logger = loggerConstructor("image-conversion");
   const alreadyRehosted = await findAlreadyMovedImage(identifier);
   if (alreadyRehosted) return alreadyRehosted;
@@ -516,6 +519,7 @@ function getEmptyImageUploadStats(): ImageUploadStats {
  * present in the Images collection will be skipped.
  */
 export async function importImageMirrors(csvFilename: string) {
+  const cloudinary = await import('cloudinary');
   const csvStr = fs.readFileSync(csvFilename, 'utf-8');
   const parsedCsv = Papa.parse(csvStr, {
     delimiter: ',',

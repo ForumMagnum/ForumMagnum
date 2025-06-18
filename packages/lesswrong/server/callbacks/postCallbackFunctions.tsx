@@ -18,7 +18,6 @@ import { EventDebouncer } from "../debouncer";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { updatePostEmbeddings } from "../embeddings";
 import { fetchFragmentSingle } from "../fetchFragment";
-import { googleVertexApi } from "../google-vertex/client";
 import { checkFrontpage, checkTags, getAutoAppliedTags, getTagBotAccount } from "../languageModels/autoTagCallbacks";
 import { getOpenAI } from "../languageModels/languageModelIntegration";
 import type { AfterCreateCallbackProperties, CreateCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
@@ -143,11 +142,11 @@ const onPublishUtils = {
         .catch(e => console.log('Error when sending published post to recombee', { e }));
     }
   
-    if (vertexEnabledSetting.get()) {
-      void googleVertexApi.upsertPost({ post }, context)
-        // eslint-disable-next-line no-console
-        .catch(e => console.log('Error when sending published post to google vertex', { e }));
-    }
+    // if (vertexEnabledSetting.get()) {
+    //   void googleVertexApi.upsertPost({ post }, context)
+    //     // eslint-disable-next-line no-console
+    //     .catch(e => console.log('Error when sending published post to google vertex', { e }));
+    // }
   },
 
   ensureNonzeroRevisionVersionsAfterUndraft: async (post: { _id: string }, context: ResolverContext) => {
@@ -1004,11 +1003,11 @@ export async function updateRecombeePost({ newDocument, oldDocument, context }: 
     .catch(e => console.log('Error when sending updated post to recombee', { e }));
   }
 
-  if (vertexEnabledSetting.get()) {
-    void googleVertexApi.upsertPost({ post }, context)
-      // eslint-disable-next-line no-console
-      .catch(e => console.log('Error when sending updated post to google vertex', { e }));
-  }
+  // if (vertexEnabledSetting.get()) {
+  //   void googleVertexApi.upsertPost({ post }, context)
+  //     // eslint-disable-next-line no-console
+  //     .catch(e => console.log('Error when sending updated post to google vertex', { e }));
+  // }
 }
 
 /* EDIT ASYNC */

@@ -23,7 +23,7 @@ import SimpleSchema from 'simpl-schema';
 import util from 'util';
 import { exec as execSync } from 'child_process';
 import { forumTypeSetting } from '@/lib/instanceSettings';
-import { defaultEditorPlaceholder } from '@/lib/editor/make_editable';
+import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
 import { userOwns } from '@/lib/vulcan-users/permissions';
 

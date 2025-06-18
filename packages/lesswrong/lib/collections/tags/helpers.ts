@@ -9,7 +9,7 @@ import type { Request, Response } from 'express';
 import type { TagLens } from "@/lib/arbital/useTagLenses";
 import { allowTypeIIIPlayerSetting } from "../posts/helpers";
 import { SORT_ORDER_OPTIONS, SettingsOption } from "../posts/dropdownOptions";
-import { TagHistorySettings } from "@/components/tagging/history/TagHistoryPage";
+import type { TagHistorySettings } from "@/components/tagging/history/TagHistoryPage";
 
 export const tagMinimumKarmaPermissions = forumSelect({
   // Topic spampocalypse defense

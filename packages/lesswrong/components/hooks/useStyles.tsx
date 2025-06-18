@@ -212,13 +212,16 @@ export const withAddClasses = (
   const styleDefinition = defineStyles(name, styles, options);
 
   return (Component: AnyBecauseHard) => {
-    return function AddClassesHoc(props: AnyBecauseHard) {
+    const hoc = function AddClassesHoc(props: AnyBecauseHard) {
       const {children, ...otherProps} = props;
       const classes = useStyles(styleDefinition);
       return <Component {...otherProps} classes={classes}>
         {children}
       </Component>
     }
+
+    hoc.displayName = name;
+    return hoc;
   }
 }
 

@@ -3,7 +3,7 @@ import {
   fmCrosspostSiteNameSetting,
   fmCrosspostBaseUrlSetting,
 } from "../../../lib/instanceSettings";
-import { useCrosspostContext } from "./PostsPageCrosspostWrapper";
+import { useCrosspostContext } from "./CrosspostContext";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { combineUrls } from "../../../lib/vulcan-lib/utils";

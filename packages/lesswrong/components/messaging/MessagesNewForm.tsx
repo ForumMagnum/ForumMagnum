@@ -9,7 +9,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useMutation } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { useForm } from "@tanstack/react-form";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";

@@ -9,6 +9,7 @@ import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import type { Request, Response } from 'express';
 import pathToRegexp from "path-to-regexp";
 import type { RouterLocation } from '../../vulcan-lib/routes';
+import { forumSelect } from '@/lib/forumTypeUtils';
 
 export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
 export type PostCategory = UnionOf<typeof postCategories>;
@@ -488,6 +489,7 @@ export const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimum
 export function userCanEditCoauthors(user: UsersCurrent | null) {
   return userIsAdminOrMod(user) || userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)(user);
 }
+
 export function isCollaborative(post: Pick<DbPost | PostsBase, '_id' | 'shareWithUsers' | 'sharingSettings' | 'collabEditorDialogue'>, fieldName: string): boolean {
   if (!post) return false;
   if (!post._id) return false;
@@ -497,4 +499,13 @@ export function isCollaborative(post: Pick<DbPost | PostsBase, '_id' | 'shareWit
     return true;
   if (post.collabEditorDialogue) return true;
   return false;
+}
+
+export function getDefaultVotingSystem() {
+  return forumSelect({
+    EAForum: "eaEmojis",
+    LessWrong: "namesAttachedReactions",
+    AlignmentForum: "namesAttachedReactions",
+    default: "default",
+  });
 }

@@ -16,6 +16,7 @@
     "ckEditor/src/editorConfigs.js",
     "playwright",
     "./build.ts",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "app"
   ]
 }

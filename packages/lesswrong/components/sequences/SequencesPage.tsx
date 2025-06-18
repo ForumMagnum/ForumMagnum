@@ -5,7 +5,7 @@ import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { DatabasePublicSetting, nofollowKarmaThreshold } from '../../lib/publicSettings';
+import { defaultSequenceBannerIdSetting, nofollowKarmaThreshold } from '../../lib/publicSettings';
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../common/Header';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
@@ -60,8 +60,6 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
   zIndex: theme.zIndexes.sequencesImageScrim,
   background: theme.palette.panelBackground.sequenceImageGradient,
 })
-
-export const defaultSequenceBannerIdSetting = new DatabasePublicSetting<string|null>("defaultSequenceBannerId", null)
 
 const styles = (theme: ThemeType) => ({
   root: {

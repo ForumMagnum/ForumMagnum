@@ -251,7 +251,6 @@
     "io-ts": "^2.2.19",
     "jimp": "^0.22.12",
     "js-tiktoken": "^1.0.20",
-    "jsdom": "^16.5.0",
     "json-stringify-deterministic": "^1.0.8",
     "jsonwebtoken": "^9.0.0",
     "jss": "^10.10.0",

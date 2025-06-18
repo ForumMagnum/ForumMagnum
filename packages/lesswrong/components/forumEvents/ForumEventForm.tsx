@@ -3,7 +3,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";

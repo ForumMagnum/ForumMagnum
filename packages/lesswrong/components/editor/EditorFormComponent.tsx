@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, useContext } from 'react';
-import { debateEditorPlaceholder, defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
+import { debateEditorPlaceholder, defaultEditorPlaceholder, linkpostEditorPlaceholder, questionEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { getLSHandlers, getLSKeyPrefix } from '../editor/localStorageHandlers';
 import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
@@ -115,6 +115,19 @@ export function useEditorFormCallbacks<R>() {
     addOnSuccessCallback,
   };
 };
+
+function getDefaultLocalStorageIdGenerator<N extends CollectionNameString>(collectionName: N) {
+  return function defaultLocalStorageIdGenerator(doc: any, name: string): {id: string, verify: boolean} {
+    const { _id, conversationId } = doc
+    if (_id && name) { return {id: `${_id}${name}`, verify: true}}
+    else if (_id) { return {id: _id, verify: true }}
+    else if (conversationId) { return {id: conversationId, verify: true }}
+    else if (name) { return {id: `${collectionName}_new_${name}`, verify: true }}
+    else {
+      throw Error(`Can't get storage ID for this document: ${doc}`)
+    }
+  }
+}
 
 function InnerEditorFormComponent<S, R>({
   field,

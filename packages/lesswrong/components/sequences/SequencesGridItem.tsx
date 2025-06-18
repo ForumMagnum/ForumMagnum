@@ -4,7 +4,7 @@ import { legacyBreakpoints } from '../../lib/utils/theme';
 import classNames from 'classnames';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { defaultSequenceBannerIdSetting } from './SequencesPage';
+import { defaultSequenceBannerIdSetting } from '@/lib/publicSettings';
 import { isLWorAF } from '../../lib/instanceSettings';
 import DeferRender from '../common/DeferRender';
 import CloudinaryImage from "../common/CloudinaryImage";

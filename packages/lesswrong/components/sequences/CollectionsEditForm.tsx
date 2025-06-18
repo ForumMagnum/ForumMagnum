@@ -1,4 +1,4 @@
-import { defaultEditorPlaceholder } from '@/lib/editor/make_editable';
+import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';

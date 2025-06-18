@@ -20,7 +20,7 @@ import { useEditorFormCallbacks, EditorFormComponent } from '@/components/editor
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { FormUserMultiselect } from '@/components/form-components/UserMultiselect';
-import { defaultEditorPlaceholder } from '@/lib/editor/make_editable';
+import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { getCommentViewOptions } from '@/lib/commentViewOptions';
@@ -1380,7 +1380,7 @@ const UsersEditForm = ({ terms }: {
     }
 
     // reconfigure datadog RUM in case they have changed their settings
-    configureDatadogRum(user)
+    void configureDatadogRum(user)
 
     flash(`User "${userGetDisplayName(user)}" edited`);
     try {

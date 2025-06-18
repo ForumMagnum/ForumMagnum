@@ -1,4 +1,3 @@
-import { datadogRum } from '@datadog/browser-rum';
 import { EditableUser, getUserEmail } from '../lib/collections/users/helpers';
 import { isEAForum } from '../lib/instanceSettings';
 import { ddRumSampleRate, ddSessionReplaySampleRate, ddTracingSampleRate } from '../lib/publicSettings';
@@ -15,6 +14,9 @@ export async function initDatadog() {
   const analyticsCookiesAllowed = cookiePreferences.includes("analytics");
 
   if (isServer || !hasDatadog) return
+  
+  const { datadogRum } = await import('@datadog/browser-rum');
+
   if (!analyticsCookiesAllowed) {
     // eslint-disable-next-line no-console
     console.log("Not initializing datadog because analytics cookies are not allowed")
@@ -47,8 +49,10 @@ export async function initDatadog() {
   datadogInitialized = true;
 }
 
-export function configureDatadogRum(user: UsersCurrent | UsersEdit | EditableUser | DbUser | null) {
+export async function configureDatadogRum(user: UsersCurrent | UsersEdit | EditableUser | DbUser | null) {
   if (!hasDatadog || !datadogInitialized) return
+  
+  const { datadogRum } = await import('@datadog/browser-rum');
 
   // Set the user which will appear in traces
   datadogRum.setUser(user ? getDatadogUser(user) : {});

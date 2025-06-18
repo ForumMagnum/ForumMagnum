@@ -1,4 +1,4 @@
-import { restrictViewableFieldsSingle } from "../../lib/vulcan-users/permissions";
+import { restrictViewableFieldsSingle } from '@/lib/vulcan-users/restrictViewableFields';
 import { splashArtCoordinateCache } from "@/server/review/splashArtCoordinatesCache";
 import { reviewWinnerCache, ReviewWinnerWithPost } from "@/server/review/reviewWinnersCache";
 import { isLWorAF } from "../../lib/instanceSettings";
@@ -16,11 +16,11 @@ export async function initReviewWinnerCache() {
   }
 }
 
-function restrictReviewWinnerPostFields(reviewWinners: ReviewWinnerWithPost[], context: ResolverContext) {
-  return reviewWinners.map(({ reviewWinner, ...post }) => ({
-    ...restrictViewableFieldsSingle(context.currentUser, 'Posts', post),
+async function restrictReviewWinnerPostFields(reviewWinners: ReviewWinnerWithPost[], context: ResolverContext) {
+  return Promise.all(reviewWinners.map(async ({ reviewWinner, ...post }) => ({
+    ...(await restrictViewableFieldsSingle(context.currentUser, 'Posts', post)),
     reviewWinner
-  }));
+  })));
 }
 
 export const reviewWinnerGraphQLTypeDefs = gql`

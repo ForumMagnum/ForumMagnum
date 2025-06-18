@@ -3,7 +3,7 @@ import { PostsMinimumForGetPageUrl, postGetPageUrl } from "../../lib/collections
 import { loggerConstructor } from "../../lib/utils/logging";
 import { serverId } from "@/server/analytics/serverAnalyticsWriter";
 import { DatabaseServerSetting } from "../databaseSettings";
-import { CloudFrontClient, CreateInvalidationCommand } from "@aws-sdk/client-cloudfront";
+import type { CloudFrontClient } from "@aws-sdk/client-cloudfront";
 
 export const swrCachingEnabledSetting = new DatabaseServerSetting<boolean>('swrCaching.enabled', false)
 const swrCachingInvalidationIntervalMsSetting = new DatabaseServerSetting<number>('swrCaching.invalidationIntervalMs', 30_000)
@@ -18,7 +18,7 @@ const INVALIDATION_USER_AGENT = `ForumMagnumCacheInvalidator/1.0 (Server ID: ${s
 let cloudFrontClient: CloudFrontClient | null = null;
 let lastClientRefreshTime: number = Date.now();
 
-const getCloudfrontClient = (): CloudFrontClient | null => {
+const getCloudfrontClient = async (): Promise<CloudFrontClient | null> => {
   const now = Date.now();
   // Refresh the client every 5 minutes
   if (!cloudFrontClient || now - lastClientRefreshTime > 300_000) {
@@ -27,6 +27,7 @@ const getCloudfrontClient = (): CloudFrontClient | null => {
     const secretAccessKey = awsSecretAccessKeySetting.get();
 
     if (region && accessKeyId && secretAccessKey) {
+      const { CloudFrontClient } = await import('@aws-sdk/client-cloudfront');
       cloudFrontClient = new CloudFrontClient({
         region: region,
         credentials: {
@@ -66,9 +67,11 @@ const invalidateUrlFromQueue = async (): Promise<void> => {
   const logger = loggerConstructor(`swr-invalidation-queue`);
   const url = invalidationQueue.shift();
   if (!url) return;
+  
+  const { CreateInvalidationCommand } = await import('@aws-sdk/client-cloudfront');
 
   const distributionId = cloudFrontDistributionIdSetting.get()
-  const client = getCloudfrontClient()
+  const client = await getCloudfrontClient()
   if (distributionId && client) {
     logger(`Sending invalidation request to CloudFront. URL: ${url}, serverId: ${serverId}`);
     try {

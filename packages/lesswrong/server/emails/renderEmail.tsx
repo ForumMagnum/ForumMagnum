@@ -1,5 +1,4 @@
 import { htmlToText } from 'html-to-text';
-import Juice from 'juice';
 import { sendEmailSmtp } from './sendEmail';
 import React from 'react';
 import { ApolloProvider } from '@apollo/client';
@@ -200,6 +199,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   
   // Since emails can't use <style> tags, only inline styles, use the Juice
   // library to convert accordingly.
+  const { default: Juice } = await import('juice');
   const inlinedHTML = Juice(htmlWithUtmParams, { preserveMediaQueries: true });
   
   // Generate a plain-text representation, based on the React representation

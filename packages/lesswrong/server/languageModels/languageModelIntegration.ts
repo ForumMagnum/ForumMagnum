@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import type OpenAI from "openai";
 import { dataToMarkdown } from '../editor/conversionUtils';
 import { DatabaseServerSetting, openAIApiKey, openAIOrganizationId } from '../databaseSettings';
 import { encode as gpt3encode, decode as gpt3decode } from 'gpt-3-encoder'
@@ -12,6 +12,7 @@ export async function getOpenAI(): Promise<OpenAI|null> {
     const organizationId = openAIOrganizationId.get();
     
     if (apiKey) {
+      const { OpenAI } = await import('openai');
       openAIApi = new OpenAI({
         apiKey,
         organization: organizationId ?? undefined,

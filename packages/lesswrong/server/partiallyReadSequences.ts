@@ -1,13 +1,37 @@
 import { Sequences } from '../server/collections/sequences/collection';
-import { sequenceGetAllPostIDs } from '../lib/collections/sequences/helpers';
+import { sequenceGetAllPostIDs } from '@/lib/collections/sequences/sequenceServerHelpers';
 import { Collections } from '../server/collections/collections/collection';
-import { collectionGetAllPostIDs } from '../lib/collections/collections/helpers';
 import findIndex from 'lodash/findIndex';
 import * as _ from 'underscore';
 import { runSqlQuery } from '../server/sql/sqlClient';
 import gql from 'graphql-tag';
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateUser } from './collections/users/mutations';
+import toDictionary from '@/lib/utils/toDictionary';
+
+const collectionGetAllPostIDs = async (collectionID: string, context: ResolverContext): Promise<Array<string>> => {
+  const { Books } = context;
+  const books = await Books.find({ collectionId: collectionID }).fetch();
+  const sequenceIDs = _.flatten(books.map(book => book.sequenceIds));
+
+  const sequencePostsPairs = await Promise.all(
+    sequenceIDs.map(async (seqID) => [seqID, await sequenceGetAllPostIDs(seqID, context)])
+  );
+  const postsBySequence = toDictionary(sequencePostsPairs, pair => pair[0], pair => pair[1]);
+
+  const posts = _.flatten(books.map(book => {
+    const postsInSequencesInBook = _.flatten(
+      _.map(book.sequenceIds, sequenceId => postsBySequence[sequenceId])
+    );
+    if (book.postIds)
+      return _.union(book.postIds, postsInSequencesInBook);
+
+    else
+      return postsInSequencesInBook;
+  }));
+  return posts;
+};
+
 
 // Given a user ID, a post ID which the user has just read, and a sequence ID
 // that they read it in the context of, determine whether this means they have

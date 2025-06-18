@@ -12,7 +12,6 @@ import { wrapAndSendEmail } from '../../emails/renderEmail';
 import SimpleSchema from 'simpl-schema';
 import { clearCookie } from '../../utils/httpUtil';
 import { DatabaseServerSetting } from "../../databaseSettings";
-import request from 'request';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import {userFindOneByEmail} from "../../commonQueries";
 import UsersRepo from '../../repos/UsersRepo';
@@ -310,6 +309,8 @@ function registerLoginEvent(user: DbUser, req: AnyBecauseTodo) {
 
 const reCaptchaSecretSetting = new DatabaseServerSetting<string | null>('reCaptcha.secret', null) // ReCaptcha Secret
 const getCaptchaRating = async (token: string): Promise<string|null> => {
+  const { default: request } = await import('request');
+
   // Make an HTTP POST request to get reply text
   return new Promise((resolve, reject) => {
     if (reCaptchaSecretSetting.get()) {

@@ -2,7 +2,7 @@ import { hasSidenotes, userCanCreateAndEditJargonTerms } from "@/lib/betas";
 import { localGroupTypeFormOptions } from "@/lib/collections/localgroups/groupTypes";
 import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels, EVENT_TYPES } from "@/lib/collections/posts/constants";
 import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, MINIMUM_COAUTHOR_KARMA, userPassesCrosspostingKarmaThreshold, userCanEditCoauthors } from "@/lib/collections/posts/helpers";
-import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum, isLWorAF, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from "@/lib/instanceSettings";
 import { allOf } from "@/lib/utils/functionUtils";
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";

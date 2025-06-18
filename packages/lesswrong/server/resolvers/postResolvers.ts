@@ -88,23 +88,23 @@ const {Query: MyDialoguesQuery, typeDefs: MyDialoguesTypeDefs } = createPaginate
 });
 
 // TODO: remove this and all the Vertex-related code after 2025-06-21 (giving clients that might be querying it some time to cycle out)
-const {Query: GoogleVertexPostsQuery, typeDefs: GoogleVertexPostsTypeDefs } = createPaginatedResolver({
-  name: "GoogleVertexPosts",
-  graphQLType: "VertexRecommendedPost",
-  args: { settings: "JSON" },
-  callback: async (
-    context: ResolverContext,
-    limit: number,
-  ): Promise<VertexRecommendedPost[]> => {
-    const { currentUser } = context;
+// const {Query: GoogleVertexPostsQuery, typeDefs: GoogleVertexPostsTypeDefs } = createPaginatedResolver({
+//   name: "GoogleVertexPosts",
+//   graphQLType: "VertexRecommendedPost",
+//   args: { settings: "JSON" },
+//   callback: async (
+//     context: ResolverContext,
+//     limit: number,
+//   ): Promise<VertexRecommendedPost[]> => {
+//     const { currentUser } = context;
 
-    if (!currentUser) {
-      throw new Error(`You must logged in to use Google Vertex recommendations right now`);
-    }
+//     if (!currentUser) {
+//       throw new Error(`You must logged in to use Google Vertex recommendations right now`);
+//     }
 
-    return await googleVertexApi.getRecommendations(limit, context);
-  }
-});
+//     return await googleVertexApi.getRecommendations(limit, context);
+//   }
+// });
 
 const {Query: CrossedKarmaThresholdQuery, typeDefs: CrossedKarmaThresholdTypeDefs } = createPaginatedResolver({
   name: "CrossedKarmaThreshold",
@@ -317,7 +317,7 @@ export const postGqlQueries = {
   ...CuratedAndPopularThisWeekQuery,
   ...RecentlyActiveDialoguesQuery,
   ...MyDialoguesQuery,
-  ...GoogleVertexPostsQuery,
+  // ...GoogleVertexPostsQuery,
   ...CrossedKarmaThresholdQuery,
   ...RecombeeLatestPostsQuery,
   ...RecombeeHybridPostsQuery,
@@ -528,7 +528,6 @@ export const postGqlTypeDefs = gql`
   ${CuratedAndPopularThisWeekTypeDefs}
   ${RecentlyActiveDialoguesTypeDefs}
   ${MyDialoguesTypeDefs}
-  ${GoogleVertexPostsTypeDefs}
   ${CrossedKarmaThresholdTypeDefs}
   ${RecombeeLatestPostsTypeDefs}
   ${RecombeeHybridPostsTypeDefs}

@@ -7,7 +7,7 @@ import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib
 import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import EditorTopBar, { CollaborationMode } from './EditorTopBar';
 import { useSubscribedLocation } from '../../lib/routeUtil';
-import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
+import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';

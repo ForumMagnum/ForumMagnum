@@ -1,5 +1,5 @@
 import { Sequences } from '../../server/collections/sequences/collection';
-import { sequenceGetAllPosts } from '../../lib/collections/sequences/helpers';
+import { sequenceGetAllPosts } from '@/lib/collections/sequences/sequenceServerHelpers';
 import { Posts } from '../../server/collections/posts/collection'
 import { UpdateCallbackProperties } from '../mutationCallbacks';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';

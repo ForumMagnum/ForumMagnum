@@ -202,7 +202,7 @@ export const userCanReadField = <N extends CollectionNameString>(
   return false;
 };
 
-const userHasFieldPermissions = <T extends DbObject>(
+export const userHasFieldPermissions = <T extends DbObject>(
   user: DbUser|null,
   userGroups: string[],
   canRead: FieldPermissions,
@@ -230,68 +230,6 @@ const userHasFieldPermissions = <T extends DbObject>(
   } else {
     return false;
   }
-}
-
-// For a given document or list of documents, keep only fields viewable by current user
-// @param {Object} user - The user performing the action
-// @param {Object} collection - The collection
-// @param {Object} document - The document being returned by the resolver
-// TODO: Integrate permissions-filtered DbObjects into the type system
-export function restrictViewableFields<N extends CollectionNameString>(
-  user: DbUser|null,
-  collectionName: N,
-  docOrDocs: ObjectsByCollectionName[N] | undefined | null,
-): Partial<ObjectsByCollectionName[N]>;
-export function restrictViewableFields<N extends CollectionNameString>(
-  user: DbUser|null,
-  collectionName: N,
-  docOrDocs: ObjectsByCollectionName[N][] | undefined | null,
-): Partial<ObjectsByCollectionName[N]>[];
-export function restrictViewableFields<N extends CollectionNameString>(
-  user: DbUser|null,
-  collectionName: N,
-  docOrDocs?: ObjectsByCollectionName[N][] | undefined | null,
-): Partial<ObjectsByCollectionName[N]> | Partial<ObjectsByCollectionName[N]>[] {
-  if (Array.isArray(docOrDocs)) {
-    return restrictViewableFieldsMultiple(user, collectionName, docOrDocs);
-  } else {
-    return restrictViewableFieldsSingle(user, collectionName, docOrDocs);
-  }
-};
-
-export const restrictViewableFieldsMultiple = function <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
-  user: DbUser|null,
-  collectionName: N,
-  docs: DocType[],
-): Partial<DocType>[] {
-  if (!docs) return [];
-  return docs.map(doc => restrictViewableFieldsSingle(user, collectionName, doc));
-};
-
-export const restrictViewableFieldsSingle = function <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
-  user: DbUser|null,
-  collectionName: N,
-  doc: DocType | undefined | null,
-): Partial<DocType> {
-  if (!doc) return {};
-  // This is to avoid a dependency cycle, since obviously many schemas import helper functions from this file or others that depend on them.
-  // TODO: does this need fixing to avoid esbuild headaches?  Probably not this one.
-  const { getSchema }: (typeof import('../schema/allSchemas')) = require('../schema/allSchemas');
-  const schema = getSchema(collectionName);
-  const restrictedDocument: Partial<DocType> = {};
-  const userGroups = userGetGroups(user);
-
-  for (const fieldName in doc) {
-    const fieldSchema = schema[fieldName];
-    if (fieldSchema) {
-      const canRead = fieldSchema.graphql?.canRead;
-      if (canRead && userHasFieldPermissions(user, userGroups, canRead, doc)) {
-        restrictedDocument[fieldName] = doc[fieldName];
-      }
-    }
-  }
-
-  return restrictedDocument;
 }
 
 // Check if a user can submit a field

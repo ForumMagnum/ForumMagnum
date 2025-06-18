@@ -1,4 +1,4 @@
-import { restrictViewableFieldsSingle, restrictViewableFieldsMultiple } from '../vulcan-users/permissions';
+import { restrictViewableFieldsSingle, restrictViewableFieldsMultiple } from '../vulcan-users/restrictViewableFields';
 import { loadByIds, getWithLoader } from "../loaders";
 import { isServer } from '../executionEnvironment';
 import { asyncFilter } from './asyncUtils';
@@ -79,7 +79,7 @@ export const accessFilterSingle = async <N extends CollectionNameString, DocType
   if (!document) return null;
   const checkAccess = getCollectionAccessFilter(collectionName);
   if (checkAccess && !(await checkAccess(currentUser, document as AnyBecauseHard, context))) return null
-  const restrictedDoc = restrictViewableFieldsSingle(currentUser, collectionName, document)
+  const restrictedDoc = await restrictViewableFieldsSingle(currentUser, collectionName, document)
   return restrictedDoc as Partial<DocType> & { [ACCESS_FILTERED]: true };
 }
 
@@ -105,7 +105,7 @@ export const accessFilterMultiple = async <N extends CollectionNameString, DocTy
     ? await asyncFilter(existingDocs, async (d) => await checkAccess(currentUser, d as AnyBecauseHard, context))
     : existingDocs
   // Apply field-level permissions
-  const restrictedDocs = restrictViewableFieldsMultiple(currentUser, collectionName, filteredDocs)
+  const restrictedDocs = await restrictViewableFieldsMultiple(currentUser, collectionName, filteredDocs)
   
   return restrictedDocs;
 }

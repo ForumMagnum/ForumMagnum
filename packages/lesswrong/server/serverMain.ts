@@ -5,7 +5,6 @@ import { serverInitSentry, startMemoryUsageMonitor } from './logging';
 import { initLegacyRoutes } from '@/lib/routes';
 import { startupSanityChecks } from './startupSanityChecks';
 import { refreshKarmaInflationCache } from './karmaInflation/cron';
-import { initGoogleVertex } from './google-vertex/client';
 import { addLegacyRssRoutes } from './legacy-redirects/routes';
 import { initReviewWinnerCache } from './resolvers/reviewWinnerResolvers';
 import { startAnalyticsWriter } from './analytics/serverAnalyticsWriter';
@@ -49,7 +48,6 @@ export async function runServerOnStartupFunctions() {
   initLegacyRoutes();
   await startupSanityChecks();
   await refreshKarmaInflationCache();
-  initGoogleVertex();
   addLegacyRssRoutes();
   void initReviewWinnerCache();
   void updateStripeIntentsCache();

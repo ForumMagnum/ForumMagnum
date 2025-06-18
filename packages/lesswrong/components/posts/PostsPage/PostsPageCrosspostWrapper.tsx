@@ -1,23 +1,13 @@
-import React, { createContext, useContext } from "react";
+import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { isMissingDocumentError, isOperationNotAllowedError } from "../../../lib/utils/errorUtil";
 import { PostFetchProps, useForeignCrosspost } from "../../hooks/useForeignCrosspost";
 import PostsPage, { EagerPostComments } from "./PostsPage";
 import Error404 from "../../common/Error404";
 import Loading from "../../vulcan-core/Loading";
+import { CrosspostContext, crosspostContext } from "./CrosspostContext";
 
-type PostType = PostsWithNavigation | PostsWithNavigationAndRevision;
-
-export type CrosspostContext = {
-  hostedHere: boolean,
-  localPost: PostType,
-  foreignPost?: PostType,
-  combinedPost?: PostType,
-}
-
-const crosspostContext = createContext<CrosspostContext | null>(null);
-
-export const useCrosspostContext = () => useContext(crosspostContext);
+export type PostType = PostsWithNavigation | PostsWithNavigationAndRevision;
 
 export type PostWithForeignId = PostType & {
   fmCrosspost: {

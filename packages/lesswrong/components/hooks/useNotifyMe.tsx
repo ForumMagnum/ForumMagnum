@@ -1,6 +1,5 @@
 import React, { MouseEvent, useCallback } from "react";
 import { useTracking } from "../../lib/analyticsEvents";
-import { graphqlTypeToCollectionName } from "../../lib/vulcan-lib/collections";
 import { useDialog } from "../common/withDialog";
 import { useMessages } from "../common/withMessages";
 import { useCurrentUser } from "../common/withUser";
@@ -15,6 +14,7 @@ import LoginPopup from "../users/LoginPopup";
 import { useMutation } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
+import { typeNameToCollectionName } from "@/lib/generated/collectionTypeNames";
 
 const SubscriptionStateMultiQuery = gql(`
   query multiSubscriptionuseNotifyMeQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -107,7 +107,7 @@ export const useNotifyMe = ({
   const {flash} = useMessages();
   const [createSubscription] = useMutation(SubscriptionStateMutation);
 
-  const collectionName = graphqlTypeToCollectionName(document.__typename);
+  const collectionName = typeNameToCollectionName[document.__typename];
   if (!isDefaultSubscriptionType(collectionName)) {
     throw new Error(`Collection ${collectionName} is not subscribable`);
   }

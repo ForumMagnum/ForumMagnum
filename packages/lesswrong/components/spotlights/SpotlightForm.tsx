@@ -1,4 +1,4 @@
-import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
+import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React from "react";

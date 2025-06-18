@@ -1,4 +1,4 @@
-import { defaultEditorPlaceholder } from '@/lib/editor/make_editable';
+import { defaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { DialogTitle } from "@/components/widgets/DialogTitle";

@@ -4,7 +4,6 @@
 // Helper imports
 import SimpleSchema, { SchemaDefinition } from 'simpl-schema';
 import { isAnyTest, isCodegen } from '../executionEnvironment';
-import '../utils/extendSimpleSchemaOptions';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import GraphQLJSON from 'graphql-type-json';
 import type { GraphQLSchema } from 'graphql';

@@ -227,3 +227,5 @@ export const openThreadTagIdSetting = new DatabasePublicSetting<string>('openThr
 export const startHerePostIdSetting = new DatabasePublicSetting<string | null>('startHerePostId', null);
 export const amaTagIdSetting = new DatabasePublicSetting<string | null>('amaTagId', null);
 
+export const defaultSequenceBannerIdSetting = new DatabasePublicSetting<string | null>("defaultSequenceBannerId", null);
+
