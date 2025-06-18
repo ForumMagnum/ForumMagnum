@@ -55,11 +55,10 @@ const BookmarksFeed = () => {
     displaySettings: {
       ...DEFAULT_SETTINGS.displaySettings,
       postInitialWords: 50,
-      postMaxWords: 2000,
+      postMaxWords: 500,
       commentCollapsedInitialWords: 50,
-      commentExpandedInitialWords: 500,
-      commentMaxWords: 1000,
-      postTitlesAreModals: true,
+      commentExpandedInitialWords: 200,
+      commentMaxWords: 500,
     },
     resolverSettings: {
       ...DEFAULT_SETTINGS.resolverSettings,

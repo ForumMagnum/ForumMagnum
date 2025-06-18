@@ -180,16 +180,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     overflow: 'hidden',
     whiteSpace: 'nowrap',
   },
-  hideOnDesktop: {
-    [theme.breakpoints.up('md')]: {
-      display: 'none',
-    },
-  },
-  hideOnMobile: {
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-  },
+
 }));
 
 const sourceIconMap: Array<{ source: FeedItemSourceType, icon: any, tooltip: string }> = [
@@ -203,7 +194,6 @@ interface UltraFeedPostItemHeaderProps {
   post: PostsListWithVotes;
   isRead: boolean;
   handleOpenDialog: () => void;
-  postTitlesAreModals: boolean;
   sources: FeedItemSourceType[];
 }
 
@@ -211,7 +201,6 @@ const UltraFeedPostItemHeader = ({
   post,
   isRead,
   handleOpenDialog,
-  postTitlesAreModals,
   sources,
 }: UltraFeedPostItemHeaderProps) => {
   const classes = useStyles(styles);
@@ -231,33 +220,13 @@ const UltraFeedPostItemHeader = ({
   return (
     <div className={classes.header}>
       <div className={classes.titleContainer}>
-        <div className={classes.hideOnDesktop}>
-          {postTitlesAreModals ? (
-            <a
-              href={postGetPageUrl(post)}
-              onClick={handleTitleClick}
-              className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
-            >
-              {post.title}
-            </a>
-          ) : (
-            <Link
-              to={postGetPageUrl(post)}
-              className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
-            >
-              {post.title}
-            </Link>
-          )}
-        </div>
-        {/* Desktop version: Always a link */}
-        <div className={classes.hideOnMobile}>
-          <Link
-            to={postGetPageUrl(post)}
-            className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
-          >
-            {post.title}
-          </Link>
-        </div>
+        <a
+          href={postGetPageUrl(post)}
+          onClick={handleTitleClick}
+          className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
+        >
+          {post.title}
+        </a>
       </div>
       <div className={classes.metaRow}>
         {sourceIcons.map((iconInfo) => (
@@ -494,7 +463,6 @@ const UltraFeedPostItem = ({
             post={post}
             isRead={isRead}
             handleOpenDialog={handleOpenDialog}
-            postTitlesAreModals={displaySettings.postTitlesAreModals}
             sources={postMetaInfo.sources}
           />
         </div>

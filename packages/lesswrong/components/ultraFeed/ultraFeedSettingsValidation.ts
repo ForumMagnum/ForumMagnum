@@ -28,8 +28,6 @@ const displaySettingsValidation = z.object({
   commentMaxWords: z.number().int()
     .min(0, "Max words must be 0 or greater")
     .default(DEFAULT_SETTINGS.displaySettings.commentMaxWords),
-  postTitlesAreModals: z.boolean()
-    .default(DEFAULT_SETTINGS.displaySettings.postTitlesAreModals),
 }).refine(data => data.postInitialWords <= data.postMaxWords, {
   message: "Initial words must be less than or equal to max words",
   path: ["postInitialWords"],
