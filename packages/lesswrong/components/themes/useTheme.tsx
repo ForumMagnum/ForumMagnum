@@ -8,9 +8,6 @@ import { THEME_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import stringify from 'json-stringify-deterministic';
 import { FMJssProvider } from '../hooks/FMJssProvider';
-// eslint-disable-next-line no-restricted-imports
-import { useLocation } from 'react-router-dom';
-import { is } from 'cheerio/lib/api/attributes';
 
 type ThemeContextObj = {
   theme: ThemeType,
@@ -18,7 +15,6 @@ type ThemeContextObj = {
   setThemeOptions: (options: AbstractThemeOptions) => void
 }
 export const ThemeContext = React.createContext<ThemeContextObj|null>(null);
-
 /**
  * You should NOT use the hooks in this file unless you _really_ know what you're doing - in
  * particular, they should never be used for dynamically applying styles/colors/etc. to
@@ -31,7 +27,6 @@ export const useTheme = (): ThemeType => {
   if (!themeContext) throw "useTheme() used without the context available";
   return themeContext.theme;
 }
-
 export const withTheme = <T extends {theme: ThemeType}>(Component: React.ComponentType<T>) => {
   return forwardRef((props, ref) => {
     const theme = useTheme();
@@ -39,31 +34,25 @@ export const withTheme = <T extends {theme: ThemeType}>(Component: React.Compone
     return <ComponentUntyped ref={ref} {...props} theme={theme}/>
   }) as React.ComponentType<Omit<T,"theme">>;
 }
-
 export const useThemeOptions = (): AbstractThemeOptions => {
   const themeContext = React.useContext(ThemeContext);
   if (!themeContext) throw "useThemeOptions() used without the context available";
   return themeContext.themeOptions;
 }
-
 export const useConcreteThemeOptions = (): ThemeOptions => {
   const prefersDarkMode = usePrefersDarkMode();
   const themeContext = React.useContext(ThemeContext);
   if (!themeContext) throw "useConcreteThemeOptions() used without the context available";
   return abstractThemeToConcrete(themeContext.themeOptions, prefersDarkMode);
 }
-
 export const useSetTheme = () => {
   const themeContext = React.useContext(ThemeContext);
   if (!themeContext) throw "useSetTheme() used without the context available";
   return themeContext.setThemeOptions;
 }
-
 const makeStylesheetUrl = (themeOptions: AbstractThemeOptions) =>
   `/allStyles?theme=${encodeURIComponent(stringify(themeOptions))}`;
-
 type OnFinish = (error?: string | Event) => void;
-
 const addStylesheet = (href: string, id: string, onFinish: OnFinish) => {
   const styleNode = document.createElement("link");
   styleNode.setAttribute("id", id);
@@ -75,7 +64,6 @@ const addStylesheet = (href: string, id: string, onFinish: OnFinish) => {
   styleNode.onerror = onFinish;
   document.head.appendChild(styleNode);
 }
-
 /**
  * The 'auto' stylesheet is an inline style that will automatically import
  * either the light or dark theme based on the device preferences. If the
@@ -97,43 +85,37 @@ const addAutoStylesheet = (id: string, onFinish: OnFinish, siteThemeOverride?: S
   styleNode.onerror = onFinish;
   document.head.appendChild(styleNode);
 }
-
 export const ThemeContextProvider = ({options, children}: {
   options: AbstractThemeOptions,
   children: React.ReactNode,
 }) => {
-  const location = useLocation();
-  const isHomePage = location.pathname === '/' || location.pathname === '';
   const [_cookies, setCookie, removeCookie] = useCookiesWithConsent([THEME_COOKIE]);
-  const [oldThemeOptions, setThemeOptions] = useState(options);
+  const [themeOptions, setThemeOptions] = useState(options);
   const prefersDarkMode = usePrefersDarkMode();
-  const themeOptions = isHomePage ? {name: 'dark' as const} : oldThemeOptions;
   const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode);
-  
-  
 
   useEffect(() => {
     if (stringify(themeOptions) !== stringify(window.themeOptions)) {
       window.themeOptions = themeOptions;
       if (isEAForum) {
         removeCookie(THEME_COOKIE, {path: "/"});
-      } else if (stringify(oldThemeOptions) !== stringify(window.themeOptions)) {
+      } else {
         setCookie(THEME_COOKIE, stringify(themeOptions), {
           path: "/",
           expires: moment().add(2, 'years').toDate(),
         });
       }
       const stylesId = "main-styles";
-      const tempStylesId = stylesId + "-temp" + Math.random();
+      const tempStylesId = stylesId + "-temp";
       const oldStyles = document.getElementById(stylesId);
-      if (oldStyles || isHomePage) {
-        oldStyles?.setAttribute("id", tempStylesId);
+      if (oldStyles) {
+        oldStyles.setAttribute("id", tempStylesId);
         const onFinish = (error?: string | Event) => {
           if (error) {
             // eslint-disable-next-line no-console
             console.error("Failed to load stylesheet for theme:", themeOptions, "Error:", error);
           } else {
-            oldStyles?.parentElement!.removeChild(oldStyles);
+            oldStyles.parentElement!.removeChild(oldStyles);
           }
         }
         if (themeOptions.name === "auto") {
@@ -145,22 +127,15 @@ export const ThemeContextProvider = ({options, children}: {
     }
   }, [themeOptions, concreteTheme, setCookie, removeCookie]);
 
-  const theme: any = useMemo(() => {
-    if (isHomePage) {
-      return getForumTheme({name: 'dark' as const});
-    } else {
-      return getForumTheme(concreteTheme);
-    }
-  }, [concreteTheme, isHomePage]);
-  
-  const themeContext = useMemo(() => {
-    if (isHomePage) {
-      return {theme, themeOptions: {name: 'dark' as const}, setThemeOptions};
-    } else {
-      return {theme, themeOptions, setThemeOptions};
-    }
-  }, [theme, themeOptions, setThemeOptions, isHomePage]);
-  
+  const theme: any = useMemo(() =>
+    getForumTheme(concreteTheme),
+    [concreteTheme]
+  );
+  const themeContext = useMemo(() => (
+    {theme, themeOptions, setThemeOptions}),
+    [theme, themeOptions, setThemeOptions]
+  );
+
   return <ThemeContext.Provider value={themeContext}>
     <FMJssProvider>
       {children}

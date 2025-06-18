@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
+import { useTheme } from '../themes/useTheme';
 import classNames from 'classnames';
 
 // TODO: comment this out after we're done with the book promotion
@@ -16,7 +17,7 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     width: '100vw',
     height: '100vh',
-    background: '#222',
+    background: 'linear-gradient(to right, #7a7096, #252141)', // Twilight gradient for both modes
     zIndex: -1,
     [theme.breakpoints.down(1300)]: {
       display: 'none'
@@ -28,12 +29,11 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     width: '100%',
     height: '100%',
-    background: '#222',
+    background: 'linear-gradient(to right, #7a7096, #252141)', // Twilight gradient for both modes
     overflow: 'hidden',
   },
   blackSphere: {
     position: 'absolute',
-    background: 'radial-gradient(circle, #222 40%, rgba(0,0,0,0.8) 60%, transparent 80%)',
     borderRadius: '50%',
     transform: 'translate(-50%, -50%)',
     left: 'calc(100% - 20vw)',
@@ -89,7 +89,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: '1.8rem',
     transform: 'scaleX(0.85)',
     fontWeight: 700,
-    color: '#fff',
+    color: theme.palette.text.primary,
     marginBottom: 8,
     lineHeight: 1.2,
     textTransform: 'uppercase',
@@ -107,7 +107,7 @@ const styles = (theme: ThemeType) => ({
   authors: {
     fontFamily: theme.typography.fontFamily,
     fontSize: '1rem',
-    color: '#ccc',
+    color: theme.palette.text.secondary,
     marginBottom: 12,
     [theme.breakpoints.down(1400)]: {
       fontSize: '1rem',
@@ -117,14 +117,13 @@ const styles = (theme: ThemeType) => ({
     textTransform: 'uppercase',
     fontWeight: 600,  
     fontSize: '1.2rem',
-    color: '#fff',
+    color: theme.palette.text.primary,
     marginBottom: 12,
   },
   publicationInfo: {
     fontFamily: theme.typography.fontFamily,
-
     fontSize: '0.9rem',
-    color: '#999',
+    color: theme.palette.text.secondary,
     marginBottom: 20,
     [theme.breakpoints.down(1400)]: {
       fontSize: '0.8rem',
@@ -137,8 +136,8 @@ const styles = (theme: ThemeType) => ({
   preorderButton: {
     display: 'inline-block',
     padding: '10px 24px',
-    border: '2px solid #fff',
-    color: '#fff',
+    border: `2px solid ${theme.palette.text.primary}`,
+    color: theme.palette.text.primary,
     textDecoration: 'none',
     borderRadius: 25,
     fontFamily: theme.typography.fontFamily,
@@ -146,8 +145,8 @@ const styles = (theme: ThemeType) => ({
     transition: 'all 0.2s ease',
     backgroundColor: 'transparent',
     '&:hover': {
-      background: '#fff',
-      color: '#000',
+      background: theme.palette.text.primary,
+      color: theme.palette.background.default,
     },
     [theme.breakpoints.down(1400)]: {
       fontSize: '0.9rem',
@@ -157,16 +156,16 @@ const styles = (theme: ThemeType) => ({
   // Override the main layout background when this component is active
   '@global': {
     'body.ifAnyoneBuildsItActive': {
-      backgroundColor: '#222 !important',
+      backgroundColor: '#4f3d6b !important', // Mid-tone of twilight gradient for both modes
     },
-    '.Layout-whiteBackground': {
-      backgroundColor: 'transparent !important',
-    }
+    // '.Layout-whiteBackground': {
+    //   backgroundColor: 'transparent !important',
+    // }
   },
   altPreorderButton: {
     marginTop: 10,
     marginBottom: 30,
-    color: '#fff',
+    color: theme.palette.text.primary,
     fontFamily: theme.typography.fontFamily,
     letterSpacing: '0.05em',
   },
@@ -183,6 +182,7 @@ const IfAnyoneBuildsItSplash = ({
 }: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const theme = useTheme();
   const [sphereSize, setSphereSize] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | undefined>(undefined);
@@ -202,21 +202,45 @@ const IfAnyoneBuildsItSplash = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
     
-    const ctx = canvas.getContext('2d');
+    // Try to get Display P3 context for wide gamut colors, fallback to sRGB
+    let ctx: CanvasRenderingContext2D | null = null;
+    try {
+      ctx = canvas.getContext('2d', { colorSpace: 'display-p3' });
+      // Log what color space we actually got for debugging
+      const actualColorSpace = ctx?.getContextAttributes?.()?.colorSpace || 'unknown';
+      console.log(`Star field canvas color space: ${actualColorSpace}`);
+    } catch {
+      // Fallback to standard sRGB
+      ctx = canvas.getContext('2d');
+      console.log('Star field canvas color space: sRGB (fallback)');
+    }
+    
     if (!ctx) return;
 
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const dpr = window.devicePixelRatio || 1;
+      const displayWidth = window.innerWidth;
+      const displayHeight = window.innerHeight;
       
-      // Regenerate stars on resize
-      const starCount = Math.floor((canvas.width * canvas.height) / 800); // Much denser starfield
+      // Set the actual canvas size in memory (scaled for high-DPI)
+      canvas.width = displayWidth * dpr;
+      canvas.height = displayHeight * dpr;
+      
+      // Set the display size (CSS pixels)
+      canvas.style.width = displayWidth + 'px';
+      canvas.style.height = displayHeight + 'px';
+      
+      // Scale the context to match the device pixel ratio
+      ctx.scale(dpr, dpr);
+      
+      // Regenerate stars on resize (using display dimensions)
+      const starCount = Math.floor((displayWidth * displayHeight) / 800); // Much denser starfield
       starsRef.current = [];
       
       for (let i = 0; i < starCount; i++) {
         starsRef.current.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
+          x: Math.random() * displayWidth,
+          y: Math.random() * displayHeight,
           radius: (Math.random() * 1.5) + 0.5,
           opacity: (Math.random() * 0.8) + 0.2,
           twinkleSpeed: (Math.random() * 0.02) + 0.01
@@ -229,12 +253,21 @@ const IfAnyoneBuildsItSplash = ({
 
     // Animation loop
     const animate = () => {
-      ctx.fillStyle = '#222';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const displayWidth = window.innerWidth;
+      const displayHeight = window.innerHeight;
+      
+      // Use twilight gradient background for both modes
+      const gradient = ctx.createLinearGradient(0, 0, displayWidth, displayHeight);
+      gradient.addColorStop(0, '#7a7096'); // Lighter twilight on left
+      gradient.addColorStop(1, '#252141'); // Darker twilight on right
+      ctx.fillStyle = gradient;
+      
+      
+      ctx.fillRect(0, 0, displayWidth, displayHeight);
       
       const time = Date.now() * 0.001;
-      const centerX = canvas.width * (1 - 0.20); // 15vw from right
-      const centerY = canvas.height * 0.20; // 15vh from top
+      const centerX = displayWidth * (1 - 0.20); // 15vw from right
+      const centerY = displayHeight * 0.20; // 15vh from top
       const currentSphereRadius = sphereSizeRef.current / 2;
       
       starsRef.current.forEach(star => {
@@ -273,12 +306,34 @@ const IfAnyoneBuildsItSplash = ({
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.radius * sizeMultiplier, 0, Math.PI * 2);
         
-        // Interpolate between white and red based on proximity to sphere
-        const r = 255;
-        const g = Math.floor(255 * (1 - redShift));
-        const b = Math.floor(255 * (1 - redShift));
+        // Golden stars for both modes with red fade effect
+        if (redShift > 0) {
+          // Muted red shift effect - softer transition to red
+          const r = Math.floor(180 + (75 * redShift)); // Ranges from 180 to 255
+          const g = Math.floor((1 - redShift) * 120); // Starts at 120, goes to 0
+          const b = Math.floor((1 - redShift) * 60);  // Starts at 60, goes to 0
+          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+        } else {
+          // Try to use wide gamut gold colors with graceful fallback
+          const canvasColorSpace = ctx.getContextAttributes?.()?.colorSpace || 'srgb';
+          
+          if (canvasColorSpace === 'display-p3') {
+            // Vibrant Display P3 gold
+            ctx.fillStyle = `color(display-p3 0.9 0.65 0.05 / ${opacity})`;
+          } else {
+            // Try oklch for vibrant gold
+            const initialFillStyle = ctx.fillStyle;
+            ctx.fillStyle = 'oklch(0.75 0.25 70)';
+            if (ctx.fillStyle !== initialFillStyle && ctx.fillStyle.includes('oklch')) {
+              // Browser supports oklch - use vibrant gold
+              ctx.fillStyle = `oklch(0.75 0.25 70 / ${opacity})`;
+            } else {
+              // Fallback to sRGB gold
+              ctx.fillStyle = `rgba(204, 153, 0, ${opacity})`; // Golden yellow
+            }
+          }
+        }
         
-        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${opacity})`;
         ctx.fill();
       });
       
@@ -312,10 +367,9 @@ const IfAnyoneBuildsItSplash = ({
       const maxDistance = Math.sqrt(
         Math.pow(sphereCenterX, 2) + Math.pow(viewportHeight - sphereCenterY, 2)
       );
-      const dynamicMaxSize = maxDistance * 2 * 1.2; // Diameter with 20% buffer
+      const dynamicMaxSize = maxDistance * 2 * 2; // Diameter with 20% buffer
       
-      // Exponential growth for dramatic effect
-      const size = progress * progress * progress * dynamicMaxSize;
+      const size = progress * dynamicMaxSize;
       setSphereSize(size);
       sphereSizeRef.current = size;
     };
@@ -325,6 +379,9 @@ const IfAnyoneBuildsItSplash = ({
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Sphere gradient that works well with twilight gradient
+  const sphereGradient = 'transparent'
 
   return (
     <>
@@ -338,7 +395,7 @@ const IfAnyoneBuildsItSplash = ({
               left: 0,
               width: '100%',
               height: '100%',
-              opacity: 0.85,
+              opacity: 1,
             }}
           />
           <div 
@@ -346,6 +403,7 @@ const IfAnyoneBuildsItSplash = ({
             style={{
               width: `${sphereSize}px`,
               height: `${sphereSize}px`,
+              background: sphereGradient,
             }}
           />
         </div>
