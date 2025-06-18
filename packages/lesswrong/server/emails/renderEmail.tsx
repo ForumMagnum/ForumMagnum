@@ -23,7 +23,7 @@ import { createAnonymousContext } from '../vulcan-lib/createContexts';
 import { FMJssProvider } from '@/components/hooks/FMJssProvider';
 import { createStylesContext } from '@/components/hooks/useStyles';
 import { generateEmailStylesheet } from '../styleGeneration';
-import { ThemeContextProvider } from '@/components/themes/useTheme';
+import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
 import { ThemeOptions } from '@/themes/themeNames';
 import { EmailWrapper } from '../emailComponents/EmailWrapper';
 import CookiesProvider from '@/lib/vendor/react-cookie/CookiesProvider';
@@ -166,7 +166,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     <EmailRenderContext.Provider value={{isEmailRender:true}}>
     <ApolloProvider client={apolloClient}>
     <CookiesProvider>
-    <ThemeContextProvider options={themeOptions}>
+    <ThemeContextProvider options={themeOptions} isEmail={true}>
     <FMJssProvider stylesContext={stylesContext}>
     <UserContext.Provider value={user as unknown as UsersCurrent | null /*FIXME*/}>
     <TimezoneContext.Provider value={timezone}>
