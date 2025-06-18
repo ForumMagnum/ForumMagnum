@@ -4834,6 +4834,7 @@ type User {
   notificationDialogueMessages: JSON
   notificationPublishedDialogueMessages: JSON
   notificationAddedAsCoauthor: JSON
+  notificationKeywordAlert: JSON
   notificationDebateCommentsOnSubscribedPost: JSON
   notificationDebateReplies: JSON
   notificationDialogueMatch: JSON
@@ -7143,6 +7144,7 @@ input CreateUserDataInput {
   notificationDialogueMessages: JSON
   notificationPublishedDialogueMessages: JSON
   notificationAddedAsCoauthor: JSON
+  notificationKeywordAlert: JSON
   notificationDebateCommentsOnSubscribedPost: JSON
   notificationDebateReplies: JSON
   notificationDialogueMatch: JSON
@@ -7315,6 +7317,7 @@ input UpdateUserDataInput {
   notificationDialogueMessages: JSON
   notificationPublishedDialogueMessages: JSON
   notificationAddedAsCoauthor: JSON
+  notificationKeywordAlert: JSON
   notificationDebateCommentsOnSubscribedPost: JSON
   notificationDebateReplies: JSON
   notificationDialogueMatch: JSON
@@ -12276,6 +12279,7 @@ fragment UsersDefaultFragment on User {
   notificationDialogueMessages
   notificationPublishedDialogueMessages
   notificationAddedAsCoauthor
+  notificationKeywordAlert
   notificationDebateCommentsOnSubscribedPost
   notificationDebateReplies
   notificationDialogueMatch
@@ -12504,6 +12508,7 @@ fragment UsersEdit on User {
   notificationYourTurnMatchForm
   notificationDialogueMessages
   notificationPublishedDialogueMessages
+  notificationKeywordAlert
 
   hideFrontpageMap
   hideTaggingProgressBar

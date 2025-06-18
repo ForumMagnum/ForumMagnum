@@ -610,6 +610,7 @@ export const UsersEdit = () => frag`
     notificationYourTurnMatchForm
     notificationDialogueMessages
     notificationPublishedDialogueMessages
+    notificationKeywordAlert
 
     hideFrontpageMap
     hideTaggingProgressBar

@@ -4048,6 +4048,7 @@ interface User {
   notificationDialogueMessages: any;
   notificationPublishedDialogueMessages: any;
   notificationAddedAsCoauthor: any;
+  notificationKeywordAlert: any;
   notificationDebateCommentsOnSubscribedPost: any;
   notificationDebateReplies: any;
   notificationDialogueMatch: any;
@@ -6131,6 +6132,7 @@ interface CreateUserDataInput {
   notificationDialogueMessages?: any;
   notificationPublishedDialogueMessages?: any;
   notificationAddedAsCoauthor?: any;
+  notificationKeywordAlert?: any;
   notificationDebateCommentsOnSubscribedPost?: any;
   notificationDebateReplies?: any;
   notificationDialogueMatch?: any;
@@ -6303,6 +6305,7 @@ interface UpdateUserDataInput {
   notificationDialogueMessages?: any;
   notificationPublishedDialogueMessages?: any;
   notificationAddedAsCoauthor?: any;
+  notificationKeywordAlert?: any;
   notificationDebateCommentsOnSubscribedPost?: any;
   notificationDebateReplies?: any;
   notificationDialogueMatch?: any;

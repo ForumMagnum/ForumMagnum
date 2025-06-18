@@ -1693,6 +1693,7 @@ export const UsersDefaultFragment = `
     notificationDialogueMessages
     notificationPublishedDialogueMessages
     notificationAddedAsCoauthor
+    notificationKeywordAlert
     notificationDebateCommentsOnSubscribedPost
     notificationDebateReplies
     notificationDialogueMatch

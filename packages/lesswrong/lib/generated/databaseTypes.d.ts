@@ -1946,6 +1946,20 @@ interface DbUser extends DbObject {
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
+  notificationKeywordAlert: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
   notificationNewDialogueChecks: {
     onsite: {
       enabled: boolean,

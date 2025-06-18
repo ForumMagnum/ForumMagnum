@@ -1920,6 +1920,15 @@ const schema = {
     },
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
   },
+  notificationKeywordAlert: {
+    database: {
+      type: "JSONB",
+      defaultValue: bothChannelsEnabledNotificationTypeSettings,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+  },
   //TODO: clean up old dialogue implementation notifications
   notificationDebateCommentsOnSubscribedPost: {
     database: {

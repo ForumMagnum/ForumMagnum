@@ -24,5 +24,5 @@ export const useKeywordFromUrl = () => {
   const { params, query } = useLocation();
   const keyword = params.keyword;
   const startDate = parseKeywordAlertStartDate(query.start, currentTime);
-  return { keyword, startDate }
+  return { keyword, startDate };
 }

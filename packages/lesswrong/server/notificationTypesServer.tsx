@@ -790,6 +790,23 @@ export const PostCoauthorAcceptNotification = createServerNotificationType({
   },
 });
 
+export const KeywordAlertNotification = createServerNotificationType({
+  name: "keywordAlertNotification",
+  canCombineEmails: false,
+  emailSubject: async ({ notifications }: {notifications: DbNotification[]}) => {
+    const {extraData} = notifications[0];
+    return `${extraData?.count} new alerts for "${extraData?.keyword}"`;
+  },
+  emailBody: async ({ notifications }: {notifications: DbNotification[]}) => {
+    const {extraData} = notifications[0];
+    return (
+      <p>
+        {extraData?.count} new alerts for "{extraData?.keyword}"
+      </p>
+    );
+  },
+});
+
 export const NewSubforumMemberNotification = createServerNotificationType({
   name: "newSubforumMember",
   canCombineEmails: false,
@@ -881,6 +898,7 @@ const serverNotificationTypesArray: ServerNotificationType[] = [
   NewCommentOnDraftNotification,
   PostCoauthorRequestNotification,
   PostCoauthorAcceptNotification,
+  KeywordAlertNotification,
   NewSubforumMemberNotification,
   NewMentionNotification,
 ];
