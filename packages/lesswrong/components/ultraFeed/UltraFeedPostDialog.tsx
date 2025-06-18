@@ -647,31 +647,31 @@ const UltraFeedPostDialog = ({
                         <Loading />
                       </div>
                     )}
-                    
-                    <UltraFeedItemFooter
-                      document={displayPost}
-                      collectionName="Posts"
-                      metaInfo={postMetaInfo}
-                      className={classes.footer}
-                    />
-                    {isCommentsLoading && fullPostForContent && (
-                      <div className={classes.loadingContainer}><Loading /></div>
-                    )}
-                    {comments && (
-                      <CommentsListSection
-                        post={fullPostForContent}
-                        comments={comments ?? []}
-                        totalComments={commentsTotalCount ?? 0}
-                        commentCount={(comments ?? []).length}
-                        loadMoreComments={() => { }}
-                        loadingMoreComments={false}
-                        highlightDate={undefined}
-                        setHighlightDate={() => { }}
-                        hideDateHighlighting={true}
-                        newForm={true}
-                      />
-                    )}
                   </div>
+                  
+                  <UltraFeedItemFooter
+                    document={displayPost}
+                    collectionName="Posts"
+                    metaInfo={postMetaInfo}
+                    className={classes.footer}
+                  />
+                  {isCommentsLoading && fullPostForContent && (
+                    <div className={classes.loadingContainer}><Loading /></div>
+                  )}
+                  {comments && (
+                    <CommentsListSection
+                      post={fullPostForContent}
+                      comments={comments ?? []}
+                      totalComments={commentsTotalCount ?? 0}
+                      commentCount={(comments ?? []).length}
+                      loadMoreComments={() => { }}
+                      loadingMoreComments={false}
+                      highlightDate={undefined}
+                      setHighlightDate={() => { }}
+                      hideDateHighlighting={true}
+                      newForm={true}
+                    />
+                  )}
                 </div>
               </div>
               {shouldShowToc && (

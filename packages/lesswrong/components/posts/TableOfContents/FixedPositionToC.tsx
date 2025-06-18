@@ -280,26 +280,33 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
       const postContentOffsetInContainer = postContentRect.top - containerRect.top + container.scrollTop;
       const postContentHeight = postContentElement.offsetHeight;
       
-      // Calculate where the viewport BOTTOM is relative to the post content
-      // This matches the "fixed ToC" calculation in usePostReadProgress
       const viewportBottomInContainer = container.scrollTop + container.clientHeight;
       const distanceFromPostTopToViewportBottom = viewportBottomInContainer - postContentOffsetInContainer;
-      
-      // The scroll percent represents how far the viewport bottom has traveled through the post
-      const scrollPercent = Math.max(0, Math.min(100, (distanceFromPostTopToViewportBottom / postContentHeight) * 100));
-      
-      // Calculate the window height as a percentage of the post content
-      const viewportHeightAsPercentOfPost = (container.clientHeight / postContentHeight) * 100;
-      
+      const scrollPercentRaw = (distanceFromPostTopToViewportBottom / postContentHeight) * 100;
+      const clampedTopPercent = Math.max(0, Math.min(100, scrollPercentRaw));
+
       if (readingProgressBarRef.current) {
-        // The progress bar uses flex, so scrollPercent represents the portion above the indicator
-        // But we need to adjust it to represent where the viewport TOP is
-        const adjustedScrollPercent = Math.max(0, scrollPercent - viewportHeightAsPercentOfPost);
-        readingProgressBarRef.current.style.setProperty("--scrollAmount", `${adjustedScrollPercent}%`);
-        
-        // Set window height as percentage of the progress bar container
+        // Position of the top of the indicator (portion already above viewport bottom)
+        readingProgressBarRef.current.style.setProperty("--scrollAmount", `${clampedTopPercent}%`);
+
+        // Height in px representing current viewport window inside progress bar
         const progressBarHeight = readingProgressBarRef.current.offsetHeight;
-        const windowHeightInPixels = (viewportHeightAsPercentOfPost / 100) * progressBarHeight;
+
+        // Calculate how much of the post is actually visible in the viewport
+        const viewportTop = container.scrollTop;
+        const viewportBottom = viewportTop + container.clientHeight;
+        const postTop = postContentOffsetInContainer;
+        const postBottom = postTop + postContentHeight;
+
+        const visibleTop = Math.max(postTop, viewportTop);
+        const visibleBottom = Math.min(postBottom, viewportBottom);
+        const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+
+        const visiblePostPortion = visibleHeight / postContentHeight;
+
+        // Indicator height proportional to visible portion, min 10px so it never disappears
+        const windowHeightInPixels = Math.max(10, visiblePostPortion * progressBarHeight);
+
         readingProgressBarRef.current.style.setProperty("--windowHeight", `${windowHeightInPixels}px`);
       }
     };
