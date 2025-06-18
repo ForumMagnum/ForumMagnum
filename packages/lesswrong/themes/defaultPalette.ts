@@ -234,6 +234,11 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     },
 
     jargonTerm: "#a8742a",
+    // Banner ad compatibility - text colors (set to non-affecting defaults for light mode)
+    bannerAdOverlay: shades.grey[1000], // Use normal text color for light mode
+    bannerAdDim: shades.greyAlpha(.6),
+    bannerAdDim2: shades.greyAlpha(.9),
+    bannerAdDim3: shades.greyAlpha(.25),
   },
   link: {
     unmarked: shades.greyAlpha(.87),
@@ -415,6 +420,13 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     onboardingPodcast: "#e7e7e7",
     placeholderGradient: 'linear-gradient(90deg, #EEE 33%, #E6E6E6 50%, #EEE 66%)',
     tagLensTab: shades.greyAlpha(.1),
+    // Banner ad compatibility - backgrounds (set to non-affecting defaults for light mode)
+    bannerAdTranslucent: shades.grey[0], // Use default background for light mode
+    bannerAdTranslucentHeavy: shades.grey[0],
+    bannerAdTranslucentLight: shades.grey[0],
+    bannerAdTranslucentMedium: shades.grey[0],
+    bannerAdTranslucentDeep: shades.grey[0],
+    bannerAdTranslucentStrong: shades.grey[0],
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
@@ -506,15 +518,27 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       text: shades.grey[500],
       hover: {
         text: shades.grey[700]
-      }
+      },
+      // Banner ad compatibility - non-affecting defaults for light mode
+      bannerAdBackground: 'transparent',
+      bannerAdBackgroundBlur: 'transparent',
     },
     active: {
       background: "rgba(127, 175, 131, 1)",
       text: shades.grey[0],
       hover: {
         background: "rgba(127, 175, 131, 0.7)",
-      }
+      },
+      // Banner ad compatibility - non-affecting default for light mode
+      bannerAdOpacity: 1,
     },
+  },
+  // Banner ad compatibility - CSS filters (non-affecting defaults for light mode)
+  filters: {
+    bannerAdBlur: 'none',
+    bannerAdBlurLight: 'none',
+    bannerAdBlurMedium: 'none',
+    bannerAdBlurHeavy: 'none',
   },
 
   geosuggest: {
@@ -556,6 +580,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     // rather than a low-intensity color at full opacity.
     commentMarker: "rgba(255,241,82,.5)",
     commentMarkerActive: "#fdf05d",
+    // Banner ad compatibility - non-affecting default for light mode
+    bannerAdBackground: 'transparent',
   },
   blockquoteHighlight: {
     commentHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",

@@ -15,10 +15,10 @@ const COLLAPSED_HEIGHT = 40;
 
 const styles = (theme: ThemeType) => ({
   root: {
-    background: theme.palette.panelBackground.default,
+    background: theme.palette.panelBackground.bannerAdTranslucentStrong,
     borderRadius: theme.borderRadius.quickTakesEntry,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    border: `1px solid ${theme.palette.grey[200]}`,
+    border: "none",
   },
   commentEditor: {
     "& .ck-placeholder": {

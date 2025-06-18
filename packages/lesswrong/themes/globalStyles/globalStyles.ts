@@ -138,10 +138,10 @@ const globalStyle = (theme: ThemeType) => ({
 
 const commentsStyle = (theme: ThemeType) => ({
   ".comments-node-even": {
-    backgroundColor: theme.palette.panelBackground.commentNodeEven,
+    backgroundColor: theme.palette.panelBackground.bannerAdTranslucent,
   },
   ".comments-node-odd": {
-    backgroundColor: theme.palette.panelBackground.commentNodeOdd,
+    backgroundColor: theme.palette.panelBackground.bannerAdTranslucent,
   },
   ".comments-node-root": {
     marginBottom: commentsNodeRootMarginBottom,
@@ -154,7 +154,7 @@ const commentsStyle = (theme: ThemeType) => ({
       paddingTop: 5,
     },
     
-    backgroundColor: theme.palette.panelBackground.default,
+    background: theme.palette.panelBackground.bannerAdTranslucent,
   },
   ".comments-node .comments-node": {
     [maxTiny]: {

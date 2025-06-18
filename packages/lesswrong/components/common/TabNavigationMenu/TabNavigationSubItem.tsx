@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
     paddingBottom: theme.spacing.unit,
     // padding reflects how large an icon+padding is
     paddingLeft: (theme.spacing.unit*2) + iconPadding(theme),
-    color: theme.palette.grey[isFriendlyUI ? 600 : 700],
+    color: theme.palette.text.bannerAdOverlay,
     width:
       TAB_NAVIGATION_MENU_WIDTH - // base width
       ((theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2))) - // paddingLeft,

@@ -63,7 +63,8 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     paddingLeft: 16,
     paddingRight: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    backgroundColor: theme.palette.panelBackground.default,
+    background: theme.palette.panelBackground.bannerAdTranslucentHeavy,
+    backdropFilter: theme.palette.filters.bannerAdBlurHeavy,
     borderRadius: 4,
   },
   mainContent: {
@@ -110,6 +111,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     lineHeight: 1.15,
     textWrap: 'balance',
     width: '100%',
+    color: theme.palette.text.bannerAdOverlay,
     '&:hover': {
       opacity: 0.9,
       textDecoration: 'none',
@@ -123,6 +125,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
   titleIsRead: {
     opacity: 0.5,
+    color: theme.palette.text.bannerAdOverlay,
     '&:hover': {
       opacity: 0.9,
     },

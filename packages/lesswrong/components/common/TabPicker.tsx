@@ -13,7 +13,7 @@ const rightFadeStyle = (theme: ThemeType) => ({
     height: '100%',
     width: 50,
     content: '\'\'',
-    background: `linear-gradient(to left, ${theme.palette.background.default}, ${theme.palette.background.transparent})`,
+    background: 'none',
     pointerEvents: 'none',
   },
 });
@@ -51,7 +51,7 @@ const styles = (theme: ThemeType) => ({
       height: '100%',
       width: 50,
       content: '\'\'',
-      background: `linear-gradient(to right, ${theme.palette.background.default}, ${theme.palette.background.transparent})`,
+      background: 'none',
       pointerEvents: 'none',
       zIndex: 1,
     },
@@ -103,8 +103,9 @@ const styles = (theme: ThemeType) => ({
     }
   },
   inactiveTab: {
-    backgroundColor: theme.palette.panelBackground.default,
-    color: theme.palette.tab.inactive.text,
+    backgroundColor: theme.palette.tab.inactive.bannerAdBackground,
+    backdropFilter: theme.palette.filters.bannerAdBlurLight,
+    color: theme.palette.text.bannerAdOverlay,
     '&:hover': {
       color: theme.palette.tab.inactive.hover.text
     },
@@ -112,6 +113,8 @@ const styles = (theme: ThemeType) => ({
   activeTab: {
     backgroundColor: theme.palette.tab.active.background,
     color: theme.palette.text.alwaysWhite,
+    opacity: theme.palette.tab.active.bannerAdOpacity,
+    backdropFilter: theme.palette.filters.bannerAdBlurMedium,
     '&:hover': {
       backgroundColor: theme.palette.tab.active.hover.background
     },

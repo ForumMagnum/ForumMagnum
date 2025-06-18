@@ -89,7 +89,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: '1.8rem',
     transform: 'scaleX(0.85)',
     fontWeight: 700,
-    color: theme.palette.text.primary,
+    color: theme.palette.greyAlpha(1),
     marginBottom: 8,
     lineHeight: 1.2,
     textTransform: 'uppercase',
@@ -99,7 +99,7 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.typography.fontFamily,
     fontSize: '1.65rem',
     fontWeight: 700,
-    color: '#ff0000',
+    color: theme.palette.text.red,
     marginBottom: 12,
     textTransform: 'uppercase',
     letterSpacing: '0.02em',
@@ -117,7 +117,7 @@ const styles = (theme: ThemeType) => ({
     textTransform: 'uppercase',
     fontWeight: 600,  
     fontSize: '1.2rem',
-    color: theme.palette.text.primary,
+    color: theme.palette.greyAlpha(1),
     marginBottom: 12,
   },
   publicationInfo: {
@@ -137,7 +137,7 @@ const styles = (theme: ThemeType) => ({
     display: 'inline-block',
     padding: '10px 24px',
     border: `2px solid ${theme.palette.text.primary}`,
-    color: theme.palette.text.primary,
+    color: theme.palette.greyAlpha(1),
     textDecoration: 'none',
     borderRadius: 25,
     fontFamily: theme.typography.fontFamily,
@@ -183,7 +183,6 @@ const IfAnyoneBuildsItSplash = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const theme = useTheme();
-  const [sphereSize, setSphereSize] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | undefined>(undefined);
   const starsRef = useRef<Array<{x: number, y: number, radius: number, opacity: number, twinkleSpeed: number}>>([]);
@@ -208,11 +207,9 @@ const IfAnyoneBuildsItSplash = ({
       ctx = canvas.getContext('2d', { colorSpace: 'display-p3' });
       // Log what color space we actually got for debugging
       const actualColorSpace = ctx?.getContextAttributes?.()?.colorSpace || 'unknown';
-      console.log(`Star field canvas color space: ${actualColorSpace}`);
     } catch {
       // Fallback to standard sRGB
       ctx = canvas.getContext('2d');
-      console.log('Star field canvas color space: sRGB (fallback)');
     }
     
     if (!ctx) return;
@@ -251,7 +248,7 @@ const IfAnyoneBuildsItSplash = ({
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Animation loop
+    // Animation loop with performance optimizations
     const animate = () => {
       const displayWidth = window.innerWidth;
       const displayHeight = window.innerHeight;
@@ -262,80 +259,131 @@ const IfAnyoneBuildsItSplash = ({
       gradient.addColorStop(1, '#252141'); // Darker twilight on right
       ctx.fillStyle = gradient;
       
-      
       ctx.fillRect(0, 0, displayWidth, displayHeight);
       
       const time = Date.now() * 0.001;
       const centerX = displayWidth * (1 - 0.20); // 15vw from right
       const centerY = displayHeight * 0.20; // 15vh from top
       const currentSphereRadius = sphereSizeRef.current / 2;
+      const redShiftZoneThickness = 100;
+      const maxRelevantDistance = currentSphereRadius + redShiftZoneThickness;
       
-      starsRef.current.forEach(star => {
-        // Calculate distance from center
+      // Pre-calculate color space support once per frame
+      const canvasColorSpace = ctx.getContextAttributes?.()?.colorSpace || 'srgb';
+      const supportsDisplayP3 = canvasColorSpace === 'display-p3';
+      let supportsOklch = false;
+      if (!supportsDisplayP3) {
+        const testFillStyle = 'oklch(0.75 0.25 70)';
+        ctx.fillStyle = testFillStyle;
+        supportsOklch = ctx.fillStyle === testFillStyle;
+      }
+      
+      // Batch stars by type for more efficient rendering
+      const goldStars: Array<{x: number, y: number, radius: number, opacity: number}> = [];
+      const redStars: Array<{x: number, y: number, radius: number, opacity: number, color: string}> = [];
+      
+      // Process stars with early culling and batching
+      for (let i = 0; i < starsRef.current.length; i++) {
+        const star = starsRef.current[i];
+        
+        // Quick distance check for early culling - use squared distance to avoid sqrt
         const dx = star.x - centerX;
         const dy = star.y - centerY;
-        const distance = Math.sqrt((dx * dx) + (dy * dy));
+        const distanceSquared = (dx * dx) + (dy * dy);
+        const maxRelevantDistanceSquared = maxRelevantDistance * maxRelevantDistance;
+        
+        // Skip stars that are too far away to be affected
+        if (distanceSquared > maxRelevantDistanceSquared) {
+          // Add to gold stars batch (normal stars)
+          const twinkle = (Math.sin(time * star.twinkleSpeed) * 0.5) + 0.5;
+          const opacity = star.opacity * (0.5 + (twinkle * 0.5));
+          goldStars.push({
+            x: star.x,
+            y: star.y,
+            radius: star.radius,
+            opacity: opacity
+          });
+          continue;
+        }
+        
+        // Now compute actual distance only for nearby stars
+        const distance = Math.sqrt(distanceSquared);
         
         // Hide stars that are within the sphere
         if (distance < currentSphereRadius * 0.7) {
-          return;
+          continue;
         }
         
-        // Fade out stars near the edge of the sphere
+        // Calculate effects for nearby stars
         let fadeMultiplier = 1;
         let redShift = 0;
         let sizeMultiplier = 1;
         
         if (distance < currentSphereRadius) {
-          fadeMultiplier = (distance - (currentSphereRadius * 0.7)) / (currentSphereRadius * 0.3);
-          // Add red shift effect for stars approaching the sphere edge
-          redShift = 1 - fadeMultiplier; // More red as they get closer to being consumed
-          // Make stars larger as they get consumed
-          sizeMultiplier = 1 + (redShift * 3); // Up to 3x size at the edge
-        } else if (distance < currentSphereRadius * 1.5) {
-          // Apply redshift to stars further out for more visible effect
-          redShift = ((currentSphereRadius * 3) - distance) / (currentSphereRadius * 0.5);
-          redShift = Math.max(0, Math.min(1, redShift)); // Clamp between 0 and 1
-          // Gradually increase size as stars approach the danger zone
-          sizeMultiplier = 1 + (redShift * 1); // Up to 2x size in the approach zone
+          fadeMultiplier = (distance - (currentSphereRadius * 0.85)) / (currentSphereRadius * 0.15);
+          redShift = 1 - fadeMultiplier;
+          sizeMultiplier = 1 + (redShift * 3);
+        } else if (distance < currentSphereRadius + redShiftZoneThickness) {
+          redShift = (currentSphereRadius + redShiftZoneThickness - distance) / redShiftZoneThickness;
+          redShift = Math.max(0, Math.min(1, redShift));
+          sizeMultiplier = 1 + (redShift * 1);
         }
         
         const twinkle = (Math.sin(time * star.twinkleSpeed) * 0.5) + 0.5;
         const opacity = star.opacity * (0.5 + (twinkle * 0.5)) * fadeMultiplier;
         
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, star.radius * sizeMultiplier, 0, Math.PI * 2);
-        
-        // Golden stars for both modes with red fade effect
         if (redShift > 0) {
-          // Muted red shift effect - softer transition to red
-          const r = Math.floor(180 + (75 * redShift)); // Ranges from 180 to 255
-          const g = Math.floor((1 - redShift) * 120); // Starts at 120, goes to 0
-          const b = Math.floor((1 - redShift) * 60);  // Starts at 60, goes to 0
-          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${opacity})`;
-        } else {
-          // Try to use wide gamut gold colors with graceful fallback
-          const canvasColorSpace = ctx.getContextAttributes?.()?.colorSpace || 'srgb';
+          // Pre-calculate red color
+          const r = Math.floor(220 * redShift);
+          const g = Math.floor(20 * redShift);
+          const b = Math.floor(60 * redShift);
+          const color = `rgba(${r}, ${g}, ${b}, ${opacity})`;
           
-          if (canvasColorSpace === 'display-p3') {
-            // Vibrant Display P3 gold
-            ctx.fillStyle = `color(display-p3 0.9 0.65 0.05 / ${opacity})`;
-          } else {
-            // Try oklch for vibrant gold
-            const initialFillStyle = ctx.fillStyle;
-            ctx.fillStyle = 'oklch(0.75 0.25 70)';
-            if (ctx.fillStyle !== initialFillStyle && ctx.fillStyle.includes('oklch')) {
-              // Browser supports oklch - use vibrant gold
-              ctx.fillStyle = `oklch(0.75 0.25 70 / ${opacity})`;
-            } else {
-              // Fallback to sRGB gold
-              ctx.fillStyle = `rgba(204, 153, 0, ${opacity})`; // Golden yellow
-            }
-          }
+          redStars.push({
+            x: star.x,
+            y: star.y,
+            radius: star.radius * sizeMultiplier,
+            opacity: opacity,
+            color: color
+          });
+        } else {
+          goldStars.push({
+            x: star.x,
+            y: star.y,
+            radius: star.radius * sizeMultiplier,
+            opacity: opacity
+          });
+        }
+      }
+      
+      // Batch render gold stars
+      if (goldStars.length > 0) {
+        if (supportsDisplayP3) {
+          ctx.fillStyle = `color(display-p3 0.9 0.65 0.05)`;
+        } else if (supportsOklch) {
+          ctx.fillStyle = `oklch(0.75 0.25 70)`;
+        } else {
+          ctx.fillStyle = `rgba(204, 153, 0)`;
         }
         
+        for (let i = 0; i < goldStars.length; i++) {
+          const star = goldStars[i];
+          ctx.globalAlpha = star.opacity;
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1; // Reset
+      }
+      
+      // Batch render red stars (these need individual colors due to opacity variations)
+      for (let i = 0; i < redStars.length; i++) {
+        const star = redStars[i];
+        ctx.fillStyle = star.color;
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
         ctx.fill();
-      });
+      }
       
       animationRef.current = requestAnimationFrame(animate);
     };
@@ -350,38 +398,42 @@ const IfAnyoneBuildsItSplash = ({
     };
   }, []);
 
-  // Handle scroll for sphere expansion
+  // Handle scroll for sphere expansion with throttling
   useEffect(() => {
+    let ticking = false;
+    
     const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const maxScroll = 3000; // Increased for slower expansion
-      const progress = Math.min(scrollY / maxScroll, 1);
-      
-      // Calculate dynamic max size based on viewport to ensure full coverage on any monitor
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
-      const sphereCenterX = viewportWidth * 0.8; // 20vw from right
-      const sphereCenterY = viewportHeight * 0.2; // 20vh from top
-      
-      // Calculate distance to farthest corner (bottom-left) plus some buffer
-      const maxDistance = Math.sqrt(
-        Math.pow(sphereCenterX, 2) + Math.pow(viewportHeight - sphereCenterY, 2)
-      );
-      const dynamicMaxSize = maxDistance * 2 * 2; // Diameter with 20% buffer
-      
-      const size = progress * dynamicMaxSize;
-      setSphereSize(size);
-      sphereSizeRef.current = size;
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const scrollY = window.scrollY;
+          const maxScroll = 10000; // Increased for slower expansion
+          const progress = Math.min(scrollY / maxScroll, 1);
+          
+          // Calculate dynamic max size based on viewport to ensure full coverage on any monitor
+          const viewportWidth = window.innerWidth;
+          const viewportHeight = window.innerHeight;
+          const sphereCenterX = viewportWidth * 0.8; // 20vw from right
+          const sphereCenterY = viewportHeight * 0.2; // 20vh from top
+          
+          // Calculate distance to farthest corner (bottom-left) plus some buffer
+          const maxDistance = Math.sqrt(
+            Math.pow(sphereCenterX, 2) + Math.pow(viewportHeight - sphereCenterY, 2)
+          );
+          const dynamicMaxSize = maxDistance * 2 * 2; // Diameter with 20% buffer
+          
+          const size = progress * dynamicMaxSize;
+          sphereSizeRef.current = size;
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll(); // Set initial state
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  // Sphere gradient that works well with twilight gradient
-  const sphereGradient = 'transparent'
 
   return (
     <>
@@ -396,14 +448,6 @@ const IfAnyoneBuildsItSplash = ({
               width: '100%',
               height: '100%',
               opacity: 1,
-            }}
-          />
-          <div 
-            className={classes.blackSphere}
-            style={{
-              width: `${sphereSize}px`,
-              height: `${sphereSize}px`,
-              background: sphereGradient,
             }}
           />
         </div>

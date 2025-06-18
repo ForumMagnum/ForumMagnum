@@ -36,7 +36,7 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
     paddingLeft: 20,
     paddingRight: 16,
     borderRadius: 4,
-    backgroundColor: theme.palette.panelBackground.default,
+    background: theme.palette.panelBackground.bannerAdTranslucentHeavy,
     [theme.breakpoints.down('sm')]: {
       paddingLeft: 16,
     },
