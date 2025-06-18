@@ -250,19 +250,21 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     '&::-webkit-scrollbar': {
       width: 0,
     },
-    '& .FixedPositionToC-tocTitle': {
-      paddingLeft: 12,
-    },
+
     '& .FixedPositionToC-root': {
       maxHeight: 'calc(100vh - 64px - 50px)', // Account for header height
     },
-    // Set initial opacity to 0 for hover effect
-    '& .FixedPositionToC-rowOpacity, & .FixedPositionToC-headingOpacity, & .FixedPositionToC-tocTitle': {
+    // Override FixedPositionToC opacity classes to ensure they're visible
+    '& .FixedPositionToC-rowOpacity, & .FixedPositionToC-headingOpacity': {
+      opacity: 1,
+    },
+    // But hide the HOVER_CLASSNAME elements by default
+    '& .ToCRowHover': {
       opacity: 0,
       transition: 'opacity .25s',
     },
-    // Show elements when hovering over ToC column
-    '&:hover .FixedPositionToC-rowOpacity, &:hover .FixedPositionToC-headingOpacity, &:hover .FixedPositionToC-tocTitle': {
+    // Show ToCRowHover elements when hovering over ToC column
+    '&:hover .ToCRowHover': {
       opacity: 1,
     },
     [theme.breakpoints.down('sm')]: {

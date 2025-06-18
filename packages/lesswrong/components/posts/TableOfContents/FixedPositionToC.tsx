@@ -179,7 +179,6 @@ const styles = (theme: ThemeType) => ({
   },
   tocWrapper: {
     marginLeft: 13,
-    paddingLeft: 10,
   },
   //Use our PostTitle styling with small caps
   tocTitle: {
@@ -417,7 +416,7 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
   const titleRow = (
     <div className={classes.rowWrapper} key={"#"}>
       <div className={classes.rowDotContainer}>
-        <span className={classes.rowOpacity}>
+        <span className={classNames(HOVER_CLASSNAME, classes.rowOpacity, classes.tocWrapper)}>
           <TableOfContentsRow
             indentLevel={1}
             key="postTitle"
