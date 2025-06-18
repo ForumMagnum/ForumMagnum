@@ -35,6 +35,7 @@ export const defaultZIndexes = {
   reactionsFooter: 1001,
   drawer: 1400,
   modal: 1450,
+  ultrafeedModal: 1350, // Below drawer (1400) to allow navigation drawers to appear over this modal
   intercomButton: 1400,
   blurredBackgroundModal: 1350, // lower than intercom
   confirmLogoutModal: 1351,
@@ -57,7 +58,7 @@ export const defaultZIndexes = {
   lwPopper: 10000,
   lwPopperTooltip: 10001,
   loginDialog: 10002,
-  ultrafeedModalHeader: 10003,
+  ultrafeedModalHeader: 1600,
   searchBar: 100000,
   commentBoxPopup: 10000000001, // has to be higher than Intercom,
   // ckEditorToolbar: 10000000002, // has to be higher than commentBoxPopup, (note: the css had to be applied in an scss file, "_editor.scss", but the position is listed here for ease of reference)

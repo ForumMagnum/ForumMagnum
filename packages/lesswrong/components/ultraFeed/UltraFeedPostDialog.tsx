@@ -33,7 +33,7 @@ import PostsAudioPlayerWrapper, { postHasAudioPlayer } from '../posts/PostsPage/
 import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
 import IconButton from "@/lib/vendor/@material-ui/core/src/IconButton";
 import TocIcon from "@/lib/vendor/@material-ui/icons/src/Toc";
-import NavigationDrawer from "../common/TabNavigationMenu/NavigationDrawer";
+import UltraFeedPostToCDrawer from "./UltraFeedPostToCDrawer";
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300;
 
@@ -307,6 +307,9 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
       opacity: 0.2,
     }
   },
+  modalWrapper: {
+    zIndex: `${theme.zIndexes.ultrafeedModal} !important`,
+  },
 }));
 
 type UltraFeedPostDialogProps = {
@@ -477,18 +480,17 @@ const UltraFeedPostDialog = ({
   }
 
   const tocButton = <div className={classes.hamburgerMenuButton}>
-  <IconButton
-             onClick={(e: React.MouseEvent) => {
-     e.preventDefault();
-     e.stopPropagation();
-     console.log('navigationOpen', navigationOpen);
-     setNavigationOpen(!navigationOpen);
-   }}
-    className={classes.hamburgerIcon}
-  >
-    <TocIcon />
-  </IconButton>
-</div>
+    <IconButton
+      onClick={(e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setNavigationOpen(prev => !prev);
+      }}
+      className={classes.hamburgerIcon}
+    >
+      <TocIcon />
+    </IconButton>
+  </div>
 
   return (
     <LWDialog
@@ -496,6 +498,7 @@ const UltraFeedPostDialog = ({
       onClose={onClose}
       fullWidth
       paperClassName={classes.dialogPaper}
+      className={classes.modalWrapper}
     >
       <DialogContent className={classes.dialogContent}>
         <div ref={dialogInnerRef} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -640,11 +643,12 @@ const UltraFeedPostDialog = ({
                   <LWCommentCount commentCount={displayPost.commentCount} />
                 </div>
               )}
-              <NavigationDrawer
+              <UltraFeedPostToCDrawer
                 open={navigationOpen}
-                handleOpen={() => setNavigationOpen(true)}
-                handleClose={() => setNavigationOpen(false)}
+                onClose={() => setNavigationOpen(false)}
                 toc={tocData}
+                post={displayPost}
+                scrollContainerRef={scrollableContentRef}
               />
             </>
           )}
