@@ -220,7 +220,6 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'row-reverse',
     fontSize: 13,
-    // height: 45,
   },
   footer: {
     marginTop: 24,
@@ -248,17 +247,17 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     height: '100%',
     overflowY: 'auto',
     position: 'relative',
-    paddingTop: 64, // Account for fixed header
+    paddingTop: 64,
     [theme.breakpoints.down('sm')]: {
       display: 'block',
-      paddingTop: 56, // Smaller header on mobile
+      paddingTop: 56,
     },
   },
   tocColumnWrapper: {
     position: 'sticky',
     top: 20, // Sticky to top of scrollable container (which has padding for header)
     height: 'calc(100vh - 24px - 64px - 60px)', // Account for modal margins, header and comment count height
-    overflowY: 'hidden', // Prevent independent scrolling
+    overflowY: 'hidden',
     paddingBottom: 30,
     paddingLeft: 16,
     scrollbarWidth: 'none',
@@ -269,16 +268,13 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     '& .FixedPositionToC-root': {
       maxHeight: 'calc(100vh - 24px - 64px - 50px)', // Account for modal margins and header height
     },
-    // Override FixedPositionToC opacity classes to ensure they're visible
     '& .FixedPositionToC-rowOpacity, & .FixedPositionToC-headingOpacity': {
       opacity: 1,
     },
-    // But hide the HOVER_CLASSNAME elements by default
     '& .ToCRowHover': {
       opacity: 0,
       transition: 'opacity .25s',
     },
-    // Show ToCRowHover elements when hovering over ToC column
     '&:hover .ToCRowHover': {
       opacity: 1,
     },
@@ -492,7 +488,6 @@ const UltraFeedPostDialog = ({
     }
   };
 
-  // Compute content props based on what data we have
   let contentData = null;
   
   if (fullPostForContent?.contents?.html) {
@@ -509,7 +504,6 @@ const UltraFeedPostDialog = ({
     };
   }
 
-  // Prefer HTML with injected anchors for headings if available
   const finalHtml = tocData?.html ?? contentData?.html ?? "";
 
   if (contentData) {
