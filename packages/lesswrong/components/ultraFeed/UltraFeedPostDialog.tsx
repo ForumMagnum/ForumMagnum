@@ -66,7 +66,11 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     flexDirection: 'column',
     '&:first-child': {
       paddingTop: 0,
-    }
+    },
+    // When hovering over the ToC column, show comment count
+    '&:has($tocColumnWrapper:hover) $commentCount, &:has($commentCount:hover) $commentCount': {
+      opacity: 1,
+    },
   },
   stickyHeader: {
     minHeight: 64,
@@ -229,14 +233,16 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     height: '100%',
     overflowY: 'auto',
     position: 'relative',
+    paddingTop: 64, // Account for fixed header
     [theme.breakpoints.down('sm')]: {
       display: 'block',
+      paddingTop: 56, // Smaller header on mobile
     },
   },
   tocColumnWrapper: {
     position: 'sticky',
-    top: 0,
-    height: 'calc(100vh - 60px)', // Account for comment count height
+    top: 20, // Sticky to top of scrollable container (which has padding for header)
+    height: 'calc(100vh - 64px - 60px)', // Account for header and comment count height
     overflowY: 'hidden', // Prevent independent scrolling
     paddingBottom: 30,
     paddingLeft: 16,
@@ -248,7 +254,16 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
       paddingLeft: 12,
     },
     '& .FixedPositionToC-root': {
-      maxHeight: 'calc(100vh - 50px)',
+      maxHeight: 'calc(100vh - 64px - 50px)', // Account for header height
+    },
+    // Set initial opacity to 0 for hover effect
+    '& .FixedPositionToC-rowOpacity, & .FixedPositionToC-headingOpacity, & .FixedPositionToC-tocTitle': {
+      opacity: 0,
+      transition: 'opacity .25s',
+    },
+    // Show elements when hovering over ToC column
+    '&:hover .FixedPositionToC-rowOpacity, &:hover .FixedPositionToC-headingOpacity, &:hover .FixedPositionToC-tocTitle': {
+      opacity: 1,
     },
     [theme.breakpoints.down('sm')]: {
       display: 'none',
@@ -265,6 +280,11 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     width: 240,
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     zIndex: 1000,
+    opacity: 0,
+    transition: 'opacity .25s',
+    '&:hover': {
+      opacity: 1,
+    },
     [theme.breakpoints.down('sm')]: {
       display: 'none',
     },
@@ -543,7 +563,6 @@ const UltraFeedPostDialog = ({
                         tocSections={tocData.sections}
                         title={displayPost.title}
                         heading={<PostFixedPositionToCHeading post={displayPost as PostsListWithVotes}/>}
-                        hover={true}
                         scrollContainerRef={scrollableContentRef as React.RefObject<HTMLElement>}
                       />
                     )}
