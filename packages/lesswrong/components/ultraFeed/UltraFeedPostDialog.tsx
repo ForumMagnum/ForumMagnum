@@ -73,7 +73,7 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     },
   },
   stickyHeader: {
-    minHeight: 64,
+    height: 64,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -397,7 +397,9 @@ const UltraFeedPostDialog = ({
 
   const votingSystem = getVotingSystemByName(displayPost.votingSystem || 'default');
 
-  const toggleEmbeddedPlayer = displayPost && postHasAudioPlayer(displayPost) ? () => {
+  const toggleEmbeddedPlayer = displayPost && postHasAudioPlayer(displayPost) ? (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     const action = showEmbeddedPlayer ? "close" : "open";
     const newCookieValue = showEmbeddedPlayer ? "false" : "true";
     captureEvent("toggleAudioPlayer", { action });
