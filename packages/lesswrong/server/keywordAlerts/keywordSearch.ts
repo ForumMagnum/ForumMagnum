@@ -43,5 +43,3 @@ export const fetchPostIdsForKeyword = async (
   });
   return results?.hits?.hits?.map(({ _id }) => _id) ?? [];
 }
-
-

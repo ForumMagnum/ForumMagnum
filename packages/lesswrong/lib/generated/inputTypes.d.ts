@@ -781,6 +781,10 @@ interface LoginReturnData {
   token: string | null;
 }
 
+interface KeywordAlertsResult {
+  results: Array<Post>;
+}
+
 interface MigrationsDashboardData {
   migrations: Array<MigrationStatus> | null;
 }
@@ -6527,6 +6531,7 @@ interface GraphQLTypeMap {
   WrappedDataByYear: WrappedDataByYear;
   Site: Site;
   LoginReturnData: LoginReturnData;
+  KeywordAlertsResult: KeywordAlertsResult;
   MigrationsDashboardData: MigrationsDashboardData;
   MigrationStatus: MigrationStatus;
   MigrationRun: MigrationRun;

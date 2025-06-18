@@ -1094,6 +1094,14 @@ extend type Mutation {
   RemoveForumEventSticker(forumEventId: String!, stickerId: String!): Boolean
 }
 
+type KeywordAlertsResult {
+  results: [Post!]!
+}
+
+extend type Query {
+  KeywordAlerts(keyword: String!, startDate: Date!, limit: Int): KeywordAlertsResult
+}
+
 extend type Query {
   getLinkSharedPost(postId: String!, linkSharingKey: String!): Post
 }
