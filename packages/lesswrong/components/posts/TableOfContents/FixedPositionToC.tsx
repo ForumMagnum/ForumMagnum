@@ -21,6 +21,7 @@ import { getClassName } from '@/components/hooks/useStyles';
 import TableOfContentsRow, { TableOfContentsRowStyles } from './TableOfContentsRow';
 import type { TableOfContentsDividerStyles } from './TableOfContentsDivider';
 import AnswerTocRow from "./AnswerTocRow";
+import { useContainerReadProgress } from '../../hooks/useContainerReadProgress';
 
 function normalizeToCScale({containerPosition, sections}: {
   sections: ToCSection[]
@@ -263,57 +264,12 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
     setScrollWindowHeight: (element, height) => element.style.setProperty("--windowHeight", `${height}px`)
   });
 
-  // If a custom scroll container is provided, manage progress bar manually
-  useEffect(() => {
-    const container = scrollContainerRef?.current;
-    if (!container || disableProgressBar) return;
-
-    const update = () => {
-      const postContentElement = document.getElementById('postContent');
-      if (!postContentElement) return;
-
-      // Get the position of the post content relative to the container
-      const containerRect = container.getBoundingClientRect();
-      const postContentRect = postContentElement.getBoundingClientRect();
-      
-      // Calculate the offset of post content from the top of the container
-      const postContentOffsetInContainer = postContentRect.top - containerRect.top + container.scrollTop;
-      const postContentHeight = postContentElement.offsetHeight;
-      
-      const viewportBottomInContainer = container.scrollTop + container.clientHeight;
-      const distanceFromPostTopToViewportBottom = viewportBottomInContainer - postContentOffsetInContainer;
-      const scrollPercentRaw = (distanceFromPostTopToViewportBottom / postContentHeight) * 100;
-      const clampedTopPercent = Math.max(0, Math.min(100, scrollPercentRaw));
-
-      if (readingProgressBarRef.current) {
-        // Position of the top of the indicator (portion already above viewport bottom)
-        readingProgressBarRef.current.style.setProperty("--scrollAmount", `${clampedTopPercent}%`);
-
-        // Height in px representing current viewport window inside progress bar
-        const progressBarHeight = readingProgressBarRef.current.offsetHeight;
-
-        // Calculate how much of the post is actually visible in the viewport
-        const viewportTop = container.scrollTop;
-        const viewportBottom = viewportTop + container.clientHeight;
-        const postTop = postContentOffsetInContainer;
-        const postBottom = postTop + postContentHeight;
-
-        const visibleTop = Math.max(postTop, viewportTop);
-        const visibleBottom = Math.min(postBottom, viewportBottom);
-        const visibleHeight = Math.max(0, visibleBottom - visibleTop);
-
-        const visiblePostPortion = visibleHeight / postContentHeight;
-
-        // Indicator height proportional to visible portion, min 10px so it never disappears
-        const windowHeightInPixels = Math.max(10, visiblePostPortion * progressBarHeight);
-
-        readingProgressBarRef.current.style.setProperty("--windowHeight", `${windowHeightInPixels}px`);
-      }
-    };
-    update();
-    container.addEventListener('scroll', update);
-    return () => container.removeEventListener('scroll', update);
-  }, [scrollContainerRef, disableProgressBar, readingProgressBarRef]);
+  // If we have a custom scroll container, delegate progress bar management to the hook
+  useContainerReadProgress({
+    scrollContainerRef,
+    readingProgressBarRef,
+    disabled: disableProgressBar || !scrollContainerRef,
+  });
 
   const jumpToAnchor = (anchor: string) => {
     if (isServer) return;
