@@ -59,7 +59,6 @@ const BookmarksFeed = () => {
       commentCollapsedInitialWords: 50,
       commentExpandedInitialWords: 200,
       commentMaxWords: 500,
-      postTitlesAreModals: true,
     },
     resolverSettings: {
       ...DEFAULT_SETTINGS.resolverSettings,
