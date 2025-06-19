@@ -152,7 +152,6 @@ const styles = (theme: ThemeType) => ({
   },
   preview: {
     width: 400,
-    background: theme.palette.panelBackground.default,
   },
   deemphasize: {
     opacity: 0.5
