@@ -55,8 +55,8 @@ export const alignmentForumTheme: SiteThemeSpecification = {
       default: shadePalette.grey[60],
     },
     header: {
-      text: "#ffffff",
-      background: "#3f51b5",
+      text: shadePalette.type === "dark" ? "#ffffff" : "rgba(0,0,0,0.87)",
+      background: shadePalette.type === "dark" ? "rgba(0,0,0,0.5)" : "#ffffff",
     },
     link: {
       visited: "#8c4298",
