@@ -178,7 +178,7 @@ const styles = (theme: ThemeType) => ({
   '@global': {
     [theme.breakpoints.up('sm')]: {
       'body.ifAnyoneBuildsItActive': {
-        backgroundColor: `#252141 !important`, // Match canvas gradient mid-tone
+        backgroundColor: `${theme.palette.bookPromotion.twilightDark} !important`, // Match canvas gradient mid-tone
       } 
     },
   },
