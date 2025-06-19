@@ -113,7 +113,6 @@ const styles = (theme: ThemeType) => ({
   activeTab: {
     backgroundColor: theme.palette.tab.active.background,
     color: theme.palette.text.alwaysWhite,
-    opacity: theme.palette.tab.active.bannerAdOpacity,
     backdropFilter: theme.palette.filters.bannerAdBlurMedium,
     '&:hover': {
       backgroundColor: theme.palette.tab.active.hover.background

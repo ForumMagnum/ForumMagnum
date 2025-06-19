@@ -128,7 +128,7 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
       },
       secondary: {
         main: '#3c9eaf',
-        light: '#0c869b',
+        light: '#788e6a',
         dark: '#3c9eaf'
       },
       lwTertiary: {
@@ -232,6 +232,8 @@ export const darkModeTheme: UserThemeSpecification = {
       translucent3: "rgba(0,0,0,.75)",
       translucent4: "rgba(0,0,0,.6)",
       deletedComment: "#3a0505",
+      commentNodeEven: "rgba(0,0,0,0.2)",
+      commentNodeOdd: "rgba(0,0,0,0.1)",
       commentModeratorHat: "#202719",
       spoilerBlock: "#1b1b1b",
       cookieBanner: shadePalette.grey[900],
@@ -332,7 +334,7 @@ export const darkModeTheme: UserThemeSpecification = {
       bannerAdBlurLight: 'blur(2px)',
       bannerAdBlurMedium: 'blur(4px)',
       bannerAdBlurHeavy: 'blur(8px)',
-    },
+    }
   }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<NativeThemeType> => ({
     postImageStyles: {

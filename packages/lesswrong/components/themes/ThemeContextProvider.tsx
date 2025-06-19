@@ -65,7 +65,6 @@ const ThemeStylesheetSwapper = () => {
 
   useLayoutEffect(() => {
     if (stringify(themeOptions) !== stringify(window.themeOptions)) {
-      console.log(`ThemeStylesheetSwapper changing theme from ${stringify(window.themeOptions)} to ${stringify(themeOptions)}`);
       window.themeOptions = themeOptions;
       const stylesId = "main-styles";
       const tempStylesId = stylesId + "-temp";

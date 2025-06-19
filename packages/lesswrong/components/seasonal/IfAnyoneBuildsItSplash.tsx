@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useTheme } from '../themes/useTheme';
 import classNames from 'classnames';
+import { Link } from '@/lib/reactRouterWrapper';
 
 // TODO: comment this out after we're done with the book promotion
 export const bookPromotionEndDate = new Date('2025-09-17T00:00:00Z') // Day after book release
@@ -19,6 +20,9 @@ const styles = (theme: ThemeType) => ({
     height: '100vh',
     background: 'linear-gradient(to right, #7a7096, #252141)', // Twilight gradient for both modes
     zIndex: -1,
+    [theme.breakpoints.down('md')]: {
+      display: 'none'
+    },
     [theme.breakpoints.down(1300)]: {
       display: 'none'
     }
@@ -31,6 +35,9 @@ const styles = (theme: ThemeType) => ({
     height: '100%',
     background: 'linear-gradient(to right, #7a7096, #252141)', // Twilight gradient for both modes
     overflow: 'hidden',
+    [theme.breakpoints.down('md')]: {
+      display: 'none'
+    }
   },
   blackSphere: {
     position: 'absolute',
@@ -45,7 +52,7 @@ const styles = (theme: ThemeType) => ({
   },
   bookContainer: {
     position: 'fixed',
-    bottom: 120,
+    bottom: 60,
     right: 50,
     width: 280,
     textAlign: 'center',
@@ -90,7 +97,7 @@ const styles = (theme: ThemeType) => ({
     transform: 'scaleX(0.85)',
     fontWeight: 700,
     color: theme.palette.greyAlpha(1),
-    marginBottom: 8,
+    marginBottom: 4,
     lineHeight: 1.2,
     textTransform: 'uppercase',
     letterSpacing: '0.02em',
@@ -107,7 +114,7 @@ const styles = (theme: ThemeType) => ({
   authors: {
     fontFamily: theme.typography.fontFamily,
     fontSize: '1rem',
-    color: theme.palette.text.secondary,
+    color: theme.palette.greyAlpha(1),
     marginBottom: 12,
     [theme.breakpoints.down(1400)]: {
       fontSize: '1rem',
@@ -187,17 +194,36 @@ const IfAnyoneBuildsItSplash = ({
   const animationRef = useRef<number | undefined>(undefined);
   const starsRef = useRef<Array<{x: number, y: number, radius: number, opacity: number, twinkleSpeed: number}>>([]);
   const sphereSizeRef = useRef(0);
+  const [shouldShowStarfield, setShouldShowStarfield] = useState(true);
+
+  // Check if we should show starfield based on screen size
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setShouldShowStarfield(window.innerWidth >= 960); // md breakpoint
+    };
+    
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   // Add/remove body class for background override
   useEffect(() => {
-    document.body.classList.add('ifAnyoneBuildsItActive');
+    if (shouldShowStarfield) {
+      document.body.classList.add('ifAnyoneBuildsItActive');
+    } else {
+      document.body.classList.remove('ifAnyoneBuildsItActive');
+    }
     return () => {
       document.body.classList.remove('ifAnyoneBuildsItActive');
     };
-  }, []);
+  }, [shouldShowStarfield]);
 
   // Create and animate starfield
   useEffect(() => {
+    if (!shouldShowStarfield) return;
+    
     const canvas = canvasRef.current;
     if (!canvas) return;
     
@@ -256,13 +282,14 @@ const IfAnyoneBuildsItSplash = ({
       // Use twilight gradient background for both modes
       const gradient = ctx.createLinearGradient(0, 0, displayWidth, displayHeight);
       gradient.addColorStop(0, '#7a7096'); // Lighter twilight on left
-      gradient.addColorStop(1, '#252141'); // Darker twilight on right
+      gradient.addColorStop(0.5, '#252141'); // Darker twilight on right
+      gradient.addColorStop(1, '#000000'); // Darker twilight on right
       ctx.fillStyle = gradient;
       
       ctx.fillRect(0, 0, displayWidth, displayHeight);
       
       const time = Date.now() * 0.001;
-      const centerX = displayWidth * (1 - 0.20); // 15vw from right
+      const centerX = displayWidth * (1 - 0.10); // 15vw from right
       const centerY = displayHeight * 0.20; // 15vh from top
       const currentSphereRadius = sphereSizeRef.current / 2;
       const redShiftZoneThickness = 100;
@@ -396,10 +423,12 @@ const IfAnyoneBuildsItSplash = ({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, []);
+  }, [shouldShowStarfield]);
 
   // Handle scroll for sphere expansion with throttling
   useEffect(() => {
+    if (!shouldShowStarfield) return;
+    
     let ticking = false;
     
     const handleScroll = () => {
@@ -433,32 +462,33 @@ const IfAnyoneBuildsItSplash = ({
     handleScroll(); // Set initial state
 
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [shouldShowStarfield]);
 
   return (
     <>
       <div className={classes.root}>
         <div className={classes.starryBackground}>
-          <canvas 
-            ref={canvasRef}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              opacity: 1,
-            }}
-          />
+          {shouldShowStarfield && (
+            <canvas 
+              ref={canvasRef}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+              }}
+            />
+          )}
         </div>
       </div>
       
       <div className={classes.bookContainer}>
-        <a href="https://ifanyonebuildsit.com" target="_blank" rel="noopener noreferrer" className={classes.bookLink}>
+        <Link to="/posts/khmpWJnGJnuyPdipE/new-endorsements-for-if-anyone-builds-it-everyone-dies" className={classes.bookLink}>
           <div className={classes.title}>If Anyone Builds It,</div>
           <div className={classes.subtitle}>Everyone Dies</div>
-          <div className={classes.authors}>Eliezer Yudkowsky<br/> & Nate Soares</div>
-        </a>
+          <div className={classes.authors}>A book by Eliezer Yudkowsky<br/> & Nate Soares</div>
+        </Link>
         <a 
           href="https://www.amazon.com/gp/product/0316595640"
           target="_blank"
@@ -468,7 +498,7 @@ const IfAnyoneBuildsItSplash = ({
           Pre-order on Amazon
         </a>
         <div className={classes.altPreorderLinks}>
-          <a href="https://ifanyonebuildsit.com/" target="_blank" rel="noopener noreferrer" className={classes.altPreorderButton}>
+          <a href="https://ifanyonebuildsit.com/#preorder" target="_blank" rel="noopener noreferrer" className={classes.altPreorderButton}>
             Other Options
           </a>
         </div>

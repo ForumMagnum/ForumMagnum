@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.main,
   },
   noColor: {
-    color: `${theme.palette.text.bannerAdDim} !important`
+    color: `inherit !important`
   },
   noKibitz: {
     minWidth: 55,

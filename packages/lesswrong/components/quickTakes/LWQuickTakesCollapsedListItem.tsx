@@ -14,7 +14,7 @@ import CommentBottomCaveats from "../comments/CommentsItem/CommentBottomCaveats"
 const styles = (theme: ThemeType) => ({
   root: {
     color: theme.palette.text.bannerAdOverlay,
-    background: theme.palette.panelBackground.bannerAdTranslucentStrong,
+    background: theme.palette.panelBackground.bannerAdTranslucentMedium,
     backdropFilter: theme.palette.filters.bannerAdBlurHeavy,
     borderRadius: theme.borderRadius.small,
     border: "none",
