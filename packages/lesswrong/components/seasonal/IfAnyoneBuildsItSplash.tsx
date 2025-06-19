@@ -205,7 +205,7 @@ const styles = defineStyles("IfAnyoneBuildsItSplash", (theme: ThemeType) => ({
     position: "absolute",
     fontFamily: theme.palette.fonts.sansSerifStack,
     padding: 8,
-    top: 0,
+    top: 60,
     right: 0,
     fontSize: 16,
     color: theme.palette.greyAlpha(0.8),
@@ -525,6 +525,8 @@ const IfAnyoneBuildsItSplash = () => {
   }
   return (
     <>
+      <IfAnyoneBuildsItOptOutXButton/>
+
       <div className={classes.root}>
         <div className={classes.starryBackground}>
           {shouldShowStarfield && (
@@ -541,8 +543,6 @@ const IfAnyoneBuildsItSplash = () => {
           )}
         </div>
       </div>
-      
-      <OptOutXButton/>
       
       <div className={classes.bookContainer}>
         <Link to="/posts/khmpWJnGJnuyPdipE/new-endorsements-for-if-anyone-builds-it-everyone-dies" className={classes.bookLink}>
@@ -568,7 +568,7 @@ const IfAnyoneBuildsItSplash = () => {
   );
 };
 
-const OptOutXButton = () => {
+const IfAnyoneBuildsItOptOutXButton = () => {
   const classes = useStyles(styles);
   const [_cookies, setCookie, removeCookie] = useCookiesWithConsent([HIDE_IF_ANYONE_BUILDS_IT_SPLASH]);
   const {flash, clear: clearMessage} = useMessages();
