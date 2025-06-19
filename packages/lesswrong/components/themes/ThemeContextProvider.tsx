@@ -9,6 +9,7 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import stringify from 'json-stringify-deterministic';
 import { FMJssProvider } from '../hooks/FMJssProvider';
 import { ThemeContext, useIsThemeOverridden, useThemeOptions } from './useTheme';
+import { defineStyles } from '../hooks/useStyles';
 
 export const ThemeContextProvider = ({options, isEmail, children}: {
   options: AbstractThemeOptions,
@@ -19,7 +20,10 @@ export const ThemeContextProvider = ({options, isEmail, children}: {
   const themeCookie = cookies[THEME_COOKIE];
   const [themeOptions, setThemeOptions] = useState(options);
   const prefersDarkMode = usePrefersDarkMode();
-  const themeIsOverridden = useIsThemeOverridden() && !isEmail;
+  
+  // This is safe despite breaking hook rules because the isEmail prop never changes
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const themeIsOverridden = !isEmail && useIsThemeOverridden();
 
   useEffect(() => {
     if (isEAForum) {
@@ -58,10 +62,28 @@ export const ThemeContextProvider = ({options, isEmail, children}: {
   </ThemeContext.Provider>
 }
 
+const styles = defineStyles("ThemeStylesheetSwapper", () => ({
+  "@global": {
+    "body.themeChangeLoadingDark": {
+      background: "black",
+      "& > *": {
+        display: "none",
+      }
+    },
+    "body.themeChangeLoadingLight": {
+      background: "white",
+      "& > *": {
+        display: "none",
+      }
+    },
+  },
+}), {allowNonThemeColors: true});
+
 const ThemeStylesheetSwapper = () => {
   const themeOptions = useThemeOptions();
   const prefersDarkMode = usePrefersDarkMode();
   const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   useLayoutEffect(() => {
     if (stringify(themeOptions) !== stringify(window.themeOptions)) {
@@ -78,6 +100,18 @@ const ThemeStylesheetSwapper = () => {
           } else {
             oldStyles.parentElement!.removeChild(oldStyles);
           }
+          document.body.classList.remove("themeChangeLoadingDark");
+          document.body.classList.remove("themeChangeLoadingLight");
+        }
+
+        if (isFirstLoad) {
+          setIsFirstLoad(false);
+        } else {
+          if (themeOptions.name === 'dark') {
+            document.body.classList.add("themeChangeLoadingDark");
+          } else {
+            document.body.classList.add("themeChangeLoadingLight");
+          }
         }
         if (themeOptions.name === "auto") {
           addAutoStylesheet(stylesId, onFinish, concreteTheme.siteThemeOverride);
@@ -86,7 +120,7 @@ const ThemeStylesheetSwapper = () => {
         }
       }
     }
-  }, [themeOptions, concreteTheme]);
+  }, [themeOptions, concreteTheme, isFirstLoad]);
   
   return null;
 }
