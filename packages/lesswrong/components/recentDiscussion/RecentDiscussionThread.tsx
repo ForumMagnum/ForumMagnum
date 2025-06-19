@@ -228,7 +228,7 @@ const RecentDiscussionThread = ({
                 <PostActionsButton post={post} autoPlace vertical />
               </div>}
             </div>
-            <div className={classNames(classes.threadMeta, {[classes.smallerMeta]: smallerFonts})}>
+            <div className={classNames(classes.threadMeta, {[classes.smallerMeta]: smallerFonts})} onClick={showHighlight}>
               <PostsItemMeta post={post} hideTags={!isFriendlyUI}/>
             </div>
           </div>
