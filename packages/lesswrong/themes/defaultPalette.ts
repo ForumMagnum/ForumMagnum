@@ -634,6 +634,14 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     selectedAnti: "rgb(255, 189, 189, .23)",
   },
 
+  bookPromotion: {
+    twilightLight: "#7a7096",
+    twilightDark: "#252141", 
+    twilightMid: "#4f3d6b",
+    starGold: "rgba(204, 153, 0, 1)",
+    starRedShift: "rgba(220, 20, 60, 1)",
+  },
+
   contrastText: shades.grey[0],
   event: 'rgba(67,151,71,.65)',
   group: 'rgba(24,68,155,.65)',

@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     width: '100vw',
     height: '100vh',
-    background: 'linear-gradient(to right, #7a7096, #252141)', // Twilight gradient for both modes
+    background: `linear-gradient(to right, ${theme.palette.bookPromotion.twilightLight}, ${theme.palette.bookPromotion.twilightDark})`, // Twilight gradient for both modes
     zIndex: -1,
     [theme.breakpoints.down('md')]: {
       display: 'none'
@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     width: '100%',
     height: '100%',
-    background: 'linear-gradient(to right, #7a7096, #252141)', // Twilight gradient for both modes
+    background: `linear-gradient(to right, ${theme.palette.bookPromotion.twilightLight}, ${theme.palette.bookPromotion.twilightDark})`, // Twilight gradient for both modes
     overflow: 'hidden',
     [theme.breakpoints.down('md')]: {
       display: 'none'
@@ -65,13 +65,6 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down(1300)]: {
       display: 'none'
     }
-  },
-  bookCover: {
-    width: '100%',
-    height: 'auto',
-    marginBottom: 20,
-    boxShadow: '0 10px 40px rgba(0,0,0,0.8)',
-    border: '1px solid rgba(255,255,255,0.1)',
   },
   bookImage: {
     objectFit: 'cover',
@@ -163,7 +156,7 @@ const styles = (theme: ThemeType) => ({
   // Override the main layout background when this component is active
   '@global': {
     'body.ifAnyoneBuildsItActive': {
-      backgroundColor: '#4f3d6b !important', // Mid-tone of twilight gradient for both modes
+      backgroundColor: `${theme.palette.bookPromotion.twilightMid} !important`, // Mid-tone of twilight gradient for both modes
     },
     // '.Layout-whiteBackground': {
     //   backgroundColor: 'transparent !important',
