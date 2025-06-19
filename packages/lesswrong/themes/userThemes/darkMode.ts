@@ -128,7 +128,7 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
       },
       secondary: {
         main: '#3c9eaf',
-        light: '#0c869b',
+        light: '#788e6a',
         dark: '#3c9eaf'
       },
       lwTertiary: {
@@ -221,8 +221,14 @@ export const darkModeTheme: UserThemeSpecification = {
         author: greyAlpha(0.65)
       },
       jargonTerm: "#a8742a",
+      // Banner ad compatibility - text colors that work well over background images
+      bannerAdOverlay: '#fff',
+      bannerAdDim: 'rgba(255,255,255,0.6)',
+      bannerAdDim2: 'rgba(255,255,255,0.9)',
+      bannerAdDim3: 'rgba(255,255,255,0.25)',
     },
     link: {
+      color: '#788e6a',
       primaryDim: '#3a7883',
       visited: "#798754",
     },
@@ -232,10 +238,19 @@ export const darkModeTheme: UserThemeSpecification = {
       translucent3: "rgba(0,0,0,.75)",
       translucent4: "rgba(0,0,0,.6)",
       deletedComment: "#3a0505",
+      commentNodeEven: "rgba(0,0,0,0.2)",
+      commentNodeOdd: "rgba(0,0,0,0.1)",
       commentModeratorHat: "#202719",
       spoilerBlock: "#1b1b1b",
       cookieBanner: shadePalette.grey[900],
       tagLensTab: shadePalette.greyAlpha(.15),
+      // Banner ad compatibility - translucent backgrounds with blur effects
+      bannerAdTranslucent: "rgba(0,0,0,0.2)",
+      bannerAdTranslucentHeavy: "rgba(0,0,0,0.3)",
+      bannerAdTranslucentLight: "rgba(0,0,0,0.1)",
+      bannerAdTranslucentMedium: "rgba(0,0,0,0.4)",
+      bannerAdTranslucentDeep: "rgba(0,0,0,0.5)",
+      bannerAdTranslucentStrong: "rgba(0,0,0,0.6)",
     },
     background: {
       default: shadePalette.grey[100],
@@ -253,7 +268,7 @@ export const darkModeTheme: UserThemeSpecification = {
       sidenoteBackground: "rgba(180,160,160,.1)",
     },
     border: {
-      itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
+      itemSeparatorBottom: 'none',
       commentBorder: "1px solid rgba(255,255,255,.2)",
       answerBorder: "2px solid rgba(255,255,255,.2)",
       primaryHighlight: '#314a4e',
@@ -265,6 +280,7 @@ export const darkModeTheme: UserThemeSpecification = {
     },
     boxShadow: {
       graphTooltip: "none",
+      appBar: "none",
     },
     buttons: {
       mentions: {
@@ -293,11 +309,20 @@ export const darkModeTheme: UserThemeSpecification = {
       sideCommentEditorBackground: shadePalette.grey[100],
       commentMarker: "#80792e",
       commentMarkerActive: "#cbc14f",
+      // Banner ad compatibility
+      bannerAdBackground: "rgba(0,0,0,0.5)",
     },
     tab: {
       inactive: {
-        text: shadePalette.grey[600]
+        text: shadePalette.grey[600],
+        // Banner ad compatibility
+        bannerAdBackground: "rgba(0,0,0,0.1)",
+        bannerAdBackgroundBlur: "rgba(0,0,0,0.1)",
       },
+      active: {
+        // Banner ad compatibility 
+        bannerAdOpacity: 0.8,
+      }
     },
     arbital: {
       arbitalGreen: '#02796b',
@@ -309,6 +334,13 @@ export const darkModeTheme: UserThemeSpecification = {
       disabled: greyAlpha(0.3),
       disabledBackground: greyAlpha(0.12),
     },
+    // Banner ad compatibility - CSS filters and effects
+    filters: {
+      bannerAdBlur: 'blur(10px)',
+      bannerAdBlurLight: 'blur(2px)',
+      bannerAdBlurMedium: 'blur(4px)',
+      bannerAdBlurHeavy: 'blur(8px)',
+    }
   }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<NativeThemeType> => ({
     postImageStyles: {

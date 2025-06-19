@@ -21,6 +21,7 @@ import QuickTakesSection from "../quickTakes/QuickTakesSection";
 import LWHomePosts from "./LWHomePosts";
 import HeadTags from "./HeadTags";
 import UltraFeed from "../ultraFeed/UltraFeed";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -50,8 +51,17 @@ const getStructuredData = () => ({
   }),
 })
 
+const styles = defineStyles("LWHome", (theme: ThemeType) => ({
+  hideOnDesktop: {
+    [theme.breakpoints.up(1300)]: {
+      display: 'none',
+    },
+  },
+}))
+
 const LWHome = () => {
   const [isUltraFeedShowing, setIsUltraFeedShowing] = useState(false);
+  const classes = useStyles(styles);
 
   return (
       <AnalyticsContext pageContext="homePage">
@@ -64,7 +74,9 @@ const LWHome = () => {
             </SingleColumnSection>}
           </>}
           {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
-          <DismissibleSpotlightItem current/> 
+          <div className={classes.hideOnDesktop}>
+            <DismissibleSpotlightItem current/> 
+          </div>
           </SingleColumnSection>}
           <AnalyticsInViewTracker
             eventProps={{inViewType: "homePosts"}}
