@@ -20,7 +20,10 @@ export const ThemeContextProvider = ({options, isEmail, children}: {
   const themeCookie = cookies[THEME_COOKIE];
   const [themeOptions, setThemeOptions] = useState(options);
   const prefersDarkMode = usePrefersDarkMode();
-  const themeIsOverridden = useIsThemeOverridden() && !isEmail;
+  
+  // This is safe despite breaking hook rules because the isEmail prop never changes
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const themeIsOverridden = !isEmail && useIsThemeOverridden();
 
   useEffect(() => {
     if (isEAForum) {
