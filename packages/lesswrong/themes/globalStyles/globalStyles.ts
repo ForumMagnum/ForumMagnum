@@ -154,7 +154,7 @@ const commentsStyle = (theme: ThemeType) => ({
       paddingTop: 5,
     },
     
-    background: theme.palette.panelBackground.default,
+    background: theme.palette.panelBackground.commentNodeRoot,
   },
   ".comments-node .comments-node": {
     [maxTiny]: {

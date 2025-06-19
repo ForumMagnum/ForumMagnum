@@ -234,6 +234,7 @@ export const darkModeTheme: UserThemeSpecification = {
       deletedComment: "#3a0505",
       commentNodeEven: "rgba(0,0,0,0.2)",
       commentNodeOdd: "rgba(0,0,0,0.1)",
+      commentNodeRoot: "rgba(0,0,0,0.2)",
       commentModeratorHat: "#202719",
       spoilerBlock: "#1b1b1b",
       cookieBanner: shadePalette.grey[900],
@@ -245,6 +246,7 @@ export const darkModeTheme: UserThemeSpecification = {
       bannerAdTranslucentMedium: "rgba(0,0,0,0.4)",
       bannerAdTranslucentDeep: "rgba(0,0,0,0.5)",
       bannerAdTranslucentStrong: "rgba(0,0,0,0.6)",
+      recentDiscussionThread: 'rgba(0,0,0,0.4)',
     },
     background: {
       default: shadePalette.grey[100],

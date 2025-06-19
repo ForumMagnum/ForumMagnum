@@ -331,6 +331,7 @@ declare global {
       newCommentFormModerationGuidelines: ColorString,
       commentNodeEven: ColorString,
       commentNodeOdd: ColorString,
+      commentNodeRoot: ColorString,
       commentModeratorHat: ColorString,
       commentHighlightAnimation: ColorString,
       postsItemExpandedComments: ColorString,

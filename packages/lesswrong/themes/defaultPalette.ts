@@ -378,6 +378,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     newCommentFormModerationGuidelines: shades.greyAlpha(.07),
     commentNodeEven: shades.grey[120],
     commentNodeOdd: shades.grey[25],
+    commentNodeRoot: shades.grey[0],
     commentModeratorHat: "#ecf2ed",
     commentHighlightAnimation: shades.grey[300],
     postsItemExpandedComments: shades.grey[50],
