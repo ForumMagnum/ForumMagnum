@@ -98,7 +98,7 @@ const styles = (theme: ThemeType) => ({
   navText: {
     ...theme.typography.body2,
     color: "inherit",
-    ...(isBookUI && {
+    ...(isBookUI && theme.themeOptions.name==='dark' && {
       color: theme.palette.text.bannerAdOverlay,
     }),
     textTransform: "none !important",
