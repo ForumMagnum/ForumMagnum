@@ -11,6 +11,46 @@ export const isBookPromotionActive = () => {
   return new Date() < bookPromotionEndDate;
 }
 
+// Endorsement quotes for the book
+const endorsementQuotes = [
+  {
+    quote: "The most important book of the decade.",
+    author: "Max Tegmark, Professor of Physics, MIT"
+  },
+  {
+    quote: "A clearly written and compelling account of the existential risks that highly advanced AI could pose to humanity. Recommended.",
+    author: "Ben Bernanke, Nobel laureate and former chairman of the Federal Reserve"
+  },
+  {
+    quote: "Everyone should read this book.",
+    author: "Daniel Kokotajlo, OpenAI whistleblower and lead author, AI 2027"
+  },
+  {
+    quote: "A sober but highly readable book on the very real risks of AI. Both skeptics and believers need to understand the authors' arguments, and work to ensure that our AI future is more beneficial than harmful.",
+    author: "Bruce Schneier, leading computer security expert and Lecturer, Harvard Kennedy School"
+  },
+  {
+    quote: "If Anyone Builds It, Everyone Dies isn't just a wake-up call; it's a fire alarm ringing with clarity and urgency. Yudkowsky and Soares pull no punches: unchecked superhuman AI poses an existential threat. It's a sobering reminder that humanity's future depends on what we do right now.",
+    author: "Mark Ruffalo, actor"
+  },
+  {
+    quote: "If Anyone Builds It, Everyone Dies may prove to be the most important book of our time. Yudkowsky and Soares believe we are nowhere near ready to make the transition to superintelligence safely, leaving us on the fast track to extinction. Through the use of parables and crystal-clear explainers, they convey their reasoning, in an urgent plea for us to save ourselves while we still can.",
+    author: "Tim Urban, writer, Wait But Why"
+  },
+  {
+    quote: "This is the best no-nonsense, simple explanation of the AI risk problem I've ever read.",
+    author: "Yishan Wong, former CEO of Reddit"
+  },
+  {
+    quote: "Humans are lucky to have Nate Soares and Eliezer Yudkowsky because they can actually write. As in, you will feel actual emotions when you read this book. We are currently living in the last period of history where we are the dominant species. We have a brief window of time to make decisions about our future in light of this fact.",
+    author: "Grimes, artist and musician"
+  },
+  {
+    quote: "This is our warning. Read today. Circulate tomorrow. Demand the guardrails. I'll keep betting on humanity, but first we must wake up.",
+    author: "R.P. Eddy, former Director, White House, National Security Council"
+  }
+];
+
 // Helper function to interpolate between two hex colors
 const interpolateColor = (color1: string, color2: string, factor: number): string => {
   // Parse hex colors
@@ -77,6 +117,9 @@ const styles = (theme: ThemeType) => ({
     right: 50,
     width: 280,
     textAlign: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
     zIndex: 10,
     [theme.breakpoints.down(1400)]: {
       right: 50,
@@ -194,6 +237,40 @@ const styles = (theme: ThemeType) => ({
     gap: '20px',
     justifyContent: 'center',
     width: '100%',
+  },
+  quotesContainer: {
+    width: 300,
+    zIndex: 10,
+    minHeight: 120,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    [theme.breakpoints.down(1400)]: {
+      display: 'none'
+    },
+    marginBottom: 80,
+    opacity: 0,
+    transition: 'opacity 0.8s ease-in-out',
+    '&.visible': {
+      opacity: 0.85,
+    },
+  },
+  quote: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: '1.3rem',
+    color: theme.palette.greyAlpha(0.9),
+    fontStyle: 'italic',
+    lineHeight: 1.4,
+    marginBottom: 10,
+  },
+  quoteAuthor: {
+    fontFamily: theme.typography.fontFamily,
+    fontVariant: 'small-caps',
+    fontSize: '1.1rem',
+    maxWidth: 250,
+    color: theme.palette.greyAlpha(0.7),
+    textAlign: 'center',
+    fontWeight: 500,
   }
 });
 
@@ -209,6 +286,8 @@ const IfAnyoneBuildsItSplash = ({
   const sphereSizeRef = useRef(0);
   const scrollProgressRef = useRef(0);
   const [shouldShowStarfield, setShouldShowStarfield] = useState(true);
+  const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
+  const [quoteVisible, setQuoteVisible] = useState(false);
 
   // Check if we should show starfield based on screen size
   useEffect(() => {
@@ -494,8 +573,15 @@ const IfAnyoneBuildsItSplash = ({
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll(); // Set initial state
 
-    return () => window.removeEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
   }, [shouldShowStarfield]);
+
+  // Set random quote and fade in on client-side mount to avoid SSR hydration mismatch
+  useEffect(() => {
+    setCurrentQuoteIndex(Math.floor(Math.random() * endorsementQuotes.length));
+    // Small delay to ensure smooth fade-in effect
+    setQuoteVisible(true);
+  }, []);
 
   return (
     <>
@@ -517,6 +603,16 @@ const IfAnyoneBuildsItSplash = ({
       </div>
       
       <div className={classes.bookContainer}>
+        {shouldShowStarfield && (
+          <Link to="/posts/khmpWJnGJnuyPdipE/new-endorsements-for-if-anyone-builds-it-everyone-dies" className={classNames(classes.quotesContainer, { visible: quoteVisible })}>
+            <div className={classes.quote}>
+              "{endorsementQuotes[currentQuoteIndex].quote}"
+            </div>
+            <div className={classes.quoteAuthor}>
+              — {endorsementQuotes[currentQuoteIndex].author}
+            </div>
+          </Link>
+        )}
         <Link to="/posts/khmpWJnGJnuyPdipE/new-endorsements-for-if-anyone-builds-it-everyone-dies" className={classes.bookLink}>
           <div className={classes.title}>If Anyone Builds It,</div>
           <div className={classes.subtitle}>Everyone Dies</div>
@@ -531,7 +627,7 @@ const IfAnyoneBuildsItSplash = ({
           Pre-order on Amazon
         </a>
         <div className={classes.altPreorderLinks}>
-          <a href="https://ifanyonebuildsit.com/#preorder?ref=lw" target="_blank" rel="noopener noreferrer" className={classes.altPreorderButton}>
+          <a href="https://ifanyonebuildsit.com?ref=lw#preorder" target="_blank" rel="noopener noreferrer" className={classes.altPreorderButton}>
             Other Options
           </a>
         </div>
