@@ -38,6 +38,7 @@ import { hasDraftComments } from '@/lib/betas';
 import CommentsSubmitDropdown from "./CommentsSubmitDropdown";
 import { useTracking } from "@/lib/analyticsEvents";
 import { CommentsList } from "@/lib/collections/comments/fragments";
+import { isIfAnyoneBuildsItFrontPage } from "../seasonal/IfAnyoneBuildsItSplash";
 
 const CommentsListUpdateMutation = gql(`
   mutation updateCommentCommentForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -63,8 +64,10 @@ const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   fieldWrapper: {
     marginTop: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 2,
-    background: theme.palette.editor.bannerAdBackground,
-    color: theme.palette.text.bannerAdOverlay,
+    [isIfAnyoneBuildsItFrontPage]: {
+      background: theme.palette.editor.bannerAdBackground,
+      color: theme.palette.text.bannerAdOverlay,
+    },
   },
   submitButton: submitButtonStyles(theme),
   cancelButton: cancelButtonStyles(theme),

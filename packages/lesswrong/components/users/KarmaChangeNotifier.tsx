@@ -28,6 +28,7 @@ import LWPopper from "../common/LWPopper";
 import ForumIcon from "../common/ForumIcon";
 import ReactionIcon from "../votes/ReactionIcon";
 import LWTooltip from "../common/LWTooltip";
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/IfAnyoneBuildsItSplash';
 
 const UserKarmaChangesQuery = gql(`
   query KarmaChangeNotifier($documentId: String) {
@@ -52,7 +53,10 @@ const styles = (theme: ThemeType) => ({
     zIndex: theme.zIndexes.karmaChangeNotifier,
   },
   starIcon: {
-    color: theme.palette.text.bannerAdOverlay,
+    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text,
+    [isIfAnyoneBuildsItFrontPage]: {
+      color: theme.palette.text.bannerAdOverlay,
+    },
   },
   title: {
     display: 'block',
