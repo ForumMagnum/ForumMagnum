@@ -89,7 +89,7 @@ const styles = defineStyles("IfAnyoneBuildsItSplash", (theme: ThemeType) => ({
       bottom: 120,
       width: 150,
     },
-    [theme.breakpoints.down(1300)]: {
+    [theme.breakpoints.down('md')]: {
       display: 'none'
     }
   },
@@ -239,7 +239,7 @@ const IfAnyoneBuildsItSplash = () => {
       return;
     }
     const checkScreenSize = () => {
-      setShouldShowStarfield(window.innerWidth >= 1300);
+      setShouldShowStarfield(window.innerWidth >= 960);
     };
     
     checkScreenSize();
