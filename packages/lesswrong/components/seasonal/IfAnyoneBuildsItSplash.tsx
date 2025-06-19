@@ -486,7 +486,7 @@ const IfAnyoneBuildsItSplash = ({
           <div className={classes.authors}>A book by Eliezer Yudkowsky<br/> & Nate Soares</div>
         </Link>
         <a 
-          href="https://www.amazon.com/gp/product/0316595640"
+          href="https://www.amazon.com/Anyone-Builds-Everyone-Dies-Superhuman/dp/0316595640?maas=maa[…]3B826DA0D078097E4FA6653C84CB59_afap_abs&ref_=aa_maas&tag=maas"
           target="_blank"
           rel="noopener noreferrer"
           className={classNames(classes.preorderButton, classes.preorderButtonAmazon)}
