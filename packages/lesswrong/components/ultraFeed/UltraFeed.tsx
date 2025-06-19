@@ -26,6 +26,8 @@ import UltraFeedSettings from "./UltraFeedSettings";
 import UltraFeedThreadItem from "./UltraFeedThreadItem";
 import SpotlightItem from "../spotlights/SpotlightItem";
 import { UltraFeedQuery } from '../common/feeds/feedQueries';
+import ForumIcon from '../common/ForumIcon';
+import UltraFeedQuickTakeDialog from './UltraFeedQuickTakeDialog';
 
 const ULTRAFEED_SESSION_ID_KEY = 'ultraFeedSessionId';
 
@@ -157,6 +159,34 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
     fontSize: '1.8rem',
     justifyContent: 'center',
   },
+  composerButton: {
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'flex',
+      position: 'fixed',
+      bottom: 18,
+      right: 18,
+      width: 42,
+      height: 42,
+      borderRadius: 8,
+      backgroundColor: theme.palette.primary.main,
+      color: theme.palette.text.alwaysWhite,
+      alignItems: 'center',
+      justifyContent: 'center',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+      cursor: 'pointer',
+      zIndex: theme.zIndexes.intercomButton,
+      '&:hover': {
+        backgroundColor: theme.palette.primary.dark,
+      },
+      '&:active': {
+        transform: 'scale(0.95)',
+      },
+    },
+  },
+  composerIcon: {
+    fontSize: 24,
+  },
 }));
 
 const UltraFeedContent = ({alwaysShow = false}: {
@@ -165,6 +195,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [settingsVisible, setSettingsVisible] = useState(false);
+  const [quickTakeDialogOpen, setQuickTakeDialogOpen] = useState(false);
   const [settings, setSettings] = useState<UltraFeedSettingsType>(getStoredSettings);
   const [sessionId] = useState<string>(() => {
     if (typeof window === 'undefined') return randomId();
@@ -311,6 +342,16 @@ const UltraFeedContent = ({alwaysShow = false}: {
           </SingleColumnSection>
         </OverflowNavObserverProvider>
         </UltraFeedObserverProvider>
+        
+        {userIsAdminOrMod(currentUser) && <div className={classes.composerButton} onClick={() => setQuickTakeDialogOpen(true)}>
+          <ForumIcon icon="Plus" className={classes.composerIcon} />
+        </div>}
+
+        <UltraFeedQuickTakeDialog
+          isOpen={quickTakeDialogOpen}
+          onClose={() => setQuickTakeDialogOpen(false)}
+          currentUser={currentUser}
+        />
       </div>
     </AnalyticsContext>
   );
