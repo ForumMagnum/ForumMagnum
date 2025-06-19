@@ -4205,6 +4205,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly hideCommunitySection: boolean,
   readonly showCommunityInRecentDiscussion: boolean,
   readonly hidePostsRecommendations: boolean,
+  readonly keywordAlerts: Array<string>,
   readonly petrovOptOut: boolean,
   readonly optedOutOfSurveys: boolean|null,
   readonly postGlossariesPinned: boolean|null,
@@ -4553,6 +4554,20 @@ interface UsersDefaultFragment { // fragment on Users
     },
   },
   readonly notificationAddedAsCoauthor: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  },
+  readonly notificationKeywordAlert: {
     onsite: {
       enabled: boolean,
       batchingFrequency: "realtime" | "daily" | "weekly",
@@ -5129,6 +5144,20 @@ interface UsersEdit extends UsersCurrent { // fragment on Users
     },
   },
   readonly notificationPublishedDialogueMessages: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  },
+  readonly notificationKeywordAlert: {
     onsite: {
       enabled: boolean,
       batchingFrequency: "realtime" | "daily" | "weekly",

@@ -1,3 +1,4 @@
+import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import gql from 'graphql-tag';
 
@@ -7,6 +8,14 @@ export const Users = createCollection({
   dependencies: [
     {type: "extension", name: "pg_trgm"},
   ],
+  getIndexes: () => {
+    const indexSet = new DatabaseIndexSet();
+    indexSet.addCustomPgIndex(`
+      CREATE INDEX idx_users_keyword_alerts_not_empty
+      ON "Users" (("keywordAlerts" <> '{}'))
+    `);
+    return indexSet;
+  },
 });
 
 export const usersGraphQLTypeDefs = gql`

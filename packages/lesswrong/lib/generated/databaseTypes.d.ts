@@ -1761,6 +1761,7 @@ interface DbUser extends DbObject {
     dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     showNegativeKarma: boolean,
   }
+  keywordAlerts: Array<string>
   lastNotificationsCheck: Date | null
   lastUsedTimezone: string | null
   legacy: boolean
@@ -1933,6 +1934,20 @@ interface DbUser extends DbObject {
     },
   }
   notificationKarmaPowersGained: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationKeywordAlert: {
     onsite: {
       enabled: boolean,
       batchingFrequency: "realtime" | "daily" | "weekly",

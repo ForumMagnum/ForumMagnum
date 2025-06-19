@@ -817,6 +817,17 @@ const UsersForm = ({
           </form.Field>
         </div>
 
+        <div className={classes.fieldWrapper}>
+          <form.Field name="notificationKeywordAlert">
+            {(field) => (
+              <NotificationTypeSettingsWidget
+                field={field}
+                label="Newly published content matching your keywords alerts"
+              />
+            )}
+          </form.Field>
+        </div>
+
         <HighlightableField name="karmaChangeNotifierSettings">
         <div className={classes.fieldWrapper}>
           <form.Field name="karmaChangeNotifierSettings">

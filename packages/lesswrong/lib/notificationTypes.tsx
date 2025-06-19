@@ -914,6 +914,32 @@ export const CoauthorAcceptNotification = createNotificationType({
   Display: ({Post}) => <>Your co-author request for <Post /> was accepted</>,
 })
 
+export const KeywordAlertNotification = createNotificationType({
+  name: 'keywordAlert',
+  userSettingField: 'notificationKeywordAlert',
+  getLink: ({extraData}) => {
+    if (!extraData || !extraData.keyword || !extraData.startDate) {
+      throw new Error("Invalid keyword alert");
+    }
+    const {keyword, startDate} = extraData;
+    const start = new Date(startDate);
+    return `/keywords/${keyword}?start=${start.toISOString()}`;
+  },
+  async getMessage({extraData}: GetMessageProps) {
+    const alerts = extraData?.count === 1 ? "alert" : "alerts";
+    return `${extraData?.count} new ${alerts} for "${extraData?.keyword}"`;
+  },
+  getIcon() {
+    return <PostsIcon style={iconStyles} />
+  },
+  Display: ({notification: {extraData}}) => {
+    const alerts = extraData?.count === 1 ? "alert" : "alerts";
+    return (
+      <>{extraData?.count} new {alerts} for {extraData?.keyword}</>
+    )
+  },
+})
+
 export const NewMentionNotification = createNotificationType({
   name: "newMention",
   userSettingField: "notificationNewMention",
@@ -975,6 +1001,7 @@ const notificationTypesArray: NotificationType[] = [
   NewCommentOnDraftNotification,
   CoauthorRequestNotification,
   CoauthorAcceptNotification,
+  KeywordAlertNotification,
   NewMentionNotification,
 ];
 const notificationTypes: Record<string,NotificationType> = keyBy(notificationTypesArray, n=>n.name);

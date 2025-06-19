@@ -1094,6 +1094,14 @@ extend type Mutation {
   RemoveForumEventSticker(forumEventId: String!, stickerId: String!): Boolean
 }
 
+type KeywordAlertsResult {
+  results: [Post!]!
+}
+
+extend type Query {
+  KeywordAlerts(keyword: String!, startDate: Date!, limit: Int): KeywordAlertsResult
+}
+
 extend type Query {
   getLinkSharedPost(postId: String!, linkSharingKey: String!): Post
 }
@@ -4759,6 +4767,7 @@ type User {
   expandedFrontpageSections: ExpandedFrontpageSectionsSettingsOutput
   showCommunityInRecentDiscussion: Boolean!
   hidePostsRecommendations: Boolean!
+  keywordAlerts: [String!]!
   petrovOptOut: Boolean!
   optedOutOfSurveys: Boolean
   postGlossariesPinned: Boolean
@@ -4826,6 +4835,7 @@ type User {
   notificationDialogueMessages: JSON
   notificationPublishedDialogueMessages: JSON
   notificationAddedAsCoauthor: JSON
+  notificationKeywordAlert: JSON
   notificationDebateCommentsOnSubscribedPost: JSON
   notificationDebateReplies: JSON
   notificationDialogueMatch: JSON
@@ -7079,6 +7089,7 @@ input CreateUserDataInput {
   expandedFrontpageSections: ExpandedFrontpageSectionsSettingsInput
   showCommunityInRecentDiscussion: Boolean
   hidePostsRecommendations: Boolean
+  keywordAlerts: [String!]
   petrovOptOut: Boolean
   optedOutOfSurveys: Boolean
   postGlossariesPinned: Boolean
@@ -7135,6 +7146,7 @@ input CreateUserDataInput {
   notificationDialogueMessages: JSON
   notificationPublishedDialogueMessages: JSON
   notificationAddedAsCoauthor: JSON
+  notificationKeywordAlert: JSON
   notificationDebateCommentsOnSubscribedPost: JSON
   notificationDebateReplies: JSON
   notificationDialogueMatch: JSON
@@ -7246,6 +7258,7 @@ input UpdateUserDataInput {
   expandedFrontpageSections: ExpandedFrontpageSectionsSettingsInput
   showCommunityInRecentDiscussion: Boolean
   hidePostsRecommendations: Boolean
+  keywordAlerts: [String!]
   petrovOptOut: Boolean
   optedOutOfSurveys: Boolean
   postGlossariesPinned: Boolean
@@ -7307,6 +7320,7 @@ input UpdateUserDataInput {
   notificationDialogueMessages: JSON
   notificationPublishedDialogueMessages: JSON
   notificationAddedAsCoauthor: JSON
+  notificationKeywordAlert: JSON
   notificationDebateCommentsOnSubscribedPost: JSON
   notificationDebateReplies: JSON
   notificationDialogueMatch: JSON
@@ -12206,6 +12220,7 @@ fragment UsersDefaultFragment on User {
   hideCommunitySection
   showCommunityInRecentDiscussion
   hidePostsRecommendations
+  keywordAlerts
   petrovOptOut
   optedOutOfSurveys
   postGlossariesPinned
@@ -12268,6 +12283,7 @@ fragment UsersDefaultFragment on User {
   notificationDialogueMessages
   notificationPublishedDialogueMessages
   notificationAddedAsCoauthor
+  notificationKeywordAlert
   notificationDebateCommentsOnSubscribedPost
   notificationDebateReplies
   notificationDialogueMatch
@@ -12496,6 +12512,7 @@ fragment UsersEdit on User {
   notificationYourTurnMatchForm
   notificationDialogueMessages
   notificationPublishedDialogueMessages
+  notificationKeywordAlert
 
   hideFrontpageMap
   hideTaggingProgressBar

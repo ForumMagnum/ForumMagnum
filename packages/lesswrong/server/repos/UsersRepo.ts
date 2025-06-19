@@ -1,6 +1,5 @@
 import AbstractRepo from "./AbstractRepo";
 import Users from "../../server/collections/users/collection";
-import { calculateVotePower } from "../../lib/voting/voteTypes";
 import { ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isEAForum } from "../../lib/instanceSettings";
@@ -574,6 +573,16 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `, [query, MULTISELECT_SUGGESTION_LIMIT]);
 
     return results.map(({result}) => result);
+  }
+
+  async getUserIdsByKeywordAlerts(): Promise<{keyword: string, userIds: string[]}[]> {
+    return this.getRawDb().any(`
+      -- UsersRepo.getUserIdsByKeywordAlerts
+      SELECT "keyword", ARRAY_AGG("_id") "userIds"
+      FROM "Users", UNNEST("keywordAlerts") AS "keyword"
+      WHERE "keywordAlerts" <> '{}'
+      GROUP BY "keyword"
+    `);
   }
 
   async getCurationSubscribedUserIds(): Promise<string[]> {
