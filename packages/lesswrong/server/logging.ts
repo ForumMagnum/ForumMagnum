@@ -1,8 +1,7 @@
 import { captureException } from '@sentry/core';
-import { captureEvent } from '../lib/analyticsEvents';
 import { isAnyTest } from '../lib/executionEnvironment';
 import { DatabaseServerSetting } from './databaseSettings';
-import { printInFlightRequests } from './vulcan-lib/apollo-ssr/pageCache';
+import { printInFlightRequests } from '@/server/rendering/pageCache';
 
 import * as Sentry from '@sentry/node';
 import * as SentryIntegrations from '@sentry/integrations';

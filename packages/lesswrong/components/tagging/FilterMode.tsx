@@ -179,6 +179,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   const { data } = useQuery(TagPreviewFragmentQuery, {
     variables: { documentId: tagId },
     skip: !tagId,
+    ssr: false,
   });
   const tag = data?.tag?.result;
 
@@ -248,7 +249,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   const showPlusSign = typeof otherValue === 'number' && otherValue >= 1;
 
   return <span {...eventHandlers} className={classes.tag}>
-    <AnalyticsContext pageElementContext="tagFilterMode" tagId={tag?._id} tagName={tag?.name}>
+    <AnalyticsContext pageElementContext="tagFilterMode" tagId={tagId} tagName={tagLabel}>
       {tag ? (
         <>
           <Link to={tagGetUrl(tag)} className={classes.hideOnMobile}>

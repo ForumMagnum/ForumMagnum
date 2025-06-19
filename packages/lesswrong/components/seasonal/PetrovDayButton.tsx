@@ -5,9 +5,8 @@ import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
-import ReactMapGL from 'react-map-gl';
-import { DatabasePublicSetting, mapboxAPIKeySetting } from '../../lib/publicSettings';
-import { useMutation } from '@apollo/client';
+import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useMessages } from "../common/withMessages";
 import {
@@ -15,11 +14,10 @@ import {
   userCanLaunchPetrovMissile,
   usersAboveKarmaThresholdHardcoded20220922
 } from "../../lib/petrovHelpers";
-import { Helmet } from '../../lib/utils/componentsWithChildren';
-import { useMapStyle } from '../hooks/useMapStyle';
 import LWTooltip from "../common/LWTooltip";
 import LoginPopupButton from "../users/LoginPopupButton";
 import { Typography } from "../common/Typography";
+import { WrappedReactMapGL } from '../community/WrappedReactMapGL';
 
 export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
 export const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
@@ -200,19 +198,12 @@ const PetrovDayButton = ({classes, alreadyLaunched }: {
   const beforePressMessage = <p>press button to initiate missile launch procedure</p>
   const afterPressMessage = disableLaunchButton ? <p>You are not authorized to initiate a missile strike at this time. Try again later.</p> : <p>enter launch code to initiate missile strike</p>
 
-  const mapStyle = useMapStyle();
-
   return (
     <div className={classes.root}>
-      <Helmet> 
-        <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
-      </Helmet>
-      <ReactMapGL
+      <WrappedReactMapGL
         zoom={2}
         width="100%"
         height="100%"
-        mapStyle={mapStyle}
-        mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
       />
       <div className={classes.panelBacking}>
         

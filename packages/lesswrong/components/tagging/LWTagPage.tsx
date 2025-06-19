@@ -1,4 +1,4 @@
-import { useApolloClient } from "@apollo/client";
+import { useApolloClient } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import classNames from 'classnames';
 import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'react';
@@ -67,6 +67,7 @@ import FormatDate from "../common/FormatDate";
 import InlineReactSelectionWrapper from "../votes/lwReactions/InlineReactSelectionWrapper";
 import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
 import PathInfo from "./PathInfo";
+import { StructuredData } from "../common/StructuredData";
 import { gql } from "@/lib/generated/gql-codegen";
 import { withDateFields } from "@/lib/utils/dateUtils";
 import type { TagBySlugQueryOptions } from "./useTag";
@@ -1015,9 +1016,9 @@ const LWTagPage = () => {
     <TagPageContext.Provider value={{selectedLens: selectedLens ?? null}}>
       <HeadTags
         description={headTagDescription}
-        structuredData={getTagStructuredData(tag)}
         noIndex={tag.noindex}
       />
+      <StructuredData generate={() => getTagStructuredData(tag)}/>
       {hoveredContributorId && <style>
         {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}
       </style>}

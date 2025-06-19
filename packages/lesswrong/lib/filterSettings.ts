@@ -7,8 +7,10 @@ import findIndex from 'lodash/findIndex'
 import { useTracking } from './analyticsEvents';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { type QueryRef, useBackgroundQuery, useReadQuery } from '@apollo/client/react';
+import { type ResultOf } from '@graphql-typed-document-node/core';
 
-const TagBasicInfoMultiQuery = gql(`
+export const TagBasicInfoMultiQuery = gql(`
   query multiTagfilterSettingsQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
     tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
@@ -52,23 +54,21 @@ export const getDefaultFilterSettings = (): FilterSettings => {
   }
 }
 
-const addSuggestedTagsToSettings = (existingFilterSettings: FilterSettings, suggestedTags: Array<TagBasicInfo>): FilterSettings => {
+export const useReadSuggestedTags = (
+  existingFilterSettings: FilterSettings,
+  suggestedTagsQueryRef: QueryRef<ResultOf<typeof TagBasicInfoMultiQuery>>
+): FilterTag[] => {
+  const potentialSuggestedTags = useReadQuery(suggestedTagsQueryRef).data.tags?.results ?? [];
   const tagsIncluded: Record<string,boolean> = {};
   for (let tag of existingFilterSettings.tags)
     tagsIncluded[tag.tagId] = true;
-  const tagsNotIncluded = filter(suggestedTags, tag=>!(tag._id in tagsIncluded));
+  const tagsNotIncluded = potentialSuggestedTags.filter(tag=>!(tag._id in tagsIncluded));
 
-  return {
-    ...existingFilterSettings,
-    tags: [
-      ...existingFilterSettings.tags,
-      ...tagsNotIncluded.map((tag: TagPreviewFragment): FilterTag => ({
-        tagId: tag._id,
-        tagName: tag.name,
-        filterMode: "Default",
-      })),
-    ],
-  };
+  return tagsNotIncluded.map((tag: TagPreviewFragment): FilterTag => ({
+    tagId: tag._id,
+    tagName: tag.name,
+    filterMode: "Default",
+  }));
 }
 
 /**
@@ -97,20 +97,14 @@ export const useFilterSettings = () => {
   const defaultSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings()
   let [filterSettings, setFilterSettingsLocally] = useState<FilterSettings>(defaultSettings)
   
-  const { data, error: errorLoadingSuggestedTags, loading: loadingSuggestedTags } = useQuery(TagBasicInfoMultiQuery, {
+  const [suggestedTagsQueryRef] = useBackgroundQuery(TagBasicInfoMultiQuery, {
     variables: {
       selector: { suggestedFilterTags: {} },
       limit: 100,
       enableTotal: false,
     },
-    notifyOnNetworkStatusChange: true,
   });
 
-  const suggestedTags = data?.tags?.results;
-  
-  if (suggestedTags) {
-    filterSettings = addSuggestedTagsToSettings(filterSettings, suggestedTags)
-  }
   
   /** Set the whole mess */
   const setFilterSettings = useCallback((newSettings: FilterSettings) => {
@@ -157,21 +151,17 @@ export const useFilterSettings = () => {
   }, [setFilterSettings, filterSettings, captureEvent])
   
   const removeTagFilter = useCallback((tagId: string) => {
-    if (suggestedTags && suggestedTags.find(tag => tag._id === tagId)) {
-      throw new Error("Can't remove suggested tag")
-    }
     captureEvent("tagRemovedFromFilters", {tagId});
     const newTags = filter(filterSettings.tags, tag => tag.tagId !== tagId)
     setFilterSettings({
       personalBlog: filterSettings.personalBlog,
       tags: newTags,
     })
-  }, [setFilterSettings, filterSettings, suggestedTags, captureEvent])
+  }, [setFilterSettings, filterSettings, captureEvent])
   
   return {
     filterSettings,
-    loadingSuggestedTags,
-    errorLoadingSuggestedTags,
+    suggestedTagsQueryRef,
     setFilterSettings,
     setPersonalBlogFilter,
     removeTagFilter,

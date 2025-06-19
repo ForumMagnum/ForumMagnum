@@ -1418,14 +1418,33 @@ const schema = {
       canRead: [userOwns, "sunshineRegiment", "admins"],
       resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
         const { Bookmarks } = context;
-        const bookmarks = await Bookmarks.find({ 
-          userId: user._id, 
-          collectionName: "Posts",
-          active: true 
-        }, 
-        {sort: {lastUpdated: -1}}
+        const bookmarks = await Bookmarks.find(
+          {
+            userId: user._id,
+            collectionName: "Posts",
+            active: true
+          },
+          {sort: {lastUpdated: -1}}
         ).fetch();
         return bookmarks.map((bookmark: DbBookmark) => ({ postId: bookmark.documentId }));
+      },
+    },
+  },
+  hasAnyBookmarks: {
+    graphql: {
+      outputType: "Boolean!",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
+        // FIXME: This is in the UsersCurrent fragment, which puts it on the critical path to starting a page render. Convert to a denoralized field or something to remove a round-trip from all logged-in page renders.
+        const { Bookmarks } = context;
+        const bookmarkCount = await Bookmarks.find(
+          {
+            userId: user._id,
+            collectionName: "Posts",
+            active: true
+          }
+        ).count();
+        return bookmarkCount > 0;
       },
     },
   },
@@ -3020,6 +3039,16 @@ const schema = {
       inputType: "[PartiallyReadSequenceItemInput!]",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns],
+    },
+  },
+  hasContinueReading: {
+    graphql: {
+      outputType: "Boolean!",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
+        const sequences = user.partiallyReadSequences;
+        return sequences && sequences.length>0;
+      }
     },
   },
   beta: {

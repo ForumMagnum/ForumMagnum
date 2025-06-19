@@ -1,24 +1,14 @@
 import React, { FC, ReactNode, createContext, useCallback, useContext, useEffect, useMemo } from 'react';
-import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useOnFocusTab } from '../hooks/useOnFocusTab';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from './useUpdateCurrentUser';
 import { faviconUrlSetting, faviconWithBadgeSetting } from '../../lib/instanceSettings';
-import { maybeDate, withDateFields } from '@/lib/utils/dateUtils';
-
-const NotificationsListMultiQuery = gql(`
-  query multiNotificationuseUnreadNotificationsQuery($selector: NotificationSelector, $limit: Int, $enableTotal: Boolean) {
-    notifications(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...NotificationsList
-      }
-      totalCount
-    }
-  }
-`);
-
+import { type QueryRef, useBackgroundQuery, useReadQuery } from '@apollo/client/react';
+import { NotificationsListMultiQuery } from '../notifications/NotificationsList';
+import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import type { ResultOf } from '@graphql-typed-document-node/core';
 
 export type NotificationCountsResult = {
   checkedAt: Date,
@@ -84,19 +74,26 @@ type NotificationEventListener<T extends EventType> = (message: MessageOfType<T>
 
 const notificationsCheckedAtLocalStorageKey = "notificationsCheckedAt";
 
+const UnreadNotificationCountsQuery = gql(`
+    query UnreadNotificationCountQuery {
+      unreadNotificationCounts {
+        unreadNotifications
+        unreadPrivateMessages
+        faviconBadgeNumber
+        checkedAt
+      }
+    }
+  `)
+
 type UnreadNotificationsContext = {
-  unreadNotifications: number,
-  unreadPrivateMessages: number,
+  unreadNotificationCountsQueryRef: QueryRef<ResultOf<typeof UnreadNotificationCountsQuery>> | null,
   notificationsOpened: () => Promise<void>,
-  faviconBadgeNumber: number,
   refetchUnreadNotifications: () => Promise<void>,
 }
 
 const unreadNotificationsContext = createContext<UnreadNotificationsContext>({
-  unreadNotifications: 0,
-  unreadPrivateMessages: 0,
+  unreadNotificationCountsQueryRef: null,
   notificationsOpened: async () => {},
-  faviconBadgeNumber: 0,
   refetchUnreadNotifications: async () => {},
 });
 
@@ -118,7 +115,7 @@ export const UnreadNotificationsContextProvider: FC<{
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   
-  function updateFavicon(unreadNotificationCounts: NotificationCountsResult) {
+  //function updateFavicon(unreadNotificationCounts: NotificationCountsResult) {
     /*
      * TODO: this is disabled right now because it's not a great experience showing up on all tabs for all notifications.
      * Will re-enable it when we figure out a better ontology, i.e. showing it only on dialogue pages for new dialogue content,
@@ -126,39 +123,24 @@ export const UnreadNotificationsContextProvider: FC<{
      */
     // const faviconBadgeNumber = result.unreadNotificationCounts?.faviconBadgeNumber;
     // setFaviconBadge(faviconBadgeNumber);
-  }
+  //}
   
-  const { data, refetch: refetchCounts } = useQuery(gql(`
-    query UnreadNotificationCountQuery {
-      unreadNotificationCounts {
-        unreadNotifications
-        unreadPrivateMessages
-        faviconBadgeNumber
-        checkedAt
-      }
-    }
-  `), {
-    ssr: true,
-    onCompleted: (data) => updateFavicon(withDateFields(data.unreadNotificationCounts, ['checkedAt'])),
+  const [unreadNotificationCountsQueryRef, {refetch: refetchCounts}] = useBackgroundQuery(UnreadNotificationCountsQuery, {
+    skip: !currentUser?._id,
+    //onCompleted: (data) => updateFavicon(withDateFields(data.unreadNotificationCounts, ['checkedAt'])),
   });
 
-  const unreadNotifications = data?.unreadNotificationCounts?.unreadNotifications ?? 0;
-  const unreadPrivateMessages = data?.unreadNotificationCounts?.unreadPrivateMessages ?? 0;
-  const faviconBadgeNumber = data?.unreadNotificationCounts?.faviconBadgeNumber ?? 0;
-  const checkedAt = maybeDate(data?.unreadNotificationCounts?.checkedAt || null);
-  
   // Prefetch notifications. This matches the view that the notifications sidebar
   // opens to by default (in `NotificationsMenu`); it isn't actually *used* here
   // but having fetched it puts it into the cache, which saves a load-spinner
   // in the crucial "click the notifications icon after site load" interaction.
-  const { refetch: refetchNotifications } = useQuery(NotificationsListMultiQuery, {
+  const [_queryRef, {refetch: refetchNotifications}] = useBackgroundQuery(NotificationsListMultiQuery, {
     variables: {
       selector: { userNotifications: { userId: currentUser?._id } },
       limit: 20,
       enableTotal: false,
     },
     skip: !currentUser?._id,
-    notifyOnNetworkStatusChange: true,
   });
   
   const refetchBoth = useCallback(async () => {
@@ -166,9 +148,49 @@ export const UnreadNotificationsContextProvider: FC<{
       void refetchNotifications();
 
       const newCounts = await refetchCounts();
-      updateFavicon(withDateFields(newCounts.data.unreadNotificationCounts, ['checkedAt']));
+      //updateFavicon(withDateFields(newCounts.data.unreadNotificationCounts, ['checkedAt']));
     }
   }, [currentUser?._id, refetchCounts, refetchNotifications]);
+
+  useOnNavigate(refetchBoth);
+  useOnFocusTab(refetchBoth);
+  
+  const notificationsOpened = useCallback(async () => {
+    const now = new Date();
+    await updateCurrentUser({
+      lastNotificationsCheck: now,
+    });
+    await refetchBoth();
+    window.localStorage.setItem(notificationsCheckedAtLocalStorageKey, now.toISOString());
+  }, [refetchBoth, updateCurrentUser]);
+
+  const providedContext: UnreadNotificationsContext = useMemo(() => ({
+    unreadNotificationCountsQueryRef: unreadNotificationCountsQueryRef!,
+    notificationsOpened,
+    refetchUnreadNotifications: refetchBoth,
+  }), [ unreadNotificationCountsQueryRef, notificationsOpened, refetchBoth ]);
+
+  return (
+    <unreadNotificationsContext.Provider value={providedContext}>
+      {unreadNotificationCountsQueryRef && <SuspenseWrapper name="useUnreadNotifications">
+        <NotificationsEffects queryRef={unreadNotificationCountsQueryRef} refetchCounts={refetchCounts} refetchBoth={refetchBoth} />
+      </SuspenseWrapper>}
+      {children}
+    </unreadNotificationsContext.Provider>
+  );
+}
+
+export const useUnreadNotifications = () => useContext(unreadNotificationsContext);
+
+const NotificationsEffects = ({queryRef, refetchCounts, refetchBoth}: {
+  queryRef: QueryRef<ResultOf<typeof UnreadNotificationCountsQuery>>,
+  refetchCounts: () => void
+  refetchBoth: () => void
+}) => {
+  const currentUser = useCurrentUser();
+  const updateCurrentUser = useUpdateCurrentUser();
+  const unreadNotificationCounts = useReadQuery(queryRef);
+  const checkedAt = unreadNotificationCounts.data.unreadNotificationCounts.checkedAt;
 
   // Subscribe to localStorage change events. The localStorage key
   // "notificationsCheckedAt" contains a date; when the user checks
@@ -181,7 +203,7 @@ export const UnreadNotificationsContextProvider: FC<{
         && event.newValue
       ) {
         const newCheckedAt = new Date(event.newValue);
-        if (checkedAt && newCheckedAt>checkedAt) {
+        if (checkedAt && newCheckedAt.getTime() > new Date(checkedAt).getTime()) {
           void refetchCounts();
         }
       }
@@ -193,9 +215,6 @@ export const UnreadNotificationsContextProvider: FC<{
     };
   }, [refetchCounts, checkedAt, refetchBoth, updateCurrentUser]);
 
-  useOnNavigate(refetchBoth);
-  useOnFocusTab(refetchBoth);
-  
   const refetchIfNewNotifications = useCallback((message: NotificationCheckMessage) => {
     const timestamp = message.newestNotificationTime;
     if (!checkedAt || (timestamp && new Date(timestamp) > new Date(checkedAt))) {
@@ -204,32 +223,9 @@ export const UnreadNotificationsContextProvider: FC<{
   }, [checkedAt, refetchBoth]);
   
   useOnServerSentEvent('notificationCheck', currentUser, refetchIfNewNotifications);
-  
-  const notificationsOpened = useCallback(async () => {
-    const now = new Date();
-    await updateCurrentUser({
-      lastNotificationsCheck: now,
-    });
-    await refetchBoth();
-    window.localStorage.setItem(notificationsCheckedAtLocalStorageKey, now.toISOString());
-  }, [refetchBoth, updateCurrentUser]);
 
-  const providedContext = useMemo(() => ({
-    unreadNotifications,
-    unreadPrivateMessages,
-    faviconBadgeNumber,
-    notificationsOpened,
-    refetchUnreadNotifications: refetchBoth,
-  }), [ unreadNotifications, unreadPrivateMessages, faviconBadgeNumber, notificationsOpened, refetchBoth ]);
-
-  return (
-    <unreadNotificationsContext.Provider value={providedContext}>
-      {children}
-    </unreadNotificationsContext.Provider>
-  );
+  return null;
 }
-
-export const useUnreadNotifications = () => useContext(unreadNotificationsContext);
 
 export const useOnServerSentEvent = <T extends EventType>(eventType: T, currentUser: UsersCurrent|null, cb: NotificationEventListener<T>) => {
   useEffect(() => {

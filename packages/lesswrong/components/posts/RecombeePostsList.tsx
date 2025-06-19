@@ -9,12 +9,13 @@ import moment from 'moment';
 import { useCurrentUser } from '../common/withUser';
 import { aboutPostIdSetting } from '@/lib/instanceSettings';
 import { IsRecommendationContext } from '../dropdowns/posts/PostActions';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import LoadMore from "../common/LoadMore";
 import PostsItem from "./PostsItem";
 import SectionFooter from "../common/SectionFooter";
 import PostsLoading from "./PostsLoading";
 import { gql } from '@/lib/generated/gql-codegen';
+import { useStyles } from '../hooks/useStyles';
+import { SuspenseWrapper } from '../common/SuspenseWrapper';
 
 type LoadMoreSettings = {
   loadMore: (RecombeeConfiguration | HybridRecombeeConfiguration)['loadMore'];
@@ -26,12 +27,6 @@ type LoadMoreSettings = {
   loadMore: (RecombeeConfiguration | HybridRecombeeConfiguration)['loadMore'];
   excludedPostIds?: never
 } | undefined;
-
-const styles = (theme: ThemeType) => ({
-  root: {
-
-  }
-});
 
 const DEFAULT_RESOLVER_NAME = 'RecombeeLatestPosts';
 const HYBRID_RESOLVER_NAME = 'RecombeeHybridPosts';
@@ -121,11 +116,10 @@ export const stickiedPostTerms = {
   forum: true
 } satisfies PostsViewTerms;
 
-export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: {
+const RecombeePostsListInner = ({ algorithm, settings, limit = 15 }: {
   algorithm: string,
   settings: RecombeeConfiguration,
   limit?: number,
-  classes: ClassesType<typeof styles>,
 }) => {
   const [loadMoreCount, setLoadMoreCount] = useState(1);
   const currentUser = useCurrentUser();
@@ -200,7 +194,7 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
   }
 
   return <div>
-    <div className={classes.root}>
+    <div>
       {filteredResults.map(({ post, recommId, curated, stickied }) => <IsRecommendationContext.Provider key={post._id} value={!!recommId}>
         <PostsItem 
           post={post} 
@@ -241,6 +235,18 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
   </div>;
 }
 
-export default registerComponent('RecombeePostsList', RecombeePostsList, {styles});
+export const RecombeePostsList = ({ algorithm, settings, limit = 15 }: {
+  algorithm: string,
+  settings: RecombeeConfiguration,
+  limit?: number,
+}) => {
+  return <SuspenseWrapper name="RecombeePostsList" fallback={<PostsLoading placeholderCount={limit}/>}>
+    <RecombeePostsListInner
+      algorithm={algorithm}
+      settings={settings}
+      limit={limit}
+    />
+  </SuspenseWrapper>
+}
 
 

@@ -5,7 +5,7 @@ import {
   DatabasePublicSetting,
 } from "../../lib/publicSettings";
 import { useTheme } from "../themes/useTheme";
-import { Helmet } from "../../lib/utils/componentsWithChildren";
+import { Helmet } from "../common/Helmet";
 
 const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>(
   "cloudinary.uploadPresetGridImage",
@@ -303,7 +303,7 @@ export const useImageUpload = ({
   return {
     uploadImage,
     ImageUploadScript: () => (
-      <Helmet>
+      <Helmet name="imageUploadScript">
         <script
           src="https://upload-widget.cloudinary.com/global/all.js"
           type="text/javascript"

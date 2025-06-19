@@ -17,7 +17,7 @@ import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/Leg
 import Error404 from "../../common/Error404";
 import SummariesEditForm from "../SummariesEditForm";
 import FormComponentCheckbox from "../../form-components/FormComponentCheckbox";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const MultiDocumentEditUpdateMutation = gql(`

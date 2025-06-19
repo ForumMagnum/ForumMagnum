@@ -1,10 +1,10 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { combineUrls, getBasePath, getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { taglineSetting, tabTitleSetting, tabLongTitleSetting, noIndexSetting } from '../../lib/instanceSettings';
 import { toEmbeddableJson } from '../../lib/utils/jsonUtils';
-import { Helmet } from '../../lib/utils/componentsWithChildren';
+import { Helmet } from "./Helmet";
+import { SuspenseWrapper } from './SuspenseWrapper';
 
 const HeadTags = ({
   ogUrl: ogUrlProp,
@@ -14,7 +14,6 @@ const HeadTags = ({
   image,
   useSmallImage=false,
   noIndex,
-  structuredData
 }: {
   ogUrl?: string,
   canonicalUrl?: string,
@@ -23,7 +22,6 @@ const HeadTags = ({
   image?: string|null,
   useSmallImage?: boolean,
   noIndex?: boolean,
-  structuredData?: Record<string, AnyBecauseHard>,
 }) => {
     const { currentRoute, pathname } = useSubscribedLocation();
     // The default url we want to use for our cannonical and og:url tags uses
@@ -40,19 +38,21 @@ const HeadTags = ({
     const titleString = currentRoute?.title || titleProp || currentRoute?.subtitle;
 
     const rssUrl = `${getSiteUrl()}feed.xml`
-
+    
     return (
       <React.Fragment>
         { TitleComponent
-            ? <TitleComponent siteName={tabShortTitle} isSubtitle={false} />
-            : <Helmet><title>
+            ? <SuspenseWrapper name="TitleComponent">
+                <TitleComponent siteName={tabShortTitle} isSubtitle={false} />
+              </SuspenseWrapper>
+            : <Helmet name="title"><title>
                 {titleString
                   ? `${titleString} — ${tabShortTitle}`
                   : tabLongTitle}
               </title></Helmet>
         }
 
-        <Helmet key={pathname}>
+        <Helmet key={pathname} name="meta">
           <meta charSet='utf-8'/>
           <meta name='description' content={description}/>
           <meta name='viewport' content='width=device-width, initial-scale=1'/>
@@ -77,16 +77,11 @@ const HeadTags = ({
           <link rel='canonical' href={canonicalUrl}/>
 
           <link rel="alternate" type="application/rss+xml" href={rssUrl} />
-
-          {/* See https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data */}
-          {structuredData && <script type="application/ld+json">
-            {toEmbeddableJson(structuredData)}
-          </script>}
         </Helmet>
       </React.Fragment>
     );
 }
 
-export default registerComponent('HeadTags', HeadTags);
+export default HeadTags;
 
 

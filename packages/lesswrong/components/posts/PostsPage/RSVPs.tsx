@@ -8,7 +8,7 @@ import RSVPForm, { responseToText, RsvpResponse } from './RSVPForm';
 import CheckCircleOutlineIcon from '@/lib/vendor/@material-ui/icons/src/CheckCircleOutline';
 import HelpOutlineIcon from '@/lib/vendor/@material-ui/icons/src/HelpOutline';
 import HighlightOffIcon from '@/lib/vendor/@material-ui/icons/src/HighlightOff';
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import groupBy from "lodash/groupBy";

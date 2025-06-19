@@ -10,7 +10,7 @@ import moment from "moment";
 import { useNotificationsPopoverContext } from "./useNotificationsPopoverContext";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import NotificationsPageItem from "./NotificationsPage/NotificationsPageItem";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const NotificationsListUpdateMutation = gql(`

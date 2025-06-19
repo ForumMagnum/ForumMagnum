@@ -4,7 +4,7 @@ import { randomId } from "../../lib/random";
 import { getServerBundleHash } from "../utils/bundleUtils";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import type { RenderResult } from "../vulcan-lib/apollo-ssr/renderPage"
+import type { RenderResult } from "@/server/rendering/renderPage"
 
 export type MeanPostKarma = {
   _id: number,
