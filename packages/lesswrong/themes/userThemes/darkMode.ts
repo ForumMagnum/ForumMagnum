@@ -247,6 +247,7 @@ export const darkModeTheme: UserThemeSpecification = {
       bannerAdTranslucentDeep: "rgba(0,0,0,0.5)",
       bannerAdTranslucentStrong: "rgba(0,0,0,0.6)",
       recentDiscussionThread: 'rgba(0,0,0,0.4)',
+      appBarDarkBackground: 'rgba(255,255,255,0.1)',
     },
     background: {
       default: shadePalette.grey[100],
@@ -277,6 +278,7 @@ export const darkModeTheme: UserThemeSpecification = {
     boxShadow: {
       graphTooltip: "none",
       appBar: "none",
+      appBarDarkBackground: `0 1px 1px ${shadePalette.boxShadowColor(.05)}, 0 1px 1px ${shadePalette.boxShadowColor(.05)}`,
     },
     buttons: {
       mentions: {
@@ -311,9 +313,7 @@ export const darkModeTheme: UserThemeSpecification = {
     tab: {
       inactive: {
         text: shadePalette.grey[600],
-        // Banner ad compatibility
-        bannerAdBackground: "rgba(0,0,0,0.1)",
-        bannerAdBackgroundBlur: "rgba(0,0,0,0.1)",
+        bannerAdBackground: "rgba(0,0,0,0.3)",
       },
       active: {
         // Banner ad compatibility 
@@ -336,6 +336,7 @@ export const darkModeTheme: UserThemeSpecification = {
       bannerAdBlurLight: 'blur(2px)',
       bannerAdBlurMedium: 'blur(4px)',
       bannerAdBlurHeavy: 'blur(8px)',
+      headerBackdropFilter: 'blur(4px) brightness(1.1)',
     }
   }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<NativeThemeType> => ({
