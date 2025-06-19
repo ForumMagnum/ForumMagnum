@@ -26,9 +26,9 @@ const interpolateColor = (color1: string, color2: string, factor: number): strin
   const b2 = parseInt(hex2.substr(4, 2), 16);
   
   // Interpolate
-  const r = Math.round(r1 + (r2 - r1) * factor);
-  const g = Math.round(g1 + (g2 - g1) * factor);
-  const b = Math.round(b1 + (b2 - b1) * factor);
+  const r = Math.round(r1 + ((r2 - r1) * factor));
+  const g = Math.round(g1 + ((g2 - g1) * factor));
+  const b = Math.round(b1 + ((b2 - b1) * factor));
   
   // Convert back to hex
   const toHex = (n: number) => n.toString(16).padStart(2, '0');
@@ -42,9 +42,9 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     width: '100vw',
     height: '100vh',
-    background: `linear-gradient(to right, ${theme.palette.bookPromotion.twilightLight}, ${theme.palette.bookPromotion.twilightDark})`, // Twilight gradient for both modes
+    background: `linear-gradient(to bottom right, #7a7096, #252141 50%, #000000)`, // Match canvas gradient colors
     zIndex: -1,
-    [theme.breakpoints.down(1300)]: {
+    [theme.breakpoints.down('sm')]: {
       display: 'none'
     }
   },
@@ -54,9 +54,9 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     width: '100%',
     height: '100%',
-    background: `linear-gradient(to right, ${theme.palette.bookPromotion.twilightLight}, ${theme.palette.bookPromotion.twilightDark})`, // Twilight gradient for both modes
+    background: `linear-gradient(to bottom right, #7a7096, #252141 50%, #000000)`, // Match canvas gradient colors
     overflow: 'hidden',
-    [theme.breakpoints.down(1300)]: {
+    [theme.breakpoints.down('sm')]: {
       display: 'none'
     }
   },
@@ -176,9 +176,9 @@ const styles = (theme: ThemeType) => ({
   },
   // Override the main layout background when this component is active
   '@global': {
-    [theme.breakpoints.up(1300)]: {
+    [theme.breakpoints.up('sm')]: {
       'body.ifAnyoneBuildsItActive': {
-        backgroundColor: `${theme.palette.bookPromotion.twilightMid} !important`, // Mid-tone of twilight gradient for both modes
+        backgroundColor: `#252141 !important`, // Match canvas gradient mid-tone
       } 
     },
   },
