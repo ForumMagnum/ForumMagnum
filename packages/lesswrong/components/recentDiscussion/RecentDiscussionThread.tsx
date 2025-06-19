@@ -30,6 +30,7 @@ const styles = (theme: ThemeType) => ({
   },
   plainBackground: {
     backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
+    backdropFilter: theme.palette.filters.bannerAdBlur,
   },
   primaryBackground: {
     backgroundColor: theme.palette.background.primaryDim,
@@ -209,7 +210,6 @@ const RecentDiscussionThread = ({
         <div className={classNames(
           classes.post,
           {
-            [classes.plainBackground]: !isSubforumIntroPost,
             [classes.primaryBackground]: isSubforumIntroPost
           }
         )}>

@@ -72,7 +72,7 @@ export const styles = (theme: ThemeType) => ({
     background: theme.palette.panelBackground.bannerAdTranslucent,
     backdropFilter: theme.palette.filters.bannerAdBlur,
     [theme.breakpoints.down(1300)]: {
-      background: theme.palette.panelBackground.default,
+      background: theme.palette.panelBackground.bannerAdTranslucentDeep,
     }
   },
   checkboxWidth: {

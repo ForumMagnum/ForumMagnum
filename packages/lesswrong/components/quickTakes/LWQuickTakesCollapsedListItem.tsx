@@ -58,6 +58,7 @@ const styles = (theme: ThemeType) => ({
   },
   hoverOver: {
     width: 400,
+    background: theme.palette.panelBackground.bannerAdTranslucentDeep,
   },
   commentCountText: {
     marginTop: -4,

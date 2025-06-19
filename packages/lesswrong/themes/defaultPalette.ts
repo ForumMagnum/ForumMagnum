@@ -378,6 +378,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     newCommentFormModerationGuidelines: shades.greyAlpha(.07),
     commentNodeEven: shades.grey[120],
     commentNodeOdd: shades.grey[25],
+    commentNodeRoot: shades.grey[0],
     commentModeratorHat: "#ecf2ed",
     commentHighlightAnimation: shades.grey[300],
     postsItemExpandedComments: shades.grey[50],
@@ -427,6 +428,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     bannerAdTranslucentMedium: shades.grey[0],
     bannerAdTranslucentDeep: shades.grey[0],
     bannerAdTranslucentStrong: shades.grey[0],
+    appBarDarkBackground: 'none'
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
@@ -435,6 +437,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     
     notificationsDrawer: `${shades.boxShadowColor(.16)} 0px 3px 10px, ${shades.boxShadowColor(.23)} 0px 3px 10px`,
     appBar: `0 1px 1px ${shades.boxShadowColor(.05)}, 0 1px 1px ${shades.boxShadowColor(.05)}`,
+    appBarDarkBackground: `0 1px 1px ${shades.boxShadowColor(.05)}, 0 1px 1px ${shades.boxShadowColor(.05)}`,
     sequencesGridItemHover: `0 1px 3px ${shades.boxShadowColor(.1)}`,
     eventCard: `0 1px 3px ${shades.boxShadowColor(.1)}`,
     featuredResourcesCard: `0 4px 4px ${shades.boxShadowColor(.07)}`,
@@ -542,6 +545,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     bannerAdBlurLight: 'none',
     bannerAdBlurMedium: 'none',
     bannerAdBlurHeavy: 'none',
+    headerBackdropFilter: 'none',
   },
 
   geosuggest: {

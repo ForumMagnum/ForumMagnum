@@ -182,7 +182,7 @@ export const NotificationsPageItem = ({
               {previewComment &&
                 <CommentsNodeInner
                   treeOptions={{
-                    scrollOnExpand: true,
+                    scrollOnExpand: false,
                     condensed: true,
                     post: previewComment.post ?? post,
                     tag: previewComment.tag ?? undefined,
