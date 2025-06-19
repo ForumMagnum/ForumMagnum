@@ -49,11 +49,12 @@ export const styles = (theme: ThemeType) => ({
     alignItems: "center",
     justifyContent: "space-between",
     
-    // In LW dark mode, replace the 2px bottom border with a rectangular
-    // element with a blur, so the background can show through. This is
-    // important for the background image effect on the If Anyone Builds It
-    // front page variant (and should be harmless elsewhere). 
-    ...(isBookUI && theme.themeOptions.name === 'dark' && {
+    // On the If Anyone Builds It front page, replace the 2px bottom border
+    // with a rectangular element with a blur, so the background can show
+    // through.
+    // This breaks the layout on Sequence pages (where the component is already
+    // a horizontal flexbox)
+    [isIfAnyoneBuildsItFrontPage]: {
       flexDirection: "column",
       '&::after': {
         height: 2,
@@ -61,7 +62,7 @@ export const styles = (theme: ThemeType) => ({
         width: '100%',
         backdropFilter: theme.palette.filters.bannerAdBlur,
       },
-    }),
+    },
   },
   root: {
     position: "relative",
@@ -112,9 +113,9 @@ export const styles = (theme: ThemeType) => ({
   withGrayHover: {
     '&:hover': {
       backgroundColor: theme.palette.panelBackground.postsItemHover,
-      [isIfAnyoneBuildsItFrontPage]: {
+      ...(isBookUI && theme.themeOptions.name === 'dark' && {
         backgroundColor: theme.palette.panelBackground.bannerAdTranslucentHeavy,
-      },
+      }),
     },
   },
   hasSmallSubtitle: {
@@ -127,9 +128,9 @@ export const styles = (theme: ThemeType) => ({
   },
   bottomBorder: {
     borderBottom: theme.palette.border.itemSeparatorBottom,
-    ...(isBookUI && theme.themeOptions.name === 'dark' && {
+    [isIfAnyoneBuildsItFrontPage]: {
       borderBottom: "none",
-    }),
+    },
   },
   commentsBackground: {
     backgroundColor: theme.palette.panelBackground.postsItemExpandedComments,
