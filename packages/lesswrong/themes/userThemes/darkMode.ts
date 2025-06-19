@@ -242,7 +242,7 @@ export const darkModeTheme: UserThemeSpecification = {
       commentNodeOdd: shadePalette.grey[25],
       commentNodeRoot: shadePalette.grey[0],
       commentModeratorHat: "#202719",
-      singleLineComment: 'none',
+      singleLineComment: 'unset',
       spoilerBlock: "#1b1b1b",
       cookieBanner: shadePalette.grey[900],
       tagLensTab: shadePalette.greyAlpha(.15),
