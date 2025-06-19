@@ -11,6 +11,30 @@ export const isBookPromotionActive = () => {
   return new Date() < bookPromotionEndDate;
 }
 
+// Helper function to interpolate between two hex colors
+const interpolateColor = (color1: string, color2: string, factor: number): string => {
+  // Parse hex colors
+  const hex1 = color1.replace('#', '');
+  const hex2 = color2.replace('#', '');
+  
+  const r1 = parseInt(hex1.substr(0, 2), 16);
+  const g1 = parseInt(hex1.substr(2, 2), 16);
+  const b1 = parseInt(hex1.substr(4, 2), 16);
+  
+  const r2 = parseInt(hex2.substr(0, 2), 16);
+  const g2 = parseInt(hex2.substr(2, 2), 16);
+  const b2 = parseInt(hex2.substr(4, 2), 16);
+  
+  // Interpolate
+  const r = Math.round(r1 + ((r2 - r1) * factor));
+  const g = Math.round(g1 + ((g2 - g1) * factor));
+  const b = Math.round(b1 + ((b2 - b1) * factor));
+  
+  // Convert back to hex
+  const toHex = (n: number) => n.toString(16).padStart(2, '0');
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+};
+
 const styles = (theme: ThemeType) => ({
   root: {
     position: 'fixed',
@@ -18,9 +42,9 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     width: '100vw',
     height: '100vh',
-    background: `linear-gradient(to right, ${theme.palette.bookPromotion.twilightLight}, ${theme.palette.bookPromotion.twilightDark})`, // Twilight gradient for both modes
+    background: `linear-gradient(to bottom right, ${theme.palette.bookPromotion.twilightLight}, ${theme.palette.bookPromotion.twilightDark} 50%, ${theme.palette.text.alwaysBlack})`, // Match canvas gradient colors
     zIndex: -1,
-    [theme.breakpoints.down(1300)]: {
+    [theme.breakpoints.down('sm')]: {
       display: 'none'
     }
   },
@@ -30,9 +54,9 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     width: '100%',
     height: '100%',
-    background: `linear-gradient(to right, ${theme.palette.bookPromotion.twilightLight}, ${theme.palette.bookPromotion.twilightDark})`, // Twilight gradient for both modes
+    background: `linear-gradient(to bottom right, ${theme.palette.bookPromotion.twilightLight}, ${theme.palette.bookPromotion.twilightDark} 50%, ${theme.palette.text.alwaysBlack})`, // Match canvas gradient colors
     overflow: 'hidden',
-    [theme.breakpoints.down(1300)]: {
+    [theme.breakpoints.down('sm')]: {
       display: 'none'
     }
   },
@@ -152,9 +176,9 @@ const styles = (theme: ThemeType) => ({
   },
   // Override the main layout background when this component is active
   '@global': {
-    [theme.breakpoints.up(1300)]: {
+    [theme.breakpoints.up('sm')]: {
       'body.ifAnyoneBuildsItActive': {
-        backgroundColor: `${theme.palette.bookPromotion.twilightMid} !important`, // Mid-tone of twilight gradient for both modes
+        backgroundColor: `${theme.palette.bookPromotion.twilightDark} !important`, // Match canvas gradient mid-tone
       } 
     },
   },
@@ -185,6 +209,7 @@ const IfAnyoneBuildsItSplash = ({
   const paintCanvasRef = useRef<(() => void) | null>(null);
   const starsRef = useRef<Array<{x: number, y: number, radius: number, opacity: number, twinkleSpeed: number}>>([]);
   const sphereSizeRef = useRef(0);
+  const scrollProgressRef = useRef(0);
   const [shouldShowStarfield, setShouldShowStarfield] = useState(true);
 
   // Check if we should show starfield based on screen size
@@ -272,11 +297,22 @@ const IfAnyoneBuildsItSplash = ({
       const displayWidth = window.innerWidth;
       const displayHeight = window.innerHeight;
       
-      // Use twilight gradient background for both modes
+      // Use dynamic twilight gradient that darkens as we scroll (sunset effect)
       const gradient = ctx.createLinearGradient(0, 0, displayWidth, displayHeight);
-      gradient.addColorStop(0, '#7a7096'); // Lighter twilight on left
-      gradient.addColorStop(0.5, '#252141'); // Darker twilight on right
-      gradient.addColorStop(1, '#000000'); // Darker twilight on right
+      const progress = scrollProgressRef.current;
+      
+      // Interpolate colors based on scroll progress
+      // At progress 0: light purple -> dark purple -> black
+      // At progress 1: dark purple -> dark purple -> black (only fade out light purple)
+      const leftColor = interpolateColor('#7a7096', '#252141', Math.min(progress, 0.9));
+      const midColor = '#252141'; // Keep dark purple constant
+      const rightColor = '#000000'; // Keep black constant
+      
+      // Adjust positions to create the migration effec
+      
+      gradient.addColorStop(0, leftColor);
+      gradient.addColorStop(0.5, midColor); // Ensure we don't have position 0 twice
+      gradient.addColorStop(1, rightColor);
       ctx.fillStyle = gradient;
       
       ctx.fillRect(0, 0, displayWidth, displayHeight);
@@ -444,8 +480,9 @@ const IfAnyoneBuildsItSplash = ({
           
           const size = progress * dynamicMaxSize;
           sphereSizeRef.current = size;
+          scrollProgressRef.current = progress;
           
-          // Repaint canvas with new sphere size
+          // Repaint canvas with new sphere size and gradient
           if (paintCanvasRef.current) {
             paintCanvasRef.current();
           }
@@ -488,7 +525,7 @@ const IfAnyoneBuildsItSplash = ({
           <div className={classes.authors}>A book by Eliezer Yudkowsky<br/> & Nate Soares</div>
         </Link>
         <a 
-          href="https://www.amazon.com/gp/product/0316595640"
+          href="https://www.amazon.com/Anyone-Builds-Everyone-Dies-Superhuman/dp/0316595640?maas=maa[…]3B826DA0D078097E4FA6653C84CB59_afap_abs&ref_=aa_maas&tag=maas"
           target="_blank"
           rel="noopener noreferrer"
           className={classNames(classes.preorderButton, classes.preorderButtonAmazon)}
@@ -496,7 +533,7 @@ const IfAnyoneBuildsItSplash = ({
           Pre-order on Amazon
         </a>
         <div className={classes.altPreorderLinks}>
-          <a href="https://ifanyonebuildsit.com/#preorder" target="_blank" rel="noopener noreferrer" className={classes.altPreorderButton}>
+          <a href="https://ifanyonebuildsit.com/#preorder?ref=lw" target="_blank" rel="noopener noreferrer" className={classes.altPreorderButton}>
             Other Options
           </a>
         </div>

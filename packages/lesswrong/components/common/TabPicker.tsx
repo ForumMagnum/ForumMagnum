@@ -111,7 +111,7 @@ const styles = (theme: ThemeType) => ({
   },
   inactiveTab: {
     backgroundColor: theme.palette.tab.inactive.bannerAdBackground,
-    backdropFilter: theme.palette.filters.bannerAdBlurLight,
+    backdropFilter: theme.palette.filters.bannerAdBlurMedium,
     color: theme.palette.text.bannerAdOverlay,
     '&:hover': {
       color: theme.palette.tab.inactive.hover.text
