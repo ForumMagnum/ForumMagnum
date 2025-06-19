@@ -3867,6 +3867,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_tagId" ON publ
   COALESCE("tagId", ''::CHARACTER VARYING)
 );
 
+-- CustomIndex "idx_users_keyword_alerts_not_empty"
+CREATE INDEX idx_users_keyword_alerts_not_empty ON "Users" (("keywordAlerts" <> '{}'));
+
 -- Function "fm_build_nested_jsonb"
 CREATE OR
 REPLACE FUNCTION fm_build_nested_jsonb (target_path TEXT[], terminal_element JSONB) RETURNS JSONB LANGUAGE sql IMMUTABLE AS 'SELECT JSONB_BUILD_OBJECT(
