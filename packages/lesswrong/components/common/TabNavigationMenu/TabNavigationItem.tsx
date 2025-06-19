@@ -4,14 +4,13 @@ import classNames from 'classnames';
 import { useLocation } from '../../../lib/routeUtil';
 import { MenuTabRegular } from './menuTabs';
 import { forumSelect } from '../../../lib/forumTypeUtils';
-import { isFriendlyUI } from '../../../themes/forumTheme';
+import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { useCurrentUser } from '../withUser';
 import { useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
 import { NAV_MENU_FLAG_COOKIE_PREFIX } from '@/lib/cookies/cookies';
 import TabNavigationSubItem from "./TabNavigationSubItem";
 import LWTooltip from "../LWTooltip";
 import { MenuItemLink } from "../Menus";
-import { isIfAnyoneBuildsItFrontPage } from '@/components/seasonal/IfAnyoneBuildsItSplash';
 
 export const iconWidth = 30
 
@@ -99,9 +98,9 @@ const styles = (theme: ThemeType) => ({
   navText: {
     ...theme.typography.body2,
     color: "inherit",
-    [isIfAnyoneBuildsItFrontPage]: {
+    ...(isBookUI && {
       color: theme.palette.text.bannerAdOverlay,
-    },
+    }),
     textTransform: "none !important",
   },
   homeIcon: {

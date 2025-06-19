@@ -8,7 +8,7 @@ import menuTabs from './menuTabs'
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../../themes/forumTheme';
+import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import EventsList from './EventsList';
 import { SubscribeWidget } from '../SubscribeWidget';
 import { isIfAnyoneBuildsItFrontPage } from '@/components/seasonal/IfAnyoneBuildsItSplash';
@@ -42,10 +42,10 @@ const styles = (theme: ThemeType) => {
     divider: {
       width: 50,
       borderBottom: theme.palette.border.normal,
-      [isIfAnyoneBuildsItFrontPage]: {
+      ...(isBookUI && {
         color: theme.palette.text.bannerAdOverlay,
         background: theme.palette.text.bannerAdOverlay,
-      },
+      }),
       marginBottom: theme.spacing.unit * 2.5,
       ...(isFriendlyUI
         ? {

@@ -49,8 +49,10 @@ export const styles = (theme: ThemeType) => ({
     alignItems: "center",
     justifyContent: "space-between",
     
-    // On the If Anyone Builds It front page, replace the 2px bottom border with
-    // a rectangular element with a blur, so the background can show through
+    // In LW dark mode, replace the 2px bottom border with a rectangular
+    // element with a blur, so the background can show through. This is
+    // important for the background image effect on the If Anyone Builds It
+    // front page variant (and should be harmless elsewhere). 
     ...(isBookUI && theme.themeOptions.name === 'dark' && {
       flexDirection: "column",
       '&::after': {
