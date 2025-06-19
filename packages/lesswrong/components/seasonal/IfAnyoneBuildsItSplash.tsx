@@ -42,7 +42,7 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     width: '100vw',
     height: '100vh',
-    background: `linear-gradient(to bottom right, #7a7096, #252141 50%, #000000)`, // Match canvas gradient colors
+    background: `linear-gradient(to bottom right, ${theme.palette.bookPromotion.twilightLight}, ${theme.palette.bookPromotion.twilightDark} 50%, ${theme.palette.text.alwaysBlack})`, // Match canvas gradient colors
     zIndex: -1,
     [theme.breakpoints.down('sm')]: {
       display: 'none'
@@ -54,7 +54,7 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     width: '100%',
     height: '100%',
-    background: `linear-gradient(to bottom right, #7a7096, #252141 50%, #000000)`, // Match canvas gradient colors
+    background: `linear-gradient(to bottom right, ${theme.palette.bookPromotion.twilightLight}, ${theme.palette.bookPromotion.twilightDark} 50%, ${theme.palette.text.alwaysBlack})`, // Match canvas gradient colors
     overflow: 'hidden',
     [theme.breakpoints.down('sm')]: {
       display: 'none'
