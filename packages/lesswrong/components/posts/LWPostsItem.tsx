@@ -83,7 +83,7 @@ export const styles = (theme: ThemeType) => ({
     ...(isBookUI && theme.themeOptions.name === 'dark' && {
       background: theme.palette.panelBackground.bannerAdTranslucent,
       backdropFilter: theme.palette.filters.bannerAdBlur,
-      [theme.breakpoints.down(1300)]: {
+      [isIfAnyoneBuildsItFrontPage]: {
         background: theme.palette.panelBackground.bannerAdTranslucentDeep,
       }
     })
