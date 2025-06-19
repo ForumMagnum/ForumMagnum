@@ -16,10 +16,14 @@ import { useTheme } from '../themes/useTheme';
 import { PostsItemIcons, CuratedIcon } from "./PostsItemIcons";
 import ForumIcon from "../common/ForumIcon";
 import TagsTooltip from "../tagging/TagsTooltip";
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/IfAnyoneBuildsItSplash';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    color: theme.palette.greyAlpha(1),
+    color: theme.palette.text.normal,
+    [isIfAnyoneBuildsItFrontPage]: {
+      color: theme.palette.greyAlpha(1),
+    },
     position: "relative",
     lineHeight: "1.7rem",
     fontWeight: isFriendlyUI ? 600 : undefined,
@@ -74,7 +78,6 @@ const styles = (theme: ThemeType) => ({
     }
   },
   eaTitleDesktopEllipsis: isFriendlyUI ? {
-    color: theme.palette.text.bannerAdOverlay,
     '&:hover': {
       opacity: 0.5
     },

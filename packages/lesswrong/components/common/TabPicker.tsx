@@ -110,9 +110,14 @@ const styles = (theme: ThemeType) => ({
     }
   },
   inactiveTab: {
-    backgroundColor: theme.palette.tab.inactive.bannerAdBackground,
-    backdropFilter: theme.palette.filters.bannerAdBlurMedium,
-    color: theme.palette.text.bannerAdOverlay,
+    ...(theme.themeOptions.name === 'dark' ? {
+      backgroundColor: theme.palette.tab.inactive.bannerAdBackground,
+      backdropFilter: theme.palette.filters.bannerAdBlurMedium,
+      color: theme.palette.text.bannerAdOverlay,
+    } : {
+      backgroundColor: theme.palette.panelBackground.default,
+      color: theme.palette.tab.inactive.text,
+    }),
     '&:hover': {
       color: theme.palette.tab.inactive.hover.text
     },
@@ -120,7 +125,9 @@ const styles = (theme: ThemeType) => ({
   activeTab: {
     backgroundColor: theme.palette.tab.active.background,
     color: theme.palette.text.alwaysWhite,
-    backdropFilter: theme.palette.filters.bannerAdBlurMedium,
+    [isIfAnyoneBuildsItFrontPage]: {
+      backdropFilter: theme.palette.filters.bannerAdBlurMedium,
+    },
     '&:hover': {
       backgroundColor: theme.palette.tab.active.hover.background
     },

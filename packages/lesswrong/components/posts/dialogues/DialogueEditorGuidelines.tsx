@@ -26,6 +26,7 @@ const styles = (theme: ThemeType) => ({
     }
     : {},
   info: {
+    color: theme.palette.grey[600],
     ...commentBodyStyles(theme),
     margin: '0 !important',
     paddingBottom: 8
