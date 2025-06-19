@@ -445,7 +445,7 @@ const UltraFeedPostFooter = ({ post, metaInfo, className, onSeeLess, isSeeLessMo
 }
 
 
-const UltraFeedCommentFooter = ({ comment, metaInfo, className, onSeeLess, isSeeLessMode }: { comment: UltraFeedComment, metaInfo: FeedCommentMetaInfo, className?: string, onSeeLess?: (eventId: string) => void, isSeeLessMode?: boolean }) => {
+const UltraFeedCommentFooter = ({ comment, metaInfo, className, onSeeLess, isSeeLessMode, onReplyClick }: { comment: UltraFeedComment, metaInfo: FeedCommentMetaInfo, className?: string, onSeeLess?: (eventId: string) => void, isSeeLessMode?: boolean, onReplyClick?: () => void }) => {
   const { openDialog } = useDialog();
 
   const parentPost = comment.post;
@@ -455,16 +455,21 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className, onSeeLess, isSee
   const showVoteButtons = votingSystem.name === "namesAttachedReactions" && !hideKarma;
   const commentCount = metaInfo.directDescendentCount;
   const bookmarkProps: BookmarkProps = {documentId: comment._id, highlighted: metaInfo.sources?.includes("bookmarks")};
+  
   const onClickComments = () => {
-    openDialog({
-      name: "UltraFeedCommentsDialog",
-      closeOnNavigate: true,
-      contents: ({onClose}) => <UltraFeedCommentsDialog 
-        document={comment}
-        collectionName="Comments"
-        onClose={onClose}
-      />
-    });
+    if (onReplyClick) {
+      onReplyClick();
+    } else {
+      openDialog({
+        name: "UltraFeedCommentsDialog",
+        closeOnNavigate: true,
+        contents: ({onClose}) => <UltraFeedCommentsDialog 
+          document={comment}
+          collectionName="Comments"
+          onClose={onClose}
+        />
+      });
+    }
   }
 
   return (
@@ -501,15 +506,17 @@ interface UltraFeedCommentFooterProps {
   className?: string;
   onSeeLess?: (eventId: string) => void;
   isSeeLessMode?: boolean;
+  onReplyClick?: () => void;
 }
 
 type UltraFeedItemFooterProps = UltraFeedPostFooterProps | UltraFeedCommentFooterProps;
 
-const UltraFeedItemFooter = ({ document, collectionName, metaInfo, className, onSeeLess, isSeeLessMode }: UltraFeedItemFooterProps) => {
+const UltraFeedItemFooter = ({ document, collectionName, metaInfo, className, onSeeLess, isSeeLessMode, ...props }: UltraFeedItemFooterProps) => {
   if (collectionName === "Posts") {
     return <UltraFeedPostFooter post={document} metaInfo={metaInfo} className={className} onSeeLess={onSeeLess} isSeeLessMode={isSeeLessMode} />;
   } else if (collectionName === "Comments") {
-    return <UltraFeedCommentFooter comment={document} metaInfo={metaInfo} className={className} onSeeLess={onSeeLess} isSeeLessMode={isSeeLessMode} />;
+    const { onReplyClick } = props as UltraFeedCommentFooterProps;
+    return <UltraFeedCommentFooter comment={document} metaInfo={metaInfo} className={className} onSeeLess={onSeeLess} isSeeLessMode={isSeeLessMode} onReplyClick={onReplyClick} />;
   }
   return null;
 };
