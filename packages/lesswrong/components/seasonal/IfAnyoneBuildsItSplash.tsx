@@ -3,6 +3,8 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useTheme } from '../themes/useTheme';
 import classNames from 'classnames';
 import { Link } from '@/lib/reactRouterWrapper';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HIDE_IF_ANYONE_BUILDS_IT_SPLASH } from '@/lib/cookies/cookies';
 
 // TODO: comment this out after we're done with the book promotion
 export const bookPromotionEndDate = new Date('2025-09-17T00:00:00Z') // Day after book release
@@ -205,15 +207,21 @@ const IfAnyoneBuildsItSplash = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const theme = useTheme();
+  const [cookies] = useCookiesWithConsent([HIDE_IF_ANYONE_BUILDS_IT_SPLASH]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const paintCanvasRef = useRef<(() => void) | null>(null);
   const starsRef = useRef<Array<{x: number, y: number, radius: number, opacity: number, twinkleSpeed: number}>>([]);
   const sphereSizeRef = useRef(0);
   const scrollProgressRef = useRef(0);
-  const [shouldShowStarfield, setShouldShowStarfield] = useState(true);
+  const optedOut = cookies[HIDE_IF_ANYONE_BUILDS_IT_SPLASH];
+  const [shouldShowStarfield, setShouldShowStarfield] = useState(!optedOut);
 
   // Check if we should show starfield based on screen size
   useEffect(() => {
+    if (optedOut) {
+      setShouldShowStarfield(false);
+      return;
+    }
     const checkScreenSize = () => {
       setShouldShowStarfield(window.innerWidth >= 1300);
     };
@@ -222,7 +230,7 @@ const IfAnyoneBuildsItSplash = ({
     window.addEventListener('resize', checkScreenSize);
     
     return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
+  }, [optedOut]);
 
   // Add/remove body class for background override
   useEffect(() => {
@@ -499,6 +507,9 @@ const IfAnyoneBuildsItSplash = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, [shouldShowStarfield]);
 
+  if (optedOut) {
+    return null;
+  }
   return (
     <>
       <div className={classes.root}>

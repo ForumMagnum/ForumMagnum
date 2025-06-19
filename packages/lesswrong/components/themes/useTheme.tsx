@@ -4,6 +4,8 @@ import { usePrefersDarkMode } from './usePrefersDarkMode';
 // eslint-disable-next-line no-restricted-imports
 import { useLocation } from 'react-router';
 import { isLW } from '@/lib/instanceSettings';
+import { HIDE_IF_ANYONE_BUILDS_IT_SPLASH } from '@/lib/cookies/cookies';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 
 type ThemeContextObj = {
   theme: ThemeType,
@@ -53,11 +55,12 @@ export const useSetTheme = () => {
 }
 
 export const useIsThemeOverridden = () => {
+  const [cookies] = useCookiesWithConsent([HIDE_IF_ANYONE_BUILDS_IT_SPLASH]);
+
   // Because this is a context-provider outside of <App>, it uses the less-efficient
   // useLocation that react-router provides, rather than our own context provider
   // which is not available.
   const location = useLocation();
   const isFrontPage = location?.pathname === '/' || location?.pathname === '';
-  return isLW && isFrontPage;
-
+  return isLW && isFrontPage && !cookies[HIDE_IF_ANYONE_BUILDS_IT_SPLASH];
 }

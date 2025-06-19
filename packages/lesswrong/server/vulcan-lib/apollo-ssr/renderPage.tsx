@@ -29,7 +29,7 @@ import { isLW, performanceMetricLoggingEnabled } from '../../../lib/instanceSett
 import { getClientIP } from '@/server/utils/getClientIP';
 import PriorityBucketQueue, { RequestData } from '../../../lib/requestPriorityQueue';
 import { isAnyTest, isProduction } from '../../../lib/executionEnvironment';
-import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../../lib/cookies/cookies';
+import { HIDE_IF_ANYONE_BUILDS_IT_SPLASH, LAST_VISITED_FRONTPAGE_COOKIE } from '../../../lib/cookies/cookies';
 import { visitorGetsDynamicFrontpage } from '../../../lib/betas';
 import { responseIsCacheable } from '../../cacheControlMiddleware';
 import moment from 'moment';
@@ -521,7 +521,7 @@ const renderRequest = async ({req, user, startTime, res, userAgent, ...cacheAtte
   const serializedForeignApolloState = embedAsGlobalVar("__APOLLO_FOREIGN_STATE__", foreignClient.extract());
 
   // Hack for the front page If Everyone Builds It announcement
-  const forceDarkMode = isLW && req.url === '/';
+  const forceDarkMode = isLW && req.url === '/' && !getCookieFromReq(req, HIDE_IF_ANYONE_BUILDS_IT_SPLASH);
   const jssSheets = forceDarkMode
     ? renderJssSheetImports({name: "dark"})
     : renderJssSheetImports(themeOptions);
