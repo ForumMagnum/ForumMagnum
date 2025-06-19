@@ -22,6 +22,12 @@ export const TIMEZONE_COOKIE = registerCookie({
 
 export const THEME_COOKIE = registerCookie({ name: "theme", type: "necessary", description: "Stores the user's theme preferences" });
 
+export const HIDE_IF_ANYONE_BUILDS_IT_SPLASH = registerCookie({
+  name: "hide_if_anyone_builds_it",
+  type: "necessary",
+  description: "Controls whether to use the special theme for If Anyone Builds It",
+});
+
 export const HIDE_FEATURED_RESOURCE_COOKIE = registerCookie({
   name: "hide_featured_resource",
   type: "necessary",

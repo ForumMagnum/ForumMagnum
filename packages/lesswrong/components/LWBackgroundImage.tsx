@@ -140,8 +140,8 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   if (getReviewPhase() === 'VOTING') homePageImage = <ReviewVotingCanvas />
   if (getReviewPhase() === 'RESULTS') homePageImage = reviewCompleteImage
 
-  if (new Date() < bookPromotionEndDate) {
-    homePageImage = <IfAnyoneBuildsItSplash />
+  if (new Date() < bookPromotionEndDate && currentRoute?.name === 'home') {
+    return <IfAnyoneBuildsItSplash />
   }
 
   return <div className={classes.root}>
