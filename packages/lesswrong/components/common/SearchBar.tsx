@@ -83,7 +83,7 @@ const styles = (theme: ThemeType) => ({
     "--icon-size": "24px",
   },
   searchIconButton: {
-    color: theme.palette.text.bannerAdOverlay,
+    color: isFriendlyUI ? theme.palette.text.bannerAdOverlay : theme.palette.header.text ,
   },
   searchIconButtonSmall: isFriendlyUI ? {
     padding: 6,

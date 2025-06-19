@@ -20,9 +20,6 @@ const styles = (theme: ThemeType) => ({
     height: '100vh',
     background: `linear-gradient(to right, ${theme.palette.bookPromotion.twilightLight}, ${theme.palette.bookPromotion.twilightDark})`, // Twilight gradient for both modes
     zIndex: -1,
-    [theme.breakpoints.down('md')]: {
-      display: 'none'
-    },
     [theme.breakpoints.down(1300)]: {
       display: 'none'
     }
@@ -35,7 +32,7 @@ const styles = (theme: ThemeType) => ({
     height: '100%',
     background: `linear-gradient(to right, ${theme.palette.bookPromotion.twilightLight}, ${theme.palette.bookPromotion.twilightDark})`, // Twilight gradient for both modes
     overflow: 'hidden',
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down(1300)]: {
       display: 'none'
     }
   },
@@ -155,12 +152,11 @@ const styles = (theme: ThemeType) => ({
   },
   // Override the main layout background when this component is active
   '@global': {
-    'body.ifAnyoneBuildsItActive': {
-      backgroundColor: `${theme.palette.bookPromotion.twilightMid} !important`, // Mid-tone of twilight gradient for both modes
+    [theme.breakpoints.up(1300)]: {
+      'body.ifAnyoneBuildsItActive': {
+        backgroundColor: `${theme.palette.bookPromotion.twilightMid} !important`, // Mid-tone of twilight gradient for both modes
+      } 
     },
-    // '.Layout-whiteBackground': {
-    //   backgroundColor: 'transparent !important',
-    // }
   },
   altPreorderButton: {
     marginTop: 10,

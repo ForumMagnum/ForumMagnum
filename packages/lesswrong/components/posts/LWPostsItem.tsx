@@ -71,6 +71,9 @@ export const styles = (theme: ThemeType) => ({
     width: "100%",
     background: theme.palette.panelBackground.bannerAdTranslucent,
     backdropFilter: theme.palette.filters.bannerAdBlur,
+    [theme.breakpoints.down(1300)]: {
+      background: theme.palette.panelBackground.default,
+    }
   },
   checkboxWidth: {
     width: "calc(100% - 24px)"
