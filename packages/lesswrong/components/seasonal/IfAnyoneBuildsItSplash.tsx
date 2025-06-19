@@ -494,7 +494,7 @@ const IfAnyoneBuildsItSplash = ({
           Pre-order on Amazon
         </a>
         <div className={classes.altPreorderLinks}>
-          <a href="https://ifanyonebuildsit.com/#preorder" target="_blank" rel="noopener noreferrer" className={classes.altPreorderButton}>
+          <a href="https://ifanyonebuildsit.com/#preorder?ref=lw" target="_blank" rel="noopener noreferrer" className={classes.altPreorderButton}>
             Other Options
           </a>
         </div>
