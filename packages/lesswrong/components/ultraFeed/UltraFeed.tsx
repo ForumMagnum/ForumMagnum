@@ -28,6 +28,7 @@ import SpotlightItem from "../spotlights/SpotlightItem";
 import { UltraFeedQuery } from '../common/feeds/feedQueries';
 import ForumIcon from '../common/ForumIcon';
 import UltraFeedQuickTakeDialog from './UltraFeedQuickTakeDialog';
+import { useDialog } from '../common/withDialog';
 
 const ULTRAFEED_SESSION_ID_KEY = 'ultraFeedSessionId';
 
@@ -195,7 +196,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [settingsVisible, setSettingsVisible] = useState(false);
-  const [quickTakeDialogOpen, setQuickTakeDialogOpen] = useState(false);
+  const { openDialog } = useDialog();
   const [settings, setSettings] = useState<UltraFeedSettingsType>(getStoredSettings);
   const [sessionId] = useState<string>(() => {
     if (typeof window === 'undefined') return randomId();
@@ -206,6 +207,12 @@ const UltraFeedContent = ({alwaysShow = false}: {
   });
   const refetchSubscriptionContentRef = useRef<null | ObservableQuery['refetch']>(null);
 
+  const handleOpenQuickTakeDialog = () => {
+    openDialog({
+      name: "UltraFeedQuickTakeDialog",
+      contents: ({onClose}) => <UltraFeedQuickTakeDialog onClose={onClose} currentUser={currentUser} />
+    });
+  };
 
   if (!currentUser) {
     return null;
@@ -343,15 +350,11 @@ const UltraFeedContent = ({alwaysShow = false}: {
         </OverflowNavObserverProvider>
         </UltraFeedObserverProvider>
         
-        {userIsAdminOrMod(currentUser) && <div className={classes.composerButton} onClick={() => setQuickTakeDialogOpen(true)}>
-          <ForumIcon icon="Plus" className={classes.composerIcon} />
-        </div>}
-
-        <UltraFeedQuickTakeDialog
-          isOpen={quickTakeDialogOpen}
-          onClose={() => setQuickTakeDialogOpen(false)}
-          currentUser={currentUser}
-        />
+        {userIsAdminOrMod(currentUser) && (
+          <div className={classes.composerButton} onClick={handleOpenQuickTakeDialog}>
+            <ForumIcon icon="Plus" className={classes.composerIcon} />
+          </div>
+        )}
       </div>
     </AnalyticsContext>
   );

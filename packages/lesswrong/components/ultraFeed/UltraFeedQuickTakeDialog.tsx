@@ -71,32 +71,25 @@ const styles = defineStyles("UltraFeedQuickTakeDialog", (theme: ThemeType) => ({
 }));
 
 type UltraFeedQuickTakeDialogProps = {
-  isOpen: boolean;
   onClose: () => void;
   currentUser: UsersCurrent | null;
 }
 
-const UltraFeedQuickTakeDialog = ({ isOpen, onClose, currentUser }: UltraFeedQuickTakeDialogProps) => {
+const UltraFeedQuickTakeDialog = ({ onClose, currentUser }: UltraFeedQuickTakeDialogProps) => {
   const classes = useStyles(styles);
 
   // Disable background scroll while dialog open
   useEffect(() => {
-    if (isOpen) {
-      const originalOverflow = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
-      return () => {
-        document.body.style.overflow = originalOverflow;
-      };
-    }
-  }, [isOpen]);
-
-  if (!isOpen) {
-    return null;
-  }
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
 
   return (
     <LWDialog
-      open={isOpen}
+      open={true}
       onClose={onClose}
       fullWidth
       paperClassName={classes.dialogPaper}
