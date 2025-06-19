@@ -210,6 +210,9 @@ const styles = defineStyles("IfAnyoneBuildsItSplash", (theme: ThemeType) => ({
     fontSize: 16,
     color: theme.palette.greyAlpha(0.8),
     cursor: "pointer",
+    [theme.breakpoints.down('sm')]: {
+      display: "none",
+    }
   },
   reenableButton: {
     color: theme.palette.primary.main,
