@@ -331,6 +331,7 @@ declare global {
       newCommentFormModerationGuidelines: ColorString,
       commentNodeEven: ColorString,
       commentNodeOdd: ColorString,
+      commentNodeRoot: ColorString,
       commentModeratorHat: ColorString,
       commentHighlightAnimation: ColorString,
       postsItemExpandedComments: ColorString,
@@ -375,6 +376,7 @@ declare global {
       bannerAdTranslucentMedium: ColorString,
       bannerAdTranslucentDeep: ColorString,
       bannerAdTranslucentStrong: ColorString,
+      appBarDarkBackground: ColorString,
     },
     boxShadow: {
       default: string,
@@ -383,6 +385,7 @@ declare global {
       
       notificationsDrawer: string,
       appBar: string,
+      appBarDarkBackground: string,
       sequencesGridItemHover: string,
       eventCard: string,
       featuredResourcesCard: string,
@@ -488,6 +491,7 @@ declare global {
       bannerAdBlurLight: string,
       bannerAdBlurMedium: string,
       bannerAdBlurHeavy: string,
+      headerBackdropFilter: string,
     },
     geosuggest: {
       dropdownBackground: ColorString,

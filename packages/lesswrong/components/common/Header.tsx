@@ -115,7 +115,7 @@ export const styles = (theme: ThemeType) => ({
     boxShadow: theme.palette.boxShadow.appBar,
     color: theme.palette.text.bannerAdOverlay,
     background: theme.palette.panelBackground.bannerAdTranslucent,
-    backdropFilter: theme.palette.filters.bannerAdBlurMedium,
+    backdropFilter: theme.palette.filters.headerBackdropFilter,
     position: "static",
     width: "100%",
     display: "flex",
@@ -134,6 +134,10 @@ export const styles = (theme: ThemeType) => ({
         padding: '9px 11px',
       },
     } : {}),
+  },
+  blackBackgroundAppBar: {
+    boxShadow: theme.palette.boxShadow.appBarDarkBackground,
+    background: theme.palette.panelBackground.appBarDarkBackground,
   },
   appBarDarkBackground: {
     ...textColorOverrideStyles({
@@ -522,7 +526,8 @@ const Header = ({
           <header
             className={classNames(
               classes.appBar,
-              useContrastText && classes.appBarDarkBackground
+              useContrastText && classes.appBarDarkBackground,
+              currentRoute?.background === "white" && classes.blackBackgroundAppBar,
             )}
             style={headerStyle}
           >
