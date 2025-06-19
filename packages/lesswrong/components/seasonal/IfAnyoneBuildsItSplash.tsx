@@ -173,6 +173,8 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
+export const isIfAnyoneBuildsItFrontPage = '.ifAnyoneBuildsItActive &';
+
 const IfAnyoneBuildsItSplash = ({
   classes,
 }: {
@@ -188,7 +190,7 @@ const IfAnyoneBuildsItSplash = ({
   // Check if we should show starfield based on screen size
   useEffect(() => {
     const checkScreenSize = () => {
-      setShouldShowStarfield(window.innerWidth >= 960); // md breakpoint
+      setShouldShowStarfield(window.innerWidth >= 1300);
     };
     
     checkScreenSize();

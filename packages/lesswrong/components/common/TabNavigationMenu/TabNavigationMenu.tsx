@@ -11,6 +11,7 @@ import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import EventsList from './EventsList';
 import { SubscribeWidget } from '../SubscribeWidget';
+import { isIfAnyoneBuildsItFrontPage } from '@/components/seasonal/IfAnyoneBuildsItSplash';
 
 export const TAB_NAVIGATION_MENU_WIDTH = 250
 
@@ -41,8 +42,10 @@ const styles = (theme: ThemeType) => {
     divider: {
       width: 50,
       borderBottom: theme.palette.border.normal,
-      color: theme.palette.text.bannerAdOverlay,
-      background: theme.palette.text.bannerAdOverlay,
+      [isIfAnyoneBuildsItFrontPage]: {
+        color: theme.palette.text.bannerAdOverlay,
+        background: theme.palette.text.bannerAdOverlay,
+      },
       marginBottom: theme.spacing.unit * 2.5,
       ...(isFriendlyUI
         ? {

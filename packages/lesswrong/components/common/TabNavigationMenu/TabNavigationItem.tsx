@@ -11,6 +11,7 @@ import { NAV_MENU_FLAG_COOKIE_PREFIX } from '@/lib/cookies/cookies';
 import TabNavigationSubItem from "./TabNavigationSubItem";
 import LWTooltip from "../LWTooltip";
 import { MenuItemLink } from "../Menus";
+import { isIfAnyoneBuildsItFrontPage } from '@/components/seasonal/IfAnyoneBuildsItSplash';
 
 export const iconWidth = 30
 
@@ -97,7 +98,10 @@ const styles = (theme: ThemeType) => ({
   },
   navText: {
     ...theme.typography.body2,
-    color: theme.palette.text.bannerAdOverlay,
+    color: "inherit",
+    [isIfAnyoneBuildsItFrontPage]: {
+      color: theme.palette.text.bannerAdOverlay,
+    },
     textTransform: "none !important",
   },
   homeIcon: {

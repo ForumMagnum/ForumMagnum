@@ -4,6 +4,7 @@ import classNames from 'classnames'
 import LWTooltip from "./LWTooltip";
 import SingleColumnSection from "./SingleColumnSection";
 import ForumIcon from "./ForumIcon";
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/IfAnyoneBuildsItSplash';
 
 const rightFadeStyle = (theme: ThemeType) => ({
   '&:after': {
@@ -13,7 +14,10 @@ const rightFadeStyle = (theme: ThemeType) => ({
     height: '100%',
     width: 50,
     content: '\'\'',
-    background: 'none',
+    background: `linear-gradient(to left, ${theme.palette.background.default}, ${theme.palette.background.transparent})`,
+    [isIfAnyoneBuildsItFrontPage]: {
+      background: 'none',
+    },
     pointerEvents: 'none',
   },
 });
@@ -51,7 +55,10 @@ const styles = (theme: ThemeType) => ({
       height: '100%',
       width: 50,
       content: '\'\'',
-      background: 'none',
+      background: `linear-gradient(to left, ${theme.palette.background.default}, ${theme.palette.background.transparent})`,
+      [isIfAnyoneBuildsItFrontPage]: {
+        background: 'none',
+      },
       pointerEvents: 'none',
       zIndex: 1,
     },
