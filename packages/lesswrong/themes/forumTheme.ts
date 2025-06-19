@@ -75,7 +75,7 @@ const buildTheme = (
   if (siteTheme.componentPalette) componentPalette = deepmerge(componentPalette, siteTheme.componentPalette(shadePalette));
   if (userTheme.componentPalette) componentPalette = deepmerge(componentPalette, userTheme.componentPalette(shadePalette));
   
-  let palette: ThemePalette = deepmerge(shadePalette, componentPalette);
+  let palette: ThemePalette = { ...deepmerge(shadePalette, componentPalette), shadePalette };
   
   let combinedTheme = baseTheme.make(palette);
   if (siteTheme.make) combinedTheme = deepmerge(combinedTheme, siteTheme.make(palette));

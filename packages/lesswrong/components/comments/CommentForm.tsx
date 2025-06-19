@@ -63,6 +63,8 @@ const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   fieldWrapper: {
     marginTop: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 2,
+    background: theme.palette.editor.bannerAdBackground,
+    color: theme.palette.text.bannerAdOverlay,
   },
   submitButton: submitButtonStyles(theme),
   cancelButton: cancelButtonStyles(theme),

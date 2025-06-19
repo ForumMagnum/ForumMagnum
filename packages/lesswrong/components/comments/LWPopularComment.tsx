@@ -24,9 +24,10 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     color: theme.palette.greyAlpha(0.5),
-    background: theme.palette.grey[0],
+    background: theme.palette.panelBackground.bannerAdTranslucentMedium,
+    backdropFilter: theme.palette.filters.bannerAdBlurHeavy,
     borderRadius: theme.borderRadius.small,
-    border: `1px solid ${theme.palette.grey[200]}`,
+    border: "none",
     padding: "10px 14px",
   },
   row: {
@@ -71,12 +72,16 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "nowrap",
     marginRight: 10,
   },
-  bodyWrapper: {},
+  bodyWrapper: {
+    color: theme.palette.text.bannerAdOverlay,
+  },
   bodyCursor: {
     cursor: "pointer",
+    color: theme.palette.text.bannerAdOverlay,
   },
   body: {
-    ...commentBodyStyles(theme)
+    ...commentBodyStyles(theme),
+    color: theme.palette.text.bannerAdOverlay,
   },
   bodyCollapsed: {
     position: "relative",
@@ -84,6 +89,7 @@ const styles = (theme: ThemeType) => ({
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 2,
+    color: theme.palette.text.bannerAdOverlay,
   },
   hoverOver: {
     width: 600,
@@ -91,7 +97,7 @@ const styles = (theme: ThemeType) => ({
   showParentComment: {
     paddingRight: theme.spacing.unit,
     cursor: "pointer",
-    color: theme.palette.icon.slightlyDim2,
+    color: theme.palette.text.bannerAdOverlay,
   },
   icon: {
     fontSize: 12,

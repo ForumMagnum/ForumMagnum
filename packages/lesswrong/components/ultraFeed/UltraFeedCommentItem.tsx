@@ -71,6 +71,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     padding: 8,
     opacity: 0.5,
     cursor: "pointer",
+    color: theme.palette.text.bannerAdOverlay,
     '&:hover': {
       opacity: 1,
     },
