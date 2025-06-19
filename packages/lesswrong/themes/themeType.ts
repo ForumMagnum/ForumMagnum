@@ -609,6 +609,13 @@ declare global {
     namesAttachedReactions: {
       selectedAnti: ColorString,
     },
+    bookPromotion: {
+      twilightLight: ColorString,
+      twilightDark: ColorString,
+      twilightMid: ColorString,
+      starGold: ColorString,
+      starRedShift: ColorString,
+    },
     ultraFeed: {
       dim: ColorString,
       cardSeparator: string,

@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     width: '100vw',
     height: '100vh',
-    background: 'linear-gradient(to right, #7a7096, #252141)', // Twilight gradient for both modes
+    background: `linear-gradient(to right, ${theme.palette.bookPromotion.twilightLight}, ${theme.palette.bookPromotion.twilightDark})`, // Twilight gradient for both modes
     zIndex: -1,
     [theme.breakpoints.down('md')]: {
       display: 'none'
@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     width: '100%',
     height: '100%',
-    background: 'linear-gradient(to right, #7a7096, #252141)', // Twilight gradient for both modes
+    background: `linear-gradient(to right, ${theme.palette.bookPromotion.twilightLight}, ${theme.palette.bookPromotion.twilightDark})`, // Twilight gradient for both modes
     overflow: 'hidden',
     [theme.breakpoints.down('md')]: {
       display: 'none'
@@ -65,13 +65,6 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down(1300)]: {
       display: 'none'
     }
-  },
-  bookCover: {
-    width: '100%',
-    height: 'auto',
-    marginBottom: 20,
-    boxShadow: '0 10px 40px rgba(0,0,0,0.8)',
-    border: '1px solid rgba(255,255,255,0.1)',
   },
   bookImage: {
     objectFit: 'cover',
@@ -163,7 +156,7 @@ const styles = (theme: ThemeType) => ({
   // Override the main layout background when this component is active
   '@global': {
     'body.ifAnyoneBuildsItActive': {
-      backgroundColor: '#4f3d6b !important', // Mid-tone of twilight gradient for both modes
+      backgroundColor: `${theme.palette.bookPromotion.twilightMid} !important`, // Mid-tone of twilight gradient for both modes
     },
     // '.Layout-whiteBackground': {
     //   backgroundColor: 'transparent !important',
@@ -191,7 +184,7 @@ const IfAnyoneBuildsItSplash = ({
 }) => {
   const theme = useTheme();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationRef = useRef<number | undefined>(undefined);
+  const paintCanvasRef = useRef<(() => void) | null>(null);
   const starsRef = useRef<Array<{x: number, y: number, radius: number, opacity: number, twinkleSpeed: number}>>([]);
   const sphereSizeRef = useRef(0);
   const [shouldShowStarfield, setShouldShowStarfield] = useState(true);
@@ -220,7 +213,7 @@ const IfAnyoneBuildsItSplash = ({
     };
   }, [shouldShowStarfield]);
 
-  // Create and animate starfield
+  // Create starfield and canvas setup
   useEffect(() => {
     if (!shouldShowStarfield) return;
     
@@ -269,13 +262,15 @@ const IfAnyoneBuildsItSplash = ({
           twinkleSpeed: (Math.random() * 0.02) + 0.01
         });
       }
+      
+      // Repaint after resize
+      paintCanvas();
     };
 
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    // Animation loop with performance optimizations
-    const animate = () => {
+    // Canvas painting function (called on scroll events)
+    const paintCanvas = () => {
+      if (!ctx) return;
+      
       const displayWidth = window.innerWidth;
       const displayHeight = window.innerHeight;
       
@@ -288,14 +283,13 @@ const IfAnyoneBuildsItSplash = ({
       
       ctx.fillRect(0, 0, displayWidth, displayHeight);
       
-      const time = Date.now() * 0.001;
       const centerX = displayWidth * (1 - 0.10); // 15vw from right
       const centerY = displayHeight * 0.20; // 15vh from top
       const currentSphereRadius = sphereSizeRef.current / 2;
       const redShiftZoneThickness = 100;
       const maxRelevantDistance = currentSphereRadius + redShiftZoneThickness;
       
-      // Pre-calculate color space support once per frame
+      // Pre-calculate color space support once per paint
       const canvasColorSpace = ctx.getContextAttributes?.()?.colorSpace || 'srgb';
       const supportsDisplayP3 = canvasColorSpace === 'display-p3';
       let supportsOklch = false;
@@ -321,14 +315,12 @@ const IfAnyoneBuildsItSplash = ({
         
         // Skip stars that are too far away to be affected
         if (distanceSquared > maxRelevantDistanceSquared) {
-          // Add to gold stars batch (normal stars)
-          const twinkle = (Math.sin(time * star.twinkleSpeed) * 0.5) + 0.5;
-          const opacity = star.opacity * (0.5 + (twinkle * 0.5));
+          // Add to gold stars batch (normal stars, no twinkle since we only paint on scroll)
           goldStars.push({
             x: star.x,
             y: star.y,
             radius: star.radius,
-            opacity: opacity
+            opacity: star.opacity
           });
           continue;
         }
@@ -356,8 +348,7 @@ const IfAnyoneBuildsItSplash = ({
           sizeMultiplier = 1 + (redShift * 1);
         }
         
-        const twinkle = (Math.sin(time * star.twinkleSpeed) * 0.5) + 0.5;
-        const opacity = star.opacity * (0.5 + (twinkle * 0.5)) * fadeMultiplier;
+        const opacity = star.opacity * fadeMultiplier;
         
         if (redShift > 0) {
           // Pre-calculate red color
@@ -411,21 +402,24 @@ const IfAnyoneBuildsItSplash = ({
         ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
         ctx.fill();
       }
-      
-      animationRef.current = requestAnimationFrame(animate);
     };
+
+    // Store paint function for access from scroll handler
+    paintCanvasRef.current = paintCanvas;
+
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
     
-    animate();
+    // Initial paint
+    paintCanvas();
     
     return () => {
       window.removeEventListener('resize', resizeCanvas);
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
+      paintCanvasRef.current = null;
     };
   }, [shouldShowStarfield]);
 
-  // Handle scroll for sphere expansion with throttling
+  // Handle scroll for sphere expansion with throttling and canvas repaint
   useEffect(() => {
     if (!shouldShowStarfield) return;
     
@@ -452,6 +446,12 @@ const IfAnyoneBuildsItSplash = ({
           
           const size = progress * dynamicMaxSize;
           sphereSizeRef.current = size;
+          
+          // Repaint canvas with new sphere size
+          if (paintCanvasRef.current) {
+            paintCanvasRef.current();
+          }
+          
           ticking = false;
         });
         ticking = true;
