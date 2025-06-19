@@ -493,6 +493,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       hoverBackground: shades.grey[800],
     },
   },
+  intercom: {
+    buttonBackground: "unset",
+  },
   sideItemIndicator: {
     sideComment: '#5f9b65',
     inlineReaction: 'lch(68 34.48 85.39 / 76%)',
