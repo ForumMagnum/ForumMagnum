@@ -205,7 +205,7 @@ import { createSurveyScheduleGqlMutation, updateSurveyScheduleGqlMutation, graph
 import { createSurveyGqlMutation, updateSurveyGqlMutation, graphqlSurveyTypeDefs } from "@/server/collections/surveys/mutations";
 import { createTagFlagGqlMutation, updateTagFlagGqlMutation, graphqlTagFlagTypeDefs } from "@/server/collections/tagFlags/mutations";
 import { createTagGqlMutation, updateTagGqlMutation, graphqlTagTypeDefs } from "@/server/collections/tags/mutations";
-import { createUltraFeedEventGqlMutation, graphqlUltraFeedEventTypeDefs } from "@/server/collections/ultraFeedEvents/mutations";
+import { createUltraFeedEventGqlMutation, updateUltraFeedEventGqlMutation, graphqlUltraFeedEventTypeDefs } from "@/server/collections/ultraFeedEvents/mutations";
 import { createUserEAGDetailGqlMutation, updateUserEAGDetailGqlMutation, graphqlUserEAGDetailTypeDefs } from "@/server/collections/userEAGDetails/mutations";
 import { createUserJobAdGqlMutation, updateUserJobAdGqlMutation, graphqlUserJobAdTypeDefs } from "@/server/collections/userJobAds/mutations";
 import { createUserMostValuablePostGqlMutation, updateUserMostValuablePostGqlMutation, graphqlUserMostValuablePostTypeDefs } from "@/server/collections/userMostValuablePosts/mutations";
@@ -677,6 +677,7 @@ export const resolvers = {
     createTag: createTagGqlMutation,
     updateTag: updateTagGqlMutation,
     createUltraFeedEvent: createUltraFeedEventGqlMutation,
+    updateUltraFeedEvent: updateUltraFeedEventGqlMutation,
     createUserEAGDetail: createUserEAGDetailGqlMutation,
     updateUserEAGDetail: updateUserEAGDetailGqlMutation,
     createUserJobAd: createUserJobAdGqlMutation,

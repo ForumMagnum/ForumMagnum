@@ -3,9 +3,9 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import classNames from "classnames";
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeCommentOutlined';
+import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { useVote } from "../votes/withVote";
 import { VotingProps } from "../votes/votingProps";
-import { getNormalizedReactionsListFromVoteProps } from '@/lib/voting/reactionDisplayHelpers';
 import { getVotingSystemByName } from "@/lib/voting/getVotingSystem";
 import { FeedCommentMetaInfo, FeedPostMetaInfo } from "./ultraFeedTypes";
 import { useCurrentUser } from "../common/withUser";
@@ -19,6 +19,9 @@ import { getDefaultVotingSystem } from "@/lib/collections/posts/helpers";
 import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen";
 import CondensedFooterReactions from "./CondensedFooterReactions";
+import LWTooltip from "../common/LWTooltip";
+import { useTracking } from "../../lib/analyticsEvents";
+import { recombeeApi } from "@/lib/recombee/client";
 
 const UltraFeedEventsDefaultFragmentMutation = gql(`
   mutation createUltraFeedEventUltraFeedItemFooter($data: CreateUltraFeedEventDataInput!) {
@@ -118,6 +121,54 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       color: `${theme.palette.primary.main} !important`,
     },
   },
+  bookmarkAndSeeLessWrapper: {
+    display: "flex",
+    alignItems: "center",
+    gap: 2,
+  },
+  seeLessButton: {
+    position: "relative",
+    top: 1,
+    opacity: 0.5,
+    cursor: "pointer",
+    pointerEvents: 'auto !important',
+    "& svg": {
+      color: `${theme.palette.ultraFeed.dim} !important`,
+      opacity: 0.7,
+      height: 20,
+      [theme.breakpoints.down('sm')]: {
+        height: 22,
+      },
+    },
+    "&:hover": {
+      opacity: 1,
+    },
+    [theme.breakpoints.down('sm')]: {
+      top: 4,
+      opacity: 1,
+    },
+  },
+  seeLessButtonActive: {
+    opacity: 1,
+    pointerEvents: 'auto !important',
+    "& svg": {
+      opacity: 1,
+    },
+  },
+  seeLessButtonInner: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 4,
+    padding: 2,
+    transition: 'background-color 0.2s ease',
+    "&:hover": {
+      backgroundColor: theme.palette.panelBackground.hoverHighlightGrey,
+    },
+  },
+  seeLessButtonInnerActive: {
+    backgroundColor: theme.palette.panelBackground.hoverHighlightGrey,
+  },
   overallVoteButtons: {
     position: 'relative',
     top: 1,
@@ -171,10 +222,12 @@ interface UltraFeedItemFooterCoreProps {
   showVoteButtons: boolean;
   voteProps: VotingProps<VoteableTypeClient>;
   hideKarma?: boolean;
-  reactionCount: number;
   bookmarkProps?: BookmarkProps;
   collectionName: "Posts" | "Comments" | "Spotlights";
+  metaInfo?: FeedPostMetaInfo | FeedCommentMetaInfo;
   className?: string;
+  onSeeLess?: (eventId: string) => void;
+  isSeeLessMode?: boolean;
 }
 
 const UltraFeedItemFooterCore = ({
@@ -183,13 +236,16 @@ const UltraFeedItemFooterCore = ({
   showVoteButtons,
   voteProps,
   hideKarma,
-  reactionCount,
   bookmarkProps,
   collectionName,
+  metaInfo,
   className,
+  onSeeLess,
+  isSeeLessMode = false,
 }: UltraFeedItemFooterCoreProps) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const { captureEvent } = useTracking();
 
   const [createUltraFeedEvent] = useMutation(UltraFeedEventsDefaultFragmentMutation);
 
@@ -202,7 +258,8 @@ const UltraFeedItemFooterCore = ({
         userId: currentUser._id,
         eventType: 'interacted' as const,
         documentId: voteProps.document._id,
-        collectionName: voteProps.collectionName as "Posts" | "Comments" | "Spotlights", 
+        collectionName: voteProps.collectionName as "Posts" | "Comments" | "Spotlights",
+        feedItemId: metaInfo?.servedEventId,
         event: { interactionType },
       }
     };
@@ -213,6 +270,67 @@ const UltraFeedItemFooterCore = ({
     if (onClickComments) {
       handleInteractionLog('commentsClicked');
       onClickComments();
+    }
+  };
+
+  const handleSeeLessClick = async () => {
+    if (!currentUser || !voteProps.document || !onSeeLess) return;
+
+    // If already in see less mode, just call the callback (which will be handleUndoSeeLess)
+    if (isSeeLessMode) {
+      onSeeLess(''); // Pass empty string since handleUndoSeeLess doesn't use the parameter
+      return;
+    }
+
+    // Immediately show the see less UI with a placeholder
+    onSeeLess('pending');
+
+    captureEvent("ultraFeedSeeLessClicked", {
+      documentId: voteProps.document._id,
+      collectionName,
+      sources: metaInfo?.sources,
+      servedEventId: metaInfo?.servedEventId,
+    });
+    
+    const eventData = {
+      data: {
+        userId: currentUser._id,
+        eventType: 'seeLess' as const,
+        documentId: voteProps.document._id,
+        collectionName,
+        feedItemId: metaInfo?.servedEventId,
+        event: {
+          feedbackReasons: {
+            author: false,
+            topic: false,
+            contentType: false,
+            other: false,
+            text: '',
+          },
+          cancelled: false,
+        }
+      }
+    };
+    
+    const result = await createUltraFeedEvent({ variables: eventData });
+    const eventId = result.data?.createUltraFeedEvent?.data?._id;
+    
+    if (eventId) {
+      onSeeLess(eventId);
+    }
+
+    if (collectionName === "Posts" && metaInfo && 'recommInfo' in metaInfo && voteProps.document) {
+      const postMetaInfo = metaInfo
+      const documentId = voteProps.document._id
+      
+      if (documentId && postMetaInfo.recommInfo?.recommId) {
+        void recombeeApi.createRating(
+          documentId, 
+          currentUser._id, 
+          "bigDownvote",
+          postMetaInfo.recommInfo.recommId
+        );
+      }
     }
   };
 
@@ -264,27 +382,35 @@ const UltraFeedItemFooterCore = ({
         <CondensedFooterReactions voteProps={voteProps} allowReactions={collectionName === "Comments"} className={classes.condensedFooterReactions}/>
       )}
 
-      { bookmarkProps && bookmarkableCollectionNames.has(collectionName) && (
-        <div onClick={() => handleInteractionLog('bookmarkClicked')}>
-          <BookmarkButton
-            documentId={bookmarkProps.documentId}
-            collectionName={collectionName}
-            className={classNames(classes.bookmarkButton, { [classes.bookmarkButtonHighlighted]: bookmarkProps.highlighted })}
-          />
+      <div className={classes.bookmarkAndSeeLessWrapper}>
+        { bookmarkProps && bookmarkableCollectionNames.has(collectionName) && (
+          <div onClick={() => handleInteractionLog('bookmarkClicked')}>
+            <BookmarkButton
+              documentId={bookmarkProps.documentId}
+              collectionName={collectionName}
+              className={classNames(classes.bookmarkButton, { [classes.bookmarkButtonHighlighted]: bookmarkProps.highlighted })}
+            />
+          </div>
+        )}
+        
+        <div className={classNames(classes.seeLessButton, { [classes.seeLessButtonActive]: isSeeLessMode })} onClick={handleSeeLessClick}>
+          <LWTooltip title={isSeeLessMode ? "Undo see less" : "Show me less like this"}>
+            <span className={classNames("SeeLessButton-root", classes.seeLessButtonInner, { [classes.seeLessButtonInnerActive]: isSeeLessMode })}>
+              <CloseIcon />
+            </span>
+          </LWTooltip>
         </div>
-      )}
+      </div>
     </div>
   );
 };
 
 
-const UltraFeedPostFooter = ({ post, metaInfo, className }: { post: PostsListWithVotes, metaInfo: FeedPostMetaInfo, className?: string }) => {
+const UltraFeedPostFooter = ({ post, metaInfo, className, onSeeLess, isSeeLessMode }: { post: PostsListWithVotes, metaInfo: FeedPostMetaInfo, className?: string, onSeeLess?: (eventId: string) => void, isSeeLessMode?: boolean }) => {
   const { openDialog } = useDialog();
 
   const votingSystem = getVotingSystemByName(post?.votingSystem || "default");
   const voteProps = useVote(post, "Posts", votingSystem);
-  const reacts = getNormalizedReactionsListFromVoteProps(voteProps)?.reacts;
-  const reactionCount = reacts ? Object.keys(reacts).length : 0;
   const showVoteButtons = votingSystem.name === "namesAttachedReactions";
   const commentCount = post.commentCount ?? 0;
   const bookmarkProps: BookmarkProps = {documentId: post._id, highlighted: metaInfo.sources?.includes("bookmarks")};
@@ -308,23 +434,23 @@ const UltraFeedPostFooter = ({ post, metaInfo, className }: { post: PostsListWit
       showVoteButtons={showVoteButtons}
       voteProps={voteProps}
       hideKarma={false}
-      reactionCount={reactionCount}
       bookmarkProps={bookmarkProps}
       collectionName="Posts"
+      metaInfo={metaInfo}
       className={className}
+      onSeeLess={onSeeLess}
+      isSeeLessMode={isSeeLessMode}
     />
   );
 }
 
 
-const UltraFeedCommentFooter = ({ comment, metaInfo, className }: { comment: UltraFeedComment, metaInfo: FeedCommentMetaInfo, className?: string }) => {
+const UltraFeedCommentFooter = ({ comment, metaInfo, className, onSeeLess, isSeeLessMode }: { comment: UltraFeedComment, metaInfo: FeedCommentMetaInfo, className?: string, onSeeLess?: (eventId: string) => void, isSeeLessMode?: boolean }) => {
   const { openDialog } = useDialog();
 
   const parentPost = comment.post;
   const votingSystem = getVotingSystemByName(parentPost?.votingSystem || "default");
   const voteProps = useVote(comment, "Comments", votingSystem);
-  const reacts = getNormalizedReactionsListFromVoteProps(voteProps)?.reacts;
-  const reactionCount = reacts ? Object.keys(reacts).length : 0;
   const hideKarma = !!parentPost?.hideCommentKarma;
   const showVoteButtons = votingSystem.name === "namesAttachedReactions" && !hideKarma;
   const commentCount = metaInfo.directDescendentCount;
@@ -348,10 +474,12 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className }: { comment: Ult
       showVoteButtons={showVoteButtons}
       voteProps={voteProps}
       hideKarma={hideKarma}
-      reactionCount={reactionCount}
       bookmarkProps={bookmarkProps}
       collectionName={"Comments"}
+      metaInfo={metaInfo}
       className={className}
+      onSeeLess={onSeeLess}
+      isSeeLessMode={isSeeLessMode}
     />
   );
 }
@@ -362,6 +490,8 @@ interface UltraFeedPostFooterProps {
   collectionName: "Posts";
   metaInfo: FeedPostMetaInfo;
   className?: string;
+  onSeeLess?: (eventId: string) => void;
+  isSeeLessMode?: boolean;
 }
 
 interface UltraFeedCommentFooterProps {
@@ -369,15 +499,17 @@ interface UltraFeedCommentFooterProps {
   collectionName: "Comments";
   metaInfo: FeedCommentMetaInfo;
   className?: string;
+  onSeeLess?: (eventId: string) => void;
+  isSeeLessMode?: boolean;
 }
 
 type UltraFeedItemFooterProps = UltraFeedPostFooterProps | UltraFeedCommentFooterProps;
 
-const UltraFeedItemFooter = ({ document, collectionName, metaInfo, className }: UltraFeedItemFooterProps) => {
+const UltraFeedItemFooter = ({ document, collectionName, metaInfo, className, onSeeLess, isSeeLessMode }: UltraFeedItemFooterProps) => {
   if (collectionName === "Posts") {
-    return <UltraFeedPostFooter post={document} metaInfo={metaInfo} className={className} />;
+    return <UltraFeedPostFooter post={document} metaInfo={metaInfo} className={className} onSeeLess={onSeeLess} isSeeLessMode={isSeeLessMode} />;
   } else if (collectionName === "Comments") {
-    return <UltraFeedCommentFooter comment={document} metaInfo={metaInfo} className={className} />;
+    return <UltraFeedCommentFooter comment={document} metaInfo={metaInfo} className={className} onSeeLess={onSeeLess} isSeeLessMode={isSeeLessMode} />;
   }
   return null;
 };

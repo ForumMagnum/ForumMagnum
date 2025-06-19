@@ -114,7 +114,7 @@ const styles = (theme: ThemeType) => ({
       display: "flex",
       border: theme.palette.greyBorder("1px", 0.07),
       borderRadius: 3,
-      background: theme.palette.panelBackground.default,
+      background: theme.palette.panelBackground.bannerAdTranslucent,
       padding: "5.5px",
     },
   },

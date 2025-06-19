@@ -17,15 +17,14 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 import { createLWEvent } from '../collections/lwevents/mutations';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
-import { createStylesContext } from "@/lib/jssStyles";
+import { FMJssProvider } from '@/components/hooks/FMJssProvider';
+import { createStylesContext } from '@/lib/jssStyles';
 import { generateEmailStylesheet } from '../styleHelpers';
+import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
 import { ThemeOptions } from '@/themes/themeNames';
 import { EmailWrapper } from '../emailComponents/EmailWrapper';
 import CookiesProvider from '@/lib/vendor/react-cookie/CookiesProvider';
 import { utmifyForumBacklinks, UtmParam } from '../analytics/utm-tracking';
-import dynamic from 'next/dynamic';
-import { ThemeContextProvider } from '@/components/themes/useTheme';
-import { FMJssProvider } from '@/components/hooks/FMJssProvider';
 import { EmailRenderContext } from './EmailRenderContext';
 
 export interface RenderedEmail {
@@ -167,7 +166,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     <EmailRenderContext.Provider value={{isEmailRender:true}}>
     <ApolloProvider client={apolloClient}>
     <CookiesProvider>
-    <ThemeContextProvider options={themeOptions}>
+    <ThemeContextProvider options={themeOptions} isEmail={true}>
     <FMJssProvider stylesContext={stylesContext}>
     <UserContext.Provider value={user as unknown as UsersCurrent | null /*FIXME> */}>
     <TimezoneContext.Provider value={timezone}>

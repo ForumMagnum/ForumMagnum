@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    color: theme.palette.lwTertiary.main,
+    color: theme.palette.text.bannerAdOverlay,
     display: "inline-block",
     minHeight: 20,
     ...(isFriendlyUI

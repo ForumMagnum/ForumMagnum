@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { ThemeMetadata, themeMetadata, getForumType, AbstractThemeOptions } from '../../themes/themeNames';
 import { ForumTypeString, allForumTypes, forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
-import { useThemeOptions, useSetTheme } from './useTheme';
+import { useThemeOptions, useSetTheme, useIsThemeOverridden } from './useTheme';
 import { useCurrentUser } from '../common/withUser';
 import { isMobile } from '../../lib/utils/isMobile'
 import { Paper }from '@/components/widgets/Paper';
@@ -44,6 +44,14 @@ const ThemePickerMenu = ({children, classes}: {
   const updateCurrentUser = useUpdateCurrentUser();
 
   const selectedForumTheme = getForumType(currentThemeOptions);
+  
+  if (useIsThemeOverridden()) {
+    // Hack for the If Everyone Builds It announcement. If on a page where the
+    // theme is forced to an alternate (ie, the front page is forced to be dark
+    // mode), don't show the theme-picker in the user menu because it doesn't
+    // work.
+    return null;
+  }
 
   const persistUserTheme = (newThemeOptions: AbstractThemeOptions) => {
     if (isEAForum && currentUser) {

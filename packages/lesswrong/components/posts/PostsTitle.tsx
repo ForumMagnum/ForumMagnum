@@ -26,7 +26,7 @@ import { isEAForum } from '@/lib/instanceSettings';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    color: theme.palette.text.normal,
+    color: theme.palette.greyAlpha(1),
     position: "relative",
     lineHeight: "1.7rem",
     fontWeight: isFriendlyUI ? 600 : undefined,
@@ -81,6 +81,7 @@ const styles = (theme: ThemeType) => ({
     }
   },
   eaTitleDesktopEllipsis: isFriendlyUI ? {
+    color: theme.palette.text.bannerAdOverlay,
     '&:hover': {
       opacity: 0.5
     },

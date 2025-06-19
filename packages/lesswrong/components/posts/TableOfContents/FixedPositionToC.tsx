@@ -21,6 +21,7 @@ import { getClassName } from '@/components/hooks/useStyles';
 import TableOfContentsRow, { TableOfContentsRowStyles } from './TableOfContentsRow';
 import type { TableOfContentsDividerStyles } from './TableOfContentsDivider';
 import AnswerTocRow from "./AnswerTocRow";
+import { useContainerReadProgress } from '../../hooks/useContainerReadProgress';
 
 function normalizeToCScale({containerPosition, sections}: {
   sections: ToCSection[]
@@ -170,11 +171,12 @@ const styles = (theme: ThemeType) => ({
   rowDot: {
     fontSize: 9,
     height: 9,
+    lineHeight: '9px',
     background: theme.palette.background.pageActiveAreaBackground,
     marginLeft: 2,
     marginRight: 8,
     zIndex: 1,
-    color: theme.palette.grey[700]
+    color: theme.palette.grey[700],
   },
   tocWrapper: {
     marginLeft: 13,
@@ -236,7 +238,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayOptions, classes, hover}: {
+const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayOptions, classes, hover, scrollContainerRef}: {
   tocSections: ToCSection[],
   title: string|null,
   heading?: React.ReactNode,
@@ -244,6 +246,7 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType<typeof styles>,
   hover?: boolean,
+  scrollContainerRef?: React.RefObject<HTMLElement>,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -257,25 +260,59 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
 
   const { readingProgressBarRef } = usePostReadProgress({
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
-    disabled: disableProgressBar || !hasLoaded,
+    disabled: disableProgressBar || !hasLoaded || !!scrollContainerRef,
     setScrollWindowHeight: (element, height) => element.style.setProperty("--windowHeight", `${height}px`)
+  });
+
+  // If we have a custom scroll container, delegate progress bar management to the hook
+  useContainerReadProgress({
+    scrollContainerRef,
+    readingProgressBarRef,
+    disabled: disableProgressBar || !scrollContainerRef,
   });
 
   const jumpToAnchor = (anchor: string) => {
     if (isServer) return;
 
-    const anchorY = getAnchorY(anchor);
-    if (anchorY !== null) {
-      delete query.commentId;
+    const anchorElement = document.getElementById(anchor);
+    if (!anchorElement) return;
+
+    const container = scrollContainerRef?.current;
+
+    // Prefer scrolling inside the provided scroll container if available
+    if (container) {
+      const containerRect = container.getBoundingClientRect();
+      const anchorRect = anchorElement.getBoundingClientRect();
+      const offsetInsideContainer = anchorRect.top - containerRect.top;
+
+      const targetScrollTop = container.scrollTop + offsetInsideContainer - (container.clientHeight * 0.2);
+
+      container.scrollTo({
+        top: targetScrollTop, // keep heading ~20% from top
+        behavior: 'smooth',
+      });
+
+      // Update URL hash for consistency
+      const { commentId, ...restQuery } = query;
       navigate({
-        search: isEmpty(query) ? '' : `?${qs.stringify(query)}`,
+        search: isEmpty(restQuery) ? '' : `?${qs.stringify(restQuery)}`,
         hash: `#${anchor}`,
       });
-      let sectionYdocumentSpace = anchorY + window.scrollY;
+      return;
+    }
 
-      // This is forum-gating of a fairly subtle change in scroll behaviour, LW may want to adopt scrollFocusOnElement
+    // Fallback to original window-scrolling behaviour
+    const anchorY = getAnchorY(anchor);
+    if (anchorY !== null) {
+      const { commentId, ...restQuery } = query;
+      navigate({
+        search: isEmpty(restQuery) ? '' : `?${qs.stringify(restQuery)}`,
+        hash: `#${anchor}`,
+      });
+      const sectionYdocumentSpace = anchorY + window.scrollY;
+
       if (!isLWorAF) {
-        scrollFocusOnElement({ id: anchor, options: {behavior: "smooth"}})
+        scrollFocusOnElement({ id: anchor, options: { behavior: 'smooth' } });
       } else {
         jumpToY(sectionYdocumentSpace);
       }
@@ -354,7 +391,12 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
               if (isRegularClick(ev)) {
                 void handleClick(ev, () => {
                   navigate("#");
-                  jumpToY(0)
+                  const container = scrollContainerRef?.current;
+                  if (container) {
+                    container.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else {
+                    jumpToY(0);
+                  }
                 });
               }
             }}

@@ -25,7 +25,7 @@ import { DEFAULT_TIMEZONE } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
 import { addStartRenderTimeToPerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
 import { maxRenderQueueSize, queuedRequestTimeoutSecondsSetting, commentPermalinkStyleSetting } from '../../../lib/publicSettings';
-import { performanceMetricLoggingEnabled } from '../../../lib/instanceSettings';
+import { isLW, performanceMetricLoggingEnabled } from '../../../lib/instanceSettings';
 import { getClientIP } from '@/server/utils/getClientIP';
 import PriorityBucketQueue, { RequestData } from '../../../lib/requestPriorityQueue';
 import { isAnyTest, isProduction } from '../../../lib/executionEnvironment';
@@ -520,7 +520,11 @@ const renderRequest = async ({req, user, startTime, res, userAgent, ...cacheAtte
   const serializedApolloState = embedAsGlobalVar("__APOLLO_STATE__", initialState);
   const serializedForeignApolloState = embedAsGlobalVar("__APOLLO_FOREIGN_STATE__", foreignClient.extract());
 
-  const jssSheets = renderJssSheetImports(themeOptions);
+  // Hack for the front page If Everyone Builds It announcement
+  const forceDarkMode = isLW && req.url === '/';
+  const jssSheets = forceDarkMode
+    ? renderJssSheetImports({name: "dark"})
+    : renderJssSheetImports(themeOptions);
 
   const finishedTime = new Date();
   const finishedCpuTime = getCpuTimeMs();

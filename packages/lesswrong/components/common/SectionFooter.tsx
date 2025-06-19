@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: theme.spacing.unit,
     marginRight: theme.spacing.unit/2,
     marginLeft: theme.spacing.unit/2,
-    color: theme.palette.lwTertiary.main,
+    color: theme.palette.text.bannerAdOverlay,
     flexWrap: "wrap",
     ...separatorBulletStyles(theme),
     ...(isFriendlyUI

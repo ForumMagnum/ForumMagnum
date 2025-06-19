@@ -1,7 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import Radio from '@/lib/vendor/@material-ui/core/src/Radio';
-import RadioGroup from '@/lib/vendor/@material-ui/core/src/RadioGroup';
 import FormControlLabel from '@/lib/vendor/@material-ui/core/src/FormControlLabel';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
@@ -9,7 +8,7 @@ import { useTimezone } from '../common/withTimezone';
 import withErrorBoundary from '../common/withErrorBoundary';
 import moment from '../../lib/moment-timezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
-import { karmaChangeNotifierDefaultSettings, type KarmaChangeSettingsType } from '../../lib/collections/users/helpers';
+import { karmaChangeNotifierDefaultSettings, KarmaChangeUpdateFrequency, type KarmaChangeSettingsType } from '../../lib/collections/users/helpers';
 import * as _ from 'underscore';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
@@ -26,6 +25,9 @@ const styles = defineStyles('KarmaChangeNotifierSettings', (theme: ThemeType) =>
     fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   radioGroup: {
+    display: "flex",
+    flexDirection: 'column',
+    flexWrap: 'wrap',
     marginTop: 4,
     paddingLeft: 24,
   },
@@ -178,14 +180,18 @@ const KarmaChangeNotifierSettings = ({
       set to real time (removing the batching), disabled (to remove it
       from the header entirely), or to some other update interval.
     </Typography>
-    <RadioGroup className={classes.radioGroup}
-      value={settings.updateFrequency}
-      onChange={(event, newValue) => modifyValue({updateFrequency: newValue as any})}
-    >
-      {_.map(getKarmaNotificationTimingChoices(), (timingChoice, key) =>
+    <div className={classes.radioGroup}>
+      {Object.entries(getKarmaNotificationTimingChoices()).map(([key, timingChoice]) =>
         <FormControlLabel
           key={key}
-          control={<Radio className={classes.radioButton} value={key} />}
+          control={
+            <Radio
+              checked={key===settings.updateFrequency}
+              onChange={(ev) => modifyValue({updateFrequency: key as KarmaChangeUpdateFrequency})}
+              className={classes.radioButton}
+              value={key}
+            />
+          }
           label={
             <Typography className={classes.inline} variant="body2" component="span">
               {timingChoice.label}
@@ -197,7 +203,7 @@ const KarmaChangeNotifierSettings = ({
           }}
         />
       )}
-    </RadioGroup>
+    </div>
     
     { (settings.updateFrequency==="realtime") && <span>
       Warning: Immediate karma updates may lead to over-updating on tiny amounts

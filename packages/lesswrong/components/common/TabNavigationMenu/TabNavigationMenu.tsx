@@ -35,12 +35,14 @@ const styles = (theme: ThemeType) => {
     },
     navSidebarTransparent: {
       zIndex: 10,
-      background: `${theme.palette.background.default}cf`, // Add alpha to background color, not thrilled about this way of doing it
-      backdropFilter: 'blur(6px)'
+      background: theme.palette.panelBackground.bannerAdTranslucent,
+      backdropFilter: theme.palette.filters.bannerAdBlurMedium
     },
     divider: {
       width: 50,
       borderBottom: theme.palette.border.normal,
+      color: theme.palette.text.bannerAdOverlay,
+      background: theme.palette.text.bannerAdOverlay,
       marginBottom: theme.spacing.unit * 2.5,
       ...(isFriendlyUI
         ? {

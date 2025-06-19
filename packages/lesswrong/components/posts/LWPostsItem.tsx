@@ -45,7 +45,14 @@ export const styles = (theme: ThemeType) => ({
   row: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    flexDirection: "column",
+    '&::after': {
+      height: 2,
+      content: '""',
+      width: '100%',
+      backdropFilter: theme.palette.filters.bannerAdBlur,
+    },
   },
   root: {
     position: "relative",
@@ -62,7 +69,11 @@ export const styles = (theme: ThemeType) => ({
   },
   background: {
     width: "100%",
-    background: theme.palette.panelBackground.default,
+    background: theme.palette.panelBackground.bannerAdTranslucent,
+    backdropFilter: theme.palette.filters.bannerAdBlur,
+    [theme.breakpoints.down(1300)]: {
+      background: theme.palette.panelBackground.bannerAdTranslucentDeep,
+    }
   },
   checkboxWidth: {
     width: "calc(100% - 24px)"
@@ -88,7 +99,7 @@ export const styles = (theme: ThemeType) => ({
   },
   withGrayHover: {
     '&:hover': {
-      backgroundColor: theme.palette.panelBackground.postsItemHover,
+      backgroundColor: theme.palette.panelBackground.bannerAdTranslucentHeavy,
     },
   },
   hasSmallSubtitle: {
@@ -160,6 +171,7 @@ export const styles = (theme: ThemeType) => ({
     zIndex: theme.zIndexes.postItemAuthor,
     flex: 1000,
     maxWidth: "fit-content",
+    color: theme.palette.text.bannerAdDim,
     [theme.breakpoints.down('xs')]: {
       justifyContent: "flex-end",
       width: "unset",
@@ -333,7 +345,8 @@ export const styles = (theme: ThemeType) => ({
     height: 22,
   },
   isRead: {
-    // this is just a placeholder, enabling easier theming.
+    background: theme.palette.panelBackground.bannerAdTranslucent,
+    backdropFilter: theme.palette.filters.bannerAdBlur,
   },
   checkbox: {
     marginRight: 10
