@@ -74,7 +74,7 @@ const styles = defineStyles("ThemeStylesheetSwapper", () => ({
       }
     },
   },
-}));
+}), {allowNonThemeColors: true});
 
 const ThemeStylesheetSwapper = () => {
   const themeOptions = useThemeOptions();
@@ -84,7 +84,6 @@ const ThemeStylesheetSwapper = () => {
 
   useLayoutEffect(() => {
     if (stringify(themeOptions) !== stringify(window.themeOptions)) {
-      const oldThemeOptions = window.themeOptions;
       window.themeOptions = themeOptions;
       const stylesId = "main-styles";
       const tempStylesId = stylesId + "-temp";
