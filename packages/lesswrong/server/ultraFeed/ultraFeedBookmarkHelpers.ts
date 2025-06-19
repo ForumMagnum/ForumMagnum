@@ -13,14 +13,21 @@ function prepareBookmarksForUltraFeed(bookmarks: UltraFeedBookmark[]): PreparedB
           type: "feedPost",
           feedPostStub: {
             postId: b.documentId,
-            postMetaInfo: { sources: ['bookmarks'] as const, displayStatus: 'expanded' }
+            postMetaInfo: { 
+              sources: ['bookmarks'] as const, 
+              displayStatus: 'expanded',
+            }
           }
         };
       } else if (b.collectionName === 'Comments' && b.postId) {
         const metaInfo: FeedCommentMetaInfo = {
-          sources: ['bookmarks'] as const, displayStatus: 'expanded',
-          lastServed: null, lastViewed: null, lastInteracted: null, postedAt: null,
-          directDescendentCount: b.directChildrenCount ?? 0
+          sources: ['bookmarks'] as const,
+          displayStatus: 'expanded' as const,
+          lastServed: null,
+          lastViewed: null,
+          lastInteracted: null,
+          postedAt: null,
+          directDescendentCount: b.directChildrenCount ?? 0,
         };
         const comment: PreDisplayFeedComment = {
           commentId: b.documentId, postId: b.postId, baseScore: 0, metaInfo,

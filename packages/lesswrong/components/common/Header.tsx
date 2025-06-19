@@ -113,8 +113,9 @@ const textColorOverrideStyles = ({
 export const styles = (theme: ThemeType) => ({
   appBar: {
     boxShadow: theme.palette.boxShadow.appBar,
-    color: theme.palette.header.text,
-    backgroundColor: theme.palette.header.background,
+    color: theme.palette.text.bannerAdOverlay,
+    background: theme.palette.panelBackground.bannerAdTranslucent,
+    backdropFilter: theme.palette.filters.headerBackdropFilter,
     position: "static",
     width: "100%",
     display: "flex",
@@ -133,6 +134,10 @@ export const styles = (theme: ThemeType) => ({
         padding: '9px 11px',
       },
     } : {}),
+  },
+  blackBackgroundAppBar: {
+    boxShadow: theme.palette.boxShadow.appBarDarkBackground,
+    background: theme.palette.panelBackground.appBarDarkBackground,
   },
   appBarDarkBackground: {
     ...textColorOverrideStyles({
@@ -171,7 +176,7 @@ export const styles = (theme: ThemeType) => ({
     color: theme.palette.text.secondary,
   },
   titleLink: {
-    color: theme.palette.header.text,
+    color: theme.palette.text.bannerAdOverlay,
     fontSize: 19,
     '&:hover, &:active': {
       textDecoration: 'none',
@@ -521,7 +526,8 @@ const Header = ({
           <header
             className={classNames(
               classes.appBar,
-              useContrastText && classes.appBarDarkBackground
+              useContrastText && classes.appBarDarkBackground,
+              currentRoute?.background === "white" && classes.blackBackgroundAppBar,
             )}
             style={headerStyle}
           >

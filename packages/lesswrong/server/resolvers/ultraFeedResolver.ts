@@ -8,7 +8,8 @@ import {
   feedCommentSourceTypesArray,
   feedSpotlightSourceTypesArray,
   FeedItemDisplayStatus,
-  FeedPostStub
+  FeedPostStub,
+  ServedEventData
 } from "@/components/ultraFeed/ultraFeedTypes";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from 'graphql-tag';
@@ -19,6 +20,7 @@ import { DEFAULT_SETTINGS as DEFAULT_ULTRAFEED_SETTINGS, UltraFeedResolverSettin
 import { loadByIds } from '@/lib/loaders';
 import { getUltraFeedPostThreads, getSubscribedPostsForUltraFeed } from '@/server/ultraFeed/ultraFeedPostHelpers';
 import { getUltraFeedBookmarks, PreparedBookmarkItem } from '../ultraFeed/ultraFeedBookmarkHelpers';
+import { randomId } from '@/lib/random';
 
 interface UltraFeedDateCutoffs {
   latestPostsMaxAgeDays: number;
@@ -309,7 +311,10 @@ const transformItemsForResolver = (
       if (preDisplayComments) {
         preDisplayComments.forEach((comment: PreDisplayFeedComment) => {
           if (comment.commentId && comment.metaInfo) {
-            commentMetaInfos[comment.commentId] = comment.metaInfo;
+            commentMetaInfos[comment.commentId] = {
+              ...comment.metaInfo,
+              servedEventId: randomId()
+            };
           }
         });
       }
@@ -354,7 +359,14 @@ const transformItemsForResolver = (
       const stableId = post._id ?? `feed-post-${index}`;
       return {
         type: "feedPost",
-        feedPost: { _id: stableId, post, postMetaInfo }
+        feedPost: { 
+          _id: stableId, 
+          post, 
+          postMetaInfo: {
+            ...postMetaInfo,
+            servedEventId: randomId()
+          }
+        }
       };
     }
 
@@ -365,7 +377,14 @@ const transformItemsForResolver = (
       const stableId = post._id ?? `feed-post-${index}`;
       return {
         type: "feedPost",
-        feedPost: { _id: stableId, post, postMetaInfo }
+        feedPost: { 
+          _id: stableId, 
+          post, 
+          postMetaInfo: {
+            ...postMetaInfo,
+            servedEventId: randomId()
+          }
+        }
       };
     }
 
@@ -375,12 +394,7 @@ const transformItemsForResolver = (
   }));
 };
 
-type UltraFeedEventInsertData = Pick<DbUltraFeedEvent, 'userId' | 'eventType' | 'collectionName' | 'documentId' > & { event?: { 
-  sessionId: string;
-  itemIndex: number;
-  commentIndex?: number;
-  displayStatus?: FeedItemDisplayStatus;
-} };
+type UltraFeedEventInsertData = Pick<DbUltraFeedEvent, '_id' | 'userId' | 'eventType' | 'collectionName' | 'documentId' > & { event?: ServedEventData };
 
 /**
  * Create UltraFeed events for tracking served items
@@ -398,37 +412,52 @@ const createUltraFeedEvents = (
     
     if (item.type === "feedSpotlight" && item.feedSpotlight?.spotlight?._id) {
       eventsToCreate.push({
+        _id: randomId(),
         userId,
         eventType: "served",
         collectionName: "Spotlights",
         documentId: item.feedSpotlight.spotlight._id,
-        event: { sessionId, itemIndex: actualItemIndex }
+        event: { sessionId, itemIndex: actualItemIndex, sources: ["spotlights"] }
       });
     } else if (item.type === "feedCommentThread" && (item.feedCommentThread?.comments?.length ?? 0) > 0) {
         const threadData = item.feedCommentThread;
         const comments = threadData?.comments;
         const commentMetaInfos = threadData?.commentMetaInfos;
+        const sources = threadData?.commentMetaInfos?.[comments?.[0]?._id ?? ""]?.sources ?? [];
         comments?.forEach((comment: DbComment, commentIndex) => {
           if (comment?._id) {
             const displayStatus = commentMetaInfos?.[comment._id]?.displayStatus;
-            eventsToCreate.push({ 
-               userId, 
-               eventType: "served", 
-               collectionName: "Comments", 
-               documentId: comment._id, 
-               event: { sessionId, itemIndex: actualItemIndex, commentIndex, displayStatus }
-              });
+            const servedEventId = commentMetaInfos?.[comment._id]?.servedEventId;
+            if (servedEventId) {
+              eventsToCreate.push({ 
+                 _id: servedEventId,
+                 userId, 
+                 eventType: "served", 
+                 collectionName: "Comments", 
+                 documentId: comment._id, 
+                 event: { 
+                  sessionId, 
+                  itemIndex: actualItemIndex, 
+                  commentIndex, 
+                  displayStatus,
+                  sources
+                }
+                });
+            }
           }
         });
     } else if (item.type === "feedPost" && item.feedPost?.post?._id) {
       const feedItem = item.feedPost;
-      if (feedItem.post._id) { 
+      const servedEventId = feedItem.postMetaInfo?.servedEventId;
+      const sources = feedItem.postMetaInfo?.sources ?? [];
+      if (feedItem.post._id && servedEventId) { 
         eventsToCreate.push({ 
+          _id: servedEventId,
           userId, 
           eventType: "served", 
           collectionName: "Posts", 
           documentId: feedItem.post._id,
-          event: { sessionId, itemIndex: actualItemIndex }
+          event: { sessionId, itemIndex: actualItemIndex, sources }
         });
       }
     }

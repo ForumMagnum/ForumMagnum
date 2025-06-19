@@ -52,7 +52,7 @@ const styles = (theme: ThemeType) => ({
     zIndex: theme.zIndexes.karmaChangeNotifier,
   },
   starIcon: {
-    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text,
+    color: theme.palette.text.bannerAdOverlay,
   },
   title: {
     display: 'block',
