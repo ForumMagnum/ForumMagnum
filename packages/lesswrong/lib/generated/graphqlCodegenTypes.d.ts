@@ -10172,7 +10172,7 @@ type SocialPreviewInput = {
 
 type SocialPreviewOutput = {
   __typename?: 'SocialPreviewOutput';
-  imageId: Scalars['String']['output'];
+  imageId?: Maybe<Scalars['String']['output']>;
   text?: Maybe<Scalars['String']['output']>;
 };
 
@@ -25011,7 +25011,7 @@ type PostsEdit_Post_customHighlight_Revision = (
   & RevisionEdit
 );
 
-type PostsEdit_Post_socialPreview_SocialPreviewOutput = { __typename?: 'SocialPreviewOutput', imageId: string, text: string | null };
+type PostsEdit_Post_socialPreview_SocialPreviewOutput = { __typename?: 'SocialPreviewOutput', imageId: string | null, text: string | null };
 
 type PostsEdit_Post_socialPreviewData_SocialPreviewType = { __typename?: 'SocialPreviewType', _id: string, imageId: string | null, text: string | null };
 
