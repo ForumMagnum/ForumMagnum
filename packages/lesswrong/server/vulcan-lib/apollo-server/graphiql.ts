@@ -25,8 +25,11 @@ import url from 'url';
  * - (optional) editorTheme: a CodeMirror theme to be applied to the GraphiQL UI
  * - (optional) websocketConnectionParams: an object to pass to the web socket server
  */
-// Current latest version of GraphiQL.
-const GRAPHIQL_VERSION = '0.11.11';
+// RobertM: This is the latest version of GraphiQL I could find which
+// doesn't break schema introspection because of the EmptyViewInput having only a deprecated field in it
+// (though it does still log a console error), which didn't also require refactoring
+// to get it working in this old hacked-together scaffold.
+const GRAPHIQL_VERSION = '1.4.6';
 const SUBSCRIPTIONS_TRANSPORT_VERSION = '0.9.9';
 
 // Ensures string values are safe to be used within a <script> tag.
@@ -70,8 +73,8 @@ export function renderGraphiQL(data: any) {
     }
   </style>
   <link href="//unpkg.com/graphiql@${GRAPHIQL_VERSION}/graphiql.css" rel="stylesheet" />
-  <script src="//unpkg.com/react@15.6.1/dist/react.min.js"></script>
-  <script src="//unpkg.com/react-dom@15.6.1/dist/react-dom.min.js"></script>
+  <script src="//unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+  <script src="//unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
   <script src="//unpkg.com/graphiql@${GRAPHIQL_VERSION}/graphiql.min.js"></script>
   ${
     usingEditorTheme
