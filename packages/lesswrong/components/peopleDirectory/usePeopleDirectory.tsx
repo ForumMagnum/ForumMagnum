@@ -26,7 +26,6 @@ const TagNameMultiQuery = gql(`
   }
 `);
 
-
 type PeopleDirectoryView = "list" | "map";
 
 type PeopleDirectorySorting = {

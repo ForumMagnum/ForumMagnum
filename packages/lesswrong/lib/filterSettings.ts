@@ -1,5 +1,4 @@
 import { defaultVisibilityTags } from './publicSettings';
-import filter from 'lodash/filter';
 
 export interface FilterSettings {
   personalBlog: FilterMode,
@@ -34,25 +33,6 @@ export const getDefaultFilterSettings = (): FilterSettings => {
     // migration to update the users.
     tags: defaultVisibilityTags.get().map(tf => ({...tf, filterMode: "TagDefault"})),
   }
-}
-
-export const addSuggestedTagsToSettings = (existingFilterSettings: FilterSettings, suggestedTags: Array<TagBasicInfo>): FilterSettings => {
-  const tagsIncluded: Record<string,boolean> = {};
-  for (let tag of existingFilterSettings.tags)
-    tagsIncluded[tag.tagId] = true;
-  const tagsNotIncluded = filter(suggestedTags, tag=>!(tag._id in tagsIncluded));
-
-  return {
-    ...existingFilterSettings,
-    tags: [
-      ...existingFilterSettings.tags,
-      ...tagsNotIncluded.map((tag: TagPreviewFragment): FilterTag => ({
-        tagId: tag._id,
-        tagName: tag.name,
-        filterMode: "Default",
-      })),
-    ],
-  };
 }
 
 export const filterModeIsSubscribed = (filterMode: FilterMode) =>

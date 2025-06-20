@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { DialogContent } from "@/components/widgets/DialogContent";
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
@@ -89,9 +89,9 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
           color="primary"
           onClick={async () => {
             if (name) {
-              const { errors } = await registerRSVP({variables: {postId: post._id, name, email, response}})
-              if (errors) {
-                setError(`Oops, something went wrong: ${errors[0].message}`)
+              const { error } = await registerRSVP({variables: {postId: post._id, name, email, response}})
+              if (error) {
+                setError(`Oops, something went wrong: ${error.message}`)
               } else if (onClose) {
                 onClose()
               }

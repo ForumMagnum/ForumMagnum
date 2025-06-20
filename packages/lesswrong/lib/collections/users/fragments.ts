@@ -114,6 +114,7 @@ export const UsersCurrent = gql(`
     hideIntercom
     hideNavigationSidebar
     hideCommunitySection
+    hasContinueReading
     expandedFrontpageSections {
       community
       recommendations
@@ -178,9 +179,7 @@ export const UsersCurrent = gql(`
     recommendationSettings
     theme
 
-    bookmarkedPostsMetadata {
-      postId
-    }
+    hasAnyBookmarks
 
     hiddenPostsMetadata {
       postId

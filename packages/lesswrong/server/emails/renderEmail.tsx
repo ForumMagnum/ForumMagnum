@@ -1,7 +1,7 @@
 import { htmlToText } from 'html-to-text';
 import { sendEmailSmtp } from './sendEmail';
 import React from 'react';
-import { ApolloProvider } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client/react';
 import { getDataFromTree } from '@apollo/client/react/ssr';
 // import { renderToString } from 'react-dom/server';
 import { TimezoneContext, UserContext } from '../../components/common/sharedContexts';

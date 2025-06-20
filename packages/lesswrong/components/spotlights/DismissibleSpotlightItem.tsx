@@ -7,6 +7,7 @@ import { HIDE_SPOTLIGHT_ITEM_PREFIX } from '../../lib/cookies/cookies';
 import { useCurrentFrontpageSpotlight } from '../hooks/useCurrentFrontpageSpotlight';
 import SpotlightItem from "./SpotlightItem";
 import SingleColumnSection from "../common/SingleColumnSection";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 export const DismissibleSpotlightItem = ({
   current,
@@ -65,6 +66,17 @@ export const DismissibleSpotlightItem = ({
     return spotlightElement;
   }
   return null
+}
+
+const spotlightItemFallbackStyles = defineStyles("SpotlightItemFallback", (theme) => ({
+  fallback: {
+    height: 181,
+  },
+}));
+
+export const SpotlightItemFallback = () => {
+  const classes = useStyles(spotlightItemFallbackStyles);
+  return <div className={classes.fallback}/>
 }
 
 export default registerComponent('DismissibleSpotlightItem', DismissibleSpotlightItem);

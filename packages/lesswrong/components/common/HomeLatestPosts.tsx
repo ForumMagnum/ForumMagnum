@@ -117,7 +117,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const updateCurrentUser = useUpdateCurrentUser();
   const currentUser = useCurrentUser();
 
-  const {filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
+  const {filterSettings, suggestedTagsQueryRef, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
   // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
   // (except that on the EA Forum/FriendlyUI it always starts out hidden)
   const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(isFriendlyUI ? false : !currentUser?.hideFrontpageFilterSettingsDesktop);
@@ -206,7 +206,11 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
               [classes.hideOnMobile]: !filterSettingsVisibleMobile,
             })}>
               <TagFilterSettings
-                filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter}
+                filterSettings={filterSettings}
+                suggestedTagsQueryRef={suggestedTagsQueryRef}
+                setPersonalBlogFilter={setPersonalBlogFilter}
+                setTagFilter={setTagFilter}
+                removeTagFilter={removeTagFilter}
               />
             </div>
           )}

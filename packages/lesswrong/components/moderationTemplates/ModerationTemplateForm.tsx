@@ -13,7 +13,7 @@ import { getUpdatedFieldValues } from "@/components/tanstack-form-components/hel
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const ModerationTemplateFragmentUpdateMutation = gql(`

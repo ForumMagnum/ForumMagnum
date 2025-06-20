@@ -16,7 +16,7 @@ import UltraFeedCommentsDialog from "./UltraFeedCommentsDialog";
 import OverallVoteAxis from "../votes/OverallVoteAxis";
 import AgreementVoteAxis from "../votes/AgreementVoteAxis";
 import { getDefaultVotingSystem } from "@/lib/collections/posts/helpers";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import CondensedFooterReactions from "./CondensedFooterReactions";
 import LWTooltip from "../common/LWTooltip";

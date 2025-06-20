@@ -95,15 +95,8 @@ const locationsToStr = (locations: readonly SourceLocation[] = []) =>
  * This is an extra utility link that is currently used for client side error handling
  */
 export const createErrorLink = () =>
-  onError(({ graphQLErrors, networkError }) => {
-    if (graphQLErrors)
-      graphQLErrors.map(({ message, locations, path }) => {
-        const locationStr = locations && locationsToStr([...locations]);
-        // eslint-disable-next-line no-console
-        console.error(`[GraphQL error]: Message: ${message}, Location: ${locationStr}, Path: ${path}`);
-      });
-    if (networkError) {
-      // eslint-disable-next-line no-console
-      console.error(`[Network error]: ${networkError}`);
-    }
+  onError((errorResponse) => {
+    const { error } = errorResponse;
+    // eslint-disable-next-line no-console
+    console.error(error.message);
   });

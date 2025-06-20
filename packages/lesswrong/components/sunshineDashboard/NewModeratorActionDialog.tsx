@@ -12,7 +12,7 @@ import { cancelButtonStyles, submitButtonStyles } from '@/components/tanstack-fo
 import { FormUserSelect } from '@/components/form-components/UserSelect';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 import LWDialog from "../common/LWDialog";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const ModeratorActionDisplayMutation = gql(`

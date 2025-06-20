@@ -28,7 +28,7 @@ import CommunityMembers from "./modules/CommunityMembers";
 import GroupFormLink from "../localGroups/GroupFormLink";
 import DistanceUnitToggle from "./modules/DistanceUnitToggle";
 import ForumIcon from "../common/ForumIcon";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const UsersProfileUpdateMutation = gql(`

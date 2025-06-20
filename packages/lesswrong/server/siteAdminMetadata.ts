@@ -1,7 +1,7 @@
 import process from 'process';
 import os from 'os';
 import { execSync } from 'child_process';
-import { getCacheHitRate } from './vulcan-lib/apollo-ssr/pageCache';
+import { getCacheHitRate } from '@/server/rendering/pageCache';
 import { getPreloadedDatabaseId } from './loadDatabaseSettings';
 import gql from 'graphql-tag';
 // Send this as stringified-JSON rather than as real JSON, because for Mongo

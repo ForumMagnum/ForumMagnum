@@ -19,6 +19,7 @@ import EventBanner from "./EventBanner";
 import HeadTags from "../common/HeadTags";
 import BotSiteBanner from "../common/BotSiteBanner";
 import EAGBanner from "./EAGBanner";
+import { StructuredData } from '../common/StructuredData'
 
 const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
 const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBanner', false)
@@ -100,7 +101,7 @@ const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
   return (
     <AnalyticsContext pageContext="homePage">
-      <HeadTags structuredData={getStructuredData()}/>
+      <StructuredData generate={()=>getStructuredData()}/>
       {shouldRenderMaintenanceBanner && <MaintenanceBanner />}
       {shouldRenderSmallpox && <SmallpoxBanner/>}
       {shouldRenderEventBanner && <EventBanner />}

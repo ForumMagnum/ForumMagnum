@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
-import { mapboxAPIKeySetting } from '../../../lib/publicSettings';
+import { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { connectHits } from 'react-instantsearch-dom';
 import PersonIcon from '@/lib/vendor/@material-ui/icons/src/PersonPin';
 import type { Hit } from 'react-instantsearch-core';
 import classNames from 'classnames';
-import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWithChildren';
-import { useMapStyle } from '@/components/hooks/useMapStyle';
+import { componentWithChildren } from '../../../lib/utils/componentsWithChildren';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
 import StyledMapPopup from "../../localGroups/StyledMapPopup";
+import { WrappedReactMapGL } from '../WrappedReactMapGL';
 
-const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
 
 const styles = (theme: ThemeType) => ({
@@ -114,18 +112,12 @@ const SearchResultsMap = ({
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hits])
 
-  const mapStyle = useMapStyle();
   return <div className={classNames(classes.root, className)}>
-    <Helmet>
-      <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
-    </Helmet>
-    <ReactMapGL
+    <WrappedReactMapGL
       {...viewport}
       width="100%"
       height="100%"
-      mapStyle={mapStyle}
       onViewportChange={viewport => setViewport(viewport)}
-      mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
     >
       {hits.map(hit => {
         if (!hit._geoloc || !markerLocations[hit._id]) return null
@@ -163,7 +155,7 @@ const SearchResultsMap = ({
           </StyledMapPopup>}
         </React.Fragment>
       })}
-    </ReactMapGL>
+    </WrappedReactMapGL>
   </div>
 }
 

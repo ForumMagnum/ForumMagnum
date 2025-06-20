@@ -1,10 +1,9 @@
 import classNames from 'classnames';
 import React, { useEffect, useRef } from 'react';
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { MAX_COLUMN_WIDTH } from '../PostsPage/constants';
 import { fullHeightToCEnabled } from '../../../lib/betas';
 import { HEADER_HEIGHT } from '@/components/common/Header';
-import LWCommentCount from "./LWCommentCount";
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export const MAX_CONTENT_WIDTH = 720;
 const TOC_OFFSET_TOP = 92
@@ -15,9 +14,9 @@ export const DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT = 50;
 
 const STICKY_BLOCK_SCROLLER_CLASS_NAME = 'MultiToCLayoutStickyBlockScroller';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
   root: {
-    [`&:has($gap1:hover) .${HOVER_CLASSNAME}, &:has($toc:hover) .${HOVER_CLASSNAME}, &:has($commentCount:hover) .${HOVER_CLASSNAME}`]: {
+    [`&:has($gap1:hover) .${HOVER_CLASSNAME}, &:has($toc:hover) .${HOVER_CLASSNAME}, &:has($tocFooter:hover) .${HOVER_CLASSNAME}`]: {
       opacity: 1
     },
   },
@@ -90,7 +89,7 @@ const styles = (theme: ThemeType) => ({
     // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
     [`body:has(.headroom--pinned) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}, body:has(.headroom--unfixed) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}`]: {
       top: HEADER_HEIGHT,
-      height: `calc(100vh - ${HEADER_HEIGHT}px - var(--fixed-toc-comment-count-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))`
+      height: `calc(100vh - ${HEADER_HEIGHT}px - var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))`
     }
   },
   stickyBlockScroller: {
@@ -102,8 +101,8 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 1,
     paddingLeft: theme.spacing.unit*2,
     textAlign: "left",
-    maxHeight: `calc(100vh - var(--fixed-toc-comment-count-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))`,
-    height: fullHeightToCEnabled ? `calc(100vh - var(--fixed-toc-comment-count-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))` : undefined,
+    maxHeight: `calc(100vh - var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))`,
+    height: fullHeightToCEnabled ? `calc(100vh - var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))` : undefined,
     overflowY: "auto",
     
     scrollbarWidth: "none", //Firefox-specific
@@ -145,12 +144,12 @@ const styles = (theme: ThemeType) => ({
   hideTocButtonHidden: {
     display: "none",
   },
-  commentCount: {
+  tocFooter: {
     position: 'fixed',
     paddingLeft: 12,
     paddingTop: 12,
     paddingBottom: 20,
-    height: `var(--fixed-toc-comment-count-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px)`,
+    height: `var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px)`,
     bottom: 0,
     left: 0,
     width: 240,
@@ -160,7 +159,7 @@ const styles = (theme: ThemeType) => ({
       display: 'none',
     },
   }
-});
+}));
 
 export type ToCLayoutSegment = {
   toc?: React.ReactNode,
@@ -169,15 +168,14 @@ export type ToCLayoutSegment = {
   isCommentToC?: boolean,
 };
 
-const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader = false, answerCount, commentCount, tocContext}: {
+const MultiToCLayout = ({segments, tocRowMap = [], showSplashPageHeader = false, tocContext, sharedToCFooter}: {
   segments: ToCLayoutSegment[],
-  classes: ClassesType<typeof styles>,
   tocRowMap?: number[], // This allows you to specify which row each ToC should be in, where maybe you want a ToC to span more than one row
   showSplashPageHeader?: boolean,
-  answerCount?: number,
-  commentCount?: number,
-  tocContext?: 'tag' | 'post'
+  tocContext?: 'tag' | 'post',
+  sharedToCFooter?: React.ReactNode,
 }) => {
+  const classes = useStyles(styles);
   const tocVisible = true;
   const gridTemplateAreas = segments
     .map((_segment,i) => `"... toc${tocRowMap[i] ?? i} gap1 content${i} gap2 rhs${i} ..."`)
@@ -187,16 +185,14 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
     .map((_segment,i) => (i + 1) >= segments.length ? '1fr' : 'min-content')
     .join(' ');
 
-  const showCommentCount = commentCount !== undefined || answerCount !== undefined;
-
   // Create a ref for the root element to set CSS variable
   const rootRef = useRef<HTMLDivElement>(null);
 
   // Set the CSS variable when the component mounts
   useEffect(() => {
     if (rootRef.current) {
-      const fixedTocCommentCountHeight = tocContext === 'tag' ? 20 : DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT;
-      rootRef.current.style.setProperty('--fixed-toc-comment-count-height', `${fixedTocCommentCountHeight}px`);
+      const fixedTocFooterHeight = tocContext === 'tag' ? 20 : DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT;
+      rootRef.current.style.setProperty('--fixed-toc-footer-height', `${fixedTocFooterHeight}px`);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -234,16 +230,10 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
         </div>}
       </React.Fragment>)}
     </div>
-    {showCommentCount && <div className={classes.commentCount}>
-      <LWCommentCount
-        answerCount={answerCount}
-        commentCount={commentCount}
-      />
+    {sharedToCFooter && <div className={classes.tocFooter}>
+      {sharedToCFooter}
     </div>}
   </div>
 }
 
-export default registerComponent('MultiToCLayout', MultiToCLayout, {styles});
-
-
-
+export default MultiToCLayout;

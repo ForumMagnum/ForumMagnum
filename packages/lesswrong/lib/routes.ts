@@ -1017,6 +1017,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/',
       component: LWHome,
       enableResourcePrefetch: true,
+      expectedHeadBlocks: ["title", "meta", "fonts"],
       sunshineSidebar: true, 
       ...(blackBarTitle.get() ? { subtitleLink: "/tag/death", headerSubtitle: blackBarTitle.get()! } : {}),
       hasLeftNavigationColumn: true,
@@ -1416,6 +1417,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path:'/',
       component: LWHome,
       enableResourcePrefetch: true,
+      expectedHeadBlocks: ["title", "meta", "fonts"],
       sunshineSidebar: true,
       hasLeftNavigationColumn: true,
       navigationFooterBar: true,
@@ -1640,6 +1642,7 @@ addRoute(
     background: postBackground,
     noFooter: hasPostRecommendations,
     enableResourcePrefetch: postRouteWillDefinitelyReturn200,
+    expectedHeadBlocks: ["title", "meta", "fonts", "citationTags"],
     swrCaching: "logged-out"
   },
   {

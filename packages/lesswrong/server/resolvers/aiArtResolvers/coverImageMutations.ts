@@ -1,6 +1,6 @@
 import { generateCoverImagesForPost } from '@/server/scripts/generativeModels/coverImages-2023Review';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
-import { gql } from '@apollo/client';
+import { gql } from "graphql-tag";
 
 export const generateCoverImagesForPostGraphQLTypeDefs = gql`
   extend type Mutation {

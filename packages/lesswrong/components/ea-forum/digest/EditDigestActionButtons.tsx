@@ -5,7 +5,7 @@ import ConfirmPublishDialog from "./ConfirmPublishDialog";
 import EAButton from "../EAButton";
 import LWTooltip from "../../common/LWTooltip";
 import ForumIcon from "../../common/ForumIcon";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const DigestsMinimumInfoUpdateMutation = gql(`

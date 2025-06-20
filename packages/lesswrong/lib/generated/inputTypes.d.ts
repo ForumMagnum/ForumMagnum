@@ -7216,6 +7216,7 @@ interface User {
   bannedUserIds: Array<string> | null;
   bannedPersonalUserIds: Array<string> | null;
   bookmarkedPostsMetadata: Array<PostMetadataOutput> | null;
+  hasAnyBookmarks: boolean;
   bookmarkedPosts: Array<Post> | null;
   hiddenPostsMetadata: Array<PostMetadataOutput> | null;
   hiddenPosts: Array<Post> | null;
@@ -7324,6 +7325,7 @@ interface User {
   shortformFeed: Post | null;
   viewUnreviewedComments: boolean | null;
   partiallyReadSequences: Array<PartiallyReadSequenceItemOutput> | null;
+  hasContinueReading: boolean;
   beta: boolean | null;
   reviewVotesQuadratic: boolean | null;
   reviewVotesQuadratic2019: boolean | null;

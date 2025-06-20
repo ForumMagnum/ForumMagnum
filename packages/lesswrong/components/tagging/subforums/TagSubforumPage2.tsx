@@ -28,7 +28,8 @@ import TagTableOfContents from "../TagTableOfContents";
 import SidebarSubtagsBox from "./SidebarSubtagsBox";
 import SubforumWikiTab from "./SubforumWikiTab";
 import SubforumSubforumTab from "./SubforumSubforumTab";
-import { useMutation } from "@apollo/client";
+import { StructuredData } from '@/components/common/StructuredData';
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
 
@@ -390,7 +391,8 @@ const TagSubforumPage2 = ({classes}: {
       tagId={tag._id}
       sortedBy={query.sortedBy || "relevance"}
     >
-      <HeadTags description={headTagDescription} structuredData={getTagStructuredData(tag)} noIndex={tag.noindex} />
+      <HeadTags description={headTagDescription} noIndex={tag.noindex} />
+      <StructuredData generate={() => getTagStructuredData(tag)}/>
       {hoveredContributorId && <style>{`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}</style>}
       <SubforumLayout
         titleComponent={titleComponent}

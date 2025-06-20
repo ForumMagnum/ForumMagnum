@@ -2,27 +2,25 @@
 
 // Client-side React wrapper/context provider
 import React, { useEffect, useMemo, useRef, useState, useTransition } from 'react';
-import { ApolloLink, ApolloProvider, InMemoryCache } from '@apollo/client';
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
-import { ForeignApolloClientProvider } from '@/components/hooks/useForeignApolloClient';
 import { PrefersDarkModeProvider } from '@/components/themes/usePrefersDarkMode';
 import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '@/lib/abTestImpl';
 import type { AbstractThemeOptions } from '@/themes/themeNames';
 import { LayoutOptionsContextProvider } from '@/components/hooks/useLayoutOptions';
 import { SSRMetadata, EnvironmentOverride, EnvironmentOverrideContext } from '@/lib/utils/timeUtil';
-import { ThemeContextProvider } from '@/components/themes/useTheme';
-import { createErrorLink, createHttpLink, headerLink } from '@/lib/apollo/links';
-import { siteImageSetting } from '@/lib/publicSettings';
+import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
 import { LocationContext, NavigationContext, SubscribeLocationContext, ServerRequestStatusContext, checkUserRouteAccess, parseRoute } from '@/lib/vulcan-core/appContext';
 import { MessageContextProvider } from '../common/FlashMessages';
-import HeadTags from '../common/HeadTags';
 import { RefetchCurrentUserContext } from '../common/withUser';
 import ScrollToTop from '../vulcan-core/ScrollToTop';
 import type { History } from 'history'
 import { useQueryCurrentUser } from '@/lib/crud/withCurrentUser';
 import { useParams, usePathname, useSearchParams, useRouter } from 'next/navigation';
 import Layout from '../Layout';
+import { HelmetProvider } from 'react-helmet-async';
+import { ApolloWrapper } from '@/components/common/ApolloWrapper';
+import { EnableSuspenseContext } from '@/lib/crud/useQuery';
+import { isServer } from '@/lib/executionEnvironment';
 
 const AppComponent = ({children}: {children: React.ReactNode}) => {
   const searchParams = useSearchParams();
@@ -76,13 +74,14 @@ const AppComponent = ({children}: {children: React.ReactNode}) => {
   // }
 
 
-  return <LocationContext.Provider value={location}>
+  return <HelmetProvider>
+  <LocationContext.Provider value={location}>
   <NavigationContext.Provider value={navigationContext.current}>
   <SubscribeLocationContext.Provider value={subscribeLocation}>
   <ServerRequestStatusContext.Provider value={/*serverRequestStatus||*/null}>
   <RefetchCurrentUserContext.Provider value={refetchCurrentUser}>
     <MessageContextProvider>
-      <HeadTags image={siteImageSetting.get()} />
+      {/* <HeadTags image={siteImageSetting.get()} /> */}
       <ScrollToTop />
       <Layout currentUser={currentUser}>
         {children}
@@ -92,7 +91,8 @@ const AppComponent = ({children}: {children: React.ReactNode}) => {
   </ServerRequestStatusContext.Provider>
   </SubscribeLocationContext.Provider>
   </NavigationContext.Provider>
-  </LocationContext.Provider>;
+  </LocationContext.Provider>
+  </HelmetProvider>;
 }
 
 // Client-side wrapper around the app. There's another AppGenerator which is
@@ -104,20 +104,13 @@ const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, children }:
   ssrMetadata?: SSRMetadata,
   children: React.ReactNode,
 }) => {
-  const cache = new InMemoryCache();
-  const apolloClient = new ApolloClient({
-    link: ApolloLink.from([headerLink, createErrorLink(), createHttpLink("/")]),
-    cache,
-    ssrForceFetchDelay: 1,
-  });
-  // TODO: This is a hack to get the foreign apollo client to work.
-  const foreignApolloClient = apolloClient;
-  
   return (
-    <ApolloProvider client={apolloClient}>
-      <ForeignApolloClientProvider value={foreignApolloClient}>
+    // <ApolloProvider client={apolloClient}>
+      // <ForeignApolloClientProvider value={foreignApolloClient}>
+        <EnableSuspenseContext.Provider value={isServer}>
+        <ApolloWrapper>
         <CookiesProvider>
-          <ThemeContextProvider options={themeOptions}>
+          <ThemeContextProvider options={themeOptions} isEmail={false}>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
               <PrefersDarkModeProvider>
                 <LayoutOptionsContextProvider>
@@ -131,8 +124,10 @@ const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, children }:
             </ABTestGroupsUsedContext.Provider>
           </ThemeContextProvider>
         </CookiesProvider>
-      </ForeignApolloClientProvider>
-    </ApolloProvider>
+        </ApolloWrapper>
+        </EnableSuspenseContext.Provider>
+    //   </ForeignApolloClientProvider>
+    // </ApolloProvider>
   );
 };
 
