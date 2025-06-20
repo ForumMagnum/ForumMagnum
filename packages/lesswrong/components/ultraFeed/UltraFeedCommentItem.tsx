@@ -5,7 +5,7 @@ import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
 import { AnalyticsContext, captureEvent } from "@/lib/analyticsEvents";
-import { FeedCommentMetaInfo } from "./ultraFeedTypes";
+import { FeedCommentMetaInfo, FeedItemDisplayStatus } from "./ultraFeedTypes";
 import { useOverflowNav } from "./OverflowNavObserverContext";
 import { useDialog } from "../common/withDialog";
 import UltraFeedCommentsDialog from "./UltraFeedCommentsDialog";
@@ -15,6 +15,9 @@ import UltraFeedItemFooter from "./UltraFeedItemFooter";
 import OverflowNavButtons from "./OverflowNavButtons";
 import SeeLessFeedback from "./SeeLessFeedback";
 import { useSeeLess } from "./useSeeLess";
+import { useCurrentUser } from "../common/withUser";
+import { userOwns } from "../../lib/vulcan-users/permissions";
+
 
 const commentHeaderPaddingDesktop = 12;
 const commentHeaderPaddingMobile = 12;
@@ -52,7 +55,6 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   commentHeader: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px',
   },
   contentWrapper: {
     marginTop: 12,
@@ -146,9 +148,42 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
       pointerEvents: 'auto !important',
     },
   },
+  branchNavContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: 8,
+    cursor: 'pointer',
+    color: theme.palette.primary.main,
+    fontSize: 14,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    '&:hover': {
+      opacity: 0.8,
+    },
+  },
+  branchNavText: {
+    fontStyle: 'italic',
+  },
 }));
 
 type HighlightStateType = 'never-highlighted' | 'highlighted-unviewed' | 'highlighted-viewed';
+
+const BranchNavigationButton = ({
+  currentBranch,
+  onBranchToggle,
+}: {
+  currentBranch?: 'new' | 'original';
+  onBranchToggle?: () => void;
+}) => {
+  const classes = useStyles(styles);
+  
+  return (
+    <div className={classes.branchNavContainer} onClick={onBranchToggle}>
+      <span className={classes.branchNavText}>
+        {currentBranch === 'new' ? 'View original thread' : 'View your new reply'}
+      </span>
+    </div>
+  );
+};
 
 export const UltraFeedCompressedCommentsItem = ({
   numComments, 
@@ -183,6 +218,13 @@ export const UltraFeedCompressedCommentsItem = ({
   );
 };
 
+export interface ReplyConfig {
+  isReplying: boolean;
+  onReplyClick: () => void;
+  onReplySubmit: (newComment: UltraFeedComment) => void;
+  onReplyCancel: () => void;
+}
+
 export interface UltraFeedCommentItemProps {
   comment: UltraFeedComment;
   metaInfo: FeedCommentMetaInfo;
@@ -196,6 +238,11 @@ export interface UltraFeedCommentItemProps {
   parentAuthorName?: string | null;
   onReplyIconClick?: () => void;
   isHighlightAnimating?: boolean;
+  replyConfig: ReplyConfig;
+  hasFork?: boolean;
+  currentBranch?: 'new' | 'original';
+  onBranchToggle?: () => void;
+  cannotReplyReason?: string | null;
 }
 
 export const UltraFeedCommentItem = ({
@@ -211,13 +258,34 @@ export const UltraFeedCommentItem = ({
   parentAuthorName,
   onReplyIconClick,
   isHighlightAnimating = false,
+  replyConfig,
+  hasFork,
+  currentBranch,
+  onBranchToggle,
+  cannotReplyReason: customCannotReplyReason,
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
   const { observe, unobserve, trackExpansion, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { openDialog } = useDialog();
   const overflowNav = useOverflowNav(elementRef);
-  const { displayStatus } = metaInfo;
+  const currentUser = useCurrentUser();
+  
+  const cannotReplyReason = customCannotReplyReason ?? (userOwns(currentUser, comment) ? "You cannot reply to your own comment from within the feed" : null);
+
+  // Provide default metaInfo if not provided
+  const safeMetaInfo = metaInfo || {
+    displayStatus: 'expanded' as FeedItemDisplayStatus,
+    sources: [],
+    directDescendentCount: 0,
+    highlight: false,
+    lastServed: null,
+    lastViewed: null,
+    lastInteracted: null,
+    postedAt: null,
+  };
+
+  const displayStatus = metaInfo.displayStatus ?? 'expanded' as FeedItemDisplayStatus;
 
   const initialHighlightState = (highlight && !hasBeenLongViewed(comment._id)) ? 'highlighted-unviewed' : 'never-highlighted';
   const [highlightState, setHighlightState] = useState<HighlightStateType>(initialHighlightState);
@@ -346,6 +414,10 @@ export const UltraFeedCommentItem = ({
         </div>
         <div ref={elementRef} className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
           <div className={classNames(classes.commentHeader, { [classes.greyedOut]: isSeeLessMode })}>
+            {hasFork && <BranchNavigationButton
+              currentBranch={currentBranch}
+              onBranchToggle={onBranchToggle}
+            />}
             <UltraFeedCommentsItemMeta
               comment={comment}
               setShowEdit={() => {}}
@@ -380,13 +452,16 @@ export const UltraFeedCommentItem = ({
           <UltraFeedItemFooter
             document={comment}
             collectionName="Comments"
-            metaInfo={metaInfo}
+            metaInfo={safeMetaInfo}
             className={classNames(classes.footer, { [classes.footerGreyedOut]: isSeeLessMode })}
             onSeeLess={isSeeLessMode ? handleUndoSeeLess : handleSeeLess}
             isSeeLessMode={isSeeLessMode}
+            replyConfig={replyConfig}
+            cannotReplyReason={cannotReplyReason}
           />
         </div>
       </div>
+      
       {/* buttons are placed separately within root because display: flex disrupts their positioning */}
       {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={collapseToFirst} applyCommentStyle={true} />}
     </div>
