@@ -545,7 +545,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     bannerAdBlurLight: 'none',
     bannerAdBlurMedium: 'none',
     bannerAdBlurHeavy: 'none',
-    headerBackdropFilter: 'none',
   },
 
   geosuggest: {
