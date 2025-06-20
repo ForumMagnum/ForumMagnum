@@ -284,7 +284,8 @@ export const UltraFeedCommentItem = ({
     lastInteracted: null,
     postedAt: null,
   };
-  const { displayStatus } = safeMetaInfo;
+
+  const displayStatus = metaInfo.displayStatus ?? 'expanded' as FeedItemDisplayStatus;
 
   const initialHighlightState = (highlight && !hasBeenLongViewed(comment._id)) ? 'highlighted-unviewed' : 'never-highlighted';
   const [highlightState, setHighlightState] = useState<HighlightStateType>(initialHighlightState);
@@ -394,20 +395,6 @@ export const UltraFeedCommentItem = ({
     onChangeDisplayStatus('collapsed');
   };
 
-  const handleViewAllComments = useCallback(() => {
-    openDialog({
-      name: "UltraFeedCommentsDialog",
-      closeOnNavigate: true,
-      contents: ({ onClose }) => (
-        <UltraFeedCommentsDialog 
-          document={comment}
-          collectionName="Comments"
-          onClose={onClose}
-        />
-      )
-    });
-  }, [openDialog, comment]);
-
   return (
     <AnalyticsContext ultraFeedElementType="feedComment" ultraFeedCardId={comment._id}>
     <div className={classNames(classes.root, {
@@ -474,8 +461,6 @@ export const UltraFeedCommentItem = ({
           />
         </div>
       </div>
-      
-      {/* Stub: Branch navigation when hasFork is true */}
       
       {/* buttons are placed separately within root because display: flex disrupts their positioning */}
       {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={collapseToFirst} applyCommentStyle={true} />}

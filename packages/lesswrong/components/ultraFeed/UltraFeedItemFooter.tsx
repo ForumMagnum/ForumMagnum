@@ -278,7 +278,6 @@ interface BookmarkProps {
   highlighted?: boolean;
 }
 
-// Shared prop fields for both Posts and Comments footer items
 interface UltraFeedItemFooterCoreSharedProps {
   commentCount: number | undefined;
   onClickComments: () => void;
@@ -351,12 +350,10 @@ const UltraFeedItemFooterCore = ({
   };
 
   const handleCommentsClick = () => {
-    // Don't allow clicking if there's a reason preventing replies
     if (cannotReplyReason) {
       return;
     }
     
-    // If we're already replying, toggle it off
     if (isReplying) {
       onReplyCancel();
     } else {

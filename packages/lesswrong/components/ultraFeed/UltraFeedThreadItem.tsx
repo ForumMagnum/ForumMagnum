@@ -64,7 +64,6 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
     '&::after': itemSeparator(theme),
   },
   postContainer: {
-    // bottom border with margins to mimic separation between comments
     position: 'relative',
     '&::after': itemSeparator(theme),
   }
@@ -143,8 +142,8 @@ const initializeHighlightStatuses = (
 ): Record<string, boolean> => {
   const result: Record<string, boolean> = {};
   for (const commentId of Object.keys(initialDisplayStatuses)) {
-    const metaInfo = metaInfos?.[commentId]; // Safely access metaInfos
-    result[commentId] = metaInfo?.highlight ?? false; // Use ?? nullish coalescing
+    const metaInfo = metaInfos?.[commentId];
+    result[commentId] = metaInfo?.highlight ?? false;
   }
   return result;
 };
@@ -175,7 +174,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
   const postMetaInfo = {
     sources: commentMetaInfos?.[comments[0]._id]?.sources ?? [],
     displayStatus: "expanded" as FeedItemDisplayStatus,
-    servedEventId: commentMetaInfos?.[comments[0]._id]?.servedEventId ?? '', // attach servedId of the first comment in thread
+    servedEventId: commentMetaInfos?.[comments[0]._id]?.servedEventId ?? '',
   }
 
   const initialDisplayStatuses = calculateInitialDisplayStatuses(comments, commentMetaInfos);
@@ -200,7 +199,6 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
     }));
   }, []);
 
-  // Build the display comments list incorporating new replies and branch choices
   const buildDisplayComments = useMemo(() => {
     const result: UltraFeedComment[] = [];
     let shouldSkipRemaining = false;
@@ -208,13 +206,10 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
     for (const comment of comments) {
       if (shouldSkipRemaining) break;
 
-      // Add the current comment
       result.push(comment);
 
-      // Check if this comment has a new reply and we should show it
       const newReply = newReplies[comment._id];
       if (newReply && branchViewStates[comment._id] !== 'original') {
-        // Add the new reply and stop here
         result.push(newReply);
         shouldSkipRemaining = true;
       }
@@ -223,7 +218,6 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
     return result;
   }, [comments, newReplies, branchViewStates]);
 
-  // Use the display comments instead of original comments for filtering
   const visibleComments = useMemo(
     () => buildDisplayComments.filter(c => commentDisplayStatuses[c._id] !== "hidden"),
     [buildDisplayComments, commentDisplayStatuses]
@@ -267,12 +261,10 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
     }
   }, [comments, commentDisplayStatuses, setDisplayStatus, captureEvent]);
 
-  // Handler for when a comment's reply button is clicked
   const handleReplyClick = (commentId: string) => {
     setReplyingToCommentId(commentId);
   };
 
-  // Handler for when a new reply is submitted
   const handleReplySubmit = (parentCommentId: string, newComment: UltraFeedComment) => {
     setNewReplies(prev => ({
       ...prev,
@@ -284,7 +276,6 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
     }));
     setReplyingToCommentId(null);
     
-    // Create default metaInfo for the new comment
     const defaultMetaInfo: FeedCommentMetaInfo = {
       displayStatus: 'expanded',
       sources: [],
@@ -300,14 +291,12 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
       [newComment._id]: defaultMetaInfo
     }));
     
-    // Also set display status for the new comment
     setCommentDisplayStatuses(prev => ({
       ...prev,
       [newComment._id]: 'expanded'
     }));
   };
 
-  // Handler for toggling between new reply and original comments
   const handleBranchToggle = (parentCommentId: string) => {
     setBranchViewStates(prev => ({
       ...prev,
@@ -315,15 +304,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
     }));
   };
 
-  // Combine original and new comment meta infos
-  const allCommentMetaInfos = useMemo(() => ({
-    ...commentMetaInfos,
-    ...newCommentMetaInfos
-  }), [commentMetaInfos, newCommentMetaInfos]);
-
-  // Helper to determine navigation props for a comment
   const getNavigationProps = (commentId: string, displayComments: UltraFeedComment[]) => {
-    // Check if this is a new reply
     const parentIdForNewReply = Object.entries(newReplies).find(
       ([parentId, reply]) => reply._id === commentId
     )?.[0];
@@ -394,7 +375,6 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
               const parentAuthorName = item.parentCommentId ? commentAuthorsMap[item.parentCommentId] : null;
               const isAnimating = animatingCommentIds.has(cId);
               
-              // Get navigation props for the current comment
               const navigationProps = getNavigationProps(cId, visibleComments);
               
               return (
