@@ -520,7 +520,7 @@ const IfAnyoneBuildsItSplash = ({
         <Link to="/posts/khmpWJnGJnuyPdipE/new-endorsements-for-if-anyone-builds-it-everyone-dies" className={classes.bookLink}>
           <div className={classes.title}>If Anyone Builds It,</div>
           <div className={classes.subtitle}>Everyone Dies</div>
-          <div className={classes.authors}>A book by Eliezer Yudkowsky<br/> & Nate Soares</div>
+          <div className={classes.authors}>A book by Nate Soares<br/> & Eliezer Yudkowsky</div>
         </Link>
         <a 
           href="https://www.amazon.com/Anyone-Builds-Everyone-Dies-Superhuman/dp/0316595640?maas=maa[…]3B826DA0D078097E4FA6653C84CB59_afap_abs&ref_=aa_maas&tag=maas"
