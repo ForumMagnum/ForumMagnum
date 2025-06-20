@@ -126,6 +126,9 @@ export function extractTableOfContents({
     if (tagIsHeadingIfWholeParagraph(tagName) && !tagIsWholeParagraph({ element, window })) {
       continue;
     }
+    if (element.closest(".footnotes")) {
+      break;
+    }
 
     // Get title from element text
     let title = elementToToCTitle(element);

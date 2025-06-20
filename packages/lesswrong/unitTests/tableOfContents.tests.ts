@@ -134,4 +134,36 @@ describe("extractTableOfContents", () => {
       ],
     });
   });
+  it("excludes headings inside footnotes", () => {
+    const html = normalizeHtml(`
+      <h1>Title</h1>
+      <p>Some content here</p>
+      <div class="footnotes">
+      <ol>
+      <li>
+      <h2>A heading inside a footnote</h2>
+      </li>
+      </ol>
+      </div>
+    `);
+    const { document, window } = parseDocumentFromString(html);
+    const tocData = extractTableOfContents({ document, window });
+    expect(tocData).toEqual({
+      html: normalizeHtml(`
+        <h1 id="Title">Title</h1>
+        <p>Some content here</p>
+        <div class="footnotes">
+        <ol>
+        <li>
+        <h2>A heading inside a footnote</h2>
+        </li>
+        </ol>
+        </div>
+      `),
+      sections: [
+        { title: "Title", anchor: "Title", level: 1 },
+        { anchor: "postHeadingsDivider", divider: true, level: 0 },
+      ],
+    });
+  });
 });

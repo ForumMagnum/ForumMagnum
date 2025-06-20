@@ -165,6 +165,9 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
   const [footnoteHTML,setFootnoteHTML] = useState<string|null>(null);
   const memoizedEmptyArray = useMemo(() => [], []);
   const footnoteAncestors = useContext(FootnoteAncestorsContext) ?? memoizedEmptyArray;
+
+  const postPageContext = usePostsPageContext();
+  const post = postPageContext?.fullPost ?? postPageContext?.postPreload;
   
   useEffect(() => {
     const extractedFootnoteHTML = footnoteAncestors.includes(href)
@@ -173,7 +176,9 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
     if (extractedFootnoteHTML) {
       setFootnoteHTML((oldFootnoteHTML) => oldFootnoteHTML ?? extractedFootnoteHTML);
     }
-  }, [href, footnoteAncestors]);
+    // The footnotes aren't available during post pre-load - add the post here
+    // to make sure we recalculate after loading the full post
+  }, [href, footnoteAncestors, post]);
   
   // TODO: Getting the footnote content from the DOM didn't necessarily work;
   // for example if the page was only showing an excerpt (with the rest hidden
@@ -199,8 +204,6 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
     }
   }, [href, footnoteHTML, openDialog]);
   
-  const postPageContext = usePostsPageContext();
-  const post = postPageContext?.fullPost ?? postPageContext?.postPreload;
   const sidenotesDisabledOnPost = post?.disableSidenotes;
   const screenIsWideEnoughForSidenotes = useIsAboveBreakpoint("lg");
   const hasSideItemsSidebar = useHasSideItemsSidebar();

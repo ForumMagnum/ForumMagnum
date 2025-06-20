@@ -15,7 +15,7 @@ import LoginPopup from '../users/LoginPopup';
 
 const styles = (theme: ThemeType) => ({
   buttonWrapper: {
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.buttons.alwaysPrimary,
     borderTopRightRadius: theme.borderRadius.default,
     borderBottomRightRadius: theme.borderRadius.default,
     display: 'flex',
@@ -30,6 +30,7 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.text.alwaysWhite,
   },
   button: {
+    backgroundColor: theme.palette.buttons.alwaysPrimary,
     borderRadius: theme.borderRadius.default,
     borderTopLeftRadius: 0,
     borderBottomLeftRadius: 0,
@@ -38,7 +39,8 @@ const styles = (theme: ThemeType) => ({
     boxShadow: 'none',
   },
   dropdownIcon: {
-    transform: 'translateY(1px)'
+    transform: 'translateY(1px)',
+    color: theme.palette.text.alwaysWhite,
   },
   popper: {
     marginTop: 6
