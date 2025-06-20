@@ -22,6 +22,9 @@ import CondensedFooterReactions from "./CondensedFooterReactions";
 import LWTooltip from "../common/LWTooltip";
 import { useTracking } from "../../lib/analyticsEvents";
 import { recombeeApi } from "@/lib/recombee/client";
+import UltraFeedReplyEditor from "./UltraFeedReplyEditor";
+import { ReplyConfig } from "./UltraFeedCommentItem";
+
 
 const UltraFeedEventsDefaultFragmentMutation = gql(`
   mutation createUltraFeedEventUltraFeedItemFooter($data: CreateUltraFeedEventDataInput!) {
@@ -62,6 +65,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   commentCount: {
     position: 'relative',
+    padding: 2,
     color: `${theme.palette.ultraFeed.dim} !important`,
     display: "flex",
     alignItems: "center",
@@ -83,6 +87,33 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     "&:hover": {
       color: theme.palette.grey[1000],
     },
+  },
+  commentCountDisabled: {
+    cursor: "not-allowed",
+    opacity: 0.4,
+    "&:hover": {
+      color: `${theme.palette.ultraFeed.dim} !important`,
+    },
+  },
+  commentCountActive: {
+    // color: `${theme.palette.grey[1000]} !important`,
+    opacity: 1,
+    "& svg": {
+      opacity: 1,
+    },
+  },
+  commentCountInner: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    borderRadius: 4,
+    padding: 2,
+    transition: 'background-color 0.2s ease',
+    "&:hover": {
+      backgroundColor: theme.palette.panelBackground.hoverHighlightGrey,
+    },
+  },
+  commentCountInnerActive: {
+    backgroundColor: theme.palette.panelBackground.hoverHighlightGrey,
   },
   commentCountText: {
     marginLeft: 4,
@@ -209,6 +240,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       margin: '0 7px !important',
     }
   },
+
 }));
 
 interface BookmarkProps {
@@ -216,19 +248,35 @@ interface BookmarkProps {
   highlighted?: boolean;
 }
 
-interface UltraFeedItemFooterCoreProps {
+// Shared prop fields for both Posts and Comments footer items
+interface UltraFeedItemFooterCoreSharedProps {
   commentCount: number | undefined;
   onClickComments: () => void;
   showVoteButtons: boolean;
   voteProps: VotingProps<VoteableTypeClient>;
   hideKarma?: boolean;
   bookmarkProps?: BookmarkProps;
-  collectionName: "Posts" | "Comments" | "Spotlights";
   metaInfo?: FeedPostMetaInfo | FeedCommentMetaInfo;
   className?: string;
   onSeeLess?: (eventId: string) => void;
   isSeeLessMode?: boolean;
+  replyConfig: ReplyConfig;
+  cannotReplyReason?: string | null;
 }
+
+type UltraFeedItemFooterCorePostsProps = UltraFeedItemFooterCoreSharedProps & {
+  collectionName: "Posts";
+  document: PostsListWithVotes;
+};
+
+type UltraFeedItemFooterCoreCommentsProps = UltraFeedItemFooterCoreSharedProps & {
+  collectionName: "Comments";
+  document: UltraFeedComment;
+};
+
+type UltraFeedItemFooterCoreProps =
+  | UltraFeedItemFooterCorePostsProps
+  | UltraFeedItemFooterCoreCommentsProps;
 
 const UltraFeedItemFooterCore = ({
   commentCount,
@@ -242,10 +290,16 @@ const UltraFeedItemFooterCore = ({
   className,
   onSeeLess,
   isSeeLessMode = false,
+  document,
+  replyConfig,
+  cannotReplyReason,
 }: UltraFeedItemFooterCoreProps) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
+  const { openDialog } = useDialog();
+  
+  const { isReplying, onReplyClick, onReplySubmit, onReplyCancel } = replyConfig;
 
   const [createUltraFeedEvent] = useMutation(UltraFeedEventsDefaultFragmentMutation);
 
@@ -267,9 +321,17 @@ const UltraFeedItemFooterCore = ({
   };
 
   const handleCommentsClick = () => {
-    if (onClickComments) {
+    // Don't allow clicking if there's a reason preventing replies
+    if (cannotReplyReason) {
+      return;
+    }
+    
+    // If we're already replying, toggle it off
+    if (isReplying) {
+      onReplyCancel();
+    } else {
       handleInteractionLog('commentsClicked');
-      onClickComments();
+      onReplyClick();
     }
   };
 
@@ -334,79 +396,106 @@ const UltraFeedItemFooterCore = ({
     }
   };
 
+  let commentIconTooltip: string;
+  if (cannotReplyReason) {
+    commentIconTooltip = cannotReplyReason;
+  } else if (isReplying) {
+    commentIconTooltip = "Close reply";
+  } else if (collectionName === "Comments") {
+    commentIconTooltip = "Reply";
+  } else {
+    commentIconTooltip = "Comment";
+  }
+
   const commentCountIcon = (
     <div
       onClick={handleCommentsClick}
-      className={classNames(classes.commentCount, { [classes.commentCountClickable]: !!onClickComments })}
+      className={classNames(
+        classes.commentCount,
+        { 
+          [classes.commentCountClickable]: !cannotReplyReason,
+          [classes.commentCountDisabled]: cannotReplyReason,
+          [classes.commentCountActive]: isReplying
+        }
+      )}
     >
-      <CommentIcon />
-      {(commentCount ?? 0 > 0) 
-        ? <span className={classes.commentCountText}>{commentCount}</span>
-        : null
-      }
+      <LWTooltip title={commentIconTooltip}>
+        <span className={classNames(
+          classes.commentCountInner,
+          { [classes.commentCountInnerActive]: isReplying }
+        )}>
+          <CommentIcon />
+          {(commentCount ?? 0 > 0) 
+            ? <span className={classes.commentCountText}>{commentCount}</span>
+            : null
+          }
+        </span>
+      </LWTooltip>
     </div>
   );
 
   const votingSystem = voteProps.document.votingSystem || getDefaultVotingSystem();
 
   return (
-    <div className={classNames(classes.root, className)}>
-      {commentCountIcon}
+    <>
+      <div className={classNames(classes.root, className)}>
+        {commentCountIcon}
 
-      {showVoteButtons && voteProps.document && (
-        <>
-          <div className={classes.overallVoteButtons}>
-            <OverallVoteAxis
-              document={voteProps.document}
-              hideKarma={hideKarma}
-              voteProps={voteProps}
-              verticalArrows
-              largeArrows
-              voteScoreClassName={classes.footerVoteScoreOverride}
-              secondaryScoreClassName={classes.hideSecondaryScoreOnMobile}
-              hideAfScore={true}
-            />
-          </div>
-          {collectionName === "Comments" && <div className={classes.agreementButtons}>
-            <AgreementVoteAxis
-              document={voteProps.document}
-              hideKarma={hideKarma}
-              voteProps={voteProps}
-              agreementScoreClassName={classes.footerAgreementScoreOverride}
-            />
-          </div>}
-        </>
-      )}
-
-      {voteProps.document && votingSystem === "namesAttachedReactions" && (
-        <CondensedFooterReactions voteProps={voteProps} allowReactions={collectionName === "Comments"} className={classes.condensedFooterReactions}/>
-      )}
-
-      <div className={classes.bookmarkAndSeeLessWrapper}>
-        { bookmarkProps && bookmarkableCollectionNames.has(collectionName) && (
-          <div onClick={() => handleInteractionLog('bookmarkClicked')}>
-            <BookmarkButton
-              documentId={bookmarkProps.documentId}
-              collectionName={collectionName}
-              className={classNames(classes.bookmarkButton, { [classes.bookmarkButtonHighlighted]: bookmarkProps.highlighted })}
-            />
-          </div>
+        {showVoteButtons && voteProps.document && (
+          <>
+            <div className={classes.overallVoteButtons}>
+              <OverallVoteAxis
+                document={voteProps.document}
+                hideKarma={hideKarma}
+                voteProps={voteProps}
+                verticalArrows
+                largeArrows
+                voteScoreClassName={classes.footerVoteScoreOverride}
+                secondaryScoreClassName={classes.hideSecondaryScoreOnMobile}
+                hideAfScore={true}
+              />
+            </div>
+            {collectionName === "Comments" && <div className={classes.agreementButtons}>
+              <AgreementVoteAxis
+                document={voteProps.document}
+                hideKarma={hideKarma}
+                voteProps={voteProps}
+                agreementScoreClassName={classes.footerAgreementScoreOverride}
+              />
+            </div>}
+          </>
         )}
-        
-        <div className={classNames(classes.seeLessButton, { [classes.seeLessButtonActive]: isSeeLessMode })} onClick={handleSeeLessClick}>
-          <LWTooltip title={isSeeLessMode ? "Undo see less" : "Show me less like this"}>
-            <span className={classNames("SeeLessButton-root", classes.seeLessButtonInner, { [classes.seeLessButtonInnerActive]: isSeeLessMode })}>
-              <CloseIcon />
-            </span>
-          </LWTooltip>
+
+        {voteProps.document && votingSystem === "namesAttachedReactions" && (
+          <CondensedFooterReactions voteProps={voteProps} allowReactions={collectionName === "Comments"} className={classes.condensedFooterReactions}/>
+        )}
+
+        <div className={classes.bookmarkAndSeeLessWrapper}>
+          { bookmarkProps && bookmarkableCollectionNames.has(collectionName) && (
+            <div onClick={() => handleInteractionLog('bookmarkClicked')}>
+              <BookmarkButton
+                documentId={bookmarkProps.documentId}
+                collectionName={collectionName}
+                className={classNames(classes.bookmarkButton, { [classes.bookmarkButtonHighlighted]: bookmarkProps.highlighted })}
+              />
+            </div>
+          )}
+          
+          <div className={classNames(classes.seeLessButton, { [classes.seeLessButtonActive]: isSeeLessMode })} onClick={handleSeeLessClick}>
+            <LWTooltip title={isSeeLessMode ? "Undo see less" : "Show me less like this"}>
+              <span className={classNames("SeeLessButton-root", classes.seeLessButtonInner, { [classes.seeLessButtonInnerActive]: isSeeLessMode })}>
+                <CloseIcon />
+              </span>
+            </LWTooltip>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
 
-const UltraFeedPostFooter = ({ post, metaInfo, className, onSeeLess, isSeeLessMode }: { post: PostsListWithVotes, metaInfo: FeedPostMetaInfo, className?: string, onSeeLess?: (eventId: string) => void, isSeeLessMode?: boolean }) => {
+const UltraFeedPostFooter = ({ post, metaInfo, className, onSeeLess, isSeeLessMode, replyConfig }: { post: PostsListWithVotes, metaInfo: FeedPostMetaInfo, className?: string, onSeeLess?: (eventId: string) => void, isSeeLessMode?: boolean, replyConfig: ReplyConfig }) => {
   const { openDialog } = useDialog();
 
   const votingSystem = getVotingSystemByName(post?.votingSystem || "default");
@@ -427,25 +516,55 @@ const UltraFeedPostFooter = ({ post, metaInfo, className, onSeeLess, isSeeLessMo
     });
   }
 
+  const { isReplying, onReplySubmit, onReplyCancel } = replyConfig;
+
   return (
-    <UltraFeedItemFooterCore
-      commentCount={commentCount}
-      onClickComments={onClickComments}
-      showVoteButtons={showVoteButtons}
-      voteProps={voteProps}
-      hideKarma={false}
-      bookmarkProps={bookmarkProps}
-      collectionName="Posts"
-      metaInfo={metaInfo}
-      className={className}
-      onSeeLess={onSeeLess}
-      isSeeLessMode={isSeeLessMode}
-    />
+    <>
+      <UltraFeedItemFooterCore
+        commentCount={commentCount}
+        onClickComments={onClickComments}
+        showVoteButtons={showVoteButtons}
+        voteProps={voteProps}
+        hideKarma={false}
+        bookmarkProps={bookmarkProps}
+        collectionName="Posts"
+        metaInfo={metaInfo}
+        className={className}
+        onSeeLess={onSeeLess}
+        isSeeLessMode={isSeeLessMode}
+        document={post}
+        replyConfig={replyConfig}
+        cannotReplyReason={null}
+      />
+
+      {isReplying && (
+        <UltraFeedReplyEditor
+          document={post}
+          collectionName="Posts"
+          cannotReplyReason={null}
+          onReplySubmit={onReplySubmit}
+          onReplyCancel={onReplyCancel}
+          onViewAllComments={() => {
+            openDialog({
+              name: "UltraFeedCommentsDialog",
+              closeOnNavigate: true,
+              contents: ({ onClose }) => (
+                <UltraFeedCommentsDialog
+                  document={post}
+                  collectionName="Posts"
+                  onClose={onClose}
+                />
+              ),
+            });
+          }}
+        />
+      )}
+    </>
   );
 }
 
 
-const UltraFeedCommentFooter = ({ comment, metaInfo, className, onSeeLess, isSeeLessMode, onReplyClick }: { comment: UltraFeedComment, metaInfo: FeedCommentMetaInfo, className?: string, onSeeLess?: (eventId: string) => void, isSeeLessMode?: boolean, onReplyClick?: () => void }) => {
+const UltraFeedCommentFooter = ({ comment, metaInfo, className, onSeeLess, isSeeLessMode, replyConfig, cannotReplyReason }: { comment: UltraFeedComment, metaInfo: FeedCommentMetaInfo, className?: string, onSeeLess?: (eventId: string) => void, isSeeLessMode?: boolean, replyConfig: ReplyConfig, cannotReplyReason?: string | null }) => {
   const { openDialog } = useDialog();
 
   const parentPost = comment.post;
@@ -457,35 +576,59 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className, onSeeLess, isSee
   const bookmarkProps: BookmarkProps = {documentId: comment._id, highlighted: metaInfo.sources?.includes("bookmarks")};
   
   const onClickComments = () => {
-    if (onReplyClick) {
-      onReplyClick();
-    } else {
-      openDialog({
-        name: "UltraFeedCommentsDialog",
-        closeOnNavigate: true,
-        contents: ({onClose}) => <UltraFeedCommentsDialog 
-          document={comment}
-          collectionName="Comments"
-          onClose={onClose}
-        />
-      });
-    }
+    openDialog({
+      name: "UltraFeedCommentsDialog",
+      closeOnNavigate: true,
+      contents: ({onClose}) => <UltraFeedCommentsDialog 
+        document={comment}
+        collectionName="Comments"
+        onClose={onClose}
+      />
+    });
   }
 
+  const { isReplying, onReplySubmit, onReplyCancel } = replyConfig;
+
   return (
-    <UltraFeedItemFooterCore
-      commentCount={commentCount}
-      onClickComments={onClickComments}
-      showVoteButtons={showVoteButtons}
-      voteProps={voteProps}
-      hideKarma={hideKarma}
-      bookmarkProps={bookmarkProps}
-      collectionName={"Comments"}
-      metaInfo={metaInfo}
-      className={className}
-      onSeeLess={onSeeLess}
-      isSeeLessMode={isSeeLessMode}
-    />
+    <>
+      <UltraFeedItemFooterCore
+        commentCount={commentCount}
+        onClickComments={onClickComments}
+        showVoteButtons={showVoteButtons}
+        voteProps={voteProps}
+        hideKarma={hideKarma}
+        bookmarkProps={bookmarkProps}
+        collectionName={"Comments"}
+        metaInfo={metaInfo}
+        className={className}
+        onSeeLess={onSeeLess}
+        isSeeLessMode={isSeeLessMode}
+        document={comment}
+        replyConfig={replyConfig}
+        cannotReplyReason={cannotReplyReason}
+      />
+
+      {isReplying && <UltraFeedReplyEditor
+        document={comment}
+        collectionName="Comments"
+        cannotReplyReason={cannotReplyReason}
+        onReplySubmit={onReplySubmit}
+        onReplyCancel={onReplyCancel}
+        onViewAllComments={() => {
+          openDialog({
+            name: "UltraFeedCommentsDialog",
+            closeOnNavigate: true,
+            contents: ({ onClose }) => (
+              <UltraFeedCommentsDialog
+                document={comment}
+                collectionName="Comments"
+                onClose={onClose}
+              />
+            ),
+          });
+        }}
+      />}
+    </>
   );
 }
 
@@ -497,6 +640,8 @@ interface UltraFeedPostFooterProps {
   className?: string;
   onSeeLess?: (eventId: string) => void;
   isSeeLessMode?: boolean;
+  replyConfig: ReplyConfig;
+  cannotReplyReason?: string | null;
 }
 
 interface UltraFeedCommentFooterProps {
@@ -506,17 +651,32 @@ interface UltraFeedCommentFooterProps {
   className?: string;
   onSeeLess?: (eventId: string) => void;
   isSeeLessMode?: boolean;
-  onReplyClick?: () => void;
+  replyConfig: ReplyConfig;
+  cannotReplyReason?: string | null;
 }
 
 type UltraFeedItemFooterProps = UltraFeedPostFooterProps | UltraFeedCommentFooterProps;
 
-const UltraFeedItemFooter = ({ document, collectionName, metaInfo, className, onSeeLess, isSeeLessMode, ...props }: UltraFeedItemFooterProps) => {
+const UltraFeedItemFooter = ({ document, collectionName, metaInfo, className, onSeeLess, isSeeLessMode, replyConfig, cannotReplyReason }: UltraFeedItemFooterProps) => {
   if (collectionName === "Posts") {
-    return <UltraFeedPostFooter post={document} metaInfo={metaInfo} className={className} onSeeLess={onSeeLess} isSeeLessMode={isSeeLessMode} />;
+    return <UltraFeedPostFooter
+      post={document}
+      metaInfo={metaInfo}
+      className={className}
+      onSeeLess={onSeeLess}
+      isSeeLessMode={isSeeLessMode}
+      replyConfig={replyConfig}
+    />;
   } else if (collectionName === "Comments") {
-    const { onReplyClick } = props as UltraFeedCommentFooterProps;
-    return <UltraFeedCommentFooter comment={document} metaInfo={metaInfo} className={className} onSeeLess={onSeeLess} isSeeLessMode={isSeeLessMode} onReplyClick={onReplyClick} />;
+    return <UltraFeedCommentFooter
+      comment={document}
+      metaInfo={metaInfo}
+      className={className}
+      onSeeLess={onSeeLess}
+      isSeeLessMode={isSeeLessMode}
+      replyConfig={replyConfig}
+      cannotReplyReason={cannotReplyReason}
+    />;
   }
   return null;
 };

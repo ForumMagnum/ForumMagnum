@@ -1,5 +1,4 @@
 import React, { useMemo, useState, useCallback } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { DisplayFeedCommentThread, FeedCommentMetaInfo, FeedItemDisplayStatus } from "./ultraFeedTypes";
@@ -416,10 +415,12 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
                     parentAuthorName={parentAuthorName}
                     onReplyIconClick={() => triggerParentHighlight(cId)}
                     isHighlightAnimating={isAnimating}
-                    isReplying={replyingToCommentId === cId}
-                    onReplyClick={() => handleReplyClick(cId)}
-                    onReplySubmit={(newComment) => handleReplySubmit(cId, newComment)}
-                    onReplyCancel={() => setReplyingToCommentId(null)}
+                    replyConfig={{
+                      isReplying: replyingToCommentId === cId,
+                      onReplyClick: () => handleReplyClick(cId),
+                      onReplySubmit: (newComment) => handleReplySubmit(cId, newComment),
+                      onReplyCancel: () => setReplyingToCommentId(null)
+                    }}
                     hasFork={navigationProps.showNav}
                     currentBranch={navigationProps.currentBranch}
                     onBranchToggle={() => navigationProps.forkParentId && handleBranchToggle(navigationProps.forkParentId)}
@@ -435,10 +436,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
   );
 }
 
-export default registerComponent(
-  "UltraFeedThreadItem",
-  UltraFeedThreadItem,
-);
+export default UltraFeedThreadItem;
 
 
 

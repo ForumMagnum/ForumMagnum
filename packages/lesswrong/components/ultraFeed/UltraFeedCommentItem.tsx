@@ -15,10 +15,8 @@ import UltraFeedItemFooter from "./UltraFeedItemFooter";
 import OverflowNavButtons from "./OverflowNavButtons";
 import SeeLessFeedback from "./SeeLessFeedback";
 import { useSeeLess } from "./useSeeLess";
-import CommentsEditForm from "../comments/CommentsEditForm";
-import CommentsNewForm from "../comments/CommentsNewForm";
-import ForumIcon from "../common/ForumIcon";
 import { useCurrentUser } from "../common/withUser";
+
 
 const commentHeaderPaddingDesktop = 12;
 const commentHeaderPaddingMobile = 12;
@@ -51,12 +49,11 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     flexDirection: 'column',
   },
   commentContentWrapperWithBorder: {
-    // borderBottom: theme.palette.border.itemSeparatorBottom,
+    borderBottom: theme.palette.border.itemSeparatorBottom,
   },
   commentHeader: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px',
   },
   contentWrapper: {
     marginTop: 12,
@@ -150,59 +147,42 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
       pointerEvents: 'auto !important',
     },
   },
-  replyEditorContainer: {
-    marginTop: 8,
-    marginBottom: 12,
-    paddingRight: 16,
-    background: theme.palette.grey[100],
-    borderRadius: theme.borderRadius.small,
-    [theme.breakpoints.down('sm')]: {
-      paddingRight: 0,
-    },
-  },
   branchNavContainer: {
     display: 'flex',
     alignItems: 'center',
-    gap: 8,
-    marginTop: 8,
     marginBottom: 8,
-  },
-  branchNavButton: {
-    cursor: 'pointer',
-    padding: '4px 8px',
-    borderRadius: 4,
-    backgroundColor: theme.palette.grey[100],
-    '&:hover': {
-      backgroundColor: theme.palette.grey[200],
-    },
-  },
-  viewAllCommentsButton: {
-    // display: 'flex',
-    // justifyContent: 'flex-end',
     cursor: 'pointer',
     color: theme.palette.primary.main,
-    fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 14,
-    marginBottom: 8,
+    fontFamily: theme.palette.fonts.sansSerifStack,
     '&:hover': {
-      color: theme.palette.text.primary,
-      opacity: 0.3,
+      opacity: 0.8,
     },
   },
-  cannotReplyMessage: {
-    padding: 16,
-    marginTop: 8,
-    marginBottom: 8,
-    background: theme.palette.grey[100],
-    borderRadius: theme.borderRadius.small,
-    color: theme.palette.text.dim,
-    fontSize: 14,
-    fontFamily: theme.palette.fonts.sansSerifStack,
+  branchNavText: {
     fontStyle: 'italic',
   },
 }));
 
 type HighlightStateType = 'never-highlighted' | 'highlighted-unviewed' | 'highlighted-viewed';
+
+const BranchNavigationButton = ({
+  currentBranch,
+  onBranchToggle,
+}: {
+  currentBranch?: 'new' | 'original';
+  onBranchToggle?: () => void;
+}) => {
+  const classes = useStyles(styles);
+  
+  return (
+    <div className={classes.branchNavContainer} onClick={onBranchToggle}>
+      <span className={classes.branchNavText}>
+        {currentBranch === 'new' ? 'View original thread' : 'View your new reply'}
+      </span>
+    </div>
+  );
+};
 
 export const UltraFeedCompressedCommentsItem = ({
   numComments, 
@@ -237,6 +217,13 @@ export const UltraFeedCompressedCommentsItem = ({
   );
 };
 
+export interface ReplyConfig {
+  isReplying: boolean;
+  onReplyClick: () => void;
+  onReplySubmit: (newComment: UltraFeedComment) => void;
+  onReplyCancel: () => void;
+}
+
 export interface UltraFeedCommentItemProps {
   comment: UltraFeedComment;
   metaInfo: FeedCommentMetaInfo;
@@ -250,13 +237,11 @@ export interface UltraFeedCommentItemProps {
   parentAuthorName?: string | null;
   onReplyIconClick?: () => void;
   isHighlightAnimating?: boolean;
-  isReplying?: boolean;
-  onReplyClick?: () => void;
-  onReplySubmit?: (newComment: UltraFeedComment) => void;
-  onReplyCancel?: () => void;
+  replyConfig: ReplyConfig;
   hasFork?: boolean;
   currentBranch?: 'new' | 'original';
   onBranchToggle?: () => void;
+  cannotReplyReason?: string | null;
 }
 
 export const UltraFeedCommentItem = ({
@@ -272,13 +257,11 @@ export const UltraFeedCommentItem = ({
   parentAuthorName,
   onReplyIconClick,
   isHighlightAnimating = false,
-  isReplying,
-  onReplyClick,
-  onReplySubmit,
-  onReplyCancel,
+  replyConfig,
   hasFork,
   currentBranch,
   onBranchToggle,
+  cannotReplyReason: customCannotReplyReason,
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
   const { observe, unobserve, trackExpansion, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView } = useUltraFeedObserver();
@@ -292,11 +275,11 @@ export const UltraFeedCommentItem = ({
   // TODO: Check if user has already replied - this would require parent prop or checking children
   const hasAlreadyReplied = false; // Placeholder - needs implementation
   
-  const cannotReplyReason = isOwnComment 
-    ? "You cannot reply to your own comment" 
+  const cannotReplyReason = customCannotReplyReason || (isOwnComment 
+    ? "You cannot reply to your own comment from the feed" 
     : hasAlreadyReplied 
-    ? "You have already replied to this comment" 
-    : null;
+    ? "You have already replied to this comment and cannot reply again from the feed" 
+    : null);
 
   // Provide default metaInfo if not provided
   const safeMetaInfo = metaInfo || {
@@ -452,6 +435,10 @@ export const UltraFeedCommentItem = ({
         </div>
         <div ref={elementRef} className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
           <div className={classNames(classes.commentHeader, { [classes.greyedOut]: isSeeLessMode })}>
+            {hasFork && <BranchNavigationButton
+              currentBranch={currentBranch}
+              onBranchToggle={onBranchToggle}
+            />}
             <UltraFeedCommentsItemMeta
               comment={comment}
               setShowEdit={() => {}}
@@ -483,17 +470,6 @@ export const UltraFeedCommentItem = ({
               />
             </div>
           )}
-          {hasFork && (
-            <div className={classes.branchNavContainer}>
-              <button 
-                className={classes.branchNavButton}
-                onClick={onBranchToggle}
-              >
-                <ForumIcon icon={currentBranch === 'new' ? 'ChevronLeft' : 'ChevronRight'} />
-                {currentBranch === 'new' ? 'View original thread' : 'View new reply'}
-              </button>
-            </div>
-          )}
           <UltraFeedItemFooter
             document={comment}
             collectionName="Comments"
@@ -501,49 +477,11 @@ export const UltraFeedCommentItem = ({
             className={classNames(classes.footer, { [classes.footerGreyedOut]: isSeeLessMode })}
             onSeeLess={isSeeLessMode ? handleUndoSeeLess : handleSeeLess}
             isSeeLessMode={isSeeLessMode}
-            {...(onReplyClick ? { onReplyClick } : {})}
+            replyConfig={replyConfig}
+            cannotReplyReason={cannotReplyReason}
           />
         </div>
       </div>
-      
-      {/* Reply editor when isReplying is true */}
-      {isReplying && comment.post && (
-        <>
-          {cannotReplyReason ? (
-            <div className={classes.cannotReplyMessage}>
-              {cannotReplyReason}
-            </div>
-          ) : (
-            <div className={classes.replyEditorContainer}>
-              <CommentsNewForm
-                post={{...comment.post, af: false}} // in order to hide AF checkbox
-                parentComment={comment}
-                successCallback={(newComment) => {
-                  if (onReplySubmit && newComment) {
-                    const ultraFeedComment = {
-                      ...newComment,
-                      post: comment.post,
-                    }
-                    onReplySubmit(ultraFeedComment);
-                  }
-                }}
-                cancelCallback={onReplyCancel}
-                interactionType="reply"
-                enableGuidelines={false}
-                formStyle="default"
-                // removeFields={['af']}
-                overrideHintText="Text goes here! Visit lesswrong.com/editor for more info about the editor..."
-              />
-            </div>
-          )}
-          <div 
-            className={classes.viewAllCommentsButton}
-            onClick={handleViewAllComments}
-          >
-            Click to view all comments
-          </div>
-        </>
-      )}
       
       {/* Stub: Branch navigation when hasFork is true */}
       
