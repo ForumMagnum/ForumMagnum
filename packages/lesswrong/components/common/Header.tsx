@@ -10,15 +10,14 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, isEAForum, isLW } from '../../lib/instanceSettings';
+import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, isEAForum } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
-import { hasProminentLogoSetting, lightconeFundraiserUnsyncedAmount, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive, lightconeFundraiserPostId } from '../../lib/publicSettings';
+import { hasProminentLogoSetting } from '../../lib/publicSettings';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from './CloudinaryImage2';
 import { hasForumEvents } from '@/lib/betas';
-import { useFundraiserStripeTotal, useLivePercentage } from '@/lib/lightconeFundraiser';
 import SearchBar from "./SearchBar";
 import UsersMenu from "../users/UsersMenu";
 import UsersAccountMenu from "../users/UsersAccountMenu";
@@ -32,6 +31,7 @@ import ForumIcon from "./ForumIcon";
 import ActiveDialogues from "../dialogues/ActiveDialogues";
 import SiteLogo from "../ea-forum/SiteLogo";
 import MessagesMenuButton from "../messaging/MessagesMenuButton";
+import { forumSelect } from '@/lib/forumTypeUtils';
 
 /** Height of top header. On Book UI sites, this is for desktop only */
 export const HEADER_HEIGHT = isBookUI ? 64 : 66;
@@ -114,8 +114,23 @@ export const styles = (theme: ThemeType) => ({
   appBar: {
     boxShadow: theme.palette.boxShadow.appBar,
     color: theme.palette.text.bannerAdOverlay,
-    background: theme.palette.panelBackground.bannerAdTranslucent,
-    backdropFilter: theme.palette.filters.headerBackdropFilter,
+
+    ...(forumSelect({
+      LWAF: theme.themeOptions.name === 'dark'
+        ? {
+          background: theme.palette.panelBackground.bannerAdTranslucent,
+          backdropFilter: 'blur(4px) brightness(1.1)',
+          "&$blackBackgroundAppBar": {
+            boxShadow: theme.palette.boxShadow.appBarDarkBackground,
+            background: theme.palette.panelBackground.appBarDarkBackground,
+          },
+        } : {
+          backgroundColor: theme.palette.header.background,
+        },
+      default: {
+        backgroundColor: theme.palette.header.background,
+      },
+    })),
     position: "static",
     width: "100%",
     display: "flex",
@@ -135,10 +150,6 @@ export const styles = (theme: ThemeType) => ({
       },
     } : {}),
   },
-  blackBackgroundAppBar: {
-    boxShadow: theme.palette.boxShadow.appBarDarkBackground,
-    background: theme.palette.panelBackground.appBarDarkBackground,
-  },
   appBarDarkBackground: {
     ...textColorOverrideStyles({
       theme,
@@ -148,6 +159,7 @@ export const styles = (theme: ThemeType) => ({
     "--header-text-color": theme.palette.text.alwaysWhite,
     "--header-contrast-color": theme.palette.text.alwaysBlack,
   },
+  blackBackgroundAppBar: {},
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
     // Headroom and top-pads the page) has to match.
