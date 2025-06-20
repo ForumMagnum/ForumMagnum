@@ -643,12 +643,6 @@ const UltraFeedPostDialog = ({
                     )}
                   </div>
                   
-                  <UltraFeedItemFooter
-                    document={displayPost}
-                    collectionName="Posts"
-                    metaInfo={postMetaInfo}
-                    className={classes.footer}
-                  />
                   {isCommentsLoading && fullPostForContent && (
                     <div className={classes.loadingContainer}><Loading /></div>
                   )}

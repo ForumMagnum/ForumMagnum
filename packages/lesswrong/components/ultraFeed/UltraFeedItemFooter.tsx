@@ -3,6 +3,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import classNames from "classnames";
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeCommentOutlined';
+import { DebateIconOutline } from '../icons/DebateIconOutline';
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { useVote } from "../votes/withVote";
 import { VotingProps } from "../votes/votingProps";
@@ -82,6 +83,32 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       top: 2,
     }
   },
+  showAllComments: {
+    position: 'relative',
+    top: 0,
+    padding: 2,
+    opacity: 0.6,
+    display: "inline-flex",
+    alignItems: "center",
+    borderRadius: 4,
+    cursor: "pointer",
+    transition: 'background-color 0.2s ease',
+    "& svg": {
+      position: "relative",
+      height: 14,
+      top: 0,
+    },
+    "&:hover": {
+      opacity: 1,
+    },
+    // Hide on mobile
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    }
+  },
+  showAllCommentsCount: {
+    marginLeft: 2,
+  },
   commentCountClickable: {
     cursor: "pointer",
     "&:hover": {
@@ -117,6 +144,9 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   commentCountText: {
     marginLeft: 4,
+    [theme.breakpoints.up('md')]: {
+      display: 'none',
+    }
   },
   reactionIcon: {
     marginRight: 6,
@@ -434,12 +464,25 @@ const UltraFeedItemFooterCore = ({
     </div>
   );
 
+  const showAllCommentsButton = (commentCount ?? 0) > 0 
+    ? <LWTooltip title={`Show all comments (${commentCount} direct child${commentCount === 1 ? '' : 'ren'})`}>
+      <div
+        onClick={onClickComments}
+        className={classes.showAllComments}
+      >
+        <DebateIconOutline />
+        <span className={classes.showAllCommentsCount}>{commentCount}</span>
+      </div>
+    </LWTooltip>
+   : null;
+
   const votingSystem = voteProps.document.votingSystem || getDefaultVotingSystem();
 
   return (
     <>
       <div className={classNames(classes.root, className)}>
         {commentCountIcon}
+        {showAllCommentsButton}
 
         {showVoteButtons && voteProps.document && (
           <>

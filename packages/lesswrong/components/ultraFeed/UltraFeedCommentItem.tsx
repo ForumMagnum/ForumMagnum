@@ -16,6 +16,7 @@ import OverflowNavButtons from "./OverflowNavButtons";
 import SeeLessFeedback from "./SeeLessFeedback";
 import { useSeeLess } from "./useSeeLess";
 import { useCurrentUser } from "../common/withUser";
+import { userOwns } from "../../lib/vulcan-users/permissions";
 
 
 const commentHeaderPaddingDesktop = 12;
@@ -270,16 +271,7 @@ export const UltraFeedCommentItem = ({
   const overflowNav = useOverflowNav(elementRef);
   const currentUser = useCurrentUser();
   
-  // Check if user can reply
-  const isOwnComment = currentUser && comment.user && currentUser._id === comment.user._id;
-  // TODO: Check if user has already replied - this would require parent prop or checking children
-  const hasAlreadyReplied = false; // Placeholder - needs implementation
-  
-  const cannotReplyReason = customCannotReplyReason || (isOwnComment 
-    ? "You cannot reply to your own comment from the feed" 
-    : hasAlreadyReplied 
-    ? "You have already replied to this comment and cannot reply again from the feed" 
-    : null);
+  const cannotReplyReason = customCannotReplyReason ?? (userOwns(currentUser, comment) ? "You cannot reply to your own comment from within the feed" : null);
 
   // Provide default metaInfo if not provided
   const safeMetaInfo = metaInfo || {
