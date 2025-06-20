@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { ThemeMetadata, themeMetadata, getForumType, AbstractThemeOptions } from '../../themes/themeNames';
 import { ForumTypeString, allForumTypes, forumTypeSetting, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
-import { useThemeOptions, useSetTheme, useIsThemeOverridden } from './useTheme';
+import { useThemeOptions, useSetTheme, useIsThemeOverridden, HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT } from './useTheme';
 import { useCurrentUser } from '../common/withUser';
 import { isMobile } from '../../lib/utils/isMobile'
 import { Paper }from '@/components/widgets/Paper';
@@ -47,12 +47,12 @@ const ThemePickerMenu = ({children, classes}: {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const location = useLocation();
-  const [cookies] = useCookiesWithConsent([HIDE_IF_ANYONE_BUILDS_IT_SPLASH]);
+  const [cookies] = useCookiesWithConsent([HIDE_IF_ANYONE_BUILDS_IT_SPLASH, HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT]);
 
   const selectedForumTheme = getForumType(currentThemeOptions);
   
   const isFrontPage = location?.pathname === '/' || location?.pathname === '';
-  const showReenableSpecialTheme = isLW && isFrontPage && cookies[HIDE_IF_ANYONE_BUILDS_IT_SPLASH];
+  const showReenableSpecialTheme = isLW && isFrontPage && (cookies[HIDE_IF_ANYONE_BUILDS_IT_SPLASH] || cookies[HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT]);
   
   if (useIsThemeOverridden()) {
     // Hack for the If Everyone Builds It announcement. If on a page where the
@@ -202,6 +202,7 @@ const ReenableSpecialThemeButton = () => {
 
   const reenableSpecialTheme = () => {
     removeCookie(HIDE_IF_ANYONE_BUILDS_IT_SPLASH);
+    removeCookie(HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT);
   }
 
   return <DropdownItem

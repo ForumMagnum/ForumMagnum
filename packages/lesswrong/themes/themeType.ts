@@ -491,7 +491,6 @@ declare global {
       bannerAdBlurLight: string,
       bannerAdBlurMedium: string,
       bannerAdBlurHeavy: string,
-      headerBackdropFilter: string,
     },
     geosuggest: {
       dropdownBackground: ColorString,

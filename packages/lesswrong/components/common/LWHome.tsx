@@ -53,7 +53,7 @@ const getStructuredData = () => ({
 
 const styles = defineStyles("LWHome", (theme: ThemeType) => ({
   hideOnDesktop: {
-    [theme.breakpoints.up('md')]: {
+    [theme.breakpoints.up('lg')]: {
       display: 'none',
     },
   },
