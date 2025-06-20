@@ -238,15 +238,19 @@ const styles = defineStyles("IfAnyoneBuildsItSplash", (theme: ThemeType) => ({
 
 export const isIfAnyoneBuildsItFrontPage = '.ifAnyoneBuildsItActive &';
 
+export const useHideIfAnyoneBuildsItSplash = () => {
+  const [cookies] = useCookiesWithConsent([HIDE_IF_ANYONE_BUILDS_IT_SPLASH]);
+  return cookies[HIDE_IF_ANYONE_BUILDS_IT_SPLASH];
+}
+
 const IfAnyoneBuildsItSplash = () => {
   const classes = useStyles(styles);
-  const [cookies] = useCookiesWithConsent([HIDE_IF_ANYONE_BUILDS_IT_SPLASH]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const paintCanvasRef = useRef<(() => void) | null>(null);
   const starsRef = useRef<Array<{x: number, y: number, radius: number, opacity: number, twinkleSpeed: number}>>([]);
   const sphereSizeRef = useRef(0);
   const scrollProgressRef = useRef(0);
-  const optedOut = cookies[HIDE_IF_ANYONE_BUILDS_IT_SPLASH];
+  const optedOut = useHideIfAnyoneBuildsItSplash();
   const [shouldShowStarfield, setShouldShowStarfield] = useState(!optedOut);
 
   // Check if we should show starfield based on screen size
