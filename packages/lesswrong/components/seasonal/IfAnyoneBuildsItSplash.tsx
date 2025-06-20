@@ -8,6 +8,7 @@ import LWTooltip from '../common/LWTooltip';
 import moment from 'moment';
 import { useMessages } from '../common/withMessages';
 import Close from "@/lib/vendor/@material-ui/icons/src/Close";
+import { HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT } from '../themes/useTheme';
 
 // TODO: comment this out after we're done with the book promotion
 export const bookPromotionEndDate = new Date('2025-09-17T00:00:00Z') // Day after book release
@@ -239,8 +240,8 @@ const styles = defineStyles("IfAnyoneBuildsItSplash", (theme: ThemeType) => ({
 export const isIfAnyoneBuildsItFrontPage = '.ifAnyoneBuildsItActive &';
 
 export const useHideIfAnyoneBuildsItSplash = () => {
-  const [cookies] = useCookiesWithConsent([HIDE_IF_ANYONE_BUILDS_IT_SPLASH]);
-  return cookies[HIDE_IF_ANYONE_BUILDS_IT_SPLASH];
+  const [cookies] = useCookiesWithConsent([HIDE_IF_ANYONE_BUILDS_IT_SPLASH, HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT]);
+  return cookies[HIDE_IF_ANYONE_BUILDS_IT_SPLASH] || cookies[HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT];
 }
 
 const IfAnyoneBuildsItSplash = () => {

@@ -38,6 +38,7 @@ import { ensureClientId } from '@/server/clientIdMiddleware';
 import { captureEvent } from '@/lib/analyticsEvents';
 import { getSqlBytesDownloaded } from '@/server/sqlConnection';
 import { measureSqlBytesDownloaded } from '@/server/sql/sqlClient';
+import { HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT } from '@/components/themes/useTheme';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -521,7 +522,9 @@ const renderRequest = async ({req, user, startTime, res, userAgent, ...cacheAtte
   const serializedForeignApolloState = embedAsGlobalVar("__APOLLO_FOREIGN_STATE__", foreignClient.extract());
 
   // Hack for the front page If Everyone Builds It announcement
-  const forceDarkMode = isLW && req.url === '/' && !getCookieFromReq(req, HIDE_IF_ANYONE_BUILDS_IT_SPLASH);
+  const hideIfAnyoneBuildsItSplash = getCookieFromReq(req, HIDE_IF_ANYONE_BUILDS_IT_SPLASH)
+  const hideIfAnyoneBuildsItSpotlight = getCookieFromReq(req, HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT)
+  const forceDarkMode = isLW && req.url === '/' && !hideIfAnyoneBuildsItSplash && !hideIfAnyoneBuildsItSpotlight;
   const jssSheets = forceDarkMode
     ? renderJssSheetImports({name: "dark"})
     : renderJssSheetImports(themeOptions);
