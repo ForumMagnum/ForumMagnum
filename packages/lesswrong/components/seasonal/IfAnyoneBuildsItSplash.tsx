@@ -1,8 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useTheme } from '../themes/useTheme';
 import classNames from 'classnames';
 import { Link } from '@/lib/reactRouterWrapper';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HIDE_IF_ANYONE_BUILDS_IT_SPLASH } from '@/lib/cookies/cookies';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import LWTooltip from '../common/LWTooltip';
+import moment from 'moment';
+import { useMessages } from '../common/withMessages';
+import Close from "@/lib/vendor/@material-ui/icons/src/Close";
 
 // TODO: comment this out after we're done with the book promotion
 export const bookPromotionEndDate = new Date('2025-09-17T00:00:00Z') // Day after book release
@@ -35,7 +40,7 @@ const interpolateColor = (color1: string, color2: string, factor: number): strin
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 };
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("IfAnyoneBuildsItSplash", (theme: ThemeType) => ({
   root: {
     position: 'fixed',
     top: 0,
@@ -83,7 +88,7 @@ const styles = (theme: ThemeType) => ({
       bottom: 120,
       width: 150,
     },
-    [theme.breakpoints.down(1300)]: {
+    [theme.breakpoints.down('md')]: {
       display: 'none'
     }
   },
@@ -194,35 +199,71 @@ const styles = (theme: ThemeType) => ({
     gap: '20px',
     justifyContent: 'center',
     width: '100%',
-  }
-});
+  },
+  optOutButtonPosition: {
+    position: "absolute",
+    top: 60,
+    right: 0,
+    [theme.breakpoints.down('sm')]: {
+      display: "none",
+    },
+  },
+  optOutButtonContainer: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    padding: 8,
+    fontSize: 16,
+    cursor: "pointer",
+
+    margin: 10,
+    borderRadius: 20,
+    background: theme.palette.greyAlpha(.1),
+    width: 30,
+    height: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    display: "flex",
+    
+    "&:hover": {
+      background: theme.palette.greyAlpha(.15),
+    },
+  },
+  optOutButtonIcon: {
+    width: 20,
+    color: theme.palette.greyAlpha(0.8),
+  },
+  reenableButton: {
+    color: theme.palette.primary.main,
+  },
+}));
 
 export const isIfAnyoneBuildsItFrontPage = '.ifAnyoneBuildsItActive &';
 
-const IfAnyoneBuildsItSplash = ({
-  classes,
-}: {
-  classes: ClassesType<typeof styles>,
-}) => {
-  const theme = useTheme();
+const IfAnyoneBuildsItSplash = () => {
+  const classes = useStyles(styles);
+  const [cookies] = useCookiesWithConsent([HIDE_IF_ANYONE_BUILDS_IT_SPLASH]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const paintCanvasRef = useRef<(() => void) | null>(null);
   const starsRef = useRef<Array<{x: number, y: number, radius: number, opacity: number, twinkleSpeed: number}>>([]);
   const sphereSizeRef = useRef(0);
   const scrollProgressRef = useRef(0);
-  const [shouldShowStarfield, setShouldShowStarfield] = useState(true);
+  const optedOut = cookies[HIDE_IF_ANYONE_BUILDS_IT_SPLASH];
+  const [shouldShowStarfield, setShouldShowStarfield] = useState(!optedOut);
 
   // Check if we should show starfield based on screen size
   useEffect(() => {
+    if (optedOut) {
+      setShouldShowStarfield(false);
+      return;
+    }
     const checkScreenSize = () => {
-      setShouldShowStarfield(window.innerWidth >= 1300);
+      setShouldShowStarfield(window.innerWidth >= 960);
     };
     
     checkScreenSize();
     window.addEventListener('resize', checkScreenSize);
     
     return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
+  }, [optedOut]);
 
   // Add/remove body class for background override
   useEffect(() => {
@@ -499,8 +540,13 @@ const IfAnyoneBuildsItSplash = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, [shouldShowStarfield]);
 
+  if (optedOut) {
+    return null;
+  }
   return (
     <>
+      <IfAnyoneBuildsItOptOutXButton/>
+
       <div className={classes.root}>
         <div className={classes.starryBackground}>
           {shouldShowStarfield && (
@@ -542,4 +588,33 @@ const IfAnyoneBuildsItSplash = ({
   );
 };
 
-export default registerComponent('IfAnyoneBuildsItSplash', IfAnyoneBuildsItSplash, {styles});
+const IfAnyoneBuildsItOptOutXButton = () => {
+  const classes = useStyles(styles);
+  const [_cookies, setCookie, removeCookie] = useCookiesWithConsent([HIDE_IF_ANYONE_BUILDS_IT_SPLASH]);
+  const {flash, clear: clearMessage} = useMessages();
+
+  const disableSpecialTheme = () => {
+    setCookie(HIDE_IF_ANYONE_BUILDS_IT_SPLASH, true, {
+      path: "/",
+      expires: moment().add(3, 'months').toDate(),
+    });
+    flash({
+      messageString: <div>Disabled special theme. <a className={classes.reenableButton} onClick={reenableSpecialTheme}>Reenable</a></div>
+    });
+  }
+  
+  const reenableSpecialTheme = () => {
+    removeCookie(HIDE_IF_ANYONE_BUILDS_IT_SPLASH);
+    clearMessage();
+  };
+  
+  return <div className={classes.optOutButtonPosition}>
+    <LWTooltip title="Disable special theme">
+      <div className={classes.optOutButtonContainer} onClick={disableSpecialTheme}>
+        <Close className={classes.optOutButtonIcon}/>
+      </div>
+    </LWTooltip>
+  </div>
+}
+
+export default IfAnyoneBuildsItSplash;
