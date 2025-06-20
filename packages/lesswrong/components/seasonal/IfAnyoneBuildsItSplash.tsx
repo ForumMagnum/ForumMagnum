@@ -1,6 +1,4 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useTheme } from '../themes/useTheme';
 import classNames from 'classnames';
 import { Link } from '@/lib/reactRouterWrapper';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
@@ -9,6 +7,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import LWTooltip from '../common/LWTooltip';
 import moment from 'moment';
 import { useMessages } from '../common/withMessages';
+import Close from "@/lib/vendor/@material-ui/icons/src/Close";
 
 // TODO: comment this out after we're done with the book promotion
 export const bookPromotionEndDate = new Date('2025-09-17T00:00:00Z') // Day after book release
@@ -201,18 +200,36 @@ const styles = defineStyles("IfAnyoneBuildsItSplash", (theme: ThemeType) => ({
     justifyContent: 'center',
     width: '100%',
   },
-  optOutButtonContainer: {
+  optOutButtonPosition: {
     position: "absolute",
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    padding: 8,
     top: 60,
     right: 0,
-    fontSize: 16,
-    color: theme.palette.greyAlpha(0.8),
-    cursor: "pointer",
     [theme.breakpoints.down('sm')]: {
       display: "none",
-    }
+    },
+  },
+  optOutButtonContainer: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    padding: 8,
+    fontSize: 16,
+    cursor: "pointer",
+
+    margin: 10,
+    borderRadius: 20,
+    background: theme.palette.greyAlpha(.1),
+    width: 30,
+    height: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    display: "flex",
+    
+    "&:hover": {
+      background: theme.palette.greyAlpha(.15),
+    },
+  },
+  optOutButtonIcon: {
+    width: 20,
+    color: theme.palette.greyAlpha(0.8),
   },
   reenableButton: {
     color: theme.palette.primary.main,
@@ -591,9 +608,11 @@ const IfAnyoneBuildsItOptOutXButton = () => {
     clearMessage();
   };
   
-  return <div className={classes.optOutButtonContainer} onClick={disableSpecialTheme}>
+  return <div className={classes.optOutButtonPosition}>
     <LWTooltip title="Disable special theme">
-      X
+      <div className={classes.optOutButtonContainer} onClick={disableSpecialTheme}>
+        <Close className={classes.optOutButtonIcon}/>
+      </div>
     </LWTooltip>
   </div>
 }
