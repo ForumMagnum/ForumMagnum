@@ -171,7 +171,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     let fetchDocs: () => Promise<T[]>;
     if (fragmentInfo) {
       // Make a dynamic require here to avoid our circular dependency lint rule, since really by this point we should be fine
-      const getSqlFragment: typeof import('../../lib/fragments/sqlFragments').getSqlFragment = require('../../lib/fragments/sqlFragments').getSqlFragment;
+      const { getSqlFragment } = await import('../../lib/fragments/sqlFragments');
       const sqlFragment = getSqlFragment(fragmentInfo.fragmentName, fragmentInfo.fragmentText);
       const query = new SelectFragmentQuery(
         sqlFragment,
@@ -266,7 +266,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     let doc: ObjectsByCollectionName[N] | null;
     if (fragmentInfo) {
       // Make a dynamic require here to avoid our circular dependency lint rule, since really by this point we should be fine
-      const getSqlFragment: typeof import('../../lib/fragments/sqlFragments').getSqlFragment = require('../../lib/fragments/sqlFragments').getSqlFragment;
+      const { getSqlFragment } = await import('../../lib/fragments/sqlFragments');
       const sqlFragment = getSqlFragment(fragmentInfo.fragmentName, fragmentInfo.fragmentText);
       const query = new SelectFragmentQuery(
         sqlFragment,

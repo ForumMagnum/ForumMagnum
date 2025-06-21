@@ -102,7 +102,7 @@ interface FindResult<T> {
 
 type ViewFunction<N extends CollectionNameString = CollectionNameString> = (
   terms: ViewTermsByCollectionName[N],
-  apolloClient?: ApolloClient<NormalizedCacheObject>,
+  apolloClient?: ApolloClient,
   context?: ResolverContext,
 ) => ViewQueryAndOptions<N>;
 

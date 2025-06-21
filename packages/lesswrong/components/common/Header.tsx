@@ -13,25 +13,25 @@ import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, isEAForum, isLW } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
-import { hasProminentLogoSetting, lightconeFundraiserUnsyncedAmount, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive, lightconeFundraiserPostId } from '../../lib/publicSettings';
+import { hasProminentLogoSetting } from '../../lib/publicSettings';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from './CloudinaryImage2';
 import { hasForumEvents } from '@/lib/betas';
-import { useFundraiserStripeTotal, useLivePercentage } from '@/lib/lightconeFundraiser';
 import SearchBar from "./SearchBar";
 import UsersMenu from "../users/UsersMenu";
 import UsersAccountMenu from "../users/UsersAccountMenu";
 import NotificationsMenuButton from "../notifications/NotificationsMenuButton";
 import NavigationDrawer from "./TabNavigationMenu/NavigationDrawer";
 import NotificationsMenu from "../notifications/NotificationsMenu";
-import KarmaChangeNotifier from "../users/KarmaChangeNotifier";
+import { KarmaChangeNotifier } from "../users/KarmaChangeNotifier";
 import HeaderSubtitle from "./HeaderSubtitle";
 import { Typography } from "./Typography";
 import ForumIcon from "./ForumIcon";
 import ActiveDialogues from "../dialogues/ActiveDialogues";
 import SiteLogo from "../ea-forum/SiteLogo";
 import MessagesMenuButton from "../messaging/MessagesMenuButton";
+import { SuspenseWrapper } from './SuspenseWrapper';
 
 /** Height of top header. On Book UI sites, this is for desktop only */
 export const HEADER_HEIGHT = isBookUI ? 64 : 66;
@@ -113,8 +113,9 @@ const textColorOverrideStyles = ({
 export const styles = (theme: ThemeType) => ({
   appBar: {
     boxShadow: theme.palette.boxShadow.appBar,
-    color: theme.palette.header.text,
-    backgroundColor: theme.palette.header.background,
+    color: theme.palette.text.bannerAdOverlay,
+    background: theme.palette.panelBackground.bannerAdTranslucent,
+    backdropFilter: theme.palette.filters.headerBackdropFilter,
     position: "static",
     width: "100%",
     display: "flex",
@@ -133,6 +134,10 @@ export const styles = (theme: ThemeType) => ({
         padding: '9px 11px',
       },
     } : {}),
+  },
+  blackBackgroundAppBar: {
+    boxShadow: theme.palette.boxShadow.appBarDarkBackground,
+    background: theme.palette.panelBackground.appBarDarkBackground,
   },
   appBarDarkBackground: {
     ...textColorOverrideStyles({
@@ -171,7 +176,7 @@ export const styles = (theme: ThemeType) => ({
     color: theme.palette.text.secondary,
   },
   titleLink: {
-    color: theme.palette.header.text,
+    color: theme.palette.text.bannerAdOverlay,
     fontSize: 19,
     '&:hover, &:active': {
       textDecoration: 'none',
@@ -455,11 +460,11 @@ const Header = ({
       open={notificationOpen}
       className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
     />}
-    {hasMessagesButton &&
+    {hasMessagesButton && <SuspenseWrapper name="MesagesMenuButton">
       <MessagesMenuButton
         className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
       />
-    }
+    </SuspenseWrapper>}
     {isFriendlyUI && usersMenuNode}
   </div>
 
@@ -521,7 +526,8 @@ const Header = ({
           <header
             className={classNames(
               classes.appBar,
-              useContrastText && classes.appBarDarkBackground
+              useContrastText && classes.appBarDarkBackground,
+              currentRoute?.background === "white" && classes.blackBackgroundAppBar,
             )}
             style={headerStyle}
           >

@@ -97,7 +97,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   
   const commentTreeOptions: CommentTreeOptions = {
     refetch,
-    scrollOnExpand: true,
+    scrollOnExpand: false,
     lastCommentId: lastCommentId,
     highlightDate: maybeDate(tag.lastVisitedAt ?? undefined),
     tag: tag,

@@ -16,16 +16,5 @@ interface WithUserProps {
 };
 
 
-export type RefetchCurrentUserFunction = (
-  variables?: Partial<OperationVariables>,
-) => Promise<ApolloQueryResult<getCurrentUserQuery | null>>;
-
-export const RefetchCurrentUserContext = createContext<RefetchCurrentUserFunction>(
-  async () => ({
-    data: null,
-    loading: false,
-    networkStatus: NetworkStatus.ready,
-  }),
-);
-
+export const RefetchCurrentUserContext = createContext<() => Promise<void>>(async () => {});
 export const useRefetchCurrentUser = () => useContext(RefetchCurrentUserContext);

@@ -35,16 +35,18 @@ export interface FeedPostMetaInfo {
   lastViewed?: Date | null;
   lastInteracted?: Date | null;
   displayStatus: FeedItemDisplayStatus;
+  servedEventId?: string;
 }
 export interface FeedCommentMetaInfo {
-  sources: FeedItemSourceType[] | null;
+  sources: FeedItemSourceType[];
   directDescendentCount: number;
-  lastServed: Date | null;
-  lastViewed: Date | null;
-  lastInteracted: Date | null;
-  postedAt: Date | null;
-  displayStatus?: FeedItemDisplayStatus;
+  lastServed?: Date | null;
+  lastViewed?: Date | null;
+  lastInteracted?: Date | null;
+  postedAt?: Date | null;
   highlight?: boolean;
+  displayStatus?: FeedItemDisplayStatus;
+  servedEventId?: string;
 }
 
 export interface FeedCommentFromDb {
@@ -159,4 +161,12 @@ export interface ThreadEngagementStats {
   participationCount: number;
   viewScore: number;
   isOnReadPost: boolean;
+}
+
+export interface ServedEventData {
+  sessionId: string;    // The session ID for the feed load
+  itemIndex: number;    // The index of the item in the served results array
+  commentIndex?: number; // The index of the comment within a thread, if applicable
+  displayStatus?: FeedItemDisplayStatus;
+  sources: FeedItemSourceType[];
 }

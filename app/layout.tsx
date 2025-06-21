@@ -1,11 +1,16 @@
 import React from "react";
 import AppGenerator from "@/components/next/ClientAppGenerator";
+import type { SearchParams } from "next/dist/server/request/search-params";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
+  searchParams,
 }: {
   children: React.ReactNode;
+  searchParams: Promise<SearchParams>;
 }) {
+  const searchParamValues = await searchParams;
+  console.log(searchParamValues, searchParams);
   return (
     <html>
       <body>
@@ -14,6 +19,7 @@ export default function RootLayout({
         <AppGenerator
           abTestGroupsUsed={{}}
           themeOptions={{ name: "auto" }}
+          searchParams={searchParamValues}
         >
           {children}
         </AppGenerator>

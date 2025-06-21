@@ -97,7 +97,7 @@ const styles = (theme: ThemeType) => ({
   },
   navText: {
     ...theme.typography.body2,
-    color: "inherit",
+    color: theme.palette.text.bannerAdOverlay,
     textTransform: "none !important",
   },
   homeIcon: {

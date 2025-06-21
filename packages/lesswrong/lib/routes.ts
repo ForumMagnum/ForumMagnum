@@ -166,7 +166,7 @@ import Digests from '@/components/ea-forum/digest/Digests';
 import EAAllTagsPage from '@/components/tagging/EAAllTagsPage';
 import AllWikiTagsPage from '@/components/tagging/AllWikiTagsPage';
 import { communityPath, getAllTagsPath, getAllTagsRedirectPaths } from './pathConstants';
-import LeaderboardComponent from '@/components/users/Leaderboard';
+import Leaderboard from '@/components/users/Leaderboard';
 
 const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Groups' : 'Community' };
 
@@ -247,7 +247,7 @@ if (isLW) {
     {
       name: 'leaderboard',
       path: '/leaderboard',
-      component: LeaderboardComponent,
+      component: Leaderboard,
     }
   )
 }
@@ -1017,6 +1017,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/',
       component: LWHome,
       enableResourcePrefetch: true,
+      expectedHeadBlocks: ["title", "meta", "fonts"],
       sunshineSidebar: true, 
       ...(blackBarTitle.get() ? { subtitleLink: "/tag/death", headerSubtitle: blackBarTitle.get()! } : {}),
       hasLeftNavigationColumn: true,
@@ -1416,6 +1417,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path:'/',
       component: LWHome,
       enableResourcePrefetch: true,
+      expectedHeadBlocks: ["title", "meta", "fonts"],
       sunshineSidebar: true,
       hasLeftNavigationColumn: true,
       navigationFooterBar: true,
@@ -1640,6 +1642,7 @@ addRoute(
     background: postBackground,
     noFooter: hasPostRecommendations,
     enableResourcePrefetch: postRouteWillDefinitelyReturn200,
+    expectedHeadBlocks: ["title", "meta", "fonts", "citationTags"],
     swrCaching: "logged-out"
   },
   {

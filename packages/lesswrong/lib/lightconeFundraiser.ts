@@ -1,15 +1,14 @@
 import { useQuery } from "@/lib/crud/useQuery";
-import gql from "graphql-tag";
-import { isLW } from "./instanceSettings";
 import { lightconeFundraiserUnsyncedAmount } from "./publicSettings";
 import { useEffect, useState } from "react";
+import { gql } from "./generated/gql-codegen";
 
 export const useFundraiserStripeTotal = () => {
-  const { data } = useQuery(gql`
+  const { data } = useQuery(gql(`
     query Lightcone2024FundraiserStripeAmounts {
       Lightcone2024FundraiserStripeAmounts
     }
-  `, {
+  `), {
     ssr: true,
   });
 

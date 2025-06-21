@@ -961,10 +961,9 @@ export const ThreadInterestTuningSettings: React.FC<ThreadInterestTuningSettings
 export interface MiscSettingsProps {
   formValues: {
     incognitoMode: boolean;
-    postTitlesAreModals: boolean;
     defaultOpen?: boolean;
   };
-  onBooleanChange: (field: 'postTitlesAreModals' | 'incognitoMode', checked: boolean) => void;
+  onBooleanChange: (field: 'incognitoMode', checked: boolean) => void;
   defaultOpen?: boolean;
 }
 
@@ -972,22 +971,6 @@ export const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBoolea
   const classes = useStyles(styles);
   return (
     <CollapsibleSettingGroup title="Misc" defaultOpen={defaultOpen} className={classes.settingGroup}>
-      <div className={classes.checkboxContainer}>
-        <Checkbox
-          id="postTitlesAreModalsCheckbox"
-          className={classes.checkboxInput}
-          checked={formValues.postTitlesAreModals}
-          onChange={(e) => onBooleanChange('postTitlesAreModals', e.target.checked)}
-          color="primary"
-        />
-        <label htmlFor="postTitlesAreModalsCheckbox" className={classes.checkboxLabel}>
-          Open post titles in modals (on mobile)
-        </label>
-      </div>
-      <p className={classes.groupDescription}>
-        When disabled, clicking a post title navigates directly to the post page.
-      </p>
-
       <div className={classes.checkboxContainer}>
         <Checkbox
           id="incognitoModeCheckbox"

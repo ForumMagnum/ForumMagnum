@@ -1,6 +1,6 @@
 import { TagBySlugQueryOptions, useTagBySlug } from "../tagging/useTag";
 import { hasWikiLenses } from "@/lib/betas";
-import { ApolloError } from "@apollo/client";
+import { type ErrorLike } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
 import type { tagBySlugQueries } from "../tagging/tagBySlugQueries";
@@ -24,11 +24,11 @@ export function useTagOrLens<TagFragmentTypeName extends keyof typeof tagBySlugQ
 ): {
   tag: NonNullable<ResultOf<typeof tagBySlugQueries[TagFragmentTypeName]>['tags']>['results'][number] | null,
   loadingTag: boolean,
-  tagError?: ApolloError | null,
+  tagError?: ErrorLike | null,
   refetchTag: () => Promise<unknown>,
   lens: MultiDocumentParentDocument|null,
   loadingLens: boolean,
-  lensError?: ApolloError | null,
+  lensError?: ErrorLike | null,
 } {
   const { tag, loading: loadingTag, error: tagError, refetch: refetchTag } = useTagBySlug(slug, tagFragmentName, tagQueryOptions);
 

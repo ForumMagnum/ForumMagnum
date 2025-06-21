@@ -24,7 +24,7 @@ const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
   const commandLine: CommandLineArguments = {
     postgresUrl: process.env.PG_URL || "",
     postgresReadUrl: process.env.PG_READ_URL || "",
-    settingsFileName: "settings.json",
+    settingsFileName: "sample_settings.json",
     shellMode: false,
     listenPort: 3000,
     localhostUrlPort: 3000,
@@ -80,8 +80,10 @@ export const getInstanceSettingsFilePath = () => {
 };
 
 export const loadInstanceSettings = (args?: CommandLineArguments) => {
-  const commandLineArguments = args ?? parseCommandLine(process.argv);
-  const instanceSettings = loadSettingsFile(commandLineArguments.settingsFileName);
+  // TODO: fix this to not use `getCommandLineArguments` anymore(?)
+  // const commandLineArguments = args ?? parseCommandLine(process.argv);
+  // const instanceSettings = loadSettingsFile(commandLineArguments.settingsFileName);
+  const instanceSettings = loadSettingsFile("sample_settings.json");
   return instanceSettings;
 }
 

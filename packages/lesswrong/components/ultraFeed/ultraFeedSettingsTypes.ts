@@ -13,8 +13,6 @@ export interface UltraFeedDisplaySettings {
   commentCollapsedInitialWords: number;
   commentExpandedInitialWords: number;
   commentMaxWords: number;
-  
-  postTitlesAreModals: boolean;
 }
 
 export interface UltraFeedResolverSettings {
@@ -36,7 +34,6 @@ const DEFAULT_DISPLAY_SETTINGS: UltraFeedDisplaySettings = {
   commentCollapsedInitialWords: 50,
   commentExpandedInitialWords: 200,
   commentMaxWords: 1000,
-  postTitlesAreModals: true,
 };
 
 export const SHOW_ALL_BREAKPOINT_VALUE = 100_000;

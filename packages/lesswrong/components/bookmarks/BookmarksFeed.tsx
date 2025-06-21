@@ -55,11 +55,10 @@ const BookmarksFeed = () => {
     displaySettings: {
       ...DEFAULT_SETTINGS.displaySettings,
       postInitialWords: 50,
-      postMaxWords: 2000,
+      postMaxWords: 500,
       commentCollapsedInitialWords: 50,
-      commentExpandedInitialWords: 500,
-      commentMaxWords: 1000,
-      postTitlesAreModals: true,
+      commentExpandedInitialWords: 200,
+      commentMaxWords: 500,
     },
     resolverSettings: {
       ...DEFAULT_SETTINGS.resolverSettings,
@@ -79,7 +78,7 @@ const BookmarksFeed = () => {
           if (typedBookmark.collectionName === 'Posts' && typedBookmark.post) {
             const postMetaInfo: FeedPostMetaInfo = {
               sources: ["bookmarks"],
-              displayStatus: "expanded" as FeedItemDisplayStatus
+              displayStatus: "expanded" as FeedItemDisplayStatus,
             };
             return (
               <FeedItemWrapper key={typedBookmark._id || `post-${index}`}>
@@ -101,7 +100,7 @@ const BookmarksFeed = () => {
                 lastViewed: null, 
                 lastInteracted: null,
                 postedAt: commentData.postedAt,
-                directDescendentCount: commentData.directChildrenCount
+                directDescendentCount: commentData.directChildrenCount,
               }
             };
             const threadData: DisplayFeedCommentThread = {

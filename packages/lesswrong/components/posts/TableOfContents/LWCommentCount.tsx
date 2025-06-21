@@ -4,8 +4,9 @@ import { HOVER_CLASSNAME } from './MultiToCLayout';
 import { CommentsLink } from '../PostsPage/PostsPagePostHeader';
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import ForumIcon from "../../common/ForumIcon";
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LWCommentCount", (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -47,27 +48,27 @@ const styles = (theme: ThemeType) => ({
     opacity: 0,
     transition: 'opacity 0.3s ease-in-out',
   }
-});
+}));
 
-export const LWCommentCount = ({classes, answerCount, commentCount, label=true}: {
-  classes: ClassesType<typeof styles>,
+export const LWCommentCount = ({answerCount, commentCount, label=true}: {
   answerCount?: number,
   commentCount?: number,
   label?: boolean,
 }) => {
+  const classes = useStyles(styles);
   return <div className={classes.root}>
-        {typeof answerCount === 'number' && <CommentsLink anchor="#answers" className={classes.comments}>
-          <div className={classes.answerIcon}>A</div>
-          {answerCount}
-        </CommentsLink>}
-        <CommentsLink anchor="#comments" className={classNames(classes.comments, classes.wideClickTarget)}>
-          <ForumIcon icon="Comment" className={classes.commentsIcon} />
-          {commentCount}
-          {typeof answerCount !== 'number' && label && <span className={classNames(classes.commentsLabel, HOVER_CLASSNAME, classes.rowOpacity)}>Comments</span>}
-        </CommentsLink>
-      </div>
+    {typeof answerCount === 'number' && <CommentsLink anchor="#answers" className={classes.comments}>
+      <div className={classes.answerIcon}>A</div>
+      {answerCount}
+    </CommentsLink>}
+    <CommentsLink anchor="#comments" className={classNames(classes.comments, classes.wideClickTarget)}>
+      <ForumIcon icon="Comment" className={classes.commentsIcon} />
+      {commentCount}
+      {typeof answerCount !== 'number' && label && <span className={classNames(classes.commentsLabel, HOVER_CLASSNAME, classes.rowOpacity)}>Comments</span>}
+    </CommentsLink>
+  </div>
 }
 
-export default registerComponent('LWCommentCount', LWCommentCount, {styles});
+export default LWCommentCount;
 
 

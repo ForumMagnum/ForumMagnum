@@ -31,6 +31,9 @@ import ClockIcon from "@/lib/vendor/@material-ui/icons/src/AccessTime";
 import SubscriptionsIcon from "@/lib/vendor/@material-ui/icons/src/NotificationsNone";
 import LWTooltip from "../common/LWTooltip";
 import { SparkleIcon } from "../icons/sparkleIcon";
+import SeeLessFeedback from "./SeeLessFeedback";
+import { useCurrentUser } from "../common/withUser";
+import { useSeeLess } from "./useSeeLess";
 
 const localPostQuery = gql(`
   query LocalPostQuery($documentId: String!) {
@@ -55,16 +58,23 @@ const foreignPostQuery = gql(`
 const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
     position: 'relative',
+    paddingTop: 12,
+    paddingBottom: 12,
     paddingLeft: 16,
     paddingRight: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    backgroundColor: theme.palette.panelBackground.default,
+    background: theme.palette.panelBackground.bannerAdTranslucentHeavy,
+    backdropFilter: theme.palette.filters.bannerAdBlurHeavy,
     borderRadius: 4,
   },
   mainContent: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px',
+  },
+  greyedOut: {
+    opacity: 0.5,
+    filter: 'blur(0.5px)',
+    pointerEvents: 'none',
   },
   tripleDotMenu: {
     opacity: 0.7,
@@ -83,6 +93,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: '4px',
+    marginBottom: 12,
   },
   titleContainer: {
     display: 'flex',
@@ -100,6 +111,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     lineHeight: 1.15,
     textWrap: 'balance',
     width: '100%',
+    color: theme.palette.text.bannerAdOverlay,
     '&:hover': {
       opacity: 0.9,
       textDecoration: 'none',
@@ -113,6 +125,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
   titleIsRead: {
     opacity: 0.5,
+    color: theme.palette.text.bannerAdOverlay,
     '&:hover': {
       opacity: 0.9,
     },
@@ -143,6 +156,17 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     marginRight: 8,
   },
   footer: {
+    marginTop: 12,
+  },
+  footerGreyedOut: {
+    opacity: 0.5,
+    filter: 'blur(0.5px)',
+    '& > *': {
+      pointerEvents: 'none',
+    },
+    '& .SeeLessButton-root': {
+      pointerEvents: 'auto !important',
+    },
   },
   loadingContainer: {
     display: "flex",
@@ -159,16 +183,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     overflow: 'hidden',
     whiteSpace: 'nowrap',
   },
-  hideOnDesktop: {
-    [theme.breakpoints.up('md')]: {
-      display: 'none',
-    },
-  },
-  hideOnMobile: {
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-  },
+
 }));
 
 const sourceIconMap: Array<{ source: FeedItemSourceType, icon: any, tooltip: string }> = [
@@ -182,7 +197,6 @@ interface UltraFeedPostItemHeaderProps {
   post: PostsListWithVotes;
   isRead: boolean;
   handleOpenDialog: () => void;
-  postTitlesAreModals: boolean;
   sources: FeedItemSourceType[];
 }
 
@@ -190,7 +204,6 @@ const UltraFeedPostItemHeader = ({
   post,
   isRead,
   handleOpenDialog,
-  postTitlesAreModals,
   sources,
 }: UltraFeedPostItemHeaderProps) => {
   const classes = useStyles(styles);
@@ -210,33 +223,13 @@ const UltraFeedPostItemHeader = ({
   return (
     <div className={classes.header}>
       <div className={classes.titleContainer}>
-        <div className={classes.hideOnDesktop}>
-          {postTitlesAreModals ? (
-            <a
-              href={postGetPageUrl(post)}
-              onClick={handleTitleClick}
-              className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
-            >
-              {post.title}
-            </a>
-          ) : (
-            <Link
-              to={postGetPageUrl(post)}
-              className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
-            >
-              {post.title}
-            </Link>
-          )}
-        </div>
-        {/* Desktop version: Always a link */}
-        <div className={classes.hideOnMobile}>
-          <Link
-            to={postGetPageUrl(post)}
-            className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
-          >
-            {post.title}
-          </Link>
-        </div>
+        <a
+          href={postGetPageUrl(post)}
+          onClick={handleTitleClick}
+          className={classnames(classes.title, { [classes.titleIsRead]: isRead })}
+        >
+          {post.title}
+        </a>
       </div>
       <div className={classes.metaRow}>
         {sourceIcons.map((iconInfo) => (
@@ -298,6 +291,7 @@ const UltraFeedPostItem = ({
   const isForeignCrosspost = isPostWithForeignId(post) && !post.fmCrosspost.hostedHere
   const { displaySettings } = settings;
   const apolloClient = useForeignApolloClient();
+  const currentUser = useCurrentUser();
   
   const documentId = isForeignCrosspost ? (post.fmCrosspost.foreignPostId ?? undefined) : post._id;
   
@@ -305,6 +299,17 @@ const UltraFeedPostItem = ({
   const [isLoadingFull, setIsLoadingFull] = useState(isForeignCrosspost || needsFullPostInitially);
   const [resetSig, setResetSig] = useState(0);
   const [isContentExpanded, setIsContentExpanded] = useState(false);
+  
+  const {
+    isSeeLessMode,
+    handleSeeLess,
+    handleUndoSeeLess,
+    handleFeedbackChange,
+  } = useSeeLess({
+    documentId: post._id,
+    documentType: 'post',
+    recommId: postMetaInfo.recommInfo?.recommId,
+  });
 
   const { data: localPostData, loading: loadingLocalPost } = useQuery(localPostQuery, {
     skip: isForeignCrosspost || !isLoadingFull,
@@ -333,9 +338,13 @@ const UltraFeedPostItem = ({
   useEffect(() => {
     const currentElement = elementRef.current;
     if (currentElement) {
-      observe(currentElement, { documentId: post._id, documentType: 'post' });
+      observe(currentElement, { 
+        documentId: post._id, 
+        documentType: 'post',
+        servedEventId: postMetaInfo.servedEventId
+      });
     }
-  }, [observe, post._id]);
+  }, [observe, post._id, postMetaInfo.servedEventId]);
 
   const handleContentExpand = useCallback((expanded: boolean, wordCount: number) => {
     setIsContentExpanded(expanded);
@@ -350,6 +359,7 @@ const UltraFeedPostItem = ({
       level: expanded ? 1 : 0,
       maxLevelReached: expanded,
       wordCount,
+      servedEventId: postMetaInfo.servedEventId,
     });
 
     captureEvent("ultraFeedPostItemExpanded", {
@@ -371,6 +381,7 @@ const UltraFeedPostItem = ({
     hasRecordedViewOnExpand, 
     isLoadingFull, 
     fullPost,
+    postMetaInfo.servedEventId,
   ]);
 
   const handleCollapse = () => {
@@ -380,17 +391,41 @@ const UltraFeedPostItem = ({
 
   const handleOpenDialog = useCallback(() => {
     captureEvent("ultraFeedPostItemTitleClicked", {postId: post._id});
+    trackExpansion({
+      documentId: post._id,
+      documentType: 'post',
+      level: 1,
+      maxLevelReached: true,
+      wordCount: post.contents?.wordCount ?? 0,
+      servedEventId: postMetaInfo.servedEventId,
+    });
+    
+    if (!hasRecordedViewOnExpand) {
+      void recordPostView({ post, extraEventProperties: { type: 'ultraFeedExpansion' } });
+      setHasRecordedViewOnExpand(true);
+    }
+    
     openDialog({
       name: "UltraFeedPostDialog",
       closeOnNavigate: true,
       contents: ({ onClose }) => (
         <UltraFeedPostDialog
           {...(fullPost ? { post: fullPost } : { partialPost: post })}
+          postMetaInfo={postMetaInfo}
           onClose={onClose}
         />
       )
     });
-  }, [openDialog, post, captureEvent, fullPost]);
+  }, [
+    openDialog,
+    post,
+    captureEvent,
+    fullPost,
+    trackExpansion,
+    postMetaInfo,
+    hasRecordedViewOnExpand,
+    recordPostView,
+  ]);
 
   const shortformHtml = post.shortform 
     ? `This is a special post for quick takes (aka "shortform"). Only the owner can create top-level comments.`
@@ -422,39 +457,57 @@ const UltraFeedPostItem = ({
             vertical={true}
             autoPlace
             ActionsComponent={UltraFeedPostActions}
-            className={classes.tripleDotMenu}
+            className={classnames(classes.tripleDotMenu, { [classes.greyedOut]: isSeeLessMode })}
           />
         </AnalyticsContext>
 
-        <UltraFeedPostItemHeader
-          post={post}
-          isRead={isRead}
-          handleOpenDialog={handleOpenDialog}
-          postTitlesAreModals={displaySettings.postTitlesAreModals}
-          sources={postMetaInfo.sources}
-        />
+        <div className={classnames({ [classes.greyedOut]: isSeeLessMode })}>
+          <UltraFeedPostItemHeader
+            post={post}
+            isRead={isRead}
+            handleOpenDialog={handleOpenDialog}
+            sources={postMetaInfo.sources}
+          />
+        </div>
 
-        <FeedContentBody
-          html={displayHtml}
-          initialWordCount={truncationParams.initialWordCount}
-          maxWordCount={truncationParams.maxWordCount}
-          wordCount={displayWordCount ?? 200}
-          nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-          onContinueReadingClick={handleOpenDialog}
-          onExpand={handleContentExpand}
-          hideSuffix={loadingFullPost}
-          resetSignal={resetSig}
-        />
+        {isSeeLessMode && (
+          <SeeLessFeedback
+            onUndo={handleUndoSeeLess}
+            onFeedbackChange={handleFeedbackChange}
+          />
+        )}
+        
+        {!isSeeLessMode && (
+          <FeedContentBody
+            html={displayHtml}
+            initialWordCount={truncationParams.initialWordCount}
+            maxWordCount={truncationParams.maxWordCount}
+            wordCount={displayWordCount ?? 200}
+            nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
+            onContinueReadingClick={handleOpenDialog}
+            onExpand={handleContentExpand}
+            hideSuffix={loadingFullPost}
+            resetSignal={resetSig}
+          />
+        )}
         
         {/* Show loading indicator below content if we're loading the full post */}
-        {loadingFullPost && displayHtml && (
+        {loadingFullPost && displayHtml && !isSeeLessMode && (
           <div className={classes.loadingContainer}>
             <Loading />
           </div>
         )}
 
-        <UltraFeedItemFooter document={post} collectionName="Posts" metaInfo={postMetaInfo} className={classes.footer} />
+        <UltraFeedItemFooter 
+          document={post} 
+          collectionName="Posts" 
+          metaInfo={postMetaInfo} 
+          className={classnames(classes.footer, { [classes.footerGreyedOut]: isSeeLessMode })}
+          onSeeLess={isSeeLessMode ? handleUndoSeeLess : handleSeeLess}
+          isSeeLessMode={isSeeLessMode}
+        />
       </div>
+      
       {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={isContentExpanded ? handleCollapse : undefined} />}
     </div>
     </AnalyticsContext>

@@ -359,6 +359,7 @@ interface Mutation {
   createTag: TagOutput | null;
   updateTag: TagOutput | null;
   createUltraFeedEvent: UltraFeedEventOutput | null;
+  updateUltraFeedEvent: UltraFeedEventOutput | null;
   createUserEAGDetail: UserEAGDetailOutput | null;
   updateUserEAGDetail: UserEAGDetailOutput | null;
   createUserJobAd: UserJobAdOutput | null;
@@ -420,7 +421,7 @@ interface CoauthorStatusInput {
 }
 
 interface SocialPreviewInput {
-  imageId: string;
+  imageId?: string | null;
   text?: string | null;
 }
 
@@ -7215,6 +7216,7 @@ interface User {
   bannedUserIds: Array<string> | null;
   bannedPersonalUserIds: Array<string> | null;
   bookmarkedPostsMetadata: Array<PostMetadataOutput> | null;
+  hasAnyBookmarks: boolean;
   bookmarkedPosts: Array<Post> | null;
   hiddenPostsMetadata: Array<PostMetadataOutput> | null;
   hiddenPosts: Array<Post> | null;
@@ -7323,6 +7325,7 @@ interface User {
   shortformFeed: Post | null;
   viewUnreviewedComments: boolean | null;
   partiallyReadSequences: Array<PartiallyReadSequenceItemOutput> | null;
+  hasContinueReading: boolean;
   beta: boolean | null;
   reviewVotesQuadratic: boolean | null;
   reviewVotesQuadratic2019: boolean | null;
@@ -7750,6 +7753,8 @@ interface UpdateCommentDataInput {
   legacyData?: any;
   contents?: CreateRevisionDataInput | null;
   postedAt?: Date | null;
+  postId?: string | null;
+  tagId?: string | null;
   subforumStickyPriority?: number | null;
   authorIsUnreviewed?: boolean | null;
   answer?: boolean | null;
@@ -9147,6 +9152,10 @@ interface CreateUltraFeedEventDataInput {
 
 interface CreateUltraFeedEventInput {
   data: CreateUltraFeedEventDataInput;
+}
+
+interface UpdateUltraFeedEventDataInput {
+  event?: any;
 }
 
 interface UltraFeedEventOutput {
@@ -10630,6 +10639,7 @@ interface GraphQLTypeMap {
   TagOutput: TagOutput;
   CreateUltraFeedEventDataInput: CreateUltraFeedEventDataInput;
   CreateUltraFeedEventInput: CreateUltraFeedEventInput;
+  UpdateUltraFeedEventDataInput: UpdateUltraFeedEventDataInput;
   UltraFeedEventOutput: UltraFeedEventOutput;
   CreateUserEAGDetailDataInput: CreateUserEAGDetailDataInput;
   CreateUserEAGDetailInput: CreateUserEAGDetailInput;

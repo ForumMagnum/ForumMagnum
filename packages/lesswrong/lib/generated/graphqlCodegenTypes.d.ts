@@ -4336,6 +4336,7 @@ type Mutation = {
   updateSurveySchedule?: Maybe<SurveyScheduleOutput>;
   updateTag?: Maybe<TagOutput>;
   updateTagFlag?: Maybe<TagFlagOutput>;
+  updateUltraFeedEvent?: Maybe<UltraFeedEventOutput>;
   updateUser?: Maybe<UserOutput>;
   updateUserEAGDetail?: Maybe<UserEAGDetailOutput>;
   updateUserJobAd?: Maybe<UserJobAdOutput>;
@@ -5215,6 +5216,12 @@ type MutationupdateTagArgs = {
 type MutationupdateTagFlagArgs = {
   data: UpdateTagFlagDataInput;
   selector: SelectorInput;
+};
+
+
+type MutationupdateUltraFeedEventArgs = {
+  data: UpdateUltraFeedEventDataInput;
+  selector: Scalars['String']['input'];
 };
 
 
@@ -10159,7 +10166,7 @@ type Site = {
 };
 
 type SocialPreviewInput = {
-  imageId: Scalars['String']['input'];
+  imageId?: InputMaybe<Scalars['String']['input']>;
   text?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -11213,6 +11220,7 @@ type UpdateCommentDataInput = {
   needsReview?: InputMaybe<Scalars['Boolean']['input']>;
   nominatedForReview?: InputMaybe<Scalars['String']['input']>;
   originalDialogueId?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
   postedAt?: InputMaybe<Scalars['Date']['input']>;
   promoted?: InputMaybe<Scalars['Boolean']['input']>;
   promotedByUserId?: InputMaybe<Scalars['String']['input']>;
@@ -11230,6 +11238,7 @@ type UpdateCommentDataInput = {
   spam?: InputMaybe<Scalars['Boolean']['input']>;
   subforumStickyPriority?: InputMaybe<Scalars['Float']['input']>;
   suggestForAlignmentUserIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  tagId?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -11836,6 +11845,10 @@ type UpdateTagInput = {
   selector: SelectorInput;
 };
 
+type UpdateUltraFeedEventDataInput = {
+  event?: InputMaybe<Scalars['JSON']['input']>;
+};
+
 type UpdateUserDataInput = {
   abTestKey?: InputMaybe<Scalars['String']['input']>;
   abTestOverrides?: InputMaybe<Scalars['JSON']['input']>;
@@ -12193,7 +12206,9 @@ type User = {
   goodHeartTokens?: Maybe<Scalars['Float']['output']>;
   googleLocation?: Maybe<Scalars['JSON']['output']>;
   groups?: Maybe<Array<Scalars['String']['output']>>;
+  hasAnyBookmarks: Scalars['Boolean']['output'];
   hasAuth0Id?: Maybe<Scalars['Boolean']['output']>;
+  hasContinueReading: Scalars['Boolean']['output'];
   hiddenPosts?: Maybe<Array<Post>>;
   hiddenPostsMetadata?: Maybe<Array<PostMetadataOutput>>;
   hideAFNonMemberInitialWarning?: Maybe<Scalars['Boolean']['output']>;
@@ -16455,25 +16470,6 @@ type multiMultiDocumentuseTagOrLensQueryQueryVariables = Exact<{
 
 
 type multiMultiDocumentuseTagOrLensQueryQuery = multiMultiDocumentuseTagOrLensQueryQuery_Query;
-
-type multiNotificationuseUnreadNotificationsQueryQuery_notifications_MultiNotificationOutput_results_Notification = (
-  { __typename?: 'Notification' }
-  & NotificationsList
-);
-
-type multiNotificationuseUnreadNotificationsQueryQuery_notifications_MultiNotificationOutput = { __typename?: 'MultiNotificationOutput', totalCount: number | null, results: Array<multiNotificationuseUnreadNotificationsQueryQuery_notifications_MultiNotificationOutput_results_Notification> };
-
-type multiNotificationuseUnreadNotificationsQueryQuery_Query = { __typename?: 'Query', notifications: multiNotificationuseUnreadNotificationsQueryQuery_notifications_MultiNotificationOutput | null };
-
-
-type multiNotificationuseUnreadNotificationsQueryQueryVariables = Exact<{
-  selector: InputMaybe<NotificationSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiNotificationuseUnreadNotificationsQueryQuery = multiNotificationuseUnreadNotificationsQueryQuery_Query;
 
 type UnreadNotificationCountQueryQuery_unreadNotificationCounts_NotificationCounts = { __typename?: 'NotificationCounts', unreadNotifications: number, unreadPrivateMessages: number, faviconBadgeNumber: number, checkedAt: string };
 
@@ -23200,6 +23196,21 @@ type UltraFeedThreadItemQueryVariables = Exact<{
 
 type UltraFeedThreadItemQuery = UltraFeedThreadItemQuery_Query;
 
+type updateUltraFeedEventMutation_updateUltraFeedEvent_UltraFeedEventOutput_data_UltraFeedEvent = { __typename?: 'UltraFeedEvent', _id: string };
+
+type updateUltraFeedEventMutation_updateUltraFeedEvent_UltraFeedEventOutput = { __typename?: 'UltraFeedEventOutput', data: updateUltraFeedEventMutation_updateUltraFeedEvent_UltraFeedEventOutput_data_UltraFeedEvent | null };
+
+type updateUltraFeedEventMutation_Mutation = { __typename?: 'Mutation', updateUltraFeedEvent: updateUltraFeedEventMutation_updateUltraFeedEvent_UltraFeedEventOutput | null };
+
+
+type updateUltraFeedEventMutationVariables = Exact<{
+  selector: Scalars['String']['input'];
+  data: UpdateUltraFeedEventDataInput;
+}>;
+
+
+type updateUltraFeedEventMutation = updateUltraFeedEventMutation_Mutation;
+
 type connectCrossposterMutation_Mutation = { __typename?: 'Mutation', connectCrossposter: string | null };
 
 
@@ -25991,12 +26002,10 @@ type UsersProfile = (
 
 type UsersCurrent_User_expandedFrontpageSections_ExpandedFrontpageSectionsSettingsOutput = { __typename?: 'ExpandedFrontpageSectionsSettingsOutput', community: boolean | null, recommendations: boolean | null, quickTakes: boolean | null, quickTakesCommunity: boolean | null, popularComments: boolean | null };
 
-type UsersCurrent_User_bookmarkedPostsMetadata_PostMetadataOutput = { __typename?: 'PostMetadataOutput', postId: string };
-
 type UsersCurrent_User_hiddenPostsMetadata_PostMetadataOutput = { __typename?: 'PostMetadataOutput', postId: string };
 
 type UsersCurrent = (
-  { __typename?: 'User', beta: boolean | null, email: string | null, services: any | null, acceptedTos: boolean | null, pageUrl: string | null, banned: string | null, isReviewed: boolean | null, nullifyVotes: boolean | null, hideIntercom: boolean, hideNavigationSidebar: boolean | null, hideCommunitySection: boolean, hidePostsRecommendations: boolean, currentFrontpageFilter: string | null, frontpageSelectedTab: string | null, frontpageFilterSettings: any | null, hideFrontpageFilterSettingsDesktop: boolean | null, allPostsTimeframe: string | null, allPostsSorting: string | null, allPostsFilter: string | null, allPostsShowLowKarma: boolean | null, allPostsIncludeEvents: boolean | null, allPostsHideCommunity: boolean | null, allPostsOpenSettings: boolean | null, draftsListSorting: string | null, draftsListShowArchived: boolean | null, draftsListShowShared: boolean | null, lastNotificationsCheck: string | null, bannedUserIds: Array<string> | null, bannedPersonalUserIds: Array<string> | null, moderationStyle: string | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, commentSorting: string | null, location: string | null, googleLocation: any | null, mongoLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, nearbyEventsNotifications: boolean, nearbyEventsNotificationsLocation: any | null, nearbyEventsNotificationsRadius: number | null, nearbyPeopleNotificationThreshold: number | null, hideFrontpageMap: boolean | null, emailSubscribedToCurated: boolean | null, subscribedToDigest: boolean | null, subscribedToNewsletter: boolean | null, unsubscribeFromAll: boolean | null, emails: Array<any> | null, whenConfirmationEmailSent: string | null, hideSubscribePoke: boolean | null, hideMeetupsPoke: boolean | null, hideHomeRHS: boolean | null, noCollapseCommentsFrontpage: boolean, noCollapseCommentsPosts: boolean, noSingleLineComments: boolean, showCommunityInRecentDiscussion: boolean, karmaChangeNotifierSettings: any | null, karmaChangeLastOpened: string | null, shortformFeedId: string | null, viewUnreviewedComments: boolean | null, recommendationSettings: any | null, theme: any | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, noExpandUnreadCommentsReview: boolean, reviewVotesQuadratic: boolean | null, reviewVotesQuadratic2019: boolean | null, reviewVotesQuadratic2020: boolean | null, hideTaggingProgressBar: boolean | null, hideFrontpageBookAd: boolean | null, hideFrontpageBook2019Ad: boolean | null, abTestKey: string | null, abTestOverrides: any | null, sortDraftsBy: string | null, reactPaletteStyle: ReactPaletteStyle | null, petrovPressedButtonDate: string | null, petrovLaunchCodeDate: string | null, petrovOptOut: boolean, lastUsedTimezone: string | null, acknowledgedNewUserGuidelines: boolean | null, notificationSubforumUnread: any | null, subforumPreferredLayout: SubforumPreferredLayout | null, hideJobAdUntil: string | null, criticismTipsDismissed: boolean | null, allowDatadogSessionReplay: boolean, hideFrontpageBook2020Ad: boolean | null, hideDialogueFacilitation: boolean | null, optedInToDialogueFacilitation: boolean | null, revealChecksToAdmins: boolean | null, notificationNewDialogueChecks: any | null, notificationYourTurnMatchForm: any | null, showDialoguesList: boolean | null, showMyDialogues: boolean | null, showMatches: boolean | null, showRecommendedPartners: boolean | null, hideActiveDialogueUsers: boolean | null, hideSunshineSidebar: boolean | null, optedOutOfSurveys: boolean | null, postGlossariesPinned: boolean | null, generateJargonForDrafts: boolean | null, generateJargonForPublishedPosts: boolean | null, expandedFrontpageSections: UsersCurrent_User_expandedFrontpageSections_ExpandedFrontpageSectionsSettingsOutput | null, bookmarkedPostsMetadata: Array<UsersCurrent_User_bookmarkedPostsMetadata_PostMetadataOutput> | null, hiddenPostsMetadata: Array<UsersCurrent_User_hiddenPostsMetadata_PostMetadataOutput> | null }
+  { __typename?: 'User', beta: boolean | null, email: string | null, services: any | null, acceptedTos: boolean | null, pageUrl: string | null, banned: string | null, isReviewed: boolean | null, nullifyVotes: boolean | null, hideIntercom: boolean, hideNavigationSidebar: boolean | null, hideCommunitySection: boolean, hasContinueReading: boolean, hidePostsRecommendations: boolean, currentFrontpageFilter: string | null, frontpageSelectedTab: string | null, frontpageFilterSettings: any | null, hideFrontpageFilterSettingsDesktop: boolean | null, allPostsTimeframe: string | null, allPostsSorting: string | null, allPostsFilter: string | null, allPostsShowLowKarma: boolean | null, allPostsIncludeEvents: boolean | null, allPostsHideCommunity: boolean | null, allPostsOpenSettings: boolean | null, draftsListSorting: string | null, draftsListShowArchived: boolean | null, draftsListShowShared: boolean | null, lastNotificationsCheck: string | null, bannedUserIds: Array<string> | null, bannedPersonalUserIds: Array<string> | null, moderationStyle: string | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, commentSorting: string | null, location: string | null, googleLocation: any | null, mongoLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, nearbyEventsNotifications: boolean, nearbyEventsNotificationsLocation: any | null, nearbyEventsNotificationsRadius: number | null, nearbyPeopleNotificationThreshold: number | null, hideFrontpageMap: boolean | null, emailSubscribedToCurated: boolean | null, subscribedToDigest: boolean | null, subscribedToNewsletter: boolean | null, unsubscribeFromAll: boolean | null, emails: Array<any> | null, whenConfirmationEmailSent: string | null, hideSubscribePoke: boolean | null, hideMeetupsPoke: boolean | null, hideHomeRHS: boolean | null, noCollapseCommentsFrontpage: boolean, noCollapseCommentsPosts: boolean, noSingleLineComments: boolean, showCommunityInRecentDiscussion: boolean, karmaChangeNotifierSettings: any | null, karmaChangeLastOpened: string | null, shortformFeedId: string | null, viewUnreviewedComments: boolean | null, recommendationSettings: any | null, theme: any | null, hasAnyBookmarks: boolean, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, noExpandUnreadCommentsReview: boolean, reviewVotesQuadratic: boolean | null, reviewVotesQuadratic2019: boolean | null, reviewVotesQuadratic2020: boolean | null, hideTaggingProgressBar: boolean | null, hideFrontpageBookAd: boolean | null, hideFrontpageBook2019Ad: boolean | null, abTestKey: string | null, abTestOverrides: any | null, sortDraftsBy: string | null, reactPaletteStyle: ReactPaletteStyle | null, petrovPressedButtonDate: string | null, petrovLaunchCodeDate: string | null, petrovOptOut: boolean, lastUsedTimezone: string | null, acknowledgedNewUserGuidelines: boolean | null, notificationSubforumUnread: any | null, subforumPreferredLayout: SubforumPreferredLayout | null, hideJobAdUntil: string | null, criticismTipsDismissed: boolean | null, allowDatadogSessionReplay: boolean, hideFrontpageBook2020Ad: boolean | null, hideDialogueFacilitation: boolean | null, optedInToDialogueFacilitation: boolean | null, revealChecksToAdmins: boolean | null, notificationNewDialogueChecks: any | null, notificationYourTurnMatchForm: any | null, showDialoguesList: boolean | null, showMyDialogues: boolean | null, showMatches: boolean | null, showRecommendedPartners: boolean | null, hideActiveDialogueUsers: boolean | null, hideSunshineSidebar: boolean | null, optedOutOfSurveys: boolean | null, postGlossariesPinned: boolean | null, generateJargonForDrafts: boolean | null, generateJargonForPublishedPosts: boolean | null, expandedFrontpageSections: UsersCurrent_User_expandedFrontpageSections_ExpandedFrontpageSectionsSettingsOutput | null, hiddenPostsMetadata: Array<UsersCurrent_User_hiddenPostsMetadata_PostMetadataOutput> | null }
   & UsersProfile
   & SharedUserBooleans
 );

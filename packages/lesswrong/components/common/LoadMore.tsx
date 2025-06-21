@@ -5,18 +5,16 @@ import { queryIsUpdating } from './queryStatusUtils'
 import {useTracking} from "../../lib/analyticsEvents";
 import { LoadMoreCallback } from '../hooks/useQueryWithLoadMore';
 import { useIsFirstRender } from "../hooks/useFirstRender";
-
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isAF } from '@/lib/instanceSettings';
 import Loading from "../vulcan-core/Loading";
-import type { ObservableQueryFields } from '@apollo/client';
 import type { WrappedFetchMore } from '../hooks/useQueryWithLoadMore';
 
 const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    color: theme.palette.lwTertiary.main,
+    color: theme.palette.text.bannerAdOverlay,
     display: "inline-block",
     minHeight: 20,
     ...(isFriendlyUI
@@ -79,7 +77,7 @@ const LoadMore = ({
   message=preferredHeadingCase("Load More"),
 }: {
   // loadMore: Callback when clicked.
-  loadMore: WrappedFetchMore<ObservableQueryFields<any, any>['fetchMore']> | LoadMoreCallback,
+  loadMore: WrappedFetchMore | LoadMoreCallback,
   // count/totalCount: If provided, looks like "Load More (10/25)"
   count?: number,
   totalCount?: number,
