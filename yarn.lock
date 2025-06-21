@@ -38,10 +38,26 @@
   resolved "https://registry.yarnpkg.com/@apollo/cache-control-types/-/cache-control-types-1.0.3.tgz#5da62cf64c3b4419dabfef4536b57a40c8ff0b47"
   integrity sha512-F17/vCp7QVwom9eG7ToauIKdAxpSoadsJnqIfyryLFSkLSOEqu+eC5Z3N8OXcUVStuOMcNHlyraRsA6rRICu4g==
 
-"@apollo/client@^4.0.0-alpha.17":
-  version "4.0.0-alpha.21"
-  resolved "https://registry.yarnpkg.com/@apollo/client/-/client-4.0.0-alpha.21.tgz#89636e210f3e0a4bc0db82852b11e70a81f59205"
-  integrity sha512-dFPr9t9Aw3wLdvqU4VWLDlwVwjQjJyhZJSaxQDeXbFqdc48cQzstWuQBKqMjeOfuIDzG3kg7WbRbgyApxV0daQ==
+"@apollo/client-integration-nextjs@^0.12.2":
+  version "0.12.2"
+  resolved "https://registry.yarnpkg.com/@apollo/client-integration-nextjs/-/client-integration-nextjs-0.12.2.tgz#26c4f544c4a2ff91bdffeeaeac2289e514741234"
+  integrity sha512-Nsoe/onkEqCfIcQfoklnimRGibtaYXmkst6moXJw9Jl0sFqxpEyNMv3xvdPXItN6lZABBeKM8N+u+/7iqyZDig==
+  dependencies:
+    "@apollo/client-react-streaming" "0.12.2"
+
+"@apollo/client-react-streaming@0.12.2":
+  version "0.12.2"
+  resolved "https://registry.yarnpkg.com/@apollo/client-react-streaming/-/client-react-streaming-0.12.2.tgz#c4436ab00be1f8012d2b6a0307f28187ab7a3458"
+  integrity sha512-zVc6QmvvR+9DZaLPUES1Rp63MC2VAnvHJC7gNVagH5kI3IZgeJGNgxKX/RMpYJ2+a2EclOG50czFCD7XkXe24w==
+  dependencies:
+    "@types/react-dom" "^19.0.0"
+    "@wry/equality" "^0.5.6"
+    ts-invariant "^0.10.3"
+
+"@apollo/client@4.0.0-alpha.17":
+  version "4.0.0-alpha.17"
+  resolved "https://registry.yarnpkg.com/@apollo/client/-/client-4.0.0-alpha.17.tgz#a146510d11e567e417d752949261402777ebd630"
+  integrity sha512-SdBNzGrhSVQgaUExCz3L0P9RFrGbNij9CsiD2TjoXcfPrRzxAviikwwHSBhQE14UnNTt14kWzwqGGeO8vt5ldg==
   dependencies:
     "@graphql-typed-document-node/core" "^3.1.1"
     "@wry/caches" "^1.0.0"

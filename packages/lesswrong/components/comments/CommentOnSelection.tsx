@@ -5,8 +5,8 @@ import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
 import { hasSideComments } from '../../lib/betas';
 import LWTooltip from "../common/LWTooltip";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import ReplyCommentDialog from './ReplyCommentDialog';
 import { useDialog } from '../common/withDialog';
+import dynamic from 'next/dynamic';
 
 const selectedTextToolbarStyles = defineStyles("CommentOnSelectionContentWrapper", (theme: ThemeType) => ({
   toolbarWrapper: {
@@ -191,6 +191,7 @@ export const CommentOnSelectionContentWrapper = ({post, children}: {
   const wrapperDivRef = useRef<HTMLDivElement|null>(null);
   
   const onClickComment = useCallback((html: string) => {
+    const ReplyCommentDialog = dynamic(() => import("./ReplyCommentDialog"), { ssr: false });
     openDialog({
       name: "ReplyCommentDialog",
       contents: ({onClose}) => <ReplyCommentDialog

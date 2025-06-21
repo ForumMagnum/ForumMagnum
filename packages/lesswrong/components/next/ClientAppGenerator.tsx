@@ -9,27 +9,26 @@ import type { AbstractThemeOptions } from '@/themes/themeNames';
 import { LayoutOptionsContextProvider } from '@/components/hooks/useLayoutOptions';
 import { SSRMetadata, EnvironmentOverride, EnvironmentOverrideContext } from '@/lib/utils/timeUtil';
 import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
-import { LocationContext, NavigationContext, SubscribeLocationContext, ServerRequestStatusContext, checkUserRouteAccess, parseRoute } from '@/lib/vulcan-core/appContext';
+import { LocationContext, NavigationContext, SubscribeLocationContext, ServerRequestStatusContext, parseRoute, parsePath } from '@/lib/vulcan-core/appContext';
 import { MessageContextProvider } from '../common/FlashMessages';
 import { RefetchCurrentUserContext } from '../common/withUser';
 import ScrollToTop from '../vulcan-core/ScrollToTop';
 import type { History } from 'history'
 import { useQueryCurrentUser } from '@/lib/crud/withCurrentUser';
-import { useParams, usePathname, useSearchParams, useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Layout from '../Layout';
 import { HelmetProvider } from 'react-helmet-async';
 import { ApolloWrapper } from '@/components/common/ApolloWrapper';
 import { EnableSuspenseContext } from '@/lib/crud/useQuery';
 import { isServer } from '@/lib/executionEnvironment';
 
-const AppComponent = ({children}: {children: React.ReactNode}) => {
-  const searchParams = useSearchParams();
+const AppComponent = ({children, searchParams}: {children: React.ReactNode, searchParams?: { [key: string]: string | string[] | undefined }}) => {
+  // const searchParams = useSearchParams();
   const pathname = usePathname();
-  const params: Record<string, string> = useParams();
-  // TODO: don't override the undefined case, actually fix it
-  const sanitizedQuery = Object.fromEntries(searchParams.entries());
-  // TODO: implement the location and subscribed location values properly
-  const location = { params, pathname, query: sanitizedQuery, hash: '', redirected: false, currentRoute: null, RouteComponent: null, location: { pathname, search: '', hash: '' }, url: '' };
+  // TODO: implement the location and subscribed location values in ways that don't depend on our old route definitions
+  const reconstructedPath = `${pathname}${searchParams && Object.keys(searchParams).length > 0 ? `?${Object.entries(searchParams).map(([key, value]) => `${key}=${value}`).join('&')}` : ''}`;
+  const parsedPath = parsePath(reconstructedPath);
+  const location = parseRoute({ location: parsedPath, onError: undefined });
   const subscribeLocation = location;
 
   const history = useRouter();
@@ -98,10 +97,11 @@ const AppComponent = ({children}: {children: React.ReactNode}) => {
 // Client-side wrapper around the app. There's another AppGenerator which is
 // the server-side version, which differs in how it sets up the wrappers for
 // routing and cookies and such.
-const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, children }: {
+const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, searchParams, children }: {
   abTestGroupsUsed: RelevantTestGroupAllocation,
   themeOptions: AbstractThemeOptions,
   ssrMetadata?: SSRMetadata,
+  searchParams?: { [key: string]: string | string[] | undefined },
   children: React.ReactNode,
 }) => {
   return (
@@ -115,7 +115,7 @@ const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, children }:
               <PrefersDarkModeProvider>
                 <LayoutOptionsContextProvider>
                   <EnvironmentOverrideContextProvider ssrMetadata={ssrMetadata}>
-                    <AppComponent>
+                    <AppComponent searchParams={searchParams}>
                       {children}
                     </AppComponent>
                   </EnvironmentOverrideContextProvider>

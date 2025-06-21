@@ -46,7 +46,6 @@ import { CommentOnSelectionPageWrapper } from "./comments/CommentOnSelection";
 import SidebarsWrapper from "./common/SidebarsWrapper";
 import HomepageCommunityMap from "./seasonal/HomepageMap/HomepageCommunityMap";
 import AdminToggle from "./admin/AdminToggle";
-import SunshineSidebar from "./sunshineDashboard/SunshineSidebar";
 import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
 import CloudinaryImage2 from "./common/CloudinaryImage2";
 import ForumEventBanner from "./forumEvents/ForumEventBanner";
@@ -64,6 +63,7 @@ import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { DelayedLoading } from './common/DelayedLoading';
 import { SuspenseWrapper } from './common/SuspenseWrapper';
+import dynamic from 'next/dynamic';
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -356,6 +356,8 @@ const Layout = ({currentUser, children}: {
   }
 
   const render = () => {
+    const SunshineSidebar = dynamic(() => import("./sunshineDashboard/SunshineSidebar"), { ssr: false });
+
     const baseLayoutOptions: LayoutOptions = {
       // Check whether the current route is one which should have standalone
       // navigation on the side. If there is no current route (ie, a 404 page),

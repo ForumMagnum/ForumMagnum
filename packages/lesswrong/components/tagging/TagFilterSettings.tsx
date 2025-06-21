@@ -1,5 +1,5 @@
 import React from 'react';
-import { FilterSettings, FilterMode as FilterModeType, isCustomFilterMode, FilterTag, useReadSuggestedTags, type TagBasicInfoMultiQuery } from '../../lib/filterSettings';
+import { FilterSettings, FilterMode as FilterModeType, isCustomFilterMode, FilterTag } from '../../lib/filterSettings';
 import { useCurrentUser } from '../common/withUser';
 import { tagStyle } from './FooterTag';
 import { usePersonalBlogpostInfo } from './usePersonalBlogpostInfo';
@@ -13,6 +13,7 @@ import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import { type QueryRef } from '@apollo/client/react';
 import { type ResultOf } from '@graphql-typed-document-node/core';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useReadSuggestedTags, type TagBasicInfoMultiQuery } from '../hooks/useFilterSettings';
 
 const styles = defineStyles("TagFilterSettings", (theme: ThemeType) => ({
   root: {

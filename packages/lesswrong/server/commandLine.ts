@@ -24,7 +24,7 @@ const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
   const commandLine: CommandLineArguments = {
     postgresUrl: process.env.PG_URL || "",
     postgresReadUrl: process.env.PG_READ_URL || "",
-    settingsFileName: "settings.json",
+    settingsFileName: "sample_settings.json",
     shellMode: false,
     listenPort: 3000,
     localhostUrlPort: 3000,
