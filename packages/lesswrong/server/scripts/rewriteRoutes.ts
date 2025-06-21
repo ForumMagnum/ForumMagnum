@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import '@/lib/utils/extendSimpleSchemaOptions';
 import '@/lib/routes'
 import { Routes, Route } from '@/lib/vulcan-lib/routes';
 import util from 'util';
@@ -7,6 +8,16 @@ import { parsePath, parseRoute } from '@/lib/vulcan-core/appContext';
 
 const routesFileContents = fs.readFileSync('packages/lesswrong/lib/routes.ts', 'utf8');
 const routesFileLines = routesFileContents.split('\n');
+
+function getAbsoluteComponentPathFromImportLine(importLine: string): string {
+  let importPathString = importLine.split('from ')[1];
+  if (importPathString.endsWith(';')) {
+    importPathString = importPathString.slice(0, -1);
+  }
+  importPathString = importPathString.slice(1, -1);
+
+  return importPathString.replace('@', 'packages/lesswrong');
+}
 
 function getComponentImport(componentName: string): string {
   const routeImportLine = routesFileLines.find(line => (line.startsWith('import') || line.startsWith('// import')) && line.includes(` ${componentName} `));
@@ -93,6 +104,15 @@ const configLevelRedirects = [
   '/votesByYear/:year',
 ];
 
+function addUseClientDirectiveToEntryComponent(importLine: string) {
+  const componentPath = getAbsoluteComponentPathFromImportLine(importLine);
+  const componentFileContents = fs.readFileSync(componentPath, 'utf8');
+  const useClientDirective = componentFileContents.includes('use client');
+  if (!useClientDirective) {
+    fs.writeFileSync(componentPath, `"use client";\n\n${componentFileContents}`);
+  }
+}
+
 function generatePageContent(route: Route): string {
   if (route.redirect && !route.component) {
     return generateRedirectPage(route);
@@ -100,6 +120,8 @@ function generatePageContent(route: Route): string {
 
   const componentName = route.component?.displayName ?? route.component?.name ?? 'UnknownComponent';
   const componentImport = getComponentImport(componentName);
+  addUseClientDirectiveToEntryComponent(componentImport);
+  
   const { metadata, imports } = extractMetadataFields(route);
   const hasMetadata = Object.keys(metadata).length > 0;
   
@@ -111,6 +133,7 @@ function generatePageContent(route: Route): string {
     pageContent += '\n';
   }
   
+  pageContent += `export const dynamic = 'force-dynamic';\n\n`;
   pageContent += `export default function Page() {\n`;
   
   if (hasMetadata) {

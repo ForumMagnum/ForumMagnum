@@ -21,6 +21,8 @@ import { HelmetProvider } from 'react-helmet-async';
 import { ApolloWrapper } from '@/components/common/ApolloWrapper';
 import { EnableSuspenseContext } from '@/lib/crud/useQuery';
 import { isServer } from '@/lib/executionEnvironment';
+import '@/lib/utils/extendSimpleSchemaOptions';
+import '@/lib/routes';
 
 const AppComponent = ({children, searchParams}: {children: React.ReactNode, searchParams?: { [key: string]: string | string[] | undefined }}) => {
   // const searchParams = useSearchParams();

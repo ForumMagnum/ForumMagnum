@@ -80,8 +80,10 @@ export const getInstanceSettingsFilePath = () => {
 };
 
 export const loadInstanceSettings = (args?: CommandLineArguments) => {
-  const commandLineArguments = args ?? parseCommandLine(process.argv);
-  const instanceSettings = loadSettingsFile(commandLineArguments.settingsFileName);
+  // TODO: fix this to not use `getCommandLineArguments` anymore(?)
+  // const commandLineArguments = args ?? parseCommandLine(process.argv);
+  // const instanceSettings = loadSettingsFile(commandLineArguments.settingsFileName);
+  const instanceSettings = loadSettingsFile("sample_settings.json");
   return instanceSettings;
 }
 

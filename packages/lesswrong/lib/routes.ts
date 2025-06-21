@@ -166,7 +166,7 @@ import Digests from '@/components/ea-forum/digest/Digests';
 import EAAllTagsPage from '@/components/tagging/EAAllTagsPage';
 import AllWikiTagsPage from '@/components/tagging/AllWikiTagsPage';
 import { communityPath, getAllTagsPath, getAllTagsRedirectPaths } from './pathConstants';
-import LeaderboardComponent from '@/components/users/Leaderboard';
+import Leaderboard from '@/components/users/Leaderboard';
 
 const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Groups' : 'Community' };
 
@@ -247,7 +247,7 @@ if (isLW) {
     {
       name: 'leaderboard',
       path: '/leaderboard',
-      component: LeaderboardComponent,
+      component: Leaderboard,
     }
   )
 }
