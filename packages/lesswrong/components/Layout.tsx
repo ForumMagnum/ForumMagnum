@@ -9,7 +9,7 @@ import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
-import { commentBodyStyles, pBodyStyle } from '../themes/stylePiping';
+import { pBodyStyle } from '../themes/stylePiping';
 import { blackBarTitle, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
@@ -44,21 +44,16 @@ import EAOnboardingFlow from "./ea-forum/onboarding/EAOnboardingFlow";
 import BasicOnboardingFlow from "./onboarding/BasicOnboardingFlow";
 import { CommentOnSelectionPageWrapper } from "./comments/CommentOnSelection";
 import SidebarsWrapper from "./common/SidebarsWrapper";
-import HomepageCommunityMap from "./seasonal/HomepageMap/HomepageCommunityMap";
 import AdminToggle from "./admin/AdminToggle";
 import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
-import CloudinaryImage2 from "./common/CloudinaryImage2";
 import ForumEventBanner from "./forumEvents/ForumEventBanner";
 import GlobalHotkeys from "./common/GlobalHotkeys";
 import LanguageModelLauncherButton from "./languageModels/LanguageModelLauncherButton";
 import LlmChatWrapper from "./languageModels/LlmChatWrapper";
-import TabNavigationMenuFooter from "./common/TabNavigationMenu/TabNavigationMenuFooter";
-import ReviewVotingCanvas from "./review/ReviewVotingCanvas";
 import LWBackgroundImage from "./LWBackgroundImage";
 import IntercomWrapper from "./common/IntercomWrapper";
 import CookieBanner from "./common/CookieBanner/CookieBanner";
 import { defineStyles, useStyles } from './hooks/useStyles';
-import Loading from './vulcan-core/Loading';
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { DelayedLoading } from './common/DelayedLoading';
@@ -287,7 +282,10 @@ const Layout = ({currentUser, children}: {
 
   // enable during ACX Everywhere
   // const [cookies] = useCookiesWithConsent()
-  const renderCommunityMap = false // replace with following line to enable during ACX Everywhere
+  // replace with following line to enable during ACX Everywhere.
+  // also uncomment out the dynamic import and render of the HomepageCommunityMap.
+  // (they're commented out to reduce the split bundle size.)
+  const renderCommunityMap = false
   // (isLW) && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
   const [updateUser] = useMutation(UsersCurrentUpdateMutation);
@@ -357,6 +355,7 @@ const Layout = ({currentUser, children}: {
 
   const render = () => {
     const SunshineSidebar = dynamic(() => import("./sunshineDashboard/SunshineSidebar"), { ssr: false });
+    // const HomepageCommunityMap = dynamic(() => import('./seasonal/HomepageMap/HomepageCommunityMap'), { ssr: false });
 
     const baseLayoutOptions: LayoutOptions = {
       // Check whether the current route is one which should have standalone
@@ -441,9 +440,9 @@ const Layout = ({currentUser, children}: {
               </SuspenseWrapper>
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}>
-                <SuspenseWrapper name="HomepageCommunityMap">
+                {/* <SuspenseWrapper name="HomepageCommunityMap">
                   <HomepageCommunityMap dontAskUserLocation={true}/>
-                </SuspenseWrapper>
+                </SuspenseWrapper> */}
               </span>}
 
               <div className={classNames({
@@ -467,7 +466,6 @@ const Layout = ({currentUser, children}: {
                     </DeferRender>
                   </MaybeStickyWrapper>
                 </SuspenseWrapper>}
-                {/* {isLWorAF && navigationFooterBar && <TabNavigationMenuFooter />} */}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: useWhiteBackground,

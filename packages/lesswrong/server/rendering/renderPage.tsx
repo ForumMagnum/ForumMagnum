@@ -44,7 +44,7 @@ import express from 'express'
 import { ResponseForwarderStream, ResponseManager } from '@/server/rendering/ResponseManager';
 import { queueRenderRequest } from '@/server/rendering/requestQueue';
 import { closeRenderRequestPerfMetric, getCpuTimeMs, logRequestToConsole, openRenderRequestPerfMetric, recordSsrAnalytics, RenderTimings, slowSSRWarnThresholdSetting } from './renderLogging';
-import { getIpFromRequest } from '../datadog/datadogMiddleware';
+import { getIpFromRequest } from '../utils/httpUtil';
 import { HelmetServerState } from 'react-helmet-async';
 import every from 'lodash/every';
 import { prefilterHandleRequest } from '../apolloServer';

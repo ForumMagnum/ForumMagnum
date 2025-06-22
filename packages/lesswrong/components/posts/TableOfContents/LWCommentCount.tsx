@@ -1,8 +1,7 @@
 import React, { FC, MouseEvent } from 'react';
 import classNames from 'classnames';
 import { HOVER_CLASSNAME } from './MultiToCLayout';
-import { CommentsLink } from '../PostsPage/PostsPagePostHeader';
-import { registerComponent } from "@/lib/vulcan-lib/components";
+import { CommentsLink } from '../PostsPage/CommentsLink';
 import ForumIcon from "../../common/ForumIcon";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 

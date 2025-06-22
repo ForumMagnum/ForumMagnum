@@ -2,7 +2,6 @@ import { isProduction } from '@/lib/executionEnvironment';
 import type { Request, Response } from 'express';
 import type { IncomingMessage } from 'http';
 import Cookies from 'universal-cookie';
-import { getIpFromRequest } from '../datadog/datadogMiddleware';
 
 // Utility functions for dealing with HTTP requests/responses, eg getting and
 // setting cookies, headers, getting the URL, etc. The main purpose for these
@@ -114,3 +113,12 @@ export function getRequestMetadata(req: Request) {
 
   return { ip, userAgent, url };
 }
+
+export const getIpFromRequest = (req: Request): string => {
+  let ipOrIpArray = req.headers['x-forwarded-for'] || req.headers["x-real-ip"] || req.connection.remoteAddress || "unknown";
+  let ip = typeof ipOrIpArray === "object" ? ipOrIpArray[0] : ipOrIpArray as string;
+  if (ip.indexOf(",") >= 0) {
+    ip = ip.split(",")[0];
+  }
+  return ip;
+};

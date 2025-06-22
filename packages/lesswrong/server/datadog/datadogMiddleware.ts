@@ -1,15 +1,6 @@
 import { getDatadogUser } from '@/client/datadogRum';
-import type { Request } from 'express';
 import tracer from './tracer'
-
-export const getIpFromRequest = (req: Request): string => {
-  let ipOrIpArray = req.headers['x-forwarded-for'] || req.headers["x-real-ip"] || req.connection.remoteAddress || "unknown";
-  let ip = typeof ipOrIpArray === "object" ? ipOrIpArray[0] : ipOrIpArray as string;
-  if (ip.indexOf(",") >= 0) {
-    ip = ip.split(",")[0];
-  }
-  return ip;
-}
+import { getIpFromRequest } from '../utils/httpUtil';
 
 /**
  * - Attach user info and IP address to the root span
