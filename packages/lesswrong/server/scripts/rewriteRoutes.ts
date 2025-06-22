@@ -87,6 +87,7 @@ function extractMetadataFields(route: Route): Record<string, any> {
     const componentName = component?.displayName ?? component?.name;
     if (componentName) {
       const componentImport = getComponentImport(componentName);
+      addUseClientDirectiveToEntryComponent(componentImport);
       imports.add(componentImport);
       metadata[field] = componentName;
     }
@@ -124,8 +125,8 @@ function generatePageContent(route: Route): string {
   
   const { metadata, imports } = extractMetadataFields(route);
   const hasMetadata = Object.keys(metadata).length > 0;
-  
-  let pageContent = `${componentImport}${imports.length > 0 ? '\n' : ''}${imports.join('\n')}\n`;
+
+  let pageContent = `import React from "react";\n${componentImport}${imports.length > 0 ? '\n' : ''}${imports.join('\n')}\n`;
   
   if (hasMetadata) {
     pageContent += `import { RouteMetadataSetter } from '@/components/RouteMetadataContext';\n\n`;
@@ -198,6 +199,8 @@ function generateRedirectPage(route: Route): string {
   const hasPathParams = Object.keys(parsedRoute.params).length > 0;
   
   return `import { redirect } from 'next/navigation';
+
+export const dynamic = 'force-dynamic';
 
 export default function Page() {
   redirect(${redirectValue});
@@ -381,7 +384,9 @@ export const config = {
 }
 
 async function updatePostsSingleRoute() {
-  const updatedContent = `import { registerComponent } from '../../lib/vulcan-lib/components';
+  const updatedContent = `"use client";
+
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import PostsPageWrapper from "./PostsPage/PostsPageWrapper";

@@ -83,7 +83,7 @@ export const loadInstanceSettings = (args?: CommandLineArguments) => {
   // TODO: fix this to not use `getCommandLineArguments` anymore(?)
   // const commandLineArguments = args ?? parseCommandLine(process.argv);
   // const instanceSettings = loadSettingsFile(commandLineArguments.settingsFileName);
-  const instanceSettings = loadSettingsFile("sample_settings.json");
+  const instanceSettings = loadSettingsFile("../LessWrong-Credentials/settings-local-dev-devdb.json");
   return instanceSettings;
 }
 
