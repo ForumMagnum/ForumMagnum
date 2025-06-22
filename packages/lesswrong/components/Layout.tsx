@@ -30,7 +30,7 @@ import { CurrentAndRecentForumEventsProvider } from './hooks/useCurrentForumEven
 import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 import DeferRender from './common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
-import { AutosaveEditorStateContext } from './editor/EditorFormComponent';
+import { AutosaveEditorStateContext } from './common/sharedContexts';
 
 import GlobalButtonBurst, { buttonBurstSetting } from './ea-forum/GlobalButtonBurst';
 import NavigationStandalone from "./common/TabNavigationMenu/NavigationStandalone";
@@ -48,7 +48,6 @@ import AdminToggle from "./admin/AdminToggle";
 import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
 import ForumEventBanner from "./forumEvents/ForumEventBanner";
 import GlobalHotkeys from "./common/GlobalHotkeys";
-import LanguageModelLauncherButton from "./languageModels/LanguageModelLauncherButton";
 import LlmChatWrapper from "./languageModels/LlmChatWrapper";
 import LWBackgroundImage from "./LWBackgroundImage";
 import IntercomWrapper from "./common/IntercomWrapper";
@@ -356,6 +355,7 @@ const Layout = ({currentUser, children}: {
   const render = () => {
     const SunshineSidebar = dynamic(() => import("./sunshineDashboard/SunshineSidebar"), { ssr: false });
     // const HomepageCommunityMap = dynamic(() => import('./seasonal/HomepageMap/HomepageCommunityMap'), { ssr: false });
+    const LanguageModelLauncherButton = dynamic(() => import("./languageModels/LanguageModelLauncherButton"), { ssr: false });
 
     const baseLayoutOptions: LayoutOptions = {
       // Check whether the current route is one which should have standalone

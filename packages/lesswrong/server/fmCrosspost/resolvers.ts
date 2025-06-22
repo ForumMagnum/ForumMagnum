@@ -1,6 +1,6 @@
 import type { Request } from "express";
 import { isLeft } from 'fp-ts/Either';
-import { crosspostUserAgent } from "../../lib/apollo/links";
+import { crosspostUserAgent } from "@/lib/apollo/constants";
 import {
   ApiError,
   UnauthorizedError,

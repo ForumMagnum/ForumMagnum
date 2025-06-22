@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect, useContext } from 'react';
+import { useState, useCallback, useRef, useEffect, useContext } from 'react';
 import { debateEditorPlaceholder, defaultEditorPlaceholder, linkpostEditorPlaceholder, questionEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { getLSHandlers, getLSKeyPrefix } from '../editor/localStorageHandlers';
 import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
@@ -12,7 +12,7 @@ import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import Transition from 'react-transition-group/Transition';
 import { useTracking } from '../../lib/analyticsEvents';
 import { isCollaborative, PostCategory } from '../../lib/collections/posts/helpers';
-import { DynamicTableOfContentsContext } from '../posts/TableOfContents/DynamicTableOfContents';
+import { AutosaveEditorStateContext, DynamicTableOfContentsContext } from '../common/sharedContexts';
 import isEqual from 'lodash/isEqual';
 import { useDebouncedCallback, useStabilizedCallback } from '../hooks/useDebouncedCallback';
 import { useMessages } from '../common/withMessages';
@@ -31,24 +31,6 @@ import PostVersionHistoryButton from './PostVersionHistory';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
-
-type AutosaveFunc = () => Promise<void>;
-interface AutosaveEditorStateContext {
-  autosaveEditorState: AutosaveFunc | null;
-  /**
-   * WARNING: since `setAutosaveEditorState` is a React setState function,
-   * passing in a function seems to cause it to interpret it as the (prevValue: T): T => newValue form,
-   * so you actually need to pass in with an additional closure if you want to update `autosaveEditorState` with a new function:
-   * 
-   * (prevValue: T) => (): T => { ...;  return newValue; }
-   */
-  setAutosaveEditorState: React.Dispatch<React.SetStateAction<AutosaveFunc | null>>;
-}
-
-export const AutosaveEditorStateContext = React.createContext<AutosaveEditorStateContext>({
-  autosaveEditorState: null,
-  setAutosaveEditorState: _ => {},
-});
 
 const getPostPlaceholder = (post: PostsBase) => {
   const { question, postCategory } = post;

@@ -2,7 +2,7 @@ import { ZodType, z } from "zod"
 import { FMCrosspostRoute } from "@/lib/fmCrosspost/routes"
 import { combineUrls } from "@/lib/vulcan-lib/utils.ts";
 import { fmCrosspostBaseUrlSetting } from "@/lib/instanceSettings";
-import { crosspostUserAgent } from "@/lib/apollo/links";
+import { crosspostUserAgent } from "@/lib/apollo/constants";
 import { fmCrosspostTimeoutMsSetting } from "../fmCrosspost/helpers";
 import {
   ApiError,

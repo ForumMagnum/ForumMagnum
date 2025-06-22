@@ -5,10 +5,9 @@ import { onError } from '@apollo/client/link/error';
 import { isServer } from '../executionEnvironment';
 import { DatabasePublicSetting } from "../publicSettings";
 import { ApolloLink, Operation, selectURI } from "@apollo/client/core";
+import { crosspostUserAgent } from "./constants";
 
 const graphqlBatchMaxSetting = new DatabasePublicSetting('batchHttpLink.batchMax', 50)
-
-export const crosspostUserAgent = "ForumMagnum/2.1";
 
 /**
  * "Links" are Apollo's way of defining the source to read our data from, and they need to

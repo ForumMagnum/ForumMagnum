@@ -10,6 +10,8 @@ import type { Request, Response } from 'express';
 import pathToRegexp from "path-to-regexp";
 import type { RouterLocation } from '../../vulcan-lib/routes';
 import { forumSelect } from '@/lib/forumTypeUtils';
+import { ReviewYear, REVIEW_YEAR, getReviewPeriodStart, getReviewPeriodEnd } from '@/lib/reviewUtils';
+import moment from 'moment';
 
 export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
 export type PostCategory = UnionOf<typeof postCategories>;
@@ -509,3 +511,11 @@ export function getDefaultVotingSystem() {
     default: "default",
   });
 }
+
+export const dateStr = (startDate?: Date) => startDate ? moment(startDate).format('YYYY-MM-DD') : '';
+
+export const allPostsParams = (reviewYear: ReviewYear = REVIEW_YEAR) => {
+  const startDate = getReviewPeriodStart(reviewYear).toDate();
+  const endDate = getReviewPeriodEnd(reviewYear).toDate();
+  return { after: dateStr(startDate), before: dateStr(endDate), sortedBy: 'top', timeframe: 'yearly', frontpage: 'true', unnominated: 'true', limit: "100" };
+};
