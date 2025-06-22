@@ -16,7 +16,7 @@ function getAbsoluteComponentPathFromImportLine(importLine: string): string {
   }
   importPathString = importPathString.slice(1, -1);
 
-  return importPathString.replace('@', 'packages/lesswrong');
+  return importPathString.replace('@', 'packages/lesswrong') + '.tsx';
 }
 
 function getComponentImport(componentName: string): string {
