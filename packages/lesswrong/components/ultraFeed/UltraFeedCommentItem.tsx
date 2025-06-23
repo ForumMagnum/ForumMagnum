@@ -17,6 +17,7 @@ import SeeLessFeedback from "./SeeLessFeedback";
 import { useSeeLess } from "./useSeeLess";
 import { useCurrentUser } from "../common/withUser";
 import { userOwns } from "../../lib/vulcan-users/permissions";
+import CommentsEditForm from "../comments/CommentsEditForm";
 
 
 const commentHeaderPaddingDesktop = 12;
@@ -243,6 +244,7 @@ export interface UltraFeedCommentItemProps {
   currentBranch?: 'new' | 'original';
   onBranchToggle?: () => void;
   cannotReplyReason?: string | null;
+  onEditSuccess: (editedComment: CommentsList) => void;
 }
 
 export const UltraFeedCommentItem = ({
@@ -263,6 +265,7 @@ export const UltraFeedCommentItem = ({
   currentBranch,
   onBranchToggle,
   cannotReplyReason: customCannotReplyReason,
+  onEditSuccess,
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
   const { observe, unobserve, trackExpansion, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView } = useUltraFeedObserver();
@@ -278,6 +281,7 @@ export const UltraFeedCommentItem = ({
   const initialHighlightState = (highlight && !hasBeenLongViewed(comment._id)) ? 'highlighted-unviewed' : 'never-highlighted';
   const [highlightState, setHighlightState] = useState<HighlightStateType>(initialHighlightState);
   const [resetSig, setResetSig] = useState(0);
+  const [showEditState, setShowEditState] = useState(false);
   
   const {
     isSeeLessMode,
@@ -290,6 +294,19 @@ export const UltraFeedCommentItem = ({
   });
 
   const { displaySettings } = settings;
+
+  const setShowEdit = useCallback(() => {
+    setShowEditState(true);
+  }, []);
+
+  const editCancelCallback = useCallback(() => {
+    setShowEditState(false);
+  }, []);
+
+  const editSuccessCallback = useCallback((editedComment: CommentsList) => {
+    setShowEditState(false);
+    onEditSuccess(editedComment);
+  }, [onEditSuccess]);
 
   useEffect(() => {
     const currentElement = elementRef.current;
@@ -408,7 +425,7 @@ export const UltraFeedCommentItem = ({
             />}
             <UltraFeedCommentsItemMeta
               comment={comment}
-              setShowEdit={() => {}}
+              setShowEdit={setShowEdit}
               showPostTitle={showPostTitle}
               onPostTitleClick={onPostTitleClick}
               parentAuthorName={parentAuthorName}
@@ -423,30 +440,38 @@ export const UltraFeedCommentItem = ({
           )}
           {!isSeeLessMode && (
             <div className={classes.contentWrapper}>
-              <FeedContentBody
-                html={comment.contents?.html ?? ""}
-                initialWordCount={truncationParams.initialWordCount}
-                maxWordCount={truncationParams.maxWordCount}
-                wordCount={comment.contents?.wordCount ?? 0}
-                nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-                clampOverride={displaySettings.lineClampNumberOfLines}
-                onExpand={handleContentExpand}
-                onContinueReadingClick={handleContinueReadingClick}
-                hideSuffix={false}
-                resetSignal={resetSig}
-              />
+              {showEditState ? (
+                <CommentsEditForm
+                  comment={comment}
+                  successCallback={editSuccessCallback}
+                  cancelCallback={editCancelCallback}
+                />
+              ) : (
+                <FeedContentBody
+                  html={comment.contents?.html ?? ""}
+                  initialWordCount={truncationParams.initialWordCount}
+                  maxWordCount={truncationParams.maxWordCount}
+                  wordCount={comment.contents?.wordCount ?? 0}
+                  nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
+                  clampOverride={displaySettings.lineClampNumberOfLines}
+                  onExpand={handleContentExpand}
+                  onContinueReadingClick={handleContinueReadingClick}
+                  hideSuffix={false}
+                  resetSignal={resetSig}
+                />
+              )}
             </div>
           )}
-          <UltraFeedItemFooter
-            document={comment}
-            collectionName="Comments"
-            metaInfo={metaInfo}
-            className={classNames(classes.footer, { [classes.footerGreyedOut]: isSeeLessMode })}
-            onSeeLess={isSeeLessMode ? handleUndoSeeLess : handleSeeLess}
-            isSeeLessMode={isSeeLessMode}
-            replyConfig={replyConfig}
-            cannotReplyReason={cannotReplyReason}
-          />
+          {!showEditState && <UltraFeedItemFooter
+              document={comment}
+              collectionName="Comments"
+              metaInfo={metaInfo}
+              className={classNames(classes.footer, { [classes.footerGreyedOut]: isSeeLessMode })}
+              onSeeLess={isSeeLessMode ? handleUndoSeeLess : handleSeeLess}
+              isSeeLessMode={isSeeLessMode}
+              replyConfig={replyConfig}
+              cannotReplyReason={cannotReplyReason}
+            />}
         </div>
       </div>
       

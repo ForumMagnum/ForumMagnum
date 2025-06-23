@@ -309,6 +309,24 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
     }));
   };
 
+  const handleNewReplyEdit = useCallback((editedComment: CommentsList) => {
+    const parentId = Object.entries(newReplies).find(
+      ([_, reply]) => reply._id === editedComment._id
+    )?.[0];
+
+    const editedNewReply = {
+      ...editedComment,
+      post: comments[0].post,
+    }
+    
+    if (parentId) {
+      setNewReplies(prev => ({
+        ...prev,
+        [parentId]: editedNewReply
+      }));
+    }
+  }, [newReplies, comments]);
+
   const getNavigationProps = (commentId: string, displayComments: UltraFeedComment[]) => {
     const parentIdForNewReply = Object.entries(newReplies).find(
       ([parentId, reply]) => reply._id === commentId
@@ -382,6 +400,8 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
               
               const navigationProps = getNavigationProps(cId, visibleComments);
               
+              const isNewReply = Object.values(newReplies).some(reply => reply._id === cId);
+              
               return (
                 <div key={cId} className={classes.commentItem}>
                   <UltraFeedCommentItem
@@ -409,6 +429,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
                     hasFork={navigationProps.showNav}
                     currentBranch={navigationProps.currentBranch}
                     onBranchToggle={() => navigationProps.forkParentId && handleBranchToggle(navigationProps.forkParentId)}
+                    onEditSuccess={isNewReply ? handleNewReplyEdit : () => {}}
                   />
                 </div>
               );
