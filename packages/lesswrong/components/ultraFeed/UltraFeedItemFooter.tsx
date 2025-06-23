@@ -123,7 +123,6 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     },
   },
   commentCountActive: {
-    // color: `${theme.palette.grey[1000]} !important`,
     opacity: 1,
     "& svg": {
       opacity: 1,

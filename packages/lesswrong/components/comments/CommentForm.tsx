@@ -261,6 +261,7 @@ export const CommentForm = ({
   initialData,
   prefilledProps,
   alignmentForumPost,
+  hideAlignmentForumCheckbox,
   quickTakesFormGroup,
   formClassName,
   editorHintText,
@@ -291,6 +292,7 @@ export const CommentForm = ({
     forumEventMetadata?: DbComment['forumEventMetadata'];
   }
   alignmentForumPost?: boolean;
+  hideAlignmentForumCheckbox?: boolean;
   quickTakesFormGroup?: boolean;
   formClassName?: string;
   editorHintText?: string;
@@ -312,7 +314,7 @@ export const CommentForm = ({
 
   const formType = initialData ? 'edit' : 'new';
 
-  const showAfCheckbox = !isAF && alignmentForumPost && (userIsMemberOf(currentUser, 'alignmentForum') || userIsAdmin(currentUser));
+  const showAfCheckbox = !hideAlignmentForumCheckbox && !isAF && alignmentForumPost && (userIsMemberOf(currentUser, 'alignmentForum') || userIsAdmin(currentUser));
 
   const DefaultFormGroupLayout = quickTakesFormGroup
     ? FormGroupQuickTakes

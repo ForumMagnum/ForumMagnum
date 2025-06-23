@@ -204,11 +204,8 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
   // comments in the original thread (creating a "fork" in the conversation).
   const buildDisplayComments = useMemo(() => {
     const result: UltraFeedComment[] = [];
-    let shouldSkipRemaining = false;
 
     for (const comment of comments) {
-      if (shouldSkipRemaining) break;
-
       result.push(comment);
 
       // Check if this comment has a new reply
@@ -216,7 +213,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
       if (newReply && branchViewStates[comment._id] !== 'original') {
         // Add the new reply after its parent, skip all remaining comments since we've forked the conversation
         result.push(newReply);
-        shouldSkipRemaining = true;
+        break;
       }
     }
 

@@ -88,8 +88,9 @@ const UltraFeedReplyEditor = ({
       ) : (
         <div className={classes.replyEditorContainer}>
           <CommentsNewForm
-            post={{...post, af: false}} // in order to hide AF checkbox
+            post={post}
             parentComment={parentComment}
+            hideAlignmentForumCheckbox={true}
             successCallback={(newComment) => {
               if (!newComment || !post) {
                 return;
