@@ -427,6 +427,15 @@ const UltraFeedPostItem = ({
     setIsReplying(false);
   }, []);
 
+  const handleCommentEdit = useCallback((editedComment: CommentsList) => {
+    if (newComment && editedComment._id === newComment._id) {
+      setNewComment({
+        ...editedComment,
+        post,
+      });
+    }
+  }, [newComment, post]);
+
   const handleViewAllComments = useCallback(() => {
     captureEvent("ultraFeedPostItemViewAllCommentsClicked", {postId: post._id});
     openDialog({
@@ -589,6 +598,7 @@ const UltraFeedPostItem = ({
                 onReplyCancel: () => {},
               }}
               cannotReplyReason="You cannot reply to your own comment within the feed"
+              onEditSuccess={handleCommentEdit}
             />
           </div>
         )}
