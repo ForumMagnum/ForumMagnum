@@ -857,9 +857,9 @@ const schema = {
             _id: field("contents_latest"),
           },
           resolver: (revisionsField) => `GREATEST(1, ROUND(COALESCE(
-        ${field("readTimeMinutesOverride")},
-        ${revisionsField("wordCount")}
-      ) / ${READ_WORDS_PER_MINUTE}))`,
+            ${field("readTimeMinutesOverride")},
+            ${revisionsField("wordCount")} / ${READ_WORDS_PER_MINUTE}
+          )))`,
         }),
     },
   },
