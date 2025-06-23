@@ -789,7 +789,7 @@ const UsersForm = ({
             {(field) => (
               <NotificationTypeSettingsWidget
                 field={field}
-                label="Someone has mentioned my post or comment"
+                label="Someone has linked to my post or comment"
               />
             )}
           </form.Field>
