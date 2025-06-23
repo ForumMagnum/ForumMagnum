@@ -9,10 +9,31 @@ interface SimpleSchemaValidationError {
   [key: string]: number | string;
 }
 
-export const dataToModifier = <T extends Record<any, any>>(data: T): MongoModifier => ({ 
-  $set: pickBy(data, f => f !== null), 
-  $unset: mapValues(pickBy(data, f => f === null), () => true),
-});
+export const dataToModifier = <
+  N extends CollectionNameString,
+  T extends UpdateInputsByCollectionName[N]['data'] | Partial<ObjectsByCollectionName[N]>
+>(data: T, schema: SchemaType<N>): MongoModifier => {
+  const modifier: MongoModifier = {
+    $set: pickBy(data, f => f !== null),
+    $unset: mapValues(pickBy(data, f => f === null), () => true),
+  };
+
+  // If the field is a nullable string and we're trying to set it to the
+  // empty-string, just unset it to null instead
+  for (const field in modifier.$set) {
+    const graphQLSpec = schema[field].graphql;
+    if (
+      modifier.$set[field] === "" &&
+      graphQLSpec?.outputType === "String" &&
+      graphQLSpec.validation?.optional
+    ) {
+      modifier.$unset[field] = true;
+      delete modifier.$set[field];
+    }
+  }
+
+  return modifier;
+}
 
 export const modifierToData = (modifier: MongoModifier): any => ({
   ...modifier.$set,
@@ -93,15 +114,13 @@ export const validateDocument = <N extends CollectionNameString, D extends {} = 
 */
 const validateModifier = <N extends CollectionNameString>(
   modifier: MongoModifier,
+  schema: Record<string, CollectionFieldSpecification<N>>,
   document: any,
   collectionName: N,
   context: ResolverContext,
 ) => {
   const { currentUser } = context;
 
-  const { getSchema, getSimpleSchema }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
-
-  const schema = getSchema(collectionName);
   const set = modifier.$set;
   const unset = modifier.$unset;
 
@@ -120,6 +139,7 @@ const validateModifier = <N extends CollectionNameString>(
   });
 
   // 2. run SS validation
+  const { getSimpleSchema }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
   const validationContext = getSimpleSchema(collectionName).newContext();
   validationContext.validate({ $set: set, $unset: unset }, { modifier: true });
 
@@ -155,5 +175,8 @@ export const validateData = <N extends CollectionNameString>(
   collectionName: N,
   context: ResolverContext,
 ) => {
-  return validateModifier(dataToModifier(data), document, collectionName, context);
+  const { getSchema }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
+  const schema = getSchema(collectionName);
+  const modifier = dataToModifier(data, schema);
+  return validateModifier(modifier, schema, document, collectionName, context);
 };

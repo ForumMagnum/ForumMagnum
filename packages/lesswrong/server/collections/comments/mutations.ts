@@ -154,7 +154,7 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
     props: updateCallbackProperties,
   });
 
-  let modifier = dataToModifier(data);
+  let modifier = dataToModifier(data, schema);
   modifier = await moveToAnswers(modifier, oldDocument, context);
   modifier = await handleForumEventMetadataEdit(modifier, oldDocument, context);
 

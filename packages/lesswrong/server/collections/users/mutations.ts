@@ -117,7 +117,7 @@ export async function updateUser({ selector, data }: { data: UpdateUserDataInput
     props: updateCallbackProperties,
   });
 
-  let modifier = dataToModifier(data);
+  let modifier = dataToModifier(data, schema);
 
   maybeSendVerificationEmail(modifier, oldDocument);
   modifier = clearKarmaChangeBatchOnSettingsChange(modifier, oldDocument);

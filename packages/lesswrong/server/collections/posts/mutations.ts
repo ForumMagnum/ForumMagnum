@@ -194,7 +194,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   // This has to be done _after_ the new revision is created
   data = await handleCrosspostUpdate(context, data, updateCallbackProperties);
 
-  let modifier = dataToModifier(data);
+  let modifier = dataToModifier(data, schema);
   modifier = clearCourseEndTime(modifier, oldDocument);
   modifier = removeFrontpageDate(modifier, oldDocument);
   modifier = resetPostApprovedDate(modifier, oldDocument);
