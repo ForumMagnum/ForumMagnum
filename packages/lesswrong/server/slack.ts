@@ -64,6 +64,7 @@ export const forwardReportToModSlack = async (reportId: string) => {
     const result = await client.chat.postMessage({
       channel: modFlagsChannelId,
       unfurl_links: false,
+      unfurl_media: false,
       text: `Reported ${contentType}: ${description}`,
       blocks: [
         {
