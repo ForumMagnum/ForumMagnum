@@ -14,8 +14,8 @@ import { useOverflowNav } from "./OverflowNavObserverContext";
 import { useDialog } from "../common/withDialog";
 import { isPostWithForeignId } from "../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
-import { Link } from "../../lib/reactRouterWrapper";
 import UltraFeedPostDialog from "./UltraFeedPostDialog";
+import UltraFeedCommentsDialog from "./UltraFeedCommentsDialog";
 import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
 import FormatDate from "../common/FormatDate";
 import PostActionsButton from "../dropdowns/posts/PostActionsButton";
@@ -34,6 +34,8 @@ import { SparkleIcon } from "../icons/sparkleIcon";
 import SeeLessFeedback from "./SeeLessFeedback";
 import { useCurrentUser } from "../common/withUser";
 import { useSeeLess } from "./useSeeLess";
+import { UltraFeedCommentItem } from "./UltraFeedCommentItem";
+import type { FeedCommentMetaInfo } from "./ultraFeedTypes";
 
 const localPostQuery = gql(`
   query LocalPostQuery($documentId: String!) {
@@ -59,7 +61,6 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
     position: 'relative',
     paddingTop: 12,
-    paddingBottom: 12,
     paddingLeft: 16,
     paddingRight: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -157,6 +158,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
   footer: {
     marginTop: 12,
+    marginBottom: 12,
   },
   footerGreyedOut: {
     opacity: 0.5,
@@ -183,7 +185,15 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     overflow: 'hidden',
     whiteSpace: 'nowrap',
   },
-
+  newCommentContainer: {
+    marginTop: 16,
+    marginLeft: -16,
+    marginRight: -16,
+    paddingLeft: 16,
+    paddingRight: 16,
+    borderTop: `1px solid ${theme.palette.greyAlpha(0.1)}`,
+    paddingTop: 8,
+  },
 }));
 
 const sourceIconMap: Array<{ source: FeedItemSourceType, icon: any, tooltip: string }> = [
@@ -299,6 +309,9 @@ const UltraFeedPostItem = ({
   const [isLoadingFull, setIsLoadingFull] = useState(isForeignCrosspost || needsFullPostInitially);
   const [resetSig, setResetSig] = useState(0);
   const [isContentExpanded, setIsContentExpanded] = useState(false);
+  const [isReplying, setIsReplying] = useState(false);
+  const [newComment, setNewComment] = useState<UltraFeedComment | null>(null);
+  const [newCommentMetaInfo, setNewCommentMetaInfo] = useState<FeedCommentMetaInfo | null>(null);
   
   const {
     isSeeLessMode,
@@ -388,6 +401,62 @@ const UltraFeedPostItem = ({
     setResetSig((s) => s + 1);
     setIsContentExpanded(false);
   };
+
+  const handleReplyClick = useCallback(() => {
+    setIsReplying(!isReplying);
+  }, [isReplying]);
+
+  const handleReplySubmit = useCallback((newComment: UltraFeedComment) => {
+    setIsReplying(false);
+    setNewComment(newComment);
+    
+    const defaultMetaInfo: FeedCommentMetaInfo = {
+      displayStatus: 'expanded',
+      sources: [],
+      directDescendentCount: 0,
+      highlight: false,
+      lastServed: new Date(),
+      lastViewed: null,
+      lastInteracted: new Date(),
+      postedAt: newComment.postedAt ? new Date(newComment.postedAt) : new Date(),
+    };
+    setNewCommentMetaInfo(defaultMetaInfo);
+  }, []);
+
+  const handleReplyCancel = useCallback(() => {
+    setIsReplying(false);
+  }, []);
+
+  const handleCommentEdit = useCallback((editedComment: CommentsList) => {
+    if (newComment && editedComment._id === newComment._id) {
+      setNewComment({
+        ...editedComment,
+        post,
+      });
+    }
+  }, [newComment, post]);
+
+  const handleViewAllComments = useCallback(() => {
+    captureEvent("ultraFeedPostItemViewAllCommentsClicked", {postId: post._id});
+    openDialog({
+      name: "commentsDialog",
+      closeOnNavigate: true,
+      contents: ({ onClose }) => (
+        <UltraFeedCommentsDialog 
+          document={post}
+          collectionName="Posts"
+          onClose={onClose}
+        />
+      )
+    });
+  }, [openDialog, post, captureEvent]);
+
+  const replyConfig = useMemo(() => ({
+    isReplying,
+    onReplyClick: handleReplyClick,
+    onReplySubmit: handleReplySubmit,
+    onReplyCancel: handleReplyCancel,
+  }), [isReplying, handleReplyClick, handleReplySubmit, handleReplyCancel]);
 
   const handleOpenDialog = useCallback(() => {
     captureEvent("ultraFeedPostItemTitleClicked", {postId: post._id});
@@ -497,7 +566,7 @@ const UltraFeedPostItem = ({
             <Loading />
           </div>
         )}
-
+        
         <UltraFeedItemFooter 
           document={post} 
           collectionName="Posts" 
@@ -505,7 +574,34 @@ const UltraFeedPostItem = ({
           className={classnames(classes.footer, { [classes.footerGreyedOut]: isSeeLessMode })}
           onSeeLess={isSeeLessMode ? handleUndoSeeLess : handleSeeLess}
           isSeeLessMode={isSeeLessMode}
+          replyConfig={replyConfig}
         />
+        
+        {/* Show new comment if one was just created */}
+        {newComment && newCommentMetaInfo && !isSeeLessMode && (
+          <div className={classes.newCommentContainer}>
+            <UltraFeedCommentItem
+              comment={newComment}
+              metaInfo={newCommentMetaInfo}
+              onChangeDisplayStatus={() => {}}
+              showPostTitle={false}
+              highlight={false}
+              isFirstComment={true}
+              isLastComment={true}
+              settings={settings}
+              parentAuthorName={null}
+              isHighlightAnimating={false}
+              replyConfig={{
+                isReplying: false,
+                onReplyClick: () => {},
+                onReplySubmit: () => {},
+                onReplyCancel: () => {},
+              }}
+              cannotReplyReason="You cannot reply to your own comment within the feed"
+              onEditSuccess={handleCommentEdit}
+            />
+          </div>
+        )}
       </div>
       
       {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={isContentExpanded ? handleCollapse : undefined} />}

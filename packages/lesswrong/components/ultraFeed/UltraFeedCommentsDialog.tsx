@@ -72,8 +72,39 @@ const styles = defineStyles("UltraFeedCommentsDialog", (theme: ThemeType) => ({
   },
   scrolledHighlight: {
     backgroundColor: `${theme.palette.secondary.light}6c`,
-  }
+  },
+  scrolledHighlightFading: {
+    backgroundColor: 'transparent !important',
+    transition: 'background-color 3s ease-out',
+  },
 }));
+
+/**
+ * Finds the first scrollable parent container of the given element.
+ * Traverses up the DOM tree from the element's parent, looking for a container
+ * that has scrollable overflow (auto, scroll, or overlay) and actual content
+ * to scroll (scrollHeight > clientHeight).
+ * 
+ * @param element - The element whose scrollable parent we want to find
+ * @returns The first scrollable parent container, or null if none found
+ */
+const findScrollableParent = (element: HTMLElement): HTMLElement | null => {
+  let node: HTMLElement | null = element.parentElement;
+  
+  while (node) {
+    const style = window.getComputedStyle(node);
+    const overflowY = style.overflowY;
+    
+    if ((overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay') 
+        && node.scrollHeight > node.clientHeight) {
+      return node;
+    }
+    
+    node = node.parentElement;
+  }
+  
+  return null;
+};
 
 const UltraFeedCommentsDialog = ({
   document,
@@ -133,17 +164,16 @@ const UltraFeedCommentsDialog = ({
   // scroll to comment clicked on when dialog opens
   useEffect(() => {
     let scrollTimer: NodeJS.Timeout | null = null;
+    let fadeTimer: NodeJS.Timeout | null = null;
 
     if (!isLoading && targetCommentId && comments && comments.length > 0) {
       scrollTimer = setTimeout(() => {
         const element = window.document.getElementById(targetCommentId);
 
-        const container = element?.closest('.MuiDialogContent-root') as HTMLElement | null;
+        if (element) {
+          const container = findScrollableParent(element);
 
-        if (element && container) {
-          const isScrollable = container.scrollHeight > container.clientHeight;
-
-          if (isScrollable) {
+          if (container) {
             const elementRect = element.getBoundingClientRect();
             const containerRect = container.getBoundingClientRect();
             const elementTopRelativeToContainer = elementRect.top - containerRect.top;
@@ -155,18 +185,23 @@ const UltraFeedCommentsDialog = ({
             });
           }
 
-          //Apply static highlight class
+          // Add highlight class for immediate color
           element.classList.add(classes.scrolledHighlight);
-        } else if (element) {
-          element.classList.add(classes.scrolledHighlight);
+
+          // After a short delay, add the fading class to trigger the fade-out
+          fadeTimer = setTimeout(() => {
+            const currentElement = window.document.getElementById(targetCommentId);
+            currentElement?.classList.add(classes.scrolledHighlightFading);
+          }, 100);
         }
       }, 200);
 
       return () => {
         if (scrollTimer) clearTimeout(scrollTimer);
+        if (fadeTimer) clearTimeout(fadeTimer);
       };
     }
-  }, [isLoading, targetCommentId, comments, classes.scrolledHighlight]);
+  }, [isLoading, targetCommentId, comments, classes.scrolledHighlight, classes.scrolledHighlightFading]);
 
   return (
     <LWDialog
