@@ -18,6 +18,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { generateTokenRoute } from "@/lib/fmCrosspost/routes";
 import { TypedFieldApi } from "@/components/tanstack-form-components/BaseAppForm";
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import { isFriendlyUI } from "@/themes/forumTheme";
 import Loading from "../vulcan-core/Loading";
 
 const UsersCrosspostInfoQuery = gql(`
@@ -41,6 +42,9 @@ const styles = defineStyles('FMCrosspostControl', (theme: ThemeType) => ({
   },
   link: {
     color: theme.palette.primary.main,
+  },
+  label: {
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   crosspostMessage: {
     marginBottom: 12,
@@ -184,7 +188,11 @@ export const FMCrosspostControl = ({ field }: {
   return (
     <div className={classes.root}>
       <FormControlLabel
-        label={`Crosspost to ${fmCrosspostSiteNameSetting.get()}`}
+        label={
+          <div className={classes.label}>
+            Crosspost to {fmCrosspostSiteNameSetting.get()}
+          </div>
+        }
         control={
           <Checkbox
             checked={isCrosspost}

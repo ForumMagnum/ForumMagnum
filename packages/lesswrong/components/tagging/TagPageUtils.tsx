@@ -1,5 +1,6 @@
 import React from "react";
 import LWTooltip from "../common/LWTooltip";
+import { isFriendlyUI } from "@/themes/forumTheme";
 
 export const tagPageHeaderStyles = (theme: ThemeType) => ({
   postListMeta: {
@@ -19,7 +20,10 @@ export const tagPageHeaderStyles = (theme: ThemeType) => ({
 
 export const tagPostTerms = (tag: Pick<TagBasicInfo, "_id" | "name"> | null, query: any) => {
   if (!tag) return
+  
+  // friendly ui defaults to top sort order for tag pages
   return ({
+    ...(isFriendlyUI && {sortedBy: "top"}),
     ...query,
     filterSettings: {tags:[{tagId: tag._id, tagName: tag.name, filterMode: "Required"}]},
     view: "tagRelevance",

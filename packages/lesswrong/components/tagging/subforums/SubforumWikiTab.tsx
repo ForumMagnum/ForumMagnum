@@ -147,7 +147,7 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
           <AnalyticsContext pageSectionContext="tagsSection">
             <SectionTitle title={`Posts tagged ${tag.name}`} />
             <div className={classes.postListMeta}>
-              <PostsListSortDropdown value={query.sortedBy || "relevance"} />
+              <PostsListSortDropdown value={query.sortedBy || "top"} />
               <div className={classes.relevance}>
                 <RelevanceLabel />
               </div>
