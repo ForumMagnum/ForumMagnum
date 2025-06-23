@@ -79,6 +79,33 @@ const styles = defineStyles("UltraFeedCommentsDialog", (theme: ThemeType) => ({
   },
 }));
 
+/**
+ * Finds the first scrollable parent container of the given element.
+ * Traverses up the DOM tree from the element's parent, looking for a container
+ * that has scrollable overflow (auto, scroll, or overlay) and actual content
+ * to scroll (scrollHeight > clientHeight).
+ * 
+ * @param element - The element whose scrollable parent we want to find
+ * @returns The first scrollable parent container, or null if none found
+ */
+const findScrollableParent = (element: HTMLElement): HTMLElement | null => {
+  let node: HTMLElement | null = element.parentElement;
+  
+  while (node) {
+    const style = window.getComputedStyle(node);
+    const overflowY = style.overflowY;
+    
+    if ((overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay') 
+        && node.scrollHeight > node.clientHeight) {
+      return node;
+    }
+    
+    node = node.parentElement;
+  }
+  
+  return null;
+};
+
 const UltraFeedCommentsDialog = ({
   document,
   collectionName,
@@ -144,18 +171,7 @@ const UltraFeedCommentsDialog = ({
         const element = window.document.getElementById(targetCommentId);
 
         if (element) {
-          const container = (() => {
-            let node: HTMLElement | null = element.parentElement;
-            while (node) {
-              const style = window.getComputedStyle(node);
-              const overflowY = style.overflowY;
-              if ((overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay') && node.scrollHeight > node.clientHeight) {
-                return node;
-              }
-              node = node.parentElement;
-            }
-            return null;
-          })();
+          const container = findScrollableParent(element);
 
           if (container) {
             const elementRect = element.getBoundingClientRect();

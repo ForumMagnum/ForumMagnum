@@ -14,7 +14,6 @@ import { useOverflowNav } from "./OverflowNavObserverContext";
 import { useDialog } from "../common/withDialog";
 import { isPostWithForeignId } from "../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
-import { Link } from "../../lib/reactRouterWrapper";
 import UltraFeedPostDialog from "./UltraFeedPostDialog";
 import UltraFeedCommentsDialog from "./UltraFeedCommentsDialog";
 import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
@@ -62,7 +61,6 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
     position: 'relative',
     paddingTop: 12,
-    // paddingBottom: 12,
     paddingLeft: 16,
     paddingRight: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,

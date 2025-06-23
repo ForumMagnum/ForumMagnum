@@ -273,19 +273,7 @@ export const UltraFeedCommentItem = ({
   
   const cannotReplyReason = customCannotReplyReason ?? (userOwns(currentUser, comment) ? "You cannot reply to your own comment from within the feed" : null);
 
-  // Provide default metaInfo if not provided
-  const safeMetaInfo = metaInfo || {
-    displayStatus: 'expanded' as FeedItemDisplayStatus,
-    sources: [],
-    directDescendentCount: 0,
-    highlight: false,
-    lastServed: null,
-    lastViewed: null,
-    lastInteracted: null,
-    postedAt: null,
-  };
-
-  const displayStatus = metaInfo.displayStatus ?? 'expanded' as FeedItemDisplayStatus;
+  const displayStatus = metaInfo.displayStatus ?? 'expanded';
 
   const initialHighlightState = (highlight && !hasBeenLongViewed(comment._id)) ? 'highlighted-unviewed' : 'never-highlighted';
   const [highlightState, setHighlightState] = useState<HighlightStateType>(initialHighlightState);
@@ -452,7 +440,7 @@ export const UltraFeedCommentItem = ({
           <UltraFeedItemFooter
             document={comment}
             collectionName="Comments"
-            metaInfo={safeMetaInfo}
+            metaInfo={metaInfo}
             className={classNames(classes.footer, { [classes.footerGreyedOut]: isSeeLessMode })}
             onSeeLess={isSeeLessMode ? handleUndoSeeLess : handleSeeLess}
             isSeeLessMode={isSeeLessMode}

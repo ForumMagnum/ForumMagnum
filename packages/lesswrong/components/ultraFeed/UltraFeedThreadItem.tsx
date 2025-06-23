@@ -199,6 +199,9 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
     }));
   }, []);
 
+  // Build the list of comments to display, incorporating new replies.
+  // When a user replies to a comment, we show their new reply and hide all subsequent
+  // comments in the original thread (creating a "fork" in the conversation).
   const buildDisplayComments = useMemo(() => {
     const result: UltraFeedComment[] = [];
     let shouldSkipRemaining = false;
@@ -208,8 +211,10 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
 
       result.push(comment);
 
+      // Check if this comment has a new reply
       const newReply = newReplies[comment._id];
       if (newReply && branchViewStates[comment._id] !== 'original') {
+        // Add the new reply after its parent, skip all remaining comments since we've forked the conversation
         result.push(newReply);
         shouldSkipRemaining = true;
       }
@@ -284,7 +289,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
       lastServed: new Date(),
       lastViewed: null,
       lastInteracted: new Date(),
-      postedAt: newComment.postedAt ? new Date(newComment.postedAt) : new Date(), //TODO: this is coming back as string from new comment creation, is that right?
+      postedAt: newComment.postedAt ? new Date(newComment.postedAt) : new Date(),
     };
     setNewCommentMetaInfos(prev => ({
       ...prev,

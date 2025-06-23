@@ -57,15 +57,14 @@ export type UltraFeedReplyEditorProps =
   | UltraFeedReplyEditorPostProps
   | UltraFeedReplyEditorCommentProps;
 
-const UltraFeedReplyEditor = (props: UltraFeedReplyEditorProps) => {
-  const {
-    document,
-    collectionName,
-    cannotReplyReason,
-    onReplySubmit,
-    onReplyCancel,
-    onViewAllComments,
-  } = props;
+const UltraFeedReplyEditor = ({
+  document,
+  collectionName,
+  cannotReplyReason,
+  onReplySubmit,
+  onReplyCancel,
+  onViewAllComments,
+}: UltraFeedReplyEditorProps) => {
   const classes = useStyles(styles);
 
   const post = collectionName === "Comments" ? document.post : document;
@@ -92,13 +91,14 @@ const UltraFeedReplyEditor = (props: UltraFeedReplyEditorProps) => {
             post={{...post, af: false}} // in order to hide AF checkbox
             parentComment={parentComment}
             successCallback={(newComment) => {
-              if (onReplySubmit && newComment) {
-                const ultraFeedComment = {
-                  ...newComment,
-                  post: post,
-                } as UltraFeedComment;
-                onReplySubmit(ultraFeedComment);
+              if (!newComment || !post) {
+                return;
               }
+              
+              onReplySubmit({
+                ...newComment,
+                post: post,
+              });
             }}
             cancelCallback={onReplyCancel}
             interactionType={collectionName === "Comments" ? "reply" : "comment"}
