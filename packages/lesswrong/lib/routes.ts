@@ -1,7 +1,7 @@
-import { 
-  forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet,
-  taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting, aboutPostIdSetting,
-  isLW, isLWorAF, tagUrlBaseSetting, taggingNameCapitalizedWithPluralizationChoice } from './instanceSettings';
+import {
+  aboutPostIdSetting, contactPostIdSetting, faqPostIdSetting, forumTypeSetting, hasEventsSetting, introPostIdSetting, isEAForum, isLW, isLWorAF, tagUrlBaseSetting, taggingNameCapitalSetting, taggingNameCapitalizedWithPluralizationChoice, taggingNameIsSet,
+  taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting
+} from './instanceSettings';
 import { blackBarTitle, legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
 import { BEST_OF_LESSWRONG_PUBLISH_YEAR, REVIEW_YEAR } from './reviewUtils';
@@ -178,10 +178,6 @@ const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
 const leastWrongSubtitle = { subtitleLink: "/leastwrong", subtitle: "The Best of LessWrong" };
 
 const taggingDashboardSubtitle = { subtitleLink: `/${taggingNamePluralSetting.get()}/dashboard`, subtitle: `${taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tag'} Dashboard`}
-
-const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWuPrgTMpLRbp', "warning") // Post ID for the /faq route
-const contactPostIdSetting = new PublicInstanceSetting<string>('contactPostId', "ehcYkvyz7dh9L7Wt8", "warning")
-const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional")
 
 const postBackground = "white"
 

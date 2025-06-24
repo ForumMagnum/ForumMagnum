@@ -14,7 +14,7 @@ import {
   collectionNameToConfig,
 } from "./ElasticConfig";
 import { parseQuery, QueryToken } from "./parseQuery";
-import { searchOriginDate } from "./elasticSettings";
+import { searchOriginDate } from "@/lib/instanceSettings";
 import { SearchIndexCollectionName } from "../../../lib/search/searchUtil";
 
 /**

@@ -92,16 +92,21 @@ export const loadInstanceSettings = (args?: CommandLineArguments) => {
   const publicSettings: JsonRecord = {};
   const privateSettings: JsonRecord = {};
 
-  const instanceSettings = rawInstanceSettings.reduce((acc, [key, value]) => {
+  let instanceSettings = rawInstanceSettings.reduce((acc, [key, value]) => {
     const [prefix, ...settingNameParts] = key.split("_");
     const settingName = settingNameParts.join(".");
+    const parsedValue = JSON.parse(value);
     if (prefix === "public") {
-      acc.public[settingName] = value;
+      acc.public[settingName] = parsedValue;
     } else if (prefix === "private") {
-      acc.private[settingName] = value;
+      acc.private[settingName] = parsedValue;
     }
     return acc;
   }, { public: publicSettings, private: privateSettings });
+
+  if (Object.keys(rawInstanceSettings).length === 0) {
+    instanceSettings = loadSettingsFile("../LessWrong-Credentials/settings-local-dev-devdb.json");
+  }
 
   return instanceSettings;
 }

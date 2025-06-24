@@ -7,25 +7,14 @@ import { replaceDbNameInPgConnectionString, setSqlClient } from './sql/sqlClient
 import PgCollection, { DbTarget } from './sql/PgCollection';
 import { getAllCollections } from './collections/allCollections';
 import { isAnyTest } from '../lib/executionEnvironment';
-import { PublicInstanceSetting } from "../lib/instanceSettings";
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { CommandLineArguments, getCommandLineArguments } from './commandLine';
 import { getBranchDbName } from "./branchDb";
 import { dropAndCreatePg } from './testingSqlClient';
 import process from 'process';
 import { filterConsoleLogSpam, wrapConsoleLogFunctions } from '../lib/consoleFilters';
-import cluster from 'node:cluster';
-import { cpus } from 'node:os';
 import { panic } from './utils/errorUtil';
 
-const numCPUs = cpus().length;
-
-/**
- * Whether to run multiple node processes in a cluster.
- * The main reason this is a PublicInstanceSetting because it would be annoying and disruptive for other devs to change this while you're running the server.
- */
-export const clusterSetting = new PublicInstanceSetting<boolean>('cluster.enabled', false, 'optional')
-export const numWorkersSetting = new PublicInstanceSetting<number>('cluster.numWorkers', numCPUs, 'optional')
 const processRestartDelay = 5000;
 
 const initConsole = () => {
@@ -36,8 +25,8 @@ const initConsole = () => {
 
   filterConsoleLogSpam();
   wrapConsoleLogFunctions((log, ...message) => {
-    const pidString = clusterSetting.get() ? ` (pid: ${process.pid})` : "";
-    process.stdout.write(`${blue}${new Date().toISOString()}${pidString}:${endBlue} `);
+    // const pidString = clusterSetting.get() ? ` (pid: ${process.pid})` : "";
+    process.stdout.write(`${blue}${new Date().toISOString()}:${endBlue} `);
     log(...message);
 
     // Uncomment to add stacktraces to every console.log, for debugging where
@@ -105,16 +94,16 @@ export const initServer = async (commandLineArguments: CommandLineArguments) => 
 //   require('../server.ts');
 // }
 
-function getClusterRole(): "standalone"|"primary"|"worker" {
-  if (!clusterSetting.get()) {
-    return "standalone";
-  }
-  if (cluster.isPrimary) {
-    return "primary";
-  } else {
-    return "worker";
-  }
-}
+// function getClusterRole(): "standalone"|"primary"|"worker" {
+//   if (!clusterSetting.get()) {
+//     return "standalone";
+//   }
+//   if (cluster.isPrimary) {
+//     return "primary";
+//   } else {
+//     return "worker";
+//   }
+// }
 
 // export const serverStartup = async () => {
 //   const commandLineArguments = getCommandLineArguments();

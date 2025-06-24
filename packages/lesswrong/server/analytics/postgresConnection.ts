@@ -2,7 +2,7 @@ import { isAnyTest } from "../../lib/executionEnvironment";
 import pgp, { IDatabase } from "pg-promise";
 import type { IClient } from "pg-promise/typescript/pg-subset";
 import { DatabaseServerSetting } from "../databaseSettings";
-import { PublicInstanceSetting, isEAForum } from "../../lib/instanceSettings";
+import { isEAForum, sslCAFileSetting } from "../../lib/instanceSettings";
 import fs from "fs";
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { getInstanceSettingsFilePath } from "../commandLine";
@@ -28,12 +28,6 @@ const sslSetting = new DatabaseServerSetting<SSLSettings | null>(
     },
     default: null,
   })
-);
-/** Path of the certificate file *relative* to the instance settings file (so we don't have to store the full cert in instance settings) */
-const sslCAFileSetting = new PublicInstanceSetting<string | null>(
-  "analytics.caFilePath",
-  forumSelect({ EAForum: "./certs/us-east-1-bundle.cer", default: null }),
-  "optional"
 );
 
 const getFullCAFilePath = (): string | null => {

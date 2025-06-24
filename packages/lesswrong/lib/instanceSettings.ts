@@ -82,7 +82,7 @@ const getSetting = <T>(settingName: string, settingDefault?: T): T => {
   Method: 
     get: Returns the current value of the setting
 */
-export class PublicInstanceSetting<SettingValueType> {
+class PublicInstanceSetting<SettingValueType> {
   constructor(
     private settingName: string, 
     private defaultValue: SettingValueType,
@@ -327,3 +327,77 @@ export const airtableApiKeySetting = new PublicInstanceSetting<string | null>('a
 export const saplingApiKey = new PublicInstanceSetting<string>("sapling.apiKey", "", "optional");
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning");
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning");
+
+export const eaHomeSequenceFirstPostId = new PublicInstanceSetting<string | null>('eaHomeSequenceFirstPostId', null, "optional"); // Post ID for the first post in the EAHomeHandbook Sequence
+
+export const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional");
+
+export const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWuPrgTMpLRbp', "warning"); // Post ID for the /faq route
+export const contactPostIdSetting = new PublicInstanceSetting<string>('contactPostId', "ehcYkvyz7dh9L7Wt8", "warning");
+export const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional");
+
+export const instanceDebuggersSetting = new PublicInstanceSetting<string[]>('instanceDebuggers', [], 'optional');
+
+/** Path of the certificate file *relative* to the instance settings file (so we don't have to store the full cert in instance settings) */
+export const sslCAFileSetting = new PublicInstanceSetting<string | null>(
+  "analytics.caFilePath",
+  isEAForum ? "./certs/us-east-1-bundle.cer" : null,
+  "optional"
+);
+
+// Since different environments are connected to the same DB, this setting cannot be moved to the database
+export const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning");
+
+export const botSiteRedirectEnabledSetting = new PublicInstanceSetting<boolean>('botSite.redirectEnabled', false, 'optional');
+
+// For development, there's a matched set of CkEditor settings as instance
+// settings, which take precedence over the database settings. This allows
+// using custom CkEditor settings that don't match what's in the attached
+// database.
+export const ckEditorEnvironmentIdOverrideSetting = new PublicInstanceSetting<string | null>('ckEditorOverride.environmentId', null, "optional");
+export const ckEditorSecretKeyOverrideSetting = new PublicInstanceSetting<string | null>('ckEditorOverride.secretKey', null, "optional");
+export const ckEditorApiPrefixOverrideSetting = new PublicInstanceSetting<string | null>('ckEditorOverride.apiPrefix', null, "optional");
+export const ckEditorApiSecretKeyOverrideSetting = new PublicInstanceSetting<string | null>('ckEditorOverride.apiSecretKey', null, "optional");
+
+// disallowCrawlers: If set, robots.txt will request that no crawlers touch the
+// site at all. Use for test and staging servers like lessestwrong.com and
+// baserates.org, so that only the real site will be indexed by search engines.
+//
+// If set, this takes precedence over the robotsTxt setting.
+export const disallowCrawlersSetting = new PublicInstanceSetting<boolean>('disallowCrawlers', false, "optional");
+
+
+export const elasticCloudIdSetting = new PublicInstanceSetting<string | null>(
+  "elasticsearch.cloudId",
+  null,
+  "optional"
+);
+
+export const elasticUsernameSetting = new PublicInstanceSetting<string | null>(
+  "elasticsearch.username",
+  null,
+  "optional"
+);
+
+export const elasticPasswordSetting = new PublicInstanceSetting<string | null>(
+  "elasticsearch.password",
+  null,
+  "optional"
+);
+
+export const searchOriginDate = new PublicInstanceSetting<string>(
+  "searchOriginDate",
+  "2014-06-01T01:00:00Z",
+  "optional"
+);
+
+export const pgConnIdleTimeoutMsSetting = new PublicInstanceSetting<number>('pg.idleTimeoutMs', 10000, 'optional');
+
+// Database ID string that this config file should match with
+export const expectedDatabaseIdSetting = new PublicInstanceSetting<string | null>('expectedDatabaseId', null, "warning");
+
+export const apiKeySetting = new PublicInstanceSetting<string | null>("twitterBot.apiKey", null, "optional");
+export const apiKeySecretSetting = new PublicInstanceSetting<string | null>("twitterBot.apiKeySecret", null, "optional");
+export const accessTokenSetting = new PublicInstanceSetting<string | null>("twitterBot.accessToken", null, "optional");
+export const accessTokenSecretSetting = new PublicInstanceSetting<string | null>("twitterBot.accessTokenSecret", null, "optional");
+

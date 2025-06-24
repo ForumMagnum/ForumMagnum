@@ -8,7 +8,7 @@ import type {
 import ElasticQuery, { QueryData } from "./ElasticQuery";
 import ElasticMultiQuery, { MultiQueryData } from "./ElasticMultiQuery";
 import sortBy from "lodash/sortBy";
-import { elasticCloudIdSetting, elasticPasswordSetting, elasticUsernameSetting } from "./elasticSettings";
+import { elasticCloudIdSetting, elasticPasswordSetting, elasticUsernameSetting } from "@/lib/instanceSettings";
 import { isElasticEnabled } from "../../../lib/instanceSettings";
 import take from "lodash/take";
 

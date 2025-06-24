@@ -2,7 +2,7 @@ import pgp, { IDatabase, IEventContext } from "pg-promise";
 import type { IClient, IResult } from "pg-promise/typescript/pg-subset";
 import Query from "@/server/sql/Query";
 import { isAnyTest, isDevelopment } from "../lib/executionEnvironment";
-import { PublicInstanceSetting } from "../lib/instanceSettings";
+import { pgConnIdleTimeoutMsSetting } from "../lib/instanceSettings";
 import omit from "lodash/omit";
 import { logAllQueries, logQueryArguments, measureSqlBytesDownloaded } from "@/server/sql/sqlClient";
 import { recordSqlQueryPerfMetric } from "./perfMetrics";
@@ -13,8 +13,6 @@ let sqlBytesDownloaded = 0;
 const SLOW_QUERY_REPORT_CUTOFF_MS = parseInt(process.env.SLOW_QUERY_REPORT_CUTOFF_MS ?? '') >= -1
   ? parseInt(process.env.SLOW_QUERY_REPORT_CUTOFF_MS ?? '')
   : isDevelopment ? 3000 : 2000;
-
-const pgConnIdleTimeoutMsSetting = new PublicInstanceSetting<number>('pg.idleTimeoutMs', 10000, 'optional')
 
 let vectorTypeOidPromise: Promise<number | null> | null = null;
 
