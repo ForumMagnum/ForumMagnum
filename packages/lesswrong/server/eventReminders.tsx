@@ -52,7 +52,8 @@ async function checkAndSendUpcomingEventEmails() {
       await wrapAndSendEmail({
         user, to: email,
         subject: `Event reminder: ${upcomingEvent.title}`,
-        body: <EventTomorrowReminder rsvp={rsvp} postId={upcomingEvent._id}/>
+        body: <EventTomorrowReminder rsvp={rsvp} postId={upcomingEvent._id}/>,
+        tag: "upcoming-event",
       });
     }
   }

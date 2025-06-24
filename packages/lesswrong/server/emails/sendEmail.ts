@@ -1,6 +1,9 @@
+import { isEAForum } from '@/lib/instanceSettings';
 import { DatabaseServerSetting } from '../databaseSettings';
 import type { RenderedEmail } from './renderEmail';
 import nodemailer from 'nodemailer';
+
+const hasEmailTags = isEAForum;
 
 export const mailUrlSetting = new DatabaseServerSetting<string | null>('mailUrl', null) // The SMTP URL used to send out email
 
@@ -34,13 +37,13 @@ export const sendEmailSmtp = async (email: RenderedEmail): Promise<boolean> => {
   }
   
   const transport = nodemailer.createTransport(mailUrl);
-  
-  const result = await transport.sendMail({
+  await transport.sendMail({
     from: email.from,
     to: email.to,
     subject: email.subject,
     text: email.text,
     html: email.html,
+    headers: email.tag && hasEmailTags ? { "X-PM-Tag": email.tag } : undefined,
   });
   
   return true;
