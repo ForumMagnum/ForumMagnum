@@ -132,7 +132,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     display: 'inline-flex',
     alignItems: 'center',
     borderRadius: 4,
-    padding: 2,
+    padding: "2px 4px",
     transition: 'background-color 0.2s ease',
     "&:hover": {
       backgroundColor: theme.palette.panelBackground.hoverHighlightGrey,

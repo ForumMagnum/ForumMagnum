@@ -211,6 +211,14 @@ export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PostsD
   )
 }
 
+export const userIsNotShortformOwner = (user: UsersCurrent|DbUser, post: PostsDetails|DbPost): boolean => {
+  return !!(
+    post.shortform &&
+    post.userId &&
+    post.userId !== user._id
+  )
+}
+
 export const userIsBannedFromAllPosts = (user: UsersCurrent|DbUser, post: PostsDetails|DbPost, postAuthor: PermissionableUser|DbUser|null): boolean => {
   return !!(
     // @ts-ignore FIXME: Not enforcing that the fragment includes bannedUserIds
