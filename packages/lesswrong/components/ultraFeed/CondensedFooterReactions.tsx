@@ -16,6 +16,9 @@ import { Card } from "@/components/widgets/Paper";
 import { AddReactionIcon } from '../icons/AddReactionIcon';
 import HoverOver from "../common/HoverOver";
 
+const ICON_BUTTON_SIZE = 24;
+const ICON_BUTTON_SIZE_MOBILE = 26;
+
 const styles = defineStyles("CondensedFooterReactions", (theme: ThemeType) => ({
   root: {
     display: 'flex',
@@ -25,6 +28,53 @@ const styles = defineStyles("CondensedFooterReactions", (theme: ThemeType) => ({
     marginRight: '4px',
     display: 'flex',
     alignItems: 'center',
+  },
+  reactionIconContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  reactionIconWrapper: {
+    width: ICON_BUTTON_SIZE,
+    height: ICON_BUTTON_SIZE,
+    borderRadius: '50%',
+    backgroundColor: theme.palette.grey[200],
+    border: `2px solid ${theme.palette.background.paper}`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    zIndex: 2,
+    '& > *': {
+      transform: 'scale(0.9)',
+      [theme.breakpoints.down('sm')]: {
+        transform: 'scale(0.9)',
+      },
+    },
+    [theme.breakpoints.down('sm')]: {
+      width: ICON_BUTTON_SIZE_MOBILE,
+      height: ICON_BUTTON_SIZE_MOBILE,
+    },
+  },
+  ellipsisIconWrapper: {
+    width: ICON_BUTTON_SIZE,
+    height: ICON_BUTTON_SIZE,
+    borderRadius: '50%',
+    backgroundColor: theme.palette.grey[200],
+    border: `2px solid ${theme.palette.background.paper}`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    marginLeft: -8, // Overlap with the previous icon
+    zIndex: 1,
+    fontSize: 8,
+    color: theme.palette.ultraFeed.dim,
+    fontWeight: 600,
+    [theme.breakpoints.down('sm')]: {
+      width: ICON_BUTTON_SIZE_MOBILE,
+      height: ICON_BUTTON_SIZE_MOBILE,
+    },
   },
   reactsAndCount: {
     display: 'flex',
@@ -43,9 +93,6 @@ const styles = defineStyles("CondensedFooterReactions", (theme: ThemeType) => ({
   },
   reactsAndCountActive: {
     backgroundColor: theme.palette.grey[200],
-  },
-  reactionIcon: {
-    marginRight: 4,
   },
   overviewPopperCard: {
     padding: 0,
@@ -379,8 +426,15 @@ const CondensedFooterReactions = ({
   const totalReactionCount = sortedReactions.reduce((sum, reaction) => sum + reaction.numberShown, 0);
 
   const topIconElement: React.ReactNode | null = sortedReactions.length > 0 && totalReactionCount > 0 ? (
-    <div className={classes.reactionIcon}>
-      <ReactionIcon react={sortedReactions[0]?.react as EmojiReactName} />
+    <div className={classes.reactionIconContainer}>
+      <div className={classes.reactionIconWrapper}>
+        <ReactionIcon react={sortedReactions[0]?.react as EmojiReactName} />
+      </div>
+      {sortedReactions.length > 1 && (
+        <div className={classes.ellipsisIconWrapper}>
+          •••
+        </div>
+      )}
     </div>
   ) : null;
   
