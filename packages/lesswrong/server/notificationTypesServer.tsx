@@ -866,10 +866,7 @@ export const NewPingbackNotification = createServerNotificationType({
     if (!summary) {
       throw Error(`Can't find document for notification: ${notification}`);
     }
-    const prefix = notification.documentType === "comment"
-      ? "their comment on "
-      : "";
-    return `${summary.associatedUserName} mentioned your ${notification.extraData?.pingbackType} in ${prefix}${summary.displayName}`;
+    return `${summary.associatedUserName} mentioned your ${notification.extraData?.pingbackType} "${notification.extraData?.pingbackDocumentExcerpt}"`;
   },
   emailBody: async ({ notifications, context }: {
     user: DbUser,
@@ -889,14 +886,11 @@ export const NewPingbackNotification = createServerNotificationType({
       throw Error(`Can't find document for notification: ${notification}`);
     }
     if (!notification.link) {
-      throw Error(`Can't link for notification: ${notification}`);
+      throw Error(`Can't find link for notification: ${notification}`);
     }
-    const prefix = notification.documentType === "comment"
-      ? "their comment on "
-      : "";
     return (
       <p>
-        {summary.associatedUserName} mentioned your {notification.extraData?.pingbackType} in {prefix}<a href={makeAbsolute(notification.link)}>{summary.displayName}</a>.
+        {summary.associatedUserName} <a href={makeAbsolute(notification.link)}>mentioned your {notification.extraData?.pingbackType}</a> "{notification.extraData?.pingbackDocumentExcerpt}".
       </p>
     );
   },

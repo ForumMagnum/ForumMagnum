@@ -950,22 +950,14 @@ export const NewPingbackNotification = createNotificationType({
   userSettingField: "notificationNewPingback",
   async getMessage({documentType, documentId, extraData, context}: GetMessageProps) {
     const summary = await getDocumentSummary(documentType, documentId, context)
-    const prefix = documentType === "comment" ? "their comment on " : "";
-    return `${summary?.associatedUserName} mentioned your ${extraData?.pingbackType} in ${prefix}${summary?.displayName}`
+    return `${summary?.associatedUserName} mentioned your ${extraData?.pingbackType} "${extraData?.pingbackDocumentExcerpt}"`
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
   },
-  Display: ({User, Comment, Post, Tag, notification: {comment, tag, extraData}}) => {
-    if (tag) {
-      return (
-        <><User /> mentioned your {extraData?.pingbackType} in <Tag /></>
-      );
-    }
-    return (
-      <><User /> mentioned your {extraData?.pingbackType} in {comment ? <>their <Comment /> on </> : ""}<Post /></>
-    );
-  },
+  Display: ({User, notification: {extraData}}) => (
+    <><User /> mentioned your {extraData?.pingbackType} "{extraData?.pingbackDocumentExcerpt}"</>
+  ),
 })
 
 const notificationTypesArray: NotificationType[] = [

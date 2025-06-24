@@ -1,6 +1,5 @@
 import intersection from 'lodash/intersection'
 import difference from 'lodash/difference'
-import without from 'lodash/without'
 import uniq from 'lodash/uniq'
 import {createNotifications} from '../notificationCallbacksHelpers'
 import type {NotificationDocument} from '../../lib/notificationTypes'
@@ -11,6 +10,11 @@ import { isValidCollectionName } from '../collections/allCollections'
 import Comments from '../collections/comments/collection'
 import Posts from '../collections/posts/collection'
 import { getConfirmedCoauthorIds } from '@/lib/collections/posts/helpers'
+import { htmlToTextDefault } from '@/lib/htmlToText'
+import { dataToHTML } from './conversionUtils'
+import { createAnonymousContext } from '../vulcan-lib/createContexts'
+
+const COMMENT_EXCERPT_LENGTH = 40;
 
 export interface PingbackDocumentPartial {
   _id: string,
@@ -36,8 +40,21 @@ const countAllPingbacks = (pingbacks: PingbacksIndex) => {
   return count;
 }
 
-const filterUserIds = (userIds: string[], currentUserId: string): string[] =>
-  without(uniq(userIds), currentUserId);
+const filterUserIds = (userIds: string[], filteredUserIds: string[]): string[] =>
+  difference(uniq(userIds), filteredUserIds);
+
+const getCommentExcerpt = async (comment: DbComment, context: ResolverContext) => {
+  const originalContents = comment.contents?.originalContents;
+  if (!originalContents) {
+    return "";
+  }
+  const html = await dataToHTML(
+    originalContents.data,
+    originalContents.type,
+    context,
+  );
+  return htmlToTextDefault(html).slice(0, COMMENT_EXCERPT_LENGTH);
+}
 
 export const notifyUsersAboutMentions = async (
   currentUser: DbUser,
@@ -58,11 +75,15 @@ export const notifyUsersAboutMentions = async (
 
   const pingbacksToSend = getPingbacksToSend(collectionName, document, oldDocument);
 
+  const filteredUserIds: string[] = [currentUser._id];
+
   if (pingbacksToSend.Users) {
+    const userIds = filterUserIds(pingbacksToSend.Users, filteredUserIds);
+    filteredUserIds.push(...userIds);
     promises.push(
       createNotifications({
         notificationType: "newMention",
-        userIds: filterUserIds(pingbacksToSend.Users, currentUser._id),
+        userIds,
         documentId: document._id,
         documentType: notificationType,
       })
@@ -73,34 +94,50 @@ export const notifyUsersAboutMentions = async (
     const posts = await Posts.find({
       _id: { $in: pingbacksToSend.Posts },
     }).fetch();
-    const userIds = posts.flatMap(
-      (post) => [post.userId, ...getConfirmedCoauthorIds(post)],
-    );
-    promises.push(
-      createNotifications({
-        notificationType: "newPingback",
-        userIds: filterUserIds(userIds, currentUser._id),
-        documentId: document._id,
-        documentType: notificationType,
-        extraData: { pingbackType: "post" },
-      })
-    );
+    for (const post of posts) {
+      const userIds = filterUserIds(
+        [post.userId, ...getConfirmedCoauthorIds(post)],
+        filteredUserIds,
+      );
+      filteredUserIds.push(...userIds);
+      promises.push(
+        createNotifications({
+          notificationType: "newPingback",
+          userIds,
+          documentId: document._id,
+          documentType: notificationType,
+          extraData: {
+            pingbackType: "post",
+            pingbackDocumentId: post._id,
+            pingbackDocumentExcerpt: post.title,
+          },
+        })
+      );
+    }
   }
 
   if (pingbacksToSend.Comments) {
     const comments = await Comments.find({
       _id: { $in: pingbacksToSend.Comments },
     }).fetch();
-    const userIds = comments.map(({ userId }) => userId);
-    promises.push(
-      createNotifications({
-        notificationType: "newPingback",
-        userIds: filterUserIds(userIds, currentUser._id),
-        documentId: document._id,
-        documentType: notificationType,
-        extraData: { pingbackType: "comment" },
-      })
-    );
+    const context = createAnonymousContext();
+    for (const comment of comments) {
+      const userIds = filterUserIds([comment.userId], filteredUserIds);
+      filteredUserIds.push(...userIds);
+      promises.push(
+        createNotifications({
+          notificationType: "newPingback",
+          userIds,
+          documentId: document._id,
+          documentType: notificationType,
+          extraData: {
+            pingbackType: "comment",
+            pingbackDocumentId: comment._id,
+            pingbackDocumentExcerpt: await getCommentExcerpt(comment, context),
+          },
+        })
+      );
+    }
   }
 
   return Promise.all(promises);
