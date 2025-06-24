@@ -8,7 +8,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { idSettingIcons, tagSettingIcons } from "../../lib/collections/posts/constants";
 import { communityPath } from '@/lib/pathConstants';
 import { InteractionWrapper } from '../common/useClickableCell';
-import { isFriendlyUI } from '../../themes/forumTheme';
+import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
 import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
@@ -16,6 +16,7 @@ import { useTheme } from '../themes/useTheme';
 import { PostsItemIcons, CuratedIcon } from "./PostsItemIcons";
 import ForumIcon from "../common/ForumIcon";
 import TagsTooltip from "../tagging/TagsTooltip";
+import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -38,6 +39,11 @@ const styles = (theme: ThemeType) => ({
       lineHeight: "1.8rem",
     },
     marginRight: theme.spacing.unit,
+  },
+  onGrayBackground: {
+    ...(isBookUI && theme.themeOptions.name === 'dark' && {
+      color: theme.palette.greyAlpha(1),
+    }),
   },
   wrap: {
     whiteSpace: "normal",
@@ -213,6 +219,7 @@ const PostsTitle = ({
   const {event: taggedEvent, current: taggedEventIsCurrent} = useTaggedEvent(showEventTag ?? false, post) ?? {};
   const theme = useTheme();
   const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
+  const isOnGrayBackground = useIsOnGrayBackground();
 
   const shouldRenderEventsTag = (pathname !== communityPath) && (pathname !== '/pastEvents') && (pathname !== '/upcomingEvents') &&
     !pathname.includes('/events') && !pathname.includes('/groups') && !pathname.includes('/community');
@@ -241,6 +248,7 @@ const PostsTitle = ({
       classes.root,
       read && classes.read,
       wrap && classes.wrap,
+      isOnGrayBackground && classes.onGrayBackground,
       strikethroughTitle && classes.strikethroughTitle,
       className,
     )}>

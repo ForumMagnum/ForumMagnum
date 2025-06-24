@@ -12,7 +12,7 @@ import { getAllCookiesFromReq } from '../../../utils/httpUtil';
 import { SSRMetadata, EnvironmentOverrideContext } from '../../../../lib/utils/timeUtil';
 import { LayoutOptionsContextProvider } from '../../../../components/hooks/useLayoutOptions';
 import { EnableSuspenseContext } from '@/lib/crud/useQuery';
-import { ThemeContextProvider } from '@/components/themes/useTheme';
+import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
 import { AbstractThemeOptions } from '@/themes/themeNames';
 import AppComponent from '../../../../components/vulcan-core/App';
 import { HelmetProvider, HelmetServerState } from 'react-helmet-async';
@@ -49,7 +49,7 @@ const AppGenerator = ({ req, onHeadBlockSent, responseManager, apolloClient, for
         {/* We do not use the context for StaticRouter here, and instead are using our own context provider */}
         <StaticRouter location={req.url}>
           <CookiesProvider cookies={getAllCookiesFromReq(req)}>
-            <ThemeContextProvider options={themeOptions}>
+            <ThemeContextProvider options={themeOptions} isEmail={false}>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
               <LayoutOptionsContextProvider>
                 <EnvironmentOverrideContext.Provider value={{

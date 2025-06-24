@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
@@ -11,12 +11,31 @@ import ForumIcon from '../common/ForumIcon';
 import { DialogContent } from "../widgets/DialogContent";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import { AnalyticsContext } from "@/lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 import UltraFeedPostActions from "./UltraFeedPostActions";
-import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
-import FormatDate from "../common/FormatDate";
+import PostsAuthors from "../posts/PostsPage/PostsAuthors";
+import PostsPageDate from "../posts/PostsPage/PostsPageDate";
+import ReadTime from "../posts/PostsPage/ReadTime";
 import { FeedPostMetaInfo } from "./ultraFeedTypes";
+import FixedPositionToC from "../posts/TableOfContents/FixedPositionToC";
+import { useDynamicTableOfContents } from "../hooks/useDynamicTableOfContents";
+import PostFixedPositionToCHeading from '../posts/TableOfContents/PostFixedPositionToCHeading';
+import LWCommentCount from '../posts/TableOfContents/LWCommentCount';
+import { postPageTitleStyles } from "../posts/PostsPage/PostsPageTitle";
+import { isFriendlyUI, isBookUI } from '../../themes/forumTheme';
+import AudioToggle from '../posts/PostsPage/AudioToggle';
+import BookmarkButton from '../posts/BookmarkButton';
+import LWPostsPageTopHeaderVote from '../votes/LWPostsPageTopHeaderVote';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { SHOW_PODCAST_PLAYER_COOKIE } from '../../lib/cookies/cookies';
+import PostsAudioPlayerWrapper, { postHasAudioPlayer } from '../posts/PostsPage/PostsAudioPlayerWrapper';
+import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
+import IconButton from "@/lib/vendor/@material-ui/core/src/IconButton";
+import TocIcon from "@/lib/vendor/@material-ui/icons/src/Toc";
+import UltraFeedPostToCDrawer from "./UltraFeedPostToCDrawer";
+
+const HIDE_TOC_WORDCOUNT_LIMIT = 300;
 
 const CommentsListMultiQuery = gql(`
   query multiCommentUltraFeedPostDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -45,37 +64,37 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
-    overflow: 'hidden',
-    position: 'relative',
     '&:first-child': {
       paddingTop: 0,
-    }
+    },
   },
   stickyHeader: {
+    height: 64,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    position: 'sticky',
-    top: 0,
-    backgroundColor: theme.palette.background.pageActiveAreaBackground,
-    zIndex: 10,
+    position: 'fixed',
+    top: 12,
+    left: 12,
+    right: 12,
+    backgroundColor: theme.palette.ultrafeedModalHeader.background,
+    borderBottom: theme.palette.border.faint,
+    borderRadius: '12px 12px 0 0',
+    zIndex: theme.zIndexes.ultrafeedModalHeader,
     padding: '12px 20px',
     [theme.breakpoints.down('sm')]: {
-      padding: '8px 10px',
+      top: 0,
+      left: 0,
+      right: 0,
+      borderRadius: 0,
+      padding: '4px 6px',
     }
   },
   titleContainer: {
-  },
-  tripleDotMenu: {
-    opacity: 0.7,
-    padding: 5,
-    marginLeft: 'auto',
-    "& svg": {
-      fontSize: 18,
-      cursor: "pointer",
-      color: theme.palette.text.dim,
-      transform: 'rotate(90deg)',
-    },
+    marginTop: 24,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 0,
+    }
   },
   headerContent: {
     display: 'flex',
@@ -89,16 +108,18 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     width: '100%',
   },
   metaRow: {
-    gap: "12px",
+    marginTop: 12,
+    marginBottom: 24,
     display: "flex",
     flexWrap: "wrap",
     alignItems: "baseline",
-    rowGap: "6px",
-    color: theme.palette.text.dim,
+    columnGap: 20,
+    rowGap: 6,
+    fontSize: isFriendlyUI ? theme.typography.body1.fontSize : '1.4rem',
+    fontWeight: isFriendlyUI ? 450 : undefined,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: theme.typography.body2.fontSize,
+    color: theme.palette.text.dim3,
     [theme.breakpoints.down('sm')]: {
-      fontSize: 17,
     },
   },
   metaDateContainer: {
@@ -116,33 +137,35 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   },
   scrollableContent: {
     flex: 1,
-    overflowY: 'auto',
     padding: '0 20px 20px 20px',
+    paddingTop: 84,
     [theme.breakpoints.down('sm')]: {
       padding: '0 10px 10px 10px',
+      paddingTop: 36,
+      overflowY: 'auto',
     }
   },
   title: {
-    fontFamily: theme.palette.fonts.serifStack,
-    fontSize: '1.4rem',
-    fontWeight: 600,
-    paddingTop: 4,
-    opacity: 0.8,
-    lineHeight: 1.15,
-    textWrap: 'balance',
+    ...postPageTitleStyles(theme),
     width: '100%',
+    textWrap: 'balance',
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 24,
+    },
     '&:hover': {
       opacity: 0.9,
       textDecoration: 'none',
     },
-    [theme.breakpoints.down('sm')]: {
-      fontSize: '1.6rem',
-    },
   },
-  chevronButton: {
+  closeButton: {
+    width: 36, 
+    height: 36,
+    color: theme.palette.grey[600],
+    backgroundColor: theme.palette.grey[200],
+    borderRadius: 4,
+    padding: 6,
     cursor: 'pointer',
-    opacity: 0.6,
-    marginRight: 12,
+    marginRight: 8,
     fontSize: 36,
     '&:hover': {
       color: theme.palette.grey[700],
@@ -151,39 +174,173 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
       display: 'block',
     }
   },
+  hamburgerMenuButton: {
+    display: 'none',
+    width: 36, 
+    height: 36,
+    backgroundColor: theme.palette.grey[200],
+    borderRadius: 4,
+    marginRight: 'auto',
+    alignItems: 'center',
+    justifyContent: 'center',
+    [theme.breakpoints.down('sm')]: {
+      display: 'flex',
+    },
+  },
+  hamburgerIcon: {
+    color: theme.palette.grey[700],
+  },
   dialogPaper: {
-    maxWidth: 765,
-    height: '100dvh',
-    maxHeight: '100dvh',
+    width: 'calc(100vw - 24px)',
+    maxWidth: 'calc(100vw - 24px)',
+    height: 'calc(100dvh - 24px)',
+    maxHeight: 'calc(100dvh - 24px)',
+    margin: 12,
+    borderRadius: 12,
+    overflow: 'auto',
+    [theme.breakpoints.down('sm')]: {
+      width: '100vw',
+      maxWidth: '100vw',
+      height: '100dvh',
+      maxHeight: '100dvh',
+      margin: 0,
+      borderRadius: 0,
+    },
+  },
+  contentColumn: {
+    maxWidth: 720,
+    margin: '0 auto',
   },
   loadingContainer: {
     display: "flex",
     justifyContent: "center",
     padding: "40px 0",
   },
-  voteContainer: {
+  vote: {
     display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-    fontFamily: `${theme.palette.fonts.sansSerifStack} !important`,
-  },
-  voteBottom: {
-    display: 'flex',
-    justifyContent: 'center',
-    position: 'relative',
-    fontSize: 42,
-    textAlign: 'center',
-    marginBottom: 40,
-    "@media print": { display: "none" },
-    '& h1': {
-      fontFamily: `${theme.palette.fonts.sansSerifStack} !important`,
-    }
+    flexDirection: 'row-reverse',
+    fontSize: 13,
   },
   footer: {
     marginTop: 24,
     marginBottom: 24,
-  }
+  },
+  tocWrapper: {
+  },
+  scrollableContentWithToc: {
+    flex: 1,
+    overflowY: 'auto',
+    padding: '0 20px 20px 20px',
+    [theme.breakpoints.down('sm')]: {
+      padding: '0 10px 10px 10px',
+    },
+  },
+  gridWrapper: {
+    display: 'grid',
+    gridTemplateColumns: 'minmax(200px, 270px) 1fr',
+    height: '100%',
+    overflow: 'hidden',
+  },
+  dialogInnerWrapper: {
+    display: 'grid',
+    gridTemplateColumns: 'minmax(200px, 270px) 1fr',
+    height: '100%',
+    overflowY: 'auto',
+    position: 'relative',
+    paddingTop: 64,
+    [theme.breakpoints.down('sm')]: {
+      display: 'block',
+      paddingTop: 56,
+    },
+  },
+  tocColumnWrapper: {
+    position: 'sticky',
+    top: 20, // Sticky to top of scrollable container (which has padding for header)
+    height: 'calc(100vh - 24px - 64px - 60px)', // Account for modal margins, header and comment count height
+    overflowY: 'hidden',
+    paddingBottom: 30,
+    paddingLeft: 16,
+    scrollbarWidth: 'none',
+    '&::-webkit-scrollbar': {
+      width: 0,
+    },
+
+    '& .FixedPositionToC-root': {
+      maxHeight: 'calc(100vh - 24px - 64px - 50px)', // Account for modal margins and header height
+    },
+    '& .FixedPositionToC-rowOpacity, & .FixedPositionToC-headingOpacity': {
+      opacity: 1,
+    },
+    '& .ToCRowHover': {
+      opacity: 0,
+      transition: 'opacity .25s',
+    },
+    '&:hover .ToCRowHover': {
+      opacity: 1,
+    },
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
+  commentCount: {
+    position: 'fixed',
+    paddingLeft: 12,
+    paddingTop: 12,
+    paddingBottom: 20,
+    height: 50,
+    bottom: 12,
+    left: 12,
+    width: 240,
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    borderRadius: '0 0 0 12px',
+    zIndex: 1000,
+    opacity: 1,
+    transition: 'opacity .25s',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
+  scrollOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: 270,
+    height: '100%',
+    zIndex: 1,
+    pointerEvents: 'none',
+    '& *': {
+      pointerEvents: 'auto',
+    },
+  },
+  headerActions: {
+    display: 'flex',
+    flexWrap: "nowrap",
+    alignItems: 'center',
+    columnGap: 8,
+  },
+  audioToggle: {
+    opacity: 0.55,
+    display: 'flex',
+  },
+  bookmarkButton: {
+    position: 'relative',
+    top: 4,
+    opacity: 1,
+    '&:hover': {
+      opacity: 0.3,
+    }
+  },
+  postActionsButton: {
+    display: 'flex',
+    alignItems: 'center',
+    opacity: 0.3,
+    '&:hover': {
+      opacity: 0.2,
+    }
+  },
+  modalWrapper: {
+    zIndex: `${theme.zIndexes.ultrafeedModal} !important`,
+  },
 }));
 
 type UltraFeedPostDialogProps = {
@@ -205,8 +362,16 @@ const UltraFeedPostDialog = ({
   onClose,
 }: UltraFeedPostDialogProps) => {
   const classes = useStyles(styles);
+  const { captureEvent } = useTracking();
+  const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
+  const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
+  const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
   const authorListRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const scrollableContentRef = useRef<HTMLDivElement>(null);
+  const dialogInnerRef = useRef<HTMLDivElement>(null);
   const isClosingViaBackRef = useRef(false);
+  const [navigationOpen, setNavigationOpen] = useState(false);
 
   const postId = partialPost?._id ?? undefined;
 
@@ -233,6 +398,33 @@ const UltraFeedPostDialog = ({
 
   const displayPost = fetchedPost ?? post ?? partialPost;
 
+  const votingSystem = getVotingSystemByName(displayPost.votingSystem || 'default');
+
+  const toggleEmbeddedPlayer = displayPost && postHasAudioPlayer(displayPost) ? (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const action = showEmbeddedPlayer ? "close" : "open";
+    const newCookieValue = showEmbeddedPlayer ? "false" : "true";
+    captureEvent("toggleAudioPlayer", { action });
+    setCookie(
+      SHOW_PODCAST_PLAYER_COOKIE,
+      newCookieValue, {
+      path: "/"
+    });
+    setShowEmbeddedPlayer(!showEmbeddedPlayer);
+  } : undefined;
+
+  // Predict if there will be a ToC based on word count to prevent layout shift
+  const wordCount = displayPost.contents?.wordCount ?? 0;
+  const shouldShowToc = wordCount > HIDE_TOC_WORDCOUNT_LIMIT;
+
+  const tocData = useDynamicTableOfContents({
+    html: fullPostForContent?.contents?.html ?? null,
+    post: fullPostForContent ?? null,
+    answers: [],
+  });
+  const hasTocData = !!tocData && (tocData.sections ?? []).length > 0;
+
   useEffect(() => {
     window.history.pushState({ dialogOpen: true }, '');
 
@@ -255,7 +447,47 @@ const UltraFeedPostDialog = ({
     };
   }, [onClose]);
 
-  // Compute content props based on what data we have
+  // Disable background scroll while dialog open
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
+
+  // Bridge scroll events from internal container to window so hooks relying on window scroll keep working
+  useEffect(() => {
+    const el = scrollableContentRef.current;
+    if (!el) return;
+    const handler = () => {
+      window.dispatchEvent(new Event('scroll'));
+    };
+    el.addEventListener('scroll', handler);
+    return () => {
+      el.removeEventListener('scroll', handler);
+    };
+  }, [hasTocData]);
+
+  // Handle clicking on comment count to scroll to comments
+  const scrollToComments = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const container = scrollableContentRef.current;
+    const commentsElement = document.getElementById('comments');
+    if (container && commentsElement) {
+      const containerRect = container.getBoundingClientRect();
+      const commentsRect = commentsElement.getBoundingClientRect();
+      const offsetInsideContainer = commentsRect.top - containerRect.top;
+      
+      container.scrollTo({
+        top: container.scrollTop + offsetInsideContainer - (container.clientHeight * 0.2),
+        behavior: 'smooth',
+      });
+    }
+  };
+
   let contentData = null;
   
   if (fullPostForContent?.contents?.html) {
@@ -272,122 +504,179 @@ const UltraFeedPostDialog = ({
     };
   }
 
+  const finalHtml = tocData?.html ?? contentData?.html ?? "";
+
+  if (contentData) {
+    contentData = { ...contentData, html: finalHtml } as typeof contentData;
+  }
+
+  const tocButton = <div className={classes.hamburgerMenuButton}>
+    <IconButton
+      onClick={(e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setNavigationOpen(prev => !prev);
+      }}
+      className={classes.hamburgerIcon}
+    >
+      <TocIcon />
+    </IconButton>
+  </div>
+
   return (
     <LWDialog
       open={true}
       onClose={onClose}
       fullWidth
       paperClassName={classes.dialogPaper}
+      className={classes.modalWrapper}
     >
       <DialogContent className={classes.dialogContent}>
-        {!displayPost && (
-          <div className={classes.loadingContainer}>
-            <Loading />
-          </div>
-        )}
-        
-        {displayPost && (
-          <>
-            <div className={classes.stickyHeader}>
-              <ForumIcon 
-                icon="ThickChevronLeft" 
-                onClick={onClose} 
-                className={classes.chevronButton} 
-              />
-              <AnalyticsContext pageElementContext="tripleDotMenu">
-                <PostActionsButton
-                  post={displayPost}
-                  vertical={true}
-                  autoPlace
-                  ActionsComponent={UltraFeedPostActions}
-                  className={classes.tripleDotMenu}
-                />
-              </AnalyticsContext>
+        <div ref={dialogInnerRef} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+          {!displayPost && (
+            <div className={classes.loadingContainer}>
+              <Loading />
             </div>
-            <div className={classes.scrollableContent}>
-              <div className={classes.titleContainer}>
-                <div className={classes.headerContent}>
-                  <div className={classes.titleWrapper}>
-                    <Link
-                      to={postGetPageUrl(displayPost)}
-                      className={classes.title}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onClose();
-                      }
-                    }>
-                      {displayPost.title}
-                    </Link>
+          )}
+          
+          {displayPost && (
+            <>
+              <div className={classes.stickyHeader}>
+                <ForumIcon 
+                  icon="Close"
+                  onClick={onClose}
+                  className={classes.closeButton}
+                />
+                {tocButton}
+                <div className={classes.headerActions}>
+                  <BookmarkButton documentId={displayPost._id} collectionName="Posts" className={classes.bookmarkButton} placement="bottom-start" />
+                  <div className={classes.audioToggle}>
+                    <AudioToggle post={displayPost} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
                   </div>
-                  <div className={classes.metaRow}>
-                    <TruncatedAuthorsList 
-                      post={displayPost} 
-                      useMoreSuffix={false} 
-                      expandContainer={authorListRef}
-                      className={classes.authorsList} 
+                  <div className={classes.vote}>
+                    <LWPostsPageTopHeaderVote post={displayPost} votingSystem={votingSystem} />
+                  </div>
+                  <AnalyticsContext pageElementContext="tripleDotMenu">
+                    <PostActionsButton
+                      post={displayPost}
+                      flip
+                      ActionsComponent={UltraFeedPostActions}
+                      className={classes.postActionsButton}
                     />
-                    {displayPost.postedAt && (
-                      <span className={classes.metaDateContainer}>
-                        <FormatDate date={displayPost.postedAt} format="MMM D YYYY" />
-                      </span>
-                    )}
-                    {displayPost.readTimeMinutes && (
-                      <span>{displayPost.readTimeMinutes} min read</span>
-                    )}
-                  </div>
+                  </AnalyticsContext>
                 </div>
               </div>
-
-              {contentData && (
-                <>
-                  <FeedContentBody
-                    html={contentData.html}
-                    wordCount={contentData.wordCount}
-                    initialWordCount={contentData.wordCount}
-                    maxWordCount={contentData.wordCount}
-                    hideSuffix
-                    serifStyle
-                  />
-                  {contentData.showLoading && (
-                    <div className={classes.loadingContainer}>
-                      <Loading />
+              <div className={shouldShowToc ? classes.dialogInnerWrapper : undefined} ref={shouldShowToc ? scrollableContentRef : undefined}>
+                {shouldShowToc && (
+                  <div className={classes.tocColumnWrapper}>
+                    {hasTocData && tocData && (
+                      <FixedPositionToC
+                        tocSections={tocData.sections}
+                        title={displayPost.title}
+                        heading={<PostFixedPositionToCHeading post={displayPost as PostsListWithVotes}/>}
+                        scrollContainerRef={scrollableContentRef as React.RefObject<HTMLElement>}
+                      />
+                    )}
+                  </div>
+                )}
+                <div 
+                  className={classes.scrollableContent} 
+                  ref={!shouldShowToc ? scrollableContentRef : undefined} 
+                  id="postBody"
+                >
+                  <div id="postContent" className={classes.contentColumn}>
+                    <div className={classes.titleContainer}>
+                      <div className={classes.headerContent}>
+                        <div className={classes.titleWrapper}>
+                          <Link
+                            to={postGetPageUrl(displayPost)}
+                            className={classes.title}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onClose();
+                            }
+                          }>
+                            {displayPost.title}
+                          </Link>
+                        </div>
+                        <div className={classes.metaRow}>
+                          <PostsAuthors 
+                            post={displayPost} 
+                            pageSectionContext="post_header"
+                          />
+                          {displayPost.postedAt && (
+                            <span className={classes.metaDateContainer}>
+                              <PostsPageDate post={displayPost} hasMajorRevision={false} />
+                            </span>
+                          )}
+                          {displayPost.readTimeMinutes && (
+                            <ReadTime post={displayPost} dialogueResponses={[]} />
+                          )}
+                        </div>
+                      </div>
                     </div>
+
+                    {fullPostForContent && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPostForContent}/>}
+
+                    {contentData && (
+                      <>
+                        <FeedContentBody
+                          html={finalHtml}
+                          wordCount={contentData.wordCount}
+                          initialWordCount={contentData.wordCount}
+                          maxWordCount={contentData.wordCount}
+                          hideSuffix
+                          serifStyle
+                        />
+                        {contentData.showLoading && (
+                          <div className={classes.loadingContainer}>
+                            <Loading />
+                          </div>
+                        )}
+                      </>
+                    )}
+                    
+                    {!contentData && (
+                      <div className={classes.loadingContainer}>
+                        <Loading />
+                      </div>
+                    )}
+                  </div>
+                  
+                  {isCommentsLoading && fullPostForContent && (
+                    <div className={classes.loadingContainer}><Loading /></div>
                   )}
-                </>
-              )}
-              
-              {!contentData && (
-                <div className={classes.loadingContainer}>
-                  <Loading />
+                  {comments && (
+                    <CommentsListSection
+                      post={fullPostForContent}
+                      comments={comments ?? []}
+                      totalComments={commentsTotalCount ?? 0}
+                      commentCount={(comments ?? []).length}
+                      loadMoreComments={() => { }}
+                      loadingMoreComments={false}
+                      highlightDate={undefined}
+                      setHighlightDate={() => { }}
+                      hideDateHighlighting={true}
+                      newForm={true}
+                    />
+                  )}
+                </div>
+              </div>
+              {shouldShowToc && (
+                <div className={classes.commentCount} onClick={scrollToComments} style={{ cursor: 'pointer' }}>
+                  <LWCommentCount commentCount={displayPost.commentCount} />
                 </div>
               )}
-              
-              <UltraFeedItemFooter
-                document={displayPost}
-                collectionName="Posts"
-                metaInfo={postMetaInfo}
-                className={classes.footer}
+              <UltraFeedPostToCDrawer
+                open={navigationOpen}
+                onClose={() => setNavigationOpen(false)}
+                toc={tocData}
+                post={displayPost}
+                scrollContainerRef={scrollableContentRef}
               />
-              {isCommentsLoading && fullPostForContent && (
-                <div className={classes.loadingContainer}><Loading /></div>
-              )}
-              {comments && (
-                <CommentsListSection
-                  post={fullPostForContent}
-                  comments={comments ?? []}
-                  totalComments={commentsTotalCount ?? 0}
-                  commentCount={(comments ?? []).length}
-                  loadMoreComments={() => { }}
-                  loadingMoreComments={false}
-                  highlightDate={undefined}
-                  setHighlightDate={() => { }}
-                  hideDateHighlighting={true}
-                  newForm={true}
-                />
-              )}
-            </div>
-          </>
-        )}
+            </>
+          )}
+        </div>
       </DialogContent>
     </LWDialog>
   );

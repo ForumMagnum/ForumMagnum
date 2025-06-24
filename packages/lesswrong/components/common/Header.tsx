@@ -10,7 +10,7 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, isEAForum, isLW } from '../../lib/instanceSettings';
+import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, isEAForum } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { hasProminentLogoSetting } from '../../lib/publicSettings';
@@ -32,6 +32,7 @@ import ActiveDialogues from "../dialogues/ActiveDialogues";
 import SiteLogo from "../ea-forum/SiteLogo";
 import MessagesMenuButton from "../messaging/MessagesMenuButton";
 import { SuspenseWrapper } from './SuspenseWrapper';
+import { forumSelect } from '@/lib/forumTypeUtils';
 
 /** Height of top header. On Book UI sites, this is for desktop only */
 export const HEADER_HEIGHT = isBookUI ? 64 : 66;
@@ -113,8 +114,30 @@ const textColorOverrideStyles = ({
 export const styles = (theme: ThemeType) => ({
   appBar: {
     boxShadow: theme.palette.boxShadow.appBar,
-    color: theme.palette.header.text,
-    backgroundColor: theme.palette.header.background,
+    color: theme.palette.text.bannerAdOverlay,
+
+    ...(forumSelect({
+      LWAF: (theme.themeOptions.name === 'dark'
+        ? {
+          background: theme.palette.panelBackground.bannerAdTranslucent,
+          backdropFilter: 'blur(4px) brightness(1.1)',
+          "&$blackBackgroundAppBar": {
+            boxShadow: theme.palette.boxShadow.appBarDarkBackground,
+            background: theme.palette.panelBackground.appBarDarkBackground,
+          },
+        } : {
+          backgroundColor: theme.palette.header.background,
+          backdropFilter: 'unset',
+          "&$blackBackgroundAppBar": {
+            boxShadow: theme.palette.boxShadow.appBar,
+            background: theme.palette.header.background,
+          },
+        }
+      ) as any,
+      default: {
+        backgroundColor: theme.palette.header.background,
+      },
+    })),
     position: "static",
     width: "100%",
     display: "flex",
@@ -143,6 +166,7 @@ export const styles = (theme: ThemeType) => ({
     "--header-text-color": theme.palette.text.alwaysWhite,
     "--header-contrast-color": theme.palette.text.alwaysBlack,
   },
+  blackBackgroundAppBar: {},
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
     // Headroom and top-pads the page) has to match.
@@ -171,7 +195,7 @@ export const styles = (theme: ThemeType) => ({
     color: theme.palette.text.secondary,
   },
   titleLink: {
-    color: theme.palette.header.text,
+    color: theme.palette.text.bannerAdOverlay,
     fontSize: 19,
     '&:hover, &:active': {
       textDecoration: 'none',
@@ -521,7 +545,8 @@ const Header = ({
           <header
             className={classNames(
               classes.appBar,
-              useContrastText && classes.appBarDarkBackground
+              useContrastText && classes.appBarDarkBackground,
+              currentRoute?.background === "white" && classes.blackBackgroundAppBar,
             )}
             style={headerStyle}
           >

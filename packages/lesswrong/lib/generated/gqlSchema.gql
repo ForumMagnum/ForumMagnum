@@ -76,7 +76,7 @@ type CoauthorStatusOutput {
 }
 
 type SocialPreviewOutput {
-  imageId: String!
+  imageId: String
   text: String
 }
 

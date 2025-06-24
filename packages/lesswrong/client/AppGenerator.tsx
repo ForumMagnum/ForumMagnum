@@ -11,7 +11,7 @@ import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '../lib/abT
 import type { AbstractThemeOptions } from '../themes/themeNames';
 import { LayoutOptionsContextProvider } from '../components/hooks/useLayoutOptions';
 import { SSRMetadata, EnvironmentOverride, EnvironmentOverrideContext } from '../lib/utils/timeUtil';
-import { ThemeContextProvider } from '@/components/themes/useTheme';
+import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
 import AppComponent from '../components/vulcan-core/App';
 import { HelmetProvider } from 'react-helmet-async';
 
@@ -30,8 +30,8 @@ const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, the
     <ApolloProvider client={apolloClient}>
       <ForeignApolloClientProvider value={foreignApolloClient}>
         <CookiesProvider>
-          <ThemeContextProvider options={themeOptions}>
           <BrowserRouter>
+          <ThemeContextProvider options={themeOptions} isEmail={false}>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
               <PrefersDarkModeProvider>
                 <LayoutOptionsContextProvider>
@@ -41,8 +41,8 @@ const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, the
                 </LayoutOptionsContextProvider>
               </PrefersDarkModeProvider>
             </ABTestGroupsUsedContext.Provider>
-          </BrowserRouter>
           </ThemeContextProvider>
+          </BrowserRouter>
         </CookiesProvider>
       </ForeignApolloClientProvider>
     </ApolloProvider>

@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { useLocation } from '../../../lib/routeUtil';
 import { MenuTabRegular } from './menuTabs';
 import { forumSelect } from '../../../lib/forumTypeUtils';
-import { isFriendlyUI } from '../../../themes/forumTheme';
+import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { useCurrentUser } from '../withUser';
 import { useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
 import { NAV_MENU_FLAG_COOKIE_PREFIX } from '@/lib/cookies/cookies';
@@ -98,6 +98,9 @@ const styles = (theme: ThemeType) => ({
   navText: {
     ...theme.typography.body2,
     color: "inherit",
+    ...(isBookUI && theme.themeOptions.name==='dark' && {
+      color: theme.palette.text.bannerAdOverlay,
+    }),
     textTransform: "none !important",
   },
   homeIcon: {

@@ -439,7 +439,7 @@ interface CoauthorStatusOutput {
 }
 
 interface SocialPreviewOutput {
-  imageId: string;
+  imageId: string | null;
   text: string | null;
 }
 

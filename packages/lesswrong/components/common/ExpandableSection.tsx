@@ -7,11 +7,15 @@ import classNames from "classnames";
 import SingleColumnSection from "./SingleColumnSection";
 import LWTooltip from "./LWTooltip";
 import ForumIcon from "./ForumIcon";
+import { isBookUI } from "@/themes/forumTheme";
 
 const styles = (theme: ThemeType) => ({
   title: {
     display: "flex",
-    columnGap: 10
+    columnGap: 10,
+    ...(isBookUI && {
+      color: theme.palette.text.bannerAdOverlay,
+    }),
   },
   afterContainer: {
     display: "flex",

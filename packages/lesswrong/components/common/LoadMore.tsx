@@ -5,7 +5,7 @@ import { queryIsUpdating } from './queryStatusUtils'
 import {useTracking} from "../../lib/analyticsEvents";
 import { LoadMoreCallback } from '../hooks/useQueryWithLoadMore';
 import { useIsFirstRender } from "../hooks/useFirstRender";
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { isBookUI, isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isAF } from '@/lib/instanceSettings';
 import Loading from "../vulcan-core/Loading";
 import type { WrappedFetchMore } from '../hooks/useQueryWithLoadMore';
@@ -15,6 +15,9 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     color: theme.palette.lwTertiary.main,
+    ...(isBookUI && theme.themeOptions.name === 'dark' && {
+      color: theme.palette.text.bannerAdOverlay,
+    }),
     display: "inline-block",
     minHeight: 20,
     ...(isFriendlyUI

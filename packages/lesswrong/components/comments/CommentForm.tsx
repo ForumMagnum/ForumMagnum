@@ -38,6 +38,7 @@ import { hasDraftComments } from '@/lib/betas';
 import CommentsSubmitDropdown from "./CommentsSubmitDropdown";
 import { useTracking } from "@/lib/analyticsEvents";
 import { CommentsList } from "@/lib/collections/comments/fragments";
+import { isIfAnyoneBuildsItFrontPage } from "../seasonal/IfAnyoneBuildsItSplash";
 
 const CommentsListUpdateMutation = gql(`
   mutation updateCommentCommentForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -63,6 +64,10 @@ const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   fieldWrapper: {
     marginTop: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 2,
+    [isIfAnyoneBuildsItFrontPage]: {
+      background: theme.palette.editor.bannerAdBackground,
+      color: theme.palette.text.bannerAdOverlay,
+    },
   },
   submitButton: submitButtonStyles(theme),
   cancelButton: cancelButtonStyles(theme),
@@ -256,6 +261,7 @@ export const CommentForm = ({
   initialData,
   prefilledProps,
   alignmentForumPost,
+  hideAlignmentForumCheckbox,
   quickTakesFormGroup,
   formClassName,
   editorHintText,
@@ -286,6 +292,7 @@ export const CommentForm = ({
     forumEventMetadata?: DbComment['forumEventMetadata'];
   }
   alignmentForumPost?: boolean;
+  hideAlignmentForumCheckbox?: boolean;
   quickTakesFormGroup?: boolean;
   formClassName?: string;
   editorHintText?: string;
@@ -307,7 +314,7 @@ export const CommentForm = ({
 
   const formType = initialData ? 'edit' : 'new';
 
-  const showAfCheckbox = !isAF && alignmentForumPost && (userIsMemberOf(currentUser, 'alignmentForum') || userIsAdmin(currentUser));
+  const showAfCheckbox = !hideAlignmentForumCheckbox && !isAF && alignmentForumPost && (userIsMemberOf(currentUser, 'alignmentForum') || userIsAdmin(currentUser));
 
   const DefaultFormGroupLayout = quickTakesFormGroup
     ? FormGroupQuickTakes

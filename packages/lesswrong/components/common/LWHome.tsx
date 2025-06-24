@@ -23,6 +23,7 @@ import HeadTags from "./HeadTags";
 import UltraFeed from "../ultraFeed/UltraFeed";
 import { StructuredData } from './StructuredData';
 import { SuspenseWrapper } from './SuspenseWrapper';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -52,8 +53,17 @@ const getStructuredData = () => ({
   }),
 })
 
+const styles = defineStyles("LWHome", (theme: ThemeType) => ({
+  hideOnDesktop: {
+    [theme.breakpoints.up('lg')]: {
+      display: 'none',
+    },
+  },
+}))
+
 const LWHome = () => {
   const [isUltraFeedShowing, setIsUltraFeedShowing] = useState(false);
+  const classes = useStyles(styles);
 
   return (
       <AnalyticsContext pageContext="homePage">
@@ -68,9 +78,15 @@ const LWHome = () => {
             </SingleColumnSection>}
           </>}
           {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
+<<<<<<< HEAD
             <SuspenseWrapper name="DismissibleSpotlightItem" fallback={<SpotlightItemFallback/>}>
               <DismissibleSpotlightItem/> 
             </SuspenseWrapper>
+=======
+          <div className={classes.hideOnDesktop}>
+            <DismissibleSpotlightItem current/> 
+          </div>
+>>>>>>> b708ea454cc49a0d6d72a9e66accaa056693066d
           </SingleColumnSection>}
           <SuspenseWrapper name="LWHomePosts" fallback={<div style={{height: 800}}/>}>
             <AnalyticsInViewTracker

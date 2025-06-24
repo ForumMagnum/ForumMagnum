@@ -152,7 +152,7 @@ const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({
     marginRight: 20
   },
   preview: {
-    width: 400
+    width: 400,
   },
   deemphasize: {
     opacity: 0.5

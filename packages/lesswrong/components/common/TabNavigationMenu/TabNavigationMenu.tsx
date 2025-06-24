@@ -8,9 +8,10 @@ import menuTabs from './menuTabs'
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../../themes/forumTheme';
+import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import EventsList from './EventsList';
 import { SubscribeWidget } from '../SubscribeWidget';
+import { isIfAnyoneBuildsItFrontPage } from '@/components/seasonal/IfAnyoneBuildsItSplash';
 
 export const TAB_NAVIGATION_MENU_WIDTH = 250
 
@@ -35,12 +36,16 @@ const styles = (theme: ThemeType) => {
     },
     navSidebarTransparent: {
       zIndex: 10,
-      background: `${theme.palette.background.default}cf`, // Add alpha to background color, not thrilled about this way of doing it
-      backdropFilter: 'blur(6px)'
+      background: theme.palette.panelBackground.bannerAdTranslucent,
+      backdropFilter: theme.palette.filters.bannerAdBlurMedium
     },
     divider: {
       width: 50,
       borderBottom: theme.palette.border.normal,
+      ...(isBookUI && theme.themeOptions.name==='dark' && {
+        color: theme.palette.text.bannerAdOverlay,
+        background: theme.palette.text.bannerAdOverlay,
+      }),
       marginBottom: theme.spacing.unit * 2.5,
       ...(isFriendlyUI
         ? {

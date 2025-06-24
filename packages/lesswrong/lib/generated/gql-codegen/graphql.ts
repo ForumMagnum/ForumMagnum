@@ -10176,7 +10176,7 @@ export type SocialPreviewInput = {
 
 export type SocialPreviewOutput = {
   __typename?: 'SocialPreviewOutput';
-  imageId: Scalars['String']['output'];
+  imageId: Maybe<Scalars['String']['output']>;
   text: Maybe<Scalars['String']['output']>;
 };
 
@@ -20420,7 +20420,7 @@ export type PostsEdit = (
   ) | null, customHighlight: (
     { __typename?: 'Revision' }
     & RevisionEdit
-  ) | null, socialPreview: { __typename?: 'SocialPreviewOutput', imageId: string, text: string | null } | null, socialPreviewData: { __typename?: 'SocialPreviewType', _id: string, imageId: string | null, text: string | null }, user: (
+  ) | null, socialPreview: { __typename?: 'SocialPreviewOutput', imageId: string | null, text: string | null } | null, socialPreviewData: { __typename?: 'SocialPreviewType', _id: string, imageId: string | null, text: string | null }, user: (
     { __typename?: 'User', moderationStyle: string | null, bannedUserIds: Array<string> | null, moderatorAssistance: boolean | null }
     & UsersMinimumInfo
   ) | null, usersSharedWith: Array<(

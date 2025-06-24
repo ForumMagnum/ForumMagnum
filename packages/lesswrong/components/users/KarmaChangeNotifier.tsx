@@ -31,6 +31,7 @@ import LWTooltip from "../common/LWTooltip";
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import ErrorBoundary from '../common/ErrorBoundary';
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/IfAnyoneBuildsItSplash';
 
 const UserKarmaChangesQuery = gql(`
   query KarmaChangeNotifier($documentId: String) {
@@ -57,6 +58,9 @@ const styles = defineStyles("KarmaChangeNotifier", (theme: ThemeType) => ({
   },
   starIcon: {
     color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text,
+    [isIfAnyoneBuildsItFrontPage]: {
+      color: theme.palette.text.bannerAdOverlay,
+    },
   },
   title: {
     display: 'block',
