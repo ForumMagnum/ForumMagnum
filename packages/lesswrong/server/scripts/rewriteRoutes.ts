@@ -134,7 +134,6 @@ function generatePageContent(route: Route): string {
     pageContent += '\n';
   }
   
-  pageContent += `export const dynamic = 'force-dynamic';\n\n`;
   pageContent += `export default function Page() {\n`;
   
   if (hasMetadata) {
@@ -199,8 +198,6 @@ function generateRedirectPage(route: Route): string {
   const hasPathParams = Object.keys(parsedRoute.params).length > 0;
   
   return `import { redirect } from 'next/navigation';
-
-export const dynamic = 'force-dynamic';
 
 export default function Page() {
   redirect(${redirectValue});
@@ -487,4 +484,3 @@ export function getAllComponents() {
   const componentNames = new Set(components.map(c => c.displayName ?? c.name));
   console.log(componentNames);
 }
-

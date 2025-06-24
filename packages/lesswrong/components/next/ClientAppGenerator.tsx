@@ -23,6 +23,8 @@ import { EnableSuspenseContext } from '@/lib/crud/useQuery';
 import { isServer } from '@/lib/executionEnvironment';
 import '@/lib/utils/extendSimpleSchemaOptions';
 import '@/lib/routes';
+import Cookies from 'universal-cookie';
+import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 
 const AppComponent = ({children, searchParams}: {children: React.ReactNode, searchParams?: { [key: string]: string | string[] | undefined }}) => {
   // const searchParams = useSearchParams();
@@ -99,19 +101,21 @@ const AppComponent = ({children, searchParams}: {children: React.ReactNode, sear
 // Client-side wrapper around the app. There's another AppGenerator which is
 // the server-side version, which differs in how it sets up the wrappers for
 // routing and cookies and such.
-const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, searchParams, children }: {
+const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, searchParams, cookies, children }: {
   abTestGroupsUsed: RelevantTestGroupAllocation,
   themeOptions: AbstractThemeOptions,
   ssrMetadata?: SSRMetadata,
   searchParams?: { [key: string]: string | string[] | undefined },
+  cookies: RequestCookie[],
   children: React.ReactNode,
 }) => {
+  const universalCookies = new Cookies(cookies);
   return (
     // <ApolloProvider client={apolloClient}>
       // <ForeignApolloClientProvider value={foreignApolloClient}>
         <EnableSuspenseContext.Provider value={isServer}>
         <ApolloWrapper>
-        <CookiesProvider>
+        <CookiesProvider cookies={universalCookies}>
           <ThemeContextProvider options={themeOptions} isEmail={false}>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
               <PrefersDarkModeProvider>

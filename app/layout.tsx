@@ -4,6 +4,7 @@ import type { SearchParams } from "next/dist/server/request/search-params";
 import { getInstanceSettings } from "@/lib/getInstanceSettings";
 import Script from "next/script";
 import { toEmbeddableJson } from "@/lib/utils/jsonUtils";
+import { cookies } from "next/headers";
 
 export default async function RootLayout({
   children,
@@ -14,6 +15,8 @@ export default async function RootLayout({
 }) {
   const searchParamValues = await searchParams;
   const publicInstanceSettings = getInstanceSettings().public;
+  const cookieStore = await cookies();
+  const cookieStoreArray = cookieStore.getAll();
 
   return (
     <html>
@@ -29,6 +32,7 @@ export default async function RootLayout({
           abTestGroupsUsed={{}}
           themeOptions={{ name: "auto" }}
           searchParams={searchParamValues}
+          cookies={cookieStoreArray}
         >
           {children}
         </AppGenerator>
