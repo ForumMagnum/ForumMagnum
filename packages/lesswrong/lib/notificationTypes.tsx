@@ -959,11 +959,11 @@ export const NewPingbackNotification = createNotificationType({
   Display: ({User, Comment, Post, Tag, notification: {comment, tag, extraData}}) => {
     if (tag) {
       return (
-        <><User /> mentioned your ${extraData?.pingbackType} in <Tag /></>
+        <><User /> mentioned your {extraData?.pingbackType} in <Tag /></>
       );
     }
     return (
-      <><User /> mentioned your ${extraData?.pingbackType} in {comment ? <>their <Comment /> on </> : ""}<Post /></>
+      <><User /> mentioned your {extraData?.pingbackType} in {comment ? <>their <Comment /> on </> : ""}<Post /></>
     );
   },
 })
