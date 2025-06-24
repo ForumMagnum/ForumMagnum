@@ -23,9 +23,9 @@ import type { Request, Response } from 'express';
 import { DEFAULT_TIMEZONE, SSRMetadata } from '@/lib/utils/timeUtil';
 import { asyncLocalStorage } from '@/server/perfMetrics';
 import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
-import { faviconUrlSetting, performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
+import { faviconUrlSetting, isLW, performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
 import { isProduction, isE2E } from '@/lib/executionEnvironment';
-import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
+import { HIDE_IF_ANYONE_BUILDS_IT_SPLASH, LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
 import { visitorGetsDynamicFrontpage } from '@/lib/betas';
 import { responseIsCacheable } from '@/server/cacheControlMiddleware';
 import { preloadScrollToCommentScript } from '@/lib/scrollUtils';
@@ -48,6 +48,7 @@ import { getIpFromRequest } from '../datadog/datadogMiddleware';
 import { HelmetServerState } from 'react-helmet-async';
 import every from 'lodash/every';
 import { prefilterHandleRequest } from '../apolloServer';
+import { HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT } from '@/components/themes/useTheme';
 
 export interface RenderSuccessResult {
   ssrBody: string
@@ -404,7 +405,15 @@ export const renderRequest = async ({req, user, parsedRoute, startTime, response
   
   const now = new Date();
   const themeOptions = getThemeOptionsFromReq(req, user);
-  const jssSheets = renderJssSheetImports(themeOptions);
+
+  // Hack for the front page If Everyone Builds It announcement
+  const hideIfAnyoneBuildsItSplash = getCookieFromReq(req, HIDE_IF_ANYONE_BUILDS_IT_SPLASH)
+  const hideIfAnyoneBuildsItSpotlight = getCookieFromReq(req, HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT)
+  const forceDarkMode = isLW && req.url === '/' && !hideIfAnyoneBuildsItSplash && !hideIfAnyoneBuildsItSpotlight;
+  const jssSheets = forceDarkMode
+    ? renderJssSheetImports({name: "dark"})
+    : renderJssSheetImports(themeOptions);
+
   responseManager.addToHeadBlock(jssSheets);
   const helmetContext: {helmet?: HelmetServerState} = {};
   
