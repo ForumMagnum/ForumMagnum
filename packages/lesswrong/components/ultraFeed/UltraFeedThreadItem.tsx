@@ -281,7 +281,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
     const defaultMetaInfo: FeedCommentMetaInfo = {
       displayStatus: 'expanded',
       sources: [],
-      directDescendentCount: 0,
+      descendentCount: 0,
       highlight: false,
       lastServed: new Date(),
       lastViewed: null,

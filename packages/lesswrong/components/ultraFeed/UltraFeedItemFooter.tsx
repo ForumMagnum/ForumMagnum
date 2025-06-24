@@ -461,7 +461,7 @@ const UltraFeedItemFooterCore = ({
   );
 
   const showAllCommentsButton = (commentCount ?? 0) > 0 
-    ? <LWTooltip title={`Show all comments (${commentCount} direct child${commentCount === 1 ? '' : 'ren'})`}>
+    ? <LWTooltip title={`Show all ${commentCount} descendant${commentCount === 1 ? '' : 's'}`}>
       <div
         onClick={onClickComments}
         className={classes.showAllComments}
@@ -611,7 +611,7 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className, onSeeLess, isSee
   const voteProps = useVote(comment, "Comments", votingSystem);
   const hideKarma = !!parentPost?.hideCommentKarma;
   const showVoteButtons = votingSystem.name === "namesAttachedReactions" && !hideKarma;
-  const commentCount = metaInfo.directDescendentCount;
+  const commentCount = metaInfo.descendentCount;
   const bookmarkProps: BookmarkProps = {documentId: comment._id, highlighted: metaInfo.sources?.includes("bookmarks")};
   
   const onClickComments = () => {

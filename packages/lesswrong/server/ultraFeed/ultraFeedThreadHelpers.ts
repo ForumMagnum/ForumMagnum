@@ -20,21 +20,43 @@ import {
 } from '../../components/ultraFeed/ultraFeedTypes';
 import * as crypto from 'crypto';
 
-  /**
-   * Generates a stable hash ID for a comment thread based on its comment IDs (sensitive to sort order).
-   * This MUST match the hash generation logic used in the resolver when checking against served threads.
-   */
-  export function generateThreadHash(commentIds: string[]): string {
-    if (!commentIds || commentIds.length === 0) {
-      // Return a consistent identifier for empty/invalid threads
-      return 'empty_thread_hash';
-    }
-
-    const hash = crypto.createHash('sha256');
-    hash.update(commentIds.join(','));
-    return hash.digest('hex');
+/**
+ * Recursively calculates the total number of descendants for a given comment ID.
+ * It uses memoization to avoid re-calculating counts for the same sub-threads.
+ */
+const getDescendantCount = (
+  id: string,
+  children: Record<string, string[]>,
+  cache: Record<string, number>
+): number => {
+  if (cache[id] !== undefined) {
+    return cache[id];
   }
 
+  const childIds = children[id] ?? [];
+  const count = childIds.reduce(
+    (acc, childId) => acc + 1 + getDescendantCount(childId, children, cache),
+    0
+  );
+
+  cache[id] = count;
+  return count;
+};
+
+/**
+ * Generates a stable hash ID for a comment thread based on its comment IDs (sensitive to sort order).
+ * This MUST match the hash generation logic used in the resolver when checking against served threads.
+ */
+export function generateThreadHash(commentIds: string[]): string {
+  if (!commentIds || commentIds.length === 0) {
+    // Return a consistent identifier for empty/invalid threads
+    return 'empty_thread_hash';
+  }
+
+  const hash = crypto.createHash('sha256');
+  hash.update(commentIds.join(','));
+  return hash.digest('hex');
+}
 
 /**
  * Builds distinct linear comment threads from a set of comments
@@ -54,8 +76,10 @@ export function buildDistinctLinearThreads(
     children[parent].push(c.commentId);
   }
 
+  const descendantCountCache: Record<string, number> = {};
+
   const enhancedCandidates: PreDisplayFeedComment[] = candidates.map(candidate => {
-    const directDescendentCount = children[candidate.commentId] ? children[candidate.commentId].length : 0;
+    const descendentCount = getDescendantCount(candidate.commentId, children, descendantCountCache);
 
     return {
       commentId: candidate.commentId,
@@ -64,7 +88,7 @@ export function buildDistinctLinearThreads(
       topLevelCommentId: candidate.topLevelCommentId,
       metaInfo: {
         sources: candidate.sources as FeedItemSourceType[],
-        directDescendentCount,
+        descendentCount,
         lastServed: candidate.lastServed,
         lastViewed: candidate.lastViewed,
         lastInteracted: candidate.lastInteracted,
@@ -429,7 +453,7 @@ function prepareThreadForDisplay(
 
     const newMetaInfo: FeedCommentMetaInfo = {
       sources: comment.sources as FeedItemSourceType[],
-      directDescendentCount: comment.metaInfo?.directDescendentCount ?? 0, 
+      descendentCount: comment.metaInfo?.descendentCount ?? 0, 
       lastServed: comment.lastServed, 
       lastViewed: comment.lastViewed,
       lastInteracted: comment.lastInteracted,
