@@ -9,6 +9,7 @@ import CommentsListSection from "../comments/CommentsListSection";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import ForumIcon from '../common/ForumIcon';
 
 const CommentsListMultiQuery = gql(`
   query multiCommentUltraFeedCommentsDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -33,42 +34,82 @@ const PostsDetailsQuery = gql(`
 
 const styles = defineStyles("UltraFeedCommentsDialog", (theme: ThemeType) => ({
   dialogContent: {
-    padding: 20,
-    paddingTop: 0,
-    [theme.breakpoints.down('sm')]: {
-      padding: 10,
-      paddingTop: 0,
-    }
-  },
-  titleContainer: {
+    padding: 0,
+    height: '100%',
     display: 'flex',
-    justifyContent: 'space-between',
+    flexDirection: 'column',
+    '&:first-child': {
+      paddingTop: 0,
+    },
+  },
+  stickyHeader: {
+    height: 64,
+    display: 'flex',
     alignItems: 'center',
-    paddingLeft: 16,
-    paddingRight: 16,
-    paddingTop: 8,
-    marginBottom: 8,
+    justifyContent: 'center',
+    position: 'fixed',
+    top: 12,
+    left: 12,
+    right: 12,
+    backgroundColor: theme.palette.ultrafeedModalHeader.background,
+    borderBottom: theme.palette.border.faint,
+    borderRadius: '12px 12px 0 0',
+    zIndex: theme.zIndexes.ultrafeedModalHeader,
+    padding: '12px 20px',
+    [theme.breakpoints.down('sm')]: {
+      top: 0,
+      left: 0,
+      right: 0,
+      borderRadius: 0,
+      padding: '4px 6px',
+    }
   },
   title: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: "1.3rem",
     fontWeight: 600,
+    maxWidth: 'calc(100% - 120px)', // Leave space for close button on both sides
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
   closeButton: {
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    color: theme.palette.grey[500],
-    fontWeight: 600,
-    fontSize: "1.1rem",
+    position: 'absolute',
+    left: 20,
+    width: 36, 
+    height: 36,
+    color: theme.palette.grey[600],
+    backgroundColor: theme.palette.grey[200],
+    borderRadius: 4,
+    padding: 6,
     cursor: 'pointer',
-    padding: 8,
+    fontSize: 36,
     '&:hover': {
       color: theme.palette.grey[700],
     },
-    
+    '& svg': {
+      display: 'block',
+    },
+    [theme.breakpoints.down('sm')]: {
+      left: 6,
+    }
   },
   dialogPaper: {
-    maxWidth: 765,
-    margin: 4
+    width: 'calc(100vw - 24px)',
+    maxWidth: 'calc(100vw - 24px)',
+    height: 'calc(100dvh - 24px)',
+    maxHeight: 'calc(100dvh - 24px)',
+    margin: 12,
+    borderRadius: 12,
+    overflow: 'auto',
+    [theme.breakpoints.down('sm')]: {
+      width: '100vw',
+      maxWidth: '100vw',
+      height: '100dvh',
+      maxHeight: '100dvh',
+      margin: 0,
+      borderRadius: 0,
+    },
   },
   scrolledHighlight: {
     backgroundColor: `${theme.palette.secondary.light}6c`,
@@ -76,6 +117,20 @@ const styles = defineStyles("UltraFeedCommentsDialog", (theme: ThemeType) => ({
   scrolledHighlightFading: {
     backgroundColor: 'transparent !important',
     transition: 'background-color 3s ease-out',
+  },
+  scrollableContent: {
+    flex: 1,
+    padding: '0 20px 20px 20px',
+    paddingTop: 84,
+    overflowY: 'auto',
+    [theme.breakpoints.down('sm')]: {
+      padding: '0 10px 10px 10px',
+      paddingTop: 48,
+    }
+  },
+  contentColumn: {
+    maxWidth: 720,
+    margin: '0 auto',
   },
 }));
 
@@ -160,6 +215,38 @@ const UltraFeedCommentsDialog = ({
   const comments = isPost ? postComments : threadComments;
   const totalCount = isPost ? postCommentsTotalCount : threadCommentsTotalCount;
 
+  // Handle browser back button / swipe back navigation
+  useEffect(() => {
+    window.history.pushState({ dialogOpen: true }, '');
+
+    // Handle popstate (back button/swipe)
+    const handlePopState = (event: PopStateEvent) => {
+      if (!event.state?.dialogOpen) {
+        isClosingViaBackRef.current = true;
+        onClose();
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      // If dialog is closing normally (not via back), remove the history entry
+      if (!isClosingViaBackRef.current && window.history.state?.dialogOpen) {
+        window.history.back();
+      }
+    };
+  }, [onClose]);
+
+  // Disable background scroll while dialog open
+  useEffect(() => {
+    const originalOverflow = window.document.body.style.overflow;
+    window.document.body.style.overflow = 'hidden';
+    return () => {
+      window.document.body.style.overflow = originalOverflow;
+    };
+  }, []);
+
   // TODO: Do this more elegantly, combine within existing functionality in CommentsNode?
   // scroll to comment clicked on when dialog opens
   useEffect(() => {
@@ -210,31 +297,46 @@ const UltraFeedCommentsDialog = ({
       fullWidth
       paperClassName={classes.dialogPaper}
     >
-      <div className={classes.titleContainer}>
-        {postDataForTree
-          ? <Link to={postGetPageUrl(postDataForTree)} className={classes.title}>{postTitle}</Link>
-          : <span className={classes.title}>{postTitle}</span>
-        }
-        <span className={classes.closeButton} onClick={onClose}>
-          Close
-        </span>
-      </div>
       <DialogContent className={classes.dialogContent}>
-        {isLoading && <Loading />}
-        {!isLoading && postDataForTree && (
-          <CommentsListSection 
-            post={postDataForTree}
-            comments={comments ?? []}
-            totalComments={totalCount ?? 0}
-            commentCount={(comments ?? []).length}
-            loadMoreComments={() => {}}
-            loadingMoreComments={false}
-            highlightDate={undefined}
-            setHighlightDate={() => {}}
-            hideDateHighlighting={true}
-            newForm={isPost}
+        <div className={classes.stickyHeader}>
+          <ForumIcon 
+            icon="Close"
+            onClick={onClose}
+            className={classes.closeButton}
           />
-        )}
+          {postDataForTree
+            ? <Link 
+                to={postGetPageUrl(postDataForTree)} 
+                className={classes.title}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClose();
+                }}
+              >
+                {postTitle}
+              </Link>
+            : <span className={classes.title} title={postTitle ?? undefined}>{postTitle}</span>
+          }
+        </div>
+        <div className={classes.scrollableContent}>
+          <div className={classes.contentColumn}>
+            {isLoading && <Loading />}
+            {!isLoading && postDataForTree && (
+              <CommentsListSection 
+                post={postDataForTree}
+                comments={comments ?? []}
+                totalComments={totalCount ?? 0}
+                commentCount={(comments ?? []).length}
+                loadMoreComments={() => {}}
+                loadingMoreComments={false}
+                highlightDate={undefined}
+                setHighlightDate={() => {}}
+                hideDateHighlighting={true}
+                newForm={isPost}
+              />
+            )}
+          </div>
+        </div>
       </DialogContent>
     </LWDialog>
   );
