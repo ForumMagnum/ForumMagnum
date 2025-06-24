@@ -237,7 +237,13 @@ const styles = defineStyles("IfAnyoneBuildsItSplash", (theme: ThemeType) => ({
   },
 }));
 
-export const isIfAnyoneBuildsItFrontPage = '.ifAnyoneBuildsItActive &';
+export function isIfAnyoneBuildsItFrontPage(styles: any): any {
+  return {
+    '.ifAnyoneBuildsItPage &': {
+      '@media (min-width: 960px)': styles
+    }
+  };
+};
 
 export const useHideIfAnyoneBuildsItSplash = () => {
   const [cookies] = useCookiesWithConsent([HIDE_IF_ANYONE_BUILDS_IT_SPLASH, HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT]);

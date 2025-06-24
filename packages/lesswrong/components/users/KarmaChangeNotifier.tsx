@@ -58,9 +58,9 @@ const styles = defineStyles("KarmaChangeNotifier", (theme: ThemeType) => ({
   },
   starIcon: {
     color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text,
-    [isIfAnyoneBuildsItFrontPage]: {
+    ...isIfAnyoneBuildsItFrontPage({
       color: theme.palette.text.bannerAdOverlay,
-    },
+    }),
   },
   title: {
     display: 'block',

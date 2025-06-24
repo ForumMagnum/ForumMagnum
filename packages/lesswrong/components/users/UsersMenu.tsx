@@ -56,9 +56,9 @@ const styles = (theme: ThemeType) => ({
     fontSize: '16px',
     fontWeight: isFriendlyUI ? undefined : 400,
     color: blackBarTitle.get() ? theme.palette.text.alwaysWhite : theme.palette.header.text,
-    [isIfAnyoneBuildsItFrontPage]: {
+    ...isIfAnyoneBuildsItFrontPage({
       color: theme.palette.text.bannerAdOverlay,
-    },
+    }),
     wordBreak: 'break-word'
   },
   userImageButton: {

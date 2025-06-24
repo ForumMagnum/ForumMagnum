@@ -67,6 +67,7 @@ import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { DelayedLoading } from './common/DelayedLoading';
 import { SuspenseWrapper } from './common/SuspenseWrapper';
+import { useHideIfAnyoneBuildsItSplash } from './seasonal/IfAnyoneBuildsItSplash';
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -358,6 +359,9 @@ const Layout = ({currentUser, children}: {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }
 
+  const isFrontPage = (pathname === '/' || pathname === '');
+  const isMaybeIsIfAnyoneBuildsItFrontPage = !useHideIfAnyoneBuildsItSplash() && isLW && isFrontPage;
+
   const render = () => {
     const baseLayoutOptions: LayoutOptions = {
       // Check whether the current route is one which should have standalone
@@ -400,7 +404,8 @@ const Layout = ({currentUser, children}: {
       <CurrentAndRecentForumEventsProvider>
         <div className={classNames(
           "wrapper",
-          {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
+          {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF},
+          isMaybeIsIfAnyoneBuildsItFrontPage && "ifAnyoneBuildsItPage",
         )} id="wrapper">
           {buttonBurstSetting.get() && <GlobalButtonBurst />}
           <DialogManager>
