@@ -7803,6 +7803,7 @@ type User {
   bannedUserIds: [String!]
   bannedPersonalUserIds: [String!]
   bookmarkedPostsMetadata: [PostMetadataOutput!]
+  bookmarksCount: Int!
   hasAnyBookmarks: Boolean!
   bookmarkedPosts: [Post!]
   hiddenPostsMetadata: [PostMetadataOutput!]

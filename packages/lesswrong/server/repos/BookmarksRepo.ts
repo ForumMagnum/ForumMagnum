@@ -11,8 +11,8 @@ interface UltraFeedBookmark {
 }
 
 class BookmarksRepo extends AbstractRepo<"Bookmarks"> {
-  constructor() {
-    super(Bookmarks);
+  constructor(sqlClient?: SqlClient) {
+    super(Bookmarks, sqlClient);
   }
 
   public async upsertBookmark(userId: string, documentId: string, collectionName: string): Promise<DbBookmark> {
@@ -33,6 +33,38 @@ class BookmarksRepo extends AbstractRepo<"Bookmarks"> {
       documentId,
       collectionName,
     });
+  }
+
+  public async updateBookmarkCountForUser(userId: string): Promise<void> {
+    await  this.none(`
+      UPDATE "Users" u
+      SET "bookmarksCount" = (
+        SELECT count(*) FROM "Bookmarks" b
+        WHERE b."userId" = $1
+        AND b."active"
+      )
+      WHERE u._id = $1
+    `, [userId]);
+  }
+
+  /**
+   * Update the denormalized bookmarksCount field on all users. Intended for
+   * migration (ie when the field is newly created). This took ~10s on the LW
+   * dev DB.
+   */
+  public async updateBookmarkCountForAllUsers(): Promise<void> {
+    await  this.none(`
+      WITH counts AS (
+        SELECT "userId", COUNT(*) AS cnt
+        FROM   "Bookmarks"
+        WHERE  "active"
+        GROUP  BY "userId"
+      )
+      UPDATE "Users" u
+      SET    "bookmarksCount" = c.cnt
+      FROM   counts c
+      WHERE  u._id = c."userId";
+    `);
   }
 
   /**
