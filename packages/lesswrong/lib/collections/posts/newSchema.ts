@@ -106,7 +106,7 @@ export const graphqlTypeDefs = gql`
   }
 
   type SocialPreviewOutput {
-    imageId: String
+    imageId: String!
     text: String
   }
 
