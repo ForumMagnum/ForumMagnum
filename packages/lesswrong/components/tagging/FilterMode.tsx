@@ -249,7 +249,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   const showPlusSign = typeof otherValue === 'number' && otherValue >= 1;
 
   return <span {...eventHandlers} className={classes.tag}>
-    <AnalyticsContext pageElementContext="tagFilterMode" tagId={tagId} tagName={tagLabel}>
+    <AnalyticsContext pageElementContext="tagFilterMode" tagId={tagId} tagName={label}>
       {tag ? (
         <>
           <Link to={tagGetUrl(tag)} className={classes.hideOnMobile}>
