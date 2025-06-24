@@ -222,7 +222,6 @@ const UltraFeedCommentsDialog = ({
     // Handle popstate (back button/swipe)
     const handlePopState = (event: PopStateEvent) => {
       if (!event.state?.dialogOpen) {
-        isClosingViaBackRef.current = true;
         onClose();
       }
     };
@@ -232,7 +231,7 @@ const UltraFeedCommentsDialog = ({
     return () => {
       window.removeEventListener('popstate', handlePopState);
       // If dialog is closing normally (not via back), remove the history entry
-      if (!isClosingViaBackRef.current && window.history.state?.dialogOpen) {
+      if (window.history.state?.dialogOpen) {
         window.history.back();
       }
     };
