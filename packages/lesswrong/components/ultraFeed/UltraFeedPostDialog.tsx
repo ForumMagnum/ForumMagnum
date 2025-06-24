@@ -243,7 +243,16 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   },
   dialogInnerWrapper: {
     display: 'grid',
-    gridTemplateColumns: 'minmax(200px, 270px) 1fr',
+    // replicating PostsPage.tsx grid layout even though we haven't yet implemented side comments, reacts, and notes
+    gridTemplateColumns: `
+      0px
+      minmax(200px, 270px)
+      minmax(35px, 0.25fr)
+      minmax(min-content, 720px)
+      minmax(10px,30px)
+      50px
+      minmax(0px, 0.5fr)
+    `,
     height: '100%',
     overflowY: 'auto',
     position: 'relative',
@@ -366,8 +375,6 @@ const UltraFeedPostDialog = ({
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
-  const authorListRef = useRef<HTMLDivElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const scrollableContentRef = useRef<HTMLDivElement>(null);
   const dialogInnerRef = useRef<HTMLDivElement>(null);
   const isClosingViaBackRef = useRef(false);
@@ -568,16 +575,21 @@ const UltraFeedPostDialog = ({
               </div>
               <div className={shouldShowToc ? classes.dialogInnerWrapper : undefined} ref={shouldShowToc ? scrollableContentRef : undefined}>
                 {shouldShowToc && (
-                  <div className={classes.tocColumnWrapper}>
-                    {hasTocData && tocData && (
-                      <FixedPositionToC
-                        tocSections={tocData.sections}
-                        title={displayPost.title}
-                        heading={<PostFixedPositionToCHeading post={displayPost as PostsListWithVotes}/>}
-                        scrollContainerRef={scrollableContentRef as React.RefObject<HTMLElement>}
-                      />
-                    )}
-                  </div>
+                  <>
+                    {/* placeholders for side comments, reacts, and notes */}
+                    <div />
+                    <div className={classes.tocColumnWrapper}>
+                      {hasTocData && tocData && (
+                        <FixedPositionToC
+                          tocSections={tocData.sections}
+                          title={displayPost.title}
+                          heading={<PostFixedPositionToCHeading post={displayPost as PostsListWithVotes}/>}
+                          scrollContainerRef={scrollableContentRef as React.RefObject<HTMLElement>}
+                        />
+                      )}
+                    </div>
+                    <div />
+                  </>
                 )}
                 <div 
                   className={classes.scrollableContent} 
@@ -661,6 +673,10 @@ const UltraFeedPostDialog = ({
                     />
                   )}
                 </div>
+                {/* placeholders for side comments, reacts, and notes */}
+                <div />
+                <div />
+                <div />
               </div>
               {shouldShowToc && (
                 <div className={classes.commentCount} onClick={scrollToComments} style={{ cursor: 'pointer' }}>
