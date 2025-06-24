@@ -55,7 +55,7 @@ import { importUrlAsDraftPostGqlMutation, importUrlAsDraftPostTypeDefs } from '@
 import { revisionResolversGraphQLQueries, revisionResolversGraphQLMutations, revisionResolversGraphQLTypeDefs } from '@/server/resolvers/revisionResolvers';
 import { moderationGqlMutations, moderationGqlQueries, moderationGqlTypeDefs } from '@/server/resolvers/moderationResolvers';
 import { multiDocumentMutations, multiDocumentTypeDefs } from '@/server/resolvers/multiDocumentResolvers';
-import { spotlightGqlMutations, spotlightGqlTypeDefs } from '@/server/resolvers/spotlightResolvers';
+import { spotlightGqlMutations, spotlightGqlQueries, spotlightGqlTypeDefs } from '@/server/resolvers/spotlightResolvers';
 import { typingIndicatorsGqlMutations, typingIndicatorsGqlTypeDefs } from '@/server/resolvers/typingIndicatorsResolvers';
 import { acceptCoauthorRequestMutations, acceptCoauthorRequestTypeDefs } from '@/server/acceptCoauthorRequest';
 import { hidePostGqlMutations, hidePostGqlTypeDefs } from '@/server/hidePostMutation';
@@ -491,6 +491,7 @@ export const resolvers = {
     ...surveyResolversGraphQLQueries,
     ...tagResolversGraphQLQueries,
     ...ultraFeedGraphQLQueries,
+    ...spotlightGqlQueries,
 
     // CRUD Query Handlers
     ...advisorRequestGqlQueryHandlers,

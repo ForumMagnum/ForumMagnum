@@ -1275,6 +1275,10 @@ extend type Mutation {
   publishAndDeDuplicateSpotlight(spotlightId: String): Spotlight
 }
 
+extend type Query {
+  currentSpotlight: Spotlight
+}
+
 extend type Mutation {
   upsertUserTypingIndicator(documentId: String!): TypingIndicator
 }

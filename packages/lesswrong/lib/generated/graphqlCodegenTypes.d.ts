@@ -7537,6 +7537,7 @@ type Query = {
   convertDocument?: Maybe<Scalars['JSON']['output']>;
   curationNotice?: Maybe<SingleCurationNoticeOutput>;
   curationNotices?: Maybe<MultiCurationNoticeOutput>;
+  currentSpotlight?: Maybe<Spotlight>;
   currentUser?: Maybe<User>;
   dialogueCheck?: Maybe<SingleDialogueCheckOutput>;
   dialogueChecks?: Maybe<MultiDialogueCheckOutput>;
@@ -13742,6 +13743,22 @@ type multiCommentCommentsListCondensedQueryQueryVariables = Exact<{
 
 type multiCommentCommentsListCondensedQueryQuery = multiCommentCommentsListCondensedQueryQuery_Query;
 
+type HeaderEventSubtitleSpotlightQueryQuery_currentSpotlight_Spotlight = (
+  { __typename?: 'Spotlight' }
+  & SpotlightHeaderEventSubtitle
+);
+
+type HeaderEventSubtitleSpotlightQueryQuery_Query = { __typename?: 'Query', currentSpotlight: HeaderEventSubtitleSpotlightQueryQuery_currentSpotlight_Spotlight | null };
+
+
+type HeaderEventSubtitleSpotlightQueryQueryVariables = Exact<{
+  selector: InputMaybe<SpotlightSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type HeaderEventSubtitleSpotlightQueryQuery = HeaderEventSubtitleSpotlightQueryQuery_Query;
+
 type multiTagHomeTagBarQueryQuery_tags_MultiTagOutput_results_Tag = (
   { __typename?: 'Tag' }
   & TagFragment
@@ -16174,42 +16191,6 @@ type multiForumEventuseCurrentForumEventQueryQueryVariables = Exact<{
 
 
 type multiForumEventuseCurrentForumEventQueryQuery = multiForumEventuseCurrentForumEventQueryQuery_Query;
-
-type HeaderEventSubtitleSpotlightQueryQuery_spotlights_MultiSpotlightOutput_results_Spotlight = (
-  { __typename?: 'Spotlight' }
-  & SpotlightHeaderEventSubtitle
-);
-
-type HeaderEventSubtitleSpotlightQueryQuery_spotlights_MultiSpotlightOutput = { __typename?: 'MultiSpotlightOutput', results: Array<HeaderEventSubtitleSpotlightQueryQuery_spotlights_MultiSpotlightOutput_results_Spotlight> };
-
-type HeaderEventSubtitleSpotlightQueryQuery_Query = { __typename?: 'Query', spotlights: HeaderEventSubtitleSpotlightQueryQuery_spotlights_MultiSpotlightOutput | null };
-
-
-type HeaderEventSubtitleSpotlightQueryQueryVariables = Exact<{
-  selector: InputMaybe<SpotlightSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-type HeaderEventSubtitleSpotlightQueryQuery = HeaderEventSubtitleSpotlightQueryQuery_Query;
-
-type DisplaySpotlightQueryQuery_spotlights_MultiSpotlightOutput_results_Spotlight = (
-  { __typename?: 'Spotlight' }
-  & SpotlightDisplay
-);
-
-type DisplaySpotlightQueryQuery_spotlights_MultiSpotlightOutput = { __typename?: 'MultiSpotlightOutput', results: Array<DisplaySpotlightQueryQuery_spotlights_MultiSpotlightOutput_results_Spotlight> };
-
-type DisplaySpotlightQueryQuery_Query = { __typename?: 'Query', spotlights: DisplaySpotlightQueryQuery_spotlights_MultiSpotlightOutput | null };
-
-
-type DisplaySpotlightQueryQueryVariables = Exact<{
-  selector: InputMaybe<SpotlightSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-type DisplaySpotlightQueryQuery = DisplaySpotlightQueryQuery_Query;
 
 type CurrentFrontpageSurveyQuery_CurrentFrontpageSurvey_SurveySchedule = (
   { __typename?: 'SurveySchedule' }
@@ -20179,6 +20160,19 @@ type multiCommentShortformTimeBlockQueryQueryVariables = Exact<{
 
 type multiCommentShortformTimeBlockQueryQuery = multiCommentShortformTimeBlockQueryQuery_Query;
 
+type DisplaySpotlightQueryQuery_currentSpotlight_Spotlight = (
+  { __typename?: 'Spotlight' }
+  & SpotlightDisplay
+);
+
+type DisplaySpotlightQueryQuery_Query = { __typename?: 'Query', currentSpotlight: DisplaySpotlightQueryQuery_currentSpotlight_Spotlight | null };
+
+
+type DisplaySpotlightQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type DisplaySpotlightQueryQuery = DisplaySpotlightQueryQuery_Query;
+
 type updateSpotlightSpotlightFormMutation_updateSpotlight_SpotlightOutput_data_Spotlight = (
   { __typename?: 'Spotlight' }
   & SpotlightEditQueryFragment
@@ -20267,6 +20261,25 @@ type SpotlightItemQueryVariables = Exact<{
 
 
 type SpotlightItemQuery = SpotlightItemQuery_Query;
+
+type SpotlightStartOrContinueReadingQueryQuery_spotlight_SingleSpotlightOutput_result_Spotlight_sequenceChapters_Chapter = (
+  { __typename?: 'Chapter' }
+  & ChaptersFragment
+);
+
+type SpotlightStartOrContinueReadingQueryQuery_spotlight_SingleSpotlightOutput_result_Spotlight = { __typename?: 'Spotlight', _id: string, sequenceChapters: Array<SpotlightStartOrContinueReadingQueryQuery_spotlight_SingleSpotlightOutput_result_Spotlight_sequenceChapters_Chapter> | null };
+
+type SpotlightStartOrContinueReadingQueryQuery_spotlight_SingleSpotlightOutput = { __typename?: 'SingleSpotlightOutput', result: SpotlightStartOrContinueReadingQueryQuery_spotlight_SingleSpotlightOutput_result_Spotlight | null };
+
+type SpotlightStartOrContinueReadingQueryQuery_Query = { __typename?: 'Query', spotlight: SpotlightStartOrContinueReadingQueryQuery_spotlight_SingleSpotlightOutput | null };
+
+
+type SpotlightStartOrContinueReadingQueryQueryVariables = Exact<{
+  spotlightId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type SpotlightStartOrContinueReadingQueryQuery = SpotlightStartOrContinueReadingQueryQuery_Query;
 
 type multiSpotlightSpotlightsPageQueryQuery_spotlights_MultiSpotlightOutput_results_Spotlight = (
   { __typename?: 'Spotlight' }
@@ -25441,15 +25454,9 @@ type SpotlightHeaderEventSubtitle = (
 
 type SpotlightDisplay_Spotlight_post_Post_user_User = { __typename?: 'User', _id: string, displayName: string, slug: string };
 
-type SpotlightDisplay_Spotlight_post_Post_reviews_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsList
-);
+type SpotlightDisplay_Spotlight_post_Post_reviews_Comment = { __typename?: 'Comment', _id: string };
 
-type SpotlightDisplay_Spotlight_post_Post = (
-  { __typename?: 'Post', user: SpotlightDisplay_Spotlight_post_Post_user_User | null, reviews: Array<SpotlightDisplay_Spotlight_post_Post_reviews_Comment> | null }
-  & PostsMinimumInfo
-);
+type SpotlightDisplay_Spotlight_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string, user: SpotlightDisplay_Spotlight_post_Post_user_User | null, reviews: Array<SpotlightDisplay_Spotlight_post_Post_reviews_Comment> | null };
 
 type SpotlightDisplay_Spotlight_sequence_Sequence_user_User = { __typename?: 'User', _id: string, displayName: string, slug: string };
 
@@ -25459,15 +25466,10 @@ type SpotlightDisplay_Spotlight_tag_Tag_user_User = { __typename?: 'User', _id: 
 
 type SpotlightDisplay_Spotlight_tag_Tag = { __typename?: 'Tag', _id: string, name: string, slug: string, user: SpotlightDisplay_Spotlight_tag_Tag_user_User | null };
 
-type SpotlightDisplay_Spotlight_sequenceChapters_Chapter = (
-  { __typename?: 'Chapter' }
-  & ChaptersFragment
-);
-
 type SpotlightDisplay_Spotlight_description_Revision = { __typename?: 'Revision', html: string | null };
 
 type SpotlightDisplay = (
-  { __typename?: 'Spotlight', post: SpotlightDisplay_Spotlight_post_Post | null, sequence: SpotlightDisplay_Spotlight_sequence_Sequence | null, tag: SpotlightDisplay_Spotlight_tag_Tag | null, sequenceChapters: Array<SpotlightDisplay_Spotlight_sequenceChapters_Chapter> | null, description: SpotlightDisplay_Spotlight_description_Revision | null }
+  { __typename?: 'Spotlight', post: SpotlightDisplay_Spotlight_post_Post | null, sequence: SpotlightDisplay_Spotlight_sequence_Sequence | null, tag: SpotlightDisplay_Spotlight_tag_Tag | null, description: SpotlightDisplay_Spotlight_description_Revision | null }
   & SpotlightMinimumInfo
 );
 

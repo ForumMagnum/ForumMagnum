@@ -69,7 +69,7 @@ const LWHome = () => {
           </>}
           {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
             <SuspenseWrapper name="DismissibleSpotlightItem" fallback={<SpotlightItemFallback/>}>
-              <DismissibleSpotlightItem current/> 
+              <DismissibleSpotlightItem/> 
             </SuspenseWrapper>
           </SingleColumnSection>}
           <SuspenseWrapper name="LWHomePosts" fallback={<div style={{height: 800}}/>}>

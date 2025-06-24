@@ -64,7 +64,7 @@ const FrontpageNode = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const recentDiscussionCommentsPerPost = currentUser && currentUser.isAdmin ? 4 : 3;
   return (
     <>
-      <DismissibleSpotlightItem current className={classes.spotlightMargin} />
+      <DismissibleSpotlightItem className={classes.spotlightMargin} />
       <HomeLatestPosts />
       <DeferRender ssr={true} clientTiming="mobile-aware">
         {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
