@@ -23342,8 +23342,18 @@ type multiLocalgroupFriendlyUsersProfileQueryQueryVariables = Exact<{
 
 type multiLocalgroupFriendlyUsersProfileQueryQuery = multiLocalgroupFriendlyUsersProfileQueryQuery_Query;
 
+type multiUserFriendlyUsersProfileQueryQuery_users_MultiUserOutput_results_User_profileTags_Tag = (
+  { __typename?: 'Tag' }
+  & TagPreviewFragment
+);
+
+type multiUserFriendlyUsersProfileQueryQuery_users_MultiUserOutput_results_User_organizerOfGroups_Localgroup = (
+  { __typename?: 'Localgroup' }
+  & localGroupsBase
+);
+
 type multiUserFriendlyUsersProfileQueryQuery_users_MultiUserOutput_results_User = (
-  { __typename?: 'User' }
+  { __typename?: 'User', profileTags: Array<multiUserFriendlyUsersProfileQueryQuery_users_MultiUserOutput_results_User_profileTags_Tag>, organizerOfGroups: Array<multiUserFriendlyUsersProfileQueryQuery_users_MultiUserOutput_results_User_organizerOfGroups_Localgroup> }
   & UsersProfile
 );
 
@@ -25981,23 +25991,13 @@ type UsersProfile_User_howICanHelpOthers_Revision = (
   & RevisionDisplay
 );
 
-type UsersProfile_User_profileTags_Tag = (
-  { __typename?: 'Tag' }
-  & TagPreviewFragment
-);
-
-type UsersProfile_User_organizerOfGroups_Localgroup = (
-  { __typename?: 'Localgroup' }
-  & localGroupsBase
-);
-
 type UsersProfile_User_moderationGuidelines_Revision = (
   { __typename?: 'Revision' }
   & RevisionDisplay
 );
 
 type UsersProfile = (
-  { __typename?: 'User', oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, programParticipation: Array<string> | null, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, frontpagePostCount: number, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, viewUnreviewedComments: boolean | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, goodHeartTokens: number | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, biography: UsersProfile_User_biography_Revision | null, howOthersCanHelpMe: UsersProfile_User_howOthersCanHelpMe_Revision | null, howICanHelpOthers: UsersProfile_User_howICanHelpOthers_Revision | null, profileTags: Array<UsersProfile_User_profileTags_Tag>, organizerOfGroups: Array<UsersProfile_User_organizerOfGroups_Localgroup>, moderationGuidelines: UsersProfile_User_moderationGuidelines_Revision | null }
+  { __typename?: 'User', oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, programParticipation: Array<string> | null, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, frontpagePostCount: number, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, viewUnreviewedComments: boolean | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, goodHeartTokens: number | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, biography: UsersProfile_User_biography_Revision | null, howOthersCanHelpMe: UsersProfile_User_howOthersCanHelpMe_Revision | null, howICanHelpOthers: UsersProfile_User_howICanHelpOthers_Revision | null, moderationGuidelines: UsersProfile_User_moderationGuidelines_Revision | null }
   & UsersMinimumInfo
   & SharedUserBooleans
 );

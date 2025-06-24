@@ -46,13 +46,7 @@ export const UsersProfile = gql(`
       ...RevisionDisplay
     }
     profileTagIds
-    profileTags {
-      ...TagPreviewFragment
-    }
     organizerOfGroupIds
-    organizerOfGroups {
-      ...localGroupsBase
-    }
     programParticipation
     website
     linkedinProfileURL
