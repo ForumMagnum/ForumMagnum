@@ -83,7 +83,26 @@ export const loadInstanceSettings = (args?: CommandLineArguments) => {
   // TODO: fix this to not use `getCommandLineArguments` anymore(?)
   // const commandLineArguments = args ?? parseCommandLine(process.argv);
   // const instanceSettings = loadSettingsFile(commandLineArguments.settingsFileName);
-  const instanceSettings = loadSettingsFile("../LessWrong-Credentials/settings-local-dev-devdb.json");
+
+  const rawInstanceSettings = Object.entries(process.env).filter((setting): setting is [string, string] => {
+    const [key, value] = setting;
+    return (key.startsWith("public_") || key.startsWith("private_")) && value !== undefined;
+  });
+
+  const publicSettings: JsonRecord = {};
+  const privateSettings: JsonRecord = {};
+
+  const instanceSettings = rawInstanceSettings.reduce((acc, [key, value]) => {
+    const [prefix, ...settingNameParts] = key.split("_");
+    const settingName = settingNameParts.join(".");
+    if (prefix === "public") {
+      acc.public[settingName] = value;
+    } else if (prefix === "private") {
+      acc.private[settingName] = value;
+    }
+    return acc;
+  }, { public: publicSettings, private: privateSettings });
+
   return instanceSettings;
 }
 
