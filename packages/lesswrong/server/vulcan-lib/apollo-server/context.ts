@@ -87,13 +87,7 @@ export const computeContextFromUser = async ({user, req, res, isSSR}: {
   res?: Response,
   isSSR: boolean
 }): Promise<ResolverContext> => {
-  let visitorActivity: DbUserActivity|null = null;
   const clientId = req ? getCookieFromReq(req, "clientId") : null;
-  if ((user || clientId) && (isEAForum || visitorGetsDynamicFrontpage(user))) {
-    visitorActivity = user ?
-      await UserActivities.findOne({visitorId: user._id, type: 'userId'}) :
-      await UserActivities.findOne({visitorId: clientId, type: 'clientId'});
-  }
   
   let context: ResolverContext = {
     ...getAllCollectionsByName(),
@@ -107,7 +101,6 @@ export const computeContextFromUser = async ({user, req, res, isSSR}: {
     isIssaRiceReader: requestIsFromIssaRiceReader(req),
     repos: getAllRepos(),
     clientId,
-    visitorActivity,
     userId: user?._id ?? null,
     currentUser: user,
     perfMetric: asyncLocalStorage.getStore()?.requestPerfMetric,
