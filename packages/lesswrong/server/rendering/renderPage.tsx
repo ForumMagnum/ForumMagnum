@@ -143,6 +143,7 @@ export async function handleRequest(request: Request, response: Response) {
 
   const responseManager = new ResponseManager(response);
   responseManager.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
+  ensureClientId(request, responseManager.res);
 
   if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
   const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings())
@@ -520,7 +521,7 @@ export const renderRequest = async ({req, user, parsedRoute, startTime, response
     }
   }
 
-  const clientId = getCookieFromReq(req, "clientId");
+  const clientId = req.clientId!;
 
   return {
     ssrBody,

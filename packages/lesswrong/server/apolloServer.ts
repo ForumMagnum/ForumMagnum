@@ -16,7 +16,6 @@ import path from 'path'
 import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
 import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
 import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
-import { clientIdMiddleware } from './clientIdMiddleware';
 import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
@@ -134,7 +133,7 @@ export async function startWebserver() {
   }
 
   app.use(express.urlencoded({ extended: true })); // We send passwords + username via urlencoded form parameters
-  app.use('/analyticsEvent', express.json({ limit: '50mb' }), clientIdMiddleware);
+  app.use('/analyticsEvent', express.json({ limit: '50mb' }));
   app.use('/ckeditor-webhook', express.json({ limit: '50mb' }));
 
   if (isElasticEnabled) {
@@ -180,7 +179,7 @@ export async function startWebserver() {
 
   app.use('/graphql', express.json({ limit: '50mb' }));
   app.use('/graphql', express.text({ type: 'application/graphql' }));
-  app.use('/graphql', clientIdMiddleware, perfMetricMiddleware);
+  app.use('/graphql', perfMetricMiddleware);
 
   await apolloServer.start();
 
@@ -241,7 +240,7 @@ export async function startWebserver() {
     }
   });
   // Setup CKEditor Token
-  app.use("/ckeditor-token", clientIdMiddleware, ckEditorTokenHandler)
+  app.use("/ckeditor-token", ckEditorTokenHandler)
   
   // Static files folder
   app.use(express.static(path.join(__dirname, '../../client')))

@@ -10,7 +10,6 @@ import PageCacheRepo, { maxCacheAgeMs } from '@/server/repos/PageCacheRepo';
 import { DatabaseServerSetting } from '@/server/databaseSettings';
 import { isDatadogEnabled } from '@/lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
-import { ensureClientId } from '@/server/clientIdMiddleware';
 import { ResponseManager } from './ResponseManager';
 
 // Page cache. This applies only to logged-out requests, and exists primarily
@@ -106,8 +105,8 @@ export const cachedPageRender = async (
   userAgent: string|undefined,
   renderFn: () => Promise<RenderResult>
 ) => {
-  const clientId = getCookieFromReq(req, "clientId");
-  const abTestGroups = getAllUserABTestGroups({ clientId });
+  const clientId = req.clientId ?? getCookieFromReq(req, "clientId");
+  const abTestGroups = getAllUserABTestGroups({ clientId: clientId! });
   const path = getPathFromReq(req);
   const cacheKey = cacheKeyFromReq(req);
   const cacheAffectingAbTestGroups = filterLoggedOutActiveAbTestGroups(abTestGroups);

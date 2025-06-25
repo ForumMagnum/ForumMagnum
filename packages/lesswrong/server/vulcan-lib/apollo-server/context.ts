@@ -8,15 +8,11 @@ import type { Request, Response } from 'express';
 import {getUserEmail} from "../../../lib/collections/users/helpers";
 import { getAllRepos } from '../../repos';
 import UsersRepo from '../../repos/UsersRepo';
-import UserActivities from '../../../server/collections/useractivities/collection';
 import { getCookieFromReq } from '../../utils/httpUtil';
-import { isEAForum } from '../../../lib/instanceSettings';
 import { asyncLocalStorage } from '../../perfMetrics';
-import { visitorGetsDynamicFrontpage } from '../../../lib/betas';
 
 
-// From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
-export const getUser = async (loginToken: string): Promise<DbUser|null> => {
+export const getUser = async (loginToken: string|null): Promise<DbUser|null> => {
   if (loginToken) {
     if (typeof loginToken !== 'string')
       throw new Error("Login token is not a string");
