@@ -42,7 +42,6 @@ import Footer from "./common/Footer";
 import FlashMessages from "./common/FlashMessages";
 import AnalyticsClient from "./common/AnalyticsClient";
 import AnalyticsPageInitializer from "./common/AnalyticsPageInitializer";
-import NavigationEventSender from "./hooks/useOnNavigate";
 import EAOnboardingFlow from "./ea-forum/onboarding/EAOnboardingFlow";
 import BasicOnboardingFlow from "./onboarding/BasicOnboardingFlow";
 import { CommentOnSelectionPageWrapper } from "./comments/CommentOnSelection";
@@ -413,7 +412,6 @@ const Layout = ({currentUser, children}: {
 
               <AnalyticsClient/>
               <AnalyticsPageInitializer/>
-              <NavigationEventSender/>
               <GlobalHotkeys/>
               {/* Only show intercom after they have accepted cookies */}
               <DeferRender ssr={false}>

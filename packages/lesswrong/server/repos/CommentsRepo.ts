@@ -520,7 +520,8 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
             c."topLevelCommentId",
             c."parentCommentId",
             c.shortform,
-            c."postedAt"
+            c."postedAt",
+            c."descendentCount"
           FROM "Comments" c
           JOIN "CandidateThreadTopLevelIds" ct
               ON c."topLevelCommentId" = ct."threadTopLevelId"
@@ -582,6 +583,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           c."parentCommentId",
           c.shortform,
           c."postedAt",
+          c."descendentCount",
           ce."lastServed",
           ce."lastViewed",
           ce."lastInteracted"
@@ -606,6 +608,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       baseScore: comment.baseScore,
       shortform: comment.shortform ?? null,
       postedAt: comment.postedAt,
+      descendentCount: comment.descendentCount,
       sources: ['recentComments'],
       lastServed: null, 
       lastViewed: comment.lastViewed ?? null,

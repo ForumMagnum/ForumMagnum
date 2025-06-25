@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import LWDialog from '../common/LWDialog';
 import { DialogContent } from '../widgets/DialogContent';
 import ForumIcon from '../common/ForumIcon';
 import QuickTakesEntry from '../quickTakes/QuickTakesEntry';
+import { useDisableBodyScroll } from '../hooks/useDisableBodyScroll';
 
 const styles = defineStyles("UltraFeedQuickTakeDialog", (theme: ThemeType) => ({
   dialogContent: {
@@ -78,14 +79,7 @@ type UltraFeedQuickTakeDialogProps = {
 const UltraFeedQuickTakeDialog = ({ onClose, currentUser }: UltraFeedQuickTakeDialogProps) => {
   const classes = useStyles(styles);
 
-  // Disable background scroll while dialog open
-  useEffect(() => {
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = originalOverflow;
-    };
-  }, []);
+  useDisableBodyScroll();
 
   return (
     <LWDialog

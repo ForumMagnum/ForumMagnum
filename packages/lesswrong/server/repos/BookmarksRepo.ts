@@ -7,7 +7,8 @@ interface UltraFeedBookmark {
   documentId: string;
   collectionName: string;
   postId: string | null;
-  directChildrenCount: number | null;
+  descendentCount: number | null;
+  directDescendentCount: number | null;
 }
 
 class BookmarksRepo extends AbstractRepo<"Bookmarks"> {
@@ -49,7 +50,8 @@ class BookmarksRepo extends AbstractRepo<"Bookmarks"> {
         b."documentId",
         b."collectionName",
         c."postId",
-        c."directChildrenCount"
+        c."descendentCount",
+        c."directDescendentCount"
       FROM "Bookmarks" b
       LEFT JOIN "Comments" c ON b."documentId" = c."_id"
       WHERE b."userId" = $(userId)

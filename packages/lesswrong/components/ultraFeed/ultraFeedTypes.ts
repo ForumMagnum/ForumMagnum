@@ -39,7 +39,9 @@ export interface FeedPostMetaInfo {
 }
 export interface FeedCommentMetaInfo {
   sources: FeedItemSourceType[];
-  directDescendentCount: number;
+  descendentCount: number;
+  /** @deprecated Use descendentCount instead. This field previously had a typo and only counted direct children. */
+  directDescendentCount?: number;
   lastServed?: Date | null;
   lastViewed?: Date | null;
   lastInteracted?: Date | null;
@@ -62,6 +64,7 @@ export interface FeedCommentFromDb {
   lastViewed: Date | null;
   lastInteracted: Date | null;
   postedAt: Date | null;
+  descendentCount?: number;
 }
 
 export interface FeedPostFromDb extends DbPost {
