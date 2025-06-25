@@ -8,6 +8,7 @@ import LessOnline2025Banner from './seasonal/LessOnline2025Banner';
 import IfAnyoneBuildsItSplash, { bookPromotionEndDate } from './seasonal/IfAnyoneBuildsItSplash';
 import ReviewVotingCanvas from "./review/ReviewVotingCanvas";
 import CloudinaryImage2 from "./common/CloudinaryImage2";
+import { useRouteMetadata } from './RouteMetadataContext';
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
@@ -108,6 +109,7 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   standaloneNavigation: boolean,
 }) => {
   const classes = useStyles(styles);
+  const { metadata } = useRouteMetadata();
   const { currentRoute } = useLocation();
 
   const defaultImage = standaloneNavigation ? <div className={classes.imageColumn}> 
