@@ -41,6 +41,9 @@ const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({
     position: "relative",
     cursor: "pointer",
   },
+  placeholder: {
+    height: 30,
+  },
   commentInfo: {
     display: "flex",
     ...singleLineStyles(theme)
@@ -271,6 +274,7 @@ export const SingleLineCommentPlaceholder = ({nestingLevel}: {
     <ContentStyles
       contentType={"comment"}
       className={classNames(
+        classes.placeholder,
         classes.commentInfo,
         ((nestingLevel%2) !== 0) && classes.odd,
       )}
