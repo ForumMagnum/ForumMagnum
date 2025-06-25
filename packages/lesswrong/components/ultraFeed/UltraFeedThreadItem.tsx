@@ -282,6 +282,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
       displayStatus: 'expanded',
       sources: [],
       descendentCount: 0,
+      directDescendentCount: 0,
       highlight: false,
       lastServed: new Date(),
       lastViewed: null,

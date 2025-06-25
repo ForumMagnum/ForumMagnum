@@ -21,29 +21,6 @@ import {
 import * as crypto from 'crypto';
 
 /**
- * Recursively calculates the total number of descendants for a given comment ID.
- * It uses memoization to avoid re-calculating counts for the same sub-threads.
- */
-const getDescendantCount = (
-  id: string,
-  children: Record<string, string[]>,
-  cache: Record<string, number>
-): number => {
-  if (cache[id] !== undefined) {
-    return cache[id];
-  }
-
-  const childIds = children[id] ?? [];
-  const count = childIds.reduce(
-    (acc, childId) => acc + 1 + getDescendantCount(childId, children, cache),
-    0
-  );
-
-  cache[id] = count;
-  return count;
-};
-
-/**
  * Generates a stable hash ID for a comment thread based on its comment IDs (sensitive to sort order).
  * This MUST match the hash generation logic used in the resolver when checking against served threads.
  */
@@ -76,19 +53,20 @@ export function buildDistinctLinearThreads(
     children[parent].push(c.commentId);
   }
 
-  const descendantCountCache: Record<string, number> = {};
-
   const enhancedCandidates: PreDisplayFeedComment[] = candidates.map(candidate => {
-    const descendentCount = getDescendantCount(candidate.commentId, children, descendantCountCache);
+    const descendentCount = candidate.descendentCount ?? 0;
+    const directDescendentCount = children[candidate.commentId] ? children[candidate.commentId].length : 0;
 
     return {
       commentId: candidate.commentId,
       postId: candidate.postId,
       baseScore: candidate.baseScore,
+      parentCommentId: candidate.parentCommentId ?? undefined,
       topLevelCommentId: candidate.topLevelCommentId,
       metaInfo: {
         sources: candidate.sources as FeedItemSourceType[],
         descendentCount,
+        directDescendentCount,
         lastServed: candidate.lastServed,
         lastViewed: candidate.lastViewed,
         lastInteracted: candidate.lastInteracted,
@@ -454,6 +432,7 @@ function prepareThreadForDisplay(
     const newMetaInfo: FeedCommentMetaInfo = {
       sources: comment.sources as FeedItemSourceType[],
       descendentCount: comment.metaInfo?.descendentCount ?? 0, 
+      directDescendentCount: comment.metaInfo?.directDescendentCount ?? 0,
       lastServed: comment.lastServed, 
       lastViewed: comment.lastViewed,
       lastInteracted: comment.lastInteracted,

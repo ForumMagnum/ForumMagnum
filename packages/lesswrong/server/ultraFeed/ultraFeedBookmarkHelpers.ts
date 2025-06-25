@@ -28,6 +28,7 @@ function prepareBookmarksForUltraFeed(bookmarks: UltraFeedBookmark[]): PreparedB
           lastInteracted: null,
           postedAt: null,
           descendentCount: b.descendentCount ?? 0,
+          directDescendentCount: b.descendentCount ?? 0,
         };
         const comment: PreDisplayFeedComment = {
           commentId: b.documentId, postId: b.postId, baseScore: 0, metaInfo,

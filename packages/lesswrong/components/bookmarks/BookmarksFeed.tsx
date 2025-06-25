@@ -101,6 +101,7 @@ const BookmarksFeed = () => {
                 lastInteracted: null,
                 postedAt: commentData.postedAt,
                 descendentCount: commentData.descendentCount,
+                directDescendentCount: commentData.directChildrenCount,
               }
             };
             const threadData: DisplayFeedCommentThread = {
