@@ -46,6 +46,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     opacity: `1 !important`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: theme.typography.body2.fontSize,
+    lineHeight: 1,
     // every child except last has margin right applied
     "& > *:not(:last-child)": {
       marginRight: 16,
@@ -55,8 +56,6 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       color: `${theme.palette.linkHover.dim} !important`,
     },
     [theme.breakpoints.down('sm')]: {
-      paddingLeft: 8,
-      paddingRight: 8,
       justifyContent: "space-between",
       ...theme.typography.ultraFeedMobileStyle,
       "& > *:not(:last-child)": {
@@ -73,19 +72,26 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     "& svg": {
       position: "relative",
       height: 18,
-      top: 1,
+      top: 2,
       [theme.breakpoints.down('sm')]: {
+        top: 3,
         height: 20,
         width: 20,
       },
     },
     [theme.breakpoints.down('sm')]: {
-      top: 2,
+      bottom: 1
+    }
+  },
+  showAllCommentsWrapper: {
+    display: 'inline-flex',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
     }
   },
   showAllComments: {
     position: 'relative',
-    top: 0,
+    bottom: 0,
     padding: 2,
     opacity: 0.6,
     display: "inline-flex",
@@ -96,7 +102,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     "& svg": {
       position: "relative",
       height: 14,
-      top: 0,
+      top: 2,
     },
     "&:hover": {
       opacity: 1,
@@ -132,7 +138,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     display: 'inline-flex',
     alignItems: 'center',
     borderRadius: 4,
-    padding: 2,
+    padding: "2px 4px",
     transition: 'background-color 0.2s ease',
     "&:hover": {
       backgroundColor: theme.palette.panelBackground.hoverHighlightGrey,
@@ -155,8 +161,10 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     bottom: 2,
   },
   condensedFooterReactions: {
-    [theme.breakpoints.up('md')]: {
-      marginLeft: 'auto',
+    marginLeft: 'auto',
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: 'unset',
+      
     },
   },
   bookmarkButton: {
@@ -171,7 +179,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       },
     },
     [theme.breakpoints.down('sm')]: {
-      top: 5,
+      top: 2,
       opacity: 1,
     },
   },
@@ -204,7 +212,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       opacity: 1,
     },
     [theme.breakpoints.down('sm')]: {
-      top: 4,
+      top: 0,
       opacity: 1,
     },
   },
@@ -231,21 +239,23 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   overallVoteButtons: {
     position: 'relative',
-    top: 1,
+    top: 0,
+    bottom: 1,
     color: `${theme.palette.ultraFeed.dim} !important`,
     "& .VoteArrowIconSolid-root": {
     },
     [theme.breakpoints.down('sm')]: {
-      top: 3,
+      top: 0,
     }
   },
   agreementButtons: {
     position: 'relative',
     color: `${theme.palette.ultraFeed.dim} !important`,
-    top: 1,
+    top: 0,
+    bottom: 0,
     marginLeft: -8,
     [theme.breakpoints.down('sm')]: {
-      top: 3,
+      top: 0,
     }
   },
   footerVoteScoreOverride: {
@@ -460,8 +470,13 @@ const UltraFeedItemFooterCore = ({
     </div>
   );
 
+  const showAllCommentsTooltip = (collectionName==='Posts')
+    ? `Show all comments`
+    : `Show all ${commentCount} descendant${commentCount === 1 ? '' : 's'}`;
+
   const showAllCommentsButton = (commentCount ?? 0) > 0 
-    ? <LWTooltip title={`Show all comments (${commentCount} direct child${commentCount === 1 ? '' : 'ren'})`}>
+    ? <div className={classes.showAllCommentsWrapper}>
+      <LWTooltip title={showAllCommentsTooltip}>
       <div
         onClick={onClickComments}
         className={classes.showAllComments}
@@ -469,7 +484,8 @@ const UltraFeedItemFooterCore = ({
         <DebateIconOutline />
         <span className={classes.showAllCommentsCount}>{commentCount}</span>
       </div>
-    </LWTooltip>
+      </LWTooltip>
+    </div>
    : null;
 
   const votingSystem = voteProps.document.votingSystem || getDefaultVotingSystem();
@@ -611,7 +627,7 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className, onSeeLess, isSee
   const voteProps = useVote(comment, "Comments", votingSystem);
   const hideKarma = !!parentPost?.hideCommentKarma;
   const showVoteButtons = votingSystem.name === "namesAttachedReactions" && !hideKarma;
-  const commentCount = metaInfo.directDescendentCount;
+  const commentCount = metaInfo.descendentCount;
   const bookmarkProps: BookmarkProps = {documentId: comment._id, highlighted: metaInfo.sources?.includes("bookmarks")};
   
   const onClickComments = () => {

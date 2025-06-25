@@ -4,7 +4,6 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import LWDialog from "../common/LWDialog";
 import FeedContentBody from "./FeedContentBody";
-import UltraFeedItemFooter from "./UltraFeedItemFooter";
 import Loading from "../vulcan-core/Loading";
 import CommentsListSection from "../comments/CommentsListSection";
 import ForumIcon from '../common/ForumIcon';
@@ -34,6 +33,8 @@ import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
 import IconButton from "@/lib/vendor/@material-ui/core/src/IconButton";
 import TocIcon from "@/lib/vendor/@material-ui/icons/src/Toc";
 import UltraFeedPostToCDrawer from "./UltraFeedPostToCDrawer";
+import { useDialogNavigation } from "../hooks/useDialogNavigation";
+import { useDisableBodyScroll } from "../hooks/useDisableBodyScroll";
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300;
 
@@ -243,7 +244,16 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   },
   dialogInnerWrapper: {
     display: 'grid',
-    gridTemplateColumns: 'minmax(200px, 270px) 1fr',
+    // replicating PostsPage.tsx grid layout even though we haven't yet implemented side comments, reacts, and notes
+    gridTemplateColumns: `
+      0px
+      minmax(200px, 270px)
+      minmax(35px, 0.25fr)
+      minmax(min-content, 720px)
+      minmax(10px,30px)
+      50px
+      minmax(0px, 0.5fr)
+    `,
     height: '100%',
     overflowY: 'auto',
     position: 'relative',
@@ -366,11 +376,8 @@ const UltraFeedPostDialog = ({
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
-  const authorListRef = useRef<HTMLDivElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const scrollableContentRef = useRef<HTMLDivElement>(null);
   const dialogInnerRef = useRef<HTMLDivElement>(null);
-  const isClosingViaBackRef = useRef(false);
   const [navigationOpen, setNavigationOpen] = useState(false);
 
   const postId = partialPost?._id ?? undefined;
@@ -425,36 +432,9 @@ const UltraFeedPostDialog = ({
   });
   const hasTocData = !!tocData && (tocData.sections ?? []).length > 0;
 
-  useEffect(() => {
-    window.history.pushState({ dialogOpen: true }, '');
-
-    // Handle popstate (back button/swipe)
-    const handlePopState = (event: PopStateEvent) => {
-      if (!event.state?.dialogOpen) {
-        isClosingViaBackRef.current = true;
-        onClose();
-      }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-
-    return () => {
-      window.removeEventListener('popstate', handlePopState);
-      // If dialog is closing normally (not via back), remove the history entry
-      if (!isClosingViaBackRef.current && window.history.state?.dialogOpen) {
-        window.history.back();
-      }
-    };
-  }, [onClose]);
-
-  // Disable background scroll while dialog open
-  useEffect(() => {
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = originalOverflow;
-    };
-  }, []);
+  // Handle browser back button / swipe back navigation
+  useDialogNavigation(onClose);
+  useDisableBodyScroll();
 
   // Bridge scroll events from internal container to window so hooks relying on window scroll keep working
   useEffect(() => {
@@ -568,16 +548,21 @@ const UltraFeedPostDialog = ({
               </div>
               <div className={shouldShowToc ? classes.dialogInnerWrapper : undefined} ref={shouldShowToc ? scrollableContentRef : undefined}>
                 {shouldShowToc && (
-                  <div className={classes.tocColumnWrapper}>
-                    {hasTocData && tocData && (
-                      <FixedPositionToC
-                        tocSections={tocData.sections}
-                        title={displayPost.title}
-                        heading={<PostFixedPositionToCHeading post={displayPost as PostsListWithVotes}/>}
-                        scrollContainerRef={scrollableContentRef as React.RefObject<HTMLElement>}
-                      />
-                    )}
-                  </div>
+                  <>
+                    {/* placeholders for side comments, reacts, and notes with grid layout (helps get centering right) */}
+                    <div />
+                    <div className={classes.tocColumnWrapper}>
+                      {hasTocData && tocData && (
+                        <FixedPositionToC
+                          tocSections={tocData.sections}
+                          title={displayPost.title}
+                          heading={<PostFixedPositionToCHeading post={displayPost as PostsListWithVotes}/>}
+                          scrollContainerRef={scrollableContentRef as React.RefObject<HTMLElement>}
+                        />
+                      )}
+                    </div>
+                    <div />
+                  </>
                 )}
                 <div 
                   className={classes.scrollableContent} 
@@ -661,6 +646,10 @@ const UltraFeedPostDialog = ({
                     />
                   )}
                 </div>
+                {/* placeholders for side comments, reacts, and notes with grid layout (helps get centering right) */}
+                <div />
+                <div />
+                <div />
               </div>
               {shouldShowToc && (
                 <div className={classes.commentCount} onClick={scrollToComments} style={{ cursor: 'pointer' }}>

@@ -12,7 +12,8 @@ import keyBy from 'lodash/keyBy';
 export async function getRecommendedPostsForUltraFeed(
   context: ResolverContext,
   limit: number,
-  scenarioId = 'recombee-lesswrong-custom'
+  scenarioId = 'recombee-lesswrong-custom',
+  additionalExcludedIds: string[] = []
 ): Promise<FeedFullPost[]> {
   const { currentUser } = context;
   const recombeeUser = recombeeRequestHelpers.getRecombeeUser(context);
@@ -24,8 +25,13 @@ export async function getRecommendedPostsForUltraFeed(
   }
 
   let exclusionFilterString: string | undefined = undefined;
-  if (currentUser?.hiddenPostsMetadata?.length) {
-    const exclusionFilter = currentUser?.hiddenPostsMetadata.map(metadata => `"${metadata.postId}"`).join(',');
+  const allExcludedIds = [
+    ...(currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? []),
+    ...additionalExcludedIds
+  ];
+  
+  if (allExcludedIds.length > 0) {
+    const exclusionFilter = allExcludedIds.map(id => `"${id}"`).join(',');
     exclusionFilterString = `'itemId' NOT IN {${exclusionFilter}}`;
   }
 
@@ -67,7 +73,8 @@ export async function getSubscribedPostsForUltraFeed(
   context: ResolverContext,
   limit: number,
   settings: UltraFeedResolverSettings,
-  maxAgeDays: number
+  maxAgeDays: number,
+  excludedPostIds: string[] = []
 ): Promise<FeedPostStub[]> {
   const { currentUser, repos } = context;
 
@@ -78,7 +85,8 @@ export async function getSubscribedPostsForUltraFeed(
   const postIdsFromRepo = await repos.posts.getPostsFromSubscribedUsersForUltraFeed(
     currentUser._id,
     maxAgeDays,
-    limit
+    limit,
+    excludedPostIds
   );
 
   return postIdsFromRepo.map(({ postId }): FeedPostStub => ({
@@ -97,7 +105,8 @@ export async function getLatestPostsForUltraFeed(
   context: ResolverContext,
   limit: number,
   settings: UltraFeedResolverSettings,
-  maxAgeDays: number
+  maxAgeDays: number,
+  additionalExcludedIds: string[] = []
 ): Promise<FeedFullPost[]> {
   const { currentUser, repos } = context;
 
@@ -112,12 +121,15 @@ export async function getLatestPostsForUltraFeed(
   // TODO: figure out if there's something better to do here
   const seenPenalty = 0
 
+  // Combine hidden posts with additional excluded IDs
+  const allExcludedIds = [...hiddenPostIds, ...additionalExcludedIds];
+
   return await repos.posts.getLatestPostsForUltraFeed(
     context,
     filterSettings,
     seenPenalty,
     maxAgeDays,
-    hiddenPostIds,
+    allExcludedIds,
     limit
   );
 }
@@ -131,16 +143,22 @@ export async function getUltraFeedPostThreads(
   recommendedPostsLimit: number,
   latestPostsLimit: number,
   settings: UltraFeedResolverSettings,
-  latestPostsMaxAgeDays: number
+  latestPostsMaxAgeDays: number,
+  excludedPostIds: string[] = []
 ): Promise<FeedFullPost[]> {
+  const { currentUser } = context;
+  if (!currentUser?._id) {
+    return [];
+  }
+
   const recombeeScenario = 'recombee-lesswrong-custom';
 
   const [recommendedPostItems, latestPostItems] = await Promise.all([
     (recommendedPostsLimit > 0)
-      ? getRecommendedPostsForUltraFeed(context, recommendedPostsLimit, recombeeScenario)
+      ? getRecommendedPostsForUltraFeed(context, recommendedPostsLimit, recombeeScenario, excludedPostIds)
       : Promise.resolve([]),
     (latestPostsLimit > 0)
-      ? getLatestPostsForUltraFeed(context, latestPostsLimit, settings, latestPostsMaxAgeDays)
+      ? getLatestPostsForUltraFeed(context, latestPostsLimit, settings, latestPostsMaxAgeDays, excludedPostIds)
       : Promise.resolve([]),
   ]);
 
