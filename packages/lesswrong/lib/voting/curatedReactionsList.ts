@@ -1,4 +1,5 @@
 import { namesAttachedReactions, NamesAttachedReactionType } from './reactions';
+import uniq from 'lodash/uniq';
 
 // List View Sections
 export const listPrimary = [
@@ -56,7 +57,7 @@ export const likelihoods = [
 ];
 
 export const getAllCuratedReactionNames = (): string[] => {
-  return [
+  return uniq([
     ...listPrimary,
     ...listEmotions,
     ...listViewSectionB,
@@ -67,7 +68,7 @@ export const getAllCuratedReactionNames = (): string[] => {
     ...gridSectionB,
     ...gridSectionC,
     ...likelihoods
-  ].filter((name, index, self) => self.indexOf(name) === index);
+  ]);
 };
 
 // Filter reactions to only include curated and non-deprecated ones
