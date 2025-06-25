@@ -266,7 +266,6 @@ export async function handleRequest(request: Request, response: Response) {
     );
 
     if (renderResult.cached) {
-      console.log(`Finishing cached request with ${renderResult.ssrBody.length}b body`);
       responseManager.addToHeadBlock(renderResult.jssSheets);
       responseManager.addToHeadBlock(renderResult.headers);
       responseManager.addBodyString(renderResult.ssrBody);
@@ -274,8 +273,6 @@ export async function handleRequest(request: Request, response: Response) {
       if (structuredData) {
         responseManager.setStructuredData(() => structuredData);
       }
-    } else {
-      console.log("Finishing rendered request");
     }
   }
   await responseManager.sendAndClose();
@@ -440,15 +437,13 @@ export const renderRequest = async ({req, user, parsedRoute, startTime, response
       const expectedHeadBlocks = parsedRoute.currentRoute?.expectedHeadBlocks
       if (expectedHeadBlocks) {
         if (!expectedHeadBlocks.includes(name)) {
+          // eslint-disable-next-line no-console
           console.log(`Page rendered head block ${name} which was not in the route head blocks list`);
         }
         if (every(expectedHeadBlocks, h=>headBlocksSeen.includes(h))) {
-          console.log("All head blocks ready, sending head");
           setTimeout(() => {
             sendHeadBlock();
           }, 0);
-        } else {
-          console.log(`Received head block ${name}`);
         }
       }
     }
@@ -482,6 +477,7 @@ export const renderRequest = async ({req, user, parsedRoute, startTime, response
   const head = renderHeadBlock();
   sendHeadBlock();
   if (head !== asSentHeadBlock) {
+    // eslint-disable-next-line no-console
     console.error(`Head block sent was incorrect`);
   }
 
