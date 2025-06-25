@@ -460,8 +460,12 @@ const UltraFeedItemFooterCore = ({
     </div>
   );
 
+  const showAllCommentsTooltip = (collectionName==='Posts')
+    ? `Show all comments`
+    : `Show all ${commentCount} descendant${commentCount === 1 ? '' : 's'}`;
+
   const showAllCommentsButton = (commentCount ?? 0) > 0 
-    ? <LWTooltip title={`Show all ${commentCount} descendant${commentCount === 1 ? '' : 's'}`}>
+    ? <LWTooltip title={showAllCommentsTooltip}>
       <div
         onClick={onClickComments}
         className={classes.showAllComments}
