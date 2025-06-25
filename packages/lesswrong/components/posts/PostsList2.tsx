@@ -51,6 +51,7 @@ const PostsList2 = (props: PostsList2Props & {noSuspenseBoundary?: boolean}) => 
         placeholderCount={props.placeholderCount ?? props.terms?.limit ?? 1}
         showFinalBottomBorder={props.showFinalBottomBorder}
         viewType={"list"}
+        loadMore={props.alwaysShowLoadMore}
       />
     }>
       <PostsListLoaded {...props}/>
@@ -91,6 +92,7 @@ const PostsListLoaded = ({...props}: PostsList2Props) => {
         placeholderCount={placeholderCount || limit}
         showFinalBottomBorder={showFinalBottomBorder}
         viewType={viewType}
+        loadMore={showLoadMore}
       />
     );
   }
@@ -108,6 +110,7 @@ const PostsListLoaded = ({...props}: PostsList2Props) => {
           <PostsLoading
             placeholderCount={placeholderCount || limit}
             viewType={viewType}
+            loadMore={showLoadMore}
           />
         }
         {orderedResults && !orderedResults.length && <PostsNoResults/>}

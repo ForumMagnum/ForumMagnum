@@ -659,7 +659,7 @@ const LWHomePosts = ({ children, }: {
               {(selectedTab === 'forum-classic') && <AnalyticsContext feedType={selectedTab}>
                 <SuspenseWrapper
                   name="LWHomePosts-forum-classic"
-                  fallback={<PostsLoading placeholderCount={recentPostsTerms.limit+2} />}
+                  fallback={<PostsLoading placeholderCount={recentPostsTerms.limit+2} loadMore/>}
                 >
                   <HideRepeatedPostsProvider>
                     <WelcomePostItem repeatedPostsPrecedence={1} />

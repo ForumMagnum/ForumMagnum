@@ -90,9 +90,7 @@ const LWHome = () => {
               observerProps={{threshold:[0, 0.5, 1]}}
             >
               <LWHomePosts>
-                <SuspenseWrapper name="QuickTakesSection">
-                  <QuickTakesSection />
-                </SuspenseWrapper>
+                <QuickTakesSection />
                 <SuspenseWrapper name="EAPopularCommentsSection">
                   <EAPopularCommentsSection />
                 </SuspenseWrapper>

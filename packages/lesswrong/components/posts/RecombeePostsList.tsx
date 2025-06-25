@@ -186,7 +186,7 @@ const RecombeePostsListInner = ({ algorithm, settings, limit = 15 }: {
   });
 
   if (loading && !filteredResults) {
-    return <PostsLoading placeholderCount={limit} />;
+    return <PostsLoading placeholderCount={limit} loadMore/>;
   }
 
   if (!filteredResults) {
@@ -240,7 +240,7 @@ const RecombeePostsListWrapper = ({ algorithm, settings, limit = 15 }: {
   settings: RecombeeConfiguration,
   limit?: number,
 }) => {
-  return <SuspenseWrapper name="RecombeePostsList" fallback={<PostsLoading placeholderCount={limit}/>}>
+  return <SuspenseWrapper name="RecombeePostsList" fallback={<PostsLoading placeholderCount={limit} loadMore/>}>
     <RecombeePostsListInner
       algorithm={algorithm}
       settings={settings}
