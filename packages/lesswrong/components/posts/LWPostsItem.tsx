@@ -470,7 +470,6 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     hasUnreadComments,
     hasNewPromotedComments,
     commentTerms,
-    isRepeated,
     analyticsProps,
     translucentBackground,
     isRead,
@@ -485,9 +484,6 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
 
   const { hover, eventHandlers } = useHover();
 
-  if (isRepeated) {
-    return null;
-  }
   const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
 
   const reviewIsActive = getReviewPhase() === "REVIEWS" || getReviewPhase() === "NOMINATIONS" || getReviewPhase() === "VOTING";
