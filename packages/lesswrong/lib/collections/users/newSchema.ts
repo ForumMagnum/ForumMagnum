@@ -1893,6 +1893,18 @@ const schema = {
       ...(isEAForum ? { onCreate: () => emailEnabledNotificationSettingOnCreate } : {}),
     },
   },
+  notificationNewPingback: {
+    database: {
+      type: "JSONB",
+      defaultValue: defaultNotificationTypeSettings,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+      ...(isEAForum ? { onCreate: () => emailEnabledNotificationSettingOnCreate } : {}),
+    },
+  },
   notificationDialogueMessages: {
     database: {
       type: "JSONB",

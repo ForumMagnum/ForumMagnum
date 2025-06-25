@@ -110,7 +110,8 @@ const notificationBatchToEmails = async ({user, notificationType, notifications,
         from: notificationTypeRenderer.from,
         subject: await notificationTypeRenderer.emailSubject({ user, notifications, context }),
         body: await notificationTypeRenderer.emailBody({ user, notifications, context }),
-        ...(isEAForum && { utmParams: { ...utmParams, utm_user_id: user._id } })
+        ...(isEAForum && { utmParams: { ...utmParams, utm_user_id: user._id } }),
+        tag: `notification-${notificationType}`,
       }))
   );
 }

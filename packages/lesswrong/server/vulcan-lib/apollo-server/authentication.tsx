@@ -143,7 +143,8 @@ export async function sendVerificationEmail(user: DbUser) {
           {verifyEmailLink}
         </a>
       </p>
-    </div>
+    </div>,
+    tag: "email-verification",
   })
 }
 
@@ -268,7 +269,8 @@ export const loginDataGraphQLMutations = {
         <p>
           <a href={tokenLink}>{tokenLink}</a>
         </p>
-      </div>
+      </div>,
+      tag: "reset-password",
     });  
     if (emailSucceeded)
       return `Successfully sent password reset email to ${email}`; //FIXME: Is this revealing user emails that would otherwise be hidden?

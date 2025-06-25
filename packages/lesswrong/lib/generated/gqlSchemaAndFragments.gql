@@ -4823,6 +4823,7 @@ type User {
   notificationPostsNominatedReview: JSON
   notificationSubforumUnread: JSON
   notificationNewMention: JSON
+  notificationNewPingback: JSON
   notificationDialogueMessages: JSON
   notificationPublishedDialogueMessages: JSON
   notificationAddedAsCoauthor: JSON
@@ -7132,6 +7133,7 @@ input CreateUserDataInput {
   notificationPostsNominatedReview: JSON
   notificationSubforumUnread: JSON
   notificationNewMention: JSON
+  notificationNewPingback: JSON
   notificationDialogueMessages: JSON
   notificationPublishedDialogueMessages: JSON
   notificationAddedAsCoauthor: JSON
@@ -7304,6 +7306,7 @@ input UpdateUserDataInput {
   notificationPostsNominatedReview: JSON
   notificationSubforumUnread: JSON
   notificationNewMention: JSON
+  notificationNewPingback: JSON
   notificationDialogueMessages: JSON
   notificationPublishedDialogueMessages: JSON
   notificationAddedAsCoauthor: JSON
@@ -12272,6 +12275,7 @@ fragment UsersDefaultFragment on User {
   notificationPostsNominatedReview
   notificationSubforumUnread
   notificationNewMention
+  notificationNewPingback
   notificationDialogueMessages
   notificationPublishedDialogueMessages
   notificationAddedAsCoauthor
@@ -12499,6 +12503,7 @@ fragment UsersEdit on User {
   notificationGroupAdministration
   notificationSubforumUnread
   notificationNewMention
+  notificationNewPingback
   notificationNewDialogueChecks
   notificationYourTurnMatchForm
   notificationDialogueMessages

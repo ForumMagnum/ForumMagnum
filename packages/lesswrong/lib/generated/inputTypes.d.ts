@@ -4041,6 +4041,7 @@ interface User {
   notificationPostsNominatedReview: any;
   notificationSubforumUnread: any;
   notificationNewMention: any;
+  notificationNewPingback: any;
   notificationDialogueMessages: any;
   notificationPublishedDialogueMessages: any;
   notificationAddedAsCoauthor: any;
@@ -6124,6 +6125,7 @@ interface CreateUserDataInput {
   notificationPostsNominatedReview?: any;
   notificationSubforumUnread?: any;
   notificationNewMention?: any;
+  notificationNewPingback?: any;
   notificationDialogueMessages?: any;
   notificationPublishedDialogueMessages?: any;
   notificationAddedAsCoauthor?: any;
@@ -6296,6 +6298,7 @@ interface UpdateUserDataInput {
   notificationPostsNominatedReview?: any;
   notificationSubforumUnread?: any;
   notificationNewMention?: any;
+  notificationNewPingback?: any;
   notificationDialogueMessages?: any;
   notificationPublishedDialogueMessages?: any;
   notificationAddedAsCoauthor?: any;

@@ -109,7 +109,8 @@ async function sendWelcomeMessageTo(userId: string) {
     await wrapAndSendEmail({
       user,
       subject: subjectLine,
-      body: <EmailContentItemBody dangerouslySetInnerHTML={{ __html: welcomeMessageBody }}/>
+      body: <EmailContentItemBody dangerouslySetInnerHTML={{ __html: welcomeMessageBody }}/>,
+      tag: "welcome",
     })
   }
 }
