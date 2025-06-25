@@ -498,10 +498,12 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
               c.shortform,
               c."userId" AS "authorId"
           FROM "Comments" c
+          INNER JOIN "Posts" p ON c."postId" = p._id
           WHERE
               ${getUniversalCommentFilterClause('c')}
               AND c."userId" != $(userId)
               AND (c.shortform IS TRUE OR c."postedAt" > (NOW() - INTERVAL '1 day' * $(initialCandidateLookbackDaysParam)))
+              AND p.draft IS NOT TRUE
           ORDER BY c."postedAt" DESC
           LIMIT $(initialCandidateLimit)
       ),
