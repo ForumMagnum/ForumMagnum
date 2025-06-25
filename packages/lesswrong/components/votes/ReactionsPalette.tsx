@@ -17,6 +17,7 @@ import ReactionDescription from "./lwReactions/ReactionDescription";
 import MetaInfo from "../common/MetaInfo";
 import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen";
+import { getCuratedActiveReactions } from '../../lib/voting/curatedReactionsList';
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserReactionsPalette($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -173,8 +174,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
   const [displayStyle, setDisplayStyle] = useState<ReactPaletteStyle>(reactPaletteStyle);
   const debouncedCaptureEvent = useRef(debounce(captureEvent, 500))
   
-  const activeReacts = namesAttachedReactions.filter(r=>!r.deprecated);
-  const reactionsToShow = reactionsSearch(activeReacts, searchText);
+  const reactionsToShow = getCuratedActiveReactions(searchText);
 
   const [updateUser] = useMutation(UsersCurrentUpdateMutation);
 
@@ -365,19 +365,6 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
       </a>}
     </div>
   </div>
-}
-
-export function reactionsSearch(candidates: NamesAttachedReactionType[], searchText: string): NamesAttachedReactionType[] {
-  if (!searchText || !searchText.length)
-    return candidates;
-  
-  searchText = searchText.toLowerCase();
-
-  return candidates.filter(
-    reaction => reaction.name.toLowerCase().startsWith(searchText)
-      || reaction.label.toLowerCase().startsWith(searchText)
-      || reaction.searchTerms?.some(searchTerm => searchTerm.toLowerCase().startsWith(searchText))
-  );
 }
 
 export default registerComponent('ReactionsPalette', ReactionsPalette);
