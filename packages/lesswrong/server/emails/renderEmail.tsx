@@ -3,7 +3,8 @@ import Juice from 'juice';
 import { sendEmailSmtp } from './sendEmail';
 import React from 'react';
 import { ApolloProvider } from '@apollo/client/react';
-import { getDataFromTree } from '@apollo/client/react/ssr';
+import { getMarkupFromTree } from '@apollo/client/react/ssr';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { renderToString } from 'react-dom/server';
 import { TimezoneContext } from '../../components/common/withTimezone';
 import { UserContext } from '../../components/common/withUser';
@@ -182,7 +183,11 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   
   // Traverse the tree, running GraphQL queries and expanding the tree
   // accordingly.
-  await getDataFromTree(wrappedBodyComponent);
+  await getMarkupFromTree({
+    tree: wrappedBodyComponent,
+    context: {},
+    renderFunction: renderToStaticMarkup,
+  });
   
   // Render the REACT tree to an HTML string
   const body = renderToString(wrappedBodyComponent);
