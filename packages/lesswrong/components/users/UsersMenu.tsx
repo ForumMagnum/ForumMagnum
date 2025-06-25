@@ -211,7 +211,7 @@ const UsersMenu = ({classes}: {
     newQuestion: () => userCanPost(currentUser)
       ? (
         <DropdownItem
-          title={preferredHeadingCase("New Question")}
+          title={styleSelect({friendly: "Question", default: preferredHeadingCase("New Question")})}
           to="/newPost?question=true"
         />
       )
@@ -273,7 +273,7 @@ const UsersMenu = ({classes}: {
   const hasBookmarks = isEAForum || (currentUser?.bookmarkedPostsMetadata.length ?? 0) >= 1;
 
   const order: (keyof typeof items)[] = isFriendlyUI
-    ? ["newPost", "newShortform", "divider", "newEvent", "newDialogue", "newSequence"]
+    ? ["newPost", "newQuestion", "newShortform", "divider", "newEvent", "newDialogue", "newSequence"]
     : ["newShortform", "newPost", "newWikitag", "newEvent"];
 
   const writeNewNode = isFriendlyUI ? (
