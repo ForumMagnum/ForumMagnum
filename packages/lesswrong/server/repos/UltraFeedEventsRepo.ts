@@ -10,56 +10,59 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
   }
 
   /**
-   * Fetches served comment events for a specific user and session,
+   * Fetches served comment events for a specific user,
    * groups them by itemIndex (representing a served thread),
    * and returns a Set of unique, stable hashes identifying those served threads.
    */
   async getRecentlyServedCommentThreadHashes(
     userId: string,
-    sessionId: string,
     lookbackHours = 48
   ): Promise<Set<string>> {
-    // Fetch relevant 'served' comment events for the session
-    const servedEvents = await this.getRawDb().manyOrNone<{ documentId: string, itemIndex: number | null, commentIndex: number | null }>(`
+    // Fetch relevant 'served' comment events across all sessions
+    const servedEvents = await this.getRawDb().manyOrNone<{ documentId: string, itemIndex: number | null, commentIndex: number | null, sessionId: string }>(`
       -- UltraFeedEventsRepo.getRecentlyServedCommentThreadHashes
       SELECT
           "documentId", -- The comment ID
           (event->>'itemIndex')::INTEGER AS "itemIndex", -- The index of the thread item in the feed batch
-          (event->>'commentIndex')::INTEGER AS "commentIndex" -- Index within the thread
+          (event->>'commentIndex')::INTEGER AS "commentIndex", -- Index within the thread
+          event->>'sessionId' AS "sessionId" -- Include sessionId for grouping
       FROM "UltraFeedEvents"
       WHERE
           "userId" = $1
-          AND event->>'sessionId' = $2
           AND "collectionName" = 'Comments'
           AND "eventType" = 'served'
-          AND "createdAt" > NOW() - INTERVAL $3
+          AND "createdAt" > NOW() - INTERVAL $2
           AND event->>'itemIndex' IS NOT NULL
       ORDER BY
+          "createdAt" DESC,
           "itemIndex" ASC,
           "commentIndex" ASC NULLS LAST
-    `, [userId, sessionId, `${lookbackHours} hours`]);
+    `, [userId, `${lookbackHours} hours`]);
 
     if (!servedEvents || servedEvents.length === 0) {
       return new Set<string>();
     }
 
-    // Group events by the itemIndex they appeared at in the feed
-    // Filter out any groups with null itemIndex just in case
-    const groupedByItemIndex = groupBy(servedEvents.filter((e: { itemIndex: number | null }) => e.itemIndex !== null), 'itemIndex');
+    // Group events by sessionId + itemIndex to properly reconstruct threads
+    const threadGroups = servedEvents.reduce((groups, event) => {
+      const key = `${event.sessionId}-${event.itemIndex}`;
+      return {
+        ...groups,
+        [key]: [...(groups[key] || []), event]
+      };
+    }, {} as Record<string, typeof servedEvents>);
 
-    const servedThreadHashes = new Set<string>();
-
-    // Generate a hash for each group (each served thread)
-    for (const itemIndex in groupedByItemIndex) {
-      const commentsInGroup = groupedByItemIndex[itemIndex];
-      // Sort by commentIndex again here just to be absolutely sure before hashing
-      const sortedComments = commentsInGroup.sort((a, b) => (a.commentIndex ?? Infinity) - (b.commentIndex ?? Infinity));
+    // Generate a hash for each thread
+    const threadHashes = Object.values(threadGroups).map(commentsInGroup => {
+      // Sort by commentIndex to ensure consistent ordering
+      const sortedComments = [...commentsInGroup].sort((a, b) => 
+        (a.commentIndex ?? Infinity) - (b.commentIndex ?? Infinity)
+      );
       const commentIds = sortedComments.map(event => event.documentId);
-      const threadHash = generateThreadHash(commentIds);
-      servedThreadHashes.add(threadHash);
-    }
+      return generateThreadHash(commentIds);
+    });
 
-    return servedThreadHashes;
+    return new Set(threadHashes);
   }
 
   /**

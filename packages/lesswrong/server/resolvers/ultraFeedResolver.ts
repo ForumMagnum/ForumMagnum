@@ -543,7 +543,7 @@ export const ultraFeedGraphQLQueries = {
         };
       }
 
-      const servedCommentThreadHashes = await ultraFeedEventsRepo.getRecentlyServedCommentThreadHashes(currentUser._id, sessionId);
+      const servedCommentThreadHashes = await ultraFeedEventsRepo.getRecentlyServedCommentThreadHashes(currentUser._id);
       
       const excludedPostIds = await ultraFeedEventsRepo.getPostsToExclude(currentUser._id, sessionId, 3);
 

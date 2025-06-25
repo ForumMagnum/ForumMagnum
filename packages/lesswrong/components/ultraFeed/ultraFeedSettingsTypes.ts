@@ -49,7 +49,6 @@ export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
 export interface CommentScoringSettings {
   commentDecayFactor: number;
   commentDecayBiasHours: number;
-  ultraFeedSeenPenalty: number;
   quickTakeBoost: number;
   commentSubscribedAuthorMultiplier: number;
   threadScoreAggregation: 'sum' | 'max' | 'logSum' | 'avg';
@@ -59,7 +58,6 @@ export interface CommentScoringSettings {
 const DEFAULT_COMMENT_SCORING_SETTINGS: CommentScoringSettings = {
   commentDecayFactor: 1.8,
   commentDecayBiasHours: 2,
-  ultraFeedSeenPenalty: 0.05,
   quickTakeBoost: 1.5,
   commentSubscribedAuthorMultiplier: 2,
   threadScoreAggregation: 'logSum',
@@ -73,6 +71,8 @@ export interface ThreadInterestModelSettings {
   logImpactFactor: number;
   minOverallMultiplier: number;
   maxOverallMultiplier: number;
+  repetitionDecayHours: number;
+  repetitionPenaltyStrength: number;
 }
 
 const DEFAULT_THREAD_INTEREST_MODEL_SETTINGS: ThreadInterestModelSettings = {
@@ -83,6 +83,8 @@ const DEFAULT_THREAD_INTEREST_MODEL_SETTINGS: ThreadInterestModelSettings = {
   logImpactFactor: 0.5,
   minOverallMultiplier: 0.5,
   maxOverallMultiplier: 20.0,
+  repetitionDecayHours: 1.0,
+  repetitionPenaltyStrength: 0.5,
 };
 
 export const DEFAULT_SETTINGS: UltraFeedSettingsType = {

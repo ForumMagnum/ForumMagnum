@@ -161,6 +161,8 @@ export interface ThreadEngagementStats {
   participationCount: number;
   viewScore: number;
   isOnReadPost: boolean;
+  recentServingCount: number;
+  servingHoursAgo: number[];
 }
 
 export interface ServedEventData {

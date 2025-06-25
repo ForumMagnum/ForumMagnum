@@ -628,7 +628,9 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         COALESCE(userVotesInThreads."votingActivityScore", 0) AS "votingActivityScore",
         COALESCE(userCommentsInThreads."participationCount", 0) AS "participationCount",
         COALESCE(userViewEventsInThreads."viewScore", 0) AS "viewScore",
-        CASE WHEN threadsOnReadPosts."threadTopLevelId" IS NOT NULL THEN TRUE ELSE FALSE END AS "isOnReadPost"
+        CASE WHEN threadsOnReadPosts."threadTopLevelId" IS NOT NULL THEN TRUE ELSE FALSE END AS "isOnReadPost",
+        COALESCE(recentServings."recentServingCount", 0) AS "recentServingCount",
+        COALESCE(recentServings."servingHoursAgo", ARRAY[]::numeric[]) AS "servingHoursAgo"
       FROM
         ( -- get threads with any recent activity
           SELECT "threadTopLevelId"
@@ -749,6 +751,34 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
                 ) recent_threads_filter_for_torp
             )
         ) threadsOnReadPosts ON recentActiveThreads."threadTopLevelId" = threadsOnReadPosts."threadTopLevelId"
+      LEFT JOIN
+        ( -- get recent servings of threads to calculate repetition penalty
+          SELECT
+            COALESCE(c_served."topLevelCommentId", c_served._id) AS "threadTopLevelId",
+            COUNT(DISTINCT ufe_served."createdAt") AS "recentServingCount",
+            ARRAY_AGG(
+              EXTRACT(EPOCH FROM (NOW() - ufe_served."createdAt")) / 3600 
+              ORDER BY ufe_served."createdAt" DESC
+            ) AS "servingHoursAgo"
+          FROM "UltraFeedEvents" ufe_served
+          JOIN "Comments" c_served ON ufe_served."documentId" = c_served._id
+          WHERE ufe_served."userId" = $(userId)
+            AND ufe_served."eventType" = 'served'
+            AND ufe_served."collectionName" = 'Comments'
+            AND ufe_served."createdAt" > (NOW() - INTERVAL '6 hours') -- Shorter lookback for repetition
+            AND COALESCE(c_served."topLevelCommentId", c_served._id) IN (
+                SELECT "threadTopLevelId_inner_rat" FROM (
+                    SELECT COALESCE(c_inner."topLevelCommentId", c_inner._id) AS "threadTopLevelId_inner_rat", MAX(c_inner."postedAt") AS "lastCommentActivity_inner"
+                    FROM "Comments" c_inner
+                    WHERE c_inner."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
+                      AND c_inner.deleted IS NOT TRUE AND c_inner.retracted IS NOT TRUE AND c_inner."authorIsUnreviewed" IS NOT TRUE
+                    GROUP BY COALESCE(c_inner."topLevelCommentId", c_inner._id)
+                    ORDER BY "lastCommentActivity_inner" DESC
+                    LIMIT $(threadCandidateLimit)
+                ) recent_threads_filter_for_servings
+            )
+          GROUP BY COALESCE(c_served."topLevelCommentId", c_served._id)
+        ) recentServings ON recentActiveThreads."threadTopLevelId" = recentServings."threadTopLevelId"
     `, {
       userId,
       lookbackInterval,
