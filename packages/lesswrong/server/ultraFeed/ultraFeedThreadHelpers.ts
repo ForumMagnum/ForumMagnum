@@ -137,7 +137,7 @@ interface PreparedFeedCommentsThread extends FeedCommentsThread {
  */
 function calculateCommentScore(
   comment: FeedCommentFromDb,
-  settings: Pick<CommentScoringSettings, 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost' | 'commentSubscribedAuthorMultiplier'>,
+  settings: Pick<CommentScoringSettings, 'commentDecayFactor' | 'commentDecayBiasHours' | 'quickTakeBoost' | 'commentSubscribedAuthorMultiplier'>,
   subscribedToUserIds: Set<string>
 ): number {
   if (!comment.postedAt) {
@@ -164,7 +164,7 @@ function calculateCommentScore(
   const boostedScore = decayedScore * boost;
 
   const hasBeenSeenOrInteracted = comment.lastViewed !== null || comment.lastInteracted !== null;
-  const finalScore = boostedScore * (hasBeenSeenOrInteracted ? settings.ultraFeedSeenPenalty : 1.0);
+  const finalScore = boostedScore * (hasBeenSeenOrInteracted ? 0 : 1.0);
 
   return Number.isFinite(finalScore) && finalScore >= 0 ? finalScore : 0;
 }
@@ -227,7 +227,7 @@ function calculateThreadBaseScore(
  */
 function scoreComments(
   comments: FeedCommentFromDb[],
-  settings: Pick<CommentScoringSettings, 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost' | 'commentSubscribedAuthorMultiplier'>,
+  settings: Pick<CommentScoringSettings, 'commentDecayFactor' | 'commentDecayBiasHours' | 'quickTakeBoost' | 'commentSubscribedAuthorMultiplier'>,
   subscribedToUserIds: Set<string>
 ): IntermediateScoredComment[] { 
   return comments.map(comment => ({
@@ -268,6 +268,20 @@ function calculateThreadEngagementMultiplier(
 
     if (engagementData.isOnReadPost) {
       cumulativeProductOfEffects *= Math.max(0, onReadPostFactor);
+    }
+    
+    if (engagementData.recentServingCount > 0 && engagementData.servingHoursAgo) {
+      let repetitionPenalty = 1.0;
+      const repetitionDecayHours = threadInterestModel.repetitionDecayHours;
+      const repetitionPenaltyStrength = threadInterestModel.repetitionPenaltyStrength;
+      
+      for (const hoursAgo of engagementData.servingHoursAgo) {
+        // Full penalty at 0 hours, decays as 1/(1 + hoursAgo/bias)
+        const decayFactor = 1 / (1 + (hoursAgo / repetitionDecayHours));
+        repetitionPenalty *= (1 - (repetitionPenaltyStrength * decayFactor));
+      }
+      
+      cumulativeProductOfEffects *= repetitionPenalty;
     }
   }
 
@@ -520,8 +534,24 @@ export async function getUltraFeedCommentThreads(
   // --- Select Best Threads --- 
   const finalRankedThreads = selectBestThreads(allScoredThreads); 
 
+  // --- Filter out non-viable threads ---
+  const viableThreads = finalRankedThreads.filter(rankedThreadInfo => {
+    const thread = rankedThreadInfo.thread;
+    
+    // Exclude threads with zero or negative scores
+    if (rankedThreadInfo.score <= 0) return false;
+    
+    // Exclude threads where ALL comments have been viewed or interacted with
+    const hasUnviewedComment = thread.some(comment => 
+      !comment.lastViewed && !comment.lastInteracted
+    );
+    if (!hasUnviewedComment) return false;
+    
+    return true;
+  });
+
   // --- Prepare for Display --- 
-  const unservedRankedThreads = finalRankedThreads.filter(rankedThreadInfo => {
+  const unservedRankedThreads = viableThreads.filter(rankedThreadInfo => {
     const thread = rankedThreadInfo.thread;
     if (!thread || thread.length === 0) return false;
     const commentIds = thread.map(c => c.commentId);
