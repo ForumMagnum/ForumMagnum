@@ -10,6 +10,8 @@ import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import ForumIcon from '../common/ForumIcon';
+import { useDialogNavigation } from "../hooks/useDialogNavigation";
+import { useDisableBodyScroll } from "../hooks/useDisableBodyScroll";
 
 const CommentsListMultiQuery = gql(`
   query multiCommentUltraFeedCommentsDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -215,36 +217,8 @@ const UltraFeedCommentsDialog = ({
   const comments = isPost ? postComments : threadComments;
   const totalCount = isPost ? postCommentsTotalCount : threadCommentsTotalCount;
 
-  // Handle browser back button / swipe back navigation
-  useEffect(() => {
-    window.history.pushState({ dialogOpen: true }, '');
-
-    // Handle popstate (back button/swipe)
-    const handlePopState = (event: PopStateEvent) => {
-      if (!event.state?.dialogOpen) {
-        onClose();
-      }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-
-    return () => {
-      window.removeEventListener('popstate', handlePopState);
-      // If dialog is closing normally (not via back), remove the history entry
-      if (window.history.state?.dialogOpen) {
-        window.history.back();
-      }
-    };
-  }, [onClose]);
-
-  // Disable background scroll while dialog open
-  useEffect(() => {
-    const originalOverflow = window.document.body.style.overflow;
-    window.document.body.style.overflow = 'hidden';
-    return () => {
-      window.document.body.style.overflow = originalOverflow;
-    };
-  }, []);
+  useDialogNavigation(onClose, { trackClosingViaBack: true });
+  useDisableBodyScroll();
 
   // TODO: Do this more elegantly, combine within existing functionality in CommentsNode?
   // scroll to comment clicked on when dialog opens

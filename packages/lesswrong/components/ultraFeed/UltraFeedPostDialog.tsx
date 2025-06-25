@@ -4,7 +4,6 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import LWDialog from "../common/LWDialog";
 import FeedContentBody from "./FeedContentBody";
-import UltraFeedItemFooter from "./UltraFeedItemFooter";
 import Loading from "../vulcan-core/Loading";
 import CommentsListSection from "../comments/CommentsListSection";
 import ForumIcon from '../common/ForumIcon';
@@ -34,6 +33,8 @@ import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
 import IconButton from "@/lib/vendor/@material-ui/core/src/IconButton";
 import TocIcon from "@/lib/vendor/@material-ui/icons/src/Toc";
 import UltraFeedPostToCDrawer from "./UltraFeedPostToCDrawer";
+import { useDialogNavigation } from "../hooks/useDialogNavigation";
+import { useDisableBodyScroll } from "../hooks/useDisableBodyScroll";
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300;
 
@@ -377,7 +378,6 @@ const UltraFeedPostDialog = ({
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
   const scrollableContentRef = useRef<HTMLDivElement>(null);
   const dialogInnerRef = useRef<HTMLDivElement>(null);
-  const isClosingViaBackRef = useRef(false);
   const [navigationOpen, setNavigationOpen] = useState(false);
 
   const postId = partialPost?._id ?? undefined;
@@ -432,36 +432,9 @@ const UltraFeedPostDialog = ({
   });
   const hasTocData = !!tocData && (tocData.sections ?? []).length > 0;
 
-  useEffect(() => {
-    window.history.pushState({ dialogOpen: true }, '');
-
-    // Handle popstate (back button/swipe)
-    const handlePopState = (event: PopStateEvent) => {
-      if (!event.state?.dialogOpen) {
-        isClosingViaBackRef.current = true;
-        onClose();
-      }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-
-    return () => {
-      window.removeEventListener('popstate', handlePopState);
-      // If dialog is closing normally (not via back), remove the history entry
-      if (!isClosingViaBackRef.current && window.history.state?.dialogOpen) {
-        window.history.back();
-      }
-    };
-  }, [onClose]);
-
-  // Disable background scroll while dialog open
-  useEffect(() => {
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = originalOverflow;
-    };
-  }, []);
+  // Handle browser back button / swipe back navigation
+  useDialogNavigation(onClose, { trackClosingViaBack: true });
+  useDisableBodyScroll();
 
   // Bridge scroll events from internal container to window so hooks relying on window scroll keep working
   useEffect(() => {
