@@ -51,7 +51,7 @@ class BookmarksRepo extends AbstractRepo<"Bookmarks"> {
         b."collectionName",
         c."postId",
         c."descendentCount",
-        c."directDescendentCount"
+        c."directChildrenCount" as "directDescendentCount"
       FROM "Bookmarks" b
       LEFT JOIN "Comments" c ON b."documentId" = c."_id"
       WHERE b."userId" = $(userId)
