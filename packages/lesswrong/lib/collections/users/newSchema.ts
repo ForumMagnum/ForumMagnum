@@ -1438,7 +1438,7 @@ const schema = {
       denormalized: true,
     },
     graphql: {
-      outputType: "Int!",
+      outputType: "Int",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       validation: {
         optional: true,
@@ -1447,7 +1447,7 @@ const schema = {
   },
   hasAnyBookmarks: {
     graphql: {
-      outputType: "Boolean!",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
         return user.bookmarksCount > 0;
@@ -3049,7 +3049,7 @@ const schema = {
   },
   hasContinueReading: {
     graphql: {
-      outputType: "Boolean!",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
         const sequences = user.partiallyReadSequences;
