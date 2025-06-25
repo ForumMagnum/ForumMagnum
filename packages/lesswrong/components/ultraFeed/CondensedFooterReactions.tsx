@@ -77,9 +77,9 @@ const styles = defineStyles("CondensedFooterReactions", (theme: ThemeType) => ({
     },
   },
   reactsAndCount: {
+    top: 1,
     display: 'flex',
     alignItems: 'center',
-    marginLeft: '8px',
     cursor: 'pointer',
     fontSize: theme.typography.body2.fontSize,
     color: theme.palette.ultraFeed.dim,
@@ -115,7 +115,7 @@ const styles = defineStyles("CondensedFooterReactions", (theme: ThemeType) => ({
   addReactionButton: {
     opacity: 0.4,
     position: "relative",
-    top: 2,
+    top: 1,
     color: theme.palette.ultraFeed.dim,
     display: 'flex',
     alignItems: 'center',
