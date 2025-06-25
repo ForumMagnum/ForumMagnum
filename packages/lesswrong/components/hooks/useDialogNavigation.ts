@@ -1,14 +1,5 @@
 import { useEffect, useRef } from 'react';
 
-interface UseDialogNavigationOptions {
-  /**
-   * Whether to track if the dialog is closing via the back button.
-   * When true, returns an isClosingViaBackRef that can be used to determine
-   * if the dialog is closing via browser navigation.
-   */
-  trackClosingViaBack?: boolean;
-}
-
 /**
  * Manages browser navigation for dialogs by:
  * 1. Adding a history entry when the dialog opens
@@ -19,24 +10,16 @@ interface UseDialogNavigationOptions {
  * navigating away from the page.
  * 
  * @param onClose - Function to call when the dialog should close
- * @param options - Optional configuration
- * @returns Object with isClosingViaBackRef if trackClosingViaBack is true
  */
-export const useDialogNavigation = (
-  onClose: () => void,
-  options?: UseDialogNavigationOptions
-) => {
+export const useDialogNavigation = (onClose: () => void) => {
   const isClosingViaBackRef = useRef(false);
-  const { trackClosingViaBack = false } = options || {};
 
   useEffect(() => {
     window.history.pushState({ dialogOpen: true }, '');
 
     const handlePopState = (event: PopStateEvent) => {
       if (!event.state?.dialogOpen) {
-        if (trackClosingViaBack) {
-          isClosingViaBackRef.current = true;
-        }
+        isClosingViaBackRef.current = true;
         onClose();
       }
     };
@@ -46,14 +29,9 @@ export const useDialogNavigation = (
     return () => {
       window.removeEventListener('popstate', handlePopState);
       // If dialog is closing normally (not via back), remove the history entry
-      if (
-        (!trackClosingViaBack || !isClosingViaBackRef.current) && 
-        window.history.state?.dialogOpen
-      ) {
+      if (!isClosingViaBackRef.current && window.history.state?.dialogOpen) {
         window.history.back();
       }
     };
-  }, [onClose, trackClosingViaBack]);
-
-  return trackClosingViaBack ? { isClosingViaBackRef } : {};
+  }, [onClose]);
 }; 

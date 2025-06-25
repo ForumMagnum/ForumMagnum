@@ -217,7 +217,7 @@ const UltraFeedCommentsDialog = ({
   const comments = isPost ? postComments : threadComments;
   const totalCount = isPost ? postCommentsTotalCount : threadCommentsTotalCount;
 
-  useDialogNavigation(onClose, { trackClosingViaBack: true });
+  useDialogNavigation(onClose);
   useDisableBodyScroll();
 
   // TODO: Do this more elegantly, combine within existing functionality in CommentsNode?

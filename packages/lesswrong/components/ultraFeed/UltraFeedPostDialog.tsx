@@ -433,7 +433,7 @@ const UltraFeedPostDialog = ({
   const hasTocData = !!tocData && (tocData.sections ?? []).length > 0;
 
   // Handle browser back button / swipe back navigation
-  useDialogNavigation(onClose, { trackClosingViaBack: true });
+  useDialogNavigation(onClose);
   useDisableBodyScroll();
 
   // Bridge scroll events from internal container to window so hooks relying on window scroll keep working
@@ -549,7 +549,7 @@ const UltraFeedPostDialog = ({
               <div className={shouldShowToc ? classes.dialogInnerWrapper : undefined} ref={shouldShowToc ? scrollableContentRef : undefined}>
                 {shouldShowToc && (
                   <>
-                    {/* placeholders for side comments, reacts, and notes */}
+                    {/* placeholders for side comments, reacts, and notes with grid layout (helps get centering right) */}
                     <div />
                     <div className={classes.tocColumnWrapper}>
                       {hasTocData && tocData && (
@@ -646,7 +646,7 @@ const UltraFeedPostDialog = ({
                     />
                   )}
                 </div>
-                {/* placeholders for side comments, reacts, and notes */}
+                {/* placeholders for side comments, reacts, and notes with grid layout (helps get centering right) */}
                 <div />
                 <div />
                 <div />
