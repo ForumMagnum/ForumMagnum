@@ -461,7 +461,7 @@ const LWHomePosts = ({ children, }: {
   `));
 
   const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get()
-  const enabledTabs = availableTabs.filter(tab => isTabEnabled(tab, currentUser, query, hasContinueReading));
+  const enabledTabs = availableTabs.filter(tab => isTabEnabled(tab, currentUser, query, hasContinueReading ?? false));
 
   const [selectedTab, setSelectedTab] = useSelectedTab(currentUser, enabledTabs);
   const selectedTabSettings = availableTabs.find(t=>t.name===selectedTab)!;
