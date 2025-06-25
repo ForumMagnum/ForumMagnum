@@ -7803,8 +7803,8 @@ type User {
   bannedUserIds: [String!]
   bannedPersonalUserIds: [String!]
   bookmarkedPostsMetadata: [PostMetadataOutput!]
-  bookmarksCount: Int!
-  hasAnyBookmarks: Boolean!
+  bookmarksCount: Int
+  hasAnyBookmarks: Boolean
   bookmarkedPosts: [Post!]
   hiddenPostsMetadata: [PostMetadataOutput!]
   hiddenPosts: [Post!]
@@ -7913,7 +7913,7 @@ type User {
   shortformFeed: Post
   viewUnreviewedComments: Boolean
   partiallyReadSequences: [PartiallyReadSequenceItemOutput!]
-  hasContinueReading: Boolean!
+  hasContinueReading: Boolean
   beta: Boolean
   reviewVotesQuadratic: Boolean
   reviewVotesQuadratic2019: Boolean
