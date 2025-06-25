@@ -19,7 +19,7 @@ const styles = defineStyles("HeaderEventSubtitle", (_theme: ThemeType) => ({
 }));
 
 const HeaderEventSubtitleSpotlightQuery = gql(`
-  query HeaderEventSubtitleSpotlightQuery($selector: SpotlightSelector, $limit: Int) {
+  query HeaderEventSubtitleSpotlightQuery {
     currentSpotlight {
       ...SpotlightHeaderEventSubtitle
     }

@@ -13734,10 +13734,7 @@ type HeaderEventSubtitleSpotlightQueryQuery_currentSpotlight_Spotlight = (
 type HeaderEventSubtitleSpotlightQueryQuery_Query = { __typename?: 'Query', currentSpotlight: HeaderEventSubtitleSpotlightQueryQuery_currentSpotlight_Spotlight | null };
 
 
-type HeaderEventSubtitleSpotlightQueryQueryVariables = Exact<{
-  selector: InputMaybe<SpotlightSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-}>;
+type HeaderEventSubtitleSpotlightQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 type HeaderEventSubtitleSpotlightQueryQuery = HeaderEventSubtitleSpotlightQueryQuery_Query;
