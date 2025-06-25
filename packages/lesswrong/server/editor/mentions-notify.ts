@@ -122,6 +122,7 @@ export const notifyUsersAboutMentions = async (
     }).fetch();
     const context = createAnonymousContext();
     for (const comment of comments) {
+      const isQuickTake = comment.shortform && !comment.parentCommentId;
       const userIds = filterUserIds([comment.userId], filteredUserIds);
       filteredUserIds.push(...userIds);
       promises.push(
@@ -131,7 +132,7 @@ export const notifyUsersAboutMentions = async (
           documentId: document._id,
           documentType: notificationType,
           extraData: {
-            pingbackType: "comment",
+            pingbackType: isQuickTake ? "quick take" : "comment",
             pingbackDocumentId: comment._id,
             pingbackDocumentExcerpt: await getCommentExcerpt(comment, context),
           },
