@@ -46,6 +46,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     opacity: `1 !important`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: theme.typography.body2.fontSize,
+    lineHeight: 1,
     // every child except last has margin right applied
     "& > *:not(:last-child)": {
       marginRight: 16,
@@ -73,7 +74,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     "& svg": {
       position: "relative",
       height: 18,
-      top: 1,
+      top: 2,
       [theme.breakpoints.down('sm')]: {
         height: 20,
         width: 20,
@@ -85,7 +86,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   showAllComments: {
     position: 'relative',
-    top: 0,
+    bottom: 0,
     padding: 2,
     opacity: 0.6,
     display: "inline-flex",
@@ -96,7 +97,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     "& svg": {
       position: "relative",
       height: 14,
-      top: 0,
+      top: 2,
     },
     "&:hover": {
       opacity: 1,
@@ -231,7 +232,8 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   overallVoteButtons: {
     position: 'relative',
-    top: 1,
+    top: 0,
+    bottom: 1,
     color: `${theme.palette.ultraFeed.dim} !important`,
     "& .VoteArrowIconSolid-root": {
     },
@@ -242,7 +244,8 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   agreementButtons: {
     position: 'relative',
     color: `${theme.palette.ultraFeed.dim} !important`,
-    top: 1,
+    top: 0,
+    bottom: 0,
     marginLeft: -8,
     [theme.breakpoints.down('sm')]: {
       top: 3,
