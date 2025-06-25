@@ -115,7 +115,7 @@ const styles = defineStyles("CondensedFooterReactions", (theme: ThemeType) => ({
   addReactionButton: {
     opacity: 0.4,
     position: "relative",
-    top: 0,
+    top: 2,
     color: theme.palette.ultraFeed.dim,
     display: 'flex',
     alignItems: 'center',
@@ -131,7 +131,7 @@ const styles = defineStyles("CondensedFooterReactions", (theme: ThemeType) => ({
       width: 20,
     },
     [theme.breakpoints.down('sm')]: {
-      top: 3,
+      top: 1,
       opacity: 1,
     },
   },

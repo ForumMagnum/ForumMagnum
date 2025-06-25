@@ -56,8 +56,6 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       color: `${theme.palette.linkHover.dim} !important`,
     },
     [theme.breakpoints.down('sm')]: {
-      paddingLeft: 8,
-      paddingRight: 8,
       justifyContent: "space-between",
       ...theme.typography.ultraFeedMobileStyle,
       "& > *:not(:last-child)": {
@@ -76,12 +74,19 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       height: 18,
       top: 2,
       [theme.breakpoints.down('sm')]: {
+        top: 3,
         height: 20,
         width: 20,
       },
     },
     [theme.breakpoints.down('sm')]: {
-      top: 2,
+      bottom: 1
+    }
+  },
+  showAllCommentsWrapper: {
+    display: 'inline-flex',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
     }
   },
   showAllComments: {
@@ -156,8 +161,10 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     bottom: 2,
   },
   condensedFooterReactions: {
-    [theme.breakpoints.up('md')]: {
-      marginLeft: 'auto',
+    marginLeft: 'auto',
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: 'unset',
+      
     },
   },
   bookmarkButton: {
@@ -172,7 +179,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       },
     },
     [theme.breakpoints.down('sm')]: {
-      top: 5,
+      top: 2,
       opacity: 1,
     },
   },
@@ -205,7 +212,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       opacity: 1,
     },
     [theme.breakpoints.down('sm')]: {
-      top: 4,
+      top: 0,
       opacity: 1,
     },
   },
@@ -238,7 +245,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     "& .VoteArrowIconSolid-root": {
     },
     [theme.breakpoints.down('sm')]: {
-      top: 3,
+      top: 0,
     }
   },
   agreementButtons: {
@@ -248,7 +255,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     bottom: 0,
     marginLeft: -8,
     [theme.breakpoints.down('sm')]: {
-      top: 3,
+      top: 0,
     }
   },
   footerVoteScoreOverride: {
@@ -468,7 +475,8 @@ const UltraFeedItemFooterCore = ({
     : `Show all ${commentCount} descendant${commentCount === 1 ? '' : 's'}`;
 
   const showAllCommentsButton = (commentCount ?? 0) > 0 
-    ? <LWTooltip title={showAllCommentsTooltip}>
+    ? <div className={classes.showAllCommentsWrapper}>
+      <LWTooltip title={showAllCommentsTooltip}>
       <div
         onClick={onClickComments}
         className={classes.showAllComments}
@@ -476,7 +484,8 @@ const UltraFeedItemFooterCore = ({
         <DebateIconOutline />
         <span className={classes.showAllCommentsCount}>{commentCount}</span>
       </div>
-    </LWTooltip>
+      </LWTooltip>
+    </div>
    : null;
 
   const votingSystem = voteProps.document.votingSystem || getDefaultVotingSystem();
