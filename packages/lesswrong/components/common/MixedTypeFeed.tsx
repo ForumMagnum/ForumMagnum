@@ -167,6 +167,16 @@ export const MixedTypeFeed = <
   useOnPageScroll(maybeStartLoadingMore);
   
   const results = (data && resolverName && data[resolverName]?.results) || [];
+
+  // Log items that appear more than once in the same result set (should be impossible) TODO: clean up once issues are fixed
+  results.reduce((keysSeen, r) => {
+    const k = keyFunc(r);
+    keysSeen.has(k)
+      ? captureEvent?.("ultraFeedDuplicateDetected", { key: k, resolverName, duplicateStage: "client-render" })
+      : keysSeen.add(k);
+    return keysSeen;
+  }, new Set<string>());
+
   const orderPolicy = reorderOnRefetch ? 'no-reorder' : undefined;
   const orderedResults = useOrderPreservingArray(results, keyFunc, orderPolicy);
 
