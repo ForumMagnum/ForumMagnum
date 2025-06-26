@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import MetaInfo from "../common/MetaInfo";
@@ -60,7 +60,7 @@ export const SunshineNewUserPostItem = ({post}: {
   post: SunshinePostsList,
 }) => {
   const classes = useStyles(styles);
-  const [isCollapsed, setIsCollapsed] = React.useState<boolean>(!!post.rejected);
+  const [isCollapsed, setIsCollapsed] = useState(!!post.rejected);
 
   return <div className={classes.post}>
     <div className={classes.rejection}>
