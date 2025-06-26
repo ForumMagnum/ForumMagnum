@@ -12,7 +12,7 @@ import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
 import UsersName from "../users/UsersName";
 import FormatDate from "../common/FormatDate";
 import ConversationPreview from "./ConversationPreview";
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 
 const ConversationsListUpdateMutation = gql(`

@@ -1687,6 +1687,7 @@ interface DbUser extends DbObject {
   biography: EditableFieldContents | null
   biography_latest: string | null
   blueskyProfileURL: string | null
+  bookmarksCount: number
   careerStage: Array<string> | null
   collapseModerationGuidelines: boolean | null
   commentCount: number

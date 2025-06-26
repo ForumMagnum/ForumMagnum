@@ -21,7 +21,7 @@ import SectionTitle from "../common/SectionTitle";
 import HeadTags from "../common/HeadTags";
 import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
-import SpotlightItem from "../spotlights/SpotlightItem";
+import { SpotlightItem } from "../spotlights/SpotlightItem";
 import LWTooltip from "../common/LWTooltip";
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */

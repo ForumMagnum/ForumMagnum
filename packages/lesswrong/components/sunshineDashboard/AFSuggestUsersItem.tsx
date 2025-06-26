@@ -14,7 +14,7 @@ import { Typography } from "../common/Typography";
 import MetaInfo from "../common/MetaInfo";
 import SidebarActionMenu from "./SidebarActionMenu";
 import SidebarAction from "./SidebarAction";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const SunshineUsersListUpdateMutation = gql(`

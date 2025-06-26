@@ -178,7 +178,7 @@ const RecommendationsAndCurated = ({
       <div><em>(Click to see more recommendations)</em></div>
     </div>
 
-    const renderBookmarks = !isEAForum && ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
+    const renderBookmarks = !isEAForum && currentUser?.hasAnyBookmarks && !settings.hideBookmarks;
     const renderContinueReading = !isEAForum && currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
     
     const renderRecommendations = !settings.hideFrontpage
@@ -228,7 +228,7 @@ const RecommendationsAndCurated = ({
       <>
         {isLW && (
           <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
-            <DismissibleSpotlightItem current />
+            <DismissibleSpotlightItem />
           </AnalyticsContext>
         )}
 

@@ -4,7 +4,7 @@ import { DialogActions } from '@/components/widgets/DialogActions';
 import { DialogContent } from '../../widgets/DialogContent';
 import LWDialog from "../../common/LWDialog";
 import EAButton from "../EAButton";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const DigestsMinimumInfoUpdateMutation = gql(`

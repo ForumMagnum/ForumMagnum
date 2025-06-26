@@ -6,7 +6,7 @@ import ExposurePlus1 from '@/lib/vendor/@material-ui/icons/src/ExposurePlus1';
 import Undo from '@/lib/vendor/@material-ui/icons/src/Undo';
 import DropdownItem from "../DropdownItem";
 import OmegaIcon from "../../icons/OmegaIcon";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import uniq from 'lodash/uniq';
 import without from 'lodash/without';

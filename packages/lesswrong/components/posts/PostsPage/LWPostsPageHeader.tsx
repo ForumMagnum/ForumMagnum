@@ -27,6 +27,7 @@ import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
 import AlignmentCrosspostLink from "../AlignmentCrosspostLink";
 import ReadTime from "./ReadTime";
 import LWCommentCount from "../TableOfContents/LWCommentCount";
+import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 
 export const LW_POST_PAGE_PADDING = 110;
 
@@ -320,7 +321,9 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
     {post.isEvent && <div className={classes.eventData}>
       <PostsPageEventData post={post}/>
     </div>}
-    <ReviewPillContainer postId={post._id} />
+    <SuspenseWrapper name="ReviewPillContainer">
+      <ReviewPillContainer postId={post._id} />
+    </SuspenseWrapper>
   </div>
 }
 

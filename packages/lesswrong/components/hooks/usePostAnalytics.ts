@@ -1,5 +1,5 @@
-import { gql } from '@apollo/client'
 import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 
 export type PostAnalyticsResult = {
   allViews: number
@@ -15,7 +15,7 @@ type PostAnalyticsQueryResult = {
 }
 
 export const usePostAnalytics = (postId: string) => {
-  const postAnalyticsQuery = gql`
+  const postAnalyticsQuery = gql(`
     query PostAnalyticsQuery($postId: String!) {
       PostAnalytics(postId: $postId) {
         allViews
@@ -29,7 +29,7 @@ export const usePostAnalytics = (postId: string) => {
         }
       }
     }
-  `
+  `);
   
   const { data, loading, error } = useQuery<PostAnalyticsQueryResult>(postAnalyticsQuery, {variables: {postId}})
   

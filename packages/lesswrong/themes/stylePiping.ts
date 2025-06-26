@@ -621,9 +621,9 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: b
     marginTop: ".5em",
     marginBottom: ".25em",
     wordBreak: "break-word",
-    [isIfAnyoneBuildsItFrontPage]: {
+    ...isIfAnyoneBuildsItFrontPage({
       color: theme.palette.text.bannerAdOverlay,
-    },
+    }),
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
 
@@ -638,16 +638,16 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: b
       ...theme.typography.commentBlockquote,
       ...theme.typography.body2,
       ...theme.typography.commentStyle,
-      [isIfAnyoneBuildsItFrontPage]: {
+      ...isIfAnyoneBuildsItFrontPage({
         color: theme.palette.text.bannerAdOverlay,
-      },
+      }),
     },
     '& li': {
       ...theme.typography.body2,
       ...theme.typography.commentStyle,
-      [isIfAnyoneBuildsItFrontPage]: {
+      ...isIfAnyoneBuildsItFrontPage({
         color: theme.palette.text.bannerAdOverlay,
-      },
+      }),
     },
     '& h1, & h2, & h3': {
       ...theme.typography.commentHeader,

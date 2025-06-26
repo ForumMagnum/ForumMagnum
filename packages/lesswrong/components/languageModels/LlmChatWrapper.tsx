@@ -10,10 +10,11 @@ import markdownItContainer from "markdown-it-container";
 import markdownItFootnote from "markdown-it-footnote";
 import markdownItSub from "markdown-it-sub";
 import markdownItSup from "markdown-it-sup";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { maybeDate } from '@/lib/utils/dateUtils';
+import { userHasLlmChat } from '@/lib/betas';
 
 const LlmConversationsFragmentMultiQuery = gql(`
   query multiLlmConversationLlmChatWrapperQuery($selector: LlmConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -192,8 +193,10 @@ const LlmChatWrapper = ({children}: {
       limit: 50,
       enableTotal: false,
     },
-    skip: !currentUser,
-    notifyOnNetworkStatusChange: true,
+    skip: !currentUser || !userHasLlmChat(currentUser),
+    // Not to SSRed because this is a context provider around the whole
+    // page, so it would waterfall with the main page contents
+    ssr: false,
   });
 
   const userLlmConversations = data?.llmConversations?.results;
@@ -215,7 +218,10 @@ const LlmChatWrapper = ({children}: {
 
   const { data: dataLlmConversationsWithMessages } = useQuery(LlmConversationsWithMessagesFragmentQuery, {
     variables: { documentId: currentConversationId },
-    skip: !currentConversationId,
+    skip: !currentConversationId || !userHasLlmChat(currentUser),
+    // Not to SSRed because this is a context provider around the whole
+    // page, so it would waterfall with the main page contents
+    ssr: false,
   });
   const currentConversationWithMessages = dataLlmConversationsWithMessages?.llmConversation?.result;
 

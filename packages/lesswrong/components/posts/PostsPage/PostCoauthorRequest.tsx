@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import classNames from 'classnames';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
@@ -69,13 +69,13 @@ const PostCoauthorRequest = ({post, currentUser, classes}: {
 
   const onResponse = async (accept: boolean) => {
     setLoading(true);
-    const { errors } = await acceptCoauthorRequest({variables: {
+    const { error } = await acceptCoauthorRequest({variables: {
       postId: post._id,
       userId: currentUser?._id,
       accept,
     }});
-    if (errors) {
-      setError(`Oops, something went wrong: ${errors[0].message}`);
+    if (error) {
+      setError(`Oops, something went wrong: ${error.message}`);
     }
     setLoading(false);
   }

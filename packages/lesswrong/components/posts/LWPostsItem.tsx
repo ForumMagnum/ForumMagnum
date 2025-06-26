@@ -54,7 +54,7 @@ export const styles = (theme: ThemeType) => ({
     // through.
     // This breaks the layout on Sequence pages (where the component is already
     // a horizontal flexbox)
-    [isIfAnyoneBuildsItFrontPage]: {
+    ...isIfAnyoneBuildsItFrontPage({
       flexDirection: "column",
       '&::after': {
         height: 2,
@@ -62,7 +62,7 @@ export const styles = (theme: ThemeType) => ({
         width: '100%',
         backdropFilter: theme.palette.filters.bannerAdBlur,
       },
-    },
+    }),
   },
   root: {
     position: "relative",
@@ -83,9 +83,9 @@ export const styles = (theme: ThemeType) => ({
     ...(isBookUI && theme.themeOptions.name === 'dark' && {
       background: theme.palette.panelBackground.bannerAdTranslucent,
       backdropFilter: theme.palette.filters.bannerAdBlur,
-      [isIfAnyoneBuildsItFrontPage]: {
+      ...isIfAnyoneBuildsItFrontPage({
         background: theme.palette.panelBackground.bannerAdTranslucentDeep,
-      }
+      })
     })
   },
   checkboxWidth: {
@@ -128,9 +128,9 @@ export const styles = (theme: ThemeType) => ({
   },
   bottomBorder: {
     borderBottom: theme.palette.border.itemSeparatorBottom,
-    [isIfAnyoneBuildsItFrontPage]: {
+    ...isIfAnyoneBuildsItFrontPage({
       borderBottom: "none",
-    },
+    }),
   },
   commentsBackground: {
     backgroundColor: theme.palette.panelBackground.postsItemExpandedComments,
@@ -190,9 +190,9 @@ export const styles = (theme: ThemeType) => ({
     zIndex: theme.zIndexes.postItemAuthor,
     flex: 1000,
     maxWidth: "fit-content",
-    [isIfAnyoneBuildsItFrontPage]: {
+    ...isIfAnyoneBuildsItFrontPage({
       color: theme.palette.text.bannerAdDim,
-    },
+    }),
     [theme.breakpoints.down('xs')]: {
       justifyContent: "flex-end",
       width: "unset",
@@ -366,10 +366,10 @@ export const styles = (theme: ThemeType) => ({
     height: 22,
   },
   isRead: {
-    [isIfAnyoneBuildsItFrontPage]: {
+    ...isIfAnyoneBuildsItFrontPage({
       background: theme.palette.panelBackground.bannerAdTranslucent,
       backdropFilter: theme.palette.filters.bannerAdBlur,
-    },
+    }),
   },
   checkbox: {
     marginRight: 10
@@ -470,7 +470,6 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     hasUnreadComments,
     hasNewPromotedComments,
     commentTerms,
-    isRepeated,
     analyticsProps,
     translucentBackground,
     isRead,
@@ -485,9 +484,6 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
 
   const { hover, eventHandlers } = useHover();
 
-  if (isRepeated) {
-    return null;
-  }
   const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
 
   const reviewIsActive = getReviewPhase() === "REVIEWS" || getReviewPhase() === "NOMINATIONS" || getReviewPhase() === "VOTING";

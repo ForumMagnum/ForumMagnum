@@ -16,7 +16,7 @@ import CommentBody from "../comments/CommentsItem/CommentBody";
 import SunshineCommentsItemOverview from "./SunshineCommentsItemOverview";
 import SidebarActionMenu from "./SidebarActionMenu";
 import SidebarAction from "./SidebarAction";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const CommentsListWithParentMetadataUpdateMutation = gql(`
