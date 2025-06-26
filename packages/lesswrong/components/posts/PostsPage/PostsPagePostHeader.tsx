@@ -352,7 +352,10 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
               />
             </div>
             {post.coauthors.map((coauthor, i) =>
-              <div style={{position: 'relative', zIndex: 0 - i}}>
+              <div
+                key={coauthor._id}
+                style={{position: 'relative', zIndex: 0 - i}}
+              >
                 <UsersProfileImage
                   key={coauthor._id}
                   user={coauthor}
