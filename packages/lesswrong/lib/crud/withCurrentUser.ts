@@ -1,7 +1,7 @@
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
 import { hookToHoc } from '../hocUtils';
-import { useStabilizedCallbackAsync } from "@/components/hooks/useDebouncedCallback";
+import { useCallback } from "react";
 
 /**
  * HoC for a graphQL that fetches the logged-in user object. This is used once,
@@ -22,9 +22,9 @@ export const useQueryCurrentUser = () => {
     ssr: true,
   });
 
-  const refetchCurrentUser = useStabilizedCallbackAsync<void>(async () => {
+  const refetchCurrentUser = useCallback(async () => {
     await refetch();
-  });
+  }, [refetch]);
   
   return {
     currentUser: data?.currentUser ?? null,

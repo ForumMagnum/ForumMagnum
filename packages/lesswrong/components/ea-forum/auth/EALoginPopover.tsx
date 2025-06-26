@@ -262,6 +262,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
   const [error, setError] = useState<string | null>(null);
   const [policy, setPolicy] = useState<string | null>(null);
   const [showFacebookWarning, setShowFacebookWarning] = useState(false);
+  const refetchCurrentUser = useRefetchCurrentUser();
 
   const onChangeEmail = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
     setEmail(ev.target.value);
@@ -325,7 +326,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
           ? client.signup(email, password)
           : client.login(email, password)
       );
-      location.reload();
+      await refetchCurrentUser();
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
