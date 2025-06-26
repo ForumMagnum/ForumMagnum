@@ -35,7 +35,6 @@ interface Query {
   CuratedAndPopularThisWeek: CuratedAndPopularThisWeekResult | null;
   RecentlyActiveDialogues: RecentlyActiveDialoguesResult | null;
   MyDialogues: MyDialoguesResult | null;
-  GoogleVertexPosts: GoogleVertexPostsResult | null;
   CrossedKarmaThreshold: CrossedKarmaThresholdResult | null;
   RecombeeLatestPosts: RecombeeLatestPostsResult | null;
   RecombeeHybridPosts: RecombeeHybridPostsResult | null;
@@ -256,9 +255,6 @@ interface Mutation {
   RemoveForumEventSticker: boolean | null;
   unlockPost: Post | null;
   revertPostToRevision: Post | null;
-  sendVertexViewItemEvent: boolean;
-  sendVertexMediaCompleteEvent: boolean;
-  sendVertexViewHomePageEvent: boolean;
   importUrlAsDraftPost: ExternalPostImportData;
   revertTagToRevision: Tag | null;
   autosaveRevision: Revision | null;
@@ -880,10 +876,6 @@ interface RecentlyActiveDialoguesResult {
 
 interface MyDialoguesResult {
   results: Array<Post>;
-}
-
-interface GoogleVertexPostsResult {
-  results: Array<VertexRecommendedPost>;
 }
 
 interface CrossedKarmaThresholdResult {
@@ -9757,7 +9749,6 @@ interface GraphQLTypeMap {
   CuratedAndPopularThisWeekResult: CuratedAndPopularThisWeekResult;
   RecentlyActiveDialoguesResult: RecentlyActiveDialoguesResult;
   MyDialoguesResult: MyDialoguesResult;
-  GoogleVertexPostsResult: GoogleVertexPostsResult;
   CrossedKarmaThresholdResult: CrossedKarmaThresholdResult;
   RecombeeLatestPostsResult: RecombeeLatestPostsResult;
   RecombeeHybridPostsResult: RecombeeHybridPostsResult;

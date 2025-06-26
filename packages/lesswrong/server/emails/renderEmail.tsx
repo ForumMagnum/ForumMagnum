@@ -3,7 +3,6 @@ import { sendEmailSmtp } from './sendEmail';
 import React from 'react';
 import { ApolloProvider } from '@apollo/client/react';
 import { getMarkupFromTree } from '@apollo/client/react/ssr';
-import { renderToStaticMarkup, renderToString } from 'react-dom/server';
 import { TimezoneContext, UserContext } from '../../components/common/sharedContexts';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { forumTitleSetting, isLWorAF } from '../../lib/instanceSettings';
@@ -146,7 +145,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   if (!subject) throw new Error("Missing required argument: subject");
   if (!bodyComponent) throw new Error("Missing required argument: bodyComponent");
 
-  const { renderToString } = await import('react-dom/server');
+  const { renderToStaticMarkup, renderToString } = await import('react-dom/server');
   
   // Set up Apollo
   const { createClient }: typeof import('../vulcan-lib/apollo-ssr/apolloClient') = require('../vulcan-lib/apollo-ssr/apolloClient');

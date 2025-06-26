@@ -66,13 +66,11 @@ type Documents = {
     "\n  query multiCommentUserCommentsRepliesQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsListWithParentMetadata\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentUserCommentsRepliesQueryDocument,
     "\n  query multiUserUserCommentsRepliesQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": typeof types.multiUserUserCommentsRepliesQueryDocument,
     "\n  query multiCommentuseCommentQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentuseCommentQueryDocument,
-    "\n    mutation sendVertexMediaCompleteEventMutation($postId: String!, $attributionId: String) {\n      sendVertexMediaCompleteEvent(postId: $postId, attributionId: $attributionId)\n    }\n  ": typeof types.sendVertexMediaCompleteEventMutationDocument,
     "\n  query multiCommentCommentsListCondensedQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ShortformComments\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentCommentsListCondensedQueryDocument,
     "\n  query HeaderEventSubtitleSpotlightQuery {\n    currentSpotlight {\n      ...SpotlightHeaderEventSubtitle\n    }\n  }\n": typeof types.HeaderEventSubtitleSpotlightQueryDocument,
     "\n  query multiTagHomeTagBarQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiTagHomeTagBarQueryDocument,
     "\n  query multiSubscriptionLWHomePostsQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {\n    subscriptions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SubscriptionState\n      }\n      totalCount\n    }\n  }\n": typeof types.multiSubscriptionLWHomePostsQueryDocument,
     "\n  query LWHomePosts($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.LWHomePostsDocument,
-    "\n    mutation sendVertexViewHomePageEventMutation {\n      sendVertexViewHomePageEvent\n    }\n  ": typeof types.sendVertexViewHomePageEventMutationDocument,
     "\n  query multiFeaturedResourceFeaturedResourceBannerQuery($selector: FeaturedResourceSelector, $limit: Int, $enableTotal: Boolean) {\n    featuredResources(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...FeaturedResourcesFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiFeaturedResourceFeaturedResourceBannerQueryDocument,
     "\n  query multiTagSubforumsListQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagSubforumSidebarFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiTagSubforumsListQueryDocument,
     "\n  query PostExcerpt($documentId: String, $hash: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...HighlightWithHash\n      }\n    }\n  }\n": typeof types.PostExcerptDocument,
@@ -201,6 +199,7 @@ type Documents = {
     "\n  query multiForumEventuseCurrentForumEventQuery($selector: ForumEventSelector, $limit: Int, $enableTotal: Boolean) {\n    forumEvents(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ForumEventsDisplay\n      }\n      totalCount\n    }\n  }\n": typeof types.multiForumEventuseCurrentForumEventQueryDocument,
     "\n    query CurrentFrontpageSurvey {\n      CurrentFrontpageSurvey {\n        ...SurveyScheduleMinimumInfo\n      }\n    }\n  ": typeof types.CurrentFrontpageSurveyDocument,
     "\n      mutation UserExpandFrontpageSection($section: String!, $expanded: Boolean!) {\n        UserExpandFrontpageSection(section: $section, expanded: $expanded)\n      }\n    ": typeof types.UserExpandFrontpageSectionDocument,
+    "\n  query multiTagfilterSettingsQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagBasicInfo\n      }\n      totalCount\n    }\n  }\n": typeof types.multiTagfilterSettingsQueryDocument,
     "\n  query GetCrosspostQuery($args: JSON) {\n    getCrosspost(args: $args)\n  }\n": typeof types.GetCrosspostQueryDocument,
     "\n    mutation initiateConversation($participantIds: [String!]!, $af: Boolean, $moderator: Boolean) {\n      initiateConversation(participantIds: $participantIds, af: $af, moderator: $moderator) {\n        ...ConversationsMinimumInfo\n      }\n    }\n  ": typeof types.initiateConversationDocument,
     "\n      mutation markConversationRead($conversationId: String!) {\n        markConversationRead(conversationId: $conversationId)\n      }\n    ": typeof types.markConversationReadDocument,
@@ -211,7 +210,6 @@ type Documents = {
     "\n  query RecentOpportunitiesQuery($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.RecentOpportunitiesQueryDocument,
     "\n  query RecentOpportunitiesWithSequenceQuery($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsListWithVotesAndSequence\n      }\n    }\n  }\n": typeof types.RecentOpportunitiesWithSequenceQueryDocument,
     "\n    mutation increasePostViewCountMutation($postId: String) {\n      increasePostViewCount(postId: $postId)\n    }\n  ": typeof types.increasePostViewCountMutationDocument,
-    "\n    mutation sendVertexViewItemEventMutation($postId: String!, $attributionId: String) {\n      sendVertexViewItemEvent(postId: $postId, attributionId: $attributionId)\n    }\n  ": typeof types.sendVertexViewItemEventMutationDocument,
     "\n    mutation markPostCommentsRead($postId: String!) {\n      markPostCommentsRead(postId: $postId)\n    }\n  ": typeof types.markPostCommentsReadDocument,
     "\n    mutation RefreshDbSettings {\n      RefreshDbSettings\n    }\n  ": typeof types.RefreshDbSettingsDocument,
     "\n  mutation rejectPostMutation($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SunshinePostsList\n      }\n    }\n  }\n": typeof types.rejectPostMutationDocument,
@@ -888,7 +886,6 @@ type Documents = {
     "\n  fragment UserVotesWithDocument on Vote {\n    ...UserVotes\n    comment {\n      ...CommentsListWithParentMetadata\n    }\n    post {\n      ...PostsListWithVotes\n    }\n  }\n": typeof types.UserVotesWithDocumentDoc,
     "\n    query getCurrentUser {\n      currentUser {\n        ...UsersCurrent\n      }\n    }\n  ": typeof types.getCurrentUserDocument,
     "\n  mutation createLWEventwithNewEvents($data: CreateLWEventDataInput!) {\n    createLWEvent(data: $data) {\n      data {\n        ...newEventFragment\n      }\n    }\n  }\n": typeof types.createLWEventwithNewEventsDocument,
-    "\n  query multiTagfilterSettingsQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagBasicInfo\n      }\n      totalCount\n    }\n  }\n": typeof types.multiTagfilterSettingsQueryDocument,
     "\n  fragment AdvisorRequestsDefaultFragment on AdvisorRequest {\n    _id\n    schemaVersion\n    createdAt\n    legacyData\n    userId\n    interestedInMetaculus\n    jobAds\n  }\n": typeof types.AdvisorRequestsDefaultFragmentDoc,
     "\n  fragment ArbitalCachesDefaultFragment on ArbitalCaches {\n    _id\n    schemaVersion\n    createdAt\n    legacyData\n  }\n": typeof types.ArbitalCachesDefaultFragmentDoc,
     "\n  fragment ArbitalTagContentRelsDefaultFragment on ArbitalTagContentRel {\n    _id\n    schemaVersion\n    createdAt\n    legacyData\n    parentDocumentId\n    childDocumentId\n    parentCollectionName\n    childCollectionName\n    type\n    level\n    isStrong\n  }\n": typeof types.ArbitalTagContentRelsDefaultFragmentDoc,
@@ -1055,13 +1052,11 @@ const documents: Documents = {
     "\n  query multiCommentUserCommentsRepliesQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsListWithParentMetadata\n      }\n      totalCount\n    }\n  }\n": types.multiCommentUserCommentsRepliesQueryDocument,
     "\n  query multiUserUserCommentsRepliesQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": types.multiUserUserCommentsRepliesQueryDocument,
     "\n  query multiCommentuseCommentQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": types.multiCommentuseCommentQueryDocument,
-    "\n    mutation sendVertexMediaCompleteEventMutation($postId: String!, $attributionId: String) {\n      sendVertexMediaCompleteEvent(postId: $postId, attributionId: $attributionId)\n    }\n  ": types.sendVertexMediaCompleteEventMutationDocument,
     "\n  query multiCommentCommentsListCondensedQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ShortformComments\n      }\n      totalCount\n    }\n  }\n": types.multiCommentCommentsListCondensedQueryDocument,
     "\n  query HeaderEventSubtitleSpotlightQuery {\n    currentSpotlight {\n      ...SpotlightHeaderEventSubtitle\n    }\n  }\n": types.HeaderEventSubtitleSpotlightQueryDocument,
     "\n  query multiTagHomeTagBarQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagFragment\n      }\n      totalCount\n    }\n  }\n": types.multiTagHomeTagBarQueryDocument,
     "\n  query multiSubscriptionLWHomePostsQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {\n    subscriptions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SubscriptionState\n      }\n      totalCount\n    }\n  }\n": types.multiSubscriptionLWHomePostsQueryDocument,
     "\n  query LWHomePosts($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.LWHomePostsDocument,
-    "\n    mutation sendVertexViewHomePageEventMutation {\n      sendVertexViewHomePageEvent\n    }\n  ": types.sendVertexViewHomePageEventMutationDocument,
     "\n  query multiFeaturedResourceFeaturedResourceBannerQuery($selector: FeaturedResourceSelector, $limit: Int, $enableTotal: Boolean) {\n    featuredResources(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...FeaturedResourcesFragment\n      }\n      totalCount\n    }\n  }\n": types.multiFeaturedResourceFeaturedResourceBannerQueryDocument,
     "\n  query multiTagSubforumsListQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagSubforumSidebarFragment\n      }\n      totalCount\n    }\n  }\n": types.multiTagSubforumsListQueryDocument,
     "\n  query PostExcerpt($documentId: String, $hash: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...HighlightWithHash\n      }\n    }\n  }\n": types.PostExcerptDocument,
@@ -1190,6 +1185,7 @@ const documents: Documents = {
     "\n  query multiForumEventuseCurrentForumEventQuery($selector: ForumEventSelector, $limit: Int, $enableTotal: Boolean) {\n    forumEvents(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ForumEventsDisplay\n      }\n      totalCount\n    }\n  }\n": types.multiForumEventuseCurrentForumEventQueryDocument,
     "\n    query CurrentFrontpageSurvey {\n      CurrentFrontpageSurvey {\n        ...SurveyScheduleMinimumInfo\n      }\n    }\n  ": types.CurrentFrontpageSurveyDocument,
     "\n      mutation UserExpandFrontpageSection($section: String!, $expanded: Boolean!) {\n        UserExpandFrontpageSection(section: $section, expanded: $expanded)\n      }\n    ": types.UserExpandFrontpageSectionDocument,
+    "\n  query multiTagfilterSettingsQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagBasicInfo\n      }\n      totalCount\n    }\n  }\n": types.multiTagfilterSettingsQueryDocument,
     "\n  query GetCrosspostQuery($args: JSON) {\n    getCrosspost(args: $args)\n  }\n": types.GetCrosspostQueryDocument,
     "\n    mutation initiateConversation($participantIds: [String!]!, $af: Boolean, $moderator: Boolean) {\n      initiateConversation(participantIds: $participantIds, af: $af, moderator: $moderator) {\n        ...ConversationsMinimumInfo\n      }\n    }\n  ": types.initiateConversationDocument,
     "\n      mutation markConversationRead($conversationId: String!) {\n        markConversationRead(conversationId: $conversationId)\n      }\n    ": types.markConversationReadDocument,
@@ -1200,7 +1196,6 @@ const documents: Documents = {
     "\n  query RecentOpportunitiesQuery($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.RecentOpportunitiesQueryDocument,
     "\n  query RecentOpportunitiesWithSequenceQuery($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsListWithVotesAndSequence\n      }\n    }\n  }\n": types.RecentOpportunitiesWithSequenceQueryDocument,
     "\n    mutation increasePostViewCountMutation($postId: String) {\n      increasePostViewCount(postId: $postId)\n    }\n  ": types.increasePostViewCountMutationDocument,
-    "\n    mutation sendVertexViewItemEventMutation($postId: String!, $attributionId: String) {\n      sendVertexViewItemEvent(postId: $postId, attributionId: $attributionId)\n    }\n  ": types.sendVertexViewItemEventMutationDocument,
     "\n    mutation markPostCommentsRead($postId: String!) {\n      markPostCommentsRead(postId: $postId)\n    }\n  ": types.markPostCommentsReadDocument,
     "\n    mutation RefreshDbSettings {\n      RefreshDbSettings\n    }\n  ": types.RefreshDbSettingsDocument,
     "\n  mutation rejectPostMutation($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...SunshinePostsList\n      }\n    }\n  }\n": types.rejectPostMutationDocument,
@@ -1877,7 +1872,6 @@ const documents: Documents = {
     "\n  fragment UserVotesWithDocument on Vote {\n    ...UserVotes\n    comment {\n      ...CommentsListWithParentMetadata\n    }\n    post {\n      ...PostsListWithVotes\n    }\n  }\n": types.UserVotesWithDocumentDoc,
     "\n    query getCurrentUser {\n      currentUser {\n        ...UsersCurrent\n      }\n    }\n  ": types.getCurrentUserDocument,
     "\n  mutation createLWEventwithNewEvents($data: CreateLWEventDataInput!) {\n    createLWEvent(data: $data) {\n      data {\n        ...newEventFragment\n      }\n    }\n  }\n": types.createLWEventwithNewEventsDocument,
-    "\n  query multiTagfilterSettingsQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagBasicInfo\n      }\n      totalCount\n    }\n  }\n": types.multiTagfilterSettingsQueryDocument,
     "\n  fragment AdvisorRequestsDefaultFragment on AdvisorRequest {\n    _id\n    schemaVersion\n    createdAt\n    legacyData\n    userId\n    interestedInMetaculus\n    jobAds\n  }\n": types.AdvisorRequestsDefaultFragmentDoc,
     "\n  fragment ArbitalCachesDefaultFragment on ArbitalCaches {\n    _id\n    schemaVersion\n    createdAt\n    legacyData\n  }\n": types.ArbitalCachesDefaultFragmentDoc,
     "\n  fragment ArbitalTagContentRelsDefaultFragment on ArbitalTagContentRel {\n    _id\n    schemaVersion\n    createdAt\n    legacyData\n    parentDocumentId\n    childDocumentId\n    parentCollectionName\n    childCollectionName\n    type\n    level\n    isStrong\n  }\n": types.ArbitalTagContentRelsDefaultFragmentDoc,
@@ -2217,10 +2211,6 @@ export function gql(source: "\n  query multiCommentuseCommentQuery($selector: Co
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n    mutation sendVertexMediaCompleteEventMutation($postId: String!, $attributionId: String) {\n      sendVertexMediaCompleteEvent(postId: $postId, attributionId: $attributionId)\n    }\n  "): (typeof documents)["\n    mutation sendVertexMediaCompleteEventMutation($postId: String!, $attributionId: String) {\n      sendVertexMediaCompleteEvent(postId: $postId, attributionId: $attributionId)\n    }\n  "];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
 export function gql(source: "\n  query multiCommentCommentsListCondensedQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ShortformComments\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiCommentCommentsListCondensedQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ShortformComments\n      }\n      totalCount\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -2238,10 +2228,6 @@ export function gql(source: "\n  query multiSubscriptionLWHomePostsQuery($select
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query LWHomePosts($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"): (typeof documents)["\n  query LWHomePosts($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n    mutation sendVertexViewHomePageEventMutation {\n      sendVertexViewHomePageEvent\n    }\n  "): (typeof documents)["\n    mutation sendVertexViewHomePageEventMutation {\n      sendVertexViewHomePageEvent\n    }\n  "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -2757,6 +2743,10 @@ export function gql(source: "\n      mutation UserExpandFrontpageSection($sectio
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  query multiTagfilterSettingsQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagBasicInfo\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiTagfilterSettingsQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagBasicInfo\n      }\n      totalCount\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  query GetCrosspostQuery($args: JSON) {\n    getCrosspost(args: $args)\n  }\n"): (typeof documents)["\n  query GetCrosspostQuery($args: JSON) {\n    getCrosspost(args: $args)\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -2794,10 +2784,6 @@ export function gql(source: "\n  query RecentOpportunitiesWithSequenceQuery($sel
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    mutation increasePostViewCountMutation($postId: String) {\n      increasePostViewCount(postId: $postId)\n    }\n  "): (typeof documents)["\n    mutation increasePostViewCountMutation($postId: String) {\n      increasePostViewCount(postId: $postId)\n    }\n  "];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n    mutation sendVertexViewItemEventMutation($postId: String!, $attributionId: String) {\n      sendVertexViewItemEvent(postId: $postId, attributionId: $attributionId)\n    }\n  "): (typeof documents)["\n    mutation sendVertexViewItemEventMutation($postId: String!, $attributionId: String) {\n      sendVertexViewItemEvent(postId: $postId, attributionId: $attributionId)\n    }\n  "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -5502,10 +5488,6 @@ export function gql(source: "\n    query getCurrentUser {\n      currentUser {\n
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation createLWEventwithNewEvents($data: CreateLWEventDataInput!) {\n    createLWEvent(data: $data) {\n      data {\n        ...newEventFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createLWEventwithNewEvents($data: CreateLWEventDataInput!) {\n    createLWEvent(data: $data) {\n      data {\n        ...newEventFragment\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query multiTagfilterSettingsQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagBasicInfo\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiTagfilterSettingsQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagBasicInfo\n      }\n      totalCount\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

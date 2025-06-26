@@ -2730,11 +2730,6 @@ export type GoogleServiceAccountSessionSelector = {
   default?: InputMaybe<EmptyViewInput>;
 };
 
-export type GoogleVertexPostsResult = {
-  __typename?: 'GoogleVertexPostsResult';
-  results: Array<VertexRecommendedPost>;
-};
-
 export type Images = {
   __typename?: 'Images';
   _id: Scalars['String']['output'];
@@ -4287,9 +4282,6 @@ export type Mutation = {
   revokeGoogleServiceAccountTokens: Scalars['Boolean']['output'];
   sendEventTriggeredDM: Scalars['Boolean']['output'];
   sendNewDialogueMessageNotification: Scalars['Boolean']['output'];
-  sendVertexMediaCompleteEvent: Scalars['Boolean']['output'];
-  sendVertexViewHomePageEvent: Scalars['Boolean']['output'];
-  sendVertexViewItemEvent: Scalars['Boolean']['output'];
   setIsHidden: User;
   setVoteComment: Maybe<Comment>;
   setVoteElectionCandidate: Maybe<ElectionCandidate>;
@@ -4903,18 +4895,6 @@ export type MutationsendEventTriggeredDMArgs = {
 
 export type MutationsendNewDialogueMessageNotificationArgs = {
   dialogueHtml: Scalars['String']['input'];
-  postId: Scalars['String']['input'];
-};
-
-
-export type MutationsendVertexMediaCompleteEventArgs = {
-  attributionId?: InputMaybe<Scalars['String']['input']>;
-  postId: Scalars['String']['input'];
-};
-
-
-export type MutationsendVertexViewItemEventArgs = {
-  attributionId?: InputMaybe<Scalars['String']['input']>;
   postId: Scalars['String']['input'];
 };
 
@@ -7469,7 +7449,6 @@ export type Query = {
   GetRandomUser: Maybe<User>;
   GetUserBySlug: Maybe<User>;
   GivingSeasonHearts: Array<GivingSeasonHeart>;
-  GoogleVertexPosts: Maybe<GoogleVertexPostsResult>;
   IsDisplayNameTaken: Scalars['Boolean']['output'];
   Lightcone2024FundraiserStripeAmounts: Maybe<Array<Scalars['Int']['output']>>;
   MigrationsDashboard: Maybe<MigrationsDashboardData>;
@@ -7743,12 +7722,6 @@ export type QueryGetUserBySlugArgs = {
 
 export type QueryGivingSeasonHeartsArgs = {
   electionName: Scalars['String']['input'];
-};
-
-
-export type QueryGoogleVertexPostsArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  settings?: InputMaybe<Scalars['JSON']['input']>;
 };
 
 
@@ -13355,14 +13328,6 @@ export type multiCommentuseCommentQueryQuery = { __typename?: 'Query', comments:
       & CommentsList
     )> } | null };
 
-export type sendVertexMediaCompleteEventMutationMutationVariables = Exact<{
-  postId: Scalars['String']['input'];
-  attributionId?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type sendVertexMediaCompleteEventMutationMutation = { __typename?: 'Mutation', sendVertexMediaCompleteEvent: boolean };
-
 export type multiCommentCommentsListCondensedQueryQueryVariables = Exact<{
   selector?: InputMaybe<CommentSelector>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -13416,11 +13381,6 @@ export type LWHomePostsQuery = { __typename?: 'Query', post: { __typename?: 'Sin
       { __typename?: 'Post' }
       & PostsListWithVotes
     ) | null } | null };
-
-export type sendVertexViewHomePageEventMutationMutationVariables = Exact<{ [key: string]: never; }>;
-
-
-export type sendVertexViewHomePageEventMutationMutation = { __typename?: 'Mutation', sendVertexViewHomePageEvent: boolean };
 
 export type multiFeaturedResourceFeaturedResourceBannerQueryQueryVariables = Exact<{
   selector?: InputMaybe<FeaturedResourceSelector>;
@@ -14896,6 +14856,18 @@ export type UserExpandFrontpageSectionMutationVariables = Exact<{
 
 export type UserExpandFrontpageSectionMutation = { __typename?: 'Mutation', UserExpandFrontpageSection: boolean | null };
 
+export type multiTagfilterSettingsQueryQueryVariables = Exact<{
+  selector?: InputMaybe<TagSelector>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type multiTagfilterSettingsQueryQuery = { __typename?: 'Query', tags: { __typename?: 'MultiTagOutput', totalCount: number | null, results: Array<(
+      { __typename?: 'Tag' }
+      & TagBasicInfo
+    )> } | null };
+
 export type GetCrosspostQueryQueryVariables = Exact<{
   args?: InputMaybe<Scalars['JSON']['input']>;
 }>;
@@ -14991,14 +14963,6 @@ export type increasePostViewCountMutationMutationVariables = Exact<{
 
 
 export type increasePostViewCountMutationMutation = { __typename?: 'Mutation', increasePostViewCount: number | null };
-
-export type sendVertexViewItemEventMutationMutationVariables = Exact<{
-  postId: Scalars['String']['input'];
-  attributionId?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type sendVertexViewItemEventMutationMutation = { __typename?: 'Mutation', sendVertexViewItemEvent: boolean };
 
 export type markPostCommentsReadMutationVariables = Exact<{
   postId: Scalars['String']['input'];
@@ -21205,18 +21169,6 @@ export type createLWEventwithNewEventsMutation = { __typename?: 'Mutation', crea
       & newEventFragment
     ) | null } | null };
 
-export type multiTagfilterSettingsQueryQueryVariables = Exact<{
-  selector?: InputMaybe<TagSelector>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-export type multiTagfilterSettingsQueryQuery = { __typename?: 'Query', tags: { __typename?: 'MultiTagOutput', totalCount: number | null, results: Array<(
-      { __typename?: 'Tag' }
-      & TagBasicInfo
-    )> } | null };
-
 export type AdvisorRequestsDefaultFragment = { __typename?: 'AdvisorRequest', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string | null, interestedInMetaculus: boolean | null, jobAds: any | null };
 
 export type ArbitalCachesDefaultFragment = { __typename?: 'ArbitalCaches', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null };
@@ -22835,9 +22787,6 @@ export const reviewVoteWithUserAndPostDoc = {"kind":"Document","definitions":[re
 export const revokeGoogleServiceAccountTokensDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"revokeGoogleServiceAccountTokens"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"revokeGoogleServiceAccountTokens"}}]}}]} as unknown as DocumentNode<revokeGoogleServiceAccountTokensMutation, revokeGoogleServiceAccountTokensMutationVariables>;
 export const sendEventTriggeredDMDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"sendEventTriggeredDM"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"eventType"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sendEventTriggeredDM"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"eventType"},"value":{"kind":"Variable","name":{"kind":"Name","value":"eventType"}}}]}]}}]} as unknown as DocumentNode<sendEventTriggeredDMMutation, sendEventTriggeredDMMutationVariables>;
 export const sendNewDialogueMessageNotificationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"sendNewDialogueMessageNotification"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"postId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"dialogueHtml"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sendNewDialogueMessageNotification"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"postId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"postId"}}},{"kind":"Argument","name":{"kind":"Name","value":"dialogueHtml"},"value":{"kind":"Variable","name":{"kind":"Name","value":"dialogueHtml"}}}]}]}}]} as unknown as DocumentNode<sendNewDialogueMessageNotificationMutation, sendNewDialogueMessageNotificationMutationVariables>;
-export const sendVertexMediaCompleteEventMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"sendVertexMediaCompleteEventMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"postId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"attributionId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sendVertexMediaCompleteEvent"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"postId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"postId"}}},{"kind":"Argument","name":{"kind":"Name","value":"attributionId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"attributionId"}}}]}]}}]} as unknown as DocumentNode<sendVertexMediaCompleteEventMutationMutation, sendVertexMediaCompleteEventMutationMutationVariables>;
-export const sendVertexViewHomePageEventMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"sendVertexViewHomePageEventMutation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sendVertexViewHomePageEvent"}}]}}]} as unknown as DocumentNode<sendVertexViewHomePageEventMutationMutation, sendVertexViewHomePageEventMutationMutationVariables>;
-export const sendVertexViewItemEventMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"sendVertexViewItemEventMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"postId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"attributionId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sendVertexViewItemEvent"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"postId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"postId"}}},{"kind":"Argument","name":{"kind":"Name","value":"attributionId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"attributionId"}}}]}]}}]} as unknown as DocumentNode<sendVertexViewItemEventMutationMutation, sendVertexViewItemEventMutationMutationVariables>;
 export const setIsHiddenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"setIsHidden"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"postId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"isHidden"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"setIsHidden"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"postId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"postId"}}},{"kind":"Argument","name":{"kind":"Name","value":"isHidden"},"value":{"kind":"Variable","name":{"kind":"Name","value":"isHidden"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UsersCurrent"}}]}}]}},UsersCurrentFragmentDef,UsersMinimumInfoFragmentDef,RevisionDisplayFragmentDef]} as unknown as DocumentNode<setIsHiddenMutation, setIsHiddenMutationVariables>;
 export const signupDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"signup"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"email"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"username"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"password"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"subscribeToCurated"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"reCaptchaToken"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"abTestKey"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"signup"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"email"},"value":{"kind":"Variable","name":{"kind":"Name","value":"email"}}},{"kind":"Argument","name":{"kind":"Name","value":"username"},"value":{"kind":"Variable","name":{"kind":"Name","value":"username"}}},{"kind":"Argument","name":{"kind":"Name","value":"password"},"value":{"kind":"Variable","name":{"kind":"Name","value":"password"}}},{"kind":"Argument","name":{"kind":"Name","value":"subscribeToCurated"},"value":{"kind":"Variable","name":{"kind":"Name","value":"subscribeToCurated"}}},{"kind":"Argument","name":{"kind":"Name","value":"reCaptchaToken"},"value":{"kind":"Variable","name":{"kind":"Name","value":"reCaptchaToken"}}},{"kind":"Argument","name":{"kind":"Name","value":"abTestKey"},"value":{"kind":"Variable","name":{"kind":"Name","value":"abTestKey"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"token"}}]}}]}}]} as unknown as DocumentNode<signupMutation, signupMutationVariables>;
 export const singleDraftPostForLLMQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"singleDraftPostForLLMQuery"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"SinglePostInput"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"version"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"post"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsEditQueryFragment"}}]}}]}}]}},PostsEditQueryFragmentFragmentDef,PostsEditFragmentDef,PostsDetailsFragmentDef,PostsListBaseFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,PostsAuthorsFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,RSSFeedMinimumInfoFragmentDef,PostsListWithVotesFragmentDef,PostsListFragmentDef,JargonTermsPostFragmentDef,RevisionDisplayFragmentDef,PostSideCommentsFragmentDef,SideCommentCacheMinimumInfoFragmentDef,RevisionEditFragmentDef]} as unknown as DocumentNode<singleDraftPostForLLMQueryQuery, singleDraftPostForLLMQueryQueryVariables>;

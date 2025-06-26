@@ -21,9 +21,7 @@ import { HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS, LAST_VISITED_FRONTPAGE_COOKIE, RE
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { PostFeedDetails, homepagePostFeedsSetting } from '../../lib/instanceSettings';
 import { gql } from "@/lib/generated/gql-codegen";
-import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { useQuery } from "@/lib/crud/useQuery";
-import { vertexEnabledSetting } from '../../lib/publicSettings';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
 import { isServer } from '@/lib/executionEnvironment';
 import isEqual from 'lodash/isEqual';
@@ -455,12 +453,6 @@ const LWHomePosts = ({ children, }: {
   const now = useCurrentTime();
   const hasContinueReading = useHasContinueReadingTab(currentUser);
 
-  const [sendVertexViewHomePageEvent] = useMutationNoCache(gql(`
-    mutation sendVertexViewHomePageEventMutation {
-      sendVertexViewHomePageEvent
-    }
-  `));
-
   const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get()
   const enabledTabs = availableTabs.filter(tab => isTabEnabled(tab, currentUser, query, hasContinueReading ?? false));
 
@@ -627,14 +619,6 @@ const LWHomePosts = ({ children, }: {
     forum: true,
     limit:limit
   } as const;
-
-  useEffect(() => {
-    if (currentUser && vertexEnabledSetting.get()) {
-      void sendVertexViewHomePageEvent({});
-    }
-    // We explicitly only want to send it once on page load, no matter what changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     // TODO: do we need capturePostItemOnMount here?

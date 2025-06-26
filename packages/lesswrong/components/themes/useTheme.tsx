@@ -62,6 +62,6 @@ export const useIsThemeOverridden = () => {
   const [cookies] = useCookiesWithConsent([HIDE_IF_ANYONE_BUILDS_IT_SPLASH, HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT]);
 
   const pathname = usePathname();
-  const isFrontPage = location?.pathname === '/' || location?.pathname === '';
+  const isFrontPage = pathname === '/' || pathname === '';
   return isLW && isFrontPage && !cookies[HIDE_IF_ANYONE_BUILDS_IT_SPLASH] && !cookies[HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT];
 }

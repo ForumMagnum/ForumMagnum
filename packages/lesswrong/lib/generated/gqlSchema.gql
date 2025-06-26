@@ -688,14 +688,6 @@ extend type Query {
   MyDialogues(limit: Int): MyDialoguesResult
 }
 
-type GoogleVertexPostsResult {
-  results: [VertexRecommendedPost!]!
-}
-
-extend type Query {
-  GoogleVertexPosts(settings: JSON, limit: Int): GoogleVertexPostsResult
-}
-
 type CrossedKarmaThresholdResult {
   results: [Post!]!
 }
@@ -1201,12 +1193,6 @@ extend type Query {
 
 extend type Query {
   GetAllReviewWinners: [Post!]!
-}
-
-extend type Mutation {
-  sendVertexViewItemEvent(postId: String!, attributionId: String): Boolean!
-  sendVertexMediaCompleteEvent(postId: String!, attributionId: String): Boolean!
-  sendVertexViewHomePageEvent: Boolean!
 }
 
 type CoauthorStatus {

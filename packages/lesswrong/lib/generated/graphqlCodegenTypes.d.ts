@@ -2727,11 +2727,6 @@ type GoogleServiceAccountSessionSelector = {
   default?: InputMaybe<EmptyViewInput>;
 };
 
-type GoogleVertexPostsResult = {
-  __typename?: 'GoogleVertexPostsResult';
-  results: Array<VertexRecommendedPost>;
-};
-
 type Images = {
   __typename?: 'Images';
   _id: Scalars['String']['output'];
@@ -4284,9 +4279,6 @@ type Mutation = {
   revokeGoogleServiceAccountTokens: Scalars['Boolean']['output'];
   sendEventTriggeredDM: Scalars['Boolean']['output'];
   sendNewDialogueMessageNotification: Scalars['Boolean']['output'];
-  sendVertexMediaCompleteEvent: Scalars['Boolean']['output'];
-  sendVertexViewHomePageEvent: Scalars['Boolean']['output'];
-  sendVertexViewItemEvent: Scalars['Boolean']['output'];
   setIsHidden: User;
   setVoteComment?: Maybe<Comment>;
   setVoteElectionCandidate?: Maybe<ElectionCandidate>;
@@ -4900,18 +4892,6 @@ type MutationsendEventTriggeredDMArgs = {
 
 type MutationsendNewDialogueMessageNotificationArgs = {
   dialogueHtml: Scalars['String']['input'];
-  postId: Scalars['String']['input'];
-};
-
-
-type MutationsendVertexMediaCompleteEventArgs = {
-  attributionId?: InputMaybe<Scalars['String']['input']>;
-  postId: Scalars['String']['input'];
-};
-
-
-type MutationsendVertexViewItemEventArgs = {
-  attributionId?: InputMaybe<Scalars['String']['input']>;
   postId: Scalars['String']['input'];
 };
 
@@ -7466,7 +7446,6 @@ type Query = {
   GetRandomUser?: Maybe<User>;
   GetUserBySlug?: Maybe<User>;
   GivingSeasonHearts: Array<GivingSeasonHeart>;
-  GoogleVertexPosts?: Maybe<GoogleVertexPostsResult>;
   IsDisplayNameTaken: Scalars['Boolean']['output'];
   Lightcone2024FundraiserStripeAmounts?: Maybe<Array<Scalars['Int']['output']>>;
   MigrationsDashboard?: Maybe<MigrationsDashboardData>;
@@ -7740,12 +7719,6 @@ type QueryGetUserBySlugArgs = {
 
 type QueryGivingSeasonHeartsArgs = {
   electionName: Scalars['String']['input'];
-};
-
-
-type QueryGoogleVertexPostsArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  settings?: InputMaybe<Scalars['JSON']['input']>;
 };
 
 
@@ -13696,17 +13669,6 @@ type multiCommentuseCommentQueryQueryVariables = Exact<{
 
 type multiCommentuseCommentQueryQuery = multiCommentuseCommentQueryQuery_Query;
 
-type sendVertexMediaCompleteEventMutationMutation_Mutation = { __typename?: 'Mutation', sendVertexMediaCompleteEvent: boolean };
-
-
-type sendVertexMediaCompleteEventMutationMutationVariables = Exact<{
-  postId: Scalars['String']['input'];
-  attributionId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type sendVertexMediaCompleteEventMutationMutation = sendVertexMediaCompleteEventMutationMutation_Mutation;
-
 type multiCommentCommentsListCondensedQueryQuery_comments_MultiCommentOutput_results_Comment = (
   { __typename?: 'Comment' }
   & ShortformComments
@@ -13793,14 +13755,6 @@ type LWHomePostsQueryVariables = Exact<{
 
 
 type LWHomePostsQuery = LWHomePostsQuery_Query;
-
-type sendVertexViewHomePageEventMutationMutation_Mutation = { __typename?: 'Mutation', sendVertexViewHomePageEvent: boolean };
-
-
-type sendVertexViewHomePageEventMutationMutationVariables = Exact<{ [key: string]: never; }>;
-
-
-type sendVertexViewHomePageEventMutationMutation = sendVertexViewHomePageEventMutationMutation_Mutation;
 
 type multiFeaturedResourceFeaturedResourceBannerQueryQuery_featuredResources_MultiFeaturedResourceOutput_results_FeaturedResource = (
   { __typename?: 'FeaturedResource' }
@@ -16196,6 +16150,25 @@ type UserExpandFrontpageSectionMutationVariables = Exact<{
 
 type UserExpandFrontpageSectionMutation = UserExpandFrontpageSectionMutation_Mutation;
 
+type multiTagfilterSettingsQueryQuery_tags_MultiTagOutput_results_Tag = (
+  { __typename?: 'Tag' }
+  & TagBasicInfo
+);
+
+type multiTagfilterSettingsQueryQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', totalCount: number | null, results: Array<multiTagfilterSettingsQueryQuery_tags_MultiTagOutput_results_Tag> };
+
+type multiTagfilterSettingsQueryQuery_Query = { __typename?: 'Query', tags: multiTagfilterSettingsQueryQuery_tags_MultiTagOutput | null };
+
+
+type multiTagfilterSettingsQueryQueryVariables = Exact<{
+  selector: InputMaybe<TagSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiTagfilterSettingsQueryQuery = multiTagfilterSettingsQueryQuery_Query;
+
 type GetCrosspostQueryQuery_Query = { __typename?: 'Query', getCrosspost: any | null };
 
 
@@ -16347,17 +16320,6 @@ type increasePostViewCountMutationMutationVariables = Exact<{
 
 
 type increasePostViewCountMutationMutation = increasePostViewCountMutationMutation_Mutation;
-
-type sendVertexViewItemEventMutationMutation_Mutation = { __typename?: 'Mutation', sendVertexViewItemEvent: boolean };
-
-
-type sendVertexViewItemEventMutationMutationVariables = Exact<{
-  postId: Scalars['String']['input'];
-  attributionId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type sendVertexViewItemEventMutationMutation = sendVertexViewItemEventMutationMutation_Mutation;
 
 type markPostCommentsReadMutation_Mutation = { __typename?: 'Mutation', markPostCommentsRead: boolean | null };
 
@@ -26195,25 +26157,6 @@ type createLWEventwithNewEventsMutationVariables = Exact<{
 
 
 type createLWEventwithNewEventsMutation = createLWEventwithNewEventsMutation_Mutation;
-
-type multiTagfilterSettingsQueryQuery_tags_MultiTagOutput_results_Tag = (
-  { __typename?: 'Tag' }
-  & TagBasicInfo
-);
-
-type multiTagfilterSettingsQueryQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', totalCount: number | null, results: Array<multiTagfilterSettingsQueryQuery_tags_MultiTagOutput_results_Tag> };
-
-type multiTagfilterSettingsQueryQuery_Query = { __typename?: 'Query', tags: multiTagfilterSettingsQueryQuery_tags_MultiTagOutput | null };
-
-
-type multiTagfilterSettingsQueryQueryVariables = Exact<{
-  selector: InputMaybe<TagSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiTagfilterSettingsQueryQuery = multiTagfilterSettingsQueryQuery_Query;
 
 type AdvisorRequestsDefaultFragment = { __typename?: 'AdvisorRequest', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string | null, interestedInMetaculus: boolean | null, jobAds: any | null };
 
