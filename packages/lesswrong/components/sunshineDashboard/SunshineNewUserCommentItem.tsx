@@ -33,11 +33,9 @@ const SunshineNewUserCommentItem = ({comment}: {
   const classes = useStyles(styles);
   const [isCollapsed, setIsCollapsed] = React.useState<boolean>(!!comment.rejected);
 
-  const toggleCollapse = () => setIsCollapsed(prev => !prev);
-
   return <div className={classes?.comment}>
     <div className={classes?.rejection}>
-      <ForumIcon className={classes?.expandCollapseButton} icon={isCollapsed ? "ThickChevronRight" : "ThickChevronDown"} onClick={toggleCollapse} />
+      <ForumIcon className={classes?.expandCollapseButton} icon={isCollapsed ? "ThickChevronRight" : "ThickChevronDown"} onClick={() => setIsCollapsed(!isCollapsed)} />
       <RejectedContentControls contentWrapper={{collectionName:"Comments", content:comment}}/>
     </div>
     {!isCollapsed && <CommentsNodeInner 

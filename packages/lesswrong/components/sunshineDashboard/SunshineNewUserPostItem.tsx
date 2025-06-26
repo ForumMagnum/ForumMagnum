@@ -63,11 +63,9 @@ const SunshineNewUserPostItem = ({post}: {
   const classes = useStyles(styles);
   const [isCollapsed, setIsCollapsed] = React.useState<boolean>(!!post.rejected);
 
-  const toggleCollapse = () => setIsCollapsed(prev=>!prev);
-
   return <div className={classes?.post}>
     <div className={classes?.rejection}>
-      <ForumIcon className={classes?.expandCollapseButton} icon={isCollapsed ? "ThickChevronRight" : "ThickChevronDown"} onClick={toggleCollapse} />
+      <ForumIcon className={classes?.expandCollapseButton} icon={isCollapsed ? "ThickChevronRight" : "ThickChevronDown"} onClick={() => setIsCollapsed(!isCollapsed)} />
       <RejectedContentControls contentWrapper={{ collectionName: 'Posts', content: post }} />
     </div>
     <div className={classes?.row}>
