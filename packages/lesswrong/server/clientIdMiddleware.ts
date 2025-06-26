@@ -88,12 +88,15 @@ export function ensureClientId(req: express.Request, res: express.Response): voi
           cookieValue: req.clientId,
           maxAge: CLIENT_ID_COOKIE_EXPIRATION_SECONDS
         });
-        void clientIdsRepo.ensureClientId({
-          clientId: req.clientId,
-          userId,
-          referrer,
-          landingPage: url,
-        });
+        
+        if (!hasSeen({ clientId: req.clientId, userId })) {
+          void clientIdsRepo.ensureClientId({
+            clientId: req.clientId,
+            userId,
+            referrer,
+            landingPage: url,
+          });
+        }
         setHasSeen({ clientId: req.clientId, userId: getUserFromReq(req)?._id });
       } catch (e) {
         //eslint-disable-next-line no-console

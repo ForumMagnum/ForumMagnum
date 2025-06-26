@@ -57,7 +57,6 @@ export const SpotlightDisplay = gql(`
   fragment SpotlightDisplay on Spotlight {
     ...SpotlightMinimumInfo
     post {
-      #...PostsMinimumInfo
       _id
       slug
       title
