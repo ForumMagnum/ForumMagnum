@@ -4767,7 +4767,7 @@ type User {
   expandedFrontpageSections: ExpandedFrontpageSectionsSettingsOutput
   showCommunityInRecentDiscussion: Boolean!
   hidePostsRecommendations: Boolean!
-  keywordAlerts: [String!]!
+  keywordAlerts: [String!]
   petrovOptOut: Boolean!
   optedOutOfSurveys: Boolean
   postGlossariesPinned: Boolean

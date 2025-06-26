@@ -3981,7 +3981,7 @@ interface User {
   expandedFrontpageSections: ExpandedFrontpageSectionsSettingsOutput | null;
   showCommunityInRecentDiscussion: boolean;
   hidePostsRecommendations: boolean;
-  keywordAlerts: Array<string>;
+  keywordAlerts: Array<string> | null;
   petrovOptOut: boolean;
   optedOutOfSurveys: boolean | null;
   postGlossariesPinned: boolean | null;
