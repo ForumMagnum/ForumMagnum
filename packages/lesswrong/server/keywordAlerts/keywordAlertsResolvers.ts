@@ -11,6 +11,7 @@ const { Query, typeDefs } = createPaginatedResolver({
   args: {
     keyword: "String!",
     startDate: "Date!",
+    endDate: "Date!",
   },
   callback: async (context, limit, args): Promise<DbPost[]> => {
     if (!hasKeywordAlerts) {
@@ -21,15 +22,18 @@ const { Query, typeDefs } = createPaginatedResolver({
       throw new Error("Missing args");
     }
 
-    const {keyword, startDate} = args;
+    const {keyword, startDate, endDate} = args;
     if (!keyword || typeof keyword !== "string") {
       throw new Error("Invalid keyword");
     }
     if (!(startDate instanceof Date)) {
       throw new Error("Invalid startDate");
     }
+    if (!(endDate instanceof Date)) {
+      throw new Error("Invalid endDate");
+    }
 
-    const postIds = await fetchPostIdsForKeyword(keyword, startDate);
+    const postIds = await fetchPostIdsForKeyword(keyword, startDate, endDate);
     const posts = await context.loaders.Posts.loadMany(postIds.slice(0, limit));
     return posts.filter(isValidPost);
   },

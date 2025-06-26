@@ -1,11 +1,14 @@
-import { getDefaultKeywordStartDate, getKeywordEndDate } from "@/lib/keywordAlertHelpers";
-import ElasticClient from "../search/elastic/ElasticClient";
+import ElasticClient from "@/server/search/elastic/ElasticClient";
+import {
+  getDefaultKeywordStartDate,
+  getKeywordEndDate,
+} from "@/lib/keywordAlertHelpers";
 
 export const fetchPostIdsForKeyword = async (
   keyword: string,
   startDate: Date = getDefaultKeywordStartDate(),
+  endDate: Date = getKeywordEndDate(startDate),
 ): Promise<string[]> => {
-  const endDate = getKeywordEndDate(startDate);
   const client = new ElasticClient();
   const results = await client.getClient().search<SearchPost>({
     index: "posts",

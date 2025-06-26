@@ -792,7 +792,7 @@ export const PostCoauthorAcceptNotification = createServerNotificationType({
 
 export const KeywordAlertNotification = createServerNotificationType({
   name: "keywordAlert",
-  canCombineEmails: false,
+  canCombineEmails: true,
   emailSubject: async ({ notifications }: {notifications: DbNotification[]}) => {
     const {extraData} = notifications[0];
     const alerts = extraData?.count === 1 ? "alert" : "alerts";

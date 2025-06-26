@@ -11,9 +11,10 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const KeywordResults = ({keyword, startDate, classes}: {
+const KeywordResults = ({keyword, startDate, endDate, classes}: {
   keyword: string,
   startDate: Date,
+  endDate: Date,
   classes: ClassesType<typeof styles>,
 }) => {
   const { results, loading } = usePaginatedResolver({
@@ -32,6 +33,11 @@ const KeywordResults = ({keyword, startDate, classes}: {
         name: "startDate",
         graphQLType: "Date!",
         value: startDate,
+      },
+      {
+        name: "endDate",
+        graphQLType: "Date!",
+        value: endDate,
       },
     ],
   });

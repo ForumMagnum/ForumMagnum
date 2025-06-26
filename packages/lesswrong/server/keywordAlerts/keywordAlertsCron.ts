@@ -3,21 +3,24 @@ import { addCronJob } from "../cron/cronUtil";
 import { createNotifications } from "../notificationCallbacksHelpers";
 import { createAdminContext } from "../vulcan-lib/createContexts";
 import { fetchPostIdsForKeyword } from "./keywordSearch";
-import { getDefaultKeywordStartDate, KEYWORD_INTERVAL_HOURS } from "@/lib/keywordAlertHelpers";
+import { getDefaultKeywordStartDate } from "@/lib/keywordAlertHelpers";
+import CronHistories from "../collections/cronHistories/collection";
 import UsersRepo from "../repos/UsersRepo";
 
-export const generateKeywordAlerts = async () => {
+export const generateKeywordAlerts = async (
+  startDate: Date = getDefaultKeywordStartDate(),
+) => {
   if (!hasKeywordAlerts) {
     return;
   }
 
   const context = createAdminContext();
-  const startDate = getDefaultKeywordStartDate()
+  const endDate = new Date();
   const usersRepo = new UsersRepo();
   const alerts = await usersRepo.getUserIdsByKeywordAlerts();
 
   for (const {keyword, userIds} of alerts) {
-    const postIds = await fetchPostIdsForKeyword(keyword, startDate);
+    const postIds = await fetchPostIdsForKeyword(keyword, startDate, endDate);
     if (!postIds.length) {
       continue;
     }
@@ -31,6 +34,7 @@ export const generateKeywordAlerts = async () => {
         keyword,
         count: postIds.length,
         startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
       },
     });
   }
@@ -38,6 +42,20 @@ export const generateKeywordAlerts = async () => {
 
 export const keywordAlertsCron = addCronJob({
   name: "keywordAlerts",
-  interval: `every ${KEYWORD_INTERVAL_HOURS} hours`,
-  job: generateKeywordAlerts,
+  interval: "every 30 minutes",
+  job: async () => {
+    if (!hasKeywordAlerts) {
+      return;
+    }
+
+    const lastRun = await CronHistories.findOne({
+      name: "keywordAlerts",
+      finishedAt: {$exists: true},
+    }, {sort: {intendedAt: -1}});
+    if (!lastRun?.finishedAt) {
+      return;
+    }
+
+    await generateKeywordAlerts(lastRun.finishedAt);
+  },
 });

@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const KeywordResultsPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
-  const { keyword, startDate } = useKeywordFromUrl();
+  const { keyword, startDate, endDate } = useKeywordFromUrl();
 
   if (!keyword) {
     return (
@@ -29,10 +29,10 @@ const KeywordResultsPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
     );
   }
 
-  const title = `Alerts for "${keyword}" from ${startDate.toLocaleString()}`;
+  const title = `Alerts for "${keyword}" from ${startDate.toLocaleString()} to ${endDate.toLocaleString()}`;
   const canonicalUrl = combineUrls(
     getSiteUrl(),
-    `/keywords/${keyword}?start=${startDate.toISOString()}`,
+    `/keywords/${encodeURIComponent(keyword)}?start=${startDate.toISOString()}&end=${endDate.toISOString()}`,
   );
 
   return (
@@ -48,7 +48,7 @@ const KeywordResultsPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
         </Link>
       </div>
       <SectionTitle title={title} />
-      <KeywordResults keyword={keyword} startDate={startDate} />
+      <KeywordResults keyword={keyword} startDate={startDate} endDate={endDate} />
     </SingleColumnSection>
   );
 }

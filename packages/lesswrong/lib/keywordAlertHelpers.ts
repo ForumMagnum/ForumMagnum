@@ -19,10 +19,21 @@ const parseKeywordAlertStartDate = (
     : getDefaultKeywordStartDate(currentTime);
 }
 
+const parseKeywordAlertEndDate = (
+  queryDateString: string,
+  startDate: Date,
+): Date => {
+  const queryDate = new Date(queryDateString);
+  return queryDateString && !isNaN(queryDate.getTime())
+    ? queryDate
+    : getKeywordEndDate(startDate);
+}
+
 export const useKeywordFromUrl = () => {
   const currentTime = useCurrentTime();
   const { params, query } = useLocation();
   const keyword = params.keyword;
   const startDate = parseKeywordAlertStartDate(query.start, currentTime);
-  return { keyword, startDate };
+  const endDate = parseKeywordAlertEndDate(query.end, startDate);
+  return { keyword, startDate, endDate };
 }

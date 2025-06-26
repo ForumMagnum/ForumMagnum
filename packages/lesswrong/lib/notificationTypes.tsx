@@ -918,12 +918,13 @@ export const KeywordAlertNotification = createNotificationType({
   name: 'keywordAlert',
   userSettingField: 'notificationKeywordAlert',
   getLink: ({extraData}) => {
-    if (!extraData || !extraData.keyword || !extraData.startDate) {
-      throw new Error("Invalid keyword alert");
+    if (!extraData?.keyword || !extraData.startDate || !extraData.endDate) {
+      throw new Error("Invalid keyword alert data");
     }
-    const {keyword, startDate} = extraData;
-    const start = new Date(startDate);
-    return `/keywords/${keyword}?start=${start.toISOString()}`;
+    const {keyword, startDate, endDate} = extraData;
+    const start = new Date(startDate).toISOString();
+    const end = new Date(endDate).toISOString();
+    return `/keywords/${encodeURIComponent(keyword)}?start=${start}&end=${end}`;
   },
   async getMessage({extraData}: GetMessageProps) {
     const alerts = extraData?.count === 1 ? "alert" : "alerts";
