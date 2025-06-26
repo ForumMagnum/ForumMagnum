@@ -44,7 +44,7 @@ const KeywordResultsPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
       />
       <div className={classes.backContainer}>
         <Link to="/keywords" className={classes.back}>
-          &lt;- Back to keyword alerts
+          &lt;- Your keyword alerts
         </Link>
       </div>
       <SectionTitle title={title} />
