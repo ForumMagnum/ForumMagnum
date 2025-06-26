@@ -283,19 +283,14 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       const getSqlFragment: typeof import('../../lib/fragments/sqlFragments').getSqlFragment = require('../../lib/fragments/sqlFragments').getSqlFragment;
       const sqlFragment = getSqlFragment(fragmentInfo.fragmentName, fragmentInfo.fragmentText);
       let query: SelectFragmentQuery;
-      try {
-        query = new SelectFragmentQuery(
-          sqlFragment,
-          currentUser,
-          otherQueryVariables,
-          usedSelector,
-          undefined,
-          {limit: 1},
-        );
-      } catch(e) {
-        console.error(`Bad query: ${print(info.operation)}`);
-        throw e;
-      }
+      query = new SelectFragmentQuery(
+        sqlFragment,
+        currentUser,
+        otherQueryVariables,
+        usedSelector,
+        undefined,
+        {limit: 1},
+      );
       const compiledQuery = query.compile();
       const db = getSqlClientOrThrow();
       doc = await db.oneOrNone(compiledQuery.sql, compiledQuery.args);

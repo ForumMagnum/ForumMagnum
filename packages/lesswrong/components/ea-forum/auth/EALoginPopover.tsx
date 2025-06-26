@@ -346,7 +346,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
     } finally {
       setLoading(false);
     }
-  }, [isResettingPassword, showFacebookWarning, email, password, onSendPasswordReset, isSignup, client, action]);
+  }, [isResettingPassword, showFacebookWarning, email, password, onSendPasswordReset, isSignup, client, refetchCurrentUser, action]);
 
   const onClickGoogle = useCallback(async () => {
     setMessage(null);
