@@ -2,7 +2,7 @@ import React, {FormEvent, ReactNode, useCallback, useEffect, useRef, useState} f
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useEAOnboarding } from "./useEAOnboarding";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import classNames from "classnames";
 import { gql } from "@/lib/generated/gql-codegen";

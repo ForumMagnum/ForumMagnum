@@ -15,7 +15,7 @@ import LWTooltip from "../common/LWTooltip";
 import Row from "../common/Row";
 import ReactionDescription from "./lwReactions/ReactionDescription";
 import MetaInfo from "../common/MetaInfo";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { 
   getCuratedActiveReactions,

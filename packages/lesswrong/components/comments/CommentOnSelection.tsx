@@ -1,13 +1,14 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
-import { useCurrentUser } from '../common/withUser';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
 import { hasSideComments } from '../../lib/betas';
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import ReplyCommentDialog from './ReplyCommentDialog';
+import { useDialog } from '../common/withDialog';
 
-const selectedTextToolbarStyles = (theme: ThemeType) => ({
+const selectedTextToolbarStyles = defineStyles("CommentOnSelectionContentWrapper", (theme: ThemeType) => ({
   toolbarWrapper: {
     position: "absolute",
   },
@@ -29,7 +30,7 @@ const selectedTextToolbarStyles = (theme: ThemeType) => ({
       display: hasSideComments ? "none" : "initial",
     },
   },
-});
+}));
 
 type SelectedTextToolbarState =
     {open: false}
@@ -152,11 +153,11 @@ export const CommentOnSelectionPageWrapper = ({children}: {
  * x, y: In the page coordinate system, ie, relative to the top-left corner when
  *   the page is scrolled to the top.
  */
-const SelectedTextToolbarInner = ({onClickComment, x, y, classes}: {
+const SelectedTextToolbar = ({onClickComment, x, y}: {
   onClickComment: (ev: React.MouseEvent) => void,
   x: number, y: number,
-  classes: ClassesType<typeof selectedTextToolbarStyles>,
 }) => {
+  const classes = useStyles(selectedTextToolbarStyles);
   const { captureEvent } = useTracking()
 
   return <div className={classes.toolbarWrapper} style={{left: x, top: y}}>
@@ -182,13 +183,24 @@ const SelectedTextToolbarInner = ({onClickComment, x, y, classes}: {
  *
  * See CommentOnSelectionPageWrapper for notes on implementation details.
  */
-export const CommentOnSelectionContentWrapper = ({onClickComment, children}: {
-  onClickComment: (html: string) => void,
+export const CommentOnSelectionContentWrapper = ({post, children}: {
+  post: PostsListWithVotes
   children: React.ReactNode,
 }) => {
+  const { openDialog } = useDialog();
   const wrapperDivRef = useRef<HTMLDivElement|null>(null);
-  const currentUser = useCurrentUser();
   
+  const onClickComment = useCallback((html: string) => {
+    openDialog({
+      name: "ReplyCommentDialog",
+      contents: ({onClose}) => <ReplyCommentDialog
+        onClose={onClose}
+        post={post}
+        initialHtml={html}
+      />
+    })
+  }, [openDialog, post]);
+
   useEffect(() => {
     if (wrapperDivRef.current) {
       let modifiedDiv = (wrapperDivRef.current as any)
@@ -260,11 +272,4 @@ function selectionToBlockquoteHTML(selection: Selection|null): string {
   const selectedHTML = container.innerHTML;
   return `<blockquote>${selectedHTML}</blockquote><p></p>`;
 }
-
-
-export const SelectedTextToolbar = registerComponent(
-  'SelectedTextToolbar', SelectedTextToolbarInner,
-  {styles: selectedTextToolbarStyles}
-);
-
 

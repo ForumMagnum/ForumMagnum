@@ -13,7 +13,7 @@ declare global {
   }
 }
 
-function defaultView(terms: MultiDocumentsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
+function defaultView(terms: MultiDocumentsViewTerms, _: ApolloClient, context?: ResolverContext) {
   const currentUser = context?.currentUser ?? null;
 
   return {

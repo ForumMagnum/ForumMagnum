@@ -11,7 +11,6 @@ import classNames from 'classnames';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import EventsList from './EventsList';
 import { SubscribeWidget } from '../SubscribeWidget';
-import { isIfAnyoneBuildsItFrontPage } from '@/components/seasonal/IfAnyoneBuildsItSplash';
 
 export const TAB_NAVIGATION_MENU_WIDTH = 250
 

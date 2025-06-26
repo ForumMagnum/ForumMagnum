@@ -1,4 +1,4 @@
-import type { ApolloError } from '@apollo/client';
+import type { ErrorLike } from '@apollo/client';
 
 export function getGraphQLErrorID(error: any): string|null {
   if (!error) {
@@ -21,10 +21,10 @@ export function getGraphQLErrorMessage(error: any): string {
   return getGraphQLErrorID(error) || "Error";
 }
 
-export function isMissingDocumentError(error: ApolloError): boolean {
+export function isMissingDocumentError(error: ErrorLike): boolean {
   return (error && error.message==='app.missing_document');
 }
 
-export function isOperationNotAllowedError(error: ApolloError): boolean {
+export function isOperationNotAllowedError(error: ErrorLike): boolean {
   return (error && error.message==='app.operation_not_allowed');
 }

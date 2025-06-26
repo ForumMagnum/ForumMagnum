@@ -3,7 +3,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { useCurrentUser } from "../common/withUser";
 import { useEventListener } from "../hooks/useEventListener";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";

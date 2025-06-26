@@ -11,7 +11,7 @@ import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm
 import Loading from "../vulcan-core/Loading";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import MetaInfo from "../common/MetaInfo";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
 

@@ -134,7 +134,7 @@ const postHasModerationGuidelines = (
 }
 
 export const userCanModeratePost = (
-  user: UsersProfile|DbUser|null,
+  user: UsersProfile|UsersCurrent|DbUser|null,
   post?: PostsBase|PostsModerationGuidelines|DbPost|null,
 ): boolean => {
   if (userCanDo(user,"posts.moderate.all")) {
@@ -169,7 +169,7 @@ export const userCanModeratePost = (
   )
 }
 
-export const userCanModerateComment = (user: UsersProfile|DbUser|null, post: PostsBase|DbPost|null , tag: TagBasicInfo|DbTag|null, comment: CommentsList|DbComment) => {
+export const userCanModerateComment = (user: UsersProfile|UsersCurrent|DbUser|null, post: PostsBase|DbPost|null , tag: TagBasicInfo|DbTag|null, comment: CommentsList|DbComment) => {
   if (!user || !comment) {
     return false;
   }
@@ -517,7 +517,7 @@ export const userGetCommentCount = (user: UsersMinimumInfo|DbUser): number => {
   }
 }
 
-export const isMod = (user: UsersProfile|DbUser): boolean => {
+export const isMod = (user: UsersProfile|UsersCurrent|DbUser): boolean => {
   return (user.isAdmin || user.groups?.includes('sunshineRegiment')) ?? false
 }
 

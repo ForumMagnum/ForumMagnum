@@ -2,6 +2,7 @@ import { isProduction } from '@/lib/executionEnvironment';
 import type { Request, Response } from 'express';
 import type { IncomingMessage } from 'http';
 import Cookies from 'universal-cookie';
+import { getIpFromRequest } from '../datadog/datadogMiddleware';
 
 // Utility functions for dealing with HTTP requests/responses, eg getting and
 // setting cookies, headers, getting the URL, etc. The main purpose for these
@@ -17,7 +18,7 @@ import Cookies from 'universal-cookie';
  *  
  * We need to do this because {@link setCookieOnResponse} can only assign to `cookies`, not `universalCookies`, so sometimes `universalCookies` will exist but won't have the (newly assigned) cookie value.
  */
-export function getCookieFromReq(req: Request | IncomingMessage, cookieName: string) {
+export function getCookieFromReq(req: Request | IncomingMessage, cookieName: string): string|null {
   const untypedReq: any = req;
   if (!untypedReq.universalCookies && !untypedReq.cookies)
     throw new Error("Tried to get a cookie but middleware not correctly configured");
@@ -104,4 +105,12 @@ export const trySetResponseStatus = ({ response, status }: { response: Response,
   }
 
   return response;
+}
+
+export function getRequestMetadata(req: Request) {
+  const ip = getIpFromRequest(req)
+  const userAgent = req.headers["user-agent"];
+  const url = getPathFromReq(req);
+
+  return { ip, userAgent, url };
 }

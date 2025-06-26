@@ -150,6 +150,8 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   </div>;
 }
 
-export default registerComponent('LWBackgroundImage', LWBackgroundImage);
+export default registerComponent('LWBackgroundImage', LWBackgroundImage, {
+  areEqual: "auto",
+});
 
 

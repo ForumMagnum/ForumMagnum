@@ -15,6 +15,7 @@ import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
 import BottomNavigation from "../../sequences/BottomNavigation";
 import PingbacksList from "../PingbacksList";
 import FooterTagList from "../../tagging/FooterTagList";
+import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 
 const styles = (theme: ThemeType) => ({
   footerSection: {
@@ -95,11 +96,13 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
 
   return <>
     {isLWorAF && !post.shortform && !post.isEvent &&
-      <AnalyticsContext pageSectionContext="tagFooter">
-        <div className={classes.footerTagList}>
-          <FooterTagList post={post}/>
-        </div>
-      </AnalyticsContext>
+      <SuspenseWrapper name="FooterTagList">
+        <AnalyticsContext pageSectionContext="tagFooter">
+          <div className={classes.footerTagList}>
+            <FooterTagList post={post}/>
+          </div>
+        </AnalyticsContext>
+      </SuspenseWrapper>
     }
     {!post.shortform && (isLW || isEAEmojis) &&
       <>
@@ -134,9 +137,11 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
       </AnalyticsContext>}
     </div>}
 
-    {userHasPingbacks(currentUser) && <AnalyticsContext pageSectionContext="pingbacks">
-      <PingbacksList postId={post._id}/>
-    </AnalyticsContext>}
+    {userHasPingbacks(currentUser) && <SuspenseWrapper name="pingbacks">
+      <AnalyticsContext pageSectionContext="pingbacks">
+        <PingbacksList postId={post._id}/>
+      </AnalyticsContext>
+    </SuspenseWrapper>}
   </>
 }
 

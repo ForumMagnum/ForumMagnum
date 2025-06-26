@@ -27,6 +27,7 @@ import { userIsAdmin } from '../lib/vulcan-users/permissions';
 import { isE2E } from '../lib/executionEnvironment';
 import { getUnusedSlugByCollectionName } from './utils/slugUtil';
 import { slugify } from '@/lib/utils/slugify';
+import { prepareClientId } from './clientIdMiddleware';
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -148,12 +149,22 @@ function getReturnTo(req: any): string {
   return req.session.loginReturnTo.path
 }
 
-const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req: any, done) {
-  const loginToken = getCookieFromReq(req, 'loginToken') || getCookieFromReq(req, 'meteor_login_token') // Backwards compatibility with meteor_login_token here
-  if (!loginToken) {
-    return done(null, false)
-  }
-  const user = await getUser(loginToken)
+function getLoginTokenFromReq(req: Request): string|null {
+  return getCookieFromReq(req, 'loginToken') || getCookieFromReq(req, 'meteor_login_token') // Backwards compatibility with meteor_login_token here
+}
+
+const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req: Request, done) {
+  const loginToken = getLoginTokenFromReq(req);
+
+  // Get the user from their login token, if they have one. In parallel with
+  // this, look up their client ID, if they have one, and monkeypatch related
+  // information onto the request. This is an awkward place for this, but it has
+  // to be here so that it can run in parallel with the query to get the user.
+  const [user, _] = await Promise.all([
+    getUser(loginToken),
+    prepareClientId(req)
+  ]);
+
   if (!user) {
     return done(null, false)
   }

@@ -1,5 +1,5 @@
 import React, { useContext, useCallback, useState, useMemo } from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useCurrentUser } from '../common/withUser';
 import { useNewEvents } from '../../lib/events/withNewEvents';
@@ -47,29 +47,23 @@ interface RecordPostViewArgs {
 }
 
 export const useRecordPostView = (post: ViewablePost) => {
-  const [increasePostViewCount] = useMutation(gql(`
+  const [increasePostViewCount] = useMutationNoCache(gql(`
     mutation increasePostViewCountMutation($postId: String) {
       increasePostViewCount(postId: $postId)
     }
-  `), {
-    ignoreResults: true
-  });
+  `));
 
-  const [sendVertexViewItemEvent] = useMutation(gql(`
+  const [sendVertexViewItemEvent] = useMutationNoCache(gql(`
     mutation sendVertexViewItemEventMutation($postId: String!, $attributionId: String) {
       sendVertexViewItemEvent(postId: $postId, attributionId: $attributionId)
     }
-  `), {
-    ignoreResults: true
-  });
+  `));
 
-  const [markPostCommentsRead] = useMutation(gql(`
+  const [markPostCommentsRead] = useMutationNoCache(gql(`
     mutation markPostCommentsRead($postId: String!) {
       markPostCommentsRead(postId: $postId)
     }
-  `), {
-    ignoreResults: true
-  });
+  `));
   
   const {recordEvent} = useNewEvents()
   const currentUser = useCurrentUser();

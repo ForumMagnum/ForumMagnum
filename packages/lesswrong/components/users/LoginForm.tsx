@@ -1,19 +1,20 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { reCaptchaSiteKeySetting } from '../../lib/publicSettings';
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import { isAF, isEAForum } from '../../lib/instanceSettings';
 import { useMessages } from '../common/withMessages';
 import { getUserABTestKey, useClientId } from '../../lib/abTestImpl';
 import { useLocation } from '../../lib/routeUtil';
-import type { GraphQLFormattedError } from 'graphql';
 import {isFriendlyUI} from '../../themes/forumTheme.ts'
 import ContentStyles from "../common/ContentStyles";
 import ReCaptcha from "../common/ReCaptcha";
 import Loading from "../vulcan-core/Loading";
 import EALoginPopover from "../ea-forum/auth/EALoginPopover";
 import SignupSubscribeToCurated from "./SignupSubscribeToCurated";
+import DeferRender from '../common/DeferRender';
+import { ErrorLike } from '@apollo/client';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -152,8 +153,8 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
   const [displayedError, setDisplayedError] = useState<string|null>(null);
   const clientId = useClientId();
 
-  const showErrors = (errors: readonly GraphQLFormattedError[]) => {
-    setDisplayedError(errors.map(err => err.message).join('.\n'));
+  const showError = (error: ErrorLike) => {
+    setDisplayedError(error.message);
   }
   
   const submitFunction = async (e: AnyBecauseTodo) => {
@@ -161,17 +162,17 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
     const signupAbTestKey = getUserABTestKey({clientId});
 
     if (currentAction === 'login') {
-      const { data, errors } = await loginMutation({
+      const { data, error } = await loginMutation({
         variables: { username, password }
       })
-      if (errors) {
-        showErrors(errors);
+      if (error) {
+        showError(error);
       }
       if (data?.login?.token) {
         location.reload()
       }
     } else if (currentAction === 'signup') {
-      const { data, errors } = await signupMutation({
+      const { data, error } = await signupMutation({
         variables: {
           email, username, password,
           reCaptchaToken: reCaptchaToken.current,
@@ -179,18 +180,18 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
           subscribeToCurated
         }
       })
-      if (errors) {
-        showErrors(errors);
+      if (error) {
+        showError(error);
       }
       if (data?.signup?.token) {
         location.reload()
       }
     } else if (currentAction === 'pwReset') {
-      const { data, errors } = await pwResetMutation({
+      const { data, error } = await pwResetMutation({
         variables: { email }
       })
-      if (errors) {
-        showErrors(errors);
+      if (error) {
+        showError(error);
       }
       if (data?.resetPassword) {
         flash(data?.resetPassword)
@@ -199,8 +200,9 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
   }
 
   return <ContentStyles contentType="commentExceptPointerEvents">
-    {reCaptchaSiteKeySetting.get()
-      && <ReCaptcha verifyCallback={(token) => reCaptchaToken.current = token} action="login/signup"/>}
+    {reCaptchaSiteKeySetting.get() && <DeferRender ssr={false}>
+      <ReCaptcha verifyCallback={(token) => reCaptchaToken.current = token} action="login/signup"/>
+    </DeferRender>}
     <form className={classes.root} onSubmit={submitFunction}>
       {["signup", "pwReset"].includes(currentAction) && <input value={email} type="text" name="email" placeholder="email" className={classes.input} onChange={event => setEmail(event.target.value)} />}
       {["signup", "login"].includes(currentAction) && <>

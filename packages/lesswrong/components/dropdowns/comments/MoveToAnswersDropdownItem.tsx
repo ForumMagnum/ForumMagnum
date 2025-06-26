@@ -3,10 +3,9 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMessages } from '../../common/withMessages';
 import { userCanDo, userOwns } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
-import { useApolloClient } from '@apollo/client/react/hooks';
+import { useApolloClient, useMutation } from "@apollo/client/react";
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import DropdownItem from "../DropdownItem";
-import { useMutation } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const CommentsListUpdateMutation = gql(`
