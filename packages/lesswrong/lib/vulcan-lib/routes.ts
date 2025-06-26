@@ -17,8 +17,8 @@ export interface SegmentedUrl {
 
 export type RouterLocation = {
   // Null in 404
-  currentRoute: Route|null,
-  RouteComponent: any,
+  // currentRoute: Route|null,
+  // RouteComponent: any,
   location: SegmentedUrl,
   pathname: string,
   url: string,

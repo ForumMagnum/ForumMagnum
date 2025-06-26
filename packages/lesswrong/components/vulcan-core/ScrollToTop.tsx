@@ -6,7 +6,7 @@ import stringify from 'json-stringify-deterministic';
 // Scroll restoration based on https://reacttraining.com/react-router/web/guides/scroll-restoration.
 export default function ScrollToTop() {
   const location = useSubscribedLocation();
-  const { pathname, query, currentRoute } = location;
+  const { pathname, query } = location;
   const isNotFirstMountRef = useRef(false)
   
   // Re-scrolling to top when the query needs to be worked around in a lot of cases
@@ -23,15 +23,11 @@ export default function ScrollToTop() {
     // dependencies of this useEffect change, because those are client-side
     // navigations, which the browser won't handle.
     if (isNotFirstMountRef.current) {
-      if (currentRoute?.initialScroll === "bottom") {
-        window.scrollTo(0, document.body.scrollHeight);
-      } else {
-        window.scrollTo(0, 0);
-      }
+      window.scrollTo(0, 0);
     } else {
       isNotFirstMountRef.current = true
     }
-  }, [pathname, queryAsStr, currentRoute?.initialScroll])
+  }, [pathname, queryAsStr])
 
   return null;
 }

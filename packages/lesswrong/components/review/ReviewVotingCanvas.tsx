@@ -298,9 +298,9 @@ const ReviewVotingCanvas = ({
 }: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { pathname, currentRoute } = useLocation();
+  const { pathname } = useLocation();
   const currentUser = useCurrentUser();
-  const showHearts = currentRoute?.path === "/";
+  const showHearts = pathname === "/";
 
   const {data, refetch} = useQuery(gql(`
     query GivingSeasonHeartsQuery($electionName: String!) {

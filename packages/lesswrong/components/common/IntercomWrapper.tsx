@@ -7,6 +7,7 @@ import { useLocation } from '../../lib/routeUtil';
 import withErrorBoundary from './withErrorBoundary'
 import Intercom from '../../lib/vendor/react-intercom';
 import { useCookiePreferences } from '../hooks/useCookiesWithConsent';
+import { isStandaloneRoute } from '@/lib/routeChecks';
 
 const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 
@@ -25,12 +26,12 @@ const styles = (theme: ThemeType) => ({
 
 const IntercomWrapper = () => {
   const currentUser = useCurrentUser();
-  const { currentRoute } = useLocation();
+  const { pathname } = useLocation();
 
   const { cookiePreferences } = useCookiePreferences()
   const functionalCookiesAllowed = cookiePreferences.includes('functional')
   
-  if (currentRoute?.standalone) {
+  if (isStandaloneRoute(pathname)) {
     return null;
   }
   if (!functionalCookiesAllowed) {

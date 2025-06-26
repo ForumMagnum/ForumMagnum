@@ -58,6 +58,8 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { DelayedLoading } from './common/DelayedLoading';
 import { SuspenseWrapper } from './common/SuspenseWrapper';
 import dynamic from 'next/dynamic';
+import { useRouteMetadata } from './RouteMetadataContext';
+import { isFullscreenRoute, isHomeRoute, isStandaloneRoute, isStaticHeaderRoute, isSunshineSidebarRoute, isUnspacedGridRoute } from '@/lib/routeChecks';
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -74,7 +76,7 @@ const STICKY_SECTION_TOP_MARGIN = 20;
 /**
  * When a new user signs up, their profile is 'incomplete' (ie; without a display name)
  * and we require them to fill this in using the onboarding flow before continuing.
- * This is a list of route names that the user is allowed to view despite having an
+ * This is a list of route path segments that the user is allowed to view despite having an
  * 'incomplete' account.
  */
 const allowedIncompletePaths: string[] = ["termsOfUse"];
@@ -276,7 +278,10 @@ const Layout = ({currentUser, children}: {
   const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : false
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const theme = useTheme();
-  const {currentRoute, pathname} = useLocation();
+  // TODO: figure out if using usePathname directly is safe or better (concerns about unnecessary rerendering, idk; my guess is that with Next if the pathname changes we're rerendering everything anyways?)
+  const { pathname } = useLocation();
+  // const pathname = usePathname();
+  const { metadata: routeMetadata } = useRouteMetadata();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
 
   // enable during ACX Everywhere
@@ -285,7 +290,7 @@ const Layout = ({currentUser, children}: {
   // also uncomment out the dynamic import and render of the HomepageCommunityMap.
   // (they're commented out to reduce the split bundle size.)
   const renderCommunityMap = false
-  // (isLW) && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
+  // (isLW) && isHomeRoute(pathname) && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
   const [updateUser] = useMutation(UsersCurrentUpdateMutation);
   
@@ -313,7 +318,7 @@ const Layout = ({currentUser, children}: {
   // also have a `useEffect` which adds a class to `<body>`. (This has to be a useEffect because
   // <body> is outside the React tree entirely. An alternative way to do this would be to change
   // overflow properties so that `<body>` isn't scrollable but a `<div>` in here is.)
-  const useWhiteBackground = currentRoute?.background === "white";
+  const useWhiteBackground = routeMetadata.background === "white";
 
   useEffect(() => {
     const isWhite = document.body.classList.contains(classes.whiteBackground);
@@ -363,11 +368,11 @@ const Layout = ({currentUser, children}: {
       // then it should.
       // FIXME: This is using route names, but it would be better if this was
       // a property on routes themselves.
-      standaloneNavigation: !currentRoute || !!currentRoute.hasLeftNavigationColumn,
-      renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar,
+      standaloneNavigation: !!routeMetadata.hasLeftNavigationColumn,
+      renderSunshineSidebar: isSunshineSidebarRoute(pathname) && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar,
       renderLanguageModelChatLauncher: !!currentUser && userHasLlmChat(currentUser),
-      shouldUseGridLayout: !currentRoute || !!currentRoute.hasLeftNavigationColumn,
-      unspacedGridLayout: !!currentRoute?.unspacedGrid,
+      shouldUseGridLayout: !!routeMetadata.hasLeftNavigationColumn,
+      unspacedGridLayout: isUnspacedGridRoute(pathname),
     }
 
     const { overridenLayoutOptions: overrideLayoutOptions } = layoutOptionsState
@@ -377,11 +382,10 @@ const Layout = ({currentUser, children}: {
     const renderLanguageModelChatLauncher = overrideLayoutOptions.renderLanguageModelChatLauncher ?? baseLayoutOptions.renderLanguageModelChatLauncher
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
-    const navigationFooterBar = !currentRoute || currentRoute.navigationFooterBar;
     // The friendly home page has a unique grid layout, to account for the right hand side column.
-    const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
+    const friendlyHomeLayout = isFriendlyUI && isHomeRoute(pathname);
 
-    const isIncompletePath = allowedIncompletePaths.includes(currentRoute?.name ?? "404");
+    const isIncompletePath = allowedIncompletePaths.some(path => pathname.startsWith(`/${path}`));
     
     return (
       <AnalyticsContext path={pathname}>
@@ -398,7 +402,7 @@ const Layout = ({currentUser, children}: {
       <CurrentAndRecentForumEventsProvider>
         <div className={classNames(
           "wrapper",
-          {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
+          {'alignment-forum': isAF, [classes.fullscreen]: isFullscreenRoute(pathname), [classes.wrapper]: isLWorAF}
         )} id="wrapper">
           {buttonBurstSetting.get() && <GlobalButtonBurst />}
           <DialogManager>
@@ -425,13 +429,13 @@ const Layout = ({currentUser, children}: {
               {/* Google Tag Manager i-frame fallback */}
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
 
-              {!currentRoute?.standalone && <SuspenseWrapper name="Header">
+              {!isStandaloneRoute(pathname) && <SuspenseWrapper name="Header">
                 <Header
                   searchResultsArea={searchResultsAreaRef}
                   standaloneNavigationPresent={standaloneNavigation}
                   sidebarHidden={hideNavigationSidebar}
                   toggleStandaloneNavigation={toggleStandaloneNavigation}
-                  stayAtTop={!!currentRoute?.staticHeader}
+                  stayAtTop={isStaticHeaderRoute(pathname)}
                   backgroundColor={headerBackgroundColor}
                 />
               </SuspenseWrapper>}
@@ -449,7 +453,7 @@ const Layout = ({currentUser, children}: {
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
                 [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
                 [classes.eaHomeLayout]: friendlyHomeLayout && !renderSunshineSidebar,
-                [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen,
+                [classes.fullscreenBodyWrapper]: isFullscreenRoute(pathname),
               }
               )}>
                 {isFriendlyUI && !isWrapped && <AdminToggle />}
@@ -469,8 +473,8 @@ const Layout = ({currentUser, children}: {
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: useWhiteBackground,
-                  [classes.mainNoFooter]: currentRoute?.noFooter,
-                  [classes.mainFullscreen]: currentRoute?.fullscreen,
+                  [classes.mainNoFooter]: routeMetadata.noFooter,
+                  [classes.mainFullscreen]: isFullscreenRoute(pathname),
                   [classes.mainUnspacedGrid]: shouldUseGridLayout && unspacedGridLayout,
                 })}>
                   <ErrorBoundary>
@@ -484,7 +488,7 @@ const Layout = ({currentUser, children}: {
                       {!isIncompletePath && isEAForum ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
                     </SuspenseWrapper>
                   </ErrorBoundary>
-                  {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
+                  {!isFullscreenRoute(pathname) && !routeMetadata.noFooter && <Footer />}
                 </div>
                 {isLW && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
                 {!renderSunshineSidebar &&

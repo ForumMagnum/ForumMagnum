@@ -283,56 +283,6 @@ ${Object.entries(mapping).map(([path, func]) =>
   console.log('Created: packages/lesswrong/lib/routeMappings/pingbacks.ts');
 }
 
-async function generatePreviewComponentMapping(routes: Route[]) {
-  const mapping: Record<string, string> = {};
-  const components = new Set<string>();
-  
-  for (const route of routes) {
-    if (route.previewComponent) {
-      const componentName = route.previewComponent.name;
-      mapping[route.path] = componentName;
-      components.add(componentName);
-    }
-  }
-  
-  // Group components by their likely import paths
-  const importGroups: Record<string, string[]> = {};
-  for (const component of components) {
-    const importPath = component.includes('PostLinkPreview') || 
-                       component.includes('CommentLinkPreview') ||
-                       component.includes('SequencePreview')
-      ? '@/components/linkPreview/PostLinkPreview'
-      : component.includes('TagHoverPreview')
-      ? '@/components/tagging/TagHoverPreview'
-      : '@/components/linkPreview/DefaultPreview';
-    
-    if (!importGroups[importPath]) {
-      importGroups[importPath] = [];
-    }
-    importGroups[importPath].push(component);
-  }
-  
-  const imports = Object.entries(importGroups)
-    .map(([path, comps]) => `import { ${comps.join(', ')} } from '${path}';`)
-    .join('\n');
-
-  const content = `${imports}
-
-export const routePreviewComponentMapping: Record<string, React.ComponentType<any>> = {
-${Object.entries(mapping).map(([path, comp]) => 
-  `  '${path}': ${comp},`
-).join('\n')}
-};`;
-  
-  const dir = 'packages/lesswrong/lib/routeMappings';
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  
-  fs.writeFileSync(path.join(dir, 'previewComponents.tsx'), content);
-  console.log('Created: packages/lesswrong/lib/routeMappings/previewComponents.tsx');
-}
-
 async function generateMiddleware(routes: Route[]) {
   const complexRoutes = routes.filter(route => 
     hasMultipleConsecutiveOptionals(route.path) || 
@@ -380,69 +330,6 @@ export const config = {
   console.log('Created: middleware.ts');
 }
 
-async function updatePostsSingleRoute() {
-  const updatedContent = `"use client";
-
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import React from 'react';
-import { useLocation } from '../../lib/routeUtil';
-import PostsPageWrapper from "./PostsPage/PostsPageWrapper";
-import Error404 from "../common/Error404";
-
-interface PostsSingleRouteProps {
-  _id?: string;
-}
-
-const PostsSingleRoute = ({ _id }: PostsSingleRouteProps) => {
-  const { query } = useLocation();
-  const version = query?.revision;
-  
-  if (_id) {
-    return <PostsPageWrapper documentId={_id} sequenceId={null} version={version} />
-  } else {
-    return <Error404/>
-  }
-};
-
-export default registerComponent('PostsSingleRoute', PostsSingleRoute);\n`;
-  
-  const filePath = 'packages/lesswrong/components/posts/PostsSingleRoute.tsx';
-  fs.writeFileSync(filePath, updatedContent);
-  console.log(`Updated: ${filePath}`);
-}
-
-async function generateRouteChecks() {
-  const fullscreenRoutes = ['/inbox', '/moderatorInbox', '/conversation'];
-  
-  const content = `// Route check helpers for Layout.tsx
-export const isSunshineSidebarRoute = (pathname: string) => pathname === '/';
-
-export const isStandaloneRoute = (pathname: string) => 
-  ['/crosspostLogin', '/groups-map'].includes(pathname);
-
-export const isStaticHeaderRoute = (pathname: string) => 
-  /^\\/admin\\/digests\\/[^\\/]+$/.test(pathname);
-
-export const isFullscreenRoute = (pathname: string) => 
-  ${JSON.stringify(fullscreenRoutes)}.some(route => pathname.startsWith(route));
-
-export const isUnspacedGridRoute = (pathname: string) => {
-  // Check for the subforum2 route pattern
-  const tagUrlBase = process.env.NEXT_PUBLIC_TAG_URL_BASE || 'tag';
-  const pattern = new RegExp(\`^/\${tagUrlBase}/[^/]+/subforum2$\`);
-  return pattern.test(pathname);
-};
-`;
-  
-  const dir = 'packages/lesswrong/lib/routeChecks';
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  
-  fs.writeFileSync(path.join(dir, 'index.ts'), content);
-  console.log('Created: packages/lesswrong/lib/routeChecks/index.ts');
-}
-
 export async function main() {
   console.log('Starting route migration...');
   console.log(`Found ${Object.keys(Routes).length} routes to migrate`);
@@ -456,16 +343,9 @@ export async function main() {
   
   console.log('\nGenerating mapping files...');
   await generatePingbackMapping(filteredRoutes);
-  await generatePreviewComponentMapping(filteredRoutes);
   
   console.log('\nGenerating middleware...');
   await generateMiddleware(filteredRoutes);
-  
-  console.log('\nUpdating PostsSingleRoute component...');
-  await updatePostsSingleRoute();
-  
-  console.log('\nGenerating route check helpers...');
-  await generateRouteChecks();
   
   console.log('\nMigration complete!');
   console.log('\nNext steps:');

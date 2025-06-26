@@ -8,7 +8,7 @@ import LessOnline2025Banner from './seasonal/LessOnline2025Banner';
 import IfAnyoneBuildsItSplash, { bookPromotionEndDate } from './seasonal/IfAnyoneBuildsItSplash';
 import ReviewVotingCanvas from "./review/ReviewVotingCanvas";
 import CloudinaryImage2 from "./common/CloudinaryImage2";
-import { useRouteMetadata } from './RouteMetadataContext';
+import { isHomeRoute } from '@/lib/routeChecks';
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
@@ -109,8 +109,10 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   standaloneNavigation: boolean,
 }) => {
   const classes = useStyles(styles);
-  const { metadata } = useRouteMetadata();
-  const { currentRoute } = useLocation();
+  // TODO: figure out if using usePathname directly is safe or better (concerns about unnecessary rerendering, idk; my guess is that with Next if the pathname changes we're rerendering everything anyways?)
+  const { pathname } = useLocation();
+  // const pathname = usePathname();
+  const isHomePage = isHomeRoute(pathname);
 
   const defaultImage = standaloneNavigation ? <div className={classes.imageColumn}> 
     {/* Background image shown in the top-right corner of LW. The
@@ -147,7 +149,7 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   }
 
   return <div className={classes.root}>
-    {currentRoute?.name === 'home' ? homePageImage : defaultImage}
+    {isHomePage ? homePageImage : defaultImage}
   </div>;
 }
 

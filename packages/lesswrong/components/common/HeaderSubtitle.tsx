@@ -1,10 +1,10 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useSubscribedLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { blackBarTitle } from '../../lib/publicSettings';
 import HeaderEventSubtitle from "./HeaderEventSubtitle";
+import { useRouteMetadata } from '../RouteMetadataContext';
 
 export const styles = (theme: ThemeType) => ({
   subtitle: {
@@ -19,14 +19,11 @@ export const styles = (theme: ThemeType) => ({
 const HeaderSubtitle = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { currentRoute } = useSubscribedLocation();
-  if (!currentRoute) {
-    return null;
-  }
+  const { metadata: routeMetadata } = useRouteMetadata();
 
-  const SubtitleComponent = currentRoute.subtitleComponent;
-  const subtitleString = currentRoute.headerSubtitle ?? currentRoute.subtitle;
-  const subtitleLink = currentRoute.subtitleLink;
+  const SubtitleComponent = routeMetadata.subtitleComponent;
+  const subtitleString = routeMetadata.headerSubtitle ?? routeMetadata.subtitle;
+  const subtitleLink = routeMetadata.subtitleLink;
 
   if (SubtitleComponent) {
     return <SubtitleComponent isSubtitle={true} />

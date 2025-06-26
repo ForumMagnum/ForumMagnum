@@ -32,6 +32,8 @@ import ActiveDialogues from "../dialogues/ActiveDialogues";
 import SiteLogo from "../ea-forum/SiteLogo";
 import MessagesMenuButton from "../messaging/MessagesMenuButton";
 import { SuspenseWrapper } from './SuspenseWrapper';
+import { isHomeRoute } from '@/lib/routeChecks';
+import { useRouteMetadata } from '../RouteMetadataContext';
 
 /** Height of top header. On Book UI sites, this is for desktop only */
 export const HEADER_HEIGHT = isBookUI ? 64 : 66;
@@ -318,7 +320,8 @@ const Header = ({
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const { notificationsOpened } = useUnreadNotifications();
-  const { currentRoute, pathname, hash } = useLocation();
+  const { pathname, hash } = useLocation();
+  const { metadata: routeMetadata } = useRouteMetadata();
   const {currentForumEvent} = useCurrentAndRecentForumEvents();
   useEffect(() => {
     // When we move to a different page we will be positioned at the top of
@@ -491,7 +494,7 @@ const Header = ({
   // If we're explicitly given a backgroundColor, that overrides any event header
   if (backgroundColor) {
     headerStyle.backgroundColor = backgroundColor
-  } else if (hasForumEvents && currentRoute?.name === "home" && bannerImageId && currentForumEvent?.eventFormat !== "BASIC") {
+  } else if (hasForumEvents && isHomeRoute(pathname) && bannerImageId && currentForumEvent?.eventFormat !== "BASIC") {
     // On EAF, forum events with polls or stickers also update the home page header background and text
     const darkColor = currentForumEvent.darkColor;
     const background = `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
@@ -527,7 +530,7 @@ const Header = ({
             className={classNames(
               classes.appBar,
               useContrastText && classes.appBarDarkBackground,
-              currentRoute?.background === "white" && classes.blackBackgroundAppBar,
+              routeMetadata.background === "white" && classes.blackBackgroundAppBar,
             )}
             style={headerStyle}
           >
