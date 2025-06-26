@@ -5,6 +5,7 @@ import { getInstanceSettings } from "@/lib/getInstanceSettings";
 import Script from "next/script";
 import { toEmbeddableJson } from "@/lib/utils/jsonUtils";
 import { cookies } from "next/headers";
+import { RouteMetadataProvider } from "@/components/RouteMetadataContext";
 
 export default async function RootLayout({
   children,
@@ -28,6 +29,7 @@ export default async function RootLayout({
       <body>
         <span id="jss-insertion-start"></span>
         <span id="jss-insertion-end"></span>
+        <RouteMetadataProvider>
         <AppGenerator
           abTestGroupsUsed={{}}
           themeOptions={{ name: "auto" }}
@@ -36,6 +38,7 @@ export default async function RootLayout({
         >
           {children}
         </AppGenerator>
+        </RouteMetadataProvider>
       </body>
     </html>
   );

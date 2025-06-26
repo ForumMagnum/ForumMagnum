@@ -25,10 +25,7 @@ interface RouteMetadataContextType {
   setMetadata: (metadata: RouteMetadata) => void;
 }
 
-const RouteMetadataContext = createContext<RouteMetadataContextType>({
-  metadata: {},
-  setMetadata: () => {},
-});
+const RouteMetadataContext = createContext<RouteMetadataContextType | null>(null);
 
 export const RouteMetadataProvider = ({ children }: { children: ReactNode }) => {
   const [metadata, setMetadata] = useState<RouteMetadata>({});
@@ -46,7 +43,9 @@ export const RouteMetadataProvider = ({ children }: { children: ReactNode }) => 
  */
 export const RouteMetadataSetter = ({ metadata }: { metadata: RouteMetadata }) => {
   const { setMetadata } = useRouteMetadata();
-  setMetadata(metadata);
+  setTimeout(() => {
+    setMetadata(metadata);
+  }, 0);
   return <></>;
 };
 

@@ -135,9 +135,11 @@ function generatePageContent(route: Route): string {
   }
   
   pageContent += `export default function Page() {\n`;
+
+  let routeMetadataSetter = '';
   
   if (hasMetadata) {
-    pageContent += `  <RouteMetadataSetter metadata={${util.inspect(metadata, {depth: null})
+    routeMetadataSetter = `<RouteMetadataSetter metadata={${util.inspect(metadata, {depth: null})
       .split('\n')
       .map(line => {
         let updatedLine = line;
@@ -149,8 +151,7 @@ function generatePageContent(route: Route): string {
         }
         return updatedLine;
       })
-      .join('\n  ')}} />\n`;
-    pageContent += `  \n`;
+      .join('\n  ')}} />`;
   }
   
   if (route.enableResourcePrefetch) {
@@ -160,6 +161,8 @@ function generatePageContent(route: Route): string {
     pageContent += `  // enableResourcePrefetch was: ${prefetchValue}\n`;
     pageContent += `  \n`;
   }
+
+  let finalComponentString = '';
   
   // Handle _id prop for PostsSingleRoute
   if (route._id && componentName === 'PostsSingleRoute') {
@@ -167,11 +170,21 @@ function generatePageContent(route: Route): string {
     const idProp = route._id.includes('Setting.get()') 
       ? ` _id={${route._id}}`
       : ` _id="${route._id}"`;
-    pageContent += `  return <${componentName}${idProp} />;\n`;
+
+    finalComponentString = `<${componentName}${idProp} />`;
   } else {
-    pageContent += `  return <${componentName} />;\n`;
+    finalComponentString = `<${componentName} />`;
   }
-  
+
+  if (routeMetadataSetter) {
+    pageContent += `  return <>
+    ${routeMetadataSetter}
+    ${finalComponentString}
+  </>;\n`;
+  } else {
+    pageContent += `  return ${finalComponentString};\n`;
+  }
+
   pageContent += `}\n`;
   
   return pageContent;
