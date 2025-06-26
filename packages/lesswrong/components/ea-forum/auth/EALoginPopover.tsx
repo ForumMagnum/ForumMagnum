@@ -262,7 +262,6 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
   const [error, setError] = useState<string | null>(null);
   const [policy, setPolicy] = useState<string | null>(null);
   const [showFacebookWarning, setShowFacebookWarning] = useState(false);
-  const refetchCurrentUser = useRefetchCurrentUser();
 
   const onChangeEmail = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
     setEmail(ev.target.value);
@@ -326,7 +325,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
           ? client.signup(email, password)
           : client.login(email, password)
       );
-      await refetchCurrentUser();
+      location.reload();
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
@@ -346,7 +345,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
     } finally {
       setLoading(false);
     }
-  }, [isResettingPassword, showFacebookWarning, email, password, onSendPasswordReset, isSignup, client, refetchCurrentUser, action]);
+  }, [isResettingPassword, showFacebookWarning, email, password, onSendPasswordReset, isSignup, client, action]);
 
   const onClickGoogle = useCallback(async () => {
     setMessage(null);
