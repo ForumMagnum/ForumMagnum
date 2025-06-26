@@ -79,9 +79,6 @@ const NotificationsMenuInner = ({open, setIsOpen, hasOpened}: {
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const {unreadNotificationCountsQueryRef} = useUnreadNotifications();
-  const {data} = useReadQuery(unreadNotificationCountsQueryRef!);
-  const unreadPrivateMessages = data?.unreadNotificationCounts?.unreadPrivateMessages ?? 0;
   const [tab,setTab] = useState(0);
 
   if (!currentUser) {
@@ -109,7 +106,9 @@ const NotificationsMenuInner = ({open, setIsOpen, hasOpened}: {
         <Badge
           className={classes.badgeContainer}
           badgeClassName={classes.badge}
-          badgeContent={unreadPrivateMessages>0 ? `${unreadPrivateMessages}` : ""}
+          badgeContent={<SuspenseWrapper name="UnreadPrivateMessagesCountBadge">
+            <UnreadPrivateMessagesCountBadge/>
+          </SuspenseWrapper>}
         >
           <MailIcon className={classes.icon} />
         </Badge>
@@ -170,6 +169,13 @@ const NotificationsMenuInner = ({open, setIsOpen, hasOpened}: {
     </div>
   )
 };
+
+const UnreadPrivateMessagesCountBadge = () => {
+  const {unreadNotificationCountsQueryRef} = useUnreadNotifications();
+  const {data} = useReadQuery(unreadNotificationCountsQueryRef!);
+  const unreadPrivateMessages = data?.unreadNotificationCounts?.unreadPrivateMessages ?? 0;
+  return unreadPrivateMessages>0 ? `${unreadPrivateMessages}` : ""
+}
 
 const NotificationsMenu = ({open, setIsOpen, hasOpened}: {
   open: boolean,
