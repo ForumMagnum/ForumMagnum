@@ -405,6 +405,7 @@ const Layout = ({currentUser, children}: {
           "wrapper",
           {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF},
           isMaybeIsIfAnyoneBuildsItFrontPage && "ifAnyoneBuildsItPage",
+          useWhiteBackground && classes.whiteBackground
         )} id="wrapper">
           {buttonBurstSetting.get() && <GlobalButtonBurst />}
           <DialogManager>
@@ -474,7 +475,6 @@ const Layout = ({currentUser, children}: {
                 {/* {isLWorAF && navigationFooterBar && <TabNavigationMenuFooter />} */}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
-                  [classes.whiteBackground]: useWhiteBackground,
                   [classes.mainNoFooter]: currentRoute?.noFooter,
                   [classes.mainFullscreen]: currentRoute?.fullscreen,
                   [classes.mainUnspacedGrid]: shouldUseGridLayout && unspacedGridLayout,
