@@ -1,9 +1,9 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import { isLWorAF } from '../../lib/instanceSettings';
 import CommentsNodeInner from "../comments/CommentsNode";
-import RejectContentButton from "./RejectContentButton";
-import RejectedReasonDisplay from "./RejectedReasonDisplay";
+import RejectedContentControls from "./RejectedContentControls";
+import ForumIcon from "../common/ForumIcon";
+import SunshineNewUserCommentItem from "./SunshineNewUserCommentItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -22,9 +22,16 @@ const styles = (theme: ThemeType) => ({
   },
   rejection: {
     display: "flex",
-    justifyContent: "flex-end",
-    marginBottom: 2
-  }
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  expandCollapseButton: {
+    cursor: 'pointer',
+    display: 'inline-flex',
+    alignItems: 'center',
+    marginRight: 8,
+    color: theme.palette.grey[600],
+  },
 })
 
 const SunshineNewUserCommentsList = ({comments, user, classes}: {
@@ -32,28 +39,14 @@ const SunshineNewUserCommentsList = ({comments, user, classes}: {
   classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
-  if (!comments) return null 
 
-  const newComments = user.reviewedAt ? comments.filter(comment => comment.postedAt > user.reviewedAt!) : comments
+  if (!comments) return null;
+
+  const newComments = user.reviewedAt ? comments.filter(comment => comment.postedAt > user.reviewedAt!) : comments;
 
   return (
     <div className={classes.root}>
-      {(newComments.length > 0) && newComments.map(comment=><div className={classes.comment} key={`sunshine-new-user-${comment._id}`}>
-        {isLWorAF && <div className={classes.rejection}>
-          {comment.rejected && <RejectedReasonDisplay reason={comment.rejectedReason}/>}
-          <RejectContentButton contentWrapper={{collectionName:"Comments", content:comment}}/>
-        </div>}
-        <CommentsNodeInner 
-          treeOptions={{
-            condensed: false,
-            post: comment.post || undefined,
-            showPostTitle: true,
-          }}
-          forceUnTruncated
-          forceUnCollapsed
-          comment={comment}
-        />
-      </div>)}
+      {newComments.length > 0 && newComments.map(comment => <SunshineNewUserCommentItem key={`sunshine-new-user-${comment._id}`} comment={comment} />)}
     </div>
   )
 }
