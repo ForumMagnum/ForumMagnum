@@ -20,15 +20,12 @@ export const useQueryCurrentUser = () => {
   `), {
     fetchPolicy: "cache-first",
     ssr: true,
+    refetchWritePolicy: "overwrite",
   });
-
-  const refetchCurrentUser = useCallback(async () => {
-    await refetch();
-  }, [refetch]);
   
   return {
     currentUser: data?.currentUser ?? null,
-    refetchCurrentUser,
+    refetchCurrentUser: refetch,
     currentUserLoading: loading,
   }
 }

@@ -24,5 +24,5 @@ export default function withUser(Component: React.FC<WithUserProps>) {
   })
 }
 
-export const RefetchCurrentUserContext = createContext<() => Promise<void>>(async () => {});
+export const RefetchCurrentUserContext = createContext<(_?: any) => Promise<any>>(async () => {});
 export const useRefetchCurrentUser = () => useContext(RefetchCurrentUserContext);
