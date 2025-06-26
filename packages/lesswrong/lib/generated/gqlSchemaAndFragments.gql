@@ -1099,7 +1099,7 @@ type KeywordAlertsResult {
 }
 
 extend type Query {
-  KeywordAlerts(keyword: String!, startDate: Date!, limit: Int): KeywordAlertsResult
+  KeywordAlerts(keyword: String!, startDate: Date!, endDate: Date!, limit: Int): KeywordAlertsResult
 }
 
 extend type Query {
