@@ -6,6 +6,8 @@ import Script from "next/script";
 import { toEmbeddableJson } from "@/lib/utils/jsonUtils";
 import { cookies } from "next/headers";
 import { RouteMetadataProvider } from "@/components/RouteMetadataContext";
+import { initDatabases, initSettings } from "@/server/serverStartup";
+import { getPublicSettings } from "@/lib/settingsCache";
 
 export default async function RootLayout({
   children,
@@ -14,9 +16,15 @@ export default async function RootLayout({
   children: React.ReactNode;
   searchParams: Promise<SearchParams>;
 }) {
-  const searchParamValues = await searchParams;
+  const [searchParamValues, cookieStore] = await Promise.all([
+    searchParams,
+    cookies(),
+    initDatabases({ postgresUrl: process.env.PG_URL ?? '', postgresReadUrl: process.env.PG_URL ?? '' }).then(() => initSettings()),
+  ]);
+
   const publicInstanceSettings = getInstanceSettings().public;
-  const cookieStore = await cookies();
+  const publicDatabaseSettings = getPublicSettings();
+
   const cookieStoreArray = cookieStore.getAll();
 
   return (
@@ -24,6 +32,7 @@ export default async function RootLayout({
       <head>
         <Script strategy="beforeInteractive" id="public-instance-settings">
           {`window.publicInstanceSettings = ${toEmbeddableJson(publicInstanceSettings)}`}
+          {`window.publicSettings = ${toEmbeddableJson(publicDatabaseSettings)}`}
         </Script>
       </head>
       <body>
