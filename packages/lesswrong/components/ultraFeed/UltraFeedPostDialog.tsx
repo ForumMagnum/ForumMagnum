@@ -37,6 +37,7 @@ import { useDialogNavigation } from "../hooks/useDialogNavigation";
 import { useDisableBodyScroll } from "../hooks/useDisableBodyScroll";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { NetworkStatus } from "@apollo/client";
+import UltraFeedPostFooter from "./UltraFeedPostFooter";
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300;
 
@@ -125,8 +126,25 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
     },
   },
+  metaInfoSecondary: {
+    display: 'flex',
+    alignItems: 'baseline',
+    columnGap: 20,
+    rowGap: 6,
+    flexWrap: 'wrap',
+  },
+  mobileCommentCount: {
+    display: 'flex',
+    position: 'relative',
+    top: 4,
+    alignItems: 'center',
+    cursor: 'pointer',
+    color: 'inherit',
+    [theme.breakpoints.up('md')]: {
+      display: 'none',
+    },
+  },
   metaDateContainer: {
-    marginRight: 8,
   },
   authorsList: {
     fontSize: 'inherit',
@@ -353,6 +371,15 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   modalWrapper: {
     zIndex: `${theme.zIndexes.ultrafeedModal} !important`,
   },
+  '& .PostsPagePostFooter-voteBottom': {
+    '&.PostsPagePostFooter-lwVote': {
+      marginTop: '0 !important',
+      marginBottom: '0 !important',
+      '& .PostsVoteDefault-voteScores': {
+        padding: '40% 15% 30% 15% !important'
+      }
+    }
+  },
 }));
 
 type UltraFeedPostDialogProps = {
@@ -465,7 +492,8 @@ const UltraFeedPostDialog = ({
     e.stopPropagation();
     
     const container = scrollableContentRef.current;
-    const commentsElement = document.getElementById('comments');
+    // Look for the comments section wrapper which always exists
+    const commentsElement = document.getElementById('commentsSection');
     if (container && commentsElement) {
       const containerRect = container.getBoundingClientRect();
       const commentsRect = commentsElement.getBoundingClientRect();
@@ -599,14 +627,19 @@ const UltraFeedPostDialog = ({
                             post={displayPost} 
                             pageSectionContext="post_header"
                           />
-                          {displayPost.postedAt && (
-                            <span className={classes.metaDateContainer}>
-                              <PostsPageDate post={displayPost} hasMajorRevision={false} />
-                            </span>
-                          )}
-                          {displayPost.readTimeMinutes && (
-                            <ReadTime post={displayPost} dialogueResponses={[]} />
-                          )}
+                          <div className={classes.metaInfoSecondary}>
+                            {displayPost.postedAt && (
+                              <span className={classes.metaDateContainer}>
+                                <PostsPageDate post={displayPost} hasMajorRevision={false} />
+                              </span>
+                            )}
+                            {displayPost.readTimeMinutes && (
+                              <ReadTime post={displayPost} dialogueResponses={[]} />
+                            )}
+                            <div className={classes.mobileCommentCount} onClick={scrollToComments} style={{cursor: 'pointer'}}>
+                              <LWCommentCount commentCount={displayPost.commentCount} label={false} />
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -636,25 +669,32 @@ const UltraFeedPostDialog = ({
                         <Loading />
                       </div>
                     )}
+                    {fullPostForContent && (
+                      <div className={classes.footer}>
+                        <UltraFeedPostFooter post={fullPostForContent} />
+                      </div>
+                    )}
                   </div>
                   
                   {isCommentsLoading && !loadingMoreComments && fullPostForContent && (
                     <div className={classes.loadingContainer}><Loading /></div>
                   )}
-                  {comments && (
-                    <CommentsListSection
-                      post={fullPostForContent}
-                      comments={comments ?? []}
-                      totalComments={commentsTotalCount ?? 0}
-                      commentCount={(comments ?? []).length}
-                      loadMoreComments={loadMoreProps.loadMore}
-                      loadingMoreComments={loadingMoreComments}
-                      highlightDate={undefined}
-                      setHighlightDate={() => { }}
-                      hideDateHighlighting={true}
-                      newForm={true}
-                    />
-                  )}
+                  <div id="commentsSection">
+                    {comments && (
+                      <CommentsListSection
+                        post={fullPostForContent}
+                        comments={comments ?? []}
+                        totalComments={commentsTotalCount ?? 0}
+                        commentCount={(comments ?? []).length}
+                        loadMoreComments={loadMoreProps.loadMore}
+                        loadingMoreComments={loadingMoreComments}
+                        highlightDate={undefined}
+                        setHighlightDate={() => { }}
+                        hideDateHighlighting={true}
+                        newForm={true}
+                      />
+                    )}
+                  </div>
                 </div>
                 {/* placeholders for side comments, reacts, and notes with grid layout (helps get centering right) */}
                 <div />
