@@ -426,7 +426,7 @@ const UltraFeedPostDialog = ({
       enableTotal: true,
     },
     skip: !(postId ?? post?._id),
-    itemsPerPage: 100,
+    itemsPerPage: 500,
   });
   
   const {

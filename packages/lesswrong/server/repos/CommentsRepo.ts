@@ -487,7 +487,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       AND ${getViewableCommentsSelector(alias)}
     `;
 
-    const feedCommentsData = await this.getRawDb().manyOrNone<FeedCommentFromDb>(`
+    const feedCommentsData: FeedCommentFromDb[] = await this.getRawDb().manyOrNone(`
       -- CommentsRepo.getCommentsForFeed
       WITH "SubscribedAuthorIds" AS (
           -- Get all user IDs the current user is subscribed to

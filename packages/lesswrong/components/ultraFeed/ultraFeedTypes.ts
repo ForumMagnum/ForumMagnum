@@ -88,6 +88,7 @@ export type PreDisplayFeedCommentThread = PreDisplayFeedComment[];
 
 export interface FeedCommentsThread {
   comments: PreDisplayFeedComment[];
+  primarySource?: FeedItemSourceType;
 }
 
 export interface FeedPostStub {

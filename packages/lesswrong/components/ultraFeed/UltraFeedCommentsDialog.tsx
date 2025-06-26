@@ -192,11 +192,11 @@ const UltraFeedCommentsDialog = ({
   const postCommentsQuery = useQueryWithLoadMore(CommentsListMultiQuery, {
     variables: {
       selector: { postCommentsTop: { postId } },
-      limit: 2,
+      limit: 500,
       enableTotal: true,
     },
     skip: !isPost || !postId,
-    itemsPerPage: 100,
+    itemsPerPage: 500,
   });
 
   const threadCommentsQuery = useQueryWithLoadMore(CommentsListMultiQuery, {

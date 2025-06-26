@@ -107,14 +107,24 @@ export interface SourceWeightConfig {
 
 export const sourceWeightConfigs: SourceWeightConfig[] = [
   {
-    key: 'recentComments',
-    label: "Recent Comments",
-    description: "Recent comments and discussions from across the forum."
+    key: 'subscriptionsPosts',
+    label: "Posts from Followed Users",
+    description: "Recent posts from users you've subscribed to or followed."
+  },
+  {
+    key: 'subscriptionsComments',
+    label: "Comments from Followed Users",
+    description: "Recent comments from users you've subscribed to or followed."
   },
   {
     key: 'quicktakes',
     label: "Quick Takes",
-    description: "Short-form posts and thoughts from the community."
+    description: "Lighweight mini-posts"
+  },
+  {
+    key: 'recentComments',
+    label: "Recent Comments",
+    description: "Recent comments, prioritized karma and previous engagement with the threads or posts they're on"
   },
   {
     key: 'recombee-lesswrong-custom',
@@ -134,17 +144,7 @@ export const sourceWeightConfigs: SourceWeightConfig[] = [
   {
     key: 'bookmarks',
     label: "Your Bookmarks",
-    description: "Items you've bookmarked will be included to remind you about them."
-  },
-  {
-    key: 'subscriptionsPosts',
-    label: "Posts from Followed Users",
-    description: "Recent posts from users you've subscribed to or followed."
-  },
-  {
-    key: 'subscriptionsComments',
-    label: "Comments from Followed Users",
-    description: "Recent comments from users you've subscribed to or followed."
+    description: "We can throw in of your bookmarks to remind you about them."
   },
 ];
 

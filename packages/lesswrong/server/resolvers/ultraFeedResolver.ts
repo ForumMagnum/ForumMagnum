@@ -253,7 +253,7 @@ const createSourcesMap = (
     }
     let addedToAnySource = false;
     (p.postMetaInfo?.sources ?? []).forEach(src => {
-      const bucket = sources[src as FeedItemSourceType];
+      const bucket = sources[src];
       if (bucket) {
         bucket.items.push({ type: "feedPostWithContents", feedPost: p });
         addedToAnySource = true;
@@ -305,7 +305,7 @@ const createSourcesMap = (
   const useOldBucket = sources.recentComments && !hasNewCommentBuckets;
 
   commentThreadsItems.forEach(t => {
-    const primarySource = (t as any).primarySource as FeedItemSourceType;
+    const primarySource = t.primarySource;
     
     if (useOldBucket && sources.recentComments) {
       // Backwards compatibility mode

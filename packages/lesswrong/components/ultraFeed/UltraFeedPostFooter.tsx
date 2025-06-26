@@ -15,10 +15,10 @@ const styles = defineStyles("UltraFeedPostFooter", (theme: ThemeType) => ({
     justifyContent: 'center',
     alignItems: 'center',
     fontSize: '1.4em',
-    // paddingTop: 30,
-    // borderTop: theme.palette.border.grey300,
     marginTop: 30,
-    marginBottom: 30
+    marginBottom: 30,
+    borderTop: theme.palette.border.grey300,
+    paddingTop: 30,
   },
   bookmarkButton: {
     marginBottom: -5,

@@ -45,7 +45,6 @@ export const NotifyMeToggleDropdownItemInternal = ({
     hideFlashes: true,
   });
   
-  
   const [subscribed, toggleSubscribed] = useOptimisticToggle(
     isSubscribed ?? false,
     onSubscribe ?? (() => {}),

@@ -130,7 +130,7 @@ interface PrioritizedThread {
 }
 
 interface PreparedFeedCommentsThread extends FeedCommentsThread {
-  primarySource: FeedItemSourceType | null;
+  primarySource: FeedItemSourceType;
 }
 
 /**
@@ -467,7 +467,7 @@ function prepareThreadForDisplay(
 
   return {
     comments: finalComments,
-    primarySource
+    primarySource: primarySource as FeedItemSourceType,
   };
 }
 
