@@ -12,6 +12,8 @@ const styles = (theme: ThemeType) => ({
   rejection: {
     display: "flex",
     justifyContent: "space-between",
+    paddingLeft: 8,
+    width: "100%",
     backgroundColor: theme.palette.grey[200],
     alignItems: "center",
   },

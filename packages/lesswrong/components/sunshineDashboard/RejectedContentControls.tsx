@@ -12,7 +12,6 @@ const styles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
     justifyContent: 'flex-end',
-    flexWrap: 'wrap',
     alignItems: 'center',
     gap: 8,
     padding: 10,
@@ -29,6 +28,12 @@ const styles = (theme: ThemeType) => ({
   aiOutput: {
     fontSize: '0.9em',
     textWrap: 'pretty',
+  },
+  row: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
   },
 });
 
@@ -95,17 +100,19 @@ const RejectedContentControls = ({ contentWrapper, classes }: {
 
   return (
     <span className={classes.root}>
-      {content.rejected && <RejectedReasonDisplay reason={content.rejectedReason} />}
-      {automatedContentEvaluations && (
-        <div className={classes.automatedContentEvaluations}>
-          <span className={classes.llmScore} onClick={handleLLMScoreClick}>
-            <strong>LLM Score:</strong> {automatedContentEvaluations.score.toFixed(2)}
-          </span>
-          <span className={classes.llmScore} onClick={handleAiJudgementClick}>
-            <strong>AI notes:</strong> {automatedContentEvaluations.aiChoice}
-          </span>
-        </div>
-      )}
+      <div className={classes.row}>
+        {content.rejected && <RejectedReasonDisplay reason={content.rejectedReason} />}
+        {automatedContentEvaluations && (
+          <div className={classes.automatedContentEvaluations}>
+            <span className={classes.llmScore} onClick={handleLLMScoreClick}>
+              <strong>LLM Score:</strong> {automatedContentEvaluations.score.toFixed(2)}
+            </span>
+            <span className={classes.llmScore} onClick={handleAiJudgementClick}>
+              <strong>AI notes:</strong> {automatedContentEvaluations.aiChoice}
+            </span>
+          </div>
+        )}
+      </div>
       <RejectContentButton contentWrapper={contentWrapper} />
     </span>
   );

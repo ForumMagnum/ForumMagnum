@@ -39,6 +39,9 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "space-between",
     alignItems: "center",
     flexWrap: "wrap",
+    paddingLeft: 8,
+    width: "100%",
+    marginBottom: 8,
     backgroundColor: theme.palette.grey[200],
   },
   expandCollapseButton: {
@@ -62,6 +65,10 @@ const SunshineNewUserPostItem = ({post, classes}: {
   const toggleCollapse = () => setIsCollapsed(prev=>!prev);
 
   return <div className={classes?.post}>
+    <div className={classes?.rejection}>
+      <ForumIcon className={classes?.expandCollapseButton} icon={isCollapsed ? "ThickChevronRight" : "ThickChevronDown"} onClick={toggleCollapse} />
+      <RejectedContentControls contentWrapper={{ collectionName: 'Posts', content: post }} />
+    </div>
     <div className={classes?.row}>
       <div className={classes?.row}>
         <Link to={`/posts/${post._id}`}>
@@ -80,10 +87,6 @@ const SunshineNewUserPostItem = ({post, classes}: {
           </Link>
         </MetaInfo>
         <PostActionsButton post={post} />
-      </div>
-      <div className={classes?.rejection}>
-        <ForumIcon className={classes?.expandCollapseButton} icon={isCollapsed ? "ThickChevronRight" : "ThickChevronDown"} onClick={toggleCollapse} />
-        <RejectedContentControls contentWrapper={{ collectionName: 'Posts', content: post }} />
       </div>
     </div>
     {!post.draft && !isCollapsed && <div className={classes?.postBody}>
