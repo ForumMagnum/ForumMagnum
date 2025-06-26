@@ -1,9 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import CommentsNodeInner from "../comments/CommentsNode";
-import RejectedContentControls from "./RejectedContentControls";
-import ForumIcon from "../common/ForumIcon";
-import SunshineNewUserCommentItem from "./SunshineNewUserCommentItem";
+import { SunshineNewUserCommentItem } from "./SunshineNewUserCommentItem";
 
 const styles = (theme: ThemeType) => ({
   root: {

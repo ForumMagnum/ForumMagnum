@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -63,18 +62,18 @@ export const SunshineNewUserPostItem = ({post}: {
   const classes = useStyles(styles);
   const [isCollapsed, setIsCollapsed] = React.useState<boolean>(!!post.rejected);
 
-  return <div className={classes?.post}>
-    <div className={classes?.rejection}>
-      <ForumIcon className={classes?.expandCollapseButton} icon={isCollapsed ? "ThickChevronRight" : "ThickChevronDown"} onClick={() => setIsCollapsed(!isCollapsed)} />
+  return <div className={classes.post}>
+    <div className={classes.rejection}>
+      <ForumIcon className={classes.expandCollapseButton} icon={isCollapsed ? "ThickChevronRight" : "ThickChevronDown"} onClick={() => setIsCollapsed(!isCollapsed)} />
       <RejectedContentControls contentWrapper={{ collectionName: 'Posts', content: post }} />
     </div>
-    <div className={classes?.row}>
-      <div className={classes?.row}>
-        <Link to={`/posts/${post._id}`}>
+    <div className={classes.row}>
+      <div className={classes.row}>
+        <Link to={postGetPageUrl(post)}>
           <PostsTitle post={post} showIcons={false} wrap />
           {(post.status !== 2) && <MetaInfo>[Spam] {post.status}</MetaInfo>}
         </Link>
-        <span className={classes?.vote}>
+        <span className={classes.vote}>
           <SmallSideVote document={post} collectionName="Posts" />
         </span>
         <MetaInfo>
@@ -88,7 +87,7 @@ export const SunshineNewUserPostItem = ({post}: {
         <PostActionsButton post={post} />
       </div>
     </div>
-    {!post.draft && !isCollapsed && <div className={classes?.postBody}>
+    {!post.draft && !isCollapsed && <div className={classes.postBody}>
       <LinkPostMessage post={post} />
       <ContentStyles contentType="postHighlight">
         {/* eslint-disable-next-line react/no-danger */}

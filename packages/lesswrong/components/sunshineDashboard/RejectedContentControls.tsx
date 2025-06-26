@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { hasRejectedContentSectionSetting, isLWorAF } from '../../lib/instanceSettings';
 import RejectContentButton from './RejectContentButton';
 import RejectedReasonDisplay from './RejectedReasonDisplay';
