@@ -45,16 +45,10 @@ export const NotifyMeToggleDropdownItemInternal = ({
     hideFlashes: true,
   });
   
-  // Create a wrapper function that matches the signature expected by useOptimisticToggle
-  const toggleSubscription = useCallback((e: React.MouseEvent<HTMLDivElement>, _newOptimisticValue: boolean) => {
-    if (onSubscribe) {
-      void onSubscribe(e);
-    }
-  }, [onSubscribe]);
   
   const [subscribed, toggleSubscribed] = useOptimisticToggle(
     isSubscribed ?? false,
-    toggleSubscription,
+    onSubscribe ?? (() => {}),
   );
   const afterIcon = useCallback(
     () => {
