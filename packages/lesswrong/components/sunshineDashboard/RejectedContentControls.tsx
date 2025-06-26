@@ -119,4 +119,4 @@ const RejectedContentControls = ({ contentWrapper }: {
   );
 };
 
-export default registerComponent('RejectedContentControls', RejectedContentControls); 
+export default registerComponent('RejectedContentControls', RejectedContentControls);

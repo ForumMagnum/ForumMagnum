@@ -98,4 +98,4 @@ const SunshineNewUserPostItem = ({post}: {
   </div>
 }
 
-export default registerComponent('SunshineNewUserPostItem', SunshineNewUserPostItem); 
+export default registerComponent('SunshineNewUserPostItem', SunshineNewUserPostItem);
