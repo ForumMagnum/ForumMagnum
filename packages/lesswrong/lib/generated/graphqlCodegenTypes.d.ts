@@ -26670,6 +26670,20 @@ type getCrosspostPostsPageQueryVariables = Exact<{
 
 type getCrosspostPostsPageQuery = getCrosspostPostsPageQuery_Query;
 
+type PostMetadataTitleQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, title: string };
+
+type PostMetadataTitleQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostMetadataTitleQuery_post_SinglePostOutput_result_Post | null };
+
+type PostMetadataTitleQuery_Query = { __typename?: 'Query', post: PostMetadataTitleQuery_post_SinglePostOutput | null };
+
+
+type PostMetadataTitleQueryVariables = Exact<{
+  postId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type PostMetadataTitleQuery = PostMetadataTitleQuery_Query;
+
 type singleDraftPostForLLMQueryQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
   & PostsEditQueryFragment

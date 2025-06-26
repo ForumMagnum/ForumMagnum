@@ -53,8 +53,11 @@ const HeadTags = ({
         }
 
         <Helmet key={pathname} name="meta">
+          {/* default */}
           <meta charSet='utf-8'/>
+          {/* done in default */}
           <meta name='description' content={description}/>
+          {/* default */}
           <meta name='viewport' content='width=device-width, initial-scale=1'/>
 
           {/* The twitter:card meta tag is in apollo-ssr/components/Head.tsx
@@ -62,20 +65,27 @@ const HeadTags = ({
           
           {image && <meta name='twitter:image:src' content={image}/>}
           { /* <meta name='twitter:title' content={title}/> */ }
+          {/* done in default */}
           <meta name='twitter:description' content={description}/>
 
           {/* facebook */}
+          {/* done */}
           <meta property='og:type' content='article'/>
+          {/* done in default */}
           <meta property='og:url' content={ogUrl}/>
           {image && <meta property='og:image' content={image}/>}
           { /* <meta property='og:title' content={title}/> */ }
+          {/* done in default */}
           <meta property='og:description' content={description}/>
 
+          {/* done */}
           <meta httpEquiv='delegate-ch' content='sec-ch-dpr https://res.cloudinary.com;' />
 
+          {/* done in default */}
           {(noIndex || currentRoute?.noIndex || noIndexSetting.get()) && <meta name='robots' content='noindex' />}
+          {/* done in default */}
           <link rel='canonical' href={canonicalUrl}/>
-
+          {/* done */}
           <link rel="alternate" type="application/rss+xml" href={rssUrl} />
         </Helmet>
       </React.Fragment>

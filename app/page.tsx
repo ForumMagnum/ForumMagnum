@@ -1,8 +1,11 @@
 import React from "react";
 import LWHome from "@/components/common/LWHome";
 import { RouteMetadataSetter } from "@/components/RouteMetadataContext";
+import { defaultMetadata } from "@/server/pageMetadata/sharedMetadata";
 
 export const dynamic = 'force-dynamic';
+
+export const metadata = defaultMetadata;
 
 export default function Home() {
   return <>

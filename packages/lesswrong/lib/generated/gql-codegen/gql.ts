@@ -995,6 +995,7 @@ type Documents = {
     "\n  query getCrosspostPostsList($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.getCrosspostPostsListDocument,
     "\n  query getCrosspostSunshinePostsList($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...SunshinePostsList\n      }\n    }\n  }\n": typeof types.getCrosspostSunshinePostsListDocument,
     "\n  query getCrosspostPostsPage($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.getCrosspostPostsPageDocument,
+    "\n  query PostMetadataTitle($postId: String) {\n    post(selector: { _id: $postId }) {\n      result {\n        _id\n        title\n      }\n    }\n  }\n": typeof types.PostMetadataTitleDocument,
     "\n  query singleDraftPostForLLMQuery($input: SinglePostInput, $version: String) {\n    post(input: $input) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n": typeof types.singleDraftPostForLLMQueryDocument,
     "\n  query singlePublishedPostForLLMQuery($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.singlePublishedPostForLLMQueryDocument,
     "\n  query multiPostsForLLMQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.multiPostsForLLMQueryDocument,
@@ -1981,6 +1982,7 @@ const documents: Documents = {
     "\n  query getCrosspostPostsList($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": types.getCrosspostPostsListDocument,
     "\n  query getCrosspostSunshinePostsList($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...SunshinePostsList\n      }\n    }\n  }\n": types.getCrosspostSunshinePostsListDocument,
     "\n  query getCrosspostPostsPage($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": types.getCrosspostPostsPageDocument,
+    "\n  query PostMetadataTitle($postId: String) {\n    post(selector: { _id: $postId }) {\n      result {\n        _id\n        title\n      }\n    }\n  }\n": types.PostMetadataTitleDocument,
     "\n  query singleDraftPostForLLMQuery($input: SinglePostInput, $version: String) {\n    post(input: $input) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n": types.singleDraftPostForLLMQueryDocument,
     "\n  query singlePublishedPostForLLMQuery($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": types.singlePublishedPostForLLMQueryDocument,
     "\n  query multiPostsForLLMQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsPage\n      }\n    }\n  }\n": types.multiPostsForLLMQueryDocument,
@@ -5924,6 +5926,10 @@ export function gql(source: "\n  query getCrosspostSunshinePostsList($input: Sin
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query getCrosspostPostsPage($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n"): (typeof documents)["\n  query getCrosspostPostsPage($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query PostMetadataTitle($postId: String) {\n    post(selector: { _id: $postId }) {\n      result {\n        _id\n        title\n      }\n    }\n  }\n"): (typeof documents)["\n  query PostMetadataTitle($postId: String) {\n    post(selector: { _id: $postId }) {\n      result {\n        _id\n        title\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

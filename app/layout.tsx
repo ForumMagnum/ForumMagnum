@@ -34,6 +34,7 @@ export default async function RootLayout({
           {`window.publicInstanceSettings = ${toEmbeddableJson(publicInstanceSettings)}`}
           {`window.publicSettings = ${toEmbeddableJson(publicDatabaseSettings)}`}
         </Script>
+        <meta httpEquiv='delegate-ch' content='sec-ch-dpr https://res.cloudinary.com;' />
       </head>
       <body>
         <span id="jss-insertion-start"></span>
