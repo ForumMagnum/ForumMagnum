@@ -2,6 +2,7 @@ import { isAnyTest } from "@/lib/executionEnvironment";
 import { SearchIndexCollectionName } from "../../../lib/search/searchUtil";
 import ElasticClient from "./ElasticClient";
 import ElasticExporter from "./ElasticExporter";
+import { isElasticEnabled } from "@/lib/instanceSettings";
 
 export async function elasticSyncDocument(
   collectionName: SearchIndexCollectionName,
