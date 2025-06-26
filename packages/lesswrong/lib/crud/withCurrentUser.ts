@@ -1,7 +1,6 @@
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
 import { hookToHoc } from '../hocUtils';
-import { useCallback } from "react";
 import { useApolloClient } from "@apollo/client/react";
 
 /**
@@ -26,9 +25,9 @@ export const useQueryCurrentUser = () => {
   
   return {
     currentUser: data?.currentUser ?? null,
-    refetchCurrentUser: () => {
+    refetchCurrentUser: async () => {
       client.prioritizeCacheValues = false;
-      refetch();
+      await refetch();
     },
     currentUserLoading: loading,
   }
