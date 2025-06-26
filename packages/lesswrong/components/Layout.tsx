@@ -39,7 +39,6 @@ import Footer from "./common/Footer";
 import FlashMessages from "./common/FlashMessages";
 import AnalyticsClient from "./common/AnalyticsClient";
 import AnalyticsPageInitializer from "./common/AnalyticsPageInitializer";
-import NavigationEventSender from "./hooks/useOnNavigate";
 import EAOnboardingFlow from "./ea-forum/onboarding/EAOnboardingFlow";
 import BasicOnboardingFlow from "./onboarding/BasicOnboardingFlow";
 import { CommentOnSelectionPageWrapper } from "./comments/CommentOnSelection";
@@ -60,6 +59,7 @@ import { SuspenseWrapper } from './common/SuspenseWrapper';
 import dynamic from 'next/dynamic';
 import { useRouteMetadata } from './RouteMetadataContext';
 import { isFullscreenRoute, isHomeRoute, isStandaloneRoute, isStaticHeaderRoute, isSunshineSidebarRoute, isUnspacedGridRoute } from '@/lib/routeChecks';
+import { useHideIfAnyoneBuildsItSplash } from './seasonal/IfAnyoneBuildsItSplash';
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -357,6 +357,9 @@ const Layout = ({currentUser, children}: {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }
 
+  const isFrontPage = (pathname === '/' || pathname === '');
+  const isMaybeIsIfAnyoneBuildsItFrontPage = !useHideIfAnyoneBuildsItSplash() && isLW && isFrontPage;
+
   const render = () => {
     const SunshineSidebar = dynamic(() => import("./sunshineDashboard/SunshineSidebar"), { ssr: false });
     // const HomepageCommunityMap = dynamic(() => import('./seasonal/HomepageMap/HomepageCommunityMap'), { ssr: false });
@@ -402,7 +405,9 @@ const Layout = ({currentUser, children}: {
       <CurrentAndRecentForumEventsProvider>
         <div className={classNames(
           "wrapper",
-          {'alignment-forum': isAF, [classes.fullscreen]: isFullscreenRoute(pathname), [classes.wrapper]: isLWorAF}
+          {'alignment-forum': isAF, [classes.fullscreen]: isFullscreenRoute(pathname), [classes.wrapper]: isLWorAF},
+          isMaybeIsIfAnyoneBuildsItFrontPage && "ifAnyoneBuildsItPage",
+          useWhiteBackground && classes.whiteBackground
         )} id="wrapper">
           {buttonBurstSetting.get() && <GlobalButtonBurst />}
           <DialogManager>
@@ -418,7 +423,6 @@ const Layout = ({currentUser, children}: {
 
               <AnalyticsClient/>
               <AnalyticsPageInitializer/>
-              <NavigationEventSender/>
               <GlobalHotkeys/>
               {/* Only show intercom after they have accepted cookies */}
               <DeferRender ssr={false}>
@@ -472,7 +476,6 @@ const Layout = ({currentUser, children}: {
                 </SuspenseWrapper>}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
-                  [classes.whiteBackground]: useWhiteBackground,
                   [classes.mainNoFooter]: routeMetadata.noFooter,
                   [classes.mainFullscreen]: isFullscreenRoute(pathname),
                   [classes.mainUnspacedGrid]: shouldUseGridLayout && unspacedGridLayout,

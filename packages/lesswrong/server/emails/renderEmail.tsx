@@ -2,8 +2,8 @@ import { htmlToText } from 'html-to-text';
 import { sendEmailSmtp } from './sendEmail';
 import React from 'react';
 import { ApolloProvider } from '@apollo/client/react';
-import { getDataFromTree } from '@apollo/client/react/ssr';
-// import { renderToString } from 'react-dom/server';
+import { getMarkupFromTree } from '@apollo/client/react/ssr';
+import { renderToStaticMarkup, renderToString } from 'react-dom/server';
 import { TimezoneContext, UserContext } from '../../components/common/sharedContexts';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { forumTitleSetting, isLWorAF } from '../../lib/instanceSettings';
@@ -182,7 +182,11 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   
   // Traverse the tree, running GraphQL queries and expanding the tree
   // accordingly.
-  await getDataFromTree(wrappedBodyComponent);
+  await getMarkupFromTree({
+    tree: wrappedBodyComponent,
+    context: {},
+    renderFunction: renderToStaticMarkup,
+  });
   
   // Render the REACT tree to an HTML string
   const body = renderToString(wrappedBodyComponent);

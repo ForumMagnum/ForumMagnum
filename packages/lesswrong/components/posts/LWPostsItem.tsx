@@ -38,6 +38,8 @@ import PostReadCheckbox from "./PostReadCheckbox";
 import PostMostValuableCheckbox from "./PostMostValuableCheckbox";
 import { ResponseIcon } from "./PostsPage/RSVPs";
 import { maybeDate } from '@/lib/utils/dateUtils';
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/IfAnyoneBuildsItSplash';
+import { isBookUI } from '@/themes/forumTheme';
 
 export const KARMA_WIDTH = 32;
 
@@ -46,13 +48,21 @@ export const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    flexDirection: "column",
-    '&::after': {
-      height: 2,
-      content: '""',
-      width: '100%',
-      backdropFilter: theme.palette.filters.bannerAdBlur,
-    },
+    
+    // On the If Anyone Builds It front page, replace the 2px bottom border
+    // with a rectangular element with a blur, so the background can show
+    // through.
+    // This breaks the layout on Sequence pages (where the component is already
+    // a horizontal flexbox)
+    ...isIfAnyoneBuildsItFrontPage({
+      flexDirection: "column",
+      '&::after': {
+        height: 2,
+        content: '""',
+        width: '100%',
+        backdropFilter: theme.palette.filters.bannerAdBlur,
+      },
+    }),
   },
   root: {
     position: "relative",
@@ -69,11 +79,14 @@ export const styles = (theme: ThemeType) => ({
   },
   background: {
     width: "100%",
-    background: theme.palette.panelBackground.bannerAdTranslucent,
-    backdropFilter: theme.palette.filters.bannerAdBlur,
-    [theme.breakpoints.down(1300)]: {
-      background: theme.palette.panelBackground.bannerAdTranslucentDeep,
-    }
+    background: theme.palette.panelBackground.default,
+    ...(isBookUI && theme.themeOptions.name === 'dark' && {
+      background: theme.palette.panelBackground.bannerAdTranslucent,
+      backdropFilter: theme.palette.filters.bannerAdBlur,
+      ...isIfAnyoneBuildsItFrontPage({
+        background: theme.palette.panelBackground.bannerAdTranslucentDeep,
+      })
+    })
   },
   checkboxWidth: {
     width: "calc(100% - 24px)"
@@ -99,7 +112,10 @@ export const styles = (theme: ThemeType) => ({
   },
   withGrayHover: {
     '&:hover': {
-      backgroundColor: theme.palette.panelBackground.bannerAdTranslucentHeavy,
+      backgroundColor: theme.palette.panelBackground.postsItemHover,
+      ...(isBookUI && theme.themeOptions.name === 'dark' && {
+        backgroundColor: theme.palette.panelBackground.bannerAdTranslucentHeavy,
+      }),
     },
   },
   hasSmallSubtitle: {
@@ -112,6 +128,9 @@ export const styles = (theme: ThemeType) => ({
   },
   bottomBorder: {
     borderBottom: theme.palette.border.itemSeparatorBottom,
+    ...isIfAnyoneBuildsItFrontPage({
+      borderBottom: "none",
+    }),
   },
   commentsBackground: {
     backgroundColor: theme.palette.panelBackground.postsItemExpandedComments,
@@ -171,7 +190,9 @@ export const styles = (theme: ThemeType) => ({
     zIndex: theme.zIndexes.postItemAuthor,
     flex: 1000,
     maxWidth: "fit-content",
-    color: theme.palette.text.bannerAdDim,
+    ...isIfAnyoneBuildsItFrontPage({
+      color: theme.palette.text.bannerAdDim,
+    }),
     [theme.breakpoints.down('xs')]: {
       justifyContent: "flex-end",
       width: "unset",
@@ -345,8 +366,10 @@ export const styles = (theme: ThemeType) => ({
     height: 22,
   },
   isRead: {
-    background: theme.palette.panelBackground.bannerAdTranslucent,
-    backdropFilter: theme.palette.filters.bannerAdBlur,
+    ...isIfAnyoneBuildsItFrontPage({
+      background: theme.palette.panelBackground.bannerAdTranslucent,
+      backdropFilter: theme.palette.filters.bannerAdBlur,
+    }),
   },
   checkbox: {
     marginRight: 10
@@ -447,7 +470,6 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     hasUnreadComments,
     hasNewPromotedComments,
     commentTerms,
-    isRepeated,
     analyticsProps,
     translucentBackground,
     isRead,
@@ -462,9 +484,6 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
 
   const { hover, eventHandlers } = useHover();
 
-  if (isRepeated) {
-    return null;
-  }
   const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
 
   const reviewIsActive = getReviewPhase() === "REVIEWS" || getReviewPhase() === "NOMINATIONS" || getReviewPhase() === "VOTING";

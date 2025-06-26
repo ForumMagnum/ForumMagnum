@@ -217,7 +217,9 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
         </AnalyticsContext>
         {isFriendlyUI && <StickiedPosts />}
         <HideRepeatedPostsProvider>
-          {showCurated && <CuratedPostsList />}
+          {showCurated && <CuratedPostsList
+            repeatedPostsPrecedence={1}
+          />}
           {survey?.survey &&
             <SurveyPostsItem
               survey={survey.survey}
@@ -233,6 +235,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
                 alwaysShowLoadMore
                 hideHiddenFrontPagePosts
                 viewType="fromContext"
+                repeatedPostsPrecedence={2}
               >
                 <Link to={"/allPosts"}>{advancedSortingText}</Link>
               </PostsList2>

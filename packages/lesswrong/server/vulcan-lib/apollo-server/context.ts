@@ -8,16 +8,12 @@ import type { Request, Response } from 'express';
 import {getUserEmail} from "../../../lib/collections/users/helpers";
 import { getAllRepos } from '../../repos';
 import UsersRepo from '../../repos/UsersRepo';
-import UserActivities from '../../../server/collections/useractivities/collection';
 import { getCookieFromReq } from '../../utils/httpUtil';
-import { isEAForum } from '../../../lib/instanceSettings';
 import { asyncLocalStorage } from '../../perfMetrics';
-import { visitorGetsDynamicFrontpage } from '../../../lib/betas';
 import type { NextRequest, NextResponse } from 'next/server';
 
 
-// From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
-export const getUser = async (loginToken: string): Promise<DbUser|null> => {
+export const getUser = async (loginToken: string|null): Promise<DbUser|null> => {
   if (loginToken) {
     if (typeof loginToken !== 'string')
       throw new Error("Login token is not a string");
@@ -88,13 +84,7 @@ export const computeContextFromUser = async ({user, req, res, isSSR}: {
   res?: NextResponse,
   isSSR: boolean
 }): Promise<ResolverContext> => {
-  let visitorActivity: DbUserActivity|null = null;
   const clientId = req ? getCookieFromReq(req, "clientId") : null;
-  if ((user || clientId) && (isEAForum || visitorGetsDynamicFrontpage(user))) {
-    visitorActivity = user ?
-      await UserActivities.findOne({visitorId: user._id, type: 'userId'}) :
-      await UserActivities.findOne({visitorId: clientId, type: 'clientId'});
-  }
   
   let context: ResolverContext = {
     ...getAllCollectionsByName(),
@@ -108,7 +98,6 @@ export const computeContextFromUser = async ({user, req, res, isSSR}: {
     isIssaRiceReader: requestIsFromIssaRiceReader(req),
     repos: getAllRepos(),
     clientId,
-    visitorActivity,
     userId: user?._id ?? null,
     currentUser: user,
     perfMetric: asyncLocalStorage.getStore()?.requestPerfMetric,

@@ -228,7 +228,7 @@ const RecommendationsAndCurated = ({
       <>
         {isLW && (
           <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
-            <DismissibleSpotlightItem current />
+            <DismissibleSpotlightItem />
           </AnalyticsContext>
         )}
 

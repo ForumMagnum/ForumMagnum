@@ -23,9 +23,9 @@ import QuickTakesSection from "../quickTakes/QuickTakesSection";
 import LWHomePosts from "./LWHomePosts";
 import HeadTags from "./HeadTags";
 import UltraFeed from "../ultraFeed/UltraFeed";
-import { defineStyles, useStyles } from '../hooks/useStyles';
 import { StructuredData } from './StructuredData';
 import { SuspenseWrapper } from './SuspenseWrapper';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -57,7 +57,7 @@ const getStructuredData = () => ({
 
 const styles = defineStyles("LWHome", (theme: ThemeType) => ({
   hideOnDesktop: {
-    [theme.breakpoints.up(1300)]: {
+    [theme.breakpoints.up('lg')]: {
       display: 'none',
     },
   },
@@ -80,9 +80,11 @@ const LWHome = () => {
             </SingleColumnSection>}
           </>}
           {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
-            <SuspenseWrapper name="DismissibleSpotlightItem" fallback={<SpotlightItemFallback/>}>
-              <DismissibleSpotlightItem current/> 
-            </SuspenseWrapper>
+            <div className={classes.hideOnDesktop}>
+              <SuspenseWrapper name="DismissibleSpotlightItem" fallback={<SpotlightItemFallback/>}>
+                <DismissibleSpotlightItem/> 
+              </SuspenseWrapper>
+            </div>
           </SingleColumnSection>}
           <SuspenseWrapper name="LWHomePosts" fallback={<div style={{height: 800}}/>}>
             <AnalyticsInViewTracker
@@ -90,9 +92,7 @@ const LWHome = () => {
               observerProps={{threshold:[0, 0.5, 1]}}
             >
               <LWHomePosts>
-                <SuspenseWrapper name="QuickTakesSection">
-                  <QuickTakesSection />
-                </SuspenseWrapper>
+                <QuickTakesSection />
                 <SuspenseWrapper name="EAPopularCommentsSection">
                   <EAPopularCommentsSection />
                 </SuspenseWrapper>

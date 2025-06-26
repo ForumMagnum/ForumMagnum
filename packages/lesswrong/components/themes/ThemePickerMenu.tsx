@@ -2,8 +2,8 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { ThemeMetadata, themeMetadata, getForumType, AbstractThemeOptions } from '../../themes/themeNames';
-import { ForumTypeString, allForumTypes, forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
-import { useThemeOptions, useSetTheme, useIsThemeOverridden } from './useTheme';
+import { ForumTypeString, allForumTypes, forumTypeSetting, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
+import { useThemeOptions, useSetTheme, useIsThemeOverridden, HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT } from './useTheme';
 import { useCurrentUser } from '../common/withUser';
 import { isMobile } from '../../lib/utils/isMobile'
 import { Paper }from '@/components/widgets/Paper';
@@ -15,6 +15,10 @@ import DropdownMenu from "../dropdowns/DropdownMenu";
 import DropdownItem from "../dropdowns/DropdownItem";
 import DropdownDivider from "../dropdowns/DropdownDivider";
 import ForumIcon from "../common/ForumIcon";
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HIDE_IF_ANYONE_BUILDS_IT_SPLASH } from '@/lib/cookies/cookies';
+import moment from 'moment';
+import { useLocation } from '@/lib/routeUtil';
 
 const styles = (_theme: ThemeType) => ({
   check: {
@@ -42,15 +46,20 @@ const ThemePickerMenu = ({children, classes}: {
   const setTheme = useSetTheme();
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
+  const location = useLocation();
+  const [cookies] = useCookiesWithConsent([HIDE_IF_ANYONE_BUILDS_IT_SPLASH, HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT]);
 
   const selectedForumTheme = getForumType(currentThemeOptions);
+  
+  const isFrontPage = location?.pathname === '/' || location?.pathname === '';
+  const showReenableSpecialTheme = isLW && isFrontPage && (cookies[HIDE_IF_ANYONE_BUILDS_IT_SPLASH] || cookies[HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT]);
   
   if (useIsThemeOverridden()) {
     // Hack for the If Everyone Builds It announcement. If on a page where the
     // theme is forced to an alternate (ie, the front page is forced to be dark
     // mode), don't show the theme-picker in the user menu because it doesn't
     // work.
-    return null;
+    return <IfAnyoneBuildsItOptOutMenu>{children}</IfAnyoneBuildsItOptOutMenu>
   }
 
   const persistUserTheme = (newThemeOptions: AbstractThemeOptions) => {
@@ -94,6 +103,8 @@ const ThemePickerMenu = ({children, classes}: {
   const submenu = (
     <Paper>
       <DropdownMenu>
+        {showReenableSpecialTheme && <ReenableSpecialThemeButton/>}
+
         {isLWorAF &&
           <>
             {themeMetadata.map((themeMetadata: ThemeMetadata) =>
@@ -154,6 +165,51 @@ const ThemePickerMenu = ({children, classes}: {
   </LWTooltip>
 }
 
+const IfAnyoneBuildsItOptOutMenu = ({children}: {
+  children: React.ReactNode
+}) => {
+  const [_cookies, setCookie] = useCookiesWithConsent([HIDE_IF_ANYONE_BUILDS_IT_SPLASH]);
+
+  const disableSpecialTheme = () => {
+    setCookie(HIDE_IF_ANYONE_BUILDS_IT_SPLASH, true, {
+      path: "/",
+      expires: moment().add(3, 'months').toDate(),
+    });
+  }
+
+  const submenu = <Paper>
+    <DropdownMenu>
+      <DropdownItem
+        title="Disable special theme"
+        onClick={ev => disableSpecialTheme()}
+      />
+    </DropdownMenu>
+  </Paper>;
+
+  return <LWTooltip
+    title={submenu}
+    tooltip={false}
+    clickable
+    inlineBlock={false}
+    placement="left-start"
+  >
+    {children}
+  </LWTooltip>
+}
+
+const ReenableSpecialThemeButton = () => {
+  const [_cookies, _setCookie, removeCookie] = useCookiesWithConsent([HIDE_IF_ANYONE_BUILDS_IT_SPLASH]);
+
+  const reenableSpecialTheme = () => {
+    removeCookie(HIDE_IF_ANYONE_BUILDS_IT_SPLASH);
+    removeCookie(HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT);
+  }
+
+  return <DropdownItem
+    title="Reenable special theme"
+    onClick={ev => reenableSpecialTheme()}
+  />
+}
 
 export default registerComponent('ThemePickerMenu', ThemePickerMenu, {styles});
 

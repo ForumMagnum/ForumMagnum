@@ -16,6 +16,7 @@ import PostsLoading from "./PostsLoading";
 import { gql } from '@/lib/generated/gql-codegen';
 import { stickiedPostTerms } from '@/lib/collections/posts/constants';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 
 type LoadMoreSettings = {
   loadMore: (RecombeeConfiguration | HybridRecombeeConfiguration)['loadMore'];
@@ -129,7 +130,6 @@ const RecombeePostsListInner = ({ algorithm, settings, limit = 15 }: {
     : RecombeeLatestPostsQuery;
 
   const { data, loading, fetchMore, networkStatus } = useQuery<getRecombeeLatestPostsQuery | getRecombeeHybridPostsQuery>(query, {
-    notifyOnNetworkStatusChange: true,
     variables: {
       limit,
       settings: recombeeSettings,
@@ -180,7 +180,7 @@ const RecombeePostsListInner = ({ algorithm, settings, limit = 15 }: {
   });
 
   if (loading && !filteredResults) {
-    return <PostsLoading placeholderCount={limit} />;
+    return <PostsLoading placeholderCount={limit} loadMore/>;
   }
 
   if (!filteredResults) {
@@ -229,12 +229,12 @@ const RecombeePostsListInner = ({ algorithm, settings, limit = 15 }: {
   </div>;
 }
 
-export const RecombeePostsList = ({ algorithm, settings, limit = 15 }: {
+const RecombeePostsListWrapper = ({ algorithm, settings, limit = 15 }: {
   algorithm: string,
   settings: RecombeeConfiguration,
   limit?: number,
 }) => {
-  return <SuspenseWrapper name="RecombeePostsList" fallback={<PostsLoading placeholderCount={limit}/>}>
+  return <SuspenseWrapper name="RecombeePostsList" fallback={<PostsLoading placeholderCount={limit} loadMore/>}>
     <RecombeePostsListInner
       algorithm={algorithm}
       settings={settings}
@@ -243,4 +243,9 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15 }: {
   </SuspenseWrapper>
 }
 
+export const RecombeePostsList = registerComponent("RecombeePostsList", RecombeePostsListWrapper, {
+  areEqual: {
+    settings: "deep",
+  },
+});
 

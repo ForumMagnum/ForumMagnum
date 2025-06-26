@@ -36,6 +36,7 @@ import DropdownDivider from "../dropdowns/DropdownDivider";
 import UsersProfileImage from "./UsersProfileImage";
 import ForumIcon from "../common/ForumIcon";
 import NewWikiTagMenu from "../tagging/NewWikiTagMenu";
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/IfAnyoneBuildsItSplash';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -54,7 +55,10 @@ const styles = (theme: ThemeType) => ({
     textTransform: 'none',
     fontSize: '16px',
     fontWeight: isFriendlyUI ? undefined : 400,
-    color: theme.palette.text.bannerAdOverlay,
+    color: blackBarTitle.get() ? theme.palette.text.alwaysWhite : theme.palette.header.text,
+    ...isIfAnyoneBuildsItFrontPage({
+      color: theme.palette.text.bannerAdOverlay,
+    }),
     wordBreak: 'break-word'
   },
   userImageButton: {

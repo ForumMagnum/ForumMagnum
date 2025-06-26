@@ -1,5 +1,11 @@
 import { gql } from "@/lib/generated/gql-codegen";
 
+/**
+ * Fragment for every user loaded, including authors of posts/comments, etc.
+ * A typical pageload will include a lot of these, so try to keep fields on
+ * this fragment to a minimum. Includes information that will appear in a
+ * hover-preview f the user.
+ */
 export const UsersMinimumInfo = gql(`
   fragment UsersMinimumInfo on User {
     _id
@@ -28,6 +34,9 @@ export const UsersMinimumInfo = gql(`
   }
 `)
 
+/**
+ * Fragment for a user on their user-profile page.
+ */
 export const UsersProfile = gql(`
   fragment UsersProfile on User {
     ...UsersMinimumInfo
@@ -46,13 +55,7 @@ export const UsersProfile = gql(`
       ...RevisionDisplay
     }
     profileTagIds
-    profileTags {
-      ...TagPreviewFragment
-    }
     organizerOfGroupIds
-    organizerOfGroups {
-      ...localGroupsBase
-    }
     programParticipation
     website
     linkedinProfileURL
@@ -60,7 +63,6 @@ export const UsersProfile = gql(`
     blueskyProfileURL
     twitterProfileURL
     githubProfileURL
-    frontpagePostCount
     afSequenceCount
     afSequenceDraftCount
     sequenceDraftCount
@@ -77,17 +79,12 @@ export const UsersProfile = gql(`
     htmlMapMarkerText
     mongoLocation
     shortformFeedId
-    viewUnreviewedComments
-    auto_subscribe_to_my_posts
-    auto_subscribe_to_my_comments
-    autoSubscribeAsOrganizer
     petrovPressedButtonDate
     petrovOptOut
     sortDraftsBy
     email
     emails
     banned
-    ...SharedUserBooleans
     noindex
     paymentEmail
     paymentInfo
@@ -99,16 +96,51 @@ export const UsersProfile = gql(`
   }
 `)
 
+/**
+ * Fragment for the logged-in current user. This is the first thing loaded on
+ * every pageload; it should avoid using any fields that cause database
+ * queries or would otherwise be slow. Consider instead putting fields in
+ * UsersProfile or UsersEdit instead.
+ */
 export const UsersCurrent = gql(`
   fragment UsersCurrent on User {
-    ...UsersProfile
+    ...UsersMinimumInfo
+    oldSlugs
+    groups
+    jobTitle
+    organization
+    careerStage
+    profileTagIds
+    organizerOfGroupIds
+    moderationStyle
+    moderationGuidelines {
+      ...RevisionDisplay
+    }
+    bannedUserIds
+    location
+    googleLocation
+    mapLocation
+    mapLocationSet
+    mapMarkerText
+    mongoLocation
+    shortformFeedId
+    sortDraftsBy
+    email
+    emails
+    banned
+    paymentEmail
+    paymentInfo
+    postingDisabled
+    allCommentingDisabled
+    commentingOnOtherUsersDisabled
+    conversationsDisabled
+
+    usernameUnset
+    taggingDashboardCollapsed
 
     beta
-    email
-    services
     acceptedTos
     pageUrl
-    banned
     isReviewed
     nullifyVotes
     hideIntercom
@@ -163,7 +195,6 @@ export const UsersCurrent = gql(`
     subscribedToDigest
     subscribedToNewsletter
     unsubscribeFromAll
-    emails
     whenConfirmationEmailSent
     hideSubscribePoke
     hideMeetupsPoke
@@ -189,12 +220,7 @@ export const UsersCurrent = gql(`
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
     noExpandUnreadCommentsReview
-    reviewVotesQuadratic
-    reviewVotesQuadratic2019
-    reviewVotesQuadratic2020
-    hideTaggingProgressBar
     hideFrontpageBookAd
-    hideFrontpageBook2019Ad
 
     abTestKey
     abTestOverrides
@@ -206,7 +232,6 @@ export const UsersCurrent = gql(`
     petrovLaunchCodeDate
     petrovOptOut
     lastUsedTimezone
-    ...SharedUserBooleans
 
     acknowledgedNewUserGuidelines
     notificationSubforumUnread
@@ -217,12 +242,6 @@ export const UsersCurrent = gql(`
     
     allowDatadogSessionReplay
     hideFrontpageBook2020Ad
-
-    hideDialogueFacilitation
-    optedInToDialogueFacilitation
-    revealChecksToAdmins
-    notificationNewDialogueChecks
-    notificationYourTurnMatchForm
 
     showDialoguesList
     showMyDialogues
@@ -490,15 +509,10 @@ export const UserAltAccountsFragment = gql(`
   }
 `)
 
-export const SharedUserBooleans = gql(`
-  fragment SharedUserBooleans on User {
-    taggingDashboardCollapsed
-    usernameUnset
-  }
-`)
-
-// Fragment used for the map markers on /community. This is a much-larger-than-
-// usual number of users, so keep this fragment minimal.
+/**
+ * Fragment used for the map markers on /community. This is a much-larger-than-
+ * usual number of users, so keep this fragment minimal.
+ */
 export const UsersMapEntry = gql(`
   fragment UsersMapEntry on User {
     _id
@@ -518,7 +532,9 @@ export const UsersMapEntry = gql(`
 
 export const UsersEdit = gql(`
   fragment UsersEdit on User {
+    ...UsersProfile
     ...UsersCurrent
+
     biography {
       ...RevisionEdit
     }
@@ -628,21 +644,6 @@ export const UsersEdit = gql(`
     permanentDeletionRequestedAt
 
     twitterProfileURLAdmin
-  }
-`)
-
-export const UsersAdmin = gql(`
-  fragment UsersAdmin on User {
-    _id
-    username
-    createdAt
-    isAdmin
-    displayName
-    email
-    slug
-    groups
-    services
-    karma
   }
 `)
 

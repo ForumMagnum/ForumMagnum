@@ -1,11 +1,11 @@
 import React from 'react';
 import { registerComponent } from '../lib/vulcan-lib/components';
-import { useLocation } from '../lib/routeUtil';
+import { useLocation, useSubscribedLocation } from '../lib/routeUtil';
 import { getReviewPhase, reviewResultsPostPath } from '../lib/reviewUtils';
 import { defineStyles, useStyles } from './hooks/useStyles';
 import { Link } from '../lib/reactRouterWrapper';
 import LessOnline2025Banner from './seasonal/LessOnline2025Banner';
-import IfAnyoneBuildsItSplash, { bookPromotionEndDate } from './seasonal/IfAnyoneBuildsItSplash';
+import IfAnyoneBuildsItSplash, { bookPromotionEndDate, useHideIfAnyoneBuildsItSplash } from './seasonal/IfAnyoneBuildsItSplash';
 import ReviewVotingCanvas from "./review/ReviewVotingCanvas";
 import CloudinaryImage2 from "./common/CloudinaryImage2";
 import { isHomeRoute } from '@/lib/routeChecks';
@@ -110,9 +110,10 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
 }) => {
   const classes = useStyles(styles);
   // TODO: figure out if using usePathname directly is safe or better (concerns about unnecessary rerendering, idk; my guess is that with Next if the pathname changes we're rerendering everything anyways?)
-  const { pathname } = useLocation();
+  const { pathname } = useSubscribedLocation();
   // const pathname = usePathname();
   const isHomePage = isHomeRoute(pathname);
+  const hideIfAnyoneBuildsItSplash = useHideIfAnyoneBuildsItSplash();
 
   const defaultImage = standaloneNavigation ? <div className={classes.imageColumn}> 
     {/* Background image shown in the top-right corner of LW. The
@@ -144,8 +145,8 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   if (getReviewPhase() === 'VOTING') homePageImage = <ReviewVotingCanvas />
   if (getReviewPhase() === 'RESULTS') homePageImage = reviewCompleteImage
 
-  if (new Date() < bookPromotionEndDate) {
-    homePageImage = <IfAnyoneBuildsItSplash />
+  if (new Date() < bookPromotionEndDate && isHomePage && !hideIfAnyoneBuildsItSplash) {
+    return <IfAnyoneBuildsItSplash />
   }
 
   return <div className={classes.root}>
@@ -153,6 +154,8 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   </div>;
 }
 
-export default registerComponent('LWBackgroundImage', LWBackgroundImage);
+export default registerComponent('LWBackgroundImage', LWBackgroundImage, {
+  areEqual: "auto",
+});
 
 

@@ -462,7 +462,7 @@ const LWHomePosts = ({ children, }: {
   `));
 
   const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get()
-  const enabledTabs = availableTabs.filter(tab => isTabEnabled(tab, currentUser, query, hasContinueReading));
+  const enabledTabs = availableTabs.filter(tab => isTabEnabled(tab, currentUser, query, hasContinueReading ?? false));
 
   const [selectedTab, setSelectedTab] = useSelectedTab(currentUser, enabledTabs);
   const selectedTabSettings = availableTabs.find(t=>t.name===selectedTab)!;
@@ -653,27 +653,27 @@ const LWHomePosts = ({ children, }: {
         </div>
         {settings}
         <SuspenseWrapper name="LWHomePostsInner">
-          {/* TODO: reenable, disabled for testing to see how often duplication happens */}
-          <HideRepeatedPostsProvider>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
-
               {/* LATEST POSTS (Hacker News Algorithm) */}
               {/* Frustratingly, the AnalyticsContext update doesn't update upon switching tab so it's necessary to have a wrapper around each section individually, could be investigated further */}
               {(selectedTab === 'forum-classic') && <AnalyticsContext feedType={selectedTab}>
                 <SuspenseWrapper
                   name="LWHomePosts-forum-classic"
-                  fallback={<PostsLoading placeholderCount={recentPostsTerms.limit+2} />}
+                  fallback={<PostsLoading placeholderCount={recentPostsTerms.limit+2} loadMore/>}
                 >
-                  <WelcomePostItem />
-                  <CuratedPostsList overrideLimit={2}/>
-                  <PostsList2 
-                    terms={recentPostsTerms} 
-                    alwaysShowLoadMore 
-                    hideHiddenFrontPagePosts
-                  >
-                    <Link to={"/allPosts"}>{advancedSortingText}</Link>
-                  </PostsList2> 
+                  <HideRepeatedPostsProvider>
+                    <WelcomePostItem repeatedPostsPrecedence={1} />
+                    <CuratedPostsList overrideLimit={2} repeatedPostsPrecedence={2}/>
+                    <PostsList2
+                      terms={recentPostsTerms}
+                      alwaysShowLoadMore
+                      hideHiddenFrontPagePosts
+                      repeatedPostsPrecedence={3}
+                    >
+                      <Link to={"/allPosts"}>{advancedSortingText}</Link>
+                    </PostsList2> 
+                  </HideRepeatedPostsProvider>
                 </SuspenseWrapper>
               </AnalyticsContext>}
               
@@ -726,7 +726,6 @@ const LWHomePosts = ({ children, }: {
               </AnalyticsContext>}
 
             </AllowHidingFrontPagePostsContext.Provider>
-          </HideRepeatedPostsProvider>
         </SuspenseWrapper>
         
         {!selectedTabSettings.isInfiniteScroll && <>

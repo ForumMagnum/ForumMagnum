@@ -23,9 +23,9 @@ import type { Request, Response } from 'express';
 import { DEFAULT_TIMEZONE, SSRMetadata } from '@/lib/utils/timeUtil';
 import { asyncLocalStorage } from '@/server/perfMetrics';
 import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
-import { faviconUrlSetting, performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
+import { faviconUrlSetting, isLW, performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
 import { isProduction, isE2E } from '@/lib/executionEnvironment';
-import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
+import { HIDE_IF_ANYONE_BUILDS_IT_SPLASH, LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
 import { visitorGetsDynamicFrontpage } from '@/lib/betas';
 import { responseIsCacheable } from '@/server/cacheControlMiddleware';
 import { preloadScrollToCommentScript } from '@/lib/scrollUtils';
@@ -48,6 +48,7 @@ import { getIpFromRequest } from '../utils/httpUtil';
 import { HelmetServerState } from 'react-helmet-async';
 import every from 'lodash/every';
 import { prefilterHandleRequest } from '../apolloServer';
+import { HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT } from '@/components/themes/useTheme';
 
 export interface RenderSuccessResult {
   ssrBody: string
@@ -142,6 +143,7 @@ export async function handleRequest(request: Request, response: Response) {
 
   const responseManager = new ResponseManager(response);
   responseManager.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
+  ensureClientId(request, responseManager.res);
 
   if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
   const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings())
@@ -265,7 +267,6 @@ export async function handleRequest(request: Request, response: Response) {
     );
 
     if (renderResult.cached) {
-      console.log(`Finishing cached request with ${renderResult.ssrBody.length}b body`);
       responseManager.addToHeadBlock(renderResult.jssSheets);
       responseManager.addToHeadBlock(renderResult.headers);
       responseManager.addBodyString(renderResult.ssrBody);
@@ -273,8 +274,6 @@ export async function handleRequest(request: Request, response: Response) {
       if (structuredData) {
         responseManager.setStructuredData(() => structuredData);
       }
-    } else {
-      console.log("Finishing rendered request");
     }
   }
   await responseManager.sendAndClose();
@@ -404,7 +403,15 @@ export const renderRequest = async ({req, user, parsedRoute, startTime, response
   
   const now = new Date();
   const themeOptions = getThemeOptionsFromReq(req, user);
-  const jssSheets = renderJssSheetImports(themeOptions);
+
+  // Hack for the front page If Everyone Builds It announcement
+  const hideIfAnyoneBuildsItSplash = getCookieFromReq(req, HIDE_IF_ANYONE_BUILDS_IT_SPLASH)
+  const hideIfAnyoneBuildsItSpotlight = getCookieFromReq(req, HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT)
+  const forceDarkMode = isLW && req.url === '/' && !hideIfAnyoneBuildsItSplash && !hideIfAnyoneBuildsItSpotlight;
+  const jssSheets = forceDarkMode
+    ? renderJssSheetImports({name: "dark"})
+    : renderJssSheetImports(themeOptions);
+
   responseManager.addToHeadBlock(jssSheets);
   const helmetContext: {helmet?: HelmetServerState} = {};
   
@@ -431,15 +438,13 @@ export const renderRequest = async ({req, user, parsedRoute, startTime, response
       const expectedHeadBlocks = parsedRoute.currentRoute?.expectedHeadBlocks
       if (expectedHeadBlocks) {
         if (!expectedHeadBlocks.includes(name)) {
+          // eslint-disable-next-line no-console
           console.log(`Page rendered head block ${name} which was not in the route head blocks list`);
         }
         if (every(expectedHeadBlocks, h=>headBlocksSeen.includes(h))) {
-          console.log("All head blocks ready, sending head");
           setTimeout(() => {
             sendHeadBlock();
           }, 0);
-        } else {
-          console.log(`Received head block ${name}`);
         }
       }
     }
@@ -473,6 +478,7 @@ export const renderRequest = async ({req, user, parsedRoute, startTime, response
   const head = renderHeadBlock();
   sendHeadBlock();
   if (head !== asSentHeadBlock) {
+    // eslint-disable-next-line no-console
     console.error(`Head block sent was incorrect`);
   }
 
@@ -515,7 +521,7 @@ export const renderRequest = async ({req, user, parsedRoute, startTime, response
     }
   }
 
-  const clientId = getCookieFromReq(req, "clientId");
+  const clientId = req.clientId!;
 
   return {
     ssrBody,

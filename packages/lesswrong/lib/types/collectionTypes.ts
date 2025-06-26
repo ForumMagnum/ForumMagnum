@@ -332,7 +332,15 @@ interface ResolverContext extends CollectionsByName {
   userId: string|null,
   clientId: string|null,
   currentUser: DbUser|null,
-  visitorActivity: DbUserActivity|null,
+
+  /**
+   * Hack to make visitorActivity acceptable to posts-list resolvers, in a
+   * non-async context. If missing from the ResolverContext, this hasn't been
+   * queried; if present and null, it's been queried but there's no activity
+   * data. If present it's the return value of getUserActivity.
+   */
+  visitorActivity?: DbUserActivity|null,
+
   locale: string,
   isSSR: boolean,
   isGreaterWrong: boolean,

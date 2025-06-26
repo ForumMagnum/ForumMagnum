@@ -88,6 +88,12 @@ const UsersProfileMultiQuery = gql(`
     users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
         ...UsersProfile
+        profileTags {
+          ...TagPreviewFragment
+        }
+        organizerOfGroups {
+          ...localGroupsBase
+        }
       }
       totalCount
     }

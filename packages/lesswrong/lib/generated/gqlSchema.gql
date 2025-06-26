@@ -76,7 +76,7 @@ type CoauthorStatusOutput {
 }
 
 type SocialPreviewOutput {
-  imageId: String!
+  imageId: String
   text: String
 }
 
@@ -1273,6 +1273,10 @@ extend type Mutation {
 
 extend type Mutation {
   publishAndDeDuplicateSpotlight(spotlightId: String): Spotlight
+}
+
+extend type Query {
+  currentSpotlight: Spotlight
 }
 
 extend type Mutation {
@@ -7799,7 +7803,8 @@ type User {
   bannedUserIds: [String!]
   bannedPersonalUserIds: [String!]
   bookmarkedPostsMetadata: [PostMetadataOutput!]
-  hasAnyBookmarks: Boolean!
+  bookmarksCount: Int
+  hasAnyBookmarks: Boolean
   bookmarkedPosts: [Post!]
   hiddenPostsMetadata: [PostMetadataOutput!]
   hiddenPosts: [Post!]
@@ -7908,7 +7913,7 @@ type User {
   shortformFeed: Post
   viewUnreviewedComments: Boolean
   partiallyReadSequences: [PartiallyReadSequenceItemOutput!]
-  hasContinueReading: Boolean!
+  hasContinueReading: Boolean
   beta: Boolean
   reviewVotesQuadratic: Boolean
   reviewVotesQuadratic2019: Boolean

@@ -12,6 +12,7 @@ import SectionFooter from "../common/SectionFooter";
 import PostsItem from "./PostsItem";
 import PostsLoading from "./PostsLoading";
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import { HideIfRepeated } from './HideRepeatedPostsContext';
 
 const Error = ({error}: any) => <div>
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
@@ -50,6 +51,7 @@ const PostsList2 = (props: PostsList2Props & {noSuspenseBoundary?: boolean}) => 
         placeholderCount={props.placeholderCount ?? props.terms?.limit ?? 1}
         showFinalBottomBorder={props.showFinalBottomBorder}
         viewType={"list"}
+        loadMore={props.alwaysShowLoadMore}
       />
     }>
       <PostsListLoaded {...props}/>
@@ -80,6 +82,7 @@ const PostsListLoaded = ({...props}: PostsList2Props) => {
     viewType,
     showPlacement,
     header,
+    repeatedPostsPrecedence,
   } = usePostsList(props);
   const classes = useStyles(styles);
 
@@ -89,6 +92,7 @@ const PostsListLoaded = ({...props}: PostsList2Props) => {
         placeholderCount={placeholderCount || limit}
         showFinalBottomBorder={showFinalBottomBorder}
         viewType={viewType}
+        loadMore={showLoadMore}
       />
     );
   }
@@ -106,23 +110,26 @@ const PostsListLoaded = ({...props}: PostsList2Props) => {
           <PostsLoading
             placeholderCount={placeholderCount || limit}
             viewType={viewType}
+            loadMore={showLoadMore}
           />
         }
         {orderedResults && !orderedResults.length && <PostsNoResults/>}
 
-      <AnalyticsContext viewType={viewType}>
-        <div className={classNames(
-          boxShadow && classes.postsBoxShadow,
-          showPlacement && classes.postsGrid,
-        )}>
-          {itemProps?.map((props) => <React.Fragment key={props.post._id}>
-            {showPlacement && props.index !== undefined && <div className={classes.placement}>
-              #{props.index + 1}
-            </div>}
-            <PostsItem  {...props} />
-          </React.Fragment>)}
-        </div>
-      </AnalyticsContext>
+        <AnalyticsContext viewType={viewType}>
+          <div className={classNames(
+            boxShadow && classes.postsBoxShadow,
+            showPlacement && classes.postsGrid,
+          )}>
+            {itemProps?.map((props) => <React.Fragment key={props.post._id}>
+              <HideIfRepeated precedence={repeatedPostsPrecedence} postId={props.post._id}>
+                {showPlacement && props.index !== undefined && <div className={classes.placement}>
+                  #{props.index + 1}
+                </div>}
+                <PostsItem  {...props} />
+              </HideIfRepeated>
+            </React.Fragment>)}
+          </div>
+        </AnalyticsContext>
 
         {showLoadMore && <SectionFooter>
           <LoadMore

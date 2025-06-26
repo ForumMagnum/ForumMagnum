@@ -543,7 +543,10 @@ export const ultraFeedGraphQLQueries = {
         };
       }
 
-      const servedCommentThreadHashes = await ultraFeedEventsRepo.getRecentlyServedCommentThreadHashes(currentUser._id, sessionId);
+      const [servedCommentThreadHashes, excludedPostIds] = await Promise.all([
+        ultraFeedEventsRepo.getRecentlyServedCommentThreadHashes(currentUser._id),
+        ultraFeedEventsRepo.getPostsToExclude(currentUser._id, sessionId, 3)
+      ]);
 
       const [recombeeAndLatestPostItems, subscribedPostItemsResult, commentThreadsItemsResult, spotlightItemsResult, bookmarkItemsResult] = await Promise.all([
         (recombeePostFetchLimit + hackerNewsPostFetchLimit > 0) 
@@ -552,7 +555,8 @@ export const ultraFeedGraphQLQueries = {
               recombeePostFetchLimit, 
               hackerNewsPostFetchLimit, 
               parsedSettings,
-              ULTRA_FEED_DATE_CUTOFFS.latestPostsMaxAgeDays
+              ULTRA_FEED_DATE_CUTOFFS.latestPostsMaxAgeDays,
+              excludedPostIds
             ) 
           : Promise.resolve([]),
         (subscribedPostFetchLimit > 0)
@@ -560,7 +564,8 @@ export const ultraFeedGraphQLQueries = {
               context, 
               subscribedPostFetchLimit, 
               parsedSettings,
-              ULTRA_FEED_DATE_CUTOFFS.subscribedPostsMaxAgeDays
+              ULTRA_FEED_DATE_CUTOFFS.subscribedPostsMaxAgeDays,
+              excludedPostIds
             )
           : Promise.resolve([]),
         commentFetchLimit > 0 

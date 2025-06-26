@@ -4,6 +4,7 @@ import classNames from 'classnames'
 import LWTooltip from "./LWTooltip";
 import SingleColumnSection from "./SingleColumnSection";
 import ForumIcon from "./ForumIcon";
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/IfAnyoneBuildsItSplash';
 
 const rightFadeStyle = (theme: ThemeType) => ({
   '&:after': {
@@ -13,7 +14,10 @@ const rightFadeStyle = (theme: ThemeType) => ({
     height: '100%',
     width: 50,
     content: '\'\'',
-    background: 'none',
+    background: `linear-gradient(to left, ${theme.palette.background.default}, ${theme.palette.background.transparent})`,
+    ...isIfAnyoneBuildsItFrontPage({
+      background: 'none',
+    }),
     pointerEvents: 'none',
   },
 });
@@ -51,7 +55,18 @@ const styles = (theme: ThemeType) => ({
       height: '100%',
       width: 50,
       content: '\'\'',
-      background: 'none',
+      // FIXME: This will look broken if it appears on top of an image. It is
+      // currently the case that it will never appear on top of an image in
+      // production, because the tab bar doesn't have enough tabs in it to
+      // overflow unless you're on a phone where there is no background image
+      // anyways, but that could change if mobile screen widths ever get a
+      // background image or if we add more tabs.
+      // This is load-bearing UX because otherwise the fact that the tabs have
+      // horizontal scroll might not be detectable.
+      background: `linear-gradient(to left, ${theme.palette.background.default}, ${theme.palette.background.transparent})`,
+      ...isIfAnyoneBuildsItFrontPage({
+        background: 'none',
+      }),
       pointerEvents: 'none',
       zIndex: 1,
     },
@@ -103,9 +118,14 @@ const styles = (theme: ThemeType) => ({
     }
   },
   inactiveTab: {
-    backgroundColor: theme.palette.tab.inactive.bannerAdBackground,
-    backdropFilter: theme.palette.filters.bannerAdBlurMedium,
-    color: theme.palette.text.bannerAdOverlay,
+    ...(theme.themeOptions.name === 'dark' ? {
+      backgroundColor: theme.palette.tab.inactive.bannerAdBackground,
+      backdropFilter: theme.palette.filters.bannerAdBlurMedium,
+      color: theme.palette.text.bannerAdOverlay,
+    } : {
+      backgroundColor: theme.palette.panelBackground.default,
+      color: theme.palette.tab.inactive.text,
+    }),
     '&:hover': {
       color: theme.palette.tab.inactive.hover.text
     },

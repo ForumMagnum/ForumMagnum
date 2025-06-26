@@ -14,7 +14,6 @@ import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
 import { usePublishAndDeDuplicateSpotlight } from './withPublishAndDeDuplicateSpotlight';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { SpotlightForm } from './SpotlightForm';
 import MetaInfo from "../common/MetaInfo";
@@ -23,15 +22,19 @@ import AnalyticsTracker from "../common/AnalyticsTracker";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import SpotlightEditorStyles from "./SpotlightEditorStyles";
-import SpotlightStartOrContinueReading from "./SpotlightStartOrContinueReading";
+import { SpotlightStartOrContinueReading } from "./SpotlightStartOrContinueReading";
 import { Typography } from "../common/Typography";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
-import CommentsNodeInner from "../comments/CommentsNode";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from "@/lib/generated/gql-codegen";
 import { withDateFields } from '@/lib/utils/dateUtils';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import range from 'lodash/range';
+import CommentById from '../comments/CommentById';
+import { SingleLineCommentPlaceholder } from '../comments/SingleLineComment';
 
 const SpotlightDisplayUpdateMutation = gql(`
   mutation updateSpotlightSpotlightItem($selector: SelectorInput!, $data: UpdateSpotlightDataInput!) {
@@ -79,7 +82,7 @@ const buildFadeMask = (breakpoints: string[]) => {
   return {mask, "-webkit-mask-image": mask};
 }
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
   root: {
     marginBottom: 12,
     boxShadow: theme.palette.boxShadow.default,
@@ -421,6 +424,8 @@ const styles = (theme: ThemeType) => ({
       backgroundColor: 'unset',
     },
   }
+}), {
+  stylePriority: -1
 });
 
 export function getSpotlightDisplayTitle(spotlight: SpotlightDisplay): string {
@@ -450,7 +455,6 @@ export const SpotlightItem = ({
   refetchAllSpotlights,
   isDraftProcessing,
   className,
-  classes,
   children,
 }: {
   spotlight: SpotlightDisplay,
@@ -461,9 +465,9 @@ export const SpotlightItem = ({
   refetchAllSpotlights?: () => void,
   isDraftProcessing?: boolean,
   className?: string,
-  classes: ClassesType<typeof styles>,
   children?: React.ReactNode,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
 
   const [edit, setEdit] = useState<boolean>(false)
@@ -578,7 +582,7 @@ export const SpotlightItem = ({
               {spotlight.showAuthor && spotlightDocument?.user && <Typography variant='body2' className={classes.author}>
                 by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlightDocument?.user.slug)}>{spotlightDocument?.user.displayName}</Link>
               </Typography>}
-              <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
+              {spotlight.documentType === 'Sequence' && <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />}
             </div>
             {/* note: if the height of SingleLineComment ends up changing, this will need to be updated */}
             {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer} style={{height: `calc(100% + ${(spotlightReviews.length ?? 0) * 30}px)`}}>
@@ -595,16 +599,7 @@ export const SpotlightItem = ({
               loading="lazy"
             />}
           </div>
-          <div className={classes.reviews}>
-            {spotlightReviews.map(review => <div key={review._id} className={classes.review}>
-              <CommentsNodeInner comment={review} treeOptions={{
-                singleLineCollapse: true,
-                forceSingleLine: true,
-                hideSingleLineMeta: true,
-                post: spotlight.post ?? undefined,
-              }} nestingLevel={1}/>
-            </div>)}
-          </div>
+          {spotlightReviews.length > 0 && <SpotlightReviews reviewIds={spotlightReviews.map(r=>r._id)}/>}
           {hideBanner && (
             isFriendlyUI
               ? (
@@ -667,9 +662,40 @@ export const SpotlightItem = ({
   </AnalyticsContext>
 }
 
-export default registerComponent('SpotlightItem', SpotlightItem, {
-  styles,
-  stylePriority: -1,
-});
+const SpotlightReviews = ({reviewIds}: {
+  reviewIds: string[]
+}) => {
+  const classes = useStyles(styles);
+  return <div className={classes.reviews}>
+    <SuspenseWrapper name="SpotlightReviews" fallback={<SpotlightReviewsFallback numReviews={reviewIds.length}/>}>
+      {reviewIds.map(reviewId => <SpotlightReviewComment key={reviewId} id={reviewId}/>)}
+    </SuspenseWrapper>
+  </div>
+}
 
+const SpotlightReviewsFallback = ({numReviews}: {
+  numReviews: number
+}) => {
+  return <>
+    {range(numReviews).map(i => <SingleLineCommentPlaceholder key={i} nestingLevel={0}/>)}
+  </>
+}
+
+const SpotlightReviewComment = ({id}: {
+  id: string
+}) => {
+  const classes = useStyles(styles);
+  return <div className={classes.review}>
+    <CommentById
+      commentId={id}
+      treeOptions={{
+        singleLineCollapse: true,
+        forceSingleLine: true,
+        hideSingleLineMeta: true,
+      }}
+      nestingLevel={1}
+      loadChildren={false}
+    />
+  </div>
+}
 

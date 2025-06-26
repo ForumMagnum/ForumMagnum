@@ -2,11 +2,15 @@ import { isAnyTest } from "@/lib/executionEnvironment";
 import { SearchIndexCollectionName } from "../../../lib/search/searchUtil";
 import ElasticClient from "./ElasticClient";
 import ElasticExporter from "./ElasticExporter";
+import { isElasticEnabled } from "@/lib/instanceSettings";
 
 export async function elasticSyncDocument(
   collectionName: SearchIndexCollectionName,
   documentId: string,
 ) {
+  if (!isElasticEnabled) {
+    return;
+  }
   try {
     const client = new ElasticClient();
     const exporter = new ElasticExporter(client);

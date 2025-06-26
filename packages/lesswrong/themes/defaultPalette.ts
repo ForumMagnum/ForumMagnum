@@ -497,7 +497,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     },
   },
   intercom: {
-    buttonBackground: "unset",
+    buttonBackground: "#f5f5f5 !important",
   },
   sideItemIndicator: {
     sideComment: '#5f9b65',
@@ -545,7 +545,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     bannerAdBlurLight: 'none',
     bannerAdBlurMedium: 'none',
     bannerAdBlurHeavy: 'none',
-    headerBackdropFilter: 'none',
   },
 
   geosuggest: {

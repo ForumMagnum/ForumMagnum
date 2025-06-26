@@ -1,35 +1,33 @@
 import moment from 'moment';
 import React, { useCallback, useMemo } from 'react';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SPOTLIGHT_ITEM_PREFIX } from '../../lib/cookies/cookies';
-import { useCurrentFrontpageSpotlight } from '../hooks/useCurrentFrontpageSpotlight';
-import SpotlightItem from "./SpotlightItem";
-import SingleColumnSection from "../common/SingleColumnSection";
+import { SpotlightItem } from "./SpotlightItem";
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useQuery } from '@/lib/crud/useQuery';
+import { gql } from '@/lib/generated/gql-codegen';
 
-export const DismissibleSpotlightItem = ({
-  current,
-  spotlight,
-  standaloneSection,
-  className,
-}: {
-  current?: boolean,
-  spotlight?: SpotlightDisplay,
-  standaloneSection?: boolean
+const DisplaySpotlightQuery = gql(`
+  query DisplaySpotlightQuery {
+    currentSpotlight {
+      ...SpotlightDisplay
+    }
+  }
+`);
+
+export const DismissibleSpotlightItem = ({ className }: {
   className?: string,
 }) => {
   const { captureEvent } = useTracking()
 
-  const currentSpotlight = useCurrentFrontpageSpotlight({
-    fragmentName: "SpotlightDisplay",
-    skip: !current,
+  const { data } = useQuery(DisplaySpotlightQuery, {
+    context: {loggedOutCache: true},
   });
-  const displaySpotlight = currentSpotlight ?? spotlight;
-  const spotlightDocument = displaySpotlight?.post ?? displaySpotlight?.sequence ?? displaySpotlight?.tag;
+  const currentSpotlight = data?.currentSpotlight;
+  const spotlightDocument = currentSpotlight?.post ?? currentSpotlight?.sequence ?? currentSpotlight?.tag;
 
-  const cookieName = useMemo(() => `${HIDE_SPOTLIGHT_ITEM_PREFIX}${spotlightDocument?._id}`, [spotlightDocument]); //hiding in one place, hides everywhere
+  const cookieName = `${HIDE_SPOTLIGHT_ITEM_PREFIX}${spotlightDocument?._id}`; //hiding in one place, hides everywhere
   const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
 
   const isHidden = useMemo(() => !!cookies[cookieName], [cookies, cookieName]);
@@ -44,28 +42,18 @@ export const DismissibleSpotlightItem = ({
     captureEvent("spotlightItemHideItemClicked", { document: spotlightDocument })
   }, [setCookie, cookieName, spotlightDocument, captureEvent]);
 
-  if (displaySpotlight && !isHidden) {
-    const spotlightElement = (
-      <AnalyticsContext pageElementContext="spotlightItem">
-        <SpotlightItem
-          key={displaySpotlight._id}
-          spotlight={displaySpotlight}
-          hideBanner={hideBanner}
-          className={className}
-        />
-      </AnalyticsContext>
-    );
-
-    if (standaloneSection) {
-      return (
-        <SingleColumnSection>
-          {spotlightElement}
-        </SingleColumnSection>
-      );
-    }
-    return spotlightElement;
+  if (!currentSpotlight || isHidden) {
+    return null;
   }
-  return null
+
+  return <AnalyticsContext pageElementContext="spotlightItem">
+    <SpotlightItem
+      key={currentSpotlight._id}
+      spotlight={currentSpotlight}
+      hideBanner={hideBanner}
+      className={className}
+    />
+  </AnalyticsContext>
 }
 
 const spotlightItemFallbackStyles = defineStyles("SpotlightItemFallback", (theme) => ({
@@ -79,6 +67,6 @@ export const SpotlightItemFallback = () => {
   return <div className={classes.fallback}/>
 }
 
-export default registerComponent('DismissibleSpotlightItem', DismissibleSpotlightItem);
+export default DismissibleSpotlightItem;
 
 

@@ -58,7 +58,7 @@ export function hydrateClient() {
     // that if the option was left on too long, not-in-cache queries wouldn't
     // run at all (which is pretty bad). That is no longer an issue in
     // apollo-client 4.x.
-    apolloClient.prioritizeCacheValues = true;
+    apolloClient.prioritizeCacheValues = false;
   }, 3000);
 };
 

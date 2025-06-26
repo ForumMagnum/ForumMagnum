@@ -242,7 +242,7 @@ export const darkModeTheme: UserThemeSpecification = {
       commentNodeOdd: shadePalette.grey[25],
       commentNodeRoot: shadePalette.grey[0],
       commentModeratorHat: "#202719",
-      singleLineComment: 'none',
+      singleLineComment: 'unset',
       spoilerBlock: "#1b1b1b",
       cookieBanner: shadePalette.grey[900],
       tagLensTab: shadePalette.greyAlpha(.15),
@@ -272,7 +272,7 @@ export const darkModeTheme: UserThemeSpecification = {
       sidenoteBackground: "rgba(180,160,160,.1)",
     },
     border: {
-      itemSeparatorBottom: 'none',
+      itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
       commentBorder: "1px solid rgba(255,255,255,.2)",
       answerBorder: "2px solid rgba(255,255,255,.2)",
       primaryHighlight: '#314a4e',

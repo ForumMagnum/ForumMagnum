@@ -1430,21 +1430,27 @@ const schema = {
       },
     },
   },
+  bookmarksCount: {
+    database: {
+      type: "INTEGER",
+      nullable: false,
+      defaultValue: 0,
+      denormalized: true,
+    },
+    graphql: {
+      outputType: "Int",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   hasAnyBookmarks: {
     graphql: {
-      outputType: "Boolean!",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
-        // FIXME: This is in the UsersCurrent fragment, which puts it on the critical path to starting a page render. Convert to a denoralized field or something to remove a round-trip from all logged-in page renders.
-        const { Bookmarks } = context;
-        const bookmarkCount = await Bookmarks.find(
-          {
-            userId: user._id,
-            collectionName: "Posts",
-            active: true
-          }
-        ).count();
-        return bookmarkCount > 0;
+        return user.bookmarksCount > 0;
       },
     },
   },
@@ -3043,7 +3049,7 @@ const schema = {
   },
   hasContinueReading: {
     graphql: {
-      outputType: "Boolean!",
+      outputType: "Boolean",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
         const sequences = user.partiallyReadSequences;

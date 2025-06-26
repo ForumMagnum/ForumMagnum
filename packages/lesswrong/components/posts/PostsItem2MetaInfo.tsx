@@ -3,10 +3,14 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { Typography } from "../common/Typography";
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/IfAnyoneBuildsItSplash';
 
 const styles = (theme: ThemeType) => ({
   metaInfo: {
-    color: theme.palette.text.bannerAdOverlay,
+    color: theme.palette.text.dim3,
+    ...isIfAnyoneBuildsItFrontPage({
+      color: theme.palette.text.bannerAdOverlay,
+    }),
     fontSize: isFriendlyUI ? "13px" : "1.1rem",
     textAlign: "center",
     flexShrink: 0,

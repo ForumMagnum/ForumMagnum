@@ -139,11 +139,9 @@ const globalStyle = (theme: ThemeType) => ({
 const commentsStyle = (theme: ThemeType) => ({
   ".comments-node-even": {
     backgroundColor: theme.palette.panelBackground.commentNodeEven,
-    backdropFilter: theme.palette.filters.bannerAdBlurHeavy,
   },
   ".comments-node-odd": {
     backgroundColor: theme.palette.panelBackground.commentNodeOdd,
-    backdropFilter: theme.palette.filters.bannerAdBlurHeavy,
   },
   ".comments-node-root": {
     marginBottom: commentsNodeRootMarginBottom,
