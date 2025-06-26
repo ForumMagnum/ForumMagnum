@@ -96,8 +96,8 @@ export function useQueryWithLoadMore<
     effectiveLimit = initialLimit;
   }
 
-  const count = data?.results?.length ?? 0;
-  const totalCount = data?.totalCount ?? undefined;
+  const count = queryResult?.results?.length ?? 0;
+  const totalCount = queryResult?.totalCount ?? undefined;
 
   const showLoadMore = alwaysShowLoadMore || (enableTotal ? (count < (totalCount ?? 0)) : (count >= effectiveLimit));
 
