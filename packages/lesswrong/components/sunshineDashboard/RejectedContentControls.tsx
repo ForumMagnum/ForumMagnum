@@ -7,6 +7,7 @@ import { DialogContent } from '../widgets/DialogContent';
 import LWDialog from '../common/LWDialog';
 import { highlightHtmlWithLlmDetectionScores } from './helpers';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { RejectContentParams } from '../hooks/useRejectContent';
 
 const styles = defineStyles("RejectedContentControls", (theme: ThemeType) => ({
   root: {
@@ -37,13 +38,8 @@ const styles = defineStyles("RejectedContentControls", (theme: ThemeType) => ({
   },
 }));
 
-interface ContentWrapper {
-  collectionName: 'Posts' | 'Comments';
-  content: any;
-}
-
 export const RejectedContentControls = ({ contentWrapper }: {
-  contentWrapper: ContentWrapper
+  contentWrapper: RejectContentParams
 }) => {
   const { collectionName, content } = contentWrapper;
   const classes = useStyles(styles);
