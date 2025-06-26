@@ -22,6 +22,8 @@ import submitHandler from "@ckeditor/ckeditor5-ui/src/bindings/submithandler";
 import './poll.css';
 import { PollProps } from "./constants";
 
+export const DEFAULT_POLL_DURATION = { days: 7, hours: 0, minutes: 0 };
+
 export const POLL_COLOR_SCHEMES: PollProps['colorScheme'][] = [
   { darkColor: '#06005C', lightColor: '#FFFFFF', bannerTextColor: '#FFFFFF'},
   { darkColor: '#1D2A17', lightColor: '#FFFFFF', bannerTextColor: '#FFFFFF'},
@@ -538,7 +540,7 @@ export default class PollForm extends Plugin {
       this.formView.disagreeWordingView.element.value = pollProps.disagreeWording || '';
 
       // Update duration inputs
-      const duration = pollProps.duration || { days: 1, hours: 0, minutes: 0 }; // Use default if missing
+      const duration = pollProps.duration || DEFAULT_POLL_DURATION; // Use default if missing
       this.formView.daysInputView.value = duration.days.toString();
       this.formView.hoursInputView.value = duration.hours.toString();
       this.formView.minutesInputView.value = duration.minutes.toString();
@@ -572,7 +574,7 @@ export default class PollForm extends Plugin {
     this.formView.disagreeWordingView.element.value = pollProps.disagreeWording || '';
 
     // Initialize duration inputs
-    const duration = pollProps.duration || { days: 1, hours: 0, minutes: 0 }; // Use default if missing
+    const duration = pollProps.duration || DEFAULT_POLL_DURATION; // Use default if missing
     this.formView.daysInputView.value = duration.days.toString();
     this.formView.hoursInputView.value = duration.hours.toString();
     this.formView.minutesInputView.value = duration.minutes.toString();
