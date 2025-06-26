@@ -4287,7 +4287,6 @@ type Mutation = {
   sendVertexMediaCompleteEvent: Scalars['Boolean']['output'];
   sendVertexViewHomePageEvent: Scalars['Boolean']['output'];
   sendVertexViewItemEvent: Scalars['Boolean']['output'];
-  setCurrentUserBeta: Scalars['Boolean']['output'];
   setIsHidden: User;
   setVoteComment?: Maybe<Comment>;
   setVoteElectionCandidate?: Maybe<ElectionCandidate>;
@@ -4914,11 +4913,6 @@ type MutationsendVertexMediaCompleteEventArgs = {
 type MutationsendVertexViewItemEventArgs = {
   attributionId?: InputMaybe<Scalars['String']['input']>;
   postId: Scalars['String']['input'];
-};
-
-
-type MutationsetCurrentUserBetaArgs = {
-  value: Scalars['Boolean']['input'];
 };
 
 

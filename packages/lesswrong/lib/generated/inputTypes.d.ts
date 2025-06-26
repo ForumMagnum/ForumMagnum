@@ -373,7 +373,6 @@ interface Mutation {
   updateUserTagRel: UserTagRelOutput | null;
   createUser: UserOutput | null;
   updateUser: UserOutput | null;
-  setCurrentUserBeta: boolean;
 }
 
 interface SelectorInput {
