@@ -1,7 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import CommentsNodeInner from "../comments/CommentsNode";
-import RejectedContentControls from "./RejectedContentControls";
+import { RejectedContentControls } from "./RejectedContentControls";
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
@@ -27,7 +27,7 @@ const styles = defineStyles("SunshineNewUserCommentItem", (theme: ThemeType) => 
   },
 }));
 
-const SunshineNewUserCommentItem = ({comment}: {
+export const SunshineNewUserCommentItem = ({comment}: {
   comment: CommentsListWithParentMetadata,
 }) => {
   const classes = useStyles(styles);
@@ -50,5 +50,3 @@ const SunshineNewUserCommentItem = ({comment}: {
     />}
   </div>
 }
-
-export default registerComponent('SunshineNewUserCommentItem', SunshineNewUserCommentItem); 

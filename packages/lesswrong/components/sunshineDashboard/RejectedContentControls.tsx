@@ -43,7 +43,7 @@ interface ContentWrapper {
   content: any;
 }
 
-const RejectedContentControls = ({ contentWrapper }: {
+export const RejectedContentControls = ({ contentWrapper }: {
   contentWrapper: ContentWrapper
 }) => {
   const { collectionName, content } = contentWrapper;
@@ -118,5 +118,3 @@ const RejectedContentControls = ({ contentWrapper }: {
     </span>
   );
 };
-
-export default registerComponent('RejectedContentControls', RejectedContentControls);

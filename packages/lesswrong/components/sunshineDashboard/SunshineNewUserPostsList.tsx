@@ -1,17 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import { Link } from '../../lib/reactRouterWrapper'
-import { postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
-import MetaInfo from "../common/MetaInfo";
-import FormatDate from "../common/FormatDate";
-import PostsTitle from "../posts/PostsTitle";
-import SmallSideVote from "../votes/SmallSideVote";
-import PostActionsButton from "../dropdowns/posts/PostActionsButton";
-import ContentStyles from "../common/ContentStyles";
-import LinkPostMessage from "../posts/LinkPostMessage";
-import RejectedContentControls from "./RejectedContentControls";
-import ForumIcon from "../common/ForumIcon";
-import SunshineNewUserPostItem from "./SunshineNewUserPostItem";
+import { SunshineNewUserPostItem } from "./SunshineNewUserPostItem";
 
 const styles = (theme: ThemeType) => ({
   row: {

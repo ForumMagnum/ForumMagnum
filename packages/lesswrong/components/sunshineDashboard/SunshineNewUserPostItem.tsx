@@ -9,7 +9,7 @@ import SmallSideVote from "../votes/SmallSideVote";
 import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 import ContentStyles from "../common/ContentStyles";
 import LinkPostMessage from "../posts/LinkPostMessage";
-import RejectedContentControls from "./RejectedContentControls";
+import { RejectedContentControls } from "./RejectedContentControls";
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
@@ -57,7 +57,7 @@ const styles = defineStyles("SunshineNewUserPostItem", (theme: ThemeType) => ({
   },
 }));
 
-const SunshineNewUserPostItem = ({post}: {
+export const SunshineNewUserPostItem = ({post}: {
   post: SunshinePostsList,
 }) => {
   const classes = useStyles(styles);
@@ -97,5 +97,3 @@ const SunshineNewUserPostItem = ({post}: {
     </div>}
   </div>
 }
-
-export default registerComponent('SunshineNewUserPostItem', SunshineNewUserPostItem);
