@@ -621,7 +621,7 @@ export const ultraFeedGraphQLQueries = {
 
       const [servedCommentThreadHashes, excludedPostIds] = await Promise.all([
         ultraFeedEventsRepo.getRecentlyServedCommentThreadHashes(currentUser._id),
-        ultraFeedEventsRepo.getPostsToExclude(currentUser._id, sessionId, 3)
+        ultraFeedEventsRepo.getPostsToExclude(currentUser._id, sessionId)
       ]);
 
       const [recombeeAndLatestPostItems, subscribedPostItemsResult, commentThreadsItemsResult, spotlightItemsResult, bookmarkItemsResult] = await Promise.all([
