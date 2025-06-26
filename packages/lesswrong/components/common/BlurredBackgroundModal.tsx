@@ -1,10 +1,12 @@
 import React, { ReactNode } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import Popover from "@/lib/vendor/@material-ui/core/src/Popover";
-import Fade from "@/lib/vendor/@material-ui/core/src/Fade";
 import classNames from "classnames";
+import LWDialog from "./LWDialog";
 
 const styles = (theme: ThemeType) => ({
+  paper: {
+    maxWidth: "unset !important",
+  },
   root: {
     background: theme.palette.panelBackground.modalBackground,
     borderRadius: theme.borderRadius.default,
@@ -49,31 +51,23 @@ export const BlurredBackgroundModal = ({
   classes: ClassesType<typeof styles>,
 }) => {
   return (
-    <Popover
+    <LWDialog
       open={open}
       onClose={onClose}
-      anchorReference="none"
-      ModalClasses={{root: classes.modal}}
-      BackdropProps={{className: classes.backdrop}}
-      TransitionComponent={Fade}
+      backdrop="blur"
+      paperClassName={classes.paper}
     >
-      {open &&
-        <div className={classNames(classes.root, className)}>
-          {children}
-        </div>
-      }
-    </Popover>
+      <div className={classNames(classes.root, className)}>
+        {children}
+      </div>
+    </LWDialog>
   );
 }
 
-const BlurredBackgroundModalComponent = registerComponent(
+export default registerComponent(
   "BlurredBackgroundModal",
   BlurredBackgroundModal,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    BlurredBackgroundModal: typeof BlurredBackgroundModalComponent
-  }
-}
+

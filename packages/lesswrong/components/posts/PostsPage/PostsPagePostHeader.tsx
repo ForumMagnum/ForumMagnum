@@ -1,5 +1,5 @@
 import React, { FC, MouseEvent, useMemo } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { getResponseCounts, postGetAnswerCountStr, postGetCommentCountStr, postGetLink, postGetLinkTarget } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
@@ -9,6 +9,28 @@ import { captureException } from '@sentry/core';
 import type { AnnualReviewMarketInfo } from '../../../lib/collections/posts/annualReviewMarkets';
 import { getUrlClass } from '@/server/utils/getUrlClass';
 import { AUTHOR_MARKER_STYLES } from './PostsAuthors';
+import PostsPageTitle from "./PostsPageTitle";
+import LWTooltip from "../../common/LWTooltip";
+import PostsPageDate from "./PostsPageDate";
+import CrosspostHeaderIcon from "./CrosspostHeaderIcon";
+import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
+import PostsVote from "../../votes/PostsVote";
+import PostsGroupDetails from "../PostsGroupDetails";
+import PostsTopSequencesNav from "./PostsTopSequencesNav";
+import PostsPageEventData from "./PostsPageEventData";
+import FooterTagList from "../../tagging/FooterTagList";
+import AddToCalendarButton from "../AddToCalendar/AddToCalendarButton";
+import BookmarkButton from "../BookmarkButton";
+import ForumIcon from "../../common/ForumIcon";
+import GroupLinks from "../../localGroups/GroupLinks";
+import SharePostButton from "../SharePostButton";
+import AudioToggle from "./AudioToggle";
+import ReadTime from "./ReadTime";
+import UsersProfileImage from '@/components/users/UsersProfileImage';
+import UserNameDeleted from '@/components/users/UserNameDeleted';
+import UsersName from '@/components/users/UsersName';
+import UserCommentMarkers from '@/components/users/UserCommentMarkers';
+import PostsCoauthor from './PostsCoauthor';
 
 const SECONDARY_SPACING = 20;
 
@@ -250,12 +272,6 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { PostsPageTitle, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
-    PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
-    PostsPageEventData, FooterTagList, AddToCalendarButton, BookmarkButton,
-    ForumIcon, GroupLinks, SharePostButton, AudioToggle, ReadTime, UsersProfileImage,
-    UsersName, UserCommentMarkers, PostsCoauthor } = Components;
-
   const hasMajorRevision = ('version' in post) && extractVersionsFromSemver(post.version).major > 1
   const rssFeedSource = ('feed' in post) ? post.feed : null;
   let feedLinkDomain;
@@ -324,7 +340,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
       <div className={classes.secondaryInfoRight}>
         {crosspostNode}
         <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
-        <BookmarkButton post={post} className={classes.bookmarkButton} placement='bottom-start' />
+        <BookmarkButton documentId={post._id} collectionName="Posts" className={classes.bookmarkButton} placement='bottom-start' />
         <SharePostButton post={post} />
         {tripleDotMenuNode}
       </div>
@@ -369,7 +385,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
           <div>
             <div className={classes.authors}>
               {!post.user || post.hideAuthor
-                ? <Components.UserNameDeleted />
+                ? <UserNameDeleted />
                 : <>
                   <UsersName user={post.user} pageSectionContext="post_header" />
                   <UserCommentMarkers user={post.user} className={classes.authorMarkers} />
@@ -428,12 +444,6 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   </div>
 }
 
-const PostsPagePostHeaderComponent = registerComponent(
+export default registerComponent(
   'PostsPagePostHeader', PostsPagePostHeader, {styles}
 );
-
-declare global {
-  interface ComponentTypes {
-    PostsPagePostHeader: typeof PostsPagePostHeaderComponent,
-  }
-}

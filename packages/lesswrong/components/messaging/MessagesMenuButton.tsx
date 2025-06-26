@@ -1,11 +1,13 @@
 import React, { useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useUnreadNotifications } from "../hooks/useUnreadNotifications";
 import { styles  } from "../notifications/NotificationsMenuButton";
-import Badge from "@/lib/vendor/@material-ui/core/src/Badge";
+import { Badge } from "@/components/widgets/Badge";
 import IconButton from "@/lib/vendor/@material-ui/core/src/IconButton";
 import classNames from "classnames";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
 
 const MessagesMenuButton = ({className, classes}: {
   className?: string,
@@ -19,7 +21,6 @@ const MessagesMenuButton = ({className, classes}: {
   }, [navigate]);
   const hasBadge = unreadPrivateMessages > 0;
   const badgeText = hasBadge ? String(unreadPrivateMessages) : "";
-  const {LWTooltip, ForumIcon} = Components;
   return (
     <LWTooltip
       title="Messages"
@@ -28,14 +29,12 @@ const MessagesMenuButton = ({className, classes}: {
       className={className}
     >
       <Badge
-        classes={{
-          root: classes.badgeContainer,
-          badge: classNames(classes.badge, {
-            [classes.badgeBackground]: hasBadge,
-            [classes.badge1Char]: badgeText.length === 1,
-            [classes.badge2Chars]: badgeText.length === 2,
-          })
-        }}
+        className={classes.badgeContainer}
+        badgeClassName={classNames(classes.badge, {
+          [classes.badgeBackground]: hasBadge,
+          [classes.badge1Char]: badgeText.length === 1,
+          [classes.badge2Chars]: badgeText.length === 2,
+        })}
         badgeContent={badgeText}
       >
         <IconButton
@@ -51,14 +50,10 @@ const MessagesMenuButton = ({className, classes}: {
   );
 }
 
-const MessagesMenuButtonComponent = registerComponent(
+export default registerComponent(
   "MessagesMenuButton",
   MessagesMenuButton,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    MessagesMenuButton: typeof MessagesMenuButtonComponent
-  }
-}
+

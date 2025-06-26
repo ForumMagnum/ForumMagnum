@@ -1,11 +1,17 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useRecentDiscussionThread } from "./useRecentDiscussionThread";
 import { postGetCommentsUrl } from "../../lib/collections/posts/helpers";
 import type { CommentTreeNode } from "../../lib/utils/unflatten";
-import type { EARecentDiscussionItemProps } from "./EARecentDiscussionItem";
+import EARecentDiscussionItem, { EARecentDiscussionItemProps } from "./EARecentDiscussionItem";
 import classNames from "classnames";
+import EAPostMeta from "../ea-forum/EAPostMeta";
+import ForumIcon from "../common/ForumIcon";
+import CommentsNodeInner from "../comments/CommentsNode";
+import PostExcerpt from "../common/excerpts/PostExcerpt";
+import EAKarmaDisplay from "../common/EAKarmaDisplay";
+import PostsTitle from "../posts/PostsTitle";
 
 const styles = (theme: ThemeType) => ({
   header: {
@@ -118,10 +124,6 @@ const EARecentDiscussionThread = ({
     return null;
   }
 
-  const {
-    EARecentDiscussionItem, EAPostMeta, ForumIcon, CommentsNode,
-    PostExcerpt, EAKarmaDisplay, PostsTitle,
-  } = Components;
   return (
     <EARecentDiscussionItem {...getItemProps(post, comments)}>
       <div className={classes.header}>
@@ -154,7 +156,7 @@ const EARecentDiscussionThread = ({
       />
       {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
         <div key={comment.item._id}>
-          <CommentsNode
+          <CommentsNodeInner
             treeOptions={treeOptions}
             startThreadTruncated={true}
             expandAllThreads={expandAllThreads}
@@ -169,14 +171,8 @@ const EARecentDiscussionThread = ({
   );
 }
 
-const EARecentDiscussionThreadComponent = registerComponent(
+export default registerComponent(
   "EARecentDiscussionThread",
   EARecentDiscussionThread,
   {styles},
 );
-
-declare global {
-  interface ComponentTypes {
-    EARecentDiscussionThread: typeof EARecentDiscussionThreadComponent,
-  }
-}

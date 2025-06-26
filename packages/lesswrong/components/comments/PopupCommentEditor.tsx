@@ -1,8 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Paper from "@/lib/vendor/@material-ui/core/src/Card"
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { Card } from "@/components/widgets/Paper";
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
-import type { CommentsNewFormProps } from './CommentsNewForm';
+import CommentsNewForm, { CommentsNewFormProps } from './CommentsNewForm';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -69,9 +69,7 @@ const PopupCommentEditor = ({title, guidelines, commentFormProps, onClose, class
   onClose: () => void,
   classes: ClassesType<typeof styles>
 }) => {
-  const { CommentsNewForm } = Components;
-
-  return <Paper className={classes.root}>
+  return <Card className={classes.root}>
     <div className={classes.header}>
       <div className={classes.title}>
         {title}
@@ -84,20 +82,16 @@ const PopupCommentEditor = ({title, guidelines, commentFormProps, onClose, class
         enableGuidelines={false}
         padding={false}
         successCallback={onClose}
-        type="comment"
+        interactionType="comment"
         formProps={{
           maxHeight: true
         }}
         {...commentFormProps}
       />
     </div>
-  </Paper>
+  </Card>
 }
 
-const PopupCommentEditorComponent = registerComponent('PopupCommentEditor', PopupCommentEditor, {styles});
+export default registerComponent('PopupCommentEditor', PopupCommentEditor, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PopupCommentEditor: typeof PopupCommentEditorComponent
-  }
-}
+

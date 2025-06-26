@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
@@ -10,6 +10,15 @@ import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useMulti } from '../../lib/crud/withMulti';
+import SidebarActionMenu from "./SidebarActionMenu";
+import TagSmallPostLink from "../tagging/TagSmallPostLink";
+import SidebarAction from "./SidebarAction";
+import { ContentItemBody } from "../contents/ContentItemBody";
+import SunshineListItem from "./SunshineListItem";
+import SidebarHoverOver from "./SidebarHoverOver";
+import SidebarInfo from "./SidebarInfo";
+import Loading from "../vulcan-core/Loading";
+import ContentStyles from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   tagInfo: {
@@ -65,9 +74,6 @@ const SunshineNewTagsItem = ({tag, classes}: {
       },
     })
   }
-
-  const { SidebarActionMenu, TagSmallPostLink, SidebarAction, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, Loading, ContentStyles } = Components
-
   const { results, loading } = useMulti({
     skip: !(tag._id),
     terms: {
@@ -124,12 +130,8 @@ const SunshineNewTagsItem = ({tag, classes}: {
   )
 }
 
-const SunshineNewTagsItemComponent = registerComponent('SunshineNewTagsItem', SunshineNewTagsItem, {styles, 
+export default registerComponent('SunshineNewTagsItem', SunshineNewTagsItem, {styles, 
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    SunshineNewTagsItem: typeof SunshineNewTagsItemComponent
-  }
-}
+

@@ -1,6 +1,6 @@
 import React, { CSSProperties } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { useLocation } from "../../lib/routeUtil";
 import { useSingle } from "../../lib/crud/withSingle";
 import { hasForumEvents } from "../../lib/betas";
@@ -8,6 +8,9 @@ import {
   forumEventBannerDescriptionStyles,
   forumEventBannerGradientBackground,
 } from "./ForumEventFrontpageBanner";
+import ContentStyles from "../common/ContentStyles";
+import { ContentItemBody } from "../contents/ContentItemBody";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
 
 const BANNER_HEIGHT = 60;
 
@@ -50,7 +53,7 @@ export const ForumEventPostPageBanner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {params} = useLocation();
-  const {currentForumEvent} = useCurrentForumEvent();
+  const {currentForumEvent} = useCurrentAndRecentForumEvents();
 
   const hideBanner =
     !currentForumEvent ||
@@ -80,8 +83,6 @@ export const ForumEventPostPageBanner = ({classes}: {
   const {postPageDescription, bannerImageId, darkColor} = currentForumEvent;
 
   if (!postPageDescription?.html) return null;
-
-  const {ContentStyles, ContentItemBody, CloudinaryImage2} = Components;
   return (
     <div className={classes.root}>
       <ContentStyles contentType="comment" className={classes.descriptionWrapper}>
@@ -100,14 +101,10 @@ export const ForumEventPostPageBanner = ({classes}: {
   );
 }
 
-const ForumEventPostPageBannerComponent = registerComponent(
+export default registerComponent(
   "ForumEventPostPageBanner",
   ForumEventPostPageBanner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    ForumEventPostPageBanner: typeof ForumEventPostPageBannerComponent
-  }
-}
+

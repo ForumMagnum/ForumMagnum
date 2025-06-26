@@ -1,14 +1,16 @@
 import React, { CSSProperties, useRef, useState } from 'react'
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import MoreHorizIcon from '@/lib/vendor/@material-ui/icons/src/MoreHoriz';
 import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
-import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from '../../../lib/analyticsEvents';
-import { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper';
+import type { Placement as PopperPlacementType } from "popper.js"
 import { useIsAboveBreakpoint } from '../../hooks/useScreenWidth';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import PopperCard from "../../common/PopperCard";
+import PostActions from "./PostActions";
+import LWClickAwayListener from "../../common/LWClickAwayListener";
 
 const styles = defineStyles("PostActionsButton", (theme: ThemeType) => ({
   root: {
@@ -25,7 +27,13 @@ const styles = defineStyles("PostActionsButton", (theme: ThemeType) => ({
   },
 }));
 
-const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, className}: {
+interface PostActionsComponentProps {
+  post: PostsList | SunshinePostsList;
+  closeMenu: () => void;
+  includeBookmark?: boolean;
+}
+
+const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, className, ActionsComponent}: {
   post: PostsList|SunshinePostsList,
   vertical?: boolean,
   popperGap?: number,
@@ -33,12 +41,12 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
   flip?: boolean,
   includeBookmark?: boolean,
   className?: string,
+  ActionsComponent?: React.ComponentType<PostActionsComponentProps>,
 }) => {
   const classes = useStyles(styles);
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const {captureEvent} = useTracking();
-  const currentUser = useCurrentUser();
 
   // This is fine with SSR because the popper will only be rendered after use
   // interaction
@@ -65,8 +73,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
   }
 
   const Icon = vertical ? MoreVertIcon : MoreHorizIcon
-  const { PopperCard, PostActions, LWClickAwayListener } = Components
-
+  const MenuComponent = ActionsComponent ?? PostActions;
   return <div className={classNames(classes.root, className)}>
     <div ref={anchorEl}>
       <Icon className={classes.icon} onClick={(ev: React.MouseEvent) => handleSetOpen(!isOpen)}/>
@@ -81,18 +88,14 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
     >
       {/*FIXME: ClickAwayListener doesn't handle portals correctly, which winds up making submenus inoperable. But we do still need clickaway to close.*/}
       <LWClickAwayListener onClickAway={() => handleSetOpen(false)}>
-        <PostActions post={post} closeMenu={() => handleSetOpen(false)} includeBookmark={includeBookmark} />
+        <MenuComponent post={post} closeMenu={() => handleSetOpen(false)} includeBookmark={includeBookmark} />
       </LWClickAwayListener>
     </PopperCard>
   </div>
 }
 
 
-const PostActionsButtonComponent = registerComponent('PostActionsButton', PostActionsButton);
-export default PostActionsButtonComponent;
+export default registerComponent('PostActionsButton', PostActionsButton);
 
-declare global {
-  interface ComponentTypes {
-    PostActionsButton: typeof PostActionsButtonComponent
-  }
-}
+
+

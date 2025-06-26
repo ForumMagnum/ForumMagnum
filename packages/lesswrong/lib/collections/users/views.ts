@@ -144,7 +144,10 @@ function allUsers(terms: UsersViewTerms) {
 function usersMapLocations() {
   return {
     selector: {
-      mapLocationSet: true
+      mapLocationSet: true,
+      deleted: {$ne: true},
+      deleteContent: {$ne: true},
+      banned: {$exists: false},
     },
   }
 }
@@ -216,19 +219,6 @@ export const hashedPetrovLaunchCodes = [
 })
 ensureIndex(Users, {petrovCodesEnteredHashed: 1})*/
 
-function walledGardenInvitees() {
-  return {
-    selector: {
-      walledGardenInvite: true
-    },
-    options: {
-      sort: {
-        displayName: 1
-      }
-    }
-  }
-}
-
 function usersWithOptedInToDialogueFacilitation(terms: UsersViewTerms) {
   return {
     selector: {
@@ -260,6 +250,22 @@ function alignmentSuggestedUsers() {
   }
 }
 
+ function usersTopKarma(terms: UsersViewTerms) {
+  return {
+    selector: {
+      deleted: {$ne: true},
+      $or: [
+        {banned: {$exists: false}},
+        {banned: {$lt: new Date()}}
+      ]
+    },
+    options: {
+      sort: { 
+        karma: -1 
+      },
+    },
+  }
+};
 
 // Create the CollectionViewSet instance
 export const UsersViews = new CollectionViewSet('Users', {
@@ -276,9 +282,9 @@ export const UsersViews = new CollectionViewSet('Users', {
   tagCommunityMembers,
   reviewAdminUsers,
   usersWithPaymentInfo,
-  walledGardenInvitees,
   usersWithOptedInToDialogueFacilitation,
   alignmentSuggestedUsers,
+  usersTopKarma,
   // Commented out in the original code:
   // areWeNuked
 });

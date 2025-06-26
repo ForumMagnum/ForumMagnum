@@ -3,8 +3,8 @@ import { gql, useMutation } from "@apollo/client";
 import React, { FC, useCallback, useMemo, useRef, useState } from "react";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import { useCurrentUser } from "../common/withUser";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
-import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
+import { registerComponent } from "@/lib/vulcan-lib/components";
+import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { Link } from "@/lib/reactRouterWrapper";
@@ -16,6 +16,8 @@ import { randomId } from "@/lib/random";
 import keyBy from "lodash/keyBy";
 import { useModerateComment } from "../dropdowns/comments/withModerateComment";
 import { useMessages } from "../common/withMessages";
+import ForumEventCommentForm from "./ForumEventCommentForm";
+import ForumEventSticker from "./ForumEventSticker";
 
 const styles = (theme: ThemeType) => ({
   stickersContainer: {
@@ -57,9 +59,7 @@ const styles = (theme: ThemeType) => ({
 const ForumEventStickers: FC<{
   classes: ClassesType<typeof styles>;
 }> = ({ classes }) => {
-  const { ForumEventCommentForm, ForumEventSticker } = Components;
-
-  const { currentForumEvent, refetch } = useCurrentForumEvent();
+  const { currentForumEvent, refetch } = useCurrentAndRecentForumEvents();
   const { onSignup } = useLoginPopoverContext();
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
@@ -321,10 +321,6 @@ const ForumEventStickers: FC<{
   );
 };
 
-const ForumEventStickersComponent = registerComponent( 'ForumEventStickers', ForumEventStickers, {styles});
+export default registerComponent( 'ForumEventStickers', ForumEventStickers, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ForumEventStickers: typeof ForumEventStickersComponent;
-  }
-}
+

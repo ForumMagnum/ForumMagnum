@@ -2,9 +2,18 @@ import React, { useState } from 'react';
 import { userCanDo } from "../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import {useMulti} from "../../lib/crud/withMulti";
-import { ALLOWABLE_COLLECTIONS, TemplateType } from '../../lib/collections/moderationTemplates/schema';
+import { ALLOWABLE_COLLECTIONS, TemplateType } from "@/lib/collections/moderationTemplates/constants";
 import classNames from 'classnames';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { ModerationTemplatesForm } from './ModerationTemplateForm';
+import SingleColumnSection from "../common/SingleColumnSection";
+import SectionTitle from "../common/SectionTitle";
+import ModerationTemplateItem from "./ModerationTemplateItem";
+import BasicFormStyles from "../form-components/BasicFormStyles";
+import Loading from "../vulcan-core/Loading";
+import Row from "../common/Row";
+import ToCColumn from "../posts/TableOfContents/ToCColumn";
+import TableOfContents from "../posts/TableOfContents/TableOfContents";
 
 const styles = (theme: ThemeType) => ({
   form: {
@@ -31,8 +40,6 @@ const styles = (theme: ThemeType) => ({
 export const ModerationTemplatesPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { WrappedSmartForm, SingleColumnSection, SectionTitle, ModerationTemplateItem, BasicFormStyles, Loading, Row, ToCColumn, TableOfContents } = Components
-  
   const currentUser = useCurrentUser();
   const [showDeleted, setShowDeleted] = useState<boolean>(false);
   const [filter, setFilter] = useState<TemplateType|null>(null);
@@ -82,10 +89,7 @@ export const ModerationTemplatesPage = ({classes}: {
       <SectionTitle title={'New Moderation Template'} />
       <div className={classes.form}>
         <BasicFormStyles>
-          <WrappedSmartForm
-            collectionName="ModerationTemplates"
-            mutationFragmentName={'ModerationTemplateFragment'}
-          />
+          <ModerationTemplatesForm />
         </BasicFormStyles>
       </div>
       <SectionTitle title="Moderation Templates">
@@ -118,11 +122,7 @@ export const ModerationTemplatesPage = ({classes}: {
 }
   
 
-const ModerationTemplatesPageComponent = registerComponent('ModerationTemplatesPage', ModerationTemplatesPage, {styles});
+export default registerComponent('ModerationTemplatesPage', ModerationTemplatesPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ModerationTemplatesPage: typeof ModerationTemplatesPageComponent
-  }
-}
+
 

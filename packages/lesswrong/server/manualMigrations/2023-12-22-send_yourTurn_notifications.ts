@@ -1,5 +1,5 @@
 import { registerMigration } from "./migrationUtils";
-import { createAdminContext } from "../vulcan-lib/query";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 import { createNotification } from "../notificationCallbacksHelpers";
 import { getSqlClientOrThrow } from "../../server/sql/sqlClient";
 

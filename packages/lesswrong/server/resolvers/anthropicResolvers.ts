@@ -9,16 +9,17 @@ import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { ClaudeMessageRequestSchema, ClientMessage, LlmCreateConversationMessage, LlmStreamChunkMessage, LlmStreamContentMessage, 
   LlmStreamEndMessage, LlmStreamErrorMessage, LlmStreamMessage, RagModeType, PromptContextOptions } from "@/components/languageModels/LlmChatWrapper";
-import { LlmVisibleMessageRole, UserVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
+import { LlmVisibleMessageRole, UserVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/newSchema";
 import { asyncMapSequential } from "@/lib/utils/asyncUtils";
 import { markdownToHtml, htmlToMarkdown } from "../editor/conversionUtils";
 import { getOpenAI } from "../languageModels/languageModelIntegration";
 import express, { Express } from "express";
 import { captureException } from "@sentry/core";
 import { clientIdMiddleware } from "../clientIdMiddleware";
-import { createMutator } from "../vulcan-lib/mutators";
 import { getContextFromReqAndRes } from "../vulcan-lib/apollo-server/context";
 import { runFragmentMultiQuery, runFragmentSingleQuery } from "../vulcan-lib/query";
+import { createLlmConversation } from "../collections/llmConversations/mutations";
+import { createLlmMessage } from "../collections/llmMessages/mutations";
 
 interface InitializeConversationArgs {
   newMessage: ClientMessage;
@@ -205,19 +206,17 @@ async function getConversationTitle(args: BasePromptArgs) {
 
 async function createNewConversation({ query, systemPrompt, model, currentUser, context, postContext, currentPost }: CreateNewConversationArgs): Promise<DbLlmConversation> {
   const title = await getConversationTitle({ query, currentPost });
-  const newConversation = await createMutator({
-    collection: context.LlmConversations,
-    document: {
+
+  const newConversation = await createLlmConversation({
+    data: {
       title,
       systemPrompt,
       model,
       userId: currentUser._id,
-    },
-    context,
-    currentUser,
-  });
+    }
+  }, context);
 
-  return newConversation.data;
+  return newConversation;
 };
 
 function getPostContextMessage(postsLoadedIntoContext: LlmPost[], currentPost: LlmPost | null): string {
@@ -602,12 +601,9 @@ export function addLlmChatEndpoint(app: Express) {
 
     const createNewMessagesSequentiallyPromise = asyncMapSequential(
       newMessageRecords,
-      (message) => createMutator({
-        collection: context.LlmMessages,
-        document: message,
-        context,
-        currentUser,
-      }).then(({ data }) => data)
+      (message) => {
+        return createLlmMessage({ data: message }, context);
+      }
     );
 
     const [previousMessages, newMessages] = await Promise.all([
@@ -659,12 +655,7 @@ export function addLlmChatEndpoint(app: Express) {
         sendEventToClient
       });
 
-      await createMutator({
-        collection: context.LlmMessages,
-        document: claudeResponse,
-        context,
-        currentUser,
-      });
+      await createLlmMessage({ data: claudeResponse }, context);
       
       await sendStreamEndEvent(conversationId, sendEventToClient);
     } catch (err) {

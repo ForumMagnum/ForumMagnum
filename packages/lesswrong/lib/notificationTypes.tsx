@@ -1,5 +1,4 @@
 import React, { FC, ReactNode } from 'react';
-import { Components } from './vulcan-lib/components';
 import { getPostCollaborateUrl, postGetAuthorName, postGetEditUrl } from './collections/posts/helpers';
 import { commentGetAuthorName } from './collections/comments/helpers';
 import PostsIcon from '@/lib/vendor/@material-ui/icons/src/Description';
@@ -12,7 +11,6 @@ import { REVIEW_NAME_IN_SITU } from './reviewUtils';
 import SupervisedUserCircleIcon from '@/lib/vendor/@material-ui/icons/src/SupervisedUserCircle';
 import GroupAddIcon from '@/lib/vendor/@material-ui/icons/src/GroupAdd';
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
-import { NotificationChannelOption } from './collections/users/schema';
 import startCase from 'lodash/startCase';
 import { GiftIcon } from '../components/icons/giftIcon';
 import { userGetDisplayName } from './collections/users/helpers'
@@ -23,6 +21,10 @@ import { isFriendlyUI } from '../themes/forumTheme';
 import { sequenceGetPageUrl } from './collections/sequences/helpers';
 import { tagGetUrl } from './collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
+import { NotificationChannel } from "./collections/users/notificationFieldHelpers";
+import keyBy from 'lodash/keyBy';
+import ForumIcon from '@/components/common/ForumIcon';
+import CommentOnYourDraftNotificationHover from '@/components/notifications/CommentOnYourDraftNotificationHover';
 
 // We need enough fields here to render the user tooltip
 type NotificationDisplayUser = Pick<
@@ -89,7 +91,7 @@ export type NotificationDisplay =
     tagRelId?: string,
   };
 
-export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'sequence', 'localgroup', 'dialogueCheck', 'dialogueMatchPreference'] as const)
+const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'sequence', 'localgroup', 'dialogueCheck', 'dialogueMatchPreference'] as const)
 export type NotificationDocument = UnionOf<typeof notificationDocumentTypes>
 
 interface GetMessageProps {
@@ -108,8 +110,8 @@ interface GetDialogueMessageProps {
 
 export interface NotificationType {
   name: string
-  userSettingField: keyof DbUser|null
-  allowedChannels?: NotificationChannelOption[],
+  userSettingField: (keyof DbUser & `notification${string}`)|null
+  allowedChannels?: NotificationChannel[],
   getMessage: (args: {documentType: NotificationDocument|null, documentId: string|null, extraData?: Record<string,any>, context: ResolverContext}) => Promise<string>
   getIcon: () => ReactNode,
   Display?: FC<{
@@ -127,44 +129,8 @@ export interface NotificationType {
   causesRedBadge?: boolean
 }
 
-const notificationTypes: Record<string,NotificationType> = {};
-const notificationTypesByUserSetting: Partial<Record<keyof DbUser, NotificationType>> = {};
-
-export const getNotificationTypes = () => {
-  return Object.keys(notificationTypes);
-}
-
-export const getNotificationTypeByName = (name: string) => {
-  if (name in notificationTypes)
-    return notificationTypes[name];
-  else
-    throw new Error(`Invalid notification type: ${name}`);
-}
-
-export const getNotificationTypeByUserSetting = (settingName: keyof DbUser): NotificationType => {
-  const result = notificationTypesByUserSetting[settingName];
-  if (!result) throw new Error("Setting does not correspond to a notification type");
-  return result;
-}
-
-const registerNotificationType = ({allowedChannels = ["none", "onsite", "email", "both"], ...otherArgs}: NotificationType) => {
+const createNotificationType = ({allowedChannels = ["onsite", "email"], ...otherArgs}: NotificationType) => {
   const notificationTypeClass = {allowedChannels, ...otherArgs};
-
-  const name = notificationTypeClass.name;
-  notificationTypes[name] = notificationTypeClass;
-
-  const {userSettingField} = notificationTypeClass;
-  if (userSettingField) {
-    // Due to a technical limitation notifications using the same user setting
-    // must also use the same channels
-    const currentValue = notificationTypesByUserSetting[userSettingField];
-    if (currentValue && !isEqual(currentValue.allowedChannels, notificationTypeClass.allowedChannels)) {
-      // eslint-disable-next-line no-console
-      console.error(`Error: Conflicting channels for notifications using "${userSettingField}"`);
-    }
-    notificationTypesByUserSetting[userSettingField] = notificationTypeClass;
-  }
-
   return notificationTypeClass;
 }
 
@@ -186,11 +152,11 @@ type DocumentSummary =
 export const getDocumentSummary = async (documentType: NotificationDocument | null, documentId: string | null, context: ResolverContext): Promise<DocumentSummary | null> => {
   if (!documentId) return null
 
-  const { Posts, Comments, Users, Messages, Conversations, Localgroups, TagRels, Sequences } = context;
+  const { Posts, Comments, Users, Messages, Conversations, Localgroups, TagRels, Sequences } = context.loaders;
 
   switch (documentType) {
     case 'post':
-      const post = await Posts.findOne(documentId)
+      const post = await Posts.load(documentId)
       return post && {
         type: documentType,
         document: post,
@@ -198,15 +164,22 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         associatedUserName: await postGetAuthorName(post, context),
       }
     case 'comment':
-      const comment = await Comments.findOne(documentId)
-      return comment && {
+      const comment = await Comments.load(documentId)
+      if (!comment) {
+        return null;
+      }
+      const [displayName, associatedUserName] = await Promise.all([
+        getCommentParentTitle(comment, context),
+        commentGetAuthorName(comment, context),
+      ]);
+      return {
         type: documentType,
         document: comment,
-        displayName: await getCommentParentTitle(comment, context),
-        associatedUserName: await commentGetAuthorName(comment, context),
+        displayName,
+        associatedUserName,
       }
     case 'user':
-      const user = await Users.findOne(documentId)
+      const user = await Users.load(documentId)
       return user && {
         type: documentType,
         document: user,
@@ -214,11 +187,13 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         associatedUserName: userGetDisplayName(user),
       }
     case 'message':
-      const message = await Messages.findOne(documentId)
+      const message = await Messages.load(documentId)
       if (!message) return null
 
-      const conversation = await Conversations.findOne(message.conversationId)
-      const author = await Users.findOne(message.userId)
+      const [conversation, author] = await Promise.all([
+        Conversations.load(message.conversationId),
+        Users.load(message.userId),
+      ]);
       return {
         type: documentType,
         document: message,
@@ -226,7 +201,7 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         associatedUserName: userGetDisplayName(author),
       }
     case 'localgroup':
-      const localgroup = await Localgroups.findOne(documentId)
+      const localgroup = await Localgroups.load(documentId)
       return localgroup && {
         type: documentType,
         document: localgroup,
@@ -234,7 +209,7 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         associatedUserName: null,
       }
     case 'tagRel':
-      const tagRel = await TagRels.findOne(documentId)
+      const tagRel = await TagRels.load(documentId)
       return tagRel && {
         type: documentType,
         document: tagRel,
@@ -242,7 +217,7 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         associatedUserName: null,
       }
     case 'sequence':
-      const sequence = await Sequences.findOne(documentId)
+      const sequence = await Sequences.load(documentId)
       return sequence && {
         type: documentType,
         document: sequence,
@@ -270,7 +245,7 @@ const flatIconStyles = {
   width: 26,
 }
 
-export const NewPostNotification = registerNotificationType({
+export const NewPostNotification = createNotificationType({
   name: "newPost",
   userSettingField: "notificationSubscribedUserPost",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -283,7 +258,7 @@ export const NewPostNotification = registerNotificationType({
   Display: ({User, Post}) => <><User /> created a new post <Post /></>,
 });
 
-export const NewUserCommentNotification = registerNotificationType({
+export const NewUserCommentNotification = createNotificationType({
   name: "newUserComment",
   userSettingField: "notificationSubscribedUserComment",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -297,7 +272,7 @@ export const NewUserCommentNotification = registerNotificationType({
 });
 
 // Vulcan notification that we don't really use
-export const PostApprovedNotification = registerNotificationType({
+export const PostApprovedNotification = createNotificationType({
   name: "postApproved",
   userSettingField: null, //TODO
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -305,12 +280,12 @@ export const PostApprovedNotification = registerNotificationType({
     return 'Your post "' + document.title + '" has been approved';
   },
   getIcon() {
-    return <Components.ForumIcon icon="Bell" style={iconStyles} />
+    return <ForumIcon icon="Bell" style={iconStyles} />
   },
   Display: ({Post}) => <>Your post <Post /> has been approved</>,
 });
 
-export const PostNominatedNotification = registerNotificationType({
+export const PostNominatedNotification = createNotificationType({
   name: "postNominated",
   userSettingField: "notificationPostsNominatedReview",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -318,11 +293,11 @@ export const PostNominatedNotification = registerNotificationType({
     return `Your post is nominated for the ${REVIEW_NAME_IN_SITU}: "${post.title}"`
   },
   getIcon() {
-    return <Components.ForumIcon icon="Star" style={iconStyles} />
+    return <ForumIcon icon="Star" style={iconStyles} />
   }
 })
 
-export const NewEventNotification = registerNotificationType({
+export const NewEventNotification = createNotificationType({
   name: "newEvent",
   userSettingField: "notificationPostsInGroups",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -341,14 +316,14 @@ export const NewEventNotification = registerNotificationType({
       return await postGetAuthorName(document as DbPost, context) + ' has created a new event';
   },
   getIcon() {
-    return <Components.ForumIcon icon="Bell" style={iconStyles} />
+    return <ForumIcon icon="Bell" style={iconStyles} />
   },
   Display: ({User, Localgroup, notification: {post}}) => <>
     {post?.groupId ? <Localgroup /> : <User />} has created a new event
   </>,
 });
 
-export const NewGroupPostNotification = registerNotificationType({
+export const NewGroupPostNotification = createNotificationType({
   name: "newGroupPost",
   userSettingField: "notificationPostsInGroups",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -367,7 +342,7 @@ export const NewGroupPostNotification = registerNotificationType({
       return await postGetAuthorName(document as DbPost, context) + ' has created a new post in a group';
   },
   getIcon() {
-    return <Components.ForumIcon icon="Bell" style={iconStyles} />
+    return <ForumIcon icon="Bell" style={iconStyles} />
   },
   Display: ({User, Localgroup, notification: {post}}) => <>
     <User /> has created a new post in {
@@ -379,7 +354,7 @@ export const NewGroupPostNotification = registerNotificationType({
 });
 
 // New comment on a post you're subscribed to.
-export const NewCommentNotification = registerNotificationType({
+export const NewCommentNotification = createNotificationType({
   name: "newComment",
   userSettingField: "notificationCommentsOnSubscribedPost",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -395,10 +370,9 @@ export const NewCommentNotification = registerNotificationType({
 });
 
 // New comment on a subforum you're subscribed to.
-export const NewSubforumCommentNotification = registerNotificationType({
+export const NewSubforumCommentNotification = createNotificationType({
   name: "newSubforumComment",
   userSettingField: "notificationSubforumUnread",
-  allowedChannels: ["none", "onsite", "email", "both"],
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     // e.g. "Forecasting: Will Howard left a new comment"
     let document = await getDocument(documentType, documentId, context) as DbComment;
@@ -416,7 +390,7 @@ export const NewSubforumCommentNotification = registerNotificationType({
 
 // New message in a dialogue which you are a participant
 // (Notifications for regular comments are handled through the `newComment` notification.)
-export const NewDialogueMessagesNotification = registerNotificationType({
+export const NewDialogueMessagesNotification = createNotificationType({
   name: "newDialogueMessages",
   userSettingField: "notificationDialogueMessages",
   async getMessage({documentType, documentId, extraData, context}: GetMessageProps) {
@@ -441,7 +415,7 @@ export const NewDialogueMessagesNotification = registerNotificationType({
 
 // Used when a user already has unread dialogue message notification. Primitive batching to prevent spamming the user.
 // Send instead of NewDialogueMessageNotifications when there is already one already unread. Not sent if another instance of itself is unread.
-export const NewDialogueMessagesBatchNotification = registerNotificationType({
+export const NewDialogueMessagesBatchNotification = createNotificationType({
   name: "newDialogueBatchMessages",
   //using same setting as regular NewDialogueMessageNotification, since really the same
   userSettingField: "notificationDialogueMessages",
@@ -463,7 +437,7 @@ export const NewDialogueMessagesBatchNotification = registerNotificationType({
 
 // New published dialogue message(s) on a dialogue post you're subscribed to. 
 // (Notifications for regular comments are still handled through the `newComment` notification.)
-export const NewPublishedDialogueMessagesNotification = registerNotificationType({
+export const NewPublishedDialogueMessagesNotification = createNotificationType({
   name: "newPublishedDialogueMessages",
   userSettingField: "notificationPublishedDialogueMessages",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -478,7 +452,7 @@ export const NewPublishedDialogueMessagesNotification = registerNotificationType
 });
 
 // New dialogue match between you and another user
-export const NewDialogueMatchNotification = registerNotificationType({
+export const NewDialogueMatchNotification = createNotificationType({
   name: "newDialogueMatch",
   userSettingField: "notificationDialogueMatch",
   async getMessage({documentType, documentId}: GetMessageProps) {
@@ -490,10 +464,10 @@ export const NewDialogueMatchNotification = registerNotificationType({
 });
 
 // Notification that you have new interested parties for dialogues
-export const NewDialogueCheckNotification = registerNotificationType({
+export const NewDialogueCheckNotification = createNotificationType({
   name: "newDialogueChecks",
   userSettingField: "notificationNewDialogueChecks",
-  allowedChannels: ["onsite", "none"],
+  allowedChannels: ["onsite"],
   async getMessage(props: GetMessageProps) {
     return "This is an old notification for a deprecated feature."
   },
@@ -502,10 +476,10 @@ export const NewDialogueCheckNotification = registerNotificationType({
   }
 });
 
-export const YourTurnMatchFormNotification = registerNotificationType({
+export const YourTurnMatchFormNotification = createNotificationType({
   name: "yourTurnMatchForm",
   userSettingField: "notificationYourTurnMatchForm",
-  allowedChannels: ["onsite", "none"],
+  allowedChannels: ["onsite"],
   async getMessage({documentType, documentId}: GetMessageProps) {
     return "This is an old notification for a deprecated feature."
   },
@@ -518,7 +492,7 @@ export const YourTurnMatchFormNotification = registerNotificationType({
 //TO-DO: clean up eventually
 // New debate comment on a debate post you're subscribed to.  For readers explicitly subscribed to the debate.
 // (Notifications for regular comments are still handled through the `newComment` notification.)
-export const NewDebateCommentNotification = registerNotificationType({
+export const NewDebateCommentNotification = createNotificationType({
   name: "newDebateComment",
   userSettingField: "notificationDebateCommentsOnSubscribedPost",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -534,7 +508,7 @@ export const NewDebateCommentNotification = registerNotificationType({
 //TO-DO: clean up eventually
 // New debate comment on a debate post you're subscribed to.  For debate participants implicitly subscribed to the debate.
 // (Notifications for regular comments are still handled through the `newComment` notification.)
-export const NewDebateReplyNotification = registerNotificationType({
+export const NewDebateReplyNotification = createNotificationType({
   name: "newDebateReply",
   userSettingField: "notificationDebateReplies",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -547,7 +521,7 @@ export const NewDebateReplyNotification = registerNotificationType({
   causesRedBadge: true,
 });
 
-export const NewShortformNotification = registerNotificationType({
+export const NewShortformNotification = createNotificationType({
   name: "newShortform",
   userSettingField: "notificationShortformContent",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -570,7 +544,7 @@ export const taggedPostMessage = async ({documentType, documentId, context}: Get
   return `New post tagged '${tag?.name}: ${post?.title}'`
 }
 
-export const NewTagPostsNotification = registerNotificationType({
+export const NewTagPostsNotification = createNotificationType({
   name: "newTagPosts",
   userSettingField: "notificationSubscribedTagPost",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -582,7 +556,7 @@ export const NewTagPostsNotification = registerNotificationType({
   Display: ({Tag, Post}) => <>New post tagged <Tag />: <Post /></>,
 });
 
-export const NewSequencePostsNotification = registerNotificationType({
+export const NewSequencePostsNotification = createNotificationType({
   name: "newSequencePosts",
   userSettingField: "notificationSubscribedSequencePost",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -606,7 +580,7 @@ export async function getCommentParentTitle(comment: DbComment, context: Resolve
 }
 
 // Reply to a comment you're subscribed to.
-export const NewReplyNotification = registerNotificationType({
+export const NewReplyNotification = createNotificationType({
   name: "newReply",
   userSettingField: "notificationRepliesToSubscribedComments",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -622,23 +596,30 @@ export const NewReplyNotification = registerNotificationType({
 });
 
 // Reply to a comment you are the author of.
-export const NewReplyToYouNotification = registerNotificationType({
+export const NewReplyToYouNotification = createNotificationType({
   name: "newReplyToYou",
   userSettingField: "notificationRepliesToMyComments",
-  async getMessage({documentType, documentId, context}: GetMessageProps) {
+  async getMessage({documentType, documentId, context, extraData}: GetMessageProps) {
     let document = await getDocument(documentType, documentId, context) as DbComment;
-    return await commentGetAuthorName(document, context) + ' replied to your comment on "' + await getCommentParentTitle(document, context) + '"';
+    if (extraData?.direct === false) {
+      return await commentGetAuthorName(document, context) + ' replied to a thread you\'re in on "' + await getCommentParentTitle(document, context) + '"';
+    } else {
+      return await commentGetAuthorName(document, context) + ' replied to your comment on "' + await getCommentParentTitle(document, context) + '"';
+    }
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
   },
-  Display: ({User, Comment, Post}) => <>
-    <User /> replied to your <Comment /> on <Post />
-  </>,
+  Display: ({notification, User, Comment, Post}) => {
+    const isDirect = notification.extraData?.direct !== false;
+    return <>
+      <User /> replied to {isDirect ? 'your comment' : 'a thread you\'re in'} on <Post />
+    </>;
+  },
 });
 
 // Vulcan notification that we don't really use
-export const NewUserNotification = registerNotificationType({
+export const NewUserNotification = createNotificationType({
   name: "newUser",
   userSettingField: null,
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -646,19 +627,19 @@ export const NewUserNotification = registerNotificationType({
     return document.displayName + ' just signed up!';
   },
   getIcon() {
-    return <Components.ForumIcon icon="Bell" style={iconStyles} />
+    return <ForumIcon icon="Bell" style={iconStyles} />
   },
   Display: ({User}) => <><User /> just signed up</>,
 });
 
 // This has no `Display` as messages are handled separately from notifications
 // in the friendly UI
-export const NewMessageNotification = registerNotificationType({
+export const NewMessageNotification = createNotificationType({
   name: "newMessage",
   userSettingField: "notificationPrivateMessage",
-  allowedChannels: ["onsite", "email", "both"],
   async getMessage({documentType, documentId, context}: GetMessageProps) {
-    const { Conversations, Users } = context;
+    const { Users, Conversations } = context;
+
     let document = await getDocument(documentType, documentId, context) as DbMessage;
     let conversation = await Conversations.findOne(document.conversationId);
     return (await Users.findOne(document.userId))?.displayName + ' sent you a new message' + (conversation?.title ? (' in the conversation ' + conversation.title) : "") + '!';
@@ -669,7 +650,7 @@ export const NewMessageNotification = registerNotificationType({
   causesRedBadge: !isFriendlyUI,
 });
 
-export const WrappedNotification = registerNotificationType({
+export const WrappedNotification = createNotificationType({
   name: "wrapped",
   userSettingField: null,
   async getMessage({extraData}: GetMessageProps) {
@@ -688,19 +669,19 @@ export const WrappedNotification = registerNotificationType({
 
 // TODO(EA): Fix notificationCallbacks getLink, or the associated component to
 // be EA-compatible. Currently we just disable it in the new user callback.
-export const EmailVerificationRequiredNotification = registerNotificationType({
+export const EmailVerificationRequiredNotification = createNotificationType({
   name: "emailVerificationRequired",
   userSettingField: null,
   async getMessage({documentType, documentId}: GetMessageProps) {
     return "Verify your email address to activate email subscriptions.";
   },
   getIcon() {
-    return <Components.ForumIcon icon="Bell" style={iconStyles} />
+    return <ForumIcon icon="Bell" style={iconStyles} />
   },
   Display: () => <>Verify your email address to activate email subscriptions</>,
 });
 
-export const PostSharedWithUserNotification = registerNotificationType({
+export const PostSharedWithUserNotification = createNotificationType({
   name: "postSharedWithUser",
   userSettingField: "notificationSharedWithMe",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -709,7 +690,7 @@ export const PostSharedWithUserNotification = registerNotificationType({
     return `${name} shared their ${document.draft ? "draft" : "post"} "${document.title}" with you`;
   },
   getIcon() {
-    return <Components.ForumIcon icon="Bell" style={iconStyles} />
+    return <ForumIcon icon="Bell" style={iconStyles} />
   },
   getLink: ({documentType, documentId, extraData}: {
     documentType: string|null,
@@ -726,10 +707,9 @@ export const PostSharedWithUserNotification = registerNotificationType({
   </>,
 });
 
-export const PostAddedAsCoauthorNotification = registerNotificationType({
+export const PostAddedAsCoauthorNotification = createNotificationType({
   name: "addedAsCoauthor",
   userSettingField: "notificationAddedAsCoauthor",
-  allowedChannels: ["onsite", "email", "both"],
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     let document = await getDocument(documentType, documentId, context) as DbPost;
     const name = await postGetAuthorName(document, context);
@@ -757,7 +737,7 @@ export const PostAddedAsCoauthorNotification = registerNotificationType({
   },
 });
 
-export const AlignmentSubmissionApprovalNotification = registerNotificationType({
+export const AlignmentSubmissionApprovalNotification = createNotificationType({
   name: "alignmentSubmissionApproved",
   userSettingField: "notificationAlignmentSubmissionApproved",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -770,11 +750,11 @@ export const AlignmentSubmissionApprovalNotification = registerNotificationType(
     } else throw new Error("documentType must be post or comment!")
   },
   getIcon() {
-    return <Components.ForumIcon icon="Bell" style={iconStyles} />
+    return <ForumIcon icon="Bell" style={iconStyles} />
   },
 });
 
-export const NewEventInNotificationRadiusNotification = registerNotificationType({
+export const NewEventInNotificationRadiusNotification = createNotificationType({
   name: "newEventInRadius",
   userSettingField: "notificationEventInRadius",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -787,7 +767,7 @@ export const NewEventInNotificationRadiusNotification = registerNotificationType
   Display: ({Post}) => <>New event in your area: <Post /></>,
 })
 
-export const EditedEventInNotificationRadiusNotification = registerNotificationType({
+export const EditedEventInNotificationRadiusNotification = createNotificationType({
   name: "editedEventInRadius",
   userSettingField: "notificationEventInRadius",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -801,7 +781,7 @@ export const EditedEventInNotificationRadiusNotification = registerNotificationT
 })
 
 
-export const NewRSVPNotification = registerNotificationType({
+export const NewRSVPNotification = createNotificationType({
   name: "newRSVP",
   userSettingField: "notificationRSVPs",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -825,7 +805,7 @@ export const NewRSVPNotification = registerNotificationType({
   },
 })
 
-export const KarmaPowersGainedNotification = registerNotificationType({
+export const KarmaPowersGainedNotification = createNotificationType({
   name: "karmaPowersGained",
   userSettingField: "notificationKarmaPowersGained",
   async getMessage() {
@@ -835,10 +815,10 @@ export const KarmaPowersGainedNotification = registerNotificationType({
     return tagGetUrl({slug: 'vote-strength'});
   },
   getIcon() {
-    return <Components.ForumIcon icon="Bell" style={iconStyles} />
+    return <ForumIcon icon="Bell" style={iconStyles} />
   }
 })
-export const CancelledRSVPNotification = registerNotificationType({
+export const CancelledRSVPNotification = createNotificationType({
   name: "cancelledRSVP",
   userSettingField: "notificationRSVPs",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -851,7 +831,7 @@ export const CancelledRSVPNotification = registerNotificationType({
   Display: ({Post}) => <>Someone cancelled their RSVP to your event <Post /></>,
 })
 
-export const NewGroupOrganizerNotification = registerNotificationType({
+export const NewGroupOrganizerNotification = createNotificationType({
   name: "newGroupOrganizer",
   userSettingField: "notificationGroupAdministration",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -867,7 +847,7 @@ export const NewGroupOrganizerNotification = registerNotificationType({
   Display: ({Localgroup}) => <>You've been added as an organizer of <Localgroup /></>,
 })
 
-export const NewSubforumMemberNotification = registerNotificationType({
+export const NewSubforumMemberNotification = createNotificationType({
   name: "newSubforumMember",
   userSettingField: "notificationGroupAdministration",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -883,7 +863,7 @@ export const NewSubforumMemberNotification = registerNotificationType({
   Display: ({User, Tag}) => <><User /> has joined <Tag /></>,
 })
 
-export const NewCommentOnDraftNotification = registerNotificationType({
+export const NewCommentOnDraftNotification = createNotificationType({
   name: "newCommentOnDraft",
   userSettingField: "notificationCommentsOnDraft",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -896,7 +876,7 @@ export const NewCommentOnDraftNotification = registerNotificationType({
   },
   
   onsiteHoverView({notification}: {notification: NotificationsList}) {
-    return <Components.CommentOnYourDraftNotificationHover notification={notification}/>
+    return <CommentOnYourDraftNotificationHover notification={notification}/>
   },
   
   getLink: ({documentType, documentId, extraData}: {
@@ -914,7 +894,7 @@ export const NewCommentOnDraftNotification = registerNotificationType({
   Display: ({Post}) => <>New comments on your draft <Post /></>,
 });
 
-export const CoauthorRequestNotification = registerNotificationType({
+export const CoauthorRequestNotification = createNotificationType({
   name: 'coauthorRequestNotification',
   userSettingField: 'notificationSharedWithMe',
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -930,7 +910,7 @@ export const CoauthorRequestNotification = registerNotificationType({
   </>,
 })
 
-export const CoauthorAcceptNotification = registerNotificationType({
+export const CoauthorAcceptNotification = createNotificationType({
   name: 'coauthorAcceptNotification',
   userSettingField: 'notificationSharedWithMe',
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -943,7 +923,7 @@ export const CoauthorAcceptNotification = registerNotificationType({
   Display: ({Post}) => <>Your co-author request for <Post /> was accepted</>,
 })
 
-export const NewMentionNotification = registerNotificationType({
+export const NewMentionNotification = createNotificationType({
   name: "newMention",
   userSettingField: "notificationNewMention",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
@@ -964,3 +944,99 @@ export const NewMentionNotification = registerNotificationType({
     );
   },
 })
+
+export const NewPingbackNotification = createNotificationType({
+  name: "newPingback",
+  userSettingField: "notificationNewPingback",
+  async getMessage({documentType, documentId, extraData, context}: GetMessageProps) {
+    const summary = await getDocumentSummary(documentType, documentId, context)
+    return `${summary?.associatedUserName} mentioned your ${extraData?.pingbackType} "${extraData?.pingbackDocumentExcerpt}"`
+  },
+  getIcon() {
+    return <CommentsIcon style={iconStyles}/>
+  },
+  Display: ({User, notification: {extraData}}) => (
+    <><User /> mentioned your {extraData?.pingbackType} "{extraData?.pingbackDocumentExcerpt}"</>
+  ),
+})
+
+const notificationTypesArray: NotificationType[] = [
+  NewPostNotification,
+  NewUserCommentNotification,
+  PostApprovedNotification,
+  PostNominatedNotification,
+  NewEventNotification,
+  NewGroupPostNotification,
+  NewCommentNotification,
+  NewSubforumCommentNotification,
+  NewDialogueMessagesNotification,
+  NewDialogueMessagesBatchNotification,
+  NewPublishedDialogueMessagesNotification,
+  NewDialogueMatchNotification,
+  NewDialogueCheckNotification,
+  YourTurnMatchFormNotification,
+  NewDebateCommentNotification,
+  NewDebateReplyNotification,
+  NewShortformNotification,
+  NewTagPostsNotification,
+  NewSequencePostsNotification,
+  NewReplyNotification,
+  NewReplyToYouNotification,
+  NewUserNotification,
+  NewMessageNotification,
+  WrappedNotification,
+  EmailVerificationRequiredNotification,
+  PostSharedWithUserNotification,
+  PostAddedAsCoauthorNotification,
+  AlignmentSubmissionApprovalNotification,
+  NewEventInNotificationRadiusNotification,
+  EditedEventInNotificationRadiusNotification,
+  NewRSVPNotification,
+  KarmaPowersGainedNotification,
+  CancelledRSVPNotification,
+  NewGroupOrganizerNotification,
+  NewSubforumMemberNotification,
+  NewCommentOnDraftNotification,
+  CoauthorRequestNotification,
+  CoauthorAcceptNotification,
+  NewMentionNotification,
+  NewPingbackNotification,
+];
+const notificationTypes: Record<string,NotificationType> = keyBy(notificationTypesArray, n=>n.name);
+
+function groupNotificationTypesByUserSetting(notificationTypes: Record<string,NotificationType>) {
+  const result: Partial<Record<(keyof DbUser & `notification${string}`), NotificationType>> = {};
+  for (const notificationType of Object.values(notificationTypes)) {
+    const { userSettingField } = notificationType;
+    if (userSettingField) {
+      // Due to a technical limitation notifications using the same user setting
+      // must also use the same channels
+      const currentValue = result[userSettingField];
+      if (currentValue && !isEqual(currentValue.allowedChannels, notificationType.allowedChannels)) {
+        // eslint-disable-next-line no-console
+        console.error(`Error: Conflicting channels for notifications using "${userSettingField}"`);
+      }
+      result[userSettingField] = notificationType;
+    }
+  }
+  return result;
+}
+const notificationTypesByUserSetting: Partial<Record<(keyof DbUser & `notification${string}`), NotificationType>> = groupNotificationTypesByUserSetting(notificationTypes);
+
+
+export const getNotificationTypes = () => {
+  return Object.keys(notificationTypes);
+}
+
+export const getNotificationTypeByName = (name: string) => {
+  if (name in notificationTypes)
+    return notificationTypes[name];
+  else
+    throw new Error(`Invalid notification type: ${name}`);
+}
+
+export const getNotificationTypeByUserSetting = (settingName: keyof DbUser & `notification${string}`): NotificationType => {
+  const result = notificationTypesByUserSetting[settingName];
+  if (!result) throw new Error("Setting does not correspond to a notification type");
+  return result;
+}

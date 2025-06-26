@@ -70,7 +70,7 @@ export type IndexConfig = {
    * results when used on more structured strings like ids or slugs, which should
    * instead be given the "keyword" mapping.
    * Note that making a change here requires reindexing the data with
-   * `elasticConfigureIndex`.
+   * `configureIndex`.
    */
   mappings?: Mappings,
   /**
@@ -174,6 +174,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
     tiebreaker: "publicDateMs",
     filters: [
       {term: {deleted: false}},
+      {term: {draft: false}},
       {term: {rejected: false}},
       {term: {authorIsUnreviewed: false}},
       {term: {retracted: false}},
@@ -196,6 +197,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
     privateFields: [
       "authorIsUnreviewed",
       "deleted",
+      "draft",
       "legacy",
       "rejected",
       "retracted",

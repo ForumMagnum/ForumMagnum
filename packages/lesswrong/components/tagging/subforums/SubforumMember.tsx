@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
 import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn'
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { Link } from '../../../lib/reactRouterWrapper';
 import {
   SocialMediaProfileField,
@@ -9,6 +9,11 @@ import {
 } from '../../../lib/collections/users/helpers';
 import { useCheckMeritsCollapse } from '../../common/useCheckMeritsCollapse';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
+import ProfilePhoto from "../../messaging/ProfilePhoto";
+import ContentStyles from "../../common/ContentStyles";
+import { ContentItemBody } from "../../contents/ContentItemBody";
+import { Typography } from "../../common/Typography";
+import SocialMediaLink from "../../users/SocialMediaLink";
 
 const COLLAPSED_SECTION_HEIGHT = 70
 
@@ -146,11 +151,6 @@ const SubforumMember = ({user, isOrganizer, classes}: {
   })
   // this tracks whether the bio section is collapsed or expanded
   const [collapsed, setCollapsed] = useState(true)
-
-  const {
-    ProfilePhoto, ContentStyles, ContentItemBody, Typography, SocialMediaLink,
-  } = Components;
-
   const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some((field: keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS) => user[field])
   
   const userKarma = user.karma || 0
@@ -224,12 +224,8 @@ const SubforumMember = ({user, isOrganizer, classes}: {
   </div>
 }
 
-const SubforumMemberComponent = registerComponent(
+export default registerComponent(
   'SubforumMember', SubforumMember, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    SubforumMember: typeof SubforumMemberComponent
-  }
-}
+

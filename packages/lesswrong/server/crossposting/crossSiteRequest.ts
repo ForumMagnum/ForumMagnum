@@ -3,12 +3,12 @@ import { FMCrosspostRoute } from "@/lib/fmCrosspost/routes"
 import { combineUrls } from "@/lib/vulcan-lib/utils.ts";
 import { fmCrosspostBaseUrlSetting } from "@/lib/instanceSettings";
 import { crosspostUserAgent } from "@/lib/apollo/links";
-import { ApiError } from "@/server/fmCrosspost/errors";
+import { fmCrosspostTimeoutMsSetting } from "../fmCrosspost/helpers";
 import {
+  ApiError,
   TOS_NOT_ACCEPTED_ERROR,
   TOS_NOT_ACCEPTED_REMOTE_ERROR,
-  fmCrosspostTimeoutMsSetting,
-} from "../fmCrosspost/resolvers";
+} from "@/server/fmCrosspost/errors";
 
 export const makeV2CrossSiteRequest = async <
   RequestSchema extends ZodType,

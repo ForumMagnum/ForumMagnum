@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useTagBySlug } from './useTag';
 import { EditTagForm } from './EditTagPage';
 import { userCanEditTagPortal } from '../../lib/betas'
@@ -10,6 +10,17 @@ import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import { useDialog } from '../common/withDialog';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { useSingle } from '@/lib/crud/withSingle';
+import { isFriendlyUI } from '@/themes/forumTheme';
+import LoginPopup from "../users/LoginPopup";
+import AllTagsAlphabetical from "./AllTagsAlphabetical";
+import SectionButton from "../common/SectionButton";
+import SectionTitle from "../common/SectionTitle";
+import { ContentItemBody } from "../contents/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
+import Loading from "../vulcan-core/Loading";
+import CoreTagsSection from "./CoreTagsSection";
+import SingleColumnSection from "../common/SingleColumnSection";
 
 const styles = (theme: ThemeType) => ({
   coreTagsTitle: {
@@ -38,7 +49,14 @@ const styles = (theme: ThemeType) => ({
         width: '100% !important',
         height: 'inherit !important'
       }
-    }
+    },
+    ...(isFriendlyUI && {
+      background: theme.palette.grey[0],
+      marginTop: 'unset',
+      marginBottom: 'unset',
+      padding: '20px',
+      boxShadow: `0 1px 5px ${theme.palette.greyAlpha(.025)}`,
+    }),
   },
   edit: {
     float: "right",
@@ -59,8 +77,13 @@ const EAAllTagsPage = ({classes}: {
   const { tag } = useTagBySlug("portal", "AllTagsPageFragment");
   const [ editing, setEditing ] = useState(false)
 
-  const { AllTagsAlphabetical, SectionButton, SectionTitle, ContentItemBody, ContentStyles, Loading, CoreTagsSection, SingleColumnSection } = Components;
-
+  const { document: editableTag } = useSingle({
+    documentId: tag?._id,
+    collectionName: 'Tags',
+    fragmentName: 'TagEditFragment',
+    skip: !tag || !editing,
+    ssr: false,
+  });
   const portalTitle = `EA Forum ${`${taggingNamePluralCapitalSetting.get()} `}Wiki`
   
   const htmlWithAnchors = tag?.tableOfContents?.html || tag?.description?.html || "";
@@ -81,8 +104,8 @@ const EAAllTagsPage = ({classes}: {
               </Link>}
               {!currentUser && <a onClick={(ev) => {
                 openDialog({
-                  componentName: "LoginPopup",
-                  componentProps: {}
+                  name: "LoginPopup",
+                  contents: ({onClose}) => <LoginPopup onClose={onClose} />
                 });
                 ev.preventDefault();
               }}>
@@ -96,8 +119,8 @@ const EAAllTagsPage = ({classes}: {
             {userCanEditTagPortal(currentUser) && <a onClick={() => setEditing(true)} className={classes.edit}>
               Edit
             </a>}
-            {editing && tag ?
-              <EditTagForm tag={tag} successCallback={()=>setEditing(false)}/>
+            {editableTag ?
+              <EditTagForm tag={editableTag} successCallback={()=>setEditing(false)}/>
               :
               <ContentItemBody
                 dangerouslySetInnerHTML={{__html: htmlWithAnchors}}
@@ -114,10 +137,6 @@ const EAAllTagsPage = ({classes}: {
   );
 }
 
-const EAAllTagsPageComponent = registerComponent("EAAllTagsPage", EAAllTagsPage, {styles});
+export default registerComponent("EAAllTagsPage", EAAllTagsPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EAAllTagsPage: typeof EAAllTagsPageComponent
-  }
-}
+

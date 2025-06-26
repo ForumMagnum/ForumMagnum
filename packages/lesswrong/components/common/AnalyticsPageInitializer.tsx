@@ -9,7 +9,7 @@ function useBeforeUnloadTracking() {
   const trackBeforeUnload = useCallback(
     () => {
       captureEvent("beforeUnloadFired")
-      flushClientEvents()
+      flushClientEvents(true)
     },
     [captureEvent]
   );
@@ -117,13 +117,9 @@ const AnalyticsPageInitializer = () => {
       setTimerIsActive(pageIsVisible && !userIsIdle); //disable timer whenever tab hidden or user inactive
     }, [pageIsVisible, userIsIdle, setTimerIsActive])
 
-  return <span/>
+  return <></>
 };
 
-const AnalyticsPageInitializerComponent = registerComponent('AnalyticsPageInitializer', AnalyticsPageInitializer)
+export default registerComponent('AnalyticsPageInitializer', AnalyticsPageInitializer);
 
-declare global {
-  interface ComponentTypes {
-    AnalyticsPageInitializer: typeof AnalyticsPageInitializerComponent
-  }
-}
+

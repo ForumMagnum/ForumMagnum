@@ -35,6 +35,18 @@ export const ArbitalTagContentRelsDefaultFragment = `
   }
 `;
 
+export const AutomatedContentEvaluationsDefaultFragment = `
+  fragment AutomatedContentEvaluationsDefaultFragment on AutomatedContentEvaluation {
+    _id
+    createdAt
+    revisionId
+    score
+    aiChoice
+    aiReasoning
+    aiCoT
+  }
+`;
+
 export const BansDefaultFragment = `
   fragment BansDefaultFragment on Ban {
     _id
@@ -47,6 +59,18 @@ export const BansDefaultFragment = `
     reason
     comment
     properties
+  }
+`;
+
+export const BookmarksDefaultFragment = `
+  fragment BookmarksDefaultFragment on Bookmark {
+    _id
+    createdAt
+    documentId
+    collectionName
+    userId
+    lastUpdated
+    active
   }
 `;
 
@@ -186,6 +210,7 @@ export const CommentsDefaultFragment = `
     legacyId
     legacyPoll
     legacyParentId
+    draft
     retracted
     deleted
     deletedPublic
@@ -408,7 +433,6 @@ export const ElicitQuestionPredictionsDefaultFragment = `
     prediction
     createdAt
     notes
-    creator
     userId
     sourceUrl
     sourceId
@@ -477,7 +501,6 @@ export const ForumEventsDefaultFragment = `
     frontpageDescription_latest
     frontpageDescriptionMobile_latest
     postPageDescription_latest
-    pollQuestion_latest
     title
     startDate
     endDate
@@ -487,9 +510,14 @@ export const ForumEventsDefaultFragment = `
     contrastColor
     tagId
     postId
+    commentId
     bannerImageId
     includesPoll
+    isGlobal
     eventFormat
+    pollQuestion_latest
+    pollAgreeWording
+    pollDisagreeWording
     maxStickersPerUser
     customComponent
     commentPrompt
@@ -526,7 +554,6 @@ export const GoogleServiceAccountSessionsDefaultFragment = `
     createdAt
     legacyData
     email
-    refreshToken
     estimatedExpiry
     active
     revoked
@@ -554,6 +581,21 @@ export const JargonTermsDefaultFragment = `
     approved
     deleted
     altTerms
+  }
+`;
+
+export const LWEventsDefaultFragment = `
+  fragment LWEventsDefaultFragment on LWEvent {
+    _id
+    schemaVersion
+    createdAt
+    legacyData
+    userId
+    name
+    documentId
+    important
+    properties
+    intercom
   }
 `;
 
@@ -619,21 +661,6 @@ export const LocalgroupsDefaultFragment = `
     bannerImageId
     inactive
     deleted
-  }
-`;
-
-export const LWEventsDefaultFragment = `
-  fragment LWEventsDefaultFragment on LWEvent {
-    _id
-    schemaVersion
-    createdAt
-    legacyData
-    userId
-    name
-    documentId
-    important
-    properties
-    intercom
   }
 `;
 
@@ -953,12 +980,9 @@ export const PostsDefaultFragment = `
     frontpageDate
     autoFrontpage
     collectionTitle
-    coauthorStatuses
     hasCoauthorPermission
     socialPreviewImageId
     socialPreviewImageAutoUrl
-    socialPreview
-    fmCrosspost
     canonicalSequenceId
     canonicalCollectionSlug
     canonicalBookId
@@ -1043,6 +1067,24 @@ export const PostsDefaultFragment = `
     afBaseScore
     afExtendedScore
     afVoteCount
+  }
+`;
+
+export const RSSFeedsDefaultFragment = `
+  fragment RSSFeedsDefaultFragment on RSSFeed {
+    _id
+    schemaVersion
+    createdAt
+    legacyData
+    userId
+    ownedByUser
+    displayFullContent
+    nickname
+    url
+    status
+    rawFeed
+    setCanonicalUrl
+    importAsDraft
   }
 `;
 
@@ -1148,7 +1190,6 @@ export const RevisionsDefaultFragment = `
     commitMessage
     userId
     draft
-    originalContents
     html
     wordCount
     changeMetrics
@@ -1161,24 +1202,6 @@ export const RevisionsDefaultFragment = `
     afBaseScore
     afExtendedScore
     afVoteCount
-  }
-`;
-
-export const RSSFeedsDefaultFragment = `
-  fragment RSSFeedsDefaultFragment on RSSFeed {
-    _id
-    schemaVersion
-    createdAt
-    legacyData
-    userId
-    ownedByUser
-    displayFullContent
-    nickname
-    url
-    status
-    rawFeed
-    setCanonicalUrl
-    importAsDraft
   }
 `;
 
@@ -1221,10 +1244,6 @@ export const SideCommentCachesDefaultFragment = `
     schemaVersion
     createdAt
     legacyData
-    postId
-    annotatedHtml
-    commentsByBlock
-    version
   }
 `;
 
@@ -1475,6 +1494,28 @@ export const TypingIndicatorsDefaultFragment = `
   }
 `;
 
+export const UltraFeedEventsDefaultFragment = `
+  fragment UltraFeedEventsDefaultFragment on UltraFeedEvent {
+    _id
+    createdAt
+    documentId
+    collectionName
+    eventType
+    userId
+    event
+    feedItemId
+  }
+`;
+
+export const UserActivitiesDefaultFragment = `
+  fragment UserActivitiesDefaultFragment on UserActivity {
+    _id
+    schemaVersion
+    createdAt
+    legacyData
+  }
+`;
+
 export const UserEAGDetailsDefaultFragment = `
   fragment UserEAGDetailsDefaultFragment on UserEAGDetail {
     _id
@@ -1547,15 +1588,6 @@ export const UserTagRelsDefaultFragment = `
   }
 `;
 
-export const UserActivitiesDefaultFragment = `
-  fragment UserActivitiesDefaultFragment on UserActivity {
-    _id
-    schemaVersion
-    createdAt
-    legacyData
-  }
-`;
-
 export const UsersDefaultFragment = `
   fragment UsersDefaultFragment on User {
     _id
@@ -1571,6 +1603,7 @@ export const UsersDefaultFragment = `
     username
     emails
     isAdmin
+    profile
     services
     displayName
     previousDisplayName
@@ -1596,7 +1629,6 @@ export const UsersDefaultFragment = `
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     hideCommunitySection
-    expandedFrontpageSections
     showCommunityInRecentDiscussion
     hidePostsRecommendations
     petrovOptOut
@@ -1609,6 +1641,7 @@ export const UsersDefaultFragment = `
     currentFrontpageFilter
     frontpageSelectedTab
     frontpageFilterSettings
+    hideFrontpageFilterSettingsDesktop
     allPostsTimeframe
     allPostsFilter
     allPostsSorting
@@ -1627,8 +1660,6 @@ export const UsersDefaultFragment = `
     collapseModerationGuidelines
     bannedUserIds
     bannedPersonalUserIds
-    bookmarkedPostsMetadata
-    hiddenPostsMetadata
     legacyId
     deleted
     permanentDeletionRequestedAt
@@ -1659,6 +1690,7 @@ export const UsersDefaultFragment = `
     notificationPostsNominatedReview
     notificationSubforumUnread
     notificationNewMention
+    notificationNewPingback
     notificationDialogueMessages
     notificationPublishedDialogueMessages
     notificationAddedAsCoauthor
@@ -1680,6 +1712,7 @@ export const UsersDefaultFragment = `
     karmaChangeBatchStart
     emailSubscribedToCurated
     subscribedToDigest
+    subscribedToNewsletter
     unsubscribeFromAll
     hideSubscribePoke
     hideMeetupsPoke
@@ -1726,7 +1759,6 @@ export const UsersDefaultFragment = `
     fullName
     shortformFeedId
     viewUnreviewedComments
-    partiallyReadSequences
     beta
     reviewVotesQuadratic
     reviewVotesQuadratic2019
@@ -1743,7 +1775,6 @@ export const UsersDefaultFragment = `
     tagRevisionCount
     abTestKey
     abTestOverrides
-    reenableDraftJs
     walledGardenInvite
     hideWalledGardenUI
     walledGardenPortalOnboarded
@@ -1810,5 +1841,47 @@ export const VotesDefaultFragment = `
     votedAt
     documentIsAf
     silenceNotification
+  }
+`;
+
+export const TestCollectionDefaultFragment = `
+  fragment TestCollectionDefaultFragment on undefined {
+    _id
+    a
+    b
+    c
+    d
+    schemaVersion
+  }
+`;
+
+export const TestCollection2DefaultFragment = `
+  fragment TestCollection2DefaultFragment on undefined {
+    _id
+    data
+    schemaVersion
+  }
+`;
+
+export const TestCollection3DefaultFragment = `
+  fragment TestCollection3DefaultFragment on undefined {
+    _id
+    notNullData
+  }
+`;
+
+export const TestCollection4DefaultFragment = `
+  fragment TestCollection4DefaultFragment on undefined {
+    _id
+    testCollection3Id
+    schemaVersion
+  }
+`;
+
+export const TestCollection5DefaultFragment = `
+  fragment TestCollection5DefaultFragment on undefined {
+    _id
+    jsonField
+    schemaVersion
   }
 `;

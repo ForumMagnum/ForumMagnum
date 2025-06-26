@@ -1,5 +1,4 @@
 import { jargonBotClaudeKey } from '@/lib/instanceSettings';
-import { defineMutation } from '../../utils/serverGraphqlUtil';
 import { getAnthropicPromptCachingClientOrThrow } from '../../languageModels/anthropicClient';
 import JargonTerms from '@/server/collections/jargonTerms/collection';
 import { initialGlossaryPrompt } from './jargonPrompts';
@@ -15,10 +14,12 @@ import { randomId } from '@/lib/random';
 import { defaultExampleTerm, defaultExamplePost, defaultGlossaryPrompt, defaultExampleAltTerm, defaultExampleDefinition, JARGON_LLM_MODEL } from '@/components/jargon/GlossaryEditForm';
 import { convertZodParserToAnthropicTool } from '@/server/languageModels/llmApiWrapper';
 import uniq from 'lodash/uniq';
+import { computeContextFromUser } from '../../vulcan-lib/apollo-server/context';
 
 import type { PromptCachingBetaMessageParam } from '@anthropic-ai/sdk/resources/beta/prompt-caching/messages';
-import { createMutator } from "../../vulcan-lib/mutators";
 import { sanitize } from "../../../lib/vulcan-lib/utils";
+import gql from 'graphql-tag';
+import { createJargonTerm } from "../../collections/jargonTerms/mutations";
 
 interface JargonTermGenerationExampleParams {
   glossaryPrompt?: string;
@@ -31,6 +32,7 @@ interface JargonTermGenerationExampleParams {
 interface CreateJargonTermsQueryParams extends JargonTermGenerationExampleParams {
   postId: string;
   currentUser: DbUser;
+  context: ResolverContext;
 }
 
 interface JargonGlossaryQueryParams extends JargonTermGenerationExampleParams {
@@ -288,7 +290,7 @@ const processedTerms = (jargonTerms: DbJargonTerm[]) => {
   return jargonTerms.flatMap(jargonTerm => [jargonTerm.term.toLowerCase(), ...jargonTerm.altTerms.map(altTerm => altTerm.toLowerCase())]);
 }
 
-export const createNewJargonTerms = async ({ postId, currentUser, ...exampleParams }: CreateJargonTermsQueryParams) => {
+export const createNewJargonTerms = async ({ postId, currentUser, context, ...exampleParams }: CreateJargonTermsQueryParams) => {
   const post = await fetchFragmentSingle({
     collectionName: 'Posts',
     fragmentName: 'PostsPage',
@@ -322,13 +324,13 @@ export const createNewJargonTerms = async ({ postId, currentUser, ...examplePara
     newJargonTerms = await executeWithLock(rawLockId, async () => {
       const newEnglishJargon = await createEnglishExplanations({ post, excludeTerms: termsToExclude, ...exampleParams });
 
-      const botAccount = await getAdminTeamAccount();
+      const botAccount = await getAdminTeamAccount(context);
+      const botContext = await computeContextFromUser({ user: botAccount, isSSR: false });
       
       const createdTerms = await Promise.all([
         ...newEnglishJargon.map((term) =>
-          createMutator({
-            collection: JargonTerms,
-            document: {
+          createJargonTerm({
+            data: {
               postId: postId,
               term: term.term,
               approved: false,
@@ -339,26 +341,21 @@ export const createNewJargonTerms = async ({ postId, currentUser, ...examplePara
                   type: "ckEditorMarkup",
                 },
               },
-              altTerms: term.altTerms,
-            },
-            currentUser: botAccount,
-            validate: false,
-          })
+              altTerms: term.altTerms ?? [],
+            }
+          }, botContext)
         ),
         ...jargonTermsToCopy.map((jargonTerm) =>
-          createMutator({
-            collection: JargonTerms,
-            document: {
+          createJargonTerm({
+            data: {
               postId: postId,
               term: jargonTerm.term,
               approved: jargonTerm.approved,
               deleted: jargonTerm.deleted,
-              contents: { originalContents: jargonTerm.contents!.originalContents },
+              contents: { originalContents: jargonTerm.contents!.originalContents! },
               altTerms: jargonTerm.altTerms,
-            },
-            currentUser: botAccount,
-            validate: false,
-          })
+            }
+          }, botContext)
         ),
       ]);
       
@@ -372,21 +369,24 @@ export const createNewJargonTerms = async ({ postId, currentUser, ...examplePara
     throw err;
   }
 
-  return newJargonTerms.map(result => result.data);
+  return newJargonTerms;
 }
 
+export const jargonTermsGraphQLTypeDefs = gql`
+  extend type Mutation {
+    getNewJargonTerms(postId: String!, glossaryPrompt: String, examplePost: String, exampleTerm: String, exampleAltTerm: String, exampleDefinition: String): [JargonTerm]
+  }
+`
 
-defineMutation({
-  name: 'getNewJargonTerms',
-  argTypes: '(postId: String!, glossaryPrompt: String, examplePost: String, exampleTerm: String, exampleAltTerm: String, exampleDefinition: String)',
-  resultType: '[JargonTerm]',
-  fn: async (_, { postId, ...exampleParams }: Omit<CreateJargonTermsQueryParams, 'currentUser'>, { currentUser }: ResolverContext) => {
+export const jargonTermsGraphQLMutations = {
+  getNewJargonTerms: async (root: void, { postId, ...exampleParams }: Omit<CreateJargonTermsQueryParams, 'currentUser'>, context: ResolverContext) => {
+    const { currentUser } = context;
     if (!currentUser) {
       throw new Error('You need to be logged in to generate jargon terms');
     }
     if (!userCanCreateAndEditJargonTerms(currentUser)) {
       throw new Error('This is a prototype feature that is not yet available to all users');
     }
-    return await createNewJargonTerms({ postId, currentUser, ...exampleParams });
+    return await createNewJargonTerms({ postId, currentUser, ...exampleParams, context });
   },
-});
+}

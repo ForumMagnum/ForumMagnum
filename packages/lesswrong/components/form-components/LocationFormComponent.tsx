@@ -1,13 +1,18 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import Geosuggest from 'react-geosuggest'
 // These imports need to be separate to satisfy eslint, for some reason
 import type { Suggest, QueryType } from 'react-geosuggest';
 import { isClient } from '../../lib/executionEnvironment';
-import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { mapsAPIKeySetting } from '../../lib/publicSettings';
 import { styles as greyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import classNames from 'classnames';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { UpdateCurrentValues } from '../vulcan-forms/propTypes';
+import Loading from "../vulcan-core/Loading";
+import SectionTitle from "../common/SectionTitle";
 
 // Recommended styling for React-geosuggest: https://github.com/ubilabs/react-geosuggest/blob/master/src/geosuggest.css
 export const geoSuggestStyles = (theme: ThemeType) => ({
@@ -81,7 +86,7 @@ export const geoSuggestStyles = (theme: ThemeType) => ({
   }
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LocationFormComponent', (theme: ThemeType) => ({
   root: {
     ...geoSuggestStyles(theme),
     ...theme.typography.commentStyle
@@ -101,9 +106,7 @@ const styles = (theme: ThemeType) => ({
       },
     },
   },
-});
-
-export const mapsAPIKeySetting = new DatabasePublicSetting<string | null>('googleMaps.apiKey', null)
+}));
 
 let mapsLoadingState: "unloaded"|"loading"|"loaded" = "unloaded";
 let onMapsLoaded: Array<() => void> = [];
@@ -157,14 +160,19 @@ const LocationPicker = ({
   updateCurrentValues,
   stringVersionFieldName,
   variant = "default",
-  classes,
   locationTypes,
-}: Pick<FormComponentProps<AnyBecauseTodo>, "document" | "path" | "label" | "value" | "updateCurrentValues"> & {
+}: {
+  document: AnyBecauseHard,
+  path: string,
+  label?: string,
+  value: AnyBecauseHard,
+  updateCurrentValues: UpdateCurrentValues,
   stringVersionFieldName?: string|null,
   variant?: "default" | "grey",
   locationTypes?: QueryType[],
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   // if this location field has a matching field that just stores the string version of the location,
   // make sure to update the matching field along with this one
   const locationFieldName: string|null = stringVersionFieldName || null;
@@ -202,9 +210,6 @@ const LocationPicker = ({
       })
     }
   }, [updateCurrentValues, locationFieldName, path]);
-
-  const {Loading, SectionTitle} = Components;
-
   if (!document || !mapsLoaded) {
     return <Loading />;
   }
@@ -229,17 +234,80 @@ const LocationPicker = ({
   );
 }
 
-const LocationFormComponent = (props: FormComponentProps<AnyBecauseTodo> & {
-  stringVersionFieldName?: string|null,
-  variant?: "default" | "grey",
-}) => <Components.LocationPicker {...props}/>
+export default registerComponent("LocationPicker", LocationPicker);
 
-const LocationPickerComponent = registerComponent("LocationPicker", LocationPicker, {styles});
-const LocationFormComponentComponent = registerComponent("LocationFormComponent", LocationFormComponent, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LocationPicker: typeof LocationPickerComponent
-    LocationFormComponent: typeof LocationFormComponentComponent
-  }
+
+interface LocationFormComponentProps {
+  field: TypedFieldApi<AnyBecauseHard>;
+  label: string;
+  /** Optional sibling field that stores the plain‑string version of the location */
+  stringVersionFieldName?: keyof localGroupsEdit | null;
+  variant?: 'default' | 'grey';
+  locationTypes?: QueryType[];
+}
+
+export const LocationFormComponent = ({
+  field,
+  label,
+  stringVersionFieldName = null,
+  variant = 'default',
+  locationTypes,
+}: LocationFormComponentProps) => {
+  const classes = useStyles(styles);
+  const [mapsLoaded] = useGoogleMaps();
+  const geosuggestEl = useRef<Geosuggest>(null);
+
+  const value = field.state.value as AnyBecauseTodo | null;
+  const initialLocation =
+    value?.formatted_address ??
+    '';
+
+  useEffect(() => {
+    if (geosuggestEl.current) {
+      geosuggestEl.current.update(value?.formatted_address);
+    }
+  }, [value]);
+
+  const form = field.form;
+
+  const updateSibling = useCallback((val: any) => {
+    if (stringVersionFieldName && form?.setFieldValue) {
+      form.setFieldValue(stringVersionFieldName, val);
+    }
+  }, [stringVersionFieldName, form]);
+
+  const handleCheckClear = useCallback((v: AnyBecauseTodo) => {
+    if (v === '') {
+      updateSibling(null);
+      field.handleChange(null);
+    }
+  }, [field, updateSibling]);
+
+  const handleSuggestSelect = useCallback((suggestion: Suggest) => {
+    if (suggestion && suggestion.gmaps) {
+      updateSibling(suggestion.label);
+      field.handleChange(suggestion.gmaps);
+    }
+  }, [field, updateSibling]);
+  if (!mapsLoaded) return <Loading />;
+
+  const isGrey = variant === 'grey';
+  const labelNode = isGrey
+    ? <SectionTitle title={label} noTopMargin titleClassName={classes.sectionTitle} />
+    : value && <FormLabel className={classes.label}>{label}</FormLabel>;
+
+  return (
+    <div className={classNames(classes.root, isGrey && classes.greyRoot)}>
+      {label && labelNode}
+      <Geosuggest
+        ref={geosuggestEl}
+        placeholder={label}
+        onChange={handleCheckClear}
+        onSuggestSelect={handleSuggestSelect}
+        initialValue={initialLocation}
+        types={locationTypes}
+      />
+    </div>
+  );
 }

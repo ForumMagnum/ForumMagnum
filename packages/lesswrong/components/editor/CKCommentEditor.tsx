@@ -34,7 +34,7 @@ const commentEditorToolbarConfig = {
     'math',
     // Similar to the post editor, we don't have the collapsible sections plugin in the selected-text toolbar,
     // because the behavior of creating a collapsible section while text is selected is non-obvious and we want to fix it first
-    ...(isEAForum ? ['ctaButtonToolbarItem'] : []),
+    ...(isEAForum ? ['imageUpload', 'ctaButtonToolbarItem', 'pollToolbarItem'] : []),
     'footnote',
     ...(isLWorAF ? ['collapsibleSectionButton'] : []),
     ...(isLWorAF ? ['insertClaimButton'] : []),
@@ -116,11 +116,7 @@ const CKCommentEditor = ({
   </div>
 }
 
-const CKCommentEditorComponent = registerComponent("CKCommentEditor", CKCommentEditor, {
+export default registerComponent("CKCommentEditor", CKCommentEditor, {
   debugRerenders: true
 });
-declare global {
-  interface ComponentTypes {
-    CKCommentEditor: typeof CKCommentEditorComponent
-  }
-}
+

@@ -45,6 +45,10 @@ export function getDefaultViewSelector<N extends CollectionNameString>(collectio
   return replaceSpecialFieldSelectors(viewQuery.selector);
 }
 
+export function mergeWithDefaultViewSelector<N extends CollectionNameString>(collectionName: N, selector: MongoSelector<ObjectsByCollectionName[N]>) {
+  return mergeSelectors(getDefaultViewSelector(collectionName), selector);
+}
+
 /**
  * Given a set of terms describing a view, translate them into a mongodb selector
  * and options, which is ready to execute (but don't execute it yet).
@@ -112,7 +116,7 @@ function getParameters<N extends CollectionNameString>(
 
   // extend sort to sort posts by _id to break ties, unless there's already an id sort
   // NOTE: always do this last to avoid overriding another sort
-  if (!(parameters.options.sort && typeof parameters.options.sort._id !== undefined)) {
+  if (!(parameters.options.sort && typeof parameters.options.sort._id !== 'undefined')) {
     parameters = merge(parameters, { options: { sort: { _id: -1 } } });
   }
 

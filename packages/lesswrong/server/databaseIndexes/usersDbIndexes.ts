@@ -44,7 +44,6 @@ export function getDbIndexesOnUsers() {
   indexSet.addIndex("Users", {mapLocationSet: 1})
   indexSet.addIndex("Users", {profileTagIds: 1, deleted: 1, deleteContent: 1, karma: 1})
   
-  indexSet.addIndex("Users", {walledGardenInvite: 1})
   indexSet.addIndex("Users", { optedInToDialogueFacilitation: 1, karma: -1 });
   
   // These partial indexes are set up to allow for a very efficient index-only scan when deciding which userIds need to be emailed for post curation.

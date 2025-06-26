@@ -11,28 +11,36 @@ interface AdvisorRequestsDefaultFragment { // fragment on AdvisorRequests
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly userId: string,
-  readonly interestedInMetaculus: boolean,
-  readonly jobAds: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
+  readonly userId: string|null,
+  readonly interestedInMetaculus: boolean|null,
+  readonly jobAds: Array<{
+    state: "seen" | "expanded" | "interested" | "uninterested",
+    uninterestedReason: string | null,
+    lastUpdated: Date,
+  }> | null,
 }
 
 interface AdvisorRequestsMinimumInfo { // fragment on AdvisorRequests
   readonly _id: string,
-  readonly userId: string,
+  readonly userId: string|null,
   readonly createdAt: Date,
-  readonly interestedInMetaculus: boolean,
-  readonly jobAds: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly interestedInMetaculus: boolean|null,
+  readonly jobAds: Array<{
+    state: "seen" | "expanded" | "interested" | "uninterested",
+    uninterestedReason: string | null,
+    lastUpdated: Date,
+  }> | null,
 }
 
 interface AllTagsPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
 }
 
-interface ArbitalCachesDefaultFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly schemaVersion: any,
-  readonly createdAt: any,
+interface ArbitalCachesDefaultFragment { // fragment on ArbitalCaches
+  readonly _id: string,
+  readonly schemaVersion: number,
+  readonly createdAt: Date,
   readonly legacyData: any,
 }
 
@@ -51,7 +59,7 @@ interface ArbitalTagContentRelsDefaultFragment { // fragment on ArbitalTagConten
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly parentDocumentId: string,
   readonly childDocumentId: string,
   readonly parentCollectionName: "Tags" | "MultiDocuments",
@@ -61,29 +69,39 @@ interface ArbitalTagContentRelsDefaultFragment { // fragment on ArbitalTagConten
   readonly isStrong: boolean,
 }
 
+interface AutomatedContentEvaluationsDefaultFragment { // fragment on AutomatedContentEvaluations
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly revisionId: string,
+  readonly score: number,
+  readonly aiChoice: "accept" | "review",
+  readonly aiReasoning: string,
+  readonly aiCoT: string,
+}
+
 interface BansAdminPageFragment { // fragment on Bans
   readonly _id: string,
   readonly createdAt: Date,
-  readonly expirationDate: Date | null,
+  readonly expirationDate: Date|null,
   readonly userId: string,
   readonly user: UsersMinimumInfo|null,
-  readonly reason: string,
+  readonly reason: string|null,
   readonly comment: string,
-  readonly ip: string,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly ip: string|null,
+  readonly properties: any,
 }
 
 interface BansDefaultFragment { // fragment on Bans
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly expirationDate: Date | null,
+  readonly legacyData: any,
+  readonly expirationDate: Date|null,
   readonly userId: string,
-  readonly ip: string,
-  readonly reason: string,
+  readonly ip: string|null,
+  readonly reason: string|null,
   readonly comment: string,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly properties: any,
 }
 
 interface BookEdit extends BookPageFragment { // fragment on Books
@@ -93,50 +111,69 @@ interface BookEdit extends BookPageFragment { // fragment on Books
 interface BookPageFragment { // fragment on Books
   readonly _id: string,
   readonly createdAt: Date,
-  readonly title: string,
-  readonly number: number,
-  readonly subtitle: string,
-  readonly tocTitle: string | null,
+  readonly title: string|null,
+  readonly number: number|null,
+  readonly subtitle: string|null,
+  readonly tocTitle: string|null,
   readonly contents: RevisionDisplay|null,
   readonly sequenceIds: Array<string>,
   readonly sequences: Array<SequencesPageWithChaptersFragment>,
   readonly postIds: Array<string>,
   readonly posts: Array<PostsListWithVotes>,
   readonly collectionId: string,
-  readonly displaySequencesAsGrid: boolean,
-  readonly hideProgressBar: boolean,
-  readonly showChapters: boolean,
+  readonly displaySequencesAsGrid: boolean|null,
+  readonly hideProgressBar: boolean|null,
+  readonly showChapters: boolean|null,
+}
+
+interface BookmarksDefaultFragment { // fragment on Bookmarks
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly documentId: string,
+  readonly collectionName: "Posts" | "Comments",
+  readonly userId: string,
+  readonly lastUpdated: Date,
+  readonly active: boolean,
+}
+
+interface BookmarksFeedItemFragment extends BookmarksDefaultFragment { // fragment on Bookmarks
+  readonly post: PostsListWithVotes|null,
+  readonly comment: UltraFeedComment|null,
+}
+
+interface BookmarksWithDocumentFragment extends BookmarksDefaultFragment { // fragment on Bookmarks
+  readonly post: PostsListWithVotes|null,
 }
 
 interface BooksDefaultFragment { // fragment on Books
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly contents_latest: string,
-  readonly postedAt: Date,
-  readonly title: string,
-  readonly subtitle: string,
-  readonly tocTitle: string | null,
+  readonly legacyData: any,
+  readonly contents_latest: string|null,
+  readonly postedAt: Date|null,
+  readonly title: string|null,
+  readonly subtitle: string|null,
+  readonly tocTitle: string|null,
   readonly collectionId: string,
-  readonly number: number,
+  readonly number: number|null,
   readonly postIds: Array<string>,
   readonly sequenceIds: Array<string>,
-  readonly displaySequencesAsGrid: boolean,
-  readonly hideProgressBar: boolean,
-  readonly showChapters: boolean,
+  readonly displaySequencesAsGrid: boolean|null,
+  readonly hideProgressBar: boolean|null,
+  readonly showChapters: boolean|null,
 }
 
 interface ChaptersDefaultFragment { // fragment on Chapters
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly contents_latest: string,
-  readonly title: string,
-  readonly subtitle: string,
-  readonly number: number,
-  readonly sequenceId: string,
+  readonly legacyData: any,
+  readonly contents_latest: string|null,
+  readonly title: string|null,
+  readonly subtitle: string|null,
+  readonly number: number|null,
+  readonly sequenceId: string|null,
   readonly postIds: Array<string>,
 }
 
@@ -147,53 +184,53 @@ interface ChaptersEdit extends ChaptersFragment { // fragment on Chapters
 interface ChaptersFragment { // fragment on Chapters
   readonly _id: string,
   readonly createdAt: Date,
-  readonly title: string,
-  readonly subtitle: string,
+  readonly title: string|null,
+  readonly subtitle: string|null,
   readonly contents: RevisionDisplay|null,
-  readonly number: number,
-  readonly sequenceId: string,
+  readonly number: number|null,
+  readonly sequenceId: string|null,
   readonly postIds: Array<string>,
   readonly posts: Array<PostsListWithVotes>,
 }
 
 interface CkEditorUserSessionInfo { // fragment on CkEditorUserSessions
   readonly _id: string,
-  readonly userId: string,
-  readonly documentId: string,
-  readonly endedAt: Date,
-  readonly endedBy: string,
+  readonly userId: string|null,
+  readonly documentId: string|null,
+  readonly endedAt: Date|null,
+  readonly endedBy: string|null,
 }
 
 interface CkEditorUserSessionsDefaultFragment { // fragment on CkEditorUserSessions
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly documentId: string,
-  readonly userId: string,
-  readonly endedAt: Date,
-  readonly endedBy: string,
+  readonly legacyData: any,
+  readonly documentId: string|null,
+  readonly userId: string|null,
+  readonly endedAt: Date|null,
+  readonly endedBy: string|null,
 }
 
 interface ClientIdsDefaultFragment { // fragment on ClientIds
   readonly _id: string,
   readonly schemaVersion: number,
-  readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly clientId: string,
-  readonly firstSeenReferrer: string | null,
-  readonly firstSeenLandingPage: string,
-  readonly userIds: Array<string> | null,
-  readonly invalidated: boolean,
-  readonly lastSeenAt: Date | null,
-  readonly timesSeen: number,
+  readonly createdAt: Date|null,
+  readonly legacyData: any,
+  readonly clientId: string|null,
+  readonly firstSeenReferrer: string|null,
+  readonly firstSeenLandingPage: string|null,
+  readonly userIds: Array<string>,
+  readonly invalidated: boolean|null,
+  readonly lastSeenAt: Date|null,
+  readonly timesSeen: number|null,
 }
 
 interface CollectionContinueReadingFragment { // fragment on Collections
   readonly _id: string,
   readonly title: string,
   readonly slug: string,
-  readonly gridImageId: string,
+  readonly gridImageId: string|null,
 }
 
 interface CollectionsBestOfFragment { // fragment on Collections
@@ -203,7 +240,7 @@ interface CollectionsBestOfFragment { // fragment on Collections
   readonly userId: string,
   readonly user: UsersMinimumInfo|null,
   readonly title: string,
-  readonly gridImageId: string,
+  readonly gridImageId: string|null,
   readonly noindex: boolean,
   readonly postsCount: number,
   readonly readPostsCount: number,
@@ -214,14 +251,14 @@ interface CollectionsDefaultFragment { // fragment on Collections
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly contents_latest: string,
+  readonly legacyData: any,
+  readonly contents_latest: string|null,
   readonly userId: string,
   readonly title: string,
   readonly slug: string,
-  readonly gridImageId: string,
+  readonly gridImageId: string|null,
   readonly firstPageLink: string,
-  readonly hideStartReadingButton: boolean,
+  readonly hideStartReadingButton: boolean|null,
   readonly noindex: boolean,
 }
 
@@ -238,9 +275,9 @@ interface CollectionsPageFragment { // fragment on Collections
   readonly title: string,
   readonly contents: RevisionDisplay|null,
   readonly firstPageLink: string,
-  readonly gridImageId: string,
+  readonly gridImageId: string|null,
   readonly books: Array<BookPageFragment>,
-  readonly hideStartReadingButton: boolean,
+  readonly hideStartReadingButton: boolean|null,
   readonly noindex: boolean,
 }
 
@@ -251,26 +288,26 @@ interface CommentEdit extends CommentsList { // fragment on Comments
 
 interface CommentModeratorActionDisplay { // fragment on CommentModeratorActions
   readonly _id: string,
-  readonly comment: CommentsListWithModerationMetadata,
-  readonly commentId: string,
+  readonly comment: CommentsListWithModerationMetadata|null,
+  readonly commentId: string|null,
   readonly type: "downvotedCommentAlert",
-  readonly active: boolean,
+  readonly active: boolean|null,
   readonly createdAt: Date,
-  readonly endedAt: Date | null,
+  readonly endedAt: Date|null,
 }
 
 interface CommentModeratorActionsDefaultFragment { // fragment on CommentModeratorActions
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly commentId: string,
+  readonly legacyData: any,
+  readonly commentId: string|null,
   readonly type: "downvotedCommentAlert",
-  readonly endedAt: Date | null,
+  readonly endedAt: Date|null,
 }
 
 interface CommentWithRepliesFragment extends CommentsList { // fragment on Comments
-  readonly lastSubthreadActivity: Date,
+  readonly lastSubthreadActivity: Date|null,
   readonly latestChildren: Array<CommentsList>,
   readonly tag: TagBasicInfo|null,
   readonly post: PostsBase|null,
@@ -279,18 +316,18 @@ interface CommentWithRepliesFragment extends CommentsList { // fragment on Comme
 interface CommentsDefaultFragment { // fragment on Comments
   readonly _id: string,
   readonly schemaVersion: number,
-  readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly contents_latest: string,
-  readonly pingbacks: any /*{"definitions":[{}]}*/,
-  readonly parentCommentId: string,
-  readonly topLevelCommentId: string,
+  readonly createdAt: Date|null,
+  readonly legacyData: any,
+  readonly contents_latest: string|null,
+  readonly pingbacks: any,
+  readonly parentCommentId: string|null,
+  readonly topLevelCommentId: string|null,
   readonly postedAt: Date,
-  readonly lastEditedAt: Date | null,
-  readonly author: string,
-  readonly postId: string,
-  readonly tagId: string,
-  readonly forumEventId: string,
+  readonly lastEditedAt: Date|null,
+  readonly author: string|null,
+  readonly postId: string|null,
+  readonly tagId: string|null,
+  readonly forumEventId: string|null,
   readonly forumEventMetadata: {
     eventFormat: "BASIC" | "POLL" | "STICKERS",
     sticker: {
@@ -303,77 +340,80 @@ interface CommentsDefaultFragment { // fragment on Comments
     poll: {
       voteWhenPublished: number,
       latestVote: number | null,
+      pollQuestionWhenPublished: string | null,
+      commentPrompt: string | null,
     } | null,
   },
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
-  readonly subforumStickyPriority: number | null,
-  readonly userId: string,
-  readonly userIP: string,
-  readonly userAgent: string,
-  readonly referrer: string,
+  readonly subforumStickyPriority: number|null,
+  readonly userId: string|null,
+  readonly userIP: string|null,
+  readonly userAgent: string|null,
+  readonly referrer: string|null,
   readonly authorIsUnreviewed: boolean,
   readonly answer: boolean,
-  readonly parentAnswerId: string,
+  readonly parentAnswerId: string|null,
   readonly directChildrenCount: number,
   readonly descendentCount: number,
-  readonly shortform: boolean,
+  readonly shortform: boolean|null,
   readonly shortformFrontpage: boolean,
-  readonly nominatedForReview: string,
-  readonly reviewingForReview: string,
-  readonly lastSubthreadActivity: Date,
-  readonly postVersion: string,
-  readonly promoted: boolean,
-  readonly promotedByUserId: string,
-  readonly promotedAt: Date,
-  readonly hideKarma: boolean,
+  readonly nominatedForReview: string|null,
+  readonly reviewingForReview: string|null,
+  readonly lastSubthreadActivity: Date|null,
+  readonly postVersion: string|null,
+  readonly promoted: boolean|null,
+  readonly promotedByUserId: string|null,
+  readonly promotedAt: Date|null,
+  readonly hideKarma: boolean|null,
   readonly legacy: boolean,
-  readonly legacyId: string,
+  readonly legacyId: string|null,
   readonly legacyPoll: boolean,
-  readonly legacyParentId: string,
+  readonly legacyParentId: string|null,
+  readonly draft: boolean,
   readonly retracted: boolean,
   readonly deleted: boolean,
   readonly deletedPublic: boolean,
-  readonly deletedReason: string,
-  readonly deletedDate: Date,
-  readonly deletedByUserId: string,
+  readonly deletedReason: string|null,
+  readonly deletedDate: Date|null,
+  readonly deletedByUserId: string|null,
   readonly spam: boolean,
-  readonly repliesBlockedUntil: Date,
-  readonly needsReview: boolean,
-  readonly reviewedByUserId: string,
+  readonly repliesBlockedUntil: Date|null,
+  readonly needsReview: boolean|null,
+  readonly reviewedByUserId: string|null,
   readonly hideAuthor: boolean,
   readonly moderatorHat: boolean,
-  readonly hideModeratorHat: boolean | null,
+  readonly hideModeratorHat: boolean|null,
   readonly isPinnedOnProfile: boolean,
-  readonly title: string,
+  readonly title: string|null,
   readonly relevantTagIds: Array<string>,
-  readonly debateResponse: boolean | null,
+  readonly debateResponse: boolean|null,
   readonly rejected: boolean,
-  readonly modGPTAnalysis: string | null,
-  readonly modGPTRecommendation: string | null,
-  readonly rejectedReason: string | null,
-  readonly rejectedByUserId: string,
+  readonly modGPTAnalysis: string|null,
+  readonly modGPTRecommendation: string|null,
+  readonly rejectedReason: string|null,
+  readonly rejectedByUserId: string|null,
   readonly af: boolean,
   readonly suggestForAlignmentUserIds: Array<string>,
-  readonly reviewForAlignmentUserId: string,
-  readonly afDate: Date,
-  readonly moveToAlignmentUserId: string,
-  readonly agentFoundationsId: string,
-  readonly originalDialogueId: string | null,
+  readonly reviewForAlignmentUserId: string|null,
+  readonly afDate: Date|null,
+  readonly moveToAlignmentUserId: string|null,
+  readonly agentFoundationsId: string|null,
+  readonly originalDialogueId: string|null,
   readonly voteCount: number,
-  readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly baseScore: number|null,
+  readonly extendedScore: any,
   readonly score: number,
-  readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
-  readonly afVoteCount: number,
+  readonly afBaseScore: number|null,
+  readonly afExtendedScore: any,
+  readonly afVoteCount: number|null,
 }
 
 interface CommentsForAutocomplete { // fragment on Comments
   readonly _id: string,
-  readonly postId: string,
-  readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
-  readonly createdAt: Date,
+  readonly postId: string|null,
+  readonly baseScore: number|null,
+  readonly extendedScore: any,
+  readonly createdAt: Date|null,
   readonly user: UsersMinimumInfo|null,
   readonly contents: CommentsForAutocomplete_contents|null,
   readonly post: PostsForAutocomplete|null,
@@ -425,66 +465,67 @@ interface CommentsForAutocompleteWithParents_parentComment_parentComment_parentC
 
 interface CommentsList { // fragment on Comments
   readonly _id: string,
-  readonly postId: string,
-  readonly tagId: string,
+  readonly postId: string|null,
+  readonly tagId: string|null,
   readonly tag: CommentsList_tag|null,
   readonly relevantTagIds: Array<string>,
   readonly relevantTags: Array<TagPreviewFragment>,
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
-  readonly parentCommentId: string,
-  readonly topLevelCommentId: string,
+  readonly parentCommentId: string|null,
+  readonly topLevelCommentId: string|null,
   readonly descendentCount: number,
-  readonly title: string,
+  readonly title: string|null,
   readonly contents: CommentsList_contents|null,
   readonly postedAt: Date,
-  readonly lastEditedAt: Date | null,
-  readonly repliesBlockedUntil: Date,
-  readonly userId: string,
+  readonly lastEditedAt: Date|null,
+  readonly repliesBlockedUntil: Date|null,
+  readonly userId: string|null,
+  readonly draft: boolean,
   readonly deleted: boolean,
   readonly deletedPublic: boolean,
-  readonly deletedByUserId: string,
-  readonly deletedReason: string,
+  readonly deletedByUserId: string|null,
+  readonly deletedReason: string|null,
   readonly hideAuthor: boolean,
   readonly authorIsUnreviewed: boolean,
   readonly user: UsersMinimumInfo|null,
   readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
-  readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly baseScore: number|null,
+  readonly extendedScore: any,
   readonly score: number,
   readonly voteCount: number,
   readonly emojiReactors: any,
   readonly af: boolean,
-  readonly afDate: Date,
-  readonly moveToAlignmentUserId: string,
-  readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly afDate: Date|null,
+  readonly moveToAlignmentUserId: string|null,
+  readonly afBaseScore: number|null,
+  readonly afExtendedScore: any,
   readonly suggestForAlignmentUserIds: Array<string>,
-  readonly reviewForAlignmentUserId: string,
-  readonly needsReview: boolean,
+  readonly reviewForAlignmentUserId: string|null,
+  readonly needsReview: boolean|null,
   readonly answer: boolean,
-  readonly parentAnswerId: string,
+  readonly parentAnswerId: string|null,
   readonly retracted: boolean,
-  readonly postVersion: string,
-  readonly reviewedByUserId: string,
-  readonly shortform: boolean,
+  readonly postVersion: string|null,
+  readonly reviewedByUserId: string|null,
+  readonly shortform: boolean|null,
   readonly shortformFrontpage: boolean,
-  readonly lastSubthreadActivity: Date,
+  readonly lastSubthreadActivity: Date|null,
   readonly moderatorHat: boolean,
-  readonly hideModeratorHat: boolean | null,
-  readonly nominatedForReview: string,
-  readonly reviewingForReview: string,
-  readonly promoted: boolean,
+  readonly hideModeratorHat: boolean|null,
+  readonly nominatedForReview: string|null,
+  readonly reviewingForReview: string|null,
+  readonly promoted: boolean|null,
   readonly promotedByUser: UsersMinimumInfo|null,
   readonly directChildrenCount: number,
   readonly votingSystem: string,
   readonly isPinnedOnProfile: boolean,
-  readonly debateResponse: boolean | null,
+  readonly debateResponse: boolean|null,
   readonly rejected: boolean,
-  readonly rejectedReason: string | null,
-  readonly modGPTRecommendation: string | null,
-  readonly originalDialogueId: string | null,
-  readonly forumEventId: string,
+  readonly rejectedReason: string|null,
+  readonly modGPTRecommendation: string|null,
+  readonly originalDialogueId: string|null,
+  readonly forumEventId: string|null,
   readonly forumEventMetadata: {
     eventFormat: "BASIC" | "POLL" | "STICKERS",
     sticker: {
@@ -497,6 +538,8 @@ interface CommentsList { // fragment on Comments
     poll: {
       voteWhenPublished: number,
       latestVote: number | null,
+      pollQuestionWhenPublished: string | null,
+      commentPrompt: string | null,
     } | null,
   },
 }
@@ -508,14 +551,14 @@ interface CommentsList_tag { // fragment on Tags
 
 interface CommentsList_contents { // fragment on Revisions
   readonly _id: string,
-  readonly html: string,
+  readonly html: string|null,
   readonly plaintextMainText: string,
   readonly wordCount: number,
 }
 
 interface CommentsListWithModGPTAnalysis extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
-  readonly modGPTAnalysis: string | null,
+  readonly modGPTAnalysis: string|null,
 }
 
 interface CommentsListWithModerationMetadata extends CommentWithRepliesFragment { // fragment on Comments
@@ -550,9 +593,9 @@ interface ConceptItemFragment { // fragment on Tags
   readonly description: ConceptItemFragment_description|null,
   readonly wikiOnly: boolean,
   readonly isArbitalImport: boolean|null,
-  readonly coreTagId: string | null,
+  readonly coreTagId: string|null,
   readonly maxScore: number|null,
-  readonly usersWhoLiked: any,
+  readonly usersWhoLiked: Array<UserLikingTag>,
 }
 
 interface ConceptItemFragment_description { // fragment on Revisions
@@ -563,14 +606,14 @@ interface ConceptItemFragment_description { // fragment on Revisions
 interface ConversationsDefaultFragment { // fragment on Conversations
   readonly _id: string,
   readonly schemaVersion: number,
-  readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly title: string,
+  readonly createdAt: Date|null,
+  readonly legacyData: any,
+  readonly title: string|null,
   readonly participantIds: Array<string>,
-  readonly latestActivity: Date,
-  readonly af: boolean,
+  readonly latestActivity: Date|null,
+  readonly af: boolean|null,
   readonly messageCount: number,
-  readonly moderator: boolean | null,
+  readonly moderator: boolean|null,
   readonly archivedByIds: Array<string>,
 }
 
@@ -585,78 +628,78 @@ interface ConversationsListWithReadStatus extends ConversationsList { // fragmen
 
 interface ConversationsMinimumInfo { // fragment on Conversations
   readonly _id: string,
-  readonly createdAt: Date,
-  readonly latestActivity: Date,
-  readonly title: string,
+  readonly createdAt: Date|null,
+  readonly latestActivity: Date|null,
+  readonly title: string|null,
   readonly participantIds: Array<string>,
   readonly archivedByIds: Array<string>,
   readonly messageCount: number,
-  readonly moderator: boolean | null,
+  readonly moderator: boolean|null,
 }
 
 interface CronHistoriesDefaultFragment { // fragment on CronHistories
-  readonly _id: string,
-  readonly intendedAt: Date,
-  readonly name: string,
-  readonly startedAt: Date,
-  readonly finishedAt: Date | null,
-  readonly result: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly _id: string|null,
+  readonly intendedAt: Date|null,
+  readonly name: string|null,
+  readonly startedAt: Date|null,
+  readonly finishedAt: Date|null,
+  readonly result: any,
 }
 
 interface CurationEmailsDefaultFragment { // fragment on CurationEmails
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly userId: string,
-  readonly postId: string,
+  readonly legacyData: any,
+  readonly userId: string|null,
+  readonly postId: string|null,
 }
 
 interface CurationNoticesDefaultFragment { // fragment on CurationNotices
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly contents_latest: string,
-  readonly userId: string,
-  readonly commentId: string | null,
-  readonly postId: string,
-  readonly deleted: boolean,
+  readonly legacyData: any,
+  readonly contents_latest: string|null,
+  readonly userId: string|null,
+  readonly commentId: string|null,
+  readonly postId: string|null,
+  readonly deleted: boolean|null,
 }
 
 interface CurationNoticesFragment { // fragment on CurationNotices
   readonly _id: string,
   readonly createdAt: Date,
-  readonly userId: string,
+  readonly userId: string|null,
   readonly user: UsersMinimumInfo|null,
-  readonly commentId: string | null,
+  readonly commentId: string|null,
   readonly comment: CommentsList|null,
-  readonly postId: string,
+  readonly postId: string|null,
   readonly post: PostsMinimumInfo|null,
-  readonly deleted: boolean,
+  readonly deleted: boolean|null,
   readonly contents: RevisionEdit|null,
 }
 
-interface DatabaseMetadataDefaultFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly schemaVersion: any,
-  readonly createdAt: any,
+interface DatabaseMetadataDefaultFragment { // fragment on DatabaseMetadata
+  readonly _id: string,
+  readonly schemaVersion: number,
+  readonly createdAt: Date,
   readonly legacyData: any,
 }
 
-interface DebouncerEventsDefaultFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly schemaVersion: any,
-  readonly createdAt: any,
+interface DebouncerEventsDefaultFragment { // fragment on DebouncerEvents
+  readonly _id: string,
+  readonly schemaVersion: number,
+  readonly createdAt: Date,
   readonly legacyData: any,
 }
 
 interface DeletedCommentsMetaData { // fragment on Comments
   readonly _id: string,
   readonly deleted: boolean,
-  readonly deletedDate: Date,
+  readonly deletedDate: Date|null,
   readonly deletedByUser: DeletedCommentsMetaData_deletedByUser|null,
-  readonly deletedReason: string,
+  readonly deletedReason: string|null,
   readonly deletedPublic: boolean,
 }
 
@@ -678,11 +721,11 @@ interface DeletedCommentsModerationLog_post { // fragment on Posts
 
 interface DialogueCheckInfo { // fragment on DialogueChecks
   readonly _id: string,
-  readonly userId: string,
-  readonly targetUserId: string,
-  readonly checked: boolean,
-  readonly checkedAt: Date,
-  readonly hideInRecommendations: boolean,
+  readonly userId: string|null,
+  readonly targetUserId: string|null,
+  readonly checked: boolean|null,
+  readonly checkedAt: Date|null,
+  readonly hideInRecommendations: boolean|null,
   readonly matchPreference: DialogueMatchPreferencesDefaultFragment|null,
   readonly reciprocalMatchPreference: DialogueMatchPreferencesDefaultFragment|null,
 }
@@ -691,18 +734,18 @@ interface DialogueChecksDefaultFragment { // fragment on DialogueChecks
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly userId: string,
-  readonly targetUserId: string,
-  readonly checked: boolean,
-  readonly checkedAt: Date,
-  readonly hideInRecommendations: boolean,
+  readonly legacyData: any,
+  readonly userId: string|null,
+  readonly targetUserId: string|null,
+  readonly checked: boolean|null,
+  readonly checkedAt: Date|null,
+  readonly hideInRecommendations: boolean|null,
 }
 
 interface DialogueMatchPreferenceInfo { // fragment on DialogueMatchPreferences
   readonly _id: string,
-  readonly dialogueCheckId: string,
-  readonly topicNotes: string,
+  readonly dialogueCheckId: string|null,
+  readonly topicNotes: string|null,
   readonly topicPreferences: Array<{
     text: string,
     preference: "Yes" | "No",
@@ -710,8 +753,8 @@ interface DialogueMatchPreferenceInfo { // fragment on DialogueMatchPreferences
   }>,
   readonly syncPreference: "Yes" | "Meh" | "No",
   readonly asyncPreference: "Yes" | "Meh" | "No",
-  readonly formatNotes: string,
-  readonly generatedDialogueId: string | null,
+  readonly formatNotes: string|null,
+  readonly generatedDialogueId: string|null,
   readonly deleted: boolean,
 }
 
@@ -719,19 +762,19 @@ interface DialogueMatchPreferencesDefaultFragment { // fragment on DialogueMatch
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly dialogueCheckId: string,
+  readonly legacyData: any,
+  readonly dialogueCheckId: string|null,
   readonly topicPreferences: Array<{
     text: string,
     preference: "Yes" | "No",
     commentSourceId: string | null,
   }>,
-  readonly topicNotes: string,
+  readonly topicNotes: string|null,
   readonly syncPreference: "Yes" | "Meh" | "No",
   readonly asyncPreference: "Yes" | "Meh" | "No",
-  readonly formatNotes: string,
-  readonly calendlyLink: string | null,
-  readonly generatedDialogueId: string | null,
+  readonly formatNotes: string|null,
+  readonly calendlyLink: string|null,
+  readonly generatedDialogueId: string|null,
   readonly deleted: boolean,
 }
 
@@ -739,42 +782,52 @@ interface DigestPostsDefaultFragment { // fragment on DigestPosts
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly digestId: string,
   readonly postId: string,
-  readonly emailDigestStatus: string | null,
-  readonly onsiteDigestStatus: string | null,
+  readonly emailDigestStatus: string|null,
+  readonly onsiteDigestStatus: string|null,
 }
 
 interface DigestPostsMinimumInfo { // fragment on DigestPosts
   readonly _id: string,
   readonly digestId: string,
   readonly postId: string,
-  readonly emailDigestStatus: string | null,
-  readonly onsiteDigestStatus: string | null,
+  readonly emailDigestStatus: string|null,
+  readonly onsiteDigestStatus: string|null,
 }
 
 interface DigestsDefaultFragment { // fragment on Digests
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly num: number,
   readonly startDate: Date,
-  readonly endDate: Date | null,
-  readonly publishedDate: Date | null,
-  readonly onsiteImageId: string | null,
-  readonly onsitePrimaryColor: string | null,
+  readonly endDate: Date|null,
+  readonly publishedDate: Date|null,
+  readonly onsiteImageId: string|null,
+  readonly onsitePrimaryColor: string|null,
 }
 
 interface DigestsMinimumInfo { // fragment on Digests
   readonly _id: string,
   readonly num: number,
   readonly startDate: Date,
-  readonly endDate: Date | null,
-  readonly publishedDate: Date | null,
-  readonly onsiteImageId: string | null,
-  readonly onsitePrimaryColor: string | null,
+  readonly endDate: Date|null,
+  readonly publishedDate: Date|null,
+  readonly onsiteImageId: string|null,
+  readonly onsitePrimaryColor: string|null,
+}
+
+interface DraftComments extends CommentsList { // fragment on Comments
+  readonly post: PostsMinimumInfo|null,
+  readonly parentComment: DraftComments_parentComment|null,
+}
+
+interface DraftComments_parentComment { // fragment on Comments
+  readonly _id: string,
+  readonly user: UsersMinimumInfo|null,
 }
 
 interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
@@ -783,16 +836,16 @@ interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
   readonly name: string,
   readonly logoSrc: string,
   readonly href: string,
-  readonly fundraiserLink: string | null,
-  readonly gwwcLink: string | null,
-  readonly gwwcId: string | null,
+  readonly fundraiserLink: string|null,
+  readonly gwwcLink: string|null,
+  readonly gwwcId: string|null,
   readonly description: string,
-  readonly tagId: string | null,
+  readonly tagId: string,
   readonly tag: TagBasicInfo|null,
   readonly postCount: number,
   readonly baseScore: number,
   readonly score: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedScore: any,
   readonly voteCount: number,
   readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
@@ -803,7 +856,7 @@ interface ElectionCandidateSimple { // fragment on ElectionCandidates
   readonly name: string,
   readonly logoSrc: string,
   readonly href: string,
-  readonly fundraiserLink: string | null,
+  readonly fundraiserLink: string|null,
   readonly description: string,
 }
 
@@ -811,85 +864,79 @@ interface ElectionCandidatesDefaultFragment { // fragment on ElectionCandidates
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly electionName: string,
   readonly name: string,
   readonly logoSrc: string,
   readonly href: string,
-  readonly fundraiserLink: string | null,
-  readonly gwwcLink: string | null,
-  readonly gwwcId: string | null,
+  readonly fundraiserLink: string|null,
+  readonly gwwcLink: string|null,
+  readonly gwwcId: string|null,
   readonly description: string,
   readonly userId: string,
   readonly postCount: number,
-  readonly tagId: string | null,
+  readonly tagId: string,
   readonly isElectionFundraiser: boolean,
-  readonly amountRaised: number | null,
-  readonly targetAmount: number | null,
+  readonly amountRaised: number|null,
+  readonly targetAmount: number|null,
   readonly voteCount: number,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedScore: any,
   readonly score: number,
-  readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
-  readonly afVoteCount: number,
+  readonly afBaseScore: number|null,
+  readonly afExtendedScore: any,
+  readonly afVoteCount: number|null,
 }
 
 interface ElectionVoteInfo { // fragment on ElectionVotes
   readonly _id: string,
-  readonly electionName: string,
-  readonly userId: string,
-  readonly compareState: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly vote: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly submittedAt: Date | null,
-  readonly submissionComments: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly userExplanation: string | null,
-  readonly userOtherComments: string | null,
+  readonly electionName: string|null,
+  readonly userId: string|null,
+  readonly compareState: any,
+  readonly vote: any,
+  readonly submittedAt: Date|null,
+  readonly submissionComments: any,
+  readonly userExplanation: string|null,
+  readonly userOtherComments: string|null,
 }
 
 interface ElectionVoteRecentDiscussion { // fragment on ElectionVotes
   readonly _id: string,
-  readonly electionName: string,
-  readonly submittedAt: Date | null,
+  readonly electionName: string|null,
+  readonly submittedAt: Date|null,
 }
 
 interface ElectionVotesDefaultFragment { // fragment on ElectionVotes
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly electionName: string,
-  readonly userId: string,
-  readonly compareState: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly vote: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly submittedAt: Date | null,
-  readonly submissionComments: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly userExplanation: string | null,
-  readonly userOtherComments: string | null,
+  readonly legacyData: any,
+  readonly electionName: string|null,
+  readonly userId: string|null,
+  readonly compareState: any,
+  readonly vote: any,
+  readonly submittedAt: Date|null,
+  readonly submissionComments: any,
+  readonly userExplanation: string|null,
+  readonly userOtherComments: string|null,
 }
 
 interface ElicitQuestionFragment { // fragment on ElicitQuestions
   readonly _id: string,
   readonly title: string,
-  readonly notes: string | null,
-  readonly resolution: string | null,
-  readonly resolvesBy: Date | null,
+  readonly notes: string|null,
+  readonly resolution: string|null,
+  readonly resolvesBy: Date|null,
 }
 
 interface ElicitQuestionPredictionsDefaultFragment { // fragment on ElicitQuestionPredictions
   readonly _id: string,
-  readonly prediction: number | null,
+  readonly prediction: number|null,
   readonly createdAt: Date,
-  readonly notes: string | null,
-  readonly creator: {
-    _id: string,
-    displayName: string,
-    isQuestionCreator: boolean,
-    sourceUserId: string | null,
-  },
-  readonly userId: string | null,
-  readonly sourceUrl: string | null,
-  readonly sourceId: string | null,
+  readonly notes: string|null,
+  readonly userId: string|null,
+  readonly sourceUrl: string|null,
+  readonly sourceId: string|null,
   readonly binaryQuestionId: string,
   readonly isDeleted: boolean,
 }
@@ -898,99 +945,120 @@ interface ElicitQuestionsDefaultFragment { // fragment on ElicitQuestions
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly title: string,
-  readonly notes: string | null,
-  readonly resolution: string | null,
-  readonly resolvesBy: Date | null,
+  readonly notes: string|null,
+  readonly resolution: string|null,
+  readonly resolvesBy: Date|null,
 }
 
-interface EmailTokensDefaultFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly schemaVersion: any,
-  readonly createdAt: any,
+interface EmailTokensDefaultFragment { // fragment on EmailTokens
+  readonly _id: string,
+  readonly schemaVersion: number,
+  readonly createdAt: Date,
   readonly legacyData: any,
 }
 
 interface ExplorePageTagFragment extends TagFragment { // fragment on Tags
-  readonly contributors: any,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly contributors: TagContributorsList,
+  readonly legacyData: any,
 }
 
 interface FeaturedResourcesDefaultFragment { // fragment on FeaturedResources
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly title: string,
-  readonly body: string | null,
+  readonly body: string|null,
   readonly ctaText: string,
   readonly ctaUrl: string,
-  readonly expiresAt: Date | null,
+  readonly expiresAt: Date,
 }
 
 interface FeaturedResourcesFragment { // fragment on FeaturedResources
   readonly _id: string,
   readonly title: string,
-  readonly body: string | null,
+  readonly body: string|null,
   readonly ctaText: string,
   readonly ctaUrl: string,
-  readonly expiresAt: Date | null,
+  readonly expiresAt: Date,
+}
+
+interface FeedCommentThreadFragment { // fragment on non-collection type
+  readonly _id: any,
+  readonly commentMetaInfos: any,
+  readonly comments: any,
+}
+
+interface FeedPostFragment { // fragment on non-collection type
+  readonly _id: any,
+  readonly postMetaInfo: any,
+  readonly post: any,
+}
+
+interface FeedSpotlightFragment { // fragment on non-collection type
+  readonly _id: any,
+  readonly spotlight: any,
 }
 
 interface FieldChangeFragment { // fragment on FieldChanges
   readonly _id: string,
   readonly createdAt: Date,
-  readonly userId: string,
-  readonly changeGroup: string,
-  readonly documentId: string,
-  readonly fieldName: string,
-  readonly oldValue: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly newValue: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly userId: string|null,
+  readonly changeGroup: string|null,
+  readonly documentId: string|null,
+  readonly fieldName: string|null,
+  readonly oldValue: any,
+  readonly newValue: any,
 }
 
 interface FieldChangesDefaultFragment { // fragment on FieldChanges
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly userId: string,
-  readonly changeGroup: string,
-  readonly documentId: string,
-  readonly fieldName: string,
-  readonly oldValue: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly newValue: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
+  readonly userId: string|null,
+  readonly changeGroup: string|null,
+  readonly documentId: string|null,
+  readonly fieldName: string|null,
+  readonly oldValue: any,
+  readonly newValue: any,
 }
 
 interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly frontpageDescription_latest: string,
-  readonly frontpageDescriptionMobile_latest: string,
-  readonly postPageDescription_latest: string,
-  readonly pollQuestion_latest: string,
+  readonly legacyData: any,
+  readonly frontpageDescription_latest: string|null,
+  readonly frontpageDescriptionMobile_latest: string|null,
+  readonly postPageDescription_latest: string|null,
   readonly title: string,
   readonly startDate: Date,
-  readonly endDate: Date,
+  readonly endDate: Date|null,
   readonly darkColor: string,
   readonly lightColor: string,
   readonly bannerTextColor: string,
-  readonly contrastColor: string | null,
-  readonly tagId: string | null,
-  readonly postId: string | null,
-  readonly bannerImageId: string | null,
+  readonly contrastColor: string|null,
+  readonly tagId: string|null,
+  readonly postId: string|null,
+  readonly commentId: string|null,
+  readonly bannerImageId: string|null,
   readonly includesPoll: boolean,
+  readonly isGlobal: boolean,
   readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
+  readonly pollQuestion_latest: string|null,
+  readonly pollAgreeWording: string|null,
+  readonly pollDisagreeWording: string|null,
   readonly maxStickersPerUser: number,
-  readonly customComponent: string | null,
-  readonly commentPrompt: string | null,
-  readonly publicData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly customComponent: "GivingSeason2024Banner" | null,
+  readonly commentPrompt: string|null,
+  readonly publicData: any,
 }
 
 interface ForumEventsDisplay extends ForumEventsMinimumInfo { // fragment on ForumEvents
-  readonly publicData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly publicData: any,
   readonly voteCount: number,
   readonly post: PostsMinimumInfo|null,
   readonly tag: TagBasicInfo|null,
@@ -1002,22 +1070,23 @@ interface ForumEventsDisplay extends ForumEventsMinimumInfo { // fragment on For
 
 interface ForumEventsDisplay_frontpageDescription { // fragment on Revisions
   readonly _id: string,
-  readonly html: string,
+  readonly html: string|null,
 }
 
 interface ForumEventsDisplay_frontpageDescriptionMobile { // fragment on Revisions
   readonly _id: string,
-  readonly html: string,
+  readonly html: string|null,
 }
 
 interface ForumEventsDisplay_postPageDescription { // fragment on Revisions
   readonly _id: string,
-  readonly html: string,
+  readonly html: string|null,
 }
 
 interface ForumEventsDisplay_pollQuestion { // fragment on Revisions
   readonly _id: string,
-  readonly html: string,
+  readonly html: string|null,
+  readonly plaintextMainText: string,
 }
 
 interface ForumEventsEdit extends ForumEventsMinimumInfo { // fragment on ForumEvents
@@ -1031,17 +1100,21 @@ interface ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly _id: string,
   readonly title: string,
   readonly startDate: Date,
-  readonly endDate: Date,
+  readonly endDate: Date|null,
   readonly darkColor: string,
   readonly lightColor: string,
   readonly bannerTextColor: string,
-  readonly contrastColor: string | null,
-  readonly tagId: string | null,
-  readonly postId: string | null,
-  readonly bannerImageId: string | null,
+  readonly contrastColor: string|null,
+  readonly tagId: string|null,
+  readonly postId: string|null,
+  readonly commentId: string|null,
+  readonly bannerImageId: string|null,
   readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
-  readonly customComponent: string | null,
-  readonly commentPrompt: string | null,
+  readonly customComponent: "GivingSeason2024Banner" | null,
+  readonly commentPrompt: string|null,
+  readonly isGlobal: boolean,
+  readonly pollAgreeWording: string|null,
+  readonly pollDisagreeWording: string|null,
   readonly maxStickersPerUser: number,
 }
 
@@ -1052,9 +1125,9 @@ interface GardenCodeFragment { // fragment on GardenCodes
   readonly userId: string,
   readonly deleted: boolean,
   readonly slug: string,
-  readonly startTime: Date,
+  readonly startTime: Date|null,
   readonly endTime: Date,
-  readonly fbLink: string,
+  readonly fbLink: string|null,
   readonly type: string,
   readonly afOnly: boolean,
   readonly contents: RevisionDisplay|null,
@@ -1067,9 +1140,9 @@ interface GardenCodeFragmentEdit { // fragment on GardenCodes
   readonly userId: string,
   readonly deleted: boolean,
   readonly slug: string,
-  readonly startTime: Date,
+  readonly startTime: Date|null,
   readonly endTime: Date,
-  readonly fbLink: string,
+  readonly fbLink: string|null,
   readonly type: string,
   readonly afOnly: boolean,
   readonly contents: RevisionEdit|null,
@@ -1079,16 +1152,16 @@ interface GardenCodesDefaultFragment { // fragment on GardenCodes
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly contents_latest: string,
-  readonly pingbacks: any /*{"definitions":[{}]}*/,
+  readonly legacyData: any,
+  readonly contents_latest: string|null,
+  readonly pingbacks: any,
   readonly slug: string,
   readonly code: string,
   readonly title: string,
   readonly userId: string,
-  readonly startTime: Date,
+  readonly startTime: Date|null,
   readonly endTime: Date,
-  readonly fbLink: string,
+  readonly fbLink: string|null,
   readonly type: string,
   readonly hidden: boolean,
   readonly deleted: boolean,
@@ -1097,25 +1170,24 @@ interface GardenCodesDefaultFragment { // fragment on GardenCodes
 
 interface GoogleServiceAccountSessionAdminInfo { // fragment on GoogleServiceAccountSessions
   readonly _id: string,
-  readonly email: string,
-  readonly estimatedExpiry: Date,
+  readonly email: string|null,
+  readonly estimatedExpiry: Date|null,
 }
 
 interface GoogleServiceAccountSessionInfo { // fragment on GoogleServiceAccountSessions
   readonly _id: string,
-  readonly email: string,
+  readonly email: string|null,
 }
 
 interface GoogleServiceAccountSessionsDefaultFragment { // fragment on GoogleServiceAccountSessions
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly email: string,
-  readonly refreshToken: string,
-  readonly estimatedExpiry: Date,
-  readonly active: boolean,
-  readonly revoked: boolean,
+  readonly legacyData: any,
+  readonly email: string|null,
+  readonly estimatedExpiry: Date|null,
+  readonly active: boolean|null,
+  readonly revoked: boolean|null,
 }
 
 interface HighlightWithHash { // fragment on Posts
@@ -1128,10 +1200,10 @@ interface HighlightWithHash_contents { // fragment on Revisions
   readonly htmlHighlightStartingAtHash: string,
 }
 
-interface ImagesDefaultFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly schemaVersion: any,
-  readonly createdAt: any,
+interface ImagesDefaultFragment { // fragment on Images
+  readonly _id: string,
+  readonly schemaVersion: number,
+  readonly createdAt: Date,
   readonly legacyData: any,
 }
 
@@ -1150,8 +1222,8 @@ interface JargonTermsDefaultFragment { // fragment on JargonTerms
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly contents_latest: string,
+  readonly legacyData: any,
+  readonly contents_latest: string|null,
   readonly postId: string,
   readonly term: string,
   readonly approved: boolean,
@@ -1176,20 +1248,20 @@ interface JargonTermsWithPostInfo extends JargonTerms { // fragment on JargonTer
 interface LWEventsDefaultFragment { // fragment on LWEvents
   readonly _id: string,
   readonly schemaVersion: number,
-  readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly userId: string,
-  readonly name: string,
-  readonly documentId: string,
-  readonly important: boolean,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly intercom: boolean,
+  readonly createdAt: Date|null,
+  readonly legacyData: any,
+  readonly userId: string|null,
+  readonly name: string|null,
+  readonly documentId: string|null,
+  readonly important: boolean|null,
+  readonly properties: any,
+  readonly intercom: boolean|null,
 }
 
-interface LegacyDataDefaultFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly schemaVersion: any,
-  readonly createdAt: any,
+interface LegacyDataDefaultFragment { // fragment on LegacyData
+  readonly _id: string,
+  readonly schemaVersion: number,
+  readonly createdAt: Date,
   readonly legacyData: any,
 }
 
@@ -1197,21 +1269,21 @@ interface LlmConversationsDefaultFragment { // fragment on LlmConversations
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly userId: string,
-  readonly title: string,
-  readonly model: string,
-  readonly systemPrompt: string | null,
-  readonly deleted: boolean,
+  readonly legacyData: any,
+  readonly userId: string|null,
+  readonly title: string|null,
+  readonly model: string|null,
+  readonly systemPrompt: string|null,
+  readonly deleted: boolean|null,
 }
 
 interface LlmConversationsFragment { // fragment on LlmConversations
   readonly _id: string,
-  readonly userId: string,
-  readonly title: string,
+  readonly userId: string|null,
+  readonly title: string|null,
   readonly createdAt: Date,
   readonly lastUpdatedAt: Date|null,
-  readonly deleted: boolean,
+  readonly deleted: boolean|null,
 }
 
 interface LlmConversationsViewingPageFragment extends LlmConversationsFragment { // fragment on LlmConversations
@@ -1227,19 +1299,19 @@ interface LlmMessagesDefaultFragment { // fragment on LlmMessages
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly userId: string,
-  readonly conversationId: string,
+  readonly legacyData: any,
+  readonly userId: string|null,
+  readonly conversationId: string|null,
   readonly role: "user" | "assistant" | "user-context" | "assistant-context" | "lw-assistant",
-  readonly content: string,
+  readonly content: string|null,
 }
 
 interface LlmMessagesFragment { // fragment on LlmMessages
   readonly _id: string,
-  readonly userId: string,
-  readonly conversationId: string,
+  readonly userId: string|null,
+  readonly conversationId: string|null,
   readonly role: "user" | "assistant" | "user-context" | "assistant-context" | "lw-assistant",
-  readonly content: string,
+  readonly content: string|null,
   readonly createdAt: Date,
 }
 
@@ -1247,25 +1319,25 @@ interface LocalgroupsDefaultFragment { // fragment on Localgroups
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly contents_latest: string,
+  readonly legacyData: any,
+  readonly contents_latest: string|null,
   readonly name: string,
-  readonly nameInAnotherLanguage: string,
+  readonly nameInAnotherLanguage: string|null,
   readonly organizerIds: Array<string>,
   readonly lastActivity: Date,
   readonly types: Array<string>,
   readonly categories: Array<string>,
   readonly isOnline: boolean,
-  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly location: string,
-  readonly contactInfo: string,
-  readonly facebookLink: string,
-  readonly facebookPageLink: string,
-  readonly meetupLink: string,
-  readonly slackLink: string,
-  readonly website: string,
-  readonly bannerImageId: string,
+  readonly mongoLocation: any,
+  readonly googleLocation: any,
+  readonly location: string|null,
+  readonly contactInfo: string|null,
+  readonly facebookLink: string|null,
+  readonly facebookPageLink: string|null,
+  readonly meetupLink: string|null,
+  readonly slackLink: string|null,
+  readonly website: string|null,
+  readonly bannerImageId: string|null,
   readonly inactive: boolean,
   readonly deleted: boolean,
 }
@@ -1274,35 +1346,35 @@ interface ManifoldProbabilitiesCachesDefaultFragment { // fragment on ManifoldPr
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly marketId: string,
   readonly probability: number,
   readonly isResolved: boolean,
   readonly year: number,
   readonly lastUpdated: Date,
-  readonly url: string | null,
+  readonly url: string|null,
 }
 
 interface MembersOfGroupFragment { // fragment on Subscriptions
-  readonly user: UsersMinimumInfo,
+  readonly user: UsersMinimumInfo|null,
 }
 
 interface MessagesDefaultFragment { // fragment on Messages
   readonly _id: string,
   readonly schemaVersion: number,
-  readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly contents_latest: string,
-  readonly userId: string,
-  readonly conversationId: string,
-  readonly noEmail: boolean,
+  readonly createdAt: Date|null,
+  readonly legacyData: any,
+  readonly contents_latest: string|null,
+  readonly userId: string|null,
+  readonly conversationId: string|null,
+  readonly noEmail: boolean|null,
 }
 
 interface MigrationsDefaultFragment { // fragment on Migrations
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
 }
 
 interface ModerationTemplateFragment { // fragment on ModerationTemplates
@@ -1318,8 +1390,8 @@ interface ModerationTemplatesDefaultFragment { // fragment on ModerationTemplate
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly contents_latest: string,
+  readonly legacyData: any,
+  readonly contents_latest: string|null,
   readonly name: string,
   readonly collectionName: "Messages" | "Comments" | "Rejections",
   readonly order: number,
@@ -1333,30 +1405,30 @@ interface ModeratorActionDisplay { // fragment on ModeratorActions
   readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits" | "receivedSeniorDownvotesAlert",
   readonly active: boolean,
   readonly createdAt: Date,
-  readonly endedAt: Date | null,
+  readonly endedAt: Date|null,
 }
 
 interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly userId: string,
   readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits" | "receivedSeniorDownvotesAlert",
-  readonly endedAt: Date | null,
+  readonly endedAt: Date|null,
 }
 
 interface ModeratorClientIDInfo { // fragment on ClientIds
   readonly _id: string,
-  readonly clientId: string,
-  readonly createdAt: Date,
-  readonly firstSeenReferrer: string | null,
-  readonly firstSeenLandingPage: string,
+  readonly clientId: string|null,
+  readonly createdAt: Date|null,
+  readonly firstSeenReferrer: string|null,
+  readonly firstSeenLandingPage: string|null,
   readonly users: Array<UsersMinimumInfo>,
 }
 
 interface MultiDocumentContentDisplay extends MultiDocumentMinimumInfo { // fragment on MultiDocuments
-  readonly tableOfContents: any /*{"definitions":[{}]}*/,
+  readonly tableOfContents: any,
   readonly textLastUpdatedAt: Date|null,
   readonly contents: RevisionEdit|null,
 }
@@ -1375,19 +1447,19 @@ interface MultiDocumentMinimumInfo { // fragment on MultiDocuments
   readonly userId: string,
   readonly slug: string,
   readonly oldSlugs: Array<string>,
-  readonly title: string | null,
+  readonly title: string|null,
   readonly tabTitle: string,
-  readonly tabSubtitle: string | null,
-  readonly preview: string | null,
+  readonly tabSubtitle: string|null,
+  readonly preview: string|null,
   readonly index: number,
   readonly deleted: boolean,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedScore: any,
   readonly score: number,
-  readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly afBaseScore: number|null,
+  readonly afExtendedScore: any,
   readonly voteCount: number,
   readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
@@ -1399,15 +1471,15 @@ interface MultiDocumentParentDocument extends MultiDocumentEdit { // fragment on
 
 interface MultiDocumentRevision extends MultiDocumentMinimumInfo { // fragment on MultiDocuments
   readonly contents: RevisionEdit|null,
-  readonly tableOfContents: any /*{"definitions":[{}]}*/,
+  readonly tableOfContents: any,
 }
 
 interface MultiDocumentWithContributors extends MultiDocumentEdit { // fragment on MultiDocuments
-  readonly contributors: any,
+  readonly contributors: TagContributorsList,
 }
 
 interface MultiDocumentWithContributorsRevision extends MultiDocumentRevision { // fragment on MultiDocuments
-  readonly contributors: any,
+  readonly contributors: TagContributorsList,
   readonly arbitalLinkedPages: ArbitalLinkedPagesFragment,
   readonly textLastUpdatedAt: Date|null,
 }
@@ -1416,105 +1488,105 @@ interface MultiDocumentsDefaultFragment { // fragment on MultiDocuments
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly contents_latest: string,
-  readonly pingbacks: any /*{"definitions":[{}]}*/,
+  readonly legacyData: any,
+  readonly contents_latest: string|null,
+  readonly pingbacks: any,
   readonly slug: string,
   readonly oldSlugs: Array<string>,
-  readonly title: string | null,
-  readonly preview: string | null,
+  readonly title: string|null,
+  readonly preview: string|null,
   readonly tabTitle: string,
-  readonly tabSubtitle: string | null,
+  readonly tabSubtitle: string|null,
   readonly userId: string,
   readonly parentDocumentId: string,
   readonly collectionName: "Tags" | "MultiDocuments",
   readonly fieldName: "description" | "summary",
   readonly index: number,
-  readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly htmlWithContributorAnnotations: string,
+  readonly contributionStats: any,
+  readonly htmlWithContributorAnnotations: string|null,
   readonly deleted: boolean,
   readonly voteCount: number,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedScore: any,
   readonly score: number,
-  readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
-  readonly afVoteCount: number,
+  readonly afBaseScore: number|null,
+  readonly afExtendedScore: any,
+  readonly afVoteCount: number|null,
 }
 
 interface NotificationsDefaultFragment { // fragment on Notifications
   readonly _id: string,
   readonly schemaVersion: number,
-  readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly userId: string,
-  readonly documentId: string,
-  readonly documentType: string,
-  readonly extraData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly link: string,
-  readonly title: string,
-  readonly message: string,
-  readonly type: string,
-  readonly deleted: boolean,
-  readonly viewed: boolean,
-  readonly emailed: boolean,
-  readonly waitingForBatch: boolean,
+  readonly createdAt: Date|null,
+  readonly legacyData: any,
+  readonly userId: string|null,
+  readonly documentId: string|null,
+  readonly documentType: string|null,
+  readonly extraData: any,
+  readonly link: string|null,
+  readonly title: string|null,
+  readonly message: string|null,
+  readonly type: string|null,
+  readonly deleted: boolean|null,
+  readonly viewed: boolean|null,
+  readonly emailed: boolean|null,
+  readonly waitingForBatch: boolean|null,
 }
 
 interface NotificationsList { // fragment on Notifications
   readonly _id: string,
-  readonly documentId: string,
-  readonly documentType: string,
-  readonly deleted: boolean,
-  readonly userId: string,
-  readonly createdAt: Date,
-  readonly link: string,
-  readonly message: string,
-  readonly type: string,
-  readonly viewed: boolean,
-  readonly extraData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly documentId: string|null,
+  readonly documentType: string|null,
+  readonly deleted: boolean|null,
+  readonly userId: string|null,
+  readonly createdAt: Date|null,
+  readonly link: string|null,
+  readonly message: string|null,
+  readonly type: string|null,
+  readonly viewed: boolean|null,
+  readonly extraData: any,
 }
 
-interface PageCacheDefaultFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly schemaVersion: any,
-  readonly createdAt: any,
+interface PageCacheDefaultFragment { // fragment on PageCache
+  readonly _id: string,
+  readonly schemaVersion: number,
+  readonly createdAt: Date,
   readonly legacyData: any,
 }
 
 interface PetrovDayActionInfo { // fragment on PetrovDayActions
   readonly _id: string,
   readonly createdAt: Date,
-  readonly userId: string,
+  readonly userId: string|null,
   readonly actionType: "optIn" | "hasRole" | "hasSide" | "nukeTheWest" | "nukeTheEast" | "eastPetrovAllClear" | "eastPetrovNukesIncoming" | "westPetrovAllClear" | "westPetrovNukesIncoming",
-  readonly data: any /*{"definitions":[{}]}*/,
+  readonly data: any,
 }
 
 interface PetrovDayActionsDefaultFragment { // fragment on PetrovDayActions
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly actionType: "optIn" | "hasRole" | "hasSide" | "nukeTheWest" | "nukeTheEast" | "eastPetrovAllClear" | "eastPetrovNukesIncoming" | "westPetrovAllClear" | "westPetrovNukesIncoming",
-  readonly data: any /*{"definitions":[{}]}*/,
-  readonly userId: string,
+  readonly data: any,
+  readonly userId: string|null,
 }
 
 interface PetrovDayLaunchInfo { // fragment on PetrovDayLaunchs
   readonly _id: string,
   readonly createdAt: Date,
   readonly launchCode: string,
-  readonly userId: string,
+  readonly userId: string|null,
 }
 
 interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly launchCode: string,
-  readonly hashedLaunchCode: string,
-  readonly userId: string,
+  readonly hashedLaunchCode: string|null,
+  readonly userId: string|null,
 }
 
 interface PodcastEpisodeFull { // fragment on PodcastEpisodes
@@ -1529,7 +1601,7 @@ interface PodcastEpisodesDefaultFragment { // fragment on PodcastEpisodes
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly podcastId: string,
   readonly title: string,
   readonly episodeLink: string,
@@ -1545,21 +1617,21 @@ interface PodcastsDefaultFragment { // fragment on Podcasts
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly title: string,
-  readonly applePodcastLink: string | null,
-  readonly spotifyPodcastLink: string | null,
+  readonly applePodcastLink: string|null,
+  readonly spotifyPodcastLink: string|null,
 }
 
 interface PostEmbeddingsDefaultFragment { // fragment on PostEmbeddings
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly postId: string,
-  readonly postHash: string,
-  readonly lastGeneratedAt: Date,
-  readonly model: string,
+  readonly legacyData: any,
+  readonly postId: string|null,
+  readonly postHash: string|null,
+  readonly lastGeneratedAt: Date|null,
+  readonly model: string|null,
   readonly embeddings: Array<number>,
 }
 
@@ -1582,26 +1654,26 @@ interface PostRecommendationsDefaultFragment { // fragment on PostRecommendation
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly userId: string | null,
-  readonly clientId: string | null,
-  readonly postId: string,
-  readonly strategyName: string,
-  readonly strategySettings: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly recommendationCount: number,
-  readonly lastRecommendedAt: Date,
-  readonly clickedAt: Date | null,
+  readonly legacyData: any,
+  readonly userId: string|null,
+  readonly clientId: string|null,
+  readonly postId: string|null,
+  readonly strategyName: string|null,
+  readonly strategySettings: any,
+  readonly recommendationCount: number|null,
+  readonly lastRecommendedAt: Date|null,
+  readonly clickedAt: Date|null,
 }
 
 interface PostRelationsDefaultFragment { // fragment on PostRelations
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly type: string,
   readonly sourcePostId: string,
   readonly targetPostId: string,
-  readonly order: number,
+  readonly order: number|null,
 }
 
 interface PostSequenceNavigation { // fragment on Posts
@@ -1636,13 +1708,13 @@ interface PostViewTimesDefaultFragment { // fragment on PostViewTimes
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
 }
 
-interface PostViewsDefaultFragment { // fragment on non-collection type
-  readonly _id: any,
-  readonly schemaVersion: any,
-  readonly createdAt: any,
+interface PostViewsDefaultFragment { // fragment on PostViews
+  readonly _id: string,
+  readonly schemaVersion: number,
+  readonly createdAt: Date,
   readonly legacyData: any,
 }
 
@@ -1653,7 +1725,7 @@ interface PostWithDialogueMessage { // fragment on Posts
 
 interface PostWithGeneratedSummary { // fragment on Posts
   readonly _id: string,
-  readonly languageModelSummary: string,
+  readonly languageModelSummary: string|null,
 }
 
 interface PostsAuthors { // fragment on Posts
@@ -1662,33 +1734,33 @@ interface PostsAuthors { // fragment on Posts
 }
 
 interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
-  readonly profileImageId: string,
-  readonly moderationStyle: string,
+  readonly profileImageId: string|null,
+  readonly moderationStyle: string|null,
   readonly bannedUserIds: Array<string>,
-  readonly moderatorAssistance: boolean,
+  readonly moderatorAssistance: boolean|null,
 }
 
 interface PostsBase extends PostsMinimumInfo { // fragment on Posts
-  readonly url: string,
+  readonly url: string|null,
   readonly postedAt: Date,
-  readonly createdAt: Date,
+  readonly createdAt: Date|null,
   readonly sticky: boolean,
   readonly metaSticky: boolean,
   readonly stickyPriority: number,
   readonly status: number,
-  readonly frontpageDate: Date,
+  readonly frontpageDate: Date|null,
   readonly meta: boolean,
   readonly deletedDraft: boolean,
   readonly postCategory: "post" | "linkpost" | "question",
-  readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly tagRelevance: any,
   readonly shareWithUsers: Array<string>,
-  readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly linkSharingKey: string | null,
-  readonly contents_latest: string,
+  readonly sharingSettings: any,
+  readonly linkSharingKey: string|null,
+  readonly contents_latest: string|null,
   readonly commentCount: number,
   readonly voteCount: number,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedScore: any,
   readonly emojiReactors: any,
   readonly unlisted: boolean,
   readonly score: number,
@@ -1696,51 +1768,51 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly isFuture: boolean,
   readonly isRead: boolean|null,
   readonly lastCommentedAt: Date,
-  readonly lastCommentPromotedAt: Date,
-  readonly canonicalCollectionSlug: string,
-  readonly curatedDate: Date,
-  readonly commentsLocked: boolean,
-  readonly commentsLockedToAccountsCreatedAfter: Date,
+  readonly lastCommentPromotedAt: Date|null,
+  readonly canonicalCollectionSlug: string|null,
+  readonly curatedDate: Date|null,
+  readonly commentsLocked: boolean|null,
+  readonly commentsLockedToAccountsCreatedAfter: Date|null,
   readonly debate: boolean,
   readonly question: boolean,
   readonly hiddenRelatedQuestion: boolean,
-  readonly originalPostRelationSourceId: string,
-  readonly userId: string,
-  readonly location: string,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly originalPostRelationSourceId: string|null,
+  readonly userId: string|null,
+  readonly location: string|null,
+  readonly googleLocation: any,
   readonly onlineEvent: boolean,
   readonly globalEvent: boolean,
-  readonly startTime: Date | null,
-  readonly endTime: Date | null,
-  readonly localStartTime: Date,
-  readonly localEndTime: Date,
-  readonly eventRegistrationLink: string,
-  readonly joinEventLink: string,
-  readonly facebookLink: string,
-  readonly meetupLink: string,
-  readonly website: string,
-  readonly contactInfo: string,
+  readonly startTime: Date|null,
+  readonly endTime: Date|null,
+  readonly localStartTime: Date|null,
+  readonly localEndTime: Date|null,
+  readonly eventRegistrationLink: string|null,
+  readonly joinEventLink: string|null,
+  readonly facebookLink: string|null,
+  readonly meetupLink: string|null,
+  readonly website: string|null,
+  readonly contactInfo: string|null,
   readonly isEvent: boolean,
-  readonly eventImageId: string,
-  readonly eventType: string,
+  readonly eventImageId: string|null,
+  readonly eventType: string|null,
   readonly types: Array<string>,
-  readonly groupId: string,
-  readonly reviewedByUserId: string,
+  readonly groupId: string|null,
+  readonly reviewedByUserId: string|null,
   readonly suggestForCuratedUserIds: Array<string>,
   readonly suggestForCuratedUsernames: string|null,
-  readonly reviewForCuratedUserId: string,
+  readonly reviewForCuratedUserId: string|null,
   readonly authorIsUnreviewed: boolean,
-  readonly afDate: Date,
+  readonly afDate: Date|null,
   readonly suggestForAlignmentUserIds: Array<string>,
-  readonly reviewForAlignmentUserId: string,
-  readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly reviewForAlignmentUserId: string|null,
+  readonly afBaseScore: number|null,
+  readonly afExtendedScore: any,
   readonly afCommentCount: number,
-  readonly afLastCommentedAt: Date,
+  readonly afLastCommentedAt: Date|null,
   readonly afSticky: boolean,
   readonly hideAuthor: boolean,
-  readonly moderationStyle: string,
-  readonly ignoreRateLimits: boolean | null,
+  readonly moderationStyle: string|null,
+  readonly ignoreRateLimits: boolean|null,
   readonly submitToFrontpage: boolean,
   readonly shortform: boolean,
   readonly onlyVisibleToLoggedIn: boolean,
@@ -1748,18 +1820,18 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly reviewCount: number,
   readonly reviewVoteCount: number,
   readonly positiveReviewVoteCount: number,
-  readonly manifoldReviewMarketId: string | null,
+  readonly manifoldReviewMarketId: string|null,
   readonly annualReviewMarketProbability: number|null,
   readonly annualReviewMarketIsResolved: boolean|null,
   readonly annualReviewMarketYear: number|null,
   readonly annualReviewMarketUrl: string|null,
   readonly group: PostsBase_group|null,
-  readonly rsvpCounts: any /*JSON*/,
-  readonly podcastEpisodeId: string | null,
+  readonly rsvpCounts: any,
+  readonly podcastEpisodeId: string|null,
   readonly forceAllowType3Audio: boolean,
   readonly nominationCount2019: number,
   readonly reviewCount2019: number,
-  readonly votingSystem: string,
+  readonly votingSystem: string|null,
   readonly disableRecommendation: boolean,
 }
 
@@ -1771,7 +1843,7 @@ interface PostsBase_group { // fragment on Localgroups
 
 interface PostsBestOfList extends PostsListWithVotes { // fragment on Posts
   readonly podcastEpisode: PostsBestOfList_podcastEpisode|null,
-  readonly socialPreviewData: any,
+  readonly socialPreviewData: SocialPreviewType,
   readonly firstVideoAttribsForPreview: any,
 }
 
@@ -1786,46 +1858,46 @@ interface PostsBestOfList_podcastEpisode { // fragment on PodcastEpisodes
 interface PostsBestOfList_podcastEpisode_podcast { // fragment on Podcasts
   readonly _id: string,
   readonly title: string,
-  readonly applePodcastLink: string | null,
-  readonly spotifyPodcastLink: string | null,
+  readonly applePodcastLink: string|null,
+  readonly spotifyPodcastLink: string|null,
 }
 
 interface PostsDefaultFragment { // fragment on Posts
   readonly _id: string,
   readonly schemaVersion: number,
-  readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly contents_latest: string,
-  readonly pingbacks: any /*{"definitions":[{}]}*/,
-  readonly moderationGuidelines_latest: string,
-  readonly customHighlight_latest: string,
+  readonly createdAt: Date|null,
+  readonly legacyData: any,
+  readonly contents_latest: string|null,
+  readonly pingbacks: any,
+  readonly moderationGuidelines_latest: string|null,
+  readonly customHighlight_latest: string|null,
   readonly slug: string,
   readonly postedAt: Date,
-  readonly modifiedAt: Date,
-  readonly url: string,
+  readonly modifiedAt: Date|null,
+  readonly url: string|null,
   readonly postCategory: "post" | "linkpost" | "question",
   readonly title: string,
-  readonly viewCount: number,
+  readonly viewCount: number|null,
   readonly lastCommentedAt: Date,
-  readonly clickCount: number,
+  readonly clickCount: number|null,
   readonly deletedDraft: boolean,
   readonly status: number,
   readonly isFuture: boolean,
   readonly sticky: boolean,
   readonly stickyPriority: number,
-  readonly userIP: string,
-  readonly userAgent: string,
-  readonly referrer: string,
-  readonly author: string,
-  readonly userId: string,
+  readonly userIP: string|null,
+  readonly userAgent: string|null,
+  readonly referrer: string|null,
+  readonly author: string|null,
+  readonly userId: string|null,
   readonly question: boolean,
   readonly authorIsUnreviewed: boolean,
-  readonly readTimeMinutesOverride: number,
+  readonly readTimeMinutesOverride: number|null,
   readonly submitToFrontpage: boolean,
   readonly hiddenRelatedQuestion: boolean,
-  readonly originalPostRelationSourceId: string,
+  readonly originalPostRelationSourceId: string|null,
   readonly shortform: boolean,
-  readonly canonicalSource: string,
+  readonly canonicalSource: string|null,
   readonly nominationCount2018: number,
   readonly nominationCount2019: number,
   readonly reviewCount2018: number,
@@ -1833,7 +1905,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly reviewCount: number,
   readonly reviewVoteCount: number,
   readonly positiveReviewVoteCount: number,
-  readonly manifoldReviewMarketId: string | null,
+  readonly manifoldReviewMarketId: string|null,
   readonly reviewVoteScoreAF: number,
   readonly reviewVotesAF: Array<number>,
   readonly reviewVoteScoreHighKarma: number,
@@ -1846,8 +1918,8 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly finalReviewVotesAllKarma: Array<number>,
   readonly finalReviewVoteScoreAF: number,
   readonly finalReviewVotesAF: Array<number>,
-  readonly lastCommentPromotedAt: Date,
-  readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly lastCommentPromotedAt: Date|null,
+  readonly tagRelevance: any,
   readonly noIndex: boolean,
   readonly rsvps: Array<{
     name: string,
@@ -1857,151 +1929,137 @@ interface PostsDefaultFragment { // fragment on Posts
     userId: string | null,
     createdAt: Date,
   }>,
-  readonly activateRSVPs: boolean,
+  readonly activateRSVPs: boolean|null,
   readonly nextDayReminderSent: boolean,
   readonly onlyVisibleToLoggedIn: boolean,
   readonly onlyVisibleToEstablishedAccounts: boolean,
   readonly hideFromRecentDiscussions: boolean,
-  readonly votingSystem: string,
-  readonly podcastEpisodeId: string | null,
+  readonly votingSystem: string|null,
+  readonly podcastEpisodeId: string|null,
   readonly forceAllowType3Audio: boolean,
   readonly legacy: boolean,
-  readonly legacyId: string,
+  readonly legacyId: string|null,
   readonly legacySpam: boolean,
-  readonly feedId: string,
-  readonly feedLink: string,
-  readonly curatedDate: Date,
-  readonly metaDate: Date,
+  readonly feedId: string|null,
+  readonly feedLink: string|null,
+  readonly curatedDate: Date|null,
+  readonly metaDate: Date|null,
   readonly suggestForCuratedUserIds: Array<string>,
-  readonly frontpageDate: Date,
+  readonly frontpageDate: Date|null,
   readonly autoFrontpage: "show" | "hide" | null,
-  readonly collectionTitle: string,
-  readonly coauthorStatuses: Array<{
-    userId: string,
-    confirmed: boolean,
-    requested: boolean,
-  }> | null,
+  readonly collectionTitle: string|null,
   readonly hasCoauthorPermission: boolean,
-  readonly socialPreviewImageId: string,
-  readonly socialPreviewImageAutoUrl: string,
-  readonly socialPreview: {
-    imageId: string | null,
-    text: string | null,
-  },
-  readonly fmCrosspost: {
-    isCrosspost: boolean,
-    hostedHere: boolean | null,
-    foreignPostId: string | null,
-  },
-  readonly canonicalSequenceId: string,
-  readonly canonicalCollectionSlug: string,
-  readonly canonicalBookId: string,
-  readonly canonicalNextPostSlug: string,
-  readonly canonicalPrevPostSlug: string,
+  readonly socialPreviewImageId: string|null,
+  readonly socialPreviewImageAutoUrl: string|null,
+  readonly canonicalSequenceId: string|null,
+  readonly canonicalCollectionSlug: string|null,
+  readonly canonicalBookId: string|null,
+  readonly canonicalNextPostSlug: string|null,
+  readonly canonicalPrevPostSlug: string|null,
   readonly unlisted: boolean,
   readonly disableRecommendation: boolean,
   readonly defaultRecommendation: boolean,
-  readonly hideFromPopularComments: boolean,
-  readonly draft: boolean,
-  readonly wasEverUndrafted: boolean,
+  readonly hideFromPopularComments: boolean|null,
+  readonly draft: boolean|null,
+  readonly wasEverUndrafted: boolean|null,
   readonly meta: boolean,
   readonly hideFrontpageComments: boolean,
   readonly maxBaseScore: number,
-  readonly scoreExceeded2Date: Date | null,
-  readonly scoreExceeded30Date: Date | null,
-  readonly scoreExceeded45Date: Date | null,
-  readonly scoreExceeded75Date: Date | null,
-  readonly scoreExceeded125Date: Date | null,
-  readonly scoreExceeded200Date: Date | null,
+  readonly scoreExceeded2Date: Date|null,
+  readonly scoreExceeded30Date: Date|null,
+  readonly scoreExceeded45Date: Date|null,
+  readonly scoreExceeded75Date: Date|null,
+  readonly scoreExceeded125Date: Date|null,
+  readonly scoreExceeded200Date: Date|null,
   readonly bannedUserIds: Array<string>,
-  readonly commentsLocked: boolean,
-  readonly commentsLockedToAccountsCreatedAfter: Date,
+  readonly commentsLocked: boolean|null,
+  readonly commentsLockedToAccountsCreatedAfter: Date|null,
   readonly organizerIds: Array<string>,
-  readonly groupId: string,
-  readonly eventType: string,
+  readonly groupId: string|null,
+  readonly eventType: string|null,
   readonly isEvent: boolean,
-  readonly reviewedByUserId: string,
-  readonly reviewForCuratedUserId: string,
-  readonly startTime: Date | null,
-  readonly localStartTime: Date,
-  readonly endTime: Date | null,
-  readonly localEndTime: Date,
-  readonly eventRegistrationLink: string,
-  readonly joinEventLink: string,
+  readonly reviewedByUserId: string|null,
+  readonly reviewForCuratedUserId: string|null,
+  readonly startTime: Date|null,
+  readonly localStartTime: Date|null,
+  readonly endTime: Date|null,
+  readonly localEndTime: Date|null,
+  readonly eventRegistrationLink: string|null,
+  readonly joinEventLink: string|null,
   readonly onlineEvent: boolean,
   readonly globalEvent: boolean,
-  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly location: string,
-  readonly contactInfo: string,
-  readonly facebookLink: string,
-  readonly meetupLink: string,
-  readonly website: string,
-  readonly eventImageId: string,
+  readonly mongoLocation: any,
+  readonly googleLocation: any,
+  readonly location: string|null,
+  readonly contactInfo: string|null,
+  readonly facebookLink: string|null,
+  readonly meetupLink: string|null,
+  readonly website: string|null,
+  readonly eventImageId: string|null,
   readonly types: Array<string>,
   readonly metaSticky: boolean,
-  readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly sharingSettings: any,
   readonly shareWithUsers: Array<string>,
-  readonly linkSharingKey: string | null,
+  readonly linkSharingKey: string|null,
   readonly linkSharingKeyUsedBy: Array<string>,
-  readonly commentSortOrder: string,
+  readonly commentSortOrder: string|null,
   readonly hideAuthor: boolean,
-  readonly sideCommentVisibility: string,
+  readonly sideCommentVisibility: string|null,
   readonly disableSidenotes: boolean,
-  readonly moderationStyle: string,
-  readonly ignoreRateLimits: boolean | null,
+  readonly moderationStyle: string|null,
+  readonly ignoreRateLimits: boolean|null,
   readonly hideCommentKarma: boolean,
   readonly commentCount: number,
   readonly topLevelCommentCount: number,
   readonly debate: boolean,
   readonly collabEditorDialogue: boolean,
-  readonly mostRecentPublishedDialogueResponseDate: Date | null,
+  readonly mostRecentPublishedDialogueResponseDate: Date|null,
   readonly rejected: boolean,
-  readonly rejectedReason: string | null,
-  readonly rejectedByUserId: string,
-  readonly subforumTagId: string,
+  readonly rejectedReason: string|null,
+  readonly rejectedByUserId: string|null,
+  readonly subforumTagId: string|null,
   readonly af: boolean,
-  readonly afDate: Date,
+  readonly afDate: Date|null,
   readonly afCommentCount: number,
-  readonly afLastCommentedAt: Date,
+  readonly afLastCommentedAt: Date|null,
   readonly afSticky: boolean,
   readonly suggestForAlignmentUserIds: Array<string>,
-  readonly reviewForAlignmentUserId: string,
-  readonly agentFoundationsId: string,
-  readonly swrCachingEnabled: boolean,
-  readonly generateDraftJargon: boolean,
+  readonly reviewForAlignmentUserId: string|null,
+  readonly agentFoundationsId: string|null,
+  readonly swrCachingEnabled: boolean|null,
+  readonly generateDraftJargon: boolean|null,
   readonly voteCount: number,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedScore: any,
   readonly score: number,
-  readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
-  readonly afVoteCount: number,
+  readonly afBaseScore: number|null,
+  readonly afExtendedScore: any,
+  readonly afVoteCount: number|null,
 }
 
 interface PostsDetails extends PostsListBase { // fragment on Posts
-  readonly canonicalSource: string,
+  readonly canonicalSource: string|null,
   readonly noIndex: boolean,
-  readonly viewCount: number,
+  readonly viewCount: number|null,
   readonly tags: Array<TagPreviewFragment>,
-  readonly socialPreviewData: any,
-  readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly commentSortOrder: string,
-  readonly sideCommentVisibility: string,
-  readonly collectionTitle: string,
-  readonly canonicalPrevPostSlug: string,
-  readonly canonicalNextPostSlug: string,
-  readonly canonicalSequenceId: string,
-  readonly canonicalBookId: string,
+  readonly socialPreviewData: SocialPreviewType,
+  readonly tagRelevance: any,
+  readonly commentSortOrder: string|null,
+  readonly sideCommentVisibility: string|null,
+  readonly collectionTitle: string|null,
+  readonly canonicalPrevPostSlug: string|null,
+  readonly canonicalNextPostSlug: string|null,
+  readonly canonicalSequenceId: string|null,
+  readonly canonicalBookId: string|null,
   readonly canonicalSequence: PostsDetails_canonicalSequence|null,
   readonly canonicalBook: PostsDetails_canonicalBook|null,
   readonly canonicalCollection: PostsDetails_canonicalCollection|null,
   readonly podcastEpisode: PostsDetails_podcastEpisode|null,
   readonly bannedUserIds: Array<string>,
-  readonly moderationStyle: string,
+  readonly moderationStyle: string|null,
   readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
-  readonly feedLink: string,
+  readonly feedLink: string|null,
   readonly feed: RSSFeedMinimumInfo|null,
   readonly sourcePostRelations: Array<PostsDetails_sourcePostRelations>,
   readonly targetPostRelations: Array<PostsDetails_targetPostRelations>,
@@ -2013,12 +2071,8 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
     userId: string | null,
     createdAt: Date,
   }>,
-  readonly activateRSVPs: boolean,
-  readonly fmCrosspost: {
-    isCrosspost: boolean,
-    hostedHere: boolean | null,
-    foreignPostId: string | null,
-  },
+  readonly activateRSVPs: boolean|null,
+  readonly fmCrosspost: CrosspostOutput,
   readonly glossary: Array<JargonTermsPost>,
 }
 
@@ -2029,7 +2083,7 @@ interface PostsDetails_canonicalSequence { // fragment on Sequences
 
 interface PostsDetails_canonicalBook { // fragment on Books
   readonly _id: string,
-  readonly title: string,
+  readonly title: string|null,
 }
 
 interface PostsDetails_canonicalCollection { // fragment on Collections
@@ -2048,15 +2102,15 @@ interface PostsDetails_podcastEpisode { // fragment on PodcastEpisodes
 interface PostsDetails_podcastEpisode_podcast { // fragment on Podcasts
   readonly _id: string,
   readonly title: string,
-  readonly applePodcastLink: string | null,
-  readonly spotifyPodcastLink: string | null,
+  readonly applePodcastLink: string|null,
+  readonly spotifyPodcastLink: string|null,
 }
 
 interface PostsDetails_sourcePostRelations { // fragment on PostRelations
   readonly _id: string,
   readonly sourcePostId: string,
   readonly sourcePost: PostsListWithVotes|null,
-  readonly order: number,
+  readonly order: number|null,
 }
 
 interface PostsDetails_targetPostRelations { // fragment on PostRelations
@@ -2064,39 +2118,34 @@ interface PostsDetails_targetPostRelations { // fragment on PostRelations
   readonly sourcePostId: string,
   readonly targetPostId: string,
   readonly targetPost: PostsListWithVotes|null,
-  readonly order: number,
+  readonly order: number|null,
 }
 
 interface PostsEdit extends PostsDetails, PostSideComments { // fragment on Posts
   readonly myEditorAccess: string,
   readonly version: string|null,
-  readonly coauthorStatuses: Array<{
-    userId: string,
-    confirmed: boolean,
-    requested: boolean,
-  }> | null,
-  readonly readTimeMinutesOverride: number,
-  readonly fmCrosspost: {
-    isCrosspost: boolean,
-    hostedHere: boolean | null,
-    foreignPostId: string | null,
-  },
+  readonly coauthorStatuses: Array<CoauthorStatusOutput>,
+  readonly readTimeMinutesOverride: number|null,
+  readonly fmCrosspost: CrosspostOutput,
   readonly hideFromRecentDiscussions: boolean,
-  readonly hideFromPopularComments: boolean,
+  readonly hideFromPopularComments: boolean|null,
   readonly moderationGuidelines: RevisionEdit|null,
   readonly customHighlight: RevisionEdit|null,
   readonly tableOfContents: any,
-  readonly subforumTagId: string,
-  readonly socialPreviewImageId: string,
-  readonly socialPreview: {
-    imageId: string | null,
-    text: string | null,
-  },
-  readonly socialPreviewData: any,
-  readonly user: UsersMinimumInfo|null,
+  readonly subforumTagId: string|null,
+  readonly socialPreviewImageId: string|null,
+  readonly socialPreview: SocialPreviewOutput,
+  readonly socialPreviewData: SocialPreviewType,
+  readonly user: PostsEdit_user|null,
   readonly usersSharedWith: Array<UsersMinimumInfo>,
   readonly coauthors: Array<UsersMinimumInfo>,
-  readonly generateDraftJargon: boolean,
+  readonly generateDraftJargon: boolean|null,
+}
+
+interface PostsEdit_user extends UsersMinimumInfo { // fragment on Users
+  readonly moderationStyle: string|null,
+  readonly bannedUserIds: Array<string>,
+  readonly moderatorAssistance: boolean|null,
 }
 
 interface PostsEditMutationFragment extends PostsEdit { // fragment on Posts
@@ -2114,15 +2163,16 @@ interface PostsExpandedHighlight { // fragment on Posts
 
 interface PostsExpandedHighlight_contents { // fragment on Revisions
   readonly _id: string,
-  readonly html: string,
+  readonly html: string|null,
+  readonly wordCount: number,
 }
 
 interface PostsForAutocomplete { // fragment on Posts
   readonly _id: string,
   readonly title: string,
-  readonly userId: string,
+  readonly userId: string|null,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedScore: any,
   readonly user: UsersMinimumInfo|null,
   readonly contents: PostsForAutocomplete_contents|null,
 }
@@ -2139,11 +2189,7 @@ interface PostsHTML { // fragment on Posts
 interface PostsList extends PostsListBase { // fragment on Posts
   readonly deletedDraft: boolean,
   readonly contents: PostsList_contents|null,
-  readonly fmCrosspost: {
-    isCrosspost: boolean,
-    hostedHere: boolean | null,
-    foreignPostId: string | null,
-  },
+  readonly fmCrosspost: CrosspostOutput,
 }
 
 interface PostsList_contents { // fragment on Revisions
@@ -2156,13 +2202,13 @@ interface PostsList_contents { // fragment on Revisions
 
 interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly readTimeMinutes: number,
-  readonly rejectedReason: string | null,
+  readonly rejectedReason: string|null,
   readonly customHighlight: PostsListBase_customHighlight|null,
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,
   readonly bestAnswer: CommentsList|null,
   readonly tags: Array<TagBasicInfo>,
-  readonly socialPreviewData: any,
-  readonly feedId: string,
+  readonly socialPreviewData: SocialPreviewType,
+  readonly feedId: string|null,
   readonly totalDialogueResponseCount: number,
   readonly unreadDebateResponseCount: number,
   readonly dialogTooltipPreview: string|null,
@@ -2171,7 +2217,7 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
 
 interface PostsListBase_customHighlight { // fragment on Revisions
   readonly _id: string,
-  readonly html: string,
+  readonly html: string|null,
   readonly plaintextDescription: string,
 }
 
@@ -2201,17 +2247,13 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly _id: string,
   readonly slug: string,
   readonly title: string,
-  readonly draft: boolean,
+  readonly draft: boolean|null,
   readonly shortform: boolean,
   readonly hideCommentKarma: boolean,
   readonly af: boolean,
   readonly currentUserReviewVote: PostsMinimumInfo_currentUserReviewVote|null,
-  readonly userId: string,
-  readonly coauthorStatuses: Array<{
-    userId: string,
-    confirmed: boolean,
-    requested: boolean,
-  }> | null,
+  readonly userId: string|null,
+  readonly coauthorStatuses: Array<CoauthorStatusOutput>,
   readonly hasCoauthorPermission: boolean,
   readonly rejected: boolean,
   readonly debate: boolean,
@@ -2225,22 +2267,22 @@ interface PostsMinimumInfo_currentUserReviewVote { // fragment on ReviewVotes
 }
 
 interface PostsModerationGuidelines extends PostsMinimumInfo { // fragment on Posts
-  readonly frontpageDate: Date,
+  readonly frontpageDate: Date|null,
   readonly user: PostsModerationGuidelines_user|null,
-  readonly moderationStyle: string,
+  readonly moderationStyle: string|null,
   readonly moderationGuidelines: PostsModerationGuidelines_moderationGuidelines|null,
 }
 
 interface PostsModerationGuidelines_user { // fragment on Users
   readonly _id: string,
   readonly displayName: string,
-  readonly moderationStyle: string,
+  readonly moderationStyle: string|null,
 }
 
 interface PostsModerationGuidelines_moderationGuidelines { // fragment on Revisions
   readonly _id: string,
-  readonly html: string,
-  readonly originalContents: any,
+  readonly html: string|null,
+  readonly originalContents: ContentType,
 }
 
 interface PostsOriginalContents { // fragment on Posts
@@ -2250,7 +2292,7 @@ interface PostsOriginalContents { // fragment on Posts
 
 interface PostsOriginalContents_contents { // fragment on Revisions
   readonly _id: string,
-  readonly originalContents: any,
+  readonly originalContents: ContentType,
 }
 
 interface PostsPage extends PostsDetails { // fragment on Posts
@@ -2271,13 +2313,13 @@ interface PostsPlaintextDescription_contents { // fragment on Revisions
 }
 
 interface PostsRSSFeed extends PostsPage { // fragment on Posts
-  readonly scoreExceeded2Date: Date | null,
-  readonly scoreExceeded30Date: Date | null,
-  readonly scoreExceeded45Date: Date | null,
-  readonly scoreExceeded75Date: Date | null,
-  readonly scoreExceeded125Date: Date | null,
-  readonly scoreExceeded200Date: Date | null,
-  readonly metaDate: Date,
+  readonly scoreExceeded2Date: Date|null,
+  readonly scoreExceeded30Date: Date|null,
+  readonly scoreExceeded45Date: Date|null,
+  readonly scoreExceeded75Date: Date|null,
+  readonly scoreExceeded125Date: Date|null,
+  readonly scoreExceeded200Date: Date|null,
+  readonly metaDate: Date|null,
 }
 
 interface PostsRecentDiscussion extends PostsListWithVotes { // fragment on Posts
@@ -2330,7 +2372,7 @@ interface PostsTopItemInfo_contents { // fragment on Revisions
 
 interface PostsTopItemInfo_customHighlight { // fragment on Revisions
   readonly _id: string,
-  readonly html: string,
+  readonly html: string|null,
 }
 
 interface PostsTwitterAdmin extends PostsListWithVotes { // fragment on Posts
@@ -2380,14 +2422,14 @@ interface RSSFeedsDefaultFragment { // fragment on RSSFeeds
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly userId: string,
   readonly ownedByUser: boolean,
   readonly displayFullContent: boolean,
   readonly nickname: string,
   readonly url: string,
-  readonly status: string,
-  readonly rawFeed: any /*{"definitions":[{}]}*/,
+  readonly status: string|null,
+  readonly rawFeed: any,
   readonly setCanonicalUrl: boolean,
   readonly importAsDraft: boolean,
 }
@@ -2396,7 +2438,7 @@ interface ReadStatusesDefaultFragment { // fragment on ReadStatuses
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
 }
 
 interface RecentDiscussionRevisionTagFragment extends RevisionHistoryEntry { // fragment on Revisions
@@ -2407,42 +2449,46 @@ interface RecommendationsCachesDefaultFragment { // fragment on RecommendationsC
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly userId: string,
-  readonly postId: string,
+  readonly legacyData: any,
+  readonly userId: string|null,
+  readonly postId: string|null,
   readonly source: "recombee" | "vertex",
-  readonly scenario: string,
-  readonly attributionId: string,
-  readonly ttlMs: number,
+  readonly scenario: string|null,
+  readonly attributionId: string|null,
+  readonly ttlMs: number|null,
 }
 
 interface ReportsDefaultFragment { // fragment on Reports
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly userId: string,
-  readonly reportedUserId: string,
-  readonly commentId: string,
-  readonly postId: string,
+  readonly reportedUserId: string|null,
+  readonly commentId: string|null,
+  readonly postId: string|null,
   readonly link: string,
-  readonly claimedUserId: string,
-  readonly description: string,
-  readonly closedAt: Date | null,
-  readonly markedAsSpam: boolean,
-  readonly reportedAsSpam: boolean,
+  readonly claimedUserId: string|null,
+  readonly description: string|null,
+  readonly closedAt: Date|null,
+  readonly markedAsSpam: boolean|null,
+  readonly reportedAsSpam: boolean|null,
+}
+
+interface ReportsSlackPreview extends UnclaimedReportsList { // fragment on Reports
+  readonly comment: CommentsListWithParentMetadata|null,
 }
 
 interface ReviewVotesDefaultFragment { // fragment on ReviewVotes
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly userId: string,
   readonly postId: string,
   readonly qualitativeScore: number,
   readonly quadraticScore: number,
-  readonly comment: string,
+  readonly comment: string|null,
   readonly year: string,
   readonly dummy: boolean,
   readonly reactions: Array<string>,
@@ -2451,7 +2497,7 @@ interface ReviewVotesDefaultFragment { // fragment on ReviewVotes
 interface ReviewWinnerAll { // fragment on ReviewWinners
   readonly _id: string,
   readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
-  readonly curatedOrder: number | null,
+  readonly curatedOrder: number|null,
   readonly postId: string,
   readonly reviewYear: number,
   readonly reviewRanking: number,
@@ -2459,19 +2505,36 @@ interface ReviewWinnerAll { // fragment on ReviewWinners
   readonly competitorCount: number|null,
 }
 
+interface ReviewWinnerAnnouncement { // fragment on ReviewWinners
+  readonly _id: string,
+  readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
+  readonly curatedOrder: number|null,
+  readonly reviewYear: number,
+  readonly reviewRanking: number,
+  readonly competitorCount: number|null,
+  readonly postId: string,
+  readonly post: ReviewWinnerAnnouncement_post|null,
+}
+
+interface ReviewWinnerAnnouncement_post { // fragment on Posts
+  readonly _id: string,
+  readonly title: string,
+  readonly slug: string,
+}
+
 interface ReviewWinnerArtImages { // fragment on ReviewWinnerArts
   readonly _id: string,
   readonly postId: string,
   readonly splashArtImagePrompt: string,
   readonly splashArtImageUrl: string,
-  readonly activeSplashArtCoordinates: SplashArtCoordinates|null,
+  readonly activeSplashArtCoordinates: SplashArtCoordinatesEdit|null,
 }
 
 interface ReviewWinnerArtsDefaultFragment { // fragment on ReviewWinnerArts
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly postId: string,
   readonly splashArtImagePrompt: string,
   readonly splashArtImageUrl: string,
@@ -2481,23 +2544,23 @@ interface ReviewWinnerEditDisplay { // fragment on ReviewWinners
   readonly _id: string,
   readonly postId: string,
   readonly reviewYear: number,
-  readonly curatedOrder: number | null,
+  readonly curatedOrder: number|null,
   readonly reviewRanking: number,
 }
 
 interface ReviewWinnerTopPostsDisplay { // fragment on ReviewWinners
   readonly _id: string,
   readonly postId: string,
-  readonly post: PostsTopItemInfo,
+  readonly post: PostsTopItemInfo|null,
   readonly reviewYear: number,
-  readonly curatedOrder: number | null,
+  readonly curatedOrder: number|null,
   readonly reviewRanking: number,
 }
 
 interface ReviewWinnerTopPostsPage { // fragment on ReviewWinners
   readonly _id: string,
   readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
-  readonly curatedOrder: number | null,
+  readonly curatedOrder: number|null,
   readonly reviewYear: number,
   readonly reviewRanking: number,
   readonly reviewWinnerArt: ReviewWinnerTopPostsPage_reviewWinnerArt|null,
@@ -2505,61 +2568,51 @@ interface ReviewWinnerTopPostsPage { // fragment on ReviewWinners
 
 interface ReviewWinnerTopPostsPage_reviewWinnerArt { // fragment on ReviewWinnerArts
   readonly splashArtImageUrl: string,
-  readonly activeSplashArtCoordinates: SplashArtCoordinates|null,
+  readonly activeSplashArtCoordinates: SplashArtCoordinatesEdit|null,
 }
 
 interface ReviewWinnersDefaultFragment { // fragment on ReviewWinners
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly postId: string,
   readonly reviewYear: number,
   readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
-  readonly curatedOrder: number | null,
+  readonly curatedOrder: number|null,
   readonly reviewRanking: number,
-  readonly isAI: boolean | null,
+  readonly isAI: boolean|null,
 }
 
 interface RevisionDisplay { // fragment on Revisions
   readonly _id: string,
   readonly version: string,
-  readonly updateType: "initial" | "patch" | "minor" | "major",
+  readonly updateType: "initial" | "patch" | "minor" | "major" | null,
   readonly editedAt: Date,
-  readonly userId: string,
-  readonly html: string,
-  readonly commitMessage: string,
+  readonly userId: string|null,
+  readonly html: string|null,
+  readonly commitMessage: string|null,
   readonly wordCount: number,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
 }
 
-interface RevisionEdit { // fragment on Revisions
-  readonly _id: string,
-  readonly version: string,
-  readonly updateType: "initial" | "patch" | "minor" | "major",
-  readonly editedAt: Date,
-  readonly userId: string,
-  readonly originalContents: any,
-  readonly html: string,
+interface RevisionEdit extends RevisionDisplay { // fragment on Revisions
+  readonly originalContents: ContentType,
   readonly markdown: string|null,
-  readonly draftJS: any /*JSON*/,
   readonly ckEditorMarkup: string|null,
-  readonly wordCount: number,
-  readonly htmlHighlight: string,
-  readonly plaintextDescription: string,
 }
 
 interface RevisionHTML { // fragment on Revisions
   readonly _id: string,
-  readonly html: string,
+  readonly html: string|null,
 }
 
 interface RevisionHistoryEntry extends RevisionMetadata { // fragment on Revisions
-  readonly documentId: string,
-  readonly collectionName: string,
-  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly documentId: string|null,
+  readonly collectionName: string|null,
+  readonly changeMetrics: any,
+  readonly legacyData: any,
   readonly skipAttributions: boolean,
   readonly user: UsersMinimumInfo|null,
 }
@@ -2580,27 +2633,27 @@ interface RevisionHistorySummaryEdit_summary_parentTag { // fragment on Tags
 
 interface RevisionHistorySummaryEdit_summary_parentLens { // fragment on MultiDocuments
   readonly _id: string,
-  readonly title: string | null,
+  readonly title: string|null,
   readonly tabTitle: string,
-  readonly tabSubtitle: string | null,
+  readonly tabSubtitle: string|null,
 }
 
 interface RevisionMetadata { // fragment on Revisions
   readonly _id: string,
   readonly version: string,
   readonly editedAt: Date,
-  readonly commitMessage: string,
-  readonly userId: string,
+  readonly commitMessage: string|null,
+  readonly userId: string|null,
   readonly score: number,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedScore: any,
   readonly voteCount: number,
   readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
 }
 
 interface RevisionMetadataWithChangeMetrics extends RevisionMetadata { // fragment on Revisions
-  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly changeMetrics: any,
   readonly user: UsersMinimumInfo|null,
 }
 
@@ -2613,55 +2666,54 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly documentId: string,
-  readonly collectionName: string,
-  readonly fieldName: string,
+  readonly legacyData: any,
+  readonly documentId: string|null,
+  readonly collectionName: string|null,
+  readonly fieldName: string|null,
   readonly editedAt: Date,
-  readonly updateType: "initial" | "patch" | "minor" | "major",
+  readonly updateType: "initial" | "patch" | "minor" | "major" | null,
   readonly version: string,
-  readonly commitMessage: string,
-  readonly userId: string,
-  readonly draft: boolean,
-  readonly originalContents: any /*ContentType*/,
-  readonly html: string,
+  readonly commitMessage: string|null,
+  readonly userId: string|null,
+  readonly draft: boolean|null,
+  readonly html: string|null,
   readonly wordCount: number,
-  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly changeMetrics: any,
+  readonly googleDocMetadata: any,
   readonly skipAttributions: boolean,
   readonly voteCount: number,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedScore: any,
   readonly score: number,
-  readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
-  readonly afVoteCount: number,
+  readonly afBaseScore: number|null,
+  readonly afExtendedScore: any,
+  readonly afVoteCount: number|null,
 }
 
 interface SequenceContinueReadingFragment { // fragment on Sequences
   readonly _id: string,
   readonly title: string,
-  readonly gridImageId: string,
-  readonly canonicalCollectionSlug: string,
+  readonly gridImageId: string|null,
+  readonly canonicalCollectionSlug: string|null,
 }
 
 interface SequencesDefaultFragment { // fragment on Sequences
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly contents_latest: string,
+  readonly legacyData: any,
+  readonly contents_latest: string|null,
   readonly lastUpdated: Date,
   readonly userId: string,
   readonly title: string,
-  readonly bannerImageId: string,
-  readonly gridImageId: string,
+  readonly bannerImageId: string|null,
+  readonly gridImageId: string|null,
   readonly hideFromAuthorPage: boolean,
   readonly draft: boolean,
   readonly isDeleted: boolean,
-  readonly curatedOrder: number,
-  readonly userProfileOrder: number,
-  readonly canonicalCollectionSlug: string,
+  readonly curatedOrder: number|null,
+  readonly userProfileOrder: number|null,
+  readonly canonicalCollectionSlug: string|null,
   readonly hidden: boolean,
   readonly noindex: boolean,
   readonly af: boolean,
@@ -2676,16 +2728,16 @@ interface SequencesPageFragment extends SequencesPageTitleFragment { // fragment
   readonly userId: string,
   readonly user: UsersMinimumInfo|null,
   readonly contents: RevisionDisplay|null,
-  readonly gridImageId: string,
-  readonly bannerImageId: string,
-  readonly canonicalCollectionSlug: string,
+  readonly gridImageId: string|null,
+  readonly bannerImageId: string|null,
+  readonly canonicalCollectionSlug: string|null,
   readonly draft: boolean,
   readonly isDeleted: boolean,
   readonly hidden: boolean,
   readonly hideFromAuthorPage: boolean,
   readonly noindex: boolean,
-  readonly curatedOrder: number,
-  readonly userProfileOrder: number,
+  readonly curatedOrder: number|null,
+  readonly userProfileOrder: number|null,
   readonly af: boolean,
   readonly postsCount: number,
   readonly readPostsCount: number,
@@ -2694,7 +2746,7 @@ interface SequencesPageFragment extends SequencesPageTitleFragment { // fragment
 interface SequencesPageTitleFragment { // fragment on Sequences
   readonly _id: string,
   readonly title: string,
-  readonly canonicalCollectionSlug: string,
+  readonly canonicalCollectionSlug: string|null,
   readonly canonicalCollection: SequencesPageTitleFragment_canonicalCollection|null,
 }
 
@@ -2708,18 +2760,15 @@ interface SequencesPageWithChaptersFragment extends SequencesPageFragment { // f
 }
 
 interface SessionsDefaultFragment { // fragment on Sessions
-  readonly _id: string,
-  readonly session: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly expires: Date | null,
-  readonly lastModified: Date | null,
+  readonly _id: string|null,
+  readonly session: any,
+  readonly expires: Date|null,
+  readonly lastModified: Date|null,
 }
 
 interface SharedUserBooleans { // fragment on Users
-  readonly walledGardenInvite: boolean,
-  readonly hideWalledGardenUI: boolean,
-  readonly walledGardenPortalOnboarded: boolean,
-  readonly taggingDashboardCollapsed: boolean,
-  readonly usernameUnset: boolean,
+  readonly taggingDashboardCollapsed: boolean|null,
+  readonly usernameUnset: boolean|null,
 }
 
 interface ShortformComments extends CommentsList { // fragment on Comments
@@ -2733,10 +2782,10 @@ interface ShortformRecentDiscussion extends PostsListWithVotes { // fragment on 
 
 interface SideCommentCacheMinimumInfo { // fragment on SideCommentCaches
   readonly _id: string,
-  readonly postId: string,
-  readonly annotatedHtml: string,
-  readonly commentsByBlock: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly version: number,
+  readonly postId: string|null,
+  readonly annotatedHtml: string|null,
+  readonly commentsByBlock: any,
+  readonly version: number|null,
   readonly createdAt: Date,
 }
 
@@ -2744,16 +2793,12 @@ interface SideCommentCachesDefaultFragment { // fragment on SideCommentCaches
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly postId: string,
-  readonly annotatedHtml: string,
-  readonly commentsByBlock: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly version: number,
+  readonly legacyData: any,
 }
 
 interface SplashArtCoordinates { // fragment on SplashArtCoordinates
   readonly _id: string,
-  readonly reviewWinnerArtId: string,
+  readonly reviewWinnerArtId: string|null,
   readonly leftXPct: number,
   readonly leftYPct: number,
   readonly leftHeightPct: number,
@@ -2775,8 +2820,8 @@ interface SplashArtCoordinatesDefaultFragment { // fragment on SplashArtCoordina
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly reviewWinnerArtId: string,
+  readonly legacyData: any,
+  readonly reviewWinnerArtId: string|null,
   readonly leftXPct: number,
   readonly leftYPct: number,
   readonly leftHeightPct: number,
@@ -2794,6 +2839,10 @@ interface SplashArtCoordinatesDefaultFragment { // fragment on SplashArtCoordina
   readonly rightFlipped: boolean,
 }
 
+interface SplashArtCoordinatesEdit extends SplashArtCoordinates { // fragment on SplashArtCoordinates
+  readonly createdAt: Date,
+}
+
 interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlights
   readonly post: SpotlightDisplay_post|null,
   readonly sequence: SpotlightDisplay_sequence|null,
@@ -2802,10 +2851,7 @@ interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlig
   readonly description: SpotlightDisplay_description|null,
 }
 
-interface SpotlightDisplay_post { // fragment on Posts
-  readonly _id: string,
-  readonly title: string,
-  readonly slug: string,
+interface SpotlightDisplay_post extends PostsMinimumInfo { // fragment on Posts
   readonly user: SpotlightDisplay_post_user|null,
   readonly reviews: Array<CommentsList>,
 }
@@ -2842,7 +2888,7 @@ interface SpotlightDisplay_tag_user { // fragment on Users
 }
 
 interface SpotlightDisplay_description { // fragment on Revisions
-  readonly html: string,
+  readonly html: string|null,
 }
 
 interface SpotlightEditQueryFragment extends SpotlightMinimumInfo { // fragment on Spotlights
@@ -2873,23 +2919,23 @@ interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly _id: string,
   readonly documentId: string,
   readonly documentType: "Sequence" | "Post" | "Tag",
-  readonly spotlightImageId: string | null,
-  readonly spotlightDarkImageId: string | null,
-  readonly spotlightSplashImageUrl: string | null,
+  readonly spotlightImageId: string|null,
+  readonly spotlightDarkImageId: string|null,
+  readonly spotlightSplashImageUrl: string|null,
   readonly draft: boolean,
   readonly deletedDraft: boolean,
   readonly position: number,
   readonly lastPromotedAt: Date,
-  readonly customTitle: string | null,
-  readonly customSubtitle: string | null,
-  readonly subtitleUrl: string | null,
-  readonly headerTitle: string | null,
-  readonly headerTitleLeftColor: string | null,
-  readonly headerTitleRightColor: string | null,
+  readonly customTitle: string|null,
+  readonly customSubtitle: string|null,
+  readonly subtitleUrl: string|null,
+  readonly headerTitle: string|null,
+  readonly headerTitleLeftColor: string|null,
+  readonly headerTitleRightColor: string|null,
   readonly duration: number,
   readonly showAuthor: boolean,
   readonly imageFade: boolean,
-  readonly imageFadeColor: string | null,
+  readonly imageFadeColor: string|null,
 }
 
 interface SpotlightReviewWinner extends SpotlightMinimumInfo { // fragment on Spotlights
@@ -2898,34 +2944,34 @@ interface SpotlightReviewWinner extends SpotlightMinimumInfo { // fragment on Sp
 }
 
 interface SpotlightReviewWinner_description { // fragment on Revisions
-  readonly html: string,
+  readonly html: string|null,
 }
 
 interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly description_latest: string,
+  readonly legacyData: any,
+  readonly description_latest: string|null,
   readonly documentId: string,
   readonly documentType: "Sequence" | "Post" | "Tag",
   readonly position: number,
   readonly duration: number,
-  readonly customTitle: string | null,
-  readonly customSubtitle: string | null,
-  readonly subtitleUrl: string | null,
-  readonly headerTitle: string | null,
-  readonly headerTitleLeftColor: string | null,
-  readonly headerTitleRightColor: string | null,
+  readonly customTitle: string|null,
+  readonly customSubtitle: string|null,
+  readonly subtitleUrl: string|null,
+  readonly headerTitle: string|null,
+  readonly headerTitleLeftColor: string|null,
+  readonly headerTitleRightColor: string|null,
   readonly lastPromotedAt: Date,
-  readonly spotlightSplashImageUrl: string | null,
+  readonly spotlightSplashImageUrl: string|null,
   readonly draft: boolean,
   readonly deletedDraft: boolean,
   readonly showAuthor: boolean,
   readonly imageFade: boolean,
-  readonly imageFadeColor: string | null,
-  readonly spotlightImageId: string | null,
-  readonly spotlightDarkImageId: string | null,
+  readonly imageFadeColor: string|null,
+  readonly spotlightImageId: string|null,
+  readonly spotlightDarkImageId: string|null,
 }
 
 interface StickySubforumCommentFragment extends CommentWithRepliesFragment { // fragment on Comments
@@ -2942,12 +2988,12 @@ interface SubscribedPostAndCommentsFeed { // fragment on non-collection type
 
 interface SubscriptionState { // fragment on Subscriptions
   readonly _id: string,
-  readonly userId: string,
+  readonly userId: string|null,
   readonly createdAt: Date,
   readonly state: "subscribed" | "suppressed",
-  readonly documentId: string,
-  readonly collectionName: string,
-  readonly deleted: boolean,
+  readonly documentId: string|null,
+  readonly collectionName: string|null,
+  readonly deleted: boolean|null,
   readonly type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newSequencePosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages" | "newActivityForFeed",
 }
 
@@ -2955,12 +3001,12 @@ interface SubscriptionsDefaultFragment { // fragment on Subscriptions
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly userId: string,
+  readonly legacyData: any,
+  readonly userId: string|null,
   readonly state: "subscribed" | "suppressed",
-  readonly documentId: string,
-  readonly collectionName: string,
-  readonly deleted: boolean,
+  readonly documentId: string|null,
+  readonly collectionName: string|null,
+  readonly deleted: boolean|null,
   readonly type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newSequencePosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages" | "newActivityForFeed",
 }
 
@@ -2988,10 +3034,10 @@ interface SuggestAlignmentUser extends UsersMinimumInfo { // fragment on Users
   readonly afKarma: number,
   readonly afPostCount: number,
   readonly afCommentCount: number,
-  readonly reviewForAlignmentForumUserId: string,
+  readonly reviewForAlignmentForumUserId: string|null,
   readonly groups: Array<string>,
-  readonly afApplicationText: string,
-  readonly afSubmittedApplication: boolean,
+  readonly afApplicationText: string|null,
+  readonly afSubmittedApplication: boolean|null,
 }
 
 interface SunshineCurationPostsList extends PostsList { // fragment on Posts
@@ -3001,12 +3047,8 @@ interface SunshineCurationPostsList extends PostsList { // fragment on Posts
 interface SunshinePostsList extends PostsListBase { // fragment on Posts
   readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
-  readonly fmCrosspost: {
-    isCrosspost: boolean,
-    hostedHere: boolean | null,
-    foreignPostId: string | null,
-  },
-  readonly rejectedReason: string | null,
+  readonly fmCrosspost: CrosspostOutput,
+  readonly rejectedReason: string|null,
   readonly autoFrontpage: "show" | "hide" | null,
   readonly contents: SunshinePostsList_contents|null,
   readonly moderationGuidelines: SunshinePostsList_moderationGuidelines|null,
@@ -3015,31 +3057,41 @@ interface SunshinePostsList extends PostsListBase { // fragment on Posts
 
 interface SunshinePostsList_contents { // fragment on Revisions
   readonly _id: string,
-  readonly html: string,
+  readonly html: string|null,
   readonly htmlHighlight: string,
   readonly wordCount: number,
   readonly version: string,
+  readonly automatedContentEvaluations: SunshinePostsList_contents_automatedContentEvaluations|null,
+}
+
+interface SunshinePostsList_contents_automatedContentEvaluations { // fragment on AutomatedContentEvaluations
+  readonly _id: string,
+  readonly score: number,
+  readonly sentenceScores: Array<SentenceScore>,
+  readonly aiChoice: "accept" | "review",
+  readonly aiReasoning: string,
+  readonly aiCoT: string,
 }
 
 interface SunshinePostsList_moderationGuidelines { // fragment on Revisions
   readonly _id: string,
-  readonly html: string,
+  readonly html: string|null,
 }
 
 interface SunshinePostsList_user extends UsersMinimumInfo { // fragment on Users
   readonly biography: RevisionDisplay|null,
-  readonly profileImageId: string,
-  readonly moderationStyle: string,
+  readonly profileImageId: string|null,
+  readonly moderationStyle: string|null,
   readonly bannedUserIds: Array<string>,
-  readonly moderatorAssistance: boolean,
+  readonly moderatorAssistance: boolean|null,
   readonly moderationGuidelines: SunshinePostsList_user_moderationGuidelines|null,
-  readonly needsReview: boolean,
+  readonly needsReview: boolean|null,
   readonly moderatorActions: Array<ModeratorActionDisplay>,
 }
 
 interface SunshinePostsList_user_moderationGuidelines { // fragment on Revisions
   readonly _id: string,
-  readonly html: string,
+  readonly html: string|null,
 }
 
 interface SunshineTagFragment extends TagFragment { // fragment on Tags
@@ -3049,52 +3101,55 @@ interface SunshineTagFragment extends TagFragment { // fragment on Tags
 interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly karma: number,
   readonly htmlBio: string,
-  readonly website: string,
+  readonly website: string|null,
   readonly createdAt: Date,
-  readonly email: string,
-  readonly emails: Array<any /*{"definitions":[{}]}*/>,
+  readonly email: string|null,
+  readonly emails: Array<{
+    address: string,
+    verified: boolean,
+  }>,
   readonly commentCount: number,
   readonly maxCommentCount: number,
   readonly postCount: number,
   readonly maxPostCount: number,
-  readonly voteCount: number,
-  readonly smallUpvoteCount: number,
-  readonly bigUpvoteCount: number,
-  readonly smallDownvoteCount: number,
-  readonly bigDownvoteCount: number,
-  readonly banned: Date,
-  readonly reviewedByUserId: string,
-  readonly reviewedAt: Date,
-  readonly signUpReCaptchaRating: number,
-  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly needsReview: boolean,
-  readonly sunshineNotes: string,
-  readonly sunshineFlagged: boolean,
-  readonly postingDisabled: boolean,
-  readonly allCommentingDisabled: boolean,
-  readonly commentingOnOtherUsersDisabled: boolean,
-  readonly conversationsDisabled: boolean,
-  readonly snoozedUntilContentCount: number,
-  readonly nullifyVotes: boolean,
-  readonly deleteContent: boolean,
+  readonly voteCount: number|null,
+  readonly smallUpvoteCount: number|null,
+  readonly bigUpvoteCount: number|null,
+  readonly smallDownvoteCount: number|null,
+  readonly bigDownvoteCount: number|null,
+  readonly banned: Date|null,
+  readonly reviewedByUserId: string|null,
+  readonly reviewedAt: Date|null,
+  readonly signUpReCaptchaRating: number|null,
+  readonly mapLocation: any,
+  readonly needsReview: boolean|null,
+  readonly sunshineNotes: string|null,
+  readonly sunshineFlagged: boolean|null,
+  readonly postingDisabled: boolean|null,
+  readonly allCommentingDisabled: boolean|null,
+  readonly commentingOnOtherUsersDisabled: boolean|null,
+  readonly conversationsDisabled: boolean|null,
+  readonly snoozedUntilContentCount: number|null,
+  readonly nullifyVotes: boolean|null,
+  readonly deleteContent: boolean|null,
   readonly moderatorActions: Array<ModeratorActionDisplay>,
   readonly usersContactedBeforeReview: Array<string>,
   readonly associatedClientIds: Array<SunshineUsersList_associatedClientIds>,
   readonly altAccountsDetected: boolean|null,
-  readonly voteReceivedCount: number,
-  readonly smallUpvoteReceivedCount: number,
-  readonly bigUpvoteReceivedCount: number,
-  readonly smallDownvoteReceivedCount: number,
-  readonly bigDownvoteReceivedCount: number,
+  readonly voteReceivedCount: number|null,
+  readonly smallUpvoteReceivedCount: number|null,
+  readonly bigUpvoteReceivedCount: number|null,
+  readonly smallDownvoteReceivedCount: number|null,
+  readonly bigDownvoteReceivedCount: number|null,
   readonly recentKarmaInfo: any,
-  readonly lastNotificationsCheck: Date,
+  readonly lastNotificationsCheck: Date|null,
 }
 
 interface SunshineUsersList_associatedClientIds { // fragment on ClientIds
-  readonly clientId: string,
-  readonly firstSeenReferrer: string | null,
-  readonly firstSeenLandingPage: string,
-  readonly userIds: Array<string> | null,
+  readonly clientId: string|null,
+  readonly firstSeenReferrer: string|null,
+  readonly firstSeenLandingPage: string|null,
+  readonly userIds: Array<string>,
 }
 
 interface SurveyMinimumInfo { // fragment on Surveys
@@ -3115,7 +3170,7 @@ interface SurveyQuestionsDefaultFragment { // fragment on SurveyQuestions
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly surveyId: string,
   readonly question: string,
   readonly format: "rank0To10" | "text" | "multilineText",
@@ -3124,59 +3179,59 @@ interface SurveyQuestionsDefaultFragment { // fragment on SurveyQuestions
 
 interface SurveyResponseMinimumInfo { // fragment on SurveyResponses
   readonly _id: string,
-  readonly surveyId: string,
-  readonly surveyScheduleId: string,
-  readonly userId: string,
-  readonly clientId: string,
-  readonly response: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly surveyId: string|null,
+  readonly surveyScheduleId: string|null,
+  readonly userId: string|null,
+  readonly clientId: string|null,
+  readonly response: any,
 }
 
 interface SurveyResponsesDefaultFragment { // fragment on SurveyResponses
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly surveyId: string,
-  readonly surveyScheduleId: string,
-  readonly userId: string,
-  readonly clientId: string,
-  readonly response: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
+  readonly surveyId: string|null,
+  readonly surveyScheduleId: string|null,
+  readonly userId: string|null,
+  readonly clientId: string|null,
+  readonly response: any,
 }
 
 interface SurveyScheduleEdit extends SurveyScheduleMinimumInfo { // fragment on SurveySchedules
   readonly surveyId: string,
-  readonly name: string,
-  readonly impressionsLimit: number | null,
-  readonly maxVisitorPercentage: number | null,
-  readonly minKarma: number | null,
-  readonly maxKarma: number | null,
+  readonly name: string|null,
+  readonly impressionsLimit: number|null,
+  readonly maxVisitorPercentage: number|null,
+  readonly minKarma: number|null,
+  readonly maxKarma: number|null,
   readonly target: "allUsers" | "loggedInOnly" | "loggedOutOnly",
-  readonly startDate: Date | null,
-  readonly endDate: Date | null,
-  readonly deactivated: boolean,
+  readonly startDate: Date|null,
+  readonly endDate: Date|null,
+  readonly deactivated: boolean|null,
   readonly createdAt: Date,
 }
 
 interface SurveyScheduleMinimumInfo { // fragment on SurveySchedules
   readonly _id: string,
-  readonly survey: SurveyMinimumInfo,
+  readonly survey: SurveyMinimumInfo|null,
 }
 
 interface SurveySchedulesDefaultFragment { // fragment on SurveySchedules
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly surveyId: string,
-  readonly name: string,
-  readonly impressionsLimit: number | null,
-  readonly maxVisitorPercentage: number | null,
-  readonly minKarma: number | null,
-  readonly maxKarma: number | null,
+  readonly name: string|null,
+  readonly impressionsLimit: number|null,
+  readonly maxVisitorPercentage: number|null,
+  readonly minKarma: number|null,
+  readonly maxKarma: number|null,
   readonly target: "allUsers" | "loggedInOnly" | "loggedOutOnly",
-  readonly startDate: Date | null,
-  readonly endDate: Date | null,
-  readonly deactivated: boolean,
+  readonly startDate: Date|null,
+  readonly endDate: Date|null,
+  readonly deactivated: boolean|null,
   readonly clientIds: Array<string>,
 }
 
@@ -3184,15 +3239,15 @@ interface SurveysDefaultFragment { // fragment on Surveys
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly name: string,
 }
 
 interface TagBasicInfo { // fragment on Tags
   readonly _id: string,
-  readonly userId: string,
+  readonly userId: string|null,
   readonly name: string,
-  readonly shortName: string | null,
+  readonly shortName: string|null,
   readonly slug: string,
   readonly core: boolean,
   readonly postCount: number,
@@ -3209,10 +3264,10 @@ interface TagBasicInfo { // fragment on Tags
   readonly isArbitalImport: boolean|null,
   readonly isPlaceholderPage: boolean,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedScore: any,
   readonly score: number,
-  readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly afBaseScore: number|null,
+  readonly afExtendedScore: any,
   readonly voteCount: number,
   readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
@@ -3224,7 +3279,7 @@ interface TagCreationHistoryFragment extends TagFragment { // fragment on Tags
 }
 
 interface TagCreationHistoryFragment_description { // fragment on Revisions
-  readonly html: string,
+  readonly html: string|null,
 }
 
 interface TagDetailedPreviewFragment extends TagDetailsFragment { // fragment on Tags
@@ -3237,37 +3292,38 @@ interface TagDetailedPreviewFragment_description { // fragment on Revisions
 }
 
 interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
-  readonly subtitle: string | null,
+  readonly subtitle: string|null,
   readonly oldSlugs: Array<string>,
   readonly isRead: boolean|null,
   readonly defaultOrder: number,
-  readonly reviewedByUserId: string,
+  readonly reviewedByUserId: string|null,
   readonly wikiGrade: number,
   readonly subforumModeratorIds: Array<string>,
   readonly subforumModerators: Array<UsersMinimumInfo>,
   readonly moderationGuidelines: TagDetailsFragment_moderationGuidelines|null,
-  readonly bannerImageId: string,
-  readonly squareImageId: string,
-  readonly lesswrongWikiImportSlug: string,
-  readonly lesswrongWikiImportRevision: string,
+  readonly bannerImageId: string|null,
+  readonly squareImageId: string|null,
+  readonly lesswrongWikiImportSlug: string|null,
+  readonly lesswrongWikiImportRevision: string|null,
   readonly sequence: SequencesPageFragment|null,
 }
 
 interface TagDetailsFragment_moderationGuidelines { // fragment on Revisions
   readonly _id: string,
-  readonly html: string,
+  readonly html: string|null,
 }
 
 interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
   readonly isPostType: boolean,
-  readonly parentTagId: string,
+  readonly parentTagId: string|null,
   readonly parentTag: TagBasicInfo|null,
-  readonly subforumIntroPostId: string,
+  readonly subforumIntroPostId: string|null,
   readonly tagFlagsIds: Array<string>,
-  readonly postsDefaultSortOrder: string,
-  readonly introSequenceId: string,
-  readonly autoTagModel: string | null,
-  readonly autoTagPrompt: string | null,
+  readonly postsDefaultSortOrder: string|null,
+  readonly introSequenceId: string|null,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins"> | null,
+  readonly autoTagModel: string|null,
+  readonly autoTagPrompt: string|null,
   readonly description: RevisionEdit|null,
   readonly subforumWelcomeText: RevisionEdit|null,
   readonly moderationGuidelines: RevisionEdit|null,
@@ -3282,13 +3338,13 @@ interface TagFlagFragment { // fragment on TagFlags
   readonly createdAt: Date,
   readonly name: string,
   readonly slug: string,
-  readonly order: number | null,
+  readonly order: number|null,
   readonly deleted: boolean,
   readonly contents: TagFlagFragment_contents|null,
 }
 
 interface TagFlagFragment_contents { // fragment on Revisions
-  readonly html: string,
+  readonly html: string|null,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
 }
@@ -3297,24 +3353,24 @@ interface TagFlagsDefaultFragment { // fragment on TagFlags
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly contents_latest: string,
+  readonly legacyData: any,
+  readonly contents_latest: string|null,
   readonly slug: string,
   readonly name: string,
   readonly deleted: boolean,
-  readonly order: number | null,
+  readonly order: number|null,
 }
 
 interface TagFragment extends TagDetailsFragment { // fragment on Tags
   readonly parentTag: TagBasicInfo|null,
   readonly subTags: Array<TagBasicInfo>,
   readonly description: TagFragment_description|null,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins"> | null,
 }
 
 interface TagFragment_description { // fragment on Revisions
   readonly _id: string,
-  readonly html: string,
+  readonly html: string|null,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
   readonly version: string,
@@ -3322,7 +3378,7 @@ interface TagFragment_description { // fragment on Revisions
 }
 
 interface TagFullContributorsList { // fragment on Tags
-  readonly contributors: any,
+  readonly contributors: TagContributorsList,
 }
 
 interface TagHistoryFragment extends TagFragment { // fragment on Tags
@@ -3345,18 +3401,18 @@ interface TagPageArbitalContentFragment { // fragment on Tags
 
 interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
-  readonly postsDefaultSortOrder: string,
+  readonly postsDefaultSortOrder: string|null,
   readonly subforumIntroPost: PostsListWithVotes|null,
   readonly subforumWelcomeText: TagPageFragment_subforumWelcomeText|null,
-  readonly contributors: any,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
+  readonly contributors: TagContributorsList,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins"> | null,
   readonly forceAllowType3Audio: boolean,
   readonly textLastUpdatedAt: Date|null,
 }
 
 interface TagPageFragment_subforumWelcomeText { // fragment on Revisions
   readonly _id: string,
-  readonly html: string,
+  readonly html: string|null,
 }
 
 interface TagPageRevisionWithArbitalContentFragment extends TagPageWithRevisionFragment, TagPageArbitalContentFragment { // fragment on Tags
@@ -3373,17 +3429,17 @@ interface TagPageWithArbitalContentFragment extends TagPageFragment, TagPageArbi
 interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly textLastUpdatedAt: Date|null,
-  readonly postsDefaultSortOrder: string,
+  readonly postsDefaultSortOrder: string|null,
   readonly subforumIntroPost: PostsListWithVotes|null,
   readonly subforumWelcomeText: TagPageWithRevisionFragment_subforumWelcomeText|null,
-  readonly contributors: any,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
+  readonly contributors: TagContributorsList,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins"> | null,
   readonly forceAllowType3Audio: boolean,
 }
 
 interface TagPageWithRevisionFragment_subforumWelcomeText { // fragment on Revisions
   readonly _id: string,
-  readonly html: string,
+  readonly html: string|null,
 }
 
 interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
@@ -3391,7 +3447,7 @@ interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
   readonly parentTag: TagBasicInfo|null,
   readonly subTags: Array<TagBasicInfo>,
   readonly description: TagPreviewFragment_description|null,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins"> | null,
   readonly isArbitalImport: boolean|null,
 }
 
@@ -3409,8 +3465,8 @@ interface TagRelBasicInfo { // fragment on TagRels
   readonly _id: string,
   readonly score: number,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
-  readonly afBaseScore: number,
+  readonly extendedScore: any,
+  readonly afBaseScore: number|null,
   readonly voteCount: number,
   readonly tagId: string,
   readonly postId: string,
@@ -3425,7 +3481,7 @@ interface TagRelCreationFragment extends TagRelBasicInfo { // fragment on TagRel
 }
 
 interface TagRelCreationFragment_post extends PostsList { // fragment on Posts
-  readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly tagRelevance: any,
   readonly tagRel: WithVoteTagRel|null,
 }
 
@@ -3452,11 +3508,11 @@ interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
 
 interface TagRelVotes { // fragment on Votes
   readonly _id: string,
-  readonly userId: string,
+  readonly userId: string|null,
   readonly voteType: "bigDownvote" | "bigUpvote" | "neutral" | "smallDownvote" | "smallUpvote",
-  readonly power: number,
+  readonly power: number|null,
   readonly documentId: string,
-  readonly votedAt: Date,
+  readonly votedAt: Date|null,
   readonly isUnvote: boolean,
   readonly tagRel: WithVoteTagRel|null,
 }
@@ -3465,19 +3521,19 @@ interface TagRelsDefaultFragment { // fragment on TagRels
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly tagId: string,
   readonly postId: string,
   readonly deleted: boolean,
-  readonly userId: string | null,
+  readonly userId: string|null,
   readonly backfilled: boolean,
   readonly voteCount: number,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedScore: any,
   readonly score: number,
-  readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
-  readonly afVoteCount: number,
+  readonly afBaseScore: number|null,
+  readonly afExtendedScore: any,
+  readonly afVoteCount: number|null,
 }
 
 interface TagRevisionFragment extends TagDetailsFragment { // fragment on Tags
@@ -3490,7 +3546,7 @@ interface TagRevisionFragment extends TagDetailsFragment { // fragment on Tags
 interface TagRevisionFragment_description { // fragment on Revisions
   readonly _id: string,
   readonly version: string,
-  readonly html: string,
+  readonly html: string|null,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
   readonly editedAt: Date,
@@ -3502,7 +3558,7 @@ interface TagSectionPreviewFragment extends TagBasicInfo { // fragment on Tags
   readonly parentTag: TagBasicInfo|null,
   readonly subTags: Array<TagBasicInfo>,
   readonly description: TagSectionPreviewFragment_description|null,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins"> | null,
 }
 
 interface TagSectionPreviewFragment_description { // fragment on Revisions
@@ -3518,7 +3574,7 @@ interface TagSubforumFragment extends TagPreviewFragment { // fragment on Tags
 
 interface TagSubforumFragment_subforumWelcomeText { // fragment on Revisions
   readonly _id: string,
-  readonly html: string,
+  readonly html: string|null,
 }
 
 interface TagSubforumSidebarFragment extends TagBasicInfo { // fragment on Tags
@@ -3548,106 +3604,172 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly description_latest: string,
-  readonly pingbacks: any /*{"definitions":[{}]}*/,
-  readonly subforumWelcomeText_latest: string,
-  readonly moderationGuidelines_latest: string,
+  readonly legacyData: any,
+  readonly description_latest: string|null,
+  readonly pingbacks: any,
+  readonly subforumWelcomeText_latest: string|null,
+  readonly moderationGuidelines_latest: string|null,
   readonly slug: string,
   readonly oldSlugs: Array<string>,
   readonly name: string,
-  readonly shortName: string | null,
-  readonly subtitle: string | null,
+  readonly shortName: string|null,
+  readonly subtitle: string|null,
   readonly core: boolean,
   readonly isPostType: boolean,
   readonly suggestedAsFilter: boolean,
   readonly defaultOrder: number,
   readonly descriptionTruncationCount: number,
   readonly postCount: number,
-  readonly userId: string,
+  readonly userId: string|null,
   readonly adminOnly: boolean,
   readonly canEditUserIds: Array<string>,
-  readonly charsAdded: number,
-  readonly charsRemoved: number,
+  readonly charsAdded: number|null,
+  readonly charsRemoved: number|null,
   readonly deleted: boolean,
-  readonly lastCommentedAt: Date,
-  readonly lastSubforumCommentAt: Date,
+  readonly lastCommentedAt: Date|null,
+  readonly lastSubforumCommentAt: Date|null,
   readonly needsReview: boolean,
-  readonly reviewedByUserId: string,
+  readonly reviewedByUserId: string|null,
   readonly wikiGrade: number,
   readonly wikiOnly: boolean,
-  readonly bannerImageId: string,
-  readonly squareImageId: string,
+  readonly bannerImageId: string|null,
+  readonly squareImageId: string|null,
   readonly tagFlagsIds: Array<string>,
-  readonly lesswrongWikiImportRevision: string,
-  readonly lesswrongWikiImportSlug: string,
-  readonly lesswrongWikiImportCompleted: boolean,
-  readonly htmlWithContributorAnnotations: string,
-  readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly introSequenceId: string,
-  readonly postsDefaultSortOrder: string,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
+  readonly lesswrongWikiImportRevision: string|null,
+  readonly lesswrongWikiImportSlug: string|null,
+  readonly lesswrongWikiImportCompleted: boolean|null,
+  readonly htmlWithContributorAnnotations: string|null,
+  readonly contributionStats: any,
+  readonly introSequenceId: string|null,
+  readonly postsDefaultSortOrder: string|null,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins"> | null,
   readonly isSubforum: boolean,
   readonly subforumModeratorIds: Array<string>,
-  readonly subforumIntroPostId: string,
-  readonly parentTagId: string,
+  readonly subforumIntroPostId: string|null,
+  readonly parentTagId: string|null,
   readonly subTagIds: Array<string>,
-  readonly autoTagModel: string | null,
-  readonly autoTagPrompt: string | null,
+  readonly autoTagModel: string|null,
+  readonly autoTagPrompt: string|null,
   readonly noindex: boolean,
   readonly isPlaceholderPage: boolean,
-  readonly coreTagId: string | null,
+  readonly coreTagId: string|null,
   readonly forceAllowType3Audio: boolean,
   readonly voteCount: number,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedScore: any,
   readonly score: number,
-  readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
-  readonly afVoteCount: number,
+  readonly afBaseScore: number|null,
+  readonly afExtendedScore: any,
+  readonly afVoteCount: number|null,
+}
+
+interface TestCollection2DefaultFragment { // fragment on non-collection type
+  readonly _id: any,
+  readonly data: any,
+  readonly schemaVersion: any,
+}
+
+interface TestCollection3DefaultFragment { // fragment on non-collection type
+  readonly _id: any,
+  readonly notNullData: any,
+}
+
+interface TestCollection4DefaultFragment { // fragment on non-collection type
+  readonly _id: any,
+  readonly testCollection3Id: any,
+  readonly schemaVersion: any,
+}
+
+interface TestCollection5DefaultFragment { // fragment on non-collection type
+  readonly _id: any,
+  readonly jsonField: any,
+  readonly schemaVersion: any,
+}
+
+interface TestCollectionDefaultFragment { // fragment on non-collection type
+  readonly _id: any,
+  readonly a: any,
+  readonly b: any,
+  readonly c: any,
+  readonly d: any,
+  readonly schemaVersion: any,
 }
 
 interface TweetsDefaultFragment { // fragment on Tweets
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
 }
 
 interface TypingIndicatorInfo { // fragment on TypingIndicators
   readonly _id: string,
-  readonly userId: string,
-  readonly documentId: string,
-  readonly lastUpdated: Date,
+  readonly userId: string|null,
+  readonly documentId: string|null,
+  readonly lastUpdated: Date|null,
 }
 
 interface TypingIndicatorsDefaultFragment { // fragment on TypingIndicators
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly userId: string,
-  readonly documentId: string,
-  readonly lastUpdated: Date,
+  readonly legacyData: any,
+  readonly userId: string|null,
+  readonly documentId: string|null,
+  readonly lastUpdated: Date|null,
+}
+
+interface UltraFeedComment extends CommentsList { // fragment on Comments
+  readonly post: UltraFeedComment_post|null,
+}
+
+interface UltraFeedComment_post extends PostsMinimumInfo { // fragment on Posts
+  readonly votingSystem: string|null,
+}
+
+interface UltraFeedEventsDefaultFragment { // fragment on UltraFeedEvents
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly documentId: string|null,
+  readonly collectionName: "Posts" | "Comments" | "Spotlights",
+  readonly eventType: "served" | "viewed" | "expanded" | "interacted",
+  readonly userId: string|null,
+  readonly event: any,
+  readonly feedItemId: string|null,
+}
+
+interface UltraFeedPostFragment extends PostsDetails, PostsListWithVotes { // fragment on Posts
+  readonly contents: UltraFeedPostFragment_contents|null,
+  readonly autoFrontpage: "show" | "hide" | null,
+  readonly votingSystem: string|null,
+}
+
+interface UltraFeedPostFragment_contents { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string|null,
+  readonly htmlHighlight: string,
+  readonly wordCount: number,
+  readonly plaintextDescription: string,
+  readonly version: string,
 }
 
 interface UnclaimedReportsList { // fragment on Reports
   readonly _id: string,
   readonly userId: string,
-  readonly user: UsersMinimumInfo,
-  readonly commentId: string,
+  readonly user: UsersMinimumInfo|null,
+  readonly commentId: string|null,
   readonly comment: UnclaimedReportsList_comment|null,
-  readonly postId: string,
+  readonly postId: string|null,
   readonly post: PostsList|null,
   readonly reportedUser: SunshineUsersList|null,
-  readonly closedAt: Date | null,
+  readonly closedAt: Date|null,
   readonly createdAt: Date,
-  readonly claimedUserId: string,
+  readonly claimedUserId: string|null,
   readonly claimedUser: UnclaimedReportsList_claimedUser|null,
   readonly link: string,
-  readonly description: string,
-  readonly reportedAsSpam: boolean,
-  readonly markedAsSpam: boolean,
+  readonly description: string|null,
+  readonly reportedAsSpam: boolean|null,
+  readonly markedAsSpam: boolean|null,
 }
 
 interface UnclaimedReportsList_comment extends CommentsList { // fragment on Comments
@@ -3658,7 +3780,7 @@ interface UnclaimedReportsList_comment extends CommentsList { // fragment on Com
 interface UnclaimedReportsList_claimedUser { // fragment on Users
   readonly _id: string,
   readonly displayName: string,
-  readonly username: string,
+  readonly username: string|null,
   readonly slug: string,
 }
 
@@ -3666,7 +3788,7 @@ interface UserActivitiesDefaultFragment { // fragment on UserActivities
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
 }
 
 interface UserAltAccountsFragment extends SunshineUsersList { // fragment on Users
@@ -3682,89 +3804,89 @@ interface UserEAGDetailsDefaultFragment { // fragment on UserEAGDetails
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly userId: string,
-  readonly careerStage: Array<string> | null,
-  readonly countryOrRegion: string | null,
-  readonly nearestCity: string | null,
-  readonly willingnessToRelocate: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly experiencedIn: Array<string> | null,
-  readonly interestedIn: Array<string> | null,
-  readonly lastUpdated: Date,
+  readonly legacyData: any,
+  readonly userId: string|null,
+  readonly careerStage: Array<string|null>,
+  readonly countryOrRegion: string|null,
+  readonly nearestCity: string|null,
+  readonly willingnessToRelocate: any,
+  readonly experiencedIn: Array<string|null>,
+  readonly interestedIn: Array<string|null>,
+  readonly lastUpdated: Date|null,
 }
 
 interface UserEAGDetailsMinimumInfo { // fragment on UserEAGDetails
   readonly _id: string,
-  readonly userId: string,
+  readonly userId: string|null,
   readonly createdAt: Date,
-  readonly lastUpdated: Date,
-  readonly careerStage: Array<string> | null,
-  readonly countryOrRegion: string | null,
-  readonly nearestCity: string | null,
-  readonly willingnessToRelocate: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly experiencedIn: Array<string> | null,
-  readonly interestedIn: Array<string> | null,
+  readonly lastUpdated: Date|null,
+  readonly careerStage: Array<string|null>,
+  readonly countryOrRegion: string|null,
+  readonly nearestCity: string|null,
+  readonly willingnessToRelocate: any,
+  readonly experiencedIn: Array<string|null>,
+  readonly interestedIn: Array<string|null>,
 }
 
 interface UserJobAdsDefaultFragment { // fragment on UserJobAds
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly userId: string,
-  readonly jobName: string,
+  readonly legacyData: any,
+  readonly userId: string|null,
+  readonly jobName: string|null,
   readonly adState: "seen" | "expanded" | "applied" | "reminderSet",
-  readonly reminderSetAt: Date | null,
-  readonly lastUpdated: Date,
+  readonly reminderSetAt: Date|null,
+  readonly lastUpdated: Date|null,
 }
 
 interface UserJobAdsMinimumInfo { // fragment on UserJobAds
   readonly _id: string,
-  readonly userId: string,
+  readonly userId: string|null,
   readonly createdAt: Date,
-  readonly lastUpdated: Date,
-  readonly jobName: string,
+  readonly lastUpdated: Date|null,
+  readonly jobName: string|null,
   readonly adState: "seen" | "expanded" | "applied" | "reminderSet",
-  readonly reminderSetAt: Date | null,
+  readonly reminderSetAt: Date|null,
 }
 
 interface UserKarmaChanges { // fragment on Users
   readonly _id: string,
-  readonly karmaChanges: any,
+  readonly karmaChanges: KarmaChanges,
 }
 
 interface UserMostValuablePostInfo { // fragment on UserMostValuablePosts
   readonly _id: string,
-  readonly userId: string,
-  readonly postId: string,
-  readonly deleted: boolean,
+  readonly userId: string|null,
+  readonly postId: string|null,
+  readonly deleted: boolean|null,
 }
 
 interface UserMostValuablePostsDefaultFragment { // fragment on UserMostValuablePosts
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly userId: string,
-  readonly postId: string,
-  readonly deleted: boolean,
+  readonly legacyData: any,
+  readonly userId: string|null,
+  readonly postId: string|null,
+  readonly deleted: boolean|null,
 }
 
 interface UserOnboardingAuthor { // fragment on Users
   readonly _id: string,
   readonly displayName: string,
-  readonly profileImageId: string,
+  readonly profileImageId: string|null,
   readonly karma: number,
-  readonly jobTitle: string,
-  readonly organization: string,
+  readonly jobTitle: string|null,
+  readonly organization: string|null,
 }
 
 interface UserOnboardingTag { // fragment on Tags
   readonly _id: string,
   readonly name: string,
   readonly slug: string,
-  readonly bannerImageId: string,
-  readonly squareImageId: string,
+  readonly bannerImageId: string|null,
+  readonly squareImageId: string|null,
 }
 
 interface UserRateLimitDisplay { // fragment on UserRateLimits
@@ -3776,51 +3898,51 @@ interface UserRateLimitDisplay { // fragment on UserRateLimits
   readonly intervalUnit: "minutes" | "hours" | "days" | "weeks",
   readonly intervalLength: number,
   readonly createdAt: Date,
-  readonly endedAt: Date | null,
+  readonly endedAt: Date,
 }
 
 interface UserRateLimitsDefaultFragment { // fragment on UserRateLimits
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly userId: string,
   readonly type: "allComments" | "allPosts",
   readonly intervalUnit: "minutes" | "hours" | "days" | "weeks",
   readonly intervalLength: number,
   readonly actionsPerInterval: number,
-  readonly endedAt: Date | null,
+  readonly endedAt: Date,
 }
 
 interface UserTagRelDetails { // fragment on UserTagRels
   readonly _id: string,
   readonly userId: string,
   readonly tagId: string,
-  readonly subforumShowUnreadInSidebar: boolean,
-  readonly subforumEmailNotifications: boolean,
-  readonly subforumHideIntroPost: boolean,
+  readonly subforumShowUnreadInSidebar: boolean|null,
+  readonly subforumEmailNotifications: boolean|null,
+  readonly subforumHideIntroPost: boolean|null,
 }
 
 interface UserTagRelsDefaultFragment { // fragment on UserTagRels
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly tagId: string,
   readonly userId: string,
-  readonly subforumShowUnreadInSidebar: boolean,
-  readonly subforumEmailNotifications: boolean,
-  readonly subforumHideIntroPost: boolean,
+  readonly subforumShowUnreadInSidebar: boolean|null,
+  readonly subforumEmailNotifications: boolean|null,
+  readonly subforumHideIntroPost: boolean|null,
 }
 
 interface UserVotes { // fragment on Votes
   readonly _id: string,
-  readonly userId: string,
+  readonly userId: string|null,
   readonly voteType: "bigDownvote" | "bigUpvote" | "neutral" | "smallDownvote" | "smallUpvote",
-  readonly power: number,
+  readonly power: number|null,
   readonly cancelled: boolean,
   readonly documentId: string,
-  readonly votedAt: Date,
+  readonly votedAt: Date|null,
   readonly isUnvote: boolean,
   readonly collectionName: string,
 }
@@ -3832,14 +3954,14 @@ interface UserVotesWithDocument extends UserVotes { // fragment on Votes
 
 interface UsersAdmin { // fragment on Users
   readonly _id: string,
-  readonly username: string,
+  readonly username: string|null,
   readonly createdAt: Date,
   readonly isAdmin: boolean,
   readonly displayName: string,
-  readonly email: string,
+  readonly email: string|null,
   readonly slug: string,
   readonly groups: Array<string>,
-  readonly services: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly services: any,
   readonly karma: number,
 }
 
@@ -3861,75 +3983,73 @@ interface UsersBannedFromUsersModerationLog { // fragment on Users
 
 interface UsersCrosspostInfo { // fragment on Users
   readonly _id: string,
-  readonly username: string,
+  readonly username: string|null,
   readonly slug: string,
-  readonly fmCrosspostUserId: string,
+  readonly fmCrosspostUserId: string|null,
 }
 
 interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on Users
-  readonly beta: boolean,
-  readonly email: string,
-  readonly services: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly acceptedTos: boolean,
+  readonly beta: boolean|null,
+  readonly email: string|null,
+  readonly services: any,
+  readonly acceptedTos: boolean|null,
   readonly pageUrl: string|null,
-  readonly banned: Date,
+  readonly banned: Date|null,
   readonly isReviewed: boolean|null,
-  readonly nullifyVotes: boolean,
+  readonly nullifyVotes: boolean|null,
   readonly hideIntercom: boolean,
-  readonly hideNavigationSidebar: boolean,
+  readonly hideNavigationSidebar: boolean|null,
   readonly hideCommunitySection: boolean,
-  readonly expandedFrontpageSections: {
-    community: boolean | null,
-    recommendations: boolean | null,
-    quickTakes: boolean | null,
-    quickTakesCommunity: boolean | null,
-    popularComments: boolean | null,
-  } | null,
+  readonly expandedFrontpageSections: ExpandedFrontpageSectionsSettingsOutput,
   readonly hidePostsRecommendations: boolean,
-  readonly currentFrontpageFilter: string,
-  readonly frontpageSelectedTab: string | null,
-  readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly hideFrontpageFilterSettingsDesktop: boolean | null,
-  readonly allPostsTimeframe: string,
-  readonly allPostsSorting: string,
-  readonly allPostsFilter: string,
-  readonly allPostsShowLowKarma: boolean,
-  readonly allPostsIncludeEvents: boolean,
-  readonly allPostsHideCommunity: boolean,
-  readonly allPostsOpenSettings: boolean,
-  readonly draftsListSorting: string,
-  readonly draftsListShowArchived: boolean,
-  readonly draftsListShowShared: boolean,
-  readonly lastNotificationsCheck: Date,
+  readonly currentFrontpageFilter: string|null,
+  readonly frontpageSelectedTab: string|null,
+  readonly frontpageFilterSettings: any,
+  readonly hideFrontpageFilterSettingsDesktop: boolean|null,
+  readonly allPostsTimeframe: string|null,
+  readonly allPostsSorting: string|null,
+  readonly allPostsFilter: string|null,
+  readonly allPostsShowLowKarma: boolean|null,
+  readonly allPostsIncludeEvents: boolean|null,
+  readonly allPostsHideCommunity: boolean|null,
+  readonly allPostsOpenSettings: boolean|null,
+  readonly draftsListSorting: string|null,
+  readonly draftsListShowArchived: boolean|null,
+  readonly draftsListShowShared: boolean|null,
+  readonly lastNotificationsCheck: Date|null,
   readonly bannedUserIds: Array<string>,
   readonly bannedPersonalUserIds: Array<string>,
-  readonly moderationStyle: string,
-  readonly noKibitz: boolean,
-  readonly showHideKarmaOption: boolean,
+  readonly moderationStyle: string|null,
+  readonly noKibitz: boolean|null,
+  readonly showHideKarmaOption: boolean|null,
   readonly markDownPostEditor: boolean,
-  readonly hideElicitPredictions: boolean,
-  readonly hideAFNonMemberInitialWarning: boolean,
-  readonly commentSorting: string,
-  readonly location: string,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly mapLocationSet: boolean,
-  readonly mapMarkerText: string,
-  readonly htmlMapMarkerText: string,
+  readonly hideElicitPredictions: boolean|null,
+  readonly hideAFNonMemberInitialWarning: boolean|null,
+  readonly commentSorting: string|null,
+  readonly location: string|null,
+  readonly googleLocation: any,
+  readonly mongoLocation: any,
+  readonly mapLocation: any,
+  readonly mapLocationSet: boolean|null,
+  readonly mapMarkerText: string|null,
+  readonly htmlMapMarkerText: string|null,
   readonly nearbyEventsNotifications: boolean,
-  readonly nearbyEventsNotificationsLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly nearbyEventsNotificationsRadius: number,
-  readonly nearbyPeopleNotificationThreshold: number,
-  readonly hideFrontpageMap: boolean,
-  readonly emailSubscribedToCurated: boolean,
-  readonly subscribedToDigest: boolean,
-  readonly unsubscribeFromAll: boolean,
-  readonly emails: Array<any /*{"definitions":[{}]}*/>,
-  readonly whenConfirmationEmailSent: Date,
-  readonly hideSubscribePoke: boolean,
-  readonly hideMeetupsPoke: boolean,
-  readonly hideHomeRHS: boolean,
+  readonly nearbyEventsNotificationsLocation: any,
+  readonly nearbyEventsNotificationsRadius: number|null,
+  readonly nearbyPeopleNotificationThreshold: number|null,
+  readonly hideFrontpageMap: boolean|null,
+  readonly emailSubscribedToCurated: boolean|null,
+  readonly subscribedToDigest: boolean|null,
+  readonly subscribedToNewsletter: boolean|null,
+  readonly unsubscribeFromAll: boolean|null,
+  readonly emails: Array<{
+    address: string,
+    verified: boolean,
+  }>,
+  readonly whenConfirmationEmailSent: Date|null,
+  readonly hideSubscribePoke: boolean|null,
+  readonly hideMeetupsPoke: boolean|null,
+  readonly hideHomeRHS: boolean|null,
   readonly noCollapseCommentsFrontpage: boolean,
   readonly noCollapseCommentsPosts: boolean,
   readonly noSingleLineComments: boolean,
@@ -3940,102 +4060,95 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
     dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     showNegativeKarma: boolean,
   },
-  readonly karmaChangeLastOpened: Date,
-  readonly shortformFeedId: string,
-  readonly viewUnreviewedComments: boolean,
-  readonly recommendationSettings: {
-    frontpage: {
-      method: string,
-      count: number,
-      scoreOffset: number,
-      scoreExponent: number,
-      personalBlogpostModifier: number,
-      frontpageModifier: number,
-      curatedModifier: number,
-      onlyUnread: boolean,
-    },
-    frontpageEA: {
-      method: string,
-      count: number,
-      scoreOffset: number,
-      scoreExponent: number,
-      personalBlogpostModifier: number,
-      frontpageModifier: number,
-      curatedModifier: number,
-      onlyUnread: boolean,
-    },
-    recommendationspage: {
-      method: string,
-      count: number,
-      scoreOffset: number,
-      scoreExponent: number,
-      personalBlogpostModifier: number,
-      frontpageModifier: number,
-      curatedModifier: number,
-      onlyUnread: boolean,
-    },
-  },
+  readonly karmaChangeLastOpened: Date|null,
+  readonly shortformFeedId: string|null,
+  readonly viewUnreviewedComments: boolean|null,
+  readonly recommendationSettings: RecommendationSettingsInput,
   readonly theme: {
     name: "default" | "dark" | "auto" | null,
     siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
   },
-  readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
-  readonly hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
+  readonly bookmarkedPostsMetadata: Array<PostMetadataOutput>,
+  readonly hiddenPostsMetadata: Array<PostMetadataOutput>,
   readonly auto_subscribe_to_my_posts: boolean,
   readonly auto_subscribe_to_my_comments: boolean,
   readonly autoSubscribeAsOrganizer: boolean,
   readonly noExpandUnreadCommentsReview: boolean,
-  readonly reviewVotesQuadratic: boolean,
-  readonly reviewVotesQuadratic2019: boolean,
-  readonly reviewVotesQuadratic2020: boolean,
-  readonly hideTaggingProgressBar: boolean,
-  readonly hideFrontpageBookAd: boolean,
-  readonly hideFrontpageBook2019Ad: boolean,
-  readonly abTestKey: string,
-  readonly abTestOverrides: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
-  readonly sortDraftsBy: string,
+  readonly reviewVotesQuadratic: boolean|null,
+  readonly reviewVotesQuadratic2019: boolean|null,
+  readonly reviewVotesQuadratic2020: boolean|null,
+  readonly hideTaggingProgressBar: boolean|null,
+  readonly hideFrontpageBookAd: boolean|null,
+  readonly hideFrontpageBook2019Ad: boolean|null,
+  readonly abTestKey: string|null,
+  readonly abTestOverrides: any,
+  readonly sortDraftsBy: string|null,
   readonly reactPaletteStyle: "listView" | "gridView",
-  readonly petrovPressedButtonDate: Date,
-  readonly petrovLaunchCodeDate: Date,
+  readonly petrovPressedButtonDate: Date|null,
+  readonly petrovLaunchCodeDate: Date|null,
   readonly petrovOptOut: boolean,
-  readonly lastUsedTimezone: string,
-  readonly acknowledgedNewUserGuidelines: boolean | null,
+  readonly lastUsedTimezone: string|null,
+  readonly acknowledgedNewUserGuidelines: boolean|null,
   readonly notificationSubforumUnread: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
-  readonly subforumPreferredLayout: "card" | "list",
-  readonly hideJobAdUntil: Date | null,
-  readonly criticismTipsDismissed: boolean,
+  readonly subforumPreferredLayout: "card" | "list" | null,
+  readonly hideJobAdUntil: Date|null,
+  readonly criticismTipsDismissed: boolean|null,
   readonly allowDatadogSessionReplay: boolean,
-  readonly hideFrontpageBook2020Ad: boolean,
-  readonly hideDialogueFacilitation: boolean,
-  readonly optedInToDialogueFacilitation: boolean,
-  readonly revealChecksToAdmins: boolean,
+  readonly hideFrontpageBook2020Ad: boolean|null,
+  readonly hideDialogueFacilitation: boolean|null,
+  readonly optedInToDialogueFacilitation: boolean|null,
+  readonly revealChecksToAdmins: boolean|null,
   readonly notificationNewDialogueChecks: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationYourTurnMatchForm: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
-  readonly showDialoguesList: boolean,
-  readonly showMyDialogues: boolean,
-  readonly showMatches: boolean,
-  readonly showRecommendedPartners: boolean,
-  readonly hideActiveDialogueUsers: boolean,
-  readonly hideSunshineSidebar: boolean,
-  readonly optedOutOfSurveys: boolean | null,
-  readonly postGlossariesPinned: boolean,
-  readonly generateJargonForDrafts: boolean,
-  readonly generateJargonForPublishedPosts: boolean,
+  readonly showDialoguesList: boolean|null,
+  readonly showMyDialogues: boolean|null,
+  readonly showMatches: boolean|null,
+  readonly showRecommendedPartners: boolean|null,
+  readonly hideActiveDialogueUsers: boolean|null,
+  readonly hideSunshineSidebar: boolean|null,
+  readonly optedOutOfSurveys: boolean|null,
+  readonly postGlossariesPinned: boolean|null,
+  readonly generateJargonForDrafts: boolean|null,
+  readonly generateJargonForPublishedPosts: boolean|null,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users
@@ -4052,478 +4165,673 @@ interface UsersDefaultFragment { // fragment on Users
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly moderationGuidelines_latest: string,
-  readonly howOthersCanHelpMe_latest: string,
-  readonly howICanHelpOthers_latest: string,
+  readonly legacyData: any,
+  readonly moderationGuidelines_latest: string|null,
+  readonly howOthersCanHelpMe_latest: string|null,
+  readonly howICanHelpOthers_latest: string|null,
   readonly slug: string,
   readonly oldSlugs: Array<string>,
-  readonly biography_latest: string,
-  readonly username: string,
-  readonly emails: Array<any /*{"definitions":[{}]}*/>,
+  readonly biography_latest: string|null,
+  readonly username: string|null,
+  readonly emails: Array<{
+    address: string,
+    verified: boolean,
+  }>,
   readonly isAdmin: boolean,
-  readonly services: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly profile: any,
+  readonly services: any,
   readonly displayName: string,
-  readonly previousDisplayName: string,
-  readonly email: string,
+  readonly previousDisplayName: string|null,
+  readonly email: string|null,
   readonly noindex: boolean,
   readonly groups: Array<string>,
-  readonly lwWikiImport: boolean,
+  readonly lwWikiImport: boolean|null,
   readonly theme: {
     name: "default" | "dark" | "auto" | null,
     siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
   },
-  readonly lastUsedTimezone: string,
-  readonly whenConfirmationEmailSent: Date,
-  readonly legacy: boolean,
-  readonly commentSorting: string,
-  readonly sortDraftsBy: string,
+  readonly lastUsedTimezone: string|null,
+  readonly whenConfirmationEmailSent: Date|null,
+  readonly legacy: boolean|null,
+  readonly commentSorting: string|null,
+  readonly sortDraftsBy: string|null,
   readonly reactPaletteStyle: "listView" | "gridView",
-  readonly noKibitz: boolean,
-  readonly showHideKarmaOption: boolean,
-  readonly showPostAuthorCard: boolean,
+  readonly noKibitz: boolean|null,
+  readonly showHideKarmaOption: boolean|null,
+  readonly showPostAuthorCard: boolean|null,
   readonly hideIntercom: boolean,
   readonly markDownPostEditor: boolean,
-  readonly hideElicitPredictions: boolean,
-  readonly hideAFNonMemberInitialWarning: boolean,
+  readonly hideElicitPredictions: boolean|null,
+  readonly hideAFNonMemberInitialWarning: boolean|null,
   readonly noSingleLineComments: boolean,
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
   readonly hideCommunitySection: boolean,
-  readonly expandedFrontpageSections: {
-    community: boolean | null,
-    recommendations: boolean | null,
-    quickTakes: boolean | null,
-    quickTakesCommunity: boolean | null,
-    popularComments: boolean | null,
-  } | null,
   readonly showCommunityInRecentDiscussion: boolean,
   readonly hidePostsRecommendations: boolean,
   readonly petrovOptOut: boolean,
-  readonly optedOutOfSurveys: boolean | null,
-  readonly postGlossariesPinned: boolean,
-  readonly generateJargonForDrafts: boolean,
-  readonly generateJargonForPublishedPosts: boolean,
-  readonly acceptedTos: boolean,
-  readonly hideNavigationSidebar: boolean,
-  readonly currentFrontpageFilter: string,
-  readonly frontpageSelectedTab: string | null,
-  readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly allPostsTimeframe: string,
-  readonly allPostsFilter: string,
-  readonly allPostsSorting: string,
-  readonly allPostsShowLowKarma: boolean,
-  readonly allPostsIncludeEvents: boolean,
-  readonly allPostsHideCommunity: boolean,
-  readonly allPostsOpenSettings: boolean,
-  readonly draftsListSorting: string,
-  readonly draftsListShowArchived: boolean,
-  readonly draftsListShowShared: boolean,
-  readonly lastNotificationsCheck: Date,
+  readonly optedOutOfSurveys: boolean|null,
+  readonly postGlossariesPinned: boolean|null,
+  readonly generateJargonForDrafts: boolean|null,
+  readonly generateJargonForPublishedPosts: boolean|null,
+  readonly acceptedTos: boolean|null,
+  readonly hideNavigationSidebar: boolean|null,
+  readonly currentFrontpageFilter: string|null,
+  readonly frontpageSelectedTab: string|null,
+  readonly frontpageFilterSettings: any,
+  readonly hideFrontpageFilterSettingsDesktop: boolean|null,
+  readonly allPostsTimeframe: string|null,
+  readonly allPostsFilter: string|null,
+  readonly allPostsSorting: string|null,
+  readonly allPostsShowLowKarma: boolean|null,
+  readonly allPostsIncludeEvents: boolean|null,
+  readonly allPostsHideCommunity: boolean|null,
+  readonly allPostsOpenSettings: boolean|null,
+  readonly draftsListSorting: string|null,
+  readonly draftsListShowArchived: boolean|null,
+  readonly draftsListShowShared: boolean|null,
+  readonly lastNotificationsCheck: Date|null,
   readonly karma: number,
-  readonly goodHeartTokens: number,
-  readonly moderationStyle: string,
-  readonly moderatorAssistance: boolean,
-  readonly collapseModerationGuidelines: boolean,
+  readonly goodHeartTokens: number|null,
+  readonly moderationStyle: string|null,
+  readonly moderatorAssistance: boolean|null,
+  readonly collapseModerationGuidelines: boolean|null,
   readonly bannedUserIds: Array<string>,
   readonly bannedPersonalUserIds: Array<string>,
-  readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
-  readonly hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
-  readonly legacyId: string,
+  readonly legacyId: string|null,
   readonly deleted: boolean,
-  readonly permanentDeletionRequestedAt: Date | null,
-  readonly voteBanned: boolean,
-  readonly nullifyVotes: boolean,
-  readonly deleteContent: boolean,
-  readonly banned: Date,
+  readonly permanentDeletionRequestedAt: Date|null,
+  readonly voteBanned: boolean|null,
+  readonly nullifyVotes: boolean|null,
+  readonly deleteContent: boolean|null,
+  readonly banned: Date|null,
   readonly auto_subscribe_to_my_posts: boolean,
   readonly auto_subscribe_to_my_comments: boolean,
   readonly autoSubscribeAsOrganizer: boolean,
   readonly notificationCommentsOnSubscribedPost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationShortformContent: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationRepliesToMyComments: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationRepliesToSubscribedComments: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSubscribedUserPost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSubscribedUserComment: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationPostsInGroups: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSubscribedTagPost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSubscribedSequencePost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationPrivateMessage: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSharedWithMe: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationAlignmentSubmissionApproved: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationEventInRadius: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationKarmaPowersGained: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationRSVPs: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationGroupAdministration: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationCommentsOnDraft: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationPostsNominatedReview: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSubforumUnread: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationNewMention: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  },
+  readonly notificationNewPingback: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationDialogueMessages: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationPublishedDialogueMessages: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationAddedAsCoauthor: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationDebateCommentsOnSubscribedPost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationDebateReplies: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationDialogueMatch: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationNewDialogueChecks: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationYourTurnMatchForm: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
-  readonly hideDialogueFacilitation: boolean,
-  readonly revealChecksToAdmins: boolean,
-  readonly optedInToDialogueFacilitation: boolean,
-  readonly showDialoguesList: boolean,
-  readonly showMyDialogues: boolean,
-  readonly showMatches: boolean,
-  readonly showRecommendedPartners: boolean,
-  readonly hideActiveDialogueUsers: boolean,
+  readonly hideDialogueFacilitation: boolean|null,
+  readonly revealChecksToAdmins: boolean|null,
+  readonly optedInToDialogueFacilitation: boolean|null,
+  readonly showDialoguesList: boolean|null,
+  readonly showMyDialogues: boolean|null,
+  readonly showMatches: boolean|null,
+  readonly showRecommendedPartners: boolean|null,
+  readonly hideActiveDialogueUsers: boolean|null,
   readonly karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
     dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     showNegativeKarma: boolean,
   },
-  readonly karmaChangeLastOpened: Date,
-  readonly karmaChangeBatchStart: Date,
-  readonly emailSubscribedToCurated: boolean,
-  readonly subscribedToDigest: boolean,
-  readonly unsubscribeFromAll: boolean,
-  readonly hideSubscribePoke: boolean,
-  readonly hideMeetupsPoke: boolean,
-  readonly hideHomeRHS: boolean,
+  readonly karmaChangeLastOpened: Date|null,
+  readonly karmaChangeBatchStart: Date|null,
+  readonly emailSubscribedToCurated: boolean|null,
+  readonly subscribedToDigest: boolean|null,
+  readonly subscribedToNewsletter: boolean|null,
+  readonly unsubscribeFromAll: boolean|null,
+  readonly hideSubscribePoke: boolean|null,
+  readonly hideMeetupsPoke: boolean|null,
+  readonly hideHomeRHS: boolean|null,
   readonly frontpagePostCount: number,
   readonly sequenceCount: number,
   readonly sequenceDraftCount: number,
-  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly location: string,
-  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly mapLocationSet: boolean,
-  readonly mapMarkerText: string,
-  readonly htmlMapMarkerText: string,
+  readonly mongoLocation: any,
+  readonly googleLocation: any,
+  readonly location: string|null,
+  readonly mapLocation: any,
+  readonly mapLocationSet: boolean|null,
+  readonly mapMarkerText: string|null,
+  readonly htmlMapMarkerText: string|null,
   readonly nearbyEventsNotifications: boolean,
-  readonly nearbyEventsNotificationsLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly nearbyEventsNotificationsMongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly nearbyEventsNotificationsRadius: number,
-  readonly nearbyPeopleNotificationThreshold: number,
-  readonly hideFrontpageMap: boolean,
-  readonly hideTaggingProgressBar: boolean,
-  readonly hideFrontpageBookAd: boolean,
-  readonly hideFrontpageBook2019Ad: boolean,
-  readonly hideFrontpageBook2020Ad: boolean,
-  readonly sunshineNotes: string,
-  readonly sunshineFlagged: boolean,
-  readonly needsReview: boolean,
-  readonly sunshineSnoozed: boolean,
-  readonly snoozedUntilContentCount: number,
-  readonly reviewedByUserId: string,
-  readonly reviewedAt: Date,
+  readonly nearbyEventsNotificationsLocation: any,
+  readonly nearbyEventsNotificationsMongoLocation: any,
+  readonly nearbyEventsNotificationsRadius: number|null,
+  readonly nearbyPeopleNotificationThreshold: number|null,
+  readonly hideFrontpageMap: boolean|null,
+  readonly hideTaggingProgressBar: boolean|null,
+  readonly hideFrontpageBookAd: boolean|null,
+  readonly hideFrontpageBook2019Ad: boolean|null,
+  readonly hideFrontpageBook2020Ad: boolean|null,
+  readonly sunshineNotes: string|null,
+  readonly sunshineFlagged: boolean|null,
+  readonly needsReview: boolean|null,
+  readonly sunshineSnoozed: boolean|null,
+  readonly snoozedUntilContentCount: number|null,
+  readonly reviewedByUserId: string|null,
+  readonly reviewedAt: Date|null,
   readonly afKarma: number,
-  readonly voteCount: number,
-  readonly smallUpvoteCount: number,
-  readonly smallDownvoteCount: number,
-  readonly bigUpvoteCount: number,
-  readonly bigDownvoteCount: number,
-  readonly voteReceivedCount: number,
-  readonly smallUpvoteReceivedCount: number,
-  readonly smallDownvoteReceivedCount: number,
-  readonly bigUpvoteReceivedCount: number,
-  readonly bigDownvoteReceivedCount: number,
+  readonly voteCount: number|null,
+  readonly smallUpvoteCount: number|null,
+  readonly smallDownvoteCount: number|null,
+  readonly bigUpvoteCount: number|null,
+  readonly bigDownvoteCount: number|null,
+  readonly voteReceivedCount: number|null,
+  readonly smallUpvoteReceivedCount: number|null,
+  readonly smallDownvoteReceivedCount: number|null,
+  readonly bigUpvoteReceivedCount: number|null,
+  readonly bigDownvoteReceivedCount: number|null,
   readonly usersContactedBeforeReview: Array<string>,
-  readonly fullName: string,
-  readonly shortformFeedId: string,
-  readonly viewUnreviewedComments: boolean,
-  readonly partiallyReadSequences: Array<{
-    sequenceId: string,
-    collectionId: string,
-    lastReadPostId: string,
-    nextPostId: string,
-    numRead: number,
-    numTotal: number,
-    lastReadTime: Date,
-  }>,
-  readonly beta: boolean,
-  readonly reviewVotesQuadratic: boolean,
-  readonly reviewVotesQuadratic2019: boolean,
-  readonly reviewVotesQuadratic2020: boolean,
-  readonly petrovPressedButtonDate: Date,
-  readonly petrovLaunchCodeDate: Date,
-  readonly defaultToCKEditor: boolean,
-  readonly signUpReCaptchaRating: number,
+  readonly fullName: string|null,
+  readonly shortformFeedId: string|null,
+  readonly viewUnreviewedComments: boolean|null,
+  readonly beta: boolean|null,
+  readonly reviewVotesQuadratic: boolean|null,
+  readonly reviewVotesQuadratic2019: boolean|null,
+  readonly reviewVotesQuadratic2020: boolean|null,
+  readonly petrovPressedButtonDate: Date|null,
+  readonly petrovLaunchCodeDate: Date|null,
+  readonly defaultToCKEditor: boolean|null,
+  readonly signUpReCaptchaRating: number|null,
   readonly noExpandUnreadCommentsReview: boolean,
   readonly postCount: number,
   readonly maxPostCount: number,
   readonly commentCount: number,
   readonly maxCommentCount: number,
   readonly tagRevisionCount: number,
-  readonly abTestKey: string,
-  readonly abTestOverrides: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
-  readonly reenableDraftJs: boolean,
-  readonly walledGardenInvite: boolean,
-  readonly hideWalledGardenUI: boolean,
-  readonly walledGardenPortalOnboarded: boolean,
-  readonly taggingDashboardCollapsed: boolean,
-  readonly usernameUnset: boolean,
-  readonly paymentEmail: string,
-  readonly paymentInfo: string,
+  readonly abTestKey: string|null,
+  readonly abTestOverrides: any,
+  readonly walledGardenInvite: boolean|null,
+  readonly hideWalledGardenUI: boolean|null,
+  readonly walledGardenPortalOnboarded: boolean|null,
+  readonly taggingDashboardCollapsed: boolean|null,
+  readonly usernameUnset: boolean|null,
+  readonly paymentEmail: string|null,
+  readonly paymentInfo: string|null,
   readonly profileUpdatedAt: Date,
-  readonly profileImageId: string,
-  readonly jobTitle: string,
-  readonly organization: string,
+  readonly profileImageId: string|null,
+  readonly jobTitle: string|null,
+  readonly organization: string|null,
   readonly careerStage: Array<string>,
-  readonly website: string,
-  readonly fmCrosspostUserId: string,
-  readonly linkedinProfileURL: string,
-  readonly facebookProfileURL: string,
-  readonly blueskyProfileURL: string,
-  readonly twitterProfileURL: string,
-  readonly twitterProfileURLAdmin: string | null,
-  readonly githubProfileURL: string,
+  readonly website: string|null,
+  readonly fmCrosspostUserId: string|null,
+  readonly linkedinProfileURL: string|null,
+  readonly facebookProfileURL: string|null,
+  readonly blueskyProfileURL: string|null,
+  readonly twitterProfileURL: string|null,
+  readonly twitterProfileURLAdmin: string|null,
+  readonly githubProfileURL: string|null,
   readonly profileTagIds: Array<string>,
   readonly organizerOfGroupIds: Array<string>,
   readonly programParticipation: Array<string>,
-  readonly postingDisabled: boolean,
-  readonly allCommentingDisabled: boolean,
-  readonly commentingOnOtherUsersDisabled: boolean,
-  readonly conversationsDisabled: boolean,
-  readonly acknowledgedNewUserGuidelines: boolean | null,
-  readonly subforumPreferredLayout: "card" | "list",
-  readonly hideJobAdUntil: Date | null,
-  readonly criticismTipsDismissed: boolean,
+  readonly postingDisabled: boolean|null,
+  readonly allCommentingDisabled: boolean|null,
+  readonly commentingOnOtherUsersDisabled: boolean|null,
+  readonly conversationsDisabled: boolean|null,
+  readonly acknowledgedNewUserGuidelines: boolean|null,
+  readonly subforumPreferredLayout: "card" | "list" | null,
+  readonly hideJobAdUntil: Date|null,
+  readonly criticismTipsDismissed: boolean|null,
   readonly hideFromPeopleDirectory: boolean,
   readonly allowDatadogSessionReplay: boolean,
   readonly afPostCount: number,
   readonly afCommentCount: number,
   readonly afSequenceCount: number,
   readonly afSequenceDraftCount: number,
-  readonly reviewForAlignmentForumUserId: string,
-  readonly afApplicationText: string,
-  readonly afSubmittedApplication: boolean,
-  readonly hideSunshineSidebar: boolean,
-  readonly inactiveSurveyEmailSentAt: Date | null,
-  readonly userSurveyEmailSentAt: Date | null,
-  readonly recommendationSettings: {
-    frontpage: {
-      method: string,
-      count: number,
-      scoreOffset: number,
-      scoreExponent: number,
-      personalBlogpostModifier: number,
-      frontpageModifier: number,
-      curatedModifier: number,
-      onlyUnread: boolean,
-    },
-    frontpageEA: {
-      method: string,
-      count: number,
-      scoreOffset: number,
-      scoreExponent: number,
-      personalBlogpostModifier: number,
-      frontpageModifier: number,
-      curatedModifier: number,
-      onlyUnread: boolean,
-    },
-    recommendationspage: {
-      method: string,
-      count: number,
-      scoreOffset: number,
-      scoreExponent: number,
-      personalBlogpostModifier: number,
-      frontpageModifier: number,
-      curatedModifier: number,
-      onlyUnread: boolean,
-    },
-  },
+  readonly reviewForAlignmentForumUserId: string|null,
+  readonly afApplicationText: string|null,
+  readonly afSubmittedApplication: boolean|null,
+  readonly hideSunshineSidebar: boolean|null,
+  readonly inactiveSurveyEmailSentAt: Date|null,
+  readonly userSurveyEmailSentAt: Date|null,
+  readonly recommendationSettings: RecommendationSettingsInput,
 }
 
 interface UsersEdit extends UsersCurrent { // fragment on Users
   readonly biography: RevisionEdit|null,
   readonly moderationGuidelines: RevisionEdit|null,
   readonly markDownPostEditor: boolean,
-  readonly hideElicitPredictions: boolean,
-  readonly hideAFNonMemberInitialWarning: boolean,
+  readonly hideElicitPredictions: boolean|null,
+  readonly hideAFNonMemberInitialWarning: boolean|null,
   readonly hideIntercom: boolean,
-  readonly commentSorting: string,
-  readonly currentFrontpageFilter: string,
+  readonly commentSorting: string|null,
+  readonly currentFrontpageFilter: string|null,
   readonly noCollapseCommentsPosts: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
   readonly noSingleLineComments: boolean,
   readonly hideCommunitySection: boolean,
   readonly showCommunityInRecentDiscussion: boolean,
   readonly hidePostsRecommendations: boolean,
-  readonly beta: boolean,
+  readonly beta: boolean|null,
   readonly theme: {
     name: "default" | "dark" | "auto" | null,
     siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
   },
-  readonly email: string,
-  readonly whenConfirmationEmailSent: Date,
-  readonly emailSubscribedToCurated: boolean,
-  readonly subscribedToDigest: boolean,
-  readonly unsubscribeFromAll: boolean,
+  readonly email: string|null,
+  readonly whenConfirmationEmailSent: Date|null,
+  readonly emailSubscribedToCurated: boolean|null,
+  readonly subscribedToDigest: boolean|null,
+  readonly subscribedToNewsletter: boolean|null,
+  readonly unsubscribeFromAll: boolean|null,
   readonly hasAuth0Id: boolean|null,
-  readonly moderatorAssistance: boolean,
-  readonly collapseModerationGuidelines: boolean,
+  readonly moderatorAssistance: boolean|null,
+  readonly collapseModerationGuidelines: boolean|null,
   readonly bannedUserIds: Array<string>,
   readonly bannedPersonalUserIds: Array<string>,
-  readonly noKibitz: boolean,
-  readonly showHideKarmaOption: boolean,
-  readonly nullifyVotes: boolean,
-  readonly deleteContent: boolean,
-  readonly banned: Date,
-  readonly username: string,
+  readonly noKibitz: boolean|null,
+  readonly showHideKarmaOption: boolean|null,
+  readonly nullifyVotes: boolean|null,
+  readonly deleteContent: boolean|null,
+  readonly banned: Date|null,
+  readonly username: string|null,
   readonly displayName: string,
-  readonly fullName: string,
-  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly location: string,
-  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly fullName: string|null,
+  readonly mongoLocation: any,
+  readonly googleLocation: any,
+  readonly location: string|null,
+  readonly mapLocation: any,
   readonly hideFromPeopleDirectory: boolean,
   readonly allowDatadogSessionReplay: boolean,
-  readonly reviewedByUserId: string,
-  readonly reviewForAlignmentForumUserId: string,
+  readonly reviewedByUserId: string|null,
+  readonly reviewForAlignmentForumUserId: string|null,
   readonly groups: Array<string>,
-  readonly afApplicationText: string,
-  readonly afSubmittedApplication: boolean,
-  readonly karmaChangeLastOpened: Date,
+  readonly afApplicationText: string|null,
+  readonly afSubmittedApplication: boolean|null,
+  readonly karmaChangeLastOpened: Date|null,
   readonly karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -4531,167 +4839,377 @@ interface UsersEdit extends UsersCurrent { // fragment on Users
     showNegativeKarma: boolean,
   },
   readonly notificationShortformContent: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationCommentsOnSubscribedPost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationRepliesToMyComments: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationRepliesToSubscribedComments: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSubscribedUserPost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSubscribedUserComment: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSubscribedTagPost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSubscribedSequencePost: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationPostsInGroups: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationPrivateMessage: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSharedWithMe: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationAlignmentSubmissionApproved: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationEventInRadius: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationRSVPs: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationCommentsOnDraft: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationPostsNominatedReview: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationGroupAdministration: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationSubforumUnread: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationNewMention: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  },
+  readonly notificationNewPingback: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationNewDialogueChecks: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
   readonly notificationYourTurnMatchForm: {
-    channel: "none" | "onsite" | "email" | "both",
-    batchingFrequency: "realtime" | "daily" | "weekly",
-    timeOfDayGMT: number,
-    dayOfWeekGMT: string,
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
   },
-  readonly hideFrontpageMap: boolean,
-  readonly hideTaggingProgressBar: boolean,
-  readonly hideFrontpageBookAd: boolean,
-  readonly hideFrontpageBook2020Ad: boolean,
+  readonly notificationDialogueMessages: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  },
+  readonly notificationPublishedDialogueMessages: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  },
+  readonly hideFrontpageMap: boolean|null,
+  readonly hideTaggingProgressBar: boolean|null,
+  readonly hideFrontpageBookAd: boolean|null,
+  readonly hideFrontpageBook2020Ad: boolean|null,
   readonly deleted: boolean,
-  readonly permanentDeletionRequestedAt: Date | null,
-  readonly twitterProfileURLAdmin: string | null,
+  readonly permanentDeletionRequestedAt: Date|null,
+  readonly twitterProfileURLAdmin: string|null,
 }
 
 interface UsersMapEntry { // fragment on Users
   readonly _id: string,
   readonly displayName: string,
-  readonly username: string,
-  readonly fullName: string,
+  readonly username: string|null,
+  readonly fullName: string|null,
   readonly slug: string,
-  readonly mapLocationLatLng: any,
-  readonly mapLocationSet: boolean,
-  readonly htmlMapMarkerText: string,
+  readonly mapLocationLatLng: LatLng,
+  readonly mapLocationSet: boolean|null,
+  readonly htmlMapMarkerText: string|null,
 }
 
 interface UsersMinimumInfo { // fragment on Users
   readonly _id: string,
   readonly slug: string,
   readonly createdAt: Date,
-  readonly username: string,
+  readonly username: string|null,
   readonly displayName: string,
-  readonly profileImageId: string,
-  readonly previousDisplayName: string,
-  readonly fullName: string,
+  readonly profileImageId: string|null,
+  readonly previousDisplayName: string|null,
+  readonly fullName: string|null,
   readonly karma: number,
   readonly afKarma: number,
   readonly deleted: boolean,
   readonly isAdmin: boolean,
   readonly htmlBio: string,
-  readonly jobTitle: string,
-  readonly organization: string,
+  readonly jobTitle: string|null,
+  readonly organization: string|null,
   readonly postCount: number,
   readonly commentCount: number,
   readonly sequenceCount: number,
@@ -4699,7 +5217,7 @@ interface UsersMinimumInfo { // fragment on Users
   readonly afCommentCount: number,
   readonly spamRiskScore: number,
   readonly tagRevisionCount: number,
-  readonly reviewedByUserId: string,
+  readonly reviewedByUserId: string|null,
 }
 
 interface UsersOptedInToDialogueFacilitation { // fragment on Users
@@ -4710,8 +5228,8 @@ interface UsersOptedInToDialogueFacilitation { // fragment on Users
 interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
   readonly oldSlugs: Array<string>,
   readonly groups: Array<string>,
-  readonly jobTitle: string,
-  readonly organization: string,
+  readonly jobTitle: string|null,
+  readonly organization: string|null,
   readonly careerStage: Array<string>,
   readonly biography: RevisionDisplay|null,
   readonly howOthersCanHelpMe: RevisionDisplay|null,
@@ -4721,55 +5239,58 @@ interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragmen
   readonly organizerOfGroupIds: Array<string>,
   readonly organizerOfGroups: Array<localGroupsBase>,
   readonly programParticipation: Array<string>,
-  readonly website: string,
-  readonly linkedinProfileURL: string,
-  readonly facebookProfileURL: string,
-  readonly blueskyProfileURL: string,
-  readonly twitterProfileURL: string,
-  readonly githubProfileURL: string,
+  readonly website: string|null,
+  readonly linkedinProfileURL: string|null,
+  readonly facebookProfileURL: string|null,
+  readonly blueskyProfileURL: string|null,
+  readonly twitterProfileURL: string|null,
+  readonly githubProfileURL: string|null,
   readonly frontpagePostCount: number,
   readonly afSequenceCount: number,
   readonly afSequenceDraftCount: number,
   readonly sequenceDraftCount: number,
-  readonly moderationStyle: string,
+  readonly moderationStyle: string|null,
   readonly moderationGuidelines: RevisionDisplay|null,
   readonly bannedUserIds: Array<string>,
-  readonly location: string,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly mapLocationSet: boolean,
-  readonly mapMarkerText: string,
-  readonly htmlMapMarkerText: string,
-  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly shortformFeedId: string,
-  readonly viewUnreviewedComments: boolean,
+  readonly location: string|null,
+  readonly googleLocation: any,
+  readonly mapLocation: any,
+  readonly mapLocationSet: boolean|null,
+  readonly mapMarkerText: string|null,
+  readonly htmlMapMarkerText: string|null,
+  readonly mongoLocation: any,
+  readonly shortformFeedId: string|null,
+  readonly viewUnreviewedComments: boolean|null,
   readonly auto_subscribe_to_my_posts: boolean,
   readonly auto_subscribe_to_my_comments: boolean,
   readonly autoSubscribeAsOrganizer: boolean,
-  readonly petrovPressedButtonDate: Date,
+  readonly petrovPressedButtonDate: Date|null,
   readonly petrovOptOut: boolean,
-  readonly sortDraftsBy: string,
-  readonly email: string,
-  readonly emails: Array<any /*{"definitions":[{}]}*/>,
-  readonly banned: Date,
+  readonly sortDraftsBy: string|null,
+  readonly email: string|null,
+  readonly emails: Array<{
+    address: string,
+    verified: boolean,
+  }>,
+  readonly banned: Date|null,
   readonly noindex: boolean,
-  readonly paymentEmail: string,
-  readonly paymentInfo: string,
-  readonly goodHeartTokens: number,
-  readonly postingDisabled: boolean,
-  readonly allCommentingDisabled: boolean,
-  readonly commentingOnOtherUsersDisabled: boolean,
-  readonly conversationsDisabled: boolean,
+  readonly paymentEmail: string|null,
+  readonly paymentInfo: string|null,
+  readonly goodHeartTokens: number|null,
+  readonly postingDisabled: boolean|null,
+  readonly allCommentingDisabled: boolean|null,
+  readonly commentingOnOtherUsersDisabled: boolean|null,
+  readonly conversationsDisabled: boolean|null,
 }
 
 interface UsersProfileEdit { // fragment on Users
   readonly _id: string,
   readonly slug: string,
   readonly displayName: string,
-  readonly jobTitle: string,
-  readonly organization: string,
+  readonly jobTitle: string|null,
+  readonly organization: string|null,
   readonly careerStage: Array<string>,
-  readonly profileImageId: string,
+  readonly profileImageId: string|null,
   readonly biography: RevisionEdit|null,
   readonly howOthersCanHelpMe: RevisionEdit|null,
   readonly howICanHelpOthers: RevisionEdit|null,
@@ -4777,40 +5298,40 @@ interface UsersProfileEdit { // fragment on Users
   readonly organizerOfGroupIds: Array<string>,
   readonly organizerOfGroups: Array<localGroupsBase>,
   readonly programParticipation: Array<string>,
-  readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly website: string,
-  readonly linkedinProfileURL: string,
-  readonly facebookProfileURL: string,
-  readonly blueskyProfileURL: string,
-  readonly twitterProfileURL: string,
-  readonly githubProfileURL: string,
+  readonly mapLocation: any,
+  readonly website: string|null,
+  readonly linkedinProfileURL: string|null,
+  readonly facebookProfileURL: string|null,
+  readonly blueskyProfileURL: string|null,
+  readonly twitterProfileURL: string|null,
+  readonly githubProfileURL: string|null,
 }
 
 interface UsersSocialMediaInfo extends UsersProfile { // fragment on Users
-  readonly twitterProfileURLAdmin: string | null,
+  readonly twitterProfileURLAdmin: string|null,
 }
 
 interface UsersWithReviewInfo extends UsersMinimumInfo { // fragment on Users
-  readonly reviewVoteCount: number,
-  readonly email: string,
+  readonly reviewVoteCount: number|null,
+  readonly email: string|null,
 }
 
 interface VotesDefaultFragment { // fragment on Votes
   readonly _id: string,
   readonly schemaVersion: number,
   readonly createdAt: Date,
-  readonly legacyData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly legacyData: any,
   readonly documentId: string,
   readonly collectionName: string,
-  readonly userId: string,
+  readonly userId: string|null,
   readonly authorIds: Array<string>,
   readonly voteType: "bigDownvote" | "bigUpvote" | "neutral" | "smallDownvote" | "smallUpvote",
-  readonly extendedVoteType: any /*{"definitions":[{"type":"JSON"}]}*/,
-  readonly power: number,
-  readonly afPower: number,
+  readonly extendedVoteType: any,
+  readonly power: number|null,
+  readonly afPower: number|null,
   readonly cancelled: boolean,
   readonly isUnvote: boolean,
-  readonly votedAt: Date,
+  readonly votedAt: Date|null,
   readonly documentIsAf: boolean,
   readonly silenceNotification: boolean,
 }
@@ -4820,11 +5341,11 @@ interface WithVoteComment { // fragment on Comments
   readonly _id: string,
   readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
-  readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly baseScore: number|null,
+  readonly extendedScore: any,
   readonly score: number,
-  readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly afBaseScore: number|null,
+  readonly afExtendedScore: any,
   readonly voteCount: number,
 }
 
@@ -4833,8 +5354,8 @@ interface WithVoteElectionCandidate { // fragment on ElectionCandidates
   readonly _id: string,
   readonly score: number,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
-  readonly afBaseScore: number,
+  readonly extendedScore: any,
+  readonly afBaseScore: number|null,
   readonly voteCount: number,
   readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
@@ -4849,10 +5370,10 @@ interface WithVotePost { // fragment on Posts
   readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedScore: any,
   readonly score: number,
-  readonly afBaseScore: number,
-  readonly afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly afBaseScore: number|null,
+  readonly afExtendedScore: any,
   readonly voteCount: number,
 }
 
@@ -4862,7 +5383,7 @@ interface WithVoteRevision { // fragment on Revisions
   readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly extendedScore: any,
   readonly score: number,
   readonly voteCount: number,
 }
@@ -4875,8 +5396,8 @@ interface WithVoteTagRel { // fragment on TagRels
   readonly _id: string,
   readonly score: number,
   readonly baseScore: number,
-  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
-  readonly afBaseScore: number,
+  readonly extendedScore: any,
+  readonly afBaseScore: number|null,
   readonly voteCount: number,
   readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
@@ -4884,21 +5405,21 @@ interface WithVoteTagRel { // fragment on TagRels
 
 interface emailHistoryFragment { // fragment on LWEvents
   readonly _id: string,
-  readonly createdAt: Date,
-  readonly userId: string,
-  readonly name: string,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly createdAt: Date|null,
+  readonly userId: string|null,
+  readonly name: string|null,
+  readonly properties: any,
 }
 
 interface lastEventFragment { // fragment on LWEvents
   readonly _id: string,
-  readonly createdAt: Date,
-  readonly documentId: string,
-  readonly userId: string,
-  readonly name: string,
-  readonly important: boolean,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly intercom: boolean,
+  readonly createdAt: Date|null,
+  readonly documentId: string|null,
+  readonly userId: string|null,
+  readonly name: string|null,
+  readonly important: boolean|null,
+  readonly properties: any,
+  readonly intercom: boolean|null,
 }
 
 interface localGroupsBase { // fragment on Localgroups
@@ -4908,20 +5429,20 @@ interface localGroupsBase { // fragment on Localgroups
   readonly organizers: Array<UsersMinimumInfo>,
   readonly lastActivity: Date,
   readonly name: string,
-  readonly nameInAnotherLanguage: string,
+  readonly nameInAnotherLanguage: string|null,
   readonly isOnline: boolean,
-  readonly location: string,
-  readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly location: string|null,
+  readonly googleLocation: any,
+  readonly mongoLocation: any,
   readonly types: Array<string>,
   readonly categories: Array<string>,
-  readonly contactInfo: string,
-  readonly facebookLink: string,
-  readonly facebookPageLink: string,
-  readonly meetupLink: string,
-  readonly slackLink: string,
-  readonly website: string,
-  readonly bannerImageId: string,
+  readonly contactInfo: string|null,
+  readonly facebookLink: string|null,
+  readonly facebookPageLink: string|null,
+  readonly meetupLink: string|null,
+  readonly slackLink: string|null,
+  readonly website: string|null,
+  readonly bannerImageId: string|null,
   readonly inactive: boolean,
   readonly deleted: boolean,
 }
@@ -4942,41 +5463,41 @@ interface localGroupsIsOnline { // fragment on Localgroups
 
 interface lwEventsAdminPageFragment { // fragment on LWEvents
   readonly _id: string,
-  readonly createdAt: Date,
-  readonly userId: string,
+  readonly createdAt: Date|null,
+  readonly userId: string|null,
   readonly user: UsersMinimumInfo|null,
-  readonly name: string,
-  readonly documentId: string,
-  readonly important: boolean,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly intercom: boolean,
+  readonly name: string|null,
+  readonly documentId: string|null,
+  readonly important: boolean|null,
+  readonly properties: any,
+  readonly intercom: boolean|null,
 }
 
 interface messageListFragment { // fragment on Messages
   readonly _id: string,
   readonly user: messageListFragment_user|null,
   readonly contents: messageListFragment_contents|null,
-  readonly createdAt: Date,
-  readonly conversationId: string,
+  readonly createdAt: Date|null,
+  readonly conversationId: string|null,
 }
 
 interface messageListFragment_user extends UsersMinimumInfo { // fragment on Users
-  readonly profileImageId: string,
+  readonly profileImageId: string|null,
 }
 
 interface messageListFragment_contents { // fragment on Revisions
-  readonly html: string,
+  readonly html: string|null,
   readonly plaintextMainText: string,
 }
 
 interface newEventFragment { // fragment on LWEvents
   readonly _id: string,
-  readonly createdAt: Date,
-  readonly userId: string,
-  readonly name: string,
-  readonly important: boolean,
-  readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly intercom: boolean,
+  readonly createdAt: Date|null,
+  readonly userId: string|null,
+  readonly name: string|null,
+  readonly important: boolean|null,
+  readonly properties: any,
+  readonly intercom: boolean|null,
 }
 
 interface newRSSFeedFragment { // fragment on RSSFeeds
@@ -4987,7 +5508,7 @@ interface newRSSFeedFragment { // fragment on RSSFeeds
   readonly displayFullContent: boolean,
   readonly nickname: string,
   readonly url: string,
-  readonly status: string,
+  readonly status: string|null,
   readonly importAsDraft: boolean,
 }
 
@@ -5011,7 +5532,7 @@ interface reviewVoteFragment { // fragment on ReviewVotes
   readonly postId: string,
   readonly qualitativeScore: number,
   readonly quadraticScore: number,
-  readonly comment: string,
+  readonly comment: string|null,
   readonly year: string,
   readonly dummy: boolean,
   readonly reactions: Array<string>,
@@ -5023,8 +5544,11 @@ interface reviewVoteWithUserAndPost extends reviewVoteFragment { // fragment on 
 }
 
 interface reviewVoteWithUserAndPost_user extends UsersMinimumInfo { // fragment on Users
-  readonly email: string,
-  readonly emails: Array<any /*{"definitions":[{}]}*/>,
+  readonly email: string|null,
+  readonly emails: Array<{
+    address: string,
+    verified: boolean,
+  }>,
 }
 
 interface FragmentTypes {
@@ -5034,10 +5558,14 @@ interface FragmentTypes {
   ArbitalCachesDefaultFragment: ArbitalCachesDefaultFragment
   ArbitalLinkedPagesFragment: ArbitalLinkedPagesFragment
   ArbitalTagContentRelsDefaultFragment: ArbitalTagContentRelsDefaultFragment
+  AutomatedContentEvaluationsDefaultFragment: AutomatedContentEvaluationsDefaultFragment
   BansAdminPageFragment: BansAdminPageFragment
   BansDefaultFragment: BansDefaultFragment
   BookEdit: BookEdit
   BookPageFragment: BookPageFragment
+  BookmarksDefaultFragment: BookmarksDefaultFragment
+  BookmarksFeedItemFragment: BookmarksFeedItemFragment
+  BookmarksWithDocumentFragment: BookmarksWithDocumentFragment
   BooksDefaultFragment: BooksDefaultFragment
   ChaptersDefaultFragment: ChaptersDefaultFragment
   ChaptersEdit: ChaptersEdit
@@ -5083,6 +5611,7 @@ interface FragmentTypes {
   DigestPostsMinimumInfo: DigestPostsMinimumInfo
   DigestsDefaultFragment: DigestsDefaultFragment
   DigestsMinimumInfo: DigestsMinimumInfo
+  DraftComments: DraftComments
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
   ElectionCandidateSimple: ElectionCandidateSimple
   ElectionCandidatesDefaultFragment: ElectionCandidatesDefaultFragment
@@ -5096,6 +5625,9 @@ interface FragmentTypes {
   ExplorePageTagFragment: ExplorePageTagFragment
   FeaturedResourcesDefaultFragment: FeaturedResourcesDefaultFragment
   FeaturedResourcesFragment: FeaturedResourcesFragment
+  FeedCommentThreadFragment: FeedCommentThreadFragment
+  FeedPostFragment: FeedPostFragment
+  FeedSpotlightFragment: FeedSpotlightFragment
   FieldChangeFragment: FieldChangeFragment
   FieldChangesDefaultFragment: FieldChangesDefaultFragment
   ForumEventsDefaultFragment: ForumEventsDefaultFragment
@@ -5201,8 +5733,10 @@ interface FragmentTypes {
   RecentDiscussionRevisionTagFragment: RecentDiscussionRevisionTagFragment
   RecommendationsCachesDefaultFragment: RecommendationsCachesDefaultFragment
   ReportsDefaultFragment: ReportsDefaultFragment
+  ReportsSlackPreview: ReportsSlackPreview
   ReviewVotesDefaultFragment: ReviewVotesDefaultFragment
   ReviewWinnerAll: ReviewWinnerAll
+  ReviewWinnerAnnouncement: ReviewWinnerAnnouncement
   ReviewWinnerArtImages: ReviewWinnerArtImages
   ReviewWinnerArtsDefaultFragment: ReviewWinnerArtsDefaultFragment
   ReviewWinnerEditDisplay: ReviewWinnerEditDisplay
@@ -5232,6 +5766,7 @@ interface FragmentTypes {
   SideCommentCachesDefaultFragment: SideCommentCachesDefaultFragment
   SplashArtCoordinates: SplashArtCoordinates
   SplashArtCoordinatesDefaultFragment: SplashArtCoordinatesDefaultFragment
+  SplashArtCoordinatesEdit: SplashArtCoordinatesEdit
   SpotlightDisplay: SpotlightDisplay
   SpotlightEditQueryFragment: SpotlightEditQueryFragment
   SpotlightHeaderEventSubtitle: SpotlightHeaderEventSubtitle
@@ -5294,9 +5829,17 @@ interface FragmentTypes {
   TagWithFlagsAndRevisionFragment: TagWithFlagsAndRevisionFragment
   TagWithFlagsFragment: TagWithFlagsFragment
   TagsDefaultFragment: TagsDefaultFragment
+  TestCollection2DefaultFragment: TestCollection2DefaultFragment
+  TestCollection3DefaultFragment: TestCollection3DefaultFragment
+  TestCollection4DefaultFragment: TestCollection4DefaultFragment
+  TestCollection5DefaultFragment: TestCollection5DefaultFragment
+  TestCollectionDefaultFragment: TestCollectionDefaultFragment
   TweetsDefaultFragment: TweetsDefaultFragment
   TypingIndicatorInfo: TypingIndicatorInfo
   TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
+  UltraFeedComment: UltraFeedComment
+  UltraFeedEventsDefaultFragment: UltraFeedEventsDefaultFragment
+  UltraFeedPostFragment: UltraFeedPostFragment
   UnclaimedReportsList: UnclaimedReportsList
   UserActivitiesDefaultFragment: UserActivitiesDefaultFragment
   UserAltAccountsFragment: UserAltAccountsFragment
@@ -5360,14 +5903,16 @@ interface FragmentTypesByCollection {
   ArbitalCacheses: "ArbitalCachesDefaultFragment"
   ArbitalLinkedPageses: "ArbitalLinkedPagesFragment"
   ArbitalTagContentRels: "ArbitalTagContentRelsDefaultFragment"
+  AutomatedContentEvaluations: "AutomatedContentEvaluationsDefaultFragment"
   Bans: "BansAdminPageFragment"|"BansDefaultFragment"
+  Bookmarks: "BookmarksDefaultFragment"|"BookmarksFeedItemFragment"|"BookmarksWithDocumentFragment"
   Books: "BookEdit"|"BookPageFragment"|"BooksDefaultFragment"
   Chapters: "ChaptersDefaultFragment"|"ChaptersEdit"|"ChaptersFragment"
   CkEditorUserSessions: "CkEditorUserSessionInfo"|"CkEditorUserSessionsDefaultFragment"
   ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
   Collections: "CollectionContinueReadingFragment"|"CollectionsBestOfFragment"|"CollectionsDefaultFragment"|"CollectionsEditFragment"|"CollectionsPageFragment"
   CommentModeratorActions: "CommentModeratorActionDisplay"|"CommentModeratorActionsDefaultFragment"
-  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsDefaultFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithModerationMetadata"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"WithVoteComment"
+  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsDefaultFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithModerationMetadata"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"DraftComments"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"UltraFeedComment"|"WithVoteComment"
   Conversations: "ConversationsDefaultFragment"|"ConversationsList"|"ConversationsListWithReadStatus"|"ConversationsMinimumInfo"
   CronHistories: "CronHistoriesDefaultFragment"
   CurationEmails: "CurationEmailsDefaultFragment"
@@ -5384,6 +5929,9 @@ interface FragmentTypesByCollection {
   ElicitQuestions: "ElicitQuestionFragment"|"ElicitQuestionsDefaultFragment"
   EmailTokenses: "EmailTokensDefaultFragment"
   FeaturedResources: "FeaturedResourcesDefaultFragment"|"FeaturedResourcesFragment"
+  FeedCommentThreads: "FeedCommentThreadFragment"
+  FeedPosts: "FeedPostFragment"
+  FeedSpotlightItems: "FeedSpotlightFragment"
   FieldChanges: "FieldChangeFragment"|"FieldChangesDefaultFragment"
   ForumEvents: "ForumEventsDefaultFragment"|"ForumEventsDisplay"|"ForumEventsEdit"|"ForumEventsMinimumInfo"
   GardenCodes: "GardenCodeFragment"|"GardenCodeFragmentEdit"|"GardenCodesDefaultFragment"
@@ -5412,19 +5960,19 @@ interface FragmentTypesByCollection {
   PostRelations: "PostRelationsDefaultFragment"
   PostViewTimes: "PostViewTimesDefaultFragment"
   PostViewses: "PostViewsDefaultFragment"
-  Posts: "HighlightWithHash"|"PostForReviewWinnerItem"|"PostSequenceNavigation"|"PostSideComments"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDefaultFragment"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionEdit"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsTwitterAdmin"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
+  Posts: "HighlightWithHash"|"PostForReviewWinnerItem"|"PostSequenceNavigation"|"PostSideComments"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDefaultFragment"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionEdit"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsTwitterAdmin"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UltraFeedPostFragment"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
   RSSFeeds: "RSSFeedMinimumInfo"|"RSSFeedMutationFragment"|"RSSFeedsDefaultFragment"|"newRSSFeedFragment"
   ReadStatuses: "ReadStatusesDefaultFragment"
   RecommendationsCaches: "RecommendationsCachesDefaultFragment"
-  Reports: "ReportsDefaultFragment"|"UnclaimedReportsList"
+  Reports: "ReportsDefaultFragment"|"ReportsSlackPreview"|"UnclaimedReportsList"
   ReviewVotes: "ReviewVotesDefaultFragment"|"reviewAdminDashboard"|"reviewVoteFragment"|"reviewVoteWithUserAndPost"
   ReviewWinnerArts: "ReviewWinnerArtImages"|"ReviewWinnerArtsDefaultFragment"
-  ReviewWinners: "ReviewWinnerAll"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsDisplay"|"ReviewWinnerTopPostsPage"|"ReviewWinnersDefaultFragment"
+  ReviewWinners: "ReviewWinnerAll"|"ReviewWinnerAnnouncement"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsDisplay"|"ReviewWinnerTopPostsPage"|"ReviewWinnersDefaultFragment"
   Revisions: "RecentDiscussionRevisionTagFragment"|"RevisionDisplay"|"RevisionEdit"|"RevisionHTML"|"RevisionHistoryEntry"|"RevisionHistorySummaryEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionTagFragment"|"RevisionsDefaultFragment"|"WithVoteRevision"
   Sequences: "SequenceContinueReadingFragment"|"SequencesDefaultFragment"|"SequencesEdit"|"SequencesPageFragment"|"SequencesPageTitleFragment"|"SequencesPageWithChaptersFragment"
   Sessions: "SessionsDefaultFragment"
   SideCommentCaches: "SideCommentCacheMinimumInfo"|"SideCommentCachesDefaultFragment"
-  SplashArtCoordinates: "SplashArtCoordinates"|"SplashArtCoordinatesDefaultFragment"
+  SplashArtCoordinates: "SplashArtCoordinates"|"SplashArtCoordinatesDefaultFragment"|"SplashArtCoordinatesEdit"
   Spotlights: "SpotlightDisplay"|"SpotlightEditQueryFragment"|"SpotlightHeaderEventSubtitle"|"SpotlightMinimumInfo"|"SpotlightReviewWinner"|"SpotlightsDefaultFragment"
   SubscribedPostAndCommentses: "SubscribedPostAndCommentsFeed"
   Subscriptions: "MembersOfGroupFragment"|"SubscriptionState"|"SubscriptionsDefaultFragment"
@@ -5437,6 +5985,7 @@ interface FragmentTypesByCollection {
   Tags: "AllTagsPageFragment"|"ConceptItemFragment"|"ExplorePageTagFragment"|"SunshineTagFragment"|"TagBasicInfo"|"TagCreationHistoryFragment"|"TagDetailedPreviewFragment"|"TagDetailsFragment"|"TagEditFragment"|"TagFragment"|"TagFullContributorsList"|"TagHistoryFragment"|"TagName"|"TagPageArbitalContentFragment"|"TagPageFragment"|"TagPageRevisionWithArbitalContentFragment"|"TagPageWithArbitalContentAndLensRevisionFragment"|"TagPageWithArbitalContentFragment"|"TagPageWithRevisionFragment"|"TagPreviewFragment"|"TagRecentDiscussion"|"TagRevisionFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubforumSidebarFragment"|"TagSubtagFragment"|"TagWithFlagsAndRevisionFragment"|"TagWithFlagsFragment"|"TagsDefaultFragment"|"UserOnboardingTag"|"WithVoteTag"
   Tweets: "TweetsDefaultFragment"
   TypingIndicators: "TypingIndicatorInfo"|"TypingIndicatorsDefaultFragment"
+  UltraFeedEvents: "UltraFeedEventsDefaultFragment"
   UserActivities: "UserActivitiesDefaultFragment"
   UserEAGDetails: "UserEAGDetailsDefaultFragment"|"UserEAGDetailsMinimumInfo"
   UserJobAds: "UserJobAdsDefaultFragment"|"UserJobAdsMinimumInfo"
@@ -5445,19 +5994,24 @@ interface FragmentTypesByCollection {
   UserTagRels: "UserTagRelDetails"|"UserTagRelsDefaultFragment"
   Users: "SharedUserBooleans"|"SuggestAlignmentUser"|"SunshineUsersList"|"UserAltAccountsFragment"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UserOnboardingAuthor"|"UsersAdmin"|"UsersBannedFromUsersModerationLog"|"UsersCrosspostInfo"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UsersDefaultFragment"|"UsersEdit"|"UsersMapEntry"|"UsersMinimumInfo"|"UsersOptedInToDialogueFacilitation"|"UsersProfile"|"UsersProfileEdit"|"UsersSocialMediaInfo"|"UsersWithReviewInfo"
   Votes: "TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"|"VotesDefaultFragment"
+  undefineds: "TestCollection2DefaultFragment"|"TestCollection3DefaultFragment"|"TestCollection4DefaultFragment"|"TestCollection5DefaultFragment"|"TestCollectionDefaultFragment"
 }
 
 interface CollectionNamesByFragmentName {
   AdvisorRequestsDefaultFragment: "AdvisorRequests"
   AdvisorRequestsMinimumInfo: "AdvisorRequests"
   AllTagsPageFragment: "Tags"
-  ArbitalCachesDefaultFragment: never
+  ArbitalCachesDefaultFragment: "ArbitalCaches"
   ArbitalLinkedPagesFragment: never
   ArbitalTagContentRelsDefaultFragment: "ArbitalTagContentRels"
+  AutomatedContentEvaluationsDefaultFragment: "AutomatedContentEvaluations"
   BansAdminPageFragment: "Bans"
   BansDefaultFragment: "Bans"
   BookEdit: "Books"
   BookPageFragment: "Books"
+  BookmarksDefaultFragment: "Bookmarks"
+  BookmarksFeedItemFragment: "Bookmarks"
+  BookmarksWithDocumentFragment: "Bookmarks"
   BooksDefaultFragment: "Books"
   ChaptersDefaultFragment: "Chapters"
   ChaptersEdit: "Chapters"
@@ -5491,8 +6045,8 @@ interface CollectionNamesByFragmentName {
   CurationEmailsDefaultFragment: "CurationEmails"
   CurationNoticesDefaultFragment: "CurationNotices"
   CurationNoticesFragment: "CurationNotices"
-  DatabaseMetadataDefaultFragment: never
-  DebouncerEventsDefaultFragment: never
+  DatabaseMetadataDefaultFragment: "DatabaseMetadata"
+  DebouncerEventsDefaultFragment: "DebouncerEvents"
   DeletedCommentsMetaData: "Comments"
   DeletedCommentsModerationLog: "Comments"
   DialogueCheckInfo: "DialogueChecks"
@@ -5503,6 +6057,7 @@ interface CollectionNamesByFragmentName {
   DigestPostsMinimumInfo: "DigestPosts"
   DigestsDefaultFragment: "Digests"
   DigestsMinimumInfo: "Digests"
+  DraftComments: "Comments"
   ElectionCandidateBasicInfo: "ElectionCandidates"
   ElectionCandidateSimple: "ElectionCandidates"
   ElectionCandidatesDefaultFragment: "ElectionCandidates"
@@ -5512,10 +6067,13 @@ interface CollectionNamesByFragmentName {
   ElicitQuestionFragment: "ElicitQuestions"
   ElicitQuestionPredictionsDefaultFragment: "ElicitQuestionPredictions"
   ElicitQuestionsDefaultFragment: "ElicitQuestions"
-  EmailTokensDefaultFragment: never
+  EmailTokensDefaultFragment: "EmailTokens"
   ExplorePageTagFragment: "Tags"
   FeaturedResourcesDefaultFragment: "FeaturedResources"
   FeaturedResourcesFragment: "FeaturedResources"
+  FeedCommentThreadFragment: never
+  FeedPostFragment: never
+  FeedSpotlightFragment: never
   FieldChangeFragment: "FieldChanges"
   FieldChangesDefaultFragment: "FieldChanges"
   ForumEventsDefaultFragment: "ForumEvents"
@@ -5529,13 +6087,13 @@ interface CollectionNamesByFragmentName {
   GoogleServiceAccountSessionInfo: "GoogleServiceAccountSessions"
   GoogleServiceAccountSessionsDefaultFragment: "GoogleServiceAccountSessions"
   HighlightWithHash: "Posts"
-  ImagesDefaultFragment: never
+  ImagesDefaultFragment: "Images"
   JargonTerms: "JargonTerms"
   JargonTermsDefaultFragment: "JargonTerms"
   JargonTermsPost: "JargonTerms"
   JargonTermsWithPostInfo: "JargonTerms"
   LWEventsDefaultFragment: "LWEvents"
-  LegacyDataDefaultFragment: never
+  LegacyDataDefaultFragment: "LegacyData"
   LlmConversationsDefaultFragment: "LlmConversations"
   LlmConversationsFragment: "LlmConversations"
   LlmConversationsViewingPageFragment: "LlmConversations"
@@ -5562,7 +6120,7 @@ interface CollectionNamesByFragmentName {
   MultiDocumentsDefaultFragment: "MultiDocuments"
   NotificationsDefaultFragment: "Notifications"
   NotificationsList: "Notifications"
-  PageCacheDefaultFragment: never
+  PageCacheDefaultFragment: "PageCache"
   PetrovDayActionInfo: "PetrovDayActions"
   PetrovDayActionsDefaultFragment: "PetrovDayActions"
   PetrovDayLaunchInfo: "PetrovDayLaunchs"
@@ -5578,7 +6136,7 @@ interface CollectionNamesByFragmentName {
   PostSequenceNavigation: "Posts"
   PostSideComments: "Posts"
   PostViewTimesDefaultFragment: "PostViewTimes"
-  PostViewsDefaultFragment: never
+  PostViewsDefaultFragment: "PostViews"
   PostWithDialogueMessage: "Posts"
   PostWithGeneratedSummary: "Posts"
   PostsAuthors: "Posts"
@@ -5621,8 +6179,10 @@ interface CollectionNamesByFragmentName {
   RecentDiscussionRevisionTagFragment: "Revisions"
   RecommendationsCachesDefaultFragment: "RecommendationsCaches"
   ReportsDefaultFragment: "Reports"
+  ReportsSlackPreview: "Reports"
   ReviewVotesDefaultFragment: "ReviewVotes"
   ReviewWinnerAll: "ReviewWinners"
+  ReviewWinnerAnnouncement: "ReviewWinners"
   ReviewWinnerArtImages: "ReviewWinnerArts"
   ReviewWinnerArtsDefaultFragment: "ReviewWinnerArts"
   ReviewWinnerEditDisplay: "ReviewWinners"
@@ -5652,6 +6212,7 @@ interface CollectionNamesByFragmentName {
   SideCommentCachesDefaultFragment: "SideCommentCaches"
   SplashArtCoordinates: "SplashArtCoordinates"
   SplashArtCoordinatesDefaultFragment: "SplashArtCoordinates"
+  SplashArtCoordinatesEdit: "SplashArtCoordinates"
   SpotlightDisplay: "Spotlights"
   SpotlightEditQueryFragment: "Spotlights"
   SpotlightHeaderEventSubtitle: "Spotlights"
@@ -5714,9 +6275,17 @@ interface CollectionNamesByFragmentName {
   TagWithFlagsAndRevisionFragment: "Tags"
   TagWithFlagsFragment: "Tags"
   TagsDefaultFragment: "Tags"
+  TestCollection2DefaultFragment: never
+  TestCollection3DefaultFragment: never
+  TestCollection4DefaultFragment: never
+  TestCollection5DefaultFragment: never
+  TestCollectionDefaultFragment: never
   TweetsDefaultFragment: "Tweets"
   TypingIndicatorInfo: "TypingIndicators"
   TypingIndicatorsDefaultFragment: "TypingIndicators"
+  UltraFeedComment: "Comments"
+  UltraFeedEventsDefaultFragment: "UltraFeedEvents"
+  UltraFeedPostFragment: "Posts"
   UnclaimedReportsList: "Reports"
   UserActivitiesDefaultFragment: "UserActivities"
   UserAltAccountsFragment: "Users"
@@ -5775,9 +6344,9 @@ interface CollectionNamesByFragmentName {
   reviewVoteWithUserAndPost: "ReviewVotes"
 }
 
-type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"ArbitalTagContentRels"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FieldChanges"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PageCache"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FieldChanges"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PageCache"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UltraFeedEvents"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
-type CollectionNameWithCreatedAt = "AdvisorRequests"|"ArbitalCaches"|"ArbitalTagContentRels"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FieldChanges"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"LWEvents"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PageCache"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"RSSFeeds"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"UserActivities"|"Users"|"Votes"
+type CollectionNameWithCreatedAt = "AdvisorRequests"|"ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FieldChanges"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PageCache"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UltraFeedEvents"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
 type CollectionNameWithSlug = "Collections"|"GardenCodes"|"MultiDocuments"|"Posts"|"TagFlags"|"Tags"|"Users"
 

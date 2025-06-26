@@ -1,8 +1,11 @@
 import React, { ComponentType } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useRecommendations } from './withRecommendations';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import PostsItem from "../posts/PostsItem";
+import PostsLoading from "../posts/PostsLoading";
+import { Typography } from "../common/Typography";
 
 export type RecommendationsListItem = ComponentType<{
   post: PostsListWithVotes|PostsListWithVotesAndSequence,
@@ -18,7 +21,7 @@ const styles = (theme: ThemeType) => ({
 const RecommendationsList = ({
   algorithm,
   translucentBackground,
-  ListItem = Components.PostsItem,
+  ListItem = PostsItem,
   loadingFallback,
   className,
   classes,
@@ -26,11 +29,10 @@ const RecommendationsList = ({
   algorithm: RecommendationsAlgorithm,
   translucentBackground?: boolean,
   ListItem?: RecommendationsListItem,
-  loadingFallback?: JSX.Element,
+  loadingFallback?: React.JSX.Element,
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {PostsLoading, Typography} = Components;
   const {recommendationsLoading, recommendations} = useRecommendations({ algorithm });
 
   if (recommendationsLoading || !recommendations)
@@ -52,14 +54,10 @@ const RecommendationsList = ({
   </div>
 }
 
-const RecommendationsListComponent = registerComponent(
+export default registerComponent(
   'RecommendationsList',
   RecommendationsList,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    RecommendationsList: typeof RecommendationsListComponent
-  }
-}
+

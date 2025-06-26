@@ -1,6 +1,14 @@
 import React, { useState, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
+import { useSingle } from '@/lib/crud/withSingle';
+import ChaptersEditForm from "./ChaptersEditForm";
+import ChapterTitle from "./ChapterTitle";
+import SectionFooter from "../common/SectionFooter";
+import SectionButton from "../common/SectionButton";
+import { ContentItemBody } from "../contents/ContentItemBody";
+import ContentStyles from "../common/ContentStyles";
+import PostsItem from "../posts/PostsItem";
 
 const styles = (theme: ThemeType) => ({
   description: {
@@ -31,21 +39,24 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
 }) => {
   const [edit,setEdit] = useState(false);
 
+  const { document: editableChapter } = useSingle({
+    collectionName: 'Chapters',
+    fragmentName: 'ChaptersEdit',
+    documentId: chapter._id,
+    skip: !canEdit,
+  });
+
   const showEdit = useCallback(() => {
     setEdit(true);
   }, []);
   const showChapter = useCallback(() => {
     setEdit(false);
   }, []);
-
-  const { ChaptersEditForm, ChapterTitle, SectionFooter,
-    SectionButton, ContentItemBody, ContentStyles, PostsItem } = Components
   const html = chapter.contents?.html || ""
 
-  if (edit) return (
+  if (edit && editableChapter) return (
     <ChaptersEditForm
-      documentId={chapter._id}
-      postIds={chapter.postIds}
+      chapter={editableChapter}
       successCallback={showChapter}
       cancelCallback={showChapter}
     />
@@ -70,7 +81,7 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
         <AnalyticsContext chapter={chapter._id} capturePostItemOnMount>
           {chapter.posts.map(post => {
             return <div key={chapter._id + post._id}>
-              <PostsItem sequenceId={chapter.sequenceId} post={post} showReadCheckbox/>
+              <PostsItem sequenceId={chapter.sequenceId ?? undefined} post={post} showReadCheckbox/>
             </div>
           })}
         </AnalyticsContext>
@@ -80,10 +91,6 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
   )
 }
 
-const ChaptersItemComponent = registerComponent('ChaptersItem', ChaptersItem, {styles});
+export default registerComponent('ChaptersItem', ChaptersItem, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ChaptersItem: typeof ChaptersItemComponent
-  }
-}
+

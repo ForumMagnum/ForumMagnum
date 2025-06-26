@@ -1,5 +1,5 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import { getEditableFieldsByCollection } from '../../lib/editor/make_editable';
+import { getEditableFieldsByCollection } from '@/lib/editor/editableSchemaFieldHelpers';
 import { getCollection } from '../collections/allCollections';
 import { htmlToPingbacks } from '../pingbacks';
 import Revisions from '@/server/collections/revisions/collection';
@@ -11,7 +11,7 @@ export default registerMigration({
   action: async () => {
     for (let [collectionName, editableFields] of Object.entries(getEditableFieldsByCollection())) {
       for (let [fieldName, editableField] of Object.entries(editableFields)) {
-        if (editableField.editableFieldOptions.callbackOptions.pingbacks) {
+        if (editableField.graphql.editableFieldOptions.pingbacks) {
           await updatePingbacks(collectionName as CollectionNameString, fieldName);
         }
       }

@@ -54,31 +54,138 @@ export const getResolverCollection = (
   return getCollectionByTypeName(type);
 }
 
+export function extractFragmentDefinitions(fragmentSrc: string): Record<string, string> {
+  // Matches on e.g. `fragment PostsList on Post {`
+  const fragmentDeclarations = fragmentSrc.matchAll(/fragment\s+([a-zA-Z0-9-_]+)\s+on\s+([a-zA-Z0-9-_]+)\s*\{/g);
+  const fragments: Record<string, string> = {};
+  for (const match of fragmentDeclarations) {
+    const [declaration, name] = match;
+    const startIndex = fragmentSrc.indexOf(declaration) + declaration.length;
+    let openBraceCount = 1;
+    let traversalIndex = startIndex;
+
+    while (openBraceCount > 0) {
+      const char = fragmentSrc[traversalIndex];
+      if (char === '{') {
+        openBraceCount++;
+      } else if (char === '}') {
+        openBraceCount--;
+      }
+      traversalIndex++;
+    }
+
+    const fragmentText = fragmentSrc.slice(startIndex - declaration.length, traversalIndex);
+    fragments[name] = fragmentText;
+  }
+  return fragments;
+}
+
+// Build a dependency graph and perform topological sort on fragments
+export function topologicalSort(fragments: Record<string, string>): [string, string[]][] {
+  const graph: Record<string, string[]> = {};
+  const visited: Record<string, boolean> = {};
+  const temp: Record<string, boolean> = {}; // For cycle detection
+  const result: string[] = [];
+  
+  // Build the dependency graph by finding "...FragmentName" patterns
+  for (const fragmentName in fragments) {
+    const fragmentBody = fragments[fragmentName];
+    const dependencies: string[] = [];
+    
+    // Find fragment references (spread operators)
+    const spreadMatches = fragmentBody.matchAll(/\.\.\.([\w]+)/g);
+    for (const match of spreadMatches) {
+      const dependency = match[1];
+      if (fragments[dependency]) { // Only include dependencies that exist in our fragments
+        dependencies.push(dependency);
+      }
+    }
+    
+    graph[fragmentName] = dependencies;
+    visited[fragmentName] = false;
+  }
+  
+  // Depth-first search for topological sorting
+  function dfs(node: string): void {
+    // Check for cycles
+    if (temp[node]) {
+      throw new Error(`Circular dependency detected in fragments involving "${node}"`);
+    }
+    
+    if (!visited[node]) {
+      temp[node] = true; // Mark as being processed
+      
+      // Process dependencies first
+      for (const dependency of graph[node]) {
+        dfs(dependency);
+      }
+      
+      visited[node] = true;
+      temp[node] = false; // Done processing
+      result.push(node);
+    }
+  }
+  
+  // Run DFS for all fragments
+  for (const fragmentName in fragments) {
+    if (!visited[fragmentName]) {
+      dfs(fragmentName);
+    }
+  }
+  
+  // Return in proper dependency order (dependencies first), with the fragment name and its dependencies
+  return result.map(name => [name, graph[name]]);
+}
+
 /**
  * `SqlFragment` contains the logic for parsing GraphQL fragments into a
  * form that can be efficiently converted into SQL projections. As this is
- * relatively expensive, each fragment is parsed only once when it is first
- * requested and the value is then memoized globally (see `fragments.ts`).
+ * relatively expensive, each fragment group is parsed only once when it is first
+ * requested and the value is then memoized globally (see `allFragments.ts`).
  *
  * The man external interface here is the `buildProjection` method that
  * generates a `ProjectionContext` corresponding to a specific query with
  * specific arguments.
  */
-class SqlFragment {
+export class SqlFragment {
   private lexer: FragmentLexer;
   private parsedEntries: SqlFragmentEntryMap | undefined;
+  private sqlFragmentsByName: Record<string, SqlFragment> = {};
 
   constructor(
-    /** The raw source text of the fragment */
+    /** The name of the fragment that represents the result of this query */
+    resultFragmentName: string,
+    /** The raw source text of the fragment(s), including any subfragments used by the result fragment */
     fragmentSrc: string,
-    /**
-     * A function that takes a fragment name and returns the registered SQL
-     * fragment. This is taken as an argument to avoid an import cycle (DI to
-     * the rescue).
-     */
-    private getFragment: (name: FragmentName) => SqlFragment | null,
   ) {
-    this.lexer = new FragmentLexer(fragmentSrc);
+    // 1. Extract all the fragments from the source text
+    const fragmentTextByName = extractFragmentDefinitions(fragmentSrc);
+
+    // 2. Run a topological sort on the fragments to get a dependency order based on what subfragments are referenced
+    const sortedFragmentNames = topologicalSort(fragmentTextByName);
+    
+    // 3. Parse them in order to ensure we have fragment dependencies available when we need them
+    // Unfortunately we can't use a global cache keyed by fragment name because we need to be able
+    // to handle clients passing in their own named fragments which might not match up with the
+    // fragments we've defined ourselves.
+    //
+    // This is still slightly inefficient because we might parse a fragment multiple times if
+    // it's referenced by multiple other fragments in the same query, but that's not a huge cost
+    // and we only pay it once since we ultimately do cache the top-level "text" containing all
+    // the fragments for a given query.
+    for (const [fragmentName, dependencies] of sortedFragmentNames.filter(([name]) => name !== resultFragmentName)) {
+      const fragmentText = fragmentTextByName[fragmentName];
+      const sqlFragment = new SqlFragment(fragmentName, fragmentText);
+
+      // Each fragment needs to have references to its dependencies for parsing entries
+      const dependencySqlFragments = Object.fromEntries(dependencies.map(dep => [dep, this.sqlFragmentsByName[dep]]));
+      sqlFragment.setDependencies(dependencySqlFragments);
+
+      this.sqlFragmentsByName[fragmentName] = sqlFragment;
+    }
+
+    const resultFragmentText = fragmentTextByName[resultFragmentName];
+    this.lexer = new FragmentLexer(resultFragmentText);
   }
 
   /**
@@ -93,6 +200,10 @@ class SqlFragment {
    */
   getBaseTypeName(): string {
     return this.lexer.getBaseTypeName();
+  }
+
+  private setDependencies(dependencies: Record<string, SqlFragment>) {
+    this.sqlFragmentsByName = dependencies;
   }
 
   private parseArgs(argsString = ""): SqlFragmentArg[] {
@@ -127,13 +238,10 @@ class SqlFragment {
         continue;
       }
 
-      match = line.match(/^\.\.\.([a-zA-Z0-9-_]+)$/)
+      match = line.match(/^\.\.\.([a-zA-Z0-9_]+)$/)
       if (match?.[1]) {
-        // `getFragment` takes a `FragmentName` but then checks if it's valid.
-        // It should probably just be typed as taking a string but that might
-        // not a be a totally safe change, so for now we'll just cast.
-        const fragmentName = match[1] as FragmentName;
-        const fragment = this.getFragment(fragmentName);
+        const fragmentName = match[1];
+        const fragment = this.sqlFragmentsByName[fragmentName];
         if (!fragment) {
           throw new Error(`Fragment "${fragmentName}" not found`);
         }
@@ -192,8 +300,9 @@ class SqlFragment {
 
   private compilePickEntry(
     context: ProjectionContext,
-    {name, entries}: SqlFragmentPick,
+    pick: SqlFragmentPick,
   ) {
+    const {name, entries} = pick;
     const resolver = context.getResolver(name);
     if (resolver) {
       if (resolver.sqlResolver) {
@@ -224,8 +333,11 @@ class SqlFragment {
         context.addCodeResolver(resolver.fieldName ?? name, resolver.resolver);
       }
     } else {
-      const baseTypeName = this.getBaseTypeName();
-      throw new Error(`Field "${name}" on "${baseTypeName}" has no resolver`);
+      // If there's no resolver but we have subfields selected,
+      // then we're probably dealing with an custom object type
+      // that doesn't represent a collection and we should just
+      // get the entire thing.
+      return this.compileFieldEntry(context, { ...pick, type: 'field' });
     }
   }
 
@@ -272,5 +384,3 @@ class SqlFragment {
     return context;
   }
 }
-
-export default SqlFragment;

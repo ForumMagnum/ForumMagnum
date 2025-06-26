@@ -1,11 +1,11 @@
 import { gql, useQuery } from "@apollo/client";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import React from "react";
+import { ContentItemBody } from "../contents/ContentItemBody";
+import Loading from "../vulcan-core/Loading";
+import NoContent from "../common/NoContent";
 
 const PostsItemNewDialogueResponses = ({postId, unreadCount}: {postId: string, unreadCount: number}) => {
-  
-  const { ContentItemBody, Loading, NoContent }= Components
-
   const { data, loading } = useQuery(gql`
     query LatestDialogueMessages($dialogueId: String!, $unreadCount: Int!) {
       latestDialogueMessages(dialogueId: $dialogueId, numMessages: $unreadCount)
@@ -17,10 +17,6 @@ const PostsItemNewDialogueResponses = ({postId, unreadCount}: {postId: string, u
     : <NoContent>No new responses found</NoContent> : <div></div>
 }
 
-const PostsItemNewDialogueResponsesComponent = registerComponent('PostsItemNewDialogueResponses', PostsItemNewDialogueResponses);
+export default registerComponent('PostsItemNewDialogueResponses', PostsItemNewDialogueResponses);
 
-declare global {
-  interface ComponentTypes {
-    PostsItemNewDialogueResponses: typeof PostsItemNewDialogueResponsesComponent
-  }
-}
+

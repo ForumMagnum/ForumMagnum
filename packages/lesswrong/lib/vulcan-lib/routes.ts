@@ -41,18 +41,18 @@ export type Route = {
    */
   path: string,
   
-  componentName?: keyof ComponentTypes,
+  component?: React.ComponentType<any>,
 
   title?: string,
-  titleComponentName?: keyof ComponentTypes,
+  titleComponent?: React.FunctionComponent<{ siteName: string, isSubtitle: boolean }>,
   subtitle?: string,
   headerSubtitle?: string,
   subtitleLink?: string,
-  subtitleComponentName?: keyof ComponentTypes,
+  subtitleComponent?: React.FunctionComponent<{ isSubtitle?: boolean }>,
   description?: string,
   redirect?: (location: RouterLocation) => string | null,
   getPingback?: (parsedUrl: RouterLocation, context: ResolverContext) => Promise<PingbackDocument|null> | PingbackDocument|null,
-  previewComponentName?: keyof ComponentTypes,
+  previewComponent?: React.FunctionComponent<{ href: string, targetLocation?: RouterLocation, id?: string, noPrefetch?: boolean, children: React.ReactNode, className?: string }>,
   _id?: string|null,
   noIndex?: boolean,
   background?: string,

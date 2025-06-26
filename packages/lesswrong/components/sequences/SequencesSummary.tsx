@@ -1,11 +1,18 @@
 import React, { FC, ReactNode } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import Card from '@/lib/vendor/@material-ui/core/src/Card';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { Card } from "@/components/widgets/Paper";
 import { Link } from '../../lib/reactRouterWrapper';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
+import UsersName from "../users/UsersName";
+import SequencesSmallPostLink from "./SequencesSmallPostLink";
+import ChapterTitle from "./ChapterTitle";
+import Loading from "../vulcan-core/Loading";
+import ContentStyles from "../common/ContentStyles";
+import ContentItemTruncated from "../common/ContentItemTruncated";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -61,7 +68,6 @@ const SequenceMeta: FC<{
   wordCountNode: ReactNode,
   classes: ClassesType<typeof styles>,
 }> = ({user, postCount, wordCountNode, classes}) => {
-  const {UsersName} = Components;
   return isFriendlyUI
     ? (
       <div className={classes.author}>
@@ -88,7 +94,6 @@ const SequencePosts = ({sequence, chapters, maxPosts, totalPosts, classes}: {
 }) => {
   let postsRendered = 0;
   const nodes: ReactNode[] = [];
-  const {SequencesSmallPostLink, ChapterTitle} = Components;
   for (let i = 0; i < chapters.length && postsRendered < maxPosts; i++) {
     const chapter = chapters[i];
     const posts = chapter.posts.slice(0, maxPosts - postsRendered);
@@ -131,9 +136,6 @@ export const SequencesSummary = ({classes, sequence, showAuthor=true, maxPosts}:
     fragmentName: 'ChaptersFragment',
     enableTotal: false,
   });
-
-  const {Loading, ContentStyles, ContentItemTruncated, LWTooltip} = Components;
-
   const posts = chapters?.flatMap(chapter => chapter.posts ?? []) ?? []
   const totalWordcount = posts.reduce((prev, curr) => prev + (curr?.contents?.wordCount || 0), 0)
 
@@ -187,10 +189,6 @@ export const SequencesSummary = ({classes, sequence, showAuthor=true, maxPosts}:
   </Card>;
 }
 
-const SequencesSummaryComponent = registerComponent('SequencesSummary', SequencesSummary, {styles});
+export default registerComponent('SequencesSummary', SequencesSummary, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesSummary: typeof SequencesSummaryComponent
-  }
-}
+

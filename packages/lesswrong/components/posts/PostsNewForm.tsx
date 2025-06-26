@@ -1,18 +1,67 @@
-import Posts from '@/lib/collections/posts/schema';
-import { postGetEditUrl, isPostCategory, postDefaultCategory } from '@/lib/collections/posts/helpers';
+import { postGetEditUrl, isPostCategory, postDefaultCategory, userCanEditCoauthors } from '@/lib/collections/posts/helpers';
 import { userCanPost } from '@/lib/collections/users/helpers';
 import pick from 'lodash/pick';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { isAF } from '../../lib/instanceSettings';
 import { useSingle } from '../../lib/crud/withSingle';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { useCreate } from '@/lib/crud/withCreate';
-import { getInsertableFields } from '@/lib/vulcan-forms/schema_utils';
 import { hasAuthorModeration } from '@/lib/betas';
+import { userIsMemberOf } from '@/lib/vulcan-users/permissions';
+import { sanitizeEditableFieldValues } from '../tanstack-form-components/helpers';
+import ErrorMessage from "../common/ErrorMessage";
+import LoginForm from "../users/LoginForm";
+import SingleColumnSection from "../common/SingleColumnSection";
+import { Typography } from "../common/Typography";
+import Loading from "../vulcan-core/Loading";
 
-const prefillFromTemplate = (template: PostsEdit) => {
+type EventTemplateFields =
+  | "contents"
+  | "activateRSVPs"
+  | "location"
+  | "googleLocation"
+  | "onlineEvent"
+  | "globalEvent"
+  | "startTime"
+  | "endTime"
+  | "eventRegistrationLink"
+  | "joinEventLink"
+  | "website"
+  | "contactInfo"
+  | "isEvent"
+  | "eventImageId"
+  | "eventType"
+  | "types"
+  | "groupId"
+  | "title"
+  | "hasCoauthorPermission"
+  | "coauthorStatuses";
+
+type PrefilledPostFields =
+  | "isEvent"
+  | "question"
+  | "activateRSVPs"
+  | "onlineEvent"
+  | "globalEvent"
+  | "types"
+  | "meta"
+  | "groupId"
+  | "moderationStyle"
+  | "generateDraftJargon"
+  | "postCategory";
+
+type PrefilledEventTemplate = Pick<PostsEditMutationFragment, EventTemplateFields>;
+type PrefilledPostBase = Pick<PostsEditMutationFragment, PrefilledPostFields>;
+
+type PrefilledPost = Partial<PrefilledEventTemplate | PrefilledPostBase> & {
+  af?: boolean;
+  subforumTagId?: string;
+  tagRelevance?: Record<string, number>;
+};
+
+const prefillFromTemplate = (template: PostsEditMutationFragment, currentUser: UsersCurrent | null): PrefilledEventTemplate => {
   return pick(
     template,
     [
@@ -24,8 +73,6 @@ const prefillFromTemplate = (template: PostsEdit) => {
       "globalEvent",
       "startTime",
       "endTime",
-      "localStartTime",
-      "localEndTime",
       "eventRegistrationLink",
       "joinEventLink",
       "website",
@@ -35,11 +82,10 @@ const prefillFromTemplate = (template: PostsEdit) => {
       "eventType",
       "types",
       "groupId",
-      "group",
       "title",
-      "coauthorStatuses",
       "hasCoauthorPermission",
-    ]
+      ...(userCanEditCoauthors(currentUser) ? ["coauthorStatuses"] as const : []),
+    ] as const
   )
 }
 
@@ -90,13 +136,12 @@ function usePrefetchForAutosaveRedirect() {
 }
 
 const PostsNewForm = () => {
-  const { LoginForm, SingleColumnSection, Typography, Loading } = Components;
   const { query } = useLocation();
+  const [error, setError] = useState<string|null>(null);
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
 
   const templateId = query && query.templateId;
-  const debateForm = !!(query && query.debate);
   const questionInQuery = query && !!query.question;
   const eventForm = query && query.eventForm
 
@@ -126,7 +171,7 @@ const PostsNewForm = () => {
     skip: !currentUser,
   });
 
-  let prefilledProps = templateDocument ? prefillFromTemplate(templateDocument) : {
+  let prefilledProps: PrefilledPost = templateDocument ? prefillFromTemplate(templateDocument, currentUser) : {
     isEvent: query && !!query.eventForm,
     question: (postCategory === "question") || questionInQuery,
     activateRSVPs: true,
@@ -134,12 +179,17 @@ const PostsNewForm = () => {
     globalEvent: groupData?.isOnline,
     types: query && query.ssc ? ['SSC'] : [],
     meta: query && !!query.meta,
-    af: isAF || (query && !!query.af),
     groupId: query && query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
     generateDraftJargon: currentUser?.generateJargonForDrafts,
-    debate: debateForm,
     postCategory
+  }
+
+  if (userIsMemberOf(currentUser, 'alignmentForum')) {
+    prefilledProps = {
+      ...prefilledProps,
+      af: isAF || (query && !!query.af),
+    };
   }
 
   if (query?.subforumTagId || query?.tagId) {
@@ -160,22 +210,28 @@ const PostsNewForm = () => {
     if (currentUser && currentUserWithModerationGuidelines && !templateLoading && userCanPost(currentUser) && !attemptedToCreatePostRef.current) {
       attemptedToCreatePostRef.current = true;
       void (async () => {
-        const insertableFields = getInsertableFields(Posts, currentUser);
-        const { data, errors } = await createPost.create({
-          data: {
-            title: "Untitled Draft",
-            draft: true,
-            ...pick(prefilledProps, insertableFields),
-            ...(currentUserWithModerationGuidelines?.moderationGuidelines?.originalContents &&
-              hasAuthorModeration && {
-              moderationGuidelines: {
-                originalContents: pick(currentUserWithModerationGuidelines.moderationGuidelines.originalContents, ["type","data"])
-              }
-            })
-          },
-        });
-        if (data) {
-          navigate(postGetEditUrl(data.createPost.data._id, false, data.linkSharingKey), {replace: true});
+        const sanitizedPrefilledProps = 'contents' in prefilledProps
+          ? sanitizeEditableFieldValues(prefilledProps, ['contents'])
+          : prefilledProps;
+
+        const moderationGuidelinesField = currentUserWithModerationGuidelines.moderationGuidelines?.originalContents && hasAuthorModeration
+          ? { moderationGuidelines: sanitizeEditableFieldValues(currentUserWithModerationGuidelines, ['moderationGuidelines']).moderationGuidelines }
+          : {};
+
+        try {
+          const { data } = await createPost.create({
+            data: {
+              title: "Untitled Draft",
+              draft: true,
+              ...sanitizedPrefilledProps,
+              ...moderationGuidelinesField,
+            },
+          });
+          if (data) {
+            navigate(postGetEditUrl(data.createPost.data._id, false, data.linkSharingKey), {replace: true});
+          }
+        } catch(e) {
+          setError(e.message);
         }
       })();
     }
@@ -198,17 +254,13 @@ const PostsNewForm = () => {
     </SingleColumnSection>);
   }
 
-  if (templateId && templateLoading) {
-    return <Loading />
-  }
-  
-  return <Loading/>
-}
-
-const PostsNewFormComponent = registerComponent('PostsNewForm', PostsNewForm);
-
-declare global {
-  interface ComponentTypes {
-    PostsNewForm: typeof PostsNewFormComponent
+  if (error) {
+    return <ErrorMessage message={error}/>
+  } else {
+    return <Loading/>
   }
 }
+
+export default registerComponent('PostsNewForm', PostsNewForm);
+
+

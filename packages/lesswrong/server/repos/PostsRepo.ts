@@ -7,6 +7,10 @@ import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/helpers"
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isAF } from "../../lib/instanceSettings";
 import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
+import { FilterSettings, FilterMode } from "@/lib/filterSettings";
+import { FeedFullPost, FeedItemSourceType, FeedPostFromDb } from "@/components/ultraFeed/ultraFeedTypes";
+import { TIME_DECAY_FACTOR, SCORE_BIAS } from "@/lib/scoring";
+import { accessFilterMultiple } from "@/lib/utils/schemaUtils";
 
 type DbPostWithContents = DbPost & {contents?: DbRevision | null};
 
@@ -65,6 +69,74 @@ const constructFilters = (
   ].filter(Boolean).join(' ')
 
   return [filters, params]
+}
+
+function filterModeToAdditiveKarmaModifier(mode: FilterMode): number {
+  if (typeof mode === 'number') return mode;
+  if (mode === 'Subscribed') return 25;
+  return 0;
+}
+
+function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
+  if (typeof mode === 'string' && mode.startsWith('x')) {
+    return parseFloat(mode.substring(1)) || 1;
+  }
+  return 1;
+}
+
+/**
+ * Constructs a SQL expression for calculating the filteredScore based on filterSettings
+ * This mirrors the logic in the "magic" view's filterSettingsToParams function
+ */
+function constructFilteredScoreSql(filterSettings: FilterSettings): string {
+  const tagsSoftFiltered = filterSettings.tags.filter(
+    t => t.filterMode !== "Hidden" && t.filterMode !== "Required" && t.filterMode !== "Default"
+  );
+
+  const additiveModifiersSql = tagsSoftFiltered.map(tag => `
+    (CASE
+      WHEN COALESCE((p."tagRelevance"->'${tag.tagId}')::INTEGER, 0) > 0
+      THEN ${filterModeToAdditiveKarmaModifier(tag.filterMode)}
+      ELSE 0
+    END)`
+  ).join(' + ');
+
+  const multiplicativeModifiersSql = tagsSoftFiltered.map(tag => `
+    (CASE
+      WHEN COALESCE((p."tagRelevance"->'${tag.tagId}')::INTEGER, 0) > 0
+      THEN ${filterModeToMultiplicativeKarmaModifier(tag.filterMode)}
+      ELSE 1
+    END)`
+  ).join(' * ');
+
+  const frontpageBonus = 10;
+  const curatedBonus = 10;
+
+  const standardScoreModifiers = `
+    + (CASE WHEN p."frontpageDate" IS NOT NULL THEN ${frontpageBonus} ELSE 0 END)
+    + (CASE WHEN p."curatedDate" IS NOT NULL THEN ${curatedBonus} ELSE 0 END)
+  `;
+  
+  const timeDecayFactor = TIME_DECAY_FACTOR.get();
+  const ageOffset = isAF ? 6 : SCORE_BIAS;
+  
+  const timeDecayDenominatorSql = `
+    POWER(
+      (EXTRACT(EPOCH FROM NOW() - p."postedAt") / 3600) + ${ageOffset},
+      ${timeDecayFactor}
+    )
+  `;
+  
+  return `
+    (
+      (
+        p."baseScore"
+        ${additiveModifiersSql ? ` + ${additiveModifiersSql}` : ''}
+        ${standardScoreModifiers}
+      ) -- Numerator End (before multiplication)
+      ${multiplicativeModifiersSql ? ` * ${multiplicativeModifiersSql}` : ''}
+    ) / ${timeDecayDenominatorSql}
+  `;
 }
 
 class PostsRepo extends AbstractRepo<"Posts"> {
@@ -562,6 +634,16 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, [userId, targetUserId, limit]);
   }
 
+  async getPostWithContents(postId: string): Promise<DbPostWithContents> {
+    return await this.getRawDb().one(`
+      -- PostsRepo.getPostWithContents
+      SELECT p.*, ROW_TO_JSON(r.*) "contents"
+      FROM "Posts" p
+      INNER JOIN "Revisions" r ON p."contents_latest" = r."_id"
+      WHERE p."_id" = $1
+    `, [postId]);
+  }
+
   async getPostsWithElicitData(): Promise<DbPostWithContents[]> {
     return await this.getRawDb().any(`
       -- PostsRepo.getPostsWithElicitData
@@ -1014,6 +1096,183 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       ORDER BY p."postedAt" DESC
       LIMIT $1
     `, [limit]);
+  }
+
+  /**
+   * Get posts for UltraFeed with filteredScore calculation and user interaction data
+   * This functions fails to perfectly replicate Latest Posts but it doesn't really matter
+   */
+  async getLatestPostsForUltraFeed(
+    context: ResolverContext,
+    filterSettings: FilterSettings,
+    seenPenalty: number,
+    maxAgeDays: number,
+    excludedPostIds: string[] = [],
+    limit = 100
+  ): Promise<FeedFullPost[]> {
+    
+    const tagsRequired = filterSettings.tags.filter(t => t.filterMode === "Required");
+    const tagsExcluded = filterSettings.tags.filter(t => t.filterMode === "Hidden");
+    
+    const tagRequiredConditions = tagsRequired.map(tag => 
+      `COALESCE((p."tagRelevance"->'${tag.tagId}')::INTEGER, 0) >= 1`
+    ).join(' AND ');
+    
+    const tagExcludedConditions = tagsExcluded.map(tag => 
+      `COALESCE((p."tagRelevance"->'${tag.tagId}')::INTEGER, 0) < 1`
+    ).join(' AND ');
+    
+    const tagFilterClause = [
+      tagRequiredConditions ? `(${tagRequiredConditions})` : null,
+      tagExcludedConditions ? `(${tagExcludedConditions})` : null,
+    ].filter(Boolean).join(' AND ');
+    
+    const personalBlogFilter = filterSettings.personalBlog === "Hidden" 
+      ? 'AND p."frontpageDate" IS NOT NULL' 
+      : '';
+    
+    const excludedPostIdsCondition = excludedPostIds.length > 0 
+      ? `AND p."_id" NOT IN ($(excludedPostIds:csv))` 
+      : '';
+
+    const filteredScoreSql = constructFilteredScoreSql(filterSettings);
+
+    const feedPostsData = await this.getRawDb().manyOrNone<FeedPostFromDb>(`
+      -- PostsRepo.getLatestPostsForUltraFeed
+      WITH "UniversalPostFilter" AS (
+        -- Apply basic post filters
+        SELECT p.*,
+          -- Calculate filteredScore using dynamic expression
+          (${filteredScoreSql}) AS "initialFilteredScore" -- Calculate score before event join
+        FROM "Posts" p
+        WHERE
+          p."postedAt" > NOW() - INTERVAL '$(maxAgeDays) days'
+          AND p."baseScore" >= 10
+          AND p."draft" IS FALSE
+          AND p."isFuture" IS FALSE
+          AND p."authorIsUnreviewed" IS FALSE
+          AND p.rejected IS NOT TRUE
+          AND p."hiddenRelatedQuestion" IS FALSE
+          AND p.unlisted IS FALSE
+          AND p.shortform IS FALSE
+          AND ${getViewablePostsSelector('p')}
+          ${personalBlogFilter}
+          ${excludedPostIdsCondition}
+          ${tagFilterClause ? `AND ${tagFilterClause}` : ''}
+        -- No ORDER BY here, it needs interaction data
+      ),
+      "ReadStatusViews" AS (
+        -- Generate implied view events from ReadStatuses table
+        SELECT
+          p._id AS "documentId",
+          rs."lastUpdated" AS "createdAt",
+          'viewed' AS "eventType"
+        FROM "UniversalPostFilter" p
+        JOIN "ReadStatuses" rs ON p._id = rs."postId"
+        WHERE rs."userId" = $(userId)
+          AND rs."isRead" IS TRUE
+      ),
+      "UsersEvents" AS (
+        -- Select from the combined and ordered events
+        SELECT * FROM (
+          -- Combine both real events and implied events from read statuses
+          SELECT
+            ue."documentId",
+            ue."createdAt",
+            ue."eventType"
+          FROM "UltraFeedEvents" ue
+          WHERE ue."collectionName" = 'Posts'
+            AND "userId" = $(userId)
+            AND ue."documentId" IN (SELECT _id FROM "UniversalPostFilter")
+          
+          UNION ALL
+          
+          -- Add the implied view events from ReadStatuses
+          SELECT * FROM "ReadStatusViews"
+        ) AS CombinedEvents -- Treat the UNION result as a derived table
+        ORDER BY (CASE WHEN "eventType" = 'served' THEN 1 ELSE 0 END) ASC
+      ),
+      "PostEvents" AS (
+          -- Aggregate the user's latest events for each post
+          SELECT
+              pe."documentId",
+              MAX(CASE WHEN pe."eventType" = 'viewed' THEN pe."createdAt" ELSE NULL END) AS "lastViewed",
+              MAX(CASE WHEN pe."eventType" <> 'viewed' AND pe."eventType" <> 'served' THEN pe."createdAt" ELSE NULL END) AS "lastInteracted",
+              MAX(CASE WHEN pe."eventType" = 'served' THEN pe."createdAt" ELSE NULL END) AS "lastServed"
+         FROM "UsersEvents" pe
+          GROUP BY pe."documentId"
+      )
+      -- Final Selection and Ordering
+      SELECT
+          p.*,
+          pe."lastServed",
+          pe."lastViewed",
+          pe."lastInteracted"
+      FROM "UniversalPostFilter" p
+      LEFT JOIN "PostEvents" pe ON p._id = pe."documentId"
+      WHERE NOT (pe."lastViewed" IS NOT NULL AND $(seenPenalty) = 0)
+      ORDER BY p."initialFilteredScore" * (CASE WHEN pe."lastViewed" IS NOT NULL THEN $(seenPenalty) ELSE 1 END) DESC
+      LIMIT $(limit)
+    `, { 
+      userId: context.currentUser?._id, 
+      seenPenalty,
+      maxAgeDays,
+      excludedPostIds,
+      limit
+    });
+
+    const filteredPosts = await accessFilterMultiple(context.currentUser, 'Posts', feedPostsData, context);
+
+    return filteredPosts.map((post): FeedFullPost => {
+      const { lastServed, lastViewed, lastInteracted, ...postData } = post;
+      
+      return {
+        post: postData,
+        postMetaInfo: {
+          sources: ['hacker-news'],
+          displayStatus: 'expanded',
+          lastServed: lastServed,
+          lastViewed: lastViewed,
+          lastInteracted: lastInteracted,
+        },
+      };
+    });
+  }
+
+  /**
+   * Get posts from users the current user is subscribed to, for UltraFeed
+   */
+  async getPostsFromSubscribedUsersForUltraFeed(
+    userId: string,
+    maxAgeDays: number,
+    limit = 100
+  ): Promise<{ postId: string }[]> {
+
+    return await this.getRawDb().manyOrNone<{ postId: string }>(`
+      -- PostsRepo.getPostsFromSubscribedUsersForUltraFeed
+      SELECT
+        p._id AS "postId"
+      FROM "Posts" p
+      JOIN (
+        SELECT DISTINCT "documentId" AS "userId"
+        FROM "Subscriptions" s
+        WHERE state = 'subscribed'
+          AND s.deleted IS NOT TRUE
+          AND "collectionName" = 'Users'
+          AND "type" IN ('newActivityForFeed', 'newPosts')
+          AND "userId" = $(userId)
+      ) AS user_subscriptions ON p."userId" = user_subscriptions."userId"
+      WHERE 
+        p."postedAt" > NOW() - INTERVAL '$(maxAgeDaysParam) days'
+        AND p.rejected IS NOT TRUE 
+        AND ${getViewablePostsSelector('p')} 
+      ORDER BY p."postedAt" DESC
+      LIMIT $(limitParam)
+    `, { 
+      userId: userId, 
+      maxAgeDaysParam: maxAgeDays,
+      limitParam: limit
+    });
   }
 }
 

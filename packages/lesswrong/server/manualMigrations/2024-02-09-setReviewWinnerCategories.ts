@@ -1,7 +1,7 @@
 import ReviewWinners from "../../server/collections/reviewWinners/collection";
-import { updateMutator } from "../vulcan-lib/mutators";
-import { createAdminContext } from "../vulcan-lib/query";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 import { registerMigration } from "./migrationUtils";
+import { updateReviewWinner } from "../collections/reviewWinners/mutations";
 
 type ReviewWinnerCategoryAndOrder = {
   id: string;
@@ -1475,16 +1475,12 @@ export default registerMigration({
     for (let { id, category, curatedOrder } of reviewWinnerCategories) {
       const dbReviewWinner = await ReviewWinners.findOne({ postId: id })
       if (!dbReviewWinner) throw new Error(`ReviewWinner with postId ${id} not found`);
-      await updateMutator({
-        collection: ReviewWinners,
-        documentId: dbReviewWinner._id,
-        set: {
+      await updateReviewWinner({
+        data: {
           category,
           curatedOrder
-        },
-        context: adminContext,
-        currentUser: adminContext.currentUser
-      });
+        }, selector: { _id: dbReviewWinner._id }
+      }, adminContext);
     }
   }
 });

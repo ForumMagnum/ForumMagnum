@@ -1,10 +1,16 @@
 import * as React from 'react';
-import { StyledComponentProps } from './styles';
-export { StyledComponentProps };
 
 export type PropsOf<C> = C extends new (props: infer P) => React.Component
   ? P
   : C extends (props: infer P) => React.ReactElement<any> | null ? P : never;
+
+
+export type ClassNameMap<ClassKey extends string = string> = Record<ClassKey, string>;
+
+export interface StyledComponentProps<ClassKey extends string = string> {
+  classes?: Partial<ClassNameMap<ClassKey>>;
+  innerRef?: React.Ref<any> | React.RefObject<any>;
+}
 
 /**
  * All standard components exposed by `material-ui` are `StyledComponents` with
@@ -124,10 +130,6 @@ export { default as ClickAwayListener } from './ClickAwayListener';
 export { default as Collapse } from './Collapse';
 export { default as CssBaseline } from './CssBaseline';
 export { default as Dialog } from './Dialog';
-export { default as DialogActions } from './DialogActions';
-export { default as DialogContent } from './DialogContent';
-export { default as DialogContentText } from './DialogContentText';
-export { default as DialogTitle } from './DialogTitle';
 export { default as Divider } from './Divider';
 export { default as Drawer } from './Drawer';
 export { default as ExpansionPanel } from './ExpansionPanel';
@@ -178,8 +180,6 @@ export { default as RadioGroup } from './RadioGroup';
 export { default as RootRef } from './RootRef';
 export { default as Select } from './Select';
 export { default as Slide } from './Slide';
-export { default as Snackbar } from './Snackbar';
-export { default as SnackbarContent } from './SnackbarContent';
 export { default as Step } from './Step';
 export { default as StepButton } from './StepButton';
 export { default as StepConnector } from './StepConnector';
@@ -188,7 +188,6 @@ export { default as StepIcon } from './StepIcon';
 export { default as StepLabel } from './StepLabel';
 export { default as Stepper } from './Stepper';
 export { default as SvgIcon } from './SvgIcon';
-export { default as SwipeableDrawer } from './SwipeableDrawer';
 export { default as Switch } from './Switch';
 export { default as Tab } from './Tab';
 export { default as Table } from './Table';
@@ -204,6 +203,4 @@ export { default as TextField } from './TextField';
 export { default as Toolbar } from './Toolbar';
 export { default as Tooltip } from './Tooltip';
 export { default as Typography } from './Typography';
-export { default as withMobileDialog } from './withMobileDialog';
-export { default as withWidth } from './withWidth';
 export { default as Zoom } from './Zoom';

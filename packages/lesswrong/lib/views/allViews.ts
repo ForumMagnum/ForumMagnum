@@ -6,6 +6,7 @@ import { CollectionViewSet } from './collectionViewSet';
 
 // Collection imports
 import { AdvisorRequestsViews } from '../collections/advisorRequests/views';
+import { BookmarksViews } from '../collections/bookmarks/views';
 import { ChaptersViews } from '../collections/chapters/views';
 import { ClientIdsViews } from '../collections/clientIds/views';
 import { CollectionsViews } from '../collections/collections/views';
@@ -50,6 +51,7 @@ import { SurveySchedulesViews } from '../collections/surveySchedules/views';
 import { TagsViews } from '../collections/tags/views';
 import { TagFlagsViews } from '../collections/tagFlags/views';
 import { TagRelsViews } from '../collections/tagRels/views';
+import { UltraFeedEventsViews } from '../collections/ultraFeedEvents/views';
 import { UsersViews } from '../collections/users/views';
 import { UserEAGDetailsViews } from '../collections/userEAGDetails/views';
 import { UserJobAdsViews } from '../collections/userJobAds/views';
@@ -62,7 +64,9 @@ export const allViews = {
   AdvisorRequests: AdvisorRequestsViews,
   ArbitalCaches: new CollectionViewSet('ArbitalCaches', {}),
   ArbitalTagContentRels: new CollectionViewSet('ArbitalTagContentRels', {}),
+  AutomatedContentEvaluations: new CollectionViewSet('AutomatedContentEvaluations', {}),
   Bans: new CollectionViewSet('Bans', {}),
+  Bookmarks: BookmarksViews,
   Books: new CollectionViewSet('Books', {}),
   Chapters: ChaptersViews,
   CkEditorUserSessions: new CollectionViewSet('CkEditorUserSessions', {}),
@@ -138,6 +142,7 @@ export const allViews = {
   TagRels: TagRelsViews,
   Tweets: new CollectionViewSet('Tweets', {}),
   TypingIndicators: new CollectionViewSet('TypingIndicators', {}),
+  UltraFeedEvents: UltraFeedEventsViews,
   Users: UsersViews,
   UserEAGDetails: UserEAGDetailsViews,
   UserJobAds: UserJobAdsViews,

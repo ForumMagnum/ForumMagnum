@@ -1,27 +1,29 @@
 import type { Request } from "express";
 import { isLeft } from 'fp-ts/Either';
 import { crosspostUserAgent } from "../../lib/apollo/links";
-import Users from "../../server/collections/users/collection";
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers } from "../../lib/vulcan-lib/graphql";
-import { ApiError, UnauthorizedError } from "./errors";
-import { validateCrosspostingKarmaThreshold } from "./helpers";
+import {
+  ApiError,
+  UnauthorizedError,
+  TOS_NOT_ACCEPTED_ERROR,
+  TOS_NOT_ACCEPTED_REMOTE_ERROR,
+} from "./errors";
+import {
+  assertCrosspostingKarmaThreshold,
+  fmCrosspostTimeoutMsSetting,
+} from "./helpers";
 import { makeApiUrl, PostRequestTypes, PostResponseTypes, ValidatedPostRouteName, validatedPostRoutes, ValidatedPostRoutes } from "./routes";
 import { ConnectCrossposterArgs, GetCrosspostRequest } from "./types";
-import { DatabaseServerSetting } from "../databaseSettings";
 import stringify from "json-stringify-deterministic";
 import LRU from "lru-cache";
 import { isE2E } from "@/lib/executionEnvironment";
 import { connectCrossposterToken } from "../crossposting/tokens";
-// import { makeV2CrossSiteRequest } from "../crossposting/crossSiteRequest";
-// import {
-//   connectCrossposterRoute,
-//   unlinkCrossposterRoute,
-// } from "@/lib/fmCrosspost/routes";
-
-export const fmCrosspostTimeoutMsSetting = new DatabaseServerSetting<number>('fmCrosspostTimeoutMs', 15000)
-
-export const TOS_NOT_ACCEPTED_ERROR = 'You must accept the terms of use before you can publish this post';
-export const TOS_NOT_ACCEPTED_REMOTE_ERROR = 'You must read and accept the Terms of Use on the EA Forum in order to crosspost.  To do so, go to https://forum.effectivealtruism.org/newPost and accept the Terms of Use presented above the draft post.';
+import { makeV2CrossSiteRequest } from "../crossposting/crossSiteRequest";
+import {
+  connectCrossposterRoute,
+  unlinkCrossposterRoute,
+} from "@/lib/fmCrosspost/routes";
+import { gql } from "apollo-server-express";
+import Users from "../collections/users/collection";
 
 const getUserId = (req?: Request) => {
   const userId = req?.user?._id;
@@ -37,7 +39,13 @@ const foreignPostCache = new LRU<string, Promise<AnyBecauseHard>>({
   max: 100,
 });
 
-export const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteName>(
+/**
+ * @deprecated
+ * Old version of `makeCrossSiteRequest` - use `makeV2CrossSiteRequest` instead.
+ * This is still here to support the `getCrosspost` graphql query, which will be
+ * removed once crosspost bodies are denormalized across sites.
+ */
+const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteName>(
   routeName: RouteName,
   body: PostRequestTypes<RouteName>,
   onErrorMessage: string,
@@ -94,78 +102,67 @@ export const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteN
   return validatedResponse.right;
 }
 
-const crosspostResolvers = {
-  Mutation: {
-    connectCrossposter: async (
-      _root: void,
-      {token}: ConnectCrossposterArgs,
-      {req, currentUser}: ResolverContext,
-    ) => {
-      const localUserId = getUserId(req);
+export const fmCrosspostGraphQLTypeDefs = gql`
+  extend type Mutation {
+    connectCrossposter(token: String): String
+    unlinkCrossposter: String
+  }
+  extend type Query {
+    getCrosspost(args: JSON): JSON
+  }
+`
 
-      // Throws an error if user doesn't have enough karma on the receiving forum (which is the current execution environment)
-      validateCrosspostingKarmaThreshold(currentUser);
-
-      const {foreignUserId} = await makeCrossSiteRequest(
-        'connectCrossposter',
-        {token, localUserId},
-        "Failed to connect accounts for crossposting",
+export const fmCrosspostGraphQLMutations = {
+  connectCrossposter: async (
+    _root: void,
+    {token}: ConnectCrossposterArgs,
+    {req, currentUser}: ResolverContext,
+  ) => {
+    const localUserId = getUserId(req);
+    assertCrosspostingKarmaThreshold(currentUser);
+    const {foreignUserId} = await makeV2CrossSiteRequest(
+      connectCrossposterRoute,
+      {token, localUserId},
+      "Failed to connect accounts for crossposting",
+    );
+    await Users.rawUpdateOne({_id: localUserId}, {
+      $set: {fmCrosspostUserId: foreignUserId},
+    });
+    return "success";
+  },
+  unlinkCrossposter: async (_root: void, _args: {}, {req}: ResolverContext) => {
+    const localUserId = getUserId(req);
+    const foreignUserId = req?.user?.fmCrosspostUserId;
+    if (foreignUserId) {
+      const token = await connectCrossposterToken.create({
+        userId: foreignUserId,
+      });
+      await makeV2CrossSiteRequest(
+        unlinkCrossposterRoute,
+        {token},
+        "Failed to unlink crossposting accounts",
       );
-      // TODO: Switch to this when V2 is deployed to both sites
-      // const {foreignUserId} = await makeV2CrossSiteRequest(
-      //   connectCrossposterRoute,
-      //   {token, localUserId},
-      //   "Failed to connect accounts for crossposting",
-      // );
       await Users.rawUpdateOne({_id: localUserId}, {
-        $set: {fmCrosspostUserId: foreignUserId},
+        $unset: {fmCrosspostUserId: ""},
       });
       return "success";
-    },
-    unlinkCrossposter: async (_root: void, _args: {}, {req}: ResolverContext) => {
-      const localUserId = getUserId(req);
-      const foreignUserId = req?.user?.fmCrosspostUserId;
-      if (foreignUserId) {
-        const token = await connectCrossposterToken.create({
-          userId: foreignUserId,
-        });
-        await makeCrossSiteRequest(
-          'unlinkCrossposter',
-          {token},
-          "Failed to unlink crossposting accounts",
-        );
-        // TODO: Switch to this when V2 is deployed to both sites
-        // await makeV2CrossSiteRequest(
-        //   unlinkCrossposterRoute,
-        //   {token},
-        //   "Failed to unlink crossposting accounts",
-        // );
-        await Users.rawUpdateOne({_id: localUserId}, {
-          $unset: {fmCrosspostUserId: ""},
-        });
-      }
-      return "success";
-    },
-  },
-  Query: {
-    getCrosspost: async (_root: void, {args}: {args: GetCrosspostRequest}) => {
-      const key = stringify(args);
-      let promise = isE2E ? null : foreignPostCache.get(key);
-      if (!promise) {
-        promise = makeCrossSiteRequest(
-          'getCrosspost',
-          args,
-          'Failed to get crosspost'
-        );
-        foreignPostCache.set(key, promise);
-      }
-      const {document} = await promise;
-      return document;
     }
-  }
-};
+  },
+}
 
-addGraphQLResolvers(crosspostResolvers);
-addGraphQLMutation("connectCrossposter(token: String): String");
-addGraphQLMutation("unlinkCrossposter: String");
-addGraphQLQuery("getCrosspost(args: JSON): JSON");
+export const fmCrosspostGraphQLQueries = {
+  getCrosspost: async (_root: void, {args}: {args: GetCrosspostRequest}) => {
+    const key = stringify(args);
+    let promise = isE2E ? null : foreignPostCache.get(key);
+    if (!promise) {
+      promise = makeCrossSiteRequest(
+        'getCrosspost',
+        args,
+        'Failed to get crosspost'
+      );
+      foreignPostCache.set(key, promise);
+    }
+    const {document} = await promise;
+    return document;
+  }
+}

@@ -1,12 +1,14 @@
 import React, { useContext, createContext } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useHover } from '../common/withHover'
 import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
-import type { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper'
+import type { Placement as PopperPlacementType } from "popper.js"
+import UserNameDeleted from "./UserNameDeleted";
+import UserTooltip from "./UserTooltip";
 
 const styles = (theme: ThemeType) => ({
   color: {
@@ -84,10 +86,8 @@ const UsersNameDisplay = ({
   const nameHidden = noKibitz && !hover;
 
   if (!user || user.deleted) {
-    return <Components.UserNameDeleted userShownToAdmins={user}/>
+    return <UserNameDeleted userShownToAdmins={user}/>
   }
-  const { UserTooltip } = Components
-
   const displayName = nameHidden ? "(hidden)" : userGetDisplayName(user);
   const colorClass = color?classes.color:classes.noColor;
 
@@ -108,39 +108,33 @@ const UsersNameDisplay = ({
     profileUrl += `?from=${pageSectionContext}`
   }
 
-  return <span className={className}>
-    <span {...eventHandlers}>
-      <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
-        <UserTooltip
-          user={user}
-          placement={tooltipPlacement}
-          inlineBlock={false}
-          hideFollowButton={hideFollowButton}
-          disabled={noTooltip}
+  return <span className={className} {...eventHandlers}>
+    <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
+      <UserTooltip
+        user={user}
+        placement={tooltipPlacement}
+        inlineBlock={false}
+        hideFollowButton={hideFollowButton}
+        disabled={noTooltip}
+      >
+        <Link
+          to={profileUrl}
+          className={classNames(
+            colorClass,
+            noKibitz && classes.noKibitz,
+            nowrap && classes.nowrap,
+          )}
+          {...(nofollow ? {rel:"nofollow"} : {})}
         >
-          <Link
-            to={profileUrl}
-            className={classNames(
-              colorClass,
-              noKibitz && classes.noKibitz,
-              nowrap && classes.nowrap,
-            )}
-            {...(nofollow ? {rel:"nofollow"} : {})}
-          >
-            {displayName}
-          </Link>
-        </UserTooltip>
-      </AnalyticsContext>
-    </span>
+          {displayName}
+        </Link>
+      </UserTooltip>
+    </AnalyticsContext>
   </span>
 }
 
-const UsersNameDisplayComponent = registerComponent(
+export default registerComponent(
   'UsersNameDisplay', UsersNameDisplay, {styles}
 );
 
-declare global {
-  interface ComponentTypes {
-    UsersNameDisplay: typeof UsersNameDisplayComponent
-  }
-}
+

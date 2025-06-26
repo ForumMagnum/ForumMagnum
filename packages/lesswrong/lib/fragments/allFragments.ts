@@ -2,22 +2,19 @@
 // Keep that in mind if changing the structure.
 
 // Helper imports
-import SqlFragment from '@/server/sql/SqlFragment';
+import { SqlFragment } from '@/server/sql/SqlFragment';
 import type { DocumentNode } from 'graphql';
 import uniq from 'lodash/uniq';
 import { isAnyTest } from '../executionEnvironment';
+import LRU from "lru-cache";
 
 // Generated default fragments
 import * as defaultFragments from '@/lib/generated/defaultFragments';
 
-// Alignment Forum imports
-import * as alignmentCommentsFragments from '../alignment-forum/comments/fragments';
-import * as alignmentPostsFragments from '../alignment-forum/posts/fragments';
-import * as alignmentUsersFragments from '../alignment-forum/users/fragments';
-
 // Collection imports
 import * as advisorRequestsFragments from '../collections/advisorRequests/fragments';
 import * as bansFragments from '../collections/bans/fragments';
+import * as bookmarksFragments from '../collections/bookmarks/fragments';
 import * as booksFragments from '../collections/books/fragments';
 import * as chaptersFragments from '../collections/chapters/fragments';
 import * as ckEditorUserSessionsFragments from '../collections/ckEditorUserSessions/fragments';
@@ -73,6 +70,7 @@ import * as tagFlagsFragments from '../collections/tagFlags/fragments';
 import * as tagRelsFragments from '../collections/tagRels/fragments';
 import * as tagsFragments from '../collections/tags/fragments';
 import * as typingIndicatorsFragments from '../collections/typingIndicators/fragments';
+import * as ultraFeedEventsFragments from '../collections/ultraFeedEvents/fragments';
 import * as userEAGDetailsFragments from '../collections/userEAGDetails/fragments';
 import * as userJobAdsFragments from '../collections/userJobAds/fragments';
 import * as userMostValuablePostsFragments from '../collections/userMostValuablePosts/fragments';
@@ -83,6 +81,8 @@ import * as votesFragments from '../collections/votes/fragments';
 
 // Non-collection fragments
 import * as subscribedUserFeedFragments from '../subscribedUsersFeed';
+import * as ultraFeedFragments from '../ultraFeed';
+import { transformFragments } from './fragmentWrapper';
 
 // Unfortunately the inversion with sql fragment compilation is a bit tricky to unroll, so for now we just dynamically load the test fragments if we're in a test environment.
 // We type this as Record<never, never> because we want to avoid it clobbering the rest of the fragment types.
@@ -94,15 +94,11 @@ if (isAnyTest) {
   testFragments = {};
 }
 
-const staticFragments = {
-  // Alignment Forum fragments
-  ...alignmentCommentsFragments,
-  ...alignmentPostsFragments,
-  ...alignmentUsersFragments,
-
+const staticFragments = transformFragments({
   // Collection fragments
   ...advisorRequestsFragments,
   ...bansFragments,
+  ...bookmarksFragments,
   ...booksFragments,
   ...chaptersFragments,
   ...ckEditorUserSessionsFragments,
@@ -152,26 +148,28 @@ const staticFragments = {
   ...subscriptionsFragments,
   ...surveyQuestionsFragments,
   ...surveyResponsesFragments,
-  ...surveySchedulesFragments,
   ...surveysFragments,
+  ...surveySchedulesFragments,
   ...tagFlagsFragments,
   ...tagRelsFragments,
   ...tagsFragments,
   ...typingIndicatorsFragments,
+  // ...ultraFeedEventsFragments,
   ...userEAGDetailsFragments,
   ...userJobAdsFragments,
   ...userMostValuablePostsFragments,
   ...userRateLimitsFragments,
-  ...userTagRelsFragments,
   ...usersFragments,
+  ...userTagRelsFragments,
   ...votesFragments,
 
   // Non-collection fragments
   ...subscribedUserFeedFragments,
+  ...ultraFeedFragments,
 
   // Test fragments
   ...testFragments,
-} satisfies Record<string, string>;
+});
 
 // TODO: I originally implemented this with deferred execution because getDefaultFragments needed to be called after the collections were registered
 // But now we're generating the default fragments in a separate step, so maybe we can just do this in one go?
@@ -192,10 +190,30 @@ interface FragmentDefinition {
   fragmentText: string
   subFragments?: Array<FragmentName>
   fragmentObject?: DocumentNode
-  sqlFragment?: SqlFragment
 }
 
 const memoizedFragmentInfo: Partial<Record<FragmentName, FragmentDefinition>> = {};
+
+const sqlFragmentCache = new LRU<string, SqlFragment>({
+  max: 5_000_000,
+  // Rough estimate that a SQL Fragment is 3x the size of the fragment text, plus the fragment text itself as the key
+  // I'm not sure how the key might be missing, but empirically our queries end up measuring at about 10kb
+  length: (_, key) => !key ? 10_000 : key.length * 4,
+});
+
+
+export function getSqlFragment(fragmentName: string, fragmentText: string): SqlFragment {
+  // Remove comments from the fragment source text
+  fragmentText = fragmentText.replace(/#.*\n/g, '\n');
+
+  const cached = sqlFragmentCache.get(fragmentText);
+  if (cached) {
+    return cached;
+  }
+  const sqlFragment = new SqlFragment(fragmentName, fragmentText);
+  sqlFragmentCache.set(fragmentText, sqlFragment);
+  return sqlFragment;
+}
 
 // Register a fragment, including its text, the text of its subfragments, and the fragment object
 function registerFragment(fragmentTextSource: string): FragmentDefinition {
@@ -206,17 +224,8 @@ function registerFragment(fragmentTextSource: string): FragmentDefinition {
   const matchedSubFragments = fragmentText.match(/\.{3}([_A-Za-z][_0-9A-Za-z]*)/g) || [];
   const subFragments = uniq(matchedSubFragments.map(f => f.replace('...', '')));
 
-  const sqlFragment = bundleIsServer
-    // eslint-disable-next-line import/no-restricted-paths, babel/new-cap
-    ? new SqlFragment(
-      fragmentText,
-      (name: FragmentName) => getMemoizedFragmentInfo(name).sqlFragment ?? null,
-    )
-    : undefined;
-
   const fragmentDefinition: FragmentDefinition = {
     fragmentText,
-    sqlFragment,
   };
 
   if (subFragments && subFragments.length) {

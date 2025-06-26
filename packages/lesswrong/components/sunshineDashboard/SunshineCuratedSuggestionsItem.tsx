@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
@@ -10,6 +10,17 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import * as _ from 'underscore';
 import classNames from 'classnames';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import CurationNoticesItem from "../admin/CurationNoticesItem";
+import SunshineListItem from "./SunshineListItem";
+import SidebarHoverOver from "./SidebarHoverOver";
+import { Typography } from "../common/Typography";
+import PostsHighlight from "../posts/PostsHighlight";
+import SidebarInfo from "./SidebarInfo";
+import SidebarAction from "./SidebarAction";
+import SidebarActionMenu from "./SidebarActionMenu";
+import ForumIcon from "../common/ForumIcon";
+import FormatDate from "../common/FormatDate";
+import { isEAForum } from '@/lib/instanceSettings';
 
 const styles = (theme: ThemeType) => ({
   audioIcon: {
@@ -31,14 +42,13 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost}: {
+const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeForCuration}: {
   classes: ClassesType<typeof styles>,
   post: SunshineCurationPostsList,
   setCurationPost?: (post: SunshineCurationPostsList) => void,
+  timeForCuration?: boolean,
 }) => {
   const currentUser = useCurrentUser();
-  const { CurationNoticesItem, SunshineListItem, SidebarHoverOver, Typography, PostsHighlight, SidebarInfo, SidebarAction, SidebarActionMenu, ForumIcon, FormatDate } = Components
-
   const { hover, anchorEl, eventHandlers } = useHover();
   const { mutate: updatePost } = useUpdate({
     collectionName: "Posts",
@@ -86,7 +96,8 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost}: {
     })
   }
 
-  const hasCurationNotice = post.curationNotices && post.curationNotices.length > 0
+  // On the EA Forum, only admins can curate and remove from curation suggestions
+  const canCurate = isEAForum ? currentUser?.isAdmin : true;
 
   return (
     <span {...eventHandlers}>
@@ -142,24 +153,23 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost}: {
               <ForumIcon icon="Undo"/>
             </SidebarAction>
           }
-          <SidebarAction title="Curate Post" onClick={handleCurate}>
-            <ForumIcon icon="Star" />
-          </SidebarAction>
-          <SidebarAction title="Remove from Curation Suggestions" onClick={handleDisregardForCurated}>
-            <ForumIcon icon="Clear"/>
-          </SidebarAction>
+          { timeForCuration && canCurate &&
+            <SidebarAction title="Curate Post" onClick={handleCurate}>
+              <ForumIcon icon="Star" />
+            </SidebarAction>
+          }
+          { canCurate && <SidebarAction title="Remove from Curation Suggestions" onClick={handleDisregardForCurated}>
+              <ForumIcon icon="Clear"/>
+            </SidebarAction>
+          }
         </SidebarActionMenu>}
       </SunshineListItem>
     </span>
   )
 }
 
-const SunshineCuratedSuggestionsItemComponent = registerComponent('SunshineCuratedSuggestionsItem', SunshineCuratedSuggestionsItem, {styles, 
+export default registerComponent('SunshineCuratedSuggestionsItem', SunshineCuratedSuggestionsItem, {styles, 
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    SunshineCuratedSuggestionsItem: typeof SunshineCuratedSuggestionsItemComponent
-  }
-}
+

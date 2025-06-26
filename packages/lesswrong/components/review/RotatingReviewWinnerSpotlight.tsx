@@ -3,8 +3,9 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { gql, useQuery } from '@apollo/client';
 import { GetAllReviewWinnersQueryResult } from '../sequences/TopPostsPage';
 import { useSingle } from '@/lib/crud/withSingle';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import SpotlightItem from "../spotlights/SpotlightItem";
 
 const getTodayReviewInfo = (reviewWinners: GetAllReviewWinnersQueryResult, category: string) => {
   const categoryReviewWinners = reviewWinners.filter(reviewWinner => reviewWinner.reviewWinner.category === category)
@@ -23,7 +24,6 @@ const getTodayReviewInfo = (reviewWinners: GetAllReviewWinnersQueryResult, categ
 };
 
 export const RotatingReviewWinnerSpotlight = () => {
-  const { SpotlightItem } = Components
   const category = "ai safety"
   const { data } = useQuery(
     gql`
@@ -52,10 +52,6 @@ export const RotatingReviewWinnerSpotlight = () => {
   </AnalyticsContext>
 }
 
-const RotatingReviewWinnerSpotlightComponent = registerComponent('RotatingReviewWinnerSpotlight', RotatingReviewWinnerSpotlight);
+export default registerComponent('RotatingReviewWinnerSpotlight', RotatingReviewWinnerSpotlight);
 
-declare global {
-  interface ComponentTypes {
-    RotatingReviewWinnerSpotlight: typeof RotatingReviewWinnerSpotlightComponent
-  }
-}
+

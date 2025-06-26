@@ -1,17 +1,21 @@
 import React, { CSSProperties, FC, PropsWithChildren } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { idSettingIcons, tagSettingIcons } from "../../lib/collections/posts/constants";
-import { communityPath } from '../../lib/routes';
+import { communityPath } from '@/lib/pathConstants';
 import { InteractionWrapper } from '../common/useClickableCell';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
-import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
+import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { useTheme } from '../themes/useTheme';
+import { PostsItemIcons, CuratedIcon } from "./PostsItemIcons";
+import ForumIcon from "../common/ForumIcon";
+import TagsTooltip from "../tagging/TagsTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -125,6 +129,10 @@ const styles = (theme: ThemeType) => ({
       ? "var(--post-title-tag-background)"
       : "var(--post-title-tag-foreground)",
   },
+  eventTagBordered: {
+    border: theme.palette.border.normal,
+    borderRadius: 2,
+  },
   highlightedTagTooltip: {
     marginTop: -2,
   },
@@ -147,12 +155,16 @@ const postIcon = (post: PostsBase|PostsListBase) => {
 }
 
 const useTaggedEvent = (showEventTag: boolean, post: PostsBase|PostsListBase) => {
-  const {currentForumEvent, isEventPost} = useCurrentForumEvent();
+  const {currentForumEvent, isEventPost} = useCurrentAndRecentForumEvents();
   if (!showEventTag) {
     return undefined;
   }
-  if (currentForumEvent?.tag && isEventPost(post)) {
-    return currentForumEvent;
+  const event = isEventPost(post, {includeRecent: true});
+  if (event?.tag) {
+    if (event.tag._id === currentForumEvent?.tag?._id) {
+      return {event: event, current: true};
+    }
+    return {event: event, current: false};
   }
   return undefined;
 }
@@ -198,9 +210,8 @@ const PostsTitle = ({
 }) => {
   const currentUser = useCurrentUser();
   const { pathname } = useLocation();
-  const taggedEvent = useTaggedEvent(showEventTag ?? false, post);
-  const { PostsItemIcons, CuratedIcon, ForumIcon, TagsTooltip } = Components;
-
+  const {event: taggedEvent, current: taggedEventIsCurrent} = useTaggedEvent(showEventTag ?? false, post) ?? {};
+  const theme = useTheme();
   const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
 
   const shouldRenderEventsTag = (pathname !== communityPath) && (pathname !== '/pastEvents') && (pathname !== '/upcomingEvents') &&
@@ -259,10 +270,17 @@ const PostsTitle = ({
           >
             <Link doOnDown={true} to={tagGetUrl(taggedEvent.tag)} className={classes.eventTagLink}>
               <span
-                className={classes.eventTag}
+                className={classNames(
+                  classes.eventTag,
+                  {[classes.eventTagBordered]: !taggedEventIsCurrent}
+                )}
                 style={{
-                  "--post-title-tag-background": taggedEvent.lightColor,
-                  "--post-title-tag-foreground": taggedEvent.darkColor,
+                  "--post-title-tag-background": taggedEventIsCurrent ?
+                    taggedEvent.lightColor :
+                    theme.palette.tag.background,
+                  "--post-title-tag-foreground": taggedEventIsCurrent ?
+                    taggedEvent.darkColor :
+                    theme.palette.tag.text,
                 } as CSSProperties}
               >
                 {taggedEvent.tag.shortName || taggedEvent.tag.name}
@@ -275,10 +293,6 @@ const PostsTitle = ({
   )
 }
 
-const PostsTitleComponent = registerComponent('PostsTitle', PostsTitle, {styles});
+export default registerComponent('PostsTitle', PostsTitle, {styles});
 
-declare global {
-  interface ComponentTypes {
-    PostsTitle: typeof PostsTitleComponent
-  }
-}
+

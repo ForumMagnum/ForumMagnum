@@ -1,47 +1,21 @@
 import { ApolloClient, NormalizedCacheObject, ApolloError, gql, useQuery, WatchQueryFetchPolicy } from '@apollo/client';
-import * as _ from 'underscore';
 import { extractFragmentInfo } from '../vulcan-lib/handleOptions';
 import { collectionNameToTypeName } from '../generated/collectionTypeNames';
-import { camelCaseify } from '../vulcan-lib/utils';
 import { apolloSSRFlag } from '../helpers';
 import type { PrimitiveGraphQLType } from './types';
+import { getSingleResolverName } from './utils';
 
-// Template of a GraphQL query for useSingle. A sample query might look
-// like:
-//
-// query singleMovieQuery($input: SingleMovieInput) {
-//   movie(input: $input) {
-//     result {
-//       _id
-//       name
-//       __typename
-//     }
-//     __typename
-//   }
-// }
-const singleClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
-  typeName: string,
-  fragmentName: FragmentName,
-  extraVariablesString: string,
-}) =>
-`query single${typeName}Query($input: Single${typeName}Input, ${extraVariablesString || ''}) {
-  ${camelCaseify(typeName)}(input: $input) {
-    result {
-      ...${fragmentName}
-    }
-    __typename
-  }
-}`;
 
 /**
  * Given terms/etc for a useSingle query, generate corresponding GraphQL. Exported
  * for use in crossposting-related integrations. You probably don't want to use
  * this directly; in most cases you should use the useSingle hook instead.
  */
-export function getGraphQLSingleQueryFromOptions({ collectionName, fragment, fragmentName, extraVariables }: {
+export function getGraphQLSingleQueryFromOptions({ collectionName, fragment, fragmentName, resolverName, extraVariables }: {
   collectionName: CollectionNameString,
   fragment: any,
   fragmentName: FragmentName|undefined,
+  resolverName: string,
   extraVariables?: Record<string, PrimitiveGraphQLType>,
 }) {
   ({ fragmentName, fragment } = extractFragmentInfo({ fragment, fragmentName }, collectionName));
@@ -54,23 +28,18 @@ export function getGraphQLSingleQueryFromOptions({ collectionName, fragment, fra
   }
 
   const query = gql`
-    ${singleClientTemplate({ typeName, fragmentName, extraVariablesString })}
+    query single${typeName}Query($input: Single${typeName}Input, ${extraVariablesString || ''}) {
+      ${resolverName}(input: $input) {
+        result {
+          ...${fragmentName}
+        }
+        __typename
+      }
+    }
     ${fragment}
   `;
   
   return query
-}
-
-/**
- * Get the name of the GraphQL resolver to use for useSingle on a collection
- * (which is the type name, camel-caseified). Note that this functino might not
- * be getting used everywhere that uses the resolver name, and the resolver name
- * is part of the API given to external sites like GreaterWrong, so this should
- * not be changed.
- */
-export function getResolverNameFromOptions(collectionName: CollectionNameString): string {
-  const typeName = collectionNameToTypeName[collectionName];
-  return camelCaseify(typeName);
 }
 
 type TSuccessReturn<FragmentTypeName extends keyof FragmentTypes> = {loading: false, error: undefined, document: FragmentTypes[FragmentTypeName]};
@@ -87,12 +56,10 @@ type TReturn<FragmentTypeName extends keyof FragmentTypes> = (TSuccessReturn<Fra
 
 // You can pass either `documentId` or `slug`, but not both. The must pass one;
 // you pass undefined, in which case the query is skipped.
-export type DocumentIdOrSlug =
-   {documentId: string|undefined, slug?: never}
-  |{slug: string|undefined, documentId?: never};
+export type SelectorInput = { documentId: string | undefined };
 
 export type UseSingleProps<FragmentTypeName extends keyof FragmentTypes> = (
-  DocumentIdOrSlug & {
+  SelectorInput & {
     collectionName: CollectionNameString,
     fragmentName?: FragmentTypeName,
     fragment?: any,
@@ -123,7 +90,7 @@ export type UseSingleProps<FragmentTypeName extends keyof FragmentTypes> = (
  * of those arguments, and extraVariablesValues, which contains their values.
  */
 export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
-  documentId, slug,
+  documentId,
   collectionName,
   fragmentName, fragment,
   extraVariables,
@@ -136,14 +103,15 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   ssr=true,
   apolloClient,
 }: UseSingleProps<FragmentTypeName>): TReturn<FragmentTypeName> {
-  const query = getGraphQLSingleQueryFromOptions({ extraVariables, collectionName, fragment, fragmentName })
-  const resolverName = getResolverNameFromOptions(collectionName)
-  const skipQuery = skip || (!documentId && !slug);
+  const typeName = collectionNameToTypeName[collectionName];
+  const resolverName = getSingleResolverName(typeName)
+  const query = getGraphQLSingleQueryFromOptions({ extraVariables, collectionName, fragment, fragmentName, resolverName })
+  const skipQuery = skip || !documentId;
   // TODO: Properly type this generic query
   const { data, error, loading, ...rest } = useQuery(query, {
     variables: {
       input: {
-        selector: { documentId, slug },
+        selector: { documentId },
         resolverArgs: extraVariablesValues,
         ...(allowNull && {allowNull: true})
       },

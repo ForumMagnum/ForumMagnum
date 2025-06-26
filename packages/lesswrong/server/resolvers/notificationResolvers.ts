@@ -1,28 +1,95 @@
-import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
 import { Notifications } from '../../server/collections/notifications/collection';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import { getNotificationTypeByName, NotificationDisplay } from '../../lib/notificationTypes';
-import { NotificationCountsResult } from '../../lib/collections/notifications/schema';
-import { isDialogueParticipant } from "../../components/posts/PostsPage/PostsPage";
+import type { NotificationCountsResult } from '@/components/hooks/useUnreadNotifications';
+import { isDialogueParticipant } from '../../lib/collections/posts/helpers';
 import { notifyDialogueParticipantsNewMessage } from "../notificationCallbacks";
 import { cheerioParse } from '../utils/htmlUtil';
-import { DialogueMessageInfo } from '../../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
+import type { DialogueMessageInfo } from '../../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 import { handleDialogueHtml } from '../editor/conversionUtils';
 import { createPaginatedResolver } from './paginatedResolver';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import gql from "graphql-tag"
 
-defineQuery({
-  name: "unreadNotificationCounts",
-  schema: `
-    type NotificationCounts {
-      checkedAt: Date!
-      unreadNotifications: Int!
-      unreadPrivateMessages: Int!
-      faviconBadgeNumber: Int!
+const {Query: NotificationDisplaysQuery, typeDefs: NotificationDisplaysTypeDefs} = createPaginatedResolver({
+  name: "NotificationDisplays",
+  graphQLType: "JSON",
+  args: {
+    type: "String",
+  },
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+    args?: {type?: string | null},
+  ): Promise<NotificationDisplay[]> => {
+    const {repos, currentUser} = context;
+    if (!currentUser) {
+      return [];
     }
-  `,
-  resultType: "NotificationCounts!",
-  fn: async (root: void, args: {}, context: ResolverContext): Promise<NotificationCountsResult> => {
+    return repos.notifications.getNotificationDisplays({
+      userId: currentUser._id,
+      type: args?.type ?? undefined,
+      limit,
+    });
+  },
+});
+
+export const notificationResolversGqlTypeDefs = gql`
+  type NotificationCounts {
+    checkedAt: Date!
+    unreadNotifications: Int!
+    unreadPrivateMessages: Int!
+    faviconBadgeNumber: Int!
+  }
+
+  extend type Query {
+    unreadNotificationCounts: NotificationCounts!
+  }
+  extend type Mutation {
+    MarkAllNotificationsAsRead: Boolean
+    sendNewDialogueMessageNotification(postId: String!, dialogueHtml: String!): Boolean!
+  }
+
+  ${NotificationDisplaysTypeDefs}
+`
+
+export const notificationResolversGqlMutations = {
+  async MarkAllNotificationsAsRead (
+    _root: void,
+    _args: {},
+    {currentUser}: ResolverContext,
+  ) {
+    if (!currentUser) {
+      throw new Error("Unauthorized");
+    }
+    await Notifications.rawUpdateMany({
+      userId: currentUser._id,
+      type: { $ne: 'newMessage' },
+    }, {
+      $set: {
+        viewed: true,
+      },
+    });
+    return true;
+  },
+  async sendNewDialogueMessageNotification (_: void, {postId, dialogueHtml}: { postId: string, dialogueHtml: string }, context: ResolverContext) {
+    const { currentUser, loaders } = context;
+    if (!currentUser) throw new Error("No user was provided")
+    const post = await loaders.Posts.load(postId)
+    if (!post) throw new Error("No post was provided")
+    if (!post.collabEditorDialogue) throw new Error("Post is not a dialogue")
+    if (!isDialogueParticipant(currentUser._id, post)) throw new Error("User is not a dialogue participant")
+
+    const messageInfo = await extractLatestDialogueMessageByUser(dialogueHtml, currentUser._id, context) 
+
+    await notifyDialogueParticipantsNewMessage(currentUser._id, messageInfo, post)
+    
+    return true
+  },
+}
+
+export const notificationResolversGqlQueries = {
+  async unreadNotificationCounts (root: void, args: {}, context: ResolverContext): Promise<NotificationCountsResult> {
     const checkedAt = new Date();
     const { currentUser } = context;
     if (!currentUser) {
@@ -80,11 +147,13 @@ defineQuery({
       unreadPrivateMessages,
       faviconBadgeNumber: badgeNotifications.length,
     }
-  }
-});
+  },
+  
+  ...NotificationDisplaysQuery
+}
 
-const extractLatestDialogueMessageByUser = async (dialogueHtml: string, userId: string): Promise<DialogueMessageInfo|undefined> => {
-  const html = await handleDialogueHtml(dialogueHtml)
+const extractLatestDialogueMessageByUser = async (dialogueHtml: string, userId: string, context: ResolverContext): Promise<DialogueMessageInfo|undefined> => {
+  const html = await handleDialogueHtml(dialogueHtml, context)
   const $ = cheerioParse(html);
   const messages = $('.dialogue-message');
   let latestMessage: DialogueMessageInfo|undefined
@@ -99,68 +168,3 @@ const extractLatestDialogueMessageByUser = async (dialogueHtml: string, userId: 
   });
   return latestMessage;
 };
-
-defineMutation({
-  name: "sendNewDialogueMessageNotification",
-  resultType: "Boolean!",
-  argTypes: "(postId: String!, dialogueHtml: String!)",
-  fn: async (_, {postId, dialogueHtml}: { postId: string, dialogueHtml: string }, {currentUser, loaders}) => {
-    if (!currentUser) throw new Error("No user was provided")
-    const post = await loaders.Posts.load(postId)
-    if (!post) throw new Error("No post was provided")
-    if (!post.collabEditorDialogue) throw new Error("Post is not a dialogue")
-    if (!isDialogueParticipant(currentUser._id, post)) throw new Error("User is not a dialogue participant")
-
-    const messageInfo = await extractLatestDialogueMessageByUser(dialogueHtml, currentUser._id) 
-
-    await notifyDialogueParticipantsNewMessage(currentUser._id, messageInfo, post)
-    
-    return true
-  }
-})
-
-createPaginatedResolver({
-  name: "NotificationDisplays",
-  graphQLType: "JSON",
-  args: {
-    type: "String",
-  },
-  callback: async (
-    context: ResolverContext,
-    limit: number,
-    args?: {type?: string | null},
-  ): Promise<NotificationDisplay[]> => {
-    const {repos, currentUser} = context;
-    if (!currentUser) {
-      return [];
-    }
-    return repos.notifications.getNotificationDisplays({
-      userId: currentUser._id,
-      type: args?.type ?? undefined,
-      limit,
-    });
-  },
-});
-
-defineMutation({
-  name: "MarkAllNotificationsAsRead",
-  resultType: "Boolean",
-  fn: async (
-    _root: void,
-    _args: {},
-    {currentUser}: ResolverContext,
-  ) => {
-    if (!currentUser) {
-      throw new Error("Unauthorized");
-    }
-    await Notifications.rawUpdateMany({
-      userId: currentUser._id,
-      type: { $ne: 'newMessage' },
-    }, {
-      $set: {
-        viewed: true,
-      },
-    });
-    return true;
-  },
-});

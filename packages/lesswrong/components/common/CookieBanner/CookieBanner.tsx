@@ -1,10 +1,12 @@
 import React from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import classNames from "classnames";
 import { useDialog } from "../withDialog";
 import { useCookiePreferences } from "../../hooks/useCookiesWithConsent";
 import { ALL_COOKIES, ONLY_NECESSARY_COOKIES } from "../../../lib/cookies/utils";
+import CookieDialog from "./CookieDialog";
+import { Typography } from "../Typography";
 
 const styles = (theme: ThemeType) => ({
   bannerContainer: {
@@ -80,8 +82,6 @@ const CookieBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const handleReject = () => {
     updateCookiePreferences(ONLY_NECESSARY_COOKIES);
   }
-
-  const { Typography } = Components;
   return (
     <div className={classNames(classes.bannerContainer)}>
       <Typography variant="body2" className={classes.text}>
@@ -89,7 +89,10 @@ const CookieBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
         By clicking "Accept all" you agree to their use. Customise your{" "}
         <a
           onClick={() => {
-            openDialog({ componentName: "CookieDialog", componentProps: {} });
+            openDialog({
+              name: "CookieDialog",
+              contents: ({onClose}) => <CookieDialog onClose={onClose} />
+            });
           }}
         >
           cookie settings
@@ -108,12 +111,8 @@ const CookieBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 };
 
-const CookieBannerComponent = registerComponent("CookieBanner", CookieBanner, {
+export default registerComponent("CookieBanner", CookieBanner, {
   styles,
 });
 
-declare global {
-  interface ComponentTypes {
-    CookieBanner: typeof CookieBannerComponent;
-  }
-}
+

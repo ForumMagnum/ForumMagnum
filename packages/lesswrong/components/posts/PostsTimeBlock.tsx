@@ -1,13 +1,21 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMulti } from '../../lib/crud/withMulti';
 import moment from 'moment-timezone';
 import { timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import { QueryLink } from '../../lib/reactRouterWrapper';
-import type { ContentTypeString } from './PostsPage/ContentType';
+import ContentType, { ContentTypeString } from './PostsPage/ContentType';
 import filter from 'lodash/filter';
 import { useLocation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import PostsItem from "./PostsItem";
+import LoadMore from "../common/LoadMore";
+import ShortformTimeBlock from "../shortform/ShortformTimeBlock";
+import TagEditsTimeBlock from "../tagging/TagEditsTimeBlock";
+import Divider from "../common/Divider";
+import { Typography } from "../common/Typography";
+import PostsTagsList from "../tagging/PostsTagsList";
+import PostsLoading from "./PostsLoading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -69,7 +77,11 @@ const styles = (theme: ThemeType) => ({
     marginTop: isFriendlyUI ? 0 : 6,
     marginBottom: 6
   },
-  divider: {/* Exists only to get overriden by the eaTheme */}
+  divider: {
+    ...(isFriendlyUI && {
+      display: 'none'
+    }),
+  }
 })
 
 interface PostTypeOptions {
@@ -155,12 +167,6 @@ const PostsTimeBlock = ({
   const reportEmptyTags = useCallback(() => {
     setNoTags(true);
   }, []);
-
-  const {
-    PostsItem, LoadMore, ShortformTimeBlock, TagEditsTimeBlock, ContentType,
-    Divider, Typography, PostsTagsList, PostsLoading,
-  } = Components;
-
   const noPosts = !loading && (!filteredPosts || (filteredPosts.length === 0));
   // The most recent timeBlock is hidden if there are no posts or shortforms
   // on it, to avoid having an awkward empty partial timeBlock when it's close
@@ -260,12 +266,8 @@ const PostsTimeBlock = ({
   );
 };
 
-const PostsTimeBlockComponent = registerComponent('PostsTimeBlock', PostsTimeBlock, {
+export default registerComponent('PostsTimeBlock', PostsTimeBlock, {
   styles,
 });
 
-declare global {
-  interface ComponentTypes {
-    PostsTimeBlock: typeof PostsTimeBlockComponent
-  }
-}
+

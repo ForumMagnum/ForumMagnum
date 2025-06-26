@@ -42,7 +42,7 @@ export const postStatusLabels = [
 ];
 
 const amaTagIdSetting = new DatabasePublicSetting<string | null>('amaTagId', null)
-const openThreadTagIdSetting = new DatabasePublicSetting<string | null>('openThreadTagId', null)
+export const openThreadTagIdSetting = new DatabasePublicSetting<string>('openThreadTagId', 'eTLv8KzwBGcDip9Wi')
 export const startHerePostIdSetting = new DatabasePublicSetting<string | null>('startHerePostId', null)
 
 // Cute hack
@@ -150,3 +150,33 @@ export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
   old: { postedAt: 1 },
   recentComments: { lastCommentedAt: -1 }
 }
+
+export const MODERATION_GUIDELINES_OPTIONS = [
+  {
+    value: "",
+    label: "No Moderation",
+  },
+  {
+    value: "easy-going",
+    label: "Easy Going - I just delete obvious spam and trolling.",
+  },
+  {
+    value: "norm-enforcing",
+    label: "Norm Enforcing - I try to enforce particular rules (see below)",
+  },
+  {
+    value: "reign-of-terror",
+    label: "Reign of Terror - I delete anything I judge to be annoying or counterproductive",
+  },
+];
+
+export const EVENT_TYPES = [
+  { value: "presentation", label: "Presentation" },
+  { value: "discussion", label: "Discussion" },
+  { value: "workshop", label: "Workshop" },
+  { value: "social", label: "Social" },
+  { value: "coworking", label: "Coworking" },
+  { value: "course", label: "Course" },
+  { value: "conference", label: "Conference" },
+];
+

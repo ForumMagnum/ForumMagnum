@@ -1,15 +1,15 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useTagPreview } from './useTag';
-import { linkStyle } from '../linkPreview/PostLinkPreview';
+import { linkStyles } from '../linkPreview/PostLinkPreview';
 import { removeUrlParameters } from '../../lib/routeUtil';
 import classNames from 'classnames';
 import { hasWikiLenses } from '@/lib/betas';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { RouterLocation } from "../../lib/vulcan-lib/routes";
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import TagsTooltip from "./TagsTooltip";
 
-const styles = (theme: ThemeType) => ({
-  ...linkStyle(theme),
+const styles = defineStyles('TagHoverPreview', (theme: ThemeType) => ({
   count: {
     color: theme.palette.secondary.main, // grey[500],
     fontSize: ".9em",
@@ -17,27 +17,28 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 3,
     marginRight: 0
   }
-});
+}));
 
 function normalizeTagLink(link: string) {
   return removeUrlParameters(link, ["showPostCount", "useTagName"]);
 }
 
-const TagHoverPreview = ({
+export const TagHoverPreview = ({
   href,
   targetLocation,
   postCount=6,
   noPrefetch,
   children,
-  classes,
 }: {
   href: string,
   targetLocation: RouterLocation,
   postCount?: number,
   noPrefetch?: boolean,
   children: React.ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+  const linkClasses = useStyles(linkStyles);
+  
   const { params: {slug}, hash } = targetLocation;
   // Slice the hash to remove the leading # (which won't be a part of the
   // element ID in the dom) eg: "Further_reading"
@@ -54,8 +55,6 @@ const TagHoverPreview = ({
 
   const isRead = tag?.isRead;
   const isRedLink = hasWikiLenses && ((!tag && !noPrefetch && !loading) || tag?.isPlaceholderPage);
-
-  const {TagsTooltip} = Components;
   return (
     <TagsTooltip
       tagSlug={previewSlug}
@@ -67,9 +66,9 @@ const TagHoverPreview = ({
     >
       <Link
         className={classNames(
-          !showPostCount && classes.link,
+          !showPostCount && linkClasses.link,
           isRead && "visited",
-          isRedLink && classes.redLink,
+          isRedLink && linkClasses.redLink,
         )}
         to={linkTarget}
       >
@@ -80,12 +79,4 @@ const TagHoverPreview = ({
       }
     </TagsTooltip>
   );
-}
-
-const TagHoverPreviewComponent = registerComponent("TagHoverPreview", TagHoverPreview, {styles});
-
-declare global {
-  interface ComponentTypes {
-    TagHoverPreview: typeof TagHoverPreviewComponent
-  }
 }

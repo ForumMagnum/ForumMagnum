@@ -1,5 +1,5 @@
 import React from 'react';
-import { communityPath, getAllTagsPath } from '../../../lib/routes';
+import { communityPath, getAllTagsPath } from '@/lib/pathConstants';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { ForumOptions } from '../../../lib/forumTypeUtils';
@@ -73,7 +73,7 @@ type MenuTabDivider = {
 
 type MenuTabCustomComponent = {
   id: string
-  customComponentName: string
+  customComponentName: 'EventsList' | 'SubscribeWidget'
 }
 
 type MenuItemIcon = React.ComponentType | React.FC<{className?: string}>;
@@ -197,6 +197,11 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'lwAlbum',
       title: 'LW the Album',
       link: '/posts/YMo5PuXnZDwRjhHhE/the-story-of-i-have-been-a-good-bing',
+      subItem: true
+    }, {
+      id: 'leaderboard',
+      title: 'Leaderboard',
+      link: '/leaderboard',
       subItem: true
     }, {
       id: 'about',

@@ -41,10 +41,6 @@ const TabNavigationSubItem = ({children, classes, className}: {
   </div>
 }
 
-const TabNavigationSubItemComponent = registerComponent('TabNavigationSubItem', TabNavigationSubItem, {styles});
+export default registerComponent('TabNavigationSubItem', TabNavigationSubItem, {styles});
 
-declare global {
-  interface ComponentTypes {
-    TabNavigationSubItem: typeof TabNavigationSubItemComponent
-  }
-}
+

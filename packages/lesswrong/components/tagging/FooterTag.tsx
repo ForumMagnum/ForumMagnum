@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { DatabasePublicSetting } from '../../lib/publicSettings';
@@ -7,8 +7,9 @@ import classNames from 'classnames';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
-import type { TagsTooltipPreviewWrapper } from './TagsTooltip';
+import TagsTooltip, { TagsTooltipPreviewWrapper } from './TagsTooltip';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import ForumIcon from "../common/ForumIcon";
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
@@ -153,7 +154,6 @@ const FooterTag = ({
     ? tag.shortName || tag.name
     : tag.name;
 
-  const {TagsTooltip, ForumIcon} = Components;
   const renderedTag = <>
     <span className={classes.name}>{tagName}</span>
     {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
@@ -191,10 +191,4 @@ const FooterTag = ({
   );
 }
 
-const FooterTagComponent = registerComponent("FooterTag", FooterTag);
-
-declare global {
-  interface ComponentTypes {
-    FooterTag: typeof FooterTagComponent
-  }
-}
+export default registerComponent("FooterTag", FooterTag);

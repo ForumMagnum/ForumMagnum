@@ -1,7 +1,7 @@
 import React from "react";
-import { commentIsHidden } from "@/lib/collections/comments/helpers";
+import { commentIsHiddenPendingReview, commentIsNotPublicForAnyReason } from "@/lib/collections/comments/helpers";
 import { ForumEventCommentMetadata } from "@/lib/collections/forumEvents/types";
-import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/schema";
+import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/constants";
 import { tagGetDiscussionUrl, EA_FORUM_COMMUNITY_TOPIC_ID } from "@/lib/collections/tags/helpers";
 import { userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
@@ -9,15 +9,14 @@ import { isEAForum } from "@/lib/instanceSettings";
 import { recombeeEnabledSetting } from "@/lib/publicSettings";
 import { randomId } from "@/lib/random";
 import { userCanDo, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
-import { noDeletionPmReason } from "../deleteUserContent";
+import { noDeletionPmReason } from "@/lib/collections/comments/constants";
 import { fetchFragmentSingle } from "../fetchFragment";
 import { checkModGPT } from "../languageModels/modGPT";
-import { CreateCallbackProperties, UpdateCallbackProperties, CallbackValidationErrors, AfterCreateCallbackProperties, DeleteCallbackProperties } from "../mutationCallbacks";
+import { CreateCallbackProperties, UpdateCallbackProperties, AfterCreateCallbackProperties } from "../mutationCallbacks";
 import { createNotifications, getSubscribedUsers } from "../notificationCallbacksHelpers";
 import { rateLimitDateWhenUserNextAbleToComment } from "../rateLimitUtils";
 import { recombeeApi } from "../recombee/client";
 import { getCommentAncestorIds, getCommentSubtree } from "../utils/commentTreeUtils";
-import { createMutator, updateMutator, deleteMutator } from "../vulcan-lib/mutators";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { captureEvent } from "@/lib/analyticsEvents";
 import { akismetKeySetting, commentAncestorsToNotifySetting } from "../databaseSettings";
@@ -25,7 +24,6 @@ import { checkForAkismetSpam } from "../akismet";
 import { getUsersToNotifyAboutEvent } from "../notificationCallbacks";
 import { getConfirmedCoauthorIds, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { wrapAndSendEmail } from "../emails/renderEmail";
-import { Components } from "@/lib/vulcan-lib/components";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { swrInvalidatePostRoute } from "../cache/swr";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
@@ -33,6 +31,16 @@ import _ from "underscore";
 import moment from "moment";
 import isEqual from "lodash/isEqual";
 import uniq from "lodash/uniq";
+import { createConversation } from "../collections/conversations/mutations";
+import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
+import { createMessage } from "../collections/messages/mutations";
+import { createPost, updatePost } from "../collections/posts/mutations";
+import { getRejectionMessage } from "./helpers";
+import { createModeratorAction } from "../collections/moderatorActions/mutations";
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
+import { updateUser } from "../collections/users/mutations";
+import { updateComment } from "../collections/comments/mutations";
+import { EmailComment } from "../emailComponents/EmailComment";
 
 interface SendModerationPMParams {
   action: 'deleted' | 'rejected',
@@ -46,17 +54,6 @@ interface SendModerationPMParams {
 
 const MINIMUM_APPROVAL_KARMA = 5;
 const SPAM_KARMA_THRESHOLD = 10; //Threshold after which you are no longer affected by spam detection
-
-export function getRejectionMessage(rejectedContentLink: string, rejectedReason: string|null) {
-  let messageContents = `
-  <p>Unfortunately, I rejected your ${rejectedContentLink}.</p>
-  <p>LessWrong aims for particularly high quality (and somewhat oddly-specific) discussion quality. We get a lot of content from new users and sadly can't give detailed feedback on every piece we reject, but I generally recommend checking out our <a href="https://www.lesswrong.com/posts/LbbrnRvc9QwjJeics/new-user-s-guide-to-lesswrong">New User's Guide</a>, in particular the section on <a href="https://www.lesswrong.com/posts/LbbrnRvc9QwjJeics/new-user-s-guide-to-lesswrong#How_to_ensure_your_first_post_or_comment_is_well_received">how to ensure your content is approved</a>.</p>`
-  if (rejectedReason) {
-    messageContents += `<p>Your content didn't meet the bar for at least the following reason(s):</p>
-    <p>${rejectedReason}</p>`;
-  }
-  return messageContents;
-}
 
 export async function recalculateAFCommentMetadata(postId: string|null, context: ResolverContext) {
   const { Comments, Posts, loaders } = context;
@@ -73,10 +70,8 @@ export async function recalculateAFCommentMetadata(postId: string|null, context:
   const lastComment: DbComment = _.max(afComments, function(c){return c.postedAt;})
   const lastCommentedAt = (lastComment && lastComment.postedAt) || (await loaders.Posts.load(postId))?.postedAt || new Date()
 
-  void updateMutator({
-    collection: Posts,
-    documentId: postId,
-    set: {
+  void updatePost({
+    data: {
       // Needs to be recomputed after anything moves to/from AF; can't be handled
       // incrementally by simpler callbacks because a comment being removed from
       // AF might mean an unrelated comment is now the newest.
@@ -85,18 +80,17 @@ export async function recalculateAFCommentMetadata(postId: string|null, context:
       // moves are using raw updates.
       afCommentCount: afComments.length,
     },
-    unset: {},
-    validate: false,
-  })
+    selector: { _id: postId }
+  }, createAnonymousContext())
 }
 
 const utils = {
   enforceCommentRateLimit: async ({user, comment, context}: {
     user: DbUser,
-    comment: DbInsertion<DbComment>,
+    comment: CreateCommentDataInput,
     context: ResolverContext,
   }) => {
-    const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, comment.postId, context);
+    const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, comment.postId ?? null, context);
     if (rateLimit) {
       const {nextEligible, rateLimitType:_} = rateLimit;
       if (nextEligible > new Date()) {
@@ -160,7 +154,8 @@ const utils = {
         user: user,
         to: email,
         subject: `New comment on ${post.title}`,
-        body: <Components.EmailComment commentId={comment._id}/>,
+        body: <EmailComment commentId={comment._id}/>,
+        tag: "rsvps-new-comment",
       });
     }
   },
@@ -190,14 +185,15 @@ const utils = {
       });
   
       let newReplyUserIds: string[] = [];
-      let newReplyToYouUserIds: string[] = [];
+      let newReplyToYouDirectUserIds: string[] = [];
+      let newReplyToYouIndirectUserIds: string[] = [];
   
-      for (const {commentId, userId} of parentComments) {
+      for (const {commentId: currentParentCommentId, userId: currentParentCommentAuthorId} of parentComments) {
         const subscribedUsers = await getSubscribedUsers({
-          documentId: commentId,
+          documentId: currentParentCommentId,
           collectionName: "Comments",
           type: subscriptionTypes.newReplies,
-          potentiallyDefaultSubscribedUserIds: [userId],
+          potentiallyDefaultSubscribedUserIds: [currentParentCommentAuthorId],
           userIsDefaultSubscribed: u => u.auto_subscribe_to_my_comments
         })
         const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
@@ -205,24 +201,30 @@ const utils = {
         // Don't notify the author of their own comment, and filter out the author
         // of the parent-comment to be treated specially (with a newReplyToYou
         // notification instead of a newReply notification).
-        newReplyUserIds = [...newReplyUserIds, ..._.difference(subscribedUserIds, [comment.userId, commentId])]
+        newReplyUserIds = [...newReplyUserIds, ..._.difference(subscribedUserIds, [comment.userId, currentParentCommentAuthorId])]
   
         // Separately notify authors of replies to their own comments
-        if (subscribedUserIds.includes(userId) && userId !== comment.userId) {
-          newReplyToYouUserIds = [...newReplyToYouUserIds, ...subscribedUserIds]
+        if (subscribedUserIds.includes(currentParentCommentAuthorId) && currentParentCommentAuthorId !== comment.userId) {
+          if (currentParentCommentId === comment.parentCommentId) {
+            newReplyToYouDirectUserIds = [...newReplyToYouDirectUserIds, currentParentCommentAuthorId]
+          } else {
+            newReplyToYouIndirectUserIds = [...newReplyToYouIndirectUserIds, currentParentCommentAuthorId]
+          }
         }
       }
-  
-      // Take the difference as a precaution to prevent double-notifying
-      newReplyUserIds = uniq(_.difference(newReplyUserIds, newReplyToYouUserIds));
-      newReplyToYouUserIds = uniq(newReplyToYouUserIds);
+
+      // Take the difference to prevent double-notifying
+      newReplyUserIds = uniq(_.difference(newReplyUserIds, [...newReplyToYouDirectUserIds, ...newReplyToYouIndirectUserIds]));
+      newReplyToYouIndirectUserIds = uniq(_.difference(newReplyToYouIndirectUserIds, newReplyToYouDirectUserIds)); // Direct replies take precedence over indirect replies
+      newReplyToYouDirectUserIds = uniq(newReplyToYouDirectUserIds);
   
       await Promise.all([
         createNotifications({userIds: newReplyUserIds, notificationType: 'newReply', documentType: 'comment', documentId: comment._id}),
-        createNotifications({userIds: newReplyToYouUserIds, notificationType: 'newReplyToYou', documentType: 'comment', documentId: comment._id})
+        createNotifications({userIds: newReplyToYouDirectUserIds, notificationType: 'newReplyToYou', documentType: 'comment', documentId: comment._id, extraData: {direct: true}}),
+        createNotifications({userIds: newReplyToYouIndirectUserIds, notificationType: 'newReplyToYou', documentType: 'comment', documentId: comment._id, extraData: {direct: false}})
       ]);
   
-      notifiedUsers = [...notifiedUsers, ...newReplyUserIds, ...newReplyToYouUserIds];
+      notifiedUsers = [...notifiedUsers, ...newReplyUserIds, ...newReplyToYouDirectUserIds];
     }
   
     // 2. If this comment is a debate comment, notify users who are subscribed to the post as a debate (`newDebateComments`)
@@ -363,18 +365,17 @@ const utils = {
   sendModerationPM: async ({ messageContents, lwAccount, comment, noEmail, contentTitle, action, context }: SendModerationPMParams) => {
     const { Conversations, Messages } = context;
 
-    const conversationData: CreateMutatorParams<"Conversations">['document'] = {
+    const conversationData: CreateConversationDataInput = {
       participantIds: [comment.userId, lwAccount._id],
       title: `Comment ${action} on ${contentTitle}`,
       ...(action === 'rejected' ? { moderator: true } : {})
     };
 
-    const conversation = await createMutator({
-      collection: Conversations,
-      document: conversationData,
-      currentUser: lwAccount,
-      validate: false
-    });
+    const lwAccountContext = await computeContextFromUser({ user: lwAccount, req: context.req, res: context.res, isSSR: context.isSSR });
+
+    const conversation = await createConversation({
+      data: conversationData,
+    }, lwAccountContext);
 
     const messageData = {
       userId: lwAccount._id,
@@ -384,16 +385,13 @@ const utils = {
           data: messageContents
         }
       },
-      conversationId: conversation.data._id,
+      conversationId: conversation._id,
       noEmail: noEmail
     };
 
-    await createMutator({
-      collection: Messages,
-      document: messageData,
-      currentUser: lwAccount,
-      validate: false
-    });
+    await createMessage({
+      data: messageData,
+    }, lwAccountContext);
 
     if (!isAnyTest) {
       // eslint-disable-next-line no-console
@@ -419,7 +417,7 @@ const utils = {
         );
       const moderatingUser = comment.deletedByUserId ? await loaders.Users.load(comment.deletedByUserId) : null;
       const commentUser = await loaders.Users.load(comment.userId)
-      const lwAccount = await getAdminTeamAccount() ?? commentUser;
+      const lwAccount = await getAdminTeamAccount(context) ?? commentUser;
       if (!lwAccount) {
         // Something has gone horribly wrong
         throw new Error("Could not find admin account to send PM from");
@@ -506,15 +504,12 @@ const utils = {
       const lastComment: DbComment = _.max(comments, (c) => c.postedAt)
       const lastCommentedAt = (lastComment && lastComment.postedAt) || (await loaders.Posts.load(comment.postId))?.postedAt || new Date()
     
-      void updateMutator({
-        collection: Posts,
-        documentId: comment.postId,
-        set: {
+      void updatePost({
+        data: {
           lastCommentedAt: new Date(lastCommentedAt),
         },
-        unset: {},
-        validate: false,
-      })
+        selector: { _id: comment.postId }
+      }, createAnonymousContext())
     }
     if (action === 'deleted') {
       void utils.commentsDeleteSendPMAsync(comment, currentUser, context);
@@ -526,24 +521,67 @@ const utils = {
 
 
 /* CREATE VALIDATE */
-export function newCommentsEmptyCheck(validationErrors: CallbackValidationErrors, {document: comment}: CreateCallbackProperties<"Comments">) {
+export function newCommentsEmptyCheck(comment: CreateCommentDataInput) {
   const { data } = (comment.contents && comment.contents.originalContents) || {}
   if (!data) {
     throw new Error("You cannot submit an empty comment");
   }
 }
 
-export async function newCommentsRateLimit(validationErrors: CallbackValidationErrors, { newDocument: comment, currentUser, context }: CreateCallbackProperties<"Comments">) {
+export function newCommentsPollResponseCheck(comment: CreateCommentDataInput) {
+  const { data } = (comment.contents && comment.contents.originalContents) || {}
+  const commentPrompt = (comment.forumEventMetadata as ForumEventCommentMetadata)?.poll?.commentPrompt;
+
+  if (commentPrompt && data) {
+    // commentPrompt will be like `<blockquote>${plaintextQuestion}</blockquote><p></p>`
+    // If unedited, data will be like `<blockquote><p>${plaintextQuestion}</p></blockquote><p>&nbsp;</p>`
+
+    // Normalize both strings by removing HTML tags, replacing &nbsp;, and trimming/collapsing whitespace.
+    const normalize = (html: string) => html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+
+    const normalizedPrompt = normalize(commentPrompt);
+    const normalizedData = normalize(data);
+
+    if (normalizedPrompt && normalizedData === normalizedPrompt) {
+      throw new Error("Cannot submit only the prefilled text");
+    }
+  }
+}
+
+export async function newCommentsRateLimit(newComment: CreateCommentDataInput, currentUser: DbUser, context: ResolverContext) {
   if (!currentUser) {
     throw new Error(`Can't comment while logged out.`);
   }
-  await utils.enforceCommentRateLimit({user: currentUser, comment, context});
-
-  return validationErrors;
+  await utils.enforceCommentRateLimit({user: currentUser, comment: newComment, context});
 }
 
 /* CREATE BEFORE */
-export async function createShortformPost(comment: DbInsertion<DbComment>, { currentUser, context: { Users, Posts } }: CreateCallbackProperties<"Comments">) {
+export async function assignPostVersion(comment: CreateCommentDataInput) {
+  if (!comment.postId) {
+    return {
+      ...comment,
+      postVersion: "1.0.0",
+    };
+  }
+  
+  const post = await fetchFragmentSingle({
+    collectionName: "Posts",
+    fragmentName: "PostsRevision",
+    currentUser: null,
+    selector: {
+      _id: comment.postId,
+    },
+  });
+
+  const postVersion = (post && post.contents && post.contents.version) || "1.0.0";
+  return {
+    ...comment,
+    postVersion,
+  };
+}
+
+export async function createShortformPost(comment: CreateCommentDataInput, { currentUser, context }: CreateCallbackProperties<"Comments">) {
+  const { Posts, Users } = context;
   if (!currentUser) {
     throw new Error("Must be logged in");
   }
@@ -555,37 +593,32 @@ export async function createShortformPost(comment: DbInsertion<DbComment>, { cur
       });
     }
 
-    const post = await createMutator({
-      collection: Posts,
-      document: {
+    const post = await createPost({
+      data: {
         userId: currentUser._id,
         shortform: true,
         title: userShortformPostTitle(currentUser),
         af: currentUser.groups?.includes('alignmentForum'),
       },
-      currentUser,
-      validate: false,
-    })
-    await updateMutator({
-      collection: Users,
-      documentId: currentUser._id,
-      set: {
-        shortformFeedId: post.data._id
+    }, context);
+
+    await updateUser({
+      data: {
+        shortformFeedId: post._id
       },
-      unset: {},
-      validate: false,
-    })
+      selector: { _id: currentUser._id }
+    }, createAnonymousContext())
 
     return ({
       ...comment,
-      postId: post.data._id
+      postId: post._id
     })
   }
   
   return comment;
 }
 
-export function addReferrerToComment(comment: DbInsertion<DbComment>, properties: CreateCallbackProperties<"Comments">) {
+export function addReferrerToComment(comment: CreateCommentDataInput, properties: CreateCallbackProperties<"Comments">) {
   if (properties && properties.context && properties.context.headers) {
     let referrer = properties.context.headers["referer"];
     let userAgent = properties.context.headers["user-agent"];
@@ -598,7 +631,7 @@ export function addReferrerToComment(comment: DbInsertion<DbComment>, properties
   }
 }
 
-export async function handleReplyToAnswer(comment: DbInsertion<DbComment>, properties: CreateCallbackProperties<"Comments">) {
+export async function handleReplyToAnswer(comment: CreateCommentDataInput, properties: CreateCallbackProperties<"Comments">) {
   const { context: { Comments } } = properties;
   
   if (comment.parentCommentId) {
@@ -626,7 +659,7 @@ export async function handleReplyToAnswer(comment: DbInsertion<DbComment>, prope
   return comment;
 }
 
-export async function setTopLevelCommentId(comment: DbInsertion<DbComment>, properties: CreateCallbackProperties<"Comments">) {
+export async function setTopLevelCommentId(comment: CreateCommentDataInput, properties: CreateCallbackProperties<"Comments">) {
   const { context: { Comments } } = properties;
   
   let visited: Partial<Record<string,boolean>> = {};
@@ -655,7 +688,7 @@ export async function setTopLevelCommentId(comment: DbInsertion<DbComment>, prop
 
 
 /* NEW SYNC */
-export async function commentsNewOperations(comment: DbComment, _: DbUser | null, context: ResolverContext) {
+export async function commentsNewOperations(comment: CreateCommentDataInput, _: DbUser | null, context: ResolverContext) {
   const { Posts, Tags, ReadStatuses, loaders } = context;
   // update lastCommentedAt field on post or tag
   if (comment.postId) {
@@ -704,7 +737,7 @@ export async function commentsNewOperations(comment: DbComment, _: DbUser | null
 }
 
 // Duplicate of PostsNewUserApprovedStatus
-export async function commentsNewUserApprovedStatus(comment: DbComment, context: ResolverContext) {
+export async function commentsNewUserApprovedStatus(comment: CreateCommentDataInput, context: ResolverContext) {
   const { Users } = context;
 
   const commentAuthor = await Users.findOne(comment.userId);
@@ -714,11 +747,11 @@ export async function commentsNewUserApprovedStatus(comment: DbComment, context:
   return comment;
 }
 
-export async function handleForumEventMetadataNew(comment: DbComment, context: ResolverContext) {
+export async function handleForumEventMetadataNew(comment: CreateCommentDataInput & { _id?: string }, context: ResolverContext) {
   if (comment.forumEventMetadata) {
     // Side effects may need to reference the comment, so set the _id now
     comment._id = comment._id || randomId();
-    await utils.forumEventSideEffects({ comment, forumEventMetadata: comment.forumEventMetadata, context });
+    await utils.forumEventSideEffects({ comment: comment as DbComment, forumEventMetadata: comment.forumEventMetadata, context });
   }
   return comment;
 }
@@ -795,17 +828,14 @@ export async function checkCommentForSpamWithAkismet(comment: DbComment, current
       if (((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) && !currentUser.reviewedByUserId) {
         // eslint-disable-next-line no-console
         console.log("Deleting comment from user below spam threshold", comment)
-        await updateMutator({
-          collection: Comments,
-          documentId: comment._id,
-          // NOTE: This mutation has no user attached. This interacts with commentsDeleteSendPMAsync so that the PM notification of a deleted comment appears to come from themself.
-          set: {
+        await updateComment({
+          data: {
             deleted: true,
             deletedDate: new Date(),
             deletedReason: "This comment has been marked as spam by the Akismet spam integration. We've sent the poster a PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page)."
           },
-          validate: false,
-        });
+          selector: { _id: comment._id }
+        }, createAnonymousContext());
       }
     } else {
       //eslint-disable-next-line no-console
@@ -817,8 +847,8 @@ export async function checkCommentForSpamWithAkismet(comment: DbComment, current
 
 
 /* CREATE ASYNC */
-export async function newCommentTriggerReview({document}: AfterCreateCallbackProperties<'Comments'>) {
-  await triggerReviewIfNeeded(document.userId);
+export async function newCommentTriggerReview({document, context}: AfterCreateCallbackProperties<'Comments'>) {
+  await triggerReviewIfNeeded(document.userId, context);
 }
 
 export async function trackCommentRateLimitHit({document, context}: AfterCreateCallbackProperties<'Comments'>) {
@@ -839,7 +869,7 @@ export async function trackCommentRateLimitHit({document, context}: AfterCreateC
   }
 }
 
-export async function checkModGPTOnCommentCreate({document}: AfterCreateCallbackProperties<'Comments'>) {
+export async function checkModGPTOnCommentCreate({document, context}: AfterCreateCallbackProperties<'Comments'>) {
   // On the EA Forum, ModGPT checks earnest comments on posts for norm violations.
   // We skip comments by unreviewed authors, because those will be reviewed by a human.
   if (
@@ -871,7 +901,7 @@ export async function checkModGPTOnCommentCreate({document}: AfterCreateCallback
   const postTags = post.tagRelevance
   if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
   
-  void checkModGPT(document, post)
+  void checkModGPT(document, post, context)
 }
 
 // Elastic callback might go here
@@ -892,7 +922,7 @@ export async function commentsAlignmentNew(comment: DbComment, context: Resolver
 
 export async function commentsNewNotifications(comment: DbComment, context: ResolverContext) {
   // if the site is currently hiding comments by unreviewed authors, do not send notifications if this comment should be hidden
-  if (commentIsHidden(comment)) return
+  if (commentIsNotPublicForAnyReason(comment)) return
   
   void utils.sendNewCommentNotifications(comment, context)
 }
@@ -901,7 +931,31 @@ export async function commentsNewNotifications(comment: DbComment, context: Reso
 
 
 /* UPDATE BEFORE */
-export async function validateDeleteOperations(data: Partial<DbComment>, properties: UpdateCallbackProperties<"Comments">) {
+export function updatePostLastCommentPromotedAt(data: UpdateCommentDataInput, { oldDocument, newDocument, context, currentUser }: UpdateCallbackProperties<"Comments">) {
+  if (data?.promoted && !oldDocument.promoted && newDocument.postId) {
+    void updatePost({ data: {
+            lastCommentPromotedAt: new Date(),
+          }, selector: { _id: newDocument.postId } }, context);
+    const promotedByUserId = currentUser?._id;
+    return { ...data, promotedByUserId };
+  }
+
+  return data;
+}
+
+export function handleDraftState(data: UpdateCommentDataInput, { oldDocument }: UpdateCallbackProperties<'Comments'>) {
+  // Prevent converting a comment back to draft
+  if (data.draft === true && oldDocument.draft === false) {
+    throw new Error("You cannot convert a published comment back to draft.");
+  }
+  // Update postedAt when a comment is moved out of drafts.
+  if (data.draft === false && oldDocument.draft) {
+    data.postedAt = new Date();
+  }
+  return data;
+}
+
+export async function validateDeleteOperations(data: UpdateCommentDataInput, properties: UpdateCallbackProperties<"Comments">) {
   const { Comments } = properties.context;
   // Validate changes to comment deletion fields (deleted, deletedPublic,
   // deletedReason). This could be deleting a comment, undoing a delete, or
@@ -962,7 +1016,7 @@ export async function validateDeleteOperations(data: Partial<DbComment>, propert
 }
 
 /* EDIT SYNC */
-export async function moveToAnswers(modifier: MongoModifier<DbComment>, comment: DbComment, context: ResolverContext) {
+export async function moveToAnswers(modifier: MongoModifier, comment: DbComment, context: ResolverContext) {
   const { Comments } = context;
 
   if (modifier.$set) {
@@ -975,7 +1029,7 @@ export async function moveToAnswers(modifier: MongoModifier<DbComment>, comment:
   return modifier
 }
 
-export async function handleForumEventMetadataEdit(modifier: MongoModifier<DbComment>, comment: DbComment, context: ResolverContext) {
+export async function handleForumEventMetadataEdit(modifier: MongoModifier, comment: DbComment, context: ResolverContext) {
   const newMetadata = modifier.$set?.forumEventMetadata;
   if (newMetadata && !isEqual(comment.forumEventMetadata, newMetadata)) {
     await utils.forumEventSideEffects({ comment, forumEventMetadata: newMetadata, context });
@@ -1008,35 +1062,28 @@ export async function updateDescendentCommentCountsOnEdit(comment: DbComment, pr
 
 
 /* UPDATE ASYNC */
-export async function updatedCommentMaybeTriggerReview({ currentUser, context: { Users } }: UpdateCallbackProperties<"Comments">) {
+export async function updatedCommentMaybeTriggerReview({ currentUser, context }: UpdateCallbackProperties<"Comments">) {
+  const { Users } = context;
   if (!currentUser) return;
-  currentUser.snoozedUntilContentCount && await updateMutator({
-    collection: Users,
-    documentId: currentUser._id,
-    set: {
-      snoozedUntilContentCount: currentUser.snoozedUntilContentCount - 1,
-    },
-    validate: false,
-  })
-  await triggerReviewIfNeeded(currentUser._id)
+  currentUser.snoozedUntilContentCount && await updateUser({ data: {
+        snoozedUntilContentCount: currentUser.snoozedUntilContentCount - 1,
+      }, selector: { _id: currentUser._id } }, createAnonymousContext())
+  await triggerReviewIfNeeded(currentUser._id, context)
 }
 
-export async function updateUserNotesOnCommentRejection({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<"Comments">) {
-  if (!oldDocument.rejected && document.rejected) {
-    void createMutator({
-      collection: context.ModeratorActions,
-      context,
-      currentUser,
-      document: {
-        userId: document.userId,
+export async function updateUserNotesOnCommentRejection({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Comments">) {
+  if (!oldDocument.rejected && newDocument.rejected) {
+    void createModeratorAction({
+      data: {
+        userId: newDocument.userId,
         type: REJECTED_COMMENT,
-        endedAt: new Date()
+        endedAt: new Date(),
       }
-    })
+    }, context);
   }
 }
 
-export async function checkModGPTOnCommentUpdate({oldDocument, newDocument}: UpdateCallbackProperties<"Comments">) {
+export async function checkModGPTOnCommentUpdate({oldDocument, newDocument, context}: UpdateCallbackProperties<"Comments">) {
   // On the EA Forum, ModGPT checks earnest comments on posts for norm violations.
   // We skip comments by unreviewed authors, because those will be reviewed by a human.
   if (
@@ -1072,7 +1119,7 @@ export async function checkModGPTOnCommentUpdate({oldDocument, newDocument}: Upd
   const postTags = post.tagRelevance
   if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
   
-  void checkModGPT(newDocument, post)
+  void checkModGPT(newDocument, post, context)
 }
 
 /* EDIT ASYNC */
@@ -1099,43 +1146,7 @@ export async function commentsEditSoftDeleteCallback(comment: DbComment, oldComm
 }
 
 export async function commentsPublishedNotifications(comment: DbComment, oldComment: DbComment, context: ResolverContext) {
-  // if the site is currently hiding comments by unreviewed authors, send the proper "new comment" notifications once the comment author is reviewed
-  if (commentIsHidden(oldComment) && !commentIsHidden(comment)) {
+  if (commentIsNotPublicForAnyReason(oldComment) && !commentIsNotPublicForAnyReason(comment)) {
     void utils.sendNewCommentNotifications(comment, context)
   }
-}
-
-
-// Elastic callback might go here
-
-/* DELETE VALIDATE */
-
-/* DELETE BEFORE */
-
-/* DELETE ASYNC */
-export async function commentsRemovePostCommenters({ document: comment, context: { Posts, Comments } }: DeleteCallbackProperties<'Comments'>) {
-  const { postId } = comment;
-
-  if (postId) {
-    const postComments = await Comments.find({postId, debateResponse: false, deleted: false}, {sort: {postedAt: -1}}).fetch();
-    const lastCommentedAt = postComments[0] && postComments[0].postedAt;
-  
-    // update post with a decremented comment count, and corresponding last commented at date
-    await Posts.rawUpdateOne(postId, {
-      $set: {lastCommentedAt},
-    });
-  }
-}
-
-export async function commentsRemoveChildrenComments({ document: comment, currentUser, context: { Comments } }: DeleteCallbackProperties<'Comments'>) {
-  const childrenComments = await Comments.find({parentCommentId: comment._id}).fetch();
-
-  childrenComments.forEach(childComment => {
-    void deleteMutator({
-      collection: Comments,
-      documentId: childComment._id,
-      currentUser: currentUser,
-      validate: false
-    });
-  });
 }

@@ -1,6 +1,7 @@
 import { registerMigration } from './migrationUtils';
-import { createMutator } from '../vulcan-lib/mutators';
-import Users from '../../server/collections/users/collection';
+import { createUser } from '../collections/users/mutations';
+import { createAnonymousContext } from '../vulcan-lib/createContexts';
+import { createDisplayName } from '@/lib/collections/users/newSchema';
 
 export default registerMigration({
   name: "createWikiImportUsers",
@@ -8,19 +9,23 @@ export default registerMigration({
   idempotent: true,
   action: async () => {
     for (const username of newWikiUserNames) {
-      await createMutator({
-        collection: Users,
-        document: {
-          username,
-          deleted: false,
-          createdAt: new Date(),
-          services: {},
-          emails: [{address: `${username}@example.com`, verified: false}],
-          email: `${username}@example.com`,
-          lwWikiImport: true
-        },
-        validate: false
-      })
+      const partialUser = {
+        username,
+        deleted: false,
+        createdAt: new Date(),
+        services: {},
+        emails: [{address: `${username}@example.com`, verified: false}],
+        email: `${username}@example.com`,
+        lwWikiImport: true,
+      }
+      const displayName = createDisplayName(partialUser);
+
+      await createUser({
+        data: {
+          ...partialUser,
+          displayName,
+        } as CreateUserDataInput
+      }, createAnonymousContext());
     }
   }
 })

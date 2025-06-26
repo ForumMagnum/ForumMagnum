@@ -1,13 +1,16 @@
 import React, { FC, ReactElement, MouseEvent, PropsWithChildren, ReactNode } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import { ForumIconName } from "../common/ForumIcon";
+import ForumIcon, { ForumIconName } from "../common/ForumIcon";
 import ListItemIcon from "@/lib/vendor/@material-ui/core/src/ListItemIcon";
 import { Link } from "../../lib/reactRouterWrapper";
 import type { HashLinkProps } from "../common/HashLink";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import { MenuItem } from "../common/Menus";
+import Loading from "../vulcan-core/Loading";
+import LWTooltip from "../common/LWTooltip";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("DropdownItem", (theme: ThemeType) => ({
   root: {
     ...(isFriendlyUI && {
       "&:hover": {
@@ -55,28 +58,7 @@ const styles = (theme: ThemeType) => ({
   tooltip: {
     display: "block",
   },
-});
-
-export type DropdownItemAction = {
-  onClick: (event: MouseEvent) => void | Promise<void>,
-  to?: never,
-} | {
-  onClick?: never,
-  to: HashLinkProps["to"],
-}
-
-export type DropdownItemProps = DropdownItemAction & {
-  title: ReactNode,
-  sideMessage?: string,
-  icon?: ForumIconName | (() => ReactElement),
-  iconClassName?: string,
-  menuItemClassName?: string,
-  afterIcon?: ForumIconName | (() => ReactElement),
-  tooltip?: string,
-  disabled?: boolean,
-  loading?: boolean,
-  rawLink?: boolean,
-}
+}));
 
 const DummyWrapper: FC<PropsWithChildren<{className?: string}>> = ({className, children}) =>
   <div className={className}>{children}</div>;
@@ -90,7 +72,13 @@ const RawLink: FC<PropsWithChildren<{
   </a>
 );
 
-const DropdownItem = ({
+/**
+ * Dropdown item, for use in menus such as the triple-dot menus on posts
+ * and comments. Note that menus are positioned based on size immediately
+ * after opening, so you should avoid loading states that make menu items
+ * significantly narrower than they will be when loaded.
+ */
+export const DropdownItem = ({
   title,
   sideMessage,
   onClick,
@@ -103,11 +91,29 @@ const DropdownItem = ({
   disabled,
   loading,
   rawLink,
-  classes,
-}: DropdownItemProps & {classes: ClassesType<typeof styles>}) => {
-  const {MenuItem, Loading, ForumIcon, LWTooltip} = Components;
+}: {
+  title: ReactNode,
+  sideMessage?: string,
+  icon?: ForumIconName | (() => ReactElement),
+  iconClassName?: string,
+  menuItemClassName?: string,
+  afterIcon?: ForumIconName | (() => ReactElement),
+  tooltip?: string,
+  disabled?: boolean,
+  /**
+   * Replaces the menu item with a loading indicator. This should ONLY be used
+   * to indicate an action is in progress, that started after the menu has
+   * already opened; if the contents of a menu start out in a loading state,
+   * then its width will change and this may lead to it being awkwardly partly
+   * off-screen. */
+  loading?: boolean,
+  rawLink?: boolean,
+  onClick?: (event: MouseEvent) => void | Promise<void>,
+  to?: HashLinkProps["to"],
+}) => {
   const LinkWrapper = to ? rawLink ? RawLink : Link : DummyWrapper;
   const TooltipWrapper = tooltip ? LWTooltip : DummyWrapper;
+  const classes = useStyles(styles);
   return (
     <LinkWrapper to={to!} className={classes.root}>
       <TooltipWrapper title={tooltip!} className={classes.tooltip}>
@@ -145,14 +151,4 @@ const DropdownItem = ({
   );
 }
 
-const DropdownItemComponent = registerComponent(
-  "DropdownItem",
-  DropdownItem,
-  {styles},
-);
-
-declare global {
-  interface ComponentTypes {
-    DropdownItem: typeof DropdownItemComponent
-  }
-}
+export default DropdownItem;

@@ -2,7 +2,7 @@ import moment from "moment"
 import { capitalize, combineUrls, getSiteUrl } from "../../vulcan-lib/utils"
 import { SettingsOption } from "../posts/dropdownOptions"
 import { TupleSet, UnionOf } from "../../utils/typeGuardUtils"
-import { DIGEST_STATUSES } from "../digestPosts/schema"
+import { DIGEST_STATUSES } from "../digestPosts/newSchema"
 import type { DigestPost } from "../../../components/ea-forum/digest/EditDigest"
 import { isPostWithForeignId } from "../../../components/hooks/useForeignCrosspost"
 
@@ -53,11 +53,12 @@ export const getPostAuthors = (post: PostsListBase) => {
  *
  * <post title as link> (<post authors>, <read time> min)
  */
-export const getEmailDigestPostData = (post: PostsListWithVotes) => {
-  const url = combineUrls(getSiteUrl(), `/posts/${post._id}/${post.slug}`)
-  const readTimeText = isPostWithForeignId(post) ? '' : `, ${post.readTimeMinutes} min`
-  const linkpostText = post.url ? ', link-post' : ''
-  return `<a href="${url}">${post.title}</a> (${getPostAuthors(post)}${readTimeText}${linkpostText})`
+export const getEmailDigestPostData = ({ post, digestNum }: { post: PostsListWithVotes; digestNum: number }) => {
+  let url = combineUrls(getSiteUrl(), `/posts/${post._id}/${post.slug}`);
+  url += `?utm_source=forum_digest&utm_medium=email&utm_campaign=digest_${digestNum}`;
+  const readTimeText = isPostWithForeignId(post) ? '' : `, ${post.readTimeMinutes} min`;
+  const linkpostText = post.url ? ', link-post' : '';
+  return `<a href="${url}">${post.title}</a> (${getPostAuthors(post)}${readTimeText}${linkpostText})`;
 }
 
 /**
@@ -66,12 +67,12 @@ export const getEmailDigestPostData = (post: PostsListWithVotes) => {
  * 1. <post title as link> (<post authors>, <read time> min)
  * 2. ...
  */
-export const getEmailDigestPostListData = (posts: PostsListWithVotes[]) => {
+export const getEmailDigestPostListData = ({ posts, digestNum }: { posts: PostsListWithVotes[]; digestNum: number }) => {
   const digestData = posts.reduce((prev, next) => {
-    return `${prev}<li>${getEmailDigestPostData(next)}</li>`
-  }, '')
+    return `${prev}<li>${getEmailDigestPostData({ post: next, digestNum })}</li>`;
+  }, '');
   
-  return `<ol>${digestData}</ol>`
+  return `<ol>${digestData}</ol>`;
 }
 
 /**
@@ -82,14 +83,19 @@ export const getEmailDigestPostListData = (posts: PostsListWithVotes[]) => {
  */
 export const getStatusFilterOptions = ({posts, postStatuses, statusFieldName}: {
   posts: PostsListBase[],
-  postStatuses: Record<string, DigestPost>,
+  postStatuses: Record<string, Partial<DigestPost>>,
   statusFieldName: StatusField
 }) => {
   // count how many posts have each status, to be displayed in the labels
   const counts: Record<string, number> = {}
   DIGEST_STATUS_OPTIONS.forEach(option => counts[option] = 0)
-  posts.forEach(p => counts[postStatuses[p._id][statusFieldName]]++)
-  
+  posts.forEach(p => {
+    const status = postStatuses[p._id][statusFieldName];
+    if (status) {
+      counts[status]++
+    }
+  })
+
   const options: Record<string, SettingsOption> = {}
   DIGEST_STATUS_OPTIONS.forEach((option: InDigestStatusOption) => {
     options[option] = {label: `${capitalize(option)} (${counts[option]})`}

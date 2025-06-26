@@ -21,10 +21,39 @@ function maybeNullable(type: string, nullable: boolean) {
   return nullable ? `${type} | null` : type 
 }
 
+export function isFieldNullable(fieldSpec: Pick<CollectionFieldSpecification<any>, "database" | "graphql">, dbGenContext?: boolean) {
+  const coalescedValue = fieldSpec.database?.nullable ?? fieldSpec.graphql?.validation?.optional;
+  // The implicit default value of `nullable` in the context of database type codegen is `true`, so we need to explicitly rule out `false`, not `undefined`
+  if (dbGenContext) {
+    return coalescedValue !== false;
+  }
+  return !!coalescedValue;
+}
+
+function getAllowedValuesUnionTypeString(allowedValues: string[]) {
+  return allowedValues?.map(v => `"${v}"`).join(' | ');
+}
+
+export function generateAllowedValuesTypeString(allowedValues: string[], fieldSchema: CollectionFieldSpecification<any>, dbGenContext?: boolean) {
+  const unionType = getAllowedValuesUnionTypeString(allowedValues);
+  const nullable = isFieldNullable(fieldSchema, dbGenContext);
+  const arrayField = typeof fieldSchema.graphql?.outputType === 'string' && fieldSchema.graphql.outputType.startsWith('[');
+  const fieldType = arrayField ? `Array<${unionType}>` : unionType;
+  return maybeNullable(fieldType, nullable);
+}
+
+interface InternalSimpleSchemaType {
+  singleType: Function | string | SimpleSchema,
+  definitions: Array<{
+    type: SimpleSchemaType<CollectionNameString>,
+    allowedValues: string[]
+  }>
+}
+
 export function simplSchemaTypeToTypescript(
-  schema: SchemaType<CollectionNameString>,
+  schema: DerivedSimpleSchemaType<SchemaType<CollectionNameString>>,
   fieldName: string,
-  simplSchemaType: AnyBecauseTodo,
+  simplSchemaType: InternalSimpleSchemaType,
   indent = 2,
   DbType = false,
 ): string {
@@ -59,10 +88,13 @@ export function simplSchemaTypeToTypescript(
     if (graphQLtype) {
       return graphqlTypeToTypescript(graphQLtype);
     } else {
-      const innerSchema = simplSchemaType?.singleType?.schema?.();
-      if (innerSchema) {
-        const objectSchema = simplSchemaObjectTypeToTypescript(innerSchema, indent);
-        return maybeNullable(objectSchema, nullable);
+      const singleType = simplSchemaType.singleType;
+      if (typeof singleType === 'object' && 'schema' in singleType) {
+        const innerSchema = singleType.schema();
+        if (innerSchema) {
+          const objectSchema = simplSchemaObjectTypeToTypescript(innerSchema, indent);
+          return maybeNullable(objectSchema, nullable);
+        }
       }
       return `any /*${JSON.stringify(simplSchemaType)}*/`
     }
@@ -94,7 +126,9 @@ function simplSchemaObjectTypeToTypescript(innerSchema: AnyBecauseTodo, indent: 
 
 export function graphqlTypeToTypescript(graphqlType: any, nonnull?: boolean): string {
   if (!graphqlType) throw new Error("Type cannot be undefined");
-  if (graphqlType === GraphQLJSON) return "any";
+  if (graphqlType === GraphQLJSON) {
+    return "any";
+  }
   
   if (graphqlType.endsWith("!")) {
     return graphqlTypeToTypescript(graphqlType.substr(0, graphqlType.length-1), true);
@@ -125,9 +159,36 @@ export function graphqlTypeToTypescript(graphqlType: any, nonnull?: boolean): st
       if (graphqlType.collectionName) {
         return graphqlType.collectionName;
       } else {
-        // TODO
-        //throw new Error("Unrecognized type: "+graphqlType);
-        return `any /*${graphqlType}*/`;
+        if (graphqlType === "JSON") {
+          return "any";
+        }
+        return graphqlType;
       }
   }
+}
+
+/**
+ * Given a multiline string with indentation, find the least-indented line and
+ * remove that much indentation from every line in it. Also trim the result
+ * (removing blank lines and whitespace from the top and bottom).
+ */
+export function autoUnindent(s: string): string {
+  const lines = s.split('\n');
+  
+  const nonEmptyLines = lines.filter(line => line.trim().length > 0);
+  if (nonEmptyLines.length === 0) return '';
+  
+  const minIndent = nonEmptyLines.reduce((min, line) => {
+    const indent = line.length - line.trimLeft().length;
+    return Math.min(min, indent);
+  }, Infinity);
+  
+  const unindentedLines = lines.map(line => {
+    if (line.trim().length > 0) {
+      return line.substring(minIndent);
+    }
+    return line;
+  });
+  
+  return unindentedLines.join('\n').trim();
 }

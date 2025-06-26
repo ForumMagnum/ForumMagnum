@@ -1,7 +1,11 @@
 import React, { useCallback, useState } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
-import { CAREER_STAGES } from "../../../lib/collections/users/schema";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
+import { CAREER_STAGES } from "@/lib/collections/users/helpers";
 import { useEAOnboarding } from "./useEAOnboarding";
+import EAOnboardingStage from "./EAOnboardingStage";
+import EAOnboardingInput from "./EAOnboardingInput";
+import EAOnboardingSelect from "./EAOnboardingSelect";
+import SectionTitle from "../../common/SectionTitle";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -37,9 +41,6 @@ export const EAOnboardingWorkStage = ({classes}: {
   }, [role, organization, careerStage, updateCurrentUser, goToNextStage, goToNextStageAfter, viewAsAdmin]);
 
   const canContinue = !!(role || organization || careerStage);
-  const {
-    EAOnboardingStage, EAOnboardingInput, EAOnboardingSelect, SectionTitle,
-  } = Components;
   return (
     <EAOnboardingStage
       stageName="work"
@@ -81,14 +82,10 @@ export const EAOnboardingWorkStage = ({classes}: {
   );
 }
 
-const EAOnboardingWorkStageComponent = registerComponent(
+export default registerComponent(
   "EAOnboardingWorkStage",
   EAOnboardingWorkStage,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAOnboardingWorkStage: typeof EAOnboardingWorkStageComponent
-  }
-}
+

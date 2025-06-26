@@ -1,4 +1,3 @@
-import { addGraphQLSchema } from './vulcan-lib/graphql';
 import { RateLimiter } from './rateLimiter';
 import React, { useContext, useEffect, useState, useRef, useCallback, ReactNode } from 'react'
 import { hookToHoc } from './hocUtils'
@@ -9,22 +8,21 @@ import { getPublicSettingsLoaded } from './settingsCache';
 import { throttle } from 'underscore';
 import moment from 'moment';
 import { serverWriteEvent } from '@/server/analytics/serverAnalyticsWriter';
+import { FeedItemType, UltraFeedAnalyticsContext } from '@/components/ultraFeed/ultraFeedTypes';
+import { RelevantTestGroupAllocation } from './abTestImpl';
 
 const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "dev");
 const flushIntervalSetting = new DatabasePublicSetting<number>("analyticsFlushInterval", 1000);
 
-addGraphQLSchema(`
-  type AnalyticsEvent {
-    type: String!,
-    timestamp: Date!,
-    props: JSON!
-  }
-`);
-
 // clientContextVars: A dictionary of variables that will be added to every
 // analytics event sent from the client. Client-side only, filled in side-
 // effectfully from inside a React useEffect in AnalyticsClient.tsx.
-export const clientContextVars: any = {};
+export const clientContextVars: {
+  userId?: string | undefined;
+  clientId?: string;
+  tabId?: string | null;
+  abTestGroupsUsed?: RelevantTestGroupAllocation
+} = {};
 
 function getShowAnalyticsDebug() {
   if (isAnyTest)
@@ -100,6 +98,7 @@ export type AnalyticsProps = {
   forumEventId?: string,
   sequenceId?: string,
   commentId?: string,
+  spotlightId?: string,
   tagId?: string,
   tagName?: string,
   tagSlug?: string,
@@ -119,6 +118,10 @@ export type AnalyticsProps = {
   viewType?: string,
   searchQuery?: string,
   componentName?: string,
+  ultraFeedContext?: UltraFeedAnalyticsContext,
+  ultraFeedElementType?: FeedItemType,
+  ultraFeedCardId?: string,
+  ultraFeedCardIndex?: number,
   /** @deprecated Use `pageSectionContext` instead */
   listContext?: string,
   /** @deprecated Use `pageSectionContext` instead */
@@ -407,10 +410,12 @@ function serverConsoleLogAnalyticsEvent(event: any) {
 
 let pendingAnalyticsEvents: Array<any> = [];
 
-export function flushClientEvents() {
+export function flushClientEvents(force: boolean = false) {
   if (!isClient)
     throw new Error("This function can only be run on the client");
   if (!pendingAnalyticsEvents.length)
+    return;
+  if (!force && !clientContextVars.tabId)
     return;
 
   const eventsToWrite = pendingAnalyticsEvents;

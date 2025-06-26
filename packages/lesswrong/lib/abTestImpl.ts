@@ -88,7 +88,7 @@ export function getABTestsMetadata(): Record<string,ABTest> {
 
 export function getUserABTestKey(abKeyInfo: ABKeyInfo): string | undefined {
   if ('user' in abKeyInfo) {
-    return abKeyInfo.user.abTestKey;
+    return abKeyInfo.user.abTestKey ?? undefined;
   } else {
     return abKeyInfo.clientId;
   }
@@ -138,12 +138,19 @@ export function weightedRandomPick<T extends string>(options: Record<T,number>, 
 
 
 // Returns the name of the A/B test group that the current user/client is in.
-export function useABTest<Groups extends string>(abtest: ABTest<Groups>): Groups {
+// `forceGroup` is a way to conveniently bypass this (for logged out users), to
+// make the page suitable for caching.
+export function useABTest<Group extends string>(abtest: ABTest<Group>, forceGroup?: string): Group {
   const currentUser = useCurrentUser();
   const clientId = useClientId();
   const abTestGroupsUsed = useContext(ABTestGroupsUsedContext);
+
+  if (forceGroup) {
+    return forceGroup as Group;
+  }
+
   const group = getUserABTestGroup(currentUser ? {user: currentUser} : {clientId}, abtest);
-  
+
   abTestGroupsUsed[abtest.name] = group;
   return group;
 }

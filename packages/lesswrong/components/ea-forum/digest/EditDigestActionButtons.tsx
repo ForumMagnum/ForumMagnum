@@ -1,7 +1,11 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useDialog } from '../../common/withDialog';
+import ConfirmPublishDialog from "./ConfirmPublishDialog";
+import EAButton from "../EAButton";
+import LWTooltip from "../../common/LWTooltip";
+import ForumIcon from "../../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   questionMark: {
@@ -56,14 +60,11 @@ const EditDigestActionButtons = ({digest, classes}: {
       })
     } else {
       openDialog({
-        componentName: 'ConfirmPublishDialog',
-        componentProps: {digest}
+        name: 'ConfirmPublishDialog',
+        contents: ({onClose}) => <ConfirmPublishDialog onClose={onClose} digest={digest} />
       })
     }
   }
-  
-  const { EAButton, LWTooltip, ForumIcon } = Components
-
   return <>
     {!digest.endDate && <LWTooltip title="This sets the cut-off date for this digest and automatically sets up the next digest.">
       <EAButton variant='outlined' onClick={handleStartNewWeek}>
@@ -99,10 +100,6 @@ const EditDigestActionButtons = ({digest, classes}: {
   </>
 }
 
-const EditDigestActionButtonsComponent = registerComponent('EditDigestActionButtons', EditDigestActionButtons, {styles});
+export default registerComponent('EditDigestActionButtons', EditDigestActionButtons, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EditDigestActionButtons: typeof EditDigestActionButtonsComponent
-  }
-}
+

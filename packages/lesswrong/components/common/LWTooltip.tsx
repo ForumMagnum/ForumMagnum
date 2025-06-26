@@ -1,9 +1,10 @@
 import React, { ReactNode, useState, useEffect, useRef, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from './withHover';
-import type { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper'
+import type { Placement as PopperPlacementType } from "popper.js"
 import classNames from 'classnames';
 import { AnalyticsProps } from '../../lib/analyticsEvents';
+import LWPopper from "./LWPopper";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -26,7 +27,7 @@ export type LWTooltipProps = {
   flip?: boolean,
   clickable?: boolean,
   inlineBlock?: boolean,
-  As?: keyof JSX.IntrinsicElements,
+  As?: keyof React.JSX.IntrinsicElements,
   disabled?: boolean,
   disabledOnMobile?: boolean,
   hideOnTouchScreens?: boolean,
@@ -64,7 +65,6 @@ const LWTooltip = ({
   forceOpen,
   classes,
 }: LWTooltipProps) => {
-  const { LWPopper } = Components
   const [delayedClickable, setDelayedClickable] = useState(false);
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -141,13 +141,9 @@ const LWTooltip = ({
   </As>
 }
 
-const LWTooltipComponent = registerComponent("LWTooltip", LWTooltip, {
+export default registerComponent("LWTooltip", LWTooltip, {
   styles,
   stylePriority: -1,
 });
 
-declare global {
-  interface ComponentTypes {
-    LWTooltip: typeof LWTooltipComponent
-  }
-}
+

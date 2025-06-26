@@ -5,14 +5,24 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import classNames from 'classnames';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
-import { formStyles } from './JargonEditorRow';
+import JargonEditorRow, { formStyles } from './JargonEditorRow';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { useJargonCounts } from '@/components/hooks/useJargonCounts';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { useLocalStorageState } from '../hooks/useLocalStorageState';
 import { removeJargonDot } from './GlossarySidebar';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
+import { JargonTermForm } from './JargonTermForm';
+import { EditablePost } from '@/lib/collections/posts/helpers';
+import LoadMore from "../common/LoadMore";
+import Loading from "../vulcan-core/Loading";
+import LWTooltip from "../common/LWTooltip";
+import { IconRight, IconDown } from "../vulcan-forms/FormGroup";
+import Row from "../common/Row";
+import MetaInfo from "../common/MetaInfo";
+import EditUserJargonSettings from "./EditUserJargonSettings";
+import ForumIcon from "../common/ForumIcon";
 
 // Integrity Alert! This is currently designed so if the model changes, users are informed
 // about what model is being used in the jargon generation process.
@@ -281,11 +291,9 @@ const getRowCount = (showDeletedTerms: boolean, nonDeletedTerms: JargonTerms[], 
 
 export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   classes: ClassesType<typeof styles>,
-  document: PostsEditQueryFragment,
+  document: EditablePost,
   showTitle?: boolean,
 }) => {
-  const { JargonEditorRow, LoadMore, Loading, LWTooltip, WrappedSmartForm, IconRight, IconDown, Row, MetaInfo, EditUserJargonSettings, ForumIcon } = Components;
-
   const { mutate: updatePost } = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsEdit',
@@ -476,7 +484,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       <div className={classes.checkboxContainer}>
         <Checkbox
           className={classes.generationFlagCheckbox}
-          checked={document?.generateDraftJargon}
+          checked={document?.generateDraftJargon ?? undefined}
           onChange={(e) => updatePostAutoGenerate(e.target.checked)}
         />
         <MetaInfo>Autogenerate</MetaInfo>
@@ -564,14 +572,10 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
       <LoadMore {...loadMoreProps} />
     </div>
     {showNewJargonTermForm && <div className={classes.formStyles}>
-      <WrappedSmartForm
-        collectionName="JargonTerms"
-        mutationFragmentName={'JargonTerms'}
-        queryFragmentName={'JargonTerms'}
-        formComponents={{ FormSubmit: Components.JargonSubmitButton }}
-        prefilledProps={{ postId: document._id }}
-        cancelCallback={() => setShowNewJargonTermForm(false)}
-        successCallback={() => setShowNewJargonTermForm(false)}
+      <JargonTermForm
+        postId={document._id}
+        onSuccess={() => setShowNewJargonTermForm(false)}
+        onCancel={() => setShowNewJargonTermForm(false)}
       />
     </div>}
     {footer}
@@ -587,11 +591,7 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   </div>;
 }
 
-const GlossaryEditFormComponent = registerComponent('GlossaryEditForm', GlossaryEditForm, {styles});
+export default registerComponent('GlossaryEditForm', GlossaryEditForm, {styles});
 
-declare global {
-  interface ComponentTypes {
-    GlossaryEditForm: typeof GlossaryEditFormComponent
-  }
-}
+
 

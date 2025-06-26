@@ -1,9 +1,9 @@
 import React, { useMemo } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
 import { subscriptionTypes } from "../../../lib/collections/subscriptions/helpers";
 import { userGetDisplayName } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { allowSubscribeToUserComments } from "../../../lib/betas";
+import { CombinedSubscriptionsDropdownItem } from "../CombinedSubscriptionsDropdownItem";
 
 /**
  * A list of props that go into each subscription menu item,
@@ -72,21 +72,6 @@ export const CommentSubscriptionsDropdownItem = ({comment, post}: {
   const notifyMeItems = useMemo(() => {
     return getNotifyMeItems({comment, post, currentUser, enableSubscribeToCommentUser});
   }, [comment, post, currentUser, enableSubscribeToCommentUser]);
-
-  const {
-    CombinedSubscriptionsDropdownItem
-  } = Components;
-
   return <CombinedSubscriptionsDropdownItem notifyMeItems={notifyMeItems} />
 }
 
-const CommentSubscriptionsDropdownItemComponent = registerComponent(
-  "CommentSubscriptionsDropdownItem",
-  CommentSubscriptionsDropdownItem,
-);
-
-declare global {
-  interface ComponentTypes {
-    CommentSubscriptionsDropdownItem: typeof CommentSubscriptionsDropdownItemComponent
-  }
-}

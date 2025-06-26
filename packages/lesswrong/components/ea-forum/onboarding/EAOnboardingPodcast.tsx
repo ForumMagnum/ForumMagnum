@@ -64,14 +64,10 @@ export const EAOnboardingPodcast = ({podcast, classes}: {
   );
 }
 
-const EAOnboardingPodcastComponent = registerComponent(
+export default registerComponent(
   "EAOnboardingPodcast",
   EAOnboardingPodcast,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAOnboardingPodcast: typeof EAOnboardingPodcastComponent
-  }
-}
+

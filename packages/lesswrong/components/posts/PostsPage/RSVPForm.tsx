@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
-import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
+import { DialogContent } from "@/components/widgets/DialogContent";
 import { gql, useMutation } from '@apollo/client';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import DialogActions from '@/lib/vendor/@material-ui/core/src/DialogActions';
+import { DialogActions } from '../../widgets/DialogActions';
+import { DialogTitle } from '../../widgets/DialogTitle';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useNavigate } from '../../../lib/routeUtil';
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { fragmentTextForQuery } from '@/lib/vulcan-lib/fragments';
+import LWDialog from "../../common/LWDialog";
+import { MenuItem } from "../../common/Menus";
 
 export type RsvpResponse = "yes"|"maybe"|"no";
 export const responseToText: Record<RsvpResponse,string> = {
@@ -49,10 +51,8 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
   const [email, setEmail] = useState(currentUser?.email ?? "")
   const [response, setResponse] = useState(initialResponse)
   const [error, setError] = useState("")
-  const { MenuItem } = Components;
-
   return (
-    <Components.LWDialog
+    <LWDialog
       title={`RSVP to ${post.title}`}
       open={true}
       onClose={() => {
@@ -111,14 +111,10 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
           Submit
         </Button>
       </DialogActions>
-    </Components.LWDialog>
+    </LWDialog>
   )
 }
 
-const RSVPFormComponent = registerComponent('RSVPForm', RSVPForm, {styles});
+export default registerComponent('RSVPForm', RSVPForm, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RSVPForm: typeof RSVPFormComponent
-  }
-}
+

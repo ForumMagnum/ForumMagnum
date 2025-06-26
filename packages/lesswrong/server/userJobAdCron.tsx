@@ -6,10 +6,9 @@ import UserJobAds from '../server/collections/userJobAds/collection';
 import { Users } from '../server/collections/users/collection';
 import uniq from 'lodash/fp/uniq';
 import { wrapAndSendEmail } from './emails/renderEmail';
-import './emailComponents/EmailJobAdReminder';
 import { loggerConstructor } from '../lib/utils/logging';
 import { isEAForum } from '../lib/instanceSettings';
-import { Components } from "../lib/vulcan-lib/components";
+import { EmailJobAdReminder } from './emailComponents/EmailJobAdReminder';
 
 // Exported to allow running with "yarn repl"
 export const sendJobAdReminderEmails = async () => {
@@ -56,7 +55,8 @@ export const sendJobAdReminderEmails = async () => {
       void wrapAndSendEmail({
         user: recipient,
         subject: `Reminder: ${jobAdData.role} role at${jobAdData.insertThe ? ' the ' : ' '}${jobAdData.org}`,
-        body: <Components.EmailJobAdReminder jobName={userJobAd.jobName} />,
+        body: <EmailJobAdReminder jobName={userJobAd.jobName} />,
+        tag: "user-job-ad",
         force: true  // ignore the "unsubscribe to all" in this case, since the user initiated it
       })
     }

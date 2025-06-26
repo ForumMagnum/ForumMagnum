@@ -96,6 +96,7 @@ export const mapboxAPIKeySetting = new DatabasePublicSetting<string | null>('map
 
 export const mailchimpForumDigestListIdSetting = new DatabasePublicSetting<string | null>('mailchimp.forumDigestListId', null)
 export const mailchimpEAForumListIdSetting = new DatabasePublicSetting<string | null>('mailchimp.eaForumListId', null)
+export const mailchimpEAForumNewsletterListIdSetting = new DatabasePublicSetting<string | null>('mailchimp.eaNewsletterListId', null)
 
 export const isProductionDBSetting = new DatabasePublicSetting<boolean>('isProductionDB', false)
 
@@ -208,3 +209,12 @@ export const lightconeFundraiserActive = new DatabasePublicSetting<boolean>('lig
 
 export const postsListViewTypeSetting = new DatabasePublicSetting<string>('posts.viewType', 'list');
 export const quickTakesMaxAgeDaysSetting = new DatabasePublicSetting<number>('feed.quickTakesMaxAgeDays', 5);
+
+export const auth0FacebookLoginEnabled = new DatabasePublicSetting<boolean>(
+  'auth0FacebookLoginEnabled',
+  new Date() < new Date('2025-04-07')
+);
+
+export const mapsAPIKeySetting = new DatabasePublicSetting<string | null>('googleMaps.apiKey', null);
+
+export const siteImageSetting = new DatabasePublicSetting<string>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg'); // An image used to represent the site on social media

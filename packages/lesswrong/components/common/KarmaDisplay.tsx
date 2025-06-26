@@ -1,7 +1,8 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
-import type { PopperPlacementType } from "@/lib/vendor/@material-ui/core/src/Popper";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import type { Placement as PopperPlacementType } from "popper.js"
 import { forumTypeSetting } from "../../lib/instanceSettings";
+import LWTooltip from "./LWTooltip";
 
 const KarmaDisplay = ({document, placement="left", linkItem}: {
   document: VoteableType,
@@ -14,8 +15,6 @@ const KarmaDisplay = ({document, placement="left", linkItem}: {
   const afBaseScore = forumTypeSetting.get() !== "AlignmentForum" && document.af
     ? document.afBaseScore
     : null;
-  const {LWTooltip} = Components;
-
   return (
     <LWTooltip
       placement={placement}
@@ -36,10 +35,6 @@ const KarmaDisplay = ({document, placement="left", linkItem}: {
   );
 };
 
-const KarmaDisplayComponent = registerComponent("KarmaDisplay", KarmaDisplay);
+export default registerComponent("KarmaDisplay", KarmaDisplay);
 
-declare global {
-  interface ComponentTypes {
-    KarmaDisplay: typeof KarmaDisplayComponent,
-  }
-}
+

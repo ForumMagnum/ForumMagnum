@@ -1,12 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCommentLink, UseCommentLinkProps } from './useCommentLink';
 import classNames from 'classnames';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { isLWorAF } from '../../../lib/instanceSettings';
 import DeferRender from '@/components/common/DeferRender';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { ExpandedDate } from '@/components/common/FormatDate';
+import FormatDate, { ExpandedDate } from '@/components/common/FormatDate';
+import LWTooltip from "../../common/LWTooltip";
 
 // The amount of time during which you can edit a comment, without it causing
 // the comment to be marked as edited.
@@ -65,10 +66,10 @@ const styles = defineStyles("CommentsItemDate", (theme: ThemeType) => ({
 type CommentsItemDateProps = UseCommentLinkProps & {
   comment: CommentsList,
   preventDateFormatting?: boolean,
+  className?: string,
 };
 
-const CommentsItemDate = ({comment, preventDateFormatting, ...rest}: CommentsItemDateProps) => {
-  const { FormatDate, LWTooltip } = Components
+const CommentsItemDate = ({comment, preventDateFormatting, className, ...rest}: CommentsItemDateProps) => {
   const classes = useStyles(styles);
   
   const LinkWrapper = useCommentLink({comment, ...rest});
@@ -100,6 +101,7 @@ const CommentsItemDate = ({comment, preventDateFormatting, ...rest}: CommentsIte
       classes.root,
       !comment.answer && classes.date,
       comment.answer && classes.answerDate,
+      className,
     )}>
       <DeferRender ssr={!isLWorAF} fallback={linkContents}>
         <LinkWrapper>
@@ -129,11 +131,7 @@ const CommentDateTooltip = ({comment}: {
   }
 }
 
-const CommentsItemDateComponent = registerComponent('CommentsItemDate', CommentsItemDate);
+export default registerComponent('CommentsItemDate', CommentsItemDate);
 
-declare global {
-  interface ComponentTypes {
-    CommentsItemDate: typeof CommentsItemDateComponent,
-  }
-}
+
 

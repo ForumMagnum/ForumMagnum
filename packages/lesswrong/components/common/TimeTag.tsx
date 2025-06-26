@@ -14,10 +14,6 @@ const TimeTag = ({dateTime, children, className}: {
   return <time className={className} dateTime={dateTimeString}>{children}</time>
 };
 
-const TimeTagComponent = registerComponent('TimeTag', TimeTag);
+export default registerComponent('TimeTag', TimeTag);
 
-declare global {
-  interface ComponentTypes {
-    TimeTag: typeof TimeTagComponent
-  }
-}
+

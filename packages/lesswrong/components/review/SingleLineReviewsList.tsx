@@ -1,7 +1,8 @@
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import CommentsNodeInner from "../comments/CommentsNode";
 
 const SingleLineReviewsList = () => {
   const { results } = useMulti({
@@ -14,7 +15,7 @@ const SingleLineReviewsList = () => {
   return <div>
     {results?.map(comment =>
         <div key={comment._id}>
-          <Components.CommentsNode
+          <CommentsNodeInner
             treeOptions={{
               condensed: true,
               singleLineCollapse: true,
@@ -31,10 +32,6 @@ const SingleLineReviewsList = () => {
   </div>
 }
 
-const SingleLineReviewsListComponent = registerComponent('SingleLineReviewsList', SingleLineReviewsList);
+export default registerComponent('SingleLineReviewsList', SingleLineReviewsList);
 
-declare global {
-  interface ComponentTypes {
-    SingleLineReviewsList: typeof SingleLineReviewsListComponent
-  }
-}
+

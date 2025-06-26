@@ -1,8 +1,11 @@
 import React from 'react';
-import { makeSortableListComponent } from './sortableList';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { makeSortableListComponent } from '../form-components/sortableList';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import SequencesListEditorItem from "./SequencesListEditorItem";
+import SequencesSearchAutoComplete from "../search/SequencesSearchAutoComplete";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SequencesListEditor', (theme: ThemeType) => ({
   root: {
   },
   item: {
@@ -10,41 +13,34 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     padding: 5,
   },
-});
+}));
 
 const SortableList = makeSortableListComponent({
-  renderItem: ({contents, removeItem, classes}) => {
+  RenderItem: ({contents, removeItem}) => {
+    const classes = useStyles(styles);
     return <li className={classes.item}>
-      <Components.SequencesListEditorItem documentId={contents} removeItem={removeItem} />
+      <SequencesListEditorItem documentId={contents} removeItem={removeItem} />
     </li>
   }
 });
 
-const SequencesListEditor = ({value, path, updateCurrentValues, classes}: FormComponentProps<string[]> & {
-  classes: ClassesType<typeof styles>,
+export const SequencesListEditor = ({ field }: {
+  field: TypedFieldApi<string[]>;
 }) => {
+  const classes = useStyles(styles);
+  const value = field.state.value ?? [];
+
   return <div className={classes.root}>
     <SortableList
       value={value}
       setValue={(newValue: string[]) => {
-        void updateCurrentValues({[path]: newValue});
+        field.handleChange(newValue);
       }}
-      classes={classes}
     />
-    <Components.SequencesSearchAutoComplete
+    <SequencesSearchAutoComplete
       clickAction={(sequenceId: string) => {
-        void updateCurrentValues({ [path]: [...value, sequenceId] });
+        field.handleChange([...value, sequenceId]);
       }}
     />
   </div>
-}
-
-// TODO: Does not work in nested contexts because it doesn't use the
-// vulcan-forms APIs correctly.
-const SequencesListEditorComponent = registerComponent("SequencesListEditor", SequencesListEditor, {styles});
-
-declare global {
-  interface ComponentTypes {
-    SequencesListEditor: typeof SequencesListEditorComponent
-  }
-}
+};

@@ -1,6 +1,6 @@
 import { registerMigration } from "./migrationUtils";
-import { createAdminContext } from "../vulcan-lib/query";
-import { updateMutator } from "../vulcan-lib/mutators";
+import { createAdminContext } from "../vulcan-lib/createContexts";
+import { updateUser } from "../collections/users/mutations";
 
 const testGroupIds = [
   '28WuQvZZ8sApvFZ5j',
@@ -877,15 +877,11 @@ export default registerMigration({
     const { Users } = adminContext;
 
     for (const userId of testGroupIds) {
-      await updateMutator({
-        collection: Users,
-        context: adminContext,
-        currentUser: adminContext.currentUser,
-        documentId: userId,
-        set: {
+      await updateUser({
+        data: {
           frontpageSelectedTab: 'recombee-hybrid'
-        }
-      });
+        }, selector: { _id: userId }
+      }, adminContext);
     }
   }
 });

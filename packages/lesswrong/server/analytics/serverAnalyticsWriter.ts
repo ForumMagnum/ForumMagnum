@@ -2,9 +2,9 @@ import { isDevelopment } from '@/lib/executionEnvironment';
 import { randomId } from '@/lib/random';
 import { PublicInstanceSetting, performanceMetricLoggingBatchSize } from '@/lib/instanceSettings';
 import { addStaticRoute } from '@/server/vulcan-lib/staticRoutes';
-import { addGraphQLMutation, addGraphQLResolvers } from '@/lib/vulcan-lib/graphql';
 import { pgPromiseLib, getAnalyticsConnection } from './postgresConnection'
 import chunk from 'lodash/chunk';
+import gql from 'graphql-tag';
 
 // Since different environments are connected to the same DB, this setting cannot be moved to the database
 export const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning")
@@ -13,14 +13,17 @@ export const serverId = randomId();
 
 const isValidEventAge = (age: number) => age>=0 && age<=60*60*1000;
 
-addGraphQLResolvers({
-  Mutation: {
-    analyticsEvent(root: void, { events, now: clientTime }: AnyBecauseTodo, context: ResolverContext) {
-      void handleAnalyticsEventWriteRequest(events, clientTime);
-    },
+export const analyticsEventTypeDefs = gql`
+  extend type Mutation {
+    analyticsEvent(events: [JSON!], now: Date): Boolean
   }
-});
-addGraphQLMutation('analyticsEvent(events: [JSON!], now: Date): Boolean');
+`
+
+export const analyticsEventGraphQLMutations = {
+  analyticsEvent(root: void, { events, now: clientTime }: AnyBecauseTodo, context: ResolverContext) {
+    void handleAnalyticsEventWriteRequest(events, clientTime);
+  },
+}
 
 addStaticRoute('/analyticsEvent', ({query}, req, res, next) => {
   if (req.method !== "POST") {

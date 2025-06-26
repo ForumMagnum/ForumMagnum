@@ -1,14 +1,15 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
-import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
-import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
+import { DialogTitle } from "@/components/widgets/DialogTitle";
+import { DialogContent } from "@/components/widgets/DialogContent";
+import Loading from "../vulcan-core/Loading";
+import LWDialog from "../common/LWDialog";
 
 const PostSummaryDialog = ({post, onClose}: {
   post: PostsList|SunshinePostsList,
   onClose?: () => void,
 }) => {
-  const { Loading, LWDialog } = Components;
   const { document: postWithSummary, loading } = useSingle({
     collectionName: "Posts",
     fragmentName: "PostWithGeneratedSummary",
@@ -24,13 +25,9 @@ const PostSummaryDialog = ({post, onClose}: {
   </LWDialog>
 }
 
-const PostSummaryDialogComponent = registerComponent(
+export default registerComponent(
   'PostSummaryDialog',
   PostSummaryDialog,
 );
 
-declare global {
-  interface ComponentTypes {
-    PostSummaryDialog: typeof PostSummaryDialogComponent
-  }
-}
+

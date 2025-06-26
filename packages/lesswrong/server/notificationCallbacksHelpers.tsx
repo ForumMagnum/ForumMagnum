@@ -1,22 +1,19 @@
-import Notifications from '../server/collections/notifications/collection';
 import { messageGetLink } from '../lib/helpers';
 import Subscriptions from '../server/collections/subscriptions/collection';
 import Users from '../server/collections/users/collection';
 import { userGetProfileUrl } from '../lib/collections/users/helpers';
-import { Posts } from '../server/collections/posts/collection';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
 import { DebouncerTiming } from './debouncer';
 import {getDocument, getNotificationTypeByName, NotificationDocument} from '../lib/notificationTypes'
 import { notificationDebouncers } from './notificationBatching';
-import { defaultNotificationTypeSettings, NotificationTypeSettings } from '../lib/collections/users/schema';
+import { defaultNotificationTypeSettings, NotificationChannelSettings, NotificationTypeSettings, legacyToNewNotificationTypeSettings } from "@/lib/collections/users/notificationFieldHelpers";
 import * as _ from 'underscore';
-import { createMutator } from './vulcan-lib/mutators';
-import { createAnonymousContext } from './vulcan-lib/query';
+import { createAnonymousContext } from './vulcan-lib/createContexts';
 import keyBy from 'lodash/keyBy';
 import UsersRepo, { MongoNearLocation } from './repos/UsersRepo';
 import { sequenceGetPageUrl } from '../lib/collections/sequences/helpers';
-
+import { createNotification as createNotificationMutator } from './collections/notifications/mutations';
 /**
  * Return a list of users (as complete user objects) subscribed to a given
  * document. This is the union of users who have subscribed to it explicitly,
@@ -82,7 +79,7 @@ export async function getUsersWhereLocationIsInNotificationRadius(location: Mong
   return new UsersRepo().getUsersWhereLocationIsInNotificationRadius(location);
 }
 
-const getNotificationTiming = (typeSettings: AnyBecauseTodo): DebouncerTiming => {
+const getNotificationTiming = (typeSettings: NotificationChannelSettings): DebouncerTiming => {
   switch (typeSettings.batchingFrequency) {
     case "realtime":
       return { type: "none" };
@@ -110,6 +107,7 @@ const notificationMessage = async (notificationType: string, documentType: Notif
 }
 
 const getLink = async (context: ResolverContext, notificationTypeName: string, documentType: NotificationDocument|null, documentId: string|null, extraData: any) => {
+  const { Posts } = context
   let document = await getDocument(documentType, documentId, context);
   const notificationType = getNotificationTypeByName(notificationTypeName);
 
@@ -187,7 +185,7 @@ export const createNotification = async ({
   if (!user) throw Error(`Wasn't able to find user to create notification for with id: ${userId}`)
   const userSettingField = getNotificationTypeByName(notificationType).userSettingField;
   const notificationTypeSettings = (userSettingField && user[userSettingField])
-    ? user[userSettingField]
+    ? legacyToNewNotificationTypeSettings(user[userSettingField])
     : fallbackNotificationTypeSettings;
 
   let notificationData = {
@@ -200,44 +198,40 @@ export const createNotification = async ({
     extraData,
   }
 
-  if (notificationTypeSettings.channel === "onsite" || notificationTypeSettings.channel === "both")
-  {
-    const createdNotification = await createMutator({
-      collection: Notifications,
-      document: {
+  const { onsite, email } = notificationTypeSettings;
+  if (onsite.enabled) {
+    const createdNotification = await createNotificationMutator({
+      data: {
         ...notificationData,
         emailed: false,
-        waitingForBatch: notificationTypeSettings.batchingFrequency !== "realtime",
-      },
-      currentUser: user,
-      validate: false
-    });
-    if (notificationTypeSettings.batchingFrequency !== "realtime") {
+        waitingForBatch: onsite.batchingFrequency !== "realtime",
+      }
+    }, context);
+
+    if (onsite.batchingFrequency !== "realtime") {
       await notificationDebouncers[notificationType]!.recordEvent({
         key: {notificationType, userId},
-        data: createdNotification.data._id,
-        timing: getNotificationTiming(notificationTypeSettings),
+        data: createdNotification._id,
+        timing: getNotificationTiming(onsite),
         af: false, //TODO: Handle AF vs non-AF notifications
       });
     }
   }
-  if ((notificationTypeSettings.channel === "email" || notificationTypeSettings.channel === "both") && !noEmail) {
-    const createdNotification = await createMutator({
-      collection: Notifications,
-      document: {
+  if (email.enabled && !noEmail) {
+    const createdNotification = await createNotificationMutator({
+      data: {
         ...notificationData,
         emailed: true,
         waitingForBatch: true,
-      },
-      currentUser: user,
-      validate: false
-    });
+      }
+    }, context);
+
     if (!notificationDebouncers[notificationType])
       throw new Error(`Invalid notification type: ${notificationType}`);
     await notificationDebouncers[notificationType]!.recordEvent({
       key: {notificationType, userId},
-      data: createdNotification.data._id,
-      timing: getNotificationTiming(notificationTypeSettings),
+      data: createdNotification._id,
+      timing: getNotificationTiming(email),
       af: false, //TODO: Handle AF vs non-AF notifications
     });
   }

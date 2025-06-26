@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
@@ -11,6 +11,11 @@ import { distance } from "../community/modules/LocalGroups";
 import { getCachedUserCountryCode } from "../common/CookieBanner/geolocation";
 import { lightbulbIcon } from "../icons/lightbulbIcon";
 import DeferRender from "../common/DeferRender";
+import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
+import SingleColumnSection from "../common/SingleColumnSection";
+import LWTooltip from "../common/LWTooltip";
+import HoverPreviewLink from "../linkPreview/HoverPreviewLink";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -135,9 +140,6 @@ const EAGBanner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   ) {
     return null;
   }
-
-  const {AnalyticsInViewTracker, SingleColumnSection, LWTooltip, HoverPreviewLink, ForumIcon} = Components;
-  
   const inViewEventProps = {
     inViewType: `${eagName}Banner`,
     reason: userLocationNearby && userInCountry ? 'both' : userLocationNearby ? 'nearby' : 'country'
@@ -190,14 +192,10 @@ const EAGBanner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
 }
 
-const EAGBannerComponent = registerComponent(
+export default registerComponent(
   "EAGBanner",
   EAGBanner,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAGBanner: typeof EAGBannerComponent
-  }
-}
+

@@ -1,15 +1,12 @@
-import { ApolloServer } from 'apollo-server-express';
+import { ApolloServer, makeExecutableSchema } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
 import { isDevelopment, isE2E } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
 import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
-import voyagerMiddleware from 'graphql-voyager/middleware/express';
 import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
-
-import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
 import { getUserFromReq, configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
@@ -49,7 +46,7 @@ import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
 import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
-import { createAnonymousContext } from './vulcan-lib/query';
+import { createAnonymousContext } from './vulcan-lib/createContexts';
 import { randomId } from '../lib/random';
 import { addCacheControlMiddleware, responseIsCacheable } from './cacheControlMiddleware';
 import { SSRMetadata } from '../lib/utils/timeUtil';
@@ -61,8 +58,10 @@ import { getSqlClientOrThrow } from './sql/sqlClient';
 import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
 import { getInstanceSettings } from '@/lib/getInstanceSettings';
 import { getCommandLineArguments } from './commandLine';
-import { makeAbsolute } from '@/lib/vulcan-lib/utils';
+import { makeAbsolute, urlIsAbsolute, getSiteUrl } from '@/lib/vulcan-lib/utils';
 import { faviconUrlSetting, isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
+import { resolvers, typeDefs } from './vulcan-lib/apollo-server/initGraphQL';
+import { botProtectionCommentRedirectSetting } from './databaseSettings';
 
 /**
  * End-to-end tests automate interactions with the page. If we try to, for
@@ -232,7 +231,7 @@ export function startWebserver() {
     introspection: true,
     debug: isDevelopment,
     
-    schema: getExecutableSchema(),
+    schema: makeExecutableSchema({ typeDefs, resolvers }),
     formatError: (e: GraphQLError): GraphQLFormattedError => {
       Sentry.captureException(e);
       const {message, ...properties} = e;
@@ -307,10 +306,6 @@ export function startWebserver() {
     }
   }))
   
-  // Voyager is a GraphQL schema visual explorer
-  app.use("/graphql-voyager", voyagerMiddleware({
-    endpointUrl: config.path,
-  }));
   // Setup GraphiQL
   app.use("/graphiql", graphiqlMiddleware({
     endpointURL: config.path,
@@ -376,6 +371,10 @@ export function startWebserver() {
   });
 
   app.get('*', async (request, response) => {
+    if(prefilterHandleRequest(request, response)) {
+      return;
+    }
+
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
 
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
@@ -473,7 +472,8 @@ export function startWebserver() {
     if (redirectUrl) {
       // eslint-disable-next-line no-console
       console.log(`Redirecting to ${redirectUrl}`);
-      trySetResponseStatus({ response, status: status || 301 }).redirect(makeAbsolute(redirectUrl));
+      const absoluteRedirectUrl = urlIsAbsolute(redirectUrl) ? redirectUrl : makeAbsolute(redirectUrl);
+      trySetResponseStatus({ response, status: status || 301 }).redirect(absoluteRedirectUrl);
     } else {
       trySetResponseStatus({ response, status: status || 200 });
       const ssrMetadata: SSRMetadata = {
@@ -491,7 +491,6 @@ export function startWebserver() {
         + '<body class="'+classesForAbTestGroups(allAbTestGroups)+'">\n'
           + ssrBody + '\n'
         + '</body>\n'
-        + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n' // TODO Remove after 2024-05-14, here for backwards compatibility
         + embedAsGlobalVar("ssrMetadata", ssrMetadata) + '\n'
         + serializedApolloState + '\n'
         + serializedForeignApolloState + '\n'
@@ -515,4 +514,32 @@ export function startWebserver() {
   addStaticRoute('/api/ready', ({query}, _req, res, next) => {
     res.end('true');
   });
+}
+
+/**
+ * Workaround to redirect `?commentId=...` links to `#...`, to prevent being DDoS-ed
+ */
+function prefilterHandleRequest(req: express.Request, res: express.Response): boolean {
+  if (!botProtectionCommentRedirectSetting.get()) {
+    return false;
+  }
+
+  const url = req.url;
+  const baseUrl = getSiteUrl();
+  const parsedUrl = new URL(url, baseUrl);
+
+  // If the URL is of the form ...?commentId=id, serve a redirect to ...#commentId
+  const commentId = parsedUrl.searchParams.get('commentId');
+  if (commentId) {
+    // Side-effectfully transform parsedUrl
+    parsedUrl.searchParams.delete("commentId");
+    parsedUrl.hash = commentId;
+
+    res.status(302);
+    res.redirect(parsedUrl.toString());
+    res.end();
+    return true;
+  }
+
+  return false;
 }

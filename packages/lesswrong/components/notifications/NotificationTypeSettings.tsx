@@ -1,94 +1,172 @@
-import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import React, { useCallback } from 'react';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import withErrorBoundary from '../common/withErrorBoundary';
-import PropTypes from 'prop-types';
-import { defaultNotificationTypeSettings, NotificationChannelOption, NotificationTypeSettings } from '../../lib/collections/users/schema';
+import {
+  DayOfWeek,
+  NotificationTypeSettings,
+  NotificationBatchingFrequency,
+  NotificationChannel,
+  NotificationChannelSettings,
+  LegacyNotificationTypeSettings,
+  legacyToNewNotificationTypeSettings
+} from "@/lib/collections/users/notificationFieldHelpers";
 import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
-import type { PickedTime } from '../common/BatchTimePicker';
+import BatchTimePicker, { PickedTime } from '../common/BatchTimePicker';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import classNames from 'classnames';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import type { EditableUser } from '@/lib/collections/users/helpers';
+import { Typography } from "../common/Typography";
+import { MenuItem } from "../common/Menus";
+import ToggleSwitch from "../common/ToggleSwitch";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    padding: 8,
+    paddingLeft: 8,
+    paddingRight: 8,
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px"
   },
   label: {
     fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
-  settings: {
-    paddingLeft: 20,
+  channelLabel: {
+    fontSize: 13
   },
+  channelSettings: {
+    paddingLeft: 8,
+    display: "flex",
+    gap: "8px",
+    justifyContent: "space-between",
+    alignItems: "center",
+    fontSize: 13,
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 0,
+    }
+  },
+  channelSettingsDetails: {
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    gap: "4px",
+    ...theme.typography.body2,
+    fontSize: 13,
+    "&>*": {
+      whiteSpace: "nowrap"
+    }
+  },
+  channelSettingsDisabled: {
+    color: theme.palette.grey[600]
+  },
+  toggle: {
+    alignItems: "center",
+    marginRight: 8,
+    [theme.breakpoints.down('sm')]: {
+      marginRight: 0,
+    }
+  }
 })
 
-interface NotificationSettings extends PickedTime {
-  channel: string;
-  batchingFrequency: string;
-}
-
-const NotificationTypeSettingsWidget = ({ path, value, label, updateCurrentValues, classes }: FormComponentProps<NotificationTypeSettings> & {
-  path: keyof DbUser;
+type NotificationTypeSettingsWidgetProps = {
+  field: TypedFieldApi<NotificationTypeSettings | LegacyNotificationTypeSettings, EditableUser>;
+  label: string;
   classes: ClassesType<typeof styles>;
-}) => {
-  const { BatchTimePicker, Typography, MenuItem } = Components;
-  const currentValue = { ...defaultNotificationTypeSettings, ...value };
-  const notificationType = getNotificationTypeByUserSetting(path);
-  
-  const modifyValue = (changes: Partial<NotificationSettings>) => {
-    void updateCurrentValues({
-      [path]: { ...currentValue, ...changes }
-    });
+};
+
+const getChannelLabel = (channel: NotificationChannel): string => {
+  switch (channel) {
+    case "onsite":
+      return "on-site";
+    case "email":
+      return "by email";
+    default:
+      return "";
   }
-  
-  const channelOptions: Record<NotificationChannelOption, React.ReactChild> = {
-    none: <MenuItem value="none" key="none">Don't notify</MenuItem>,
-    onsite: <MenuItem value="onsite" key="onsite">Notify me on-site</MenuItem>,
-    email: <MenuItem value="email" key="email">Notify me by email</MenuItem>,
-    both: <MenuItem value="both" key="both">Notify me both on-site and by email</MenuItem>
-  }
-  
-  return <div className={classes.root}>
-    <Typography variant="body1" className={classes.label}>{label}</Typography>
-    <Typography variant="body2" component="div" className={classes.settings}>
-      <Select
-        value={currentValue.channel}
-        onChange={(event) =>
-          modifyValue({ channel: event.target.value })}
-      >
-        {notificationType.allowedChannels?.length ?
-          notificationType.allowedChannels.map(channel => channelOptions[channel]) : <></>}
-      </Select>
-      { currentValue.channel !== "none" && <React.Fragment>
-        {" "}
-        <Select
-          value={currentValue.batchingFrequency}
-          onChange={(event) =>
-            modifyValue({ batchingFrequency: event.target.value })}
-        >
-          <MenuItem value="realtime">immediately</MenuItem>
-          <MenuItem value="daily">daily</MenuItem>
-          <MenuItem value="weekly">weekly</MenuItem>
-        </Select>
-      </React.Fragment>}
-      { (currentValue.channel !== "none" && (currentValue.batchingFrequency==="daily" || currentValue.batchingFrequency==="weekly")) && <React.Fragment>
-        {" at "}
-        <BatchTimePicker
-          mode={currentValue.batchingFrequency}
-          value={{timeOfDayGMT: currentValue.timeOfDayGMT, dayOfWeekGMT: currentValue.dayOfWeekGMT}}
-          onChange={newBatchTime => modifyValue(newBatchTime)}
-        />
-      </React.Fragment>}
-    </Typography>
-  </div>
 }
 
+const NotificationTypeSettingsWidget = ({
+  field,
+  label,
+  classes
+}: NotificationTypeSettingsWidgetProps) => {
+  const path = field.name;
+  const value = field.state.value;
 
-const NotificationTypeSettingsWidgetComponent = registerComponent('NotificationTypeSettingsWidget', NotificationTypeSettingsWidget, {
+  const notificationType = getNotificationTypeByUserSetting(path as keyof EditableUser & `notification${string}`);
+
+  const cleanValue = legacyToNewNotificationTypeSettings(value);
+
+  const modifyChannelValue = useCallback((channel: NotificationChannel, changes: Partial<NotificationChannelSettings>) => {
+    const newSettings = {
+      ...cleanValue,
+      [channel]: { ...cleanValue[channel], ...changes }
+    };
+    field.handleChange(newSettings);
+  }, [cleanValue, field]);
+
+  return (
+    <div className={classes.root}>
+      <Typography variant="body1" className={classes.label}>
+        {label}
+      </Typography>
+      {notificationType.allowedChannels?.map((channel: NotificationChannel) => {
+        const channelSettings: NotificationChannelSettings = cleanValue[channel];
+
+        return (
+          <div key={channel} className={classes.channelSettings}>
+            <div className={classNames(classes.channelSettingsDetails, { [classes.channelSettingsDisabled]: !channelSettings.enabled })}>
+              Notify me {getChannelLabel(channel)}
+              <Select
+                value={channelSettings.batchingFrequency}
+                onChange={(event) =>
+                  modifyChannelValue(channel, {
+                    batchingFrequency: event.target.value as NotificationBatchingFrequency,
+                  })
+                }
+                disabled={!channelSettings.enabled}
+              >
+                <MenuItem value="realtime">immediately</MenuItem>
+                <MenuItem value="daily">daily</MenuItem>
+                <MenuItem value="weekly">weekly</MenuItem>
+              </Select>
+              {(channelSettings.batchingFrequency === "daily" || channelSettings.batchingFrequency === "weekly") && (
+                <>
+                  {" at "}
+                  <BatchTimePicker
+                    mode={channelSettings.batchingFrequency ?? "realtime"}
+                    value={{
+                      timeOfDayGMT: channelSettings.timeOfDayGMT ?? 12,
+                      dayOfWeekGMT: channelSettings.dayOfWeekGMT ?? "Monday",
+                    }}
+                    onChange={(newPickedTime: PickedTime) =>
+                      modifyChannelValue(channel, {
+                        timeOfDayGMT: newPickedTime.timeOfDayGMT,
+                        dayOfWeekGMT: newPickedTime.dayOfWeekGMT as DayOfWeek,
+                      })
+                    }
+                    disabled={!channelSettings.enabled}
+                  />
+                </>
+              )}
+            </div>
+            <ToggleSwitch
+              value={channelSettings.enabled}
+              setValue={(val) => modifyChannelValue(channel, { enabled: val })}
+              className={classes.toggle}
+              smallVersion
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+export default registerComponent('NotificationTypeSettingsWidget', NotificationTypeSettingsWidget, {
   styles,
   hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    NotificationTypeSettingsWidget: typeof NotificationTypeSettingsWidgetComponent
-  }
-}
+

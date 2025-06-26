@@ -1,5 +1,4 @@
-import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema, addGraphQLMutation } from '../../lib/vulcan-lib/graphql';
-import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery, SubquerySortField, SortDirection } from '../utils/feedUtil';
+import { mergeFeedQueries, viewBasedSubquery, SubquerySortField, SortDirection } from '../utils/feedUtil';
 import { Comments } from '../../server/collections/comments/collection';
 import { Revisions } from '../../server/collections/revisions/collection';
 import { Tags } from '../../server/collections/tags/collection';
@@ -21,18 +20,12 @@ import {
   subforumSortingToResolverName,
   subforumSortingTypes,
 } from '../../lib/collections/tags/subforumHelpers';
-import { getTagBotUserId } from '../languageModels/autoTagCallbacks';
 import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
-import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { taggingNamePluralSetting } from '../../lib/instanceSettings';
 import difference from 'lodash/difference';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import union from 'lodash/fp/union';
-import { captureException } from '@sentry/core';
-import GraphQLJSON from 'graphql-type-json';
-import { getToCforTag } from '../tableOfContents';
-import { contributorsField } from '../utils/contributorsFieldHelper';
 import { loadByIds } from '@/lib/loaders';
 import { hasWikiLenses } from '@/lib/betas';
 import { updateDenormalizedHtmlAttributions } from '../tagging/updateDenormalizedHtmlAttributions';
@@ -40,7 +33,10 @@ import { namedPromiseAll } from '@/lib/utils/asyncUtils';
 import { updateDenormalizedContributorsList } from '../utils/contributorsUtil';
 import { MultiDocuments } from '@/server/collections/multiDocuments/collection';
 import { getLatestRev } from '../editor/utils';
-import { updateMutator } from "../vulcan-lib/mutators";
+import gql from 'graphql-tag';
+import { createAdminContext } from "@/server/vulcan-lib/createContexts";
+import { updateTag } from '../collections/tags/mutations';
+import { getDefaultViewSelector, mergeSelectors, mergeWithDefaultViewSelector } from '@/lib/utils/viewUtils';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -92,6 +88,7 @@ const createSubforumFeedResolver = <SortKeyType extends number | Date>(sorting: 
       collection: Posts,
       ...sorting.posts,
       context,
+      includeDefaultSelector: true,
       selector: {
         [`tagRelevance.${tagId}`]: {$gte: 1},
         hiddenRelatedQuestion: undefined,
@@ -106,6 +103,7 @@ const createSubforumFeedResolver = <SortKeyType extends number | Date>(sorting: 
       collection: Comments,
       ...sorting.comments,
       context,
+      includeDefaultSelector: true,
       selector: {
         $or: [{tagId: tagId, tagCommentType: "SUBFORUM"}, {relevantTagIds: tagId}],
         topLevelCommentId: {$exists: false},
@@ -121,6 +119,7 @@ const createSubforumFeedResolver = <SortKeyType extends number | Date>(sorting: 
       sortDirection: "asc",
       sticky: true,
       context,
+      includeDefaultSelector: true,
       selector: {
         tagId,
         tagCommentType: "SUBFORUM",
@@ -132,22 +131,37 @@ const createSubforumFeedResolver = <SortKeyType extends number | Date>(sorting: 
   ],
 });
 
-for (const sortBy of subforumSortings) {
-  const sorting = subforumFeedSortings[sortBy ?? defaultSubforumSorting] ?? subforumFeedSortings[defaultSubforumSorting];
-  defineFeedResolver({
-    name: `Subforum${subforumSortingToResolverName(sortBy)}Feed`,
-    args: "tagId: String!, af: Boolean",
-    cutoffTypeGraphQL: subforumSortingTypes[sortBy],
-    resultTypesGraphQL: `
-      tagSubforumPosts: Post
-      tagSubforumComments: Comment
-      tagSubforumStickyComments: Comment
-    `,
-    resolver: createSubforumFeedResolver(sorting),
-  });
+export const subForumFeedGraphQLTypeDefs = gql(subforumSortings.map(sorting => `
+  type Subforum${subforumSortingToResolverName(sorting)}FeedQueryResults {
+    cutoff: Date
+    endOffset: Int!
+    results: [Subforum${subforumSortingToResolverName(sorting)}FeedEntryType!]
+  }
+  type Subforum${subforumSortingToResolverName(sorting)}FeedEntryType {
+    type: String!
+    tagSubforumPosts: Post
+    tagSubforumComments: Comment
+    tagSubforumStickyComments: Comment
+  }
+  extend type Query {
+    Subforum${subforumSortingToResolverName(sorting)}Feed(
+      limit: Int
+      cutoff: ${subforumSortingTypes[sorting]}
+      offset: Int
+      tagId: String!
+      af: Boolean
+    ): Subforum${subforumSortingToResolverName(sorting)}FeedQueryResults!
+  }
+`).join('\n'))
+
+export const subForumFeedGraphQLQueries = {
+  ...(Object.fromEntries(subforumSortings.map((sorting) => [
+    `Subforum${subforumSortingToResolverName(sorting)}Feed`,
+    createSubforumFeedResolver(subforumFeedSortings[sorting] ?? subforumFeedSortings[defaultSubforumSorting])
+  ])))
 }
 
-addGraphQLSchema(`
+export const tagGraphQLTypeDefs = gql`
   type DocumentDeletion {
     userId: String
     documentId: String!
@@ -156,9 +170,6 @@ addGraphQLSchema(`
     docFields: MultiDocument
     createdAt: Date!
   }
-`);
-
-addGraphQLSchema(`
   type TagUpdates {
     tag: Tag!
     revisionIds: [String!]
@@ -171,7 +182,28 @@ addGraphQLSchema(`
     users: [User!]
     documentDeletions: [DocumentDeletion!]
   }
-`);
+  type TagPreviewWithSummaries {
+    tag: Tag!
+    lens: MultiDocument
+    summaries: [MultiDocument!]!
+  }
+  type TagWithTotalCount {
+    tags: [Tag!]!
+    totalCount: Int!
+  }
+  extend type Mutation {
+    mergeTags(sourceTagId: String!, targetTagId: String!, transferSubtags: Boolean!, redirectSource: Boolean!): Boolean
+    promoteLensToMain(lensId: String!): Boolean
+  }
+  extend type Query {
+    TagUpdatesInTimeBlock(before: Date!, after: Date!): [TagUpdates!]
+    TagUpdatesByUser(userId: String!, limit: Int!, skip: Int!): [TagUpdates!]
+    RandomTag: Tag!
+    ActiveTagCount: Int!
+    TagPreview(slug: String!, hash: String): TagPreviewWithSummaries
+    TagsByCoreTagId(coreTagId: String, limit: Int, searchTagIds: [String]): TagWithTotalCount!
+  }
+`;
 
 interface TagUpdates {
   tag: Partial<DbTag>;
@@ -186,14 +218,14 @@ interface TagUpdates {
   documentDeletions: CategorizedDeletionEvent[] | null;
 }
 
-function getRootCommentsInTimeBlockSelector(before: Date, after: Date) {
-  return {
+function getRootCommentsInTimeBlockSelector(before: Date, after: Date): MongoSelector<DbComment> {
+  return mergeWithDefaultViewSelector("Comments", {
     deleted: false,
     postedAt: {$lt: before, $gt: after},
     topLevelCommentId: null,
     tagId: {$exists: true, $ne: null},
     tagCommentType: "DISCUSSION",
-  };
+  });
 }
 
 function getDocumentDeletionsInTimeBlockSelector(documentIds: string[], before: Date, after: Date) {
@@ -394,379 +426,125 @@ function isTagUpdateEmpty(tagUpdate: TagUpdates) {
       && !tagUpdate.documentDeletions?.length;
 }
 
-addGraphQLResolvers({
-  Mutation: {
-    async mergeTags(
-      root: void,
-      {
-        sourceTagId,
-        targetTagId,
-        transferSubtags,
-        redirectSource,
-      }: { sourceTagId: string; targetTagId: string; transferSubtags: boolean; redirectSource: boolean },
-      context: ResolverContext
-    ) {
-      const { currentUser } = context;
+export const tagResolversGraphQLMutations = {
+  async mergeTags(
+    root: void,
+    {
+      sourceTagId,
+      targetTagId,
+      transferSubtags,
+      redirectSource,
+    }: { sourceTagId: string; targetTagId: string; transferSubtags: boolean; redirectSource: boolean },
+    context: ResolverContext
+  ) {
+    const { currentUser } = context;
 
-      if (!userIsAdminOrMod(currentUser)) {
-        throw new Error(`Must be an admin/mod to merge ${taggingNamePluralSetting.get()}`);
-      }
-      if (!sourceTagId || !targetTagId) {
-        throw new Error("sourceTagId and targetTagId required");
-      }
-
-      const sourceTag = await Tags.findOne({ _id: sourceTagId });
-      const targetTag = await Tags.findOne({ _id: targetTagId });
-
-      if (!sourceTag) {
-        throw new Error(`Could not find source tag with _id: ${sourceTagId}`);
-      }
-      if (!targetTag) {
-        throw new Error(`Could not find target tag with _id: ${targetTagId}`);
-      }
-
-      //
-      // Transfer posts
-      //
-      // 1. To preserve the source of the votes, just update the tagId of the TagRels for posts where the source tag is added but not the target
-      // 2. For posts where both the source and target are already added, soft delete the source TagRel
-      //
-      // Note that for both of these we don't distinguish between positive and negative votes, so if a post has the source tag downvoted (hence unapplied)
-      // this downvote will be copied over to the target
-
-      const sourceTagRels = await TagRels.find({tagId: sourceTagId, deleted: false}).fetch()
-      const targetTagRels = await TagRels.find({tagId: targetTagId, deleted: false}).fetch()
-
-      const sourcePostIds = sourceTagRels.map(tr => tr.postId)
-      const targetPostIds = targetTagRels.map(tr => tr.postId)
-
-      const sourceOnlyPostIds = difference(sourcePostIds, targetPostIds);
-      const sourceAndTargetPostIds = difference(sourcePostIds, sourceOnlyPostIds)
-
-      // Transfer TagRels for posts with only the source tag
-      await TagRels.rawUpdateMany(
-        { tagId: sourceTagId, postId: { $in: sourceOnlyPostIds } },
-        { $set: { tagId: targetTagId } },
-        { multi: true }
-      );
-      // TODO: This is fragile, once denormalizedCountOfReferences can do full recalulations
-      // make it use that (pending https://app.asana.com/0/628521446211730/1206130592328269/f)
-      await Tags.rawUpdateOne(sourceTag._id, { $inc: {postCount: -sourceOnlyPostIds.length}})
-      await Tags.rawUpdateOne(targetTag._id, { $inc: {postCount: sourceOnlyPostIds.length}})
-
-      // Soft delete TagRels for posts with both the source and target tag, note that the corresponding votes don't need to be deleted
-      await TagRels.rawUpdateMany(
-        { tagId: sourceTagId, postId: { $in: sourceAndTargetPostIds } },
-        { $set: { deleted: true } },
-        { multi: true }
-      );
-      await Tags.rawUpdateOne(sourceTag._id, { $inc: {postCount: -sourceAndTargetPostIds.length}})
-
-      // Call updatePostDenormalizedTags(postId) for all (unique) posts in sourcePostIds, targetPostIds
-      const uniquePostIds = union(sourceOnlyPostIds, sourceAndTargetPostIds);
-      const updateDenormalizedTags = async () => {
-        for (const postId of uniquePostIds) {
-          try {
-            await updatePostDenormalizedTags(postId)
-          } catch (e) {
-            // eslint-disable-next-line no-console
-            console.error(e)
-          }
-        }
-      }
-      // Don't await this, because it might cause a timeout
-      void updateDenormalizedTags();
-
-      //
-      // Transfer sub-tags
-      //
-      if (transferSubtags) {
-        const sourceSubTags = await Tags.find({ parentTagId: sourceTagId }).fetch()
-
-        for (const subTag of sourceSubTags) {
-          await updateMutator({
-            collection: Tags,
-            documentId: subTag._id,
-            // This will run a callback to update the subTags field on the parent tag
-            set: { parentTagId: targetTagId },
-            validate: false,
-          });
-        }
-      }
-
-      //
-      // Soft delete source and redirect
-      //
-      if (redirectSource) {
-        const originalSourceSlug = sourceTag.slug;
-        const deletedSourceSlug = `${originalSourceSlug}-deleted`;
-
-        // Update the source slug as a raw update so the original doesn't get added to `oldSlugs`
-        await Tags.rawUpdateOne({ _id: sourceTagId }, { $set: { slug: deletedSourceSlug } });
-        // Update oldSlugs on the target so requests for the original source tag redirect to the target
-        await Tags.rawUpdateOne(
-          { _id: targetTagId },
-          {
-            $addToSet: {
-              oldSlugs: originalSourceSlug,
-            },
-          }
-        );
-
-        // Soft delete the source tag, making sure to run the callbacks
-        await updateMutator({
-          collection: Tags,
-          documentId: sourceTagId,
-          set: { deleted: true },
-          validate: false,
-        });
-      }
-
-      return true;
-    },
-  },
-  Query: {
-    async TagUpdatesInTimeBlock(root: void, {before,after}: {before: Date, after: Date}, context: ResolverContext) {
-      if (!before) throw new Error("Missing graphql parameter: before");
-      if (!after) throw new Error("Missing graphql parameter: after");
-      if(moment.duration(moment(before).diff(after)).as('hours') > 30)
-        throw new Error("TagUpdatesInTimeBlock limited to a one-day interval");
-      
-      const rootCommentsSelector = getRootCommentsInTimeBlockSelector(before, after);
-
-      // Get
-      // - revisions to tags, lenses, and summaries in the given time interval
-      // - root comments on tags in the given time interval
-      const [revisions, rootComments] = await Promise.all([
-        context.repos.revisions.getRevisionsInTimeBlock(before, after),
-        Comments.find(rootCommentsSelector).fetch()
-      ]);
-      
-      const [usersById, { lensesByTagId, summariesByTagId }] = await Promise.all([
-        getRevisionAndCommentUsers(revisions, rootComments, context),
-        getMultiDocumentsByTagId(revisions, context),
-      ]);
-
-      const lensIdsByTagId = mapValues(lensesByTagId, lenses => lenses.map(l => l._id!));
-      const summaryIdsByTagId = mapValues(summariesByTagId, summaries => summaries.map(s => s._id!));
-
-      const [tags, documentDeletionsByTagId] = await Promise.all([
-        getTopLevelTags(revisions, rootComments, lensIdsByTagId, summaryIdsByTagId, context),
-        getDocumentDeletionsInTimeBlock({
-          before,
-          after,
-          lensesByTagId,
-          summariesByTagId,
-          context,
-        }),
-      ]);
-
-      // We use all revisions above because we use content-less revisions to figure out
-      // what documents have been deleted (since updating the `deleted` field of a tag or multidoc creates a new revision, even if the content hasn't changed).
-      // But for actually showing revisions with diffs, we only want to show the ones that have content changes.
-      const contentfulRevisions = revisions.filter(rev => rev.changeMetrics.added > 0 || rev.changeMetrics.removed > 0);
-
-      // TODO: figure out if we want to get relevant user ids based on all revisions, or just contentful ones
-
-      const tagUpdates = tags.map(tag => {
-        const relevantTagRevisions = contentfulRevisions.filter(rev=>rev.documentId===tag._id);
-        const relevantLensRevisions = contentfulRevisions.filter(rev=>lensIdsByTagId[tag._id!]?.includes(rev.documentId!));
-        const relevantSummaryRevisions = contentfulRevisions.filter(rev=>summaryIdsByTagId[tag._id!]?.includes(rev.documentId!));
-        const relevantRevisions = [...relevantTagRevisions, ...relevantLensRevisions, ...relevantSummaryRevisions];
-
-        const relevantDocumentDeletions = documentDeletionsByTagId[tag._id!];
-
-        const relevantRootComments = rootComments.filter(c=>c.tagId===tag._id);
-        const relevantUsersIds = filterNonnull(_.uniq([...relevantTagRevisions.map(tr => tr.userId), ...relevantRootComments.map(rc => rc.userId)]));
-        const relevantUsers = relevantUsersIds.map(userId=>usersById[userId]);
-        
-        return {
-          tag,
-          revisionIds: relevantRevisions.map(r=>r._id),
-          commentCount: relevantRootComments.length + sumBy(relevantRootComments, c=>c.descendentCount),
-          commentIds: relevantRootComments.map(c=>c._id),
-          lastRevisedAt: relevantRevisions.length>0 ? _.max(relevantRevisions, r=>r.editedAt).editedAt : null,
-          lastCommentedAt: relevantRootComments.length>0 ? _.max(relevantRootComments, c=>c.lastSubthreadActivity).lastSubthreadActivity : null,
-          added: sumBy(relevantRevisions, r=>r.changeMetrics.added),
-          removed: sumBy(relevantRevisions, r=>r.changeMetrics.removed),
-          users: relevantUsers,
-          documentDeletions: relevantDocumentDeletions,
-        };
-      });
-      
-      // Filter out empty tag updates, which we might have because we're no longer filtering out revisions with no content changes
-      // These can happen when e.g. a tag's name is changed, since the tag update automatically creates a zero-diff revision
-      return tagUpdates.filter(tagUpdate => !isTagUpdateEmpty(tagUpdate));
-    },
-    
-    async RandomTag(root: void, args: void, context: ResolverContext): Promise<DbTag> {
-      const sample = await Tags.aggregate([
-        {$match: {
-          deleted: false, adminOnly: false,
-          isPlaceholderPage: false,
-        }},
-        {$sample: {size: 1}}
-      ]).toArray();
-      if (!sample || !sample.length)
-        throw new Error("No tags found");
-      return sample[0];
-    },
-    
-    async TagUpdatesByUser(root: void, {userId,limit,skip}: {userId: string, limit: number, skip: number}, context: ResolverContext) {
-
-      // Get revisions to tags
-      const rawTagRevisions = await Revisions.find({
-        collectionName: "Tags",
-        fieldName: "description",
-        userId,
-        documentId: { $exists: true},
-        $or: [
-          {"changeMetrics.added": {$gt: 0}},
-          {"changeMetrics.removed": {$gt: 0}}
-        ],
-      }, { limit, skip, sort: { editedAt: -1} }).fetch();
-
-      const tagRevisions = filterWhereFieldsNotNull(rawTagRevisions, "documentId")
-
-      // Get the tags themselves, keyed by the id
-      const tagIds = filterNonnull(_.uniq(tagRevisions.map(r=>r.documentId)))
-      const tagsUnfiltered = await loadByIds(context, "Tags", tagIds);
-      const tags = (await accessFilterMultiple(context.currentUser, 'Tags', tagsUnfiltered, context)).reduce( (acc: Partial<Record<string,DbTag>>, tag: DbTag) => {
-        acc[tag._id] = tag;
-        return acc;
-      }, {});
-
-      // unlike TagUpdatesInTimeBlock we only return info on one revision per tag. i.e. we do not collect them by tag.
-      return tagRevisions.map(rev => {
-        const tag = tags[rev.documentId];
-        return {
-          tag,
-          revisionIds: [rev._id],
-          lastRevisedAt: rev.editedAt,
-          added: rev.changeMetrics.added,
-          removed: rev.changeMetrics.removed,
-        };
-      });
-    },
-
-    ActiveTagCount: () => Tags.find({deleted: {$ne: true}}).count(),
-  }
-});
-
-addGraphQLMutation('mergeTags(sourceTagId: String!, targetTagId: String!, transferSubtags: Boolean!, redirectSource: Boolean!): Boolean');
-addGraphQLQuery('TagUpdatesInTimeBlock(before: Date!, after: Date!): [TagUpdates!]');
-addGraphQLQuery('TagUpdatesByUser(userId: String!, limit: Int!, skip: Int!): [TagUpdates!]');
-addGraphQLQuery('RandomTag: Tag!');
-addGraphQLQuery('ActiveTagCount: Int!');
-
-defineQuery({
-  name: "TagPreview",
-  schema: `
-    type TagPreviewWithSummaries {
-      tag: Tag!
-      lens: MultiDocument
-      summaries: [MultiDocument!]!
+    if (!userIsAdminOrMod(currentUser)) {
+      throw new Error(`Must be an admin/mod to merge ${taggingNamePluralSetting.get()}`);
     }
-  `,
-  resultType: "TagPreviewWithSummaries",
-  argTypes: "(slug: String!, hash: String)",
-  fn: async (root, { slug, hash }: { slug: string, hash: string | null }, context) => {
-    const { Tags, MultiDocuments, repos, currentUser } = context;
-
-    const tagWithSummaries = await repos.tags.getTagWithSummaries(slug);
-
-    if (!tagWithSummaries) return null;
-
-    const { summaries, lens, ...tag } = tagWithSummaries;
-
-    const [filteredTag, filteredLens, filteredSummaries] = await Promise.all([
-      accessFilterSingle(currentUser, 'Tags', tag, context),
-      accessFilterSingle(currentUser, 'MultiDocuments', lens, context),
-      accessFilterMultiple(currentUser, 'MultiDocuments', summaries, context)
-    ]);
-
-    if (!filteredTag) return null;
-
-    return {
-      tag: filteredTag,
-      lens: filteredLens,
-      summaries: filteredSummaries,
-    };
-  },
-});
-
-export const tagResolvers = {
-  contributors: contributorsField({
-    collectionName: 'Tags',
-    fieldName: 'description',
-  }),
-  tableOfContents: {
-    resolveAs: {
-      arguments: 'version: String',
-      type: GraphQLJSON,
-      resolver: async (document: DbTag, args: {version: string}, context: ResolverContext) => {
-        try {
-          return await getToCforTag({document, version: args.version||null, context});
-        } catch(e) {
-          captureException(e);
-          return null;
-        }
-      }
-    },
-  },
-} satisfies Record<string, CollectionFieldSpecification<"Tags">>;
-
-export const tagRelResolvers = {
-  autoApplied: {
-    resolveAs: {
-      type: "Boolean!",
-      resolver: async (document: DbTagRel, args: void, context: ResolverContext) => {
-        const tagBotUserId = await getTagBotUserId(context);
-        if (!tagBotUserId) return false;
-        return (document.userId===tagBotUserId && document.voteCount===1);
-      },
-    },
-  },
-} satisfies Record<string, CollectionFieldSpecification<"TagRels">>;
-
-function sortTagsByIdOrder(tags: DbTag[], orderIds: string[]): DbTag[] {
-  const tagsByIdMap = keyBy(tags, '_id');
-  return filterNonnull(orderIds.map(id => tagsByIdMap[id]));
-}
-
-defineQuery({
-  name: "TagsByCoreTagId",
-  schema: `
-    type TagWithTotalCount {
-      tags: [Tag!]!
-      totalCount: Int!
+    if (!sourceTagId || !targetTagId) {
+      throw new Error("sourceTagId and targetTagId required");
     }
-  `,
-  resultType: "TagWithTotalCount!",
-  argTypes: "(coreTagId: String, limit: Int, searchTagIds: [String])",
-  fn: async (_root: void, args: { coreTagId: string | null; limit?: number; searchTagIds?: string[] }, context: ResolverContext) => {
-    const { coreTagId, limit = 20, searchTagIds } = args;
 
-    const { tags: unsortedTags, totalCount } = await context.repos.tags.getTagsByCoreTagId(
-      coreTagId,
-      limit,
-      searchTagIds
+    const sourceTag = await Tags.findOne({ _id: sourceTagId });
+    const targetTag = await Tags.findOne({ _id: targetTagId });
+
+    if (!sourceTag) {
+      throw new Error(`Could not find source tag with _id: ${sourceTagId}`);
+    }
+    if (!targetTag) {
+      throw new Error(`Could not find target tag with _id: ${targetTagId}`);
+    }
+
+    //
+    // Transfer posts
+    //
+    // 1. To preserve the source of the votes, just update the tagId of the TagRels for posts where the source tag is added but not the target
+    // 2. For posts where both the source and target are already added, soft delete the source TagRel
+    //
+    // Note that for both of these we don't distinguish between positive and negative votes, so if a post has the source tag downvoted (hence unapplied)
+    // this downvote will be copied over to the target
+
+    const sourceTagRels = await TagRels.find({tagId: sourceTagId, deleted: false}).fetch()
+    const targetTagRels = await TagRels.find({tagId: targetTagId, deleted: false}).fetch()
+
+    const sourcePostIds = sourceTagRels.map(tr => tr.postId)
+    const targetPostIds = targetTagRels.map(tr => tr.postId)
+
+    const sourceOnlyPostIds = difference(sourcePostIds, targetPostIds);
+    const sourceAndTargetPostIds = difference(sourcePostIds, sourceOnlyPostIds)
+
+    // Transfer TagRels for posts with only the source tag
+    await TagRels.rawUpdateMany(
+      { tagId: sourceTagId, postId: { $in: sourceOnlyPostIds } },
+      { $set: { tagId: targetTagId } },
+      { multi: true }
     );
-    
-    const tags = searchTagIds?.length
-      ? sortTagsByIdOrder(unsortedTags, searchTagIds)
-      : unsortedTags;
+    // TODO: This is fragile, once denormalizedCountOfReferences can do full recalulations
+    // make it use that (pending https://app.asana.com/0/628521446211730/1206130592328269/f)
+    await Tags.rawUpdateOne(sourceTag._id, { $inc: {postCount: -sourceOnlyPostIds.length}})
+    await Tags.rawUpdateOne(targetTag._id, { $inc: {postCount: sourceOnlyPostIds.length}})
 
-    return { tags, totalCount };
+    // Soft delete TagRels for posts with both the source and target tag, note that the corresponding votes don't need to be deleted
+    await TagRels.rawUpdateMany(
+      { tagId: sourceTagId, postId: { $in: sourceAndTargetPostIds } },
+      { $set: { deleted: true } },
+      { multi: true }
+    );
+    await Tags.rawUpdateOne(sourceTag._id, { $inc: {postCount: -sourceAndTargetPostIds.length}})
+
+    // Call updatePostDenormalizedTags(postId) for all (unique) posts in sourcePostIds, targetPostIds
+    const uniquePostIds = union(sourceOnlyPostIds, sourceAndTargetPostIds);
+    const updateDenormalizedTags = async () => {
+      for (const postId of uniquePostIds) {
+        try {
+          await updatePostDenormalizedTags(postId)
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.error(e)
+        }
+      }
+    }
+    // Don't await this, because it might cause a timeout
+    void updateDenormalizedTags();
+
+    //
+    // Transfer sub-tags
+    //
+    if (transferSubtags) {
+      const sourceSubTags = await Tags.find({ parentTagId: sourceTagId }).fetch()
+
+      for (const subTag of sourceSubTags) {
+        await updateTag({ data: { parentTagId: targetTagId }, selector: { _id: subTag._id } }, context);
+      }
+    }
+
+    //
+    // Soft delete source and redirect
+    //
+    if (redirectSource) {
+      const originalSourceSlug = sourceTag.slug;
+      const deletedSourceSlug = `${originalSourceSlug}-deleted`;
+
+      // Update the source slug as a raw update so the original doesn't get added to `oldSlugs`
+      await Tags.rawUpdateOne({ _id: sourceTagId }, { $set: { slug: deletedSourceSlug } });
+      // Update oldSlugs on the target so requests for the original source tag redirect to the target
+      await Tags.rawUpdateOne(
+        { _id: targetTagId },
+        {
+          $addToSet: {
+            oldSlugs: originalSourceSlug,
+          },
+        }
+      );
+
+      // Soft delete the source tag, making sure to run the callbacks
+      await updateTag({ data: { deleted: true }, selector: { _id: sourceTagId } }, context);
+    }
+
+    return true;
   },
-});
-
-defineMutation({
-  name: "promoteLensToMain",
-  resultType: "Boolean",
-  argTypes: "(lensId: String!)",
-  fn: async (root, args: {lensId: string}, context) => {
-    const { lensId } = args;
+  async promoteLensToMain(root: void, {lensId}: {lensId: string}, context: ResolverContext) {
     if (!userIsAdminOrMod(context.currentUser)) {
       throw new Error("Only admins can promote lenses to main");
     }
@@ -850,35 +628,211 @@ defineMutation({
         document: tag,
         collectionName: "Tags",
         fieldName: "description",
+        context,
       }),
       updateDenormalizedHtmlAttributions({
         document: lensMultiDocument,
         collectionName: "MultiDocuments",
         fieldName: "contents",
+        context,
       }),
       updateDenormalizedContributorsList({
         document: tag,
         collectionName: "Tags",
         fieldName: "description",
+        context,
       }),
       updateDenormalizedContributorsList({
         document: lensMultiDocument,
         collectionName: "MultiDocuments",
         fieldName: "contents",
+        context,
       }),
     ]);
     
     // eslint-disable-next-line no-console
     console.log(`Finished promoting lens ${lensId} to main`);
     return true;
+  },
+}
+
+export const tagResolversGraphQLQueries = {
+  async TagUpdatesInTimeBlock(root: void, {before,after}: {before: Date, after: Date}, context: ResolverContext) {
+    if (!before) throw new Error("Missing graphql parameter: before");
+    if (!after) throw new Error("Missing graphql parameter: after");
+    if(moment.duration(moment(before).diff(after)).as('hours') > 30)
+      throw new Error("TagUpdatesInTimeBlock limited to a one-day interval");
+    
+    const rootCommentsSelector = getRootCommentsInTimeBlockSelector(before, after);
+
+    // Get
+    // - revisions to tags, lenses, and summaries in the given time interval
+    // - root comments on tags in the given time interval
+    const [revisions, rootComments] = await Promise.all([
+      context.repos.revisions.getRevisionsInTimeBlock(before, after),
+      Comments.find(rootCommentsSelector).fetch()
+    ]);
+    
+    const [usersById, { lensesByTagId, summariesByTagId }] = await Promise.all([
+      getRevisionAndCommentUsers(revisions, rootComments, context),
+      getMultiDocumentsByTagId(revisions, context),
+    ]);
+
+    const lensIdsByTagId = mapValues(lensesByTagId, lenses => lenses.map(l => l._id!));
+    const summaryIdsByTagId = mapValues(summariesByTagId, summaries => summaries.map(s => s._id!));
+
+    const [tags, documentDeletionsByTagId] = await Promise.all([
+      getTopLevelTags(revisions, rootComments, lensIdsByTagId, summaryIdsByTagId, context),
+      getDocumentDeletionsInTimeBlock({
+        before,
+        after,
+        lensesByTagId,
+        summariesByTagId,
+        context,
+      }),
+    ]);
+
+    // We use all revisions above because we use content-less revisions to figure out
+    // what documents have been deleted (since updating the `deleted` field of a tag or multidoc creates a new revision, even if the content hasn't changed).
+    // But for actually showing revisions with diffs, we only want to show the ones that have content changes.
+    const contentfulRevisions = revisions.filter(rev => rev.changeMetrics.added > 0 || rev.changeMetrics.removed > 0);
+
+    // TODO: figure out if we want to get relevant user ids based on all revisions, or just contentful ones
+
+    const tagUpdates = tags.map(tag => {
+      const relevantTagRevisions = contentfulRevisions.filter(rev=>rev.documentId===tag._id);
+      const relevantLensRevisions = contentfulRevisions.filter(rev=>lensIdsByTagId[tag._id!]?.includes(rev.documentId!));
+      const relevantSummaryRevisions = contentfulRevisions.filter(rev=>summaryIdsByTagId[tag._id!]?.includes(rev.documentId!));
+      const relevantRevisions = [...relevantTagRevisions, ...relevantLensRevisions, ...relevantSummaryRevisions];
+
+      const relevantDocumentDeletions = documentDeletionsByTagId[tag._id!];
+
+      const relevantRootComments = rootComments.filter(c=>c.tagId===tag._id);
+      const relevantUsersIds = filterNonnull(_.uniq([...relevantTagRevisions.map(tr => tr.userId), ...relevantRootComments.map(rc => rc.userId)]));
+      const relevantUsers = relevantUsersIds.map(userId=>usersById[userId]);
+      
+      return {
+        tag,
+        revisionIds: relevantRevisions.map(r=>r._id),
+        commentCount: relevantRootComments.length + sumBy(relevantRootComments, c=>c.descendentCount),
+        commentIds: relevantRootComments.map(c=>c._id),
+        lastRevisedAt: relevantRevisions.length>0 ? _.max(relevantRevisions, r=>r.editedAt).editedAt : null,
+        lastCommentedAt: relevantRootComments.length>0 ? _.max(relevantRootComments, c=>c.lastSubthreadActivity).lastSubthreadActivity : null,
+        added: sumBy(relevantRevisions, r=>r.changeMetrics.added),
+        removed: sumBy(relevantRevisions, r=>r.changeMetrics.removed),
+        users: relevantUsers,
+        documentDeletions: relevantDocumentDeletions,
+      };
+    });
+    
+    // Filter out empty tag updates, which we might have because we're no longer filtering out revisions with no content changes
+    // These can happen when e.g. a tag's name is changed, since the tag update automatically creates a zero-diff revision
+    return tagUpdates.filter(tagUpdate => !isTagUpdateEmpty(tagUpdate));
+  },
+  
+  async RandomTag(root: void, args: void, context: ResolverContext): Promise<DbTag> {
+    const sample = await Tags.aggregate([
+      {$match: {
+        deleted: false, adminOnly: false,
+        isPlaceholderPage: false,
+      }},
+      {$sample: {size: 1}}
+    ]).toArray();
+    if (!sample || !sample.length)
+      throw new Error("No tags found");
+    return sample[0];
+  },
+  
+  async TagUpdatesByUser(root: void, {userId,limit,skip}: {userId: string, limit: number, skip: number}, context: ResolverContext) {
+
+    // Get revisions to tags
+    const rawTagRevisions = await Revisions.find({
+      collectionName: "Tags",
+      fieldName: "description",
+      userId,
+      documentId: { $exists: true},
+      $or: [
+        {"changeMetrics.added": {$gt: 0}},
+        {"changeMetrics.removed": {$gt: 0}}
+      ],
+    }, { limit, skip, sort: { editedAt: -1} }).fetch();
+
+    const tagRevisions = filterWhereFieldsNotNull(rawTagRevisions, "documentId")
+
+    // Get the tags themselves, keyed by the id
+    const tagIds = filterNonnull(_.uniq(tagRevisions.map(r=>r.documentId)))
+    const tagsUnfiltered = await loadByIds(context, "Tags", tagIds);
+    const tags = (await accessFilterMultiple(context.currentUser, 'Tags', tagsUnfiltered, context)).reduce( (acc: Partial<Record<string,DbTag>>, tag: DbTag) => {
+      acc[tag._id] = tag;
+      return acc;
+    }, {});
+
+    // unlike TagUpdatesInTimeBlock we only return info on one revision per tag. i.e. we do not collect them by tag.
+    return tagRevisions.map(rev => {
+      const tag = tags[rev.documentId];
+      return {
+        tag,
+        revisionIds: [rev._id],
+        lastRevisedAt: rev.editedAt,
+        added: rev.changeMetrics.added,
+        removed: rev.changeMetrics.removed,
+      };
+    });
+  },
+
+  ActiveTagCount: () => Tags.find({deleted: {$ne: true}}).count(),
+
+  TagPreview: async (root: void, {slug, hash}: {slug: string, hash: string | null}, context: ResolverContext) => {
+    const { Tags, MultiDocuments, repos, currentUser } = context;
+
+    const tagWithSummaries = await repos.tags.getTagWithSummaries(slug);
+
+    if (!tagWithSummaries) return null;
+
+    const { summaries, lens, ...tag } = tagWithSummaries;
+
+    const [filteredTag, filteredLens, filteredSummaries] = await Promise.all([
+      accessFilterSingle(currentUser, 'Tags', tag, context),
+      accessFilterSingle(currentUser, 'MultiDocuments', lens, context),
+      accessFilterMultiple(currentUser, 'MultiDocuments', summaries, context)
+    ]);
+
+    if (!filteredTag) return null;
+
+    return {
+      tag: filteredTag,
+      lens: filteredLens,
+      summaries: filteredSummaries,
+    };
+  },
+
+  TagsByCoreTagId: async (root: void, {coreTagId, limit = 20, searchTagIds}: {coreTagId: string | null, limit: number, searchTagIds: string[]}, context: ResolverContext) => {
+    const { tags: unsortedTags, totalCount } = await context.repos.tags.getTagsByCoreTagId(
+      coreTagId,
+      limit,
+      searchTagIds
+    );
+    
+    const tags = searchTagIds?.length
+      ? sortTagsByIdOrder(unsortedTags, searchTagIds)
+      : unsortedTags;
+
+    return { tags, totalCount };
   }
-});
+
+}
+
+function sortTagsByIdOrder(tags: DbTag[], orderIds: string[]): DbTag[] {
+  const tagsByIdMap = keyBy(tags, '_id');
+  return filterNonnull(orderIds.map(id => tagsByIdMap[id]));
+}
 
 // Exported to allow running from "yarn repl"
 export const recomputeDenormalizedContentsFor = async (tagSlug: string) => {
+  const context = createAdminContext();
   const tag = await Tags.findOne({slug: tagSlug});
   if (!tag) throw new Error(`No such tag: ${tagSlug}`);
-  const latestRev = await getLatestRev(tag._id, "description");
+  const latestRev = await getLatestRev(tag._id, "description", context);
   if (!latestRev) throw new Error("Could not get latest rev");
   await Tags.rawUpdateOne(
     {_id: tag._id},
@@ -895,6 +849,9 @@ export const recomputeDenormalizedContentsFor = async (tagSlug: string) => {
 
 // Exported to allow running from "yarn repl"
 export const recomputeDenormalizedContributorsAndAttributionsOn = async (tagSlug: string) => {
+  const resolverContext = createAdminContext();
+  const { Tags } = resolverContext;
+
   const tag = await Tags.findOne({slug: tagSlug});
   if (!tag) throw new Error(`No such tag: ${tagSlug}`);
   const lenses = await MultiDocuments.find({
@@ -908,22 +865,26 @@ export const recomputeDenormalizedContributorsAndAttributionsOn = async (tagSlug
     document: tag,
     collectionName: "Tags",
     fieldName: "description",
+    context: resolverContext,
   });
   await updateDenormalizedContributorsList({
     document: tag,
     collectionName: "Tags",
     fieldName: "description",
+    context: resolverContext,
   });
   for (const lensMultiDocument of lenses) {
     await updateDenormalizedHtmlAttributions({
       document: lensMultiDocument,
       collectionName: "MultiDocuments",
       fieldName: "contents",
+      context: resolverContext,
     });
     await updateDenormalizedContributorsList({
       document: lensMultiDocument,
       collectionName: "MultiDocuments",
       fieldName: "contents",
+      context: resolverContext,
     });
   }
 }

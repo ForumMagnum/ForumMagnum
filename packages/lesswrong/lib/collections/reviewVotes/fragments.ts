@@ -1,4 +1,6 @@
-export const reviewVoteFragment = `
+import { frag } from "@/lib/fragments/fragmentWrapper"
+
+export const reviewVoteFragment = () => frag`
   fragment reviewVoteFragment on ReviewVote {
     _id
     createdAt
@@ -14,7 +16,7 @@ export const reviewVoteFragment = `
 `
 
 
-export const reviewVoteWithUserAndPost = `
+export const reviewVoteWithUserAndPost = () => frag`
   fragment reviewVoteWithUserAndPost on ReviewVote {
     ...reviewVoteFragment
     user {
@@ -28,7 +30,7 @@ export const reviewVoteWithUserAndPost = `
   }
 `
 
-export const reviewAdminDashboard = `
+export const reviewAdminDashboard = () => frag`
   fragment reviewAdminDashboard on ReviewVote {
     _id
     createdAt

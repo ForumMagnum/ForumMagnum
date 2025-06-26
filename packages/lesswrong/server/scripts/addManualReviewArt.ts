@@ -1,7 +1,6 @@
-import { createAdminContext } from "../vulcan-lib/query";
-import ReviewWinnerArts from "../../server/collections/reviewWinnerArts/collection";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 import { moveImageToCloudinary } from "./convertImagesToCloudinary";
-import { createMutator } from "../vulcan-lib/mutators";
+import { createReviewWinnerArt } from "../collections/reviewWinnerArts/mutations";
 
 const reviewWinnerArtManualAdditions: ({id: string, prompt: string, url: string})[] = [{
   id: 'vLRxmYCKpmZAAJ3KC',
@@ -19,15 +18,13 @@ export const manuallyAddReviewWinnerArt = async () => {
       continue;
     }
 
-    await createMutator({
-      collection: ReviewWinnerArts,
-      context: createAdminContext(),
-      document: {
+    await createReviewWinnerArt({
+      data: {
         postId: id,
         splashArtImagePrompt: prompt,
         splashArtImageUrl: cloudinaryUrl
       }
-    }).catch((error) => {
+    }, createAdminContext()).catch((error) => {
       // eslint-disable-next-line no-console
       console.dir(error, { depth: null })
       throw error

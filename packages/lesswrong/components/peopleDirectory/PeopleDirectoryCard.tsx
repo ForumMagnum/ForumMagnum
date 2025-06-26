@@ -1,13 +1,15 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { textCellStyles } from "./PeopleDirectoryTextCell";
 import { formatStat } from "../users/EAUserTooltipContent";
-import { CAREER_STAGES } from "@/lib/collections/users/schema";
+import { CAREER_STAGES, userGetProfileUrl } from "@/lib/collections/users/helpers";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
-import { userGetProfileUrl } from "@/lib/collections/users/helpers";
 import classNames from "classnames";
 import moment from "moment";
+import UsersProfileImage from "../users/UsersProfileImage";
+import NewConversationButton from "../messaging/NewConversationButton";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -100,8 +102,6 @@ const PeopleDirectoryCard = ({user, isFirst, isLast, classes}: {
   const careerStage = user.careerStage?.[0]
     ? CAREER_STAGES.find(({value}) => value === user.careerStage?.[0])
     : null;
-
-  const {UsersProfileImage, NewConversationButton, ForumIcon} = Components;
   return (
     <div
       onClick={onClick}
@@ -169,14 +169,10 @@ const PeopleDirectoryCard = ({user, isFirst, isLast, classes}: {
   );
 }
 
-const PeopleDirectoryCardComponent = registerComponent(
+export default registerComponent(
   "PeopleDirectoryCard",
   PeopleDirectoryCard,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryCard: typeof PeopleDirectoryCardComponent
-  }
-}
+

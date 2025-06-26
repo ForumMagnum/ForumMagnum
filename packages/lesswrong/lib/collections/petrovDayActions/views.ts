@@ -1,5 +1,5 @@
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
-import type { PetrovDayActionType } from "./schema";
+import type { PetrovDayActionType } from "./constants";
 
 declare global {
   interface PetrovDayActionsViewTerms extends ViewTermsBase {

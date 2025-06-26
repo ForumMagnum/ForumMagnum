@@ -5,16 +5,39 @@ import { isEAForum, isLW, isLWorAF } from "./instanceSettings"
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import { memoizeWithExpiration } from './utils/memoizeWithExpiration';
 import { isDevelopment } from './executionEnvironment'; 
-import { DatabasePublicSetting, ReviewYearGroupInfo, ReviewSectionInfo } from './publicSettings';
+
+/* 
+NOTES FOR REVIEW ENDING
+
+1. Create ReviewWinners and Voting Results post html:
+- yarn repl prod packages/lesswrong/server/reviewVoteUpdate.ts 'updateReviewVoteTotals('finalVote')'
+- yarn repl prod packages/lesswrong/server/reviewVoteUpdate.ts 'createVotingPostHtml()' 
+
+2. Create ReviewWinnerArts
+- Make sure you have a fal.ai account with money in it, and an apiKey in the credentials repo (Ray's will work, but requires Ray SSO)
+
+run this command a few times, it'll take a few minutes per time. Currently this function 
+- yarn repl prod packages/lesswrong/server/scripts/generativeModels/coverImages-2023Review.ts 'getReviewWinnerArts()' 
+
+go to /bestoflesswrongadmin to review images and choose the best one.
+
+3. Choose Top 12 ReviewWinners
+choose which new ReviewWinners should be in the top 12 for each category (probably expect to add 1). Has to be done manually in the DB.
+
+3. Create Spotlights
+- yarn repl prod packages/lesswrong/server/scripts/generativeModels/autoSpotlight.ts 'createSpotlights()' 
+- go to lesswrong.com/spotlights?drafts=true to review spotlights, pick the best one. When you submit one it'll archive the other ones and undraft it
+
+*/
 
 export const reviewWinnerCategories = new TupleSet(['rationality', 'modeling', 'optimization', 'ai strategy', 'ai safety', 'practical'] as const);
 export type ReviewWinnerCategory = UnionOf<typeof reviewWinnerCategories>;
 
 /** Review year is the year under review, not the year in which the review takes place. */
 export const REVIEW_YEAR = 2023
-export const BEST_OF_LESSWRONG_PUBLISH_YEAR: PublishedReviewYear = 2022
+export const BEST_OF_LESSWRONG_PUBLISH_YEAR: PublishedReviewYear = 2023
 
-const publishedReviewYearsArray = [2018, 2019, 2020, 2021, 2022] as const;
+const publishedReviewYearsArray = [2018, 2019, 2020, 2021, 2022, 2023] as const;
 export const publishedReviewYears = new TupleSet(publishedReviewYearsArray);
 export const reviewYears = new TupleSet([...publishedReviewYears, REVIEW_YEAR] as const);
 
@@ -118,7 +141,7 @@ export const REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD = 2
 // person thought was reasonably important, or at least 4 people thought were "maybe important?"
 export const QUICK_REVIEW_SCORE_THRESHOLD = 4
 
-export function getPositiveVoteThreshold(reviewPhase?: ReviewPhase): Number {
+export function getPositiveVoteThreshold(reviewPhase?: ReviewPhase): number {
   // During the nomination phase, posts require 1 positive reviewVote
   // to appear in review post lists (so a single vote allows others to see it
   // and get prompted to cast additional votes.
@@ -185,7 +208,7 @@ export type VoteIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 interface CostData {
   value: number | null;
   cost: number;
-  tooltip: JSX.Element | null;
+  tooltip: React.JSX.Element | null;
 }
 
 export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<number, CostData> => {

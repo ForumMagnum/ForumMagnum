@@ -1,8 +1,10 @@
 import React, { CSSProperties } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation } from "../../lib/routeUtil";
 import { hasForumEvents } from "../../lib/betas";
-import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
+import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
+import ForumEventFrontpageBanner from "./ForumEventFrontpageBanner";
+import ForumEventPostPageBanner from "./ForumEventPostPageBanner";
 
 type BannerType = "frontpage" | "postpage";
 
@@ -14,8 +16,7 @@ const bannerTypes: Record<string, BannerType> = {
 export const ForumEventBanner = () => {
   const {currentRoute} = useLocation();
   const bannerType = bannerTypes[currentRoute?.name ?? ""];
-  const {ForumEventFrontpageBanner, ForumEventPostPageBanner} = Components;
-  const {currentForumEvent} = useCurrentForumEvent();
+  const {currentForumEvent} = useCurrentAndRecentForumEvents();
   
   if (!hasForumEvents) {
     return null;
@@ -34,7 +35,7 @@ export const ForumEventBanner = () => {
     "--forum-event-banner-text": bannerTextColor
   } as CSSProperties;
 
-  const wrapWithStyles = (content: JSX.Element) => <span style={style}>{content}</span>;
+  const wrapWithStyles = (content: React.JSX.Element) => <span style={style}>{content}</span>;
 
   switch (bannerType) {
     case "frontpage":
@@ -46,13 +47,9 @@ export const ForumEventBanner = () => {
   }
 }
 
-const ForumEventBannerComponent = registerComponent(
+export default registerComponent(
   "ForumEventBanner",
   ForumEventBanner,
 );
 
-declare global {
-  interface ComponentTypes {
-    ForumEventBanner: typeof ForumEventBannerComponent
-  }
-}
+

@@ -2,9 +2,25 @@ import { RandIntCallback, randomId, seededRandInt } from "@/lib/random";
 import { getSchema } from "@/lib/schema/allSchemas";
 import isEqual from "lodash/isEqual";
 import chunk from "lodash/chunk";
+import type { GraphQLScalarType } from "graphql";
 
-export type CustomResolver<N extends CollectionNameString = CollectionNameString> =
-  NonNullable<CollectionFieldSpecification<N>["resolveAs"]>;
+export type CustomResolver<N extends CollectionNameString = CollectionNameString> = {
+  type: string | GraphQLScalarType,
+  description?: string,
+  fieldName?: string,
+  addOriginalField?: boolean,
+  arguments?: string|null,
+  resolver: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext) => any,
+  sqlResolver?: SqlResolver<N>,
+  /**
+   * `sqlPostProcess` is run on the result of the database call, in addition
+   * to the `sqlResolver`. It should return the value of this `field`, generally
+   * by performing some operation on the value returned by the `sqlResolver`.
+   * Most of the time this is an anti-pattern which should be avoided, but
+   * sometimes it's unavoidable.
+   */
+  sqlPostProcess?: SqlPostProcess<N>,
+};
 
 export type CodeResolver<N extends CollectionNameString = CollectionNameString> =
   CustomResolver<N>["resolver"];
@@ -73,9 +89,18 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
     const schema = this.getSchema();
     for (const fieldName in schema) {
       const field = schema[fieldName];
-      if (field.resolveAs) {
-        const resolverName = field.resolveAs.fieldName ?? fieldName;
-        this.resolvers[resolverName] = field.resolveAs;
+      if (field.graphql?.resolver) {
+        const { outputType, resolver, sqlResolver, sqlPostProcess, arguments: resolverArgs } = field.graphql;
+        const customResolver: CustomResolver<N> = {
+          type: outputType,
+          resolver,
+          sqlResolver,
+          sqlPostProcess,
+          arguments: resolverArgs,
+          fieldName,
+        };
+
+        this.resolvers[fieldName] = customResolver;
       }
     }
   }

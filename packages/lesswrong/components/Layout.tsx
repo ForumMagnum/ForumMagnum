@@ -1,5 +1,5 @@
 import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
-import { Components, registerComponent } from '../lib/vulcan-lib/components';
+import { registerComponent } from '../lib/vulcan-lib/components';
 import { useUpdate } from '../lib/crud/withUpdate';
 import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';
@@ -20,14 +20,14 @@ import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
 // import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
-import { HEADER_HEIGHT } from './common/Header';
+import Header, { HEADER_HEIGHT } from './common/Header';
 import { useCookiePreferences } from './hooks/useCookiesWithConsent';
 import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
 import { isFriendlyUI } from '../themes/forumTheme';
 import { requireCssVar } from '../themes/cssVars';
 import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
-import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
+import { CurrentAndRecentForumEventsProvider } from './hooks/useCurrentForumEvent';
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 export const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
 
@@ -35,6 +35,34 @@ import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 import DeferRender from './common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
 import { AutosaveEditorStateContext } from './editor/EditorFormComponent';
+
+import GlobalButtonBurst, { buttonBurstSetting } from './ea-forum/GlobalButtonBurst';
+import NavigationStandalone from "./common/TabNavigationMenu/NavigationStandalone";
+import ErrorBoundary from "./common/ErrorBoundary";
+import Footer from "./common/Footer";
+import FlashMessages from "./common/FlashMessages";
+import AnalyticsClient from "./common/AnalyticsClient";
+import AnalyticsPageInitializer from "./common/AnalyticsPageInitializer";
+import NavigationEventSender from "./hooks/useOnNavigate";
+import EAOnboardingFlow from "./ea-forum/onboarding/EAOnboardingFlow";
+import BasicOnboardingFlow from "./onboarding/BasicOnboardingFlow";
+import { CommentOnSelectionPageWrapper } from "./comments/CommentOnSelection";
+import SidebarsWrapper from "./common/SidebarsWrapper";
+import HomepageCommunityMap from "./seasonal/HomepageMap/HomepageCommunityMap";
+import AdminToggle from "./admin/AdminToggle";
+import SunshineSidebar from "./sunshineDashboard/SunshineSidebar";
+import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
+import CloudinaryImage2 from "./common/CloudinaryImage2";
+import ForumEventBanner from "./forumEvents/ForumEventBanner";
+import GlobalHotkeys from "./common/GlobalHotkeys";
+import LanguageModelLauncherButton from "./languageModels/LanguageModelLauncherButton";
+import LlmChatWrapper from "./languageModels/LlmChatWrapper";
+import TabNavigationMenuFooter from "./common/TabNavigationMenu/TabNavigationMenuFooter";
+import ReviewVotingCanvas from "./review/ReviewVotingCanvas";
+import LWBackgroundImage from "./LWBackgroundImage";
+import IntercomWrapper from "./common/IntercomWrapper";
+import CookieBanner from "./common/CookieBanner/CookieBanner";
+import { defineStyles, useStyles } from './hooks/useStyles';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -46,7 +74,7 @@ const STICKY_SECTION_TOP_MARGIN = 20;
  */
 const allowedIncompletePaths: string[] = ["termsOfUse"];
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("Layout", (theme: ThemeType) => ({
   main: {
     paddingTop: theme.spacing.mainLayoutPaddingTop,
     paddingBottom: 15,
@@ -204,34 +232,39 @@ const styles = (theme: ThemeType) => ({
   stickyWrapperHeaderVisible: {
     transform: `translateY(${HEADER_HEIGHT + STICKY_SECTION_TOP_MARGIN}px)`,
   },
-});
+}));
 
 const wrappedBackgroundColor = requireCssVar("palette", "wrapped", "background")
 
-const StickyWrapper: FC<{
-  eaHomeLayout: boolean,
-  headerVisible: boolean,
-  headerAtTop: boolean,
+const StickyWrapper = ({children}: {
   children: ReactNode,
-  classes: ClassesType<typeof styles>,
-}> = ({eaHomeLayout, headerVisible, headerAtTop, children, classes}) =>
-  eaHomeLayout
-    ? (
-      <StickyBox offsetTop={0} offsetBottom={20}>
-        <div className={classNames(classes.stickyWrapper, {
-          [classes.stickyWrapperHeaderVisible]: headerVisible && !headerAtTop,
-        })}>
-          {children}
-        </div>
-      </StickyBox>
-    )
-    : <>{children}</>;
+}) => {
+  const classes = useStyles(styles);
+  const {headerVisible, headerAtTop} = useHeaderVisible();
 
-const Layout = ({currentUser, children, classes}: {
+  return <StickyBox offsetTop={0} offsetBottom={20}>
+    <div className={classNames(classes.stickyWrapper, {
+      [classes.stickyWrapperHeaderVisible]: headerVisible && !headerAtTop,
+    })}>
+      {children}
+    </div>
+  </StickyBox>
+}
+
+const MaybeStickyWrapper: FC<{
+  sticky: boolean,
+  children: ReactNode,
+}> = ({sticky, children}) => {
+  return sticky
+    ? <StickyWrapper>{children}</StickyWrapper>
+    : <>{children}</>;
+}
+
+const Layout = ({currentUser, children}: {
   currentUser: UsersCurrent|null,
   children?: React.ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false); 
   const [autosaveEditorState, setAutosaveEditorState] = useState<(() => Promise<void>) | null>(null);
@@ -240,7 +273,6 @@ const Layout = ({currentUser, children, classes}: {
   const theme = useTheme();
   const {currentRoute, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
-  const {headerVisible, headerAtTop} = useHeaderVisible();
 
   // enable during ACX Everywhere
   // const [cookies] = useCookiesWithConsent()
@@ -314,33 +346,6 @@ const Layout = ({currentUser, children, classes}: {
   }
 
   const render = () => {
-    const {
-      NavigationStandalone,
-      ErrorBoundary,
-      Footer,
-      Header,
-      FlashMessages,
-      AnalyticsClient,
-      AnalyticsPageInitializer,
-      NavigationEventSender,
-      EAOnboardingFlow,
-      BasicOnboardingFlow,
-      CommentOnSelectionPageWrapper,
-      SidebarsWrapper,
-      HomepageCommunityMap,
-      AdminToggle,
-      SunshineSidebar,
-      EAHomeRightHandSide,
-      CloudinaryImage2,
-      ForumEventBanner,
-      GlobalHotkeys,
-      LanguageModelLauncherButton,
-      LlmChatWrapper,
-      TabNavigationMenuFooter,
-      ReviewVotingCanvas,
-      LWBackgroundImage
-    } = Components;
-
     const baseLayoutOptions: LayoutOptions = {
       // Check whether the current route is one which should have standalone
       // navigation on the side. If there is no current route (ie, a 404 page),
@@ -379,11 +384,12 @@ const Layout = ({currentUser, children, classes}: {
       <LlmChatWrapper>
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
-      <CurrentForumEventProvider>
+      <CurrentAndRecentForumEventsProvider>
         <div className={classNames(
           "wrapper",
           {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
         )} id="wrapper">
+          {buttonBurstSetting.get() && <GlobalButtonBurst />}
           <DialogManager>
             <CommentBoxManager>
               <Helmet>
@@ -429,12 +435,7 @@ const Layout = ({currentUser, children, classes}: {
               )}>
                 {isFriendlyUI && !isWrapped && <AdminToggle />}
                 {standaloneNavigation &&
-                  <StickyWrapper
-                    eaHomeLayout={friendlyHomeLayout}
-                    headerVisible={headerVisible}
-                    headerAtTop={headerAtTop}
-                    classes={classes}
-                  >
+                  <MaybeStickyWrapper sticky={friendlyHomeLayout}>
                     <DeferRender ssr={true} clientTiming='mobile-aware'>
                       <NavigationStandalone
                         sidebarHidden={hideNavigationSidebar}
@@ -442,9 +443,9 @@ const Layout = ({currentUser, children, classes}: {
                         noTopMargin={friendlyHomeLayout}
                       />
                     </DeferRender>
-                  </StickyWrapper>
+                  </MaybeStickyWrapper>
                 }
-                {isLWorAF && navigationFooterBar && <TabNavigationMenuFooter />}
+                {/* {isLWorAF && navigationFooterBar && <TabNavigationMenuFooter />} */}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: useWhiteBackground,
@@ -464,16 +465,11 @@ const Layout = ({currentUser, children, classes}: {
                 {isLW && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
                 {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
-                  <StickyWrapper
-                    eaHomeLayout={friendlyHomeLayout}
-                    headerVisible={headerVisible}
-                    headerAtTop={headerAtTop}
-                    classes={classes}
-                  >
+                  <MaybeStickyWrapper sticky={friendlyHomeLayout}>
                     <DeferRender ssr={true} clientTiming='mobile-aware'>
                       <EAHomeRightHandSide />
                     </DeferRender>
-                  </StickyWrapper>
+                  </MaybeStickyWrapper>
                 }
                 {renderSunshineSidebar && <div className={classes.sunshine}>
                   <DeferRender ssr={false}>
@@ -489,7 +485,7 @@ const Layout = ({currentUser, children, classes}: {
             </CommentBoxManager>
           </DialogManager>
         </div>
-      </CurrentForumEventProvider>
+      </CurrentAndRecentForumEventsProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>
       </LlmChatWrapper>
@@ -507,7 +503,6 @@ const Layout = ({currentUser, children, classes}: {
 }
 
 function MaybeCookieBanner({isWrapped}: {isWrapped: boolean}) {
-  const { IntercomWrapper, CookieBanner } = Components;
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
   const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
 
@@ -520,10 +515,6 @@ function MaybeCookieBanner({isWrapped}: {isWrapped: boolean}) {
   return isWrapped ? null : <IntercomWrapper />
 }
 
-const LayoutComponent = registerComponent('Layout', Layout, {styles});
+export default registerComponent('Layout', Layout);
 
-declare global {
-  interface ComponentTypes {
-    Layout: typeof LayoutComponent
-  }
-}
+

@@ -1,25 +1,25 @@
-import { Comments } from '../server/collections/comments/collection';
 import { questionAnswersSortings } from '../lib/collections/comments/views';
-import { Revisions } from '../server/collections/revisions/collection';
 import { isAF } from '../lib/instanceSettings';
 import { updateDenormalizedHtmlAttributions, UpdateDenormalizedHtmlAttributionsOptions } from './tagging/updateDenormalizedHtmlAttributions';
 import { annotateAuthors } from './attributeEdits';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import { extractTableOfContents, getTocAnswers, getTocComments, shouldShowTableOfContents, ToCData } from '../lib/tableOfContents';
-import { defineQuery } from './utils/serverGraphqlUtil';
 import { parseDocumentFromString } from '../lib/domParser';
-import { FetchedFragment } from './fetchFragment';
+import type { FetchedFragment } from './fetchFragment';
 import { getLatestContentsRevision } from './collections/revisions/helpers';
 import { applyCustomArbitalScripts } from './utils/arbital/arbitalCustomScripts';
-import { getEditableFieldNamesForCollection } from '@/lib/editor/make_editable';
+import { getEditableFieldNamesForCollection } from '@/lib/editor/editableSchemaFieldHelpers';
 import { getCollectionAccessFilter } from './permissions/accessFilters';
 
-async function getTocAnswersServer (document: DbPost) {
+async function getTocAnswersServer(document: DbPost, context: ResolverContext) {
+  const { Comments } = context;
+
   if (!document.question) return []
 
   let answersTerms: MongoSelector<DbComment> = {
     answer:true,
     postId: document._id,
+    draft: false,
     deleted:false,
   }
   if (isAF) {
@@ -29,10 +29,13 @@ async function getTocAnswersServer (document: DbPost) {
   return getTocAnswers({post: document, answers})
 }
 
-async function getTocCommentsServer (document: DbPost) {
+async function getTocCommentsServer(document: DbPost, context: ResolverContext) {
+  const { Comments } = context;
+
   const commentSelector: any = {
     ...getDefaultViewSelector("Comments"),
     answer: false,
+    draft: false,
     parentAnswerId: null,
     postId: document._id
   }
@@ -53,6 +56,8 @@ async function getHtmlWithContributorAnnotations({
   version: string | null,
   context: ResolverContext,
 }) {
+  const { Revisions } = context;
+
   if (!getEditableFieldNamesForCollection(collectionName).includes(fieldName)) {
     // eslint-disable-next-line no-console
     console.log(`Author annotation failed: Field ${fieldName} not in editableCollectionsFields[${collectionName}]`);
@@ -61,7 +66,7 @@ async function getHtmlWithContributorAnnotations({
 
   if (version) {
     try {
-      const html = await annotateAuthors(document._id, collectionName, fieldName, version);
+      const html = await annotateAuthors(document._id, collectionName, fieldName, context, version);
       return html;
     } catch (e) {
       // eslint-disable-next-line no-console
@@ -81,8 +86,8 @@ async function getHtmlWithContributorAnnotations({
         return document.htmlWithContributorAnnotations;
       } else {
         const updateOptions: UpdateDenormalizedHtmlAttributionsOptions = collectionName === 'Tags'
-          ? {document, collectionName: 'Tags', fieldName: 'description'}
-          : {document, collectionName: 'MultiDocuments', fieldName: 'contents'};
+          ? {document, collectionName: 'Tags', fieldName: 'description', context}
+          : {document, collectionName: 'MultiDocuments', fieldName: 'contents', context};
         const html = await updateDenormalizedHtmlAttributions(updateOptions);
         return html;
       }
@@ -102,6 +107,8 @@ export const getToCforPost = async ({document, version, context}: {
   version: string|null,
   context: ResolverContext,
 }): Promise<ToCData|null> => {
+  const { Revisions } = context;
+
   let html: string;
   if (version) {
     const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "contents"})
@@ -121,8 +128,8 @@ export const getToCforPost = async ({document, version, context}: {
   let tocSections = tableOfContents?.sections || []
   
   if (shouldShowTableOfContents({ sections: tocSections, post: document })) {
-    const tocAnswers = await getTocAnswersServer(document)
-    const tocComments = await getTocCommentsServer(document)
+    const tocAnswers = await getTocAnswersServer(document, context)
+    const tocComments = await getTocCommentsServer(document, context)
     tocSections.push(...tocAnswers)
     tocSections.push(...tocComments)
   
@@ -187,17 +194,3 @@ export const getToCforMultiDocument = async ({document, version, context}: {
     sections: tocSections,
   }
 }
-
-/** @deprecated Use extractTableOfContents directly on the client instead. TODO delete after 2024-04-14 */
-defineQuery({
-  name: "generateTableOfContents",
-  resultType: "JSON",
-  argTypes: "(html: String!)",
-  fn: (root: void, {html}: {html: string}, context: ResolverContext) => {
-    if (html) {
-      return extractTableOfContents(parseDocumentFromString(html))
-    } else {
-      return {html: null, sections: []}
-    }
-  }
-})

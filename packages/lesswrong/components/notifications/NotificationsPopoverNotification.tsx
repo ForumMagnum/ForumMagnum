@@ -1,5 +1,5 @@
 import React, { MouseEvent, useCallback } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { getDisplayConfig } from "./NotificationsPage/NotificationsPageNotification";
 import { useClickableCell } from "../common/useClickableCell";
 import { useTracking } from "@/lib/analyticsEvents";
@@ -9,13 +9,17 @@ import classNames from "classnames";
 import moment from "moment";
 import { useNotificationsPopoverContext } from "./useNotificationsPopoverContext";
 import { useUpdate } from "@/lib/crud/withUpdate";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import NotificationsPageItem from "./NotificationsPage/NotificationsPageItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
+    display: "block",
     padding: "6px 8px",
     borderRadius: theme.borderRadius.default,
     "&:hover": {
+      opacity: 1,
       background: theme.palette.grey[140],
     },
   },
@@ -98,14 +102,15 @@ const NotificationsPopoverNotification = ({notification, refetch, classes}: {
 
   const currentUser = useCurrentUser();
   const {captureEvent} = useTracking();
-  const {onClick: redirect} = useClickableCell({href: notification.link ?? "#"});
+  const href = notification.link ?? "#";
+  const {onClick: redirect} = useClickableCell<HTMLAnchorElement>({href});
   const {closeNotifications} = useNotificationsPopoverContext();
   const {mutate: updateNotification} = useUpdate({
     collectionName: "Notifications",
     fragmentName: "NotificationsList",
   });
 
-  const onSelect = useCallback((ev: MouseEvent<HTMLDivElement>) => {
+  const onSelect = useCallback((ev: MouseEvent<HTMLAnchorElement>) => {
     closeNotifications();
     void updateNotification({
       selector: {_id},
@@ -131,7 +136,6 @@ const NotificationsPopoverNotification = ({notification, refetch, classes}: {
   }
 
   const {Icon, iconVariant} = getDisplayConfig(notification);
-  const {PostsTooltip, NotificationsPageItem} = Components;
   return (
     <PostsTooltip
       postId={post?._id ?? comment?.post?._id}
@@ -139,7 +143,7 @@ const NotificationsPopoverNotification = ({notification, refetch, classes}: {
       placement="left-start"
       clickable
     >
-      <div onClick={onSelect} className={classes.root}>
+      <a href={href} onClick={onSelect} className={classes.root}>
         <NotificationsPageItem
           Icon={Icon}
           iconVariant={iconVariant}
@@ -166,19 +170,15 @@ const NotificationsPopoverNotification = ({notification, refetch, classes}: {
             </div>
           </div>
         </NotificationsPageItem>
-      </div>
+      </a>
     </PostsTooltip>
   );
 }
 
-const NotificationsPopoverNotificationComponent = registerComponent(
+export default registerComponent(
   "NotificationsPopoverNotification",
   NotificationsPopoverNotification,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    NotificationsPopoverNotification: typeof NotificationsPopoverNotificationComponent
-  }
-}
+

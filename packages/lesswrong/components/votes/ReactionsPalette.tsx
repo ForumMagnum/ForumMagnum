@@ -1,5 +1,5 @@
 import React, {useRef, useState} from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { EmojiReactName, QuoteLocator, UserVoteOnSingleReaction, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
 import { namesAttachedReactions, NamesAttachedReactionType } from '../../lib/voting/reactions';
 import classNames from 'classnames';
@@ -9,9 +9,15 @@ import { useCurrentUser } from '../common/withUser';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useTracking } from "../../lib/analyticsEvents";
 import debounce from "lodash/debounce";
-import { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper/Popper';
+import type { Placement as PopperPlacementType } from "popper.js"
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import ReactionIcon from "./ReactionIcon";
+import LWTooltip from "../common/LWTooltip";
+import Row from "../common/Row";
+import ReactionDescription from "./lwReactions/ReactionDescription";
+import MetaInfo from "../common/MetaInfo";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReactionsPalette', (theme: ThemeType) => ({
   moreReactions: {
     paddingLeft: 12,
     paddingRight: 12,
@@ -69,7 +75,7 @@ const styles = (theme: ThemeType) => ({
     width: 350,
     maxHeight: 305,
     overflowY: "scroll",
-    marginTop: 12
+    marginTop: 12,
   },
   tooltipIcon: {
     marginRight: 12,
@@ -140,17 +146,16 @@ const styles = (theme: ThemeType) => ({
     marginTop: "1em",
     marginBottom: "1em",
   }
-})
+}));
 
 type paletteView = "listView"|"gridView";
 
-const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, classes}: {
+const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
   getCurrentUserReactionVote: (name: EmojiReactName, quote: QuoteLocator|null) => VoteOnReactionType|null,
   toggleReaction: (reactionName: string, quote: QuoteLocator|null) => void,
   quote: QuoteLocator|null,
-  classes: ClassesType<typeof styles>,
 }) => {
-  const { ReactionIcon, LWTooltip, Row, ReactionDescription, MetaInfo } = Components;
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const reactPaletteStyle = currentUser?.reactPaletteStyle ?? "listView";
@@ -354,7 +359,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
   </div>
 }
 
-function reactionsSearch(candidates: NamesAttachedReactionType[], searchText: string): NamesAttachedReactionType[] {
+export function reactionsSearch(candidates: NamesAttachedReactionType[], searchText: string): NamesAttachedReactionType[] {
   if (!searchText || !searchText.length)
     return candidates;
   
@@ -367,11 +372,9 @@ function reactionsSearch(candidates: NamesAttachedReactionType[], searchText: st
   );
 }
 
-const ReactionsPaletteComponent = registerComponent('ReactionsPalette', ReactionsPalette, {styles});
+export default registerComponent('ReactionsPalette', ReactionsPalette);
 
-declare global {
-  interface ComponentTypes {
-    ReactionsPalette: typeof ReactionsPaletteComponent
-  }
-}
+
+
+
 

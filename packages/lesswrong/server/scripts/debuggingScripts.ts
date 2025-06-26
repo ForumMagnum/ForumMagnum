@@ -9,8 +9,8 @@ import {
 import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations';
 import moment from 'moment';
 import * as _ from 'underscore';
-import { createMutator } from '../vulcan-lib/mutators';
-import Subscriptions from '../collections/subscriptions/collection';
+import { createSubscription } from '../collections/subscriptions/mutations';
+import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 
 
 /**
@@ -23,23 +23,14 @@ import Subscriptions from '../collections/subscriptions/collection';
  */
 export const performSubscriptionAction = async (action: "subscribe"|"unsubscribe", collection: CollectionBase<any>, itemId: string, user: DbUser) => {
   const collectionName = collection.collectionName
-  const newSubscription: Partial<DbSubscription> = {
+  const newSubscription = {
     state: action === "subscribe" ? 'subscribed' : 'suppressed',
     documentId: itemId,
     collectionName,
     type: (defaultSubscriptionTypeTable as any)[collectionName]
-  }
-  await createMutator({
-    collection: Subscriptions,
-    document: newSubscription,
-    validate: true,
-    currentUser: user,
-    // HACK: Make a shitty pretend context
-    context: {
-      currentUser: user,
-      Users: Users,
-    } as any,
-  })
+  } as const;
+
+  await createSubscription({ data: newSubscription }, await computeContextFromUser({ user, isSSR: false }));
 };
 
 export const populateNotifications = async ({username, messageNotifications = 3, postNotifications = 3, commentNotifications = 3, replyNotifications = 3}: {
@@ -57,7 +48,7 @@ export const populateNotifications = async ({username, messageNotifications = 3,
     //eslint-disable-next-line no-console
     console.log("generating new messages...")
     const conversation = await createDummyConversation(randomUser, {participantIds: [randomUser._id, user._id]});
-    _.times(messageNotifications, () => createDummyMessage(randomUser, {conversationId: conversation._id}))
+    await Promise.all(_.times(messageNotifications, () => createDummyMessage(randomUser, {conversationId: conversation._id})))
   }
   if (postNotifications > 0) {
     //eslint-disable-next-line no-console
@@ -68,7 +59,7 @@ export const populateNotifications = async ({username, messageNotifications = 3,
       //eslint-disable-next-line no-console
       console.log("User already subscribed, continuing");
     }
-    _.times(postNotifications, () => createDummyPost(randomUser))
+    await Promise.all(_.times(postNotifications, () => createDummyPost(randomUser)))
   }
   if (commentNotifications > 0) {
     const post = await Posts.findOneArbitrary(); // Grab random post
@@ -82,7 +73,7 @@ export const populateNotifications = async ({username, messageNotifications = 3,
       //eslint-disable-next-line no-console
       console.log("User already subscribed, continuing");
     }
-    _.times(commentNotifications, () => createDummyComment(randomUser, {postId: post?._id}));
+    await Promise.all(_.times(commentNotifications, () => createDummyComment(randomUser, {postId: post?._id})));
 
   }
   if (replyNotifications > 0) {
@@ -96,7 +87,7 @@ export const populateNotifications = async ({username, messageNotifications = 3,
       console.log("User already subscribed, continuing");
     }
     const comment: any = await createDummyComment(user, {postId: post?._id});
-    _.times(replyNotifications, () => createDummyComment(randomUser, {postId: post?._id, parentCommentId: comment._id}));
+    await Promise.all(_.times(replyNotifications, () => createDummyComment(randomUser, {postId: post?._id, parentCommentId: comment._id})));
   }
 }
 

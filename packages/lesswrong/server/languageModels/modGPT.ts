@@ -2,7 +2,6 @@ import { getOpenAI } from './languageModelIntegration';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import sanitizeHtml from 'sanitize-html';
 import { sanitizeAllowedTags } from '../../lib/vulcan-lib/utils';
-import { updateMutator } from '../vulcan-lib/mutators';
 import Comments from '../../server/collections/comments/collection';
 import { dataToHTML } from '../editor/conversionUtils';
 import OpenAI from 'openai';
@@ -10,7 +9,7 @@ import { captureEvent } from '../../lib/analyticsEvents';
 import difference from 'lodash/difference';
 import { truncatise } from '../../lib/truncatise';
 import { FetchedFragment } from '../fetchFragment';
-
+import { updateComment } from '../collections/comments/mutations';
 
 export const modGPTPrompt = `
   You are an advisor to the moderation team for the EA Forum. Your job is to make recommendations to the moderation team about whether they should intervene and moderate a comment.
@@ -94,7 +93,7 @@ export const sanitizeHtmlOptions = {
 /**
  * Ask GPT-4 to help moderate the given comment. It will respond with a "recommendation", as per the prompt above.
  */
-export async function checkModGPT(comment: DbComment, post: FetchedFragment<'PostsOriginalContents'>): Promise<void> {
+export async function checkModGPT(comment: DbComment, post: FetchedFragment<'PostsOriginalContents'>, context: ResolverContext): Promise<void> {
   const api = await getOpenAI();
   if (!api) {
     if (!isAnyTest) {
@@ -112,8 +111,8 @@ export async function checkModGPT(comment: DbComment, post: FetchedFragment<'Pos
     return
   }
 
-  const commentHtml = await dataToHTML(comment.contents.originalContents.data, comment.contents.originalContents.type, {sanitize: false})
-  const postHtml = await dataToHTML(post.contents.originalContents.data, post.contents.originalContents.type, {sanitize: false})
+  const commentHtml = await dataToHTML(comment.contents.originalContents.data, comment.contents.originalContents.type, context, {sanitize: false})
+  const postHtml = await dataToHTML(post.contents.originalContents.data, post.contents.originalContents.type, context, {sanitize: false})
   const commentText = sanitizeHtml(commentHtml ?? "", sanitizeHtmlOptions)
   const postText = sanitizeHtml(postHtml ?? "", sanitizeHtmlOptions)
   const postExcerpt = truncatise(postText, {TruncateBy: 'characters', TruncateLength: 300, Strict: true, Suffix: ''})
@@ -130,6 +129,7 @@ export async function checkModGPT(comment: DbComment, post: FetchedFragment<'Pos
       const parentCommentHtml = await dataToHTML(
         parentComment.contents.originalContents.data,
         parentComment.contents.originalContents.type,
+        context,
         {sanitize: false}
       )
       const parentCommentText = sanitizeHtml(parentCommentHtml ?? "", sanitizeHtmlOptions)
@@ -151,15 +151,13 @@ export async function checkModGPT(comment: DbComment, post: FetchedFragment<'Pos
     
     const matches = topResult.match(/^Recommendation: (.+)/)
     const rec = (matches?.length && matches.length > 1) ? matches[1] : undefined
-    await updateMutator({
-      collection: Comments,
-      documentId: comment._id,
-      set: {
+    await updateComment({
+      data: {
         modGPTAnalysis: topResult,
         modGPTRecommendation: rec
       },
-      validate: false,
-    })
+      selector: { _id: comment._id }
+    }, context)
     captureEvent("modGPTResponse", {
       ...analyticsData,
       comment: commentText,
@@ -233,15 +231,7 @@ export async function checkModGPT(comment: DbComment, post: FetchedFragment<'Pos
         error: error.message
       })
       // If we can't reach ModGPT, then make sure to clear out any previous ModGPT-related data on the comment.
-      await updateMutator({
-        collection: Comments,
-        documentId: comment._id,
-        unset: {
-          modGPTAnalysis: 1,
-          modGPTRecommendation: 1
-        },
-        validate: false,
-      })
+      await updateComment({ data: { modGPTAnalysis: null, modGPTRecommendation: null }, selector: { _id: comment._id } }, context)
     } else {
       //eslint-disable-next-line no-console
       console.error(error)

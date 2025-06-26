@@ -1,9 +1,9 @@
 import _ from 'underscore';
-import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema } from '../../lib/vulcan-lib/graphql';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
-import { getDefaultViewSelector, mergeSelectors, replaceSpecialFieldSelectors } from '../../lib/utils/viewUtils';
+import { getDefaultViewSelector, mergeSelectors, mergeWithDefaultViewSelector, replaceSpecialFieldSelectors } from '../../lib/utils/viewUtils';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { FieldChanges } from '@/server/collections/fieldChanges/collection';
+import gql from 'graphql-tag';
 
 type FeedSubquery<ResultType extends {}, SortKeyType> = {
   type: string,
@@ -29,6 +29,7 @@ type ViewBasedSubqueryProps<
   collection: CollectionBase<N>,
   context: ResolverContext,
   selector: MongoSelector<ObjectsByCollectionName[N]>,
+  includeDefaultSelector: boolean,
   sticky?: boolean,
 } & SubquerySortField<ObjectsByCollectionName[N], SortFieldName>;
 
@@ -37,13 +38,15 @@ export function viewBasedSubquery<
   SortKeyType,
   SortFieldName extends keyof ObjectsByCollectionName[N]
 >(props: ViewBasedSubqueryProps<N, SortFieldName>): FeedSubquery<ObjectsByCollectionName[N], SortKeyType> {
-  props.sortDirection ??= "desc";
-  const {type, collection, context, selector, sticky, sortField, sortDirection} = props;
+  const {type, collection, context, selector, includeDefaultSelector, sticky, sortField, sortDirection="desc"} = props;
   return {
     type,
     getSortKey: (item: ObjectsByCollectionName[N]) => item[props.sortField] as unknown as SortKeyType,
     isNumericallyPositioned: !!sticky,
     doQuery: async (limit: number, cutoff: SortKeyType): Promise<Partial<ObjectsByCollectionName[N]>[]> => {
+      const selectorWithDefaults = includeDefaultSelector
+        ? mergeWithDefaultViewSelector(collection.collectionName, selector)
+        : selector;
       const results = await queryWithCutoff({context, collection, selector, limit, cutoffField: sortField, cutoff, sortDirection});
       return await accessFilterMultiple(context.currentUser, collection.collectionName, results, context);
     }
@@ -101,56 +104,6 @@ export function fixedIndexSubquery<ResultType extends DbObject>({type, index, re
     isNumericallyPositioned: true,
     doQuery: async () => [result],
   };
-}
-
-export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffTypeGraphQL, resultTypesGraphQL}: {
-  name: string,
-  resolver: ({limit, cutoff, args, context}: {
-    limit?: number,
-    cutoff?: CutoffType|null,
-    offset?: number,
-    args: any, context: ResolverContext
-  }) => Promise<{
-    cutoff: CutoffType|null,
-    results: Array<any>
-  }>,
-  args: string,
-  cutoffTypeGraphQL: string,
-  resultTypesGraphQL: string,
-}) {
-  addGraphQLSchema(`
-    type ${name}QueryResults {
-      cutoff: ${cutoffTypeGraphQL}
-      endOffset: Int!
-      results: [${name}EntryType!]
-    }
-    type ${name}EntryType {
-      type: String!
-      ${resultTypesGraphQL}
-    }
-  `);
-  addGraphQLQuery(`${name}(
-    limit: Int,
-    cutoff: ${cutoffTypeGraphQL},
-    offset: Int
-    ${(args && args.length>0) ? ", " : ""}${args}
-  ): ${name}QueryResults!`);
-  
-  addGraphQLResolvers({
-    Query: {
-      [name]: async (_root: void, args: any, context: ResolverContext) => {
-        const {limit, cutoff, offset, ...rest} = args;
-        return {
-          __typename: `${name}QueryResults`,
-          ...await resolver({
-            limit, cutoff, offset,
-            args: rest,
-            context
-          })
-        };
-      }
-    },
-  });
 }
 
 const applyCutoff = <T extends Sortable<SortKeyType>, SortKeyType extends number | Date>(

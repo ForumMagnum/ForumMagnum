@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { CommentTreeNode } from '../../lib/utils/unflatten';
 import { useScrollHighlight } from '../hooks/useScrollHighlight';
 import isEmpty from 'lodash/isEmpty';
@@ -9,10 +9,13 @@ import classNames from 'classnames';
 import { forumTypeSetting } from '@/lib/instanceSettings';
 import { commentIdToLandmark, getCurrentSectionMark, getLandmarkY } from '@/lib/scrollUtils';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-
+import TableOfContentsDivider from "../posts/TableOfContents/TableOfContentsDivider";
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import TableOfContentsRow from "../posts/TableOfContents/TableOfContentsRow";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 const COMMENTS_TITLE_CLASS_NAME = 'CommentsTableOfContentsTitle';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommentsTableOfContents", (theme: ThemeType) => ({
   root: {
     color: theme.palette.text.dim,
     //Override bottom border of title row for FixedToC but not in other uses of TableOfContentsRow
@@ -71,15 +74,15 @@ const styles = (theme: ThemeType) => ({
       opacity: 0,
     }
   }
-})
+}));
 
-const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate, classes}: {
+const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate}: {
   commentTree?: CommentTreeNode<CommentsList>[],
   answersTree?: CommentTreeNode<CommentsList>[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   highlightDate: Date|undefined,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const flattenedComments = flattenCommentTree([
     ...(answersTree ?? []),
     ...(commentTree ?? [])
@@ -88,6 +91,40 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
     flattenedComments.map(comment => commentIdToLandmark(comment._id))
   );
 
+  if (flattenedComments.length === 0) {
+    return null;
+  }
+  
+  if (!commentsTableOfContentsEnabled) {
+    return null;
+  }
+
+  return <div className={classes.root}>
+    <CommentsTableOfContentsTitle post={post}/>
+
+    {answersTree && answersTree.map(answer => <>
+      <ToCCommentBlock
+        key={answer.item._id}
+        commentTree={answer} indentLevel={1}
+        highlightedCommentId={highlightedLandmarkName}
+        highlightDate={highlightDate}
+      />
+      <TableOfContentsDivider/>
+    </>)}
+    {commentTree && commentTree.map(comment => <ToCCommentBlock
+      key={comment.item._id}
+      commentTree={comment}
+      indentLevel={1}
+      highlightDate={highlightDate}
+      highlightedCommentId={highlightedLandmarkName}
+    />)}
+  </div>
+}
+
+const CommentsTableOfContentsTitle = ({post}: {
+  post: PostsWithNavigation | PostsWithNavigationAndRevision
+}) => {
+  const classes = useStyles(styles);
   const [pageHeaderCoversTitle, setPageHeaderCoversTitle] = useState(false);
   const titleRef = useRef<HTMLAnchorElement|null>(null);
   const hideTitleContainer = pageHeaderCoversTitle;
@@ -106,56 +143,27 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
     }
   }, []);
 
-  if (flattenedComments.length === 0) {
-    return null;
-  }
-  
-  if (!commentsTableOfContentsEnabled) {
-    return null;
-  }
-
-  return <div className={classes.root}>
-    <a id="comments-table-of-contents" href="#" className={classNames(
-      classes.postTitle,
-      {[COMMENTS_TITLE_CLASS_NAME]: hideTitleContainer}
-    )}
-      onClick={ev => {
-        ev.preventDefault();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }}
-      ref={titleRef}
-    >
-      {post.title?.trim()}
-    </a>
-
-    {answersTree && answersTree.map(answer => <>
-      <ToCCommentBlock
-        key={answer.item._id}
-        commentTree={answer} indentLevel={1} classes={classes}
-        highlightedCommentId={highlightedLandmarkName}
-        highlightDate={highlightDate}
-      />
-      <Components.TableOfContentsDivider/>
-    </>)}
-    {commentTree && commentTree.map(comment => <ToCCommentBlock
-      key={comment.item._id}
-      commentTree={comment}
-      indentLevel={1}
-      highlightDate={highlightDate}
-      highlightedCommentId={highlightedLandmarkName}
-      classes={classes}
-    />)}
-  </div>
+  return <a id="comments-table-of-contents" href="#" className={classNames(
+    classes.postTitle,
+    {[COMMENTS_TITLE_CLASS_NAME]: hideTitleContainer}
+  )}
+    onClick={ev => {
+      ev.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }}
+    ref={titleRef}
+  >
+    {post.title?.trim()}
+  </a>
 }
 
-const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highlightDate, classes}: {
+const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highlightDate}: {
   commentTree: CommentTreeNode<CommentsList>,
   indentLevel: number,
   highlightedCommentId: string|null,
   highlightDate: Date|undefined,
-  classes: ClassesType<typeof styles>,
 }) => {
-  const { UsersNameDisplay, TableOfContentsRow } = Components;
+  const classes = useStyles(styles);
   const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
@@ -211,7 +219,6 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
         highlightDate={highlightDate}
         commentTree={child}
         indentLevel={indentLevel+1}
-        classes={classes}
       />
     )}
   </div>
@@ -235,11 +242,6 @@ function flattenCommentTree(commentTree: CommentTreeNode<CommentsList>[]): Comme
   return result;
 }
 
-
-const CommentsTableOfContentsComponent = registerComponent('CommentsTableOfContents', CommentsTableOfContents, { styles });
-
-declare global {
-  interface ComponentTypes {
-    CommentsTableOfContents: typeof CommentsTableOfContentsComponent
-  }
-}
+export default registerComponent('CommentsTableOfContents', CommentsTableOfContents, {
+  areEqual: "auto"
+});

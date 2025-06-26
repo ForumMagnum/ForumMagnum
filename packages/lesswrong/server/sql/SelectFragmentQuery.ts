@@ -1,6 +1,6 @@
 import SelectQuery from "./SelectQuery";
 import type { CodeResolverMap, PrefixGenerator } from "./ProjectionContext";
-import type SqlFragment from "./SqlFragment";
+import type { SqlFragment } from "./SqlFragment";
 
 /**
  * `SelectFragmentQuery` is the main external interface for running select
@@ -84,7 +84,11 @@ class SelectFragmentQuery<
   }
 
   private getCommentLine() {
-    return `-- Fragment ${this.sqlFragment.getName()}\n`;
+    if (this.sqlComment) {
+      return `-- ${this.sqlComment} (fragment ${this.sqlFragment.getName()})\n`;
+    } else {
+      return `-- Fragment ${this.sqlFragment.getName()}\n`;
+    }
   }
 
   compile() {

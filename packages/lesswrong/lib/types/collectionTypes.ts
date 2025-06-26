@@ -68,17 +68,15 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
    */
   rawUpdateOne: (
     selector?: string|MongoSelector<ObjectsByCollectionName[N]>,
-    modifier?: MongoModifier<ObjectsByCollectionName[N]>,
+    modifier?: MongoModifier,
     options?: MongoUpdateOptions<ObjectsByCollectionName[N]>,
   ) => Promise<number>;
   rawUpdateMany: (
     selector?: string|MongoSelector<ObjectsByCollectionName[N]>,
-    modifier?: MongoModifier<ObjectsByCollectionName[N]>,
+    modifier?: MongoModifier,
     options?: MongoUpdateOptions<ObjectsByCollectionName[N]>,
   ) => Promise<number>;
 
-  /** Remove without running callbacks. Consider using deleteMutator, which
-   * wraps this. */
   rawRemove: (idOrSelector: string|MongoSelector<ObjectsByCollectionName[N]>, options?: any) => Promise<any>
   /** Inserts without running callbacks. Consider using createMutator, which
    * wraps this. */
@@ -87,34 +85,10 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
   _ensureIndex: (fieldOrSpec: MongoIndexFieldOrKey<ObjectsByCollectionName[N]>, options?: MongoEnsureIndexOptions<ObjectsByCollectionName[N]>) => Promise<void>
 }
 
-interface DefaultMutationBase {
-  description: string,
-  name: string,
-  mutation: (root: void, { data }: AnyBecauseTodo, context: ResolverContext) => Promise<any>,
-}
-
-interface DefaultMutationWithCheck<T extends DbObject> extends DefaultMutationBase{
-  check: (user: DbUser | null, document: T | null, context: ResolverContext) => Promise<boolean> | boolean,
-}
-
-type DefaultMutations<T extends DbObject> = Partial<{
-  create: DefaultMutationWithCheck<T>,
-  update: DefaultMutationWithCheck<T>,
-  upsert: DefaultMutationBase,
-  delete: DefaultMutationWithCheck<T>,
-}>;
-
 type CollectionOptions<N extends CollectionNameString> = {
   typeName: string,
   collectionName: N,
   dbCollectionName?: string,
-  schema: SchemaType<N>,
-  collection?: any,
-  resolvers?: any,
-  mutations?: DefaultMutations<ObjectsByCollectionName[N]>,
-  interfaces?: string[],
-  description?: string,
-  logChanges?: boolean,
   writeAheadLogged?: boolean,
   dependencies?: SchemaDependency[],
   voteable?: CollectionVoteOptions,
@@ -189,7 +163,7 @@ type ApplyProjection<
 export type MongoSelector<T extends DbObject> = any; //TODO
 type MongoExpression<T extends DbObject> = `$${keyof T & string}` | { [k in `$${string}`]: any }
 type MongoProjection<T extends DbObject> = { [K in keyof T]?: 0 | 1 | boolean } | Record<string, MongoExpression<T>>;
-type MongoModifier<T extends DbObject|DbInsertion<DbObject>> = {$inc?: any, $min?: any, $max?: any, $mul?: any, $rename?: any, $set?: any, $setOnInsert?: any, $unset?: any, $addToSet?: any, $pop?: any, $pull?: any, $push?: any, $pullAll?: any, $bit?: any}; //TODO
+type MongoModifier = {$inc?: any, $min?: any, $max?: any, $mul?: any, $rename?: any, $set?: any, $setOnInsert?: any, $unset?: any, $addToSet?: any, $pop?: any, $pull?: any, $push?: any, $pullAll?: any, $bit?: any}; //TODO
 
 type FindFn<T extends DbObject> = <Projection extends MongoProjection<T> | undefined = undefined>(
   selector?: string | MongoSelector<T>,
@@ -257,7 +231,7 @@ type MongoIndexSpecification<T> = {
 type MongoDropIndexOptions = {};
 
 type MongoBulkInsert<T extends DbObject> = {document: T};
-type MongoBulkUpdate<T extends DbObject> = {filter: MongoSelector<T>, update: MongoModifier<T>, upsert?: boolean};
+type MongoBulkUpdate<T extends DbObject> = {filter: MongoSelector<T>, update: MongoModifier, upsert?: boolean};
 type MongoBulkDelete<T extends DbObject> = {filter: MongoSelector<T>};
 type MongoBulkReplace<T extends DbObject> = {filter: MongoSelector<T>, replacement: T, upsert?: boolean};
 type MongoBulkWriteOperation<T extends DbObject> =
@@ -296,9 +270,10 @@ interface HasUserIdType {
 
 interface VoteableType extends HasIdType {
   score: number
-  baseScore: number
+  baseScore: number | null
   extendedScore: any,
   voteCount: number
+  votingSystem?: string | null,
   af?: boolean
   afBaseScore?: number | null
   afExtendedScore?: any,
@@ -361,6 +336,7 @@ interface ResolverContext extends CollectionsByName {
   locale: string,
   isSSR: boolean,
   isGreaterWrong: boolean,
+  isIssaRiceReader: boolean,
   /**
    * This means that the request originated from the other FM instance's servers
    *
@@ -391,7 +367,7 @@ interface EditableFieldContents {
   editedAt: Date
   userId: string
   version: string
-  commitMessage?: string
+  commitMessage?: string | null
   googleDocMetadata?: AnyBecauseHard
 }
 
@@ -401,7 +377,7 @@ type EditableFieldInsertion = Pick<EditableFieldContents, "originalContents"|"co
 
 type EditableFieldUpdate = EditableFieldInsertion & {
   dataWithDiscardedSuggestions?: string,
-  updateType?: DbRevision['updateType'],
+  updateType?: DbRevision['updateType'] | null,
 };
 
 // For a DbObject, gets the field-names of all the make_editable fields.
@@ -414,66 +390,13 @@ type EditableCollectionNames = {
 type CollectionNameOfObject<T extends DbObject> = Exclude<T['__collectionName'], undefined>;
 
 type DbInsertion<T extends DbObject> = Omit<
-  ReplaceFieldsOfType<T, EditableFieldContents, EditableFieldInsertion>,
+  ReplaceFieldsOfType<T, EditableFieldContents | null, CreateRevisionDataInput>,
   "_id"
->
+> & {
+  _id?: T["_id"];
+};
 
 type SpotlightDocumentType = 'Post' | 'Sequence' | 'Tag';
-interface SpotlightFirstPost {
-  _id: string;
-  title: string;
-  url: string;
-}
-
-// Sorry for declaring these so far from their function definitions. The
-// functions are defined in /server, and import cycles, etc.
-
-type CreateMutatorParams<N extends CollectionNameString> = {
-  collection: CollectionBase<N>,
-  document: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
-  currentUser?: DbUser|null,
-  validate?: boolean,
-  context?: ResolverContext,
-};
-type CreateMutator = <N extends CollectionNameString>(args: CreateMutatorParams<N>) => Promise<{data: ObjectsByCollectionName[N]}>;
-
-type UpdateMutatorParamsBase<N extends CollectionNameString> = {
-  collection: CollectionBase<N>;
-  data?: Partial<DbInsertion<ObjectsByCollectionName[N]>>;
-  set?: Partial<DbInsertion<ObjectsByCollectionName[N]>>;
-  unset?: any;
-  currentUser?: DbUser | null;
-  validate?: boolean;
-  context?: ResolverContext;
-  document?: ObjectsByCollectionName[N] | null;
-};
-type UpdateMutatorParamsWithDocId<N extends CollectionNameString> = UpdateMutatorParamsBase<N> & {
-  documentId: string,
-  /** You should probably use documentId instead. If using selector, make sure
-   * it only returns a single row. */
-  selector?: never
-};
-type UpdateMutatorParamsWithSelector<N extends CollectionNameString> = UpdateMutatorParamsBase<N> & {
-  documentId?: never,
-  /** You should probably use documentId instead. If using selector, make sure
-   * it only returns a single row. */
-  selector: MongoSelector<ObjectsByCollectionName[N]>
-};
-type UpdateMutatorParams<N extends CollectionNameString> = UpdateMutatorParamsWithDocId<N> |
-  UpdateMutatorParamsWithSelector<N>;
-
-type UpdateMutator = <N extends CollectionNameString>(args: UpdateMutatorParams<N>) => Promise<{ data: ObjectsByCollectionName[N] }>;
-
-type DeleteMutatorParams<N extends CollectionNameString> = {
-  collection: CollectionBase<N>,
-  documentId: string,
-  selector?: MongoSelector<ObjectsByCollectionName[N]>,
-  currentUser?: DbUser|null,
-  validate?: boolean,
-  context?: ResolverContext,
-  document?: ObjectsByCollectionName[N]|null,
-};
-type DeleteMutator = <N extends CollectionNameString>(args: DeleteMutatorParams<N>) => Promise<{data: ObjectsByCollectionName[N]}>
 
 type CollectionNameWithPingbacks = {
   [K in CollectionNameString]: 'pingbacks' extends keyof ObjectsByCollectionName[K] ? K : never

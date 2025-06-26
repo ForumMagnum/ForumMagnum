@@ -1,10 +1,13 @@
 import React, { useCallback } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components.tsx';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import moment from 'moment';
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS } from '@/lib/collections/users/helpers';
 import { useDialog } from '@/components/common/withDialog';
 import { useFlashErrors } from '@/components/hooks/useFlashErrors';
+import DeleteAccountConfirmationModal from "./DeleteAccountConfirmationModal";
+import ActionButtonSection from "./ActionButtonSection";
+import FormatDate from "../../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   warningButton: {
@@ -24,7 +27,6 @@ const DeleteAccountSection = ({
   user: UsersEdit,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ActionButtonSection, FormatDate } = Components;
   const { mutate: rawUpdateUser, loading } = useUpdate({
     collectionName: "Users",
     fragmentName: 'UsersEdit',
@@ -78,10 +80,11 @@ const DeleteAccountSection = ({
       void confirmAction()
     } else {
       openDialog({
-        componentName: 'DeleteAccountConfirmationModal',
-        componentProps: {
-          confirmAction
-        }
+        name: 'DeleteAccountConfirmationModal',
+        contents: ({onClose}) => <DeleteAccountConfirmationModal
+          onClose={onClose}
+          confirmAction={confirmAction}
+        />
       })
     }
   }, [openDialog, updateUser, user._id, user.deleted, user.permanentDeletionRequestedAt]);
@@ -97,12 +100,8 @@ const DeleteAccountSection = ({
   );
 };
 
-const DeleteAccountSectionComponent = registerComponent('DeleteAccountSection', DeleteAccountSection, { styles });
+export default registerComponent('DeleteAccountSection', DeleteAccountSection, { styles });
 
-declare global {
-  interface ComponentTypes {
-    DeleteAccountSection: typeof DeleteAccountSectionComponent
-  }
-}
 
-export default DeleteAccountSectionComponent;
+
+

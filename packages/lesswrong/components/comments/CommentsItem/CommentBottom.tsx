@@ -2,31 +2,40 @@ import classNames from 'classnames';
 import React from 'react';
 import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import type { VotingProps } from '../../votes/votingProps';
 import type { CommentTreeOptions } from '../commentTree';
 import type { VotingSystem } from '../../../lib/voting/votingSystems';
-import type { ContentItemBody } from '../../common/ContentItemBody';
+import type { ContentItemBodyImperative } from '../../contents/contentBodyUtil';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import CommentBottomCaveats from "./CommentBottomCaveats";
+import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
+import { Link } from '@/lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType) => ({
   bottom: {
+    display: "flex",
+    alignItems: "center",
     paddingBottom: isFriendlyUI ? 12 : 5,
     paddingTop: isFriendlyUI ? 4 : undefined,
     minHeight: 12,
     ...(isFriendlyUI ? {} : {fontSize: 12}),
   },
   bottomWithReacts: {
-    display: "flex",
-    alignItems: "center",
     justifyContent: "space-between"
   },
   answer: {
     display: "flex",
     alignItems: "baseline",
+  },
+  editInContext: {
+    ...theme.typography.body2,
+    fontWeight: 450,
+    color: theme.palette.lwTertiary.main,
+    marginLeft: "auto"
   },
 })
 
@@ -36,14 +45,12 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   treeOptions: CommentTreeOptions,
   votingSystem: VotingSystem
   voteProps: VotingProps<VoteableTypeClient>,
-  commentBodyRef?: React.RefObject<ContentItemBody>|null,
+  commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
   replyButton: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { CommentBottomCaveats } = Components
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
-  const isMinimalist = treeOptions.formStyle === "minimalist"
   const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
 
   const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > now;
@@ -63,6 +70,7 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
     (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post ?? null, null, true)) &&
     (!commentHidden || userCanDo(currentUser, 'posts.moderate.all'))
   )
+  const showEditInContext = treeOptions.showEditInContext;
 
   return (
     <div className={classNames(
@@ -80,15 +88,17 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
         commentBodyRef={commentBodyRef}
         voteProps={voteProps}
       />}
+      {showEditInContext && <Link
+        to={commentGetPageUrlFromIds({commentId: comment._id, postId: comment.postId})}
+        target="_blank" rel="noopener noreferrer"
+        className={classes.editInContext}>
+          Edit in context
+      </Link>}
     </div>
   );
 }
 
-const CommentBottomComponent = registerComponent('CommentBottom', CommentBottom, {styles});
+export default registerComponent('CommentBottom', CommentBottom, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentBottom: typeof CommentBottomComponent
-  }
-}
+
 

@@ -8,48 +8,20 @@ import { getMultiResolverName } from './utils';
 import type { PrimitiveGraphQLType } from './types';
 import { extractFragmentInfo } from "../vulcan-lib/handleOptions";
 import { getFragment } from "../vulcan-lib/fragments";
-import { pluralize } from "../vulcan-lib/pluralize";
-import { camelCaseify } from "../vulcan-lib/utils";
 import { collectionNameToTypeName } from "../generated/collectionTypeNames";
 import { useLocation, useNavigate } from "../routeUtil";
-
-// Template of a GraphQL query for useMulti. A sample query might look
-// like:
-//
-// mutation multiMovieQuery($input: MultiMovieInput) {
-//   movies(input: $input) {
-//     results {
-//       _id
-//       name
-//       __typename
-//     }
-//     totalCount
-//     __typename
-//   }
-// }
-const multiClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
-  typeName: string,
-  fragmentName: FragmentName,
-  extraVariablesString: string,
-}) => `query multi${typeName}Query($input: Multi${typeName}Input, ${extraVariablesString || ''}) {
-  ${camelCaseify(pluralize(typeName))}(input: $input) {
-    results {
-      ...${fragmentName}
-    }
-    totalCount
-    __typename
-  }
-}`;
+import { useStabilizedCallback } from '@/components/hooks/useDebouncedCallback';
 
 interface GetGraphQLMultiQueryFromOptionsArgs {
   collectionName: CollectionNameString,
   typeName: string,
   fragmentName: FragmentName,
   fragment: any,
+  resolverName: string,
   extraVariables?: Record<string, PrimitiveGraphQLType>,
 }
 
-export function getGraphQLMultiQueryFromOptions({collectionName, typeName, fragmentName, fragment, extraVariables}: GetGraphQLMultiQueryFromOptionsArgs) {
+export function getGraphQLMultiQueryFromOptions({collectionName, typeName, fragmentName, fragment, resolverName, extraVariables}: GetGraphQLMultiQueryFromOptionsArgs) {
   ({ fragmentName, fragment } = extractFragmentInfo({ fragmentName, fragment }, collectionName));
 
   let extraVariablesString = ''
@@ -58,7 +30,15 @@ export function getGraphQLMultiQueryFromOptions({collectionName, typeName, fragm
   }
   // build graphql query from options
   return gql`
-    ${multiClientTemplate({ typeName, fragmentName, extraVariablesString })}
+    query multi${typeName}Query($input: Multi${typeName}Input, ${extraVariablesString || ''}) {
+      ${resolverName}(input: $input) {
+        results {
+          ...${fragmentName}
+        }
+        totalCount
+        __typename
+      }
+    }
     ${fragment}
   `;
 }
@@ -71,7 +51,6 @@ export interface UseMultiOptions<
   extraVariablesValues?: any,
   pollInterval?: number,
   enableTotal?: boolean,
-  enableCache?: boolean,
   extraVariables?: Record<string, PrimitiveGraphQLType>,
   fetchPolicy?: WatchQueryFetchPolicy,
   nextFetchPolicy?: WatchQueryFetchPolicy,
@@ -82,7 +61,6 @@ export interface UseMultiOptions<
   skip?: boolean,
   queryLimitName?: string,
   alwaysShowLoadMore?: boolean,
-  createIfMissing?: Partial<ObjectsByCollectionName[CollectionName]>,
   ssr?: boolean,
 }
 
@@ -134,7 +112,6 @@ export function useMulti<
   extraVariablesValues,
   pollInterval = 0, //LESSWRONG: Polling defaults disabled
   enableTotal = false, //LESSWRONG: enableTotal defaults false
-  enableCache = false,
   extraVariables,
   fetchPolicy,
   nextFetchPolicy,
@@ -145,7 +122,6 @@ export function useMulti<
   skip = false,
   queryLimitName,
   alwaysShowLoadMore = false,
-  createIfMissing,
   ssr = true,
 }: UseMultiOptions<FragmentTypeName,CollectionName>): UseMultiResult<FragmentTypeName> {
   const { query: locationQuery, location } = useLocation();
@@ -161,17 +137,16 @@ export function useMulti<
   const typeName = collectionNameToTypeName[collectionName];
   const fragment = getFragment(fragmentName);
   
-  const query = getGraphQLMultiQueryFromOptions({ collectionName, typeName, fragmentName, fragment, extraVariables });
   const resolverName = getMultiResolverName(typeName);
+  const query = getGraphQLMultiQueryFromOptions({ collectionName, typeName, fragmentName, fragment, resolverName, extraVariables });
 
   const graphQLVariables = useMemo(() => ({
     input: {
       terms: { ...terms, limit: defaultLimit },
-      resolverArgs: extraVariablesValues,
-      enableCache, enableTotal, createIfMissing
+      resolverArgs: extraVariablesValues, enableTotal
     },
     ...extraVariablesValues
-  }), [terms, defaultLimit, enableCache, enableTotal, createIfMissing, extraVariablesValues]);
+  }), [terms, defaultLimit, enableTotal, extraVariablesValues]);
 
   let effectiveLimit = limit;
   if (!_.isEqual(terms, lastTerms)) {
@@ -224,7 +199,7 @@ export function useMulti<
   // if showLoadMore returned true.
   const showLoadMore = alwaysShowLoadMore || (enableTotal ? (count < totalCount) : (count >= effectiveLimit));
   
-  const loadMore: LoadMoreCallback = async (limitOverride?: number) => {
+  const loadMore: LoadMoreCallback = useStabilizedCallback(async (limitOverride?: number) => {
     const newLimit = limitOverride || (effectiveLimit+itemsPerPage)
     if (queryLimitName) {
       const newQuery = {...locationQuery, [queryLimitName]: newLimit}
@@ -244,7 +219,7 @@ export function useMulti<
       }
     })
     setLimit(newLimit)
-  };
+  });
   
   // A bundle of props that you can pass to Components.LoadMore, to make
   // everything just work.

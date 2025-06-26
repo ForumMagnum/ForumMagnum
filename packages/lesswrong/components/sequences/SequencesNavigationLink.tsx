@@ -1,13 +1,13 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton'
-import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import NavigateBefore from '@/lib/vendor/@material-ui/icons/src/NavigateBefore'
 import NavigateNext from '@/lib/vendor/@material-ui/icons/src/NavigateNext'
 import React from 'react';
 import { useUpdateContinueReading } from './useUpdateContinueReading';
 import classnames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
+import { TooltipSpan } from '../common/FMTooltip';
 
 // Shared with SequencesNavigationLinkDisabled
 export const styles = (theme: ThemeType) => ({
@@ -51,7 +51,7 @@ const SequencesNavigationLink = ({ post, direction, classes }: {
       </Link>
     )
     if (post.title) {
-      return <Tooltip title={post.title} placement="top">{button}</Tooltip>
+      return <TooltipSpan title={post.title} placement="top">{button}</TooltipSpan>
     } else {
       return button;
     }
@@ -60,11 +60,7 @@ const SequencesNavigationLink = ({ post, direction, classes }: {
   }
 };
 
-const SequencesNavigationLinkComponent = registerComponent('SequencesNavigationLink', SequencesNavigationLink, {styles});
+export default registerComponent('SequencesNavigationLink', SequencesNavigationLink, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SequencesNavigationLink: typeof SequencesNavigationLinkComponent
-  }
-}
+
 

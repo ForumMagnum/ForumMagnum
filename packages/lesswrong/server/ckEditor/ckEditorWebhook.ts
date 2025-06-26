@@ -5,8 +5,8 @@ import { addStaticRoute } from '../vulcan-lib/staticRoutes';
 import { ckEditorApi, ckEditorApiHelpers, documentHelpers } from './ckEditorApi';
 import CkEditorUserSessions from '../../server/collections/ckEditorUserSessions/collection';
 import { ckEditorUserSessionsEnabled } from '../../lib/betas';
-import { createAdminContext } from "../vulcan-lib/query";
-import { createMutator } from "../vulcan-lib/mutators";
+import { createAdminContext } from "../vulcan-lib/createContexts";
+import { createCkEditorUserSession } from '../collections/ckEditorUserSessions/mutations';
 
 interface CkEditorUserConnectionChange {
   user: { id: string },
@@ -117,16 +117,13 @@ async function handleCkEditorWebhook(message: any) {
         const ckEditorDocumentId = userConnectedPayload?.document?.id;
         const documentId = documentHelpers.ckEditorDocumentIdToPostId(ckEditorDocumentId)
         if (!!userId && !!documentId) {
-          const adminContext = await createAdminContext()
-          await createMutator({
-            collection: CkEditorUserSessions,
-            document: {
+          const adminContext = createAdminContext();
+          await createCkEditorUserSession({
+            data: {
               userId,
               documentId,
-            },
-            context: adminContext,
-            currentUser: adminContext.currentUser,
-          })
+            }
+          }, adminContext);
         }
       }
       break

@@ -1,15 +1,19 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
-import Badge from '@/lib/vendor/@material-ui/core/src/Badge';
+import { Badge } from "@/components/widgets/Badge";
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import ForumIcon from "../common/ForumIcon";
+import LWPopper from "../common/LWPopper";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import NotificationsPopover from "./NotificationsPopover";
 
 /**
  * These same styles are also used by `MessagesMenuButton`, so changes here
@@ -113,14 +117,11 @@ const BookNotificationsMenuButton = ({
   classes,
 }: NotificationsMenuButtonProps) => {
   const {unreadNotifications} = useUnreadNotifications();
-  const {ForumIcon} = Components;
   const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
   return (
     <Badge
-      classes={{
-        root: classNames(classes.badgeContainer, className),
-        badge: classNames(classes.badge, classes.badgeBackground),
-      }}
+      className={classNames(classes.badgeContainer, className)}
+      badgeClassName={classNames(classes.badge, classes.badgeBackground)}
       badgeContent={(unreadNotifications>0) ? `${unreadNotifications}` : ""}
     >
       <IconButton
@@ -150,7 +151,7 @@ const hasKarmaChange = (
     return false;
   }
   const lastOpened = currentUser.karmaChangeLastOpened ?? new Date(0);
-  return lastOpened < endDate || updateFrequency === "realtime";
+  return lastOpened < (endDate ?? new Date(0)) || updateFrequency === "realtime";
 }
 
 const FriendlyNotificationsMenuButton = ({
@@ -194,21 +195,15 @@ const FriendlyNotificationsMenuButton = ({
     setOpen((open) => !open);
     toggle();
   }, [toggle]);
-
-  const {
-    LWPopper, LWClickAwayListener, ForumIcon, NotificationsPopover,
-  } = Components;
   return (
     <div ref={anchorEl}>
       <Badge
-        classes={{
-          root: classNames(classes.badgeContainer, className),
-          badge: classNames(classes.badge, {
-            [classes.badgeBackground]: hasBadge,
-            [classes.badge1Char]: badgeText.length === 1,
-            [classes.badge2Chars]: badgeText.length === 2,
-          })
-        }}
+        className={classNames(classes.badgeContainer, className)}
+        badgeClassName={classNames(classes.badge, {
+          [classes.badgeBackground]: hasBadge,
+          [classes.badge1Char]: badgeText.length === 1,
+          [classes.badge2Chars]: badgeText.length === 2,
+        })}
         badgeContent={
           <>
             {badgeText}
@@ -265,7 +260,7 @@ const FriendlyNotificationsMenuButton = ({
   );
 }
 
-const NotificationsMenuButtonComponent = registerComponent(
+export default registerComponent(
   "NotificationsMenuButton",
   isFriendlyUI ? FriendlyNotificationsMenuButton : BookNotificationsMenuButton,
   {
@@ -275,8 +270,4 @@ const NotificationsMenuButtonComponent = registerComponent(
   },
 );
 
-declare global {
-  interface ComponentTypes {
-    NotificationsMenuButton: typeof NotificationsMenuButtonComponent
-  }
-}
+

@@ -9,14 +9,14 @@ import Users from '../../server/collections/users/collection';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
-import { buildRevision } from '../editor/make_editable_callbacks';
+import { buildRevision } from '../editor/conversionUtils';
 import { CkEditorUser, CreateDocumentPayload, DocumentResponse, DocumentResponseSchema, UserSchema } from './ckEditorApiValidators';
 import { getCkEditorApiPrefix, getCkEditorApiSecretKey } from './ckEditorServerConfig';
 import { getPostEditorConfig } from './postEditorConfig';
-import CkEditorUserSessions from '../../server/collections/ckEditorUserSessions/collection';
 import { getLatestRev, getNextVersion, getPrecedingRev, htmlToChangeMetrics } from '../editor/utils';
-import { createAdminContext } from "../vulcan-lib/query";
-import { createMutator, updateMutator } from "../vulcan-lib/mutators";
+import { createAdminContext } from "../vulcan-lib/createContexts";
+import { createRevision } from '../collections/revisions/mutations';
+import { updateCkEditorUserSession } from '../collections/ckEditorUserSessions/mutations';
 
 // TODO: actually implement these in Zod
 interface CkEditorComment {
@@ -130,9 +130,10 @@ const documentHelpers = {
   },
   
   async saveDocumentRevision(userId: string, documentId: string, html: string) {
+    const context = createAdminContext();
     const fieldName = "contents";
     const user = await Users.findOne(userId);
-    const previousRev = await getLatestRev(documentId, fieldName);
+    const previousRev = await getLatestRev(documentId, fieldName, context);
     
     const newOriginalContents = {
       data: html,
@@ -147,6 +148,7 @@ const documentHelpers = {
         ...await buildRevision({
           originalContents: newOriginalContents,
           currentUser: user,
+          context,
         }),
         documentId,
         fieldName,
@@ -157,17 +159,15 @@ const documentHelpers = {
         commitMessage: cloudEditorAutosaveCommitMessage,
         changeMetrics: htmlToChangeMetrics(previousRev?.html || "", html),
       };
-      await createMutator({
-        collection: Revisions,
-        document: newRevision,
-        validate: false,
-      });
+      
+      await createRevision({ data: newRevision }, context);
     }
   },
 
   async saveOrUpdateDocumentRevision(postId: string, html: string) {
+    const context = createAdminContext();
     const fieldName = "contents";
-    const previousRev = await getLatestRev(postId, fieldName);
+    const previousRev = await getLatestRev(postId, fieldName, context);
     
     // Time relative to which to compute the max autosave interval, in ms since
     // epoch.
@@ -182,7 +182,7 @@ const documentHelpers = {
       && previousRev.commitMessage===cloudEditorAutosaveCommitMessage
     ) {
       // Get the revision prior to the one being replaced, for computing change metrics
-      const precedingRev = await getPrecedingRev(previousRev);
+      const precedingRev = await getPrecedingRev(previousRev, context);
       
       // eslint-disable-next-line no-console
       console.log("Updating rev "+previousRev._id);
@@ -206,14 +206,11 @@ const documentHelpers = {
 
   async endCkEditorUserSession(documentId: string, endedBy: string, endedAt: Date = new Date()) {
     const adminContext = createAdminContext();
-  
-    return updateMutator({
-      collection: CkEditorUserSessions,
-      documentId,
-      set: { endedAt, endedBy },
-      context: adminContext,
-      currentUser: adminContext.currentUser,
-    });
+
+    return updateCkEditorUserSession({
+      data: { endedAt, endedBy },
+      selector: { _id: documentId },
+    }, adminContext);
   }
 };
 

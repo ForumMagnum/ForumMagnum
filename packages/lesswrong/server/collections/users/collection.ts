@@ -1,42 +1,22 @@
-import schema from '@/lib/collections/users/schema';
-import { userOwns, userCanDo } from '@/lib/vulcan-users/permissions';
 import { createCollection } from "@/lib/vulcan-lib/collections";
-import { addGraphQLQuery, addGraphQLResolvers } from "@/lib/vulcan-lib/graphql";
-import { getDefaultMutations } from '@/server/resolvers/defaultMutations';
-import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
+import gql from 'graphql-tag';
 
 export const Users = createCollection({
   collectionName: 'Users',
   typeName: 'User',
-  schema,
-  resolvers: getDefaultResolvers('Users'),
-  mutations: getDefaultMutations('Users', {
-    editCheck: (user: DbUser|null, document: DbUser) => {
-      if (!user || !document)
-        return false;
-  
-      if (userCanDo(user, 'alignment.sidebar'))
-        return true
-  
-      // OpenCRUD backwards compatibility
-      return userOwns(user, document)
-        ? userCanDo(user, ['user.update.own', 'users.edit.own'])
-        : userCanDo(user, ['user.update.all', 'users.edit.all']);
-    },
-    // Anyone can create users
-    newCheck: () => true,
-    // Nobody can delete users
-    removeCheck: () => false
-  }),
-  logChanges: true,
   dependencies: [
     {type: "extension", name: "pg_trgm"},
   ],
 });
 
-addGraphQLResolvers({
-  Query: {
-    async currentUser(root: void, args: void, context: ResolverContext) {
+export const usersGraphQLTypeDefs = gql`
+  extend type Query {
+    currentUser: User
+  }
+`
+
+export const usersGraphQLQueries = {
+  async currentUser(root: void, args: void, context: ResolverContext) {
       let user: any = null;
       const userId: string|null = (context as any)?.userId;
       if (userId) {
@@ -49,10 +29,8 @@ addGraphQLResolvers({
         }
       }
       return user;
-    },
   },
-});
-addGraphQLQuery('currentUser: User');
+};
 
 Users.postProcess = (user: DbUser): DbUser => {
   // The `node-postgres` library is smart enough to automatically convert string
@@ -63,7 +41,9 @@ Users.postProcess = (user: DbUser): DbUser => {
   // to a Date object to avoid a GraphQL error.
   if (user.partiallyReadSequences) {
     for (const partiallyReadSequence of user.partiallyReadSequences) {
-      partiallyReadSequence.lastReadTime = new Date(partiallyReadSequence.lastReadTime);
+      if (partiallyReadSequence.lastReadTime) {
+        partiallyReadSequence.lastReadTime = new Date(partiallyReadSequence.lastReadTime);
+      }
     }
   }
   return user;

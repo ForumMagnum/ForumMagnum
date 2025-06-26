@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState, useEffect } from 'react';
 import { useUserLocation } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
@@ -14,7 +14,7 @@ import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import Geosuggest from 'react-geosuggest';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { isEAForum } from '../../lib/instanceSettings';
-import { EVENT_TYPES } from '../../lib/collections/posts/schema';
+import { EVENT_TYPES } from "@/lib/collections/posts/constants";
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import OutlinedInput from '@/lib/vendor/@material-ui/core/src/OutlinedInput';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
@@ -22,6 +22,14 @@ import ListItemText from '@/lib/vendor/@material-ui/core/src/ListItemText';
 import classNames from 'classnames';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import EventNotificationsDialog from "../localGroups/EventNotificationsDialog";
+import LoginPopup from "../users/LoginPopup";
+import HighlightedEventCard from "./modules/HighlightedEventCard";
+import EventCards from "./modules/EventCards";
+import Loading from "../vulcan-core/Loading";
+import DistanceUnitToggle from "../community/modules/DistanceUnitToggle";
+import { MenuItem } from "../common/Menus";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -294,9 +302,17 @@ const EventsHome = ({classes}: {
   }, [userLocation])
 
   const openEventNotificationsForm = () => {
-    openDialog({
-      componentName: currentUser ? "EventNotificationsDialog" : "LoginPopup",
-    });
+    if (currentUser) {
+      openDialog({
+        name: "EventNotificationsDialog",
+        contents: ({onClose}) => <EventNotificationsDialog onClose={onClose} />
+      });
+    } else {
+      openDialog({
+        name: "LoginPopup",
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
+      });
+    }
   }
   
   const handleChangeDistance = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -314,9 +330,6 @@ const EventsHome = ({classes}: {
     // when changing between miles and km, we convert the distance to the new unit
     setDistance(unit === 'mi' ? Math.round(distance * 0.621371) : Math.round(distance / 0.621371))
   }
-  
-  const { HighlightedEventCard, EventCards, Loading, DistanceUnitToggle, MenuItem, ForumIcon } = Components
-  
   // on the EA Forum, we insert some special event cards (ex. Intro VP card)
   let numSpecialCards = currentUser ? 1 : 2
   // hide them on other forums, and when certain filters are set
@@ -495,10 +508,6 @@ const EventsHome = ({classes}: {
   )
 }
 
-const EventsHomeComponent = registerComponent('EventsHome', EventsHome, {styles});
+export default registerComponent('EventsHome', EventsHome, {styles});
 
-declare global {
-  interface ComponentTypes {
-    EventsHome: typeof EventsHomeComponent
-  }
-}
+

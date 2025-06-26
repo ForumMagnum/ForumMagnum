@@ -1,5 +1,5 @@
 import React, { FC, RefObject, ReactElement, useEffect, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import qs from 'qs';
 import type { SearchState } from 'react-instantsearch/connectors';
 import { Hits, Configure, SearchBox, Pagination, connectStats, connectScrollTo } from 'react-instantsearch-dom';
@@ -22,12 +22,21 @@ import {
   getElasticIndexNameWithSorting,
   isValidElasticSorting,
 } from '../../lib/search/searchUtil';
-import Modal from '@/lib/vendor/@material-ui/core/src/Modal';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { userHasPeopleDirectory } from '../../lib/betas';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import SearchFilters from "./SearchFilters";
+import ErrorBoundary from "../common/ErrorBoundary";
+import ExpandedUsersSearchHit from "./ExpandedUsersSearchHit";
+import ExpandedPostsSearchHit from "./ExpandedPostsSearchHit";
+import ExpandedCommentsSearchHit from "./ExpandedCommentsSearchHit";
+import ExpandedTagsSearchHit from "./ExpandedTagsSearchHit";
+import ExpandedSequencesSearchHit from "./ExpandedSequencesSearchHit";
+import LWTooltip from "../common/LWTooltip";
+import ForumIcon from "../common/ForumIcon";
+import LWDialog from '../common/LWDialog';
 
 const hitsPerPage = 10
 
@@ -277,12 +286,6 @@ const SearchPageTabbed = ({classes}: {
       }),
     }, {replace: true});
   }
-
-  const {
-    ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
-    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, LWTooltip, ForumIcon
-  } = Components;
-
   // we try to keep the URL synced with the search state
   const updateUrl = (search: ExpandedSearchState, tags: Array<string>) => {
     navigate({
@@ -361,7 +364,7 @@ const SearchPageTabbed = ({classes}: {
     >
 
       <div className={classes.filtersColumnWrapper}>
-        <Components.SearchFilters
+        <SearchFilters
           tab={tab}
           tagsFilter={tagsFilter}
           handleUpdateTagsFilter={handleUpdateTagsFilter}
@@ -396,16 +399,14 @@ const SearchPageTabbed = ({classes}: {
 
         <div ref={scrollToRef} />
 
-        <Modal
+        <LWDialog
           open={modalOpen}
           onClose={() => setModalOpen(false)}
-          aria-labelledby="search-filters-modal"
-          aria-describedby="search-filters-modal"
           className={classNames(classes.filtersModal)}
           keepMounted
         >
           <div className={classes.filtersModalContent}>
-            <Components.SearchFilters
+            <SearchFilters
               tab={tab}
               tagsFilter={tagsFilter}
               handleUpdateTagsFilter={handleUpdateTagsFilter}
@@ -415,7 +416,7 @@ const SearchPageTabbed = ({classes}: {
               setModalOpen={setModalOpen}
             />
           </div>
-        </Modal>
+        </LWDialog>
 
         <Tabs
           value={tab}
@@ -454,10 +455,6 @@ const SearchPageTabbed = ({classes}: {
   </div>
 }
 
-const SearchPageTabbedComponent = registerComponent("SearchPageTabbed", SearchPageTabbed, {styles})
+export default registerComponent("SearchPageTabbed", SearchPageTabbed, {styles});
 
-declare global {
-  interface ComponentTypes {
-    SearchPageTabbed: typeof SearchPageTabbedComponent
-  }
-}
+

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { siteImageSetting } from "../vulcan-core/App";
+import { siteImageSetting } from '@/lib/publicSettings';
 import { htmlToText } from "html-to-text";
 import { truncate } from "../../lib/editor/ellipsize";
 import { getPostDescription } from "../posts/PostsPage/PostsPage";
@@ -15,13 +15,15 @@ import markdownItSup from "markdown-it-sup";
 import { randomId } from "../../lib/random";
 import { ckEditorName } from "../editor/Editor";
 import Input from "@/lib/vendor/@material-ui/core/src/Input";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { getSiteUrl, sanitize } from "../../lib/vulcan-lib/utils";
-
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import type { EditablePost } from '../../lib/collections/posts/helpers';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import ImageUpload2 from "./ImageUpload2";
 
 const DESCRIPTION_HEIGHT = 56; // 3 lines
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SocialPreviewUpload', (theme: ThemeType) => ({
   root: {
     display: "grid",
     gridTemplateColumns: "minmax(201px, 1fr) minmax(170px, 269px)",
@@ -108,17 +110,12 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
-});
+}));
 
-// Derived from PostsEditQueryFragment, but with extra data that can be set locally (only dataWithDiscardedSuggestions)
-interface PostsEditWithLocalData extends PostsEdit {
-  // fragment on Posts
-  readonly contents: (RevisionEdit & { dataWithDiscardedSuggestions: string | null }) | null;
-}
-
+// FIXME This is a copy-paste of a markdown config from conversionUtils that has gotten out of sync
 const mdi = markdownIt({ linkify: true });
 // mdi.use(markdownItMathjax()) // for performance, don't render mathjax
-mdi.use(markdownItContainer, "spoiler");
+mdi.use(markdownItContainer as AnyBecauseHard, "spoiler");
 mdi.use(markdownItFootnote);
 mdi.use(markdownItSub);
 mdi.use(markdownItSup);
@@ -143,7 +140,7 @@ mdi.use(markdownItSup);
  *  3.2 socialPreviewImageUrl is just used directly
  */
 const buildPreviewFromDocument = (
-  document: PostsEditWithLocalData, socialText: string | undefined
+  document: EditablePost, socialText: string | undefined
 ): { description: string | null; fallbackImageUrl: string | null } => {
   const originalContents = document.contents?.originalContents;
   const customHighlight = document.customHighlight?.originalContents;
@@ -207,12 +204,12 @@ const buildPreviewFromDocument = (
 const SocialPreviewTextEdit = ({
   value,
   updateValue,
-  classes,
 }: {
   value: string;
   updateValue: (value: string) => void;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
+
   // This handling here is a workaround for a bug in the Input component, you can ignore it
   // and just assume `value` is the source of truth here
   //
@@ -250,26 +247,21 @@ const SocialPreviewTextEdit = ({
   );
 };
 
-const SocialPreviewUpload = ({
-  name,
-  value,
-  document,
-  updateCurrentValues,
-  croppingAspectRatio,
-  classes,
-}: {
-  name: string;
-  value: { imageId: string | undefined; text: string | undefined };
-  document: PostsEditWithLocalData;
-  updateCurrentValues: UpdateCurrentValues;
-  label: string;
-  clearField: Function;
-  croppingAspectRatio: number;
-  classes: ClassesType<typeof styles>;
-}) => {
-  const { ImageUpload2 } = Components;
+interface SocialPreviewUploadProps {
+  field: TypedFieldApi<SocialPreviewType>;
+  post: EditablePost;
+  croppingAspectRatio?: number;
+}
 
-  const docWithValue = { ...document, socialPreviewData: value };
+export const SocialPreviewUpload = ({
+  field,
+  post,
+  croppingAspectRatio,
+}: SocialPreviewUploadProps) => {
+  const classes = useStyles(styles);
+  const value = field.state.value;
+
+  const docWithValue = { ...post, socialPreviewData: value };
 
   const textValue = value?.text ?? undefined;
 
@@ -285,38 +277,20 @@ const SocialPreviewUpload = ({
     ]
   );
 
-  const updateImageId = useCallback(
-    (imageId: string | undefined) => {
-      const newValue = {
-        ...value,
-        imageId,
-      };
-      void updateCurrentValues({
-        [name]: newValue,
-      });
-    },
-    [name, updateCurrentValues, value]
-  );
+  const updateImageId = useCallback((imageId?: string) => {
+    field.handleChange({ ...value, imageId });
+  }, [field, value]);
 
-  const updateText = useCallback(
-    (text: string | undefined) => {
-      const newValue = {
-        ...value,
-        text,
-      };
-      void updateCurrentValues({
-        [name]: newValue,
-      });
-    },
-    [name, updateCurrentValues, value]
-  );
+  const updateText = useCallback((text?: string) => {
+    field.handleChange({ ...value, text });
+  }, [field, value]);
 
   return (
     <div className={classes.root}>
       <div className={classes.preview}>
         <ImageUpload2
           name={"socialPreviewImageId"}
-          value={document.socialPreviewData?.imageId}
+          value={post.socialPreviewData?.imageId}
           updateValue={updateImageId}
           clearField={() => updateImageId(undefined)}
           label={fallbackImageUrl ? "Change preview image" : "Upload preview image"}
@@ -325,9 +299,9 @@ const SocialPreviewUpload = ({
           placeholderUrl={fallbackImageUrl || siteImageSetting.get()}
         />
         <div className={classes.title}>
-          {document.title || "Title"}
+          {post.title || "Title"}
         </div>
-        <SocialPreviewTextEdit value={description ?? ""} updateValue={updateText} classes={classes} />
+        <SocialPreviewTextEdit value={description ?? ""} updateValue={updateText} />
         <div className={classes.bottomRow}>
           <div>{urlHostname}</div>
           {textValue !== undefined && (
@@ -352,11 +326,3 @@ const SocialPreviewUpload = ({
     </div>
   );
 };
-
-const SocialPreviewUploadComponent = registerComponent("SocialPreviewUpload", SocialPreviewUpload, { styles });
-
-declare global {
-  interface ComponentTypes {
-    SocialPreviewUpload: typeof SocialPreviewUploadComponent;
-  }
-}

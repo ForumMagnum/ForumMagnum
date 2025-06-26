@@ -2,8 +2,8 @@ import SelectFragmentQuery from "./sql/SelectFragmentQuery";
 import { getSqlClientOrThrow } from "./sql/sqlClient";
 import { accessFilterMultiple } from "../lib/utils/schemaUtils";
 import { computeContextFromUser } from "./vulcan-lib/apollo-server/context";
-import { getCollection } from "./collections/allCollections";
-import { getSqlFragment } from "@/lib/vulcan-lib/fragments";
+import { getSqlFragment } from "@/lib/fragments/allFragments";
+import { fragmentTextForQuery } from "@/lib/vulcan-lib/fragments";
 
 type FetchFragmentOptions<
   CollectionName extends CollectionNameString & keyof FragmentTypesByCollection,
@@ -36,6 +36,11 @@ type FetchFragmentOptions<
    * operations) then it's also sensible to set this to true.
    */
   skipFiltering?: boolean,
+  /**
+   * By default, we run all the relevant code resolvers for the chosen fragment.
+   * Set this to true to avoid doing so.
+   */
+  skipCodeResolvers?: boolean,
 }
 
 /**
@@ -65,13 +70,15 @@ export const fetchFragment = async <
   resolverArgs,
   context: maybeContext,
   skipFiltering,
+  skipCodeResolvers,
 }: FetchFragmentOptions<CollectionName, FragmentName>): Promise<FetchedFragment<FragmentName>[]> => {
   const context = maybeContext ?? await computeContextFromUser({
     user: currentUser,
     isSSR: false,
   });
 
-  const sqlFragment = getSqlFragment(fragmentName);
+  const fragmentText = fragmentTextForQuery(fragmentName);
+  const sqlFragment = getSqlFragment(fragmentName, fragmentText);
 
   const query = new SelectFragmentQuery(
     sqlFragment,
@@ -85,9 +92,11 @@ export const fetchFragment = async <
   const db = getSqlClientOrThrow();
 
   const results = await db.any(sql, args);
-  await Promise.all(results.map(
-    (result) => query.executeCodeResolvers(result, context),
-  ));
+  if (!skipCodeResolvers) {
+    await Promise.all(results.map(
+      (result) => query.executeCodeResolvers(result, context),
+    ));
+  }
   if (skipFiltering) {
     return results;
   }
@@ -110,7 +119,7 @@ export const fetchFragmentSingle = async <
 >(
   options: FetchFragmentOptions<CollectionName, FragmentName>,
 ): Promise<FetchedFragment<FragmentName> | null> => {
-  const results = await fetchFragment({
+  const results = await fetchFragment<CollectionName, FragmentName>({
     ...options,
     options: {
       ...options.options,

@@ -269,6 +269,16 @@ class RunningServer {
       await this.killProcessInSlot(slotToStartIn, {drain: false});
     }
     this.startProcessInSlot(slotToStartIn);
+
+    if (process.env.RESTART_INTERVAL) {
+      const intervalSeconds = parseInt(process.env.RESTART_INTERVAL);
+      const noise = Math.round(intervalSeconds * 0.1 * (Math.random() - 0.5) * 2);
+      const intervalWithNoise = intervalSeconds + noise;
+      console.log(`Scheduling restart in ${intervalWithNoise} seconds (original: ${intervalSeconds} seconds, noise: ${noise} seconds)`);
+      // Note: This restart causes around 10s of downtime for this instance
+      setTimeout(() => this.startOrRestart(), intervalWithNoise * 1000);
+    }
+
   }
   
   private selectSlotForServer(): number {
@@ -407,7 +417,7 @@ async function main() {
     entryPoints: ['./packages/lesswrong/client/clientStartup.ts'],
     tsconfig: "./tsconfig-client.json",
     bundle: true,
-    target: "es6",
+    target: "es2018",
     sourcemap: true,
     metafile: true,
     sourcesContent: true,
@@ -581,7 +591,7 @@ async function createViteProxyServer(backend: RunningServer) {
         "@/client/importCkEditor": "/packages/lesswrong/viteClient/importCkEditorVite",
         "@/client": "/packages/lesswrong/client",
         "@/viteClient": "/packages/lesswrong/viteClient",
-        "@/allComponents": "/packages/lesswrong/lib/generated/allComponentsVite",
+        "@/allComponents": "/packages/lesswrong/lib/generated/allComponents",
         "@": "/packages/lesswrong",
         
         // nodejs modules that aren't available on the client, which have

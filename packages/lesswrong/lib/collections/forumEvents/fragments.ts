@@ -1,4 +1,6 @@
-export const ForumEventsMinimumInfo = `
+import { frag } from "@/lib/fragments/fragmentWrapper"
+
+export const ForumEventsMinimumInfo = () => frag`
   fragment ForumEventsMinimumInfo on ForumEvent {
     _id
     title
@@ -10,16 +12,21 @@ export const ForumEventsMinimumInfo = `
     contrastColor
     tagId
     postId
+    commentId
     bannerImageId
     eventFormat
     customComponent
     commentPrompt
+    isGlobal
+
+    pollAgreeWording
+    pollDisagreeWording
 
     maxStickersPerUser
   }
 `
 
-export const ForumEventsDisplay = `
+export const ForumEventsDisplay = () => frag`
   fragment ForumEventsDisplay on ForumEvent {
     ...ForumEventsMinimumInfo
     publicData
@@ -46,11 +53,12 @@ export const ForumEventsDisplay = `
     pollQuestion {
       _id
       html
+      plaintextMainText
     }
   }
 `
 
-export const ForumEventsEdit = `
+export const ForumEventsEdit = () => frag`
   fragment ForumEventsEdit on ForumEvent {
     ...ForumEventsMinimumInfo
     frontpageDescription {

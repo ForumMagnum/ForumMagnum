@@ -1,12 +1,18 @@
-import { userIsAdmin } from "@/lib/vulcan-users/permissions";
+import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
+
+const MULTI_DOCUMENT_DELETION_WINDOW = 1000 * 60 * 60 * 24 * 7;
 
 export function isMultiDocument(document: DbTag | DbMultiDocument): document is DbMultiDocument {
   return 'collectionName' in document && 'parentDocumentId' in document && 'tabTitle' in document;
 }
 
-export async function getRootDocument(multiDocument: DbMultiDocument, context: ResolverContext) {
-  const visitedDocumentIds = new Set<string>([multiDocument._id]);
-  let parentCollectionName = multiDocument.collectionName;
+export async function getRootDocument(
+  multiDocument: DbMultiDocument | CreateMultiDocumentDataInput,
+  context: ResolverContext
+) {
+  const multiDocumentId = '_id' in multiDocument ? [multiDocument._id] : [];
+  const visitedDocumentIds = new Set<string>(multiDocumentId);
+  let parentCollectionName = multiDocument.collectionName as 'Tags' | 'MultiDocuments';
   const parentDocumentOrNull = await context.loaders[parentCollectionName].load(multiDocument.parentDocumentId);
   if (!parentDocumentOrNull) {
     return null;
@@ -16,7 +22,7 @@ export async function getRootDocument(multiDocument: DbMultiDocument, context: R
   visitedDocumentIds.add(parentDocument._id);
 
   while (isMultiDocument(parentDocument)) {
-    parentCollectionName = parentDocument.collectionName;
+    parentCollectionName = parentDocument.collectionName as 'Tags' | 'MultiDocuments';
     const nextDocument = await context.loaders[parentCollectionName].load(parentDocument.parentDocumentId);
     if (!nextDocument) {
       return null;
@@ -24,7 +30,7 @@ export async function getRootDocument(multiDocument: DbMultiDocument, context: R
 
     if (visitedDocumentIds.has(nextDocument._id)) {
       // eslint-disable-next-line no-console
-      console.error(`Cycle detected in multi-document hierarchy starting from ${multiDocument._id}`);
+      console.error(`Cycle detected in multi-document hierarchy starting from ${JSON.stringify(multiDocument)}`);
       return null;
     }
 
@@ -35,32 +41,14 @@ export async function getRootDocument(multiDocument: DbMultiDocument, context: R
   return { document: parentDocument, parentCollectionName: 'Tags' as const };
 }
 
-/**
- * The logic for validating whether a user can either create or update a multi-document is basically the same.
- * In both cases, we defer to the `check` defined on the parent document's collection to see if the user would be allowed to mutate the parent document.
- */
-export async function canMutateParentDocument(user: DbUser | null, multiDocument: DbMultiDocument | null, mutation: 'create' | 'update', context: ResolverContext) {
-  if (!multiDocument) {
-    return false;
-  }
-
-  if (userIsAdmin(user)) {
+export function userCanDeleteMultiDocument(user: DbUser | UsersCurrent | null, document: Pick<DbMultiDocument, "userId" | "createdAt">) {
+  if (userIsAdminOrMod(user)) {
     return true;
   }
 
-  const rootDocumentInfo = await getRootDocument(multiDocument, context);
-  if (!rootDocumentInfo) {
-    return false;
-  }
+  const deletableUntil = new Date(document.createdAt).getTime() + MULTI_DOCUMENT_DELETION_WINDOW;
+  const withinDeletionWindow = deletableUntil > Date.now();
 
-  const { document: parentDocument, parentCollectionName } = rootDocumentInfo;
-  const parentCollection = context[parentCollectionName];
-  const check = parentCollection.options.mutations?.[mutation]?.check;
-  if (!check) {
-    // eslint-disable-next-line no-console
-    console.error(`No check for ${mutation} mutation on parent collection ${parentCollectionName} when trying to ${mutation} MultiDocument for parent with id ${parentDocument._id}`);
-    return false;
-  }
-
-  return check(user, parentDocument, context);
+  return userOwns(user, document) && withinDeletionWindow;
 }
+

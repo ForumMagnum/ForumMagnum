@@ -1,12 +1,25 @@
-import React, { ReactNode, useCallback } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib/components";
+import React, { ReactNode, useCallback, useState } from "react";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { OnboardingStage, useEAOnboarding } from "./useEAOnboarding";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import classNames from "classnames";
+import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
+import { DialogContent } from '../../widgets/DialogContent';
+import { DialogContentText } from '../../widgets/DialogContentText';
+import { DialogActions } from '../../widgets/DialogActions';
+import { DialogTitle } from '../../widgets/DialogTitle';
+import { useCurrentUser } from "@/components/common/withUser";
+import EAButton from "../EAButton";
+import LWDialog from "../../common/LWDialog";
+import { Typography } from "../../common/Typography";
+import Loading from "../../vulcan-core/Loading";
+import LWTooltip from "../../common/LWTooltip";
+import ForumIcon from "../../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
+    position: "relative",
     fontFamily: theme.palette.fonts.sansSerifStack,
     maxWidth: "100vw",
     maxHeight: "min(80vh, 720px)",
@@ -38,7 +51,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   scrollable: {
-    overflowY: "scroll",
+    overflowY: "auto",
     flexGrow: 1,
   },
   header: {
@@ -102,7 +115,57 @@ const styles = (theme: ThemeType) => ({
   spinner: {
     height: "20px !important",
   },
+  closeButtonOuter: {
+    position: "absolute",
+    top: 16,
+    right: 24,
+  },
+  close: {
+    cursor: "pointer",
+  },
+  logoutDialog: {
+    zIndex: theme.zIndexes.confirmLogoutModal,
+    minWidth: 300,
+  },
+  logoutDialogTitle: {
+    marginTop: 0,
+  },
+  logoutDialogText: {
+    marginTop: 0,
+    marginBottom: 2,
+  },
+  logoutDialogActions: {
+    marginRight: 16,
+    marginBottom: 16,
+  },
 });
+
+const LogoutConfirmationDialog = (
+  {open, onClose, classes}:
+  {open: boolean, onClose: () => void, classes: ClassesType<typeof styles>},
+) => {
+  const currentUser = useCurrentUser();
+  return <LWDialog open={open} onClose={onClose} className={classes.logoutDialog}>
+    <DialogTitle disableTypography>
+      <Typography variant="display1" className={classes.logoutDialogTitle}>
+        Confirm logout
+      </Typography>
+    </DialogTitle>
+    <DialogContent>
+      <DialogContentText className={classes.logoutDialogText}>You are currently logged in with the email</DialogContentText>
+      <DialogContentText className={classes.logoutDialogText}>{currentUser?.email ?? "(no email found)"},</DialogContentText>
+      <DialogContentText className={classes.logoutDialogText}>but have not chosen a username.</DialogContentText>
+    </DialogContent>
+    <DialogActions className={classes.logoutDialogActions}>
+      <EAButton onClick={onClose} style="grey">
+        Cancel
+      </EAButton>
+      <EAButton href="/logout" autoFocus>
+        Logout
+      </EAButton>
+    </DialogActions>
+  </LWDialog>
+};
 
 export const EAOnboardingStage = ({
   stageName,
@@ -136,7 +199,17 @@ export const EAOnboardingStage = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const {currentStage, goToNextStage, nextStageIsLoading, captureOnboardingEvent} = useEAOnboarding();
-
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  
+  const openLogoutConfirmation = useCallback(() => {
+    setLogoutDialogOpen(true);
+  }, []);
+  
+  // Closes the dialog without logging out
+  const handleDialogCancel = useCallback(() => {
+    setLogoutDialogOpen(false);
+  }, []);
+  
   const wrappedOnContinue = useCallback(async () => {
     await onContinue?.();
     captureOnboardingEvent("onboardingContinue", {from: stageName});
@@ -151,8 +224,6 @@ export const EAOnboardingStage = ({
   if (currentStage !== stageName) {
     return null;
   }
-
-  const {EAButton, Loading} = Components;
   return (
     <AnalyticsContext
       pageElementContext="onboardingFlow"
@@ -162,6 +233,13 @@ export const EAOnboardingStage = ({
         [classes.rootThin]: thin,
         [classes.rootWide]: !thin,
       })}>
+        <div className={classes.closeButtonOuter}>
+          <LWTooltip title="Logout">
+            <IconButton onClick={openLogoutConfirmation} className={classes.close}>
+              <ForumIcon icon="Close" />
+            </IconButton>
+          </LWTooltip>
+        </div>
         <div className={classes.scrollable}>
           {!hideHeader &&
             <div className={classes.header}>
@@ -202,19 +280,20 @@ export const EAOnboardingStage = ({
             }
           </div>
         }
+        <LogoutConfirmationDialog
+          open={logoutDialogOpen}
+          onClose={handleDialogCancel}
+          classes={classes}
+        />
       </div>
     </AnalyticsContext>
   );
 }
 
-const EAOnboardingStageComponent = registerComponent(
+export default registerComponent(
   "EAOnboardingStage",
   EAOnboardingStage,
   {styles, stylePriority: -1},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAOnboardingStage: typeof EAOnboardingStageComponent
-  }
-}
+

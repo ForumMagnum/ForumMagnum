@@ -1,10 +1,15 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';
-import { PROFILE_IMG_DIAMETER, PROFILE_IMG_DIAMETER_MOBILE } from './ProfilePhoto';
+import ProfilePhoto, { PROFILE_IMG_DIAMETER, PROFILE_IMG_DIAMETER_MOBILE } from './ProfilePhoto';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { Typography } from "../common/Typography";
+import UsersName from "../users/UsersName";
+import MetaInfo from "../common/MetaInfo";
+import FormatDate from "../common/FormatDate";
+import { ContentItemBody } from "../contents/ContentItemBody";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -91,40 +96,36 @@ const MessageItem = ({message, classes}: {
 
   let profilePhoto: React.ReactNode|null = null;
   if (!isCurrentUser && isFriendlyUI) {
-    profilePhoto = <Components.ProfilePhoto user={message.user} className={classes.profileImg} />
+    profilePhoto = <ProfilePhoto user={message.user} className={classes.profileImg} />
   }
   
   return (
     <div className={classNames(classes.root, {[classes.rootWithImages]: isFriendlyUI, [classes.rootCurrentUserWithImages]: isFriendlyUI && isCurrentUser})}>
       {profilePhoto}
-      <Components.Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
+      <Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
         <div className={classes.meta}>
           {message.user && <span className={classes.username}>
-            <span className={colorClassName}><Components.UsersName user={message.user}/></span>
+            <span className={colorClassName}><UsersName user={message.user}/></span>
           </span>}
           <span>{" " /* Explicit space (rather than just padding/margin) for copy-paste purposes */}</span>
-          {message.createdAt && <Components.MetaInfo>
-            <span className={colorClassName}><Components.FormatDate date={message.createdAt}/></span>
-          </Components.MetaInfo>}
+          {message.createdAt && <MetaInfo>
+            <span className={colorClassName}><FormatDate date={message.createdAt}/></span>
+          </MetaInfo>}
         </div>
-        <Components.ContentItemBody
+        <ContentItemBody
           dangerouslySetInnerHTML={htmlBody}
           className={classes.messageBody}
           description={`message ${message._id}`}
         />
-      </Components.Typography>
+      </Typography>
     </div>
   )
 }
 
 
-const MessageItemComponent = registerComponent('MessageItem', MessageItem, {
+export default registerComponent('MessageItem', MessageItem, {
   styles, hocs: [withErrorBoundary]
 });
 
-declare global {
-  interface ComponentTypes {
-    MessageItem: typeof MessageItemComponent
-  }
-}
+
 

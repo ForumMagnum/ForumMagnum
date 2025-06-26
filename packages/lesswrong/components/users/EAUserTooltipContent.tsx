@@ -1,8 +1,9 @@
 import React, { useMemo } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { htmlToTextDefault } from "../../lib/htmlToText";
 import { FRIENDLY_THIN_HOVER_OVER_WIDTH } from "../common/FriendlyHoverOver";
 import moment from "moment";
+import UsersProfileImage from "./UsersProfileImage";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -73,7 +74,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const formatRole = (jobTitle?: string, organization?: string): string =>
+export const formatRole = (jobTitle?: string | null, organization?: string | null): string =>
   jobTitle && organization
     ? `${jobTitle} @ ${organization}`
     : (jobTitle || organization) ?? "";
@@ -103,7 +104,6 @@ const EAUserTooltipContent = ({user, classes}: {
   } = user;
   const role = formatRole(jobTitle, organization);
   const textBio = useMemo(() => formatBio(htmlBio), [htmlBio]);
-  const {UsersProfileImage} = Components;
   return (
     <div className={classes.root}>
       <div className={classes.header}>
@@ -145,14 +145,10 @@ const EAUserTooltipContent = ({user, classes}: {
   );
 }
 
-const EAUserTooltipContentComponent = registerComponent(
+export default registerComponent(
   "EAUserTooltipContent",
   EAUserTooltipContent,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    EAUserTooltipContent: typeof EAUserTooltipContentComponent
-  }
-}
+

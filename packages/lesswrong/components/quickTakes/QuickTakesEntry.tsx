@@ -1,15 +1,15 @@
 import React, { MouseEvent, useState, useCallback, useRef, useEffect } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useQuickTakesTags } from "./useQuickTakesTags";
-import {
-  COMMENTS_NEW_FORM_PADDING,
+import CommentsNewForm, {
   CommentCancelCallback,
-  CommentSuccessCallback,
-} from "../comments/CommentsNewForm";
+  CommentSuccessCallback } from "../comments/CommentsNewForm";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { useDialog } from "../common/withDialog";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
+import { COMMENTS_NEW_FORM_PADDING } from "@/lib/collections/comments/constants";
+import LoginPopup from "../users/LoginPopup";
 
 const COLLAPSED_HEIGHT = 40;
 
@@ -65,7 +65,7 @@ const styles = (theme: ThemeType) => ({
     '& .ck .ck-placeholder': {
       position: 'unset'
     },
-    '& .CommentsNewForm-submitQuickTakes': {
+    '& .CommentSubmit-submitQuickTakes': {
       display: 'none'
     }
   },
@@ -116,21 +116,33 @@ const QuickTakesEntry = ({
     void cancelCallback?.();
   }, [cancelCallback]);
 
+  // Desired behaviour here:
+  // 1. Always expand on focus
+  // 2. If the focus was triggered by a click and the user is logged out, show the login popup
+  //
+  // (2) requires tracking `isUnexpandedClickRef`, as the mouseup for the click will occur after the element has expanded
+  const isUnexpandedClickRef = useRef(false);
   const onFocus = useCallback(() => {
-    if (currentUser) {
+    if (!expanded) {
       setExpanded(true);
-    } else {
-      if (isFriendlyUI) {
-        onSignup();
-      } else {
-        openDialog({
-          componentName: "LoginPopup",
-          componentProps: {}
-        });
-        setExpanded(true);
-      }
+      isUnexpandedClickRef.current = true;
     }
-  }, [currentUser, openDialog, onSignup]);
+  }, [setExpanded, expanded]);
+
+  const handleLoggedOut = useCallback(() => {
+    if (currentUser || (expanded && !isUnexpandedClickRef.current)) return;
+
+    isUnexpandedClickRef.current = false;
+
+    if (isFriendlyUI) {
+      onSignup();
+    } else {
+      openDialog({
+        name: "LoginPopup",
+        contents: ({onClose}) => <LoginPopup onClose={onClose} />
+      });
+    }
+  }, [currentUser, openDialog, onSignup, expanded]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -154,18 +166,17 @@ const QuickTakesEntry = ({
 
   // is true when user is logged out or has not been reviewed yet, i.e. has made no contributions yet
   const showNewUserMessage = !currentUser?.reviewedByUserId && !isFriendlyUI;
-
-  const {CommentsNewForm} = Components;
   return <div className={classNames(classes.root, className)} ref={ref}>
     {/* TODO: Write a better message for new users */}
     {expanded && showNewUserMessage && <div className={classes.userNotApprovedMessage}>Quick Takes is an excellent place for your first contribution!</div>}
     <div
       className={classNames(classes.commentEditor, {[classes.collapsed]: !expanded})}
       onFocus={onFocus}
+      onClick={handleLoggedOut}
     >
       <CommentsNewForm
         key={currentUser?._id ?? "logged-out"}
-        type='reply'
+        interactionType='reply'
         prefilledProps={{
           shortform: true,
           shortformFrontpage: frontpage,
@@ -184,14 +195,10 @@ const QuickTakesEntry = ({
   </div>
 }
 
-const QuickTakesEntryComponent = registerComponent(
+export default registerComponent(
   "QuickTakesEntry",
   QuickTakesEntry,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    QuickTakesEntry: typeof QuickTakesEntryComponent
-  }
-}
+

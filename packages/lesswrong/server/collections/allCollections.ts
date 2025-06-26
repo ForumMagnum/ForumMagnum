@@ -9,7 +9,9 @@ import sortBy from 'lodash/sortBy';
 import { AdvisorRequests } from './advisorRequests/collection';
 import { ArbitalCaches } from './arbitalCache/collection';
 import { ArbitalTagContentRels } from './arbitalTagContentRels/collection';
+import { AutomatedContentEvaluations } from './automatedContentEvaluations/collection';
 import { Bans } from './bans/collection';
+import { Bookmarks } from './bookmarks/collection';
 import { Books } from './books/collection';
 import { Chapters } from './chapters/collection';
 import { CkEditorUserSessions } from './ckEditorUserSessions/collection';
@@ -85,6 +87,7 @@ import { TagRels } from './tagRels/collection';
 import { Tags } from './tags/collection';
 import { Tweets } from './tweets/collection';
 import { TypingIndicators } from './typingIndicators/collection';
+import { UltraFeedEvents } from './ultraFeedEvents/collection';
 import { UserEAGDetails } from './userEAGDetails/collection';
 import { UserJobAds } from './userJobAds/collection';
 import { UserMostValuablePosts } from './userMostValuablePosts/collection';
@@ -94,24 +97,32 @@ import { UserActivities } from './useractivities/collection';
 import { Users } from './users/collection';
 import { Votes } from './votes/collection';
 
-let testCollections: Record<never, never>;
-if (isAnyTest && !isIntegrationTest && !isMigrations) {
-  ({ testCollections } = require('../sql/tests/testHelpers'));
-} else {
-  testCollections = {};
+function getTestCollections() {
+  let testCollections: Record<never, never>;
+  if (isAnyTest && !isIntegrationTest && !isMigrations) {
+    ({ testCollections } = require('../sql/tests/testHelpers'));
+  } else {
+    testCollections = {};
+  }
+  return testCollections;
+}
+
+function getTestCollectionsByTypeName() {
+  const testCollections = getTestCollections();
+  return Object.fromEntries(Object.entries(testCollections).map(([, collection]) => [(collection as CollectionBase<AnyBecauseHard>).typeName, collection]));
 }
 
 // TODO: maybe put this behind a proxy like `getAllRepos` for performance?
 const allCollections = {
-  AdvisorRequests, ArbitalCaches, ArbitalTagContentRels, Bans, Books, Chapters, CkEditorUserSessions, ClientIds, Collections, CommentModeratorActions,
-  Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks, DialogueMatchPreferences,
+  AdvisorRequests, ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds, Collections,
+  CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks, DialogueMatchPreferences,
   DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources, FieldChanges, ForumEvents,
-  GardenCodes, GoogleServiceAccountSessions, Images, JargonTerms, LegacyData, LlmConversations, LlmMessages, Localgroups, LWEvents, ManifoldProbabilitiesCaches,
-  Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, PageCache, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts,
-  PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts,
-  ReviewWinners, Revisions, RSSFeeds, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, SurveyQuestions, SurveyResponses,
-  SurveySchedules, Surveys, TagFlags, TagRels, Tags, Tweets, TypingIndicators, UserEAGDetails, UserJobAds, UserMostValuablePosts, UserRateLimits, UserTagRels,
-  UserActivities, Users, Votes, ...testCollections
+  GardenCodes, GoogleServiceAccountSessions, Images, JargonTerms, LWEvents, LegacyData, LlmConversations, LlmMessages, Localgroups,
+  ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, PageCache, PetrovDayActions, PetrovDayLaunchs,
+  PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
+  RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates,
+  Spotlights, Subscriptions, SurveyQuestions, SurveyResponses, SurveySchedules, Surveys, TagFlags, TagRels, Tags, Tweets,
+  TypingIndicators, UltraFeedEvents, UserActivities, UserEAGDetails, UserJobAds, UserMostValuablePosts, UserRateLimits, UserTagRels, Users, Votes
 } satisfies CollectionsByName;
 
 const collectionsByLowercaseName = Object.fromEntries(
@@ -122,28 +133,26 @@ const collectionsByTypeName = Object.fromEntries(
   Object.values(allCollections).map((collection) => [collection.typeName, collection]),
 );
 
-export { allCollections, collectionsByLowercaseName, collectionsByTypeName };
-
 export function getCollection<N extends CollectionNameString>(name: N): CollectionBase<N> {
-  return allCollections[name] as CollectionBase<N>;
+  const collectionsWithTestCollections = { ...allCollections, ...getTestCollections() };
+  return collectionsWithTestCollections[name] as CollectionBase<N>;
 }
 
 export function getAllCollections(): Array<CollectionBase<CollectionNameString>> {
-  return sortBy(Object.values(allCollections), (c) => c.collectionName);
+  const collectionsWithTestCollections = { ...allCollections, ...getTestCollections() };
+  return sortBy(Object.values(collectionsWithTestCollections), (c) => c.collectionName);
+}
+
+export function getAllCollectionsByName() {
+  const collectionsWithTestCollections = { ...allCollections, ...getTestCollections() };
+  return collectionsWithTestCollections;
 }
 
 export function getCollectionByTypeName(typeName: string): CollectionBase<AnyBecauseHard> {
-  const collection = collectionsByTypeName[typeName] as CollectionBase<AnyBecauseHard>;
+  const collectionsWithTestCollectionsByTypeName = { ...collectionsByTypeName, ...getTestCollectionsByTypeName() };
+  const collection = collectionsWithTestCollectionsByTypeName[typeName] as CollectionBase<AnyBecauseHard>;
   if (!collection) {
     throw new Error(`Invalid typeName: ${typeName}`);
-  }
-  return collection;
-}
-
-export function getCollectionByTableName(tableName: string): CollectionBase<any> {
-  const collection = collectionsByLowercaseName[tableName] as CollectionBase<any>;
-  if (!collection) {
-    throw new Error(`Invalid table name: ${tableName}`);
   }
   return collection;
 }

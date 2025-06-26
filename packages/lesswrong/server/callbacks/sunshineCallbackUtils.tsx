@@ -1,36 +1,28 @@
 import moment from "moment";
-import { CommentModeratorActions } from "../../server/collections/commentModeratorActions/collection";
-import { DOWNVOTED_COMMENT_ALERT } from "../../lib/collections/commentModeratorActions/schema";
-import { Comments } from "../../server/collections/comments/collection";
-import { ModeratorActions } from "../../server/collections/moderatorActions/collection";
+import { DOWNVOTED_COMMENT_ALERT } from "@/lib/collections/commentModeratorActions/constants";
 import { getReasonForReview, isLowAverageKarmaContent } from "../../lib/collections/moderatorActions/helpers";
-import { isActionActive, LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, NEGATIVE_KARMA_USER_ALERT, postAndCommentRateLimits, rateLimitSet, RECENTLY_DOWNVOTED_CONTENT_ALERT } from "../../lib/collections/moderatorActions/schema";
-import { Posts } from "../../server/collections/posts/collection";
-import Users from "../../server/collections/users/collection";
-import Votes from "../../server/collections/votes/collection";
+import { isActionActive } from "../../lib/collections/moderatorActions/newSchema";
+import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, NEGATIVE_KARMA_USER_ALERT, postAndCommentRateLimits, rateLimitSet, RECENTLY_DOWNVOTED_CONTENT_ALERT } from "@/lib/collections/moderatorActions/constants";
 import { getWithLoader } from "../../lib/loaders";
 import { forumSelect } from "../../lib/forumTypeUtils";
-import { createAdminContext } from "../vulcan-lib/query";
-import { createMutator, updateMutator } from "../vulcan-lib/mutators";
+import { createModeratorAction, updateModeratorAction } from "../collections/moderatorActions/mutations";
+import { triggerReview } from "./helpers";
+import { createCommentModeratorAction } from "../collections/commentModeratorActions/mutations";
 
 /** 
  * This function contains all logic for determining whether a given user needs review in the moderation sidebar.
  * It's important this this only be be added to async callbacks on posts and comments, so that postCount and commentCount have time to update first
  */
-export async function triggerReviewIfNeeded(userId: string) {
+export async function triggerReviewIfNeeded(userId: string, context: ResolverContext) {
+  const { Users } = context;
   const user = await Users.findOne({ _id: userId });
   if (!user)
     throw new Error("user is null");
 
   const {needsReview, reason} = getReasonForReview(user);
   if (needsReview) {
-    await triggerReview(user._id, reason);
+    await triggerReview(user._id, context, reason);
   }
-}
-
-export async function triggerReview(userId: string, reason?: string) {
-  // TODO: save the reason
-  await  Users.rawUpdateOne({ _id: userId }, { $set: { needsReview: true } });
 }
 
 interface VoteableAutomodRuleProps<T extends DbVoteableType>{
@@ -50,7 +42,7 @@ function hasMultipleDownvotes<T extends DbVoteableType>({ votes }: VoteableAutom
  */
 function isDownvotedBelowBar<T extends DbVoteableType>(bar: number) {
   return ({ voteableItem }: { voteableItem: T }) => {
-    return voteableItem.baseScore <= bar && voteableItem.voteCount > 0;
+    return (voteableItem.baseScore ?? 0) <= bar && voteableItem.voteCount > 0;
   }
 }
 
@@ -83,19 +75,19 @@ function isActiveNegativeKarmaUser(user: DbUser, voteableItems: (DbComment | DbP
 }
 
 async function triggerModerationAction(userId: string, warningType: DbModeratorAction['type']) {
+  const { createAdminContext }: typeof import("../vulcan-lib/createContexts") = require("../vulcan-lib/createContexts");
   const context = createAdminContext();
+  const { ModeratorActions } = context;
+
   const lastModeratorAction = await ModeratorActions.findOne({ userId, type: warningType }, { sort: { createdAt: -1 } });
   // No previous commentQualityWarning on record for this user
   if (!lastModeratorAction) {
-    void createMutator({
-      collection: ModeratorActions,
-      document: {
+    void createModeratorAction({
+      data: {
+        userId,
         type: warningType,
-        userId
       },
-      currentUser: context.currentUser,
-      context
-    });
+    }, context);
 
     // User already has an active commentQualityWarning, escalate?
   } else if (isActionActive(lastModeratorAction)) {
@@ -103,31 +95,26 @@ async function triggerModerationAction(userId: string, warningType: DbModeratorA
 
     // User has an inactive commentQualityWarning, re-apply?
   } else {
-    void createMutator({
-      collection: ModeratorActions,
-      document: {
+    void createModeratorAction({
+      data: {
         type: warningType,
         userId  
       },
-      currentUser: context.currentUser,
-      context
-    });
+    }, context);
   }
 }
 
 async function disableModerationAction(userId: string, warningType: DbModeratorAction['type']) {
+  const { createAdminContext }: typeof import("../vulcan-lib/createContexts") = require("../vulcan-lib/createContexts");
   const context = createAdminContext();
+  const { ModeratorActions } = context;
+
   const lastModeratorAction = await ModeratorActions.findOne({ userId, type: warningType }, { sort: { createdAt: -1 } });
   if (lastModeratorAction && isActionActive(lastModeratorAction)) {
-    void updateMutator({
-      collection: ModeratorActions,
-      documentId: lastModeratorAction._id,
-      data: {
-        endedAt: new Date()
-      },
-      currentUser: context.currentUser,
-      context
-    });
+    void updateModeratorAction({
+      data: { endedAt: new Date() },
+      selector: { _id: lastModeratorAction._id }
+    }, context);
   }
 }
 
@@ -164,7 +151,8 @@ function getUnmoderatedContent(content: (DbPost | DbComment)[], lastActionEndedA
  * - if active, disable if no longer meets condition
  * - if inactive, condition should only check content (whichever one matches the action type) from after the last endedAt
  */
-export async function triggerAutomodIfNeededForUser(user: DbUser) {
+export async function triggerAutomodIfNeededForUser(user: DbUser, context: ResolverContext) {
+  const { ModeratorActions, Comments, Posts } = context;
   const userId = user._id;
 
   const [userModeratorActions, latestComments, latestPosts] = await Promise.all([
@@ -212,15 +200,19 @@ export async function triggerAutomodIfNeededForUser(user: DbUser) {
   handleAutomodAction(mediocreQualityPosts, userId, LOW_AVERAGE_KARMA_POST_ALERT);
 }
 
-export async function triggerAutomodIfNeeded(userId: string) {
+export async function triggerAutomodIfNeeded(userId: string, context: ResolverContext) {
+  const { Users } = context;
   const user = await Users.findOne(userId);
   if (!user) return;
 
-  await triggerAutomodIfNeededForUser(user);
+  await triggerAutomodIfNeededForUser(user, context);
 }
 
 export async function triggerCommentAutomodIfNeeded(comment: DbVoteableType, vote: DbVote) {
+  const { createAdminContext }: typeof import("../vulcan-lib/createContexts") = require("../vulcan-lib/createContexts");
+
   const context = createAdminContext();
+  const { Votes, CommentModeratorActions } = context;
   const commentId = comment._id;
 
   const [allVotes, previousCommentModeratorActions] = await Promise.all([
@@ -239,14 +231,11 @@ export async function triggerCommentAutomodIfNeeded(comment: DbVoteableType, vot
   const needsModeration = automodRule({ voteableItem: comment, votes: allVotes });
 
   if (!existingDownvotedCommentAction && needsModeration) {
-    void createMutator({
-      collection: CommentModeratorActions,
-      document: {
+    void createCommentModeratorAction({
+      data: {
         type: DOWNVOTED_COMMENT_ALERT,
         commentId
       },
-      currentUser: context.currentUser,
-      context
-    });
+    }, context);
   }
 }

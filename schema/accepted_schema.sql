@@ -73,13 +73,28 @@ CREATE TABLE "ArbitalTagContentRels" (
 -- Index "idx_ArbitalTagContentRels_schemaVersion"
 CREATE INDEX IF NOT EXISTS "idx_ArbitalTagContentRels_schemaVersion" ON "ArbitalTagContentRels" USING btree ("schemaVersion");
 
+-- Table "AutomatedContentEvaluations"
+CREATE TABLE "AutomatedContentEvaluations" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "revisionId" VARCHAR(27) NOT NULL,
+  "score" DOUBLE PRECISION NOT NULL,
+  "sentenceScores" JSONB NOT NULL,
+  "aiChoice" TEXT NOT NULL,
+  "aiReasoning" TEXT NOT NULL,
+  "aiCoT" TEXT NOT NULL
+);
+
+-- Index "idx_AutomatedContentEvaluations_revisionId"
+CREATE INDEX IF NOT EXISTS "idx_AutomatedContentEvaluations_revisionId" ON "AutomatedContentEvaluations" USING btree ("revisionId");
+
 -- Table "Bans"
 CREATE TABLE "Bans" (
   _id VARCHAR(27) PRIMARY KEY,
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
-  "expirationDate" TIMESTAMPTZ NOT NULL,
+  "expirationDate" TIMESTAMPTZ,
   "userId" VARCHAR(27) NOT NULL,
   "ip" TEXT,
   "reason" TEXT,
@@ -92,6 +107,23 @@ CREATE INDEX IF NOT EXISTS "idx_Bans_schemaVersion" ON "Bans" USING btree ("sche
 
 -- Index "idx_Bans_ip"
 CREATE INDEX IF NOT EXISTS "idx_Bans_ip" ON "Bans" USING btree ("ip");
+
+-- Table "Bookmarks"
+CREATE TABLE "Bookmarks" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "documentId" TEXT NOT NULL,
+  "collectionName" TEXT NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "lastUpdated" TIMESTAMPTZ NOT NULL,
+  "active" BOOL NOT NULL DEFAULT FALSE
+);
+
+-- Index "idx_Bookmarks_userId_documentId_collectionName"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_Bookmarks_userId_documentId_collectionName" ON "Bookmarks" USING btree ("userId", "documentId", "collectionName");
+
+-- Index "idx_Bookmarks_userId_active_lastUpdated"
+CREATE INDEX IF NOT EXISTS "idx_Bookmarks_userId_active_lastUpdated" ON "Bookmarks" USING btree ("userId", "active", "lastUpdated");
 
 -- Table "Books"
 CREATE TABLE "Books" (
@@ -266,6 +298,7 @@ CREATE TABLE "Comments" (
   "legacyId" TEXT,
   "legacyPoll" BOOL NOT NULL DEFAULT FALSE,
   "legacyParentId" TEXT,
+  "draft" BOOL NOT NULL DEFAULT FALSE,
   "retracted" BOOL NOT NULL DEFAULT FALSE,
   "deleted" BOOL NOT NULL DEFAULT FALSE,
   "deletedPublic" BOOL NOT NULL DEFAULT FALSE,
@@ -564,22 +597,6 @@ CREATE INDEX IF NOT EXISTS "idx_Comments_forumEventId_userId_postedAt_authorIsUn
   "debateResponse"
 );
 
--- Index "idx_comments_alignmentSuggestedComments"
-CREATE INDEX IF NOT EXISTS "idx_comments_alignmentSuggestedComments" ON "Comments" USING gin (
-  "reviewForAlignmentUserId",
-  "af",
-  "suggestForAlignmentUserIds",
-  "postedAt",
-  "authorIsUnreviewed",
-  "deleted",
-  "deletedPublic",
-  "hideAuthor",
-  "userId",
-  "debateResponse"
-)
-WHERE
-  ("suggestForAlignmentUserIds" [0]) IS NOT NULL;
-
 -- Index "idx_Comments_userId_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_Comments_userId_createdAt" ON "Comments" USING btree ("userId", "createdAt");
 
@@ -594,7 +611,7 @@ CREATE TABLE "Conversations" (
   "legacyData" JSONB,
   "title" TEXT,
   "participantIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
-  "latestActivity" TIMESTAMPTZ,
+  "latestActivity" TIMESTAMPTZ NOT NULL,
   "af" BOOL,
   "messageCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "moderator" BOOL,
@@ -908,7 +925,7 @@ CREATE TABLE "FeaturedResources" (
   "body" TEXT,
   "ctaText" TEXT NOT NULL,
   "ctaUrl" TEXT NOT NULL,
-  "expiresAt" TIMESTAMPTZ
+  "expiresAt" TIMESTAMPTZ NOT NULL
 );
 
 -- Index "idx_FeaturedResources_schemaVersion"
@@ -949,19 +966,23 @@ CREATE TABLE "ForumEvents" (
   "frontpageDescriptionMobile_latest" TEXT,
   "postPageDescription" JSONB,
   "postPageDescription_latest" TEXT,
-  "pollQuestion_latest" TEXT,
   "title" TEXT NOT NULL,
   "startDate" TIMESTAMPTZ NOT NULL,
-  "endDate" TIMESTAMPTZ NOT NULL,
+  "endDate" TIMESTAMPTZ,
   "darkColor" TEXT NOT NULL DEFAULT '#000000',
   "lightColor" TEXT NOT NULL DEFAULT '#ffffff',
   "bannerTextColor" TEXT NOT NULL DEFAULT '#ffffff',
   "contrastColor" TEXT,
   "tagId" VARCHAR(27),
   "postId" VARCHAR(27),
+  "commentId" VARCHAR(27),
   "bannerImageId" TEXT,
   "includesPoll" BOOL NOT NULL DEFAULT FALSE,
+  "isGlobal" BOOL NOT NULL DEFAULT TRUE,
   "eventFormat" TEXT NOT NULL DEFAULT 'BASIC',
+  "pollQuestion_latest" TEXT,
+  "pollAgreeWording" TEXT,
+  "pollDisagreeWording" TEXT,
   "maxStickersPerUser" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "customComponent" TEXT,
   "commentPrompt" TEXT,
@@ -1153,10 +1174,10 @@ CREATE TABLE "Localgroups" (
   "legacyData" JSONB,
   "contents" JSONB,
   "contents_latest" TEXT,
-  "name" TEXT,
+  "name" TEXT NOT NULL,
   "nameInAnotherLanguage" TEXT,
   "organizerIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
-  "lastActivity" TIMESTAMPTZ,
+  "lastActivity" TIMESTAMPTZ NOT NULL,
   "types" TEXT[] NOT NULL DEFAULT '{''LW''}',
   "categories" TEXT[],
   "isOnline" BOOL NOT NULL DEFAULT FALSE,
@@ -1606,7 +1627,7 @@ CREATE TABLE "Posts" (
   "postCategory" TEXT NOT NULL DEFAULT 'post',
   "title" VARCHAR(500) NOT NULL,
   "viewCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "lastCommentedAt" TIMESTAMPTZ,
+  "lastCommentedAt" TIMESTAMPTZ NOT NULL,
   "clickCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "deletedDraft" BOOL NOT NULL DEFAULT FALSE,
   "status" DOUBLE PRECISION NOT NULL,
@@ -2570,7 +2591,7 @@ CREATE TABLE "Revisions" (
   "documentId" TEXT,
   "collectionName" TEXT,
   "fieldName" TEXT,
-  "editedAt" TIMESTAMPTZ,
+  "editedAt" TIMESTAMPTZ NOT NULL,
   "autosaveTimeoutStart" TIMESTAMPTZ,
   "updateType" TEXT,
   "version" TEXT NOT NULL,
@@ -2587,7 +2608,6 @@ CREATE TABLE "Revisions" (
   "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "extendedScore" JSONB,
   "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "inactive" BOOL NOT NULL DEFAULT FALSE,
   "afBaseScore" DOUBLE PRECISION,
   "afExtendedScore" JSONB,
   "afVoteCount" DOUBLE PRECISION
@@ -3095,6 +3115,32 @@ CREATE INDEX IF NOT EXISTS "idx_TypingIndicators_schemaVersion" ON "TypingIndica
 -- Index "idx_TypingIndicators_documentId_userId"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_TypingIndicators_documentId_userId" ON "TypingIndicators" USING btree ("documentId", "userId");
 
+-- Table "UltraFeedEvents"
+CREATE TABLE "UltraFeedEvents" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "documentId" TEXT NOT NULL,
+  "collectionName" TEXT NOT NULL,
+  "eventType" TEXT NOT NULL,
+  "userId" TEXT NOT NULL,
+  "event" JSONB,
+  "feedItemId" TEXT
+);
+
+-- Index "idx_ultraFeedEvents_document_user_event_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_ultraFeedEvents_document_user_event_createdAt" ON "UltraFeedEvents" USING btree ("documentId", "userId", "eventType", "createdAt");
+
+-- Index "idx_ultraFeedEvents_userId_collectionName_eventType_createdAt_idx"
+CREATE INDEX IF NOT EXISTS "idx_ultraFeedEvents_userId_collectionName_eventType_createdAt_idx" ON "UltraFeedEvents" USING btree (
+  "userId",
+  "collectionName",
+  "eventType",
+  "createdAt"
+);
+
+-- Index "idx_ultraFeedEvents_userId_collectionName_documentId_idx"
+CREATE INDEX IF NOT EXISTS "idx_ultraFeedEvents_userId_collectionName_documentId_idx" ON "UltraFeedEvents" USING btree ("userId", "collectionName", "documentId");
+
 -- Table "UserActivities"
 CREATE TABLE "UserActivities" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -3192,7 +3238,7 @@ CREATE TABLE "UserRateLimits" (
   "intervalUnit" TEXT NOT NULL,
   "intervalLength" DOUBLE PRECISION NOT NULL,
   "actionsPerInterval" DOUBLE PRECISION NOT NULL,
-  "endedAt" TIMESTAMPTZ
+  "endedAt" TIMESTAMPTZ NOT NULL
 );
 
 -- Index "idx_UserRateLimits_schemaVersion"
@@ -3207,7 +3253,7 @@ CREATE TABLE "UserTagRels" (
   "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "legacyData" JSONB,
-  "tagId" VARCHAR(27),
+  "tagId" VARCHAR(27) NOT NULL,
   "userId" VARCHAR(27) NOT NULL,
   "subforumLastVisitedAt" TIMESTAMPTZ,
   "subforumShowUnreadInSidebar" BOOL NOT NULL DEFAULT TRUE,
@@ -3219,7 +3265,7 @@ CREATE TABLE "UserTagRels" (
 CREATE INDEX IF NOT EXISTS "idx_UserTagRels_schemaVersion" ON "UserTagRels" USING btree ("schemaVersion");
 
 -- Index "idx_UserTagRels_tagId_userId"
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserTagRels_tagId_userId" ON "UserTagRels" USING btree (COALESCE("tagId", ''), "userId");
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserTagRels_tagId_userId" ON "UserTagRels" USING btree ("tagId", "userId");
 
 -- Table "Users"
 CREATE TABLE "Users" (
@@ -3242,7 +3288,7 @@ CREATE TABLE "Users" (
   "isAdmin" BOOL NOT NULL DEFAULT FALSE,
   "profile" JSONB,
   "services" JSONB,
-  "displayName" TEXT,
+  "displayName" TEXT NOT NULL,
   "previousDisplayName" TEXT,
   "email" TEXT,
   "noindex" BOOL NOT NULL DEFAULT FALSE,
@@ -3298,7 +3344,6 @@ CREATE TABLE "Users" (
   "collapseModerationGuidelines" BOOL,
   "bannedUserIds" VARCHAR(27) [],
   "bannedPersonalUserIds" VARCHAR(27) [],
-  "bookmarkedPostsMetadata" JSONB[] NOT NULL DEFAULT '{}',
   "hiddenPostsMetadata" JSONB[] NOT NULL DEFAULT '{}',
   "legacyId" TEXT,
   "deleted" BOOL NOT NULL DEFAULT FALSE,
@@ -3310,34 +3355,35 @@ CREATE TABLE "Users" (
   "auto_subscribe_to_my_posts" BOOL NOT NULL DEFAULT TRUE,
   "auto_subscribe_to_my_comments" BOOL NOT NULL DEFAULT TRUE,
   "autoSubscribeAsOrganizer" BOOL NOT NULL DEFAULT TRUE,
-  "notificationCommentsOnSubscribedPost" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationShortformContent" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationRepliesToMyComments" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationRepliesToSubscribedComments" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationSubscribedUserPost" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationSubscribedUserComment" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationPostsInGroups" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationSubscribedTagPost" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationSubscribedSequencePost" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationPrivateMessage" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationSharedWithMe" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationAlignmentSubmissionApproved" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationEventInRadius" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationKarmaPowersGained" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationRSVPs" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationGroupAdministration" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationCommentsOnDraft" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationPostsNominatedReview" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationSubforumUnread" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"daily","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationNewMention" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationDialogueMessages" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationPublishedDialogueMessages" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationAddedAsCoauthor" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationDebateCommentsOnSubscribedPost" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"daily","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationDebateReplies" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationDialogueMatch" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationNewDialogueChecks" JSONB NOT NULL DEFAULT '{"channel":"none","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
-  "notificationYourTurnMatchForm" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationCommentsOnSubscribedPost" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationShortformContent" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationRepliesToMyComments" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationRepliesToSubscribedComments" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationSubscribedUserPost" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationSubscribedUserComment" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationPostsInGroups" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationSubscribedTagPost" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationSubscribedSequencePost" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationPrivateMessage" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationSharedWithMe" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationAlignmentSubmissionApproved" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationEventInRadius" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationKarmaPowersGained" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationRSVPs" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationGroupAdministration" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationCommentsOnDraft" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationPostsNominatedReview" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationSubforumUnread" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"daily","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationNewMention" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationNewPingback" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationDialogueMessages" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationPublishedDialogueMessages" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationAddedAsCoauthor" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationDebateCommentsOnSubscribedPost" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"daily","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationDebateReplies" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationDialogueMatch" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationNewDialogueChecks" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationYourTurnMatchForm" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "hideDialogueFacilitation" BOOL NOT NULL DEFAULT FALSE,
   "revealChecksToAdmins" BOOL NOT NULL DEFAULT FALSE,
   "optedInToDialogueFacilitation" BOOL NOT NULL DEFAULT FALSE,
@@ -3351,6 +3397,7 @@ CREATE TABLE "Users" (
   "karmaChangeBatchStart" TIMESTAMPTZ,
   "emailSubscribedToCurated" BOOL,
   "subscribedToDigest" BOOL NOT NULL DEFAULT FALSE,
+  "subscribedToNewsletter" BOOL NOT NULL DEFAULT FALSE,
   "unsubscribeFromAll" BOOL,
   "hideSubscribePoke" BOOL NOT NULL DEFAULT FALSE,
   "hideMeetupsPoke" BOOL NOT NULL DEFAULT FALSE,
@@ -3414,7 +3461,6 @@ CREATE TABLE "Users" (
   "tagRevisionCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "abTestKey" TEXT NOT NULL,
   "abTestOverrides" JSONB,
-  "reenableDraftJs" BOOL,
   "walledGardenInvite" BOOL,
   "hideWalledGardenUI" BOOL,
   "walledGardenPortalOnboarded" BOOL,
@@ -3580,9 +3626,6 @@ CREATE INDEX IF NOT EXISTS "idx_Users_profileTagIds_deleted_deleteContent_karma"
   "karma"
 );
 
--- Index "idx_Users_walledGardenInvite"
-CREATE INDEX IF NOT EXISTS "idx_Users_walledGardenInvite" ON "Users" USING btree ("walledGardenInvite");
-
 -- Index "idx_Users_optedInToDialogueFacilitation_karma"
 CREATE INDEX IF NOT EXISTS "idx_Users_optedInToDialogueFacilitation_karma" ON "Users" USING btree ("optedInToDialogueFacilitation", "karma");
 
@@ -3657,6 +3700,14 @@ CREATE INDEX IF NOT EXISTS "idx_Votes_collectionName_userId_voteType_cancelled_i
   "votedAt"
 );
 
+-- Index "idx_Votes_userId_collectionName_cancelled_votedAt"
+CREATE INDEX IF NOT EXISTS "idx_Votes_userId_collectionName_cancelled_votedAt" ON "Votes" USING btree (
+  "userId",
+  "collectionName",
+  "cancelled",
+  "votedAt"
+);
+
 -- Index "idx_Votes_documentId"
 CREATE INDEX IF NOT EXISTS "idx_Votes_documentId" ON "Votes" USING btree ("documentId");
 
@@ -3675,6 +3726,17 @@ CREATE INDEX IF NOT EXISTS "idx_Comments_userId_postId_postedAt" ON "Comments" (
 CREATE INDEX IF NOT EXISTS idx_comments_popular_comments ON "Comments" ("postId", "baseScore" DESC, "postedAt" DESC)
 WHERE
   ("baseScore" >= 15);
+
+-- CustomIndex "idx_Comments_suggestForAlignmentUserIds"
+CREATE INDEX IF NOT EXISTS "idx_Comments_suggestForAlignmentUserIds" ON "Comments" USING btree (
+  "reviewForAlignmentUserId" ASC NULLS LAST,
+  af ASC NULLS LAST,
+  "postedAt" ASC NULLS LAST
+)
+WITH
+  (deduplicate_items = TRUE)
+WHERE
+  "suggestForAlignmentUserIds" IS DISTINCT FROM '{}';
 
 -- CustomIndex "idx_posts_pingbacks"
 CREATE INDEX IF NOT EXISTS idx_posts_pingbacks ON "Posts" USING gin (pingbacks);

@@ -1,10 +1,16 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useTracking } from '../../lib/analyticsEvents';
 import { userHasSubscribeTabFeed } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { PopperPlacementType } from '@/lib/vendor/@material-ui/core/src/Popper/Popper';
+import type { Placement as PopperPlacementType } from "popper.js"
 import { isFriendlyUI } from '../../themes/forumTheme';
+import EAButton from "../ea-forum/EAButton";
+import ForumIcon from "../common/ForumIcon";
+import PopperCard from "../common/PopperCard";
+import LWClickAwayListener from "../common/LWClickAwayListener";
+import DropdownMenu from "../dropdowns/DropdownMenu";
+import NotifyMeToggleDropdownItem from "../dropdowns/NotifyMeToggleDropdownItem";
 
 const styles = (_theme: ThemeType) => ({
   buttonContent: {
@@ -51,12 +57,6 @@ const UserNotifyDropdown = ({
     captureEvent("subscribeClick", {open, itemType: "user", userId: user._id});
     setIsOpen(open);
   }, [user._id, captureEvent]);
-
-  const {
-    EAButton, ForumIcon, PopperCard, LWClickAwayListener, DropdownMenu,
-    NotifyMeToggleDropdownItem,
-  } = Components;
-
   const ButtonComponent = isFriendlyUI 
     ?  <EAButton
           style="grey"
@@ -116,10 +116,6 @@ const UserNotifyDropdown = ({
   );
 }
 
-const UserNotifyDropdownComponent = registerComponent('UserNotifyDropdown', UserNotifyDropdown, {styles});
+export default registerComponent('UserNotifyDropdown', UserNotifyDropdown, {styles});
 
-declare global {
-  interface ComponentTypes {
-    UserNotifyDropdown: typeof UserNotifyDropdownComponent
-  }
-}
+

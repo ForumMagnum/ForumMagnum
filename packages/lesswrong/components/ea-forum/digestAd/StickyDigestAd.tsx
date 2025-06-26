@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from '../../../lib/analyticsEvents';
 import { useCurrentUser } from '../../common/withUser';
 import { eaForumDigestSubscribeURL } from '../../recentDiscussion/RecentDiscussionSubscribeReminder';
@@ -8,6 +8,9 @@ import classNames from 'classnames';
 import { useDigestAd } from './useDigestAd';
 import { DIGEST_AD_BODY_TEXT, DIGEST_AD_HEADLINE_TEXT } from './SidebarDigestAd';
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
+import AnalyticsInViewTracker from "../../common/AnalyticsInViewTracker";
+import ForumIcon from "../../common/ForumIcon";
+import EAButton from "../EAButton";
 
 const styles = (theme: ThemeType) => ({
   '@keyframes digest-fade-in': {
@@ -138,9 +141,6 @@ const StickyDigestAd = ({className, classes}: {
   const postReadCount = parseInt(ls?.getItem('postReadCount') ?? '0')
   // We only show this after the client has viewed a few posts.
   if (!showDigestAd || postReadCount < 10) return null
-  
-  const { AnalyticsInViewTracker, ForumIcon, EAButton } = Components
-  
   const buttonProps = loading ? {disabled: true} : {}
   const noThanksBtn = (
     <EAButton
@@ -166,7 +166,7 @@ const StickyDigestAd = ({className, classes}: {
     </form>
   ) : (
     <div className={classes.form}>
-      <input value={currentUser.email} className={classes.formInput} disabled={true} required={true} />
+      <input value={currentUser.email ?? undefined} className={classes.formInput} disabled={true} required={true} />
       <div className={classes.formBtns}>
         <EAButton onClick={handleUserSubscribe} className={classes.formBtn} {...buttonProps}>
           Sign up
@@ -204,10 +204,6 @@ const StickyDigestAd = ({className, classes}: {
   </AnalyticsContext>
 }
 
-const StickyDigestAdComponent = registerComponent("StickyDigestAd", StickyDigestAd, {styles, stylePriority: -1});
+export default registerComponent("StickyDigestAd", StickyDigestAd, {styles, stylePriority: -1});
 
-declare global {
-  interface ComponentTypes {
-    StickyDigestAd: typeof StickyDigestAdComponent
-  }
-}
+

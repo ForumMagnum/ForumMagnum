@@ -1,4 +1,6 @@
-export const UnclaimedReportsList = `
+import { frag } from "@/lib/fragments/fragmentWrapper";
+
+export const UnclaimedReportsList = () => frag`
   fragment UnclaimedReportsList on Report {
     _id
     userId
@@ -35,5 +37,14 @@ export const UnclaimedReportsList = `
     description
     reportedAsSpam
     markedAsSpam
+  }
+`
+
+export const ReportsSlackPreview = () => frag`
+  fragment ReportsSlackPreview on Report {
+    ...UnclaimedReportsList
+    comment {
+      ...CommentsListWithParentMetadata
+    }
   }
 `

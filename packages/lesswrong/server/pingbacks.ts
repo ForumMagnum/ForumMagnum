@@ -5,12 +5,12 @@ import { classifyHost } from '../lib/routeUtil';
 import * as _ from 'underscore';
 import { getUrlClass } from './utils/getUrlClass';
 import { forEachDocumentBatchInCollection } from './manualMigrations/migrationUtils';
-import { getEditableFieldsByCollection } from '@/lib/editor/make_editable';
+import { getEditableFieldsByCollection } from '@/lib/editor/editableSchemaFieldHelpers';
 import { getCollection } from '@/server/collections/allCollections';
 import { getLatestRev } from './editor/utils';
-import { createAnonymousContext } from '@/server/vulcan-lib/query';
+import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 
-type PingbacksIndex = Partial<Record<CollectionNameString, string[]>>
+export type PingbacksIndex = Partial<Record<CollectionNameString, string[]>>
 
 // Given an HTML document, extract the links from it and convert them to a set
 // of pingbacks, formatted as a dictionary from collection name -> array of
@@ -84,6 +84,8 @@ const extractLinks = (html: string): Array<string> => {
 export async function recomputePingbacks<N extends CollectionNameWithPingbacks>(collectionName: N) {
   type T = ObjectsByCollectionName[N];
   const collection = getCollection(collectionName);
+  const context = createAnonymousContext();
+
   await forEachDocumentBatchInCollection({
     collection,
     callback: async (batch) => {
@@ -92,10 +94,10 @@ export async function recomputePingbacks<N extends CollectionNameWithPingbacks>(
         if (!editableFields) return;
 
         for (const [fieldName, editableField] of Object.entries(editableFields)) {
-          const editableFieldOptions = editableField.editableFieldOptions.callbackOptions;
+          const editableFieldOptions = editableField.graphql.editableFieldOptions;
           if (!editableFieldOptions.pingbacks) continue;
           const fieldContents = editableFieldOptions.normalized
-            ? await getLatestRev(doc._id, fieldName)
+            ? await getLatestRev(doc._id, fieldName, context)
             : doc[fieldName as keyof T] as AnyBecauseHard;
           const html = fieldContents?.html ?? "";
           const pingbacks = await htmlToPingbacks(html, [{
@@ -125,7 +127,7 @@ export const showPingbacksFrom = async <N extends CollectionNameWithPingbacks>(c
   if (!editableFields) return;
   
   for (const [fieldName, editableField] of Object.entries(editableFields)) {
-    if (!editableField.editableFieldOptions.callbackOptions.pingbacks) continue;
+    if (!editableField.graphql.editableFieldOptions.pingbacks) continue;
     const fieldContents = doc[fieldName as keyof T] as AnyBecauseHard;
     const html = fieldContents?.html ?? "";
     const pingbacks = await htmlToPingbacks(html, [{

@@ -1,8 +1,10 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
-import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
-import DialogActions from '@/lib/vendor/@material-ui/core/src/DialogActions';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import { DialogActions } from '@/components/widgets/DialogActions';
+import { DialogContent } from '../../widgets/DialogContent';
 import { useUpdate } from '../../../lib/crud/withUpdate';
+import LWDialog from "../../common/LWDialog";
+import EAButton from "../EAButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -43,11 +45,8 @@ const ConfirmPublishDialog = ({ digest, onClose, classes }: {
     })
     onClose?.()
   }
-  
-  const { LWDialog, EAButton } = Components
-
   return (
-    <LWDialog open onClose={onClose} dialogClasses={{paper: classes.root}}>
+    <LWDialog open onClose={onClose} paperClassName={classes.root}>
       <DialogContent className={classes.text}>
         <div className={classes.heading}>
           Are you sure you want to publish this digest?
@@ -69,10 +68,6 @@ const ConfirmPublishDialog = ({ digest, onClose, classes }: {
   )
 }
 
-const ConfirmPublishDialogComponent = registerComponent('ConfirmPublishDialog', ConfirmPublishDialog, {styles});
+export default registerComponent('ConfirmPublishDialog', ConfirmPublishDialog, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ConfirmPublishDialog: typeof ConfirmPublishDialogComponent
-  }
-}
+

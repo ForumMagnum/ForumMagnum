@@ -1,8 +1,8 @@
 import { Users } from "@/server/collections/users/collection";
 import { getUnusedSlugByCollectionName } from "../utils/slugUtil";
-import { updateMutator } from "../vulcan-lib/mutators";
-import { createDisplayName } from "@/lib/collections/users/schema";
-import { createAdminContext } from "../vulcan-lib/query";
+import { createDisplayName } from "@/lib/collections/users/newSchema";
+import { createAdminContext } from "../vulcan-lib/createContexts";
+import { updateUser } from "../collections/users/mutations";
 
 export const up = async ({db}: MigrationContext) => {
   // Find and fix any users with null slugs. Theoretically there shouldn't be
@@ -13,15 +13,11 @@ export const up = async ({db}: MigrationContext) => {
 
   for (const user of usersWithNullSlugs) {
     const newSlug = await getUnusedSlugByCollectionName("Users", createDisplayName(user), true, user._id);
-    await updateMutator({
-      collection: Users,
-      documentId: user._id,
+    await updateUser({
       data: {
         slug: newSlug,
-      },
-      context: resolverContext,
-      currentUser: resolverContext.currentUser,
-    });
+      }, selector: { _id: user._id }
+    }, resolverContext);
   }
   
   await db.none(`

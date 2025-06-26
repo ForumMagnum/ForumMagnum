@@ -1,8 +1,9 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import SubdirectoryArrowLeft from '@/lib/vendor/@material-ui/icons/src/SubdirectoryArrowLeft';
 import classNames from 'classnames';
 import { legacyBreakpoints } from '../../lib/utils/theme';
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -50,21 +51,15 @@ const ShowParentComment = ({ comment, active, onClick, classes }: {
   if (!comment) return null;
   
   return (
-    <Components.LWTooltip title={`${active ? "Hide" : "Show"} previous comment`}>
+    <LWTooltip title={`${active ? "Hide" : "Show"} previous comment`}>
       <span className={classNames(classes.root, {[classes.active]: active})} onClick={onClick}>
-        <SubdirectoryArrowLeft className={classNames(classes.icon, {[classes.activeArrow]: active})}>
-          subdirectory_arrow_left
-        </SubdirectoryArrowLeft>
+        <SubdirectoryArrowLeft className={classNames(classes.icon, {[classes.activeArrow]: active})}/>
       </span>
-    </Components.LWTooltip>
+    </LWTooltip>
   )
 };
 
-const ShowParentCommentComponent = registerComponent('ShowParentComment', ShowParentComment, {styles});
+export default registerComponent('ShowParentComment', ShowParentComment, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ShowParentComment: typeof ShowParentCommentComponent,
-  }
-}
+
 

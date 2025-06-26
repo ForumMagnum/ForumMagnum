@@ -1,8 +1,11 @@
-import React, { useRef, useEffect, RefObject } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import React, { useRef, useEffect, RefObject, useState, useCallback } from "react";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePostsUserAndCoauthors } from "./usePostsUserAndCoauthors";
 import { recalculateTruncation } from "../../lib/truncateUtils";
 import classNames from "classnames";
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import UserNameDeleted from "../users/UserNameDeleted";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (_: ThemeType) => ({
   root: {
@@ -32,42 +35,62 @@ const reformatAuthorPlaceholder = (
   moreCount: number,
   totalItems: number,
   moreNode: Element,
+  useMoreSuffix: boolean,
 ) => {
-  const text = moreCount === totalItems
-    ? `${moreCount} authors`
-    : `+ ${moreCount} more`
+
+
+  let text: string;
+  if (moreCount === totalItems) {
+    text = `${moreCount} authors`;
+  } else {
+    if (useMoreSuffix) {
+      text = `+ ${moreCount} more`;
+    } else {
+      text = `+${moreCount}`;
+    }
+  }
   moreNode.innerHTML = moreNode.innerHTML.replace(
-    /(\+ \d+ more)|(\d+ authors)/,
+    /(\+ \d+(?: more)?)|(\d+ authors)/,
     text,
   );
 }
 
-const TruncatedAuthorsList = ({post, expandContainer, className, classes}: {
+const TruncatedAuthorsList = ({
+  post,
+  expandContainer,
+  className,
+  classes,
+  useMoreSuffix = true
+}: {
   post: PostsList | SunshinePostsList | PostsBestOfList,
-  expandContainer: RefObject<HTMLDivElement>,
+  expandContainer: RefObject<HTMLDivElement|null>,
   className?: string,
   classes: ClassesType<typeof styles>,
+  useMoreSuffix?: boolean,
 }) => {
   const {isAnon, authors, topCommentAuthor} = usePostsUserAndCoauthors(post);
   const ref = useRef<HTMLDivElement>(null);
+
+  const reformatAuthorPlaceholderCurried = useCallback(
+    (moreCount: number, totalItems: number, moreNode: Element) => reformatAuthorPlaceholder(moreCount, totalItems, moreNode, useMoreSuffix),
+    [useMoreSuffix],
+  );
 
   useEffect(() => {
     if (isAnon || authors.length === 0) {
       return;
     }
+
     const handler = () => recalculateTruncation(
       ref,
       expandContainer,
       classes,
-      reformatAuthorPlaceholder,
+      reformatAuthorPlaceholderCurried,
     );
     handler();
     window.addEventListener("resize", handler);
     return () => window.removeEventListener("resize", handler);
-  }, [isAnon, authors, topCommentAuthor, ref, classes.item, expandContainer, classes]);
-
-  const {UsersNameDisplay, UserNameDeleted, LWTooltip} = Components;
-
+  }, [isAnon, authors, topCommentAuthor, ref, classes, expandContainer, useMoreSuffix, reformatAuthorPlaceholderCurried]);
   return isAnon || authors.length === 0
     ? <UserNameDeleted />
     : (
@@ -82,31 +105,29 @@ const TruncatedAuthorsList = ({post, expandContainer, className, classes}: {
               <UsersNameDisplay user={author} />
             </span>
           )}
-          <LWTooltip
-            title={
-              <div className={classes.tooltip}>
-                {authors.map((author) =>
-                  <UsersNameDisplay key={author._id} user={author} />
-                )}
-              </div>
-            }
-            className={classes.more}
-          >
-            + 0 more
-          </LWTooltip>
+          {authors.length > 1 && (
+            <LWTooltip
+              title={
+                <div className={classes.tooltip}>
+                  {authors.slice(1).map((author: UsersMinimumInfo) => (
+                    <UsersNameDisplay key={author._id} user={author} />
+                  ))}
+                </div>
+              }
+              className={classes.more}
+            >
+              + 0 more
+            </LWTooltip>
+          )}
         </div>
       </div>
     );
 }
 
-const TruncatedAuthorsListComponent = registerComponent(
+export default registerComponent(
   "TruncatedAuthorsList",
   TruncatedAuthorsList,
   {styles, stylePriority: -2},
 );
 
-declare global {
-  interface ComponentTypes {
-    TruncatedAuthorsList: typeof TruncatedAuthorsListComponent
-  }
-}
+

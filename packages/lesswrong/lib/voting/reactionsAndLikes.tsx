@@ -1,8 +1,8 @@
 import { VotingProps } from "@/components/votes/votingProps";
 import { isLW } from "../instanceSettings";
-import { Components } from "../vulcan-lib/components";
-import { NamesAttachedReactionsList, UserVoteOnSingleReaction, addReactsVote, getDocumentHighlights, removeReactsVote } from "./namesAttachedReactions";
-import { registerVotingSystem } from "./votingSystems";
+import type { NamesAttachedReactionsList, UserVoteOnSingleReaction } from "./namesAttachedReactions";
+import { addReactsVote, removeReactsVote, getDocumentHighlights } from './reactionDisplayHelpers';
+import { defineVotingSystem } from './defineVotingSystem';
 import { loadByIds } from '../loaders';
 import { filterNonnull } from '../utils/typeGuardUtils';
 import keyBy from 'lodash/keyBy';
@@ -10,6 +10,7 @@ import uniq from 'lodash/uniq';
 import { userGetDisplayName } from "../collections/users/helpers";
 import sortBy from 'lodash/sortBy';
 import type { TagLens } from "../arbital/useTagLenses";
+import { ReactionsAndLikesCommentBottom, ReactionsAndLikesVoteOnComment } from "@/components/votes/lwReactions/ReactionsAndLikesVote";
 
 /**
  * Reactions-and-likes voting
@@ -24,14 +25,14 @@ type ReactionsAndLikesScore = {
   reacts: NamesAttachedReactionsList
 }
 
-registerVotingSystem<ReactionsAndLikesVote, ReactionsAndLikesScore>({
+export const reactionsAndLikesVotingSystem = defineVotingSystem<ReactionsAndLikesVote, ReactionsAndLikesScore>({
   name: "reactionsAndLikes",
   userCanActivate: isLW,
   description: "Likes (single-axis non-anonymous) plus reactions",
   hasInlineReacts: true,
 
-  getCommentVotingComponent: () => Components.ReactionsAndLikesVoteOnComment,
-  getCommentBottomComponent: () => Components.ReactionsAndLikesCommentBottom,
+  getCommentVotingComponent: () => ReactionsAndLikesVoteOnComment,
+  getCommentBottomComponent: () => ReactionsAndLikesCommentBottom,
 
   addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {
     voteType: string|null,

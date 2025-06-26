@@ -6,13 +6,15 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Components, registerComponent } from "@/lib/vulcan-lib/components.tsx";
+import { registerComponent } from "@/lib/vulcan-lib/components";
 import { captureException } from "@sentry/core";
 import { useTheme } from "@/components/themes/useTheme";
-import { WRAPPED_SHARE_BUTTON_WIDTH } from "./WrappedShareButton";
+import WrappedShareButton, { WRAPPED_SHARE_BUTTON_WIDTH } from "./WrappedShareButton";
 import { useForumWrappedContext } from "./hooks";
 import { getWrappedVideo } from "./videos";
 import classNames from "classnames";
+import WrappedSection from "./WrappedSection";
+import WrappedHeading from "./WrappedHeading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -180,8 +182,6 @@ const WrappedPersonalitySection = ({classes}: {
       console.error(e);
     }
   }, [personalityVideo.color, theme]);
-
-  const {WrappedSection, WrappedHeading, WrappedShareButton} = Components;
   const personalityTitle = (
     <>
       <div className={classes.bottomMargin}>
@@ -250,14 +250,10 @@ const WrappedPersonalitySection = ({classes}: {
   );
 }
 
-const WrappedPersonalitySectionComponent = registerComponent(
+export default registerComponent(
   "WrappedPersonalitySection",
   WrappedPersonalitySection,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    WrappedPersonalitySection: typeof WrappedPersonalitySectionComponent
-  }
-}
+

@@ -1,15 +1,26 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { showReviewOnFrontPageIfActive, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive } from '../../lib/publicSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
-import { visitorGetsDynamicFrontpage } from '../../lib/betas';
+import { userHasUltraFeed,visitorGetsDynamicFrontpage } from '../../lib/betas';
 import { isLW, isAF } from '@/lib/instanceSettings';
 import { useCurrentUser } from './withUser';
 import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import BestOfLessWrongAnnouncement from '../posts/PostsPage/BestOfLessWrong/BestOfLessWrongAnnouncement';
+import RecentDiscussionFeed from "../recentDiscussion/RecentDiscussionFeed";
+import AnalyticsInViewTracker from "./AnalyticsInViewTracker";
+import FrontpageReviewWidget from "../review/FrontpageReviewWidget";
+import SingleColumnSection from "./SingleColumnSection";
+import EAPopularCommentsSection from "../ea-forum/EAPopularCommentsSection";
+import DismissibleSpotlightItem from "../spotlights/DismissibleSpotlightItem";
+import QuickTakesSection from "../quickTakes/QuickTakesSection";
+import LWHomePosts from "./LWHomePosts";
+import HeadTags from "./HeadTags";
+import UltraFeed from "../ultraFeed/UltraFeed";
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -40,12 +51,7 @@ const getStructuredData = () => ({
 })
 
 const LWHome = () => {
-  const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
-    SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection, FundraisingThermometer,
-    QuickTakesSection, LWHomePosts, HeadTags
-  } = Components;
-
-  const currentUser = useCurrentUser();
+  const [isUltraFeedShowing, setIsUltraFeedShowing] = useState(false);
 
   return (
       <AnalyticsContext pageContext="homePage">
@@ -58,8 +64,7 @@ const LWHome = () => {
             </SingleColumnSection>}
           </>}
           {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
-
-            <DismissibleSpotlightItem current/>
+          <DismissibleSpotlightItem current/> 
           </SingleColumnSection>}
           <AnalyticsInViewTracker
             eventProps={{inViewType: "homePosts"}}
@@ -67,14 +72,15 @@ const LWHome = () => {
           >
             <LWHomePosts>
               <QuickTakesSection />
-    
               <EAPopularCommentsSection />
-    
-              <RecentDiscussionFeed
-                af={false}
-                commentsLimit={4}
-                maxAgeHours={18}
-              />
+              <UltraFeed onShowingChange={setIsUltraFeedShowing} />
+              {!isUltraFeedShowing && (
+                <RecentDiscussionFeed
+                  af={false}
+                  commentsLimit={4}
+                  maxAgeHours={18}
+                />
+              )}
             </LWHomePosts>
           </AnalyticsInViewTracker>
         </React.Fragment>
@@ -94,10 +100,6 @@ const UpdateLastVisitCookie = () => {
   return <></>
 }
 
-const LWHomeComponent = registerComponent('LWHome', LWHome);
+export default registerComponent('LWHome', LWHome);
 
-declare global {
-  interface ComponentTypes {
-    LWHome: typeof LWHomeComponent
-  }
-}
+

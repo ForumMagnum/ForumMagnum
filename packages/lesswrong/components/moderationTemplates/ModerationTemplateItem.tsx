@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useLocation } from '../../lib/routeUtil';
 import DeferRender from '../common/DeferRender';
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { ModerationTemplatesForm } from './ModerationTemplateForm';
+import { ContentItemBody } from "../contents/ContentItemBody";
+import MetaInfo from "../common/MetaInfo";
+import BasicFormStyles from "../form-components/BasicFormStyles";
+import Row from "../common/Row";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -25,7 +30,6 @@ export const ModerationTemplateItem = ({classes, template}: {
   classes: ClassesType<typeof styles>,
   template: ModerationTemplateFragment
 }) => {
-  const { ContentItemBody, MetaInfo, WrappedSmartForm, BasicFormStyles, Row } = Components
   const [edit, setEdit] = useState<boolean>(false)
 
   const {hash} = useLocation()
@@ -37,13 +41,10 @@ export const ModerationTemplateItem = ({classes, template}: {
     </Row>
     {edit 
       ? <BasicFormStyles>
-          <WrappedSmartForm
-            collectionName="ModerationTemplates"
-            documentId={template._id}
-            mutationFragmentName={'ModerationTemplateFragment'}
-            queryFragmentName={'ModerationTemplateFragment'}
-            successCallback={() => setEdit(false)}
-          /> 
+          <ModerationTemplatesForm
+            initialData={template}
+            onSuccess={() => setEdit(false)}
+          />
         </BasicFormStyles>
       : <div>
           <ContentItemBody
@@ -57,11 +58,7 @@ export const ModerationTemplateItem = ({classes, template}: {
   </div></DeferRender>
 }
 
-const ModerationTemplateItemComponent = registerComponent('ModerationTemplateItem', ModerationTemplateItem, {styles});
+export default registerComponent('ModerationTemplateItem', ModerationTemplateItem, {styles});
 
-declare global {
-  interface ComponentTypes {
-    ModerationTemplateItem: typeof ModerationTemplateItemComponent
-  }
-}
+
 

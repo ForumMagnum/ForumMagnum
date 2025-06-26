@@ -1,10 +1,13 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
-import Card from "@/lib/vendor/@material-ui/core/src/Card";
+import { Card } from "@/components/widgets/Paper";
 import { useTagBySlug } from '../tagging/useTag';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useMessages } from '../common/withMessages';
 import Button from '@/lib/vendor/@material-ui/core/src/Button'
+import { ContentItemBody } from "../contents/ContentItemBody";
+import LWDialog from "../common/LWDialog";
+import ContentStyles from "../common/ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   dialog: {
@@ -34,7 +37,6 @@ const AFNonMemberInitialPopup = ({onClose, classes}: {
   const updateCurrentUser = useUpdateCurrentUser();
   const { flash } = useMessages();
   const [open, setOpen] = useState(true)
-  const { ContentItemBody, LWDialog, ContentStyles } = Components
   const { tag } = useTagBySlug("af-non-member-popup-first", "TagFragment")
   
   const handleClose = () => {
@@ -70,10 +72,6 @@ const AFNonMemberInitialPopup = ({onClose, classes}: {
   );
 }
 
-const AFNonMemberInitialPopupComponent = registerComponent('AFNonMemberInitialPopup', AFNonMemberInitialPopup, {styles});
+export default registerComponent('AFNonMemberInitialPopup', AFNonMemberInitialPopup, {styles});
 
-declare global {
-  interface ComponentTypes {
-    AFNonMemberInitialPopup: typeof AFNonMemberInitialPopupComponent
-  }
-}
+

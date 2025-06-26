@@ -1,15 +1,15 @@
-import { createMutator } from './vulcan-lib/mutators';
 import Votes from '../server/collections/votes/collection';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { recalculateScore } from '../lib/scoring';
 import { isValidVoteType } from '../lib/voting/voteTypes';
 import { VoteDocTuple, getVotePower } from '../lib/voting/vote';
-import { getVotingSystemForDocument, VotingSystem } from '../lib/voting/votingSystems';
-import { createAdminContext, createAnonymousContext } from './vulcan-lib/query';
+import { type VotingSystem } from '../lib/voting/votingSystems';
+import { getVotingSystemForDocument } from '@/lib/voting/getVotingSystem';
+import { createAdminContext, createAnonymousContext } from './vulcan-lib/createContexts';
 import { randomId } from '../lib/random';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 import { ModeratorActions } from '../server/collections/moderatorActions/collection';
-import { RECEIVED_VOTING_PATTERN_WARNING, POTENTIAL_TARGETED_DOWNVOTING } from '../lib/collections/moderatorActions/schema';
+import { RECEIVED_VOTING_PATTERN_WARNING, POTENTIAL_TARGETED_DOWNVOTING } from "@/lib/collections/moderatorActions/constants";
 import { loadByIds } from '../lib/loaders';
 import { filterNonnull } from '../lib/utils/typeGuardUtils';
 import moment from 'moment';
@@ -20,15 +20,15 @@ import keyBy from 'lodash/keyBy';
 import { voteButtonsDisabledForUser } from '../lib/collections/users/helpers';
 import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
 import { collectionIsSearchIndexed } from '../lib/search/searchUtil';
-import { Posts } from '../server/collections/posts/collection';
 import VotesRepo from './repos/VotesRepo';
 import { swrInvalidatePostRoute } from './cache/swr';
 import { onCastVoteAsync, onVoteCancel } from './callbacks/votingCallbacks';
 import { getVoteAFPower } from './callbacks/alignment-forum/callbacks';
 import { isElasticEnabled } from "../lib/instanceSettings";
-import { getCollection, getVoteableCollections } from '@/server/collections/allCollections';
-import Users from '@/server/collections/users/collection';
 import { capitalize } from '@/lib/vulcan-lib/utils';
+import { createVote as createVoteMutator } from '@/server/collections/votes/mutations';
+import { createModeratorAction } from './collections/moderatorActions/mutations';
+import { getSchema } from '@/lib/schema/allSchemas';
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {
@@ -52,25 +52,27 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
   voteId: string,
   context: ResolverContext,
 }): Promise<VoteDocTuple> => {
+  const { Posts } = context
   // create vote and insert it
   const partialVote = createVote({ document, collectionName: collection.collectionName, voteType, extendedVote, user, voteId });
-  const {data: vote} = await createMutator({
-    collection: Votes,
-    document: partialVote,
-    validate: false,
-  });
+  const vote = await createVoteMutator({ data: partialVote }, context);
 
   let newDocument = {
     ...document,
     ...(await recalculateDocumentScores(document, collection.collectionName, context)),
   }
+
+  const schema = getSchema(collection.collectionName);
+  const inactiveFieldUpdate = schema.inactive
+    ? { inactive: false }
+    : {};
   
   // update document score & set item as active
   await collection.rawUpdateOne(
     {_id: document._id},
     {
       $set: {
-        inactive: false,
+        ...inactiveFieldUpdate,
         baseScore: newDocument.baseScore,
         score: newDocument.score,
         extendedScore: newDocument.extendedScore,
@@ -184,13 +186,9 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
       votedAt: new Date(),
       silenceNotification,
     };
-    await createMutator({
-      collection: Votes,
-      document: unvote,
-      validate: false,
-    });
+    await createVoteMutator({ data: unvote }, context);
 
-    await onVoteCancel(newDocument, vote, collection, user);
+    await onVoteCancel(newDocument, vote, collection, user, context);
   }
   // TODO: it seems possible we could do an early return here if we have zero vote cancellations, but I want to test it more thoroughly before doing that
   const newScores = await recalculateDocumentScores(document, collection.collectionName, context);
@@ -242,6 +240,8 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   if (!context)
     context = createAnonymousContext();
 
+  const { Posts } = context;
+
   const collectionName = collection.collectionName;
   document = document || await collection.findOne({_id: documentId});
 
@@ -292,19 +292,15 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
     };
   } else {
     if (!skipRateLimits) {
-      const { moderatorActionType } = await checkVotingRateLimits({ document, collection, voteType, user });
+      const { moderatorActionType } = await checkVotingRateLimits({ document, collection, voteType, user, context });
       if (moderatorActionType && !(await wasVotingPatternWarningDeliveredRecently(user, moderatorActionType))) {
         if (moderatorActionType === RECEIVED_VOTING_PATTERN_WARNING) showVotingPatternWarning = true;
-        void createMutator({
-          collection: ModeratorActions,
-          context,
-          currentUser: null,
-          validate: false,
-          document: {
+        void createModeratorAction({
+          data: {
             userId: user._id,
             type: moderatorActionType,
           }
-        });
+        }, context);
       }
     }
     
@@ -452,14 +448,16 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
  * May also add apply voting-related consequences such as flagging the user for
  * moderation, as side effects.
  */
-const checkVotingRateLimits = async ({ document, collection, voteType, user }: {
+const checkVotingRateLimits = async ({ document, collection, voteType, user, context }: {
   document: DbVoteableType,
   collection: CollectionBase<VoteableCollectionName>,
   voteType: string,
-  user: DbUser
+  user: DbUser,
+  context: ResolverContext
 }): Promise<{
   moderatorActionType?: DbModeratorAction["type"]
 }> => {
+  const { Posts } = context;
   // No rate limit on self-votes
   if(document.userId === user._id)
     return {};
@@ -641,7 +639,8 @@ export const recalculateDocumentScores = async (document: VoteableType, collecti
  * Reverse the given vote, without triggering any karma change notifications
  */
 export async function silentlyReverseVote(vote: DbVote, context: ResolverContext) {
-  const collection = getCollection(vote.collectionName as VoteableCollectionName);
+  const { Users } = context;
+  const collection: CollectionBase<VoteableCollectionName> = context[vote.collectionName as VoteableCollectionName];
   const document = await collection.findOne({_id: vote.documentId});
   const user = await Users.findOne({_id: vote.userId});
   if (document && user) {
@@ -652,7 +651,7 @@ export async function silentlyReverseVote(vote: DbVote, context: ResolverContext
   }
 }
 
-async function nullifyVotesForUserAndCollection(user: DbUser, collection: CollectionBase<VoteableCollectionName>) {
+export async function nullifyVotesForUserAndCollection(user: DbUser, collection: CollectionBase<VoteableCollectionName>) {
   const collectionName = capitalize(collection.collectionName);
   const context = createAdminContext();
   const votes = await Votes.find({
@@ -670,8 +669,4 @@ async function nullifyVotesForUserAndCollection(user: DbUser, collection: Collec
 }
 
 
-export async function nullifyVotesForUser(user: DbUser) {
-  for (let collection of getVoteableCollections()) {
-    await nullifyVotesForUserAndCollection(user, collection);
-  }
-}
+

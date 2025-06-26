@@ -101,49 +101,13 @@ const slugIsUsed = async ({collectionsToCheck, slug, useOldSlugs, excludedId}: {
   return false;
 }
 
-type CollectionWithSlug<N extends CollectionNameWithSlug> = CollectionBase<N> & {
-  _schemaFields: SchemaType<N> & {
-    slug: CollectionFieldSpecification<N> & { slugCallbackOptions: SlugCallbackOptions }
-  }
-};
-
-type ValidSlugCreateCallbackProps<N extends CollectionNameWithSlug> = CreateCallbackProperties<N> & {
-  collection: CollectionWithSlug<N>,
-  schema: SchemaType<N> & { slug: CollectionFieldSpecification<N> & { slugCallbackOptions: SlugCallbackOptions } },
-  document: DbInsertion<ObjectsByCollectionName[N]>,
-}
-
-type ValidSlugUpdateCallbackProps<N extends CollectionNameWithSlug> = UpdateCallbackProperties<N> & {
-  collection: CollectionWithSlug<N>,
-  schema: SchemaType<N> & { slug: CollectionFieldSpecification<N> & { slugCallbackOptions: SlugCallbackOptions } },
-  oldDocument: ObjectsByCollectionName[N],
-  newDocument: ObjectsByCollectionName[N],
-  data: Partial<ObjectsByCollectionName[N]>,
-};
-
-function isCreateBeforeCallbackForSlugCollection<
-  N extends CollectionNameString,
-  Props extends CreateCallbackProperties<N>
->(props: Props): props is Props & ValidSlugCreateCallbackProps<CollectionNameWithSlug> {
-  return !!props.schema.slug?.slugCallbackOptions;
-}
-
-function isUpdateBeforeCallbackForSlugCollection<
-  N extends CollectionNameString,
-  Props extends UpdateCallbackProperties<N>
->(props: Props): props is Props & ValidSlugUpdateCallbackProps<CollectionNameWithSlug> {
-  return !!props.schema.slug?.slugCallbackOptions;
-}
-
-export async function runSlugCreateBeforeCallback<N extends CollectionNameString>(createProps: CreateCallbackProperties<N>) {
-  if (!isCreateBeforeCallbackForSlugCollection(createProps)) {
+export async function runSlugCreateBeforeCallback<P extends CreateCallbackProperties<N>, N extends CollectionNameWithSlug>(createProps: P): Promise<P['document']> {
+  const { schema, document } = createProps;
+  if (!schema.slug.graphql || !('slugCallbackOptions' in schema.slug.graphql) || !schema.slug.graphql.slugCallbackOptions) {
     return createProps.document;
   }
 
-  const { schema, document } = createProps;
-  const slugField = schema.slug;
-
-  const { collectionsToAvoidCollisionsWith, getTitle, onCollision, includesOldSlugs } = slugField.slugCallbackOptions;
+  const { collectionsToAvoidCollisionsWith, getTitle, onCollision, includesOldSlugs } = schema.slug.graphql.slugCallbackOptions;
 
   const title = getTitle(document);
   const titleSlug = document.slug ?? slugify(title);
@@ -173,16 +137,18 @@ export async function runSlugCreateBeforeCallback<N extends CollectionNameString
   }
 }
 
-export async function runSlugUpdateBeforeCallback<N extends CollectionNameString>(updateProps: UpdateCallbackProperties<N>) {
-  if (!isUpdateBeforeCallbackForSlugCollection(updateProps)) {
+export async function runSlugUpdateBeforeCallback<N extends CollectionNameWithSlug>(updateProps: UpdateCallbackProperties<N>) {
+  // if (!isUpdateBeforeCallbackForSlugCollection<N>(updateProps)) {
+  //   return updateProps.data;
+  // }
+
+  const { oldDocument, newDocument, data, schema } = updateProps;
+  if (!schema.slug.graphql || !('slugCallbackOptions' in schema.slug.graphql) || !schema.slug.graphql.slugCallbackOptions) {
     return updateProps.data;
   }
-  
-  const slugField = updateProps.schema.slug;
 
-  const { collectionsToAvoidCollisionsWith, getTitle, onCollision, includesOldSlugs } = slugField.slugCallbackOptions;
+  const { collectionsToAvoidCollisionsWith, getTitle, onCollision, includesOldSlugs } = schema.slug.graphql.slugCallbackOptions;
 
-  const {oldDocument, newDocument, data} = updateProps;
   const oldTitle = getTitle(oldDocument);
   const newTitle = getTitle(newDocument);
   let changedSlug: string|null = null;

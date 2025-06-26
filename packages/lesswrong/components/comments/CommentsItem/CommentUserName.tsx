@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { ReactNode } from 'react';
 import classNames from 'classnames';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
@@ -6,6 +6,10 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { userHasCommentProfileImages } from '../../../lib/betas';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import UserNameDeleted from "../../users/UserNameDeleted";
+import UsersName from "../../users/UsersName";
+import UsersProfileImage from "../../users/UsersProfileImage";
+import UserTooltip from "../../users/UserTooltip";
 
 const PROFILE_IMAGE_SIZE = 20;
 
@@ -72,7 +76,6 @@ const CommentUserName = ({
   className?: string
 }) => {
   const currentUser = useCurrentUser();
-  const {UserNameDeleted, UsersName, UsersProfileImage, UserTooltip} = Components
   const author = comment.user;
 
   if (comment.deleted) {
@@ -137,13 +140,9 @@ const CommentUserName = ({
   );
 }
 
-const CommentUserNameComponent = registerComponent('CommentUserName', CommentUserName, {
+export default registerComponent('CommentUserName', CommentUserName, {
   styles,
   stylePriority: 100, //Higher than UsersName, which gets a className from us
 });
 
-declare global {
-  interface ComponentTypes {
-    CommentUserName: typeof CommentUserNameComponent
-  }
-}
+

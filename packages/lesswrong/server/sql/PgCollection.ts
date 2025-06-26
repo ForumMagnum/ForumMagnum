@@ -24,7 +24,7 @@ type ExecuteQueryData<T extends DbObject> = {
   selector: MongoSelector<T> | string;
   projection: MongoProjection<T>;
   data: T;
-  modifier: MongoModifier<T>;
+  modifier: MongoModifier;
   fieldOrSpec: MongoIndexFieldOrKey<T>;
   pipeline: MongoAggregationPipeline<T>;
   operations: MongoBulkWriteOperations<T>;
@@ -71,7 +71,7 @@ class PgCollection<
 
   hasSlug(): this is PgCollection<CollectionNameWithSlug> {
     const schema = getSchema(this.collectionName);
-    return !!getSchema(this.collectionName).slug;
+    return !!schema.slug;
   }
 
   getTable() {
@@ -177,7 +177,7 @@ class PgCollection<
 
   private async upsert(
     selector: string | MongoSelector<ObjectsByCollectionName[N]>,
-    modifier: MongoModifier<ObjectsByCollectionName[N]>,
+    modifier: MongoModifier,
     options: MongoUpdateOptions<ObjectsByCollectionName[N]> & {upsert: true},
   ) {
     const {$set, ...rest} = modifier;
@@ -208,7 +208,7 @@ class PgCollection<
 
   async rawUpdateOne(
     selector: string | MongoSelector<ObjectsByCollectionName[N]>,
-    modifier: MongoModifier<ObjectsByCollectionName[N]>,
+    modifier: MongoModifier,
     options: MongoUpdateOptions<ObjectsByCollectionName[N]>,
   ) {
     if (options?.upsert) {
@@ -221,7 +221,7 @@ class PgCollection<
 
   async rawUpdateMany(
     selector: string | MongoSelector<ObjectsByCollectionName[N]>,
-    modifier: MongoModifier<ObjectsByCollectionName[N]>,
+    modifier: MongoModifier,
     options?: MongoUpdateOptions<ObjectsByCollectionName[N]>,
   ) {
     const update = new UpdateQuery<ObjectsByCollectionName[N]>(this.getTable(), selector, modifier, options);
@@ -307,7 +307,7 @@ class PgCollection<
     },
     findOneAndUpdate: async (
       selector: string | MongoSelector<ObjectsByCollectionName[N]>,
-      modifier: MongoModifier<ObjectsByCollectionName[N]>,
+      modifier: MongoModifier,
       options: MongoUpdateOptions<ObjectsByCollectionName[N]>,
     ) => {
       const update = new UpdateQuery<ObjectsByCollectionName[N]>(this.getTable(), selector, modifier, options, {limit: 1, returnUpdated: true});
@@ -323,7 +323,7 @@ class PgCollection<
     },
     updateOne: async (
       selector: string | MongoSelector<ObjectsByCollectionName[N]>,
-      modifier: MongoModifier<ObjectsByCollectionName[N]>,
+      modifier: MongoModifier,
       options: MongoUpdateOptions<ObjectsByCollectionName[N]>,
     ) => {
       const result = await this.rawUpdateOne(selector, modifier, options);
@@ -335,7 +335,7 @@ class PgCollection<
     },
     updateMany: async (
       selector: string | MongoSelector<ObjectsByCollectionName[N]>,
-      modifier: MongoModifier<ObjectsByCollectionName[N]>,
+      modifier: MongoModifier,
       options: MongoUpdateOptions<ObjectsByCollectionName[N]>,
     ) => {
       await this.rawUpdateMany(selector, modifier, options);

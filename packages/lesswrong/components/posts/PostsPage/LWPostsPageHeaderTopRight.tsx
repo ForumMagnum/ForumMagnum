@@ -1,10 +1,14 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
-import { getVotingSystemByName } from '@/lib/voting/votingSystems';
+import { getVotingSystemByName } from '@/lib/voting/getVotingSystem';
 import classNames from 'classnames';
 import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
 import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
+import FooterTagList from "../../tagging/FooterTagList";
+import LWPostsPageTopHeaderVote from "../../votes/LWPostsPageTopHeaderVote";
+import AudioToggle from "./AudioToggle";
+import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -62,8 +66,6 @@ export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, 
   higherContrast?: boolean,
   annualReviewMarketInfo?: AnnualReviewMarketInfo
 }) => {
-  const { FooterTagList, LWPostsPageTopHeaderVote, AudioToggle, PostActionsButton } = Components;
-
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
 
   return <div className={classes.root}>
@@ -82,10 +84,6 @@ export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, 
   </div>;
 }
 
-const LWPostsPageHeaderTopRightComponent = registerComponent('LWPostsPageHeaderTopRight', LWPostsPageHeaderTopRight, {styles});
+export default registerComponent('LWPostsPageHeaderTopRight', LWPostsPageHeaderTopRight, {styles});
 
-declare global {
-  interface ComponentTypes {
-    LWPostsPageHeaderTopRight: typeof LWPostsPageHeaderTopRightComponent
-  }
-}
+

@@ -2,7 +2,15 @@ import React, { useState } from 'react';
 import { commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import LoadMore from "../../common/LoadMore";
+import RejectedReasonDisplay from "../RejectedReasonDisplay";
+import FormatDate from "../../common/FormatDate";
+import MetaInfo from "../../common/MetaInfo";
+import PostsTooltip from "../../posts/PostsPreviewTooltip/PostsTooltip";
+import CommentBody from "../../comments/CommentsItem/CommentBody";
+import Row from "../../common/Row";
+import ForumIcon from "../../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   commentPadding: {
@@ -30,10 +38,6 @@ export const RejectedCommentsList = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [expanded,setExpanded] = useState(false);
-  const {
-    RejectedReasonDisplay, FormatDate, MetaInfo, PostsTooltip, CommentBody,
-    Row, ForumIcon,
-  } = Components
   const { results, loadMoreProps } = useMulti({
     terms:{view: 'rejected', limit: 10},
     collectionName: "Comments",
@@ -49,7 +53,7 @@ export const RejectedCommentsList = ({classes}: {
             <MetaInfo>
               <FormatDate date={comment.postedAt}/>
             </MetaInfo>
-            <PostsTooltip postId={comment.postId}>
+            <PostsTooltip postId={comment.postId ?? undefined}>
               <MetaInfo>
                 <Link to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
                   {comment.post?.draft && "[Draft] "}
@@ -65,15 +69,11 @@ export const RejectedCommentsList = ({classes}: {
         </div>
       </div>
     )}
-    <Components.LoadMore {...loadMoreProps} />
+    <LoadMore {...loadMoreProps} />
   </div>;
 }
 
-const RejectedCommentsListComponent = registerComponent('RejectedCommentsList', RejectedCommentsList, {styles});
+export default registerComponent('RejectedCommentsList', RejectedCommentsList, {styles});
 
-declare global {
-  interface ComponentTypes {
-    RejectedCommentsList: typeof RejectedCommentsListComponent
-  }
-}
+
 

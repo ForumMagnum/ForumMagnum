@@ -1,15 +1,20 @@
 import classNames from 'classnames';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { CoreReadingCollection } from './LWCoreReading';
-import Tooltip from '@/lib/vendor/@material-ui/core/src/Tooltip';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import moment from 'moment';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_COLLECTION_ITEM_PREFIX } from '../../lib/cookies/cookies';
+import { TooltipSpan } from '../common/FMTooltip';
+import { Typography } from "../common/Typography";
+import LinkCard from "../common/LinkCard";
+import ContentStyles from "../common/ContentStyles";
+import { ContentItemBody } from "../contents/ContentItemBody";
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -28,14 +33,16 @@ const styles = (theme: ThemeType) => ({
       boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
     }
   },
+  closeButtonWrapper: {
+    position: 'absolute',
+    top: 0,
+    right: 0
+  },
   closeButton: {
     padding: '.5em',
     minHeight: '.75em',
     minWidth: '.75em',
-    position: 'absolute',
     color: theme.palette.grey[300],
-    top: 0,
-    right: 0
   },
   content: {
     padding: 16,
@@ -99,10 +106,6 @@ export const CollectionsItem = ({classes, showCloseIcon, collection}: {
   showCloseIcon?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    Typography, LinkCard, ContentStyles, ContentItemBody, PostsTooltip
-  } = Components;
-
   const { firstPost } = collection;
 
   const cookieName = `${HIDE_COLLECTION_ITEM_PREFIX}${collection.id}`; //hiding in one place, hides everywhere
@@ -147,20 +150,16 @@ export const CollectionsItem = ({classes, showCloseIcon, collection}: {
 
       {collection.imageUrl && <img src={collection.imageUrl} className={classes.image} style={{width: collection.imageWidth || 130}}/>}
 
-      {showCloseIcon && <Tooltip title="Hide this for the next month">
-        <Button className={classes.closeButton} onClick={hideBanner}>
+      {showCloseIcon && <TooltipSpan title="Hide this for the next month" className={classes.closeButtonWrapper}>
+        <Button onClick={hideBanner} className={classes.closeButton}>
           <CloseIcon />
         </Button>
-      </Tooltip>}
+      </TooltipSpan>}
     </LinkCard>
   </div>
 }
 
-const CollectionsItemComponent = registerComponent('CollectionsItem', CollectionsItem, {styles});
+export default registerComponent('CollectionsItem', CollectionsItem, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CollectionsItem: typeof CollectionsItemComponent
-  }
-}
+
 

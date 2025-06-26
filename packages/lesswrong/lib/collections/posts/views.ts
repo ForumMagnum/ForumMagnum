@@ -5,7 +5,7 @@ import { isAF, isEAForum } from '../../instanceSettings';
 import { defaultVisibilityTags } from '../../publicSettings';
 import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing, jsonArrayContainsSelector } from '@/lib/utils/viewConstants';
-import { filters, postStatuses, startHerePostIdSetting } from './constants';
+import { filters, openThreadTagIdSetting, postStatuses, startHerePostIdSetting } from './constants';
 import uniq from 'lodash/uniq';
 import { getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD, longformReviewTagId } from '../../reviewUtils';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/helpers';
@@ -63,6 +63,8 @@ declare global {
     curatedAfter?: Date|string|null,
     timeField?: keyof DbPost,
     postIds?: Array<string>,
+    /** Fetch exactly these postIds and apply no other filters (apart from permissions checks) */
+    exactPostIds?: Array<string>,
     notPostIds?: Array<string>,
     reviewYear?: number,
     reviewPhase?: ReviewPhase,
@@ -221,7 +223,13 @@ function defaultView(terms: PostsViewTerms, _: ApolloClient<NormalizedCacheObjec
   if (terms.curatedAfter) {
     params.selector.curatedDate = {$gte: moment(terms.curatedAfter).toDate()}
   }
-  
+
+  // If we want only the exact postIds, remove all other selector fields. Access
+  // filtering will still be applied by defaultResolvers.ts
+  if (terms.exactPostIds) {
+    params.selector = { _id: { $in: terms.exactPostIds } };
+  }
+
   return params;
 }
 
@@ -1285,37 +1293,6 @@ function reviewFinalVoting(terms: PostsViewTerms) {
   }
 }
 
-function myBookmarkedPosts(terms: PostsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
-  // Get list of bookmarked posts from the user object. This is ordered by when
-  // the bookmark was created (earlier is older).
-  let bookmarkedPostIds = (context?.currentUser?.bookmarkedPostsMetadata
-    ? uniq(context?.currentUser?.bookmarkedPostsMetadata.map(bookmark => bookmark.postId))
-    : []
-  );
-  
-  // If there's a limit, apply that limit to the list of IDs, before it's applied
-  // to the query. (We do this because the $in operator isn't going to respect
-  // the ordering of the IDs we give it).
-  //
-  // HACK: While the limit reflects the sort ordering of
-  // currentUser.bookmarkedPostsMetadata, the results ordering doesn't. So the
-  // BookmarksList component sorts the results itself after they come back.
-  if (terms.limit) {
-    bookmarkedPostIds = bookmarkedPostIds.reverse().slice(0, terms.limit);
-  }
-  
-  return {
-    selector: {
-      _id: {$in: bookmarkedPostIds},
-      isEvent: viewFieldAllowAny,
-      groupId: null
-    },
-    options: {
-      sort: {},
-    },
-  };
-}
-
 function alignmentSuggestedPosts() {
   return {
     selector: {
@@ -1332,6 +1309,18 @@ function alignmentSuggestedPosts() {
   }
 }
 
+function currentOpenThread(terms: PostsViewTerms) {
+  return {
+    selector: {
+      sticky: true,
+      [`tagRelevance.${openThreadTagIdSetting.get()}`]: { $gte: 1 }
+    },
+    options: {
+      sort: { postedAt: -1 },
+      limit: 1
+    }
+  }
+}
 
 export const PostsViews = new CollectionViewSet('Posts', {
   userPosts,
@@ -1392,6 +1381,6 @@ export const PostsViews = new CollectionViewSet('Posts', {
   frontpageReviewWidget,
   reviewQuickPage,
   reviewFinalVoting,
-  myBookmarkedPosts,
   alignmentSuggestedPosts,
+  currentOpenThread,
 }, defaultView);

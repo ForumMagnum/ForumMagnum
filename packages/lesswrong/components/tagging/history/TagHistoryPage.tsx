@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useTagBySlug } from '../useTag';
 import { useLocation } from '../../../lib/routeUtil';
 import { isFriendlyUI } from '../../../themes/forumTheme';
@@ -13,6 +13,23 @@ import { hasWikiLenses } from '@/lib/betas';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import classNames from 'classnames';
 import DeferRender from '@/components/common/DeferRender';
+import ErrorPage from "../../common/ErrorPage";
+import Error404 from "../../common/Error404";
+import SettingsButton from "../../icons/SettingsButton";
+import UsersName from "../../users/UsersName";
+import SingleColumnSection from "../../common/SingleColumnSection";
+import MixedTypeFeed from "../../common/MixedTypeFeed";
+import TagRevisionItem from "../TagRevisionItem";
+import LensRevisionItem from "./LensRevisionItem";
+import SummaryRevisionItem from "./SummaryRevisionItem";
+import FormatDate from "../../common/FormatDate";
+import CommentsNodeInner from "../../comments/CommentsNode";
+import Loading from "../../vulcan-core/Loading";
+import LinkToPost from "../../linkPreview/LinkToPost";
+import SingleLineFeedEvent from "../../common/SingleLineFeedEvent";
+import SectionTitle from "../../common/SectionTitle";
+import ForumIcon from "../../common/ForumIcon";
+import { MenuItem } from "../../common/Menus";
 
 export const tagHistoryStyles = defineStyles("TagHistoryPage", (theme: ThemeType) => ({
   title: {
@@ -79,7 +96,6 @@ const TagHistoryPage = () => {
   const { tag, loading: loadingTag, error } = useTagBySlug(slug, "TagHistoryFragment");
   const lenses = useMemo(() => addDefaultLensToLenses(tag, tag?.lensesIncludingDeleted), [tag]);
   const lensesById = keyBy(lenses, l=>l._id);
-  const { UsersName, SingleColumnSection, MixedTypeFeed, TagRevisionItem, LensRevisionItem, SummaryRevisionItem, FormatDate, CommentsNode, Loading, LinkToPost, SingleLineFeedEvent, SectionTitle, ForumIcon } = Components;
   const [settings, setSettings] = useState(defaultTagHistorySettings);
   const [settingsExpanded, setSettingsExpanded] = useState(false);
   const collapseAll = settings.displayFormat === "dense" || !!focusedUser;
@@ -90,16 +106,16 @@ const TagHistoryPage = () => {
         <Loading/>
       </SingleColumnSection>
     } else if (error) {
-      return <Components.ErrorPage error={error}/>
+      return <ErrorPage error={error}/>
     } else {
-      return <Components.Error404/>
+      return <Error404/>
     }
   }
   
   return <SingleColumnSection><DeferRender ssr={false}>
     <SectionTitle title={tag.name} href={tagGetUrl(tag)}>
       <div onClick={ev => setSettingsExpanded(expanded => !expanded)}>
-        <Components.SettingsButton label="Settings" />
+        <SettingsButton label="Settings" />
       </div>
     </SectionTitle>
     
@@ -152,7 +168,7 @@ const TagHistoryPage = () => {
         lensRevision: {
           fragmentName: "RevisionHistoryEntry",
           render: (revision: RevisionHistoryEntry) => {
-            if (!settings.showEdits)
+            if (!settings.showEdits || !revision.documentId)
               return null;
             const lens = lensesById[revision.documentId];
             return <div>
@@ -202,7 +218,7 @@ const TagHistoryPage = () => {
               return null;
             return <div>
               <SingleLineFeedEvent icon={<ForumIcon className={classNames(classes.feedIcon, classes.commentIcon)} icon="Comment"/>}>
-                <CommentsNode
+                <CommentsNodeInner
                   treeOptions={{ tag, forceSingleLine: collapseAll }}
                   comment={comment}
                   loadChildrenSeparately={true}
@@ -217,7 +233,7 @@ const TagHistoryPage = () => {
             return <SingleLineFeedEvent
               icon={<ForumIcon className={classNames(classes.feedIcon)} icon="InfoCircle"/>}
             ><div>
-              <UsersName documentId={metadataChanges.userId}/>
+              <UsersName documentId={metadataChanges.userId ?? undefined}/>
               {" changed "}{metadataChanges.fieldName}
               {" from "}{""+metadataChanges.oldValue}
               {" to "}{""+metadataChanges.newValue}
@@ -230,7 +246,7 @@ const TagHistoryPage = () => {
             return <SingleLineFeedEvent
               icon={<ForumIcon className={classNames(classes.feedIcon)} icon="InfoCircle"/>}
             ><div>
-              <UsersName documentId={metadataChanges.userId}/>
+              <UsersName documentId={metadataChanges.userId ?? undefined}/>
               {" changed "}{metadataChanges.fieldName}
               {" from "}{""+metadataChanges.oldValue}
               {" to "}{""+metadataChanges.newValue}
@@ -250,7 +266,6 @@ const TagHistoryFeedSettings = ({expanded, settings, setSettings, lenses}: {
   setSettings: (newSettings: TagHistorySettings) => void
   lenses: TagLens[]
 }) => {
-  const { MenuItem } = Components;
   const classes = useStyles(tagHistoryStyles);
   if (!expanded) return null;
 
@@ -327,10 +342,6 @@ const TagHistoryFeedSettings = ({expanded, settings, setSettings, lenses}: {
   </div>
 }
 
-const TagHistoryPageComponent = registerComponent("TagHistoryPage", TagHistoryPage);
+export default registerComponent("TagHistoryPage", TagHistoryPage);
 
-declare global {
-  interface ComponentTypes {
-    TagHistoryPage: typeof TagHistoryPageComponent
-  }
-}
+

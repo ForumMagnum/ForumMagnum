@@ -4,14 +4,10 @@ import Users from "../server/collections/users/collection";
 import { getAdminTeamAccount } from "./utils/adminTeamAccount";
 import { exportUserData } from "./exportUserData";
 import { sleep } from "../lib/utils/asyncUtils";
-import { createAdminContext } from "./vulcan-lib/query";
-import { updateMutator } from "./vulcan-lib/mutators";
-
-
-/**
- * Don't send a PM to users if their comments are deleted with this reason.  Used for account deletion requests.
- */
-export const noDeletionPmReason = 'Requested account deletion';
+import { createAdminContext } from "./vulcan-lib/createContexts";
+import { updateComment } from "./collections/comments/mutations";
+import { updatePost } from "./collections/posts/mutations";
+import { noDeletionPmReason } from "@/lib/collections/comments/constants";
 
 /**
  * Please ensure that we know that the user is who they say they are!
@@ -43,22 +39,19 @@ export const deleteUserContent = async (
   }
 
   const adminContext = createAdminContext();
-  const adminTeamAccount = await getAdminTeamAccount();
+  const adminTeamAccount = await getAdminTeamAccount(adminContext);
   if (!adminTeamAccount) throw new Error("Couldn't find admin team account");
 
   for (const userComment of userComments) {
-    await updateMutator({
-      collection: Comments,
-      documentId: userComment._id,
-      set: {
+    await updateComment({
+      data: {
         deleted: true,
         deletedPublic: true,
         deletedByUserId: adminTeamAccount._id,
-        deletedReason: noDeletionPmReason
+        deletedReason: noDeletionPmReason,
       },
-      context: adminContext,
-      currentUser: adminContext.currentUser
-    });
+      selector: { _id: userComment._id },
+    }, adminContext);
 
     await sleep(50);
   }
@@ -69,16 +62,13 @@ export const deleteUserContent = async (
   }
 
   for (const userPost of userPosts) {
-    await updateMutator({
-      collection: Posts,
-      documentId: userPost._id,
-      set: {
+    await updatePost({
+      data: {
         draft: true,
         deletedDraft: true,
       },
-      context: adminContext,
-      currentUser: adminContext.currentUser
-    });
+      selector: { _id: userPost._id },
+    }, adminContext);
 
     await sleep(50);
   }

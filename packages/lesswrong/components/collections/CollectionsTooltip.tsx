@@ -1,9 +1,13 @@
 import React, { ReactNode } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
-import Card from "@/lib/vendor/@material-ui/core/src/Card";
+import { Card } from "@/components/widgets/Paper";
 import { FRIENDLY_HOVER_OVER_WIDTH } from "../common/FriendlyHoverOver";
+import HoverOver from "../common/HoverOver";
+import UsersName from "../users/UsersName";
+import ContentStyles from "../common/ContentStyles";
+import ContentItemTruncated from "../common/ContentItemTruncated";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -37,7 +41,6 @@ const CollectionsTooltip = ({collection, children, classes}: {
   children?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {HoverOver, UsersName, ContentStyles, ContentItemTruncated} = Components;
   return (
     <HoverOver
       title={
@@ -74,14 +77,10 @@ const CollectionsTooltip = ({collection, children, classes}: {
   );
 }
 
-const CollectionsTooltipComponent = registerComponent(
+export default registerComponent(
   "CollectionsTooltip",
   CollectionsTooltip,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    CollectionsTooltip: typeof CollectionsTooltipComponent;
-  }
-}
+

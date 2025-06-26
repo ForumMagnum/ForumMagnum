@@ -1,14 +1,15 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
-import DialogTitle from '@/lib/vendor/@material-ui/core/src/DialogTitle';
-import DialogContent from '@/lib/vendor/@material-ui/core/src/DialogContent';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { DialogTitle } from "@/components/widgets/DialogTitle";
+import { DialogContent } from "@/components/widgets/DialogContent";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import FooterTagList from "./FooterTagList";
+import LWDialog from "../common/LWDialog";
 
 const EditTagsDialog = ({post, onClose }: {
   post: PostsList|SunshinePostsList,
   onClose?: () => void
 }) => {
-  const { FooterTagList, LWDialog } = Components
   return <LWDialog open={true} onClose={onClose} fullWidth maxWidth="sm">
     <AnalyticsContext pageSectionContext="editTagsDialog">
       <DialogTitle>{post.title}</DialogTitle>
@@ -19,10 +20,6 @@ const EditTagsDialog = ({post, onClose }: {
   </LWDialog>
 }
 
-const EditTagsDialogComponent = registerComponent('EditTagsDialog', EditTagsDialog);
+export default registerComponent('EditTagsDialog', EditTagsDialog);
 
-declare global {
-  interface ComponentTypes {
-    EditTagsDialog: typeof EditTagsDialogComponent
-  }
-}
+

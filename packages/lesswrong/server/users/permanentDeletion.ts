@@ -10,8 +10,8 @@ import { captureException } from "@sentry/core";
 import { auth0RemoveAssociationAndTryDeleteUser } from "../authentication/auth0";
 import { dogstatsd } from "../datadog/tracer";
 import { isEAForum } from "@/lib/instanceSettings";
-import { createAdminContext } from "../vulcan-lib/query";
-import { deleteMutator, updateMutator } from "../vulcan-lib/mutators";
+import { createAdminContext } from "../vulcan-lib/createContexts";
+import { updateUser } from "../collections/users/mutations";
 
 type DeleteOptions = { includingNonForumData: boolean };
 const defaultDeleteOptions = { includingNonForumData: false };
@@ -85,18 +85,11 @@ const permanentlyDeleteFromMailchimpList = async ({
 async function permanentlyDeleteUser(user: DbUser, options: DeleteOptions) {
   const logger = loggerConstructor(`permanentlyDeleteUsers`);
   const adminContext = createAdminContext();
-  const adminTeamAccount = await getAdminTeamAccount();
+  const adminTeamAccount = await getAdminTeamAccount(adminContext);
   if (!adminTeamAccount) throw new Error("Couldn't find admin team account");
 
   // Precaution: Ensure the soft-deleting callbacks have run (unsubscribing from mailchimp, reindexing elasticsearch content)
-  await updateMutator({
-    collection: Users,
-    documentId: user._id,
-    set: { deleted: true },
-    validate: false,
-    context: adminContext,
-    currentUser: adminContext.currentUser,
-  })
+  await updateUser({ data: { deleted: true }, selector: { _id: user._id } }, adminContext)
   // Wait until async callbacks finish. This is overcautious, as there should be no need for the callbacks to refetch the user object
   await new Promise(resolve => setTimeout(resolve, 5000));
 
@@ -123,13 +116,7 @@ async function permanentlyDeleteUser(user: DbUser, options: DeleteOptions) {
   logger(`Removed association with Auth0 for user with display name "${user.displayName}". The user was${deletedFromAuth0 ? "" : " not"} deleted from Auth0`)
 
   // Permanently delete from the forum itself
-  await deleteMutator({
-    collection: Users,
-    documentId: user._id,
-    validate: false,
-    currentUser: adminTeamAccount,
-    context: adminContext
-  })
+  await Users.rawRemove({ _id: user._id });
   logger(`Permanently deleted user with display name "${user.displayName}" from the forum database`)
 }
 

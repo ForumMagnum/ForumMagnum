@@ -1,14 +1,15 @@
 import { registerMigration } from './migrationUtils';
 import { Users } from '../../server/collections/users/collection';
-import { Conversations } from '../../server/collections/conversations/collection';
-import { Messages } from '../../server/collections/messages/collection';
 import { getAdminTeamAccount } from '../utils/adminTeamAccount';
-import { createMutator } from '../vulcan-lib/mutators';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import { adminAccountSetting } from '@/lib/publicSettings';
+import { createAnonymousContext } from '../vulcan-lib/createContexts';
+import { createConversation } from '../collections/conversations/mutations';
+import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
+import { createMessage } from '../collections/messages/mutations';
 
 const messageResumeReadingUsers = async (user: DbUser) => {
-
+  const context = createAnonymousContext();
   const adminEmail = adminAccountSetting.get()?.email ?? "";
   const message = `<div
     <p>Hey ${userGetDisplayName(user)},</p>
@@ -19,7 +20,7 @@ const messageResumeReadingUsers = async (user: DbUser) => {
     Ruby (LW Team)</p>
   </div>`
   
-  const lwAccount = await getAdminTeamAccount()
+  const lwAccount = await getAdminTeamAccount(context)
 
   if (!lwAccount) {
     throw new Error("Unable to find the lwAccount to send message to user")
@@ -29,13 +30,10 @@ const messageResumeReadingUsers = async (user: DbUser) => {
     participantIds: [user._id, lwAccount._id],
     title: "We are removing the Resume Reading tab"
   }
+  
+  const lwAccountContext = await computeContextFromUser({ user: lwAccount, isSSR: false });
 
-  const conversation = await createMutator({
-    collection: Conversations,
-    document: conversationData,
-    currentUser: lwAccount,
-    validate: false,
-  });
+  const conversation = await createConversation({ data: conversationData }, lwAccountContext);
 
   const firstMessageData = {
     userId: lwAccount._id,
@@ -45,15 +43,10 @@ const messageResumeReadingUsers = async (user: DbUser) => {
         data: message
       }
     },
-    conversationId: conversation.data._id
+    conversationId: conversation._id
   }
 
-  void createMutator({
-    collection: Messages,
-    document: firstMessageData,
-    currentUser: lwAccount,
-    validate: false,
-  })
+  void createMessage({ data: firstMessageData }, lwAccountContext);
 }
 
 

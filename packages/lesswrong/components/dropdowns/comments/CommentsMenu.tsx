@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib/components';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
-import Menu from '@/lib/vendor/@material-ui/core/src/Menu';
+import { Menu } from '@/components/widgets/Menu';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from "../../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import CommentActions from "./CommentActions";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -20,7 +21,15 @@ const styles = (_theme: ThemeType) => ({
   },
 })
 
-const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: {
+interface CommentsMenuComponentProps {
+  currentUser: UsersCurrent;
+  comment: CommentsList;
+  post?: PostsMinimumInfo;
+  tag?: TagBasicInfo | null;
+  showEdit: () => void;
+}
+
+const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon, ActionsComponent}: {
   classes: ClassesType<typeof styles>,
   className?: string,
   comment: CommentsList,
@@ -28,6 +37,7 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: 
   tag?: TagBasicInfo,
   showEdit: () => void,
   icon?: any,
+  ActionsComponent?: React.ComponentType<CommentsMenuComponentProps>,
 }) => {
   const [anchorEl, setAnchorEl] = useState<any>(null);
 
@@ -39,6 +49,8 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: 
   const { captureEvent } = useTracking({eventType: "commentMenuClicked", eventProps: {commentId: comment._id, itemType: "comment"}})
 
   if (!currentUser) return null
+
+  const MenuComponent = ActionsComponent ?? CommentActions;
 
   return (
     <>
@@ -61,7 +73,7 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: 
         anchorEl={anchorEl}
         className={classes.root}
       >
-        {everOpened && <Components.CommentActions
+        {everOpened && <MenuComponent
           currentUser={currentUser}
           comment={comment}
           post={post}
@@ -73,11 +85,7 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: 
   )
 }
 
-const CommentsMenuComponent = registerComponent('CommentsMenu', CommentsMenu, {styles});
+export default registerComponent('CommentsMenu', CommentsMenu, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CommentsMenu: typeof CommentsMenuComponent,
-  }
-}
+
 

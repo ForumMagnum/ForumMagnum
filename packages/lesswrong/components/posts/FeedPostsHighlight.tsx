@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React, { FC, useState, useCallback, useEffect } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -11,6 +11,9 @@ import classNames from 'classnames';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { useTracking } from '../../lib/analyticsEvents';
 import { truncateWithGrace } from '../../lib/editor/ellipsize';
+import ContentStyles from "../common/ContentStyles";
+import { ContentItemBody } from "../contents/ContentItemBody";
+import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -105,8 +108,8 @@ const FeedPostHighlightBody = ({
 
   const {truncatedHtml, wasTruncated, wordsLeft} =  truncateWithGrace(html, maxLengthWords, 20, rawWordCount, suffix);
 
-  return <Components.ContentStyles contentType="postHighlight" className={classes.root}>
-    <Components.ContentItemBody
+  return <ContentStyles contentType="postHighlight" className={classes.root}>
+    <ContentItemBody
       dangerouslySetInnerHTML={{__html: truncatedHtml}}
       description={`post ${post._id}`}
       nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}
@@ -116,8 +119,8 @@ const FeedPostHighlightBody = ({
       post={post}
       wordsLeft={wordsLeft}
     />}
-    {expandedLoading && expanded && <Components.Loading/>}
-  </Components.ContentStyles>
+    {expandedLoading && expanded && <Loading/>}
+  </ContentStyles>
 }
 
 const FeedPostsHighlight = ({post, ...rest}: {
@@ -148,7 +151,7 @@ const FeedPostsHighlight = ({post, ...rest}: {
   });
 
   return loading
-    ? <Components.Loading />
+    ? <Loading />
     : <FeedPostHighlightBody {...{
         post,
         expanded,
@@ -159,11 +162,7 @@ const FeedPostsHighlight = ({post, ...rest}: {
       }}/>;
 }
 
-const FeedPostsHighlightComponent = registerComponent('FeedPostsHighlight', FeedPostsHighlight, {styles});
+export default registerComponent('FeedPostsHighlight', FeedPostsHighlight, {styles});
 
-declare global {
-  interface ComponentTypes {
-    FeedPostsHighlight: typeof FeedPostsHighlightComponent
-  }
-}
+
 

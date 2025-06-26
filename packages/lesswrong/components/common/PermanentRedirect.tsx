@@ -46,10 +46,6 @@ function urlIsAbsolute(url: string): boolean {
   return (url.startsWith('http://') || url.startsWith('https://'));
 }
 
-const PermanentRedirectComponent = registerComponent('PermanentRedirect', PermanentRedirect);
+export default registerComponent('PermanentRedirect', PermanentRedirect);
 
-declare global {
-  interface ComponentTypes {
-    PermanentRedirect: typeof PermanentRedirectComponent
-  }
-}
+

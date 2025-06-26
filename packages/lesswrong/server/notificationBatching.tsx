@@ -6,13 +6,13 @@ import { EventDebouncer } from './debouncer';
 import toDictionary from '../lib/utils/toDictionary';
 import { userIsAdmin } from '../lib/vulcan-users/permissions';
 import { Posts } from '../server/collections/posts/collection';
-import { Components } from '../lib/vulcan-lib/components';
-import { addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
-import { wrapAndSendEmail, wrapAndRenderEmail } from './emails/renderEmail';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import Users from '@/server/collections/users/collection';
-import { createAnonymousContext } from './vulcan-lib/query';
 import { computeContextFromUser } from './vulcan-lib/apollo-server/context';
+import gql from 'graphql-tag';
+import { PostsEmail } from './emailComponents/PostsEmail';
+import { UtmParam } from './analytics/utm-tracking';
+import { isEAForum } from '@/lib/instanceSettings';
 
 // string (notification type name) => Debouncer
 export const notificationDebouncers = toDictionary(getNotificationTypes(),
@@ -25,11 +25,19 @@ export const notificationDebouncers = toDictionary(getNotificationTypes(),
         delayMinutes: 15,
       },
       callback: ({ userId, notificationType }: {userId: string, notificationType: string}, notificationIds: Array<string>) => {
-        void sendNotificationBatch({userId, notificationIds});
+        void sendNotificationBatch({userId, notificationIds, notificationType});
       }
     });
   }
 );
+
+export const getUtmParamsForNotificationType = (notificationType: string): Partial<Record<UtmParam, string>> => {
+  return {
+    utm_source: 'notification',
+    utm_medium: 'email',
+    utm_campaign: encodeURIComponent(notificationType)
+  }
+}
 
 /**
  * Given a list of notifications (by ID) which had their sending delayed by
@@ -41,7 +49,8 @@ export const notificationDebouncers = toDictionary(getNotificationTypes(),
  *
  * Precondition: All notifications in a batch share a notification type
  */
-const sendNotificationBatch = async ({userId, notificationIds}: {userId: string, notificationIds: Array<string>}) => {
+const sendNotificationBatch = async ({userId, notificationIds, notificationType}: {userId: string, notificationIds: Array<string>, notificationType: string}) => {
+  const { wrapAndSendEmail }: typeof import('./emails/renderEmail') = require('./emails/renderEmail');
   if (!notificationIds || !notificationIds.length)
     throw new Error("Missing or invalid argument: notificationIds (must be a nonempty array)");
   
@@ -66,7 +75,9 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
   const context = await computeContextFromUser({ user, isSSR: false });
   if (notificationsToEmail.length) {
     const emails = await notificationBatchToEmails({
-      user, notifications: notificationsToEmail,
+      user,
+      notificationType,
+      notifications: notificationsToEmail,
       context
     });
     
@@ -76,13 +87,14 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
   }
 }
 
-const notificationBatchToEmails = async ({user, notifications, context}: {
+const notificationBatchToEmails = async ({user, notificationType, notifications, context}: {
   user: DbUser,
+  notificationType: string,
   notifications: Array<DbNotification>,
   context: ResolverContext,
 }) => {
-  const notificationType = notifications[0].type;
   const notificationTypeRenderer = getNotificationTypeByNameServer(notificationType);
+  const utmParams = getUtmParamsForNotificationType(notificationType);
   
   // Each call to emailSubject or emailBody takes a list of notifications.
   // If we can combine the emails this will be all the notifications in the batch, if we can't combine the emails, this will be a list containing a single notification.
@@ -98,57 +110,66 @@ const notificationBatchToEmails = async ({user, notifications, context}: {
         from: notificationTypeRenderer.from,
         subject: await notificationTypeRenderer.emailSubject({ user, notifications, context }),
         body: await notificationTypeRenderer.emailBody({ user, notifications, context }),
+        ...(isEAForum && { utmParams: { ...utmParams, utm_user_id: user._id } }),
+        tag: `notification-${notificationType}`,
       }))
   );
 }
 
 
-addGraphQLResolvers({
-  Query: {
-    async EmailPreview(root: void, {notificationIds, postId}: {notificationIds?: Array<string>, postId?: string}, context: ResolverContext) {
-      const { currentUser } = context;
-      if (!currentUser || !userIsAdmin(currentUser)) {
-        throw new Error("This debug feature is only available to admin accounts");
-      }
-      if (!notificationIds?.length && !postId) {
-        return [];
-      }
-      if (notificationIds?.length && postId) {
-        throw new Error("Please only specify notificationIds or postId in the query")
-      }
-      
-      let emails: any[] = []
-      if (notificationIds?.length) {
-        const notifications = await Notifications.find(
-          { _id: {$in: notificationIds} }
-        ).fetch();
-        emails = await notificationBatchToEmails({
-          user: currentUser,
-          notifications,
-          context
-        });
-      }
-      if (postId) {
-        const post = await Posts.findOne(postId)
-        if (post) {
-          emails = [{
-            user: currentUser,
-            subject: post.title,
-            body: <Components.NewPostEmail documentId={post._id} reason='you have the "Email me new posts in Curated" option enabled' />
-          }]
-        }
-      }
-      const renderedEmails = await Promise.all(emails.map(async email => await wrapAndRenderEmail(email)));
-      return renderedEmails;
+export const graphqlQueries = {
+  async EmailPreview(root: void, {notificationIds, postId}: {notificationIds?: Array<string>, postId?: string}, context: ResolverContext) {
+    const { wrapAndRenderEmail }: typeof import('./emails/renderEmail') = require('./emails/renderEmail');
+    const { currentUser } = context;
+    if (!currentUser || !userIsAdmin(currentUser)) {
+      throw new Error("This debug feature is only available to admin accounts");
     }
+    if (!notificationIds?.length && !postId) {
+      return [];
+    }
+    if (notificationIds?.length && postId) {
+      throw new Error("Please only specify notificationIds or postId in the query")
+    }
+    
+    let emails: any[] = []
+    if (notificationIds?.length) {
+      const notifications = await Notifications.find(
+        { _id: {$in: notificationIds} }
+      ).fetch();
+
+      // Assume they are all of the same type
+      const notificationType = notifications[0].type;
+
+      emails = await notificationBatchToEmails({
+        user: currentUser,
+        notificationType,
+        notifications,
+        context
+      });
+    }
+    if (postId) {
+      const post = await Posts.findOne(postId)
+      if (post) {
+        emails = [{
+          user: currentUser,
+          subject: post.title,
+          body: <PostsEmail postIds={[post._id]} reason='you have the "Email me new posts in Curated" option enabled' />
+        }]
+      }
+    }
+    const renderedEmails = await Promise.all(emails.map(async email => await wrapAndRenderEmail(email)));
+    return renderedEmails;
   }
-});
-addGraphQLSchema(`
+};
+
+export const graphqlTypeDefs = gql`
   type EmailPreview {
     to: String
     subject: String
     html: String
     text: String
   }
-`);
-addGraphQLQuery("EmailPreview(notificationIds: [String], postId: String): [EmailPreview]");
+  extend type Query {
+    EmailPreview(notificationIds: [String], postId: String): [EmailPreview]
+  }
+`;

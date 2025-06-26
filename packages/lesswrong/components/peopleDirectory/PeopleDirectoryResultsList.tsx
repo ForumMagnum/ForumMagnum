@@ -1,8 +1,12 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
-import { SCROLL_INDICATOR_SIZE } from "../common/HorizScrollBlock";
+import { HorizScrollBlock, SCROLL_INDICATOR_SIZE } from "../contents/HorizScrollBlock";
 import { useObserver } from "../hooks/useObserver";
+import PeopleDirectoryHeading from "./PeopleDirectoryHeading";
+import PeopleDirectoryResultRow from "./PeopleDirectoryResultRow";
+import PeopleDirectoryNoResults from "./PeopleDirectoryNoResults";
+import PeopleDirectoryCard from "./PeopleDirectoryCard";
 
 const HORIZ_PADDING = 24;
 
@@ -72,10 +76,6 @@ const PeopleDirectoryResultsList = ({classes}: {
     }
   }
 
-  const {
-    HorizScrollBlock, PeopleDirectoryHeading, PeopleDirectoryResultRow,
-    PeopleDirectoryNoResults, PeopleDirectoryCard,
-  } = Components;
   if (results.length < 1 && !resultsLoading) {
     return <PeopleDirectoryNoResults />
   }
@@ -121,14 +121,10 @@ const PeopleDirectoryResultsList = ({classes}: {
   );
 }
 
-const PeopleDirectoryResultsListComponent = registerComponent(
+export default registerComponent(
   "PeopleDirectoryResultsList",
   PeopleDirectoryResultsList,
   {styles},
 );
 
-declare global {
-  interface ComponentTypes {
-    PeopleDirectoryResultsList: typeof PeopleDirectoryResultsListComponent
-  }
-}
+

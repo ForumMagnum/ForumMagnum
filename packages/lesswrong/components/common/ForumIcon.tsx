@@ -656,12 +656,8 @@ const ForumIcon = ({
   return <Icon className={fullClassName} {...props} />;
 }
 
-const ForumIconComponent = registerComponent("ForumIcon", ForumIcon, {
+export default registerComponent("ForumIcon", ForumIcon, {
   areEqual: "auto",
 });
 
-declare global {
-  interface ComponentTypes {
-    ForumIcon: typeof ForumIconComponent
-  }
-}
+

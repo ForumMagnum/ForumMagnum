@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import withErrorBoundary from '@/components/common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
 import type { ToCSection, ToCSectionWithOffsetAndScale } from '../../../lib/tableOfContents';
@@ -17,6 +17,10 @@ import { getOffsetChainTop } from '@/lib/utils/domUtil';
 import { scrollFocusOnElement, ScrollHighlightLandmark } from '@/lib/scrollUtils';
 import { isLWorAF } from '@/lib/instanceSettings';
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
+import { getClassName } from '@/components/hooks/useStyles';
+import TableOfContentsRow, { TableOfContentsRowStyles } from './TableOfContentsRow';
+import type { TableOfContentsDividerStyles } from './TableOfContentsDivider';
+import AnswerTocRow from "./AnswerTocRow";
 
 function normalizeToCScale({containerPosition, sections}: {
   sections: ToCSection[]
@@ -128,7 +132,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: 'column',
     paddingTop: 22,
     //Override bottom border of title row for FixedToC but not in other uses of TableOfContentsRow
-    '& .TableOfContentsRow-title': {
+    [`& .${getClassName<TableOfContentsRowStyles>("TableOfContentsRow", "title")}`]: {
       borderBottom: "none",
     },
     wordBreak: 'break-word',
@@ -226,10 +230,7 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     flexGrow: 1,
-    '& .TableOfContentsRow-link': {
-      background: theme.palette.panelBackground.default
-    },
-    '& .TableOfContentsDivider-divider': {
+    [`& .${getClassName<TableOfContentsDividerStyles>("TableOfContentsDivider", "divider")}`]: {
       marginLeft: 4,
     },
   },
@@ -244,8 +245,6 @@ const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayO
   classes: ClassesType<typeof styles>,
   hover?: boolean,
 }) => {
-  const { TableOfContentsRow, AnswerTocRow } = Components;
-
   const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
@@ -466,15 +465,11 @@ function waitForImageToLoad(imageTag: HTMLImageElement): Promise<void> {
   });
 }
 
-const FixedPositionTocComponent = registerComponent(
+export default registerComponent(
   "FixedPositionToC", FixedPositionToc, {
     hocs: [withErrorBoundary],
     styles
   }
 );
 
-declare global {
-  interface ComponentTypes {
-    FixedPositionToC: typeof FixedPositionTocComponent
-  }
-}
+

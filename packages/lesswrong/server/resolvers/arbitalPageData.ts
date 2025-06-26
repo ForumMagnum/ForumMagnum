@@ -1,17 +1,23 @@
-import { addGraphQLSchema, addGraphQLResolvers, addGraphQLQuery } from '../../lib/vulcan-lib/graphql';
 import markdownIt from 'markdown-it'
 import markdownItMathjax from '../editor/markdown-mathjax'
 import { mjPagePromise } from '../editor/conversionUtils';
-import { trimLatexAndAddCSS } from '../editor/utils';
-import { ArbitalCaches } from '../../server/collections/arbitalCache/collection';
+import { trimLatexAndAddCSS } from '../editor/latexUtils';
+import { ArbitalCaches } from '../collections/arbitalCache/collection';
 import { addCronJob } from '../cron/cronUtil';
+import gql from 'graphql-tag';
 
 export const arbitalCacheExpirationMs = 2*60*60*1000;
 
-addGraphQLSchema(`type ArbitalPageData {
-  html: String
-  title: String
-}`);
+export const arbitalGraphQLTypeDefs = gql`
+  type ArbitalPageData {
+    html: String
+    title: String
+  }
+  extend type Query {
+    ArbitalPageData(pageAlias: String): ArbitalPageData
+  }
+`
+
 type ArbitalPageData = {
   html: string
   title: string
@@ -143,17 +149,11 @@ export const clearArbitalCacheCron = addCronJob({
   },
 });
 
-const arbitalPageResolvers = {
-  Query: {
-    async ArbitalPageData(root: void, { pageAlias }: { pageAlias: string }, context: ResolverContext) {
-      if (!isValidArbitalPageAlias(pageAlias)) {
-        throw new Error(`Not a valid Arbital page ailas: ${pageAlias}`);
-      }
-      return await getArbitalPageWithCache(pageAlias);
+export const arbitalGraphQLQueries = {
+  async ArbitalPageData(root: void, { pageAlias }: { pageAlias: string }, context: ResolverContext) {
+    if (!isValidArbitalPageAlias(pageAlias)) {
+      throw new Error(`Not a valid Arbital page ailas: ${pageAlias}`);
     }
-  },
-};
-
-addGraphQLResolvers(arbitalPageResolvers);
-
-addGraphQLQuery('ArbitalPageData(pageAlias: String): ArbitalPageData');
+    return await getArbitalPageWithCache(pageAlias);
+  }
+}

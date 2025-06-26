@@ -1,13 +1,26 @@
 import React, { useState, useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
-import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import { BooksForm } from './BooksForm';
+import Loading from "../vulcan-core/Loading";
+import CollectionsEditForm from "./CollectionsEditForm";
+import BooksItem from "./BooksItem";
+import SectionFooter from "../common/SectionFooter";
+import SectionButton from "../common/SectionButton";
+import { ContentItemBody } from "../contents/ContentItemBody";
+import { Typography } from "../common/Typography";
+import ContentStyles from "../common/ContentStyles";
+import ErrorBoundary from "../common/ErrorBoundary";
+import CollectionTableOfContents from "./CollectionTableOfContents";
+import ToCColumn from "../posts/TableOfContents/ToCColumn";
+import HeadTags from "../common/HeadTags";
 
 const PADDING = 36
 const COLLECTION_WIDTH = SECTION_WIDTH + (PADDING * 2)
@@ -75,19 +88,24 @@ const CollectionsPage = ({ documentId, classes }: {
     fragmentName: 'CollectionsPageFragment',
   });
 
+  const { document: editDocument } = useSingle({
+    documentId,
+    collectionName: "Collections",
+    fragmentName: 'CollectionsEditFragment',
+    skip: !edit,
+  });
+
   const showEdit = useCallback(() => {
     setEdit(true);
   }, []);
   const showCollection = useCallback(() => {
     setEdit(false);
   }, []);
-
-  const { SingleColumnSection, BooksItem, BooksNewForm, SectionFooter, SectionButton, ContentItemBody, Typography, ContentStyles, ErrorBoundary, CollectionTableOfContents, ToCColumn, HeadTags } = Components
-  if (loading || !document) {
-    return <Components.Loading />;
-  } else if (edit) {
-    return <Components.CollectionsEditForm
-      documentId={document._id}
+  if (loading || !document || (edit && !editDocument)) {
+    return <Loading />;
+  } else if (edit && editDocument) {
+    return <CollectionsEditForm
+      initialData={editDocument}
       successCallback={showCollection}
       cancelCallback={showCollection}
     />
@@ -160,7 +178,11 @@ const CollectionsPage = ({ documentId, classes }: {
           </SectionButton>
         </SectionFooter>}
         {addingBook && <SingleColumnSection>
-          <BooksNewForm prefilledProps={{collectionId: collection._id}} />
+          <BooksForm
+            collectionId={collection._id}
+            onSuccess={() => setAddingBook(false)}
+            onCancel={() => setAddingBook(false)}
+          />
         </SingleColumnSection>}
       </ToCColumn>
       
@@ -168,11 +190,7 @@ const CollectionsPage = ({ documentId, classes }: {
   }
 }
 
-const CollectionsPageComponent = registerComponent('CollectionsPage', CollectionsPage, {styles});
+export default registerComponent('CollectionsPage', CollectionsPage, {styles});
 
-declare global {
-  interface ComponentTypes {
-    CollectionsPage: typeof CollectionsPageComponent
-  }
-}
+
 

@@ -15,34 +15,22 @@ export interface EditableFieldCallbackOptions {
   normalized: boolean;
 }
 
-export interface EditableFieldClientOptions {
-  hasToc?: boolean,
-  getLocalStorageId?: null | ((doc: any, name: string) => {id: string, verify: boolean}),
-  revisionsHaveCommitMessages?: boolean,
-}
-
-export interface EditableFieldOptions {
-  callbackOptions: EditableFieldCallbackOptions;
-  clientOptions: EditableFieldClientOptions;
-}
-
 export type MakeEditableOptions<N extends CollectionNameString> = {
   commentEditor?: boolean,
   commentStyles?: boolean,
   commentLocalStorage?: boolean,
   getLocalStorageId?: null | ((doc: any, name: string) => {id: string, verify: boolean}),
-  formGroup?: any,
   permissions?: {
     canRead?: FieldPermissions,
     canUpdate?: FieldPermissions,
     // TODO: This should be FieldCreatePermissions, but there are some collections where we were passing in functions that relied on the existing object, which is a bit nonsensical
-    canCreate?: AnyBecauseTodo,
+    canCreate?: FieldCreatePermissions,
   },
   label?: string,
   formVariant?: "default" | "grey",
   order?: number,
   hideControls?: boolean,
-  hintText?: string,
+  hintText?: () => string | undefined,
   pingbacks?: boolean,
   revisionsHaveCommitMessages?: boolean,
   hidden?: boolean,

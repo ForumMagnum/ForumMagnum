@@ -3,8 +3,7 @@ import { Posts } from "../../server/collections/posts/collection";
 import { addOrUpvoteTag } from "../tagging/tagsGraphQL";
 import Tags from "../../server/collections/tags/collection";
 import Users from "../../server/collections/users/collection";
-import { createAdminContext } from "../vulcan-lib/query";
-import { createMutator } from "../vulcan-lib/mutators";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 
 // Exported to allow running manually with "yarn repl"
 export async function bestOfLessWrongTagUpdate () {

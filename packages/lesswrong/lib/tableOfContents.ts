@@ -5,6 +5,7 @@ import { htmlToTextDefault } from "./htmlToText";
 import type { WindowType } from "./domParser";
 import { PostWithCommentCounts, postGetCommentCountStr } from "./collections/posts/helpers";
 import { isLWorAF } from "./instanceSettings";
+import maxBy from "lodash/maxBy";
 
 export interface ToCAnswer {
   baseScore: number,
@@ -125,6 +126,9 @@ export function extractTableOfContents({
     if (tagIsHeadingIfWholeParagraph(tagName) && !tagIsWholeParagraph({ element, window })) {
       continue;
     }
+    if (element.closest(".footnotes")) {
+      break;
+    }
 
     // Get title from element text
     let title = elementToToCTitle(element);
@@ -142,6 +146,21 @@ export function extractTableOfContents({
         anchor: anchor,
         level: tagToHeadingLevel(tagName),
       });
+    }
+  }
+  
+  // If the number of headings is excessive (>30) and will not become small
+  // (<8) if the deepest heading level is dropped, and the deepest heading
+  // level comes from <b>/<strong>, drop the deepest heading level
+  if (headings.length > 30) {
+    const deepestHeadingLevel = maxBy(headings, h => h.level)?.level ?? 0;
+    if (deepestHeadingLevel >= 7) {
+      const headingsWithoutDeepestLevel = headings.filter(h => h.level < deepestHeadingLevel);
+      if (headingsWithoutDeepestLevel.length < headings.length) {
+        if (headingsWithoutDeepestLevel.length >= 8) {
+          headings = headingsWithoutDeepestLevel;
+        }
+      }
     }
   }
 
@@ -199,15 +218,15 @@ export function getTocAnswers({ post, answers }: { post: { question: boolean }; 
   if (!post.question) return []
 
   const answerSections: ToCSection[] = answers.map((answer: CommentType): ToCSection => {
-    const { html = "" } = answer.contents || {};
+    const { html } = answer.contents || {};
     const highlight = truncate(html, 900);
-    let shortHighlight = htmlToTextDefault(answerTocExcerptFromHTML(html));
+    let shortHighlight = htmlToTextDefault(answerTocExcerptFromHTML(html ?? ""));
     const author = ("user" in answer ? answer.user?.displayName : answer.author) ?? null;
 
     return {
       title: `${answer.baseScore} ${author}`,
       answer: {
-        baseScore: answer.baseScore,
+        baseScore: answer.baseScore ?? 0,
         voteCount: answer.voteCount,
         postedAt: answer.postedAt,
         author: author,

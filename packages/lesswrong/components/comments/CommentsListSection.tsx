@@ -1,25 +1,40 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
-import Menu from '@/lib/vendor/@material-ui/core/src/Menu';
-import Divider from '@/lib/vendor/@material-ui/core/src/Divider';
+import { Menu } from '@/components/widgets/Menu';
 import { useCurrentUser } from '../common/withUser';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 import { filter } from 'underscore';
 import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
-import { CommentsNewFormProps } from './CommentsNewForm';
+import CommentsNewForm, { CommentsNewFormProps } from './CommentsNewForm';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import CommentsViews from "./CommentsViews";
+import Loading from "../vulcan-core/Loading";
+import CalendarDate from "../common/CalendarDate";
+import LastVisitList from "./LastVisitList";
+import CantCommentExplanation from "./CantCommentExplanation";
+import LWTooltip from "../common/LWTooltip";
+import CommentsList from "./CommentsList";
+import PostsPageCrosspostComments from "../posts/PostsPage/PostsPageCrosspostComments";
+import MetaInfo from "../common/MetaInfo";
+import Row from "../common/Row";
+import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
+import SimpleDivider from "../widgets/SimpleDivider";
+import CommentsListMeta from "./CommentsListMeta";
+import { Typography } from "../common/Typography";
+import { MenuItem } from "../common/Menus";
+import { NEW_COMMENT_MARGIN_BOTTOM } from './constants';
+import CommentsDraftList from './CommentsDraftList';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
-
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommentsListSection", (theme: ThemeType) => ({
   root: {
     fontWeight: theme.typography.body1.fontWeight ?? 400,
     margin: "0px auto 15px auto",
@@ -78,7 +93,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: isFriendlyUI ? 8 : 4,
     fontStyle: "italic",
   }
-})
+}))
 
 const CommentsListSection = ({
   post,
@@ -95,8 +110,8 @@ const CommentsListSection = ({
   newForm=true,
   newFormProps={},
   highlightDate,
+  hideDateHighlighting,
   setHighlightDate,
-  classes,
 }: {
   post?: PostsDetails,
   tag?: TagBasicInfo,
@@ -112,39 +127,12 @@ const CommentsListSection = ({
   newForm: boolean,
   newFormProps?: Partial<CommentsNewFormProps>,
   highlightDate: Date|undefined,
+  hideDateHighlighting?: boolean,
   setHighlightDate: (newValue: Date|undefined) => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const commentTree = unflattenComments(comments);
-
-  const {
-    LWTooltip, CommentsList, PostsPageCrosspostComments, MetaInfo, Row,
-    CommentsNewForm, QuickTakesEntry,
-  } = Components;
-
-  const [anchorEl,setAnchorEl] = useState<HTMLElement|null>(null);
-  const newCommentsSinceDate = highlightDate
-    ? filter(
-      comments,
-      (comment) => new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime(),
-    ).length
-    : 0;
-  const now = useCurrentTime();
-
-  const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  }
-
-  const handleDateChange = (date: Date) => {
-    setHighlightDate(date)
-    setAnchorEl(null);
-  }
-
   const [restoreScrollPos, setRestoreScrollPos] = useState(-1);
 
   useEffect(() => {
@@ -153,65 +141,6 @@ const CommentsListSection = ({
     window.scrollTo({top: restoreScrollPos})
     setRestoreScrollPos(-1);
   }, [restoreScrollPos])
-
-  const renderTitleComponent = () => {
-    const { CommentsListMeta, Typography, MenuItem } = Components
-    const suggestedHighlightDates = [moment(now).subtract(1, 'day'), moment(now).subtract(1, 'week'), moment(now).subtract(1, 'month'), moment(now).subtract(1, 'year')]
-    const newLimit = commentCount + (loadMoreCount || commentCount)
-    let commentSortNode = (commentCount < totalComments) ?
-      <span>
-        Rendering {commentCount}/{totalComments} comments, sorted by <Components.CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />
-        {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>}
-      </span> :
-      <span>
-        {postGetCommentCountStr(post, totalComments)}, sorted by <Components.CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />
-      </span>
-    if (isFriendlyUI) {
-      commentSortNode = <>Sorted by <Components.CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} /></>
-    }
-
-    const contentType = isEAForum && post?.shortform
-      ? "quick takes"
-      : "comments";
-
-    return <CommentsListMeta>
-      <Typography
-        variant="body2"
-        component='span'
-        className={classes.commentSorting}
-      >
-        {commentSortNode}
-      </Typography>
-      {post && <Typography
-        variant="body2"
-        component='span'
-        className={classes.clickToHighlightNewSince}
-      >
-        {highlightDate && newCommentsSinceDate>0 && `Highlighting ${newCommentsSinceDate} new ${contentType} since `}
-        {highlightDate && !newCommentsSinceDate && `No new ${contentType} since `}
-        {!highlightDate && `Click to highlight new ${contentType} since: `}
-        <a className={classes.button} onClick={handleClick}>
-          <Components.CalendarDate date={highlightDate || now}/>
-        </a>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleClose}
-        >
-          {currentUser && post && <Components.LastVisitList
-            postId={post._id}
-            currentUser={currentUser}
-            clickCallback={handleDateChange}/>}
-          <Divider />
-          {suggestedHighlightDates.map(date => {
-            return <MenuItem key={date.toString()} onClick={() => handleDateChange(date.toDate())}>
-              {date.calendar().toString()}
-            </MenuItem>
-          })}
-        </Menu>
-      </Typography>}
-    </CommentsListMeta>
-  }
 
   // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
@@ -259,7 +188,7 @@ const CommentsListSection = ({
                   parentAnswerId: parentAnswerId,
                   ...(userIsDebateParticipant ? { debateResponse: true } : {})
                 }}
-                type="comment"
+                interactionType="comment"
                 {...newFormProps}
                 {...(userIsDebateParticipant ? { formProps: { post } } : {})}
               />
@@ -268,9 +197,22 @@ const CommentsListSection = ({
         </div>
       )}
       {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor, false) &&
-        <Components.CantCommentExplanation post={post}/>
+        <CantCommentExplanation post={post}/>
       }
-      { totalComments ? renderTitleComponent() : null }
+      {currentUser && post && <CommentsDraftList userId={currentUser._id} postId={post._id} initialLimit={1} showTotal silentIfEmpty />}
+      {totalComments ? <CommentsListSectionTitle
+        post={post}
+        commentCount={commentCount}
+        loadMoreCount={loadMoreCount}
+        totalComments={totalComments}
+        loadMoreComments={loadMoreComments}
+        loadingMoreComments={loadingMoreComments}
+        comments={comments}
+        highlightDate={highlightDate}
+        hideDateHighlighting={hideDateHighlighting}
+        setHighlightDate={setHighlightDate}
+        setRestoreScrollPos={setRestoreScrollPos}
+      /> : null}
       <CommentsList
         treeOptions={{
           highlightDate: highlightDate,
@@ -297,10 +239,116 @@ const CommentsListSection = ({
   );
 }
 
-const CommentsListSectionComponent = registerComponent("CommentsListSection", CommentsListSection, {styles});
+function CommentsListSectionTitle({
+  post,
+  commentCount,
+  loadMoreCount,
+  totalComments,
+  loadMoreComments,
+  loadingMoreComments,
+  comments,
+  highlightDate,
+  hideDateHighlighting,
+  setHighlightDate,
+  setRestoreScrollPos,
+}: {
+  post?: PostsDetails,
+  commentCount: number,
+  loadMoreCount?: number,
+  totalComments: number,
+  loadMoreComments: any,
+  loadingMoreComments: boolean,
+  comments: CommentsList[],
+  highlightDate: Date|undefined,
+  hideDateHighlighting?: boolean,
+  setHighlightDate: (newValue: Date|undefined) => void,
+  setRestoreScrollPos: (newValue: number) => void,
+}) {
+  const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
+  const newCommentsSinceDate = highlightDate
+    ? filter(
+      comments,
+      (comment) => new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime(),
+    ).length
+    : 0;
+  const now = useCurrentTime();
 
-declare global {
-  interface ComponentTypes {
-    CommentsListSection: typeof CommentsListSectionComponent,
+  const [anchorEl,setAnchorEl] = useState<HTMLElement|null>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
   }
+
+  const handleDateChange = (date: Date) => {
+    setHighlightDate(date)
+    setAnchorEl(null);
+  }
+
+
+  const suggestedHighlightDates = [moment(now).subtract(1, 'day'), moment(now).subtract(1, 'week'), moment(now).subtract(1, 'month'), moment(now).subtract(1, 'year')]
+  const newLimit = commentCount + (loadMoreCount || commentCount)
+  let commentSortNode = (commentCount < totalComments) ?
+    <span>
+      Rendering {commentCount}/{totalComments} comments, sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />
+      {loadingMoreComments ? <Loading /> : <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>}
+    </span> :
+    <span>
+      {postGetCommentCountStr(post, totalComments)}, sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />
+    </span>
+  if (isFriendlyUI) {
+    commentSortNode = <>Sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} /></>
+  }
+
+  const contentType = isEAForum && post?.shortform
+    ? "quick takes"
+    : "comments";
+
+  return <CommentsListMeta>
+    <Typography
+      variant="body2"
+      component='span'
+      className={classes.commentSorting}
+    >
+      {commentSortNode}
+    </Typography>
+    {post && !hideDateHighlighting && <Typography
+      variant="body2"
+      component='span'
+      className={classes.clickToHighlightNewSince}
+    >
+      {highlightDate && newCommentsSinceDate>0 && `Highlighting ${newCommentsSinceDate} new ${contentType} since `}
+      {highlightDate && !newCommentsSinceDate && `No new ${contentType} since `}
+      {!highlightDate && `Click to highlight new ${contentType} since: `}
+      <a className={classes.button} onClick={handleClick}>
+        <CalendarDate date={highlightDate || now}/>
+      </a>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
+      >
+        {currentUser && post && <LastVisitList
+          postId={post._id}
+          currentUser={currentUser}
+          clickCallback={handleDateChange}/>}
+        <SimpleDivider />
+        {suggestedHighlightDates.map(date => {
+          return <MenuItem key={date.toString()} onClick={() => handleDateChange(date.toDate())}>
+            {date.calendar().toString()}
+          </MenuItem>
+        })}
+      </Menu>
+    </Typography>}
+  </CommentsListMeta>
 }
+
+export default registerComponent("CommentsListSection", CommentsListSection, {
+  areEqual: "auto"
+});
+
+

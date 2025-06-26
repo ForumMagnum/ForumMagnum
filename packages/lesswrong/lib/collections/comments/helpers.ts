@@ -43,10 +43,10 @@ export function commentGetPageUrl(comment: CommentsListWithParentMetadata, isAbs
 // TODO there are several functions which do this, some of them should be combined
 export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, tagCommentType, commentId, permalink=true, isAbsolute=false}: {
   postId?: string | null,
-  postSlug?: string,
-  tagSlug?: string,
-  tagCommentType?: TagCommentType,
-  commentId: string,
+  postSlug?: string | null,
+  tagSlug?: string | null,
+  tagCommentType?: TagCommentType | null,
+  commentId: string | null,
   permalink?: boolean,
   isAbsolute?: boolean,
 }): string {
@@ -98,14 +98,30 @@ export const commentGetKarma = (comment: CommentsList|DbComment): number => {
   return baseScore || 0
 }
 
-export const commentAllowTitle = (comment: {tagCommentType: TagCommentType, parentCommentId?: string | null}): boolean => comment?.tagCommentType === 'SUBFORUM' && !comment?.parentCommentId
+export const commentAllowTitle = (comment: {tagCommentType?: TagCommentType, parentCommentId?: string | null}): boolean => comment?.tagCommentType === 'SUBFORUM' && !comment?.parentCommentId
 
 /**
  * If the site is currently hiding comments by unreviewed authors, check if we need to hide this comment.
  */
-export const commentIsHidden = (comment: CommentsList|DbComment) => {
+export const commentIsHiddenPendingReview = (comment: CommentsList|DbComment) => {
   const hideSince = hideUnreviewedAuthorCommentsSettings.get()
   const postedAfterGrandfatherDate = hideSince && new Date(hideSince) < new Date(comment.postedAt) 
   // hide unreviewed comments which were posted after we implmemented a "all comments need to be reviewed" date
   return postedAfterGrandfatherDate && comment.authorIsUnreviewed
 }
+
+export const commentIsNotPublicForAnyReason = (comment: CommentsList|DbComment) => {
+  if (comment.draft || comment.deleted || comment.rejected) {
+    return true;
+  }
+
+  return commentIsHiddenPendingReview(comment);
+}
+
+export const commentIncludedInCounts = (comment: Pick<DbComment, '_id' | 'deleted' | 'rejected' | 'debateResponse' | 'authorIsUnreviewed' | 'draft'>) => (
+  !comment.deleted &&
+  !comment.rejected &&
+  !comment.debateResponse &&
+  !comment.authorIsUnreviewed &&
+  !comment.draft
+);

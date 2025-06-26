@@ -1,10 +1,7 @@
 import {extractVersionsFromSemver} from '../../lib/editor/utils'
 import {htmlToPingbacks} from '../pingbacks'
-import { isEditableField } from '../../lib/editor/make_editable'
+import { isEditableField } from '../../lib/editor/editableSchemaFieldHelpers'
 import { collectionNameToTypeName } from '../../lib/generated/collectionTypeNames'
-import { CallbackHook } from '../utils/callbackHooks'
-import {createMutator, validateCreateMutation} from '../vulcan-lib/mutators'
-import {dataToHTML, dataToWordCount} from './conversionUtils'
 import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-notify'
 import {getLatestRev, getNextVersion, htmlToChangeMetrics, isBeingUndrafted, MaybeDrafteable} from './utils'
 import isEqual from 'lodash/isEqual'
@@ -12,14 +9,17 @@ import { fetchFragmentSingle } from '../fetchFragment'
 import { convertImagesInObject } from '../scripts/convertImagesToCloudinary'
 import type { AfterCreateCallbackProperties, CreateCallbackProperties, UpdateCallbackProperties } from '../mutationCallbacks'
 import type { MakeEditableOptions } from '@/lib/editor/makeEditableOptions'
+import { createRevision } from '../collections/revisions/mutations'
+import { buildRevision } from './conversionUtils'
+import { updateDenormalizedHtmlAttributionsDueToRev, upvoteOwnTagRevision } from '../callbacks/revisionCallbacks'
 
 interface CreateBeforeEditableCallbackProperties<N extends CollectionNameString> {
-  doc: Partial<DbInsertion<ObjectsByCollectionName[N]>>;
+  doc: CreateInputsByCollectionName[N]['data'];
   props: CreateCallbackProperties<N>;
 }
 
 interface UpdateBeforeEditableCallbackProperties<N extends CollectionNameString> {
-  docData: Partial<ObjectsByCollectionName[N]>;
+  docData: UpdateInputsByCollectionName[N]['data'];
   props: UpdateCallbackProperties<N>;
 }
 
@@ -47,7 +47,7 @@ function getEditableFieldsCallbackProps<N extends CollectionNameString>({ schema
   const editableFields = Object.entries(schema).filter(isEditableField);
   return editableFields.map(([fieldName, fieldSpec]) => {
     const { collectionName } = collection;
-    const { pingbacks, normalized } = fieldSpec.editableFieldOptions.callbackOptions;
+    const { pingbacks, normalized } = fieldSpec.graphql.editableFieldOptions;
     return {
       fieldName,
       pingbacks,
@@ -57,17 +57,8 @@ function getEditableFieldsCallbackProps<N extends CollectionNameString>({ schema
   });
 }
 
-// TODO: Now that the make_editable callbacks use createMutator to create
-// revisions, we can now add these to the regular ${collection}.create.after
-// callbacks
-interface AfterCreateRevisionCallbackContext {
-  revisionID: string
-  skipDenormalizedAttributions?: boolean
-}
-export const afterCreateRevisionCallback = new CallbackHook<[AfterCreateRevisionCallbackContext]>("revisions.afterRevisionCreated");
-
-export function getInitialVersion(document: Partial<DbInsertion<DbPost|DbObject>>) {
-  if ((document as DbPost).draft) {
+export function getInitialVersion(document: CreateInputsByCollectionName[CollectionNameString]['data'] | ObjectsByCollectionName[CollectionNameString]) {
+  if ((document as CreatePostDataInput).draft) {
     return '0.1.0'
   } else {
     return '1.0.0'
@@ -81,31 +72,11 @@ function versionIsDraft(semver: string, collectionName: CollectionNameString) {
   return major===0;
 }
 
-export async function buildRevision({ originalContents, currentUser, dataWithDiscardedSuggestions }: {
-  originalContents: DbRevision["originalContents"],
-  currentUser: DbUser,
-  dataWithDiscardedSuggestions?: string,
-}) {
-
-  if (!originalContents) throw new Error ("Can't build revision without originalContents")
-
-  const { data, type } = originalContents;
-  const readerVisibleData = dataWithDiscardedSuggestions ?? data
-  const html = await dataToHTML(readerVisibleData, type, { sanitize: !currentUser.isAdmin })
-  const wordCount = await dataToWordCount(readerVisibleData, type)
-
-  return {
-    html, wordCount, originalContents,
-    editedAt: new Date(),
-    userId: currentUser._id,
-  };
-}
-
 // Given a revised document, check whether fieldName (a content-editor field) is
 // different from the previous revision (or there is no previous revision).
-export const revisionIsChange = async (doc: AnyBecauseTodo, fieldName: string): Promise<boolean> => {
+export const revisionIsChange = async (doc: AnyBecauseTodo, fieldName: string, context: ResolverContext): Promise<boolean> => {
   const id = doc._id;
-  const previousVersion = await getLatestRev(id, fieldName);
+  const previousVersion = await getLatestRev(id, fieldName, context);
 
   if (!previousVersion)
     return true;
@@ -125,7 +96,7 @@ export type EditableCallbackProperties<N extends CollectionNameString> = Pick<Ma
 
 // createBefore
 async function createInitialRevision<N extends CollectionNameString>(
-  doc: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
+  doc: CreateInputsByCollectionName[N]['data'],
   {currentUser, context}: CreateCallbackProperties<N>,
   options: EditableCallbackProperties<N>,
 ) {
@@ -147,32 +118,13 @@ async function createInitialRevision<N extends CollectionNameString>(
     const revision = await buildRevision({
       originalContents,
       currentUser,
+      context,
     });
     const { html, wordCount } = revision;
     const version = getInitialVersion(doc)
     const userId = currentUser._id
     const editedAt = new Date()
     const changeMetrics = htmlToChangeMetrics("", html);
-    const isFirstDebatePostComment = (collectionName === 'Posts' && 'debate' in doc)
-      ? (!!doc.debate && fieldName === 'contents')
-      : false;
-
-    if (isFirstDebatePostComment) {
-      const createFirstCommentParams: CreateMutatorParams<"Comments"> = {
-        collection: Comments,
-        document: {
-          userId,
-          contents: editableField,
-          debateResponse: true,
-        },
-        context,
-        currentUser,
-      };
-
-      // We need to validate that we'll be able to successfully create the comment in the updateFirstDebateCommentPostId callback
-      // If we can't, we'll be stuck with a malformed debate post with no comments
-      await validateCreateMutation(createFirstCommentParams);
-    }
 
     const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id" | "voteCount" | "baseScore" | "extendedScore" | "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData"> = {
       ...revision,
@@ -187,11 +139,8 @@ async function createInitialRevision<N extends CollectionNameString>(
       changeMetrics,
       createdAt: editedAt,
     };
-    const firstRevision = await createMutator({
-      collection: Revisions,
-      document: newRevision,
-      validate: false
-    });
+
+    const firstRevision = await createRevision({ data: newRevision }, context);
 
     return {
       ...doc,
@@ -202,7 +151,7 @@ async function createInitialRevision<N extends CollectionNameString>(
           updateType: 'initial'
         },
       }),
-      [`${fieldName}_latest`]: firstRevision.data._id,
+      [`${fieldName}_latest`]: firstRevision._id,
       ...(pingbacks ? {
         pingbacks: await htmlToPingbacks(html, null),
       } : null),
@@ -213,7 +162,7 @@ async function createInitialRevision<N extends CollectionNameString>(
 
 // updateBefore
 async function createUpdateRevision<N extends CollectionNameString>(
-  docData: Partial<ObjectsByCollectionName[N]>,
+  docData: UpdateInputsByCollectionName[N]['data'],
   { oldDocument: document, newDocument, currentUser, context }: UpdateCallbackProperties<N>,
   options: EditableCallbackProperties<N>,
 ) {
@@ -249,6 +198,7 @@ async function createUpdateRevision<N extends CollectionNameString>(
       originalContents: (newDocument as AnyBecauseHard)[fieldName].originalContents,
       dataWithDiscardedSuggestions,
       currentUser,
+      context,
     });
     const { html, wordCount } = revision;
 
@@ -261,7 +211,7 @@ async function createUpdateRevision<N extends CollectionNameString>(
     const updateType = (beingUndrafted && (major < 1)) ? 'major' : defaultUpdateType
     const userId = currentUser._id
     const editedAt = new Date()
-    const previousRev = await getLatestRev(newDocument._id, fieldName);
+    const previousRev = await getLatestRev(newDocument._id, fieldName, context);
     const version = getNextVersion(previousRev, updateType, (newDocument as DbPost).draft)
     const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
 
@@ -278,18 +228,9 @@ async function createUpdateRevision<N extends CollectionNameString>(
       createdAt: editedAt,
       skipAttributions: false,
     };
-    
-    const newRevisionDoc = await createMutator({
-      collection: Revisions,
-      document: newRevision,
-      validate: false
-    });
 
-    const newRevisionId = newRevisionDoc.data._id;
-
-    if (newRevisionId) {
-      await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: newRevisionId }]);
-    }
+    const newRevisionDoc = await createRevision({ data: newRevision }, context);
+    const newRevisionId = newRevisionDoc._id;
 
     return {
       ...docData,
@@ -326,7 +267,21 @@ async function updateRevisionDocumentId<N extends CollectionNameString>(newDoc: 
       { _id: revisionID },
       { $set: { documentId: newDoc._id } }
     );
-    await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: revisionID }]);
+    const updatedRevision = await Revisions.findOne({_id: revisionID});
+
+    if (updatedRevision) {
+      await Promise.all([
+        upvoteOwnTagRevision({
+          revision: updatedRevision,
+          context
+        }),
+        updateDenormalizedHtmlAttributionsDueToRev({
+          revision: updatedRevision,
+          skipDenormalizedAttributions: updatedRevision.skipAttributions,
+          context
+        })
+      ]);
+    }
   }
   return newDoc;
 }
@@ -339,10 +294,8 @@ async function notifyUsersAboutPingbackMentionsInCreate<N extends CollectionName
 ) {
   const { pingbacks = false, collectionName } = options;
 
-  const typeName = collectionNameToTypeName[collectionName];
-
   if (currentUser && pingbacks && 'pingbacks' in newDocument) {
-    await notifyUsersAboutMentions(currentUser, typeName, newDocument)
+    await notifyUsersAboutMentions(currentUser, collectionName, newDocument)
   }
 
   return newDocument
@@ -364,10 +317,10 @@ async function notifyUsersAboutPingbackMentionsInUpdate<N extends CollectionName
 }
 
 // newAsync
-async function reuploadImagesInNew(doc: DbObject, options: EditableCallbackProperties<CollectionNameString>) {
+async function reuploadImagesInNew(doc: DbObject, options: EditableCallbackProperties<CollectionNameString>, context: ResolverContext) {
   const { fieldName = "contents", collectionName } = options;
 
-  await convertImagesInObject(collectionName, doc._id, fieldName)
+  await convertImagesInObject(collectionName, doc._id, context, fieldName)
 }
 
 // editAsync
@@ -380,7 +333,7 @@ async function reuploadImagesInNew(doc: DbObject, options: EditableCallbackPrope
  * See: https://app.asana.com/0/628521446211730/1203311932993130/f
  * It's fine to leave it here just in case though
  */
-async function reuploadImagesInEdit(doc: DbObject, oldDoc: DbObject, options: EditableCallbackProperties<CollectionNameString>) {
+async function reuploadImagesInEdit(doc: DbObject, oldDoc: DbObject, options: EditableCallbackProperties<CollectionNameString>, context: ResolverContext) {
   const { fieldName = "contents", collectionName } = options;
 
   const latestField = `${fieldName}_latest`;
@@ -388,10 +341,10 @@ async function reuploadImagesInEdit(doc: DbObject, oldDoc: DbObject, options: Ed
 
   if (!hasChanged) return;
 
-  await convertImagesInObject(collectionName, doc._id, fieldName);
+  await convertImagesInObject(collectionName, doc._id, context, fieldName);
 }
 
-export async function runCreateBeforeEditableCallbacks<N extends CollectionNameString>(runCallbackStageProperties: CreateBeforeEditableCallbackProperties<N>) {
+export async function createInitialRevisionsForEditableFields<P extends CreateBeforeEditableCallbackProperties<N>, N extends CollectionNameString>(runCallbackStageProperties: P): Promise<P['doc']> {
   let { props, doc: mutableDoc } = runCallbackStageProperties;
 
   const editableFieldsCallbackProps = getEditableFieldsCallbackProps(props);
@@ -403,31 +356,42 @@ export async function runCreateBeforeEditableCallbacks<N extends CollectionNameS
   return mutableDoc;
 }
 
-export async function runCreateAfterEditableCallbacks<N extends CollectionNameString>(runCallbackStageProperties: CreateAfterEditableCallbackProperties<N>) {
+export async function updateRevisionsDocumentIds<N extends CollectionNameString>(runCallbackStageProperties: CreateAfterEditableCallbackProperties<N>) {
   let { props, newDoc: mutableDoc } = runCallbackStageProperties;
 
   const editableFieldsCallbackProps = getEditableFieldsCallbackProps(props);
-
+  
   for (const editableFieldCallbackProps of editableFieldsCallbackProps) {
     mutableDoc = await updateRevisionDocumentId<N>(mutableDoc, props, editableFieldCallbackProps);
-    mutableDoc = await notifyUsersAboutPingbackMentionsInCreate<N>(mutableDoc, props, editableFieldCallbackProps);
-
   }
 
   return mutableDoc;
 }
 
-export async function runNewAsyncEditableCallbacks<N extends CollectionNameString>(runCallbackStageProperties: NewAsyncEditableCallbackProperties<N>) {
-  let { props, newDoc } = runCallbackStageProperties;
+export async function notifyUsersOfPingbackMentions<N extends CollectionNameString>(runCallbackStageProperties: CreateAfterEditableCallbackProperties<N>) {
+  let { props, newDoc: mutableDoc } = runCallbackStageProperties;
 
   const editableFieldsCallbackProps = getEditableFieldsCallbackProps(props);
 
   for (const editableFieldCallbackProps of editableFieldsCallbackProps) {
-    await reuploadImagesInNew(newDoc, editableFieldCallbackProps);
+    mutableDoc = await notifyUsersAboutPingbackMentionsInCreate<N>(mutableDoc, props, editableFieldCallbackProps);
+  }
+
+  return mutableDoc;
+}
+
+export async function uploadImagesInEditableFields<N extends CollectionNameString>(runCallbackStageProperties: NewAsyncEditableCallbackProperties<N>) {
+  let { props, newDoc } = runCallbackStageProperties;
+  const { context } = props;
+
+  const editableFieldsCallbackProps = getEditableFieldsCallbackProps(props);
+
+  for (const editableFieldCallbackProps of editableFieldsCallbackProps) {
+    await reuploadImagesInNew(newDoc, editableFieldCallbackProps, context);
   }
 }
 
-export async function runUpdateBeforeEditableCallbacks<N extends CollectionNameString>(runCallbackStageProperties: UpdateBeforeEditableCallbackProperties<N>) {
+export async function createRevisionsForEditableFields<N extends CollectionNameString>(runCallbackStageProperties: UpdateBeforeEditableCallbackProperties<N>) {
   let { props, docData } = runCallbackStageProperties;
 
   const editableFieldsCallbackProps = getEditableFieldsCallbackProps(props);
@@ -439,7 +403,7 @@ export async function runUpdateBeforeEditableCallbacks<N extends CollectionNameS
   return docData;
 }
 
-export async function runUpdateAfterEditableCallbacks<N extends CollectionNameString>(runCallbackStageProperties: UpdateAfterEditableCallbackProperties<N>) {
+export async function notifyUsersOfNewPingbackMentions<N extends CollectionNameString>(runCallbackStageProperties: UpdateAfterEditableCallbackProperties<N>) {
   let { props, newDoc } = runCallbackStageProperties;
 
   const editableFieldsCallbackProps = getEditableFieldsCallbackProps(props);
@@ -451,12 +415,13 @@ export async function runUpdateAfterEditableCallbacks<N extends CollectionNameSt
   return newDoc;
 }
 
-export async function runEditAsyncEditableCallbacks<N extends CollectionNameString>(runCallbackStageProperties: EditAsyncEditableCallbackProperties<N>) {
+export async function reuploadImagesIfEditableFieldsChanged<N extends CollectionNameString>(runCallbackStageProperties: EditAsyncEditableCallbackProperties<N>) {
   let { props, newDoc } = runCallbackStageProperties;
+  const { context } = props;
 
   const editableFieldsCallbackProps = getEditableFieldsCallbackProps(props);
 
   for (const editableFieldCallbackProps of editableFieldsCallbackProps) {
-    await reuploadImagesInEdit(newDoc, props.oldDocument, editableFieldCallbackProps);
+    await reuploadImagesInEdit(newDoc, props.oldDocument, editableFieldCallbackProps, context);
   }
 }

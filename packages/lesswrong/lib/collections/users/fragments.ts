@@ -1,4 +1,6 @@
-export const UsersMinimumInfo = `
+import { frag } from "@/lib/fragments/fragmentWrapper"
+
+export const UsersMinimumInfo = () => frag`
   fragment UsersMinimumInfo on User {
     _id
     slug
@@ -26,7 +28,7 @@ export const UsersMinimumInfo = `
   }
 `
 
-export const UsersProfile = `
+export const UsersProfile = () => frag`
   fragment UsersProfile on User {
     ...UsersMinimumInfo
     oldSlugs
@@ -97,7 +99,7 @@ export const UsersProfile = `
   }
 `
 
-export const UsersCurrent = `
+export const UsersCurrent = () => frag`
   fragment UsersCurrent on User {
     ...UsersProfile
 
@@ -112,7 +114,13 @@ export const UsersCurrent = `
     hideIntercom
     hideNavigationSidebar
     hideCommunitySection
-    expandedFrontpageSections
+    expandedFrontpageSections {
+      community
+      recommendations
+      quickTakes
+      quickTakesCommunity
+      popularComments
+    }
     hidePostsRecommendations
     currentFrontpageFilter
     frontpageSelectedTab
@@ -152,6 +160,7 @@ export const UsersCurrent = `
     hideFrontpageMap
     emailSubscribedToCurated
     subscribedToDigest
+    subscribedToNewsletter
     unsubscribeFromAll
     emails
     whenConfirmationEmailSent
@@ -169,9 +178,14 @@ export const UsersCurrent = `
     recommendationSettings
     theme
 
-    bookmarkedPostsMetadata
+    bookmarkedPostsMetadata {
+      postId
+    }
 
-    hiddenPostsMetadata
+    hiddenPostsMetadata {
+      postId
+    }
+
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
@@ -231,21 +245,21 @@ export const UsersCurrent = `
  * involve some DB queries that we don't want to have to finish in serial before the rest of the
  * page can start loading.
  */
-export const UsersCurrentCommentRateLimit = `
+export const UsersCurrentCommentRateLimit = () => frag`
   fragment UsersCurrentCommentRateLimit on User {
     _id
     rateLimitNextAbleToComment(postId: $postId)
   }
 `
 
-export const UsersCurrentPostRateLimit = `
+export const UsersCurrentPostRateLimit = () => frag`
   fragment UsersCurrentPostRateLimit on User {
     _id
     rateLimitNextAbleToPost(eventForm: $eventForm)
   }
 `
 
-export const UserBookmarkedPosts = `
+export const UserBookmarkedPosts = () => frag`
   fragment UserBookmarkedPosts on User {
     _id
     bookmarkedPosts {
@@ -254,7 +268,7 @@ export const UserBookmarkedPosts = `
   }
 `
 
-export const UserKarmaChanges = `
+export const UserKarmaChanges = () => frag`
   fragment UserKarmaChanges on User {
     _id
     karmaChanges {
@@ -394,7 +408,7 @@ export const UserKarmaChanges = `
   }
 `
 
-export const UsersBannedFromUsersModerationLog = `
+export const UsersBannedFromUsersModerationLog = () => frag`
   fragment UsersBannedFromUsersModerationLog on User {
     _id
     slug
@@ -404,7 +418,7 @@ export const UsersBannedFromUsersModerationLog = `
   }
 `
 
-export const SunshineUsersList = `
+export const SunshineUsersList = () => frag`
   fragment SunshineUsersList on User {
     ...UsersMinimumInfo
     karma
@@ -461,18 +475,15 @@ export const SunshineUsersList = `
   }
 `
 
-export const UserAltAccountsFragment = `
+export const UserAltAccountsFragment = () => frag`
   fragment UserAltAccountsFragment on User {
     ...SunshineUsersList
     IPs
   }
 `
 
-export const SharedUserBooleans = `
+export const SharedUserBooleans = () => frag`
   fragment SharedUserBooleans on User {
-    walledGardenInvite
-    hideWalledGardenUI
-    walledGardenPortalOnboarded
     taggingDashboardCollapsed
     usernameUnset
   }
@@ -480,7 +491,7 @@ export const SharedUserBooleans = `
 
 // Fragment used for the map markers on /community. This is a much-larger-than-
 // usual number of users, so keep this fragment minimal.
-export const UsersMapEntry = `
+export const UsersMapEntry = () => frag`
   fragment UsersMapEntry on User {
     _id
     displayName
@@ -497,7 +508,7 @@ export const UsersMapEntry = `
 `
 
 
-export const UsersEdit = `
+export const UsersEdit = () => frag`
   fragment UsersEdit on User {
     ...UsersCurrent
     biography {
@@ -529,6 +540,7 @@ export const UsersEdit = `
     whenConfirmationEmailSent
     emailSubscribedToCurated
     subscribedToDigest
+    subscribedToNewsletter
     unsubscribeFromAll
     hasAuth0Id
 
@@ -594,8 +606,11 @@ export const UsersEdit = `
     notificationGroupAdministration
     notificationSubforumUnread
     notificationNewMention
+    notificationNewPingback
     notificationNewDialogueChecks
     notificationYourTurnMatchForm
+    notificationDialogueMessages
+    notificationPublishedDialogueMessages
 
     hideFrontpageMap
     hideTaggingProgressBar
@@ -609,7 +624,7 @@ export const UsersEdit = `
   }
 `
 
-export const UsersAdmin = `
+export const UsersAdmin = () => frag`
   fragment UsersAdmin on User {
     _id
     username
@@ -624,7 +639,7 @@ export const UsersAdmin = `
   }
 `
 
-export const UsersWithReviewInfo = `
+export const UsersWithReviewInfo = () => frag`
   fragment UsersWithReviewInfo on User {
     ...UsersMinimumInfo
     reviewVoteCount
@@ -632,7 +647,7 @@ export const UsersWithReviewInfo = `
   }
 `
 
-export const UsersProfileEdit = `
+export const UsersProfileEdit = () => frag`
   fragment UsersProfileEdit on User {
     _id
     slug
@@ -666,7 +681,7 @@ export const UsersProfileEdit = `
   }
 `
 
-export const UsersCrosspostInfo = `
+export const UsersCrosspostInfo = () => frag`
   fragment UsersCrosspostInfo on User {
     _id
     username
@@ -675,14 +690,14 @@ export const UsersCrosspostInfo = `
   }
 `
 
-export const UsersOptedInToDialogueFacilitation = `
+export const UsersOptedInToDialogueFacilitation = () => frag`
   fragment UsersOptedInToDialogueFacilitation on User {
     _id
     displayName
   }
 `
 
-export const UserOnboardingAuthor = `
+export const UserOnboardingAuthor = () => frag`
   fragment UserOnboardingAuthor on User {
     _id
     displayName
@@ -693,9 +708,21 @@ export const UserOnboardingAuthor = `
   }
 `
 
-export const UsersSocialMediaInfo = `
+export const UsersSocialMediaInfo = () => frag`
   fragment UsersSocialMediaInfo on User {
     ...UsersProfile
     twitterProfileURLAdmin
   }
 `
+
+export const SuggestAlignmentUser = () => frag`
+  fragment SuggestAlignmentUser on User {
+    ...UsersMinimumInfo
+    afKarma
+    afPostCount
+    afCommentCount
+    reviewForAlignmentForumUserId
+    groups
+    afApplicationText
+    afSubmittedApplication
+  }`
