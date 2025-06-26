@@ -90,7 +90,6 @@ export const SunshineNewUserPostItem = ({post}: {
     {!post.draft && !isCollapsed && <div className={classes.postBody}>
       <LinkPostMessage post={post} />
       <ContentStyles contentType="postHighlight">
-        {/* eslint-disable-next-line react/no-danger */}
         <div dangerouslySetInnerHTML={{ __html: (post.contents?.html || "") }} />
       </ContentStyles>
     </div>}

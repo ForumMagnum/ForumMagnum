@@ -71,7 +71,6 @@ export const RejectedContentControls = ({ contentWrapper }: {
             <div>
               <p>LLM Score: {automatedContentEvaluations.score}</p>
               <p>Post with highlighted sentences:</p>
-              {/* eslint-disable-next-line react/no-danger */}
               <div dangerouslySetInnerHTML={{ __html: highlightedHtml }} />
             </div>
           </DialogContent>
