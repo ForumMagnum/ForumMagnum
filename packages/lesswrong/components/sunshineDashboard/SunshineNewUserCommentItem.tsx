@@ -30,7 +30,7 @@ const SunshineNewUserCommentItem = ({comment, classes}: {
   comment: CommentsListWithParentMetadata,
   classes?: ClassesType<typeof styles>,
 }) => {
-  const [isCollapsed, setIsCollapsed] = React.useState<boolean>(false);
+  const [isCollapsed, setIsCollapsed] = React.useState<boolean>(!!comment.rejected);
 
   const toggleCollapse = () => setIsCollapsed(prev => !prev);
 
