@@ -3998,6 +3998,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideCommunitySection: boolean,
   readonly expandedFrontpageSections: ExpandedFrontpageSectionsSettingsOutput,
   readonly hidePostsRecommendations: boolean,
+  readonly keywordAlerts: Array<string>,
   readonly currentFrontpageFilter: string|null,
   readonly frontpageSelectedTab: string|null,
   readonly frontpageFilterSettings: any,

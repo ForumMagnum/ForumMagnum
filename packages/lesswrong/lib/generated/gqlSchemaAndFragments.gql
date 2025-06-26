@@ -12052,6 +12052,7 @@ fragment UsersCurrent on User {
     popularComments
   }
   hidePostsRecommendations
+  keywordAlerts
   currentFrontpageFilter
   frontpageSelectedTab
   frontpageFilterSettings

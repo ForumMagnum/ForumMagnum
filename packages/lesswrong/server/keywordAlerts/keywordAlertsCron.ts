@@ -1,4 +1,4 @@
-import { hasKeywordsAlerts } from "@/lib/betas";
+import { hasKeywordAlerts } from "@/lib/betas";
 import { addCronJob } from "../cron/cronUtil";
 import { createNotifications } from "../notificationCallbacksHelpers";
 import { createAdminContext } from "../vulcan-lib/createContexts";
@@ -7,7 +7,7 @@ import { getDefaultKeywordStartDate, KEYWORD_INTERVAL_HOURS } from "@/lib/keywor
 import UsersRepo from "../repos/UsersRepo";
 
 export const generateKeywordAlerts = async () => {
-  if (!hasKeywordsAlerts) {
+  if (!hasKeywordAlerts) {
     return;
   }
 

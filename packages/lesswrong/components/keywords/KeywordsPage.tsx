@@ -1,33 +1,135 @@
 import React, { FormEvent, useCallback, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { useNavigate } from "@/lib/routeUtil";
+import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
+import { useCurrentUser } from "../common/withUser";
+import { Link } from "@/lib/reactRouterWrapper";
+import { AnalyticsContext } from "@/lib/analyticsEvents";
+import uniq from "lodash/uniq";
+import classNames from "classnames";
 import SingleColumnSection from "../common/SingleColumnSection";
+import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import HeadTags from "../common/HeadTags";
 import SectionTitle from "../common/SectionTitle";
 import EAOnboardingInput from "../ea-forum/onboarding/EAOnboardingInput";
+import EAButton from "../ea-forum/EAButton";
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import Loading from "../vulcan-core/Loading";
 
-const KeywordsPage = () => {
-  const navigate = useNavigate();
+const styles = (theme: ThemeType) => ({
+  updating: {
+    opacity: 0.8,
+    pointerEvents: "none",
+  },
+  noAlerts: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 16,
+  },
+  savedKeyword: {
+    display: "flex",
+    gap: "16px",
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 16,
+    marginBottom: 8,
+    "&:hover $removeButton": {
+      display: "block",
+    },
+  },
+  link: {
+    color: theme.palette.primary.dark,
+  },
+  removeButton: {
+    cursor: "pointer",
+    display: "none",
+    fontSize: 18,
+    marginTop: 1,
+    "&:hover": {
+      color: theme.palette.error.dark,
+    },
+  },
+  form: {
+    display: "flex",
+    gap: "8px",
+    marginTop: 16,
+    marginBottom: 16,
+  },
+});
+
+const KeywordsPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
+  const updateCurrentUser = useUpdateCurrentUser();
+  const currentUser = useCurrentUser();
+  const keywordAlerts = currentUser?.keywordAlerts;
   const [keyword, setKeyword] = useState("");
-  const onSubmit = useCallback((ev: FormEvent<HTMLFormElement>) => {
+  const [updating, setUpdating] = useState(false);
+
+  const onSubmitKeyword = useCallback(async (ev: FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
-    if (keyword) {
-      navigate(`/keywords/${keyword}`);
+    const normalized = keyword.trim().replace(/\s+/g, " ");
+    if (normalized && keywordAlerts && keywordAlerts.indexOf(normalized) < 0) {
+      setUpdating(true);
+      await updateCurrentUser({
+        keywordAlerts: uniq([...keywordAlerts, normalized]).sort(),
+      });
+      setUpdating(false);
     }
-  }, [navigate, keyword]);
+    setKeyword("");
+  }, [keyword, keywordAlerts, updateCurrentUser]);
+
+  const onRemove = useCallback(async (keyword: string) => {
+    if (keywordAlerts) {
+      setUpdating(true);
+      await updateCurrentUser({
+        keywordAlerts: uniq(keywordAlerts.filter((kw) => kw !== keyword)).sort(),
+      });
+      setUpdating(false);
+    }
+  }, [updateCurrentUser, keywordAlerts]);
+
+  if (!currentUser) {
+    return (
+      <ErrorAccessDenied />
+    );
+  }
+
   return (
-    <SingleColumnSection>
-      <HeadTags />
-      <SectionTitle title="Keyword alerts" />
-      <form onSubmit={onSubmit}>
-        <EAOnboardingInput
-          value={keyword}
-          setValue={setKeyword}
-          placeholder="Enter keyword..."
-        />
-      </form>
-    </SingleColumnSection>
+    <AnalyticsContext pageContext="keywordAlertsPage">
+      <SingleColumnSection className={classNames(updating && classes.updating)}>
+        <HeadTags />
+        <SectionTitle title="Your keyword alerts" />
+        {keywordAlerts?.length === 0 &&
+          <div className={classes.noAlerts}>No saved keyword alerts</div>
+        }
+        {keywordAlerts?.map((alert) => (
+          <div key={alert} className={classes.savedKeyword}>
+            <Link
+              to={`/keywords/${encodeURIComponent(alert)}`}
+              className={classes.link}
+            >
+              {alert}
+            </Link>
+            <LWTooltip title="Remove" placement="top">
+              <ForumIcon
+                icon="Close"
+                onClick={onRemove.bind(null, alert)}
+                className={classes.removeButton}
+              />
+            </LWTooltip>
+          </div>
+        ))}
+        <form onSubmit={onSubmitKeyword} className={classes.form}>
+          <EAOnboardingInput
+            value={keyword}
+            setValue={setKeyword}
+            placeholder="Add keyword alert..."
+          />
+          <EAButton style="primary" type="submit" eventProps={{keyword}}>
+            Add
+          </EAButton>
+        </form>
+        {updating && <Loading />}
+      </SingleColumnSection>
+    </AnalyticsContext>
   );
 }
 
-export default registerComponent("KeywordsPage", KeywordsPage);
+export default registerComponent("KeywordsPage", KeywordsPage, {styles});

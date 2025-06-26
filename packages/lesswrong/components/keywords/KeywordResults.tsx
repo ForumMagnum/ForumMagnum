@@ -4,9 +4,17 @@ import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
 import EAPostsItem from "../posts/EAPostsItem";
 import Loading from "../vulcan-core/Loading";
 
-const KeywordResults = ({keyword, startDate}: {
+const styles = (theme: ThemeType) => ({
+  noResults: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 16,
+  },
+});
+
+const KeywordResults = ({keyword, startDate, classes}: {
   keyword: string,
   startDate: Date,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { results, loading } = usePaginatedResolver({
     fragmentName: "PostsListWithVotes",
@@ -33,8 +41,13 @@ const KeywordResults = ({keyword, startDate}: {
         <EAPostsItem key={post._id} post={post} viewType="card" />
       ))}
       {loading && <Loading />}
+      {!loading && (results?.length ?? 0) === 0 &&
+        <div className={classes.noResults}>
+          No results found
+        </div>
+      }
     </div>
   );
 }
 
-export default registerComponent("KeywordResults", KeywordResults);
+export default registerComponent("KeywordResults", KeywordResults, {styles});

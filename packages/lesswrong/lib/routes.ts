@@ -11,7 +11,7 @@ import qs from 'qs';
 import { getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getTagPingbackBySlug, getUserPingbackBySlug } from './pingback';
 import EASequencesHome, { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
 import { forumSpecificRoutes } from './forumSpecificRoutes';
-import { hasKeywordsAlerts, hasPostRecommendations, hasSurveys } from './betas';
+import { hasKeywordAlerts, hasPostRecommendations, hasSurveys } from './betas';
 import { postRouteWillDefinitelyReturn200 } from './collections/posts/helpers';
 import { sequenceRouteWillDefinitelyReturn200 } from './collections/sequences/helpers';
 import { tagGetUrl, tagRouteWillDefinitelyReturn200 } from './collections/tags/helpers';
@@ -1918,19 +1918,19 @@ if (isLW) {
   });
 }
 
-if (hasKeywordsAlerts) {
+if (hasKeywordAlerts) {
   addRoute(
     {
       name: "keywords",
       path: "/keywords",
       component: KeywordsPage,
-      title: "Keywords",
+      title: "Keyword alerts",
     },
     {
       name: "keywordResults",
       path: "/keywords/:keyword",
       component: KeywordResultsPage,
-      title: "Keyword Results",
+      title: "Keyword results",
     },
   );
 }

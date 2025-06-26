@@ -2,13 +2,25 @@ import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useKeywordFromUrl } from "@/lib/keywordAlertHelpers";
 import { combineUrls, getSiteUrl } from "@/lib/vulcan-lib/utils";
+import { Link } from "@/lib/reactRouterWrapper";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import PermanentRedirect from "../common/PermanentRedirect";
 import KeywordResults from "./KeywordResults";
 import HeadTags from "../common/HeadTags";
 
-const KeywordResultsPage = () => {
+const styles = (theme: ThemeType) => ({
+  backContainer: {
+    marginTop: 16,
+  },
+  back: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.primary.dark,
+    fontSize: 14,
+  },
+});
+
+const KeywordResultsPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { keyword, startDate } = useKeywordFromUrl();
 
   if (!keyword) {
@@ -30,6 +42,11 @@ const KeywordResultsPage = () => {
         canonicalUrl={canonicalUrl}
         noIndex
       />
+      <div className={classes.backContainer}>
+        <Link to="/keywords" className={classes.back}>
+          &lt;- Back to keyword alerts
+        </Link>
+      </div>
       <SectionTitle title={title} />
       <KeywordResults keyword={keyword} startDate={startDate} />
     </SingleColumnSection>
@@ -39,4 +56,5 @@ const KeywordResultsPage = () => {
 export default registerComponent(
   "KeywordResultsPage",
   KeywordResultsPage,
+  {styles},
 );

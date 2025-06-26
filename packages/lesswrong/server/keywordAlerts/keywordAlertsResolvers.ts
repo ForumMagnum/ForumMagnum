@@ -1,4 +1,4 @@
-import { hasKeywordsAlerts } from "@/lib/betas";
+import { hasKeywordAlerts } from "@/lib/betas";
 import { createPaginatedResolver } from "../resolvers/paginatedResolver";
 import { fetchPostIdsForKeyword } from "./keywordSearch";
 
@@ -13,7 +13,7 @@ const { Query, typeDefs } = createPaginatedResolver({
     startDate: "Date!",
   },
   callback: async (context, limit, args): Promise<DbPost[]> => {
-    if (!hasKeywordsAlerts) {
+    if (!hasKeywordAlerts) {
       throw new Error("Keyword alerts not enabled");
     }
 

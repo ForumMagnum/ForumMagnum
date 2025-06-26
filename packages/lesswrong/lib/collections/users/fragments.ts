@@ -122,6 +122,7 @@ export const UsersCurrent = () => frag`
       popularComments
     }
     hidePostsRecommendations
+    keywordAlerts
     currentFrontpageFilter
     frontpageSelectedTab
     frontpageFilterSettings
