@@ -14,7 +14,7 @@ type UseQueryOptions = {
   skip?: boolean,
 };
 
-export const useQuery: typeof useQueryApollo = ((query: any, options: UseQueryOptions) => {
+export const useQuery: typeof useQueryApollo = ((query: any, options?: UseQueryOptions) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   if (bundleIsServer && useContext(EnableSuspenseContext)) {
     const isSkipped = options?.skip || (options && 'ssr' in options && !options.ssr);
@@ -45,7 +45,7 @@ export const useQuery: typeof useQueryApollo = ((query: any, options: UseQueryOp
     const result = useQueryApollo(query, options);
     return {
       ...result,
-      loading: result.loading && !options.skip,
+      loading: result.loading && !options?.skip,
     };
   }
 }) as any;
