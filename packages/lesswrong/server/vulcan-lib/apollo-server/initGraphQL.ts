@@ -212,6 +212,7 @@ import { createUserMostValuablePostGqlMutation, updateUserMostValuablePostGqlMut
 import { createUserRateLimitGqlMutation, updateUserRateLimitGqlMutation, graphqlUserRateLimitTypeDefs } from "@/server/collections/userRateLimits/mutations";
 import { createUserTagRelGqlMutation, updateUserTagRelGqlMutation, graphqlUserTagRelTypeDefs } from "@/server/collections/userTagRels/mutations";
 import { createUserGqlMutation, updateUserGqlMutation, graphqlUserTypeDefs } from "@/server/collections/users/mutations";
+import { keywordAlertsQueryHandlers, keywordAlertsTypeDefs } from '@/server/keywordAlerts/keywordAlertsResolvers';
 
 
 const selectorInput = gql`
@@ -271,6 +272,7 @@ export const typeDefs = gql`
   ${loginDataGraphQLTypeDefs}
   ${dialogueMessageGqlTypeDefs}
   ${forumEventGqlTypeDefs}
+  ${keywordAlertsTypeDefs}
   ${ckEditorCallbacksGraphQLTypeDefs}
   ${migrationsDashboardGraphQLTypeDefs}
   ${reviewWinnerGraphQLTypeDefs}
@@ -506,6 +508,7 @@ export const resolvers = {
     ...elicitQuestionGqlQueryHandlers,
     ...featuredResourceGqlQueryHandlers,
     ...forumEventGqlQueryHandlers,
+    ...keywordAlertsQueryHandlers,
     ...gardenCodeGqlQueryHandlers,
     ...googleServiceAccountSessionGqlQueryHandlers,
     ...jargonTermGqlQueryHandlers,

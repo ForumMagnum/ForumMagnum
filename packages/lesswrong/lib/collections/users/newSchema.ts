@@ -979,6 +979,24 @@ const schema = {
       },
     },
   },
+  keywordAlerts: {
+    database: {
+      type: "TEXT[]",
+      defaultValue: [],
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "[String!]",
+      inputType: "[String!]",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   petrovOptOut: {
     database: {
       type: "BOOL",
@@ -1926,6 +1944,15 @@ const schema = {
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
   },
   notificationAddedAsCoauthor: {
+    database: {
+      type: "JSONB",
+      defaultValue: bothChannelsEnabledNotificationTypeSettings,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+  },
+  notificationKeywordAlert: {
     database: {
       type: "JSONB",
       defaultValue: bothChannelsEnabledNotificationTypeSettings,
