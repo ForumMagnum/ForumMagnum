@@ -11,8 +11,9 @@ import ContentStyles from "../common/ContentStyles";
 import LinkPostMessage from "../posts/LinkPostMessage";
 import RejectedContentControls from "./RejectedContentControls";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SunshineNewUserPostItem", (theme: ThemeType) => ({
   row: {
     display: "flex",
     justifyContent: "space-between",
@@ -54,12 +55,12 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.grey[800],
     }
   },
-})
+}));
 
-const SunshineNewUserPostItem = ({post, classes}: {
+const SunshineNewUserPostItem = ({post}: {
   post: SunshinePostsList,
-  classes?: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [isCollapsed, setIsCollapsed] = React.useState<boolean>(!!post.rejected);
 
   const toggleCollapse = () => setIsCollapsed(prev=>!prev);
@@ -99,4 +100,4 @@ const SunshineNewUserPostItem = ({post, classes}: {
   </div>
 }
 
-export default registerComponent('SunshineNewUserPostItem', SunshineNewUserPostItem, {styles}); 
+export default registerComponent('SunshineNewUserPostItem', SunshineNewUserPostItem); 

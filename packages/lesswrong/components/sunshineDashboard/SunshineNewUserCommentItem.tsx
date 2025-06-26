@@ -3,8 +3,9 @@ import React from 'react';
 import CommentsNodeInner from "../comments/CommentsNode";
 import RejectedContentControls from "./RejectedContentControls";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SunshineNewUserCommentItem", (theme: ThemeType) => ({  
   comment: {
     marginBottom: 16,
     marginTop: 16,
@@ -24,12 +25,12 @@ const styles = (theme: ThemeType) => ({
     marginRight: 8,
     color: theme.palette.grey[600],
   },
-})
+}));
 
-const SunshineNewUserCommentItem = ({comment, classes}: {
+const SunshineNewUserCommentItem = ({comment}: {
   comment: CommentsListWithParentMetadata,
-  classes?: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [isCollapsed, setIsCollapsed] = React.useState<boolean>(!!comment.rejected);
 
   const toggleCollapse = () => setIsCollapsed(prev => !prev);
@@ -52,4 +53,4 @@ const SunshineNewUserCommentItem = ({comment, classes}: {
   </div>
 }
 
-export default registerComponent('SunshineNewUserCommentItem', SunshineNewUserCommentItem, {styles}); 
+export default registerComponent('SunshineNewUserCommentItem', SunshineNewUserCommentItem); 

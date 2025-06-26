@@ -7,8 +7,9 @@ import { useDialog } from '../common/withDialog';
 import { DialogContent } from '../widgets/DialogContent';
 import LWDialog from '../common/LWDialog';
 import { highlightHtmlWithLlmDetectionScores } from './helpers';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("RejectedContentControls", (theme: ThemeType) => ({
   root: {
     display: 'flex',
     justifyContent: 'flex-end',
@@ -35,18 +36,18 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
   },
-});
+}));
 
 interface ContentWrapper {
   collectionName: 'Posts' | 'Comments';
   content: any;
 }
 
-const RejectedContentControls = ({ contentWrapper, classes }: {
-  contentWrapper: ContentWrapper,
-  classes: ClassesType<typeof styles>,
+const RejectedContentControls = ({ contentWrapper }: {
+  contentWrapper: ContentWrapper
 }) => {
   const { collectionName, content } = contentWrapper;
+  const classes = useStyles(styles);
 
   const { openDialog } = useDialog();
 
@@ -118,4 +119,4 @@ const RejectedContentControls = ({ contentWrapper, classes }: {
   );
 };
 
-export default registerComponent('RejectedContentControls', RejectedContentControls, { styles }); 
+export default registerComponent('RejectedContentControls', RejectedContentControls); 
