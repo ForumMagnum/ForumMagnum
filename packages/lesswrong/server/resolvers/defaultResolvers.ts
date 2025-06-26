@@ -282,14 +282,20 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       // Make a dynamic require here to avoid our circular dependency lint rule, since really by this point we should be fine
       const getSqlFragment: typeof import('../../lib/fragments/sqlFragments').getSqlFragment = require('../../lib/fragments/sqlFragments').getSqlFragment;
       const sqlFragment = getSqlFragment(fragmentInfo.fragmentName, fragmentInfo.fragmentText);
-      const query = new SelectFragmentQuery(
-        sqlFragment,
-        currentUser,
-        otherQueryVariables,
-        usedSelector,
-        undefined,
-        {limit: 1},
-      );
+      let query: SelectFragmentQuery;
+      try {
+        query = new SelectFragmentQuery(
+          sqlFragment,
+          currentUser,
+          otherQueryVariables,
+          usedSelector,
+          undefined,
+          {limit: 1},
+        );
+      } catch(e) {
+        console.error(`Bad fragment: ${fragmentInfo.fragmentName}`);
+        throw e;
+      }
       const compiledQuery = query.compile();
       const db = getSqlClientOrThrow();
       doc = await db.oneOrNone(compiledQuery.sql, compiledQuery.args);
