@@ -12,6 +12,8 @@ import { gql } from "@/lib/generated/gql-codegen";
 import ForumIcon from '../common/ForumIcon';
 import { useDialogNavigation } from "../hooks/useDialogNavigation";
 import { useDisableBodyScroll } from "../hooks/useDisableBodyScroll";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { NetworkStatus } from "@apollo/client";
 
 const CommentsListMultiQuery = gql(`
   query multiCommentUltraFeedCommentsDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -187,35 +189,38 @@ const UltraFeedCommentsDialog = ({
   });
   const postDataForTree = data?.post?.result;
 
-  const { data: dataPostComments, loading: loadingPostComments } = useQuery(CommentsListMultiQuery, {
+  const postCommentsQuery = useQueryWithLoadMore(CommentsListMultiQuery, {
     variables: {
       selector: { postCommentsTop: { postId } },
-      limit: 50, // Consider pagination later if needed
+      limit: 2,
       enableTotal: true,
     },
     skip: !isPost || !postId,
-    notifyOnNetworkStatusChange: true,
+    itemsPerPage: 100,
   });
 
-  const postComments = dataPostComments?.comments?.results;
-  const postCommentsTotalCount = dataPostComments?.comments?.totalCount;
-
-  const { data: dataThreadComments, loading: loadingThreadComments } = useQuery(CommentsListMultiQuery, {
+  const threadCommentsQuery = useQueryWithLoadMore(CommentsListMultiQuery, {
     variables: {
       selector: { repliesToCommentThreadIncludingRoot: { topLevelCommentId: topLevelCommentId ?? '' } },
-      limit: 50, // Fetch a large number to get the whole thread initially
+      limit: 200,
       enableTotal: true,
     },
-    skip: isPost || !topLevelCommentId, // Only run if collectionName is Comments and we have the ID
-    notifyOnNetworkStatusChange: true,
+    skip: isPost || !topLevelCommentId,
+    itemsPerPage: 100,
   });
+  
+  const {
+    data: dataComments,
+    loading: loadingComments,
+    loadMoreProps,
+    networkStatus,
+  } = isPost ? postCommentsQuery : threadCommentsQuery;
 
-  const threadComments = dataThreadComments?.comments?.results;
-  const threadCommentsTotalCount = dataThreadComments?.comments?.totalCount;
+  const comments = dataComments?.comments?.results;
+  const totalCount = dataComments?.comments?.totalCount;
 
-  const isLoading = loadingPost || (isPost ? loadingPostComments : loadingThreadComments);
-  const comments = isPost ? postComments : threadComments;
-  const totalCount = isPost ? postCommentsTotalCount : threadCommentsTotalCount;
+  const isLoading = loadingPost || (loadingComments && networkStatus !== NetworkStatus.fetchMore);
+  const loadingMoreComments = (networkStatus === NetworkStatus.fetchMore);
 
   useDialogNavigation(onClose);
   useDisableBodyScroll();
@@ -300,8 +305,8 @@ const UltraFeedCommentsDialog = ({
                 comments={comments ?? []}
                 totalComments={totalCount ?? 0}
                 commentCount={(comments ?? []).length}
-                loadMoreComments={() => {}}
-                loadingMoreComments={false}
+                loadMoreComments={loadMoreProps.loadMore}
+                loadingMoreComments={loadingMoreComments}
                 highlightDate={undefined}
                 setHighlightDate={() => {}}
                 hideDateHighlighting={true}

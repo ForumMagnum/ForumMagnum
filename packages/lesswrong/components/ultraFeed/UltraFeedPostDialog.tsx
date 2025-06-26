@@ -35,6 +35,8 @@ import TocIcon from "@/lib/vendor/@material-ui/icons/src/Toc";
 import UltraFeedPostToCDrawer from "./UltraFeedPostToCDrawer";
 import { useDialogNavigation } from "../hooks/useDialogNavigation";
 import { useDisableBodyScroll } from "../hooks/useDisableBodyScroll";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { NetworkStatus } from "@apollo/client";
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300;
 
@@ -390,18 +392,26 @@ const UltraFeedPostDialog = ({
 
   const fullPostForContent = fetchedPost ?? post;
 
-  const { data: dataCommentsList, loading: isCommentsLoading } = useQuery(CommentsListMultiQuery, {
+  const commentsQuery = useQueryWithLoadMore(CommentsListMultiQuery, {
     variables: {
       selector: { postCommentsTop: { postId: postId ?? post?._id } },
-      limit: 100, // TODO: add load more
+      limit: 1000,
       enableTotal: true,
     },
     skip: !(postId ?? post?._id),
-    notifyOnNetworkStatusChange: true,
+    itemsPerPage: 100,
   });
-
+  
+  const {
+    data: dataCommentsList,
+    loading: isCommentsLoading,
+    loadMoreProps,
+    networkStatus,
+  } = commentsQuery;
+  
   const comments = dataCommentsList?.comments?.results;
   const commentsTotalCount = dataCommentsList?.comments?.totalCount;
+  const loadingMoreComments = networkStatus === NetworkStatus.fetchMore;
 
   const displayPost = fetchedPost ?? post ?? partialPost;
 
@@ -628,7 +638,7 @@ const UltraFeedPostDialog = ({
                     )}
                   </div>
                   
-                  {isCommentsLoading && fullPostForContent && (
+                  {isCommentsLoading && !loadingMoreComments && fullPostForContent && (
                     <div className={classes.loadingContainer}><Loading /></div>
                   )}
                   {comments && (
@@ -637,8 +647,8 @@ const UltraFeedPostDialog = ({
                       comments={comments ?? []}
                       totalComments={commentsTotalCount ?? 0}
                       commentCount={(comments ?? []).length}
-                      loadMoreComments={() => { }}
-                      loadingMoreComments={false}
+                      loadMoreComments={loadMoreProps.loadMore}
+                      loadingMoreComments={loadingMoreComments}
                       highlightDate={undefined}
                       setHighlightDate={() => { }}
                       hideDateHighlighting={true}

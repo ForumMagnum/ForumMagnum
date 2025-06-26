@@ -472,7 +472,7 @@ const UltraFeedItemFooterCore = ({
 
   const showAllCommentsTooltip = (collectionName==='Posts')
     ? `Show all comments`
-    : `Show all ${commentCount} descendant${commentCount === 1 ? '' : 's'}`;
+    : `Show ${commentCount} descendant${commentCount === 1 ? '' : 's'}`;
 
   const showAllCommentsButton = (commentCount ?? 0) > 0 
     ? <div className={classes.showAllCommentsWrapper}>
