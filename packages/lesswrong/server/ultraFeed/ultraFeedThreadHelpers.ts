@@ -409,10 +409,11 @@ function prepareThreadForDisplay(
   const numComments = thread.length;
   if (numComments === 0) return null;
 
-  // Determine primary source (e.g., from the first comment)
-  // If the first comment has no source, the thread gets no primary source.
-  const firstCommentSource = thread[0]?.sources?.[0] as FeedItemSourceType | undefined;
-  const primarySource = firstCommentSource ?? null; // Use first source or null
+  // Find the first comment in the thread that was an initial candidate. Threads are ordered root-first, so this finds the candidate closest to the root.
+  const initialCandidateComment = thread.find(comment => comment.isInitialCandidate);
+
+  // The primarySource for the entire thread is determined by that single candidate comment.
+  const primarySource = (initialCandidateComment?.primarySource ?? thread[0]?.primarySource ?? 'recentComments')
 
   const expandedCommentIds = new Set<string>();
 

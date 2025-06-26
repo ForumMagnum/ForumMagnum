@@ -15,12 +15,17 @@ import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from 'graphql-tag';
 import { bulkRawInsert } from '../manualMigrations/migrationUtils';
 import cloneDeep from 'lodash/cloneDeep';
-import { getUltraFeedCommentThreads } from '@/server/ultraFeed/ultraFeedThreadHelpers';
+import { getUltraFeedCommentThreads, generateThreadHash } from '@/server/ultraFeed/ultraFeedThreadHelpers';
 import { DEFAULT_SETTINGS as DEFAULT_ULTRAFEED_SETTINGS, UltraFeedResolverSettings } from '@/components/ultraFeed/ultraFeedSettingsTypes';
 import { loadByIds } from '@/lib/loaders';
 import { getUltraFeedPostThreads, getSubscribedPostsForUltraFeed } from '@/server/ultraFeed/ultraFeedPostHelpers';
 import { getUltraFeedBookmarks, PreparedBookmarkItem } from '../ultraFeed/ultraFeedBookmarkHelpers';
 import { randomId } from '@/lib/random';
+import { captureEvent } from '@/lib/analyticsEvents';
+import union from 'lodash/union';
+import groupBy from 'lodash/groupBy';
+import mergeWith from 'lodash/mergeWith';
+import values from 'lodash/values';
 
 interface UltraFeedDateCutoffs {
   latestPostsMaxAgeDays: number;
@@ -139,6 +144,58 @@ const weightedSample = (
   return finalFeed;
 };
 
+const getSampledItemKey = (item: SampledItem): string | undefined => {
+  switch (item.type) {
+    case "feedPostWithContents":
+      return item.feedPost.post?._id;
+    case "feedPost":
+      return item.feedPostStub.postId;
+    case "feedCommentThread": {
+      const ids = item.feedCommentThread.comments?.map(c => c.commentId).sort();
+      if (!ids || ids.length === 0) return undefined;
+      return generateThreadHash(ids);
+    }
+    case "feedSpotlight":
+      return item.feedSpotlight.spotlightId;
+    default:
+      return undefined;
+  }
+};
+
+const mergeDuplicateSampledItems = (target: SampledItem, incoming: SampledItem): SampledItem => {
+  const customizer = (objVal: any, srcVal: any, key: string) => {
+    if (key === 'sources') {
+      return union(objVal, srcVal);
+    }
+    return undefined; // default merge for other keys
+  };
+
+  return mergeWith(target, incoming, customizer);
+};
+
+function dedupSampledItems(sampled: SampledItem[]): SampledItem[] {
+  const grouped = groupBy(sampled, getSampledItemKey);
+
+  const duplicateLog: Array<{key: string, count: number}> = [];
+
+  const mergedObject = Object.fromEntries(
+    Object.entries(grouped).map(([key, items]) => {
+      if (items.length > 1) {
+        duplicateLog.push({ key, count: items.length });
+      }
+      const [first, ...rest] = items as SampledItem[];
+      const merged = rest.reduce<SampledItem>((acc, itm) => mergeDuplicateSampledItems(acc, itm), first);
+      return [key ?? randomId(), merged];
+    })
+  );
+
+  if (duplicateLog.length > 0) {
+    captureEvent?.('ultraFeedDuplicateAfterSample', { duplicates: duplicateLog, location: 'ultraFeedResolver' });
+  }
+
+  return values(mergedObject);
+}
+
 const DEFAULT_RESOLVER_SETTINGS: UltraFeedResolverSettings = DEFAULT_ULTRAFEED_SETTINGS.resolverSettings;
 
 const parseUltraFeedSettings = (settingsJson?: string): UltraFeedResolverSettings => {
@@ -212,7 +269,7 @@ const createSourcesMap = (
     if (!postId || addedPostIds.has(postId)) {
       return;
     }
-    const bucket = sources['subscriptions' as const]; 
+    const bucket = sources['subscriptionsPosts' as const]; 
     if (bucket) {
       bucket.items.push({ 
         type: "feedPost", 
@@ -240,11 +297,30 @@ const createSourcesMap = (
     });
   }
 
-  if (sources.recentComments) {
-    commentThreadsItems.forEach(t => {
-      sources.recentComments?.items.push({ type: "feedCommentThread", feedCommentThread: t });
-    });
-  }
+  // Handle comment threads - distribute into appropriate buckets
+  // For backwards compatibility, if client has recentComments weight > 0 but new weights = 0,
+  // we still populate all threads there
+  const hasNewCommentBuckets = (sources.quicktakes || 
+    sources.subscriptionsComments);
+  const useOldBucket = sources.recentComments && !hasNewCommentBuckets;
+
+  commentThreadsItems.forEach(t => {
+    const primarySource = (t as any).primarySource as FeedItemSourceType;
+    
+    if (useOldBucket && sources.recentComments) {
+      // Backwards compatibility mode
+      sources.recentComments.items.push({ type: "feedCommentThread", feedCommentThread: t });
+    } else {
+      // New bucket distribution
+      if (primarySource === 'quicktakes' && sources.quicktakes) {
+        sources.quicktakes.items.push({ type: "feedCommentThread", feedCommentThread: t });
+      } else if (primarySource === 'subscriptionsComments' && sources.subscriptionsComments) {
+        sources.subscriptionsComments.items.push({ type: "feedCommentThread", feedCommentThread: t });
+      } else if (primarySource === 'recentComments' && sources.recentComments) {
+        sources.recentComments.items.push({ type: "feedCommentThread", feedCommentThread: t });
+      }
+    }
+  });
 
   return Object.fromEntries(Object.entries(sources).filter(([, v]) => v?.items.length ?? 0 > 0));
 };
@@ -492,7 +568,7 @@ const calculateFetchLimits = (
   
   const recombeePostWeight = sourceWeights['recombee-lesswrong-custom'] ?? 0;
   const hackerNewsPostWeight = sourceWeights['hacker-news'] ?? 0;
-  const subscribedPostWeight = sourceWeights['subscriptions'] ?? 0;
+  const subscribedPostWeight = sourceWeights['subscriptionsPosts'] ?? 0;
   const bookmarkWeight = sourceWeights['bookmarks'] ?? 0;
   const totalCommentWeight = feedCommentSourceTypesArray.reduce((sum: number, type: FeedItemSourceType) => sum + (sourceWeights[type] || 0), 0);
   const totalSpotlightWeight = feedSpotlightSourceTypesArray.reduce((sum: number, type: FeedItemSourceType) => sum + (sourceWeights[type] || 0), 0);
@@ -593,7 +669,8 @@ export const ultraFeedGraphQLQueries = {
       );
 
       // Sample items from sources based on weights
-      const sampledItems = weightedSample(populatedSources, limit);
+      const sampledItemsRaw = weightedSample(populatedSources, limit);
+      const sampledItems = dedupSampledItems(sampledItemsRaw);
       
       // Extract IDs to load
       const { spotlightIds, commentIds, postIds } = extractIdsToLoad(sampledItems);

@@ -11,6 +11,7 @@ import { forumSelect } from "../../lib/forumTypeUtils";
 import { isAF } from "../../lib/instanceSettings";
 import { getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
 import { FeedCommentFromDb, ThreadEngagementStats } from "../../components/ultraFeed/ultraFeedTypes";
+import uniq from "lodash/uniq";
 
 type ExtendedCommentWithReactions = DbComment & {
   yourVote?: string,
@@ -486,9 +487,19 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       AND ${getViewableCommentsSelector(alias)}
     `;
 
-    const feedCommentsData: FeedCommentFromDb[] = await this.getRawDb().manyOrNone(`
+    const feedCommentsData = await this.getRawDb().manyOrNone<FeedCommentFromDb>(`
       -- CommentsRepo.getCommentsForFeed
-      WITH "InitialCandidates" AS (
+      WITH "SubscribedAuthorIds" AS (
+          -- Get all user IDs the current user is subscribed to
+          SELECT "documentId" AS "authorId"
+          FROM "Subscriptions"
+          WHERE "userId" = $(userId)
+            AND "collectionName" = 'Users'
+            AND "state" = 'subscribed'
+            AND "type" IN ('newActivityForFeed', 'newPosts', 'newComments')
+            AND deleted IS NOT TRUE
+      ),
+      "InitialCandidates" AS (
           -- Find top candidate comments based on recency or shortform status
           SELECT
               c._id AS "commentId",
@@ -513,19 +524,27 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       "AllRelevantComments" AS (
           -- Fetch all comments belonging to the candidate threads using the distinct IDs
           SELECT
-            c._id,
-            c."postId",
-            c."userId" AS "authorId",
-            c."baseScore",
-            c."topLevelCommentId",
-            c."parentCommentId",
-            c.shortform,
-            c."postedAt",
-            c."descendentCount"
+              c._id,
+              c."postId",
+              c."userId" AS "authorId",
+              c."baseScore",
+              c."topLevelCommentId",
+              c."parentCommentId",
+              c.shortform,
+              c."postedAt",
+              c."descendentCount",
+              CASE 
+                WHEN c.shortform IS TRUE THEN 'quicktakes'
+                WHEN sa."authorId" IS NOT NULL THEN 'subscriptionsComments'
+                ELSE 'recentComments'
+              END AS "primarySource",
+              (ic."commentId" IS NOT NULL) AS "isInitialCandidate"
           FROM "Comments" c
           JOIN "CandidateThreadTopLevelIds" ct
               ON c."topLevelCommentId" = ct."threadTopLevelId"
               OR (c._id = ct."threadTopLevelId" AND c."topLevelCommentId" IS NULL)
+          LEFT JOIN "SubscribedAuthorIds" sa ON c."userId" = sa."authorId"
+          LEFT JOIN "InitialCandidates" ic ON c._id = ic."commentId"
           WHERE
               ${getUniversalCommentFilterClause('c')}
       ),
@@ -584,6 +603,8 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           c.shortform,
           c."postedAt",
           c."descendentCount",
+          c."primarySource",
+          c."isInitialCandidate",
           ce."lastServed",
           ce."lastViewed",
           ce."lastInteracted"
@@ -609,7 +630,9 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       shortform: comment.shortform ?? null,
       postedAt: comment.postedAt,
       descendentCount: comment.descendentCount,
-      sources: ['recentComments'],
+      sources: uniq(['recentComments', comment.primarySource ?? 'recentComments']), // temporarily to avoid breaking change, we assign recentComments to all comments
+      primarySource: comment.primarySource,
+      isInitialCandidate: comment.isInitialCandidate,
       lastServed: null, 
       lastViewed: comment.lastViewed ?? null,
       lastInteracted: comment.lastInteracted ?? null,
