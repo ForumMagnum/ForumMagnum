@@ -293,7 +293,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
           {limit: 1},
         );
       } catch(e) {
-        console.error(`Bad fragment: ${fragmentInfo.fragmentName}`);
+        console.error(`Bad query: ${print(info.operation)}`);
         throw e;
       }
       const compiledQuery = query.compile();

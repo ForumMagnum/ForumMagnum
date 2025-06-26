@@ -2,7 +2,7 @@ import Posts from "../server/collections/posts/collection";
 import PostEmbeddingsRepo from "./repos/PostEmbeddingsRepo";
 import PostsRepo from "./repos/PostsRepo";
 import { forEachDocumentBatchInCollection } from "./manualMigrations/migrationUtils";
-import { getOpenAI } from "./languageModels/languageModelIntegration";
+import { getOpenAI, isOpenAIAPIEnabled } from "./languageModels/languageModelIntegration";
 import { htmlToTextDefault } from "../lib/htmlToText";
 import { inspect } from "util";
 import md5 from "md5";
@@ -179,6 +179,10 @@ export const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResu
   };
 }
 
+export const isEmbeddingsAPIEnabled = () => {
+  return isOpenAIAPIEnabled();
+}
+
 type EmbeddingsWithHash = EmbeddingsResult & { hash: string };
 
 const getEmbeddingsForPost = async (
@@ -219,6 +223,9 @@ const getEmbeddingsForPosts = async (
 
 // Exported to allow running manually with yarn repl
 export const updatePostEmbeddings = async (postId: string) => {
+  if (!isEmbeddingsAPIEnabled()) {
+    return;
+  }
   const {hash, embeddings, model} = await getEmbeddingsForPost(postId);
   const repo = new PostEmbeddingsRepo();
   await repo.setPostEmbeddings(postId, hash, model, embeddings);

@@ -7,6 +7,9 @@ export async function elasticSyncDocument(
   collectionName: SearchIndexCollectionName,
   documentId: string,
 ) {
+  if (!isElasticEnabled) {
+    return;
+  }
   try {
     const client = new ElasticClient();
     const exporter = new ElasticExporter(client);
