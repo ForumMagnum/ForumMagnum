@@ -205,7 +205,6 @@ const RejectContentDialog = ({classes, rejectContent}: {
     </div>
     <div className={classNames(classes.editorContainer, { [classes.hideEditorContainer]: hideTextField })}>
       <div className={classes.defaultIntroMessage}>
-        <div className={classes.defaultIntroHeader}>Standard Rejection Message (sent automatically):</div>
         <ContentStyles contentType='comment'>
           <ContentItemBody dangerouslySetInnerHTML={{__html: standardIntroHtml}} />
         </ContentStyles>
