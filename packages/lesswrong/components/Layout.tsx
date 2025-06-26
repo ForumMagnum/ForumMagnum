@@ -395,7 +395,7 @@ const Layout = ({currentUser, children}: {
               <Helmet>
                 {theme.typography.fontDownloads &&
                   theme.typography.fontDownloads.map(
-                    (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
+                    (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url} as="style"/>
                   )
                 }
                 <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
