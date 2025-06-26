@@ -10546,4 +10546,5 @@ type UserOutput {
 extend type Mutation {
   createUser(data: CreateUserDataInput!): UserOutput
   updateUser(selector: SelectorInput!, data: UpdateUserDataInput!): UserOutput
+  setCurrentUserBeta(value: Boolean!): Boolean!
 }
