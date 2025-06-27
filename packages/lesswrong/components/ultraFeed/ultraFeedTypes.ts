@@ -1,6 +1,6 @@
 // Define source type arrays for runtime iteration
-export const feedPostSourceTypesArray = [ 'hacker-news', 'recombee-lesswrong-custom', 'bookmarks', 'subscriptions' ] as const;
-export const feedCommentSourceTypesArray = ['recentComments', 'bookmarks', 'subscriptions'] as const;
+export const feedPostSourceTypesArray = [ 'hacker-news', 'recombee-lesswrong-custom', 'bookmarks', 'subscriptionsPosts' ] as const;
+export const feedCommentSourceTypesArray = ['quicktakes', 'recentComments', 'subscriptionsComments', 'bookmarks'] as const;
 export const feedSpotlightSourceTypesArray = ['spotlights'] as const;
 export const allFeedItemSourceTypes = [
   ...feedPostSourceTypesArray,
@@ -60,6 +60,8 @@ export interface FeedCommentFromDb {
   baseScore: number;
   shortform: boolean | null;
   sources: string[];
+  primarySource?: string;
+  isInitialCandidate?: boolean;
   lastServed: Date | null;
   lastViewed: Date | null;
   lastInteracted: Date | null;
@@ -79,6 +81,7 @@ export type PreDisplayFeedCommentThread = PreDisplayFeedComment[];
 
 export interface FeedCommentsThread {
   comments: PreDisplayFeedComment[];
+  primarySource?: FeedItemSourceType;
 }
 
 export interface FeedPostStub {

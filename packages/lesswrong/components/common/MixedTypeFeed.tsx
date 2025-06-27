@@ -84,7 +84,6 @@ export const MixedTypeFeed = <
   // because it's accessed from inside callbacks, where the timing of state
   // updates would be a problem.
   const queryIsPending = useRef(false);
-  const {captureEvent} = useTracking();
   
   const {data, error, fetchMore, refetch} = useQuery<Record<string, FeedPaginationResultVariables>>(query, {
     variables: {
