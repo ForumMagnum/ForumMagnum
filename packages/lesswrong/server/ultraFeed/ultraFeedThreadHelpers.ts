@@ -21,17 +21,16 @@ import {
 import * as crypto from 'crypto';
 
 /**
- * Generates a stable hash ID for a comment thread based on its comment IDs (sensitive to sort order).
- * This MUST match the hash generation logic used in the resolver when checking against served threads.
+ * Generates a stable hash ID for a comment thread based on its comment IDs. This creates a consistent identifier for each unique thread composition.
  */
 export function generateThreadHash(commentIds: string[]): string {
   if (!commentIds || commentIds.length === 0) {
-    // Return a consistent identifier for empty/invalid threads
     return 'empty_thread_hash';
   }
-
+  
+  const sortedIds = [...commentIds].sort();
   const hash = crypto.createHash('sha256');
-  hash.update(commentIds.join(','));
+  hash.update(sortedIds.join(','));
   return hash.digest('hex');
 }
 
@@ -479,7 +478,6 @@ export async function getUltraFeedCommentThreads(
   context: ResolverContext,
   limit = 20,
   settings: UltraFeedResolverSettings,
-  servedThreadHashes: Set<string> = new Set(),
   initialCandidateLookbackDays: number,
   commentServedEventRecencyHours: number,
   threadEngagementLookbackDays: number
@@ -555,15 +553,7 @@ export async function getUltraFeedCommentThreads(
   });
 
   // --- Prepare for Display --- 
-  const unservedRankedThreads = viableThreads.filter(rankedThreadInfo => {
-    const thread = rankedThreadInfo.thread;
-    if (!thread || thread.length === 0) return false;
-    const commentIds = thread.map(c => c.commentId);
-    const threadHash = generateThreadHash(commentIds);
-    return !servedThreadHashes.has(threadHash);
-  });
-  
-  const displayThreads = unservedRankedThreads
+  const displayThreads = viableThreads
     .slice(0, limit) 
     .map(rankedThreadInfo => prepareThreadForDisplay(rankedThreadInfo))
     .filter(rankedThreadInfo => !!rankedThreadInfo);
