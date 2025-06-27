@@ -14,7 +14,7 @@ import { DatabasePublicSetting, blackBarTitle, googleTagManagerIdSetting } from 
 import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { userCanDo } from '../lib/vulcan-users/permissions';
-import { Helmet } from '../lib/utils/componentsWithChildren';
+import { Helmet } from "./common/Helmet";
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
@@ -61,8 +61,12 @@ import LWBackgroundImage from "./LWBackgroundImage";
 import IntercomWrapper from "./common/IntercomWrapper";
 import CookieBanner from "./common/CookieBanner/CookieBanner";
 import { defineStyles, useStyles } from './hooks/useStyles';
-import { useMutation } from "@apollo/client";
+import Loading from './vulcan-core/Loading';
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { DelayedLoading } from './common/DelayedLoading';
+import { SuspenseWrapper } from './common/SuspenseWrapper';
+import { useHideIfAnyoneBuildsItSplash } from './seasonal/IfAnyoneBuildsItSplash';
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -354,6 +358,9 @@ const Layout = ({currentUser, children}: {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }
 
+  const isFrontPage = (pathname === '/' || pathname === '');
+  const isMaybeIsIfAnyoneBuildsItFrontPage = !useHideIfAnyoneBuildsItSplash() && isLW && isFrontPage;
+
   const render = () => {
     const baseLayoutOptions: LayoutOptions = {
       // Check whether the current route is one which should have standalone
@@ -396,12 +403,14 @@ const Layout = ({currentUser, children}: {
       <CurrentAndRecentForumEventsProvider>
         <div className={classNames(
           "wrapper",
-          {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
+          {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF},
+          isMaybeIsIfAnyoneBuildsItFrontPage && "ifAnyoneBuildsItPage",
+          useWhiteBackground && classes.whiteBackground
         )} id="wrapper">
           {buttonBurstSetting.get() && <GlobalButtonBurst />}
           <DialogManager>
             <CommentBoxManager>
-              <Helmet>
+              <Helmet name="fonts">
                 {theme.typography.fontDownloads &&
                   theme.typography.fontDownloads.map(
                     (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
@@ -422,17 +431,25 @@ const Layout = ({currentUser, children}: {
               {/* Google Tag Manager i-frame fallback */}
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
 
-              {!currentRoute?.standalone && <Header
-                searchResultsArea={searchResultsAreaRef}
-                standaloneNavigationPresent={standaloneNavigation}
-                sidebarHidden={hideNavigationSidebar}
-                toggleStandaloneNavigation={toggleStandaloneNavigation}
-                stayAtTop={!!currentRoute?.staticHeader}
-                backgroundColor={headerBackgroundColor}
-              />}
-              <ForumEventBanner />
+              {!currentRoute?.standalone && <SuspenseWrapper name="Header">
+                <Header
+                  searchResultsArea={searchResultsAreaRef}
+                  standaloneNavigationPresent={standaloneNavigation}
+                  sidebarHidden={hideNavigationSidebar}
+                  toggleStandaloneNavigation={toggleStandaloneNavigation}
+                  stayAtTop={!!currentRoute?.staticHeader}
+                  backgroundColor={headerBackgroundColor}
+                />
+              </SuspenseWrapper>}
+              <SuspenseWrapper name="ForumEventBanner">
+                <ForumEventBanner />
+              </SuspenseWrapper>
               {/* enable during ACX Everywhere */}
-              {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
+              {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}>
+                <SuspenseWrapper name="HomepageCommunityMap">
+                  <HomepageCommunityMap dontAskUserLocation={true}/>
+                </SuspenseWrapper>
+              </span>}
 
               <div className={classNames({
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
@@ -442,21 +459,22 @@ const Layout = ({currentUser, children}: {
               }
               )}>
                 {isFriendlyUI && !isWrapped && <AdminToggle />}
-                {standaloneNavigation &&
+                {standaloneNavigation && <SuspenseWrapper fallback={<span/>} name="NavigationStandalone" >
                   <MaybeStickyWrapper sticky={friendlyHomeLayout}>
                     <DeferRender ssr={true} clientTiming='mobile-aware'>
-                      <NavigationStandalone
-                        sidebarHidden={hideNavigationSidebar}
-                        unspacedGridLayout={unspacedGridLayout}
-                        noTopMargin={friendlyHomeLayout}
-                      />
+                      <SuspenseWrapper name="NavigationStandalone">
+                        <NavigationStandalone
+                          sidebarHidden={hideNavigationSidebar}
+                          unspacedGridLayout={unspacedGridLayout}
+                          noTopMargin={friendlyHomeLayout}
+                        />
+                      </SuspenseWrapper>
                     </DeferRender>
                   </MaybeStickyWrapper>
-                }
+                </SuspenseWrapper>}
                 {/* {isLWorAF && navigationFooterBar && <TabNavigationMenuFooter />} */}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
-                  [classes.whiteBackground]: useWhiteBackground,
                   [classes.mainNoFooter]: currentRoute?.noFooter,
                   [classes.mainFullscreen]: currentRoute?.fullscreen,
                   [classes.mainUnspacedGrid]: shouldUseGridLayout && unspacedGridLayout,
@@ -465,8 +483,12 @@ const Layout = ({currentUser, children}: {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {children}
-                    {!isIncompletePath && isEAForum ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
+                    <SuspenseWrapper name="Route" fallback={<DelayedLoading/>}>
+                      {children}
+                    </SuspenseWrapper>
+                    <SuspenseWrapper name="OnboardingFlow">
+                      {!isIncompletePath && isEAForum ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
+                    </SuspenseWrapper>
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
@@ -475,13 +497,17 @@ const Layout = ({currentUser, children}: {
                   friendlyHomeLayout &&
                   <MaybeStickyWrapper sticky={friendlyHomeLayout}>
                     <DeferRender ssr={true} clientTiming='mobile-aware'>
-                      <EAHomeRightHandSide />
+                      <SuspenseWrapper name="EAHomeRightHandSide">
+                        <EAHomeRightHandSide />
+                      </SuspenseWrapper>
                     </DeferRender>
                   </MaybeStickyWrapper>
                 }
                 {renderSunshineSidebar && <div className={classes.sunshine}>
                   <DeferRender ssr={false}>
-                    <SunshineSidebar/>
+                    <SuspenseWrapper name="SunshineSidebar">
+                      <SunshineSidebar/>
+                    </SuspenseWrapper>
                   </DeferRender>
                 </div>}
                 {renderLanguageModelChatLauncher && <div>

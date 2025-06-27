@@ -24,7 +24,7 @@ import SettingsButton from "../icons/SettingsButton";
 import SpotlightFeedItem from "../spotlights/SpotlightFeedItem";
 import UltraFeedSettings from "./UltraFeedSettings";
 import UltraFeedThreadItem from "./UltraFeedThreadItem";
-import SpotlightItem from "../spotlights/SpotlightItem";
+import { SpotlightItem } from "../spotlights/SpotlightItem";
 import { UltraFeedQuery } from '../common/feeds/feedQueries';
 import ForumIcon from '../common/ForumIcon';
 import UltraFeedQuickTakeDialog from './UltraFeedQuickTakeDialog';

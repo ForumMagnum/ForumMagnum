@@ -62,7 +62,7 @@ export const userIsMemberOf = (user: PermissionableUser|DbUser|null, group: Perm
 };
 
 
-export const userIsPodcaster = (user: UsersProfile|UsersProfile|DbUser|null): boolean => {
+export const userIsPodcaster = (user: UsersProfile|UsersCurrent|DbUser|null): boolean => {
   return userIsMemberOf(user, 'podcasters');
 };
 

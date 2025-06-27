@@ -34,6 +34,7 @@ async function toggleBookmarkResolver(root: void, { input }: { input: ToggleBook
   }
 
   const resultingBookmark = await context.repos.bookmarks.upsertBookmark(currentUser._id, documentId, collectionName);
+  void context.repos.bookmarks.updateBookmarkCountForUser(currentUser._id);
   
   return { data: resultingBookmark };
 }

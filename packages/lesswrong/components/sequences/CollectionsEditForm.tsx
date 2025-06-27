@@ -11,7 +11,7 @@ import { cancelButtonStyles, submitButtonStyles } from '@/components/tanstack-fo
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const CollectionsPageFragmentUpdateMutation = gql(`

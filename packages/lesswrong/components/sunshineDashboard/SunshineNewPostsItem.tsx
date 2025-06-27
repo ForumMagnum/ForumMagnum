@@ -25,7 +25,7 @@ import { Typography } from "../common/Typography";
 import ContentStyles from "../common/ContentStyles";
 import SmallSideVote from "../votes/SmallSideVote";
 import ForumIcon from "../common/ForumIcon";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsListUpdateMutation = gql(`

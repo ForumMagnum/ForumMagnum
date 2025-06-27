@@ -33,10 +33,9 @@ export const isPostWithForeignId = (post: PostType): post is PostWithForeignId =
   typeof post.fmCrosspost.hostedHere === "boolean" &&
   !!post.fmCrosspost.foreignPostId;
 
-const PostsPageCrosspostWrapper = ({post, eagerPostComments, refetch, fetchProps}: {
+const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
   post: PostWithForeignId,
-  eagerPostComments?: EagerPostComments,
-  refetch: () => Promise<AnyBecauseHard>,
+  refetch: () => Promise<void>,
   fetchProps: PostFetchProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision">,
 }) => {
   const {
@@ -68,7 +67,6 @@ const PostsPageCrosspostWrapper = ({post, eagerPostComments, refetch, fetchProps
       <PostsPage
         fullPost={contextValue.combinedPost ?? post}
         postPreload={undefined}
-        eagerPostComments={eagerPostComments}
         refetch={refetch}
       />
     </crosspostContext.Provider>

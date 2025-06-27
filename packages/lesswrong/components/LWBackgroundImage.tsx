@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../lib/vulcan-lib/components';
-import { useLocation } from '../lib/routeUtil';
+import { useLocation, useSubscribedLocation } from '../lib/routeUtil';
 import { getReviewPhase, reviewResultsPostPath } from '../lib/reviewUtils';
 import { defineStyles, useStyles } from './hooks/useStyles';
 import { Link } from '../lib/reactRouterWrapper';
@@ -108,7 +108,7 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   standaloneNavigation: boolean,
 }) => {
   const classes = useStyles(styles);
-  const { currentRoute } = useLocation();
+  const { currentRoute } = useSubscribedLocation();
   const hideIfAnyoneBuildsItSplash = useHideIfAnyoneBuildsItSplash();
 
   const defaultImage = standaloneNavigation ? <div className={classes.imageColumn}> 
@@ -150,6 +150,8 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   </div>;
 }
 
-export default registerComponent('LWBackgroundImage', LWBackgroundImage);
+export default registerComponent('LWBackgroundImage', LWBackgroundImage, {
+  areEqual: "auto",
+});
 
 

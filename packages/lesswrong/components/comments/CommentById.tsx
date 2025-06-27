@@ -15,11 +15,12 @@ const CommentsListQuery = gql(`
   }
 `);
 
-const CommentById = ({commentId, nestingLevel=0, isChild=false, treeOptions}: {
+const CommentById = ({commentId, nestingLevel=0, isChild=false, treeOptions, loadChildren}: {
   commentId: string,
   nestingLevel?: number,
   isChild?: boolean,
   treeOptions: CommentTreeOptions,
+  loadChildren: boolean,
 }) => {
   const { data } = useQuery(CommentsListQuery, {
     variables: { documentId: commentId },
@@ -32,7 +33,7 @@ const CommentById = ({commentId, nestingLevel=0, isChild=false, treeOptions}: {
     nestingLevel={nestingLevel}
     isChild={isChild}
     treeOptions={treeOptions}
-    loadChildrenSeparately
+    loadChildrenSeparately={loadChildren}
   />
 }
 

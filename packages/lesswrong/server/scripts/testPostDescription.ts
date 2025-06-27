@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
-import { getPostDescription } from "../../components/posts/PostsPage/PostsPage";
+import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
 import { Posts } from "../../server/collections/posts/collection";
 import RevisionSchema from "@/lib/collections/revisions/newSchema";
 import { createAnonymousContext } from "../vulcan-lib/createContexts";

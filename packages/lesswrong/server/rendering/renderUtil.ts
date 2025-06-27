@@ -1,5 +1,5 @@
-import { toEmbeddableJson } from "../../../lib/utils/jsonUtils";
-import { DatabaseServerSetting } from "../../databaseSettings";
+import { toEmbeddableJson } from "@/lib/utils/jsonUtils";
+import { DatabaseServerSetting } from "../databaseSettings";
 
 export const healthCheckUserAgentSetting = new DatabaseServerSetting<string>("healthCheckUserAgent", "ELB-HealthChecker/2.0");
 

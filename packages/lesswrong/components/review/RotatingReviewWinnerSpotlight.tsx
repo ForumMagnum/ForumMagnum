@@ -3,7 +3,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useQuery } from "@/lib/crud/useQuery";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { gql } from "@/lib/generated/gql-codegen";
-import SpotlightItem from "../spotlights/SpotlightItem";
+import { SpotlightItem } from "../spotlights/SpotlightItem";
 
 const SpotlightDisplayQuery = gql(`
   query RotatingReviewWinnerSpotlightDisplay($documentId: String) {

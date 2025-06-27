@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { useMessages } from '../common/withMessages';
 import { useDialog } from '../common/withDialog';
-import { useMutation, DocumentNode } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
+import { DocumentNode } from '@apollo/client';
 import { setVoteClient } from '../../lib/voting/vote';
 import { isAF } from '../../lib/instanceSettings';
 import { getDefaultVotingSystem } from '@/lib/voting/getVotingSystem';

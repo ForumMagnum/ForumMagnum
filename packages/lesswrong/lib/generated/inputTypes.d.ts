@@ -67,6 +67,7 @@ interface Query {
   convertDocument: any;
   latestGoogleDocMetadata: any;
   moderatorViewIPAddress: ModeratorIPAddressInfo | null;
+  currentSpotlight: Spotlight | null;
   RssPostChanges: RssPostChangeInfo;
   AdminMetadata: string | null;
   currentUser: User | null;
@@ -7216,6 +7217,8 @@ interface User {
   bannedUserIds: Array<string> | null;
   bannedPersonalUserIds: Array<string> | null;
   bookmarkedPostsMetadata: Array<PostMetadataOutput> | null;
+  bookmarksCount: number | null;
+  hasAnyBookmarks: boolean | null;
   bookmarkedPosts: Array<Post> | null;
   hiddenPostsMetadata: Array<PostMetadataOutput> | null;
   hiddenPosts: Array<Post> | null;
@@ -7324,6 +7327,7 @@ interface User {
   shortformFeed: Post | null;
   viewUnreviewedComments: boolean | null;
   partiallyReadSequences: Array<PartiallyReadSequenceItemOutput> | null;
+  hasContinueReading: boolean | null;
   beta: boolean | null;
   reviewVotesQuadratic: boolean | null;
   reviewVotesQuadratic2019: boolean | null;

@@ -205,6 +205,7 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
           treeOptions={{
             tag,
           }}
+          loadChildren={true}
         />
       )}
     </div>}

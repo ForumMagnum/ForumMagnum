@@ -140,6 +140,7 @@ const useParentCommentLinkAndTooltip = ({ comment, classes }: {
             forceSingleLine: false,
             forceNotSingleLine: true,
           }}
+          loadChildren={true}
         />
       </div>
     </LWPopper>

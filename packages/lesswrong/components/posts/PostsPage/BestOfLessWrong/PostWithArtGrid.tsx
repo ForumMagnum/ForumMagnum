@@ -5,7 +5,7 @@ import { useImageContext } from "../ImageContext";
 import GenerateImagesButton, { artPrompt } from "@/components/review/GenerateImagesButton";
 import classNames from "classnames";
 import LWTooltip from "../../../common/LWTooltip";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const SplashArtCoordinatesEditMutation = gql(`
@@ -96,7 +96,7 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
 
   const handleSaveCoordinates = async (image: ReviewWinnerArtImages) => {
     // This makes a best-guess about how to crop the image for the /bestoflesswrongpage
-    const { errors } = await createSplashArtCoordinateMutation({
+    const { error } = await createSplashArtCoordinateMutation({
       variables: {
         data: {
           reviewWinnerArtId: image._id,
@@ -121,9 +121,9 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
         }
       } });
 
-    if (errors) {
+    if (error) {
       // eslint-disable-next-line no-console
-      console.error('Error saving coordinates', errors);
+      console.error('Error saving coordinates', error);
     } else {
       setImageInfo(image);
     }

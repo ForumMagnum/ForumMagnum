@@ -1630,6 +1630,7 @@ export const UsersDefaultFragment = gql(`
     collapseModerationGuidelines
     bannedUserIds
     bannedPersonalUserIds
+    bookmarksCount
     legacyId
     deleted
     permanentDeletionRequestedAt

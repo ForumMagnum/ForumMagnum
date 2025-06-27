@@ -1,6 +1,4 @@
 import React, { PropsWithChildren } from 'react';
-
-import { default as BadlyTypedHelmet } from 'react-helmet';
 import {
   InstantSearch as BadlyTypedInstantSearch,
   Index as BadlyTypedIndex,
@@ -16,7 +14,6 @@ export function componentWithChildren<T>(component: React.ComponentType<T>): Rea
   return component as React.ComponentType<PropsWithChildren<T>>;
 }
 
-export const Helmet = componentWithChildren(BadlyTypedHelmet);
 export const InstantSearch = componentWithChildren(BadlyTypedInstantSearch);
 export const Index = componentWithChildren(BadlyTypedIndex);
 export const Hits = componentWithChildren(BadlyTypedHits);

@@ -24,13 +24,14 @@ import UsersAccountMenu from "../users/UsersAccountMenu";
 import NotificationsMenuButton from "../notifications/NotificationsMenuButton";
 import NavigationDrawer from "./TabNavigationMenu/NavigationDrawer";
 import NotificationsMenu from "../notifications/NotificationsMenu";
-import KarmaChangeNotifier from "../users/KarmaChangeNotifier";
+import { KarmaChangeNotifier } from "../users/KarmaChangeNotifier";
 import HeaderSubtitle from "./HeaderSubtitle";
 import { Typography } from "./Typography";
 import ForumIcon from "./ForumIcon";
 import ActiveDialogues from "../dialogues/ActiveDialogues";
 import SiteLogo from "../ea-forum/SiteLogo";
 import MessagesMenuButton from "../messaging/MessagesMenuButton";
+import { SuspenseWrapper } from './SuspenseWrapper';
 import { forumSelect } from '@/lib/forumTypeUtils';
 
 /** Height of top header. On Book UI sites, this is for desktop only */
@@ -478,11 +479,11 @@ const Header = ({
       open={notificationOpen}
       className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
     />}
-    {hasMessagesButton &&
+    {hasMessagesButton && <SuspenseWrapper name="MesagesMenuButton">
       <MessagesMenuButton
         className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
       />
-    }
+    </SuspenseWrapper>}
     {isFriendlyUI && usersMenuNode}
   </div>
 

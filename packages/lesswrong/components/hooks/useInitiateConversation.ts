@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { useCurrentUser } from "../common/withUser";
 import { useMessages } from "../common/withMessages";
 import { useTracking } from "../../lib/analyticsEvents";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 /**

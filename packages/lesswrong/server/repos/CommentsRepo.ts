@@ -11,7 +11,6 @@ import { forumSelect } from "../../lib/forumTypeUtils";
 import { isAF } from "../../lib/instanceSettings";
 import { getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
 import { FeedCommentFromDb, ThreadEngagementStats } from "../../components/ultraFeed/ultraFeedTypes";
-import uniq from "lodash/uniq";
 
 type ExtendedCommentWithReactions = DbComment & {
   yourVote?: string,
@@ -621,9 +620,9 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     });
 
     return feedCommentsData.map((comment): FeedCommentFromDb => {
-      const sources: string[] = ['recentComments']; // temporarily to avoid breaking change, we assign recentComments to all comments
-      if (comment.primarySource) {
-        sources.push(comment.primarySource);
+      const sources: string[] = ['recentComments'];
+      if (comment.primarySource && comment.primarySource !== 'recentComments') {
+        sources.push('recentComments'); // temporarily to avoid breaking change, we assign recentComments to all comments
       }
       return {
         commentId: comment.commentId,
@@ -635,7 +634,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         shortform: comment.shortform ?? null,
         postedAt: comment.postedAt,
         descendentCount: comment.descendentCount,
-        sources: uniq(sources),
+        sources,
         primarySource: comment.primarySource,
         isInitialCandidate: comment.isInitialCandidate,
         lastServed: null,
