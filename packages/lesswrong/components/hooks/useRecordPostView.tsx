@@ -1,11 +1,11 @@
 import React, { useContext, useCallback, useState, useMemo } from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useCurrentUser } from '../common/withUser';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { hookToHoc } from '../../lib/hocUtils';
 import { recombeeApi } from '../../lib/recombee/client';
-import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
+import { recombeeEnabledSetting } from '../../lib/publicSettings';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { useClientId } from '@/lib/abTestImpl';
 
@@ -47,29 +47,17 @@ interface RecordPostViewArgs {
 }
 
 export const useRecordPostView = (post: ViewablePost) => {
-  const [increasePostViewCount] = useMutation(gql(`
+  const [increasePostViewCount] = useMutationNoCache(gql(`
     mutation increasePostViewCountMutation($postId: String) {
       increasePostViewCount(postId: $postId)
     }
-  `), {
-    ignoreResults: true
-  });
+  `));
 
-  const [sendVertexViewItemEvent] = useMutation(gql(`
-    mutation sendVertexViewItemEventMutation($postId: String!, $attributionId: String) {
-      sendVertexViewItemEvent(postId: $postId, attributionId: $attributionId)
-    }
-  `), {
-    ignoreResults: true
-  });
-
-  const [markPostCommentsRead] = useMutation(gql(`
+  const [markPostCommentsRead] = useMutationNoCache(gql(`
     mutation markPostCommentsRead($postId: String!) {
       markPostCommentsRead(postId: $postId)
     }
-  `), {
-    ignoreResults: true
-  });
+  `));
   
   const {recordEvent} = useNewEvents()
   const currentUser = useCurrentUser();
@@ -108,15 +96,6 @@ export const useRecordPostView = (post: ViewablePost) => {
         };
         
         recordEvent('post-view', true, eventProperties);
-
-        if (vertexEnabledSetting.get() && !recommendationOptions?.skip && !post.draft) {
-          void sendVertexViewItemEvent({
-            variables: {
-              postId: post._id,
-              attributionId: recommendationOptions?.vertexOptions?.attributionId
-            }
-          })
-        }
       }
 
       const attributedUserId = currentUser?._id ?? clientId;
@@ -132,7 +111,7 @@ export const useRecordPostView = (post: ViewablePost) => {
     } catch(error) {
       console.log("recordPostView error:", error); // eslint-disable-line
     }
-  }, [postsRead, setPostRead, increasePostViewCount, sendVertexViewItemEvent, currentUser, clientId, recordEvent]);
+  }, [postsRead, setPostRead, increasePostViewCount, currentUser, clientId, recordEvent]);
 
   const recordPostCommentsView = ({ post }: Pick<RecordPostViewArgs, 'post'>) => {
     if (currentUser) {

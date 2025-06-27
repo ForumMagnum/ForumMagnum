@@ -9,7 +9,7 @@ import { Badge } from "@/components/widgets/Badge";
 import some from 'lodash/some';
 import { useIsMobile } from '../hooks/useScreenWidth';
 import { useDialog } from '../common/withDialog';
-import { useApolloClient } from '@apollo/client';
+import { useApolloClient } from '@apollo/client/react';
 import { useQuery } from "@/lib/crud/useQuery";
 import { CommentWithRepliesFragment } from '@/lib/collections/comments/fragments';
 import { gql } from "@/lib/generated/gql-codegen";

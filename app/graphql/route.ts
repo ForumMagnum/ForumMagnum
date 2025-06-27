@@ -25,10 +25,16 @@ const server = new ApolloServer<ResolverContext>({
 
 
 const handler = startServerAndCreateNextHandler<NextRequest, ResolverContext>(server, {
- context: async (req, res) => await getContextFromReqAndRes({ req, res, isSSR: false }),
+  // IDK if that cast is actually safe/correct; I'm pretty sure the conditional type provided for `res` is wrong
+  // but :shrug:
+ context: async (req, res) => await getContextFromReqAndRes({ req, res: res as unknown as NextResponse, isSSR: false }),
 });
 
 
+export function GET(req: NextRequest) {
+  return handler(req);
+}
 
-
-export { handler as GET, handler as POST };
+export function POST(req: NextRequest) {
+  return handler(req);
+}

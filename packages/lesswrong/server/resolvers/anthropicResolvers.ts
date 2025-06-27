@@ -15,7 +15,6 @@ import { markdownToHtml, htmlToMarkdown } from "../editor/conversionUtils";
 import { getOpenAI } from "../languageModels/languageModelIntegration";
 import express, { Express } from "express";
 import { captureException } from "@sentry/core";
-import { clientIdMiddleware } from "../clientIdMiddleware";
 import { getContextFromReqAndRes } from "../vulcan-lib/apollo-server/context";
 import { runQuery } from "../vulcan-lib/query";
 import { createLlmConversation } from "../collections/llmConversations/mutations";
@@ -561,7 +560,7 @@ async function prepareMessagesForConversation({ newMessage, conversationId, cont
 
 
 export function addLlmChatEndpoint(app: Express) {
-  app.use("/api/sendLlmChat", express.json(), clientIdMiddleware);
+  app.use("/api/sendLlmChat", express.json());
   app.post("/api/sendLlmChat", async (req, res) => {
     const context = await getContextFromReqAndRes({req, res, isSSR: false});
     const currentUser = context.currentUser;

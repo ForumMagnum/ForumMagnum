@@ -211,7 +211,6 @@ interface FragmentTypes {
   SequencesPageTitleFragment: SequencesPageTitleFragment
   SequencesPageWithChaptersFragment: SequencesPageWithChaptersFragment
   SessionsDefaultFragment: SessionsDefaultFragment
-  SharedUserBooleans: SharedUserBooleans
   ShortformComments: ShortformComments
   ShortformRecentDiscussion: ShortformRecentDiscussion
   SideCommentCacheMinimumInfo: SideCommentCacheMinimumInfo
@@ -306,7 +305,6 @@ interface FragmentTypes {
   UserTagRelsDefaultFragment: UserTagRelsDefaultFragment
   UserVotes: UserVotes
   UserVotesWithDocument: UserVotesWithDocument
-  UsersAdmin: UsersAdmin
   UsersBannedFromPostsModerationLog: UsersBannedFromPostsModerationLog
   UsersBannedFromUsersModerationLog: UsersBannedFromUsersModerationLog
   UsersCrosspostInfo: UsersCrosspostInfo
@@ -436,7 +434,7 @@ interface FragmentTypesByCollection {
   UserMostValuablePosts: "UserMostValuablePostInfo"|"UserMostValuablePostsDefaultFragment"
   UserRateLimits: "UserRateLimitDisplay"|"UserRateLimitsDefaultFragment"
   UserTagRels: "UserTagRelDetails"|"UserTagRelsDefaultFragment"
-  Users: "SharedUserBooleans"|"SuggestAlignmentUser"|"SunshineUsersList"|"UserAltAccountsFragment"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UserOnboardingAuthor"|"UsersAdmin"|"UsersBannedFromUsersModerationLog"|"UsersCrosspostInfo"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UsersDefaultFragment"|"UsersEdit"|"UsersMapEntry"|"UsersMinimumInfo"|"UsersOptedInToDialogueFacilitation"|"UsersProfile"|"UsersProfileEdit"|"UsersSocialMediaInfo"|"UsersWithReviewInfo"
+  Users: "SuggestAlignmentUser"|"SunshineUsersList"|"UserAltAccountsFragment"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UserOnboardingAuthor"|"UsersBannedFromUsersModerationLog"|"UsersCrosspostInfo"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UsersDefaultFragment"|"UsersEdit"|"UsersMapEntry"|"UsersMinimumInfo"|"UsersOptedInToDialogueFacilitation"|"UsersProfile"|"UsersProfileEdit"|"UsersSocialMediaInfo"|"UsersWithReviewInfo"
   Votes: "TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"|"VotesDefaultFragment"
 }
 
@@ -644,7 +642,6 @@ interface CollectionNamesByFragmentName {
   SequencesPageTitleFragment: "Sequences"
   SequencesPageWithChaptersFragment: "Sequences"
   SessionsDefaultFragment: "Sessions"
-  SharedUserBooleans: "Users"
   ShortformComments: "Comments"
   ShortformRecentDiscussion: "Posts"
   SideCommentCacheMinimumInfo: "SideCommentCaches"
@@ -739,7 +736,6 @@ interface CollectionNamesByFragmentName {
   UserTagRelsDefaultFragment: "UserTagRels"
   UserVotes: "Votes"
   UserVotesWithDocument: "Votes"
-  UsersAdmin: "Users"
   UsersBannedFromPostsModerationLog: "Posts"
   UsersBannedFromUsersModerationLog: "Users"
   UsersCrosspostInfo: "Users"

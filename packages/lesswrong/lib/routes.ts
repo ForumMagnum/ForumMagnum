@@ -1,7 +1,7 @@
-import { 
-  forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet,
-  taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting, aboutPostIdSetting,
-  isLW, isLWorAF, tagUrlBaseSetting, taggingNameCapitalizedWithPluralizationChoice } from './instanceSettings';
+import {
+  aboutPostIdSetting, contactPostIdSetting, faqPostIdSetting, forumTypeSetting, hasEventsSetting, introPostIdSetting, isEAForum, isLW, isLWorAF, tagUrlBaseSetting, taggingNameCapitalSetting, taggingNameCapitalizedWithPluralizationChoice, taggingNameIsSet,
+  taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting
+} from './instanceSettings';
 import { blackBarTitle, legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
 import { BEST_OF_LESSWRONG_PUBLISH_YEAR, REVIEW_YEAR } from './reviewUtils';
@@ -166,7 +166,7 @@ import Digests from '@/components/ea-forum/digest/Digests';
 import EAAllTagsPage from '@/components/tagging/EAAllTagsPage';
 import AllWikiTagsPage from '@/components/tagging/AllWikiTagsPage';
 import { communityPath, getAllTagsPath, getAllTagsRedirectPaths } from './pathConstants';
-import LeaderboardComponent from '@/components/users/Leaderboard';
+import Leaderboard from '@/components/users/Leaderboard';
 
 const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Groups' : 'Community' };
 
@@ -178,10 +178,6 @@ const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
 const leastWrongSubtitle = { subtitleLink: "/leastwrong", subtitle: "The Best of LessWrong" };
 
 const taggingDashboardSubtitle = { subtitleLink: `/${taggingNamePluralSetting.get()}/dashboard`, subtitle: `${taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tag'} Dashboard`}
-
-const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWuPrgTMpLRbp', "warning") // Post ID for the /faq route
-const contactPostIdSetting = new PublicInstanceSetting<string>('contactPostId', "ehcYkvyz7dh9L7Wt8", "warning")
-const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional")
 
 const postBackground = "white"
 
@@ -247,7 +243,7 @@ if (isLW) {
     {
       name: 'leaderboard',
       path: '/leaderboard',
-      component: LeaderboardComponent,
+      component: Leaderboard,
     }
   )
 }
@@ -1017,6 +1013,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/',
       component: LWHome,
       enableResourcePrefetch: true,
+      expectedHeadBlocks: ["title", "meta", "fonts"],
       sunshineSidebar: true, 
       ...(blackBarTitle.get() ? { subtitleLink: "/tag/death", headerSubtitle: blackBarTitle.get()! } : {}),
       hasLeftNavigationColumn: true,
@@ -1416,6 +1413,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path:'/',
       component: LWHome,
       enableResourcePrefetch: true,
+      expectedHeadBlocks: ["title", "meta", "fonts"],
       sunshineSidebar: true,
       hasLeftNavigationColumn: true,
       navigationFooterBar: true,
@@ -1640,6 +1638,7 @@ addRoute(
     background: postBackground,
     noFooter: hasPostRecommendations,
     enableResourcePrefetch: postRouteWillDefinitelyReturn200,
+    expectedHeadBlocks: ["title", "meta", "fonts", "citationTags"],
     swrCaching: "logged-out"
   },
   {
@@ -1662,7 +1661,7 @@ addRoute(
     name: 'tags.revisioncompare',
     path: `/compare/${tagUrlBaseSetting.get()}/:slug`,
     component: TagCompareRevisions,
-    titleComponent: PostsPageHeaderTitle,
+    titleComponent: TagPageTitle,
   },
   {
     name: 'post.revisionsselect',

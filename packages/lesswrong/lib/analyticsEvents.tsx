@@ -8,10 +8,10 @@ import { ColorHash } from './vendor/colorHash';
 import { DatabasePublicSetting } from './publicSettings';
 import { throttle } from 'underscore';
 import moment from 'moment';
-import { serverCaptureEvent } from '@/server/analytics/serverAnalyticsWriter';
 import { FeedItemType, UltraFeedAnalyticsContext } from '@/components/ultraFeed/ultraFeedTypes';
 import { RelevantTestGroupAllocation } from './abTestImpl';
 import { getShowAnalyticsDebug } from './analyticsDebugging';
+import { serverCaptureEvent } from '@/server/analytics/serverAnalyticsWriter';
 
 export const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "dev");
 const flushIntervalSetting = new DatabasePublicSetting<number>("analyticsFlushInterval", 1000);
@@ -36,7 +36,9 @@ export function captureEvent(eventType: string, eventProps?: EventProps, suppres
     if (isServer) {
       // If run from the server, we can run this immediately except for a few
       // events during startup.
-      serverCaptureEvent(eventType, eventProps, suppressConsoleLog);
+      // import('@/server/analytics/serverAnalyticsWriter').then(({ serverCaptureEvent }) => {
+        serverCaptureEvent(eventType, eventProps, suppressConsoleLog);
+      // });
     } else if (isClient) {
       // If run from the client, make a graphQL mutation
       const event = {

@@ -35,16 +35,20 @@ export interface FeedPostMetaInfo {
   lastViewed?: Date | null;
   lastInteracted?: Date | null;
   displayStatus: FeedItemDisplayStatus;
+  servedEventId?: string;
 }
 export interface FeedCommentMetaInfo {
-  sources: FeedItemSourceType[] | null;
-  directDescendentCount: number;
-  lastServed: Date | null;
-  lastViewed: Date | null;
-  lastInteracted: Date | null;
-  postedAt: Date | null;
-  displayStatus?: FeedItemDisplayStatus;
+  sources: FeedItemSourceType[];
+  descendentCount: number;
+  /** @deprecated Use descendentCount instead. This field previously had a typo and only counted direct children. */
+  directDescendentCount?: number;
+  lastServed?: Date | null;
+  lastViewed?: Date | null;
+  lastInteracted?: Date | null;
+  postedAt?: Date | null;
   highlight?: boolean;
+  displayStatus?: FeedItemDisplayStatus;
+  servedEventId?: string;
 }
 
 export interface FeedCommentFromDb {
@@ -60,6 +64,7 @@ export interface FeedCommentFromDb {
   lastViewed: Date | null;
   lastInteracted: Date | null;
   postedAt: Date | null;
+  descendentCount?: number;
 }
 
 export interface FeedPostFromDb extends DbPost {
@@ -159,4 +164,14 @@ export interface ThreadEngagementStats {
   participationCount: number;
   viewScore: number;
   isOnReadPost: boolean;
+  recentServingCount: number;
+  servingHoursAgo: number[];
+}
+
+export interface ServedEventData {
+  sessionId: string;    // The session ID for the feed load
+  itemIndex: number;    // The index of the item in the served results array
+  commentIndex?: number; // The index of the comment within a thread, if applicable
+  displayStatus?: FeedItemDisplayStatus;
+  sources: FeedItemSourceType[];
 }

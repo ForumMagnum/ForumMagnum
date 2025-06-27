@@ -305,7 +305,6 @@ const EAPostsItem = ({
     renderComments,
     commentTerms,
     condensedAndHiddenComments,
-    isRepeated,
     analyticsProps,
     viewType,
     isVoteable,
@@ -369,10 +368,6 @@ const EAPostsItem = ({
     toggleComments,
     classes
   ]);
-  
-  if (isRepeated) {
-    return null;
-  }
   
   const karmaNode = isVoteable
     ? (

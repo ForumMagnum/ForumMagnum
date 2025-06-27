@@ -1,5 +1,5 @@
 import { isDevelopment } from '@/lib/executionEnvironment';
-import { environmentDescriptionSetting } from './analytics/serverAnalyticsWriter';
+import { environmentDescriptionSetting } from '@/lib/instanceSettings';
 import chunk from 'lodash/chunk';
 import { performanceMetricLoggingBatchSize } from '@/lib/instanceSettings';
 import { pgPromiseLib, getAnalyticsConnection } from './analytics/postgresConnection'

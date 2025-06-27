@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
-import { userIsBannedFromAllPersonalPosts, userIsBannedFromAllPosts, userIsBannedFromPost } from '../../lib/collections/users/helpers';
+import { userIsBannedFromAllPersonalPosts, userIsBannedFromAllPosts, userIsBannedFromPost, userIsNotShortformOwner } from '../../lib/collections/users/helpers';
 import classNames from 'classnames';
 import { moderationEmail } from '../../lib/publicSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -43,6 +43,10 @@ const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: Posts
 
   if (post?.commentsLockedToAccountsCreatedAfter) {
     return <>Comments on this post are disabled to accounts created after <CalendarDate date={post.commentsLockedToAccountsCreatedAfter}/></>
+  }
+
+  if (post?.shortform && userIsNotShortformOwner(user, post)) {
+    return <>Only the owner of a Quick Take's container can leave top-level comments on it.</>
   }
 
   return <>You cannot comment at this time</>

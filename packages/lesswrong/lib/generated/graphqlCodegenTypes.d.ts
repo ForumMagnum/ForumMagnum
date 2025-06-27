@@ -2727,11 +2727,6 @@ type GoogleServiceAccountSessionSelector = {
   default?: InputMaybe<EmptyViewInput>;
 };
 
-type GoogleVertexPostsResult = {
-  __typename?: 'GoogleVertexPostsResult';
-  results: Array<VertexRecommendedPost>;
-};
-
 type Images = {
   __typename?: 'Images';
   _id: Scalars['String']['output'];
@@ -4284,9 +4279,6 @@ type Mutation = {
   revokeGoogleServiceAccountTokens: Scalars['Boolean']['output'];
   sendEventTriggeredDM: Scalars['Boolean']['output'];
   sendNewDialogueMessageNotification: Scalars['Boolean']['output'];
-  sendVertexMediaCompleteEvent: Scalars['Boolean']['output'];
-  sendVertexViewHomePageEvent: Scalars['Boolean']['output'];
-  sendVertexViewItemEvent: Scalars['Boolean']['output'];
   setIsHidden: User;
   setVoteComment?: Maybe<Comment>;
   setVoteElectionCandidate?: Maybe<ElectionCandidate>;
@@ -4336,6 +4328,7 @@ type Mutation = {
   updateSurveySchedule?: Maybe<SurveyScheduleOutput>;
   updateTag?: Maybe<TagOutput>;
   updateTagFlag?: Maybe<TagFlagOutput>;
+  updateUltraFeedEvent?: Maybe<UltraFeedEventOutput>;
   updateUser?: Maybe<UserOutput>;
   updateUserEAGDetail?: Maybe<UserEAGDetailOutput>;
   updateUserJobAd?: Maybe<UserJobAdOutput>;
@@ -4903,18 +4896,6 @@ type MutationsendNewDialogueMessageNotificationArgs = {
 };
 
 
-type MutationsendVertexMediaCompleteEventArgs = {
-  attributionId?: InputMaybe<Scalars['String']['input']>;
-  postId: Scalars['String']['input'];
-};
-
-
-type MutationsendVertexViewItemEventArgs = {
-  attributionId?: InputMaybe<Scalars['String']['input']>;
-  postId: Scalars['String']['input'];
-};
-
-
 type MutationsetIsHiddenArgs = {
   isHidden: Scalars['Boolean']['input'];
   postId: Scalars['String']['input'];
@@ -5215,6 +5196,12 @@ type MutationupdateTagArgs = {
 type MutationupdateTagFlagArgs = {
   data: UpdateTagFlagDataInput;
   selector: SelectorInput;
+};
+
+
+type MutationupdateUltraFeedEventArgs = {
+  data: UpdateUltraFeedEventDataInput;
+  selector: Scalars['String']['input'];
 };
 
 
@@ -7459,7 +7446,6 @@ type Query = {
   GetRandomUser?: Maybe<User>;
   GetUserBySlug?: Maybe<User>;
   GivingSeasonHearts: Array<GivingSeasonHeart>;
-  GoogleVertexPosts?: Maybe<GoogleVertexPostsResult>;
   IsDisplayNameTaken: Scalars['Boolean']['output'];
   Lightcone2024FundraiserStripeAmounts?: Maybe<Array<Scalars['Int']['output']>>;
   MigrationsDashboard?: Maybe<MigrationsDashboardData>;
@@ -7530,6 +7516,7 @@ type Query = {
   convertDocument?: Maybe<Scalars['JSON']['output']>;
   curationNotice?: Maybe<SingleCurationNoticeOutput>;
   curationNotices?: Maybe<MultiCurationNoticeOutput>;
+  currentSpotlight?: Maybe<Spotlight>;
   currentUser?: Maybe<User>;
   dialogueCheck?: Maybe<SingleDialogueCheckOutput>;
   dialogueChecks?: Maybe<MultiDialogueCheckOutput>;
@@ -7732,12 +7719,6 @@ type QueryGetUserBySlugArgs = {
 
 type QueryGivingSeasonHeartsArgs = {
   electionName: Scalars['String']['input'];
-};
-
-
-type QueryGoogleVertexPostsArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  settings?: InputMaybe<Scalars['JSON']['input']>;
 };
 
 
@@ -10159,13 +10140,13 @@ type Site = {
 };
 
 type SocialPreviewInput = {
-  imageId: Scalars['String']['input'];
+  imageId?: InputMaybe<Scalars['String']['input']>;
   text?: InputMaybe<Scalars['String']['input']>;
 };
 
 type SocialPreviewOutput = {
   __typename?: 'SocialPreviewOutput';
-  imageId: Scalars['String']['output'];
+  imageId?: Maybe<Scalars['String']['output']>;
   text?: Maybe<Scalars['String']['output']>;
 };
 
@@ -11213,6 +11194,7 @@ type UpdateCommentDataInput = {
   needsReview?: InputMaybe<Scalars['Boolean']['input']>;
   nominatedForReview?: InputMaybe<Scalars['String']['input']>;
   originalDialogueId?: InputMaybe<Scalars['String']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
   postedAt?: InputMaybe<Scalars['Date']['input']>;
   promoted?: InputMaybe<Scalars['Boolean']['input']>;
   promotedByUserId?: InputMaybe<Scalars['String']['input']>;
@@ -11230,6 +11212,7 @@ type UpdateCommentDataInput = {
   spam?: InputMaybe<Scalars['Boolean']['input']>;
   subforumStickyPriority?: InputMaybe<Scalars['Float']['input']>;
   suggestForAlignmentUserIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  tagId?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -11836,6 +11819,10 @@ type UpdateTagInput = {
   selector: SelectorInput;
 };
 
+type UpdateUltraFeedEventDataInput = {
+  event?: InputMaybe<Scalars['JSON']['input']>;
+};
+
 type UpdateUserDataInput = {
   abTestKey?: InputMaybe<Scalars['String']['input']>;
   abTestOverrides?: InputMaybe<Scalars['JSON']['input']>;
@@ -12160,6 +12147,7 @@ type User = {
   blueskyProfileURL?: Maybe<Scalars['String']['output']>;
   bookmarkedPosts?: Maybe<Array<Post>>;
   bookmarkedPostsMetadata?: Maybe<Array<PostMetadataOutput>>;
+  bookmarksCount?: Maybe<Scalars['Int']['output']>;
   careerStage?: Maybe<Array<Scalars['String']['output']>>;
   collapseModerationGuidelines?: Maybe<Scalars['Boolean']['output']>;
   commentCount: Scalars['Float']['output'];
@@ -12193,7 +12181,9 @@ type User = {
   goodHeartTokens?: Maybe<Scalars['Float']['output']>;
   googleLocation?: Maybe<Scalars['JSON']['output']>;
   groups?: Maybe<Array<Scalars['String']['output']>>;
+  hasAnyBookmarks?: Maybe<Scalars['Boolean']['output']>;
   hasAuth0Id?: Maybe<Scalars['Boolean']['output']>;
+  hasContinueReading?: Maybe<Scalars['Boolean']['output']>;
   hiddenPosts?: Maybe<Array<Post>>;
   hiddenPostsMetadata?: Maybe<Array<PostMetadataOutput>>;
   hideAFNonMemberInitialWarning?: Maybe<Scalars['Boolean']['output']>;
@@ -13167,24 +13157,6 @@ type multiVoteVoteHistoryTabQueryQueryVariables = Exact<{
 
 type multiVoteVoteHistoryTabQueryQuery = multiVoteVoteHistoryTabQueryQuery_Query;
 
-type updateUserBook2019FrontpageWidgetMutation_updateUser_UserOutput_data_User = (
-  { __typename?: 'User' }
-  & UsersCurrent
-);
-
-type updateUserBook2019FrontpageWidgetMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserBook2019FrontpageWidgetMutation_updateUser_UserOutput_data_User | null };
-
-type updateUserBook2019FrontpageWidgetMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserBook2019FrontpageWidgetMutation_updateUser_UserOutput | null };
-
-
-type updateUserBook2019FrontpageWidgetMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
-
-
-type updateUserBook2019FrontpageWidgetMutation = updateUserBook2019FrontpageWidgetMutation_Mutation;
-
 type updateUserBook2020FrontpageWidgetMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
   & UsersCurrent
@@ -13697,17 +13669,6 @@ type multiCommentuseCommentQueryQueryVariables = Exact<{
 
 type multiCommentuseCommentQueryQuery = multiCommentuseCommentQueryQuery_Query;
 
-type sendVertexMediaCompleteEventMutationMutation_Mutation = { __typename?: 'Mutation', sendVertexMediaCompleteEvent: boolean };
-
-
-type sendVertexMediaCompleteEventMutationMutationVariables = Exact<{
-  postId: Scalars['String']['input'];
-  attributionId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type sendVertexMediaCompleteEventMutationMutation = sendVertexMediaCompleteEventMutationMutation_Mutation;
-
 type multiCommentCommentsListCondensedQueryQuery_comments_MultiCommentOutput_results_Comment = (
   { __typename?: 'Comment' }
   & ShortformComments
@@ -13726,6 +13687,19 @@ type multiCommentCommentsListCondensedQueryQueryVariables = Exact<{
 
 
 type multiCommentCommentsListCondensedQueryQuery = multiCommentCommentsListCondensedQueryQuery_Query;
+
+type HeaderEventSubtitleSpotlightQueryQuery_currentSpotlight_Spotlight = (
+  { __typename?: 'Spotlight' }
+  & SpotlightHeaderEventSubtitle
+);
+
+type HeaderEventSubtitleSpotlightQueryQuery_Query = { __typename?: 'Query', currentSpotlight: HeaderEventSubtitleSpotlightQueryQuery_currentSpotlight_Spotlight | null };
+
+
+type HeaderEventSubtitleSpotlightQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type HeaderEventSubtitleSpotlightQueryQuery = HeaderEventSubtitleSpotlightQueryQuery_Query;
 
 type multiTagHomeTagBarQueryQuery_tags_MultiTagOutput_results_Tag = (
   { __typename?: 'Tag' }
@@ -13781,14 +13755,6 @@ type LWHomePostsQueryVariables = Exact<{
 
 
 type LWHomePostsQuery = LWHomePostsQuery_Query;
-
-type sendVertexViewHomePageEventMutationMutation_Mutation = { __typename?: 'Mutation', sendVertexViewHomePageEvent: boolean };
-
-
-type sendVertexViewHomePageEventMutationMutationVariables = Exact<{ [key: string]: never; }>;
-
-
-type sendVertexViewHomePageEventMutationMutation = sendVertexViewHomePageEventMutationMutation_Mutation;
 
 type multiFeaturedResourceFeaturedResourceBannerQueryQuery_featuredResources_MultiFeaturedResourceOutput_results_FeaturedResource = (
   { __typename?: 'FeaturedResource' }
@@ -16160,42 +16126,6 @@ type multiForumEventuseCurrentForumEventQueryQueryVariables = Exact<{
 
 type multiForumEventuseCurrentForumEventQueryQuery = multiForumEventuseCurrentForumEventQueryQuery_Query;
 
-type HeaderEventSubtitleSpotlightQueryQuery_spotlights_MultiSpotlightOutput_results_Spotlight = (
-  { __typename?: 'Spotlight' }
-  & SpotlightHeaderEventSubtitle
-);
-
-type HeaderEventSubtitleSpotlightQueryQuery_spotlights_MultiSpotlightOutput = { __typename?: 'MultiSpotlightOutput', results: Array<HeaderEventSubtitleSpotlightQueryQuery_spotlights_MultiSpotlightOutput_results_Spotlight> };
-
-type HeaderEventSubtitleSpotlightQueryQuery_Query = { __typename?: 'Query', spotlights: HeaderEventSubtitleSpotlightQueryQuery_spotlights_MultiSpotlightOutput | null };
-
-
-type HeaderEventSubtitleSpotlightQueryQueryVariables = Exact<{
-  selector: InputMaybe<SpotlightSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-type HeaderEventSubtitleSpotlightQueryQuery = HeaderEventSubtitleSpotlightQueryQuery_Query;
-
-type DisplaySpotlightQueryQuery_spotlights_MultiSpotlightOutput_results_Spotlight = (
-  { __typename?: 'Spotlight' }
-  & SpotlightDisplay
-);
-
-type DisplaySpotlightQueryQuery_spotlights_MultiSpotlightOutput = { __typename?: 'MultiSpotlightOutput', results: Array<DisplaySpotlightQueryQuery_spotlights_MultiSpotlightOutput_results_Spotlight> };
-
-type DisplaySpotlightQueryQuery_Query = { __typename?: 'Query', spotlights: DisplaySpotlightQueryQuery_spotlights_MultiSpotlightOutput | null };
-
-
-type DisplaySpotlightQueryQueryVariables = Exact<{
-  selector: InputMaybe<SpotlightSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-type DisplaySpotlightQueryQuery = DisplaySpotlightQueryQuery_Query;
-
 type CurrentFrontpageSurveyQuery_CurrentFrontpageSurvey_SurveySchedule = (
   { __typename?: 'SurveySchedule' }
   & SurveyScheduleMinimumInfo
@@ -16219,6 +16149,25 @@ type UserExpandFrontpageSectionMutationVariables = Exact<{
 
 
 type UserExpandFrontpageSectionMutation = UserExpandFrontpageSectionMutation_Mutation;
+
+type multiTagfilterSettingsQueryQuery_tags_MultiTagOutput_results_Tag = (
+  { __typename?: 'Tag' }
+  & TagBasicInfo
+);
+
+type multiTagfilterSettingsQueryQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', totalCount: number | null, results: Array<multiTagfilterSettingsQueryQuery_tags_MultiTagOutput_results_Tag> };
+
+type multiTagfilterSettingsQueryQuery_Query = { __typename?: 'Query', tags: multiTagfilterSettingsQueryQuery_tags_MultiTagOutput | null };
+
+
+type multiTagfilterSettingsQueryQueryVariables = Exact<{
+  selector: InputMaybe<TagSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiTagfilterSettingsQueryQuery = multiTagfilterSettingsQueryQuery_Query;
 
 type GetCrosspostQueryQuery_Query = { __typename?: 'Query', getCrosspost: any | null };
 
@@ -16372,17 +16321,6 @@ type increasePostViewCountMutationMutationVariables = Exact<{
 
 type increasePostViewCountMutationMutation = increasePostViewCountMutationMutation_Mutation;
 
-type sendVertexViewItemEventMutationMutation_Mutation = { __typename?: 'Mutation', sendVertexViewItemEvent: boolean };
-
-
-type sendVertexViewItemEventMutationMutationVariables = Exact<{
-  postId: Scalars['String']['input'];
-  attributionId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type sendVertexViewItemEventMutationMutation = sendVertexViewItemEventMutationMutation_Mutation;
-
 type markPostCommentsReadMutation_Mutation = { __typename?: 'Mutation', markPostCommentsRead: boolean | null };
 
 
@@ -16455,25 +16393,6 @@ type multiMultiDocumentuseTagOrLensQueryQueryVariables = Exact<{
 
 
 type multiMultiDocumentuseTagOrLensQueryQuery = multiMultiDocumentuseTagOrLensQueryQuery_Query;
-
-type multiNotificationuseUnreadNotificationsQueryQuery_notifications_MultiNotificationOutput_results_Notification = (
-  { __typename?: 'Notification' }
-  & NotificationsList
-);
-
-type multiNotificationuseUnreadNotificationsQueryQuery_notifications_MultiNotificationOutput = { __typename?: 'MultiNotificationOutput', totalCount: number | null, results: Array<multiNotificationuseUnreadNotificationsQueryQuery_notifications_MultiNotificationOutput_results_Notification> };
-
-type multiNotificationuseUnreadNotificationsQueryQuery_Query = { __typename?: 'Query', notifications: multiNotificationuseUnreadNotificationsQueryQuery_notifications_MultiNotificationOutput | null };
-
-
-type multiNotificationuseUnreadNotificationsQueryQueryVariables = Exact<{
-  selector: InputMaybe<NotificationSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiNotificationuseUnreadNotificationsQueryQuery = multiNotificationuseUnreadNotificationsQueryQuery_Query;
 
 type UnreadNotificationCountQueryQuery_unreadNotificationCounts_NotificationCounts = { __typename?: 'NotificationCounts', unreadNotifications: number, unreadPrivateMessages: number, faviconBadgeNumber: number, checkedAt: string };
 
@@ -20183,6 +20102,19 @@ type multiCommentShortformTimeBlockQueryQueryVariables = Exact<{
 
 type multiCommentShortformTimeBlockQueryQuery = multiCommentShortformTimeBlockQueryQuery_Query;
 
+type DisplaySpotlightQueryQuery_currentSpotlight_Spotlight = (
+  { __typename?: 'Spotlight' }
+  & SpotlightDisplay
+);
+
+type DisplaySpotlightQueryQuery_Query = { __typename?: 'Query', currentSpotlight: DisplaySpotlightQueryQuery_currentSpotlight_Spotlight | null };
+
+
+type DisplaySpotlightQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type DisplaySpotlightQueryQuery = DisplaySpotlightQueryQuery_Query;
+
 type updateSpotlightSpotlightFormMutation_updateSpotlight_SpotlightOutput_data_Spotlight = (
   { __typename?: 'Spotlight' }
   & SpotlightEditQueryFragment
@@ -20271,6 +20203,25 @@ type SpotlightItemQueryVariables = Exact<{
 
 
 type SpotlightItemQuery = SpotlightItemQuery_Query;
+
+type SpotlightStartOrContinueReadingQueryQuery_spotlight_SingleSpotlightOutput_result_Spotlight_sequenceChapters_Chapter = (
+  { __typename?: 'Chapter' }
+  & ChaptersFragment
+);
+
+type SpotlightStartOrContinueReadingQueryQuery_spotlight_SingleSpotlightOutput_result_Spotlight = { __typename?: 'Spotlight', _id: string, sequenceChapters: Array<SpotlightStartOrContinueReadingQueryQuery_spotlight_SingleSpotlightOutput_result_Spotlight_sequenceChapters_Chapter> | null };
+
+type SpotlightStartOrContinueReadingQueryQuery_spotlight_SingleSpotlightOutput = { __typename?: 'SingleSpotlightOutput', result: SpotlightStartOrContinueReadingQueryQuery_spotlight_SingleSpotlightOutput_result_Spotlight | null };
+
+type SpotlightStartOrContinueReadingQueryQuery_Query = { __typename?: 'Query', spotlight: SpotlightStartOrContinueReadingQueryQuery_spotlight_SingleSpotlightOutput | null };
+
+
+type SpotlightStartOrContinueReadingQueryQueryVariables = Exact<{
+  spotlightId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type SpotlightStartOrContinueReadingQueryQuery = SpotlightStartOrContinueReadingQueryQuery_Query;
 
 type multiSpotlightSpotlightsPageQueryQuery_spotlights_MultiSpotlightOutput_results_Spotlight = (
   { __typename?: 'Spotlight' }
@@ -23200,6 +23151,21 @@ type UltraFeedThreadItemQueryVariables = Exact<{
 
 type UltraFeedThreadItemQuery = UltraFeedThreadItemQuery_Query;
 
+type updateUltraFeedEventMutation_updateUltraFeedEvent_UltraFeedEventOutput_data_UltraFeedEvent = { __typename?: 'UltraFeedEvent', _id: string };
+
+type updateUltraFeedEventMutation_updateUltraFeedEvent_UltraFeedEventOutput = { __typename?: 'UltraFeedEventOutput', data: updateUltraFeedEventMutation_updateUltraFeedEvent_UltraFeedEventOutput_data_UltraFeedEvent | null };
+
+type updateUltraFeedEventMutation_Mutation = { __typename?: 'Mutation', updateUltraFeedEvent: updateUltraFeedEventMutation_updateUltraFeedEvent_UltraFeedEventOutput | null };
+
+
+type updateUltraFeedEventMutationVariables = Exact<{
+  selector: Scalars['String']['input'];
+  data: UpdateUltraFeedEventDataInput;
+}>;
+
+
+type updateUltraFeedEventMutation = updateUltraFeedEventMutation_Mutation;
+
 type connectCrossposterMutation_Mutation = { __typename?: 'Mutation', connectCrossposter: string | null };
 
 
@@ -23318,8 +23284,18 @@ type multiLocalgroupFriendlyUsersProfileQueryQueryVariables = Exact<{
 
 type multiLocalgroupFriendlyUsersProfileQueryQuery = multiLocalgroupFriendlyUsersProfileQueryQuery_Query;
 
+type multiUserFriendlyUsersProfileQueryQuery_users_MultiUserOutput_results_User_profileTags_Tag = (
+  { __typename?: 'Tag' }
+  & TagPreviewFragment
+);
+
+type multiUserFriendlyUsersProfileQueryQuery_users_MultiUserOutput_results_User_organizerOfGroups_Localgroup = (
+  { __typename?: 'Localgroup' }
+  & localGroupsBase
+);
+
 type multiUserFriendlyUsersProfileQueryQuery_users_MultiUserOutput_results_User = (
-  { __typename?: 'User' }
+  { __typename?: 'User', profileTags: Array<multiUserFriendlyUsersProfileQueryQuery_users_MultiUserOutput_results_User_profileTags_Tag>, organizerOfGroups: Array<multiUserFriendlyUsersProfileQueryQuery_users_MultiUserOutput_results_User_organizerOfGroups_Localgroup> }
   & UsersProfile
 );
 
@@ -24983,7 +24959,7 @@ type PostsEdit_Post_customHighlight_Revision = (
   & RevisionEdit
 );
 
-type PostsEdit_Post_socialPreview_SocialPreviewOutput = { __typename?: 'SocialPreviewOutput', imageId: string, text: string | null };
+type PostsEdit_Post_socialPreview_SocialPreviewOutput = { __typename?: 'SocialPreviewOutput', imageId: string | null, text: string | null };
 
 type PostsEdit_Post_socialPreviewData_SocialPreviewType = { __typename?: 'SocialPreviewType', _id: string, imageId: string | null, text: string | null };
 
@@ -25430,15 +25406,9 @@ type SpotlightHeaderEventSubtitle = (
 
 type SpotlightDisplay_Spotlight_post_Post_user_User = { __typename?: 'User', _id: string, displayName: string, slug: string };
 
-type SpotlightDisplay_Spotlight_post_Post_reviews_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsList
-);
+type SpotlightDisplay_Spotlight_post_Post_reviews_Comment = { __typename?: 'Comment', _id: string };
 
-type SpotlightDisplay_Spotlight_post_Post = (
-  { __typename?: 'Post', user: SpotlightDisplay_Spotlight_post_Post_user_User | null, reviews: Array<SpotlightDisplay_Spotlight_post_Post_reviews_Comment> | null }
-  & PostsMinimumInfo
-);
+type SpotlightDisplay_Spotlight_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string, user: SpotlightDisplay_Spotlight_post_Post_user_User | null, reviews: Array<SpotlightDisplay_Spotlight_post_Post_reviews_Comment> | null };
 
 type SpotlightDisplay_Spotlight_sequence_Sequence_user_User = { __typename?: 'User', _id: string, displayName: string, slug: string };
 
@@ -25448,15 +25418,10 @@ type SpotlightDisplay_Spotlight_tag_Tag_user_User = { __typename?: 'User', _id: 
 
 type SpotlightDisplay_Spotlight_tag_Tag = { __typename?: 'Tag', _id: string, name: string, slug: string, user: SpotlightDisplay_Spotlight_tag_Tag_user_User | null };
 
-type SpotlightDisplay_Spotlight_sequenceChapters_Chapter = (
-  { __typename?: 'Chapter' }
-  & ChaptersFragment
-);
-
 type SpotlightDisplay_Spotlight_description_Revision = { __typename?: 'Revision', html: string | null };
 
 type SpotlightDisplay = (
-  { __typename?: 'Spotlight', post: SpotlightDisplay_Spotlight_post_Post | null, sequence: SpotlightDisplay_Spotlight_sequence_Sequence | null, tag: SpotlightDisplay_Spotlight_tag_Tag | null, sequenceChapters: Array<SpotlightDisplay_Spotlight_sequenceChapters_Chapter> | null, description: SpotlightDisplay_Spotlight_description_Revision | null }
+  { __typename?: 'Spotlight', post: SpotlightDisplay_Spotlight_post_Post | null, sequence: SpotlightDisplay_Spotlight_sequence_Sequence | null, tag: SpotlightDisplay_Spotlight_tag_Tag | null, description: SpotlightDisplay_Spotlight_description_Revision | null }
   & SpotlightMinimumInfo
 );
 
@@ -25968,37 +25933,28 @@ type UsersProfile_User_howICanHelpOthers_Revision = (
   & RevisionDisplay
 );
 
-type UsersProfile_User_profileTags_Tag = (
-  { __typename?: 'Tag' }
-  & TagPreviewFragment
-);
-
-type UsersProfile_User_organizerOfGroups_Localgroup = (
-  { __typename?: 'Localgroup' }
-  & localGroupsBase
-);
-
 type UsersProfile_User_moderationGuidelines_Revision = (
   { __typename?: 'Revision' }
   & RevisionDisplay
 );
 
 type UsersProfile = (
-  { __typename?: 'User', oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, programParticipation: Array<string> | null, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, frontpagePostCount: number, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, viewUnreviewedComments: boolean | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, goodHeartTokens: number | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, biography: UsersProfile_User_biography_Revision | null, howOthersCanHelpMe: UsersProfile_User_howOthersCanHelpMe_Revision | null, howICanHelpOthers: UsersProfile_User_howICanHelpOthers_Revision | null, profileTags: Array<UsersProfile_User_profileTags_Tag>, organizerOfGroups: Array<UsersProfile_User_organizerOfGroups_Localgroup>, moderationGuidelines: UsersProfile_User_moderationGuidelines_Revision | null }
+  { __typename?: 'User', oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, programParticipation: Array<string> | null, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, goodHeartTokens: number | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, biography: UsersProfile_User_biography_Revision | null, howOthersCanHelpMe: UsersProfile_User_howOthersCanHelpMe_Revision | null, howICanHelpOthers: UsersProfile_User_howICanHelpOthers_Revision | null, moderationGuidelines: UsersProfile_User_moderationGuidelines_Revision | null }
   & UsersMinimumInfo
-  & SharedUserBooleans
+);
+
+type UsersCurrent_User_moderationGuidelines_Revision = (
+  { __typename?: 'Revision' }
+  & RevisionDisplay
 );
 
 type UsersCurrent_User_expandedFrontpageSections_ExpandedFrontpageSectionsSettingsOutput = { __typename?: 'ExpandedFrontpageSectionsSettingsOutput', community: boolean | null, recommendations: boolean | null, quickTakes: boolean | null, quickTakesCommunity: boolean | null, popularComments: boolean | null };
 
-type UsersCurrent_User_bookmarkedPostsMetadata_PostMetadataOutput = { __typename?: 'PostMetadataOutput', postId: string };
-
 type UsersCurrent_User_hiddenPostsMetadata_PostMetadataOutput = { __typename?: 'PostMetadataOutput', postId: string };
 
 type UsersCurrent = (
-  { __typename?: 'User', beta: boolean | null, email: string | null, services: any | null, acceptedTos: boolean | null, pageUrl: string | null, banned: string | null, isReviewed: boolean | null, nullifyVotes: boolean | null, hideIntercom: boolean, hideNavigationSidebar: boolean | null, hideCommunitySection: boolean, hidePostsRecommendations: boolean, currentFrontpageFilter: string | null, frontpageSelectedTab: string | null, frontpageFilterSettings: any | null, hideFrontpageFilterSettingsDesktop: boolean | null, allPostsTimeframe: string | null, allPostsSorting: string | null, allPostsFilter: string | null, allPostsShowLowKarma: boolean | null, allPostsIncludeEvents: boolean | null, allPostsHideCommunity: boolean | null, allPostsOpenSettings: boolean | null, draftsListSorting: string | null, draftsListShowArchived: boolean | null, draftsListShowShared: boolean | null, lastNotificationsCheck: string | null, bannedUserIds: Array<string> | null, bannedPersonalUserIds: Array<string> | null, moderationStyle: string | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, commentSorting: string | null, location: string | null, googleLocation: any | null, mongoLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, nearbyEventsNotifications: boolean, nearbyEventsNotificationsLocation: any | null, nearbyEventsNotificationsRadius: number | null, nearbyPeopleNotificationThreshold: number | null, hideFrontpageMap: boolean | null, emailSubscribedToCurated: boolean | null, subscribedToDigest: boolean | null, subscribedToNewsletter: boolean | null, unsubscribeFromAll: boolean | null, emails: Array<any> | null, whenConfirmationEmailSent: string | null, hideSubscribePoke: boolean | null, hideMeetupsPoke: boolean | null, hideHomeRHS: boolean | null, noCollapseCommentsFrontpage: boolean, noCollapseCommentsPosts: boolean, noSingleLineComments: boolean, showCommunityInRecentDiscussion: boolean, karmaChangeNotifierSettings: any | null, karmaChangeLastOpened: string | null, shortformFeedId: string | null, viewUnreviewedComments: boolean | null, recommendationSettings: any | null, theme: any | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, noExpandUnreadCommentsReview: boolean, reviewVotesQuadratic: boolean | null, reviewVotesQuadratic2019: boolean | null, reviewVotesQuadratic2020: boolean | null, hideTaggingProgressBar: boolean | null, hideFrontpageBookAd: boolean | null, hideFrontpageBook2019Ad: boolean | null, abTestKey: string | null, abTestOverrides: any | null, sortDraftsBy: string | null, reactPaletteStyle: ReactPaletteStyle | null, petrovPressedButtonDate: string | null, petrovLaunchCodeDate: string | null, petrovOptOut: boolean, lastUsedTimezone: string | null, acknowledgedNewUserGuidelines: boolean | null, notificationSubforumUnread: any | null, subforumPreferredLayout: SubforumPreferredLayout | null, hideJobAdUntil: string | null, criticismTipsDismissed: boolean | null, allowDatadogSessionReplay: boolean, hideFrontpageBook2020Ad: boolean | null, hideDialogueFacilitation: boolean | null, optedInToDialogueFacilitation: boolean | null, revealChecksToAdmins: boolean | null, notificationNewDialogueChecks: any | null, notificationYourTurnMatchForm: any | null, showDialoguesList: boolean | null, showMyDialogues: boolean | null, showMatches: boolean | null, showRecommendedPartners: boolean | null, hideActiveDialogueUsers: boolean | null, hideSunshineSidebar: boolean | null, optedOutOfSurveys: boolean | null, postGlossariesPinned: boolean | null, generateJargonForDrafts: boolean | null, generateJargonForPublishedPosts: boolean | null, expandedFrontpageSections: UsersCurrent_User_expandedFrontpageSections_ExpandedFrontpageSectionsSettingsOutput | null, bookmarkedPostsMetadata: Array<UsersCurrent_User_bookmarkedPostsMetadata_PostMetadataOutput> | null, hiddenPostsMetadata: Array<UsersCurrent_User_hiddenPostsMetadata_PostMetadataOutput> | null }
-  & UsersProfile
-  & SharedUserBooleans
+  { __typename?: 'User', oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, usernameUnset: boolean | null, taggingDashboardCollapsed: boolean | null, beta: boolean | null, acceptedTos: boolean | null, pageUrl: string | null, isReviewed: boolean | null, nullifyVotes: boolean | null, hideIntercom: boolean, hideNavigationSidebar: boolean | null, hideCommunitySection: boolean, hasContinueReading: boolean | null, hidePostsRecommendations: boolean, currentFrontpageFilter: string | null, frontpageSelectedTab: string | null, frontpageFilterSettings: any | null, hideFrontpageFilterSettingsDesktop: boolean | null, allPostsTimeframe: string | null, allPostsSorting: string | null, allPostsFilter: string | null, allPostsShowLowKarma: boolean | null, allPostsIncludeEvents: boolean | null, allPostsHideCommunity: boolean | null, allPostsOpenSettings: boolean | null, draftsListSorting: string | null, draftsListShowArchived: boolean | null, draftsListShowShared: boolean | null, lastNotificationsCheck: string | null, bannedPersonalUserIds: Array<string> | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, commentSorting: string | null, htmlMapMarkerText: string | null, nearbyEventsNotifications: boolean, nearbyEventsNotificationsLocation: any | null, nearbyEventsNotificationsRadius: number | null, nearbyPeopleNotificationThreshold: number | null, hideFrontpageMap: boolean | null, emailSubscribedToCurated: boolean | null, subscribedToDigest: boolean | null, subscribedToNewsletter: boolean | null, unsubscribeFromAll: boolean | null, whenConfirmationEmailSent: string | null, hideSubscribePoke: boolean | null, hideMeetupsPoke: boolean | null, hideHomeRHS: boolean | null, noCollapseCommentsFrontpage: boolean, noCollapseCommentsPosts: boolean, noSingleLineComments: boolean, showCommunityInRecentDiscussion: boolean, karmaChangeNotifierSettings: any | null, karmaChangeLastOpened: string | null, viewUnreviewedComments: boolean | null, recommendationSettings: any | null, theme: any | null, hasAnyBookmarks: boolean | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, noExpandUnreadCommentsReview: boolean, hideFrontpageBookAd: boolean | null, abTestKey: string | null, abTestOverrides: any | null, reactPaletteStyle: ReactPaletteStyle | null, petrovPressedButtonDate: string | null, petrovLaunchCodeDate: string | null, petrovOptOut: boolean, lastUsedTimezone: string | null, acknowledgedNewUserGuidelines: boolean | null, notificationSubforumUnread: any | null, subforumPreferredLayout: SubforumPreferredLayout | null, hideJobAdUntil: string | null, criticismTipsDismissed: boolean | null, allowDatadogSessionReplay: boolean, hideFrontpageBook2020Ad: boolean | null, showDialoguesList: boolean | null, showMyDialogues: boolean | null, showMatches: boolean | null, showRecommendedPartners: boolean | null, hideActiveDialogueUsers: boolean | null, hideSunshineSidebar: boolean | null, optedOutOfSurveys: boolean | null, postGlossariesPinned: boolean | null, generateJargonForDrafts: boolean | null, generateJargonForPublishedPosts: boolean | null, moderationGuidelines: UsersCurrent_User_moderationGuidelines_Revision | null, expandedFrontpageSections: UsersCurrent_User_expandedFrontpageSections_ExpandedFrontpageSectionsSettingsOutput | null, hiddenPostsMetadata: Array<UsersCurrent_User_hiddenPostsMetadata_PostMetadataOutput> | null }
+  & UsersMinimumInfo
 );
 
 type UsersCurrentCommentRateLimit = { __typename?: 'User', _id: string, rateLimitNextAbleToComment: any | null };
@@ -26075,8 +26031,6 @@ type UserAltAccountsFragment = (
   & SunshineUsersList
 );
 
-type SharedUserBooleans = { __typename?: 'User', taggingDashboardCollapsed: boolean | null, usernameUnset: boolean | null };
-
 type UsersMapEntry_User_mapLocationLatLng_LatLng = { __typename?: 'LatLng', lat: number, lng: number };
 
 type UsersMapEntry = { __typename?: 'User', _id: string, displayName: string, username: string | null, fullName: string | null, slug: string, mapLocationSet: boolean | null, htmlMapMarkerText: string | null, mapLocationLatLng: UsersMapEntry_User_mapLocationLatLng_LatLng | null };
@@ -26093,10 +26047,9 @@ type UsersEdit_User_moderationGuidelines_Revision = (
 
 type UsersEdit = (
   { __typename?: 'User', markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, hideIntercom: boolean, commentSorting: string | null, currentFrontpageFilter: string | null, noCollapseCommentsPosts: boolean, noCollapseCommentsFrontpage: boolean, noSingleLineComments: boolean, hideCommunitySection: boolean, showCommunityInRecentDiscussion: boolean, hidePostsRecommendations: boolean, beta: boolean | null, theme: any | null, email: string | null, whenConfirmationEmailSent: string | null, emailSubscribedToCurated: boolean | null, subscribedToDigest: boolean | null, subscribedToNewsletter: boolean | null, unsubscribeFromAll: boolean | null, hasAuth0Id: boolean | null, moderatorAssistance: boolean | null, collapseModerationGuidelines: boolean | null, bannedUserIds: Array<string> | null, bannedPersonalUserIds: Array<string> | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, nullifyVotes: boolean | null, deleteContent: boolean | null, banned: string | null, username: string | null, displayName: string, fullName: string | null, mongoLocation: any | null, googleLocation: any | null, location: string | null, mapLocation: any | null, hideFromPeopleDirectory: boolean, allowDatadogSessionReplay: boolean, reviewedByUserId: string | null, reviewForAlignmentForumUserId: string | null, groups: Array<string> | null, afApplicationText: string | null, afSubmittedApplication: boolean | null, karmaChangeLastOpened: string | null, karmaChangeNotifierSettings: any | null, notificationShortformContent: any | null, notificationCommentsOnSubscribedPost: any | null, notificationRepliesToMyComments: any | null, notificationRepliesToSubscribedComments: any | null, notificationSubscribedUserPost: any | null, notificationSubscribedUserComment: any | null, notificationSubscribedTagPost: any | null, notificationSubscribedSequencePost: any | null, notificationPostsInGroups: any | null, notificationPrivateMessage: any | null, notificationSharedWithMe: any | null, notificationAlignmentSubmissionApproved: any | null, notificationEventInRadius: any | null, notificationRSVPs: any | null, notificationCommentsOnDraft: any | null, notificationPostsNominatedReview: any | null, notificationGroupAdministration: any | null, notificationSubforumUnread: any | null, notificationNewMention: any | null, notificationNewDialogueChecks: any | null, notificationYourTurnMatchForm: any | null, notificationDialogueMessages: any | null, notificationPublishedDialogueMessages: any | null, hideFrontpageMap: boolean | null, hideTaggingProgressBar: boolean | null, hideFrontpageBookAd: boolean | null, hideFrontpageBook2020Ad: boolean | null, deleted: boolean, permanentDeletionRequestedAt: string | null, twitterProfileURLAdmin: string | null, biography: UsersEdit_User_biography_Revision | null, moderationGuidelines: UsersEdit_User_moderationGuidelines_Revision | null }
+  & UsersProfile
   & UsersCurrent
 );
-
-type UsersAdmin = { __typename?: 'User', _id: string, username: string | null, createdAt: string, isAdmin: boolean, displayName: string, email: string | null, slug: string, groups: Array<string> | null, services: any | null, karma: number };
 
 type UsersWithReviewInfo = (
   { __typename?: 'User', reviewVoteCount: number | null, email: string | null }
@@ -26204,25 +26157,6 @@ type createLWEventwithNewEventsMutationVariables = Exact<{
 
 
 type createLWEventwithNewEventsMutation = createLWEventwithNewEventsMutation_Mutation;
-
-type multiTagfilterSettingsQueryQuery_tags_MultiTagOutput_results_Tag = (
-  { __typename?: 'Tag' }
-  & TagBasicInfo
-);
-
-type multiTagfilterSettingsQueryQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', totalCount: number | null, results: Array<multiTagfilterSettingsQueryQuery_tags_MultiTagOutput_results_Tag> };
-
-type multiTagfilterSettingsQueryQuery_Query = { __typename?: 'Query', tags: multiTagfilterSettingsQueryQuery_tags_MultiTagOutput | null };
-
-
-type multiTagfilterSettingsQueryQueryVariables = Exact<{
-  selector: InputMaybe<TagSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiTagfilterSettingsQueryQuery = multiTagfilterSettingsQueryQuery_Query;
 
 type AdvisorRequestsDefaultFragment = { __typename?: 'AdvisorRequest', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string | null, interestedInMetaculus: boolean | null, jobAds: any | null };
 
@@ -26394,7 +26328,7 @@ type UserRateLimitsDefaultFragment = { __typename?: 'UserRateLimit', _id: string
 
 type UserTagRelsDefaultFragment = { __typename?: 'UserTagRel', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, tagId: string, userId: string, subforumShowUnreadInSidebar: boolean | null, subforumEmailNotifications: boolean | null, subforumHideIntroPost: boolean | null };
 
-type UsersDefaultFragment = { __typename?: 'User', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, moderationGuidelines_latest: string | null, howOthersCanHelpMe_latest: string | null, howICanHelpOthers_latest: string | null, slug: string, oldSlugs: Array<string>, biography_latest: string | null, username: string | null, emails: Array<any> | null, isAdmin: boolean, profile: any | null, services: any | null, displayName: string, previousDisplayName: string | null, email: string | null, noindex: boolean, groups: Array<string> | null, lwWikiImport: boolean | null, theme: any | null, lastUsedTimezone: string | null, whenConfirmationEmailSent: string | null, legacy: boolean | null, commentSorting: string | null, sortDraftsBy: string | null, reactPaletteStyle: ReactPaletteStyle | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, showPostAuthorCard: boolean | null, hideIntercom: boolean, markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, noSingleLineComments: boolean, noCollapseCommentsPosts: boolean, noCollapseCommentsFrontpage: boolean, hideCommunitySection: boolean, showCommunityInRecentDiscussion: boolean, hidePostsRecommendations: boolean, petrovOptOut: boolean, optedOutOfSurveys: boolean | null, postGlossariesPinned: boolean | null, generateJargonForDrafts: boolean | null, generateJargonForPublishedPosts: boolean | null, acceptedTos: boolean | null, hideNavigationSidebar: boolean | null, currentFrontpageFilter: string | null, frontpageSelectedTab: string | null, frontpageFilterSettings: any | null, hideFrontpageFilterSettingsDesktop: boolean | null, allPostsTimeframe: string | null, allPostsFilter: string | null, allPostsSorting: string | null, allPostsShowLowKarma: boolean | null, allPostsIncludeEvents: boolean | null, allPostsHideCommunity: boolean | null, allPostsOpenSettings: boolean | null, draftsListSorting: string | null, draftsListShowArchived: boolean | null, draftsListShowShared: boolean | null, lastNotificationsCheck: string | null, karma: number, goodHeartTokens: number | null, moderationStyle: string | null, moderatorAssistance: boolean | null, collapseModerationGuidelines: boolean | null, bannedUserIds: Array<string> | null, bannedPersonalUserIds: Array<string> | null, legacyId: string | null, deleted: boolean, permanentDeletionRequestedAt: string | null, voteBanned: boolean | null, nullifyVotes: boolean | null, deleteContent: boolean | null, banned: string | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, notificationCommentsOnSubscribedPost: any | null, notificationShortformContent: any | null, notificationRepliesToMyComments: any | null, notificationRepliesToSubscribedComments: any | null, notificationSubscribedUserPost: any | null, notificationSubscribedUserComment: any | null, notificationPostsInGroups: any | null, notificationSubscribedTagPost: any | null, notificationSubscribedSequencePost: any | null, notificationPrivateMessage: any | null, notificationSharedWithMe: any | null, notificationAlignmentSubmissionApproved: any | null, notificationEventInRadius: any | null, notificationKarmaPowersGained: any | null, notificationRSVPs: any | null, notificationGroupAdministration: any | null, notificationCommentsOnDraft: any | null, notificationPostsNominatedReview: any | null, notificationSubforumUnread: any | null, notificationNewMention: any | null, notificationDialogueMessages: any | null, notificationPublishedDialogueMessages: any | null, notificationAddedAsCoauthor: any | null, notificationDebateCommentsOnSubscribedPost: any | null, notificationDebateReplies: any | null, notificationDialogueMatch: any | null, notificationNewDialogueChecks: any | null, notificationYourTurnMatchForm: any | null, hideDialogueFacilitation: boolean | null, revealChecksToAdmins: boolean | null, optedInToDialogueFacilitation: boolean | null, showDialoguesList: boolean | null, showMyDialogues: boolean | null, showMatches: boolean | null, showRecommendedPartners: boolean | null, hideActiveDialogueUsers: boolean | null, karmaChangeNotifierSettings: any | null, karmaChangeLastOpened: string | null, karmaChangeBatchStart: string | null, emailSubscribedToCurated: boolean | null, subscribedToDigest: boolean | null, subscribedToNewsletter: boolean | null, unsubscribeFromAll: boolean | null, hideSubscribePoke: boolean | null, hideMeetupsPoke: boolean | null, hideHomeRHS: boolean | null, frontpagePostCount: number, sequenceCount: number, sequenceDraftCount: number, mongoLocation: any | null, googleLocation: any | null, location: string | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, nearbyEventsNotifications: boolean, nearbyEventsNotificationsLocation: any | null, nearbyEventsNotificationsMongoLocation: any | null, nearbyEventsNotificationsRadius: number | null, nearbyPeopleNotificationThreshold: number | null, hideFrontpageMap: boolean | null, hideTaggingProgressBar: boolean | null, hideFrontpageBookAd: boolean | null, hideFrontpageBook2019Ad: boolean | null, hideFrontpageBook2020Ad: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, needsReview: boolean | null, sunshineSnoozed: boolean | null, snoozedUntilContentCount: number | null, reviewedByUserId: string | null, reviewedAt: string | null, afKarma: number, voteCount: number | null, smallUpvoteCount: number | null, smallDownvoteCount: number | null, bigUpvoteCount: number | null, bigDownvoteCount: number | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, usersContactedBeforeReview: Array<string> | null, fullName: string | null, shortformFeedId: string | null, viewUnreviewedComments: boolean | null, beta: boolean | null, reviewVotesQuadratic: boolean | null, reviewVotesQuadratic2019: boolean | null, reviewVotesQuadratic2020: boolean | null, petrovPressedButtonDate: string | null, petrovLaunchCodeDate: string | null, defaultToCKEditor: boolean | null, signUpReCaptchaRating: number | null, noExpandUnreadCommentsReview: boolean, postCount: number, maxPostCount: number, commentCount: number, maxCommentCount: number, tagRevisionCount: number, abTestKey: string | null, abTestOverrides: any | null, walledGardenInvite: boolean | null, hideWalledGardenUI: boolean | null, walledGardenPortalOnboarded: boolean | null, taggingDashboardCollapsed: boolean | null, usernameUnset: boolean | null, paymentEmail: string | null, paymentInfo: string | null, profileUpdatedAt: string, profileImageId: string | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, website: string | null, fmCrosspostUserId: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, twitterProfileURLAdmin: string | null, githubProfileURL: string | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, programParticipation: Array<string> | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, acknowledgedNewUserGuidelines: boolean | null, subforumPreferredLayout: SubforumPreferredLayout | null, hideJobAdUntil: string | null, criticismTipsDismissed: boolean | null, hideFromPeopleDirectory: boolean, allowDatadogSessionReplay: boolean, afPostCount: number, afCommentCount: number, afSequenceCount: number, afSequenceDraftCount: number, reviewForAlignmentForumUserId: string | null, afApplicationText: string | null, afSubmittedApplication: boolean | null, hideSunshineSidebar: boolean | null, inactiveSurveyEmailSentAt: string | null, userSurveyEmailSentAt: string | null, recommendationSettings: any | null };
+type UsersDefaultFragment = { __typename?: 'User', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, moderationGuidelines_latest: string | null, howOthersCanHelpMe_latest: string | null, howICanHelpOthers_latest: string | null, slug: string, oldSlugs: Array<string>, biography_latest: string | null, username: string | null, emails: Array<any> | null, isAdmin: boolean, profile: any | null, services: any | null, displayName: string, previousDisplayName: string | null, email: string | null, noindex: boolean, groups: Array<string> | null, lwWikiImport: boolean | null, theme: any | null, lastUsedTimezone: string | null, whenConfirmationEmailSent: string | null, legacy: boolean | null, commentSorting: string | null, sortDraftsBy: string | null, reactPaletteStyle: ReactPaletteStyle | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, showPostAuthorCard: boolean | null, hideIntercom: boolean, markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, noSingleLineComments: boolean, noCollapseCommentsPosts: boolean, noCollapseCommentsFrontpage: boolean, hideCommunitySection: boolean, showCommunityInRecentDiscussion: boolean, hidePostsRecommendations: boolean, petrovOptOut: boolean, optedOutOfSurveys: boolean | null, postGlossariesPinned: boolean | null, generateJargonForDrafts: boolean | null, generateJargonForPublishedPosts: boolean | null, acceptedTos: boolean | null, hideNavigationSidebar: boolean | null, currentFrontpageFilter: string | null, frontpageSelectedTab: string | null, frontpageFilterSettings: any | null, hideFrontpageFilterSettingsDesktop: boolean | null, allPostsTimeframe: string | null, allPostsFilter: string | null, allPostsSorting: string | null, allPostsShowLowKarma: boolean | null, allPostsIncludeEvents: boolean | null, allPostsHideCommunity: boolean | null, allPostsOpenSettings: boolean | null, draftsListSorting: string | null, draftsListShowArchived: boolean | null, draftsListShowShared: boolean | null, lastNotificationsCheck: string | null, karma: number, goodHeartTokens: number | null, moderationStyle: string | null, moderatorAssistance: boolean | null, collapseModerationGuidelines: boolean | null, bannedUserIds: Array<string> | null, bannedPersonalUserIds: Array<string> | null, bookmarksCount: number | null, legacyId: string | null, deleted: boolean, permanentDeletionRequestedAt: string | null, voteBanned: boolean | null, nullifyVotes: boolean | null, deleteContent: boolean | null, banned: string | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, notificationCommentsOnSubscribedPost: any | null, notificationShortformContent: any | null, notificationRepliesToMyComments: any | null, notificationRepliesToSubscribedComments: any | null, notificationSubscribedUserPost: any | null, notificationSubscribedUserComment: any | null, notificationPostsInGroups: any | null, notificationSubscribedTagPost: any | null, notificationSubscribedSequencePost: any | null, notificationPrivateMessage: any | null, notificationSharedWithMe: any | null, notificationAlignmentSubmissionApproved: any | null, notificationEventInRadius: any | null, notificationKarmaPowersGained: any | null, notificationRSVPs: any | null, notificationGroupAdministration: any | null, notificationCommentsOnDraft: any | null, notificationPostsNominatedReview: any | null, notificationSubforumUnread: any | null, notificationNewMention: any | null, notificationDialogueMessages: any | null, notificationPublishedDialogueMessages: any | null, notificationAddedAsCoauthor: any | null, notificationDebateCommentsOnSubscribedPost: any | null, notificationDebateReplies: any | null, notificationDialogueMatch: any | null, notificationNewDialogueChecks: any | null, notificationYourTurnMatchForm: any | null, hideDialogueFacilitation: boolean | null, revealChecksToAdmins: boolean | null, optedInToDialogueFacilitation: boolean | null, showDialoguesList: boolean | null, showMyDialogues: boolean | null, showMatches: boolean | null, showRecommendedPartners: boolean | null, hideActiveDialogueUsers: boolean | null, karmaChangeNotifierSettings: any | null, karmaChangeLastOpened: string | null, karmaChangeBatchStart: string | null, emailSubscribedToCurated: boolean | null, subscribedToDigest: boolean | null, subscribedToNewsletter: boolean | null, unsubscribeFromAll: boolean | null, hideSubscribePoke: boolean | null, hideMeetupsPoke: boolean | null, hideHomeRHS: boolean | null, frontpagePostCount: number, sequenceCount: number, sequenceDraftCount: number, mongoLocation: any | null, googleLocation: any | null, location: string | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, nearbyEventsNotifications: boolean, nearbyEventsNotificationsLocation: any | null, nearbyEventsNotificationsMongoLocation: any | null, nearbyEventsNotificationsRadius: number | null, nearbyPeopleNotificationThreshold: number | null, hideFrontpageMap: boolean | null, hideTaggingProgressBar: boolean | null, hideFrontpageBookAd: boolean | null, hideFrontpageBook2019Ad: boolean | null, hideFrontpageBook2020Ad: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, needsReview: boolean | null, sunshineSnoozed: boolean | null, snoozedUntilContentCount: number | null, reviewedByUserId: string | null, reviewedAt: string | null, afKarma: number, voteCount: number | null, smallUpvoteCount: number | null, smallDownvoteCount: number | null, bigUpvoteCount: number | null, bigDownvoteCount: number | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, usersContactedBeforeReview: Array<string> | null, fullName: string | null, shortformFeedId: string | null, viewUnreviewedComments: boolean | null, beta: boolean | null, reviewVotesQuadratic: boolean | null, reviewVotesQuadratic2019: boolean | null, reviewVotesQuadratic2020: boolean | null, petrovPressedButtonDate: string | null, petrovLaunchCodeDate: string | null, defaultToCKEditor: boolean | null, signUpReCaptchaRating: number | null, noExpandUnreadCommentsReview: boolean, postCount: number, maxPostCount: number, commentCount: number, maxCommentCount: number, tagRevisionCount: number, abTestKey: string | null, abTestOverrides: any | null, walledGardenInvite: boolean | null, hideWalledGardenUI: boolean | null, walledGardenPortalOnboarded: boolean | null, taggingDashboardCollapsed: boolean | null, usernameUnset: boolean | null, paymentEmail: string | null, paymentInfo: string | null, profileUpdatedAt: string, profileImageId: string | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, website: string | null, fmCrosspostUserId: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, twitterProfileURLAdmin: string | null, githubProfileURL: string | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, programParticipation: Array<string> | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, acknowledgedNewUserGuidelines: boolean | null, subforumPreferredLayout: SubforumPreferredLayout | null, hideJobAdUntil: string | null, criticismTipsDismissed: boolean | null, hideFromPeopleDirectory: boolean, allowDatadogSessionReplay: boolean, afPostCount: number, afCommentCount: number, afSequenceCount: number, afSequenceDraftCount: number, reviewForAlignmentForumUserId: string | null, afApplicationText: string | null, afSubmittedApplication: boolean | null, hideSunshineSidebar: boolean | null, inactiveSurveyEmailSentAt: string | null, userSurveyEmailSentAt: string | null, recommendationSettings: any | null };
 
 type VotesDefaultFragment = { __typename?: 'Vote', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, documentId: string, collectionName: string, userId: string | null, authorIds: Array<string> | null, voteType: VoteType, extendedVoteType: any | null, power: number | null, afPower: number | null, cancelled: boolean, isUnvote: boolean, votedAt: string | null, documentIsAf: boolean, silenceNotification: boolean };
 
@@ -26735,6 +26669,66 @@ type getCrosspostPostsPageQueryVariables = Exact<{
 
 
 type getCrosspostPostsPageQuery = getCrosspostPostsPageQuery_Query;
+
+type PostMetadataQuery_post_SinglePostOutput_result_Post_socialPreviewData_SocialPreviewType = { __typename?: 'SocialPreviewType', _id: string, imageUrl: string, text: string | null };
+
+type PostMetadataQuery_post_SinglePostOutput_result_Post_customHighlight_Revision = { __typename?: 'Revision', plaintextDescription: string };
+
+type PostMetadataQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
+
+type PostMetadataQuery_post_SinglePostOutput_result_Post_user_User = { __typename?: 'User', _id: string, displayName: string };
+
+type PostMetadataQuery_post_SinglePostOutput_result_Post_coauthors_User = { __typename?: 'User', _id: string, displayName: string };
+
+type PostMetadataQuery_post_SinglePostOutput_result_Post_coauthorStatuses_CoauthorStatusOutput = { __typename?: 'CoauthorStatusOutput', userId: string, confirmed: boolean, requested: boolean };
+
+type PostMetadataQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, title: string, slug: string, isEvent: boolean, groupId: string | null, canonicalSource: string | null, hasCoauthorPermission: boolean, shortform: boolean, eventImageId: string | null, noIndex: boolean, rejected: boolean, baseScore: number, createdAt: string | null, socialPreviewData: PostMetadataQuery_post_SinglePostOutput_result_Post_socialPreviewData_SocialPreviewType, customHighlight: PostMetadataQuery_post_SinglePostOutput_result_Post_customHighlight_Revision | null, contents: PostMetadataQuery_post_SinglePostOutput_result_Post_contents_Revision | null, user: PostMetadataQuery_post_SinglePostOutput_result_Post_user_User | null, coauthors: Array<PostMetadataQuery_post_SinglePostOutput_result_Post_coauthors_User> | null, coauthorStatuses: Array<PostMetadataQuery_post_SinglePostOutput_result_Post_coauthorStatuses_CoauthorStatusOutput> | null };
+
+type PostMetadataQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostMetadataQuery_post_SinglePostOutput_result_Post | null };
+
+type PostMetadataQuery_Query = { __typename?: 'Query', post: PostMetadataQuery_post_SinglePostOutput | null };
+
+
+type PostMetadataQueryVariables = Exact<{
+  postId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type PostMetadataQuery = PostMetadataQuery_Query;
+
+type CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment_user_User = { __typename?: 'User', displayName: string };
+
+type CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment_contents_Revision = { __typename?: 'Revision', plaintextMainText: string };
+
+type CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment = { __typename?: 'Comment', _id: string, deleted: boolean, user: CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment_user_User | null, contents: CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment_contents_Revision | null };
+
+type CommentPermalinkMetadataQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment | null };
+
+type CommentPermalinkMetadataQuery_Query = { __typename?: 'Query', comment: CommentPermalinkMetadataQuery_comment_SingleCommentOutput | null };
+
+
+type CommentPermalinkMetadataQueryVariables = Exact<{
+  commentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type CommentPermalinkMetadataQuery = CommentPermalinkMetadataQuery_Query;
+
+type TagMetadataQuery_tags_MultiTagOutput_results_Tag_description_Revision = { __typename?: 'Revision', _id: string, plaintextDescription: string };
+
+type TagMetadataQuery_tags_MultiTagOutput_results_Tag = { __typename?: 'Tag', _id: string, name: string, noindex: boolean, description: TagMetadataQuery_tags_MultiTagOutput_results_Tag_description_Revision | null };
+
+type TagMetadataQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', results: Array<TagMetadataQuery_tags_MultiTagOutput_results_Tag> };
+
+type TagMetadataQuery_Query = { __typename?: 'Query', tags: TagMetadataQuery_tags_MultiTagOutput | null };
+
+
+type TagMetadataQueryVariables = Exact<{
+  tagSlug: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type TagMetadataQuery = TagMetadataQuery_Query;
 
 type singleDraftPostForLLMQueryQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }

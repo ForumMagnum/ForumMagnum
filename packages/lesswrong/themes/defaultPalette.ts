@@ -234,6 +234,11 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     },
 
     jargonTerm: "#a8742a",
+    // Banner ad compatibility - text colors (set to non-affecting defaults for light mode)
+    bannerAdOverlay: shades.grey[1000], // Use normal text color for light mode
+    bannerAdDim: shades.greyAlpha(.6),
+    bannerAdDim2: shades.greyAlpha(.9),
+    bannerAdDim3: shades.greyAlpha(.25),
   },
   link: {
     unmarked: shades.greyAlpha(.87),
@@ -373,6 +378,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     newCommentFormModerationGuidelines: shades.greyAlpha(.07),
     commentNodeEven: shades.grey[120],
     commentNodeOdd: shades.grey[25],
+    commentNodeRoot: shades.grey[0],
     commentModeratorHat: "#ecf2ed",
     commentHighlightAnimation: shades.grey[300],
     postsItemExpandedComments: shades.grey[50],
@@ -415,6 +421,14 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     onboardingPodcast: "#e7e7e7",
     placeholderGradient: 'linear-gradient(90deg, #EEE 33%, #E6E6E6 50%, #EEE 66%)',
     tagLensTab: shades.greyAlpha(.1),
+    // Banner ad compatibility - backgrounds (set to non-affecting defaults for light mode)
+    bannerAdTranslucent: shades.grey[0], // Use default background for light mode
+    bannerAdTranslucentHeavy: shades.grey[0],
+    bannerAdTranslucentLight: shades.grey[0],
+    bannerAdTranslucentMedium: shades.grey[0],
+    bannerAdTranslucentDeep: shades.grey[0],
+    bannerAdTranslucentStrong: shades.grey[0],
+    appBarDarkBackground: 'none'
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
@@ -423,6 +437,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     
     notificationsDrawer: `${shades.boxShadowColor(.16)} 0px 3px 10px, ${shades.boxShadowColor(.23)} 0px 3px 10px`,
     appBar: `0 1px 1px ${shades.boxShadowColor(.05)}, 0 1px 1px ${shades.boxShadowColor(.05)}`,
+    appBarDarkBackground: `0 1px 1px ${shades.boxShadowColor(.05)}, 0 1px 1px ${shades.boxShadowColor(.05)}`,
     sequencesGridItemHover: `0 1px 3px ${shades.boxShadowColor(.1)}`,
     eventCard: `0 1px 3px ${shades.boxShadowColor(.1)}`,
     featuredResourcesCard: `0 4px 4px ${shades.boxShadowColor(.07)}`,
@@ -481,6 +496,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       hoverBackground: shades.grey[800],
     },
   },
+  intercom: {
+    buttonBackground: "#f5f5f5 !important",
+  },
   sideItemIndicator: {
     sideComment: '#5f9b65',
     inlineReaction: 'lch(68 34.48 85.39 / 76%)',
@@ -506,15 +524,27 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       text: shades.grey[500],
       hover: {
         text: shades.grey[700]
-      }
+      },
+      // Banner ad compatibility - non-affecting defaults for light mode
+      bannerAdBackground: 'transparent',
+      bannerAdBackgroundBlur: 'transparent',
     },
     active: {
       background: "rgba(127, 175, 131, 1)",
       text: shades.grey[0],
       hover: {
         background: "rgba(127, 175, 131, 0.7)",
-      }
+      },
+      // Banner ad compatibility - non-affecting default for light mode
+      bannerAdOpacity: 1,
     },
+  },
+  // Banner ad compatibility - CSS filters (non-affecting defaults for light mode)
+  filters: {
+    bannerAdBlur: 'none',
+    bannerAdBlurLight: 'none',
+    bannerAdBlurMedium: 'none',
+    bannerAdBlurHeavy: 'none',
   },
 
   geosuggest: {
@@ -543,6 +573,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     text: shades.greyAlpha(.87),
     background: shades.grey[30],
   },
+  ultrafeedModalHeader: {
+    background: shades.greyAlpha(.95),
+  },
   datePicker: {
     selectedDate: "#428bca",
   },
@@ -556,6 +589,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     // rather than a low-intensity color at full opacity.
     commentMarker: "rgba(255,241,82,.5)",
     commentMarkerActive: "#fdf05d",
+    // Banner ad compatibility - non-affecting default for light mode
+    bannerAdBackground: 'transparent',
   },
   blockquoteHighlight: {
     commentHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",
@@ -606,6 +641,14 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   },
   namesAttachedReactions: {
     selectedAnti: "rgb(255, 189, 189, .23)",
+  },
+
+  bookPromotion: {
+    twilightLight: "#7a7096",
+    twilightDark: "#252141", 
+    twilightMid: "#4f3d6b",
+    starGold: "rgba(204, 153, 0, 1)",
+    starRedShift: "rgba(220, 20, 60, 1)",
   },
 
   contrastText: shades.grey[0],

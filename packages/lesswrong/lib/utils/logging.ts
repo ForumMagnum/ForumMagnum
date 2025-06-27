@@ -17,11 +17,10 @@
  * setting `instanceDebuggers` to the same.
  */
 import util from 'util'
-import { PublicInstanceSetting } from '../instanceSettings'
+import { instanceDebuggersSetting } from '../instanceSettings'
 import { DatabasePublicSetting } from '../publicSettings'
 
 const databaseDebuggersSetting = new DatabasePublicSetting<string[]>('debuggers', [])
-const instanceDebuggersSetting = new PublicInstanceSetting<string[]>('instanceDebuggers', [], 'optional')
 const instanceDebuggers = instanceDebuggersSetting.get()
 
 type Logger = (...args: any[]) => void

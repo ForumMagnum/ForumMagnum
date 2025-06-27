@@ -5,7 +5,7 @@ import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
 import { AnalyticsContext, captureEvent } from "@/lib/analyticsEvents";
-import { FeedCommentMetaInfo } from "./ultraFeedTypes";
+import { FeedCommentMetaInfo, FeedItemDisplayStatus } from "./ultraFeedTypes";
 import { useOverflowNav } from "./OverflowNavObserverContext";
 import { useDialog } from "../common/withDialog";
 import UltraFeedCommentsDialog from "./UltraFeedCommentsDialog";
@@ -13,6 +13,12 @@ import UltraFeedCommentsItemMeta from "./UltraFeedCommentsItemMeta";
 import FeedContentBody from "./FeedContentBody";
 import UltraFeedItemFooter from "./UltraFeedItemFooter";
 import OverflowNavButtons from "./OverflowNavButtons";
+import SeeLessFeedback from "./SeeLessFeedback";
+import { useSeeLess } from "./useSeeLess";
+import { useCurrentUser } from "../common/withUser";
+import { userOwns } from "../../lib/vulcan-users/permissions";
+import CommentsEditForm from "../comments/CommentsEditForm";
+
 
 const commentHeaderPaddingDesktop = 12;
 const commentHeaderPaddingMobile = 12;
@@ -50,7 +56,6 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   commentHeader: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px',
   },
   contentWrapper: {
     marginTop: 12,
@@ -69,6 +74,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     padding: 8,
     opacity: 0.5,
     cursor: "pointer",
+    color: theme.palette.text.bannerAdOverlay,
     '&:hover': {
       opacity: 1,
     },
@@ -128,9 +134,57 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   footer: {
     marginBottom: 12,
   },
+  greyedOut: {
+    opacity: 0.5,
+    filter: 'blur(0.5px)',
+    pointerEvents: 'none',
+  },
+  footerGreyedOut: {
+    opacity: 0.5,
+    filter: 'blur(0.5px)',
+    '& > *': {
+      pointerEvents: 'none',
+    },
+    '& .SeeLessButton-root': {
+      pointerEvents: 'auto !important',
+    },
+  },
+  branchNavContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: 8,
+    cursor: 'pointer',
+    color: theme.palette.primary.main,
+    fontSize: 14,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    '&:hover': {
+      opacity: 0.8,
+    },
+  },
+  branchNavText: {
+    fontStyle: 'italic',
+  },
 }));
 
 type HighlightStateType = 'never-highlighted' | 'highlighted-unviewed' | 'highlighted-viewed';
+
+const BranchNavigationButton = ({
+  currentBranch,
+  onBranchToggle,
+}: {
+  currentBranch?: 'new' | 'original';
+  onBranchToggle?: () => void;
+}) => {
+  const classes = useStyles(styles);
+  
+  return (
+    <div className={classes.branchNavContainer} onClick={onBranchToggle}>
+      <span className={classes.branchNavText}>
+        {currentBranch === 'new' ? 'View original thread' : 'View your new reply'}
+      </span>
+    </div>
+  );
+};
 
 export const UltraFeedCompressedCommentsItem = ({
   numComments, 
@@ -165,6 +219,13 @@ export const UltraFeedCompressedCommentsItem = ({
   );
 };
 
+export interface ReplyConfig {
+  isReplying: boolean;
+  onReplyClick: () => void;
+  onReplySubmit: (newComment: UltraFeedComment) => void;
+  onReplyCancel: () => void;
+}
+
 export interface UltraFeedCommentItemProps {
   comment: UltraFeedComment;
   metaInfo: FeedCommentMetaInfo;
@@ -178,6 +239,12 @@ export interface UltraFeedCommentItemProps {
   parentAuthorName?: string | null;
   onReplyIconClick?: () => void;
   isHighlightAnimating?: boolean;
+  replyConfig: ReplyConfig;
+  hasFork?: boolean;
+  currentBranch?: 'new' | 'original';
+  onBranchToggle?: () => void;
+  cannotReplyReason?: string | null;
+  onEditSuccess: (editedComment: CommentsList) => void;
 }
 
 export const UltraFeedCommentItem = ({
@@ -193,20 +260,53 @@ export const UltraFeedCommentItem = ({
   parentAuthorName,
   onReplyIconClick,
   isHighlightAnimating = false,
+  replyConfig,
+  hasFork,
+  currentBranch,
+  onBranchToggle,
+  cannotReplyReason: customCannotReplyReason,
+  onEditSuccess,
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
   const { observe, unobserve, trackExpansion, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { openDialog } = useDialog();
   const overflowNav = useOverflowNav(elementRef);
-  const { post } = comment;
-  const { displayStatus } = metaInfo;
+  const currentUser = useCurrentUser();
+  
+  const cannotReplyReason = customCannotReplyReason ?? (userOwns(currentUser, comment) ? "You cannot reply to your own comment from within the feed" : null);
+
+  const displayStatus = metaInfo.displayStatus ?? 'expanded';
 
   const initialHighlightState = (highlight && !hasBeenLongViewed(comment._id)) ? 'highlighted-unviewed' : 'never-highlighted';
   const [highlightState, setHighlightState] = useState<HighlightStateType>(initialHighlightState);
   const [resetSig, setResetSig] = useState(0);
+  const [showEditState, setShowEditState] = useState(false);
+  
+  const {
+    isSeeLessMode,
+    handleSeeLess,
+    handleUndoSeeLess,
+    handleFeedbackChange,
+  } = useSeeLess({
+    documentId: comment._id,
+    documentType: 'comment',
+  });
 
   const { displaySettings } = settings;
+
+  const setShowEdit = useCallback(() => {
+    setShowEditState(true);
+  }, []);
+
+  const editCancelCallback = useCallback(() => {
+    setShowEditState(false);
+  }, []);
+
+  const editSuccessCallback = useCallback((editedComment: CommentsList) => {
+    setShowEditState(false);
+    onEditSuccess(editedComment);
+  }, [onEditSuccess]);
 
   useEffect(() => {
     const currentElement = elementRef.current;
@@ -214,7 +314,8 @@ export const UltraFeedCommentItem = ({
       observe(currentElement, {
         documentId: comment._id,
         documentType: 'comment',
-        postId: comment.postId ?? undefined
+        postId: comment.postId ?? undefined,
+        servedEventId: metaInfo.servedEventId
       });
     }
 
@@ -223,7 +324,7 @@ export const UltraFeedCommentItem = ({
         unobserve(currentElement);
       }
     };
-  }, [observe, unobserve, comment._id, comment.postId]);
+  }, [observe, unobserve, comment._id, comment.postId, metaInfo.servedEventId]);
 
   useEffect(() => {
     const initialHighlightState = highlight && !hasBeenLongViewed(comment._id) ? 'highlighted-unviewed' : 'never-highlighted';
@@ -252,6 +353,7 @@ export const UltraFeedCommentItem = ({
       level: expanded ? 1 : 0,
       maxLevelReached: expanded,
       wordCount,
+      servedEventId: metaInfo.servedEventId,
     });
     
     captureEvent("ultraFeedCommentItemExpanded", {
@@ -267,7 +369,7 @@ export const UltraFeedCommentItem = ({
       onChangeDisplayStatus("expanded");
     }
 
-  }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus]);
+  }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus, metaInfo.servedEventId]);
 
   const handleContinueReadingClick = useCallback(() => {
     captureEvent("ultraFeedCommentItemContinueReadingClicked", { commentId: comment._id, postId: comment.postId });
@@ -316,38 +418,63 @@ export const UltraFeedCommentItem = ({
           )} />
         </div>
         <div ref={elementRef} className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
-          <div className={classes.commentHeader}>
+          <div className={classNames(classes.commentHeader, { [classes.greyedOut]: isSeeLessMode })}>
+            {hasFork && <BranchNavigationButton
+              currentBranch={currentBranch}
+              onBranchToggle={onBranchToggle}
+            />}
             <UltraFeedCommentsItemMeta
               comment={comment}
-              setShowEdit={() => {}}
+              setShowEdit={setShowEdit}
               showPostTitle={showPostTitle}
               onPostTitleClick={onPostTitleClick}
               parentAuthorName={parentAuthorName}
               onReplyIconClick={onReplyIconClick}
             />
           </div>
-          <div className={classes.contentWrapper}>
-            <FeedContentBody
-              html={comment.contents?.html ?? ""}
-              initialWordCount={truncationParams.initialWordCount}
-              maxWordCount={truncationParams.maxWordCount}
-              wordCount={comment.contents?.wordCount ?? 0}
-              nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-              clampOverride={displaySettings.lineClampNumberOfLines}
-              onExpand={handleContentExpand}
-              onContinueReadingClick={handleContinueReadingClick}
-              hideSuffix={false}
-              resetSignal={resetSig}
+          {isSeeLessMode && (
+            <SeeLessFeedback
+              onUndo={handleUndoSeeLess}
+              onFeedbackChange={handleFeedbackChange}
             />
-          </div>
-          <UltraFeedItemFooter
-            document={comment}
-            collectionName="Comments"
-            metaInfo={metaInfo}
-            className={classes.footer}
-          />
+          )}
+          {!isSeeLessMode && (
+            <div className={classes.contentWrapper}>
+              {showEditState ? (
+                <CommentsEditForm
+                  comment={comment}
+                  successCallback={editSuccessCallback}
+                  cancelCallback={editCancelCallback}
+                />
+              ) : (
+                <FeedContentBody
+                  html={comment.contents?.html ?? ""}
+                  initialWordCount={truncationParams.initialWordCount}
+                  maxWordCount={truncationParams.maxWordCount}
+                  wordCount={comment.contents?.wordCount ?? 0}
+                  nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
+                  clampOverride={displaySettings.lineClampNumberOfLines}
+                  onExpand={handleContentExpand}
+                  onContinueReadingClick={handleContinueReadingClick}
+                  hideSuffix={false}
+                  resetSignal={resetSig}
+                />
+              )}
+            </div>
+          )}
+          {!showEditState && <UltraFeedItemFooter
+              document={comment}
+              collectionName="Comments"
+              metaInfo={metaInfo}
+              className={classNames(classes.footer, { [classes.footerGreyedOut]: isSeeLessMode })}
+              onSeeLess={isSeeLessMode ? handleUndoSeeLess : handleSeeLess}
+              isSeeLessMode={isSeeLessMode}
+              replyConfig={replyConfig}
+              cannotReplyReason={cannotReplyReason}
+            />}
         </div>
       </div>
+      
       {/* buttons are placed separately within root because display: flex disrupts their positioning */}
       {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={collapseToFirst} applyCommentStyle={true} />}
     </div>

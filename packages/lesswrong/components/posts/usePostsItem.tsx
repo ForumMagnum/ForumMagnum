@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useMemo } from "react";
-import { useHideRepeatedPosts } from "./HideRepeatedPostsContext";
 import { RecommendationOptions, useRecordPostView } from "../hooks/useRecordPostView";
 import { useCurrentUser } from "../common/withUser";
 import {
@@ -144,7 +143,6 @@ export const usePostsItem = ({
   const [readComments, setReadComments] = useState(false);
   const [showDialogueMessages, setShowDialogueMessages] = useState(false);
   const {isRead, recordPostView} = useRecordPostView(post);
-  const {isPostRepeated, addPost} = useHideRepeatedPosts();
 
   const currentUser = useCurrentUser();
 
@@ -206,11 +204,6 @@ export const usePostsItem = ({
     after: (defaultToShowUnreadComments && !showComments) ? post.lastVisitedAt : null
   }
 
-  const isRepeated = isPostRepeated(post._id);
-  if (!isRepeated) {
-    addPost(post._id);
-  }
-
   const analyticsProps = {
     pageElementContext: "postItem",
     postId: post._id,
@@ -258,7 +251,6 @@ export const usePostsItem = ({
     hasUnreadComments,
     hasNewPromotedComments,
     commentTerms,
-    isRepeated,
     analyticsProps,
     translucentBackground,
     isRead,

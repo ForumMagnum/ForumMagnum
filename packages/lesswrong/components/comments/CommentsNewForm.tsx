@@ -147,6 +147,7 @@ export type CommentsNewFormProps = {
   quickTakesSubmitButtonAtBottom?: boolean,
   isAnswer?: boolean,
   cancelLabel?: string,
+  hideAlignmentForumCheckbox?: boolean,
   className?: string,
   classes: ClassesType<typeof styles>,
 }
@@ -169,6 +170,7 @@ const CommentsNewForm = ({
   quickTakesSubmitButtonAtBottom,
   isAnswer,
   cancelLabel,
+  hideAlignmentForumCheckbox,
   className,
   classes,
 }: CommentsNewFormProps) => {
@@ -372,6 +374,7 @@ const CommentsNewForm = ({
               disableSubmitDropdown={isAnswer || post?.question || prefilledProps.tagId}
               interactionType={interactionType}
               alignmentForumPost={post?.af}
+              hideAlignmentForumCheckbox={hideAlignmentForumCheckbox}
               quickTakesFormGroup={isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI)}
               formClassName={mergedFormProps.formClassName}
               editorHintText={mergedFormProps.editorHintText}

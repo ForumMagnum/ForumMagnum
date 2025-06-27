@@ -36,6 +36,7 @@ import DropdownDivider from "../dropdowns/DropdownDivider";
 import UsersProfileImage from "./UsersProfileImage";
 import ForumIcon from "../common/ForumIcon";
 import NewWikiTagMenu from "../tagging/NewWikiTagMenu";
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/IfAnyoneBuildsItSplash';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -55,6 +56,9 @@ const styles = (theme: ThemeType) => ({
     fontSize: '16px',
     fontWeight: isFriendlyUI ? undefined : 400,
     color: blackBarTitle.get() ? theme.palette.text.alwaysWhite : theme.palette.header.text,
+    ...isIfAnyoneBuildsItFrontPage({
+      color: theme.palette.text.bannerAdOverlay,
+    }),
     wordBreak: 'break-word'
   },
   userImageButton: {
@@ -270,7 +274,7 @@ const UsersMenu = ({classes}: {
         : null,
   } as const;
 
-  const hasBookmarks = isEAForum || (currentUser?.bookmarkedPostsMetadata?.length ?? 0) >= 1;
+  const hasBookmarks = isEAForum || currentUser?.hasAnyBookmarks;
 
   const order: (keyof typeof items)[] = isFriendlyUI
     ? ["newPost", "newShortform", "divider", "newEvent", "newDialogue", "newSequence"]

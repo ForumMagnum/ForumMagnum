@@ -5,7 +5,7 @@ import { Menu } from '@/components/widgets/Menu';
 import { TagLens } from '@/lib/arbital/useTagLenses';
 import { MAIN_TAB_ID } from "@/lib/collections/tags/constants";
 import { useTracking } from '@/lib/analyticsEvents';
-import { useMutation, gql, useApolloClient } from '@apollo/client';
+import { useMutation, useApolloClient } from '@apollo/client/react';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
 import { useMessages } from '../common/withMessages';
@@ -18,6 +18,7 @@ import DropdownItem from "../dropdowns/DropdownItem";
 import { MenuItem } from "../common/Menus";
 import LWTooltip from "../common/LWTooltip";
 import AnalyticsTracker from "../common/AnalyticsTracker";
+import { gql } from '@/lib/generated/gql-codegen';
 
 const styles = defineStyles("TagPageActionsMenu", (theme: ThemeType) => ({
   tagPageTripleDotMenu: {
@@ -98,11 +99,11 @@ const TagPageActionsMenu = ({tagOrLens, handleEditClick, createLens}: {
   const isLensPage = tagOrLens._id !== MAIN_TAB_ID;
   const classes = useStyles(styles);
   
-  const [promoteLensMutation] = useMutation(gql`
+  const [promoteLensMutation] = useMutation(gql(`
     mutation promoteLensToMain($lensId: String!) {
       promoteLensToMain(lensId: $lensId)
     }
-  `);
+  `));
   async function promoteLens() {
     try {
       const {data: _} = await promoteLensMutation({

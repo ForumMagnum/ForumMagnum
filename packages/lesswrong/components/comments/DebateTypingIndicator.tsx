@@ -2,10 +2,11 @@ import React, {useState} from 'react';
 import {useOnServerSentEvent} from '../hooks/useUnreadNotifications';
 import {useCurrentUser} from '../common/withUser';
 import {useGlobalKeydown} from '../common/withGlobalKeydown';
-import {gql, useMutation} from '@apollo/client';
+import {useMutation} from '@apollo/client/react';
 import throttle from 'lodash/throttle';
 import { isDialogueParticipant } from '@/lib/collections/posts/helpers';
 import { registerComponent } from "../../lib/vulcan-lib/components";
+import { gql } from '@/lib/generated/gql-codegen';
 
 const styles = (theme: ThemeType) => ({
   root: {

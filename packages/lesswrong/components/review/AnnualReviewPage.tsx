@@ -8,7 +8,8 @@ import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import qs from 'qs'
 import classNames from 'classnames';
 import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
-import NominationsPage, { allPostsParams } from './NominationsPage';
+import NominationsPage from './NominationsPage';
+import { allPostsParams } from '@/lib/collections/posts/helpers';
 import FrontpageReviewWidget from "./FrontpageReviewWidget";
 import ReviewVotingPage from "./ReviewVotingPage";
 import ReviewVotingExpandedPost from "./ReviewVotingExpandedPost";

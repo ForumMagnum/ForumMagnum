@@ -1563,7 +1563,7 @@ interface DbUltraFeedEvent extends DbObject {
   createdAt: Date
   documentId: string
   event: any | null
-  eventType: "served" | "viewed" | "expanded" | "interacted"
+  eventType: "served" | "viewed" | "expanded" | "interacted" | "seeLess"
   feedItemId: string | null
   userId: string
 }
@@ -1687,6 +1687,7 @@ interface DbUser extends DbObject {
   biography: EditableFieldContents | null
   biography_latest: string | null
   blueskyProfileURL: string | null
+  bookmarksCount: number
   careerStage: Array<string> | null
   collapseModerationGuidelines: boolean | null
   commentCount: number

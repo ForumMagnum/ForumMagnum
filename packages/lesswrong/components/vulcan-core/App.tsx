@@ -24,6 +24,7 @@ import Loading from "./Loading";
 import HeadTags from "../common/HeadTags";
 import ScrollToTop from "./ScrollToTop";
 import Layout from "../Layout";
+import NavigationEventSender from "../hooks/useOnNavigate";
 
 interface ExternalProps {
   apolloClient: AnyBecauseTodo,
@@ -112,6 +113,8 @@ const App = ({serverRequestStatus}: ExternalProps) => {
         <Layout currentUser={currentUser}>
           <location.RouteComponent />
         </Layout>
+        {/* keep at bottom so its effect runs after DialogManager registers its close-on-navigate callback */}
+        <NavigationEventSender /> 
       </MessageContextProvider>
     </RefetchCurrentUserContext.Provider>
     </ServerRequestStatusContext.Provider>

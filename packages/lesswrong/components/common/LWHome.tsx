@@ -18,11 +18,14 @@ import AnalyticsInViewTracker from "./AnalyticsInViewTracker";
 import FrontpageReviewWidget from "../review/FrontpageReviewWidget";
 import SingleColumnSection from "./SingleColumnSection";
 import EAPopularCommentsSection from "../ea-forum/EAPopularCommentsSection";
-import DismissibleSpotlightItem from "../spotlights/DismissibleSpotlightItem";
+import DismissibleSpotlightItem, { SpotlightItemFallback } from "../spotlights/DismissibleSpotlightItem";
 import QuickTakesSection from "../quickTakes/QuickTakesSection";
 import LWHomePosts from "./LWHomePosts";
 import HeadTags from "./HeadTags";
 import UltraFeed from "../ultraFeed/UltraFeed";
+import { StructuredData } from './StructuredData';
+import { SuspenseWrapper } from './SuspenseWrapper';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -52,39 +55,58 @@ const getStructuredData = () => ({
   }),
 })
 
+const styles = defineStyles("LWHome", (theme: ThemeType) => ({
+  hideOnDesktop: {
+    [theme.breakpoints.up('lg')]: {
+      display: 'none',
+    },
+  },
+}))
+
 const LWHome = () => {
   const [isUltraFeedShowing, setIsUltraFeedShowing] = useState(false);
+  const classes = useStyles(styles);
 
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
-          <HeadTags structuredData={getStructuredData()}/>
+          <StructuredData generate={() => getStructuredData()}/>
           <UpdateLastVisitCookie />
           {reviewIsActive() && <>
             {getReviewPhase() !== "RESULTS" && <SingleColumnSection>
-              <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
+              <SuspenseWrapper name="FrontpageReviewWidget">
+                <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
+              </SuspenseWrapper>
             </SingleColumnSection>}
           </>}
           {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
-          <DismissibleSpotlightItem current/> 
+            <div className={classes.hideOnDesktop}>
+              <SuspenseWrapper name="DismissibleSpotlightItem" fallback={<SpotlightItemFallback/>}>
+                <DismissibleSpotlightItem/> 
+              </SuspenseWrapper>
+            </div>
           </SingleColumnSection>}
-          <AnalyticsInViewTracker
-            eventProps={{inViewType: "homePosts"}}
-            observerProps={{threshold:[0, 0.5, 1]}}
-          >
-            <LWHomePosts>
-              <QuickTakesSection />
-              <EAPopularCommentsSection />
-              <UltraFeed onShowingChange={setIsUltraFeedShowing} />
-              {!isUltraFeedShowing && (
-                <RecentDiscussionFeed
-                  af={false}
-                  commentsLimit={4}
-                  maxAgeHours={18}
-                />
-              )}
-            </LWHomePosts>
-          </AnalyticsInViewTracker>
+          <SuspenseWrapper name="LWHomePosts" fallback={<div style={{height: 800}}/>}>
+            <AnalyticsInViewTracker
+              eventProps={{inViewType: "homePosts"}}
+              observerProps={{threshold:[0, 0.5, 1]}}
+            >
+              <LWHomePosts>
+                <QuickTakesSection />
+                <SuspenseWrapper name="EAPopularCommentsSection">
+                  <EAPopularCommentsSection />
+                </SuspenseWrapper>
+                <SuspenseWrapper name="UltraFeed">
+                  <UltraFeed onShowingChange={setIsUltraFeedShowing} />
+                  {!isUltraFeedShowing && <RecentDiscussionFeed
+                    af={false}
+                    commentsLimit={4}
+                    maxAgeHours={18}
+                  />}
+                </SuspenseWrapper>
+              </LWHomePosts>
+            </AnalyticsInViewTracker>
+          </SuspenseWrapper>
         </React.Fragment>
       </AnalyticsContext>
   )

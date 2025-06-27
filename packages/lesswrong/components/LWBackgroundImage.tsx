@@ -1,12 +1,14 @@
 import React from 'react';
 import { registerComponent } from '../lib/vulcan-lib/components';
-import { useLocation } from '../lib/routeUtil';
+import { useLocation, useSubscribedLocation } from '../lib/routeUtil';
 import { getReviewPhase, reviewResultsPostPath } from '../lib/reviewUtils';
 import { defineStyles, useStyles } from './hooks/useStyles';
 import { Link } from '../lib/reactRouterWrapper';
 import LessOnline2025Banner from './seasonal/LessOnline2025Banner';
+import IfAnyoneBuildsItSplash, { bookPromotionEndDate, useHideIfAnyoneBuildsItSplash } from './seasonal/IfAnyoneBuildsItSplash';
 import ReviewVotingCanvas from "./review/ReviewVotingCanvas";
 import CloudinaryImage2 from "./common/CloudinaryImage2";
+import { isHomeRoute } from '@/lib/routeChecks';
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
@@ -107,7 +109,11 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   standaloneNavigation: boolean,
 }) => {
   const classes = useStyles(styles);
-  const { currentRoute } = useLocation();
+  // TODO: figure out if using usePathname directly is safe or better (concerns about unnecessary rerendering, idk; my guess is that with Next if the pathname changes we're rerendering everything anyways?)
+  const { pathname } = useSubscribedLocation();
+  // const pathname = usePathname();
+  const isHomePage = isHomeRoute(pathname);
+  const hideIfAnyoneBuildsItSplash = useHideIfAnyoneBuildsItSplash();
 
   const defaultImage = standaloneNavigation ? <div className={classes.imageColumn}> 
     {/* Background image shown in the top-right corner of LW. The
@@ -139,17 +145,17 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   if (getReviewPhase() === 'VOTING') homePageImage = <ReviewVotingCanvas />
   if (getReviewPhase() === 'RESULTS') homePageImage = reviewCompleteImage
 
-  // TODO: comment this out after we're done with LessOnline banner
-  const priceIncreaseDate = new Date('2025-05-25T08:00:00Z')
-  if (new Date() < priceIncreaseDate) {
-    homePageImage = <LessOnline2025Banner priceIncreaseDate={priceIncreaseDate} />
+  if (new Date() < bookPromotionEndDate && isHomePage && !hideIfAnyoneBuildsItSplash) {
+    return <IfAnyoneBuildsItSplash />
   }
 
   return <div className={classes.root}>
-    {currentRoute?.name === 'home' ? homePageImage : defaultImage}
+    {isHomePage ? homePageImage : defaultImage}
   </div>;
 }
 
-export default registerComponent('LWBackgroundImage', LWBackgroundImage);
+export default registerComponent('LWBackgroundImage', LWBackgroundImage, {
+  areEqual: "auto",
+});
 
 

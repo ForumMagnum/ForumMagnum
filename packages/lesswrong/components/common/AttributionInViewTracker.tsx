@@ -3,11 +3,10 @@ import React, { useEffect, useCallback, useState } from 'react';
 import { useIsInView } from "../../lib/analyticsEvents";
 import { useCurrentUser } from './withUser';
 import { RecombeeViewPortionProps, recombeeApi } from '../../lib/recombee/client';
-import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
-import { useMutation } from '@apollo/client';
+import { recombeeEnabledSetting } from '../../lib/publicSettings';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { useClientId } from '@/lib/abTestImpl';
-import { gql } from "@/lib/generated/gql-codegen";
+
 interface AttributionEventProps {
   post: PostsListBase;
   portion: number;
@@ -29,14 +28,6 @@ const AttributionInViewTracker = ({eventProps, observerProps, children}: {
     (eventProps: RecombeeViewPortionProps) => recombeeApi.createViewPortion(eventProps),
   []);
 
-  const [sendVertexMediaCompleteEvent] = useMutation(gql(`
-    mutation sendVertexMediaCompleteEventMutation($postId: String!, $attributionId: String) {
-      sendVertexMediaCompleteEvent(postId: $postId, attributionId: $attributionId)
-    }
-  `), {
-    ignoreResults: true
-  });
-
   useEffect(() => {
     const attributedUserId = currentUser?._id ?? clientId;
     if (!!entry && attributedUserId) {
@@ -51,16 +42,10 @@ const AttributionInViewTracker = ({eventProps, observerProps, children}: {
           
           setAlreadySent(true);
         }
-
-        if (currentUser && vertexEnabledSetting.get()) {
-          const { post: { _id: postId }, vertexAttributionId } = eventProps;
-          void sendVertexMediaCompleteEvent({ variables: { postId, attributionId: vertexAttributionId ?? null } });
-          setAlreadySent(true);
-        }
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entry, sendRecombeeViewPortionEvent, sendVertexMediaCompleteEvent, alreadySent]);
+  }, [entry, sendRecombeeViewPortionEvent, alreadySent]);
 
   return (
     <span ref={setNode}>

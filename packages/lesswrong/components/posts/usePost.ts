@@ -1,4 +1,4 @@
-import { ApolloError } from '@apollo/client';
+import { ErrorLike } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
 
@@ -21,7 +21,7 @@ export const usePostBySlug = ({slug, ssr=true}: {slug: string, ssr?: boolean}):
   } | {
     post: null,
     loading: boolean,
-    error: ApolloError|null,
+    error: ErrorLike|null,
   } => {
   const { data, error, loading } = useQuery(PostsPageMultiQuery, {
     variables: {
@@ -61,7 +61,7 @@ export const usePostByLegacyId = ({ legacyId, ssr=true }: {
   } | {
     post: null,
     loading: boolean,
-    error: ApolloError|null,
+    error: ErrorLike|null,
   } => {
   const { data: dataPostsPage, error, loading } = useQuery(PostsPageMultiQuery, {
     variables: {

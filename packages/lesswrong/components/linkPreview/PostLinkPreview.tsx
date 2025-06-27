@@ -18,8 +18,8 @@ import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import SequencesTooltip from "../sequences/SequencesTooltip";
 import LWPopper from "../common/LWPopper";
 import ContentStyles from "../common/ContentStyles";
-import ErrorBoundary from '../common/ErrorBoundary';
 import { apolloSSRFlag } from '@/lib/helpers';
+import type { RouterLocation } from '@/lib/vulcan-lib/routes';
 
 
 const SequencesPageFragmentQuery = gql(`
@@ -75,7 +75,7 @@ function logMissingLinkPreview(message: string) {
 
 export const PostLinkPreview = ({href, targetLocation, id, className, children}: {
   href: string,
-  targetLocation: any,
+  targetLocation: RouterLocation,
   id: string,
   className?: string,
   children: ReactNode,
@@ -108,7 +108,7 @@ export const PostLinkPreview = ({href, targetLocation, id, className, children}:
 
 export const PostLinkPreviewSequencePost = ({href, targetLocation, id, className, children}: {
   href: string,
-  targetLocation: any,
+  targetLocation: RouterLocation,
   id: string,
   className?: string,
   children: ReactNode,
@@ -133,7 +133,7 @@ export const PostLinkPreviewSequencePost = ({href, targetLocation, id, className
 
 export const PostLinkPreviewSlug = ({href, targetLocation, id, className, children}: {
   href: string,
-  targetLocation: any,
+  targetLocation: RouterLocation,
   id: string,
   className?: string,
   children: ReactNode,
@@ -148,7 +148,7 @@ export const PostLinkPreviewSlug = ({href, targetLocation, id, className, childr
 
 export const PostLinkPreviewLegacy = ({href, targetLocation, id, className, children}: {
   href: string,
-  targetLocation: any,
+  targetLocation: RouterLocation,
   id: string,
   className?: string,
   children: ReactNode,
@@ -163,7 +163,7 @@ export const PostLinkPreviewLegacy = ({href, targetLocation, id, className, chil
 
 export const CommentLinkPreviewLegacy = ({href, targetLocation, id, className, children}: {
   href: string,
-  targetLocation: any,
+  targetLocation: RouterLocation,
   id: string,
   className?: string,
   children: ReactNode,
@@ -187,7 +187,7 @@ export const CommentLinkPreviewLegacy = ({href, targetLocation, id, className, c
 
 export const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, id, className, children}: {
   href: string,
-  targetLocation: any,
+  targetLocation: RouterLocation,
   id: string,
   className?: string,
   children: ReactNode
@@ -213,7 +213,7 @@ export const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, id, cl
 const PostLinkPreviewVariantCheck = ({ href, post, targetLocation, comment, commentId, error, id, className, children}: {
   href: string,
   post: PostsList|null,
-  targetLocation: any,
+  targetLocation: RouterLocation,
   comment?: any,
   commentId?: string,
   error: any,
@@ -466,7 +466,7 @@ const CommentLinkPreviewWithComment = ({href, comment, post, id, className, chil
 }
 
 export const SequencePreview = ({targetLocation, href, className, children}: {
-  targetLocation: any,
+  targetLocation: RouterLocation,
   href: string,
   className?: string,
   children: ReactNode,

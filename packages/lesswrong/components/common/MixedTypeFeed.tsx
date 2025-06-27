@@ -43,7 +43,7 @@ export const MixedTypeFeed = <
   // Ref that will be populated with a function that makes this feed refetch
   // (refetching everything, shrinking it to one page, and potentially scrolling
   // up by a bunch.)
-  refetchRef?: {current: null|ObservableQuery['refetch']},
+  refetchRef?: {current: null | (() => void)},
 
   // By default, MixedTypeFeed preserves the order of elements that persist across refetches.  If you don't want that, pass in true.
   reorderOnRefetch?: boolean,

@@ -1245,8 +1245,11 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   async getPostsFromSubscribedUsersForUltraFeed(
     userId: string,
     maxAgeDays: number,
-    limit = 100
+    limit = 100,
+    excludedPostIds: string[] = []
   ): Promise<{ postId: string }[]> {
+    
+    const excludedPostIdsCondition = excludedPostIds.length > 0 ? `AND p."_id" NOT IN ($(excludedPostIds:csv))` : '';
 
     return await this.getRawDb().manyOrNone<{ postId: string }>(`
       -- PostsRepo.getPostsFromSubscribedUsersForUltraFeed
@@ -1262,16 +1265,20 @@ class PostsRepo extends AbstractRepo<"Posts"> {
           AND "type" IN ('newActivityForFeed', 'newPosts')
           AND "userId" = $(userId)
       ) AS user_subscriptions ON p."userId" = user_subscriptions."userId"
+      LEFT JOIN "ReadStatuses" rs ON rs."postId" = p._id AND rs."userId" = $(userId)
       WHERE 
         p."postedAt" > NOW() - INTERVAL '$(maxAgeDaysParam) days'
         AND p.rejected IS NOT TRUE 
         AND ${getViewablePostsSelector('p')} 
+        ${excludedPostIdsCondition}
+        AND (rs."isRead" IS NULL OR rs."isRead" = FALSE)
       ORDER BY p."postedAt" DESC
       LIMIT $(limitParam)
     `, { 
       userId: userId, 
       maxAgeDaysParam: maxAgeDays,
-      limitParam: limit
+      limitParam: limit,
+      excludedPostIds
     });
   }
 }
