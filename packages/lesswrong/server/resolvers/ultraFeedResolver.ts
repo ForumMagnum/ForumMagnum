@@ -590,6 +590,8 @@ const calculateFetchLimits = (
  */
 export const ultraFeedGraphQLQueries = {
   UltraFeed: async (_root: void, args: UltraFeedArgs, context: ResolverContext) => {
+    const startTime = Date.now();
+    
     const {limit = 20, cutoff, offset, sessionId, settings: settingsJson} = args;
     
     const { currentUser } = context;
@@ -718,10 +720,18 @@ export const ultraFeedGraphQLQueries = {
         sessionId
       };
 
+      const executionTime = Date.now() - startTime;
+      captureEvent('ultraFeedPerformance', { 
+        ultraFeedResolverTotalExecutionTime: executionTime,
+        sessionId,
+        offset: offset ?? 0
+      });
+
       return response;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error("Error in UltraFeed resolver:", error);
+      
       throw error;
     }
   }
