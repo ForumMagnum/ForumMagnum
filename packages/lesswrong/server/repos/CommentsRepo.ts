@@ -11,7 +11,6 @@ import { forumSelect } from "../../lib/forumTypeUtils";
 import { isAF } from "../../lib/instanceSettings";
 import { getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
 import { FeedCommentFromDb, ThreadEngagementStats } from "../../components/ultraFeed/ultraFeedTypes";
-import uniq from "lodash/uniq";
 
 type ExtendedCommentWithReactions = DbComment & {
   yourVote?: string,
