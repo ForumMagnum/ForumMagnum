@@ -53,18 +53,25 @@ export const useHighlightElement = () => {
   };
 };
 
+export interface HashLinkHandler {
+  pattern: RegExp;
+  handler: (targetId: string, targetElement: HTMLElement, event: MouseEvent) => boolean;
+}
+
 /**
- * Hook that intercepts clicks on hash links (like footnotes) within a modal
+ * Hook that intercepts clicks on hash links within a modal
  * and scrolls to the target element instead of changing the URL hash.
  * 
  * @param scrollContainerRef - Reference to the scrollable container element
  * @param enabled - Whether the hook should be active (default: true)
  * @param shouldHighlight - Whether to highlight the target element after scrolling (default: false)
+ * @param customHandlers - Custom handlers for specific link patterns
  */
 export const useModalHashLinkScroll = (
   scrollContainerRef: RefObject<HTMLElement | null>,
   enabled = true,
-  shouldHighlight = false
+  shouldHighlight = false,
+  customHandlers: HashLinkHandler[] = []
 ) => {
   const highlightElementWithTheme = useHighlightElement();
   
@@ -89,7 +96,17 @@ export const useModalHashLinkScroll = (
       // Prevent default behavior (changing URL hash)
       e.preventDefault();
       e.stopPropagation();
+      e.stopImmediatePropagation(); // Stop other handlers from running
 
+      // Check custom handlers first
+      for (const handler of customHandlers) {
+        if (handler.pattern.test(targetId)) {
+          const handled = handler.handler(targetId, targetElement, e);
+          if (handled) return;
+        }
+      }
+
+      // Default behavior: scroll to the element
       scrollToElementInContainer(container, targetElement);
 
       if (shouldHighlight) {
@@ -102,5 +119,5 @@ export const useModalHashLinkScroll = (
     return () => {
       document.removeEventListener('click', handleHashLinkClick, true);
     };
-  }, [scrollContainerRef, enabled, shouldHighlight, highlightElementWithTheme]);
+  }, [scrollContainerRef, enabled, shouldHighlight, highlightElementWithTheme, customHandlers]);
 }; 

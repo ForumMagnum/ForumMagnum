@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { DialogContent } from "../widgets/DialogContent";
@@ -13,8 +13,10 @@ import ForumIcon from '../common/ForumIcon';
 import { useDialogNavigation } from "../hooks/useDialogNavigation";
 import { useDisableBodyScroll } from "../hooks/useDisableBodyScroll";
 import { useModalHashLinkScroll, scrollToElementInContainer } from "../hooks/useModalScroll";
+import { useFootnoteHandlers } from "../hooks/useFootnoteHandlers";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { NetworkStatus } from "@apollo/client";
+import FootnoteDialog from '../linkPreview/FootnoteDialog';
 
 const CommentsListMultiQuery = gql(`
   query multiCommentUltraFeedCommentsDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -137,6 +139,12 @@ const styles = defineStyles("UltraFeedCommentsDialog", (theme: ThemeType) => ({
     maxWidth: 720,
     margin: '0 auto',
   },
+  // Hide footnote poppers/tooltips inside the modal – primarily for footnote display issue but a general experiment
+  [theme.breakpoints.down('sm')]: {
+    '& .LWPopper-root': {
+      display: 'none !important',
+    },
+  },
 }));
 
 const UltraFeedCommentsDialog = ({
@@ -150,6 +158,7 @@ const UltraFeedCommentsDialog = ({
 }) => {
   const classes = useStyles(styles);
   const scrollableContentRef = useRef<HTMLDivElement>(null);
+  const [footnoteDialogHTML, setFootnoteDialogHTML] = useState<string | null>(null);
 
   const isPost = collectionName === "Posts";
   const comment = isPost ? null : (document as UltraFeedComment);
@@ -199,8 +208,16 @@ const UltraFeedCommentsDialog = ({
 
   useDialogNavigation(onClose);
   useDisableBodyScroll();
+  
+  // Get footnote handlers for mobile with local dialog management
+  const footnoteHandlers = useFootnoteHandlers({
+    onFootnoteClick: (footnoteHTML: string) => {
+      setFootnoteDialogHTML(footnoteHTML);
+    }
+  });
+  
   // Handle clicks on hash links (like footnotes) within the modal
-  useModalHashLinkScroll(scrollableContentRef, true, true);
+  useModalHashLinkScroll(scrollableContentRef, true, false, footnoteHandlers);
 
   // TODO: Do this more elegantly, combine within existing functionality in CommentsNode?
   // scroll to comment clicked on when dialog opens
@@ -282,6 +299,12 @@ const UltraFeedCommentsDialog = ({
           </div>
         </div>
       </DialogContent>
+      {footnoteDialogHTML && (
+        <FootnoteDialog
+          onClose={() => setFootnoteDialogHTML(null)}
+          footnoteHTML={footnoteDialogHTML}
+        />
+      )}
     </LWDialog>
   );
 };

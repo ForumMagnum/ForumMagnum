@@ -36,9 +36,11 @@ import UltraFeedPostToCDrawer from "./UltraFeedPostToCDrawer";
 import { useDialogNavigation } from "../hooks/useDialogNavigation";
 import { useDisableBodyScroll } from "../hooks/useDisableBodyScroll";
 import { useModalHashLinkScroll, scrollToElementInContainer } from "../hooks/useModalScroll";
+import { useFootnoteHandlers } from "../hooks/useFootnoteHandlers";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { NetworkStatus } from "@apollo/client";
 import UltraFeedPostFooter from "./UltraFeedPostFooter";
+import FootnoteDialog from '../linkPreview/FootnoteDialog';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300;
 
@@ -381,6 +383,12 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
       }
     }
   },
+  // Hide footnote poppers/tooltips inside the modal – primarily for footnote display issue but a general experiment
+  [theme.breakpoints.down('sm')]: {
+    '& .LWPopper-root': {
+      display: 'none !important',
+    },
+  },
 }));
 
 type UltraFeedPostDialogProps = {
@@ -409,6 +417,7 @@ const UltraFeedPostDialog = ({
   const scrollableContentRef = useRef<HTMLDivElement>(null);
   const dialogInnerRef = useRef<HTMLDivElement>(null);
   const [navigationOpen, setNavigationOpen] = useState(false);
+  const [footnoteDialogHTML, setFootnoteDialogHTML] = useState<string | null>(null);
 
   const postId = partialPost?._id ?? undefined;
 
@@ -472,8 +481,16 @@ const UltraFeedPostDialog = ({
 
   // Handle browser back button / swipe back navigation
   useDialogNavigation(onClose);
+  
+  // Get footnote handlers for mobile with local dialog management
+  const footnoteHandlers = useFootnoteHandlers({
+    onFootnoteClick: (footnoteHTML: string) => {
+      setFootnoteDialogHTML(footnoteHTML);
+    }
+  });
+  
   // Handle clicks on hash links (like footnotes) within the modal
-  useModalHashLinkScroll(scrollableContentRef, true, true);
+  useModalHashLinkScroll(scrollableContentRef, true, false, footnoteHandlers);
   useDisableBodyScroll();
 
   // Bridge scroll events from internal container to window so hooks relying on window scroll keep working
@@ -713,6 +730,12 @@ const UltraFeedPostDialog = ({
           )}
         </div>
       </DialogContent>
+      {footnoteDialogHTML && (
+        <FootnoteDialog
+          onClose={() => setFootnoteDialogHTML(null)}
+          footnoteHTML={footnoteDialogHTML}
+        />
+      )}
     </LWDialog>
   );
 };
