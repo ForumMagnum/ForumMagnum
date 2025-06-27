@@ -11,13 +11,10 @@ import { getPublicSettings } from "@/lib/settingsCache";
 
 export default async function RootLayout({
   children,
-  searchParams,
 }: {
   children: React.ReactNode;
-  searchParams: Promise<SearchParams>;
 }) {
-  const [searchParamValues, cookieStore] = await Promise.all([
-    searchParams,
+  const [cookieStore] = await Promise.all([
     cookies(),
     initDatabases({ postgresUrl: process.env.PG_URL ?? '', postgresReadUrl: process.env.PG_URL ?? '' }).then(() => initSettings()),
   ]);
@@ -43,7 +40,6 @@ export default async function RootLayout({
         <AppGenerator
           abTestGroupsUsed={{}}
           themeOptions={{ name: "auto" }}
-          searchParams={searchParamValues}
           cookies={cookieStoreArray}
         >
           {children}

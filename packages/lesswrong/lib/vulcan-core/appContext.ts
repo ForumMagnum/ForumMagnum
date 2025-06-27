@@ -8,8 +8,8 @@ import qs from 'qs'
 import { captureException } from '@sentry/core';
 import { isClient } from '../executionEnvironment';
 import type { RouterLocation, Route, SegmentedUrl } from '../vulcan-lib/routes';
-import type { History } from 'history'
 import { getRouteMatchingPathname, userCanAccessRoute } from "../vulcan-lib/routes";
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 // import Error404 from '@/components/common/Error404';
 
 export interface ServerRequestStatusContextType {
@@ -19,7 +19,7 @@ export interface ServerRequestStatusContextType {
 
 export const LocationContext = React.createContext<RouterLocation|null>(null);
 export const SubscribeLocationContext = React.createContext<RouterLocation|null>(null);
-export const NavigationContext = React.createContext<{ history: History<unknown> }|null>(null);
+export const NavigationContext = React.createContext<{ history: AppRouterInstance }|null>(null);
 export const ServerRequestStatusContext = React.createContext<ServerRequestStatusContextType|null>(null);
 
 // From react-router-v4

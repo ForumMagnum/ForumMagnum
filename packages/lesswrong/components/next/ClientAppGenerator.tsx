@@ -13,9 +13,8 @@ import { LocationContext, NavigationContext, SubscribeLocationContext, ServerReq
 import { MessageContextProvider } from '../common/FlashMessages';
 import { RefetchCurrentUserContext } from '../common/withUser';
 import ScrollToTop from '../vulcan-core/ScrollToTop';
-import type { History } from 'history'
 import { useQueryCurrentUser } from '@/lib/crud/withCurrentUser';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Layout from '../Layout';
 import { HelmetProvider } from 'react-helmet-async';
 import { ApolloWrapper } from '@/components/common/ApolloWrapper';
@@ -27,18 +26,21 @@ import '@/lib/utils/extendSimpleSchemaOptions';
 import '@/lib/routes';
 import Cookies from 'universal-cookie';
 import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';
+import type { RouterLocation } from '@/lib/vulcan-lib/routes';
+import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
-const AppComponent = ({children, searchParams}: {children: React.ReactNode, searchParams?: { [key: string]: string | string[] | undefined }}) => {
-  // const searchParams = useSearchParams();
+const AppComponent = ({ children }: { children: React.ReactNode }) => {
+  const locationContext = useRef<RouterLocation | null>(null);
+  const subscribeLocationContext = useRef<RouterLocation | null>(null);
+  const history = useRouter();
+  const navigationContext = useRef<{ history: AppRouterInstance } | null>({ history });
+
+  const searchParams = Object.fromEntries(useSearchParams().entries());
   const pathname = usePathname();
   // TODO: implement the location and subscribed location values in ways that don't depend on our old route definitions
   const reconstructedPath = `${pathname}${searchParams && Object.keys(searchParams).length > 0 ? `?${Object.entries(searchParams).map(([key, value]) => `${key}=${value}`).join('&')}` : ''}`;
   const parsedPath = parsePath(reconstructedPath);
   const location = parseRoute({ location: parsedPath, onError: undefined });
-  const subscribeLocation = location;
-
-  const history = useRouter();
-  const navigationContext = useRef<{ history: History<unknown> } | null>({ history });
 
   const {currentUser, refetchCurrentUser, currentUserLoading} = useQueryCurrentUser();
 
@@ -51,38 +53,38 @@ const AppComponent = ({children, searchParams}: {children: React.ReactNode, sear
   //   );
   // }
 
-  //   // Reuse the container objects for location and navigation context, so that
-  // // they will be reference-stable and won't trigger spurious rerenders.
-  // if (!locationContext.current) {
-  //   locationContext.current = {...location};
-  // } else {
-  //   Object.assign(locationContext.current, location);
-  // }
+  // Reuse the container objects for location and navigation context, so that
+  // they will be reference-stable and won't trigger spurious rerenders.
+  if (!locationContext.current) {
+    locationContext.current = {...location};
+  } else {
+    Object.assign(locationContext.current, location);
+  }
   
-  // if (!navigationContext.current) {
-  //   navigationContext.current = { history };
-  // } else {
-  //   navigationContext.current.history = history;
-  // }
+  if (!navigationContext.current) {
+    navigationContext.current = { history };
+  } else {
+    navigationContext.current.history = history;
+  }
 
-  // // subscribeLocationContext changes (by shallow comparison) whenever the
-  // // URL changes.
-  // // FIXME: Also needs to include changes to hash and to query params
-  // if (!subscribeLocationContext.current ||
-  //   subscribeLocationContext.current.pathname !== location.pathname ||
-  //   JSON.stringify(subscribeLocationContext.current.query) !== JSON.stringify(location.query) ||
-  //   subscribeLocationContext.current.hash !== location.hash
-  // ) {
-  //   subscribeLocationContext.current = {...location};
-  // } else {
-  //   Object.assign(subscribeLocationContext.current, location);
-  // }
+  // subscribeLocationContext changes (by shallow comparison) whenever the
+  // URL changes.
+  // FIXME: Also needs to include changes to hash and to query params
+  if (!subscribeLocationContext.current ||
+    subscribeLocationContext.current.pathname !== location.pathname ||
+    JSON.stringify(subscribeLocationContext.current.query) !== JSON.stringify(location.query) ||
+    subscribeLocationContext.current.hash !== location.hash
+  ) {
+    subscribeLocationContext.current = {...location};
+  } else {
+    Object.assign(subscribeLocationContext.current, location);
+  }
 
 
   return <HelmetProvider>
-  <LocationContext.Provider value={location}>
+  <LocationContext.Provider value={locationContext.current}>
   <NavigationContext.Provider value={navigationContext.current}>
-  <SubscribeLocationContext.Provider value={subscribeLocation}>
+  <SubscribeLocationContext.Provider value={subscribeLocationContext.current}>
   <ServerRequestStatusContext.Provider value={/*serverRequestStatus||*/null}>
   <RefetchCurrentUserContext.Provider value={refetchCurrentUser}>
     <MessageContextProvider>
@@ -103,11 +105,11 @@ const AppComponent = ({children, searchParams}: {children: React.ReactNode, sear
 // Client-side wrapper around the app. There's another AppGenerator which is
 // the server-side version, which differs in how it sets up the wrappers for
 // routing and cookies and such.
-const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, searchParams, cookies, children }: {
+const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, cookies, children }: {
   abTestGroupsUsed: RelevantTestGroupAllocation,
   themeOptions: AbstractThemeOptions,
   ssrMetadata?: SSRMetadata,
-  searchParams?: { [key: string]: string | string[] | undefined },
+  // searchParams?: { [key: string]: string | string[] | undefined },
   cookies: RequestCookie[],
   children: React.ReactNode,
 }) => {
@@ -123,7 +125,7 @@ const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, searchParam
               <PrefersDarkModeProvider>
                 <LayoutOptionsContextProvider>
                   <EnvironmentOverrideContextProvider ssrMetadata={ssrMetadata}>
-                    <AppComponent searchParams={searchParams}>
+                    <AppComponent>
                       {children}
                     </AppComponent>
                   </EnvironmentOverrideContextProvider>

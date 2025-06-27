@@ -5,10 +5,9 @@ import { LocationContext, ServerRequestStatusContext, SubscribeLocationContext, 
 import type { RouterLocation } from './vulcan-lib/routes';
 import * as _ from 'underscore';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
-import type { LocationDescriptor } from 'history';
+import { createPath, type LocationDescriptor } from 'history';
 import {siteUrlSetting} from './instanceSettings'
 import { getUrlClass } from '@/server/utils/getUrlClass';
-import { getCommandLineArguments } from '@/server/commandLine';
 
 // React Hook which returns the page location (parsed URL and route).
 // Return value contains:
@@ -63,18 +62,27 @@ export const useNavigate = () => {
   const { history } = useContext(NavigationContext)!;
   return useCallback((locationDescriptor: LocationDescriptor | -1 | 1, options?: {replace?: boolean, openInNewTab?: boolean}) => {
     if (locationDescriptor === -1) {
-      history.goBack();
+      history.back();
     } else if (locationDescriptor === 1) {
-      history.goForward();
+      history.forward();
     } else if (options?.openInNewTab) {
       const href = typeof locationDescriptor === 'string' ?
         locationDescriptor :
-        history.createHref(locationDescriptor);
+        // TODO: check whether createPath also needs the "base" hostname; this was previously history.createHref
+        createPath(locationDescriptor);
       window.open(href, '_blank')?.focus();
     } else if (options?.replace) {
-      history.replace(locationDescriptor);
+      if (typeof locationDescriptor === 'string') {
+        history.replace(locationDescriptor);
+      } else {
+        history.replace(createPath(locationDescriptor));
+      }
     } else {
-      history.push(locationDescriptor);
+      if (typeof locationDescriptor === 'string') {
+        history.push(locationDescriptor);
+      } else {
+        history.push(createPath(locationDescriptor));
+      }
     }
   }, [history]);
 }
