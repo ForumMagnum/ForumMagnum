@@ -26714,6 +26714,22 @@ type CommentPermalinkMetadataQueryVariables = Exact<{
 
 type CommentPermalinkMetadataQuery = CommentPermalinkMetadataQuery_Query;
 
+type TagMetadataQuery_tags_MultiTagOutput_results_Tag_description_Revision = { __typename?: 'Revision', _id: string, plaintextDescription: string };
+
+type TagMetadataQuery_tags_MultiTagOutput_results_Tag = { __typename?: 'Tag', _id: string, name: string, noindex: boolean, description: TagMetadataQuery_tags_MultiTagOutput_results_Tag_description_Revision | null };
+
+type TagMetadataQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', results: Array<TagMetadataQuery_tags_MultiTagOutput_results_Tag> };
+
+type TagMetadataQuery_Query = { __typename?: 'Query', tags: TagMetadataQuery_tags_MultiTagOutput | null };
+
+
+type TagMetadataQueryVariables = Exact<{
+  tagSlug: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type TagMetadataQuery = TagMetadataQuery_Query;
+
 type singleDraftPostForLLMQueryQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
   & PostsEditQueryFragment

@@ -27,3 +27,26 @@ export const defaultMetadata = {
   },
   ...(noIndexSetting.get() ? { robots: { index: false } } : {})
 } satisfies Metadata;
+
+export function getMetadataDescriptionFields(description: string) {
+  return {
+    description,
+    twitter: {
+      description,
+    },
+    openGraph: {
+      description,
+    },
+  } satisfies Metadata;
+}
+
+export function getMetadataImagesFields(images: string) {
+  return {
+    twitter: {
+      ...(images ? { images } : {}),
+    },
+    openGraph: {
+      ...(images ? { images } : {}),
+    },
+  } satisfies Metadata;
+}

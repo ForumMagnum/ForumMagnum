@@ -65,8 +65,8 @@ function convertToNextJsPath(routePath: string): string {
 
 const titleComponentMetadataFunctionMap = {
   PostsPageHeaderTitle: `export const generateMetadata = getPostPageMetadataFunction<{ /* TODO: fill this in based on this route's params! */ }>(({ _id }) => _id);`,
-  TagPageTitle: `export const generateMetadata = getTagPageMetadataFunction<{ /* TODO: fill this in based on this route's params! */ }>(({ slug }) => slug);`,
-  TagHistoryPageTitle: `export const generateMetadata = getTagPageMetadataFunction<{ /* TODO: fill this in based on this route's params! */ }>(({ slug }) => slug, { historyPage: true });`,
+  TagPageTitle: `export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug);`,
+  TagHistoryPageTitle: `export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug, { historyPage: true });`,
   LocalgroupPageTitle: `export function generateMetadata({ params }: { params: Promise<{ groupId: string }> }): Promise<Metadata> { /* TODO: fill this in! */ }`,
   UserPageTitle: `export function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> { /* TODO: fill this in! */ }`,
   SequencesPageTitle: `export function generateMetadata({ params }: { params: Promise<{ _id: string }> }): Promise<Metadata> { /* TODO: fill this in! */ }`,
@@ -144,12 +144,12 @@ function addUseClientDirectiveToEntryComponent(importLine: string) {
 const generateMetadataFunctionTemplate = `export function generateMetadata(): Metadata {
   return merge(defaultMetadata, {
     $(titleLine)
-    $(descriptionLine)
     $(noIndexLine)
-  });
+  }$(descriptionFields));
 }`;
 
 const reactImport = 'import React from "react";';
+const defaultMetadataImport = 'import { defaultMetadata } from "@/server/pageMetadata/sharedMetadata";';
 
 function generatePageContent(route: Route): string {
   if (route.redirect && !route.component) {
@@ -173,10 +173,28 @@ function generatePageContent(route: Route): string {
   }
 
   if (routeConfig.titleComponent && hasStaticMetadata) {
-    throw new Error(`Route ${route.path} has both a titleComponent and static metadata!`);
+    console.warn(`Route ${route.path} has both a titleComponent and static metadata!`);
   }
 
-  if (hasStaticMetadata) {
+  if (routeConfig.titleComponent) {
+    const titleComponentMetadataFunction = titleComponentMetadataFunctionMap[routeConfig.titleComponent.name as keyof typeof titleComponentMetadataFunctionMap];
+    if (!titleComponentMetadataFunction) {
+      throw new Error(`No metadata function found for title component ${routeConfig.titleComponent.name}`);
+    }
+
+    if (routeConfig.titleComponent.name === 'PostsPageHeaderTitle') {
+      pageImports.push('import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetadata";');
+    } else if (routeConfig.titleComponent.name === 'TagPageTitle' || routeConfig.titleComponent.name === 'TagHistoryPageTitle') {
+      pageImports.push('import { getTagPageMetadataFunction } from "@/server/pageMetadata/tagPageMetadata";');
+    }
+
+    if (hasStaticMetadata) {
+      pageContent += '// TODO: This route has both a titleComponent and static metadata!  You will need to manually merge the two.\n\n';
+    }
+
+    pageContent += titleComponentMetadataFunction;
+  } else if (hasStaticMetadata) {
+    pageImports.push(defaultMetadataImport);
     pageImports.push('import type { Metadata } from "next";');
     pageImports.push('import merge from "lodash/merge";');
 
@@ -192,16 +210,17 @@ function generatePageContent(route: Route): string {
       generateMetadataBuilder = generateMetadataBuilder.replace('    $(titleLine)\n', '');
     }
 
-    if (routeDescription) {
-      generateMetadataBuilder = generateMetadataBuilder.replace('$(descriptionLine)', `description: '${routeDescription}',`);
-    } else {
-      generateMetadataBuilder = generateMetadataBuilder.replace('    $(descriptionLine)\n', '');
-    }
-
     if (routeNoIndex) {
       generateMetadataBuilder = generateMetadataBuilder.replace('$(noIndexLine)', 'robots: { index: false },');
     } else {
       generateMetadataBuilder = generateMetadataBuilder.replace('    $(noIndexLine)\n', '');
+    }
+
+    if (routeDescription) {
+      pageImports[pageImports.indexOf(defaultMetadataImport)] = defaultMetadataImport.replace(' }', ', getMetadataDescriptionFields }');
+      generateMetadataBuilder = generateMetadataBuilder.replace('$(descriptionFields)', `, getMetadataDescriptionFields('${routeDescription}')`);
+    } else {
+      generateMetadataBuilder = generateMetadataBuilder.replace('$(descriptionFields)', '');
     }
 
     pageContent += generateMetadataBuilder;

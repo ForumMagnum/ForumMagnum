@@ -3,7 +3,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { isEAForum, tabLongTitleSetting, tabTitleSetting } from "@/lib/instanceSettings";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
-import { defaultMetadata } from "./sharedMetadata";
+import { defaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields } from "./sharedMetadata";
 import { postCoauthorIsPending, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { cloudinaryCloudNameSetting } from "@/lib/publicSettings";
 import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
@@ -146,24 +146,18 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
     const socialPreviewImageUrl = getSocialPreviewImageUrl(post);
     const titleString = getPostTitleString(post);
     const noIndex = post.noIndex || post.rejected || (post.baseScore <= 0 && isEAForum);
-    
-    const imagesProp = socialPreviewImageUrl ? { images: socialPreviewImageUrl } : {};
 
+    const descriptionFields = getMetadataDescriptionFields(description);
+    const imagesFields = getMetadataImagesFields(socialPreviewImageUrl);
+    
     const postMetadata = {
       title: titleString,
-      description,
       openGraph: {
         title: titleString,
         url: ogUrl,
-        description,
-        ...imagesProp,
       },
       alternates: {
         canonical: canonicalUrl,
-      },
-      twitter: {
-        ...imagesProp,
-        description,
       },
       other: {
         ...getCitationTags(post),
@@ -171,6 +165,6 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
       ...(noIndex ? { robots: { index: false } } : {}),
     } satisfies Metadata;
 
-    return merge(defaultMetadata, postMetadata);
+    return merge(defaultMetadata, postMetadata, descriptionFields, imagesFields);
   }
 }
