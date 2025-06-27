@@ -43,7 +43,7 @@ export const MixedTypeFeed = <
   // Ref that will be populated with a function that makes this feed refetch
   // (refetching everything, shrinking it to one page, and potentially scrolling
   // up by a bunch.)
-  refetchRef?: {current: null|ObservableQuery['refetch']},
+  refetchRef?: {current: null | (() => void)},
 
   // By default, MixedTypeFeed preserves the order of elements that persist across refetches.  If you don't want that, pass in true.
   reorderOnRefetch?: boolean,
@@ -167,16 +167,6 @@ export const MixedTypeFeed = <
   useOnPageScroll(maybeStartLoadingMore);
   
   const results = (data && resolverName && data[resolverName]?.results) || [];
-
-  // Log items that appear more than once in the same result set (should be impossible) TODO: clean up once issues are fixed
-  results.reduce((keysSeen, r) => {
-    const k = keyFunc(r);
-    keysSeen.has(k)
-      ? captureEvent?.("ultraFeedDuplicateDetected", { key: k, resolverName, duplicateStage: "client-render" })
-      : keysSeen.add(k);
-    return keysSeen;
-  }, new Set<string>());
-
   const orderPolicy = reorderOnRefetch ? 'no-reorder' : undefined;
   const orderedResults = useOrderPreservingArray(results, keyFunc, orderPolicy);
 
