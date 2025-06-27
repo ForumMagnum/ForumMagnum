@@ -14,6 +14,9 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
+    "\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n      }\n    }\n  }\n": typeof types.LocalgroupMetadataDocument,
+    "\n  query SequenceMetadata($sequenceId: String) {\n    sequence(selector: { _id: $sequenceId }) {\n      result {\n        _id\n        title\n      }\n    }\n  }\n": typeof types.SequenceMetadataDocument,
+    "\n  query UserMetadata($slug: String) {\n    users(selector: { usersProfile: { slug: $slug } }) {\n      results {\n        _id\n        displayName\n        slug\n      }\n    }\n  }\n": typeof types.UserMetadataDocument,
     "\n  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": typeof types.updateUserLayoutDocument,
     "\n  query multiGoogleServiceAccountSessionAdminGoogleServiceAccountQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {\n    googleServiceAccountSessions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...GoogleServiceAccountSessionAdminInfo\n      }\n      totalCount\n    }\n  }\n": typeof types.multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryDocument,
     "\n    mutation revokeGoogleServiceAccountTokens {\n      revokeGoogleServiceAccountTokens\n    }\n  ": typeof types.revokeGoogleServiceAccountTokensDocument,
@@ -1003,6 +1006,9 @@ type Documents = {
     "\n  query multiPostsForLLMQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.multiPostsForLLMQueryDocument,
 };
 const documents: Documents = {
+    "\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n      }\n    }\n  }\n": types.LocalgroupMetadataDocument,
+    "\n  query SequenceMetadata($sequenceId: String) {\n    sequence(selector: { _id: $sequenceId }) {\n      result {\n        _id\n        title\n      }\n    }\n  }\n": types.SequenceMetadataDocument,
+    "\n  query UserMetadata($slug: String) {\n    users(selector: { usersProfile: { slug: $slug } }) {\n      results {\n        _id\n        displayName\n        slug\n      }\n    }\n  }\n": types.UserMetadataDocument,
     "\n  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUserLayoutDocument,
     "\n  query multiGoogleServiceAccountSessionAdminGoogleServiceAccountQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {\n    googleServiceAccountSessions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...GoogleServiceAccountSessionAdminInfo\n      }\n      totalCount\n    }\n  }\n": types.multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryDocument,
     "\n    mutation revokeGoogleServiceAccountTokens {\n      revokeGoogleServiceAccountTokens\n    }\n  ": types.revokeGoogleServiceAccountTokensDocument,
@@ -2006,6 +2012,18 @@ const documents: Documents = {
  */
 export function gql(source: string): unknown;
 
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n      }\n    }\n  }\n"): (typeof documents)["\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query SequenceMetadata($sequenceId: String) {\n    sequence(selector: { _id: $sequenceId }) {\n      result {\n        _id\n        title\n      }\n    }\n  }\n"): (typeof documents)["\n  query SequenceMetadata($sequenceId: String) {\n    sequence(selector: { _id: $sequenceId }) {\n      result {\n        _id\n        title\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query UserMetadata($slug: String) {\n    users(selector: { usersProfile: { slug: $slug } }) {\n      results {\n        _id\n        displayName\n        slug\n      }\n    }\n  }\n"): (typeof documents)["\n  query UserMetadata($slug: String) {\n    users(selector: { usersProfile: { slug: $slug } }) {\n      results {\n        _id\n        displayName\n        slug\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

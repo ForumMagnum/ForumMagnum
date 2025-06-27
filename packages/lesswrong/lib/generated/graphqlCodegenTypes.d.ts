@@ -12786,6 +12786,48 @@ type WrappedDataByYear = {
   totalSeconds?: Maybe<Scalars['Int']['output']>;
 };
 
+type LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup = { __typename?: 'Localgroup', _id: string, name: string };
+
+type LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput = { __typename?: 'SingleLocalgroupOutput', result: LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup | null };
+
+type LocalgroupMetadataQuery_Query = { __typename?: 'Query', localgroup: LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput | null };
+
+
+type LocalgroupMetadataQueryVariables = Exact<{
+  groupId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type LocalgroupMetadataQuery = LocalgroupMetadataQuery_Query;
+
+type SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence = { __typename?: 'Sequence', _id: string, title: string };
+
+type SequenceMetadataQuery_sequence_SingleSequenceOutput = { __typename?: 'SingleSequenceOutput', result: SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence | null };
+
+type SequenceMetadataQuery_Query = { __typename?: 'Query', sequence: SequenceMetadataQuery_sequence_SingleSequenceOutput | null };
+
+
+type SequenceMetadataQueryVariables = Exact<{
+  sequenceId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type SequenceMetadataQuery = SequenceMetadataQuery_Query;
+
+type UserMetadataQuery_users_MultiUserOutput_results_User = { __typename?: 'User', _id: string, displayName: string, slug: string };
+
+type UserMetadataQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<UserMetadataQuery_users_MultiUserOutput_results_User> };
+
+type UserMetadataQuery_Query = { __typename?: 'Query', users: UserMetadataQuery_users_MultiUserOutput | null };
+
+
+type UserMetadataQueryVariables = Exact<{
+  slug: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type UserMetadataQuery = UserMetadataQuery_Query;
+
 type updateUserLayoutMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
   & UsersCurrent

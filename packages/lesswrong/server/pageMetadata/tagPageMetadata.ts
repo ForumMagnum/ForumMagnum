@@ -1,9 +1,8 @@
 import { getClient } from "@/lib/apollo/nextApolloClient";
 import { gql } from "@/lib/generated/gql-codegen";
 import type { Metadata } from "next";
-import { defaultMetadata, getMetadataDescriptionFields } from "./sharedMetadata";
+import { defaultMetadata, getMetadataDescriptionFields, getPageTitleFields } from "./sharedMetadata";
 import merge from "lodash/merge";
-import { tabLongTitleSetting, tabTitleSetting } from "@/lib/instanceSettings";
 
 const TagMetadataQuery = gql(`
   query TagMetadata($tagSlug: String) {
@@ -20,15 +19,6 @@ const TagMetadataQuery = gql(`
     }
   }
 `);
-
-function getTagPageTitleString(tag: TagMetadataQuery_tags_MultiTagOutput_results_Tag, historyPage: boolean) {
-  const siteName = tabTitleSetting.get() ?? tabLongTitleSetting.get();
-  if (historyPage) {
-    return `${tag.name} - History - ${siteName}`;
-  }
-
-  return `${tag.name} - ${siteName}`;
-}
 
 interface TagPageMetadataOptions {
   historyPage?: boolean;
@@ -54,7 +44,8 @@ export function getTagPageMetadataFunction<Params>(paramsToTagSlugConverter: (pa
 
     if (!tag) return {};
 
-    const titleString = getTagPageTitleString(tag, options?.historyPage ?? false);
+    const tagPageTitle = options?.historyPage ? `${tag.name} - History` : tag.name;
+    const titleFields = getPageTitleFields(tagPageTitle);
 
     const description = tag.description?.plaintextDescription ?? `All posts related to ${tag.name}, sorted by relevance`;
     const noIndex = tag.noindex || options?.noIndex;
@@ -63,10 +54,7 @@ export function getTagPageMetadataFunction<Params>(paramsToTagSlugConverter: (pa
     const noIndexFields = noIndex ? { robots: { index: false } } : {};
 
     const tagMetadata = {
-      title: titleString,
-      openGraph: {
-        title: titleString,
-      },
+      ...titleFields,
       ...noIndexFields,
     } satisfies Metadata;
 

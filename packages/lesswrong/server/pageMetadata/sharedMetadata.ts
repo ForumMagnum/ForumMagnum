@@ -1,5 +1,5 @@
 
-import { noIndexSetting, taglineSetting } from "@/lib/instanceSettings";
+import { noIndexSetting, tabLongTitleSetting, tabTitleSetting, taglineSetting } from "@/lib/instanceSettings";
 import { siteImageSetting } from "@/lib/publicSettings";
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
 import type { Metadata } from "next";
@@ -32,6 +32,20 @@ export const defaultMetadata = {
   },
   ...(noIndexSetting.get() ? { robots: { index: false } } : {})
 } satisfies Metadata;
+
+function getPageTitleString(title: string) {
+  const siteName = tabTitleSetting.get() ?? tabLongTitleSetting.get();
+  return `${title} — ${siteName}`;
+}
+
+export function getPageTitleFields(title: string) {
+  return {
+    title: getPageTitleString(title),
+    openGraph: {
+      title: getPageTitleString(title),
+    },
+  } satisfies Metadata;
+}
 
 export function getMetadataDescriptionFields(description: string) {
   return {

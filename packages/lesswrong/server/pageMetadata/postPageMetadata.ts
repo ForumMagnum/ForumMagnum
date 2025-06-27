@@ -1,9 +1,9 @@
 import { getClient } from "@/lib/apollo/nextApolloClient";
 import { gql } from "@/lib/generated/gql-codegen";
-import { isEAForum, tabLongTitleSetting, tabTitleSetting } from "@/lib/instanceSettings";
+import { isEAForum } from "@/lib/instanceSettings";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
-import { defaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields } from "./sharedMetadata";
+import { defaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields } from "./sharedMetadata";
 import { postCoauthorIsPending, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { cloudinaryCloudNameSetting } from "@/lib/publicSettings";
 import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
@@ -78,12 +78,6 @@ function getSocialPreviewImageUrl(post: PostMetadataQuery_post_SinglePostOutput_
   return post.socialPreviewData?.imageUrl ?? "";
 }
 
-function getPostTitleString(post: PostMetadataQuery_post_SinglePostOutput_result_Post) {
-  const siteName = tabTitleSetting.get() ?? tabLongTitleSetting.get();
-  const titleString = `${post.title} — ${siteName}`;
-  return titleString;
-}
-
 function getCitationTags(post: PostMetadataQuery_post_SinglePostOutput_result_Post) {
   let formattedDate = post.createdAt;
   if (formattedDate) {
@@ -110,7 +104,11 @@ function getCommentDescription(comment: CommentPermalinkMetadataQuery_comment_Si
   }- ${comment.contents?.plaintextMainText}`;
 }
 
-export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (params: Params) => string) {
+interface PostPageMetadataOptions {
+  noIndex?: boolean;
+}
+
+export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (params: Params) => string, options?: PostPageMetadataOptions) {
   return async function generateMetadata({ params, searchParams }: { params: Promise<Params>, searchParams: Promise<{ commentId?: string }> }): Promise<Metadata> {
     const [paramValues, searchParamsValues] = await Promise.all([params, searchParams]);
 
@@ -144,16 +142,15 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
     const ogUrl = postGetPageUrl(post, true);
     const canonicalUrl = post.canonicalSource ?? ogUrl;
     const socialPreviewImageUrl = getSocialPreviewImageUrl(post);
-    const titleString = getPostTitleString(post);
-    const noIndex = post.noIndex || post.rejected || (post.baseScore <= 0 && isEAForum);
+    const postNoIndex = post.noIndex || post.rejected || (post.baseScore <= 0 && isEAForum);
+    const noIndex = postNoIndex || options?.noIndex;
 
+    const titleFields = getPageTitleFields(post.title);
     const descriptionFields = getMetadataDescriptionFields(description);
     const imagesFields = getMetadataImagesFields(socialPreviewImageUrl);
     
     const postMetadata = {
-      title: titleString,
       openGraph: {
-        title: titleString,
         url: ogUrl,
       },
       alternates: {
@@ -165,6 +162,6 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
       ...(noIndex ? { robots: { index: false } } : {}),
     } satisfies Metadata;
 
-    return merge(defaultMetadata, postMetadata, descriptionFields, imagesFields);
+    return merge(defaultMetadata, postMetadata, titleFields, descriptionFields, imagesFields);
   }
 }

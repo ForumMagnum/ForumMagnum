@@ -483,6 +483,10 @@ module.exports = {
       source: "/reviewAdmin",
       destination: "/reviewAdmin/2023",
       permanent: true
+    }, {
+      source: "/user/:slug/overview",
+      destination: "/users/:slug",
+      permanent: true
     }];
   },
   // TODO: remove this after we fix the remaining issues with the webpack build

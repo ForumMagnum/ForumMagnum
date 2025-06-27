@@ -2,9 +2,9 @@ import React from "react";
 import TagCompareRevisions from '@/components/tagging/TagCompareRevisions';
 import { PostsPageHeaderTitle } from '@/components/titles/PostsPageHeaderTitle';
 import { RouteMetadataSetter } from "@/components/RouteMetadataContext";
-import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetadata";
+import { getTagPageMetadataFunction } from "@/server/pageMetadata/tagPageMetadata";
 
-export const generateMetadata = getPostPageMetadataFunction<{ /* TODO: fill this in based on this route's params! */ }>(({ _id }) => _id);
+export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug);
 
 export default function Page() {
   return <>

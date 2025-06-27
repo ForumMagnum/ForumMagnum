@@ -164,8 +164,9 @@ async function generateGraphQLCodegenTypes(): Promise<void> {
   // We could hoist this to `generateTypes` to re-use the list of files in `generateFragmentTypes`,
   // but the scanning is ~100ms and doesn't seem worth it.
   const filesContainingGql = getFilesMaybeContainingGql("packages/lesswrong");
+  const otherFilesContainingGql = getFilesMaybeContainingGql("app");
 
-  graphqlCodegenConfig.documents = filesContainingGql;
+  graphqlCodegenConfig.documents = [...filesContainingGql, ...otherFilesContainingGql];
   const fileOutputs = await generate(graphqlCodegenConfig)
   for (const fileOutput of fileOutputs) {
     fs.writeFileSync(fileOutput.filename, fileOutput.content.replace("InputMaybe<T> = Maybe<T>", "InputMaybe<T> = T | null | undefined"));
