@@ -5,6 +5,7 @@ import '@/lib/routes'
 import { Routes, Route } from '@/lib/vulcan-lib/routes';
 import util from 'util';
 import { parsePath, parseRoute } from '@/lib/vulcan-core/appContext';
+import type { Redirect } from 'next/dist/lib/load-custom-routes';
 
 const routesFileContents = fs.readFileSync('packages/lesswrong/lib/routes.ts', 'utf8');
 const routesFileLines = routesFileContents.split('\n');
@@ -157,6 +158,10 @@ function generatePageContent(route: Route): string {
     return generateRedirectPage(route);
   }
 
+  if (route.redirect && route.component) {
+    console.warn(`Route ${route.path} has both a redirect and a component!`);
+  }
+
   const componentName = route.component?.displayName ?? route.component?.name ?? 'UnknownComponent';
   const componentImport = getComponentImport(componentName);
   addUseClientDirectiveToEntryComponent(componentImport);
@@ -297,23 +302,34 @@ function generateRedirectPage(route: Route): string {
 
   let redirectValue: string | null = null;
   if (redirectFunc.startsWith('()=>')) {
-    redirectValue = `'${route.redirect(null as AnyBecauseHard)}'`;
+    redirectValue = `${route.redirect(null as AnyBecauseHard)}`;
   } else {
     console.log(`Complex redirect function in ${route.path}: ${redirectFunc}`);
     redirectValue = `'' /* TODO: handle this manually! */`;
   }
-  
-  // Check whether the route has path params
-  const parsedPath = parsePath(route.path);
-  const parsedRoute = parseRoute({location: parsedPath});
-  // TODO: maybe we actually just want to put all the redirects into next.config.js for performance reasons :(
-  const hasPathParams = Object.keys(parsedRoute.params).length > 0;
-  
-  return `import { redirect } from 'next/navigation';
 
-export default function Page() {
-  redirect(${redirectValue});
-}\n`;
+  const previousRedirects: Redirect[] = JSON.parse(fs.readFileSync('redirects.json', 'utf8'));
+  previousRedirects.push({
+    source: route.path,
+    destination: redirectValue,
+    permanent: true,
+  });
+
+  fs.writeFileSync('redirects.json', JSON.stringify(previousRedirects, null, 2));
+
+  return '';
+  
+//   // Check whether the route has path params
+//   const parsedPath = parsePath(route.path);
+//   const parsedRoute = parseRoute({location: parsedPath});
+//   // TODO: maybe we actually just want to put all the redirects into next.config.js for performance reasons :(
+//   const hasPathParams = Object.keys(parsedRoute.params).length > 0;
+  
+//   return `import { redirect } from 'next/navigation';
+
+// export default function Page() {
+//   redirect(${redirectValue});
+// }\n`;
 }
 
 function hasMultipleConsecutiveOptionals(path: string): boolean {
@@ -448,6 +464,9 @@ export async function main() {
   
   const routes = Object.values(Routes);
   const filteredRoutes = routes.filter(route => !configLevelRedirects.some(redirect => route.path.startsWith(redirect)));
+
+  // Reset the redirects file
+  fs.writeFileSync('redirects.json', '[]');
   
   for (const route of filteredRoutes) {
     await generatePageFiles(route);
