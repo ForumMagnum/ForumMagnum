@@ -1,9 +1,12 @@
 
 import { noIndexSetting, taglineSetting } from "@/lib/instanceSettings";
+import { siteImageSetting } from "@/lib/publicSettings";
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
 import type { Metadata } from "next";
 
 const defaultDescription = taglineSetting.get();
+const siteImage = siteImageSetting.get();
+
 
 /**
  * charset='utf-8' and viewport content='width=devicewidth, initial-scale=1' are set by default
@@ -13,11 +16,13 @@ export const defaultMetadata = {
   description: defaultDescription,
   twitter: {
     description: defaultDescription,
+    images: siteImage,
   },
   openGraph: {
     type: 'article',
     url: getSiteUrl(),
     description: defaultDescription,
+    images: siteImage,
   },
   alternates: {
     canonical: getSiteUrl(),

@@ -67,9 +67,9 @@ const titleComponentMetadataFunctionMap = {
   PostsPageHeaderTitle: `export const generateMetadata = getPostPageMetadataFunction<{ /* TODO: fill this in based on this route's params! */ }>(({ _id }) => _id);`,
   TagPageTitle: `export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug);`,
   TagHistoryPageTitle: `export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug, { historyPage: true });`,
-  LocalgroupPageTitle: `export function generateMetadata({ params }: { params: Promise<{ groupId: string }> }): Promise<Metadata> { /* TODO: fill this in! */ }`,
-  UserPageTitle: `export function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> { /* TODO: fill this in! */ }`,
-  SequencesPageTitle: `export function generateMetadata({ params }: { params: Promise<{ _id: string }> }): Promise<Metadata> { /* TODO: fill this in! */ }`,
+  LocalgroupPageTitle: `export async function generateMetadata({ params }: { params: Promise<{ groupId: string }> }): Promise<Metadata> { /* TODO: fill this in! */ }`,
+  UserPageTitle: `export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> { /* TODO: fill this in! */ }`,
+  SequencesPageTitle: `export async function generateMetadata({ params }: { params: Promise<{ _id: string }> }): Promise<Metadata> { /* TODO: fill this in! */ }`,
 };
 
 const routeMetadataFields = ['title', 'subtitle', 'description', 'noIndex'] as const;
@@ -150,6 +150,7 @@ const generateMetadataFunctionTemplate = `export function generateMetadata(): Me
 
 const reactImport = 'import React from "react";';
 const defaultMetadataImport = 'import { defaultMetadata } from "@/server/pageMetadata/sharedMetadata";';
+const metadataTypeImport = 'import type { Metadata } from "next";';
 
 function generatePageContent(route: Route): string {
   if (route.redirect && !route.component) {
@@ -177,25 +178,28 @@ function generatePageContent(route: Route): string {
   }
 
   if (routeConfig.titleComponent) {
-    const titleComponentMetadataFunction = titleComponentMetadataFunctionMap[routeConfig.titleComponent.name as keyof typeof titleComponentMetadataFunctionMap];
+    const titleComponentMetadataFunction = titleComponentMetadataFunctionMap[routeConfig.titleComponent as keyof typeof titleComponentMetadataFunctionMap];
     if (!titleComponentMetadataFunction) {
-      throw new Error(`No metadata function found for title component ${routeConfig.titleComponent.name}`);
+      throw new Error(`No metadata function found for title component ${route.path} (titleComponent: ${routeConfig.titleComponent})`);
     }
 
-    if (routeConfig.titleComponent.name === 'PostsPageHeaderTitle') {
+    if (routeConfig.titleComponent === 'PostsPageHeaderTitle') {
       pageImports.push('import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetadata";');
-    } else if (routeConfig.titleComponent.name === 'TagPageTitle' || routeConfig.titleComponent.name === 'TagHistoryPageTitle') {
+    } else if (routeConfig.titleComponent === 'TagPageTitle' || routeConfig.titleComponent === 'TagHistoryPageTitle') {
       pageImports.push('import { getTagPageMetadataFunction } from "@/server/pageMetadata/tagPageMetadata";');
+    } else {
+      pageImports.push(metadataTypeImport);
     }
 
-    if (hasStaticMetadata) {
-      pageContent += '// TODO: This route has both a titleComponent and static metadata!  You will need to manually merge the two.\n\n';
+    if (hasStaticMetadata && (routeConfig.titleComponent !== 'PostsPageHeaderTitle' || Object.keys(staticMetadata).some(key => key !== 'subtitle'))) {
+      pageContent += `// TODO: This route has both a titleComponent and static metadata (${util.inspect(staticMetadata, {depth: null})})!  You will need to manually merge the two.\n\n`;
     }
 
     pageContent += titleComponentMetadataFunction;
+    pageContent += '\n\n';
   } else if (hasStaticMetadata) {
     pageImports.push(defaultMetadataImport);
-    pageImports.push('import type { Metadata } from "next";');
+    pageImports.push(metadataTypeImport);
     pageImports.push('import merge from "lodash/merge";');
 
     const routeTitle = staticMetadata.title ?? staticMetadata.subtitle;

@@ -30,7 +30,12 @@ function getTagPageTitleString(tag: TagMetadataQuery_tags_MultiTagOutput_results
   return `${tag.name} - ${siteName}`;
 }
 
-export function getTagPageMetadataFunction<Params>(paramsToTagSlugConverter: (params: Params) => string, options?: { historyPage?: boolean }) {
+interface TagPageMetadataOptions {
+  historyPage?: boolean;
+  noIndex?: boolean;
+}
+
+export function getTagPageMetadataFunction<Params>(paramsToTagSlugConverter: (params: Params) => string, options?: TagPageMetadataOptions) {
   return async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
     const paramValues = await params;
 
@@ -52,7 +57,7 @@ export function getTagPageMetadataFunction<Params>(paramsToTagSlugConverter: (pa
     const titleString = getTagPageTitleString(tag, options?.historyPage ?? false);
 
     const description = tag.description?.plaintextDescription ?? `All posts related to ${tag.name}, sorted by relevance`;
-    const noIndex = tag.noindex;
+    const noIndex = tag.noindex || options?.noIndex;
 
     const descriptionFields = getMetadataDescriptionFields(description);
     const noIndexFields = noIndex ? { robots: { index: false } } : {};
