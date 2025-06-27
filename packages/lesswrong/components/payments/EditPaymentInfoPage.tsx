@@ -1,3 +1,5 @@
+"use client";
+
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { isBookUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useForm } from '@tanstack/react-form';

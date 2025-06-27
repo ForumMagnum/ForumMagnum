@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useCallback, useState } from 'react';
 import { useDialog } from '../common/withDialog';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';

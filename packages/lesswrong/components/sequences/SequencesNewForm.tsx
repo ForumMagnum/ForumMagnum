@@ -1,3 +1,5 @@
+"use client";
+
 import { useMessages } from '../common/withMessages';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';

@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';

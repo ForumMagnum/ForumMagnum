@@ -1,3 +1,5 @@
+"use client";
+
 import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import { unflattenComments } from '@/lib/utils/unflatten';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';

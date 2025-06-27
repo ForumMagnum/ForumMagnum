@@ -1,3 +1,5 @@
+"use client";
+
 import React, { FC, useState, useEffect, useCallback, ChangeEvent } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { gql } from "@/lib/generated/gql-codegen";

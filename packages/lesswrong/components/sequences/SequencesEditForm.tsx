@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { styles } from './SequencesNewForm';
 import { registerComponent } from "../../lib/vulcan-lib/components";

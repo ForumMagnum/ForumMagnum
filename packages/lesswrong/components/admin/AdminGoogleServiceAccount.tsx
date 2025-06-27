@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useCallback } from 'react';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';

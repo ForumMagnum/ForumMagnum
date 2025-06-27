@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { useTagBySlug } from './useTag';

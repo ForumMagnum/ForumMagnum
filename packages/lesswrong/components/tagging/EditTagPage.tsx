@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useTagBySlug } from './useTag';

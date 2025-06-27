@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useCallback } from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
