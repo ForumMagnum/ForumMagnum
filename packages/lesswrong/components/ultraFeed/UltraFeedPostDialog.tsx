@@ -35,6 +35,7 @@ import TocIcon from "@/lib/vendor/@material-ui/icons/src/Toc";
 import UltraFeedPostToCDrawer from "./UltraFeedPostToCDrawer";
 import { useDialogNavigation } from "../hooks/useDialogNavigation";
 import { useDisableBodyScroll } from "../hooks/useDisableBodyScroll";
+import { useModalHashLinkScroll, scrollToElementInContainer } from "../hooks/useModalScroll";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { NetworkStatus } from "@apollo/client";
 import UltraFeedPostFooter from "./UltraFeedPostFooter";
@@ -471,6 +472,8 @@ const UltraFeedPostDialog = ({
 
   // Handle browser back button / swipe back navigation
   useDialogNavigation(onClose);
+  // Handle clicks on hash links (like footnotes) within the modal
+  useModalHashLinkScroll(scrollableContentRef, true, true);
   useDisableBodyScroll();
 
   // Bridge scroll events from internal container to window so hooks relying on window scroll keep working
@@ -495,14 +498,7 @@ const UltraFeedPostDialog = ({
     // Look for the comments section wrapper which always exists
     const commentsElement = document.getElementById('commentsSection');
     if (container && commentsElement) {
-      const containerRect = container.getBoundingClientRect();
-      const commentsRect = commentsElement.getBoundingClientRect();
-      const offsetInsideContainer = commentsRect.top - containerRect.top;
-      
-      container.scrollTo({
-        top: container.scrollTop + offsetInsideContainer - (container.clientHeight * 0.2),
-        behavior: 'smooth',
-      });
+      scrollToElementInContainer(container, commentsElement);
     }
   };
 
