@@ -9,6 +9,7 @@ import { type QueryRef, useBackgroundQuery, useReadQuery } from '@apollo/client/
 import { NotificationsListMultiQuery } from '../notifications/NotificationsList';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import type { ResultOf } from '@graphql-typed-document-node/core';
+import ErrorBoundary from '../common/ErrorBoundary';
 
 export type NotificationCountsResult = {
   checkedAt: Date,
@@ -172,9 +173,11 @@ export const UnreadNotificationsContextProvider: FC<{
 
   return (
     <unreadNotificationsContext.Provider value={providedContext}>
-      {unreadNotificationCountsQueryRef && <SuspenseWrapper name="useUnreadNotifications">
-        <NotificationsEffects queryRef={unreadNotificationCountsQueryRef} refetchCounts={refetchCounts} refetchBoth={refetchBoth} />
-      </SuspenseWrapper>}
+      {unreadNotificationCountsQueryRef && <ErrorBoundary hideMessage>
+        <SuspenseWrapper name="useUnreadNotifications">
+          <NotificationsEffects queryRef={unreadNotificationCountsQueryRef} refetchCounts={refetchCounts} refetchBoth={refetchBoth} />
+        </SuspenseWrapper>
+      </ErrorBoundary>}
       {children}
     </unreadNotificationsContext.Provider>
   );

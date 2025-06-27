@@ -3,6 +3,7 @@ import { configureScope, captureException }from '@sentry/core';
 import ErrorMessage from "./ErrorMessage";
 
 interface ErrorBoundaryProps {
+  hideMessage?: boolean
   children: React.ReactNode,
 }
 
@@ -46,7 +47,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   render() {
-    if (this.state.error) {
+    if (this.state.error && !this.props.hideMessage) {
       return <ErrorMessage message={this.state.error}/>
     }
     if (this.props.children)
