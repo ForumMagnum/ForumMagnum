@@ -8,7 +8,7 @@ import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isAF } from "../../lib/instanceSettings";
 import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
 import { FilterSettings, FilterMode } from "@/lib/filterSettings";
-import { FeedFullPost, FeedItemSourceType, FeedPostFromDb } from "@/components/ultraFeed/ultraFeedTypes";
+import { FeedFullPost, FeedItemSourceType } from "@/components/ultraFeed/ultraFeedTypes";
 import { TIME_DECAY_FACTOR, SCORE_BIAS } from "@/lib/scoring";
 import { accessFilterMultiple } from "@/lib/utils/schemaUtils";
 
@@ -1099,18 +1099,21 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   }
 
   /**
-   * Get posts for UltraFeed with filteredScore calculation and user interaction data
-   * This functions fails to perfectly replicate Latest Posts but it doesn't really matter
+   * Combined query for UltraFeed that gets both latest posts and subscribed posts in one efficient query.
+   * Posts from subscribed users will have both 'hacker-news' and 'subscriptions' in their sources.
+   * Directly filters out read posts internally.
    */
-  async getLatestPostsForUltraFeed(
+  async getLatestAndSubscribedFeedPosts(
     context: ResolverContext,
     filterSettings: FilterSettings,
-    seenPenalty: number,
     maxAgeDays: number,
-    excludedPostIds: string[] = [],
     limit = 100
   ): Promise<FeedFullPost[]> {
-    
+    const { currentUser } = context;
+    if (!currentUser?._id) {
+      return [];
+    }
+
     const tagsRequired = filterSettings.tags.filter(t => t.filterMode === "Required");
     const tagsExcluded = filterSettings.tags.filter(t => t.filterMode === "Hidden");
     
@@ -1130,155 +1133,93 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     const personalBlogFilter = filterSettings.personalBlog === "Hidden" 
       ? 'AND p."frontpageDate" IS NOT NULL' 
       : '';
-    
-    const excludedPostIdsCondition = excludedPostIds.length > 0 
-      ? `AND p."_id" NOT IN ($(excludedPostIds:csv))` 
-      : '';
 
     const filteredScoreSql = constructFilteredScoreSql(filterSettings);
+    const hiddenPostIds = currentUser.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
+    const hiddenPostIdsCondition = hiddenPostIds.length > 0 
+      ? `AND p."_id" NOT IN ($(hiddenPostIds:csv))` 
+      : '';
 
-    const feedPostsData = await this.getRawDb().manyOrNone<FeedPostFromDb>(`
-      -- PostsRepo.getLatestPostsForUltraFeed
-      WITH "UniversalPostFilter" AS (
-        -- Apply basic post filters
-        SELECT p.*,
-          -- Calculate filteredScore using dynamic expression
-          (${filteredScoreSql}) AS "initialFilteredScore" -- Calculate score before event join
-        FROM "Posts" p
-        WHERE
-          p."postedAt" > NOW() - INTERVAL '$(maxAgeDays) days'
-          AND p."baseScore" >= 10
-          AND p."draft" IS FALSE
-          AND p."isFuture" IS FALSE
-          AND p."authorIsUnreviewed" IS FALSE
-          AND p.rejected IS NOT TRUE
-          AND p."hiddenRelatedQuestion" IS FALSE
-          AND p.unlisted IS FALSE
-          AND p.shortform IS FALSE
-          AND ${getViewablePostsSelector('p')}
-          ${personalBlogFilter}
-          ${excludedPostIdsCondition}
-          ${tagFilterClause ? `AND ${tagFilterClause}` : ''}
-        -- No ORDER BY here, it needs interaction data
-      ),
-      "ReadStatusViews" AS (
-        -- Generate implied view events from ReadStatuses table
-        SELECT
-          p._id AS "documentId",
-          rs."lastUpdated" AS "createdAt",
-          'viewed' AS "eventType"
-        FROM "UniversalPostFilter" p
-        JOIN "ReadStatuses" rs ON p._id = rs."postId"
-        WHERE rs."userId" = $(userId)
-          AND rs."isRead" IS TRUE
-      ),
-      "UsersEvents" AS (
-        -- Select from the combined and ordered events
-        SELECT * FROM (
-          -- Combine both real events and implied events from read statuses
-          SELECT
-            ue."documentId",
-            ue."createdAt",
-            ue."eventType"
-          FROM "UltraFeedEvents" ue
-          WHERE ue."collectionName" = 'Posts'
-            AND "userId" = $(userId)
-            AND ue."documentId" IN (SELECT _id FROM "UniversalPostFilter")
-          
-          UNION ALL
-          
-          -- Add the implied view events from ReadStatuses
-          SELECT * FROM "ReadStatusViews"
-        ) AS CombinedEvents -- Treat the UNION result as a derived table
-        ORDER BY (CASE WHEN "eventType" = 'served' THEN 1 ELSE 0 END) ASC
-      ),
-      "PostEvents" AS (
-          -- Aggregate the user's latest events for each post
-          SELECT
-              pe."documentId",
-              MAX(CASE WHEN pe."eventType" = 'viewed' THEN pe."createdAt" ELSE NULL END) AS "lastViewed",
-              MAX(CASE WHEN pe."eventType" <> 'viewed' AND pe."eventType" <> 'served' THEN pe."createdAt" ELSE NULL END) AS "lastInteracted",
-              MAX(CASE WHEN pe."eventType" = 'served' THEN pe."createdAt" ELSE NULL END) AS "lastServed"
-         FROM "UsersEvents" pe
-          GROUP BY pe."documentId"
-      )
-      -- Final Selection and Ordering
-      SELECT
-          p.*,
-          pe."lastServed",
-          pe."lastViewed",
-          pe."lastInteracted"
-      FROM "UniversalPostFilter" p
-      LEFT JOIN "PostEvents" pe ON p._id = pe."documentId"
-      WHERE NOT (pe."lastViewed" IS NOT NULL AND $(seenPenalty) = 0)
-      ORDER BY p."initialFilteredScore" * (CASE WHEN pe."lastViewed" IS NOT NULL THEN $(seenPenalty) ELSE 1 END) DESC
+    const feedPostsData = await this.getRawDb().manyOrNone<DbPost & { initialFilteredScore: number, isFromSubscribedUser: boolean }>(`
+      -- PostsRepo.getLatestAndSubscribedFeedPosts
+      SELECT 
+        p.*,
+        (${filteredScoreSql}) AS "initialFilteredScore",
+        EXISTS (
+          SELECT 1 
+          FROM "Subscriptions" s 
+          WHERE s."documentId" = p."userId"
+            AND s."userId" = $(userId)
+            AND s.state = 'subscribed'
+            AND s.deleted IS NOT TRUE
+            AND s."collectionName" = 'Users'
+            AND s."type" IN ('newActivityForFeed', 'newPosts')
+        ) AS "isFromSubscribedUser"
+      FROM "Posts" p
+      LEFT JOIN (
+        -- Only consider read statuses updated within the lookback window
+        SELECT "postId", "isRead"
+        FROM "ReadStatuses"
+        WHERE 
+          "userId" = $(userId)
+          AND "lastUpdated" > NOW() - INTERVAL '$(maxAgeDays) days'
+      ) rs ON p._id = rs."postId"
+      LEFT JOIN (
+        -- Check if the post was viewed in UltraFeedEvents within the same lookback window
+        -- We only need to know if it was viewed, not when
+        SELECT DISTINCT "documentId"
+        FROM "UltraFeedEvents"
+        WHERE 
+          "userId" = $(userId)
+          AND "collectionName" = 'Posts'
+          AND "eventType" = 'viewed'
+          AND "createdAt" > NOW() - INTERVAL '$(maxAgeDays) days'
+        LIMIT 1000
+      ) ue ON p._id = ue."documentId"
+      WHERE
+        p."postedAt" > NOW() - INTERVAL '$(maxAgeDays) days'
+        AND p."baseScore" >= 2
+        AND p."draft" IS FALSE
+        AND p."isFuture" IS FALSE
+        AND p."authorIsUnreviewed" IS FALSE
+        AND p.rejected IS NOT TRUE
+        AND p."hiddenRelatedQuestion" IS FALSE
+        AND p.unlisted IS FALSE
+        AND p.shortform IS FALSE
+        AND ${getViewablePostsSelector('p')}
+        -- Exclude posts that have been read OR viewed in UltraFeed
+        AND (rs."isRead" IS NULL OR rs."isRead" = FALSE)
+        AND ue."documentId" IS NULL
+        ${personalBlogFilter}
+        ${hiddenPostIdsCondition}
+        ${tagFilterClause ? `AND ${tagFilterClause}` : ''}
+      ORDER BY "isFromSubscribedUser" DESC, "initialFilteredScore" DESC
       LIMIT $(limit)
     `, { 
-      userId: context.currentUser?._id, 
-      seenPenalty,
+      userId: currentUser._id,
       maxAgeDays,
-      excludedPostIds,
+      hiddenPostIds,
       limit
     });
 
-    const filteredPosts = await accessFilterMultiple(context.currentUser, 'Posts', feedPostsData, context);
+    const filteredPosts = await accessFilterMultiple(currentUser, 'Posts', feedPostsData, context);
 
     return filteredPosts.map((post): FeedFullPost => {
-      const { lastServed, lastViewed, lastInteracted, ...postData } = post;
+      const { isFromSubscribedUser, initialFilteredScore, ...postData } = post;
+      
+      // Determine sources - all posts are "latest" (hacker-news) and posts from subscribed users also get "subscriptions"
+      const sources: FeedItemSourceType[] = ['hacker-news'];
+      if (isFromSubscribedUser) {
+        sources.push('subscriptions');
+      }
       
       return {
         post: postData,
         postMetaInfo: {
-          sources: ['hacker-news'],
+          sources,
           displayStatus: 'expanded',
-          lastServed: lastServed,
-          lastViewed: lastViewed,
-          lastInteracted: lastInteracted,
         },
       };
-    });
-  }
-
-  /**
-   * Get posts from users the current user is subscribed to, for UltraFeed
-   */
-  async getPostsFromSubscribedUsersForUltraFeed(
-    userId: string,
-    maxAgeDays: number,
-    limit = 100,
-    excludedPostIds: string[] = []
-  ): Promise<{ postId: string }[]> {
-    
-    const excludedPostIdsCondition = excludedPostIds.length > 0 ? `AND p."_id" NOT IN ($(excludedPostIds:csv))` : '';
-
-    return await this.getRawDb().manyOrNone<{ postId: string }>(`
-      -- PostsRepo.getPostsFromSubscribedUsersForUltraFeed
-      SELECT
-        p._id AS "postId"
-      FROM "Posts" p
-      JOIN (
-        SELECT DISTINCT "documentId" AS "userId"
-        FROM "Subscriptions" s
-        WHERE state = 'subscribed'
-          AND s.deleted IS NOT TRUE
-          AND "collectionName" = 'Users'
-          AND "type" IN ('newActivityForFeed', 'newPosts')
-          AND "userId" = $(userId)
-      ) AS user_subscriptions ON p."userId" = user_subscriptions."userId"
-      LEFT JOIN "ReadStatuses" rs ON rs."postId" = p._id AND rs."userId" = $(userId)
-      WHERE 
-        p."postedAt" > NOW() - INTERVAL '$(maxAgeDaysParam) days'
-        AND p.rejected IS NOT TRUE 
-        AND ${getViewablePostsSelector('p')} 
-        ${excludedPostIdsCondition}
-        AND (rs."isRead" IS NULL OR rs."isRead" = FALSE)
-      ORDER BY p."postedAt" DESC
-      LIMIT $(limitParam)
-    `, { 
-      userId: userId, 
-      maxAgeDaysParam: maxAgeDays,
-      limitParam: limit,
-      excludedPostIds
     });
   }
 }

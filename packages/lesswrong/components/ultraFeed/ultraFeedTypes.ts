@@ -67,13 +67,6 @@ export interface FeedCommentFromDb {
   descendentCount?: number;
 }
 
-export interface FeedPostFromDb extends DbPost {
-  sourceType: FeedItemSourceType;
-  lastServed: Date | null;
-  lastViewed: Date | null;
-  lastInteracted: Date | null;
-}
-
 export interface PreDisplayFeedComment {
   commentId: string;
   postId: string;

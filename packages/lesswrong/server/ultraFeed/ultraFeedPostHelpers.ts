@@ -67,84 +67,42 @@ export async function getRecommendedPostsForUltraFeed(
 }
 
 /**
- * Fetches posts from subscribed users for UltraFeed.
+ * Fetches latest posts and posts from subscribed users in a single efficient query.
+ * Posts from subscribed users will have both 'hacker-news' and 'subscriptions' in their sources.
  */
-export async function getSubscribedPostsForUltraFeed(
+export async function getLatestAndSubscribedPosts(
   context: ResolverContext,
   limit: number,
-  settings: UltraFeedResolverSettings,
-  maxAgeDays: number,
-  excludedPostIds: string[] = []
-): Promise<FeedPostStub[]> {
-  const { currentUser, repos } = context;
-
-  if (!currentUser?._id) {
-    return [];
-  }
-
-  const postIdsFromRepo = await repos.posts.getPostsFromSubscribedUsersForUltraFeed(
-    currentUser._id,
-    maxAgeDays,
-    limit,
-    excludedPostIds
-  );
-
-  return postIdsFromRepo.map(({ postId }): FeedPostStub => ({
-    postId: postId,
-    postMetaInfo: {
-      sources: ['subscriptions'] as const,
-      displayStatus: 'expanded',
-    },
-  }));
-}
-
-/**
- * Fetches the latest posts for UltraFeed by approx Hacker News algorithm
- */
-export async function getLatestPostsForUltraFeed(
-  context: ResolverContext,
-  limit: number,
-  settings: UltraFeedResolverSettings,
-  maxAgeDays: number,
-  additionalExcludedIds: string[] = []
+  maxAgeDays: number
 ): Promise<FeedFullPost[]> {
   const { currentUser, repos } = context;
 
   if (!currentUser?._id) {
     // eslint-disable-next-line no-console
-    console.warn("getLatestPostsForUltraFeed: No logged in user found.");
+    console.warn("getCombinedLatestAndSubscribedPosts: No logged in user found.");
     return [];
   }
 
-  const hiddenPostIds = currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
   const filterSettings: FilterSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
-  // TODO: figure out if there's something better to do here
-  const seenPenalty = 0
 
-  // Combine hidden posts with additional excluded IDs
-  const allExcludedIds = [...hiddenPostIds, ...additionalExcludedIds];
-
-  return await repos.posts.getLatestPostsForUltraFeed(
+  return await repos.posts.getLatestAndSubscribedFeedPosts(
     context,
     filterSettings,
-    seenPenalty,
     maxAgeDays,
-    allExcludedIds,
     limit
   );
 }
 
-
 /**
  * Fetches and combines recommended and latest posts for the UltraFeed.
+ * (Latest posts included posts from subscribed users.)
  */
 export async function getUltraFeedPostThreads(
   context: ResolverContext,
   recommendedPostsLimit: number,
-  latestPostsLimit: number,
+  latestAndSubscribedPostsLimit: number,
   settings: UltraFeedResolverSettings,
-  latestPostsMaxAgeDays: number,
-  excludedPostIds: string[] = []
+  maxAgeDays: number
 ): Promise<FeedFullPost[]> {
   const { currentUser } = context;
   if (!currentUser?._id) {
@@ -153,18 +111,18 @@ export async function getUltraFeedPostThreads(
 
   const recombeeScenario = 'recombee-lesswrong-custom';
 
-  const [recommendedPostItems, latestPostItems] = await Promise.all([
+  const [recommendedPostItems, latestAndSubscribedPostItems] = await Promise.all([
     (recommendedPostsLimit > 0)
-      ? getRecommendedPostsForUltraFeed(context, recommendedPostsLimit, recombeeScenario, excludedPostIds)
+      ? getRecommendedPostsForUltraFeed(context, recommendedPostsLimit, recombeeScenario)
       : Promise.resolve([]),
-    (latestPostsLimit > 0)
-      ? getLatestPostsForUltraFeed(context, latestPostsLimit, settings, latestPostsMaxAgeDays, excludedPostIds)
+    (latestAndSubscribedPostsLimit > 0)
+      ? getLatestAndSubscribedPosts(context, latestAndSubscribedPostsLimit, maxAgeDays)
       : Promise.resolve([]),
   ]);
 
   const allPostsMap = keyBy(recommendedPostItems, item => item.post?._id) as Record<string, FeedFullPost>;
 
-  latestPostItems.forEach(item => {
+  latestAndSubscribedPostItems.forEach(item => {
     if (item.post?._id) {
       const postId = item.post._id;
       if (postId in allPostsMap) {
@@ -185,4 +143,4 @@ export async function getUltraFeedPostThreads(
   });
 
   return Object.values(allPostsMap);
-} 
+}

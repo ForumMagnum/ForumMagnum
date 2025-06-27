@@ -64,49 +64,6 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
 
     return new Set(threadHashes);
   }
-
-  /**
-   * Get posts to exclude from feed based on:
-   * 1. Already served in current session (if sessionId provided)
-   * 2. Served N+ times total without being viewed
-   * Returns a single array of post IDs to exclude
-   */
-  async getPostsToExclude(
-    userId: string,
-    sessionId?: string,
-    maxUnviewedServes: number = 3
-  ): Promise<string[]> {
-    const results = await this.getRawDb().manyOrNone<{ documentId: string }>(`
-      -- UltraFeedEventsRepo.getPostsToExclude
-      WITH served_events AS (
-        SELECT 
-          se."documentId",
-          se."eventType",
-          event->>'sessionId' as "sessionId"
-        FROM "UltraFeedEvents" se
-        WHERE 
-          se."userId" = $(userId)
-          AND se."collectionName" = 'Posts'
-          AND se."eventType" IN ('served', 'viewed')
-      ),
-      serve_counts AS (
-        SELECT 
-          "documentId",
-          COUNT(*) FILTER (WHERE "eventType" = 'served') as serve_count,
-          BOOL_OR("eventType" = 'viewed') as has_been_viewed,
-          BOOL_OR("sessionId" = $(sessionId)) as served_in_session
-        FROM served_events
-        GROUP BY "documentId"
-      )
-      SELECT DISTINCT "documentId"
-      FROM serve_counts
-      WHERE 
-        ($(sessionId) IS NOT NULL AND served_in_session = true)
-        OR (serve_count >= $(maxUnviewedServes) AND has_been_viewed = false)
-    `, { userId, sessionId, maxUnviewedServes });
-
-    return results.map(r => r.documentId);
-  }
 }
 
 recordPerfMetrics(UltraFeedEventsRepo);

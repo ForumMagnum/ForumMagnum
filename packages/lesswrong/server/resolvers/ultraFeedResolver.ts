@@ -18,7 +18,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { getUltraFeedCommentThreads } from '@/server/ultraFeed/ultraFeedThreadHelpers';
 import { DEFAULT_SETTINGS as DEFAULT_ULTRAFEED_SETTINGS, UltraFeedResolverSettings } from '@/components/ultraFeed/ultraFeedSettingsTypes';
 import { loadByIds } from '@/lib/loaders';
-import { getUltraFeedPostThreads, getSubscribedPostsForUltraFeed } from '@/server/ultraFeed/ultraFeedPostHelpers';
+import { getUltraFeedPostThreads } from '@/server/ultraFeed/ultraFeedPostHelpers';
 import { getUltraFeedBookmarks, PreparedBookmarkItem } from '../ultraFeed/ultraFeedBookmarkHelpers';
 import { randomId } from '@/lib/random';
 
@@ -170,8 +170,7 @@ const createSourcesMap = (
   postThreadsItems: FeedFullPost[],
   commentThreadsItems: FeedCommentsThread[],
   spotlightItems: FeedSpotlight[],
-  bookmarkItems: PreparedBookmarkItem[],
-  subscribedPostItems: FeedPostStub[]
+  bookmarkItems: PreparedBookmarkItem[]
 ): Partial<Record<FeedItemSourceType, WeightedSource>> => {
 
   const sources = Object.entries(sourceWeights)
@@ -204,24 +203,6 @@ const createSourcesMap = (
     });
     if (addedToAnySource) {
         addedPostIds.add(postId);
-    }
-  });
-
-  subscribedPostItems.forEach(p => {
-    const postId = p.postId;
-    if (!postId || addedPostIds.has(postId)) {
-      return;
-    }
-    const bucket = sources['subscriptions' as const]; 
-    if (bucket) {
-      bucket.items.push({ 
-        type: "feedPost", 
-        feedPostStub: { 
-          postId: postId, 
-          postMetaInfo: p.postMetaInfo 
-        } 
-      });
-      addedPostIds.add(postId);
     }
   });
 
@@ -543,37 +524,28 @@ export const ultraFeedGraphQLQueries = {
         };
       }
 
-      const [servedCommentThreadHashes, excludedPostIds] = await Promise.all([
-        ultraFeedEventsRepo.getRecentlyServedCommentThreadHashes(currentUser._id),
-        ultraFeedEventsRepo.getPostsToExclude(currentUser._id, sessionId, 3)
-      ]);
+      // Get recently served comment thread hashes
+      const servedCommentThreadHashes = await ultraFeedEventsRepo.getRecentlyServedCommentThreadHashes(currentUser._id);
 
-      const [recombeeAndLatestPostItems, subscribedPostItemsResult, commentThreadsItemsResult, spotlightItemsResult, bookmarkItemsResult] = await Promise.all([
-        (recombeePostFetchLimit + hackerNewsPostFetchLimit > 0) 
+      // Since latest and subscribed posts are now combined, we need to adjust the limits
+      const latestAndSubscribedPostLimit = hackerNewsPostFetchLimit + subscribedPostFetchLimit;
+
+      const [combinedPostItems, commentThreadsItemsResult, spotlightItemsResult, bookmarkItemsResult] = await Promise.all([
+        (recombeePostFetchLimit + latestAndSubscribedPostLimit > 0) 
           ? getUltraFeedPostThreads( 
               context, 
               recombeePostFetchLimit, 
-              hackerNewsPostFetchLimit, 
+              latestAndSubscribedPostLimit,  // This now includes both latest AND subscribed posts
               parsedSettings,
-              ULTRA_FEED_DATE_CUTOFFS.latestPostsMaxAgeDays,
-              excludedPostIds
+              ULTRA_FEED_DATE_CUTOFFS.latestPostsMaxAgeDays
             ) 
-          : Promise.resolve([]),
-        (subscribedPostFetchLimit > 0)
-          ? getSubscribedPostsForUltraFeed(
-              context, 
-              subscribedPostFetchLimit, 
-              parsedSettings,
-              ULTRA_FEED_DATE_CUTOFFS.subscribedPostsMaxAgeDays,
-              excludedPostIds
-            )
           : Promise.resolve([]),
         commentFetchLimit > 0 
           ? getUltraFeedCommentThreads(
               context, 
               commentFetchLimit, 
               parsedSettings, 
-              servedCommentThreadHashes,
+              servedCommentThreadHashes,  // Pass the Set directly
               ULTRA_FEED_DATE_CUTOFFS.initialCommentCandidateLookbackDays,
               ULTRA_FEED_DATE_CUTOFFS.commentServedEventRecencyHours,
               ULTRA_FEED_DATE_CUTOFFS.threadEngagementLookbackDays
@@ -581,15 +553,14 @@ export const ultraFeedGraphQLQueries = {
           : Promise.resolve([]),
         spotlightFetchLimit > 0 ? spotlightsRepo.getUltraFeedSpotlights(context, spotlightFetchLimit) : Promise.resolve([]),
         bookmarkFetchLimit > 0 ? getUltraFeedBookmarks(context, bookmarkFetchLimit) : Promise.resolve([])
-      ]) as [FeedFullPost[], FeedPostStub[], FeedCommentsThread[], FeedSpotlight[], PreparedBookmarkItem[]];
+      ]) as [FeedFullPost[], FeedCommentsThread[], FeedSpotlight[], PreparedBookmarkItem[]];
       
       const populatedSources = createSourcesMap(
         sourceWeights,
-        recombeeAndLatestPostItems,
+        combinedPostItems,
         commentThreadsItemsResult,
         spotlightItemsResult,
-        bookmarkItemsResult,
-        subscribedPostItemsResult
+        bookmarkItemsResult
       );
 
       // Sample items from sources based on weights
