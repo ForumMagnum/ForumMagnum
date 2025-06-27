@@ -94,8 +94,7 @@ export async function getLatestAndSubscribedPosts(
 }
 
 /**
- * Fetches and combines recommended and latest posts for the UltraFeed.
- * (Latest posts included posts from subscribed users.)
+ * Fetches and combines recommended and latest posts for the UltraFeed (latest is superset of subscribed).
  */
 export async function getUltraFeedPostThreads(
   context: ResolverContext,

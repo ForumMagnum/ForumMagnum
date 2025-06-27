@@ -299,7 +299,6 @@ const transformItemsForResolver = (
         });
       }
 
-      // Generate ID by hashing comment IDs
       let threadId = `feed-comment-thread-${index}`; // Fallback ID
       if (loadedComments.length > 0) {
         const commentIds = loadedComments
@@ -521,7 +520,7 @@ export const ultraFeedGraphQLQueries = {
         };
       }
 
-      // Since latest and subscribed posts are now combined, we need to adjust the limits
+      // TODO: This is a little hand-wavy since fetching them together breaks the paradigm. Figure out better solution later.
       const latestAndSubscribedPostLimit = hackerNewsPostFetchLimit + subscribedPostFetchLimit;
 
       const [combinedPostItems, commentThreadsItemsResult, spotlightItemsResult, bookmarkItemsResult] = await Promise.all([

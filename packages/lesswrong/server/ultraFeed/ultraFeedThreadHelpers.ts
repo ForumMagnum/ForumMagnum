@@ -21,15 +21,13 @@ import {
 import * as crypto from 'crypto';
 
 /**
- * Generates a stable hash ID for a comment thread based on its comment IDs.
- * This creates a consistent identifier for each unique thread composition.
+ * Generates a stable hash ID for a comment thread based on its comment IDs. This creates a consistent identifier for each unique thread composition.
  */
 export function generateThreadHash(commentIds: string[]): string {
   if (!commentIds || commentIds.length === 0) {
-    throw new Error('Cannot generate thread hash from empty comment IDs');
+    return 'empty_thread_hash';
   }
   
-  // Sort to ensure consistent hashing regardless of the order comments were provided
   const sortedIds = [...commentIds].sort();
   const hash = crypto.createHash('sha256');
   hash.update(sortedIds.join(','));
