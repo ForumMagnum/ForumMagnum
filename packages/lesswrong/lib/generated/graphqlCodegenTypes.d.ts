@@ -26670,19 +26670,49 @@ type getCrosspostPostsPageQueryVariables = Exact<{
 
 type getCrosspostPostsPageQuery = getCrosspostPostsPageQuery_Query;
 
-type PostMetadataTitleQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, title: string };
+type PostMetadataQuery_post_SinglePostOutput_result_Post_socialPreviewData_SocialPreviewType = { __typename?: 'SocialPreviewType', _id: string, imageUrl: string, text: string | null };
 
-type PostMetadataTitleQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostMetadataTitleQuery_post_SinglePostOutput_result_Post | null };
+type PostMetadataQuery_post_SinglePostOutput_result_Post_customHighlight_Revision = { __typename?: 'Revision', plaintextDescription: string };
 
-type PostMetadataTitleQuery_Query = { __typename?: 'Query', post: PostMetadataTitleQuery_post_SinglePostOutput | null };
+type PostMetadataQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
+
+type PostMetadataQuery_post_SinglePostOutput_result_Post_user_User = { __typename?: 'User', _id: string, displayName: string };
+
+type PostMetadataQuery_post_SinglePostOutput_result_Post_coauthors_User = { __typename?: 'User', _id: string, displayName: string };
+
+type PostMetadataQuery_post_SinglePostOutput_result_Post_coauthorStatuses_CoauthorStatusOutput = { __typename?: 'CoauthorStatusOutput', userId: string, confirmed: boolean, requested: boolean };
+
+type PostMetadataQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, title: string, slug: string, isEvent: boolean, groupId: string | null, canonicalSource: string | null, hasCoauthorPermission: boolean, shortform: boolean, eventImageId: string | null, noIndex: boolean, rejected: boolean, baseScore: number, createdAt: string | null, socialPreviewData: PostMetadataQuery_post_SinglePostOutput_result_Post_socialPreviewData_SocialPreviewType, customHighlight: PostMetadataQuery_post_SinglePostOutput_result_Post_customHighlight_Revision | null, contents: PostMetadataQuery_post_SinglePostOutput_result_Post_contents_Revision | null, user: PostMetadataQuery_post_SinglePostOutput_result_Post_user_User | null, coauthors: Array<PostMetadataQuery_post_SinglePostOutput_result_Post_coauthors_User> | null, coauthorStatuses: Array<PostMetadataQuery_post_SinglePostOutput_result_Post_coauthorStatuses_CoauthorStatusOutput> | null };
+
+type PostMetadataQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostMetadataQuery_post_SinglePostOutput_result_Post | null };
+
+type PostMetadataQuery_Query = { __typename?: 'Query', post: PostMetadataQuery_post_SinglePostOutput | null };
 
 
-type PostMetadataTitleQueryVariables = Exact<{
+type PostMetadataQueryVariables = Exact<{
   postId: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type PostMetadataTitleQuery = PostMetadataTitleQuery_Query;
+type PostMetadataQuery = PostMetadataQuery_Query;
+
+type CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment_user_User = { __typename?: 'User', displayName: string };
+
+type CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment_contents_Revision = { __typename?: 'Revision', plaintextMainText: string };
+
+type CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment = { __typename?: 'Comment', _id: string, deleted: boolean, user: CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment_user_User | null, contents: CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment_contents_Revision | null };
+
+type CommentPermalinkMetadataQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment | null };
+
+type CommentPermalinkMetadataQuery_Query = { __typename?: 'Query', comment: CommentPermalinkMetadataQuery_comment_SingleCommentOutput | null };
+
+
+type CommentPermalinkMetadataQueryVariables = Exact<{
+  commentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type CommentPermalinkMetadataQuery = CommentPermalinkMetadataQuery_Query;
 
 type singleDraftPostForLLMQueryQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }

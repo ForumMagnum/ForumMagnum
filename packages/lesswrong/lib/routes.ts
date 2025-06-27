@@ -1661,7 +1661,7 @@ addRoute(
     name: 'tags.revisioncompare',
     path: `/compare/${tagUrlBaseSetting.get()}/:slug`,
     component: TagCompareRevisions,
-    titleComponent: PostsPageHeaderTitle,
+    titleComponent: TagPageTitle,
   },
   {
     name: 'post.revisionsselect',

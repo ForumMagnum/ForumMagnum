@@ -63,22 +63,49 @@ function convertToNextJsPath(routePath: string): string {
     .replace(/\?/g, ''); // Remove optional markers
 }
 
-function extractMetadataFields(route: Route): Record<string, any> {
-  const fields = [
-    'title', 'subtitle', 'headerSubtitle', 
-    'subtitleLink', 'description', 'noIndex',
-    'background', 'hasLeftNavigationColumn', 
-    'isAdmin', 'noFooter'
-  ];
+const titleComponentMetadataFunctionMap = {
+  PostsPageHeaderTitle: `export const generateMetadata = getPostPageMetadataFunction<{ /* TODO: fill this in based on this route's params! */ }>(({ _id }) => _id);`,
+  TagPageTitle: `export const generateMetadata = getTagPageMetadataFunction<{ /* TODO: fill this in based on this route's params! */ }>(({ slug }) => slug);`,
+  TagHistoryPageTitle: `export const generateMetadata = getTagPageMetadataFunction<{ /* TODO: fill this in based on this route's params! */ }>(({ slug }) => slug, { historyPage: true });`,
+  LocalgroupPageTitle: `export function generateMetadata({ params }: { params: Promise<{ groupId: string }> }): Promise<Metadata> { /* TODO: fill this in! */ }`,
+  UserPageTitle: `export function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> { /* TODO: fill this in! */ }`,
+  SequencesPageTitle: `export function generateMetadata({ params }: { params: Promise<{ _id: string }> }): Promise<Metadata> { /* TODO: fill this in! */ }`,
+};
 
+const routeMetadataFields = ['title', 'subtitle', 'description', 'noIndex'] as const;
+
+const routeConfigFields = [
+  'subtitle', 'headerSubtitle', 'subtitleLink',
+  'background', 'hasLeftNavigationColumn', 
+  'isAdmin', 'noFooter'
+];
+
+function extractMetadataFields(route: Route) {
   const componentFields = ['titleComponent', 'subtitleComponent'] as const;
   
-  const metadata: Record<string, any> = {};
+  const routeConfig: Record<string, any> = {};
+  const staticMetadata: {
+    title?: string;
+    subtitle?: string;
+    description?: string;
+    noIndex?: boolean;
+  } = {};
+
   const imports = new Set<string>();
 
-  for (const field of fields) {
+  for (const field of routeConfigFields) {
     if (route[field as keyof Route] !== undefined) {
-      metadata[field] = route[field as keyof Route];
+      routeConfig[field] = route[field as keyof Route];
+    }
+  }
+
+  for (const field of routeMetadataFields) {
+    if (route[field] !== undefined) {
+      if (field === 'noIndex') {
+        staticMetadata[field] = route[field] ? true : false;
+      } else {
+        staticMetadata[field] = route[field];
+      }
     }
   }
 
@@ -89,11 +116,11 @@ function extractMetadataFields(route: Route): Record<string, any> {
       const componentImport = getComponentImport(componentName);
       addUseClientDirectiveToEntryComponent(componentImport);
       imports.add(componentImport);
-      metadata[field] = componentName;
+      routeConfig[field] = componentName;
     }
   }
   
-  return { metadata, imports: Array.from(imports) };
+  return { routeConfig, staticMetadata, imports: Array.from(imports) };
 }
 
 const configLevelRedirects = [
@@ -114,6 +141,16 @@ function addUseClientDirectiveToEntryComponent(importLine: string) {
   }
 }
 
+const generateMetadataFunctionTemplate = `export function generateMetadata(): Metadata {
+  return merge(defaultMetadata, {
+    $(titleLine)
+    $(descriptionLine)
+    $(noIndexLine)
+  });
+}`;
+
+const reactImport = 'import React from "react";';
+
 function generatePageContent(route: Route): string {
   if (route.redirect && !route.component) {
     return generateRedirectPage(route);
@@ -123,13 +160,52 @@ function generatePageContent(route: Route): string {
   const componentImport = getComponentImport(componentName);
   addUseClientDirectiveToEntryComponent(componentImport);
   
-  const { metadata, imports } = extractMetadataFields(route);
-  const hasMetadata = Object.keys(metadata).length > 0;
+  const { routeConfig, staticMetadata, imports } = extractMetadataFields(route);
+  const hasRouteConfig = Object.keys(routeConfig).length > 0;
+  const hasStaticMetadata = Object.keys(staticMetadata).length > 0;
 
-  let pageContent = `import React from "react";\n${componentImport}${imports.length > 0 ? '\n' : ''}${imports.join('\n')}\n`;
+  const pageImports: string[] = [reactImport, componentImport, ...imports];
+
+  let pageContent = ''; // `import React from "react";\n${componentImport}${imports.length > 0 ? '\n' : ''}${imports.join('\n')}\n`;
   
-  if (hasMetadata) {
-    pageContent += `import { RouteMetadataSetter } from '@/components/RouteMetadataContext';\n\n`;
+  if (hasRouteConfig) {
+    pageImports.push('import { RouteMetadataSetter } from "@/components/RouteMetadataContext";');
+  }
+
+  if (routeConfig.titleComponent && hasStaticMetadata) {
+    throw new Error(`Route ${route.path} has both a titleComponent and static metadata!`);
+  }
+
+  if (hasStaticMetadata) {
+    pageImports.push('import type { Metadata } from "next";');
+    pageImports.push('import merge from "lodash/merge";');
+
+    const routeTitle = staticMetadata.title ?? staticMetadata.subtitle;
+    const routeDescription = staticMetadata.description;
+    const routeNoIndex = staticMetadata.noIndex;
+
+    let generateMetadataBuilder = generateMetadataFunctionTemplate;
+
+    if (routeTitle) {
+      generateMetadataBuilder = generateMetadataBuilder.replace('$(titleLine)', `title: '${routeTitle}',`);
+    } else {
+      generateMetadataBuilder = generateMetadataBuilder.replace('    $(titleLine)\n', '');
+    }
+
+    if (routeDescription) {
+      generateMetadataBuilder = generateMetadataBuilder.replace('$(descriptionLine)', `description: '${routeDescription}',`);
+    } else {
+      generateMetadataBuilder = generateMetadataBuilder.replace('    $(descriptionLine)\n', '');
+    }
+
+    if (routeNoIndex) {
+      generateMetadataBuilder = generateMetadataBuilder.replace('$(noIndexLine)', 'robots: { index: false },');
+    } else {
+      generateMetadataBuilder = generateMetadataBuilder.replace('    $(noIndexLine)\n', '');
+    }
+
+    pageContent += generateMetadataBuilder;
+    pageContent += '\n\n';
   } else {
     pageContent += '\n';
   }
@@ -138,8 +214,8 @@ function generatePageContent(route: Route): string {
 
   let routeMetadataSetter = '';
   
-  if (hasMetadata) {
-    routeMetadataSetter = `<RouteMetadataSetter metadata={${util.inspect(metadata, {depth: null})
+  if (hasRouteConfig) {
+    routeMetadataSetter = `<RouteMetadataSetter metadata={${util.inspect(routeConfig, {depth: null})
       .split('\n')
       .map(line => {
         let updatedLine = line;
@@ -151,7 +227,7 @@ function generatePageContent(route: Route): string {
         }
         return updatedLine;
       })
-      .join('\n  ')}} />`;
+      .join('\n    ')}} />`;
   }
   
   if (route.enableResourcePrefetch) {
@@ -187,7 +263,7 @@ function generatePageContent(route: Route): string {
 
   pageContent += `}\n`;
   
-  return pageContent;
+  return pageImports.join('\n') + '\n\n' + pageContent;
 }
 
 function generateRedirectPage(route: Route): string {
