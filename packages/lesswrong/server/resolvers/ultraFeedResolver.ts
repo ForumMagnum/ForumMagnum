@@ -1,4 +1,3 @@
-import crypto from 'crypto';
 import {
   FeedItemSourceType, UltraFeedResolverType,
   FeedSpotlight, FeedFullPost, FeedCommentMetaInfo,
@@ -15,7 +14,7 @@ import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from 'graphql-tag';
 import { bulkRawInsert } from '../manualMigrations/migrationUtils';
 import cloneDeep from 'lodash/cloneDeep';
-import { getUltraFeedCommentThreads } from '@/server/ultraFeed/ultraFeedThreadHelpers';
+import { getUltraFeedCommentThreads, generateThreadHash } from '@/server/ultraFeed/ultraFeedThreadHelpers';
 import { DEFAULT_SETTINGS as DEFAULT_ULTRAFEED_SETTINGS, UltraFeedResolverSettings } from '@/components/ultraFeed/ultraFeedSettingsTypes';
 import { loadByIds } from '@/lib/loaders';
 import { getUltraFeedPostThreads } from '@/server/ultraFeed/ultraFeedPostHelpers';
@@ -300,19 +299,17 @@ const transformItemsForResolver = (
         });
       }
 
-      // Generate ID by hashing sorted comment IDs
+      // Generate ID by hashing comment IDs
       let threadId = `feed-comment-thread-${index}`; // Fallback ID
       if (loadedComments.length > 0) {
-        const sortedCommentIds = loadedComments
+        const commentIds = loadedComments
           .map(c => c?._id)
-          .sort();
-        if (sortedCommentIds.length > 0) {
-          const hash = crypto.createHash('sha256');
-          hash.update(sortedCommentIds.join(','));
-          threadId = hash.digest('hex');
+          .filter((id): id is string => !!id);
+        if (commentIds.length > 0) {
+          threadId = generateThreadHash(commentIds);
         } else {
           // eslint-disable-next-line no-console
-          console.warn(`UltraFeedResolver: Thread at index ${index} resulted in empty sortedCommentIds list.`);
+          console.warn(`UltraFeedResolver: Thread at index ${index} resulted in empty comment IDs list.`);
         }
       } else {
          // Only warn if we expected comments based on preDisplayComments
@@ -524,9 +521,6 @@ export const ultraFeedGraphQLQueries = {
         };
       }
 
-      // Get recently served comment thread hashes
-      const servedCommentThreadHashes = await ultraFeedEventsRepo.getRecentlyServedCommentThreadHashes(currentUser._id);
-
       // Since latest and subscribed posts are now combined, we need to adjust the limits
       const latestAndSubscribedPostLimit = hackerNewsPostFetchLimit + subscribedPostFetchLimit;
 
@@ -545,7 +539,6 @@ export const ultraFeedGraphQLQueries = {
               context, 
               commentFetchLimit, 
               parsedSettings, 
-              servedCommentThreadHashes,  // Pass the Set directly
               ULTRA_FEED_DATE_CUTOFFS.initialCommentCandidateLookbackDays,
               ULTRA_FEED_DATE_CUTOFFS.commentServedEventRecencyHours,
               ULTRA_FEED_DATE_CUTOFFS.threadEngagementLookbackDays
