@@ -43,7 +43,7 @@ export const MixedTypeFeed = <
   // Ref that will be populated with a function that makes this feed refetch
   // (refetching everything, shrinking it to one page, and potentially scrolling
   // up by a bunch.)
-  refetchRef?: {current: null | ObservableQuery['refetch']},
+  refetchRef?: {current: null|ObservableQuery['refetch']},
 
   // By default, MixedTypeFeed preserves the order of elements that persist across refetches.  If you don't want that, pass in true.
   reorderOnRefetch?: boolean,
@@ -84,7 +84,6 @@ export const MixedTypeFeed = <
   // because it's accessed from inside callbacks, where the timing of state
   // updates would be a problem.
   const queryIsPending = useRef(false);
-  const {captureEvent} = useTracking();
   
   const {data, error, fetchMore, refetch} = useQuery<Record<string, FeedPaginationResultVariables>>(query, {
     variables: {
