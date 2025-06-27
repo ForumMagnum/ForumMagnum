@@ -620,23 +620,29 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       commentServedEventRecencyHoursParam: commentServedEventRecencyHours
     });
 
-    return feedCommentsData.map((comment): FeedCommentFromDb => ({
-      commentId: comment.commentId,
-      authorId: comment.authorId,
-      topLevelCommentId: comment.topLevelCommentId,
-      parentCommentId: comment.parentCommentId ?? null,
-      postId: comment.postId,
-      baseScore: comment.baseScore,
-      shortform: comment.shortform ?? null,
-      postedAt: comment.postedAt,
-      descendentCount: comment.descendentCount,
-      sources: uniq(['recentComments', comment.primarySource ?? 'recentComments']), // temporarily to avoid breaking change, we assign recentComments to all comments
-      primarySource: comment.primarySource,
-      isInitialCandidate: comment.isInitialCandidate,
-      lastServed: null, 
-      lastViewed: comment.lastViewed ?? null,
-      lastInteracted: comment.lastInteracted ?? null,
-    }));
+    return feedCommentsData.map((comment): FeedCommentFromDb => {
+      const sources: string[] = ['recentComments']; // temporarily to avoid breaking change, we assign recentComments to all comments
+      if (comment.primarySource) {
+        sources.push(comment.primarySource);
+      }
+      return {
+        commentId: comment.commentId,
+        authorId: comment.authorId,
+        topLevelCommentId: comment.topLevelCommentId,
+        parentCommentId: comment.parentCommentId ?? null,
+        postId: comment.postId,
+        baseScore: comment.baseScore,
+        shortform: comment.shortform ?? null,
+        postedAt: comment.postedAt,
+        descendentCount: comment.descendentCount,
+        sources: uniq(sources),
+        primarySource: comment.primarySource,
+        isInitialCandidate: comment.isInitialCandidate,
+        lastServed: null,
+        lastViewed: comment.lastViewed ?? null,
+        lastInteracted: comment.lastInteracted ?? null,
+      };
+    });
   }
 
   /**
