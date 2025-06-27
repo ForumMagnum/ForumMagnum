@@ -482,14 +482,13 @@ const UltraFeedPostDialog = ({
   // Handle browser back button / swipe back navigation
   useDialogNavigation(onClose);
   
-  // Get footnote handlers for mobile with local dialog management
   const footnoteHandlers = useFootnoteHandlers({
     onFootnoteClick: (footnoteHTML: string) => {
       setFootnoteDialogHTML(footnoteHTML);
     }
   });
   
-  // Handle clicks on hash links (like footnotes) within the modal
+  // Handle clicks on hash links (like footnotes) within the modal. If we don't do this, clicking on hash links can close the modal, fail to scroll, etc.
   useModalHashLinkScroll(scrollableContentRef, true, false, footnoteHandlers);
   useDisableBodyScroll();
 

@@ -42,7 +42,7 @@ export const highlightElement = (element: HTMLElement, duration = 1000, color: s
 
 
 /**
- * Hook to get theme-aware highlight function
+ * Hook to get theme-aware highlight function (we briefly highlight items upon scrolling to them)
  */
 export const useHighlightElement = () => {
   const theme = useTheme();
@@ -93,7 +93,7 @@ export const useModalHashLinkScroll = (
       const container = scrollContainerRef.current;
       if (!container || !container.contains(targetElement)) return;
 
-      // Prevent default behavior (changing URL hash)
+      // Prevent default behavior, changing URL hash
       e.preventDefault();
       e.stopPropagation();
       e.stopImmediatePropagation(); // Stop other handlers from running

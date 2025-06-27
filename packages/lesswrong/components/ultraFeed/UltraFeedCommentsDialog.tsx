@@ -209,18 +209,15 @@ const UltraFeedCommentsDialog = ({
   useDialogNavigation(onClose);
   useDisableBodyScroll();
   
-  // Get footnote handlers for mobile with local dialog management
   const footnoteHandlers = useFootnoteHandlers({
     onFootnoteClick: (footnoteHTML: string) => {
       setFootnoteDialogHTML(footnoteHTML);
     }
   });
   
-  // Handle clicks on hash links (like footnotes) within the modal
+  // Handle clicks on hash links (like footnotes) within the modal. If we don't do this, clicking on hash links can close the modal, fail to scroll, etc.
   useModalHashLinkScroll(scrollableContentRef, true, false, footnoteHandlers);
 
-  // TODO: Do this more elegantly, combine within existing functionality in CommentsNode?
-  // scroll to comment clicked on when dialog opens
   useEffect(() => {
     let scrollTimer: NodeJS.Timeout | null = null;
     let fadeTimer: NodeJS.Timeout | null = null;

@@ -1,15 +1,11 @@
 import { isMobile } from '@/lib/utils/isMobile';
 import { HashLinkHandler } from './useModalScroll';
 
-/**
- * Extract footnote HTML content from the DOM
- */
 const extractFootnoteHTML = (targetId: string): string | null => {
   try {
     const footnoteElement = document.getElementById(targetId);
     if (!footnoteElement) return null;
     
-    // Check if this is a non-empty footnote
     const hasContent = !!Array.from(footnoteElement.querySelectorAll("p, li"))
       .reduce((acc, p) => acc + (p.textContent || ''), "").trim();
     
@@ -31,11 +27,9 @@ export interface FootnoteHandlerOptions {
 export const useFootnoteHandlers = (options?: FootnoteHandlerOptions): HashLinkHandler[] => {
   const { onFootnoteClick } = options || {};
   
-  // Return handler that checks isMobile inside the event handler
   return [{
     pattern: /^fn[a-zA-Z0-9]+$/,
     handler: (targetId, targetElement, event) => {
-      // Check if mobile inside the handler, not during render
       if (!isMobile()) {
         return false;
       }
