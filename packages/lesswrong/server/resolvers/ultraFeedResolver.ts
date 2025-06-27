@@ -25,7 +25,6 @@ import { captureEvent } from '@/lib/analyticsEvents';
 import union from 'lodash/union';
 import groupBy from 'lodash/groupBy';
 import mergeWith from 'lodash/mergeWith';
-import values from 'lodash/values';
 
 interface UltraFeedDateCutoffs {
   latestPostsMaxAgeDays: number;
@@ -193,7 +192,7 @@ function dedupSampledItems(sampled: SampledItem[]): SampledItem[] {
     captureEvent?.('ultraFeedDuplicateAfterSample', { duplicates: duplicateLog, location: 'ultraFeedResolver' });
   }
 
-  return values(mergedObject);
+  return Object.values(mergedObject);
 }
 
 const DEFAULT_RESOLVER_SETTINGS: UltraFeedResolverSettings = DEFAULT_ULTRAFEED_SETTINGS.resolverSettings;
@@ -703,6 +702,28 @@ export const ultraFeedGraphQLQueries = {
       postsResults.forEach(p => p?._id && postsById.set(p._id, p));
       
       const results = transformItemsForResolver(sampledItems, spotlightsById, commentsById, postsById);
+      
+      const keyFunc = (result: any) => `${result.type}_${result[result.type]?._id}`;
+      const seenKeys = new Set<string>();
+      const duplicateKeys: string[] = [];
+      for (const result of results) {
+        const key = keyFunc(result);
+        if (seenKeys.has(key)) {
+          duplicateKeys.push(key);
+        } else {
+          seenKeys.add(key);
+        }
+      }
+
+      if (duplicateKeys.length > 0) {
+        captureEvent?.("ultraFeedDuplicateDetected", {
+          keys: duplicateKeys,
+          resolverName: "UltraFeed",
+          duplicateStage: "server-resolver-after-transform",
+          sessionId,
+          offset: offset ?? 0,
+        });
+      }
       
       if (!incognitoMode) {
         const currentOffset = offset ?? 0; 
