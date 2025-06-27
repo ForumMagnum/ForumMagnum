@@ -21,6 +21,8 @@ import { HelmetProvider } from 'react-helmet-async';
 import { ApolloWrapper } from '@/components/common/ApolloWrapper';
 import { EnableSuspenseContext } from '@/lib/crud/useQuery';
 import { isServer } from '@/lib/executionEnvironment';
+// Import needed to get the database settings from the window on the client
+import '@/client/publicSettings';
 import '@/lib/utils/extendSimpleSchemaOptions';
 import '@/lib/routes';
 import Cookies from 'universal-cookie';
