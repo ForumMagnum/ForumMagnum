@@ -198,7 +198,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
 
 const sourceIconMap: Array<{ source: FeedItemSourceType, icon: any, tooltip: string }> = [
   { source: 'bookmarks' as FeedItemSourceType, icon: BookmarksIcon, tooltip: "From your bookmarks" },
-  { source: 'subscriptions' as FeedItemSourceType, icon: SubscriptionsIcon, tooltip: "From users you follow" },
+  { source: 'subscriptionsPosts' as FeedItemSourceType, icon: SubscriptionsIcon, tooltip: "From users you follow" },
   { source: 'recombee-lesswrong-custom' as FeedItemSourceType, icon: SparkleIcon, tooltip: "Recommended for you" },
   { source: 'hacker-news' as FeedItemSourceType, icon: ClockIcon, tooltip: "Latest posts" },
 ];

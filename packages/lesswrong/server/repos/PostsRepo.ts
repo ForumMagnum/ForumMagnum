@@ -1179,13 +1179,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       WHERE
         p."postedAt" > NOW() - INTERVAL '$(maxAgeDays) days'
         AND p."baseScore" >= 2
-        AND p."draft" IS FALSE
-        AND p."isFuture" IS FALSE
-        AND p."authorIsUnreviewed" IS FALSE
         AND p.rejected IS NOT TRUE
-        AND p."hiddenRelatedQuestion" IS FALSE
-        AND p.unlisted IS FALSE
-        AND p.shortform IS FALSE
         AND ${getViewablePostsSelector('p')}
         -- Exclude posts that have been read OR viewed in UltraFeed
         AND (rs."isRead" IS NULL OR rs."isRead" = FALSE)
@@ -1207,10 +1201,10 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     return filteredPosts.map((post): FeedFullPost => {
       const { isFromSubscribedUser, initialFilteredScore, ...postData } = post;
       
-      // Determine sources - all posts are "latest" (hacker-news) and posts from subscribed users also get "subscriptions"
+      // Determine sources - all posts are "latest" (hacker-news) and posts from subscribed users also get "subscriptionsPosts"
       const sources: FeedItemSourceType[] = ['hacker-news'];
       if (isFromSubscribedUser) {
-        sources.push('subscriptions');
+        sources.push('subscriptionsPosts');
       }
       
       return {
