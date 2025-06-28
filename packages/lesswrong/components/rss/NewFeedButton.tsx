@@ -1,7 +1,5 @@
 import React from 'react';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { useCurrentUser } from '../common/withUser';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -14,6 +12,8 @@ import MetaInfo from "../common/MetaInfo";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
+import { useDialog } from '../common/withDialog';
+import LWDialog from '../common/LWDialog';
 
 const RSSFeedMinimumInfoMultiQuery = gql(`
   query multiRSSFeedNewFeedButtonQuery($selector: RSSFeedSelector, $limit: Int, $enableTotal: Boolean) {
@@ -35,15 +35,6 @@ const newRSSFeedFragmentMutation = gql(`
     }
   }
 `);
-
-const styles = (theme: ThemeType) => ({
-  root: {
-    padding: 16
-  },
-  feed: {
-    ...theme.typography.body2,
-  }
-})
 
 const formStyles = defineStyles('RSSFeedsForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -187,28 +178,35 @@ const RSSFeedsForm = ({
   );
 };
 
+const styles = defineStyles("NewFeedDialog", (theme: ThemeType) => ({
+  root: {
+    padding: 16
+  },
+  feed: {
+    ...theme.typography.body2,
+  }
+}))
+
 //
 // Button used to add a new feed to a user profile
 //
-const NewFeedButton = ({classes, user, closeModal}: {
-  classes: ClassesType<typeof styles>,
+const NewFeedDialog = ({user, onClose}: {
   user: UsersProfile,
-  closeModal?: any
+  onClose: () => void
 }) => {
-  const currentUser = useCurrentUser();
+  const classes = useStyles(styles);
   const { data, loading } = useQuery(RSSFeedMinimumInfoMultiQuery, {
     variables: {
       selector: { usersFeed: { userId: user._id } },
       limit: 10,
       enableTotal: false,
     },
-    notifyOnNetworkStatusChange: true,
   });
 
   const feeds = data?.rSSFeeds?.results;
   
-  if (currentUser) {
-    return (
+  return (
+    <LWDialog open onClose={onClose} className={classes.root}>
       <div className={classes.root}>
         {loading && <Loading/>}
         {feeds?.map(feed => <div key={feed._id} className={classes.feed}>
@@ -219,18 +217,30 @@ const NewFeedButton = ({classes, user, closeModal}: {
         <RSSFeedsForm
           userId={user._id}
           onSuccess={() => {
-            closeModal();
+            onClose();
           }}
         />
-        {/*FIXME: This close button doesn't work (closeModal is not a thing)*/}
-        <Button onClick={() => closeModal()}>Close</Button>
+        <Button onClick={() => onClose()}>Close</Button>
       </div>
-    )
-  } else {
-    return <div> <Loading /> </div>
-  }
+    </LWDialog>
+  )
 }
 
-export default registerComponent('NewFeedButton', NewFeedButton, {styles});
+export const NewFeedButton = ({user}: {
+  user: UsersProfile
+}) => {
+  const { openDialog } = useDialog();
+  
+  return <a href="#" onClick={() => {
+    openDialog({
+      name: "NewFeedDialog",
+      contents: ({onClose}) => <NewFeedDialog user={user} onClose={onClose}/>
+    });
+  }}>
+    RSS Crossposting
+  </a>
+}
+
+export default NewFeedButton;
 
 
