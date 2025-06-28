@@ -1,4 +1,4 @@
-import { WebClient } from "@slack/web-api";
+import { ChatPostMessageArguments, WebClient } from "@slack/web-api";
 import { slackApiTokenSetting, slackModFlagsChannelIdSetting } from "./databaseSettings";
 import { fetchFragmentSingle } from "./fetchFragment";
 import { createAdminContext } from "./vulcan-lib/createContexts";
@@ -19,7 +19,10 @@ const hasModSlackWarnings = isEAForum;
  * to post there.
  * Preview formatted message content at https://app.slack.com/block-kit-builder
  */
-export const forwardReportToModSlack = async (reportId: string) => {
+export const forwardReportToModSlack = async (
+  reportId: string,
+  dryRun = false,
+) => {
   if (!hasModSlackWarnings) {
     return;
   }
@@ -60,8 +63,7 @@ export const forwardReportToModSlack = async (reportId: string) => {
     const userName = report.user?.username ?? "[Unknown user]";
     const userLink = userGetProfileUrl(report.user, true);
 
-    const client = new WebClient(apiToken);
-    const result = await client.chat.postMessage({
+    const message: ChatPostMessageArguments = {
       channel: modFlagsChannelId,
       unfurl_links: false,
       unfurl_media: false,
@@ -101,9 +103,17 @@ export const forwardReportToModSlack = async (reportId: string) => {
           ]
         },
       ],
-    });
-    // eslint-disable-next-line no-console
-    console.log(`Successfully sent Slack message: ${result.ts}`);
+    };
+
+    if (dryRun) {
+      // eslint-disable-next-line no-console
+      console.log("Mod report dry run:", JSON.stringify(message, null, 2))
+    } else {
+      const client = new WebClient(apiToken);
+      const result = await client.chat.postMessage(message);
+      // eslint-disable-next-line no-console
+      console.log(`Successfully sent Slack message: ${result.ts}`);
+    }
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error("Failed to post to mod slack:", err);
