@@ -97,7 +97,6 @@ export const forwardReportToModSlack = async (
                 text: `View ${contentType} on the EA Forum`,
                 emoji: true,
               },
-              value: `view_${contentType}_on_ea_forum`,
               url,
             },
           ]
