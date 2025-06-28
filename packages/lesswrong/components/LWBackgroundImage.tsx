@@ -1,11 +1,9 @@
 import React from 'react';
 import { registerComponent } from '../lib/vulcan-lib/components';
-import { useLocation, useSubscribedLocation } from '../lib/routeUtil';
+import { useSubscribedLocation } from '../lib/routeUtil';
 import { getReviewPhase, reviewResultsPostPath } from '../lib/reviewUtils';
 import { defineStyles, useStyles } from './hooks/useStyles';
 import { Link } from '../lib/reactRouterWrapper';
-import LessOnline2025Banner from './seasonal/LessOnline2025Banner';
-import IfAnyoneBuildsItSplash, { bookPromotionEndDate, useHideIfAnyoneBuildsItSplash } from './seasonal/IfAnyoneBuildsItSplash';
 import ReviewVotingCanvas from "./review/ReviewVotingCanvas";
 import CloudinaryImage2 from "./common/CloudinaryImage2";
 
@@ -109,7 +107,6 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
 }) => {
   const classes = useStyles(styles);
   const { currentRoute } = useSubscribedLocation();
-  const hideIfAnyoneBuildsItSplash = useHideIfAnyoneBuildsItSplash();
 
   const defaultImage = standaloneNavigation ? <div className={classes.imageColumn}> 
     {/* Background image shown in the top-right corner of LW. The
@@ -140,10 +137,6 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   let homePageImage = defaultImage
   if (getReviewPhase() === 'VOTING') homePageImage = <ReviewVotingCanvas />
   if (getReviewPhase() === 'RESULTS') homePageImage = reviewCompleteImage
-
-  if (new Date() < bookPromotionEndDate && currentRoute?.name === 'home' && !hideIfAnyoneBuildsItSplash) {
-    return <IfAnyoneBuildsItSplash />
-  }
 
   return <div className={classes.root}>
     {currentRoute?.name === 'home' ? homePageImage : defaultImage}
