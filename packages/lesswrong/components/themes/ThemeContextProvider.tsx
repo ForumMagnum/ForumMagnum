@@ -56,7 +56,6 @@ const ThemeStylesheetSwapper = () => {
   const themeOptions = useThemeOptions();
   const prefersDarkMode = usePrefersDarkMode();
   const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode);
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   useLayoutEffect(() => {
     if (stringify(themeOptions) !== stringify(window.themeOptions)) {
@@ -75,10 +74,6 @@ const ThemeStylesheetSwapper = () => {
           }
         }
 
-        if (isFirstLoad) {
-          setIsFirstLoad(false);
-        } else {
-        }
         if (themeOptions.name === "auto") {
           addAutoStylesheet(stylesId, onFinish, concreteTheme.siteThemeOverride);
         } else {
@@ -86,7 +81,7 @@ const ThemeStylesheetSwapper = () => {
         }
       }
     }
-  }, [themeOptions, concreteTheme, isFirstLoad]);
+  }, [themeOptions, concreteTheme]);
   
   return null;
 }
