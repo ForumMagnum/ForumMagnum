@@ -48,6 +48,8 @@ import { getIpFromRequest } from '../datadog/datadogMiddleware';
 import { HelmetServerState } from 'react-helmet-async';
 import every from 'lodash/every';
 import { prefilterHandleRequest } from '../apolloServer';
+import { HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT } from '@/components/themes/useTheme';
+import { eventCaptureScript } from './eventCapture';
 
 export interface RenderSuccessResult {
   ssrBody: string
@@ -214,6 +216,7 @@ export async function handleRequest(request: Request, response: Response) {
     // relative to any scripts that come later than this is undetermined and
     // varies based on timings and the browser cache.
     + clientScript
+    + eventCaptureScript
     + themeOptionsHeader
   );
 
