@@ -48,7 +48,6 @@ import { getIpFromRequest } from '../datadog/datadogMiddleware';
 import { HelmetServerState } from 'react-helmet-async';
 import every from 'lodash/every';
 import { prefilterHandleRequest } from '../apolloServer';
-import { HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT } from '@/components/themes/useTheme';
 import { eventCaptureScript } from './eventCapture';
 
 export interface RenderSuccessResult {
