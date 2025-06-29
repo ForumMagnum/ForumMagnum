@@ -268,11 +268,22 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     const { currentUser } = context;
 
     // useSingle allows passing in `_id` as `documentId`
-    if (usedSelector.documentId) {
+    if ('documentId' in usedSelector) {
       usedSelector._id = usedSelector.documentId;
       delete usedSelector.documentId;
     }
     const documentId = usedSelector._id;
+    
+    if (!documentId) {
+      if (allowNull) {
+        return { result: null };
+      } else {
+        throwError({
+          id: 'app.missing_document',
+          data: { documentId, selector, collectionName: collection.collectionName },
+        });
+      }
+    }
 
     // get fragment from GraphQL AST
     const fragmentInfo = getFragmentInfo(info, "result", typeName);

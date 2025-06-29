@@ -184,7 +184,6 @@ const TagsDetailsItem = ({ tag, classes, showFlags = false, flagId, collapse = f
         <QueryLink query={query.focus === tagFlag?._id ? {} : { focus: tagFlag?._id }}>
           <TagFlagItem
             documentId={tagFlag._id}
-            showNumber={false}
             style={query.focus === tagFlag?._id ? "black" : "grey"}
           />
         </QueryLink>
