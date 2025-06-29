@@ -12,6 +12,18 @@ export const graphqlCommentQueryTypeDefs = gql`
     SUBFORUM
     DISCUSSION
   }
+
+  enum CommentSortingMode {
+    top
+    groupByPost
+    new
+    newest
+    old
+    oldest
+    magic
+    recentComments
+    recentDiscussion
+  }
   
   input SingleCommentInput {
     selector: SelectorInput
@@ -137,6 +149,7 @@ export const graphqlCommentQueryTypeDefs = gql`
     minimumKarma: Int
     authorIsUnreviewed: Boolean
     sortBy: String
+    drafts: String
     limit: String
   }
   
@@ -315,6 +328,8 @@ export const graphqlCommentQueryTypeDefs = gql`
     commentIds: [String!]
     minimumKarma: Int
     authorIsUnreviewed: Boolean
+    postId: String
+    sortBy: CommentSortingMode
   }
   
   input CommentsNominations2019Input {
@@ -322,6 +337,8 @@ export const graphqlCommentQueryTypeDefs = gql`
     commentIds: [String!]
     minimumKarma: Int
     authorIsUnreviewed: Boolean
+    postId: String
+    sortBy: CommentSortingMode
   }
   
   input CommentsReviews2018Input {
@@ -329,6 +346,8 @@ export const graphqlCommentQueryTypeDefs = gql`
     commentIds: [String!]
     minimumKarma: Int
     authorIsUnreviewed: Boolean
+    postId: String
+    sortBy: CommentSortingMode
   }
   
   input CommentsReviews2019Input {
@@ -336,6 +355,8 @@ export const graphqlCommentQueryTypeDefs = gql`
     commentIds: [String!]
     minimumKarma: Int
     authorIsUnreviewed: Boolean
+    postId: String
+    sortBy: CommentSortingMode
   }
   
   input CommentsReviewsInput {

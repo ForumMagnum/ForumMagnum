@@ -461,7 +461,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
               They are visible to everyone on LessWrong.">
                 <SectionTitle title={"Comment Submissions"} />
               </LWTooltip>
-              <RecentComments terms={{view: 'afSubmissions', authorIsUnreviewed: null, limit: 5, userId: user._id}} />
+              <RecentComments selector={{ afSubmissions: { authorIsUnreviewed: null, userId: user._id } }} limit={5}/>
             </SingleColumnSection>}
             <SingleColumnSection>
               <SectionTitle title={<Link to={`${userGetProfileUrl(user)}/replies`}>Comments</Link>} rootClassName={classes.commentSorting}>
@@ -470,7 +470,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 </AnalyticsContext>
               </SectionTitle>
               <RecentComments
-                terms={{view: 'profileComments', sortBy: currentCommentSortBy, authorIsUnreviewed: null, limit: 10, userId: user._id}}
+                selector={{ profileComments: { sortBy: currentCommentSortBy, authorIsUnreviewed: null, userId: user._id } }}
+                limit={10}
                 showPinnedOnProfile
               />
             </SingleColumnSection>

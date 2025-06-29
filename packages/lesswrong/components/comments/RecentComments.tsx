@@ -31,17 +31,17 @@ const styles = (theme: ThemeType) =>  ({
   },
 })
 
-const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=false, noResultsMessage="No Comments Found"}: {
+const RecentComments = ({classes, selector, limit, truncated=false, showPinnedOnProfile=false, noResultsMessage="No Comments Found"}: {
   classes: ClassesType<typeof styles>,
-  terms: CommentsViewTerms,
+  selector: CommentSelector,
+  limit?: number,
   truncated?: boolean,
   showPinnedOnProfile?: boolean,
   noResultsMessage?: string,
 }) => {
-  const { view, limit, ...selectorTerms } = terms;
   const { data, networkStatus, loadMoreProps } = useQueryWithLoadMore(CommentsListWithParentMetadataMultiQuery, {
     variables: {
-      selector: { [view]: selectorTerms },
+      selector,
       limit: limit ?? 10,
       enableTotal: false,
     },
