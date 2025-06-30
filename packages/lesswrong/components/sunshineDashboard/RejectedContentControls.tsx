@@ -50,7 +50,7 @@ export const RejectedContentControls = ({ contentWrapper }: {
   if (collectionName === 'Posts' && !hasRejectedContentSectionSetting.get()) return null;
   if (collectionName === 'Comments' && !isLWorAF) return null;
 
-  const automatedContentEvaluations = content.contents?.automatedContentEvaluations;
+  const automatedContentEvaluations = content?.contents && 'automatedContentEvaluations' in content.contents && content.contents?.automatedContentEvaluations;
 
   function handleLLMScoreClick() {
     if (!automatedContentEvaluations) return;
