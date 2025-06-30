@@ -1,5 +1,6 @@
-import { KEYWORD_INTERVAL_HOURS } from "@/lib/keywordAlertHelpers";
 import ElasticClient from "@/server/search/elastic/ElasticClient";
+import { collectionNameToConfig } from "../search/elastic/ElasticConfig";
+import { KEYWORD_INTERVAL_HOURS } from "@/lib/keywordAlertHelpers";
 
 export const getDefaultKeywordStartDate = (currentTime = new Date()) =>
   new Date(currentTime.getTime() - (KEYWORD_INTERVAL_HOURS * 60 * 60 * 1000));
@@ -12,6 +13,7 @@ export const fetchPostIdsForKeyword = async (
   startDate: Date = getDefaultKeywordStartDate(),
   endDate: Date = getKeywordEndDate(startDate),
 ): Promise<string[]> => {
+  const defaultFilters = collectionNameToConfig("Posts").filters ?? [];
   const client = new ElasticClient();
   const results = await client.getClient().search<SearchPost>({
     index: "posts",
@@ -35,14 +37,17 @@ export const fetchPostIdsForKeyword = async (
             }
           ],
           should: [],
-          filter: {
-            range: {
-              postedAt: {
-                gte: startDate.toISOString(),
-                lt: endDate.toISOString(),
+          filter: [
+            ...defaultFilters,
+            {
+              range: {
+                postedAt: {
+                  gte: startDate.toISOString(),
+                  lt: endDate.toISOString(),
+                },
               },
             },
-          },
+          ],
         },
       },
     },
