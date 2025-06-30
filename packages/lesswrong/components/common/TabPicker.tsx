@@ -118,7 +118,7 @@ const styles = (theme: ThemeType) => ({
     }
   },
   inactiveTab: {
-    ...(theme.themeOptions.name === 'dark' ? {
+    ...(theme.dark ? {
       backgroundColor: theme.palette.tab.inactive.bannerAdBackground,
       backdropFilter: theme.palette.filters.bannerAdBlurMedium,
       color: theme.palette.text.bannerAdOverlay,

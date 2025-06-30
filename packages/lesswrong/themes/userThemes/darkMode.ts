@@ -196,6 +196,7 @@ const forumOverrides = (palette: ThemePalette): PartialDeep<ThemeType['overrides
 
 export const darkModeTheme: UserThemeSpecification = {
   shadePalette: {
+    dark: true,
     grey: invertedGreyscale,
     greyAlpha,
     inverseGreyAlpha,
@@ -347,6 +348,7 @@ export const darkModeTheme: UserThemeSpecification = {
     }
   }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<NativeThemeType> => ({
+    dark: true,
     postImageStyles: {
       // Override image background color to white (so that transparent isn't
       // black). Necessary because there are a handful of posts with images that
