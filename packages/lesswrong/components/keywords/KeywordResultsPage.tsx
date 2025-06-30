@@ -36,10 +36,9 @@ const KeywordResultsPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   }
 
   const title = `Alerts for "${keyword}" from ${startDate.toLocaleString()} to ${endDate.toLocaleString()}`;
-  const canonicalUrl = combineUrls(
-    getSiteUrl(),
-    `/keywords/${encodeURIComponent(keyword)}?start=${startDate.toISOString()}&end=${endDate.toISOString()}`,
-  );
+
+  // Not technically correct - this page is marked as noindex
+  const canonicalUrl = combineUrls(getSiteUrl(), "/keywords");
 
   return (
     <AnalyticsContext pageContext="keywordResultsPage">
