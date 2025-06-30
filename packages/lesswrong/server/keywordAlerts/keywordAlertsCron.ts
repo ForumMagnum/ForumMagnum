@@ -35,6 +35,10 @@ export const generateKeywordAlerts = async (
         count: postIds.length,
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
+        // Currently keyword alerts only support posts, but we're adding this
+        // content type to future-proof so we can expand to comments in the
+        // future
+        contentType: "post",
       },
     });
   }
