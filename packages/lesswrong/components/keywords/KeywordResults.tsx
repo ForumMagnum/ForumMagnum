@@ -7,7 +7,7 @@ import Loading from "../vulcan-core/Loading";
 const styles = (theme: ThemeType) => ({
   noResults: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 16,
+    fontSize: 14,
   },
 });
 
