@@ -21,9 +21,25 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.8,
     pointerEvents: "none",
   },
+  title: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 24,
+    fontWeight: 600,
+    marginTop: 24,
+    marginBottom: 32,
+  },
+  form: {
+    display: "flex",
+    gap: "8px",
+    marginBottom: 32,
+  },
+  button: {
+    whiteSpace: "nowrap",
+  },
   noAlerts: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 16,
+    fontSize: 14,
+    color: theme.palette.grey[600],
   },
   savedKeyword: {
     display: "flex",
@@ -46,12 +62,6 @@ const styles = (theme: ThemeType) => ({
     "&:hover": {
       color: theme.palette.error.dark,
     },
-  },
-  form: {
-    display: "flex",
-    gap: "8px",
-    marginTop: 16,
-    marginBottom: 16,
   },
 });
 
@@ -92,10 +102,27 @@ const KeywordsPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   }
 
   return (
-    <AnalyticsContext pageContext="keywordAlertsPage">
+    <AnalyticsContext pageContext="keywordsPage">
       <SingleColumnSection className={classNames(updating && classes.updating)}>
         <HeadTags />
-        <SectionTitle title="Your keyword alerts" />
+        <div className={classes.title}>Keyword alerts</div>
+        <SectionTitle title="Add alert" />
+        <form onSubmit={onSubmitKeyword} className={classes.form}>
+          <EAOnboardingInput
+            value={keyword}
+            setValue={setKeyword}
+            placeholder="Type a keyword..."
+          />
+          <EAButton
+            style="primary"
+            type="submit"
+            eventProps={{keyword}}
+            className={classes.button}
+          >
+            Add alert
+          </EAButton>
+        </form>
+        <SectionTitle title="Your alerts" />
         {keywordAlerts?.length === 0 &&
           <div className={classes.noAlerts}>No saved keyword alerts</div>
         }
@@ -116,16 +143,6 @@ const KeywordsPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
             </LWTooltip>
           </div>
         ))}
-        <form onSubmit={onSubmitKeyword} className={classes.form}>
-          <EAOnboardingInput
-            value={keyword}
-            setValue={setKeyword}
-            placeholder="Add keyword alert..."
-          />
-          <EAButton style="primary" type="submit" eventProps={{keyword}}>
-            Add
-          </EAButton>
-        </form>
         {updating && <Loading />}
       </SingleColumnSection>
     </AnalyticsContext>
