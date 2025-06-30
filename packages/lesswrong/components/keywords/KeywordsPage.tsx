@@ -34,6 +34,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 32,
   },
   button: {
+    minWidth: "min-content",
     whiteSpace: "nowrap",
   },
   noAlerts: {
