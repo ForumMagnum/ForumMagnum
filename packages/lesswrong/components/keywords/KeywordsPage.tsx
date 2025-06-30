@@ -1,7 +1,8 @@
-import React, { FormEvent, useCallback, useState } from "react";
+import React, { FormEvent, useCallback, useEffect, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from "../common/withUser";
+import { useLocation } from "@/lib/routeUtil";
 import { Link } from "@/lib/reactRouterWrapper";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import uniq from "lodash/uniq";
@@ -73,9 +74,8 @@ const KeywordsPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const [keyword, setKeyword] = useState("");
   const [updating, setUpdating] = useState(false);
 
-  const onSubmitKeyword = useCallback(async (ev: FormEvent<HTMLFormElement>) => {
-    ev.preventDefault();
-    const normalized = keyword.trim().replace(/\s+/g, " ");
+  const saveKeyword = useCallback(async (value: string) => {
+    const normalized = value.trim().replace(/\s+/g, " ");
     if (normalized && keywordAlerts && keywordAlerts.indexOf(normalized) < 0) {
       setUpdating(true);
       await updateCurrentUser({
@@ -83,8 +83,13 @@ const KeywordsPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
       });
       setUpdating(false);
     }
+  }, [keywordAlerts, updateCurrentUser]);
+
+  const onSubmitKeyword = useCallback(async (ev: FormEvent<HTMLFormElement>) => {
+    ev.preventDefault();
+    await saveKeyword(keyword);
     setKeyword("");
-  }, [keyword, keywordAlerts, updateCurrentUser]);
+  }, [keyword, saveKeyword]);
 
   const onRemove = useCallback(async (keyword: string) => {
     if (keywordAlerts) {
@@ -95,6 +100,15 @@ const KeywordsPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
       setUpdating(false);
     }
   }, [updateCurrentUser, keywordAlerts]);
+
+  // Automatically add a keyword from the ?add= query param (used on search page)
+  const {query} = useLocation();
+  const keywordToAdd = query.add;
+  useEffect(() => {
+    if (keywordToAdd) {
+      void saveKeyword(keywordToAdd);
+    }
+  }, [keywordToAdd, saveKeyword]);
 
   if (!currentUser) {
     return (

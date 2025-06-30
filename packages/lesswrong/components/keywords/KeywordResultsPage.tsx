@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.dark,
     fontSize: 14,
     "& svg": {
-      width: "14px",
+      "--icon-size": "14px",
       transform: "translateY(7px)",
     },
   },
