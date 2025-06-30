@@ -28,10 +28,9 @@ import { getCommentViewOptions } from '@/lib/commentViewOptions';
 import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 import { getAllUserGroups, userHasntChangedName, userIsAdmin, userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { FormComponentDatePicker } from '@/components/form-components/FormComponentDateTime';
-import { allowSubscribeToSequencePosts, hasAccountDeletionFlow, hasAuthorModeration, hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '@/lib/betas';
+import { allowSubscribeToSequencePosts, hasAccountDeletionFlow, hasAuthorModeration, hasKeywordAlerts, hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '@/lib/betas';
 import { ThemeSelect } from '@/components/form-components/ThemeSelect';
 import { FormComponentCheckboxGroup } from '@/components/form-components/FormComponentCheckboxGroup';
-import { ManageSubscriptionsLink } from '@/components/form-components/ManageSubscriptionsLink';
 import { MODERATION_GUIDELINES_OPTIONS } from '@/lib/collections/posts/constants';
 import { HIGHLIGHT_DURATION } from '@/components/comments/CommentFrame';
 import Loading from "../../vulcan-core/Loading";
@@ -45,6 +44,7 @@ import EmailConfirmationRequiredCheckbox from "../EmailConfirmationRequiredCheck
 import FormComponentCheckbox from "../../form-components/FormComponentCheckbox";
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
+import { Link } from '@/lib/reactRouterWrapper';
 
 const styles = defineStyles('UsersEditForm', (theme: ThemeType) => ({
   root: {
@@ -82,6 +82,10 @@ const styles = defineStyles('UsersEditForm', (theme: ThemeType) => ({
   },
   highlightAnimation: {
     animation: `higlight-animation ${HIGHLIGHT_DURATION}s ease-in-out 0s;`
+  },
+  subscriptionsButton: {
+    marginBottom: theme.spacing.unit,
+    marginLeft: theme.spacing.unit
   },
 }));
 
@@ -550,9 +554,30 @@ const UsersForm = ({
       <LegacyFormGroupLayout label="Notifications" startCollapsed={true && (!highlightedField || !["auto_subscribe_to_my_posts", "notificationSubscribedTagPost", "karmaChangeNotifierSettings"].includes(highlightedField))}>
         <HighlightableField name="auto_subscribe_to_my_posts">
         <div className={classes.fieldWrapper}>
+          <Link to="/manageSubscriptions">
+            <Button
+              color="secondary"
+              variant="outlined"
+              className={classes.subscriptionsButton}
+            >
+              Manage Active Subscriptions
+            </Button>
+          </Link>
+
+          {hasKeywordAlerts &&
+            <Link to="/keywords">
+              <Button
+                color="secondary"
+                variant="outlined"
+                className={classes.subscriptionsButton}
+              >
+                Manage Keyword Alerts
+              </Button>
+            </Link>
+          }
+
           <form.Field name="auto_subscribe_to_my_posts">
             {(field) => (<>
-              <ManageSubscriptionsLink />
               <FormComponentCheckbox
                 field={field}
                 label="Auto-subscribe to comments on my posts"
