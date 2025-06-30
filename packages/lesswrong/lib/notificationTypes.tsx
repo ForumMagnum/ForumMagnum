@@ -942,10 +942,12 @@ export const KeywordAlertNotification = createNotificationType({
   getIcon() {
     return <PostsIcon style={iconStyles} />
   },
-  Display: ({notification: {extraData}}) => {
+  Display: ({notification: {link, extraData}}) => {
     const alerts = extraData?.count === 1 ? "alert" : "alerts";
     return (
-      <>{extraData?.count} new {alerts} for {extraData?.keyword}</>
+      <Link to={link}>
+        {extraData?.count} new {alerts} for {extraData?.keyword}
+      </Link>
     )
   },
 })
