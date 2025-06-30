@@ -1,5 +1,6 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
+import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { useKeywordFromUrl } from "@/lib/keywordAlertHelpers";
 import { combineUrls, getSiteUrl } from "@/lib/vulcan-lib/utils";
 import { Link } from "@/lib/reactRouterWrapper";
@@ -36,20 +37,22 @@ const KeywordResultsPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   );
 
   return (
-    <SingleColumnSection>
-      <HeadTags
-        title={title}
-        canonicalUrl={canonicalUrl}
-        noIndex
-      />
-      <div className={classes.backContainer}>
-        <Link to="/keywords" className={classes.back}>
-          &lt;- Your keyword alerts
-        </Link>
-      </div>
-      <SectionTitle title={title} />
-      <KeywordResults keyword={keyword} startDate={startDate} endDate={endDate} />
-    </SingleColumnSection>
+    <AnalyticsContext pageContext="keywordResultsPage">
+      <SingleColumnSection>
+        <HeadTags
+          title={title}
+          canonicalUrl={canonicalUrl}
+          noIndex
+        />
+        <div className={classes.backContainer}>
+          <Link to="/keywords" className={classes.back}>
+            &lt;- Your keyword alerts
+          </Link>
+        </div>
+        <SectionTitle title={title} />
+        <KeywordResults keyword={keyword} startDate={startDate} endDate={endDate} />
+      </SingleColumnSection>
+    </AnalyticsContext>
   );
 }
 
