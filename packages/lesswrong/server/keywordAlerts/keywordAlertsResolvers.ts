@@ -35,7 +35,8 @@ const { Query, typeDefs } = createPaginatedResolver({
 
     const postIds = await fetchPostIdsForKeyword(keyword, startDate, endDate);
     const posts = await context.loaders.Posts.loadMany(postIds.slice(0, limit));
-    return posts.filter(isValidPost);
+    const validPosts = posts.filter(isValidPost);
+    return validPosts.sort((a, b) => b.postedAt.getTime() - a.postedAt.getTime());
   },
 });
 
