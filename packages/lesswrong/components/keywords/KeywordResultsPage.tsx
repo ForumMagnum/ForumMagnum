@@ -9,6 +9,7 @@ import SectionTitle from "../common/SectionTitle";
 import PermanentRedirect from "../common/PermanentRedirect";
 import KeywordResults from "./KeywordResults";
 import HeadTags from "../common/HeadTags";
+import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   backContainer: {
@@ -18,6 +19,10 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.primary.dark,
     fontSize: 14,
+    "& svg": {
+      width: "14px",
+      transform: "translateY(7px)",
+    },
   },
 });
 
@@ -46,7 +51,7 @@ const KeywordResultsPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
         />
         <div className={classes.backContainer}>
           <Link to="/keywords" className={classes.back}>
-            &lt;- Your keyword alerts
+            <ForumIcon icon="ArrowLeft" /> Your keyword alerts
           </Link>
         </div>
         <SectionTitle title={title} />
