@@ -356,7 +356,6 @@ interface ResolverContext extends CollectionsByName {
   }
   extraLoaders: Record<string,any>
   req?: NextRequest & {logIn: any, logOut: any, cookies: any, headers: any},
-  res?: NextResponse,
   repos: Repos,
   perfMetric?: IncompletePerfMetric,
 }

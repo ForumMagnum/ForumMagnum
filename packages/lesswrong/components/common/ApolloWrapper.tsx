@@ -10,16 +10,16 @@ import {
   InMemoryCache,
 } from "@apollo/client-integration-nextjs";
 
-function makeClient() {
+function makeClient(loginToken?: string) {
   return new ApolloClient({
     cache: new InMemoryCache(),
-    link: ApolloLink.from([headerLink, createErrorLink(), createHttpLink(isServer ? getSiteUrl() : '/')]),
+    link: ApolloLink.from([headerLink, createErrorLink(), createHttpLink(isServer ? getSiteUrl() : '/', loginToken)]),
   });
 }
 
-export function ApolloWrapper({ children }: React.PropsWithChildren) {
+export function ApolloWrapper({ loginToken, children }: React.PropsWithChildren<{ loginToken?: string }>) {
   return (
-    <ApolloNextAppProvider makeClient={makeClient}>
+    <ApolloNextAppProvider makeClient={() => makeClient(loginToken)}>
       {children}
     </ApolloNextAppProvider>
   );

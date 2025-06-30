@@ -109,16 +109,17 @@ const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, cookies, ch
   abTestGroupsUsed: RelevantTestGroupAllocation,
   themeOptions: AbstractThemeOptions,
   ssrMetadata?: SSRMetadata,
-  // searchParams?: { [key: string]: string | string[] | undefined },
   cookies: RequestCookie[],
   children: React.ReactNode,
 }) => {
-  const universalCookies = new Cookies(cookies);
+  const universalCookies = new Cookies(Object.fromEntries(cookies.map((cookie) => [cookie.name, cookie.value])));
+  const loginToken = universalCookies.get('loginToken');
+
   return (
     // <ApolloProvider client={apolloClient}>
       // <ForeignApolloClientProvider value={foreignApolloClient}>
         <EnableSuspenseContext.Provider value={isServer}>
-        <ApolloWrapper>
+        <ApolloWrapper loginToken={loginToken}>
         <CookiesProvider cookies={universalCookies}>
           <ThemeContextProvider options={themeOptions} isEmail={false}>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>

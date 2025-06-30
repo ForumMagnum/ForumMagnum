@@ -197,7 +197,7 @@ export async function startWebserver() {
   app.use('/graphql', cors());
   app.use('/graphql', expressMiddleware(apolloServer, {
     context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
-      const context = await getContextFromReqAndRes({req, res, isSSR: false});
+      const context = await getContextFromReqAndRes({req, isSSR: false});
       configureSentryScope(context);
       return context;
     },

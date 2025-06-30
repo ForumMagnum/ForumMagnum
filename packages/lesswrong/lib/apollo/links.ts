@@ -28,7 +28,7 @@ export const createSchemaLink = (schema: GraphQLSchema, context: ResolverContext
 /**
  * Http link is used for client side rendering
  */
-export const createHttpLink = (baseUrl = '/') => {
+export const createHttpLink = (baseUrl: string, loginToken?: string) => {
   const uri = baseUrl + 'graphql';
 
   const batchKey = (operation: Operation) => {
@@ -58,6 +58,7 @@ export const createHttpLink = (baseUrl = '/') => {
         ...options?.headers,
         // user agent because LW bans bot agents
         'User-Agent': crosspostUserAgent,
+        ...(loginToken ? { loginToken } : {}),
       }
     })
     : globalThis.fetch;

@@ -4,7 +4,7 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import { ApolloServer } from '@apollo/server';
 import { getContextFromReqAndRes } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/context';
 import { initDatabases, initPostgres, initSettings } from '../../packages/lesswrong/server/serverStartup';
-import type { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
@@ -27,14 +27,7 @@ const server = new ApolloServer<ResolverContext>({
 const handler = startServerAndCreateNextHandler<NextRequest, ResolverContext>(server, {
   // IDK if that cast is actually safe/correct; I'm pretty sure the conditional type provided for `res` is wrong
   // but :shrug:
- context: async (req, res) => await getContextFromReqAndRes({ req, res: res as unknown as NextResponse, isSSR: false }),
+ context: async (req) => await getContextFromReqAndRes({ req, isSSR: false }),
 });
 
-
-export function GET(req: NextRequest) {
-  return handler(req);
-}
-
-export function POST(req: NextRequest) {
-  return handler(req);
-}
+export { handler as GET, handler as POST };

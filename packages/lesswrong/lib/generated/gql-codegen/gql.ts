@@ -887,7 +887,7 @@ type Documents = {
     "\n  fragment TagVotingActivity on Vote {\n    ...TagRelVotes\n    tagRel {\n      ...TagRelFragment\n    }\n  }\n": typeof types.TagVotingActivityDoc,
     "\n  fragment UserVotes on Vote {\n    _id\n    userId\n    voteType\n    power\n    cancelled\n    documentId\n    votedAt\n    isUnvote\n    collectionName\n  }\n": typeof types.UserVotesDoc,
     "\n  fragment UserVotesWithDocument on Vote {\n    ...UserVotes\n    comment {\n      ...CommentsListWithParentMetadata\n    }\n    post {\n      ...PostsListWithVotes\n    }\n  }\n": typeof types.UserVotesWithDocumentDoc,
-    "\n    query getCurrentUser {\n      currentUser {\n        ...UsersCurrent\n      }\n    }\n  ": typeof types.getCurrentUserDocument,
+    "\n  query getCurrentUser {\n    currentUser {\n      ...UsersCurrent\n    }\n  }\n": typeof types.getCurrentUserDocument,
     "\n  mutation createLWEventwithNewEvents($data: CreateLWEventDataInput!) {\n    createLWEvent(data: $data) {\n      data {\n        ...newEventFragment\n      }\n    }\n  }\n": typeof types.createLWEventwithNewEventsDocument,
     "\n  fragment AdvisorRequestsDefaultFragment on AdvisorRequest {\n    _id\n    schemaVersion\n    createdAt\n    legacyData\n    userId\n    interestedInMetaculus\n    jobAds\n  }\n": typeof types.AdvisorRequestsDefaultFragmentDoc,
     "\n  fragment ArbitalCachesDefaultFragment on ArbitalCaches {\n    _id\n    schemaVersion\n    createdAt\n    legacyData\n  }\n": typeof types.ArbitalCachesDefaultFragmentDoc,
@@ -1879,7 +1879,7 @@ const documents: Documents = {
     "\n  fragment TagVotingActivity on Vote {\n    ...TagRelVotes\n    tagRel {\n      ...TagRelFragment\n    }\n  }\n": types.TagVotingActivityDoc,
     "\n  fragment UserVotes on Vote {\n    _id\n    userId\n    voteType\n    power\n    cancelled\n    documentId\n    votedAt\n    isUnvote\n    collectionName\n  }\n": types.UserVotesDoc,
     "\n  fragment UserVotesWithDocument on Vote {\n    ...UserVotes\n    comment {\n      ...CommentsListWithParentMetadata\n    }\n    post {\n      ...PostsListWithVotes\n    }\n  }\n": types.UserVotesWithDocumentDoc,
-    "\n    query getCurrentUser {\n      currentUser {\n        ...UsersCurrent\n      }\n    }\n  ": types.getCurrentUserDocument,
+    "\n  query getCurrentUser {\n    currentUser {\n      ...UsersCurrent\n    }\n  }\n": types.getCurrentUserDocument,
     "\n  mutation createLWEventwithNewEvents($data: CreateLWEventDataInput!) {\n    createLWEvent(data: $data) {\n      data {\n        ...newEventFragment\n      }\n    }\n  }\n": types.createLWEventwithNewEventsDocument,
     "\n  fragment AdvisorRequestsDefaultFragment on AdvisorRequest {\n    _id\n    schemaVersion\n    createdAt\n    legacyData\n    userId\n    interestedInMetaculus\n    jobAds\n  }\n": types.AdvisorRequestsDefaultFragmentDoc,
     "\n  fragment ArbitalCachesDefaultFragment on ArbitalCaches {\n    _id\n    schemaVersion\n    createdAt\n    legacyData\n  }\n": types.ArbitalCachesDefaultFragmentDoc,
@@ -5507,7 +5507,7 @@ export function gql(source: "\n  fragment UserVotesWithDocument on Vote {\n    .
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n    query getCurrentUser {\n      currentUser {\n        ...UsersCurrent\n      }\n    }\n  "): (typeof documents)["\n    query getCurrentUser {\n      currentUser {\n        ...UsersCurrent\n      }\n    }\n  "];
+export function gql(source: "\n  query getCurrentUser {\n    currentUser {\n      ...UsersCurrent\n    }\n  }\n"): (typeof documents)["\n  query getCurrentUser {\n    currentUser {\n      ...UsersCurrent\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

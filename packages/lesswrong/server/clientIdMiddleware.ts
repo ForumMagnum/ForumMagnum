@@ -5,6 +5,7 @@ import { responseIsCacheable } from './cacheControlMiddleware';
 import ClientIdsRepo from './repos/ClientIdsRepo';
 import LRU from 'lru-cache';
 import { getUserFromReq } from './vulcan-lib/apollo-server/context';
+import type { NextRequest } from 'next/server';
 
 // Cache of seen (clientId, userId) pairs
 const seenClientIds = new LRU<string, boolean>({ max: 10_000, maxAge: 1000 * 60 * 60 });
@@ -33,6 +34,14 @@ declare module "express" {
   }
 }
 
+declare module "next/server" {
+  interface NextRequest {
+    clientId?: string
+    shouldSendClientId?: boolean
+    clientIdHeaderSet?: boolean
+  }
+}
+
 /**
  * Handling of client IDs is split into two parts. The first, prepareClientId,
  * is run in parallel with fetching the user and is called from
@@ -48,7 +57,7 @@ declare module "express" {
  * add cookie headers. This function is non-async (writes to the DB but
  * shouldn't wait for the result) and needs to run before headers are sent.
  */
-export async function prepareClientId(req: express.Request): Promise<void> {
+export async function prepareClientId(req: express.Request | NextRequest): Promise<void> {
   const existingClientId = getCookieFromReq(req, "clientId")
 
   if (!isApplicableUrl(req.url) || (existingClientId && isNotRandomId(existingClientId))) {
@@ -71,7 +80,7 @@ export async function prepareClientId(req: express.Request): Promise<void> {
   }
 }
 
-export function ensureClientId(req: express.Request, res: express.Response): void {
+export function ensureClientId(req: express.Request | NextRequest, res: express.Response): void {
   if (req.clientId) {
     if (req.shouldSendClientId && !req.clientIdHeaderSet && !responseIsCacheable(res)) {
       try {

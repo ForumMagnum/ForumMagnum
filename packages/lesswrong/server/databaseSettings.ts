@@ -119,3 +119,16 @@ export const forumTeamUserId = new DatabaseServerSetting<string|null>("forumTeam
 
 // Anti-DDoS measure
 export const botProtectionCommentRedirectSetting = new DatabaseServerSetting<boolean>("botProtectionCommentRedirect", forumSelect({EAForum: true, default: false}));
+
+export const googleClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.google.clientId', null);
+export const googleOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.google.secret', null);
+
+export const auth0ClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.auth0.appId', null);
+export const auth0OAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.auth0.secret', null);
+export const auth0DomainSetting = new DatabaseServerSetting<string | null>('oAuth.auth0.domain', null);
+
+export const githubClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.github.clientId', null);
+export const githubOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.github.secret', null);
+export const afGithubClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.afGithub.clientId', null);
+export const afGithubOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.afGithub.secret', null);
+

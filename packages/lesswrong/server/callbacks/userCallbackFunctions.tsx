@@ -87,7 +87,7 @@ async function sendWelcomeMessageTo(userId: string) {
     title: subjectLine,
   }
 
-  const adminAccountContext = await computeContextFromUser({ user: adminsAccount, req: context.req, res: context.res, isSSR: context.isSSR });
+  const adminAccountContext = await computeContextFromUser({ user: adminsAccount, req: context.req, isSSR: context.isSSR });
   const conversation = await createConversation({ data: conversationData }, adminAccountContext);
   
   const messageDocument = {
@@ -646,7 +646,7 @@ export async function newAlignmentUserSendPMAsync(newUser: DbUser, oldUser: DbUs
       title: `Welcome to the AI Alignment Forum!`
     }
 
-    const lwAccountContext = await computeContextFromUser({ user: lwAccount, req: context.req, res: context.res, isSSR: context.isSSR });
+    const lwAccountContext = await computeContextFromUser({ user: lwAccount, req: context.req, isSSR: context.isSSR });
     const conversation = await createConversation({ data: conversationData }, lwAccountContext);
 
     let firstMessageContent =

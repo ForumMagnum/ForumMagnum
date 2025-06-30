@@ -21,6 +21,8 @@ import { computeContextFromUser } from './context';
 import { createUser } from '@/server/collections/users/mutations';
 import { createDisplayName } from '@/lib/collections/users/newSchema';
 import { comparePasswords, createPasswordHash, validatePassword } from './passwordHelpers';
+import type { NextRequest } from 'next/server';
+import { cookies } from 'next/headers';
 
 const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPassport(username, password, done) {
   const user = await new UsersRepo().getUserByUsernameOrEmail(username);
@@ -95,7 +97,7 @@ function isValidCharInUsername(ch: string): boolean {
 type PassportAuthenticateCallback = Exclude<Parameters<typeof passport.authenticate>[2], undefined>;
 // `options` should be `passport.AuthenticateOptions`, but those don't contain `username` and `password` in the type definition.
 // No idea where they're actually coming from, in that case
-function promisifiedAuthenticate(req: ResolverContext['req'], res: ResolverContext['res'], name: string, options: any, callback: PassportAuthenticateCallback) {
+function promisifiedAuthenticate(req: ResolverContext['req'], res: null, name: string, options: any, callback: PassportAuthenticateCallback) {
   return new Promise((resolve, reject) => {
     try {
       passport.authenticate(name, options, async (err, user, info) => {
@@ -112,9 +114,13 @@ function promisifiedAuthenticate(req: ResolverContext['req'], res: ResolverConte
   })
 }
 
-export async function createAndSetToken(req: AnyBecauseTodo, res: AnyBecauseTodo, user: DbUser) {
+export async function createAndSetToken(req: NextRequest, user: DbUser) {
   const token = randomBytes(32).toString('hex');
-  (res as any).setHeader("Set-Cookie", `loginToken=${token}; Max-Age=315360000; Path=/`);
+  const cookieStore = await cookies();
+  cookieStore.set("loginToken", token, {
+    maxAge: 315360000,
+    path: "/",
+  });
 
   const hashedToken = hashLoginToken(token)
   await insertHashedLoginToken(user._id, hashedToken)
@@ -158,10 +164,10 @@ export const loginDataGraphQLTypeDefs = gql`
 `
 
 export const loginDataGraphQLMutations = {
-  async login(root: void, { username, password }: {username: string, password: string}, { req, res }: ResolverContext) {
+  async login(root: void, { username, password }: {username: string, password: string}, { req }: ResolverContext) {
     let token: string | null = null
 
-    await promisifiedAuthenticate(req, res, 'graphql-local', { username, password }, (err, user, info) => {
+    await promisifiedAuthenticate(req, null, 'graphql-local', { username, password }, (err, user, info) => {
       return new Promise((resolve, reject) => {
         if (err) throw Error(err)
         if (!user) throw new Error("Invalid username/password")
@@ -169,18 +175,18 @@ export const loginDataGraphQLMutations = {
 
         req!.logIn(user, async (err: AnyBecauseTodo) => {
           if (err) throw new Error(err)
-          token = await createAndSetToken(req, res, user)
+          token = await createAndSetToken(req, user)
           resolve(token)
         })
       })
     })
     return { token }
   },
-  async logout(root: void, args: {}, { req, res }: ResolverContext) {
+  async logout(root: void, args: {}, { req }: ResolverContext) {
     if (req) {
       req.logOut()
-      clearCookie(req, res, "loginToken");
-      clearCookie(req, res, "meteor_login_token");  
+      await clearCookie("loginToken");
+      await clearCookie("meteor_login_token");  
     }
     return {
       token: null
@@ -215,7 +221,7 @@ export const loginDataGraphQLMutations = {
       }
     }
 
-    const { req, res } = context
+    const { req } = context
 
     const userData = {
       email,
@@ -245,7 +251,7 @@ export const loginDataGraphQLMutations = {
       },
     }, context);
 
-    const token = await createAndSetToken(req, res, user)
+    const token = await createAndSetToken(req, user)
     return { 
       token
     }
@@ -290,7 +296,7 @@ async function insertHashedLoginToken(userId: string, hashedToken: string) {
 };
 
 
-function registerLoginEvent(user: DbUser, req: AnyBecauseTodo) {
+function registerLoginEvent(user: DbUser, req: NextRequest) {
   const document = {
     name: 'login',
     important: false,
@@ -298,8 +304,8 @@ function registerLoginEvent(user: DbUser, req: AnyBecauseTodo) {
     properties: {
       type: 'passport-login',
       ip: getClientIP(req),
-      userAgent: req.headers['user-agent'],
-      referrer: req.headers['referer']
+      userAgent: req.headers.get('user-agent'),
+      referrer: req.headers.get('referer')
     }
   }
   void computeContextFromUser({ user, isSSR: false }).then(userContext => {

@@ -10,7 +10,8 @@ import { getAllRepos } from '../../repos';
 import UsersRepo from '../../repos/UsersRepo';
 import { getCookieFromReq } from '../../utils/httpUtil';
 import { asyncLocalStorage } from '../../perfMetrics';
-import type { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { prepareClientId } from '@/server/clientIdMiddleware';
 
 
 export const getUser = async (loginToken: string|null): Promise<DbUser|null> => {
@@ -78,10 +79,9 @@ export function requestIsFromIssaRiceReader(req?: Request): boolean {
   return requestIsFromUserAgent(req, "LW/EA Forum Reader (https://github.com/riceissa/ea-forum-reader/)");
 }
 
-export const computeContextFromUser = async ({user, req, res, isSSR}: {
+export const computeContextFromUser = async ({user, req, isSSR}: {
   user: DbUser|null,
   req?: NextRequest,
-  res?: NextResponse,
   isSSR: boolean
 }): Promise<ResolverContext> => {
   const clientId = req ? getCookieFromReq(req, "clientId") : null;
@@ -90,7 +90,6 @@ export const computeContextFromUser = async ({user, req, res, isSSR}: {
     ...getAllCollectionsByName(),
     ...generateDataLoaders(),
     req: req,
-    res,
     headers: (req as any)?.headers,
     locale: (req as any)?.headers ? getHeaderLocale((req as any).headers, null) : "en-US",
     isSSR,
@@ -141,12 +140,17 @@ export const getUserFromReq = (req: AnyBecauseTodo): DbUser|null => {
   // return getUser(getAuthToken(req));
 }
 
-export async function getContextFromReqAndRes({req, res, isSSR}: {
+export async function getContextFromReqAndRes({req, isSSR}: {
   req: NextRequest,
-  res: NextResponse,
   isSSR: boolean
 }): Promise<ResolverContext> {
-  const user = getUserFromReq(req);
-  const context = await computeContextFromUser({user, req, res, isSSR});
+  // TODO: do we want to abstract this out into something shared across all routes that need to grab the authenticated user for the current request?
+  const loginToken = req.headers.get('loginToken');
+  const [user] = await Promise.all([
+    getUser(loginToken),
+    prepareClientId(req)
+  ]);
+
+  const context = await computeContextFromUser({user, req, isSSR});
   return context;
 }

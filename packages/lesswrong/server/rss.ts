@@ -111,7 +111,7 @@ const servePostRSS = async (terms: RSSTerms, url?: string) => {
 const serveCommentRSS = async (terms: RSSTerms, req: any, res: any, url?: string) => {
   url = url || rssTermsToUrl(terms); // Default value is the custom rss feed computed from terms
   const feed = new RSS(getMeta(url));
-  const context = await getContextFromReqAndRes({req, res, isSSR: false});
+  const context = await getContextFromReqAndRes({req, isSSR: false});
 
   let parameters = viewTermsToQuery(CommentsViews, terms);
   parameters.options.limit = 50;

@@ -392,7 +392,7 @@ const utils = {
       moderator: true
     };
 
-    const lwAccountContext = await computeContextFromUser({ user: lwAccount, req: context.req, res: context.res, isSSR: context.isSSR });
+    const lwAccountContext = await computeContextFromUser({ user: lwAccount, req: context.req, isSSR: context.isSSR });
 
     const conversation = await createConversation({
       data: conversationData,

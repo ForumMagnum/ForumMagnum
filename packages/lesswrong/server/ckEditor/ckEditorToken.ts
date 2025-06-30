@@ -33,7 +33,7 @@ export async function ckEditorTokenHandler (req: AnyBecauseTodo, res: AnyBecause
   
   const user = getUserFromReq(req);
   const requestWithKey = {...req, query: {...req?.query, key: linkSharingKey}}
-  const contextWithKey = await computeContextFromUser({user, req: requestWithKey, res, isSSR: false});
+  const contextWithKey = await computeContextFromUser({user, req: requestWithKey, isSSR: false});
   
   if (collectionName === "Posts") {
     const ckEditorId = getCKEditorDocumentId(documentId, userId, formType)

@@ -1,6 +1,5 @@
 import React from "react";
 import AppGenerator from "@/components/next/ClientAppGenerator";
-import type { SearchParams } from "next/dist/server/request/search-params";
 import { getInstanceSettings } from "@/lib/getInstanceSettings";
 import Script from "next/script";
 import { toEmbeddableJson } from "@/lib/utils/jsonUtils";

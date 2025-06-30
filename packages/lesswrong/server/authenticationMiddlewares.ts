@@ -9,7 +9,7 @@ import { Strategy as FacebookOAuthStrategy, Profile as FacebookProfile } from 'p
 import { Strategy as GithubOAuthStrategy, Profile as GithubProfile } from 'passport-github2';
 import { Strategy as Auth0Strategy, Profile as Auth0Profile, ExtraVerificationParams, AuthenticateOptions } from 'passport-auth0';
 import { VerifyCallback } from 'passport-oauth2'
-import { DatabaseServerSetting } from './databaseSettings';
+import { afGithubClientIdSetting, afGithubOAuthSecretSetting, auth0ClientIdSetting, auth0DomainSetting, auth0OAuthSecretSetting, DatabaseServerSetting, githubClientIdSetting, githubOAuthSecretSetting, googleClientIdSetting, googleOAuthSecretSetting } from './databaseSettings';
 import { combineUrls, getSiteUrl } from '../lib/vulcan-lib/utils';
 import pick from 'lodash/pick';
 import { isAF, isEAForum, siteUrlSetting } from '../lib/instanceSettings';
@@ -53,13 +53,6 @@ class Auth0StrategyFixed extends Auth0Strategy {
   userProfile!: (accessToken: string, done: (err: Error | null, profile?: Auth0Profile) => void) => void;
 }
 
-const googleClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.google.clientId', null)
-const googleOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.google.secret', null)
-
-const auth0ClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.auth0.appId', null)
-const auth0OAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.auth0.secret', null)
-const auth0DomainSetting = new DatabaseServerSetting<string | null>('oAuth.auth0.domain', null)
-
 export const hasAuth0 = () => {
   const { auth0ClientId, auth0OAuthSecret, auth0Domain } = getAuth0Credentials();
 
@@ -81,10 +74,6 @@ export const getAuth0Credentials = () => {
 const facebookClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.facebook.appId', null)
 const facebookOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.facebook.secret', null)
 
-const githubClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.github.clientId', null)
-const githubOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.github.secret', null)
-const afGithubClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.afGithub.clientId', null)
-const afGithubOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.afGithub.secret', null)
 export const expressSessionSecretSetting = new DatabaseServerSetting<string | null>('expressSessionSecret', null)
 
 
@@ -303,7 +292,7 @@ const handleAuthenticate = (
     if (err) {
       return next(err);
     }
-    await createAndSetToken(req, res, user);
+    await createAndSetToken(req, user);
 
     const returnTo = getReturnTo(req);
     res.statusCode = 302;
