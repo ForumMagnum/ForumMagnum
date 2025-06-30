@@ -1,8 +1,11 @@
+import { KEYWORD_INTERVAL_HOURS } from "@/lib/keywordAlertHelpers";
 import ElasticClient from "@/server/search/elastic/ElasticClient";
-import {
-  getDefaultKeywordStartDate,
-  getKeywordEndDate,
-} from "@/lib/keywordAlertHelpers";
+
+export const getDefaultKeywordStartDate = (currentTime = new Date()) =>
+  new Date(currentTime.getTime() - (KEYWORD_INTERVAL_HOURS * 60 * 60 * 1000));
+
+const getKeywordEndDate = (startDate: Date) =>
+  new Date(startDate.getTime() + (KEYWORD_INTERVAL_HOURS * 60 * 60 * 1000));
 
 export const fetchPostIdsForKeyword = async (
   keyword: string,

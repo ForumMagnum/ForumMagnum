@@ -2,8 +2,7 @@ import { hasKeywordAlerts } from "@/lib/betas";
 import { addCronJob } from "../cron/cronUtil";
 import { createNotifications } from "../notificationCallbacksHelpers";
 import { createAdminContext } from "../vulcan-lib/createContexts";
-import { fetchPostIdsForKeyword } from "./keywordSearch";
-import { getDefaultKeywordStartDate } from "@/lib/keywordAlertHelpers";
+import { fetchPostIdsForKeyword, getDefaultKeywordStartDate } from "./keywordSearch";
 import CronHistories from "../collections/cronHistories/collection";
 import UsersRepo from "../repos/UsersRepo";
 
