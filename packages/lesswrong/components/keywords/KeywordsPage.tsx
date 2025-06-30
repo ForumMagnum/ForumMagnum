@@ -23,11 +23,20 @@ const styles = (theme: ThemeType) => ({
     pointerEvents: "none",
   },
   title: {
+    display: "flex",
+    gap: "12px",
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 24,
     fontWeight: 600,
     marginTop: 24,
     marginBottom: 32,
+    "& svg": {
+      transform: "translateY(2px)",
+    },
+  },
+  info: {
+    color: theme.palette.grey[600],
+    "--icon-size": "20px",
   },
   form: {
     display: "flex",
@@ -120,7 +129,15 @@ const KeywordsPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
     <AnalyticsContext pageContext="keywordsPage">
       <SingleColumnSection className={classNames(updating && classes.updating)}>
         <HeadTags />
-        <div className={classes.title}>Keyword alerts</div>
+        <div className={classes.title}>
+          Keyword alerts
+          <LWTooltip
+            title="Receive notifications for new content matching a search query"
+            className={classes.info}
+          >
+            <ForumIcon icon="InfoCircle" />
+          </LWTooltip>
+        </div>
         <SectionTitle title="Add alert" />
         <form onSubmit={onSubmitKeyword} className={classes.form}>
           <EAOnboardingInput
