@@ -1047,7 +1047,7 @@ const PostForm = ({
           </form.Field>
         </div>}
 
-        {(userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'alignmentForum')) && <div className={classes.fieldWrapper}>
+        {isLWorAF && (userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'alignmentForum')) && <div className={classes.fieldWrapper}>
           <form.Field name="af">
             {(field) => (
               <FormComponentCheckbox

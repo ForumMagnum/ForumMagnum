@@ -155,6 +155,7 @@ const utils = {
         to: email,
         subject: `New comment on ${post.title}`,
         body: <EmailComment commentId={comment._id}/>,
+        tag: "rsvps-new-comment",
       });
     }
   },

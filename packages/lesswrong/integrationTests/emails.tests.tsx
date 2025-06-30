@@ -26,7 +26,8 @@ async function renderTestEmail({ user=null, subject="Unit test email", bodyCompo
     to: email,
     subject: "Unit test email",
     bodyComponent,
-    boilerplateGenerator: boilerplateGenerator||unitTestBoilerplateGenerator
+    boilerplateGenerator: boilerplateGenerator||unitTestBoilerplateGenerator,
+    tag: "test",
   });
 }
 

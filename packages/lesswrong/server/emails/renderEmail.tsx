@@ -36,6 +36,7 @@ export interface RenderedEmail {
   subject: string,
   html: string,
   text: string,
+  tag: string,
 }
 
 // How many characters to wrap the plain-text version of the email to
@@ -135,7 +136,16 @@ function addEmailBoilerplate({ css, title, body }: {
 
 const defaultEmailSetting = new DatabaseServerSetting<string>('defaultEmail', "hello@world.com")
 
-export async function generateEmail({user, to, from, subject, bodyComponent, boilerplateGenerator=addEmailBoilerplate, utmParams}: {
+export async function generateEmail({
+  user,
+  to,
+  from,
+  subject,
+  bodyComponent,
+  boilerplateGenerator=addEmailBoilerplate,
+  utmParams,
+  tag,
+}: {
   user: DbUser | null,
   to: string,
   from?: string,
@@ -143,6 +153,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   bodyComponent: React.ReactNode,
   boilerplateGenerator?: (props: {css: string, title: string, body: string}) => string,
   utmParams?: Partial<Record<UtmParam, string>>;
+  tag: string,
 }): Promise<RenderedEmail>
 {
   if (!subject) throw new Error("Missing required argument: subject");
@@ -223,6 +234,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     subject: isLWorAF ? taggedSubject : subject,
     html: emailDoctype + inlinedHTML,
     text: plaintext,
+    tag,
   }
 }
 export const wrapAndRenderEmail = async ({
@@ -231,7 +243,8 @@ export const wrapAndRenderEmail = async ({
   from,
   subject,
   body,
-  utmParams
+  utmParams,
+  tag,
 }: {
   user: DbUser | null;
   to: string;
@@ -239,6 +252,7 @@ export const wrapAndRenderEmail = async ({
   subject: string;
   body: React.ReactNode;
   utmParams?: Partial<Record<UtmParam, string>>;
+  tag: string,
 }): Promise<RenderedEmail> => {
   const unsubscribeAllLink = user ? await emailTokenTypesByName.unsubscribeAll.generateLink(user._id) : null;
   return await generateEmail({
@@ -251,7 +265,8 @@ export const wrapAndRenderEmail = async ({
     >
       {body}
     </EmailWrapper>,
-    utmParams
+    utmParams,
+    tag,
   });
 }
 
@@ -262,7 +277,8 @@ export const wrapAndSendEmail = async ({
   from,
   subject,
   body,
-  utmParams
+  utmParams,
+  tag,
 }: {
   user: DbUser | null;
   force?: boolean;
@@ -271,6 +287,7 @@ export const wrapAndSendEmail = async ({
   subject: string;
   body: React.ReactNode;
   utmParams?: Partial<Record<UtmParam, string>>;
+  tag: string,
 }): Promise<boolean> => {
   if (isE2E) {
     return true;
@@ -287,7 +304,15 @@ export const wrapAndSendEmail = async ({
   }
 
   try {
-    const email = await wrapAndRenderEmail({ user, to: destinationAddress, from, subject, body, utmParams });
+    const email = await wrapAndRenderEmail({
+      user,
+      to: destinationAddress,
+      from,
+      subject,
+      body,
+      utmParams,
+      tag,
+    });
     const succeeded = await sendEmail(email);
     void logSentEmail(email, user, {succeeded});
     return succeeded;

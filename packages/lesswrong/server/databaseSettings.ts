@@ -105,6 +105,9 @@ export const autoFrontpageSetting = new DatabaseServerSetting<boolean>('language
 export const autoFrontpageModelSetting = new DatabaseServerSetting<string|null>('languageModels.autoTagging.autoFrontpageModel', "gpt-4o-mini");
 export const autoFrontpagePromptSetting = new DatabaseServerSetting<string | null>("languageModels.autoTagging.autoFrontpagePrompt", null);
 
+export const slackApiTokenSetting = new DatabaseServerSetting<string | null>("slack.apiToken", null)
+export const slackModFlagsChannelIdSetting = new DatabaseServerSetting<string | null>("slack.modFlagsChannelId", null)
+
 // Akismet API integration
 export const akismetKeySetting = new DatabaseServerSetting<string | null>('akismet.apiKey', null)
 export const akismetURLSetting = new DatabaseServerSetting<string | null>('akismet.url', null)

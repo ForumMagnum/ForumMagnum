@@ -4,6 +4,9 @@ import classNames from "classnames";
 import LWDialog from "./LWDialog";
 
 const styles = (theme: ThemeType) => ({
+  paper: {
+    maxWidth: "unset !important",
+  },
   root: {
     background: theme.palette.panelBackground.modalBackground,
     borderRadius: theme.borderRadius.default,
@@ -47,11 +50,18 @@ export const BlurredBackgroundModal = ({
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  return <LWDialog open={open} onClose={onClose} backdrop="blur">
-    <div className={classNames(classes.root, className)}>
-      {children}
-    </div>
-  </LWDialog>
+  return (
+    <LWDialog
+      open={open}
+      onClose={onClose}
+      backdrop="blur"
+      paperClassName={classes.paper}
+    >
+      <div className={classNames(classes.root, className)}>
+        {children}
+      </div>
+    </LWDialog>
+  );
 }
 
 export default registerComponent(

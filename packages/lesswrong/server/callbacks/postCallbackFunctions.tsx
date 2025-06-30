@@ -842,7 +842,8 @@ export async function eventUpdatedNotifications({newDocument: newPost, oldDocume
         user: user,
         to: email,
         subject: `Event updated: ${newPost.title}`,
-        body: <EventUpdatedEmail postId={newPost._id} />
+        body: <EventUpdatedEmail postId={newPost._id} />,
+        tag: "event-updated",
       });
     }
     
@@ -1051,11 +1052,11 @@ export async function sendEAFCuratedAuthorsNotification(post: DbPost, oldPost: D
     }).fetch()
     
     void Promise.all(authors.map(author => wrapAndSendEmail({
-        user: author,
-        subject: "We’ve curated your post",
-        body: <EmailCuratedAuthors user={author} post={post} />
-      })
-    ))
+      user: author,
+      subject: "We’ve curated your post",
+      body: <EmailCuratedAuthors user={author} post={post} />,
+      tag: "curated-author",
+    })))
   }
 }
 

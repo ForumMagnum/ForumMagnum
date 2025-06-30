@@ -34,6 +34,7 @@ import GraphQLJSON from "graphql-type-json";
 import gql from "graphql-tag";
 import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificationSettingOnCreate, defaultNotificationTypeSettings, emailEnabledNotificationSettingOnCreate, notificationTypeSettingsSchema } from "./notificationFieldHelpers";
 import { loadByIds } from "@/lib/loaders";
+import { isFriendlyUI } from "@/themes/forumTheme";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -647,6 +648,7 @@ const schema = {
         simpleSchema: userTheme,
         optional: true,
       },
+      ...(isFriendlyUI ? { onCreate: () => ({ name: "auto" }) } : {}),
     },
   },
   lastUsedTimezone: {
@@ -1900,6 +1902,18 @@ const schema = {
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
   },
   notificationNewMention: {
+    database: {
+      type: "JSONB",
+      defaultValue: defaultNotificationTypeSettings,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+      ...(isEAForum ? { onCreate: () => emailEnabledNotificationSettingOnCreate } : {}),
+    },
+  },
+  notificationNewPingback: {
     database: {
       type: "JSONB",
       defaultValue: defaultNotificationTypeSettings,

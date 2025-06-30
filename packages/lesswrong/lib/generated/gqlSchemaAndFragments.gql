@@ -4832,6 +4832,7 @@ type User {
   notificationPostsNominatedReview: JSON
   notificationSubforumUnread: JSON
   notificationNewMention: JSON
+  notificationNewPingback: JSON
   notificationDialogueMessages: JSON
   notificationPublishedDialogueMessages: JSON
   notificationAddedAsCoauthor: JSON
@@ -7143,6 +7144,7 @@ input CreateUserDataInput {
   notificationPostsNominatedReview: JSON
   notificationSubforumUnread: JSON
   notificationNewMention: JSON
+  notificationNewPingback: JSON
   notificationDialogueMessages: JSON
   notificationPublishedDialogueMessages: JSON
   notificationAddedAsCoauthor: JSON
@@ -7317,6 +7319,7 @@ input UpdateUserDataInput {
   notificationPostsNominatedReview: JSON
   notificationSubforumUnread: JSON
   notificationNewMention: JSON
+  notificationNewPingback: JSON
   notificationDialogueMessages: JSON
   notificationPublishedDialogueMessages: JSON
   notificationAddedAsCoauthor: JSON
@@ -10195,6 +10198,13 @@ fragment ReportsDefaultFragment on Report {
   reportedAsSpam
 }
 
+fragment ReportsSlackPreview on Report {
+  ...UnclaimedReportsList
+  comment {
+    ...CommentsListWithParentMetadata
+  }
+}
+
 fragment ReviewVotesDefaultFragment on ReviewVote {
   _id
   schemaVersion
@@ -12281,6 +12291,7 @@ fragment UsersDefaultFragment on User {
   notificationPostsNominatedReview
   notificationSubforumUnread
   notificationNewMention
+  notificationNewPingback
   notificationDialogueMessages
   notificationPublishedDialogueMessages
   notificationAddedAsCoauthor
@@ -12509,6 +12520,7 @@ fragment UsersEdit on User {
   notificationGroupAdministration
   notificationSubforumUnread
   notificationNewMention
+  notificationNewPingback
   notificationNewDialogueChecks
   notificationYourTurnMatchForm
   notificationDialogueMessages

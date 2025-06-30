@@ -864,6 +864,55 @@ export const NewMentionNotification = createServerNotificationType({
   },
 });
 
+export const NewPingbackNotification = createServerNotificationType({
+  name: "newPingback",
+  emailSubject: async ({ notifications, context }: {
+    user: DbUser,
+    notifications: DbNotification[],
+    context: ResolverContext,
+  }) => {
+    const notification = notifications[0];
+    if (!notification) {
+      throw Error("Missing notification for newPingback");
+    }
+    const summary = await getDocumentSummary(
+      notification.documentType as NotificationDocument,
+      notification.documentId,
+      context,
+    );
+    if (!summary) {
+      throw Error(`Can't find document for notification: ${notification}`);
+    }
+    return `${summary.associatedUserName} mentioned your ${notification.extraData?.pingbackType} "${notification.extraData?.pingbackDocumentExcerpt}"`;
+  },
+  emailBody: async ({ notifications, context }: {
+    user: DbUser,
+    notifications: DbNotification[],
+    context: ResolverContext,
+  }) => {
+    const notification = notifications[0];
+    if (!notification) {
+      throw Error("Missing notification for newPingback");
+    }
+    const summary = await getDocumentSummary(
+      notification.documentType as NotificationDocument,
+      notification.documentId,
+      context,
+    );
+    if (!summary) {
+      throw Error(`Can't find document for notification: ${notification}`);
+    }
+    if (!notification.link) {
+      throw Error(`Can't find link for notification: ${notification}`);
+    }
+    return (
+      <p>
+        {summary.associatedUserName} <a href={makeAbsolute(notification.link)}>mentioned your {notification.extraData?.pingbackType}</a> "{notification.extraData?.pingbackDocumentExcerpt}".
+      </p>
+    );
+  },
+});
+
 const serverNotificationTypesArray: ServerNotificationType[] = [
   NewPostNotification,
   PostApprovedNotification,
@@ -901,6 +950,7 @@ const serverNotificationTypesArray: ServerNotificationType[] = [
   KeywordAlertNotification,
   NewSubforumMemberNotification,
   NewMentionNotification,
+  NewPingbackNotification,
 ];
 const serverNotificationTypes: Record<string,ServerNotificationType> = keyBy(serverNotificationTypesArray, n=>n.name);
 
