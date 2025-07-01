@@ -237,6 +237,7 @@ const NotificationsPopover = ({
                     loading={markingAsRead}
                     disabled={markingAsRead}
                   />
+                  <DropdownItem title="Keyword alerts" to="/keywords" />
                   <DropdownItem
                     title="Notification settings"
                     to={notificationsSettingsLink}

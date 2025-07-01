@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib/fragments";
 import { ApolloError, ApolloQueryResult, NetworkStatus, gql, useQuery } from "@apollo/client";
 import take from "lodash/take";
-import isEqual from "lodash/isEqual"
 import type { LoadMoreCallback, LoadMoreProps } from "../../lib/crud/withMulti";
 import { apolloSSRFlag } from "../../lib/helpers";
 
@@ -21,6 +20,28 @@ export type UsePaginatedResolverResult<
   limit: number,
 }
 
+type PaginatedResolverArg = {
+  name: string,
+  graphQLType: string,
+  value: unknown,
+}
+
+const formatArgs = (args: PaginatedResolverArg[] = []) => {
+  const values: Record<string, unknown> = {};
+  let queryString = "";
+  let resolverString = "";
+  for (const { name, graphQLType, value } of args) {
+    values[name] = value;
+    queryString += `, $${name}: ${graphQLType}`;
+    resolverString += `, ${name}: $${name}`;
+  }
+  return {
+    values,
+    queryString,
+    resolverString,
+  };
+}
+
 /**
  * This hook provides a `useMulti`-like interface to use with custom paginated
  * resolvers created on the server with `createPaginatedResolver`. Arguments
@@ -33,6 +54,7 @@ export const usePaginatedResolver = <
   resolverName,
   limit: initialLimit = 10,
   itemsPerPage = 10,
+  args,
   ssr = true,
   skip = false,
 }: {
@@ -40,14 +62,16 @@ export const usePaginatedResolver = <
   resolverName: string,
   limit?: number,
   itemsPerPage?: number,
+  args?: PaginatedResolverArg[],
   ssr?: boolean,
   skip?: boolean,
 }): UsePaginatedResolverResult<FragmentName> => {
   const [limit, setLimit] = useState(initialLimit);
+  const {values, queryString, resolverString} = formatArgs(args);
 
   const query = gql`
-    query get${resolverName}($limit: Int) {
-      ${resolverName}(limit: $limit) {
+    query get${resolverName}($limit: Int${queryString}) {
+      ${resolverName}(limit: $limit${resolverString}) {
         results {
           ...${fragmentName}
         }
@@ -73,6 +97,7 @@ export const usePaginatedResolver = <
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-only",
     variables: {
+      ...values,
       limit,
     },
   });

@@ -24,7 +24,7 @@ import {
 } from '../../lib/search/searchUtil';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
-import { userHasPeopleDirectory } from '../../lib/betas';
+import { hasKeywordAlerts, userHasPeopleDirectory } from '../../lib/betas';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import SearchFilters from "./SearchFilters";
@@ -157,12 +157,25 @@ const styles = (theme: ThemeType) => ({
       fontSize: '1rem'
     }
   },
+  statsContainer: {
+    display: "flex",
+    gap: "16px",
+  },
   resultCount: {
     fontFamily: theme.typography.fontFamily,
     fontWeight: 400,
     fontSize: 14,
     color: theme.palette.grey[700],
     marginBottom: 20
+  },
+  keywordAlerts: {
+    display: "inline-flex",
+    gap: "6px",
+    alignItems: "center",
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 500,
+    color: theme.palette.primary.dark,
+    "--icon-size": "20px",
   },
   pagination: {
     ...theme.typography.commentStyle,
@@ -436,7 +449,23 @@ const SearchPageTabbed = ({classes}: {
 
         <ErrorBoundary>
           <Configure hitsPerPage={hitsPerPage} />
-          <CustomStats className={classes.resultCount} />
+          <div className={classes.statsContainer}>
+            <CustomStats className={classes.resultCount} />
+            {hasKeywordAlerts && tab === "Posts" &&
+              <LWTooltip
+                title="Get notifications for new posts matching this query"
+                placement="top"
+                As="div"
+              >
+                <Link
+                  to={`/keywords?add=${searchState?.query ?? ""}`}
+                  className={classes.keywordAlerts}
+                >
+                  <ForumIcon icon="BellBorder" /> Get notified
+                </Link>
+              </LWTooltip>
+            }
+          </div>
           {userHasPeopleDirectory(currentUser) && tab === "Users" && searchState?.query &&
             <Link
               to={`/people-directory?query=${encodeURIComponent(searchState.query)}`}

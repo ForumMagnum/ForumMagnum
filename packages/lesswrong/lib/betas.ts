@@ -109,6 +109,7 @@ export const hasWikiLenses = isLWorAF;
 export const hasSubforums = isEAForum;
 export const hasPolls = isEAForum;
 export const hasDraftComments = isEAForum;
+export const hasKeywordAlerts = isEAForum;
 
 // EA Forum disabled the author's ability to moderate posts. We disregard this
 // check in tests as the tests run in EA Forum mode, but we want to be able to

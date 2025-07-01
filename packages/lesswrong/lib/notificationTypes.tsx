@@ -923,6 +923,35 @@ export const CoauthorAcceptNotification = createNotificationType({
   Display: ({Post}) => <>Your co-author request for <Post /> was accepted</>,
 })
 
+export const KeywordAlertNotification = createNotificationType({
+  name: 'keywordAlert',
+  userSettingField: 'notificationKeywordAlert',
+  getLink: ({extraData}) => {
+    if (!extraData?.keyword || !extraData.startDate || !extraData.endDate) {
+      throw new Error("Invalid keyword alert data");
+    }
+    const {keyword, startDate, endDate} = extraData;
+    const start = new Date(startDate).toISOString();
+    const end = new Date(endDate).toISOString();
+    return `/keywords/${encodeURIComponent(keyword)}?start=${start}&end=${end}`;
+  },
+  async getMessage({extraData}: GetMessageProps) {
+    const alerts = extraData?.count === 1 ? "alert" : "alerts";
+    return `${extraData?.count} new ${alerts} for "${extraData?.keyword}"`;
+  },
+  getIcon() {
+    return <PostsIcon style={iconStyles} />
+  },
+  Display: ({notification: {link, extraData}}) => {
+    const alerts = extraData?.count === 1 ? "alert" : "alerts";
+    return (
+      <Link to={link}>
+        {extraData?.count} new {alerts} for {extraData?.keyword}
+      </Link>
+    )
+  },
+})
+
 export const NewMentionNotification = createNotificationType({
   name: "newMention",
   userSettingField: "notificationNewMention",
@@ -999,6 +1028,7 @@ const notificationTypesArray: NotificationType[] = [
   NewCommentOnDraftNotification,
   CoauthorRequestNotification,
   CoauthorAcceptNotification,
+  KeywordAlertNotification,
   NewMentionNotification,
   NewPingbackNotification,
 ];
