@@ -74,7 +74,12 @@ const EAPostMeta = ({post, useEventStyles, useCuratedDate=true, className, class
         <span className={classes.eventOrganizer}>
           <span className={classes.dot}>·</span>
           <InteractionWrapper className={classes.interactionWrapper}>
-            <TruncatedAuthorsList post={post} expandContainer={authorExpandContainer} className={classes.authorsList} />
+            <TruncatedAuthorsList
+              post={post}
+              expandContainer={authorExpandContainer}
+              tooltipPlacement="bottom-start"
+              className={classes.authorsList}
+            />
           </InteractionWrapper>
         </span>
       </div>
@@ -90,6 +95,7 @@ const EAPostMeta = ({post, useEventStyles, useCuratedDate=true, className, class
         <TruncatedAuthorsList
           post={post}
           expandContainer={authorExpandContainer}
+          tooltipPlacement="bottom-start"
         />
       </InteractionWrapper>
       <div>
