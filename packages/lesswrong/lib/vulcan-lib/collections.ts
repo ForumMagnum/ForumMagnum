@@ -9,9 +9,8 @@ export const collectionNameToGraphQLType = (collectionName: CollectionNameString
 
 export const createCollection = <N extends CollectionNameString>(
   options: CollectionOptions<N>,
-): CollectionsByName[N] => {
-  const collection: CollectionBase<N> = new Collection(options);
+) => {
+  const collection = new Collection(options);
 
-  // TODO: This type should coerce better?
-  return collection as unknown as CollectionsByName[N];
+  return collection;
 };

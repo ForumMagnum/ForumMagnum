@@ -1,7 +1,8 @@
 import { getAllCollections } from '@/server/collections/allCollections';
 import { generateAllowedValuesTypeString, generatedFileHeader, graphqlTypeToTypescript, isFieldNullable, simplSchemaTypeToTypescript } from './typeGenerationUtils';
 import { isUniversalField } from '../../lib/utils/schemaUtils';
-import { getSchema, getSimpleSchema } from '@/lib/schema/allSchemas';
+import { getSchema } from '@/lib/schema/allSchemas';
+import { getSimpleSchema } from '@/lib/schema/allSimpleSchemas';
 import orderBy from 'lodash/orderBy';
 import { isArrayTypeString, isVarcharTypeString } from '../sql/Type';
 import SimpleSchema from 'simpl-schema';

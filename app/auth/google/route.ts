@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { initDatabases, initPostgres, initSettings } from '@/server/serverStartup';
+import { initDatabases, initSettings } from '@/server/serverStartup';
 import { generateOAuthState, getGoogleAuthUrl } from '@/lib/auth/googleOAuth';
 import type { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 
@@ -8,7 +8,6 @@ await initDatabases({
   postgresUrl: process.env.PG_URL || '',
   postgresReadUrl: process.env.PG_URL || '',
 });
-await initPostgres();
 await initSettings();
 
 const GOOGLE_OAUTH_COOKIE_SETTINGS: Omit<ResponseCookie, 'name' | 'value'> = {

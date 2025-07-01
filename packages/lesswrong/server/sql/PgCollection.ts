@@ -12,7 +12,6 @@ import BulkWriter, { BulkWriterResult } from "./BulkWriter";
 import util from "util";
 import { DatabaseIndexSet } from "../../lib/utils/databaseIndexSet";
 import TableIndex from "./TableIndex";
-import { getSchema } from "@/lib/schema/allSchemas";
 
 let executingQueries = 0;
 
@@ -69,12 +68,19 @@ class PgCollection<
     return !!this.options.voteable;
   }
 
-  hasSlug(): this is PgCollection<CollectionNameWithSlug> {
-    const schema = getSchema(this.collectionName);
-    return !!schema.slug;
-  }
+  // async getSlugCollectionGuard(): Promise<() => this is PgCollection<CollectionNameWithSlug>> {
+  //   const { getSchema } = await import("@/lib/schema/allSchemas");
+
+  //   return (): this is PgCollection<CollectionNameWithSlug> => {
+  //     const schema = getSchema(this.collectionName);
+  //     return !!schema.slug;
+  //   }
+  // }
 
   getTable() {
+    if (!this.table) {
+      this.buildPostgresTable();
+    }
     return this.table;
   }
 

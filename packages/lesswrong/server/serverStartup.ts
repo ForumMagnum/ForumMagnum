@@ -4,8 +4,7 @@
 import '@/lib/utils/extendSimpleSchemaOptions';
 import { createSqlConnection } from './sqlConnection';
 import { replaceDbNameInPgConnectionString, setSqlClient } from './sql/sqlClient';
-import PgCollection, { DbTarget } from './sql/PgCollection';
-import { getAllCollections } from './collections/allCollections';
+import type { DbTarget } from './sql/PgCollection';
 import { isAnyTest } from '../lib/executionEnvironment';
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { CommandLineArguments, getCommandLineArguments } from './commandLine';
@@ -69,15 +68,6 @@ export const initSettings = () => {
   return refreshSettingsCaches();
 }
 
-export const initPostgres = async () => {
-  if (getAllCollections().some(collection => collection instanceof PgCollection)) {
-    for (const collection of getAllCollections()) {
-      if (collection instanceof PgCollection) {
-        collection.buildPostgresTable();
-      }
-    }
-  }
-}
 
 export const initServer = async (commandLineArguments: CommandLineArguments) => {
   initConsole();
@@ -87,7 +77,7 @@ export const initServer = async (commandLineArguments: CommandLineArguments) => 
   await initDatabases(commandLineArguments);
   await initSettings();
   // importAllServerFiles();
-  await initPostgres();
+  // await initPostgres();
 }
 
 // function importAllServerFiles() {

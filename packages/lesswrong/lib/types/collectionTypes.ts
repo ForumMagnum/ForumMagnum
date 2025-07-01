@@ -37,7 +37,6 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
 
   isConnected: () => boolean
   isVoteable: () => this is CollectionBase<VoteableCollectionName>;
-  hasSlug: () => boolean
   getTable: () => Table<ObjectsByCollectionName[N]>;
   getIndexes: () => DatabaseIndexSet;
 

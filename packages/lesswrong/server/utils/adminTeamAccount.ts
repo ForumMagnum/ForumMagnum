@@ -9,7 +9,7 @@ export const getAdminTeamAccount = async (context: ResolverContext) => {
   }
 
   // We need this dynamic require because the jargonTerms schema actually uses `getAdminTeamAccountId` when declaring the schema.
-  const { createUser }: typeof import("../collections/users/mutations") = require("../collections/users/mutations");
+  const { createUser } = await import("../collections/users/mutations");
 
   let account = await Users.findOne({username: adminAccountData.username});
   if (!account) {
