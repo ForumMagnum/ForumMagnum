@@ -206,6 +206,8 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     minWidth: 0,
     order: 2,
     display: 'none',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
     [theme.breakpoints.up('sm')]: {
       display: 'block',
     },
