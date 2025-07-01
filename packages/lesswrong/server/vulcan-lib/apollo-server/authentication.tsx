@@ -10,7 +10,6 @@ import { LegacyData } from '../../../server/collections/legacyData/collection';
 import { emailTokenTypesByName } from "../../emails/emailTokens";
 import { wrapAndSendEmail } from '../../emails/renderEmail';
 import SimpleSchema from 'simpl-schema';
-import { clearCookie } from '../../utils/httpUtil';
 import { DatabaseServerSetting } from "../../databaseSettings";
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import {userFindOneByEmail} from "../../commonQueries";
@@ -23,6 +22,15 @@ import { createDisplayName } from '@/lib/collections/users/newSchema';
 import { comparePasswords, createPasswordHash, validatePassword } from './passwordHelpers';
 import type { NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
+
+// Given an HTTP request, clear a named cookie. Handles the difference between
+// the Meteor and Express server middleware setups. Works by setting an
+// expiration date in the past, which apparently is the recommended way to
+// remove cookies.
+async function clearCookie(cookieName: string) {
+  const cookieStore = await cookies();
+  cookieStore.delete(cookieName);
+}
 
 const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPassport(username, password, done) {
   const user = await new UsersRepo().getUserByUsernameOrEmail(username);

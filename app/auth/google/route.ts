@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { generateOAuthState, getGoogleAuthUrl } from '@/lib/auth/googleOAuth';
 import { initDatabases, initPostgres, initSettings } from '@/server/serverStartup';
+import { generateOAuthState, getGoogleAuthUrl } from '@/lib/auth/googleOAuth';
 import type { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 
 await initDatabases({

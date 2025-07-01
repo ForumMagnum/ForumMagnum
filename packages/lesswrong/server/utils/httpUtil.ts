@@ -1,7 +1,6 @@
 import { isProduction } from '@/lib/executionEnvironment';
 import type { Request, Response } from 'express';
 import type { IncomingMessage } from 'http';
-import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 import Cookies from 'universal-cookie';
 
@@ -29,15 +28,6 @@ export function getCookieFromReq(req: Request | IncomingMessage | NextRequest, c
     throw new Error("Tried to get a cookie but middleware not correctly configured");
 
   return untypedReq.universalCookies?.get(cookieName) ?? untypedReq.cookies?.[cookieName];
-}
-
-// Given an HTTP request, clear a named cookie. Handles the difference between
-// the Meteor and Express server middleware setups. Works by setting an
-// expiration date in the past, which apparently is the recommended way to
-// remove cookies.
-export async function clearCookie(cookieName: string) {
-  const cookieStore = await cookies();
-  cookieStore.delete(cookieName);
 }
 
 // Differs between Meteor-wrapped Express and regular Express, for some reason.

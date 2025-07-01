@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { initDatabases, initPostgres, initSettings } from '@/server/serverStartup';
 import { exchangeCodeForTokens, fetchGitHubUserProfile, getGitHubPrimaryEmail } from '@/lib/auth/githubOAuth';
 import { getOrCreateGitHubUser } from '@/server/authentication/githubAccounts';
 import { createAndSetToken } from '@/server/vulcan-lib/apollo-server/authentication';
 import { captureException } from '@sentry/core';
-import { initDatabases, initPostgres, initSettings } from '@/server/serverStartup';
 
 await initDatabases({
   postgresUrl: process.env.PG_URL || '',

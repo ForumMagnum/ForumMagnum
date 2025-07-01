@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { initDatabases, initPostgres, initSettings } from '@/server/serverStartup';
 import { exchangeCodeForTokens, fetchGoogleUserProfile } from '@/lib/auth/googleOAuth';
 import { getOrCreateGoogleUser } from '@/server/authentication/googleAccounts';
 import { createAndSetToken } from '@/server/vulcan-lib/apollo-server/authentication';
 import { captureException } from '@sentry/core';
-import { initDatabases, initPostgres, initSettings } from '@/server/serverStartup';
 
 await initDatabases({
   postgresUrl: process.env.PG_URL || '',
