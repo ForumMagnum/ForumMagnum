@@ -512,7 +512,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           WHERE
               ${getUniversalCommentFilterClause('c')}
               AND c."userId" != $(userId)
-              AND (c.shortform IS TRUE OR c."postedAt" > (NOW() - INTERVAL '1 day' * $(initialCandidateLookbackDaysParam)))
+              AND c."postedAt" > (NOW() - INTERVAL '1 day' * $(initialCandidateLookbackDaysParam))
               AND p.draft IS NOT TRUE
           ORDER BY c."postedAt" DESC
           LIMIT $(initialCandidateLimit)
