@@ -28,15 +28,34 @@ export interface UltraFeedSettingsType {
 }
 
 const DEFAULT_DISPLAY_SETTINGS: UltraFeedDisplaySettings = {
-  postInitialWords: 200,
-  postMaxWords: 2000,
+  postInitialWords: 100,
+  postMaxWords: 250,
   lineClampNumberOfLines: 0,
   commentCollapsedInitialWords: 50,
-  commentExpandedInitialWords: 200,
-  commentMaxWords: 1000,
+  commentExpandedInitialWords: 100,
+  commentMaxWords: 250,
 };
 
+export const truncationLevels = ['Very Short', 'Short', 'Medium', 'Long', 'Full'] as const;
+export type TruncationLevel = typeof truncationLevels[number];
 export const SHOW_ALL_BREAKPOINT_VALUE = 100_000;
+
+export const levelToWordCountMap: Record<TruncationLevel, number> = {
+  'Very Short': 50,
+  'Short': 100,
+  'Medium': 250,
+  'Long': 1000,
+  'Full': SHOW_ALL_BREAKPOINT_VALUE,
+};
+
+export const levelToPostWordCountMap: Record<TruncationLevel, number> = {
+  'Very Short': 50,
+  'Short': 100,
+  'Medium': 250,
+  'Long': 2000,
+  'Full': SHOW_ALL_BREAKPOINT_VALUE,
+};
+
 
 export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
   'recentComments': 30,
@@ -147,25 +166,6 @@ export const sourceWeightConfigs: SourceWeightConfig[] = [
     description: "We can throw in of your bookmarks to remind you about them."
   },
 ];
-
-export const truncationLevels = ['Very Short', 'Short', 'Medium', 'Long', 'Full'] as const;
-export type TruncationLevel = typeof truncationLevels[number];
-
-export const levelToWordCountMap: Record<TruncationLevel, number> = {
-  'Very Short': 50,
-  'Short': 100,
-  'Medium': 200,
-  'Long': 1000,
-  'Full': SHOW_ALL_BREAKPOINT_VALUE,
-};
-
-export const levelToPostWordCountMap: Record<TruncationLevel, number> = {
-  'Very Short': 50,
-  'Short': 100,
-  'Medium': 200,
-  'Long': 2000,
-  'Full': SHOW_ALL_BREAKPOINT_VALUE,
-};
 
 export const getWordCountLevel = (
   wordCount: number | undefined,
