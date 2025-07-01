@@ -5,6 +5,12 @@ import { RecombeeRecommendationArgs } from "@/lib/collections/users/recommendati
 import { UltraFeedResolverSettings } from "@/components/ultraFeed/ultraFeedSettingsTypes";
 import keyBy from 'lodash/keyBy';
 
+// Configuration for unviewed items optimization
+const UNVIEWED_RECOMBEE_CONFIG = {
+  lookbackDays: 14,
+  skipFetchThreshold: 0.5, // Skip if we have 70% of requested items
+  reduceFetchThreshold: 0.3, // Reduce to 50% if we have 30% of requested items
+};
 
 /**
  * Fetches recommended posts from Recombee, excluding specified IDs.
@@ -15,7 +21,7 @@ export async function getRecommendedPostsForUltraFeed(
   scenarioId = 'recombee-lesswrong-custom',
   additionalExcludedIds: string[] = []
 ): Promise<FeedFullPost[]> {
-  const { currentUser } = context;
+  const { currentUser, repos } = context;
   const recombeeUser = recombeeRequestHelpers.getRecombeeUser(context);
 
   if (!recombeeUser) {
@@ -24,10 +30,53 @@ export async function getRecommendedPostsForUltraFeed(
     return [];
   }
 
+  let unviewedRecombeePostIds: string[] = [];
+  let adjustedLimit = limit;
+  
+  if (currentUser?._id) {
+    unviewedRecombeePostIds = await repos.ultraFeedEvents.getUnviewedRecombeePostIds(
+      currentUser._id,
+      scenarioId,
+      UNVIEWED_RECOMBEE_CONFIG.lookbackDays,
+      limit
+    );
+    
+    const unviewedRatio = unviewedRecombeePostIds.length / limit;
+    
+    // eslint-disable-next-line no-console
+    console.log("getRecommendedPostsForUltraFeed: Unviewed optimization", {
+      userId: currentUser._id,
+      requestedLimit: limit,
+      unviewedCount: unviewedRecombeePostIds.length,
+      unviewedRatio,
+      willSkipAPI: unviewedRatio >= UNVIEWED_RECOMBEE_CONFIG.skipFetchThreshold,
+      willReduceAPI: unviewedRatio >= UNVIEWED_RECOMBEE_CONFIG.reduceFetchThreshold
+    });
+    
+    if (unviewedRatio >= UNVIEWED_RECOMBEE_CONFIG.skipFetchThreshold) {
+      // We have enough cached items, return them directly
+      const posts = await context.loaders.Posts.loadMany(unviewedRecombeePostIds.slice(0, limit));
+      
+      return posts
+        .filter((post): post is DbPost => !(post instanceof Error))
+        .slice(0, limit)
+        .map((post): FeedFullPost => ({
+          post,
+          postMetaInfo: {
+            sources: [scenarioId as FeedItemSourceType],
+            displayStatus: 'expanded',
+          },
+        }));
+    } else if (unviewedRatio >= UNVIEWED_RECOMBEE_CONFIG.reduceFetchThreshold) {
+      adjustedLimit = Math.ceil(limit * 0.5);
+    }
+  }
+
   let exclusionFilterString: string | undefined = undefined;
   const allExcludedIds = [
     ...(currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? []),
-    ...additionalExcludedIds
+    ...additionalExcludedIds,
+    ...unviewedRecombeePostIds
   ];
   
   if (allExcludedIds.length > 0) {
@@ -42,7 +91,7 @@ export async function getRecommendedPostsForUltraFeed(
     ...(exclusionFilterString && { filter: exclusionFilterString }),
   };
 
-  const recommendedResults = await recombeeApi.getRecommendationsForUser(recombeeUser, limit, lwAlgoSettings, context);
+  const recommendedResults = await recombeeApi.getRecommendationsForUser(recombeeUser, adjustedLimit, lwAlgoSettings, context);
   const displayPosts = recommendedResults.map((item): FeedFullPost | null => {
     if (!item.post?._id) return null;
     const { post, recommId, scenario, generatedAt } = item;
@@ -62,6 +111,24 @@ export async function getRecommendedPostsForUltraFeed(
       },
     };
   }).filter((p) => !!p);
+
+  if (adjustedLimit < limit && unviewedRecombeePostIds.length > 0) {
+    const postsToReuse = limit - displayPosts.length;
+    const reusedPostIds = unviewedRecombeePostIds.slice(0, postsToReuse);
+    const reusedPosts = await context.loaders.Posts.loadMany(reusedPostIds);
+    
+    const reusedDisplayPosts = reusedPosts
+      .filter((post): post is DbPost => !(post instanceof Error))
+      .map((post): FeedFullPost => ({
+        post,
+        postMetaInfo: {
+          sources: [scenarioId as FeedItemSourceType],
+          displayStatus: 'expanded',
+        },
+      }));
+    
+    return [...reusedDisplayPosts, ...displayPosts].slice(0, limit);
+  }
 
   return displayPosts;
 }
