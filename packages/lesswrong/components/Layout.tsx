@@ -24,7 +24,7 @@ import Header, { HEADER_HEIGHT } from './common/Header';
 import { useCookiePreferences } from './hooks/useCookiesWithConsent';
 import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
-import { isFriendlyUI } from '../themes/forumTheme';
+import { isBookUI, isFriendlyUI } from '../themes/forumTheme';
 import { requireCssVar } from '../themes/cssVars';
 import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
 import { CurrentAndRecentForumEventsProvider } from './hooks/useCurrentForumEvent';
@@ -202,10 +202,10 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
         src: "local('Arial')",
         unicodeRange: 'U+0370-03FF, U+1F00-1FFF' // Unicode range for greek characters
       },
-      {
+      ...(isBookUI ? [{
         fontFamily: "ETBookRoman",
         src: "url('https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1723063815/et-book-roman-line-figures_tvofzs.woff') format('woff')",  
-      },
+      }] : []),
     ],
     // Hide the CKEditor table alignment menu
     '.ck-table-properties-form__alignment-row': {
