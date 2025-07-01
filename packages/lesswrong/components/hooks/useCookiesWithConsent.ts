@@ -8,7 +8,7 @@ import { cookiePreferencesChanged } from "../../lib/cookies/callbacks";
 import { getExplicitConsentRequiredAsync, getExplicitConsentRequiredSync } from "../common/CookieBanner/geolocation";
 import { useTracking } from "../../lib/analyticsEvents";
 import moment from "moment";
-import { disableCookiePreferenceAutoUpdateSetting } from "../../lib/publicSettings";
+import { disableCookiePreferenceAutoUpdateSetting } from '@/lib/instanceSettings';
 
 /** Global variable storing the last time the cookie preferences were updated automatically, to prevent several instances
  * of this hook from updating the cookie preferences at the same time. */

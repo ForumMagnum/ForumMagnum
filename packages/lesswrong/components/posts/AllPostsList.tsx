@@ -14,9 +14,7 @@ import {
   timeframeToTimeBlock,
   TimeframeType,
 } from "./timeframeUtils";
-import {
-  forumAllPostsNumDaysSetting, forumAllPostsNumMonthsSetting, forumAllPostsNumWeeksSetting, forumAllPostsNumYearsSetting
-} from "../../lib/publicSettings";
+import { forumAllPostsNumDaysSetting, forumAllPostsNumMonthsSetting, forumAllPostsNumWeeksSetting, forumAllPostsNumYearsSetting } from '@/lib/instanceSettings';
 import type { PostsTimeBlockShortformOption } from "./PostsTimeBlock";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import PostsTimeframeList from "./PostsTimeframeList";

@@ -1,5 +1,5 @@
 import { isProduction, isServer } from "./executionEnvironment";
-import { commentPermalinkStyleSetting } from "./publicSettings";
+import { commentPermalinkStyleSetting } from './instanceSettings';
 
 export type ScrollHighlightLandmark = {
   landmarkName: string;

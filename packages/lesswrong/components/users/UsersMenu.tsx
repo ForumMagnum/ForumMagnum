@@ -21,7 +21,7 @@ import { isFriendlyUI, preferredHeadingCase, styleSelect } from '../../themes/fo
 import { isMobile } from '../../lib/utils/isMobile'
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/helpers';
 import { isAF, isEAForum, taggingNameCapitalSetting } from '../../lib/instanceSettings';
-import { blackBarTitle } from '../../lib/publicSettings';
+import { blackBarTitle } from '@/lib/instanceSettings';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { InteractionWrapper } from '../common/useClickableCell';
 import NewDialogueDialog from "../posts/NewDialogueDialog";

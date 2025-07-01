@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import { botSiteUrlSetting, botSiteUserAgentRegexesSetting } from '../lib/publicSettings';
+import { botSiteUrlSetting, botSiteUserAgentRegexesSetting } from '@/lib/instanceSettings';
 import { combineUrls } from '../lib/vulcan-lib/utils';
 import { botSiteRedirectEnabledSetting } from '../lib/instanceSettings';
 

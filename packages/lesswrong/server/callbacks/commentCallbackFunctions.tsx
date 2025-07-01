@@ -6,7 +6,7 @@ import { tagGetDiscussionUrl, EA_FORUM_COMMUNITY_TOPIC_ID } from "@/lib/collecti
 import { userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
 import { isEAForum } from "@/lib/instanceSettings";
-import { recombeeEnabledSetting } from "@/lib/publicSettings";
+import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { randomId } from "@/lib/random";
 import { userCanDo, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { noDeletionPmReason } from "@/lib/collections/comments/constants";

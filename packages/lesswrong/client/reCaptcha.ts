@@ -1,6 +1,6 @@
 import { getCookiePreferences } from '../lib/cookies/utils';
 import { isServer } from '../lib/executionEnvironment';
-import { reCaptchaSiteKeySetting } from '../lib/publicSettings';
+import { reCaptchaSiteKeySetting } from '@/lib/instanceSettings';
 
 let reCaptchaInitialized = false;
 

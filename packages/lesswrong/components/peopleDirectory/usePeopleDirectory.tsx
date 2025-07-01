@@ -10,7 +10,7 @@ import { captureException } from "@sentry/core";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { taggingNamePluralSetting, taggingNameCapitalSetting } from "@/lib/instanceSettings";
-import { algoliaPrefixSetting } from "@/lib/publicSettings";
+import { algoliaPrefixSetting } from '@/lib/instanceSettings';
 import qs from "qs";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";

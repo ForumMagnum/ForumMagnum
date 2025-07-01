@@ -4,7 +4,7 @@ import { ACCOUNT_DELETION_COOLING_OFF_DAYS, getUserEmail } from "@/lib/collectio
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { loggerConstructor } from "@/lib/utils/logging";
 import { mailchimpAPIKeySetting } from "../serverSettings";
-import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "@/lib/publicSettings";
+import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from '@/lib/instanceSettings';
 import md5 from "md5";
 import { captureException } from "@sentry/core";
 import { auth0RemoveAssociationAndTryDeleteUser } from "../authentication/auth0";

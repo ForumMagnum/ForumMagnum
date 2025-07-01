@@ -1,6 +1,6 @@
 import type Stripe from 'stripe';
 import * as Sentry from '@sentry/node';
-import { lightconeFundraiserPaymentLinkId } from '@/lib/publicSettings';
+import { lightconeFundraiserPaymentLinkId } from '@/lib/instanceSettings';
 import { lightconeFundraiserStripeSecretKeySetting } from '../serverSettings';
 export type SucceededPaymentIntent = Stripe.PaymentIntent & { status: 'succeeded' };
 

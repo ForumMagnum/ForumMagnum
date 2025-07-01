@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React from 'react';
-import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
+import { hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';

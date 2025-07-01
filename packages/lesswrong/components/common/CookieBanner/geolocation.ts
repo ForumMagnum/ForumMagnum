@@ -1,5 +1,5 @@
 import { isServer } from "../../../lib/executionEnvironment";
-import { hasCookieConsentSetting, ipApiKeySetting } from "../../../lib/publicSettings";
+import { hasCookieConsentSetting, ipApiKeySetting } from '@/lib/instanceSettings';
 import { getBrowserLocalStorage } from "../../editor/localStorageHandlers";
 
 const GDPR_COUNTRY_CODES: string[] = [

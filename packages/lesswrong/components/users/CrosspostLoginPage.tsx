@@ -8,7 +8,7 @@ import { forumHeaderTitleSetting } from '@/lib/instanceSettings';
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
-import { hasProminentLogoSetting } from "../../lib/publicSettings";
+import { hasProminentLogoSetting } from '@/lib/instanceSettings';
 import { isE2E } from "@/lib/executionEnvironment";
 import { useLocation } from "@/lib/routeUtil";
 import LoginForm from "./LoginForm";

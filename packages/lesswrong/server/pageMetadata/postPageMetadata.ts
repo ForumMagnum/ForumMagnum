@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import merge from "lodash/merge";
 import { defaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields } from "./sharedMetadata";
 import { postCoauthorIsPending, postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { cloudinaryCloudNameSetting } from "@/lib/publicSettings";
+import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
 
 const PostMetadataQuery = gql(`

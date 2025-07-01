@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { intercomAppIdSetting } from '../../lib/publicSettings';
+import { intercomAppIdSetting } from '@/lib/instanceSettings';
 import { useCurrentUser } from './withUser';
 import { getUserEmail } from "../../lib/collections/users/helpers";
 import { useLocation } from '../../lib/routeUtil';

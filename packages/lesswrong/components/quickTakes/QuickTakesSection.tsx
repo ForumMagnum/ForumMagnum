@@ -11,7 +11,7 @@ import {
 import { isEAForum } from "../../lib/instanceSettings";
 import { isFriendlyUI, preferredHeadingCase } from "../../themes/forumTheme";
 import { Link } from '../../lib/reactRouterWrapper';
-import {quickTakesMaxAgeDaysSetting} from '../../lib/publicSettings'
+import { quickTakesMaxAgeDaysSetting } from '@/lib/instanceSettings';
 import ExpandableSection from "../common/ExpandableSection";
 import LWTooltip from "../common/LWTooltip";
 import QuickTakesEntry from "./QuickTakesEntry";

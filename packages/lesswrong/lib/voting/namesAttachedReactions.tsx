@@ -4,7 +4,7 @@ import { loadByIds } from '../loaders';
 import { filterNonnull } from '../utils/typeGuardUtils';
 import { getVoteAxisStrength } from './votingSystems';
 import { defineVotingSystem } from './defineVotingSystem';
-import { addNameToExistingReactKarmaThreshold, addNewReactKarmaThreshold, downvoteExistingReactKarmaThreshold } from '../../lib/publicSettings';
+import { addNameToExistingReactKarmaThreshold, addNewReactKarmaThreshold, downvoteExistingReactKarmaThreshold } from '../instanceSettings';
 import { namesAttachedReactionsByName } from './reactions';
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';

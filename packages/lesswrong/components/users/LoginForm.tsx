@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { reCaptchaSiteKeySetting } from '../../lib/publicSettings';
+import { reCaptchaSiteKeySetting } from '@/lib/instanceSettings.ts';
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import { isAF, isEAForum } from '../../lib/instanceSettings';

@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { userIsBannedFromAllPersonalPosts, userIsBannedFromAllPosts, userIsBannedFromPost, userIsNotShortformOwner } from '../../lib/collections/users/helpers';
 import classNames from 'classnames';
-import { moderationEmail } from '../../lib/publicSettings';
+import { moderationEmail } from '@/lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import CalendarDate from "../common/CalendarDate";
 

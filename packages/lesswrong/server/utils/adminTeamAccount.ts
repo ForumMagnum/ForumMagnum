@@ -1,4 +1,4 @@
-import { adminAccountSetting } from "@/lib/publicSettings";
+import { adminAccountSetting } from '@/lib/instanceSettings';
 import { createDisplayName } from "@/lib/collections/users/newSchema";
 
 export const getAdminTeamAccount = async (context: ResolverContext) => {

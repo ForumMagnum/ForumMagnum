@@ -1,6 +1,6 @@
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { calculateActivityFactor } from "../../lib/collections/useractivities/utils";
-import { activityHalfLifeSetting } from '@/lib/publicSettings';
+import { activityHalfLifeSetting } from '@/lib/instanceSettings';
 import { fs } from "mz";
 
 const defaultHalfLife = activityHalfLifeSetting.get()

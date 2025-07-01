@@ -1,7 +1,7 @@
 import PriorityBucketQueue, { RequestData } from '@/lib/requestPriorityQueue';
 import { type RenderResult } from './renderPage';
 import { addStartRenderTimeToPerfMetric, setAsyncStoreValue } from '@/server/perfMetrics';
-import { maxRenderQueueSize, queuedRequestTimeoutSecondsSetting } from '@/lib/publicSettings';
+import { maxRenderQueueSize, queuedRequestTimeoutSecondsSetting } from '@/lib/instanceSettings';
 import { getPathFromReq, trySetResponseStatus } from '../utils/httpUtil';
 import { isAnyTest } from '@/lib/executionEnvironment';
 import { performanceMetricLoggingEnabled } from '@/lib/instanceSettings';

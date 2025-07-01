@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { forumTypeSetting, isEAForum } from '../../instanceSettings';
-import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
+import { hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
 import { ReviewYear } from '../../reviewUtils';
 import pick from 'lodash/pick';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';

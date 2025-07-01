@@ -3,7 +3,7 @@ import { SchemaLink } from '@apollo/client/link/schema';
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { onError } from '@apollo/client/link/error';
 import { isServer } from '../executionEnvironment';
-import { graphqlBatchMaxSetting } from "../publicSettings";
+import { graphqlBatchMaxSetting } from '../instanceSettings';
 import { ApolloLink, Operation, selectURI } from "@apollo/client/core";
 import { crosspostUserAgent } from "./constants";
 

@@ -2,7 +2,7 @@ import React from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { FormGroupLayoutProps } from './FormGroupLayout';
 import { useLocation, useNavigate } from '../../lib/routeUtil';
-import { hasGoogleDocImportSetting } from '../../lib/publicSettings';
+import { hasGoogleDocImportSetting } from '@/lib/instanceSettings';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
 import { QuestionIcon } from '../icons/questionIcon';

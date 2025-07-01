@@ -3,7 +3,7 @@ import React from 'react';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { firstCommentAcknowledgeMessageCommentIdSetting } from "../../lib/publicSettings";
+import { firstCommentAcknowledgeMessageCommentIdSetting } from '@/lib/instanceSettings';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isLW } from "../../lib/instanceSettings";
 import { useQuery } from "@/lib/crud/useQuery";

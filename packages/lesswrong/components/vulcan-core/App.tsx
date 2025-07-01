@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import moment from 'moment';
-import { localeSetting, siteImageSetting } from '../../lib/publicSettings';
+import { localeSetting, siteImageSetting } from '@/lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 // eslint-disable-next-line no-restricted-imports
 import { useHistory, useLocation } from 'react-router';

@@ -15,7 +15,7 @@ import { AnnualReviewMarketInfo, getMarketInfo, highlightMarket } from "../../li
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import { RECOMBEE_RECOMM_ID_QUERY_PARAM, VERTEX_ATTRIBUTION_ID_QUERY_PARAM } from './PostsPage/constants';
-import { recombeeEnabledSetting, vertexEnabledSetting } from "../../lib/publicSettings";
+import { recombeeEnabledSetting, vertexEnabledSetting } from '@/lib/instanceSettings';
 import type { PostsListViewType } from "../hooks/usePostsListView";
 import { maybeDate } from "@/lib/utils/dateUtils";
 

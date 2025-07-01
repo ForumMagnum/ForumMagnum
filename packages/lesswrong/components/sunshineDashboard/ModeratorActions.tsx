@@ -16,7 +16,7 @@ import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { getCurrentContentCount, UserContentCountPartial } from '../../lib/collections/moderatorActions/helpers';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
-import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
+import { hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useDialog } from '../common/withDialog';
 import NewModeratorActionDialog from "./NewModeratorActionDialog";

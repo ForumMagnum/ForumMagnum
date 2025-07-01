@@ -2,7 +2,7 @@ import intersection from 'lodash/intersection';
 import moment from 'moment';
 import * as _ from 'underscore';
 import { isLW } from '../instanceSettings';
-import { hideUnreviewedAuthorCommentsSettings } from '../publicSettings';
+import { hideUnreviewedAuthorCommentsSettings } from '../instanceSettings';
 import { allUserGroupsByName } from '../permissions';
 
 export function getAllUserGroups() {

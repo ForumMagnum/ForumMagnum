@@ -1,4 +1,4 @@
-import { localeSetting } from "@/lib/publicSettings";
+import { localeSetting } from '@/lib/instanceSettings';
 import { getAllCollectionsByName } from "../collections/allCollections";
 import { getAllRepos } from "../repos";
 import { generateDataLoaders } from "./apollo-server/context";

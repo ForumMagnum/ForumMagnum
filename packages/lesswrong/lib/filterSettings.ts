@@ -1,4 +1,4 @@
-import { defaultVisibilityTags } from './publicSettings';
+import { defaultVisibilityTags } from './instanceSettings';
 
 export interface FilterSettings {
   personalBlog: FilterMode,

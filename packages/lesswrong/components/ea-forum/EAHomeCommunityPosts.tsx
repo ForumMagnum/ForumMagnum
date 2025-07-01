@@ -7,7 +7,7 @@ import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/helpers'
 import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSection';
 import { SHOW_COMMUNITY_POSTS_SECTION_COOKIE } from '../../lib/cookies/cookies';
 import { useFilterSettings } from '../hooks/useFilterSettings';
-import { frontpageDaysAgoCutoffSetting } from '@/lib/publicSettings';
+import { frontpageDaysAgoCutoffSetting } from '@/lib/instanceSettings';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import ExpandableSection from "../common/ExpandableSection";
 import PostsList2 from "../posts/PostsList2";

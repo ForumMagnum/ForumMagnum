@@ -8,7 +8,7 @@ import {
   SOCIAL_MEDIA_PROFILE_FIELDS,
 } from '../../../lib/collections/users/helpers';
 import { useCheckMeritsCollapse } from '../../common/useCheckMeritsCollapse';
-import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
+import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import ProfilePhoto from "../../messaging/ProfilePhoto";
 import ContentStyles from "../../common/ContentStyles";
 import { ContentItemBody } from "../../contents/ContentItemBody";

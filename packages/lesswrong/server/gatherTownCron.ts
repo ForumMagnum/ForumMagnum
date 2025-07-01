@@ -1,7 +1,7 @@
 import { addCronJob, removeCronJob } from './cronUtil';
 import WebSocket from 'ws';
 import { DatabaseServerSetting } from './databaseSettings';
-import { gatherTownRoomId, gatherTownRoomName } from '../lib/publicSettings';
+import { gatherTownRoomId, gatherTownRoomName } from '@/lib/instanceSettings';
 import { isProduction } from '../lib/executionEnvironment';
 import { toDictionary } from '../lib/utils/toDictionary';
 import * as _ from 'underscore';

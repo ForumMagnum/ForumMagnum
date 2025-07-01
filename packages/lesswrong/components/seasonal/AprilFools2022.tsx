@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import FavoriteIcon from '@/lib/vendor/@material-ui/icons/src/Favorite';
 import classNames from 'classnames';
-import { enableGoodHeartProject } from '../../lib/publicSettings';
+import { enableGoodHeartProject } from '@/lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";

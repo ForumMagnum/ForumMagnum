@@ -22,7 +22,7 @@ import { renderJssSheetImports, renderJssSheetPreloads } from '@/server/utils/re
 import type { Request, Response } from 'express';
 import { DEFAULT_TIMEZONE, SSRMetadata } from '@/lib/utils/timeUtil';
 import { asyncLocalStorage } from '@/server/perfMetrics';
-import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
+import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { faviconUrlSetting, isLW, performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
 import { isProduction, isE2E } from '@/lib/executionEnvironment';
 import { HIDE_IF_ANYONE_BUILDS_IT_SPLASH, LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';

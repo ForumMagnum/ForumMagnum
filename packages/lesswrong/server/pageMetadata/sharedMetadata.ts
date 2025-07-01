@@ -1,6 +1,6 @@
 
 import { noIndexSetting, tabLongTitleSetting, tabTitleSetting, taglineSetting } from "@/lib/instanceSettings";
-import { siteImageSetting } from "@/lib/publicSettings";
+import { siteImageSetting } from '@/lib/instanceSettings';
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
 import type { Metadata } from "next";
 

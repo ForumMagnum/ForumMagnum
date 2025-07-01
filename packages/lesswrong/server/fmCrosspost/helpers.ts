@@ -1,4 +1,4 @@
-import { crosspostKarmaThreshold } from "../../lib/publicSettings";
+import { crosspostKarmaThreshold } from '@/lib/instanceSettings';
 import { InsufficientKarmaError, InvalidUserError } from "./errors";
 import { DatabaseServerSetting } from "../databaseSettings";
 

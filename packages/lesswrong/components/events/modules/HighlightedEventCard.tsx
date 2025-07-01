@@ -3,7 +3,7 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { Card } from "@/components/widgets/Paper";
 import { useTimezone } from '../../common/withTimezone';
-import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
+import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import Loading from "../../vulcan-core/Loading";

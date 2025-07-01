@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { siteImageSetting } from '@/lib/publicSettings';
+import { siteImageSetting } from '@/lib/instanceSettings';
 import { htmlToText } from "html-to-text";
 import { truncate } from "../../lib/editor/ellipsize";
 import { getPostDescription } from "../posts/PostsPage/structuredData";

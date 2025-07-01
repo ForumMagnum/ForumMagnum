@@ -2,7 +2,7 @@ import gql from "graphql-tag"
 import { forumSelect } from "@/lib/forumTypeUtils";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-import { adminAccountSetting } from "@/lib/publicSettings";
+import { adminAccountSetting } from '@/lib/instanceSettings';
 import { createConversation, createConversationGqlMutation } from '../collections/conversations/mutations';
 import { createMessage } from '../collections/messages/mutations';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';

@@ -1,6 +1,6 @@
 import { calculateActivityFactor } from './collections/useractivities/utils';
 import { isLW } from './instanceSettings';
-import { activityHalfLifeSetting, activityWeightSetting, curatedBonusSetting, decayFactorFastestSetting, decayFactorSlowestSetting, defaultSubforumCommentBonus, frontpageBonusSetting, startingAgeHoursSetting, SubforumCommentBonus, subforumCommentBonusSetting, timeDecayFactorSetting } from './publicSettings';
+import { activityHalfLifeSetting, activityWeightSetting, curatedBonusSetting, decayFactorFastestSetting, decayFactorSlowestSetting, defaultSubforumCommentBonus, frontpageBonusSetting, startingAgeHoursSetting, SubforumCommentBonus, subforumCommentBonusSetting, timeDecayFactorSetting } from './instanceSettings';
 
 export const TIME_DECAY_FACTOR = timeDecayFactorSetting;
 // Basescore bonuses for various categories

@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useTracking } from '../../lib/analyticsEvents';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { blackBarTitle } from '../../lib/publicSettings';
+import { blackBarTitle } from '@/lib/instanceSettings';
 import { useLoginPopoverContext } from '../hooks/useLoginPopoverContext';
 import EAButton from "../ea-forum/EAButton";
 import EALoginPopover from "../ea-forum/auth/EALoginPopover";

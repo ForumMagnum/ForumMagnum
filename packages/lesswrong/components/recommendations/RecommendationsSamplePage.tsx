@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { frontpageDaysAgoCutoffSetting } from '@/lib/publicSettings';
+import { frontpageDaysAgoCutoffSetting } from '@/lib/instanceSettings';
 import { PostsPageContext } from "../posts/PostsPage/PostsPageContext";
 import { useCurrentUser } from "../common/withUser";
 import {

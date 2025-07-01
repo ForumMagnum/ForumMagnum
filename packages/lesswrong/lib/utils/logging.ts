@@ -18,7 +18,7 @@
  */
 import util from 'util'
 import { instanceDebuggersSetting } from '../instanceSettings'
-import { databaseDebuggersSetting } from '../publicSettings'
+import { databaseDebuggersSetting } from '../instanceSettings'
 
 const instanceDebuggers = instanceDebuggersSetting.get()
 

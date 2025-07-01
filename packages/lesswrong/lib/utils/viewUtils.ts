@@ -1,5 +1,5 @@
 import { loggerConstructor } from './logging'
-import { maxDocumentsPerRequestSetting } from '../publicSettings';
+import { maxDocumentsPerRequestSetting } from '../instanceSettings';
 import * as _ from 'underscore';
 import merge from 'lodash/merge';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from './viewConstants';

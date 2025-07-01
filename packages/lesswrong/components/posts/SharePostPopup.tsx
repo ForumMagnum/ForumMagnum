@@ -7,7 +7,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { useMessages } from "../common/withMessages";
 import { forumTitleSetting } from "../../lib/instanceSettings";
 import { getPostDescription } from "./PostsPage/structuredData";
-import { siteImageSetting } from '@/lib/publicSettings';
+import { siteImageSetting } from '@/lib/instanceSettings';
 import classNames from "classnames";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";

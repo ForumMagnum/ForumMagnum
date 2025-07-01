@@ -1,6 +1,6 @@
 import ElasticClient, { ElasticSearchHit } from "./ElasticClient";
 import type { SearchResult } from "./SearchResult";
-import { algoliaPrefixSetting } from "../../../lib/publicSettings";
+import { algoliaPrefixSetting } from '@/lib/instanceSettings';
 import { indexNameToConfig } from "./ElasticConfig";
 import {
   QueryFilter,

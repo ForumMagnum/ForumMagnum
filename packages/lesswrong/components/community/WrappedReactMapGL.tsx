@@ -3,7 +3,7 @@ import { componentWithChildren } from '@/lib/utils/componentsWithChildren';
 import { Helmet } from "../common/Helmet";
 import BadlyTypedReactMapGL, { InteractiveMapProps } from 'react-map-gl';
 import { useMapStyle } from '../hooks/useMapStyle';
-import { mapboxAPIKeySetting } from '@/lib/publicSettings';
+import { mapboxAPIKeySetting } from '@/lib/instanceSettings';
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 
 export const WrappedReactMapGL = (props: InteractiveMapProps & {

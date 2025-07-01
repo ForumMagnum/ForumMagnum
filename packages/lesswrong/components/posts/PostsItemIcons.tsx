@@ -8,7 +8,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { isAF } from '../../lib/instanceSettings';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useSetIsHiddenMutation } from '../dropdowns/posts/useSetIsHidden';
-import { recombeeEnabledSetting } from '@/lib/publicSettings';
+import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { recombeeApi } from '@/lib/recombee/client';
 import { useCurrentUser } from '../common/withUser';
 import { IsRecommendationContext } from '../dropdowns/posts/PostActions';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { commentModerationWarningCommentIdSetting } from '../../lib/publicSettings';
+import { commentModerationWarningCommentIdSetting } from '@/lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";

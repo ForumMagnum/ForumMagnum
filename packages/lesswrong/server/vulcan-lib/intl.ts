@@ -1,6 +1,6 @@
 // see https://github.com/apollographql/graphql-tools/blob/master/docs/source/schema-directives.md#marking-strings-for-internationalization
 
-import { localeSetting } from '../../lib/publicSettings';
+import { localeSetting } from '@/lib/instanceSettings';
 import { loggerConstructor } from '../../lib/utils/logging';
 
 const logger = loggerConstructor('intl')

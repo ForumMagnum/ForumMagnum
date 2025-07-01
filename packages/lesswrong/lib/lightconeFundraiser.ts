@@ -1,5 +1,5 @@
 import { useQuery } from "@/lib/crud/useQuery";
-import { lightconeFundraiserUnsyncedAmount } from "./publicSettings";
+import { lightconeFundraiserUnsyncedAmount } from './instanceSettings';
 import { useEffect, useState } from "react";
 import { gql } from "./generated/gql-codegen";
 

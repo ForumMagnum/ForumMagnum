@@ -1,7 +1,7 @@
 import React from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
-import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
+import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const bannerHeight = 250

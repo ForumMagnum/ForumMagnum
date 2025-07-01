@@ -1,7 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { petrovPostIdSetting } from '@/lib/publicSettings';
+import { petrovPostIdSetting } from '@/lib/instanceSettings';
 import { Typography } from "../common/Typography";
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)

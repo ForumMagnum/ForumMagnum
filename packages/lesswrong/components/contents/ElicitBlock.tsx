@@ -7,7 +7,7 @@ import { useQuery } from '@/lib/crud/useQuery';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import { randomId } from '../../lib/random';
-import { elicitSourceId, elicitSourceURL } from '../../lib/publicSettings';
+import { elicitSourceId, elicitSourceURL } from '@/lib/instanceSettings';
 import { useDialog } from '../common/withDialog';
 import sortBy from 'lodash/sortBy';
 import some from 'lodash/some';

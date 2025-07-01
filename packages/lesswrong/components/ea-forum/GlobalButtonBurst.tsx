@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
-import { buttonBurstImage } from "@/lib/publicSettings";
+import { buttonBurstImage } from '@/lib/instanceSettings';
 
 function onIdle(fn: () => void) {
   if (typeof (window as any).requestIdleCallback === "function") {

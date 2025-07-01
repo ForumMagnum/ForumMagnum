@@ -3,7 +3,7 @@ import React, { useEffect, useCallback, useState } from 'react';
 import { useIsInView } from "../../lib/analyticsEvents";
 import { useCurrentUser } from './withUser';
 import { RecombeeViewPortionProps, recombeeApi } from '../../lib/recombee/client';
-import { recombeeEnabledSetting } from '../../lib/publicSettings';
+import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { useClientId } from '@/lib/abTestImpl';
 

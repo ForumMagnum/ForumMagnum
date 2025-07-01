@@ -1,4 +1,4 @@
-import { cloudinaryCloudNameSetting, cloudinaryUploadPresetEditorName } from '../publicSettings'
+import { cloudinaryCloudNameSetting, cloudinaryUploadPresetEditorName } from '../instanceSettings';
 import type { CloudinaryCkEditorPluginConfig } from '../../../../ckEditor/src/cloudinary';
 
 export const cloudinaryConfig: {cloudinary: CloudinaryCkEditorPluginConfig} = {

@@ -5,7 +5,7 @@ import React, { useContext, useEffect, useState, useRef, useCallback, ReactNode 
 import { hookToHoc } from './hocUtils'
 import { isClient, isServer, isE2E } from './executionEnvironment';
 import { ColorHash } from './vendor/colorHash';
-import { flushIntervalSetting } from './publicSettings';
+import { flushIntervalSetting } from './instanceSettings';
 import { throttle } from 'underscore';
 import moment from 'moment';
 import { FeedItemType, UltraFeedAnalyticsContext } from '@/components/ultraFeed/ultraFeedTypes';

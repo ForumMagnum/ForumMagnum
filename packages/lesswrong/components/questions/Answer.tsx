@@ -12,7 +12,7 @@ import type { ContentItemBodyImperative } from '../contents/contentBodyUtil';
 import { useVote } from '../votes/withVote';
 import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
 import type { CommentTreeOptions } from '../comments/commentTree';
-import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
+import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import CommentsEditForm from "../comments/CommentsEditForm";
 import SmallSideVote from "../votes/SmallSideVote";
 import AnswerCommentsList from "./AnswerCommentsList";

@@ -3,7 +3,7 @@ import { TupleSet, UnionOf } from "../../lib/utils/typeGuardUtils";
 import { useCookiesWithConsent } from "./useCookiesWithConsent";
 import { POSTS_LIST_VIEW_TYPE_COOKIE } from "../../lib/cookies/cookies";
 import { useCurrentUser } from "../common/withUser";
-import {postsListViewTypeSetting} from '../../lib/publicSettings'
+import { postsListViewTypeSetting } from '@/lib/instanceSettings';
 
 const postsListViewTypes = new TupleSet(["list", "card"] as const);
 

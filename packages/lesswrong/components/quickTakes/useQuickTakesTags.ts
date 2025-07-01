@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import type { ChecklistTag } from "../tagging/TagsChecklist";
 import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
-import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
+import { quickTakesTagsEnabledSetting } from '@/lib/instanceSettings';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 

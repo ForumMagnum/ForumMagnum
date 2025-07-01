@@ -24,7 +24,7 @@ import { HEADER_HEIGHT } from "../common/Header";
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import { TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
 import { MAIN_TAB_ID } from "@/lib/collections/tags/constants";
-import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
+import { quickTakesTagsEnabledSetting } from '@/lib/instanceSettings';
 import { isClient } from "@/lib/executionEnvironment";
 import qs from "qs";
 import { useTagOrLens } from "../hooks/useTagOrLens";

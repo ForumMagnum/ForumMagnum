@@ -21,7 +21,7 @@ import { getTagStructuredData } from "./TagPageRouter";
 import { HEADER_HEIGHT } from "../common/Header";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import DeferRender from "../common/DeferRender";
-import {quickTakesTagsEnabledSetting} from '../../lib/publicSettings'
+import { quickTakesTagsEnabledSetting } from '@/lib/instanceSettings';
 import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
 import SectionTitle from "../common/SectionTitle";
 import PostsListSortDropdown from "../posts/PostsListSortDropdown";

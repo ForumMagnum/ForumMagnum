@@ -16,7 +16,7 @@ import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { reviewIsActive } from '../../lib/reviewUtils';
 import { forumSelect } from '../../lib/forumTypeUtils';
-import { frontpageDaysAgoCutoffSetting } from '@/lib/publicSettings';
+import { frontpageDaysAgoCutoffSetting } from '@/lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/helpers';
 import { useCurrentFrontpageSurvey } from '../hooks/useCurrentFrontpageSurvey';

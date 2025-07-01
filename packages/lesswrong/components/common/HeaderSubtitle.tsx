@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { blackBarTitle } from '../../lib/publicSettings';
+import { blackBarTitle } from '@/lib/instanceSettings';
 import HeaderEventSubtitle from "./HeaderEventSubtitle";
 import { useRouteMetadata } from '../RouteMetadataContext';
 

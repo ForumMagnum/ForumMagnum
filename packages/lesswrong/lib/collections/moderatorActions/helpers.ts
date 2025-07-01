@@ -1,6 +1,6 @@
 import moment from "moment";
 import { MAX_ALLOWED_CONTACTS_BEFORE_FLAG, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK, AllRateLimitTypes, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK } from "./constants";
-import { GetReasonForReviewResult, ReasonForInitialReview, reviewReasonsSetting } from '../../publicSettings.ts'
+import { GetReasonForReviewResult, ReasonForInitialReview, reviewReasonsSetting } from '@/lib/instanceSettings.ts';
 
 /**
  * For a given RateLimitType, returns the number of hours a user has to wait before posting again.

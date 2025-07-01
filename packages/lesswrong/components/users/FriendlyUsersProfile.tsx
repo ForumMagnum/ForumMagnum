@@ -22,7 +22,7 @@ import InfoIcon from '@/lib/vendor/@material-ui/icons/src/Info'
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
 import LibraryAddIcon from '@/lib/vendor/@material-ui/icons/src/LibraryAdd'
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { nofollowKarmaThreshold } from '../../lib/publicSettings';
+import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { getUserStructuredData } from './UsersSingle';
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/helpers';
