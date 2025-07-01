@@ -7,7 +7,6 @@ import { getInstanceSettings } from './getInstanceSettings';
 import { getCommandLineArguments } from '@/server/commandLine';
 import type { FilterTag } from './filterSettings';
 import { forumSelect } from './forumTypeUtils';
-import { DatabasePublicSetting } from './publicSettings';
 import type { ReviewWinnerCategory, ReviewYear } from './reviewUtils';
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
@@ -408,64 +407,62 @@ export const accessTokenSecretSetting = new PublicInstanceSetting<string | null>
   Public Database Settings
 */
 
-export const googleTagManagerIdSetting = new DatabasePublicSetting<string | null>('googleTagManager.apiKey', null); // Google Tag Manager ID
-export const reCaptchaSiteKeySetting = new DatabasePublicSetting<string | null>('reCaptcha.apiKey', null); // ReCaptcha API Key
+export const googleTagManagerIdSetting = new PublicInstanceSetting<string | null>('googleTagManager.apiKey', null, "optional"); // Google Tag Manager ID
+export const reCaptchaSiteKeySetting = new PublicInstanceSetting<string | null>('reCaptcha.apiKey', null, "optional"); // ReCaptcha API Key
 // Despite the name, this setting is also used to set the index prefix for Elasticsearch for legacy reasons
-export const algoliaPrefixSetting = new DatabasePublicSetting<string>('algolia.indexPrefix', '');
+export const algoliaPrefixSetting = new PublicInstanceSetting<string>('algolia.indexPrefix', '', "optional");
 
-export const ckEditorUploadUrlSetting = new DatabasePublicSetting<string | null>('ckEditor.uploadUrl', null); // Image Upload URL for CKEditor
-export const ckEditorWebsocketUrlSetting = new DatabasePublicSetting<string | null>('ckEditor.webSocketUrl', null); // Websocket URL for CKEditor (for collaboration)
+export const ckEditorUploadUrlSetting = new PublicInstanceSetting<string | null>('ckEditor.uploadUrl', null, "optional"); // Image Upload URL for CKEditor
+export const ckEditorWebsocketUrlSetting = new PublicInstanceSetting<string | null>('ckEditor.webSocketUrl', null, "optional"); // Websocket URL for CKEditor (for collaboration)
 
 
-export const hideUnreviewedAuthorCommentsSettings = new DatabasePublicSetting<string | null>('hideUnreviewedAuthorComments', null); // Hide comments by unreviewed authors after date provided (prevents spam / flaming / makes moderation easier, but delays new user engagement)
-export const cloudinaryCloudNameSetting = new DatabasePublicSetting<string>('cloudinary.cloudName', 'lesswrong-2-0'); // Cloud name for cloudinary hosting
+export const hideUnreviewedAuthorCommentsSettings = new PublicInstanceSetting<string | null>('hideUnreviewedAuthorComments', null, "optional"); // Hide comments by unreviewed authors after date provided (prevents spam / flaming / makes moderation easier, but delays new user engagement)
+export const cloudinaryCloudNameSetting = new PublicInstanceSetting<string>('cloudinary.cloudName', 'lesswrong-2-0', "optional"); // Cloud name for cloudinary hosting
 
-export const forumAllPostsNumDaysSetting = new DatabasePublicSetting<number>('forum.numberOfDays', 10); // Number of days to display in the timeframe view
+export const forumAllPostsNumDaysSetting = new PublicInstanceSetting<number>('forum.numberOfDays', 10, "optional"); // Number of days to display in the timeframe view
 
-export const nofollowKarmaThreshold = new DatabasePublicSetting<number>('nofollowKarmaThreshold', 10); // Users with less than this much karma have their links marked as nofollow
+export const nofollowKarmaThreshold = new PublicInstanceSetting<number>('nofollowKarmaThreshold', 10, "optional"); // Users with less than this much karma have their links marked as nofollow
 
-export const localeSetting = new DatabasePublicSetting<string>('locale', 'en-US');
-export const legacyRouteAcronymSetting = new DatabasePublicSetting<string>('legacyRouteAcronym', 'lw'); // Because the EA Forum was identical except for the change from /lw/ to /ea/
+export const localeSetting = new PublicInstanceSetting<string>('locale', 'en-US', "optional");
+export const legacyRouteAcronymSetting = new PublicInstanceSetting<string>('legacyRouteAcronym', 'lw', "optional"); // Because the EA Forum was identical except for the change from /lw/ to /ea/
 // frontpageFilterSettings default tag filter
 //
 // At the risk of premature future-proofing, this setting, which is initially
 // here to allow the EA Forum to nudge down the visibility of posts with the
 // Community tag, can be trivially applied to personalBlog, frontpage, and
 // curated, if those ever get refactored into tags.
-export const defaultVisibilityTags = new DatabasePublicSetting<Array<FilterTag>>('defaultVisibilityTags', []);
+export const defaultVisibilityTags = new PublicInstanceSetting<Array<FilterTag>>('defaultVisibilityTags', [], "optional");
 
-export const gatherTownRoomId = new DatabasePublicSetting<string | null>("gatherTownRoomId", "aPVfK3G76UukgiHx");
-export const gatherTownRoomName = new DatabasePublicSetting<string | null>("gatherTownRoomName", "lesswrong-campus");
+export const gatherTownRoomId = new PublicInstanceSetting<string | null>("gatherTownRoomId", "aPVfK3G76UukgiHx", "optional");
+export const gatherTownRoomName = new PublicInstanceSetting<string | null>("gatherTownRoomName", "lesswrong-campus", "optional");
+
 // Public elicit settings
+export const elicitSourceURL = new PublicInstanceSetting('elicitSourceURL', 'https://LessWrong.com', "optional");
+export const elicitSourceId = new PublicInstanceSetting('elicitSourceId', 'XCjOpumu-', "optional");
 
-export const elicitSourceURL = new DatabasePublicSetting('elicitSourceURL', 'https://LessWrong.com');
-export const elicitSourceId = new DatabasePublicSetting('elicitSourceId', 'XCjOpumu-');
+export const mapboxAPIKeySetting = new PublicInstanceSetting<string | null>('mapbox.apiKey', null, "optional"); // API Key for the mapbox map and tile requests
 
-export const mapboxAPIKeySetting = new DatabasePublicSetting<string | null>('mapbox.apiKey', null); // API Key for the mapbox map and tile requests
+export const mailchimpForumDigestListIdSetting = new PublicInstanceSetting<string | null>('mailchimp.forumDigestListId', null, "optional");
+export const mailchimpEAForumListIdSetting = new PublicInstanceSetting<string | null>('mailchimp.eaForumListId', null, "optional");
+export const mailchimpEAForumNewsletterListIdSetting = new PublicInstanceSetting<string | null>('mailchimp.eaNewsletterListId', null, "optional");
 
-export const mailchimpForumDigestListIdSetting = new DatabasePublicSetting<string | null>('mailchimp.forumDigestListId', null);
-export const mailchimpEAForumListIdSetting = new DatabasePublicSetting<string | null>('mailchimp.eaForumListId', null);
-export const mailchimpEAForumNewsletterListIdSetting = new DatabasePublicSetting<string | null>('mailchimp.eaNewsletterListId', null);
+export const isProductionDBSetting = new PublicInstanceSetting<boolean>('isProductionDB', false, "optional");
 
-export const isProductionDBSetting = new DatabasePublicSetting<boolean>('isProductionDB', false);
+export const showReviewOnFrontPageIfActive = new PublicInstanceSetting<boolean>('annualReview.showReviewOnFrontPageIfActive', true, "optional");
 
-export const showReviewOnFrontPageIfActive = new DatabasePublicSetting<boolean>('annualReview.showReviewOnFrontPageIfActive', true);
 // these are deprecated, but preserved for now in case we want to revert
-// export const annualReviewStart = new DatabasePublicSetting('annualReview.start', "2021-11-30")
+// export const annualReviewStart = new PublicInstanceSetting('annualReview.start', "2021-11-30", "optional")
 // // The following dates cut off their phase at the end of the day
-// export const annualReviewNominationPhaseEnd = new DatabasePublicSetting('annualReview.nominationPhaseEnd', "2021-12-14")
-// export const annualReviewReviewPhaseEnd = new DatabasePublicSetting('annualReview.reviewPhaseEnd', "2022-01-15")
-// export const annualReviewVotingPhaseEnd = new DatabasePublicSetting('annualReview.votingPhaseEnd', "2022-02-01")
-// export const annualReviewEnd = new DatabasePublicSetting('annualReview.end', "2022-02-06")
+// export const annualReviewNominationPhaseEnd = new PublicInstanceSetting('annualReview.nominationPhaseEnd', "2021-12-14", "optional")
+// export const annualReviewReviewPhaseEnd = new PublicInstanceSetting('annualReview.reviewPhaseEnd', "2022-01-15", "optional")
+// export const annualReviewVotingPhaseEnd = new PublicInstanceSetting('annualReview.votingPhaseEnd', "2022-02-01", "optional")
+// export const annualReviewEnd = new PublicInstanceSetting('annualReview.end', "2022-02-06", "optional")
 
-export const annualReviewAnnouncementPostPathSetting = new DatabasePublicSetting<string | null>('annualReview.announcementPostPath', null);
+export const annualReviewAnnouncementPostPathSetting = new PublicInstanceSetting<string | null>('annualReview.announcementPostPath', null, "optional");
 
-export const annualReviewVotingResultsPostPath = new DatabasePublicSetting<string>('annualReview.votingResultsPostPath', "");
+export const annualReviewVotingResultsPostPath = new PublicInstanceSetting<string>('annualReview.votingResultsPostPath', "", "optional");
 
-export const reviewWinnersCoverArtIds = new DatabasePublicSetting<Record<string, string>>('annualReview.reviewWinnersCoverArtIds', {});
-
-export const reviewWinnerSectionsInfo = new DatabasePublicSetting<Record<ReviewWinnerCategory, ReviewSectionInfo> | null>('annualReview.reviewWinnerSectionsInfo', null);
-export const reviewWinnerYearGroupsInfo = new DatabasePublicSetting<Record<ReviewYear, ReviewYearGroupInfo> | null>('annualReview.reviewWinnerYearGroupsInfo', null);
+export const reviewWinnersCoverArtIds = new PublicInstanceSetting<Record<string, string>>('annualReview.reviewWinnersCoverArtIds', {}, "optional");
 
 export type CoordinateInfo = Omit<SplashArtCoordinates, '_id' | 'reviewWinnerArtId'> & {
   leftHeightPct?: number;
@@ -487,141 +484,147 @@ export interface ReviewYearGroupInfo {
   coords: CoordinateInfo;
 }
 
+export const reviewWinnerSectionsInfo = new PublicInstanceSetting<Record<ReviewWinnerCategory, ReviewSectionInfo> | null>('annualReview.reviewWinnerSectionsInfo', null, "optional");
+export const reviewWinnerYearGroupsInfo = new PublicInstanceSetting<Record<ReviewYear, ReviewYearGroupInfo> | null>('annualReview.reviewWinnerYearGroupsInfo', null, "optional");
 
-export const moderationEmail = new DatabasePublicSetting<string>('moderationEmail', "ERROR: NO MODERATION EMAIL SET");
+
+export const moderationEmail = new PublicInstanceSetting<string>('moderationEmail', "ERROR: NO MODERATION EMAIL SET", "optional");
+
 type AccountInfo = {
   username: string;
   email: string;
 };
-export const adminAccountSetting = new DatabasePublicSetting<AccountInfo | null>('adminAccount', null);
+export const adminAccountSetting = new PublicInstanceSetting<AccountInfo | null>('adminAccount', null, "optional");
 
-export const crosspostKarmaThreshold = new DatabasePublicSetting<number | null>('crosspostKarmaThreshold', 100);
+export const crosspostKarmaThreshold = new PublicInstanceSetting<number | null>('crosspostKarmaThreshold', 100, "optional");
 
-export const ddTracingSampleRate = new DatabasePublicSetting<number>('datadog.tracingSampleRate', 100); // Sample rate for backend traces, between 0 and 100
-export const ddRumSampleRate = new DatabasePublicSetting<number>('datadog.rumSampleRate', 100); // Sample rate for backend traces, between 0 and 100
-export const ddSessionReplaySampleRate = new DatabasePublicSetting<number>('datadog.sessionReplaySampleRate', 100); // Sample rate for backend traces, between 0 and 100
+export const ddTracingSampleRate = new PublicInstanceSetting<number>('datadog.tracingSampleRate', 100, "optional"); // Sample rate for backend traces, between 0 and 100
+export const ddRumSampleRate = new PublicInstanceSetting<number>('datadog.rumSampleRate', 100, "optional"); // Sample rate for backend traces, between 0 and 100
+export const ddSessionReplaySampleRate = new PublicInstanceSetting<number>('datadog.sessionReplaySampleRate', 100, "optional"); // Sample rate for backend traces, between 0 and 100
+
 /** Will we show our logo prominently, such as in the header */
-export const hasProminentLogoSetting = new DatabasePublicSetting<boolean>("hasProminentLogo", false);
+export const hasProminentLogoSetting = new PublicInstanceSetting<boolean>("hasProminentLogo", false, "optional");
 
-export const hasCookieConsentSetting = new DatabasePublicSetting<boolean>('hasCookieConsent', false);
+export const hasCookieConsentSetting = new PublicInstanceSetting<boolean>('hasCookieConsent', false, "optional");
 
-export const maxRenderQueueSize = new DatabasePublicSetting<number>('maxRenderQueueSize', 10);
-export const queuedRequestTimeoutSecondsSetting = new DatabasePublicSetting<number>('queuedRequestTimeoutSeconds', 60);
+export const maxRenderQueueSize = new PublicInstanceSetting<number>('maxRenderQueueSize', 10, "optional");
+export const queuedRequestTimeoutSecondsSetting = new PublicInstanceSetting<number>('queuedRequestTimeoutSeconds', 60, "optional");
 
 export type Auth0ClientSettings = {
   domain: string;
   clientId: string;
   connection: string;
 };
-export const auth0ClientSettings = new DatabasePublicSetting<Auth0ClientSettings | null>("auth0", null);
+export const auth0ClientSettings = new PublicInstanceSetting<Auth0ClientSettings | null>("auth0", null, "optional");
 
 // Null means requests are disabled
-export const requestFeedbackKarmaLevelSetting = new DatabasePublicSetting<number | null>('post.requestFeedbackKarmaLevel', 100);
+export const requestFeedbackKarmaLevelSetting = new PublicInstanceSetting<number | null>('post.requestFeedbackKarmaLevel', 100, "optional");
 
-export const alwaysShowAnonymousReactsSetting = new DatabasePublicSetting<boolean>('voting.eaEmoji.alwaysShowAnonymousReacts', true);
+export const alwaysShowAnonymousReactsSetting = new PublicInstanceSetting<boolean>('voting.eaEmoji.alwaysShowAnonymousReacts', true, "optional");
 
-export const showSubscribeReminderInFeed = new DatabasePublicSetting<boolean>('feed.showSubscribeReminder', forumSelect({ EAForum: true, LWAF: true, default: false }));
+export const showSubscribeReminderInFeed = new PublicInstanceSetting<boolean>('feed.showSubscribeReminder', forumSelect({ EAForum: true, LWAF: true, default: false }), "optional");
 
-export const hasGoogleDocImportSetting = new DatabasePublicSetting<boolean>('googleDocImport.enabled', false);
+export const hasGoogleDocImportSetting = new PublicInstanceSetting<boolean>('googleDocImport.enabled', false, "optional");
 
 
-export const recombeeEnabledSetting = new DatabasePublicSetting<boolean>('recombee.enabled', false);
-export const recommendationsTabManuallyStickiedPostIdsSetting = new DatabasePublicSetting<string[]>('recommendationsTab.manuallyStickiedPostIds', []);
+export const recombeeEnabledSetting = new PublicInstanceSetting<boolean>('recombee.enabled', false, "optional");
+export const recommendationsTabManuallyStickiedPostIdsSetting = new PublicInstanceSetting<string[]>('recommendationsTab.manuallyStickiedPostIds', [], "optional");
 
-export const blackBarTitle = new DatabasePublicSetting<string | null>('blackBarTitle', null);
+export const blackBarTitle = new PublicInstanceSetting<string | null>('blackBarTitle', null, "optional");
 
-export const quickTakesTagsEnabledSetting = new DatabasePublicSetting<boolean>('quickTakes.tagsEnabled', isEAForum);
+export const quickTakesTagsEnabledSetting = new PublicInstanceSetting<boolean>('quickTakes.tagsEnabled', isEAForum, "optional");
 
-export const vertexEnabledSetting = new DatabasePublicSetting<boolean>('googleVertex.enabled', false);
+export const vertexEnabledSetting = new PublicInstanceSetting<boolean>('googleVertex.enabled', false, "optional");
+
 /** Whether to show permalinked (?commentId=...) comments at the top of the page, vs scrolling to show them in context */
+export const commentPermalinkStyleSetting = new PublicInstanceSetting<'top' | 'in-context'>('commentPermalinkStyle', isEAForum ? 'in-context' : 'top', "optional");
 
-export const commentPermalinkStyleSetting = new DatabasePublicSetting<'top' | 'in-context'>('commentPermalinkStyle', isEAForum ? 'in-context' : 'top');
+export const userIdsWithAccessToLlmChat = new PublicInstanceSetting<string[]>('llmChat.userIds', [], "optional");
 
-export const userIdsWithAccessToLlmChat = new DatabasePublicSetting<string[]>('llmChat.userIds', []);
+export const textReplacementsSetting = new PublicInstanceSetting<Record<string, string>>('textReplacements', {}, "optional");
 
-export const textReplacementsSetting = new DatabasePublicSetting<Record<string, string>>('textReplacements', {});
+export const lightconeFundraiserUnsyncedAmount = new PublicInstanceSetting<number>('lightconeFundraiser.unsyncedAmount', 0, "optional");
+export const lightconeFundraiserPaymentLinkId = new PublicInstanceSetting<string>('lightconeFundraiser.paymentLinkId', '', "optional");
+export const lightconeFundraiserThermometerBgUrl = new PublicInstanceSetting<string>('lightconeFundraiser.thermometerBgUrl', '', "optional");
+export const lightconeFundraiserThermometerGoalAmount = new PublicInstanceSetting<number>('lightconeFundraiser.thermometerGoalAmount', 0, "optional");
+export const lightconeFundraiserThermometerGoal2Amount = new PublicInstanceSetting<number>('lightconeFundraiser.thermometerGoal2Amount', 2000000, "optional");
+export const lightconeFundraiserThermometerGoal3Amount = new PublicInstanceSetting<number>('lightconeFundraiser.thermometerGoal3Amount', 3000000, "optional");
+export const lightconeFundraiserPostId = new PublicInstanceSetting<string>('lightconeFundraiser.postId', '', "optional");
+export const lightconeFundraiserActive = new PublicInstanceSetting<boolean>('lightconeFundraiser.active', false, "optional");
 
-export const lightconeFundraiserUnsyncedAmount = new DatabasePublicSetting<number>('lightconeFundraiser.unsyncedAmount', 0);
-export const lightconeFundraiserPaymentLinkId = new DatabasePublicSetting<string>('lightconeFundraiser.paymentLinkId', '');
-export const lightconeFundraiserThermometerBgUrl = new DatabasePublicSetting<string>('lightconeFundraiser.thermometerBgUrl', '');
-export const lightconeFundraiserThermometerGoalAmount = new DatabasePublicSetting<number>('lightconeFundraiser.thermometerGoalAmount', 0);
-export const lightconeFundraiserThermometerGoal2Amount = new DatabasePublicSetting<number>('lightconeFundraiser.thermometerGoal2Amount', 2000000);
-export const lightconeFundraiserThermometerGoal3Amount = new DatabasePublicSetting<number>('lightconeFundraiser.thermometerGoal3Amount', 3000000);
-export const lightconeFundraiserPostId = new DatabasePublicSetting<string>('lightconeFundraiser.postId', '');
-export const lightconeFundraiserActive = new DatabasePublicSetting<boolean>('lightconeFundraiser.active', false);
+export const postsListViewTypeSetting = new PublicInstanceSetting<string>('posts.viewType', 'list', "optional");
+export const quickTakesMaxAgeDaysSetting = new PublicInstanceSetting<number>('feed.quickTakesMaxAgeDays', 5, "optional");
 
-export const postsListViewTypeSetting = new DatabasePublicSetting<string>('posts.viewType', 'list');
-export const quickTakesMaxAgeDaysSetting = new DatabasePublicSetting<number>('feed.quickTakesMaxAgeDays', 5);
+export const auth0FacebookLoginEnabled = new PublicInstanceSetting<boolean>('auth0FacebookLoginEnabled', false, "optional");
 
-export const auth0FacebookLoginEnabled = new DatabasePublicSetting<boolean>('auth0FacebookLoginEnabled', new Date() < new Date('2025-04-07'));
+export const mapsAPIKeySetting = new PublicInstanceSetting<string | null>('googleMaps.apiKey', null, "optional");
 
-export const mapsAPIKeySetting = new DatabasePublicSetting<string | null>('googleMaps.apiKey', null);
+export const siteImageSetting = new PublicInstanceSetting<string>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg', "optional"); // An image used to represent the site on social media
 
-export const siteImageSetting = new DatabasePublicSetting<string>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg'); // An image used to represent the site on social media
+export const petrovBeforeTime = new PublicInstanceSetting<number>('petrov.beforeTime', 0, "optional");
+export const petrovAfterTime = new PublicInstanceSetting<number>('petrov.afterTime', 0, "optional");
 
-export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0);
-export const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0);
+export const openThreadTagIdSetting = new PublicInstanceSetting<string>('openThreadTagId', 'eTLv8KzwBGcDip9Wi', "optional");
+export const startHerePostIdSetting = new PublicInstanceSetting<string | null>('startHerePostId', null, "optional");
+export const amaTagIdSetting = new PublicInstanceSetting<string | null>('amaTagId', null, "optional");
 
-export const openThreadTagIdSetting = new DatabasePublicSetting<string>('openThreadTagId', 'eTLv8KzwBGcDip9Wi');
-export const startHerePostIdSetting = new DatabasePublicSetting<string | null>('startHerePostId', null);
-export const amaTagIdSetting = new DatabasePublicSetting<string | null>('amaTagId', null);
+export const defaultSequenceBannerIdSetting = new PublicInstanceSetting<string | null>("defaultSequenceBannerId", null, "optional");
 
-export const defaultSequenceBannerIdSetting = new DatabasePublicSetting<string | null>("defaultSequenceBannerId", null);
+export const graphqlBatchMaxSetting = new PublicInstanceSetting('batchHttpLink.batchMax', 50, "optional");
 
-export const graphqlBatchMaxSetting = new DatabasePublicSetting('batchHttpLink.batchMax', 50);
+export const firstCommentAcknowledgeMessageCommentIdSetting = new PublicInstanceSetting<string>('firstCommentAcknowledgeMessageCommentId', '', "optional");
 
-export const firstCommentAcknowledgeMessageCommentIdSetting = new DatabasePublicSetting<string>('firstCommentAcknowledgeMessageCommentId', '');
+export const ipApiKeySetting = new PublicInstanceSetting<string | null>('ipapi.apiKey', null, "optional");
 
-export const ipApiKeySetting = new DatabasePublicSetting<string | null>('ipapi.apiKey', null);
+export const intercomAppIdSetting = new PublicInstanceSetting<string>('intercomAppId', 'wtb8z7sj', "optional");
 
-export const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj');
+export const maintenanceTime = new PublicInstanceSetting<string | null>("maintenanceBannerTime", null, "optional");
+export const explanationText = new PublicInstanceSetting<string>("maintenanceBannerExplanationText", "", "optional");
+export const showSmallpoxSetting = new PublicInstanceSetting<boolean>('showSmallpox', false, "optional");
+export const showEventBannerSetting = new PublicInstanceSetting<boolean>('showEventBanner', false, "optional");
+export const showMaintenanceBannerSetting = new PublicInstanceSetting<boolean>('showMaintenanceBanner', false, "optional");
+export const eventBannerMobileImageSetting = new PublicInstanceSetting<string | null>('eventBannerMobileImage', null, "optional");
+export const eventBannerDesktopImageSetting = new PublicInstanceSetting<string | null>('eventBannerDesktopImage', null, "optional");
+export const eventBannerLinkSetting = new PublicInstanceSetting<string | null>('eventBannerLink', null, "optional");
 
-export const maintenanceTime = new DatabasePublicSetting<string | null>("maintenanceBannerTime", null);
-export const explanationText = new DatabasePublicSetting<string>("maintenanceBannerExplanationText", "");
-export const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false);
-export const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBanner', false);
-export const showMaintenanceBannerSetting = new DatabasePublicSetting<boolean>('showMaintenanceBanner', false);
-export const eventBannerMobileImageSetting = new DatabasePublicSetting<string | null>('eventBannerMobileImage', null);
-export const eventBannerDesktopImageSetting = new DatabasePublicSetting<string | null>('eventBannerDesktopImage', null);
-export const eventBannerLinkSetting = new DatabasePublicSetting<string | null>('eventBannerLink', null);
+export const buttonBurstSetting = new PublicInstanceSetting<boolean>("buttonBurst.enabled", false, "optional");
+export const buttonBurstImage = new PublicInstanceSetting<string>("buttonBurst.image", "https://res.cloudinary.com/cea/image/upload/w_256,h_256,q_40,f_auto,dpr_1/v1711484824/bulby-canonical.png", "optional");
 
-export const buttonBurstSetting = new DatabasePublicSetting<boolean>("buttonBurst.enabled", false);
-export const buttonBurstImage = new DatabasePublicSetting<string>("buttonBurst.image", "https://res.cloudinary.com/cea/image/upload/w_256,h_256,q_40,f_auto,dpr_1/v1711484824/bulby-canonical.png");
+export const placeholderSetting = new PublicInstanceSetting<string>("linkpostUrlPlaceholder", "http://example.com/blog/2017/reality-has-a-surprising-amount-of-detail", "optional");
 
-export const placeholderSetting = new DatabasePublicSetting<string>("linkpostUrlPlaceholder", "http://example.com/blog/2017/reality-has-a-surprising-amount-of-detail");
+export const disableCookiePreferenceAutoUpdateSetting = new PublicInstanceSetting<boolean>('disableCookiePreferenceAutoUpdate', false, "optional");
 
-export const disableCookiePreferenceAutoUpdateSetting = new DatabasePublicSetting<boolean>('disableCookiePreferenceAutoUpdate', false);
-
-export const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>("cloudinary.uploadPresetGridImage", "tz0mgw2s");
-export const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>("cloudinary.uploadPresetBanner", "navcjwf7");
-export const cloudinaryUploadPresetProfileSetting = new DatabasePublicSetting<string | null>("cloudinary.uploadPresetProfile", null);
-export const cloudinaryUploadPresetSocialPreviewSetting = new DatabasePublicSetting<string | null>("cloudinary.uploadPresetSocialPreview", null);
-export const cloudinaryUploadPresetEventImageSetting = new DatabasePublicSetting<string | null>("cloudinary.uploadPresetEventImage", null);
-export const cloudinaryUploadPresetSpotlightSetting = new DatabasePublicSetting<string | null>("cloudinary.uploadPresetSpotlight", "yjgxmsio");
-export const cloudinaryUploadPresetDigestSetting = new DatabasePublicSetting<string | null>("cloudinary.uploadPresetDigest", null);
+export const cloudinaryUploadPresetGridImageSetting = new PublicInstanceSetting<string>("cloudinary.uploadPresetGridImage", "tz0mgw2s", "optional");
+export const cloudinaryUploadPresetBannerSetting = new PublicInstanceSetting<string>("cloudinary.uploadPresetBanner", "navcjwf7", "optional");
+export const cloudinaryUploadPresetProfileSetting = new PublicInstanceSetting<string | null>("cloudinary.uploadPresetProfile", null, "optional");
+export const cloudinaryUploadPresetSocialPreviewSetting = new PublicInstanceSetting<string | null>("cloudinary.uploadPresetSocialPreview", null, "optional");
+export const cloudinaryUploadPresetEventImageSetting = new PublicInstanceSetting<string | null>("cloudinary.uploadPresetEventImage", null, "optional");
+export const cloudinaryUploadPresetSpotlightSetting = new PublicInstanceSetting<string | null>("cloudinary.uploadPresetSpotlight", "yjgxmsio", "optional");
+export const cloudinaryUploadPresetDigestSetting = new PublicInstanceSetting<string | null>("cloudinary.uploadPresetDigest", null, "optional");
 
 // Number of weeks to display in the timeframe view
-export const forumAllPostsNumWeeksSetting = new DatabasePublicSetting<number>("forum.numberOfWeeks", 4);
+export const forumAllPostsNumWeeksSetting = new PublicInstanceSetting<number>("forum.numberOfWeeks", 4, "optional");
 // Number of months to display in the timeframe view
-export const forumAllPostsNumMonthsSetting = new DatabasePublicSetting<number>("forum.numberOfMonths", 4);
+export const forumAllPostsNumMonthsSetting = new PublicInstanceSetting<number>("forum.numberOfMonths", 4, "optional");
 // Number of years to display in the timeframe view
-export const forumAllPostsNumYearsSetting = new DatabasePublicSetting<number>("forum.numberOfYears", 4);
+export const forumAllPostsNumYearsSetting = new PublicInstanceSetting<number>("forum.numberOfYears", 4, "optional");
 
-export const bookDisplaySetting = new DatabasePublicSetting<boolean>('bookDisplaySetting', false);
+export const bookDisplaySetting = new PublicInstanceSetting<boolean>('bookDisplaySetting', false, "optional");
 
-export const enableGoodHeartProject = new DatabasePublicSetting<boolean>('enableGoodHeartProject', false); // enables UI for 2022 LW April Fools
+export const enableGoodHeartProject = new PublicInstanceSetting<boolean>('enableGoodHeartProject', false, "optional"); // enables UI for 2022 LW April Fools
 
-export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '');
-export const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '');
+export const petrovPostIdSetting = new PublicInstanceSetting<string>('petrov.petrovPostId', '', "optional");
+export const petrovGamePostIdSetting = new PublicInstanceSetting<string>('petrov.petrovGamePostId', '', "optional");
 
-export const defaultAFModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultAFModeratorPMsTagSlug', "af-default-moderator-responses");
-export const commentModerationWarningCommentIdSetting = new DatabasePublicSetting<string>('commentModerationWarningCommentId', '');
-export const postModerationWarningCommentIdSetting = new DatabasePublicSetting<string>('postModerationWarningCommentId', '');
+export const defaultAFModeratorPMsTagSlug = new PublicInstanceSetting<string>('defaultAFModeratorPMsTagSlug', "af-default-moderator-responses", "optional");
+export const commentModerationWarningCommentIdSetting = new PublicInstanceSetting<string>('commentModerationWarningCommentId', '', "optional");
+export const postModerationWarningCommentIdSetting = new PublicInstanceSetting<string>('postModerationWarningCommentId', '', "optional");
 
-export const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false);
+export const useExperimentalTagStyleSetting = new PublicInstanceSetting<boolean>('useExperimentalTagStyle', false, "optional");
 
-export const showAnalyticsDebug = new DatabasePublicSetting<"never" | "dev" | "always">("showAnalyticsDebug", "dev");
-export const flushIntervalSetting = new DatabasePublicSetting<number>("analyticsFlushInterval", 1000);
+export const showAnalyticsDebug = new PublicInstanceSetting<"never" | "dev" | "always">("showAnalyticsDebug", "dev", "optional");
+export const flushIntervalSetting = new PublicInstanceSetting<number>("analyticsFlushInterval", 1000, "optional");
+
 type ReasonNoReviewNeeded = "alreadyApproved" | "noReview";
 type ReasonReviewIsNeeded = "mapLocation" | "firstPost" | "firstComment" | "contactedTooManyUsers" | "bio" | "profileImage" | "newContent";
 export type ReasonForInitialReview = Exclude<ReasonReviewIsNeeded, 'newContent'>;
@@ -630,18 +633,20 @@ export type GetReasonForReviewResult =
   { needsReview: true; reason: ReasonReviewIsNeeded; };
 
 
-export const reviewReasonsSetting = new DatabasePublicSetting<Array<ReasonForInitialReview>>('moderation.reasonsForInitialReview', ['firstPost', 'firstComment', 'contactedTooManyUsers', 'bio', 'profileImage']);
+export const reviewReasonsSetting = new PublicInstanceSetting<Array<ReasonForInitialReview>>('moderation.reasonsForInitialReview', ['firstPost', 'firstComment', 'contactedTooManyUsers', 'bio', 'profileImage'], "optional");
 
-export const type3DateCutoffSetting = new DatabasePublicSetting<string>('type3.cutoffDate', '2023-05-01');
-export const type3ExplicitlyAllowedPostIdsSetting = new DatabasePublicSetting<string[]>('type3.explicitlyAllowedPostIds', []);
+export const type3DateCutoffSetting = new PublicInstanceSetting<string>('type3.cutoffDate', '2023-05-01', "optional");
+export const type3ExplicitlyAllowedPostIdsSetting = new PublicInstanceSetting<string[]>('type3.explicitlyAllowedPostIds', [], "optional");
 /** type3KarmaCutoffSetting is here to allow including high karma posts from before type3DateCutoffSetting */
-export const type3KarmaCutoffSetting = new DatabasePublicSetting<number>('type3.karmaCutoff', Infinity);
-export const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number | null>('newUserIconKarmaThreshold', null);
-export const cloudinaryUploadPresetEditorName = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetEditor', null);
+export const type3KarmaCutoffSetting = new PublicInstanceSetting<number>('type3.karmaCutoff', Infinity, "optional");
+export const newUserIconKarmaThresholdSetting = new PublicInstanceSetting<number | null>('newUserIconKarmaThreshold', null, "optional");
+export const cloudinaryUploadPresetEditorName = new PublicInstanceSetting<string | null>('cloudinary.uploadPresetEditor', null, "optional");
+
 // LW (and legacy) time decay algorithm settings
-export const timeDecayFactorSetting = new DatabasePublicSetting<number>('timeDecayFactor', 1.15);
-export const frontpageBonusSetting = new DatabasePublicSetting<number>('frontpageScoreBonus', 10);
-export const curatedBonusSetting = new DatabasePublicSetting<number>('curatedScoreBonus', 10);
+export const timeDecayFactorSetting = new PublicInstanceSetting<number>('timeDecayFactor', 1.15, "optional");
+export const frontpageBonusSetting = new PublicInstanceSetting<number>('frontpageScoreBonus', 10, "optional");
+export const curatedBonusSetting = new PublicInstanceSetting<number>('curatedScoreBonus', 10, "optional");
+
 /**
  * We apply a score boost to subforum comments using the formula:
  *   max(b, m * (1 - ((x / d) ** p)))
@@ -651,7 +656,6 @@ export const curatedBonusSetting = new DatabasePublicSetting<number>('curatedSco
  * (defining the dropoff curve), and x is the elapsed time since the
  * comment was posted in hours.
  */
-
 export const defaultSubforumCommentBonus = {
   base: 5,
   magnitude: 100,
@@ -661,34 +665,31 @@ export const defaultSubforumCommentBonus = {
 
 export type SubforumCommentBonus = typeof defaultSubforumCommentBonus;
 
-export const subforumCommentBonusSetting = new DatabasePublicSetting<SubforumCommentBonus>(
-  'subforumCommentBonus',
-  defaultSubforumCommentBonus
-);
+export const subforumCommentBonusSetting = new PublicInstanceSetting<SubforumCommentBonus>('subforumCommentBonus', defaultSubforumCommentBonus, "optional");
+
 // EA Frontpage time decay algorithm settings
+export const startingAgeHoursSetting = new PublicInstanceSetting<number>('frontpageAlgorithm.startingAgeHours', 6, "optional");
+export const decayFactorSlowestSetting = new PublicInstanceSetting<number>('frontpageAlgorithm.decayFactorSlowest', 0.5, "optional");
+export const decayFactorFastestSetting = new PublicInstanceSetting<number>('frontpageAlgorithm.decayFactorFastest', 1.08, "optional");
+export const activityWeightSetting = new PublicInstanceSetting<number>('frontpageAlgorithm.activityWeight', 1.4, "optional");
+export const activityHalfLifeSetting = new PublicInstanceSetting<number>('frontpageAlgorithm.activityHalfLife', 60, "optional");
+export const frontpageDaysAgoCutoffSetting = new PublicInstanceSetting<number>('frontpageAlgorithm.daysAgoCutoff', 90, "optional");
+export const databaseDebuggersSetting = new PublicInstanceSetting<string[]>('debuggers', [], "optional");
 
-export const startingAgeHoursSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.startingAgeHours', 6);
-export const decayFactorSlowestSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.decayFactorSlowest', 0.5);
-export const decayFactorFastestSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.decayFactorFastest', 1.08);
-export const activityWeightSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.activityWeight', 1.4);
-export const activityHalfLifeSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.activityHalfLife', 60);
-export const frontpageDaysAgoCutoffSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.daysAgoCutoff', 90);
-export const databaseDebuggersSetting = new DatabasePublicSetting<string[]>('debuggers', []);
 // 'Maximum documents per request'
+export const maxDocumentsPerRequestSetting = new PublicInstanceSetting<number>('maxDocumentsPerRequest', 5000, "optional");
 
-export const maxDocumentsPerRequestSetting = new DatabasePublicSetting<number>('maxDocumentsPerRequest', 5000);
+export const addNewReactKarmaThreshold = new PublicInstanceSetting("reacts.addNewReactKarmaThreshold", 100, "optional");
+export const addNameToExistingReactKarmaThreshold = new PublicInstanceSetting("reacts.addNameToExistingReactKarmaThreshold", 20, "optional");
+export const downvoteExistingReactKarmaThreshold = new PublicInstanceSetting("reacts.downvoteExistingReactKarmaThreshold", 20, "optional");
 
-export const addNewReactKarmaThreshold = new DatabasePublicSetting("reacts.addNewReactKarmaThreshold", 100);
-export const addNameToExistingReactKarmaThreshold = new DatabasePublicSetting("reacts.addNameToExistingReactKarmaThreshold", 20);
-export const downvoteExistingReactKarmaThreshold = new DatabasePublicSetting("reacts.downvoteExistingReactKarmaThreshold", 20);
+export const karmaRewarderId100 = new PublicInstanceSetting<string | null>('karmaRewarderId100', null, "optional");
+export const karmaRewarderId1000 = new PublicInstanceSetting<string | null>('karmaRewarderId1000', null, "optional");
 
-export const karmaRewarderId100 = new DatabasePublicSetting<string | null>('karmaRewarderId100', null);
-export const karmaRewarderId1000 = new DatabasePublicSetting<string | null>('karmaRewarderId1000', null);
+export const logoUrlSetting = new PublicInstanceSetting<string | null>('logoUrl', null, "optional");
 
-export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null);
 /** Url of the bot site to redirect to, e.g. https://forum-bots.effectivealtruism.org (must include the http(s)://) */
-
-export const botSiteUrlSetting = new DatabasePublicSetting<string | null>('botSite.url', null);
+export const botSiteUrlSetting = new PublicInstanceSetting<string | null>('botSite.url', null, "optional");
 /** e.g.
  * {
  *   '.*': [ // matches all paths
@@ -701,5 +702,4 @@ export const botSiteUrlSetting = new DatabasePublicSetting<string | null>('botSi
  *   ],
  * }
 */
-export const botSiteUserAgentRegexesSetting = new DatabasePublicSetting<Record<string, string[]> | null>('botSite.userAgentRegexes', null);
-
+export const botSiteUserAgentRegexesSetting = new PublicInstanceSetting<Record<string, string[]> | null>('botSite.userAgentRegexes', null, "optional");

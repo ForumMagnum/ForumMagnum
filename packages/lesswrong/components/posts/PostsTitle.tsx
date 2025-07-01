@@ -17,7 +17,6 @@ import ForumIcon from "../common/ForumIcon";
 import TagsTooltip from "../tagging/TagsTooltip";
 import { amaTagIdSetting, annualReviewAnnouncementPostPathSetting, openThreadTagIdSetting } from '@/lib/instanceSettings';
 import { startHerePostIdSetting } from '@/lib/instanceSettings';
-import type { DatabasePublicSetting } from '@/lib/publicSettings';
 import QuestionAnswerIcon from '@/lib/vendor/@material-ui/icons/src/QuestionAnswer';
 import ArrowForwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowForward';
 import AllInclusiveIcon from '@/lib/vendor/@material-ui/icons/src/AllInclusive';
@@ -151,7 +150,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const tagSettingIcons = new Map<DatabasePublicSetting<string | null>, React.ComponentType<React.SVGProps<SVGElement>>>([
+const tagSettingIcons = new Map([
   [amaTagIdSetting, QuestionAnswerIcon], 
   [openThreadTagIdSetting, AllInclusiveIcon],
 ]);
@@ -166,7 +165,7 @@ const reviewPostIdSetting = {
 const idSettingIcons = new Map([
   [startHerePostIdSetting, ArrowForwardIcon],
   // use an imposter to avoid duplicating annualReviewAnnouncementPostPathSetting, which is a path not a post id
-  [reviewPostIdSetting as DatabasePublicSetting<string | null>, StarIcon]
+  [reviewPostIdSetting, StarIcon]
 ]);
 
 const postIcon = (post: PostsBase|PostsListBase) => {
