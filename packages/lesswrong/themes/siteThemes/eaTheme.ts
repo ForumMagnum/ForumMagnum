@@ -195,6 +195,8 @@ export const eaForumTheme: SiteThemeSpecification = {
           fontWeight: 600,
           fontSize: 20.8,
           lineHeight: '1.25em',
+          marginTop: 24,
+          marginBottom: 12,
         },
         // used by h2
         display1: {
@@ -203,6 +205,8 @@ export const eaForumTheme: SiteThemeSpecification = {
           fontWeight: 650,
           fontSize: 26,
           lineHeight: '1.25em',
+          marginTop: 32,
+          marginBottom: 12,
         },
         // used by h1
         display2: {
