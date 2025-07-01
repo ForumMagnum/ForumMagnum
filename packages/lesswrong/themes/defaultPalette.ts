@@ -154,6 +154,7 @@ export const defaultShadePalette = (): ThemeShadePalette => {
       // Every site theme overrides these
       sansSerifStack: "sans-serif",
       serifStack: "serif",
+      brandStack: "serif",
     },
     
     type: "light",
