@@ -781,6 +781,10 @@ interface LoginReturnData {
   token: string | null;
 }
 
+interface KeywordAlertsResult {
+  results: Array<Post>;
+}
+
 interface MigrationsDashboardData {
   migrations: Array<MigrationStatus> | null;
 }
@@ -3977,6 +3981,7 @@ interface User {
   expandedFrontpageSections: ExpandedFrontpageSectionsSettingsOutput | null;
   showCommunityInRecentDiscussion: boolean;
   hidePostsRecommendations: boolean;
+  keywordAlerts: Array<string> | null;
   petrovOptOut: boolean;
   optedOutOfSurveys: boolean | null;
   postGlossariesPinned: boolean | null;
@@ -4045,6 +4050,7 @@ interface User {
   notificationDialogueMessages: any;
   notificationPublishedDialogueMessages: any;
   notificationAddedAsCoauthor: any;
+  notificationKeywordAlert: any;
   notificationDebateCommentsOnSubscribedPost: any;
   notificationDebateReplies: any;
   notificationDialogueMatch: any;
@@ -6072,6 +6078,7 @@ interface CreateUserDataInput {
   expandedFrontpageSections?: ExpandedFrontpageSectionsSettingsInput | null;
   showCommunityInRecentDiscussion?: boolean | null;
   hidePostsRecommendations?: boolean | null;
+  keywordAlerts?: Array<string> | null;
   petrovOptOut?: boolean | null;
   optedOutOfSurveys?: boolean | null;
   postGlossariesPinned?: boolean | null;
@@ -6129,6 +6136,7 @@ interface CreateUserDataInput {
   notificationDialogueMessages?: any;
   notificationPublishedDialogueMessages?: any;
   notificationAddedAsCoauthor?: any;
+  notificationKeywordAlert?: any;
   notificationDebateCommentsOnSubscribedPost?: any;
   notificationDebateReplies?: any;
   notificationDialogueMatch?: any;
@@ -6240,6 +6248,7 @@ interface UpdateUserDataInput {
   expandedFrontpageSections?: ExpandedFrontpageSectionsSettingsInput | null;
   showCommunityInRecentDiscussion?: boolean | null;
   hidePostsRecommendations?: boolean | null;
+  keywordAlerts?: Array<string> | null;
   petrovOptOut?: boolean | null;
   optedOutOfSurveys?: boolean | null;
   postGlossariesPinned?: boolean | null;
@@ -6302,6 +6311,7 @@ interface UpdateUserDataInput {
   notificationDialogueMessages?: any;
   notificationPublishedDialogueMessages?: any;
   notificationAddedAsCoauthor?: any;
+  notificationKeywordAlert?: any;
   notificationDebateCommentsOnSubscribedPost?: any;
   notificationDebateReplies?: any;
   notificationDialogueMatch?: any;
@@ -6530,6 +6540,7 @@ interface GraphQLTypeMap {
   WrappedDataByYear: WrappedDataByYear;
   Site: Site;
   LoginReturnData: LoginReturnData;
+  KeywordAlertsResult: KeywordAlertsResult;
   MigrationsDashboardData: MigrationsDashboardData;
   MigrationStatus: MigrationStatus;
   MigrationRun: MigrationRun;

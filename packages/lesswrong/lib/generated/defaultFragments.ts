@@ -1631,6 +1631,7 @@ export const UsersDefaultFragment = `
     hideCommunitySection
     showCommunityInRecentDiscussion
     hidePostsRecommendations
+    keywordAlerts
     petrovOptOut
     optedOutOfSurveys
     postGlossariesPinned
@@ -1694,6 +1695,7 @@ export const UsersDefaultFragment = `
     notificationDialogueMessages
     notificationPublishedDialogueMessages
     notificationAddedAsCoauthor
+    notificationKeywordAlert
     notificationDebateCommentsOnSubscribedPost
     notificationDebateReplies
     notificationDialogueMatch
