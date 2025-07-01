@@ -1,3 +1,4 @@
+import schema from '@/lib/collections/tweets/newSchema';
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
@@ -8,6 +9,7 @@ import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 export const Tweets = createCollection({
   collectionName: "Tweets",
   typeName: "Tweet",
+  schema,
     getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('Tweets', {postId: 1});

@@ -1,3 +1,4 @@
+import schema from '@/lib/collections/images/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -5,6 +6,7 @@ import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 export const Images = createCollection({
   collectionName: "Images",
   typeName: "Images",
+  schema,
     getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('Images', {identifier: 1});

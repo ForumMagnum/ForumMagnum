@@ -1,9 +1,11 @@
+import schema from '@/lib/collections/databaseMetadata/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const DatabaseMetadata = createCollection({
   collectionName: "DatabaseMetadata",
   typeName: "DatabaseMetadata",
+  schema,
     getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addCustomPgIndex(`

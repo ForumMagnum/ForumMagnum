@@ -1,3 +1,4 @@
+import schema from '@/lib/collections/migrations/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 
 /*
@@ -15,6 +16,7 @@ import { createCollection } from '@/lib/vulcan-lib/collections';
 export const Migrations = createCollection({
   collectionName: "Migrations",
   typeName: "Migration",
+  schema,
 });
 
 export default Migrations;

@@ -1,3 +1,4 @@
+import schema from '@/lib/collections/arbitalCache/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -7,6 +8,7 @@ import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 export const ArbitalCaches = createCollection({
   collectionName: 'ArbitalCaches',
   typeName: 'ArbitalCaches',
+  schema,
     getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('ArbitalCaches', { pageAlias: 1 })

@@ -1,3 +1,4 @@
+import schema from '@/lib/collections/messages/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -5,6 +6,7 @@ import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 export const Messages = createCollection({
   collectionName: 'Messages',
   typeName: 'Message',
+  schema,
     getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('Messages', { conversationId:1, createdAt:1 });

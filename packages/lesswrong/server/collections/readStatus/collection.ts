@@ -1,9 +1,11 @@
+import schema from '@/lib/collections/readStatus/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const ReadStatuses = createCollection({
   collectionName: "ReadStatuses",
   typeName: "ReadStatus",
+  schema,
     getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addCustomPgIndex(`

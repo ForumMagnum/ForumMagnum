@@ -1,4 +1,3 @@
-import { getAllSchemas } from '../../lib/schema/allSchemas';
 import type { EditableFieldCallbackOptions } from '../../lib/editor/makeEditableOptions';
 
 export interface EditableField<N extends CollectionNameString> extends CollectionFieldSpecification<N> {
@@ -16,6 +15,7 @@ export const getEditableFieldsByCollection = (() => {
   let editableFieldsByCollection: Partial<Record<CollectionNameString, Record<string, EditableField<CollectionNameString>>>>;
   return () => {
     if (!editableFieldsByCollection) {
+      const { getAllSchemas }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
       editableFieldsByCollection = Object.entries(getAllSchemas()).reduce<Partial<Record<CollectionNameString, Record<string, EditableField<CollectionNameString>>>>>((acc, [collectionName, schema]) => {
         const editableFields = Object.entries(schema).filter(isEditableField);
         if (editableFields.length > 0) {

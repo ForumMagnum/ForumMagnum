@@ -1,9 +1,11 @@
+import schema from '@/lib/collections/pagecache/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const PageCache = createCollection({
   collectionName: 'PageCache',
   typeName: 'PageCacheEntry',
+  schema,
     getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('PageCache', { path: 1, bundleHash: 1, expiresAt: 1 });

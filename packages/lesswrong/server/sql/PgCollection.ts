@@ -50,12 +50,14 @@ class PgCollection<
   postProcess?: (data: ObjectsByCollectionName[N]) => ObjectsByCollectionName[N];
   typeName: string;
   options: CollectionOptions<N>;
+  schema: Record<string, CollectionFieldSpecification<N>>;
 
   private table: Table<ObjectsByCollectionName[N]>;
 
   constructor(options: CollectionOptions<N>) {
     this.collectionName = options.collectionName;
     this.typeName = options.typeName;
+    this.schema = options.schema;
     this.tableName = options.dbCollectionName ?? options.collectionName.toLowerCase();
     this.options = options;
   }

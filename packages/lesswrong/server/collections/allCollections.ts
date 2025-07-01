@@ -124,7 +124,7 @@ const allCollections = {
   RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates,
   Spotlights, Subscriptions, SurveyQuestions, SurveyResponses, SurveySchedules, Surveys, TagFlags, TagRels, Tags, Tweets,
   TypingIndicators, UltraFeedEvents, UserActivities, UserEAGDetails, UserJobAds, UserMostValuablePosts, UserRateLimits, UserTagRels, Users, Votes
-} satisfies CollectionsByName;
+};
 
 const collectionsByLowercaseName = Object.fromEntries(
   Object.values(allCollections).map((collection) => [collection.collectionName.toLowerCase(), collection]),

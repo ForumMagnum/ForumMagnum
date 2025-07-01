@@ -1,9 +1,11 @@
+import schema from '@/lib/collections/revisions/newSchema';
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import { getVoteGraphql } from '@/server/votingGraphQL';
 
 export const Revisions = createCollection({
   collectionName: 'Revisions',
   typeName: 'Revision',
+  schema,
   voteable: {
     timeDecayScoresCronjob: false,
   },

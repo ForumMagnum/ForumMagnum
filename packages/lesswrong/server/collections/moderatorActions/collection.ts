@@ -1,3 +1,4 @@
+import schema from '@/lib/collections/moderatorActions/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -13,6 +14,7 @@ import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 export const ModeratorActions = createCollection({
   collectionName: 'ModeratorActions',
   typeName: 'ModeratorAction',
+  schema,
     getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('ModeratorActions', { userId: 1, createdAt: -1 })

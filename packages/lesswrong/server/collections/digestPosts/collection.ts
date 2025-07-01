@@ -1,9 +1,11 @@
+import schema from '@/lib/collections/digestPosts/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const DigestPosts = createCollection({
   collectionName: 'DigestPosts',
   typeName: 'DigestPost',
+  schema,
     getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('DigestPosts', {digestId: 1});

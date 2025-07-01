@@ -87,6 +87,7 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
 type CollectionOptions<N extends CollectionNameString> = {
   typeName: string,
   collectionName: N,
+  schema: Record<string, CollectionFieldSpecification<N>>,
   dbCollectionName?: string,
   writeAheadLogged?: boolean,
   dependencies?: SchemaDependency[],

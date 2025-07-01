@@ -1,9 +1,11 @@
+import schema from '@/lib/collections/userJobAds/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 export const UserJobAds = createCollection({
   collectionName: 'UserJobAds',
   typeName: 'UserJobAd',
+  schema,
     getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('UserJobAds', {userId: 1, jobName: 1}, {unique: true});
