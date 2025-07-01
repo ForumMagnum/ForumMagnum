@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { DialogContent } from "../widgets/DialogContent";
@@ -225,13 +225,16 @@ const UltraFeedCommentsDialog = ({
   useDialogNavigation(onClose);
   useDisableBodyScroll();
 
+  // Necessary because other changes to comments can trigger the scroll useEffect to run again
+  const hasScrolledRef = useRef(false);
+
   // TODO: Do this more elegantly, combine within existing functionality in CommentsNode?
   // scroll to comment clicked on when dialog opens
   useEffect(() => {
     let scrollTimer: NodeJS.Timeout | null = null;
     let fadeTimer: NodeJS.Timeout | null = null;
 
-    if (!isLoading && targetCommentId && comments && comments.length > 0) {
+    if (!isLoading && targetCommentId && comments && comments.length > 0 && !hasScrolledRef.current) {
       scrollTimer = setTimeout(() => {
         const element = window.document.getElementById(targetCommentId);
 
@@ -258,6 +261,9 @@ const UltraFeedCommentsDialog = ({
             const currentElement = window.document.getElementById(targetCommentId);
             currentElement?.classList.add(classes.scrolledHighlightFading);
           }, 100);
+
+          // Mark that we've scrolled
+          hasScrolledRef.current = true;
         }
       }, 200);
 
