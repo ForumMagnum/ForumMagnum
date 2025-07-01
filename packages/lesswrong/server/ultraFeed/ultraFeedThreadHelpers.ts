@@ -8,6 +8,10 @@
  * - Preparing threads for display (expansion/highlighting)
  */
 
+// Safety limits for recursive thread building
+const MAX_DEPTH = 50;
+const MAX_TOTAL_PATHS = 1000;
+
 import { UltraFeedResolverSettings, CommentScoringSettings, ThreadInterestModelSettings } from '../../components/ultraFeed/ultraFeedSettingsTypes';
 import { 
   PreDisplayFeedComment, 
@@ -42,6 +46,8 @@ export function buildDistinctLinearThreads(
   candidates: FeedCommentFromDb[]
 ): PreDisplayFeedCommentThread[] {
   if (!candidates.length) return [];
+
+  let totalPathsGenerated = 0;
 
   const children: Record<string, string[]> = {};
   for (const c of candidates) {
@@ -86,20 +92,51 @@ export function buildDistinctLinearThreads(
     return [];
   }
 
-  const buildCommentThreads = (currentId: string): PreDisplayFeedCommentThread[] => {
+  const buildCommentThreads = (
+    currentId: string, 
+    visited = new Set<string>(),
+    depth = 0
+  ): PreDisplayFeedCommentThread[] => {
+    if (depth > MAX_DEPTH) {
+      // eslint-disable-next-line no-console
+      console.warn(`[buildDistinctLinearThreads] Max depth ${MAX_DEPTH} exceeded at comment ${currentId}`);
+      return [];
+    }
+
+    if (visited.has(currentId)) {
+      // eslint-disable-next-line no-console
+      console.error(`[buildDistinctLinearThreads] Cycle detected at comment ${currentId}`);
+      return [];
+    }
+
+    if (totalPathsGenerated >= MAX_TOTAL_PATHS) {
+      // eslint-disable-next-line no-console
+      console.warn(`[buildDistinctLinearThreads] Max total paths ${MAX_TOTAL_PATHS} reached`);
+      return [];
+    }
+
     const currentCandidate = commentsById.get(currentId);
     if (!currentCandidate) return [];
 
+    // Add current node to visited set
+    const newVisited = new Set(visited);
+    newVisited.add(currentId);
+
     const childIds = children[currentId] || [];
     if (!childIds.length) {
+      totalPathsGenerated++;
       return [[currentCandidate]]; // Leaf node
     }
 
     const results: PreDisplayFeedCommentThread[] = [];
     for (const cid of childIds) {
-      const subPaths = buildCommentThreads(cid);
+      const subPaths = buildCommentThreads(cid, newVisited, depth + 1);
       for (const subPath of subPaths) {
+        if (totalPathsGenerated >= MAX_TOTAL_PATHS) {
+          break;
+        }
         results.push([currentCandidate, ...subPath]);
+        totalPathsGenerated++;
       }
     }
     return results;
