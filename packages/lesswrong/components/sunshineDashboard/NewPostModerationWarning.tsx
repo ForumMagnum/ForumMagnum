@@ -1,5 +1,5 @@
 import React from 'react';
-import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { postModerationWarningCommentIdSetting } from '../../lib/publicSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -16,8 +16,6 @@ const CommentsListQuery = gql(`
     }
   }
 `);
-
-const postModerationWarningCommentIdSetting = new DatabasePublicSetting<string>('postModerationWarningCommentId', '')
 
 const styles = (theme: ThemeType) => ({
   root: {

@@ -6,7 +6,7 @@ import RecommendationsAlgorithmPicker, { getRecommendationSettings } from './Rec
 import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { bookDisplaySetting } from '../../lib/publicSettings';
 import { hasCuratedPostsSetting } from '../../lib/instanceSettings';
 import DismissibleSpotlightItem from "../spotlights/DismissibleSpotlightItem";
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -101,8 +101,6 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
     count: haveCurrentUser ? 3 : 2
   }
 }
-
-export const bookDisplaySetting = new DatabasePublicSetting<boolean>('bookDisplaySetting', false)
 
 const LWRecommendations = ({
   configName,

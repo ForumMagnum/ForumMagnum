@@ -1,8 +1,6 @@
 import { isServer } from "../../../lib/executionEnvironment";
-import { DatabasePublicSetting, hasCookieConsentSetting } from "../../../lib/publicSettings";
+import { hasCookieConsentSetting, ipApiKeySetting } from "../../../lib/publicSettings";
 import { getBrowserLocalStorage } from "../../editor/localStorageHandlers";
-
-const ipApiKeySetting = new DatabasePublicSetting<string | null>('ipapi.apiKey', null);
 
 const GDPR_COUNTRY_CODES: string[] = [
   "AT", // Austria

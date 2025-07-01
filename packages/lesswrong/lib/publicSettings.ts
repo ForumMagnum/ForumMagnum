@@ -231,3 +231,161 @@ export const defaultSequenceBannerIdSetting = new DatabasePublicSetting<string |
 
 export const graphqlBatchMaxSetting = new DatabasePublicSetting('batchHttpLink.batchMax', 50);
 
+export const firstCommentAcknowledgeMessageCommentIdSetting = new DatabasePublicSetting<string>('firstCommentAcknowledgeMessageCommentId', '');
+
+export const ipApiKeySetting = new DatabasePublicSetting<string | null>('ipapi.apiKey', null);
+
+export const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj');
+
+export const maintenanceTime = new DatabasePublicSetting<string | null>("maintenanceBannerTime", null);
+export const explanationText = new DatabasePublicSetting<string>("maintenanceBannerExplanationText", "");
+export const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
+export const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBanner', false)
+export const showMaintenanceBannerSetting = new DatabasePublicSetting<boolean>('showMaintenanceBanner', false);
+export const eventBannerMobileImageSetting = new DatabasePublicSetting<string | null>('eventBannerMobileImage', null);
+export const eventBannerDesktopImageSetting = new DatabasePublicSetting<string | null>('eventBannerDesktopImage', null);
+export const eventBannerLinkSetting = new DatabasePublicSetting<string | null>('eventBannerLink', null);
+
+export const buttonBurstSetting = new DatabasePublicSetting<boolean>("buttonBurst.enabled", false);
+export const buttonBurstImage = new DatabasePublicSetting<string>("buttonBurst.image", "https://res.cloudinary.com/cea/image/upload/w_256,h_256,q_40,f_auto,dpr_1/v1711484824/bulby-canonical.png");
+
+export const placeholderSetting = new DatabasePublicSetting<string>("linkpostUrlPlaceholder", "http://example.com/blog/2017/reality-has-a-surprising-amount-of-detail");
+
+export const disableCookiePreferenceAutoUpdateSetting = new DatabasePublicSetting<boolean>('disableCookiePreferenceAutoUpdate', false);
+
+export const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>(
+  "cloudinary.uploadPresetGridImage",
+  "tz0mgw2s"
+);
+export const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>(
+  "cloudinary.uploadPresetBanner",
+  "navcjwf7"
+);
+export const cloudinaryUploadPresetProfileSetting = new DatabasePublicSetting<string | null>(
+  "cloudinary.uploadPresetProfile",
+  null
+);
+export const cloudinaryUploadPresetSocialPreviewSetting = new DatabasePublicSetting<string | null>(
+  "cloudinary.uploadPresetSocialPreview",
+  null
+);
+export const cloudinaryUploadPresetEventImageSetting = new DatabasePublicSetting<string | null>(
+  "cloudinary.uploadPresetEventImage",
+  null
+);
+export const cloudinaryUploadPresetSpotlightSetting = new DatabasePublicSetting<string | null>(
+  "cloudinary.uploadPresetSpotlight",
+  "yjgxmsio"
+);
+export const cloudinaryUploadPresetDigestSetting = new DatabasePublicSetting<string | null>(
+  "cloudinary.uploadPresetDigest",
+  null
+);
+
+// Number of weeks to display in the timeframe view
+export const forumAllPostsNumWeeksSetting = new DatabasePublicSetting<number>("forum.numberOfWeeks", 4);
+// Number of months to display in the timeframe view
+export const forumAllPostsNumMonthsSetting = new DatabasePublicSetting<number>("forum.numberOfMonths", 4);
+// Number of years to display in the timeframe view
+export const forumAllPostsNumYearsSetting = new DatabasePublicSetting<number>("forum.numberOfYears", 4);
+
+export const bookDisplaySetting = new DatabasePublicSetting<boolean>('bookDisplaySetting', false);
+
+export const enableGoodHeartProject = new DatabasePublicSetting<boolean>('enableGoodHeartProject', false); // enables UI for 2022 LW April Fools
+
+export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '');
+export const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '');
+
+export const defaultAFModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultAFModeratorPMsTagSlug', "af-default-moderator-responses");
+export const commentModerationWarningCommentIdSetting = new DatabasePublicSetting<string>('commentModerationWarningCommentId', '');
+export const postModerationWarningCommentIdSetting = new DatabasePublicSetting<string>('postModerationWarningCommentId', '');
+
+export const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false);
+
+export const showAnalyticsDebug = new DatabasePublicSetting<"never" | "dev" | "always">("showAnalyticsDebug", "dev");
+export const flushIntervalSetting = new DatabasePublicSetting<number>("analyticsFlushInterval", 1000);
+
+type ReasonNoReviewNeeded = "alreadyApproved" | "noReview";
+type ReasonReviewIsNeeded = "mapLocation" | "firstPost" | "firstComment" | "contactedTooManyUsers" | "bio" | "profileImage" | "newContent";
+export type ReasonForInitialReview = Exclude<ReasonReviewIsNeeded, 'newContent'>;
+export type GetReasonForReviewResult =
+  { needsReview: false; reason: ReasonNoReviewNeeded; } |
+  { needsReview: true; reason: ReasonReviewIsNeeded; };
+
+
+export const reviewReasonsSetting = new DatabasePublicSetting<Array<ReasonForInitialReview>>(
+  'moderation.reasonsForInitialReview',
+  ['firstPost', 'firstComment', 'contactedTooManyUsers', 'bio', 'profileImage']
+);
+
+export const type3DateCutoffSetting = new DatabasePublicSetting<string>('type3.cutoffDate', '2023-05-01');
+export const type3ExplicitlyAllowedPostIdsSetting = new DatabasePublicSetting<string[]>('type3.explicitlyAllowedPostIds', []);
+/** type3KarmaCutoffSetting is here to allow including high karma posts from before type3DateCutoffSetting */
+export const type3KarmaCutoffSetting = new DatabasePublicSetting<number>('type3.karmaCutoff', Infinity);
+export const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number | null>('newUserIconKarmaThreshold', null);
+export const cloudinaryUploadPresetEditorName = new DatabasePublicSetting<string | null>('cloudinary.uploadPresetEditor', null);
+
+// LW (and legacy) time decay algorithm settings
+export const timeDecayFactorSetting = new DatabasePublicSetting<number>('timeDecayFactor', 1.15);
+export const frontpageBonusSetting = new DatabasePublicSetting<number>('frontpageScoreBonus', 10);
+export const curatedBonusSetting = new DatabasePublicSetting<number>('curatedScoreBonus', 10);
+
+/**
+ * We apply a score boost to subforum comments using the formula:
+ *   max(b, m * (1 - ((x / d) ** p)))
+ * where b is the base (the minimum boost received after the duration
+ * has expired), m is the magnitude (the maximum boost when the comment
+ * is first posted), d is the duration in hours, p is the exponent
+ * (defining the dropoff curve), and x is the elapsed time since the
+ * comment was posted in hours.
+ */
+export const defaultSubforumCommentBonus = {
+  base: 5,
+  magnitude: 100,
+  duration: 8,
+  exponent: 0.3,
+} as const;
+
+export type SubforumCommentBonus = typeof defaultSubforumCommentBonus;
+
+export const subforumCommentBonusSetting = new DatabasePublicSetting<SubforumCommentBonus>(
+  'subforumCommentBonus',
+  defaultSubforumCommentBonus
+);
+
+// EA Frontpage time decay algorithm settings
+export const startingAgeHoursSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.startingAgeHours', 6);
+export const decayFactorSlowestSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.decayFactorSlowest', 0.5);
+export const decayFactorFastestSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.decayFactorFastest', 1.08);
+export const activityWeightSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.activityWeight', 1.4);
+export const activityHalfLifeSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.activityHalfLife', 60);
+export const frontpageDaysAgoCutoffSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.daysAgoCutoff', 90);
+export const databaseDebuggersSetting = new DatabasePublicSetting<string[]>('debuggers', []);
+
+// 'Maximum documents per request'
+export const maxDocumentsPerRequestSetting = new DatabasePublicSetting<number>('maxDocumentsPerRequest', 5000);
+
+export const addNewReactKarmaThreshold = new DatabasePublicSetting("reacts.addNewReactKarmaThreshold", 100);
+export const addNameToExistingReactKarmaThreshold = new DatabasePublicSetting("reacts.addNameToExistingReactKarmaThreshold", 20);
+export const downvoteExistingReactKarmaThreshold = new DatabasePublicSetting("reacts.downvoteExistingReactKarmaThreshold", 20);
+
+export const karmaRewarderId100 = new DatabasePublicSetting<string | null>('karmaRewarderId100', null);
+export const karmaRewarderId1000 = new DatabasePublicSetting<string | null>('karmaRewarderId1000', null);
+
+export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null);
+
+/** Url of the bot site to redirect to, e.g. https://forum-bots.effectivealtruism.org (must include the http(s)://) */
+export const botSiteUrlSetting = new DatabasePublicSetting<string | null>('botSite.url', null);
+/** e.g.
+ * {
+ *   '.*': [ // matches all paths
+ *     '.*python.*',
+ *     ...
+ *   ],
+ *   '/allPosts/?.*|/graphql/?.*': [ // Matches any path starting with /allPosts/ or /graphql/
+ *     '.*python.*',
+ *     ...
+ *   ],
+ * }
+*/
+export const botSiteUserAgentRegexesSetting = new DatabasePublicSetting<Record<string, string[]> | null>('botSite.userAgentRegexes', null);

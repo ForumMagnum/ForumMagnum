@@ -18,9 +18,8 @@
  */
 import util from 'util'
 import { instanceDebuggersSetting } from '../instanceSettings'
-import { DatabasePublicSetting } from '../publicSettings'
+import { databaseDebuggersSetting } from '../publicSettings'
 
-const databaseDebuggersSetting = new DatabasePublicSetting<string[]>('debuggers', [])
 const instanceDebuggers = instanceDebuggersSetting.get()
 
 type Logger = (...args: any[]) => void

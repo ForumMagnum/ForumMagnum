@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { intercomAppIdSetting } from '../../lib/publicSettings';
 import { useCurrentUser } from './withUser';
 import { getUserEmail } from "../../lib/collections/users/helpers";
 import { useLocation } from '../../lib/routeUtil';
@@ -8,8 +8,6 @@ import withErrorBoundary from './withErrorBoundary'
 import Intercom from '../../lib/vendor/react-intercom';
 import { useCookiePreferences } from '../hooks/useCookiesWithConsent';
 import { isStandaloneRoute } from '@/lib/routeChecks';
-
-const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
 
 const styles = (theme: ThemeType) => ({
   "@global": {

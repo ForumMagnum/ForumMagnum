@@ -3,14 +3,12 @@ import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf, PermissionableUser } from '../../vulcan-users/permissions';
 import * as _ from 'underscore';
 import type { PermissionResult } from '../../make_voteable';
-import { DatabasePublicSetting } from '../../publicSettings';
+import { newUserIconKarmaThresholdSetting } from '../../publicSettings';
 import { hasAuthorModeration } from '../../betas';
 import { DeferredForumSelect } from '@/lib/forumTypeUtils';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 import type { ForumIconName } from '@/components/common/ForumIcon';
 import type { EditablePost } from '../posts/helpers';
-
-const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
 export const ACCOUNT_DELETION_COOLING_OFF_DAYS = 14;
 

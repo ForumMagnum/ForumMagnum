@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
-import { DatabasePublicSetting } from "@/lib/publicSettings";
-
-export const buttonBurstSetting = new DatabasePublicSetting<boolean>("buttonBurst.enabled", false);
-const buttonBurstImage = new DatabasePublicSetting<string>("buttonBurst.image", "https://res.cloudinary.com/cea/image/upload/w_256,h_256,q_40,f_auto,dpr_1/v1711484824/bulby-canonical.png");
+import { buttonBurstImage } from "@/lib/publicSettings";
 
 function onIdle(fn: () => void) {
   if (typeof (window as any).requestIdleCallback === "function") {

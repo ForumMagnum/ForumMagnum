@@ -1,40 +1,10 @@
 import React, { useCallback } from "react";
 import { requireCssVar } from "../../themes/cssVars";
 import {
-  cloudinaryCloudNameSetting,
-  DatabasePublicSetting,
+  cloudinaryCloudNameSetting, cloudinaryUploadPresetBannerSetting, cloudinaryUploadPresetDigestSetting, cloudinaryUploadPresetEventImageSetting, cloudinaryUploadPresetGridImageSetting, cloudinaryUploadPresetProfileSetting, cloudinaryUploadPresetSocialPreviewSetting, cloudinaryUploadPresetSpotlightSetting
 } from "../../lib/publicSettings";
 import { useTheme } from "../themes/useTheme";
 import { Helmet } from "../common/Helmet";
-
-const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>(
-  "cloudinary.uploadPresetGridImage",
-  "tz0mgw2s",
-);
-const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>(
-  "cloudinary.uploadPresetBanner",
-  "navcjwf7",
-);
-const cloudinaryUploadPresetProfileSetting = new DatabasePublicSetting<string | null>(
-  "cloudinary.uploadPresetProfile",
-  null,
-);
-const cloudinaryUploadPresetSocialPreviewSetting = new DatabasePublicSetting<string | null>(
-  "cloudinary.uploadPresetSocialPreview",
-  null,
-);
-const cloudinaryUploadPresetEventImageSetting = new DatabasePublicSetting<string | null>(
-  "cloudinary.uploadPresetEventImage",
-  null,
-);
-const cloudinaryUploadPresetSpotlightSetting = new DatabasePublicSetting<string | null>(
-  "cloudinary.uploadPresetSpotlight",
-  "yjgxmsio",
-);
-const cloudinaryUploadPresetDigestSetting = new DatabasePublicSetting<string | null>(
-  "cloudinary.uploadPresetDigest",
-  null,
-);
 
 type CloudinaryImageUploadError = {
   statusText: string,

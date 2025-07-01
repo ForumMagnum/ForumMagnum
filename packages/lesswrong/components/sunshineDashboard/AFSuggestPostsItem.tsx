@@ -9,7 +9,6 @@ import PlusOneIcon from '@/lib/vendor/@material-ui/icons/src/PlusOne';
 import UndoIcon from '@/lib/vendor/@material-ui/icons/src/Undo';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
-import {DatabasePublicSetting} from "../../lib/publicSettings";
 import SunshineListItem from "./SunshineListItem";
 import SidebarHoverOver from "./SidebarHoverOver";
 import ContentStyles from "../common/ContentStyles";
@@ -35,8 +34,6 @@ const SuggestAlignmentPostUpdateMutation = gql(`
     }
   }
 `);
-
-export const defaultAFModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultAFModeratorPMsTagSlug', "af-default-moderator-responses")
 
 export const afSubmissionHeader = (theme: ThemeType) => ({
   marginBottom: 24,

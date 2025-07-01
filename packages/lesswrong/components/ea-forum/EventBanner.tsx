@@ -1,12 +1,8 @@
 import React from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
-import { cloudinaryCloudNameSetting, DatabasePublicSetting } from '../../lib/publicSettings';
+import { cloudinaryCloudNameSetting, eventBannerDesktopImageSetting, eventBannerLinkSetting, eventBannerMobileImageSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
-
-const eventBannerMobileImageSetting = new DatabasePublicSetting<string | null>('eventBannerMobileImage', null)
-const eventBannerDesktopImageSetting = new DatabasePublicSetting<string | null>('eventBannerDesktopImage', null)
-const eventBannerLinkSetting = new DatabasePublicSetting<string | null>('eventBannerLink', null)
 
 const bannerHeight = 250
 const container = cloudinaryCloudNameSetting.get()

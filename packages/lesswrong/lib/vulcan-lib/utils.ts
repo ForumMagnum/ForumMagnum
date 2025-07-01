@@ -1,11 +1,9 @@
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import { siteUrlSetting } from '../instanceSettings';
-import { DatabasePublicSetting } from '../publicSettings';
+import { logoUrlSetting } from '../publicSettings';
 import sanitizeHtml from 'sanitize-html';
 import { getUrlClass } from '@/server/utils/getUrlClass';
-
-export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null)
 
 // @summary Convert a camelCase string to a space-separated capitalized string
 // See http://stackoverflow.com/questions/4149276/javascript-camelcase-to-regular-form

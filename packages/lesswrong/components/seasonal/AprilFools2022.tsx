@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import FavoriteIcon from '@/lib/vendor/@material-ui/icons/src/Favorite';
 import classNames from 'classnames';
-import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { enableGoodHeartProject } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
@@ -21,8 +21,6 @@ const UsersProfileMultiQuery = gql(`
     }
   }
 `);
-
-export const enableGoodHeartProject = new DatabasePublicSetting<boolean>('enableGoodHeartProject',false) // enables UI for 2022 LW April Fools
 
 export const goodHeartStartDate = new Date("04/01/2022")
 

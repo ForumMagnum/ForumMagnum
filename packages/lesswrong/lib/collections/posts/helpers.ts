@@ -3,7 +3,7 @@ import { getOutgoingUrl, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userOverNKarmaFunc, userIsAdminOrMod, userOverNKarmaOrApproved } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
-import { DatabasePublicSetting, cloudinaryCloudNameSetting, commentPermalinkStyleSetting, crosspostKarmaThreshold } from '../../publicSettings';
+import { cloudinaryCloudNameSetting, commentPermalinkStyleSetting, crosspostKarmaThreshold, type3DateCutoffSetting, type3ExplicitlyAllowedPostIdsSetting, type3KarmaCutoffSetting } from '../../publicSettings';
 import { max } from "underscore";
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import type { Request, Response } from 'express';
@@ -340,11 +340,6 @@ export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = fal
   const result = mostRelevantTag(potentialTags, tagRelevance);
   return typeof result === "object" ? result : undefined;
 }
-
-const type3DateCutoffSetting = new DatabasePublicSetting<string>('type3.cutoffDate', '2023-05-01')
-const type3ExplicitlyAllowedPostIdsSetting = new DatabasePublicSetting<string[]>('type3.explicitlyAllowedPostIds', [])
-/** type3KarmaCutoffSetting is here to allow including high karma posts from before type3DateCutoffSetting */
-const type3KarmaCutoffSetting = new DatabasePublicSetting<number>('type3.karmaCutoff', Infinity)
 
 /**
  * Whether the post is allowed AI generated audio

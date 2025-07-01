@@ -1,4 +1,4 @@
-import { showAnalyticsDebug } from './analyticsEvents';
+import { showAnalyticsDebug } from './publicSettings';
 import { isAnyTest, isDevelopment } from './executionEnvironment';
 import { getPublicSettingsLoaded } from './settingsCache';
 

@@ -32,7 +32,8 @@ import DeferRender from './common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
 import { AutosaveEditorStateContext } from './common/sharedContexts';
 
-import GlobalButtonBurst, { buttonBurstSetting } from './ea-forum/GlobalButtonBurst';
+import GlobalButtonBurst from './ea-forum/GlobalButtonBurst';
+import { buttonBurstSetting } from "@/lib/publicSettings";
 import NavigationStandalone from "./common/TabNavigationMenu/NavigationStandalone";
 import ErrorBoundary from "./common/ErrorBoundary";
 import Footer from "./common/Footer";

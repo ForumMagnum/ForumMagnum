@@ -3,11 +3,7 @@ import { recalculateScore } from '../scoring';
 import { calculateVotePower, isValidVoteType } from './voteTypes';
 import type { VotingSystem } from './votingSystems';
 import { collectionNameToTypeName } from '../generated/collectionTypeNames';
-import { DatabasePublicSetting } from '../publicSettings';
-
-export const karmaRewarderId100 = new DatabasePublicSetting<string | null>('karmaRewarderId100', null)
-export const karmaRewarderId1000 = new DatabasePublicSetting<string | null>('karmaRewarderId1000', null)
-
+import { karmaRewarderId100, karmaRewarderId1000 } from '../publicSettings';
 
 export interface VoteDocTuple {
   newDocument: DbVoteableType

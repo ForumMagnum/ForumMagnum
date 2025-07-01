@@ -5,7 +5,7 @@ import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
-import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { petrovGamePostIdSetting, petrovPostIdSetting } from '../../lib/publicSettings';
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useMessages } from "../common/withMessages";
@@ -20,8 +20,6 @@ import { Typography } from "../common/Typography";
 import { petrovDayLaunchCode } from '@/lib/collections/petrovDayActions/constants';
 import { WrappedReactMapGL } from '../community/WrappedReactMapGL';
 
-export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
-export const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
 // see this post:
 // https://www.lesswrong.com/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019

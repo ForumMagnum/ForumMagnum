@@ -3,7 +3,7 @@ import React from 'react';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { DatabasePublicSetting } from "../../lib/publicSettings";
+import { firstCommentAcknowledgeMessageCommentIdSetting } from "../../lib/publicSettings";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isLW } from "../../lib/instanceSettings";
 import { useQuery } from "@/lib/crud/useQuery";
@@ -24,8 +24,6 @@ const CommentsListQuery = gql(`
     }
   }
 `);
-
-const firstCommentAcknowledgeMessageCommentIdSetting = new DatabasePublicSetting<string>('firstCommentAcknowledgeMessageCommentId', '')
 
 const styles = (theme: ThemeType) => ({
   moderationGuidelines: {

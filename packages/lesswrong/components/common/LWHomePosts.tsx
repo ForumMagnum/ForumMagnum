@@ -12,7 +12,7 @@ import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
-import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
+import { frontpageDaysAgoCutoffSetting } from '@/lib/publicSettings';
 import { useContinueReading } from '../recommendations/withContinueReading';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import TabPicker, { TabRecord } from './TabPicker';

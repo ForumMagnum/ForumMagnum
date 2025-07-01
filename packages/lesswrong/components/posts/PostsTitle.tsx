@@ -17,7 +17,7 @@ import ForumIcon from "../common/ForumIcon";
 import TagsTooltip from "../tagging/TagsTooltip";
 import { amaTagIdSetting, annualReviewAnnouncementPostPathSetting, openThreadTagIdSetting } from '@/lib/publicSettings';
 import { startHerePostIdSetting } from '@/lib/publicSettings';
-import { DatabasePublicSetting } from '@/lib/publicSettings';
+import type { DatabasePublicSetting } from '@/lib/publicSettings';
 import QuestionAnswerIcon from '@/lib/vendor/@material-ui/icons/src/QuestionAnswer';
 import ArrowForwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowForward';
 import AllInclusiveIcon from '@/lib/vendor/@material-ui/icons/src/AllInclusive';

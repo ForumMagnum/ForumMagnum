@@ -1,7 +1,7 @@
 import Users from "@/server/collections/users/collection";
 import { performVoteServer } from "../voteServer"
 import { Posts } from "@/server/collections/posts/collection.ts";
-import { karmaRewarderId100, karmaRewarderId1000 } from "@/lib/voting/vote";
+import { karmaRewarderId100, karmaRewarderId1000 } from '@/lib/publicSettings';
 import { createPost } from "../collections/posts/mutations";
 import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
 

@@ -1,8 +1,9 @@
 import React, { useCallback } from 'react'
 import { isBotSiteSetting, isEAForum } from '../../lib/instanceSettings'
-import { DatabasePublicSetting } from '../../lib/publicSettings'
+import { showEventBannerSetting, showMaintenanceBannerSetting, showSmallpoxSetting } from '../../lib/publicSettings'
 import { useCurrentUser } from '../common/withUser'
-import MaintenanceBanner, { maintenanceTime } from '../common/MaintenanceBanner'
+import MaintenanceBanner from '../common/MaintenanceBanner'
+import { maintenanceTime } from "@/lib/publicSettings"
 import { AnalyticsContext } from '../../lib/analyticsEvents'
 import DeferRender from '../common/DeferRender'
 import { registerComponent } from "../../lib/vulcan-lib/components";
@@ -20,10 +21,6 @@ import HeadTags from "../common/HeadTags";
 import BotSiteBanner from "../common/BotSiteBanner";
 import EAGBanner from "./EAGBanner";
 import { StructuredData } from '../common/StructuredData'
-
-const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
-const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBanner', false)
-const showMaintenanceBannerSetting = new DatabasePublicSetting<boolean>('showMaintenanceBanner', false)
 
 /**
  * Build structured data to help with SEO.

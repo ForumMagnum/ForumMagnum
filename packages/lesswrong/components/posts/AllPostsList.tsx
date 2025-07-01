@@ -15,8 +15,7 @@ import {
   TimeframeType,
 } from "./timeframeUtils";
 import {
-  forumAllPostsNumDaysSetting,
-  DatabasePublicSetting,
+  forumAllPostsNumDaysSetting, forumAllPostsNumMonthsSetting, forumAllPostsNumWeeksSetting, forumAllPostsNumYearsSetting
 } from "../../lib/publicSettings";
 import type { PostsTimeBlockShortformOption } from "./PostsTimeBlock";
 import { isFriendlyUI } from "../../themes/forumTheme";
@@ -24,13 +23,6 @@ import PostsTimeframeList from "./PostsTimeframeList";
 import PostsTimeframeListExponential from "./PostsTimeframeListExponential";
 import PostsList2 from "./PostsList2";
 import { returnIfValidNumber } from "@/lib/utils/typeGuardUtils";
-
-// Number of weeks to display in the timeframe view
-const forumAllPostsNumWeeksSetting = new DatabasePublicSetting<number>("forum.numberOfWeeks", 4);
-// Number of months to display in the timeframe view
-const forumAllPostsNumMonthsSetting = new DatabasePublicSetting<number>("forum.numberOfMonths", 4);
-// Number of years to display in the timeframe view
-const forumAllPostsNumYearsSetting = new DatabasePublicSetting<number>("forum.numberOfYears", 4);
 
 const timeframeToNumTimeBlocks = {
   daily: forumAllPostsNumDaysSetting.get(),

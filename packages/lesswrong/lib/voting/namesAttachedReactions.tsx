@@ -4,7 +4,7 @@ import { loadByIds } from '../loaders';
 import { filterNonnull } from '../utils/typeGuardUtils';
 import { getVoteAxisStrength } from './votingSystems';
 import { defineVotingSystem } from './defineVotingSystem';
-import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { addNameToExistingReactKarmaThreshold, addNewReactKarmaThreshold, downvoteExistingReactKarmaThreshold } from '../../lib/publicSettings';
 import { namesAttachedReactionsByName } from './reactions';
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
@@ -14,10 +14,6 @@ import { isLW } from '../instanceSettings';
 import type { VotingProps } from '../../components/votes/votingProps';
 import { NamesAttachedReactionsCommentBottom, NamesAttachedReactionsVoteOnComment } from '@/components/votes/lwReactions/NamesAttachedReactionsVoteOnComment';
 import { addReactsVote, getDocumentHighlights, removeReactsVote } from './reactionDisplayHelpers';
-
-export const addNewReactKarmaThreshold = new DatabasePublicSetting("reacts.addNewReactKarmaThreshold", 100);
-export const addNameToExistingReactKarmaThreshold = new DatabasePublicSetting("reacts.addNameToExistingReactKarmaThreshold", 20);
-export const downvoteExistingReactKarmaThreshold = new DatabasePublicSetting("reacts.downvoteExistingReactKarmaThreshold", 20);
 
 export const namesAttachedReactionsVotingSystem = defineVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
   name: "namesAttachedReactions",
