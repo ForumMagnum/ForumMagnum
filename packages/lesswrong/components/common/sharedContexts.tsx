@@ -21,6 +21,8 @@ interface AutosaveEditorStateContext {
   setAutosaveEditorState: React.Dispatch<React.SetStateAction<AutosaveFunc | null>>;
 }
 
+type DisableNoKibitzContextType = { disableNoKibitz: boolean; setDisableNoKibitz: (disableNoKibitz: boolean) => void; };
+
 export const TimezoneContext = createContext<string | null>(null);
 export const UserContext = createContext<UsersCurrent | null>(null);
 export const DynamicTableOfContentsContext = createContext<DynamicTableOfContentsContextType | null>(null);
@@ -28,4 +30,5 @@ export const AutosaveEditorStateContext = React.createContext<AutosaveEditorStat
   autosaveEditorState: null,
   setAutosaveEditorState: _ => { },
 });
+export const DisableNoKibitzContext = createContext<DisableNoKibitzContextType>({ disableNoKibitz: false, setDisableNoKibitz: () => { } });
 

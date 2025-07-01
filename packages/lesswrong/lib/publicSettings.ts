@@ -229,3 +229,5 @@ export const amaTagIdSetting = new DatabasePublicSetting<string | null>('amaTagI
 
 export const defaultSequenceBannerIdSetting = new DatabasePublicSetting<string | null>("defaultSequenceBannerId", null);
 
+export const graphqlBatchMaxSetting = new DatabasePublicSetting('batchHttpLink.batchMax', 50);
+

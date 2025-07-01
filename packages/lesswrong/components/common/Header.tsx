@@ -23,18 +23,17 @@ import UsersMenu from "../users/UsersMenu";
 import UsersAccountMenu from "../users/UsersAccountMenu";
 import NotificationsMenuButton from "../notifications/NotificationsMenuButton";
 import NavigationDrawer from "./TabNavigationMenu/NavigationDrawer";
-import NotificationsMenu from "../notifications/NotificationsMenu";
 import { KarmaChangeNotifier } from "../users/KarmaChangeNotifier";
 import HeaderSubtitle from "./HeaderSubtitle";
 import { Typography } from "./Typography";
 import ForumIcon from "./ForumIcon";
-import ActiveDialogues from "../dialogues/ActiveDialogues";
 import SiteLogo from "../ea-forum/SiteLogo";
 import MessagesMenuButton from "../messaging/MessagesMenuButton";
 import { SuspenseWrapper } from './SuspenseWrapper';
 import { isHomeRoute } from '@/lib/routeChecks';
 import { useRouteMetadata } from '../RouteMetadataContext';
 import { forumSelect } from '@/lib/forumTypeUtils';
+import dynamic from 'next/dynamic';
 
 /** Height of top header. On Book UI sites, this is for desktop only */
 export const HEADER_HEIGHT = isBookUI ? 64 : 66;
@@ -498,6 +497,8 @@ const Header = ({
     toc={toc?.sectionData ?? null}
   />
 
+  const NotificationsMenu = dynamic(() => import("../notifications/NotificationsMenu"), { ssr: false });
+
   // the right side notifications menu
   const headerNotificationsMenu = currentUser && !hasNotificationsPopover
     && (
@@ -574,7 +575,6 @@ const Header = ({
                   </Link>
                 </div>
               </Typography>
-              {!isEAForum &&<ActiveDialogues />}
               {rightHeaderItemsNode}
             </Toolbar>
           </header>

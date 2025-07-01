@@ -3,11 +3,9 @@ import { SchemaLink } from '@apollo/client/link/schema';
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { onError } from '@apollo/client/link/error';
 import { isServer } from '../executionEnvironment';
-import { DatabasePublicSetting } from "../publicSettings";
+import { graphqlBatchMaxSetting } from "../publicSettings";
 import { ApolloLink, Operation, selectURI } from "@apollo/client/core";
 import { crosspostUserAgent } from "./constants";
-
-const graphqlBatchMaxSetting = new DatabasePublicSetting('batchHttpLink.batchMax', 50)
 
 /**
  * "Links" are Apollo's way of defining the source to read our data from, and they need to

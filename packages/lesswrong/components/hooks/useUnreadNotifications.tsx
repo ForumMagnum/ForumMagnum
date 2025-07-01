@@ -6,7 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from './useUpdateCurrentUser';
 import { faviconUrlSetting, faviconWithBadgeSetting } from '../../lib/instanceSettings';
 import { type QueryRef, useBackgroundQuery, useReadQuery } from '@apollo/client/react';
-import { NotificationsListMultiQuery } from '../notifications/NotificationsList';
+import { NotificationsListMultiQuery } from '../notifications/NotificationsListMultiQuery';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import type { ResultOf } from '@graphql-typed-document-node/core';
 

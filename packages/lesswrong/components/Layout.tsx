@@ -15,7 +15,7 @@ import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { Helmet } from "./common/Helmet";
-import { DisableNoKibitzContext } from './users/UsersNameDisplay';
+import { DisableNoKibitzContext } from './common/sharedContexts';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
 // import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';

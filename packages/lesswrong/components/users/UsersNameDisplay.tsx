@@ -1,4 +1,4 @@
-import React, { useContext, createContext } from 'react';
+import React, { useContext } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -9,6 +9,7 @@ import { useCurrentUser } from '../common/withUser';
 import type { Placement as PopperPlacementType } from "popper.js"
 import UserNameDeleted from "./UserNameDeleted";
 import UserTooltip from "./UserTooltip";
+import { DisableNoKibitzContext } from '../common/sharedContexts';
 
 const styles = (theme: ThemeType) => ({
   color: {
@@ -24,9 +25,6 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "nowrap"
   },
 });
-
-type DisableNoKibitzContextType = {disableNoKibitz: boolean, setDisableNoKibitz: (disableNoKibitz: boolean) => void};
-export const DisableNoKibitzContext = createContext<DisableNoKibitzContextType >({disableNoKibitz: false, setDisableNoKibitz: ()=>{}});
 
 /**
  * Given a user (which may not be null), render the user name as a link with a

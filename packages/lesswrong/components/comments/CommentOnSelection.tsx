@@ -191,14 +191,16 @@ export const CommentOnSelectionContentWrapper = ({post, children}: {
   const wrapperDivRef = useRef<HTMLDivElement|null>(null);
   
   const onClickComment = useCallback((html: string) => {
-    const ReplyCommentDialog = dynamic(() => import("./ReplyCommentDialog"), { ssr: false });
     openDialog({
       name: "ReplyCommentDialog",
-      contents: ({onClose}) => <ReplyCommentDialog
-        onClose={onClose}
-        post={post}
-        initialHtml={html}
-      />
+      contents: ({onClose}) => {
+        const ReplyCommentDialog = dynamic(() => import("./ReplyCommentDialog"), { ssr: false });
+        return <ReplyCommentDialog
+          onClose={onClose}
+          post={post}
+          initialHtml={html}
+        />
+      }
     })
   }, [openDialog, post]);
 

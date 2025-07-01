@@ -15,7 +15,7 @@ import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { MINIMUM_COAUTHOR_KARMA } from "@/lib/collections/posts/helpers";
-import { DisableNoKibitzContext } from './UsersNameDisplay';
+import { DisableNoKibitzContext } from '../common/sharedContexts';
 import { useAdminToggle } from '../admin/useAdminToggle';
 import { isFriendlyUI, preferredHeadingCase, styleSelect } from '../../themes/forumTheme';
 import { isMobile } from '../../lib/utils/isMobile'
@@ -25,7 +25,6 @@ import { blackBarTitle } from '../../lib/publicSettings';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { InteractionWrapper } from '../common/useClickableCell';
 import NewDialogueDialog from "../posts/NewDialogueDialog";
-import NewShortformDialog from "../shortform/NewShortformDialog";
 import AFApplicationForm from "../alignment-forum/AFApplicationForm";
 import LWPopper from "../common/LWPopper";
 import LWTooltip from "../common/LWTooltip";
@@ -37,6 +36,7 @@ import UsersProfileImage from "./UsersProfileImage";
 import ForumIcon from "../common/ForumIcon";
 import NewWikiTagMenu from "../tagging/NewWikiTagMenu";
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/IfAnyoneBuildsItSplash';
+import dynamic from 'next/dynamic';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -241,10 +241,13 @@ const UsersMenu = ({classes}: {
         ? (
           <DropdownItem
             title={styleSelect({friendly: "Quick take", default: preferredHeadingCase("New Quick Take")})}
-            onClick={() => openDialog({
-              name:"NewShortformDialog",
-              contents: ({onClose}) => <NewShortformDialog onClose={onClose}/>
-            })}
+            onClick={() => {
+              const NewShortformDialog = dynamic(() => import("../shortform/NewShortformDialog"), { ssr: false });
+              openDialog({
+                name:"NewShortformDialog",
+                contents: ({onClose}) => <NewShortformDialog onClose={onClose}/>
+              });
+            }}
           />
         )
       : null,
