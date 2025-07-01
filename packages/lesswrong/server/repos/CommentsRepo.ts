@@ -490,7 +490,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       -- CommentsRepo.getCommentsForFeed
       WITH "SubscribedAuthorIds" AS (
           -- Get all user IDs the current user is subscribed to
-          SELECT "documentId" AS "authorId"
+          SELECT DISTINCT "documentId" AS "authorId"
           FROM "Subscriptions"
           WHERE "userId" = $(userId)
             AND "collectionName" = 'Users'
@@ -512,7 +512,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           WHERE
               ${getUniversalCommentFilterClause('c')}
               AND c."userId" != $(userId)
-              AND (c.shortform IS TRUE OR c."postedAt" > (NOW() - INTERVAL '1 day' * $(initialCandidateLookbackDaysParam)))
+              AND c."postedAt" > (NOW() - INTERVAL '1 day' * $(initialCandidateLookbackDaysParam))
               AND p.draft IS NOT TRUE
           ORDER BY c."postedAt" DESC
           LIMIT $(initialCandidateLimit)
@@ -619,7 +619,15 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       commentServedEventRecencyHoursParam: commentServedEventRecencyHours
     });
 
-    return feedCommentsData.map((comment): FeedCommentFromDb => {
+    // Safety check for duplicates from the database query
+    const uniqueMap = new Map(feedCommentsData.map(c => [c.commentId, c]));
+    if (uniqueMap.size < feedCommentsData.length) {
+      // eslint-disable-next-line no-console
+      console.warn(`[CommentsRepo.getCommentsForFeed] Deduplicated from ${feedCommentsData.length} to ${uniqueMap.size} comments`);
+    }
+    const deduplicatedComments = Array.from(uniqueMap.values());
+
+    return deduplicatedComments.map((comment): FeedCommentFromDb => {
       const sources: string[] = ['recentComments'];
       if (comment.primarySource && comment.primarySource !== 'recentComments') {
         sources.push('recentComments'); // temporarily to avoid breaking change, we assign recentComments to all comments
