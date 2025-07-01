@@ -4,6 +4,7 @@ import { getResponseCounts, postGetAnswerCountStr, postGetCommentCountStr, postG
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import classNames from 'classnames';
+import { isFriendlyUI } from '@/themes/forumTheme';
 import { isServer } from '../../../lib/executionEnvironment';
 import { captureException } from '@sentry/core';
 import type { AnnualReviewMarketInfo } from '../../../lib/collections/posts/annualReviewMarkets';
@@ -36,7 +37,7 @@ const SECONDARY_SPACING = 20;
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginTop: 70,
+    marginTop: isFriendlyUI ? 110 : 70,
   },
   header: {
     position: 'relative',
@@ -57,8 +58,10 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.typography.fontFamily,
     fontSize: 14,
     lineHeight: '18px',
-    padding: '30px 0 24px',
-    borderBottom: theme.palette.border.grey300,
+    padding: isFriendlyUI ? "40px 0 24px" : "30px 0 24px",
+    borderBottom: isFriendlyUI
+      ? `1px solid ${theme.palette.grey[240]}`
+      : theme.palette.border.grey300,
   },
   authorPhotos: {
     display: 'flex',
@@ -92,7 +95,9 @@ const styles = (theme: ThemeType) => ({
   //   fontFamily: theme.typography.uiSecondary.fontFamily,
   //   color: theme.palette.text.dim3,
   //   paddingBottom: 12,
-  //   borderBottom: theme.palette.border.grey300,
+  //   borderBottom: isFriendlyUI
+  //     ? `1px solid ${theme.palette.grey[240]}`
+  //     : theme.palette.border.grey300,
   // },
   secondaryInfo: {
     display: 'flex',
@@ -105,8 +110,10 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 500,
     fontFamily: theme.typography.uiSecondary.fontFamily,
     color: theme.palette.text.dim3,
-    padding: '12px 0',
-    borderBottom: theme.palette.border.grey300,
+    padding: isFriendlyUI ? "10px 0" : "12px 0",
+    borderBottom: isFriendlyUI
+      ? `1px solid ${theme.palette.grey[240]}`
+      : theme.palette.border.grey300,
     [theme.breakpoints.down("sm")]: {
       justifyContent: 'flex-start'
     }
@@ -125,10 +132,6 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     columnGap: SECONDARY_SPACING
   },
-  secondaryInfoLink: {
-    fontWeight: 450,
-    "@media print": { display: "none" },
-  },
   actions: {
     "&:hover": {
       opacity: 0.5,
@@ -143,24 +146,34 @@ const styles = (theme: ThemeType) => ({
   //   alignItems: 'baseline',
   //   columnGap: SECONDARY_SPACING,
   // },
-
   feedName: {
     fontSize: theme.typography.body2.fontSize,
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
   },
-  divider: {
-    marginTop: theme.spacing.unit*2,
-    marginLeft:0,
-    borderTop: theme.palette.border.faint,
-    borderLeft: 'transparent'
+  secondaryInfoLink: {
+    fontWeight: 450,
+    ...(isFriendlyUI && {
+      display: "flex",
+      alignItems: "flex-end",
+      gap: "4px",
+      transform: "translateY(2px)",
+    }),
+    "@media print": {
+      display: "none",
+    },
   },
-  commentIcon: {
-    fontSize: "1.4em",
-    marginRight: 1,
-    transform: "translateY(5px)",
-  },
+  commentIcon: isFriendlyUI
+    ? {
+      "--icon-size": "22px",
+      transform: "translateY(2px)",
+    }
+    : {
+      fontSize: "1.4em",
+      marginRight: 1,
+      transform: "translateY(5px)",
+    },
   bookmarkButton: {
     marginBottom: -5,
     height: 22,
@@ -193,7 +206,7 @@ const styles = (theme: ThemeType) => ({
 // Opera Mini.)
 const URLClass = getUrlClass()
 
-export function getProtocol(url: string): string {
+function getProtocol(url: string): string {
   if (isServer)
     return new URLClass(url).protocol;
 
@@ -203,7 +216,7 @@ export function getProtocol(url: string): string {
   return parser.protocol;
 }
 
-export function getHostname(url: string): string {
+function getHostname(url: string): string {
   if (isServer)
     return new URLClass(url).hostname;
 
@@ -321,7 +334,8 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
     </span>
 
   // EA Forum splits the info into two sections, plus has the info in a different order
-  const secondaryInfoNode = <div className={classes.secondaryInfo}>
+  const secondaryInfoNode = (
+    <div className={classes.secondaryInfo}>
       <div className={classes.secondaryInfoLeft}>
         <div className={classes.postsVote}>
           <PostsVote post={post} useHorizontalLayout />
@@ -345,6 +359,14 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
         {tripleDotMenuNode}
       </div>
     </div>
+  );
+
+  const dateNode = (
+    <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
+  );
+  const readTimeNode = (
+    <ReadTime post={post} dialogueResponses={dialogueResponses} />
+  );
 
   // TODO: If we are not the primary author of this post, but it was shared with
   // us as a draft, display a notice and a link to the collaborative editor.
@@ -397,9 +419,9 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
             </div>
             {!minimalSecondaryInfo &&
               <div className={classes.dateAndReadTime}>
-                <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
+                {isFriendlyUI ? readTimeNode : dateNode}
                 <div>·</div>
-                <ReadTime post={post} dialogueResponses={dialogueResponses} />
+                {isFriendlyUI ? dateNode : readTimeNode}
                 {rssFeedSource && rssFeedSource.user &&
                   <>
                     <div>·</div>

@@ -54,6 +54,7 @@ declare global {
     110: ColorString,
     120: ColorString,
     140: ColorString,
+    240: ColorString,
     250: ColorString,
     310: ColorString,
     315: ColorString,
