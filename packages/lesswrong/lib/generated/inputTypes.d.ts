@@ -2082,7 +2082,7 @@ interface CommentsTopShortformInput {
   authorIsUnreviewed?: boolean | null;
   before?: string | null;
   after?: string | null;
-  shortformFrontpage?: string | null;
+  shortformFrontpage?: boolean | null;
 }
 
 interface CommentsShortformInput {

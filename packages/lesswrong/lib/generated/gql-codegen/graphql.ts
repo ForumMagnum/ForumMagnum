@@ -996,7 +996,7 @@ export type CommentsTopShortformInput = {
   before?: InputMaybe<Scalars['String']['input']>;
   commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
-  shortformFrontpage?: InputMaybe<Scalars['String']['input']>;
+  shortformFrontpage?: InputMaybe<Scalars['Boolean']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
