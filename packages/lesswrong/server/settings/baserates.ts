@@ -1,3 +1,5 @@
+import { devDbSettings } from "./devDbSettings";
+
 export const baserates = {
   forumType: "LessWrong",
   title: "LessWrong Development Server",
@@ -28,5 +30,6 @@ export const baserates = {
   testServer: true,
   disallowCrawlers: true,
   hasRejectedContentSection: true,
-  hasCuratedPosts: true
+  hasCuratedPosts: true,
+  ...devDbSettings,
 };

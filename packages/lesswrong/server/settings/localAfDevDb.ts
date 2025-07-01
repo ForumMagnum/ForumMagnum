@@ -1,8 +1,10 @@
-export const localAfDevDb = {
+import { devDbSettings } from "./devDbSettings";
+import merge from "lodash/merge";
+
+export const localAfDevDb = merge({
   forumType: "AlignmentForum",
   title: "AI Alignment Forum",
   tagline: "A community blog devoted to technical AI alignment research",
-  logoUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1498011194/LessWrong_Logo_skglnw.svg",
   siteNameWithArticle: "LessWrong",
   sentry: {
     url: "https://1ab1949fc8d04608b43132f37bb2a1b0@sentry.io/1301611",
@@ -29,5 +31,5 @@ export const localAfDevDb = {
     publicApiToken: "6rcWJN7eFk8M977tQqEO7SH9n32u3RmPJo9z516AK2vRsiGB4WuaRIzknHwP0jC2"
   },
   taggingName: "wikitag",
-  taggingUrlCustomBase: "w"
-};
+  taggingUrlCustomBase: "w",
+}, devDbSettings);
