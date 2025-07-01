@@ -33,7 +33,11 @@ const headerStack = ["ETBookRoman", ...serifStackBody].join(',')
 
 export const lessWrongTheme: SiteThemeSpecification = {
   shadePalette: {
-    fonts: {sansSerifStack, serifStack},
+    fonts: {
+      sansSerifStack,
+      serifStack,
+      brandStack: serifStack,
+    },
   },
   componentPalette: (shadePalette: ThemeShadePalette) => ({
     primary: {

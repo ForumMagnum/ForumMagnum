@@ -19,12 +19,17 @@ const fonts = {
   sans: fontStacks.sans.join(','),
   serif: fontStacks.serif.join(','),
   title: fontStacks.serif.join(','),
+  brand: ["Roboto Slab", ...fontStacks.serif].join(','),
 }
 
 export const eaForumTheme: SiteThemeSpecification = {
   shadePalette: {
     primaryAlpha: (alpha: number) => `rgba(12, 134, 155,${alpha})`,
-    fonts: {sansSerifStack: fonts.sans, serifStack: fonts.serif},
+    fonts: {
+      sansSerifStack: fonts.sans,
+      serifStack: fonts.serif,
+      brandStack: fonts.brand,
+    },
   },
   componentPalette: (shadePalette: ThemeShadePalette) => ({
     primary: {
@@ -129,7 +134,7 @@ export const eaForumTheme: SiteThemeSpecification = {
       },
       typography: {
         fontDownloads: [
-          "https://fonts.googleapis.com/css2?family=Charis+SIL:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,wght@0,300;0,400;0,450;0,500;0,600;0,700;1,300;1,400;1,450;1,500;1,600;1,700&display=swap"
+          "https://fonts.googleapis.com/css2?family=Charis+SIL:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,wght@0,300;0,400;0,450;0,500;0,600;0,700;1,300;1,400;1,450;1,500;1,600;1,700&family=Roboto+Slab:wght@400;700&display=swap"
         ],
         cloudinaryFont: {
           stack: "'Inter', sans-serif",

@@ -80,6 +80,7 @@ declare global {
     fonts: {
       sansSerifStack: string,
       serifStack: string,
+      brandStack: string,
     },
     
     // Used by material-UI for picking some of its own colors, and also by site
