@@ -1,7 +1,7 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
-export const CurationEmails: CurationEmailsCollection = createCollection({
+export const CurationEmails = createCollection({
   collectionName: 'CurationEmails',
   typeName: 'CurationEmail',
     getIndexes: () => {

@@ -3,7 +3,7 @@ import { userOwns, userCanDo } from '@/lib/vulcan-users/permissions';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 
-export const Notifications: NotificationsCollection = createCollection({
+export const Notifications = createCollection({
   collectionName: 'Notifications',
   typeName: 'Notification',
     getIndexes: () => {

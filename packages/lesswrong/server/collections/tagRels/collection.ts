@@ -3,7 +3,7 @@ import { canVoteOnTagAsync } from '@/lib/voting/tagRelVoteRules';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 import { getVoteGraphql } from '@/server/votingGraphQL';
 
-export const TagRels: TagRelsCollection = createCollection({
+export const TagRels = createCollection({
   collectionName: 'TagRels',
   typeName: 'TagRel',
     getIndexes: () => {

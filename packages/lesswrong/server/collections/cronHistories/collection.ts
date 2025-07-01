@@ -1,7 +1,7 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
-export const CronHistories: CronHistoriesCollection = createCollection({
+export const CronHistories = createCollection({
   collectionName: 'CronHistories',
   dbCollectionName: 'cronHistory',
   typeName: 'CronHistory',

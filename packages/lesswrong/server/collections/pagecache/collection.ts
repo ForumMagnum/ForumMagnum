@@ -1,7 +1,7 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
-export const PageCache: PageCacheCollection = createCollection({
+export const PageCache = createCollection({
   collectionName: 'PageCache',
   typeName: 'PageCacheEntry',
     getIndexes: () => {

@@ -2,7 +2,7 @@ import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 
-export const Localgroups: LocalgroupsCollection = createCollection({
+export const Localgroups = createCollection({
   collectionName: 'Localgroups',
   typeName: 'Localgroup',
     getIndexes: () => {

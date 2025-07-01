@@ -1,7 +1,7 @@
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import { getVoteGraphql } from '@/server/votingGraphQL';
 
-export const Revisions: RevisionsCollection = createCollection({
+export const Revisions = createCollection({
   collectionName: 'Revisions',
   typeName: 'Revision',
   voteable: {

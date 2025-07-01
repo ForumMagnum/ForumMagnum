@@ -1,7 +1,7 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
-export const UltraFeedEvents: UltraFeedEventsCollection = createCollection({
+export const UltraFeedEvents = createCollection({
   collectionName: 'UltraFeedEvents',
   typeName: 'UltraFeedEvent',
   getIndexes: () => {

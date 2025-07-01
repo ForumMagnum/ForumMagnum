@@ -38,7 +38,7 @@ import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
  * this docstring.
  */
 
-export const UserActivities: UserActivitiesCollection = createCollection({
+export const UserActivities = createCollection({
   collectionName: 'UserActivities',
   typeName: 'UserActivity',
     getIndexes: () => {

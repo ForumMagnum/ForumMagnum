@@ -1,6 +1,6 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 
-export const PetrovDayLaunchs: PetrovDayLaunchsCollection = createCollection({
+export const PetrovDayLaunchs = createCollection({
   collectionName: 'PetrovDayLaunchs',
   typeName: 'PetrovDayLaunch',
   // schema

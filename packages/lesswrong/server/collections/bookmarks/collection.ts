@@ -2,7 +2,7 @@ import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 // Following the simpler pattern from UltraFeedEvents/collection.ts
-export const Bookmarks: BookmarksCollection = createCollection({
+export const Bookmarks = createCollection({
   collectionName: 'Bookmarks',
   typeName: 'Bookmark',
   getIndexes: () => {

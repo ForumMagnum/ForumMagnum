@@ -1,7 +1,7 @@
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
-export const PostEmbeddings: PostEmbeddingsCollection = createCollection({
+export const PostEmbeddings = createCollection({
   collectionName: "PostEmbeddings",
   typeName: "PostEmbedding",
     getIndexes: () => {

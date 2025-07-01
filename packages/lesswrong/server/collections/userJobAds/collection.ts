@@ -1,7 +1,7 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
-export const UserJobAds: UserJobAdsCollection = createCollection({
+export const UserJobAds = createCollection({
   collectionName: 'UserJobAds',
   typeName: 'UserJobAd',
     getIndexes: () => {

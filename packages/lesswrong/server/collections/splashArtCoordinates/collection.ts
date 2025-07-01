@@ -1,7 +1,7 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
-export const SplashArtCoordinates: SplashArtCoordinatesCollection = createCollection({ 
+export const SplashArtCoordinates = createCollection({ 
   collectionName: 'SplashArtCoordinates',
   typeName: 'SplashArtCoordinate',
     getIndexes: () => {

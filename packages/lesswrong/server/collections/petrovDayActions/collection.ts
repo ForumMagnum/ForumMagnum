@@ -3,7 +3,7 @@ import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 
 
-export const PetrovDayActions: PetrovDayActionsCollection = createCollection({
+export const PetrovDayActions = createCollection({
   collectionName: 'PetrovDayActions',
   typeName: 'PetrovDayAction',
     getIndexes: () => {

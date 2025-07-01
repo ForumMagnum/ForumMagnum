@@ -3,7 +3,7 @@ import { userOwns, userCanDo } from '@/lib/vulcan-users/permissions';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 
-export const RSSFeeds: RSSFeedsCollection = createCollection({
+export const RSSFeeds = createCollection({
   collectionName: 'RSSFeeds',
   typeName: 'RSSFeed',
     getIndexes: () => {

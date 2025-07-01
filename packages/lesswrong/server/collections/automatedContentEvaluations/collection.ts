@@ -1,7 +1,7 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
-export const AutomatedContentEvaluations: AutomatedContentEvaluationsCollection = createCollection({
+export const AutomatedContentEvaluations = createCollection({
   collectionName: 'AutomatedContentEvaluations',
   typeName: 'AutomatedContentEvaluation',
 

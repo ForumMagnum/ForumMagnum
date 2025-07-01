@@ -1,7 +1,7 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
-export const UserMostValuablePosts: UserMostValuablePostsCollection = createCollection({
+export const UserMostValuablePosts = createCollection({
   collectionName: 'UserMostValuablePosts',
   typeName: 'UserMostValuablePost',
     getIndexes: () => {

@@ -1,6 +1,6 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 
-export const ElicitQuestionPredictions: ElicitQuestionPredictionsCollection = createCollection({
+export const ElicitQuestionPredictions = createCollection({
   collectionName: 'ElicitQuestionPredictions',
   typeName: 'ElicitQuestionPrediction',
 });

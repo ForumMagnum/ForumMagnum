@@ -1,7 +1,7 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
-export const DebouncerEvents: DebouncerEventsCollection = createCollection({
+export const DebouncerEvents = createCollection({
   collectionName: 'DebouncerEvents',
   typeName: 'DebouncerEvents',
     getIndexes: () => {

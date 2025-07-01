@@ -2,7 +2,7 @@ import { createCollection } from '@/lib/vulcan-lib/collections';
 import '@/lib/collections/gardencodes/fragments';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
-export const GardenCodes: GardenCodesCollection = createCollection({
+export const GardenCodes = createCollection({
   collectionName: 'GardenCodes',
   typeName: 'GardenCode',
     getIndexes: () => {

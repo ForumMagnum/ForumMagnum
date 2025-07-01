@@ -1,7 +1,7 @@
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
-export const DialogueChecks: DialogueChecksCollection = createCollection({
+export const DialogueChecks = createCollection({
   collectionName: 'DialogueChecks',
   typeName: 'DialogueCheck',
     getIndexes: () => {

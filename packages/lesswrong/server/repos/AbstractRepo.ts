@@ -13,10 +13,7 @@ export default abstract class AbstractRepo<N extends CollectionNameString> {
   protected collection: PgCollection<N>;
   private db: SqlClient;
 
-  constructor(collection: CollectionBase<N>, sqlClient?: SqlClient) {
-    // if (!(collection instanceof PgCollection)) {
-    //   throw new Error(`${collection.collectionName} is not a Postgres collection`);
-    // }
+  constructor(collection: PgCollection<N>, sqlClient?: SqlClient) {
     this.collection = collection;
     const db = sqlClient ?? getSqlClient();
     if (db) {

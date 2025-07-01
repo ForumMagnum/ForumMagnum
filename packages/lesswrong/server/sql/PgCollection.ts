@@ -68,15 +68,6 @@ class PgCollection<
     return !!this.options.voteable;
   }
 
-  // async getSlugCollectionGuard(): Promise<() => this is PgCollection<CollectionNameWithSlug>> {
-  //   const { getSchema } = await import("@/lib/schema/allSchemas");
-
-  //   return (): this is PgCollection<CollectionNameWithSlug> => {
-  //     const schema = getSchema(this.collectionName);
-  //     return !!schema.slug;
-  //   }
-  // }
-
   getTable() {
     if (!this.table) {
       this.buildPostgresTable();

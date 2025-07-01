@@ -1,7 +1,7 @@
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
-export const TypingIndicators: TypingIndicatorsCollection = createCollection({
+export const TypingIndicators = createCollection({
   collectionName: 'TypingIndicators',
   typeName: 'TypingIndicator',
     getIndexes: () => {

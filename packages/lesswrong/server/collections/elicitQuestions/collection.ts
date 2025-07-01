@@ -1,6 +1,6 @@
 import { createCollection } from "@/lib/vulcan-lib/collections";
 
-export const ElicitQuestions: ElicitQuestionsCollection = createCollection({
+export const ElicitQuestions = createCollection({
   collectionName: 'ElicitQuestions',
   typeName: 'ElicitQuestion',
 });

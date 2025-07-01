@@ -1,7 +1,7 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
-export const DatabaseMetadata: DatabaseMetadataCollection = createCollection({
+export const DatabaseMetadata = createCollection({
   collectionName: "DatabaseMetadata",
   typeName: "DatabaseMetadata",
     getIndexes: () => {

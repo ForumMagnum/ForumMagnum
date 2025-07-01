@@ -4,7 +4,7 @@ import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 /**
  * Cache for link-previews of Arbital links.
  */
-export const ArbitalCaches: ArbitalCachesCollection = createCollection({
+export const ArbitalCaches = createCollection({
   collectionName: 'ArbitalCaches',
   typeName: 'ArbitalCaches',
     getIndexes: () => {

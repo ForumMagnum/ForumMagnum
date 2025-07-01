@@ -1,7 +1,7 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 
 
-export const GoogleServiceAccountSessions: GoogleServiceAccountSessionsCollection = createCollection({
+export const GoogleServiceAccountSessions = createCollection({
   collectionName: 'GoogleServiceAccountSessions',
   typeName: 'GoogleServiceAccountSession',
 });

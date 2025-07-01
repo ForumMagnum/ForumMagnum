@@ -10,7 +10,7 @@ import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
  * Setting currentUser to null (and validate to false) will create the action as
  * 'Automod'.
  */
-export const ModeratorActions: ModeratorActionsCollection = createCollection({
+export const ModeratorActions = createCollection({
   collectionName: 'ModeratorActions',
   typeName: 'ModeratorAction',
     getIndexes: () => {

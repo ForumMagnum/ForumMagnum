@@ -1,7 +1,7 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
-export const Spotlights: SpotlightsCollection = createCollection({
+export const Spotlights = createCollection({
   collectionName: 'Spotlights',
   typeName: 'Spotlight',
     getIndexes: () => {

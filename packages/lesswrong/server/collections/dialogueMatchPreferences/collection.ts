@@ -1,7 +1,7 @@
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
 
-export const DialogueMatchPreferences: DialogueMatchPreferencesCollection = createCollection({
+export const DialogueMatchPreferences = createCollection({
   collectionName: 'DialogueMatchPreferences',
   typeName: 'DialogueMatchPreference',
     getIndexes: () => {

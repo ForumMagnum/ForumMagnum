@@ -4,7 +4,7 @@ import Sequences from '../sequences/collection';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 
-export const Chapters: ChaptersCollection = createCollection({
+export const Chapters = createCollection({
   collectionName: 'Chapters',
   typeName: 'Chapter',
     getIndexes: () => {

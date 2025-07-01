@@ -1,6 +1,6 @@
 import { createCollection } from '@/lib/vulcan-lib/collections';
 
-export const Votes: VotesCollection = createCollection({
+export const Votes = createCollection({
   collectionName: 'Votes',
   typeName: 'Vote',
 });
