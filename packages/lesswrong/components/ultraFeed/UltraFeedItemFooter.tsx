@@ -93,7 +93,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     position: 'relative',
     bottom: 0,
     padding: 2,
-    opacity: 0.6,
+    color: `${theme.palette.ultraFeed.dim} !important`,
     display: "inline-flex",
     alignItems: "center",
     borderRadius: 4,
@@ -105,7 +105,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       top: 2,
     },
     "&:hover": {
-      opacity: 1,
+      color: theme.palette.grey[1000],
     },
     // Hide on mobile
     [theme.breakpoints.down('sm')]: {
