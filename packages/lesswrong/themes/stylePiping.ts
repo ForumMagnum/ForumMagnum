@@ -691,8 +691,8 @@ export const smallPostStyles = (theme: ThemeType) => {
 }
 
 export const pBodyStyle = (_theme: ThemeType) => ({
-  marginTop: "1em",
-  marginBottom: "1em",
+  marginTop: isFriendlyUI ? 12 : "1em",
+  marginBottom: isFriendlyUI ? 12 : "1em",
   '&:first-child': {
     marginTop: 0,
   },

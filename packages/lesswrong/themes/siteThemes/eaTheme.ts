@@ -203,9 +203,11 @@ export const eaForumTheme: SiteThemeSpecification = {
         display2: {
           color: palette.grey[800],
           fontFamily: fonts.title,
-          fontWeight: 600,
-          fontSize: 31.2,
+          fontWeight: 400,
+          fontSize: 34,
           lineHeight: '1.25em',
+          marginTop: 32,
+          marginBottom: 12,
         },
         // used by page title
         display3: {
