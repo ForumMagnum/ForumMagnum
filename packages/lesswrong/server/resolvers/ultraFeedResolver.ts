@@ -38,7 +38,7 @@ const ULTRA_FEED_DATE_CUTOFFS: UltraFeedDateCutoffs = {
   subscribedPostsMaxAgeDays: 30,
   initialCommentCandidateLookbackDays: 14,
   commentServedEventRecencyHours: 48,
-  threadEngagementLookbackDays: 45,
+  threadEngagementLookbackDays: 30,
 };
 
 export const ultraFeedGraphQLTypeDefs = gql`

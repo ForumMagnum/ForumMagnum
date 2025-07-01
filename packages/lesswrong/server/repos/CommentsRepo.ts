@@ -663,7 +663,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     const lookbackInterval = `${threadEngagementLookbackDays} days`;
 
     const engagementStats = await this.getRawDb().manyOrNone<ThreadEngagementStats>(`
-      -- CommentsRepo.getThreadEngagementStatsForRecentlyActiveThreads (Refactored to use JOINs with inlined subqueries)
+      -- CommentsRepo.getThreadEngagementStatsForRecentlyActiveThreads
       SELECT
         recentActiveThreads."threadTopLevelId",
         COALESCE(userVotesInThreads."votingActivityScore", 0) AS "votingActivityScore",
