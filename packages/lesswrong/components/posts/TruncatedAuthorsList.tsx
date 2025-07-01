@@ -2,6 +2,7 @@ import React, { useRef, useEffect, RefObject, useState, useCallback } from "reac
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePostsUserAndCoauthors } from "./usePostsUserAndCoauthors";
 import { recalculateTruncation } from "../../lib/truncateUtils";
+import type { Placement as PopperPlacementType } from "popper.js"
 import classNames from "classnames";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import UserNameDeleted from "../users/UserNameDeleted";
@@ -58,12 +59,14 @@ const reformatAuthorPlaceholder = (
 const TruncatedAuthorsList = ({
   post,
   expandContainer,
+  tooltipPlacement,
   className,
   classes,
   useMoreSuffix = true
 }: {
   post: PostsList | SunshinePostsList | PostsBestOfList,
   expandContainer: RefObject<HTMLDivElement|null>,
+  tooltipPlacement?: PopperPlacementType,
   className?: string,
   classes: ClassesType<typeof styles>,
   useMoreSuffix?: boolean,
@@ -96,13 +99,13 @@ const TruncatedAuthorsList = ({
     : (
       <div className={classNames(classes.root, className)} ref={ref}>
         <span className={classNames(classes.item, classes.placeholder)}>
-          <UsersNameDisplay user={authors[0]} />
+          <UsersNameDisplay user={authors[0]} tooltipPlacement={tooltipPlacement} />
         </span>
         <div className={classes.scratch} aria-hidden="true">
           {authors.map((author, i) =>
             <span key={author._id} className={classes.item}>
               {i > 0 ? ", " : ""}
-              <UsersNameDisplay user={author} />
+              <UsersNameDisplay user={author} tooltipPlacement={tooltipPlacement} />
             </span>
           )}
           {authors.length > 1 && (
@@ -110,7 +113,11 @@ const TruncatedAuthorsList = ({
               title={
                 <div className={classes.tooltip}>
                   {authors.slice(1).map((author: UsersMinimumInfo) => (
-                    <UsersNameDisplay key={author._id} user={author} />
+                    <UsersNameDisplay
+                      key={author._id}
+                      user={author}
+                      tooltipPlacement={tooltipPlacement}
+                    />
                   ))}
                 </div>
               }
