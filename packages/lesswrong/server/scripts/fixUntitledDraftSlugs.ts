@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { runSqlQuery } from "../sql/sqlClient";
 import { getUnusedSlugByCollectionName } from "../utils/slugUtil";
 import Posts from "../collections/posts/collection";
