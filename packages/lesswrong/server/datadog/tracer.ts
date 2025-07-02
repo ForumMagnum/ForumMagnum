@@ -19,7 +19,8 @@ if (isDatadogEnabled) {
   })
 }
 
-export const dogstatsd = isDatadogEnabled
+const CUSTOM_METRICS_ENABLED = false;
+export const dogstatsd = isDatadogEnabled && CUSTOM_METRICS_ENABLED
   ? new StatsD({
       host: process.env.IS_DOCKER ? "172.17.0.1" : undefined,
       prefix: 'forummagnum.',
