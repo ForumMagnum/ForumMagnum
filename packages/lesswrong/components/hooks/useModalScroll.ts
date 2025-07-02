@@ -1,5 +1,6 @@
 import { useEffect, RefObject } from 'react';
 import { useTheme } from '../themes/useTheme';
+import { isMobile } from '@/lib/utils/isMobile';
 
 /**
  * Utility function to scroll to a target element within a container
@@ -53,10 +54,49 @@ export const useHighlightElement = () => {
   };
 };
 
-export interface HashLinkHandler {
-  pattern: RegExp;
-  handler: (targetId: string, targetElement: HTMLElement, event: MouseEvent) => boolean;
-}
+const extractFootnoteHTML = (targetId: string): string | null => {
+  try {
+    const footnoteElement = document.getElementById(targetId);
+    if (!footnoteElement) return null;
+    
+    const hasContent = !!Array.from(footnoteElement.querySelectorAll("p, li"))
+      .reduce((acc, p) => acc + (p.textContent || ''), "").trim();
+    
+    return hasContent ? footnoteElement.innerHTML : null;
+  } catch (e) {
+    return null;
+  }
+};
+
+const handleFootnoteClick = (
+  targetId: string,
+  targetElement: HTMLElement,
+  event: MouseEvent,
+  onFootnoteClick?: (footnoteHTML: string) => void
+): boolean => {
+  // Only handle footnotes on mobile
+  if (!isMobile()) {
+    return false;
+  }
+  
+  // Check if this is a footnote pattern
+  if (!/^fn[a-zA-Z0-9]+$/.test(targetId)) {
+    return false;
+  }
+  
+  // Check for regular click (left button, no modifier keys)
+  if (event.button !== 0 || event.ctrlKey || event.shiftKey || event.altKey || event.metaKey) {
+    return false;
+  }
+  
+  const footnoteHTML = extractFootnoteHTML(targetId);
+  
+  if (footnoteHTML && onFootnoteClick) {
+    onFootnoteClick(footnoteHTML);
+    return true;
+  }
+  return false;
+};
 
 /**
  * Hook that intercepts clicks on hash links within a modal
@@ -65,13 +105,13 @@ export interface HashLinkHandler {
  * @param scrollContainerRef - Reference to the scrollable container element
  * @param enabled - Whether the hook should be active (default: true)
  * @param shouldHighlight - Whether to highlight the target element after scrolling (default: false)
- * @param customHandlers - Custom handlers for specific link patterns
+ * @param onFootnoteClick - Optional callback for when a footnote is clicked on mobile
  */
 export const useModalHashLinkScroll = (
   scrollContainerRef: RefObject<HTMLElement | null>,
   enabled = true,
   shouldHighlight = false,
-  customHandlers: HashLinkHandler[] = []
+  onFootnoteClick?: (footnoteHTML: string) => void
 ) => {
   const highlightElementWithTheme = useHighlightElement();
   
@@ -98,13 +138,9 @@ export const useModalHashLinkScroll = (
       e.stopPropagation();
       e.stopImmediatePropagation(); // Stop other handlers from running
 
-      // Check custom handlers first
-      for (const handler of customHandlers) {
-        if (handler.pattern.test(targetId)) {
-          const handled = handler.handler(targetId, targetElement, e);
-          if (handled) return;
-        }
-      }
+      // Check if this is a footnote click
+      const footnoteHandled = handleFootnoteClick(targetId, targetElement, e, onFootnoteClick);
+      if (footnoteHandled) return;
 
       // Default behavior: scroll to the element
       scrollToElementInContainer(container, targetElement);
@@ -119,5 +155,5 @@ export const useModalHashLinkScroll = (
     return () => {
       document.removeEventListener('click', handleHashLinkClick, true);
     };
-  }, [scrollContainerRef, enabled, shouldHighlight, highlightElementWithTheme, customHandlers]);
+  }, [scrollContainerRef, enabled, shouldHighlight, highlightElementWithTheme, onFootnoteClick]);
 }; 

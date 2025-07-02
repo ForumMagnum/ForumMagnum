@@ -13,7 +13,6 @@ import ForumIcon from '../common/ForumIcon';
 import { useDialogNavigation } from "../hooks/useDialogNavigation";
 import { useDisableBodyScroll } from "../hooks/useDisableBodyScroll";
 import { useModalHashLinkScroll, scrollToElementInContainer } from "../hooks/useModalScroll";
-import { useFootnoteHandlers } from "../hooks/useFootnoteHandlers";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { NetworkStatus } from "@apollo/client";
 import FootnoteDialog from '../linkPreview/FootnoteDialog';
@@ -40,6 +39,14 @@ const PostsDetailsQuery = gql(`
 `);
 
 const styles = defineStyles("UltraFeedCommentsDialog", (theme: ThemeType) => ({
+  // Hide footnote poppers/tooltips inside the modal – primarily for footnote display issue but a general experiment
+  '@global': {
+    '@media (pointer: coarse)': {
+      '.LWPopper-root, .LWPopper-default, .LWPopper-tooltip': {
+        display: 'none !important',
+      },
+    },
+  },
   dialogContent: {
     padding: 0,
     height: '100%',
@@ -139,12 +146,6 @@ const styles = defineStyles("UltraFeedCommentsDialog", (theme: ThemeType) => ({
     maxWidth: 720,
     margin: '0 auto',
   },
-  // Hide footnote poppers/tooltips inside the modal – primarily for footnote display issue but a general experiment
-  [theme.breakpoints.down('sm')]: {
-    '& .LWPopper-root': {
-      display: 'none !important',
-    },
-  },
 }));
 
 const UltraFeedCommentsDialog = ({
@@ -212,14 +213,10 @@ const UltraFeedCommentsDialog = ({
   // Necessary because other changes to comments can trigger the scroll useEffect to run again
   const hasScrolledRef = useRef(false);
 
-  const footnoteHandlers = useFootnoteHandlers({
-    onFootnoteClick: (footnoteHTML: string) => {
-      setFootnoteDialogHTML(footnoteHTML);
-    }
-  });
-  
   // Handle clicks on hash links (like footnotes) within the modal. If we don't do this, clicking on hash links can close the modal, fail to scroll, etc.
-  useModalHashLinkScroll(scrollableContentRef, true, false, footnoteHandlers);
+  useModalHashLinkScroll(scrollableContentRef, true, true, (footnoteHTML: string) => {
+    setFootnoteDialogHTML(footnoteHTML);
+  });
 
   useEffect(() => {
     let scrollTimer: NodeJS.Timeout | null = null;

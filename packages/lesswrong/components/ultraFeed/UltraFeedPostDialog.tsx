@@ -36,7 +36,6 @@ import UltraFeedPostToCDrawer from "./UltraFeedPostToCDrawer";
 import { useDialogNavigation } from "../hooks/useDialogNavigation";
 import { useDisableBodyScroll } from "../hooks/useDisableBodyScroll";
 import { useModalHashLinkScroll, scrollToElementInContainer } from "../hooks/useModalScroll";
-import { useFootnoteHandlers } from "../hooks/useFootnoteHandlers";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { NetworkStatus } from "@apollo/client";
 import UltraFeedPostFooter from "./UltraFeedPostFooter";
@@ -66,6 +65,14 @@ const UltraFeedPostFragmentQuery = gql(`
 `);
 
 const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
+  // Hide footnote poppers/tooltips inside the modal – primarily for footnote display issue but a general experiment
+  '@global': {
+    '@media (pointer: coarse)': {
+      '.LWPopper-root, .LWPopper-default, .LWPopper-tooltip': {
+        display: 'none !important',
+      },
+    },
+  },
   dialogContent: {
     padding: 0,
     height: '100%',
@@ -383,12 +390,6 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
       }
     }
   },
-  // Hide footnote poppers/tooltips inside the modal – primarily for footnote display issue but a general experiment
-  [theme.breakpoints.down('sm')]: {
-    '& .LWPopper-root': {
-      display: 'none !important',
-    },
-  },
 }));
 
 type UltraFeedPostDialogProps = {
@@ -481,16 +482,12 @@ const UltraFeedPostDialog = ({
 
   // Handle browser back button / swipe back navigation
   useDialogNavigation(onClose);
-  
-  const footnoteHandlers = useFootnoteHandlers({
-    onFootnoteClick: (footnoteHTML: string) => {
-      setFootnoteDialogHTML(footnoteHTML);
-    }
-  });
+  useDisableBodyScroll();
   
   // Handle clicks on hash links (like footnotes) within the modal. If we don't do this, clicking on hash links can close the modal, fail to scroll, etc.
-  useModalHashLinkScroll(scrollableContentRef, true, false, footnoteHandlers);
-  useDisableBodyScroll();
+  useModalHashLinkScroll(scrollableContentRef, true, true, (footnoteHTML: string) => {
+    setFootnoteDialogHTML(footnoteHTML);
+  });
 
   // Bridge scroll events from internal container to window so hooks relying on window scroll keep working
   useEffect(() => {
