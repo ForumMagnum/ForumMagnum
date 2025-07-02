@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     "& svg": {
       "--icon-size": "14px",
-      transform: "translateY(7px)",
+      transform: "translateY(3px)",
     },
   },
 });
