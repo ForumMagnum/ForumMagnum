@@ -21,7 +21,7 @@ import FeedItemWrapper from "./FeedItemWrapper";
 import SectionTitle from "../common/SectionTitle";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SettingsButton from "../icons/SettingsButton";
-import SpotlightFeedItem from "../spotlights/SpotlightFeedItem";
+import UltraFeedSpotlightItem from "../spotlights/SpotlightFeedItem";
 import UltraFeedSettings from "./UltraFeedSettings";
 import UltraFeedThreadItem from "./UltraFeedThreadItem";
 import { UltraFeedQuery } from '../common/feeds/feedQueries';
@@ -296,7 +296,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
 
                       return (
                         <FeedItemWrapper>
-                          <SpotlightFeedItem 
+                          <UltraFeedSpotlightItem 
                             spotlight={spotlight}
                             post={post ?? undefined}
                             showSubtitle={true}

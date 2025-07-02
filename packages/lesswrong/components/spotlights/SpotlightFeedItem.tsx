@@ -31,8 +31,8 @@ const buildVerticalFadeMask = (breakpoints: string[]) => {
   return {mask, "-webkit-mask-image": mask};
 }
 
-const useSpotlightFeedItemStyles = defineStyles(
-  "SpotlightFeedItem",
+const useUltraFeedSpotlightItemStyles = defineStyles(
+  "UltraFeedSpotlightItem",
   (theme: ThemeType) => ({
     root: {
       background: theme.palette.panelBackground.default,
@@ -288,7 +288,7 @@ const useSpotlightFeedItemStyles = defineStyles(
   { stylePriority: -1 }
 );
 
-const SpotlightFeedItem = ({
+const UltraFeedSpotlightItem = ({
   spotlight,
   post,
   index,
@@ -301,7 +301,7 @@ const SpotlightFeedItem = ({
   showSubtitle?: boolean,
   className?: string,
 }) => {
-  const classes = useStyles(useSpotlightFeedItemStyles);
+  const classes = useStyles(useUltraFeedSpotlightItemStyles);
   const { observe } = useUltraFeedObserver();
   const { openDialog } = useDialog();
   const elementRef = useRef<HTMLDivElement | null>(null);
@@ -499,7 +499,7 @@ const SpotlightFeedItem = ({
   )
 }
 
-export default registerComponent('SpotlightFeedItem', SpotlightFeedItem);
+export default UltraFeedSpotlightItem;
 
 
 
