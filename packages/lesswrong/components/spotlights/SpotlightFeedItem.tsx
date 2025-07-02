@@ -2,10 +2,8 @@ import classNames from 'classnames';
 import React, { CSSProperties, useCallback, useRef, useEffect, useState } from 'react';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { isBookUI } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useStyles, defineStyles } from '../hooks/useStyles';
 import { descriptionStyles, getSpotlightDisplayTitle } from './SpotlightItem';
 import { useUltraFeedObserver } from '../../components/ultraFeed/UltraFeedObserver';
@@ -15,9 +13,9 @@ import CloudinaryImage2 from "../common/CloudinaryImage2";
 import { useDialog } from '../common/withDialog';
 import UltraFeedPostDialog from '../ultraFeed/UltraFeedPostDialog';
 import UltraFeedItemFooter from '../ultraFeed/UltraFeedItemFooter';
-import { FeedPostMetaInfo } from '../ultraFeed/ultraFeedTypes';
 import ForumIcon from '../common/ForumIcon';
 import LWTooltip from '../common/LWTooltip';
+import { SHOW_ALL_BREAKPOINT_VALUE } from '../ultraFeed/ultraFeedSettingsTypes';
 
 const SIDE_MARGIN = 150;
 
@@ -46,16 +44,21 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       maxWidth: SECTION_WIDTH,
       marginLeft: "auto",
       marginRight: "auto",
-      [theme.breakpoints.up("md")]: {
-        width: SECTION_WIDTH,
-        marginBottom: 12,
-        boxShadow: theme.palette.boxShadow.default,
-        borderRadius: theme.borderRadius.default,
-        '&:hover': {
-          boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
-        },
+      width: SECTION_WIDTH,
+      marginBottom: 12,
+      boxShadow: theme.palette.boxShadow.default,
+      borderRadius: theme.borderRadius.default,
+      '&:hover': {
+        boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
       },
       [theme.breakpoints.down('sm')]: {
+        width: 'auto',
+        marginBottom: 0,
+        boxShadow: 'none',
+        borderRadius: 0,
+        '&:hover': {
+          boxShadow: 'none',
+        },
         paddingTop: 12,
         paddingBottom: 16,
         paddingLeft: 16,
@@ -82,11 +85,10 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       flexDirection: "column",
       position: "relative",
       overflow: "hidden",
-      [theme.breakpoints.up('md')]: {
-        background: theme.palette.panelBackground.default,
-      },
+      background: theme.palette.panelBackground.default,
       [theme.breakpoints.down('sm')]: {
         overflow: "visible",
+        background: 'transparent',
       },
     },
     spotlightFadeBackground: {
@@ -98,21 +100,19 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       width: "100%",
       position: "relative",
       zIndex: 2,
-      [theme.breakpoints.up('md')]: {
-        paddingTop: 12,
-        paddingLeft: 16,
-        paddingRight: 16,
-        minHeight: 100,
-      },
+      paddingTop: 12,
+      paddingLeft: 16,
+      paddingRight: 16,
+      minHeight: 100,
       [theme.breakpoints.down('sm')]: {
+        padding: 0,
+        minHeight: 'auto',
         display: 'flex',
         flexDirection: 'column',
       },
     },
     contentWithPaddingBottom: {
-      [theme.breakpoints.up('md')]: {
-        paddingBottom: 12,
-      },
+      paddingBottom: 12,
       [theme.breakpoints.down('sm')]: {
         paddingBottom: 16,
       },
@@ -121,11 +121,10 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       display: 'flex',
       flexDirection: 'column',
       gap: '2px',
-      [theme.breakpoints.up('md')]: {
-        maxWidth: `calc(100% - ${SIDE_MARGIN}px)`,
-        marginBottom: '2px',
-      },
+      maxWidth: `calc(100% - ${SIDE_MARGIN}px)`,
+      marginBottom: '2px',
       [theme.breakpoints.down('sm')]: {
+        maxWidth: '100%',
         gap: '4px',
         position: 'relative',
         zIndex: 3,
@@ -135,7 +134,7 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
     },
     titleContainer: {
       display: 'flex',
-      alignItems: 'center',
+      alignItems: 'baseline',
     },
     title: {
       fontFamily: theme.palette.fonts.sansSerifStack,
@@ -162,9 +161,7 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       alignItems: 'baseline',
       columnGap: '16px',
       rowGap: '4px',
-      [theme.breakpoints.up('md')]: {
-        marginBottom: '12px',
-      },
+      marginBottom: '12px',
       [theme.breakpoints.down('sm')]: {
         fontSize: "1.3rem",
         columnGap: '8px',
@@ -207,22 +204,24 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       },
     },
     imageContainer: {
-      position: "relative",
+      position: "absolute",
       zIndex: 1,
       alignSelf: "stretch",
       display: "flex",
       justifyContent: "flex-end",
+      top: 0,
+      right: 0,
+      width: "100%",
+      height: "100%",
+      margin: 0,
       [theme.breakpoints.down('sm')]: {
+        position: "relative",
+        width: 'auto',
+        height: 'auto',
+        top: 'auto',
+        right: 'auto',
         margin: "-12px -16px -20px -16px",
         order: 2,
-      },
-      [theme.breakpoints.up('md')]: {
-        position: "absolute",
-        top: 0,
-        right: 0,
-        width: "100%",
-        height: "100%",
-        margin: 0,
       },
     },
     imageContainerWithAuthor: {
@@ -232,22 +231,23 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
     },
     image: {
       objectFit: "cover",
+      height: "100%",
+      position: "absolute",
+      top: 0,
+      right: 0,
+      borderTopRightRadius: theme.borderRadius.default,
+      borderBottomRightRadius: theme.borderRadius.default,
       [theme.breakpoints.down('sm')]: {
-        maxWidth: "100%",
+        position: 'relative',
         width: "100%",
         height: "auto",
+        top: 'auto',
+        right: 'auto',
+        maxWidth: "100%",
         objectPosition: "center center",
         maxHeight: 200,
         minHeight: 150,
         borderRadius: 0,
-      },
-      [theme.breakpoints.up('md')]: {
-        height: "100%",
-        position: "absolute",
-        top: 0,
-        right: 0,
-        borderTopRightRadius: theme.borderRadius.default,
-        borderBottomRightRadius: theme.borderRadius.default,
       },
     },
     imageVerticalFade: {
@@ -290,10 +290,9 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       display: "flex",
       flexDirection: "column",
       gap: '8px',
-      [theme.breakpoints.up('md')]: {
-        maxWidth: `calc(100% - ${SIDE_MARGIN}px)`,
-      },
+      maxWidth: `calc(100% - ${SIDE_MARGIN}px)`,
       [theme.breakpoints.down('sm')]: {
+        maxWidth: '100%',
         position: 'relative',
         marginTop: 12,
         order: 4,
@@ -305,37 +304,26 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
     description: {
       ...descriptionStyles(theme),
       opacity: 0.9,
+      position: "relative",
       [theme.breakpoints.down('sm')]: {
         fontSize: "1.3rem",
-      },
-      [theme.breakpoints.up('md')]: {
-        position: "relative",
+        position: 'static',
       },
     },
     splashImage: {
       filter: "brightness(1.2)",
-      [theme.breakpoints.up('md')]: {
-        transform: "translateX(13%) scale(1.15)",
+      transform: "translateX(13%) scale(1.15)",
+      [theme.breakpoints.down('sm')]: {
+        transform: 'none',
       },
     },
     footer: {
-      marginTop: 12,
+      // marginTop: 12,
       marginBottom: 12,
-      [theme.breakpoints.down('sm')]: {
-        marginTop: 16,
-        marginBottom: 0,
-        marginLeft: -16,
-        marginRight: -16,
-        paddingLeft: 16,
-        paddingRight: 16,
-        paddingBottom: 12,
-        order: 5,
-      },
-      [theme.breakpoints.up('md')]: {
-        position: 'relative',
-        zIndex: 3,
-        '& .UltraFeedItemFooter-bookmarkButton': {
-          filter: `
+      position: 'relative',
+      zIndex: 3,
+      '& .UltraFeedItemFooter-bookmarkButton': {
+        filter: `
             drop-shadow(0px 0px 2px ${theme.palette.background.default})
             drop-shadow(0px 0px 4px ${theme.palette.background.default})
             drop-shadow(0px 0px 8px ${theme.palette.background.default})
@@ -343,11 +331,11 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
             drop-shadow(0px 0px 20px ${theme.palette.background.default})
             drop-shadow(0px 0px 30px ${theme.palette.background.default})
           `,
-          opacity: 1,
-          color: `${theme.palette.grey[600]} !important`,
-        },
-        '& .SeeLessButton-root svg': {
-          filter: `
+        opacity: 1,
+        color: `${theme.palette.grey[600]} !important`,
+      },
+      '& .SeeLessButton-root svg': {
+        filter: `
             drop-shadow(0px 0px 4px ${theme.palette.background.default})
             drop-shadow(0px 0px 8px ${theme.palette.background.default})
             drop-shadow(0px 0px 16px ${theme.palette.background.default})
@@ -355,8 +343,25 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
             drop-shadow(0px 0px 40px ${theme.palette.background.default})
             drop-shadow(0px 0px 60px ${theme.palette.background.default})
           `,
-          opacity: 1,
-          color: `${theme.palette.grey[1000]} !important`,
+        opacity: 1,
+        color: `${theme.palette.grey[1000]} !important`,
+      },
+      [theme.breakpoints.down('sm')]: {
+        marginTop: 12,
+        marginBottom: 0,
+        marginLeft: -16,
+        marginRight: -16,
+        paddingLeft: 16,
+        paddingRight: 16,
+        paddingBottom: 12,
+        order: 5,
+        '& .UltraFeedItemFooter-bookmarkButton': {
+          filter: 'none',
+        },
+        '& .SeeLessButton-root svg': {
+          filter: 'none',
+          color: `${theme.palette.ultraFeed.dim} !important`,
+          opacity: 0.7,
         },
       },
     },
@@ -369,6 +374,28 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
   }),
   { stylePriority: -1 }
 );
+
+
+const SpotlightContentWrapper = ({ isPost, url, handleContentClick, children }: {
+  isPost: boolean;
+  url: string;
+  handleContentClick: (event: React.MouseEvent) => void;
+  children: React.ReactNode;
+}) => {
+  if (isPost) {
+    return (
+      <div className="description-wrapper" onClick={handleContentClick} style={{ cursor: 'pointer' }}>
+        {children}
+      </div>
+    );
+  }
+  return (
+    <Link to={url} className="description-wrapper">
+      {children}
+    </Link>
+  );
+};
+
 
 const UltraFeedSpotlightItem = ({
   spotlight,
@@ -446,10 +473,8 @@ const UltraFeedSpotlightItem = ({
     onReplyCancel: () => setIsReplying(false),
   };
 
-  // Calculate word count for the description
-  const descriptionWordCount = spotlight.description?.html 
-    ? Math.ceil(spotlight.description.html.length / 5) // Rough estimate
-    : 0;
+  // We don't actually need this since we'll show all the text
+  const descriptionWordCount = 5;
 
   return (
     <AnalyticsContext ultraFeedElementType="feedSpotlight" spotlightId={spotlight._id} ultraFeedCardIndex={index}>
@@ -469,15 +494,13 @@ const UltraFeedSpotlightItem = ({
             [classes.contentWithPaddingBottom]: !isPost
           })}>
             <div className={classes.header}>
-              <div className={classes.titleContainer}>
-                <Link 
-                  to={url}
-                  onClick={isPost ? handleContentClick : undefined}
-                  className={classes.title}
-                >
-                  {getSpotlightDisplayTitle(spotlight)}
-                </Link>
-              </div>
+              <SpotlightContentWrapper isPost={isPost} url={url} handleContentClick={handleContentClick}>
+                <div className={classes.titleContainer}>
+                    <span className={classes.title}>
+                      {getSpotlightDisplayTitle(spotlight)}
+                    </span>
+                </div>
+              </SpotlightContentWrapper>
             </div>
             
             <div className={classNames(
@@ -532,33 +555,18 @@ const UltraFeedSpotlightItem = ({
               </div>
             )}
             
-            {(spotlight.description?.html || isBookUI) && 
-              <div className={classes.descriptionArea}>
-                {isPost ? (
-                  <div className={classes.descriptionWrapper} onClick={handleContentClick}>
-                    <FeedContentBody
-                      html={spotlight.description?.html ?? ''}
-                      wordCount={descriptionWordCount}
-                      initialWordCount={descriptionWordCount}
-                      maxWordCount={descriptionWordCount}
-                      hideSuffix
-                      className={classes.description}
-                    />
-                  </div>
-                ) : (
-                  <Link to={url} className={classes.descriptionWrapper}>
-                    <FeedContentBody
-                      html={spotlight.description?.html ?? ''}
-                      wordCount={descriptionWordCount}
-                      initialWordCount={descriptionWordCount}
-                      maxWordCount={descriptionWordCount}
-                      hideSuffix
-                      className={classes.description}
-                    />
-                  </Link>
-                )}
-              </div>
-            }
+            <div className={classes.descriptionArea}>
+              <SpotlightContentWrapper isPost={isPost} url={url} handleContentClick={handleContentClick}>
+                <FeedContentBody
+                  html={spotlight.description?.html ?? ''}
+                  wordCount={descriptionWordCount}
+                  initialWordCount={SHOW_ALL_BREAKPOINT_VALUE}
+                  maxWordCount={SHOW_ALL_BREAKPOINT_VALUE}
+                  hideSuffix
+                  className={classes.description}
+                />
+              </SpotlightContentWrapper>
+            </div>
             {isPost && post && (
               <div className={classes.footer}>
                 <UltraFeedItemFooter
