@@ -90,10 +90,10 @@ const KeywordsPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
     if (normalized && keywordAlerts && keywordAlerts.indexOf(normalized) < 0) {
       setUpdating(true);
       await updateCurrentUser({
-        keywordAlerts: uniq([...keywordAlerts, normalized]).sort(),
+        keywordAlerts: uniq([normalized, ...keywordAlerts]),
       });
       setUpdating(false);
-      flash(`Added new keyword alert "${normalized}"`)
+      flash(`Keyword alert added "${normalized}"`)
     }
   }, [flash, keywordAlerts, updateCurrentUser]);
 
@@ -107,10 +107,10 @@ const KeywordsPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
     if (keywordAlerts) {
       setUpdating(true);
       await updateCurrentUser({
-        keywordAlerts: uniq(keywordAlerts.filter((kw) => kw !== keyword)).sort(),
+        keywordAlerts: uniq(keywordAlerts.filter((kw) => kw !== keyword)),
       });
       setUpdating(false);
-      flash(`Removed keyword alert "${keyword}"`)
+      flash(`Keyword alert removed "${keyword}"`)
     }
   }, [flash, updateCurrentUser, keywordAlerts]);
 
