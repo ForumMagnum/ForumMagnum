@@ -488,7 +488,17 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
 
     const feedCommentsData: FeedCommentFromDb[] = await this.getRawDb().manyOrNone(`
       -- CommentsRepo.getCommentsForFeed
-      WITH "InitialCandidates" AS (
+      WITH "SubscribedAuthorIds" AS (
+          -- Get all user IDs the current user is subscribed to
+          SELECT DISTINCT "documentId" AS "authorId"
+          FROM "Subscriptions"
+          WHERE "userId" = $(userId)
+            AND "collectionName" = 'Users'
+            AND "state" = 'subscribed'
+            AND "type" IN ('newActivityForFeed', 'newPosts', 'newComments')
+            AND deleted IS NOT TRUE
+      ),
+      "InitialCandidates" AS (
           -- Find top candidate comments based on recency or shortform status
           SELECT
               c._id AS "commentId",
@@ -502,7 +512,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           WHERE
               ${getUniversalCommentFilterClause('c')}
               AND c."userId" != $(userId)
-              AND (c.shortform IS TRUE OR c."postedAt" > (NOW() - INTERVAL '1 day' * $(initialCandidateLookbackDaysParam)))
+              AND c."postedAt" > (NOW() - INTERVAL '1 day' * $(initialCandidateLookbackDaysParam))
               AND p.draft IS NOT TRUE
           ORDER BY c."postedAt" DESC
           LIMIT $(initialCandidateLimit)
@@ -513,19 +523,27 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       "AllRelevantComments" AS (
           -- Fetch all comments belonging to the candidate threads using the distinct IDs
           SELECT
-            c._id,
-            c."postId",
-            c."userId" AS "authorId",
-            c."baseScore",
-            c."topLevelCommentId",
-            c."parentCommentId",
-            c.shortform,
-            c."postedAt",
-            c."descendentCount"
+              c._id,
+              c."postId",
+              c."userId" AS "authorId",
+              c."baseScore",
+              c."topLevelCommentId",
+              c."parentCommentId",
+              c.shortform,
+              c."postedAt",
+              c."descendentCount",
+              CASE 
+                WHEN c.shortform IS TRUE THEN 'quicktakes'
+                WHEN sa."authorId" IS NOT NULL THEN 'subscriptionsComments'
+                ELSE 'recentComments'
+              END AS "primarySource",
+              (ic."commentId" IS NOT NULL) AS "isInitialCandidate"
           FROM "Comments" c
           JOIN "CandidateThreadTopLevelIds" ct
               ON c."topLevelCommentId" = ct."threadTopLevelId"
               OR (c._id = ct."threadTopLevelId" AND c."topLevelCommentId" IS NULL)
+          LEFT JOIN "SubscribedAuthorIds" sa ON c."userId" = sa."authorId"
+          LEFT JOIN "InitialCandidates" ic ON c._id = ic."commentId"
           WHERE
               ${getUniversalCommentFilterClause('c')}
       ),
@@ -584,6 +602,8 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           c.shortform,
           c."postedAt",
           c."descendentCount",
+          c."primarySource",
+          c."isInitialCandidate",
           ce."lastServed",
           ce."lastViewed",
           ce."lastInteracted"
@@ -599,21 +619,37 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       commentServedEventRecencyHoursParam: commentServedEventRecencyHours
     });
 
-    return feedCommentsData.map((comment): FeedCommentFromDb => ({
-      commentId: comment.commentId,
-      authorId: comment.authorId,
-      topLevelCommentId: comment.topLevelCommentId,
-      parentCommentId: comment.parentCommentId ?? null,
-      postId: comment.postId,
-      baseScore: comment.baseScore,
-      shortform: comment.shortform ?? null,
-      postedAt: comment.postedAt,
-      descendentCount: comment.descendentCount,
-      sources: ['recentComments'],
-      lastServed: null, 
-      lastViewed: comment.lastViewed ?? null,
-      lastInteracted: comment.lastInteracted ?? null,
-    }));
+    // Safety check for duplicates from the database query
+    const uniqueMap = new Map(feedCommentsData.map(c => [c.commentId, c]));
+    if (uniqueMap.size < feedCommentsData.length) {
+      // eslint-disable-next-line no-console
+      console.warn(`[CommentsRepo.getCommentsForFeed] Deduplicated from ${feedCommentsData.length} to ${uniqueMap.size} comments`);
+    }
+    const deduplicatedComments = Array.from(uniqueMap.values());
+
+    return deduplicatedComments.map((comment): FeedCommentFromDb => {
+      const sources: string[] = ['recentComments'];
+      if (comment.primarySource && comment.primarySource !== 'recentComments') {
+        sources.push('recentComments'); // temporarily to avoid breaking change, we assign recentComments to all comments
+      }
+      return {
+        commentId: comment.commentId,
+        authorId: comment.authorId,
+        topLevelCommentId: comment.topLevelCommentId,
+        parentCommentId: comment.parentCommentId ?? null,
+        postId: comment.postId,
+        baseScore: comment.baseScore,
+        shortform: comment.shortform ?? null,
+        postedAt: comment.postedAt,
+        descendentCount: comment.descendentCount,
+        sources,
+        primarySource: comment.primarySource,
+        isInitialCandidate: comment.isInitialCandidate,
+        lastServed: null,
+        lastViewed: comment.lastViewed ?? null,
+        lastInteracted: comment.lastInteracted ?? null,
+      };
+    });
   }
 
   /**
@@ -627,7 +663,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     const lookbackInterval = `${threadEngagementLookbackDays} days`;
 
     const engagementStats = await this.getRawDb().manyOrNone<ThreadEngagementStats>(`
-      -- CommentsRepo.getThreadEngagementStatsForRecentlyActiveThreads (Refactored to use JOINs with inlined subqueries)
+      -- CommentsRepo.getThreadEngagementStatsForRecentlyActiveThreads
       SELECT
         recentActiveThreads."threadTopLevelId",
         COALESCE(userVotesInThreads."votingActivityScore", 0) AS "votingActivityScore",

@@ -16,7 +16,6 @@ import { isPostWithForeignId } from "../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import UltraFeedPostDialog from "./UltraFeedPostDialog";
 import UltraFeedCommentsDialog from "./UltraFeedCommentsDialog";
-import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
 import FormatDate from "../common/FormatDate";
 import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 import FeedContentBody from "./FeedContentBody";
@@ -36,6 +35,8 @@ import { useCurrentUser } from "../common/withUser";
 import { useSeeLess } from "./useSeeLess";
 import { UltraFeedCommentItem } from "./UltraFeedCommentItem";
 import type { FeedCommentMetaInfo } from "./ultraFeedTypes";
+import PostsUserAndCoauthors from "../posts/PostsUserAndCoauthors";
+import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
 
 const localPostQuery = gql(`
   query LocalPostQuery($documentId: String!) {
@@ -78,50 +79,66 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     pointerEvents: 'none',
   },
   tripleDotMenu: {
-    opacity: 0.7,
-    position: 'absolute',
-    right: 2,
-    top: 5,
-    padding: 5,
-    marginLeft: 4,
+    position: 'relative',
+    bottom: 1,
     "& svg": {
       fontSize: 18,
       cursor: "pointer",
       color: theme.palette.text.dim,
-    }
+    },
+    [theme.breakpoints.down('sm')]: {
+      position: 'absolute',
+      right: 2,
+      top: 5,
+      padding: 5,
+      marginLeft: 4,
+    },
   },
   header: {
     display: 'flex',
-    flexDirection: 'column',
-    gap: '4px',
     marginBottom: 12,
+    marginRight: -10, //so triple dot lines up on both posts and comments
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    gap: 16,
+    [theme.breakpoints.down('sm')]: {
+      marginRight: 0,
+      position: 'relative',
+      flexDirection: 'column',
+      gap: '4px',
+      alignItems: 'stretch',
+    },
   },
   titleContainer: {
     display: 'flex',
-    justifyContent: 'flex-start',
     alignItems: 'center',
-    width: '100%',
+    flexGrow: 1,
+    minWidth: 0,
     [theme.breakpoints.down('sm')]: {
+      width: '100%',
+      paddingRight: '30px', // To leave space for the absolutely positioned triple-dot menu
     },
   },
   title: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: '1.4rem',
     fontWeight: 600,
     opacity: 0.8,
     lineHeight: 1.15,
     textWrap: 'balance',
-    width: '100%',
     color: theme.palette.text.bannerAdOverlay,
     '&:hover': {
       opacity: 0.9,
       textDecoration: 'none',
       cursor: 'pointer',
     },
-    flexGrow: 1,
-    paddingRight: 8,
+    fontSize: '1.3rem',
+    whiteSpace: 'normal',
     [theme.breakpoints.down('sm')]: {
       fontSize: 20.5,
+      width: '100%',
+      flexGrow: 1,
+      paddingRight: 8,
     },
   },
   titleIsRead: {
@@ -133,28 +150,37 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
   metaRow: {
     display: "flex",
-    flexWrap: "wrap",
-    alignItems: "baseline",
-    rowGap: "6px",
     color: theme.palette.text.dim,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: theme.typography.body2.fontSize,
+    alignItems: 'center',
+    flexShrink: 0,
+    flexWrap: 'nowrap',
+    columnGap: '8px',
     [theme.breakpoints.down('sm')]: {
+      flexWrap: "nowrap",
+      alignItems: "baseline",
+      rowGap: "6px",
       fontSize: "1.3rem",
+      flexShrink: 1,
+      width: 'auto',
     },
   },
   sourceIcon: {
     width: 16,
     height: 16,
-    marginRight: 8,
     color: theme.palette.grey[600],
     opacity: 0.7,
     position: 'relative',
-    top: 3,
+    top: 2,
     flexShrink: 0,
   },
   metaDateContainer: {
-    marginRight: 8,
+    order: 3,
+    [theme.breakpoints.down('sm')]: {
+      order: 2,
+      flexShrink: 0,
+    },
   },
   footer: {
     marginTop: 12,
@@ -175,15 +201,29 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     justifyContent: "center",
     padding: "20px 0",
   },
+  authorsListWrapper: {
+    flexGrow: 1,
+    minWidth: 0,
+    order: 2,
+    display: 'none',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    [theme.breakpoints.up('sm')]: {
+      display: 'block',
+    },
+  },
+  mobileAuthorsListWrapper: {
+    order: 1,
+    minWidth: 0,
+    display: 'block',
+    [theme.breakpoints.up('sm')]: {
+      display: 'none',
+    },
+  },
   authorsList: {
     fontSize: 'inherit',
     color: 'inherit',
     fontFamily: 'inherit',
-    marginRight: 8,
-    flexShrink: 1,
-    minWidth: 0,
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
   },
   newCommentContainer: {
     marginTop: 16,
@@ -194,11 +234,34 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     borderTop: `1px solid ${theme.palette.greyAlpha(0.1)}`,
     paddingTop: 8,
   },
+  sourceIconsContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    order: 1,
+    gap: '8px',
+    [theme.breakpoints.down('sm')]: {
+      order: 3,
+      flexShrink: 0,
+    },
+  },
+  desktopTripleDot: {
+    display: 'block',
+    order: 4,
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
+  mobileTripleDot: {
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'block',
+    },
+  },
 }));
 
 const sourceIconMap: Array<{ source: FeedItemSourceType, icon: any, tooltip: string }> = [
   { source: 'bookmarks' as FeedItemSourceType, icon: BookmarksIcon, tooltip: "From your bookmarks" },
-  { source: 'subscriptions' as FeedItemSourceType, icon: SubscriptionsIcon, tooltip: "From users you follow" },
+  { source: 'subscriptionsPosts' as FeedItemSourceType, icon: SubscriptionsIcon, tooltip: "From users you follow" },
   { source: 'recombee-lesswrong-custom' as FeedItemSourceType, icon: SparkleIcon, tooltip: "Recommended for you" },
   { source: 'hacker-news' as FeedItemSourceType, icon: ClockIcon, tooltip: "Latest posts" },
 ];
@@ -208,6 +271,7 @@ interface UltraFeedPostItemHeaderProps {
   isRead: boolean;
   handleOpenDialog: () => void;
   sources: FeedItemSourceType[];
+  isSeeLessMode: boolean;
 }
 
 const UltraFeedPostItemHeader = ({
@@ -215,9 +279,10 @@ const UltraFeedPostItemHeader = ({
   isRead,
   handleOpenDialog,
   sources,
+  isSeeLessMode,
 }: UltraFeedPostItemHeaderProps) => {
   const classes = useStyles(styles);
-  const authorListRef = useRef<HTMLDivElement>(null);
+  const metaRowRef = useRef<HTMLDivElement>(null);
 
   const handleTitleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
@@ -241,20 +306,38 @@ const UltraFeedPostItemHeader = ({
           {post.title}
         </a>
       </div>
-      <div className={classes.metaRow}>
-        {sourceIcons.map((iconInfo) => (
-          <LWTooltip key={iconInfo.key} title={iconInfo.tooltip} placement="top">
-            <span>
-              <iconInfo.icon className={classes.sourceIcon} />
-            </span>
-          </LWTooltip>
-        ))}
-        <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={authorListRef} className={classes.authorsList} />
+      <div className={classes.metaRow} ref={metaRowRef}>
+        <div className={classes.mobileAuthorsListWrapper}>
+          <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={metaRowRef} className={classes.authorsList} />
+        </div>
+        <div className={classes.authorsListWrapper}>
+          <PostsUserAndCoauthors post={post} abbreviateIfLong={true} tooltipPlacement="top" />
+        </div>
         {post.postedAt && (
           <span className={classes.metaDateContainer}>
             <FormatDate date={post.postedAt} />
           </span>
         )}
+        <div className={classes.sourceIconsContainer}>
+          {sourceIcons.map((iconInfo) => (
+            <LWTooltip key={iconInfo.key} title={iconInfo.tooltip} placement="top">
+              <span>
+                <iconInfo.icon className={classes.sourceIcon} />
+              </span>
+            </LWTooltip>
+          ))}
+        </div>
+        <div className={classes.desktopTripleDot}>
+          <AnalyticsContext pageElementContext="tripleDotMenu">
+            <PostActionsButton
+              post={post}
+              vertical={true}
+              autoPlace
+              ActionsComponent={UltraFeedPostActions}
+              className={classnames(classes.tripleDotMenu, { [classes.greyedOut]: isSeeLessMode })}
+            />
+          </AnalyticsContext>
+        </div>
       </div>
     </div>
   );
@@ -521,15 +604,18 @@ const UltraFeedPostItem = ({
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index}>
     <div className={classes.root}>
       <div ref={elementRef} className={classes.mainContent}>
-        <AnalyticsContext pageElementContext="tripleDotMenu">
-          <PostActionsButton
-            post={post}
-            vertical={true}
-            autoPlace
-            ActionsComponent={UltraFeedPostActions}
-            className={classnames(classes.tripleDotMenu, { [classes.greyedOut]: isSeeLessMode })}
-          />
-        </AnalyticsContext>
+        {/* On small screens, the triple dot menu is positioned absolutely to the root */}
+        <div className={classes.mobileTripleDot}>
+          <AnalyticsContext pageElementContext="tripleDotMenu">
+            <PostActionsButton
+              post={post}
+              vertical={true}
+              autoPlace
+              ActionsComponent={UltraFeedPostActions}
+              className={classnames(classes.tripleDotMenu, { [classes.greyedOut]: isSeeLessMode })}
+            />
+          </AnalyticsContext>
+        </div>
 
         <div className={classnames({ [classes.greyedOut]: isSeeLessMode })}>
           <UltraFeedPostItemHeader
@@ -537,6 +623,7 @@ const UltraFeedPostItem = ({
             isRead={isRead}
             handleOpenDialog={handleOpenDialog}
             sources={postMetaInfo.sources}
+            isSeeLessMode={isSeeLessMode}
           />
         </div>
 
@@ -612,7 +699,3 @@ const UltraFeedPostItem = ({
 };
 
 export default registerComponent("UltraFeedPostItem", UltraFeedPostItem);
-
-
-
- 

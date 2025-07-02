@@ -25,7 +25,7 @@ import { asyncLocalStorage } from '@/server/perfMetrics';
 import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { faviconUrlSetting, isLW, performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
 import { isProduction, isE2E } from '@/lib/executionEnvironment';
-import { HIDE_IF_ANYONE_BUILDS_IT_SPLASH, LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
+import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
 import { visitorGetsDynamicFrontpage } from '@/lib/betas';
 import { responseIsCacheable } from '@/server/cacheControlMiddleware';
 import { preloadScrollToCommentScript } from '@/lib/scrollUtils';
@@ -48,7 +48,7 @@ import { getIpFromRequest } from '../utils/httpUtil';
 import { HelmetServerState } from 'react-helmet-async';
 import every from 'lodash/every';
 import { prefilterHandleRequest } from '../apolloServer';
-import { HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT } from '@/components/themes/useTheme';
+import { eventCaptureScript } from './eventCapture';
 
 export interface RenderSuccessResult {
   ssrBody: string
@@ -215,6 +215,7 @@ export async function handleRequest(request: Request, response: Response) {
     // relative to any scripts that come later than this is undetermined and
     // varies based on timings and the browser cache.
     + clientScript
+    + eventCaptureScript
     + themeOptionsHeader
   );
 
@@ -403,14 +404,7 @@ export const renderRequest = async ({req, user, parsedRoute, startTime, response
   
   const now = new Date();
   const themeOptions = getThemeOptionsFromReq(req, user);
-
-  // Hack for the front page If Everyone Builds It announcement
-  const hideIfAnyoneBuildsItSplash = getCookieFromReq(req, HIDE_IF_ANYONE_BUILDS_IT_SPLASH)
-  const hideIfAnyoneBuildsItSpotlight = getCookieFromReq(req, HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT)
-  const forceDarkMode = isLW && req.url === '/' && !hideIfAnyoneBuildsItSplash && !hideIfAnyoneBuildsItSpotlight;
-  const jssSheets = forceDarkMode
-    ? renderJssSheetImports({name: "dark"})
-    : renderJssSheetImports(themeOptions);
+  const jssSheets = renderJssSheetImports(themeOptions);
 
   responseManager.addToHeadBlock(jssSheets);
   const helmetContext: {helmet?: HelmetServerState} = {};

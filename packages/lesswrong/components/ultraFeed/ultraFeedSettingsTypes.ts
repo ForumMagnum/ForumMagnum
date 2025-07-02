@@ -28,23 +28,44 @@ export interface UltraFeedSettingsType {
 }
 
 const DEFAULT_DISPLAY_SETTINGS: UltraFeedDisplaySettings = {
-  postInitialWords: 200,
-  postMaxWords: 2000,
+  postInitialWords: 100,
+  postMaxWords: 250,
   lineClampNumberOfLines: 0,
   commentCollapsedInitialWords: 50,
-  commentExpandedInitialWords: 200,
-  commentMaxWords: 1000,
+  commentExpandedInitialWords: 100,
+  commentMaxWords: 250,
 };
 
+export const truncationLevels = ['Very Short', 'Short', 'Medium', 'Long', 'Full'] as const;
+export type TruncationLevel = typeof truncationLevels[number];
 export const SHOW_ALL_BREAKPOINT_VALUE = 100_000;
 
+export const levelToWordCountMap: Record<TruncationLevel, number> = {
+  'Very Short': 50,
+  'Short': 100,
+  'Medium': 250,
+  'Long': 1000,
+  'Full': SHOW_ALL_BREAKPOINT_VALUE,
+};
+
+export const levelToPostWordCountMap: Record<TruncationLevel, number> = {
+  'Very Short': 50,
+  'Short': 100,
+  'Medium': 250,
+  'Long': 2000,
+  'Full': SHOW_ALL_BREAKPOINT_VALUE,
+};
+
+
 export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
-  'recentComments': 80,
+  'recentComments': 30,
+  'quicktakes': 20,
+  'subscriptionsComments': 15,
   'recombee-lesswrong-custom': 30,
   'hacker-news': 30,
+  'subscriptionsPosts': 15,
   'spotlights': 2,
   'bookmarks': 1,
-  'subscriptions': 20,
 };
 export interface CommentScoringSettings {
   commentDecayFactor: number;
@@ -105,9 +126,24 @@ export interface SourceWeightConfig {
 
 export const sourceWeightConfigs: SourceWeightConfig[] = [
   {
+    key: 'subscriptionsPosts',
+    label: "Posts from Followed Users",
+    description: "Recent posts from users you've subscribed to or followed."
+  },
+  {
+    key: 'subscriptionsComments',
+    label: "Comments from Followed Users",
+    description: "Recent comments from users you've subscribed to or followed."
+  },
+  {
+    key: 'quicktakes',
+    label: "Quick Takes",
+    description: "Lighweight mini-posts"
+  },
+  {
     key: 'recentComments',
     label: "Recent Comments",
-    description: "Tailored for you based on interaction history, includes Quick Takes."
+    description: "Recent comments, prioritized karma and previous engagement with the threads or posts they're on"
   },
   {
     key: 'recombee-lesswrong-custom',
@@ -127,33 +163,9 @@ export const sourceWeightConfigs: SourceWeightConfig[] = [
   {
     key: 'bookmarks',
     label: "Your Bookmarks",
-    description: "Items you've bookmarked will be included to remind you about them."
-  },
-  {
-    key: 'subscriptions',
-    label: "Posts by Followed Users",
-    description: "Posts from users you've subscribed to or followed (for subscribed comments config, see Advanced Settings)."
+    description: "We can throw in of your bookmarks to remind you about them."
   },
 ];
-
-export const truncationLevels = ['Very Short', 'Short', 'Medium', 'Long', 'Full'] as const;
-export type TruncationLevel = typeof truncationLevels[number];
-
-export const levelToWordCountMap: Record<TruncationLevel, number> = {
-  'Very Short': 50,
-  'Short': 100,
-  'Medium': 200,
-  'Long': 1000,
-  'Full': SHOW_ALL_BREAKPOINT_VALUE,
-};
-
-export const levelToPostWordCountMap: Record<TruncationLevel, number> = {
-  'Very Short': 50,
-  'Short': 100,
-  'Medium': 200,
-  'Long': 2000,
-  'Full': SHOW_ALL_BREAKPOINT_VALUE,
-};
 
 export const getWordCountLevel = (
   wordCount: number | undefined,

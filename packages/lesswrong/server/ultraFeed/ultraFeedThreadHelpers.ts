@@ -8,6 +8,10 @@
  * - Preparing threads for display (expansion/highlighting)
  */
 
+// Safety limits for recursive thread building
+const MAX_DEPTH = 50;
+const MAX_TOTAL_PATHS = 1000;
+
 import { UltraFeedResolverSettings, CommentScoringSettings, ThreadInterestModelSettings } from '../../components/ultraFeed/ultraFeedSettingsTypes';
 import { 
   PreDisplayFeedComment, 
@@ -21,17 +25,16 @@ import {
 import * as crypto from 'crypto';
 
 /**
- * Generates a stable hash ID for a comment thread based on its comment IDs (sensitive to sort order).
- * This MUST match the hash generation logic used in the resolver when checking against served threads.
+ * Generates a stable hash ID for a comment thread based on its comment IDs. This creates a consistent identifier for each unique thread composition.
  */
 export function generateThreadHash(commentIds: string[]): string {
   if (!commentIds || commentIds.length === 0) {
-    // Return a consistent identifier for empty/invalid threads
     return 'empty_thread_hash';
   }
-
+  
+  const sortedIds = [...commentIds].sort();
   const hash = crypto.createHash('sha256');
-  hash.update(commentIds.join(','));
+  hash.update(sortedIds.join(','));
   return hash.digest('hex');
 }
 
@@ -43,6 +46,8 @@ export function buildDistinctLinearThreads(
   candidates: FeedCommentFromDb[]
 ): PreDisplayFeedCommentThread[] {
   if (!candidates.length) return [];
+
+  let totalPathsGenerated = 0;
 
   const children: Record<string, string[]> = {};
   for (const c of candidates) {
@@ -87,20 +92,51 @@ export function buildDistinctLinearThreads(
     return [];
   }
 
-  const buildCommentThreads = (currentId: string): PreDisplayFeedCommentThread[] => {
+  const buildCommentThreads = (
+    currentId: string, 
+    visited = new Set<string>(),
+    depth = 0
+  ): PreDisplayFeedCommentThread[] => {
+    if (depth > MAX_DEPTH) {
+      // eslint-disable-next-line no-console
+      console.warn(`[buildDistinctLinearThreads] Max depth ${MAX_DEPTH} exceeded at comment ${currentId}`);
+      return [];
+    }
+
+    if (visited.has(currentId)) {
+      // eslint-disable-next-line no-console
+      console.error(`[buildDistinctLinearThreads] Cycle detected at comment ${currentId}`);
+      return [];
+    }
+
+    if (totalPathsGenerated >= MAX_TOTAL_PATHS) {
+      // eslint-disable-next-line no-console
+      console.warn(`[buildDistinctLinearThreads] Max total paths ${MAX_TOTAL_PATHS} reached`);
+      return [];
+    }
+
     const currentCandidate = commentsById.get(currentId);
     if (!currentCandidate) return [];
 
+    // Add current node to visited set
+    const newVisited = new Set(visited);
+    newVisited.add(currentId);
+
     const childIds = children[currentId] || [];
     if (!childIds.length) {
+      totalPathsGenerated++;
       return [[currentCandidate]]; // Leaf node
     }
 
     const results: PreDisplayFeedCommentThread[] = [];
     for (const cid of childIds) {
-      const subPaths = buildCommentThreads(cid);
+      const subPaths = buildCommentThreads(cid, newVisited, depth + 1);
       for (const subPath of subPaths) {
+        if (totalPathsGenerated >= MAX_TOTAL_PATHS) {
+          break;
+        }
         results.push([currentCandidate, ...subPath]);
+        totalPathsGenerated++;
       }
     }
     return results;
@@ -130,7 +166,7 @@ interface PrioritizedThread {
 }
 
 interface PreparedFeedCommentsThread extends FeedCommentsThread {
-  primarySource: FeedItemSourceType | null;
+  primarySource: FeedItemSourceType;
 }
 
 /**
@@ -409,10 +445,11 @@ function prepareThreadForDisplay(
   const numComments = thread.length;
   if (numComments === 0) return null;
 
-  // Determine primary source (e.g., from the first comment)
-  // If the first comment has no source, the thread gets no primary source.
-  const firstCommentSource = thread[0]?.sources?.[0] as FeedItemSourceType | undefined;
-  const primarySource = firstCommentSource ?? null; // Use first source or null
+  // Find the first comment in the thread that was an initial candidate. Threads are ordered root-first, so this finds the candidate closest to the root.
+  const initialCandidateComment = thread.find(comment => comment.isInitialCandidate);
+
+  // The primarySource for the entire thread is determined by that single candidate comment.
+  const primarySource = (initialCandidateComment?.primarySource ?? thread[0]?.primarySource ?? 'recentComments')
 
   const expandedCommentIds = new Set<string>();
 
@@ -466,7 +503,7 @@ function prepareThreadForDisplay(
 
   return {
     comments: finalComments,
-    primarySource
+    primarySource: primarySource as FeedItemSourceType,
   };
 }
 
@@ -478,7 +515,6 @@ export async function getUltraFeedCommentThreads(
   context: ResolverContext,
   limit = 20,
   settings: UltraFeedResolverSettings,
-  servedThreadHashes: Set<string> = new Set(),
   initialCandidateLookbackDays: number,
   commentServedEventRecencyHours: number,
   threadEngagementLookbackDays: number
@@ -554,15 +590,7 @@ export async function getUltraFeedCommentThreads(
   });
 
   // --- Prepare for Display --- 
-  const unservedRankedThreads = viableThreads.filter(rankedThreadInfo => {
-    const thread = rankedThreadInfo.thread;
-    if (!thread || thread.length === 0) return false;
-    const commentIds = thread.map(c => c.commentId);
-    const threadHash = generateThreadHash(commentIds);
-    return !servedThreadHashes.has(threadHash);
-  });
-  
-  const displayThreads = unservedRankedThreads
+  const displayThreads = viableThreads
     .slice(0, limit) 
     .map(rankedThreadInfo => prepareThreadForDisplay(rankedThreadInfo))
     .filter(rankedThreadInfo => !!rankedThreadInfo);

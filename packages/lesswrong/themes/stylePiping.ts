@@ -774,6 +774,9 @@ export const ckEditorStyles = (theme: ThemeType) => {
         '& ol > li > ol > li > ol': {
           listStyle: 'lower-roman !important',
         },
+        '& .footnote-reference': {
+          scrollMarginTop: '100px',
+        },
       },
       '& .ck-placeholder:before': {
         whiteSpace: 'break-spaces'

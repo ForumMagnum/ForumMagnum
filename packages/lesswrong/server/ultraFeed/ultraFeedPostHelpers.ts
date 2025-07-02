@@ -5,6 +5,12 @@ import { RecombeeRecommendationArgs } from "@/lib/collections/users/recommendati
 import { UltraFeedResolverSettings } from "@/components/ultraFeed/ultraFeedSettingsTypes";
 import keyBy from 'lodash/keyBy';
 
+// Configuration for unviewed items optimization
+const UNVIEWED_RECOMBEE_CONFIG = {
+  lookbackDays: 14,
+  skipFetchThreshold: 0.5, // Skip if we have 70% of requested items
+  reduceFetchThreshold: 0.3, // Reduce to 50% if we have 30% of requested items
+};
 
 /**
  * Fetches recommended posts from Recombee, excluding specified IDs.
@@ -15,7 +21,7 @@ export async function getRecommendedPostsForUltraFeed(
   scenarioId = 'recombee-lesswrong-custom',
   additionalExcludedIds: string[] = []
 ): Promise<FeedFullPost[]> {
-  const { currentUser } = context;
+  const { currentUser, repos } = context;
   const recombeeUser = recombeeRequestHelpers.getRecombeeUser(context);
 
   if (!recombeeUser) {
@@ -24,10 +30,53 @@ export async function getRecommendedPostsForUltraFeed(
     return [];
   }
 
+  let unviewedRecombeePostIds: string[] = [];
+  let adjustedLimit = limit;
+  
+  if (currentUser?._id) {
+    unviewedRecombeePostIds = await repos.ultraFeedEvents.getUnviewedRecombeePostIds(
+      currentUser._id,
+      scenarioId,
+      UNVIEWED_RECOMBEE_CONFIG.lookbackDays,
+      limit
+    );
+    
+    const unviewedRatio = unviewedRecombeePostIds.length / limit;
+    
+    // eslint-disable-next-line no-console
+    console.log("getRecommendedPostsForUltraFeed: Unviewed optimization", {
+      userId: currentUser._id,
+      requestedLimit: limit,
+      unviewedCount: unviewedRecombeePostIds.length,
+      unviewedRatio,
+      willSkipAPI: unviewedRatio >= UNVIEWED_RECOMBEE_CONFIG.skipFetchThreshold,
+      willReduceAPI: unviewedRatio >= UNVIEWED_RECOMBEE_CONFIG.reduceFetchThreshold
+    });
+    
+    if (unviewedRatio >= UNVIEWED_RECOMBEE_CONFIG.skipFetchThreshold) {
+      // We have enough cached items, return them directly
+      const posts = await context.loaders.Posts.loadMany(unviewedRecombeePostIds.slice(0, limit));
+      
+      return posts
+        .filter((post): post is DbPost => !(post instanceof Error))
+        .slice(0, limit)
+        .map((post): FeedFullPost => ({
+          post,
+          postMetaInfo: {
+            sources: [scenarioId as FeedItemSourceType],
+            displayStatus: 'expanded',
+          },
+        }));
+    } else if (unviewedRatio >= UNVIEWED_RECOMBEE_CONFIG.reduceFetchThreshold) {
+      adjustedLimit = Math.ceil(limit * 0.5);
+    }
+  }
+
   let exclusionFilterString: string | undefined = undefined;
   const allExcludedIds = [
     ...(currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? []),
-    ...additionalExcludedIds
+    ...additionalExcludedIds,
+    ...unviewedRecombeePostIds
   ];
   
   if (allExcludedIds.length > 0) {
@@ -42,7 +91,7 @@ export async function getRecommendedPostsForUltraFeed(
     ...(exclusionFilterString && { filter: exclusionFilterString }),
   };
 
-  const recommendedResults = await recombeeApi.getRecommendationsForUser(recombeeUser, limit, lwAlgoSettings, context);
+  const recommendedResults = await recombeeApi.getRecommendationsForUser(recombeeUser, adjustedLimit, lwAlgoSettings, context);
   const displayPosts = recommendedResults.map((item): FeedFullPost | null => {
     if (!item.post?._id) return null;
     const { post, recommId, scenario, generatedAt } = item;
@@ -63,88 +112,63 @@ export async function getRecommendedPostsForUltraFeed(
     };
   }).filter((p) => !!p);
 
+  if (adjustedLimit < limit && unviewedRecombeePostIds.length > 0) {
+    const postsToReuse = limit - displayPosts.length;
+    const reusedPostIds = unviewedRecombeePostIds.slice(0, postsToReuse);
+    const reusedPosts = await context.loaders.Posts.loadMany(reusedPostIds);
+    
+    const reusedDisplayPosts = reusedPosts
+      .filter((post): post is DbPost => !(post instanceof Error))
+      .map((post): FeedFullPost => ({
+        post,
+        postMetaInfo: {
+          sources: [scenarioId as FeedItemSourceType],
+          displayStatus: 'expanded',
+        },
+      }));
+    
+    return [...reusedDisplayPosts, ...displayPosts].slice(0, limit);
+  }
+
   return displayPosts;
 }
 
 /**
- * Fetches posts from subscribed users for UltraFeed.
+ * Fetches latest posts and posts from subscribed users in a single efficient query.
+ * Posts from subscribed users will have both 'hacker-news' and 'subscriptions' in their sources.
  */
-export async function getSubscribedPostsForUltraFeed(
+export async function getLatestAndSubscribedPosts(
   context: ResolverContext,
   limit: number,
-  settings: UltraFeedResolverSettings,
-  maxAgeDays: number,
-  excludedPostIds: string[] = []
-): Promise<FeedPostStub[]> {
-  const { currentUser, repos } = context;
-
-  if (!currentUser?._id) {
-    return [];
-  }
-
-  const postIdsFromRepo = await repos.posts.getPostsFromSubscribedUsersForUltraFeed(
-    currentUser._id,
-    maxAgeDays,
-    limit,
-    excludedPostIds
-  );
-
-  return postIdsFromRepo.map(({ postId }): FeedPostStub => ({
-    postId: postId,
-    postMetaInfo: {
-      sources: ['subscriptions'] as const,
-      displayStatus: 'expanded',
-    },
-  }));
-}
-
-/**
- * Fetches the latest posts for UltraFeed by approx Hacker News algorithm
- */
-export async function getLatestPostsForUltraFeed(
-  context: ResolverContext,
-  limit: number,
-  settings: UltraFeedResolverSettings,
-  maxAgeDays: number,
-  additionalExcludedIds: string[] = []
+  maxAgeDays: number
 ): Promise<FeedFullPost[]> {
   const { currentUser, repos } = context;
 
   if (!currentUser?._id) {
     // eslint-disable-next-line no-console
-    console.warn("getLatestPostsForUltraFeed: No logged in user found.");
+    console.warn("getCombinedLatestAndSubscribedPosts: No logged in user found.");
     return [];
   }
 
-  const hiddenPostIds = currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
   const filterSettings: FilterSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
-  // TODO: figure out if there's something better to do here
-  const seenPenalty = 0
 
-  // Combine hidden posts with additional excluded IDs
-  const allExcludedIds = [...hiddenPostIds, ...additionalExcludedIds];
-
-  return await repos.posts.getLatestPostsForUltraFeed(
+  return await repos.posts.getLatestAndSubscribedFeedPosts(
     context,
     filterSettings,
-    seenPenalty,
     maxAgeDays,
-    allExcludedIds,
     limit
   );
 }
 
-
 /**
- * Fetches and combines recommended and latest posts for the UltraFeed.
+ * Fetches and combines recommended and latest posts for the UltraFeed (latest is superset of subscribed).
  */
 export async function getUltraFeedPostThreads(
   context: ResolverContext,
   recommendedPostsLimit: number,
-  latestPostsLimit: number,
+  latestAndSubscribedPostsLimit: number,
   settings: UltraFeedResolverSettings,
-  latestPostsMaxAgeDays: number,
-  excludedPostIds: string[] = []
+  maxAgeDays: number
 ): Promise<FeedFullPost[]> {
   const { currentUser } = context;
   if (!currentUser?._id) {
@@ -153,18 +177,18 @@ export async function getUltraFeedPostThreads(
 
   const recombeeScenario = 'recombee-lesswrong-custom';
 
-  const [recommendedPostItems, latestPostItems] = await Promise.all([
+  const [recommendedPostItems, latestAndSubscribedPostItems] = await Promise.all([
     (recommendedPostsLimit > 0)
-      ? getRecommendedPostsForUltraFeed(context, recommendedPostsLimit, recombeeScenario, excludedPostIds)
+      ? getRecommendedPostsForUltraFeed(context, recommendedPostsLimit, recombeeScenario)
       : Promise.resolve([]),
-    (latestPostsLimit > 0)
-      ? getLatestPostsForUltraFeed(context, latestPostsLimit, settings, latestPostsMaxAgeDays, excludedPostIds)
+    (latestAndSubscribedPostsLimit > 0)
+      ? getLatestAndSubscribedPosts(context, latestAndSubscribedPostsLimit, maxAgeDays)
       : Promise.resolve([]),
   ]);
 
   const allPostsMap = keyBy(recommendedPostItems, item => item.post?._id) as Record<string, FeedFullPost>;
 
-  latestPostItems.forEach(item => {
+  latestAndSubscribedPostItems.forEach(item => {
     if (item.post?._id) {
       const postId = item.post._id;
       if (postId in allPostsMap) {
@@ -185,4 +209,4 @@ export async function getUltraFeedPostThreads(
   });
 
   return Object.values(allPostsMap);
-} 
+}

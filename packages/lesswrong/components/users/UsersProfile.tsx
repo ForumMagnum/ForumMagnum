@@ -345,16 +345,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                   </LWTooltip>
                 </div>
               }
-              { currentUser?.isAdmin &&
-                <div>
-                  <DialogGroup
-                    actions={[]}
-                    trigger={<a>Register RSS</a>}
-                  >
-                    <div><NewFeedButton user={user} /></div>
-                  </DialogGroup>
-                </div>
-              }
+              { currentUser?.isAdmin && <NewFeedButton user={user} /> }
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
                 {preferredHeadingCase("Manage Subscriptions")}
               </Link>}

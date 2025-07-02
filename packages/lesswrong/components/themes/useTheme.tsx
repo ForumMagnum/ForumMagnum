@@ -5,7 +5,7 @@ import { AbstractThemeOptions, ThemeOptions, abstractThemeToConcrete } from '../
 import { usePrefersDarkMode } from './usePrefersDarkMode';
 import { isLW } from '@/lib/instanceSettings';
 import { usePathname } from 'next/navigation';
-import { HIDE_IF_ANYONE_BUILDS_IT_SPLASH, HIDE_SPOTLIGHT_ITEM_PREFIX } from '@/lib/cookies/cookies';
+import { HIDE_SPOTLIGHT_ITEM_PREFIX } from '@/lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 
 type ThemeContextObj = {
@@ -53,15 +53,4 @@ export const useSetTheme = () => {
   const themeContext = React.useContext(ThemeContext);
   if (!themeContext) throw "useSetTheme() used without the context available";
   return themeContext.setThemeOptions;
-}
-
-const IF_ANYONE_BUILDS_IT_DOCUMENT_ID = "khmpWJnGJnuyPdipE";
-export const HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT = `${HIDE_SPOTLIGHT_ITEM_PREFIX}${IF_ANYONE_BUILDS_IT_DOCUMENT_ID}`; //hiding in one place, hides everywhere
-
-export const useIsThemeOverridden = () => {
-  const [cookies] = useCookiesWithConsent([HIDE_IF_ANYONE_BUILDS_IT_SPLASH, HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT]);
-
-  const pathname = usePathname();
-  const isFrontPage = pathname === '/' || pathname === '';
-  return isLW && isFrontPage && !cookies[HIDE_IF_ANYONE_BUILDS_IT_SPLASH] && !cookies[HIDE_IF_ANYONE_BUILDS_IT_SPOTLIGHT];
 }

@@ -16,6 +16,16 @@ type UseQueryOptions = {
   skip?: boolean,
 };
 
+/**
+ * Wrapper around apollo-client's useQuery, which uses Suspense
+ * (useSuspenseQuery) for SSR, then switches to to regular useQuery afterwards.
+ * We do this because handling non-first-time loading states (ie Load More
+ * buttons) is generally easier with useQuery returning `loading: true` rather
+ * than suspending the component that used it, and we have a lot of preexisting
+ * code with loading states built around this idiom that should keep working.
+ * Wrapping useQuery this way also gives us better options for working around
+ * apollo-client bugs than if we were using apollo directly.
+ */
 export const useQuery: typeof useQueryApollo = ((query: any, options?: UseQueryOptions) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   if (bundleIsServer && useContext(EnableSuspenseContext)) {

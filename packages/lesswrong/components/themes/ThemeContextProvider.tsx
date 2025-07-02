@@ -10,8 +10,7 @@ import { THEME_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import stringify from 'json-stringify-deterministic';
 import { FMJssProvider } from '../hooks/FMJssProvider';
-import { ThemeContext, useIsThemeOverridden, useThemeOptions } from './useTheme';
-import { defineStyles } from '../hooks/useStyles';
+import { ThemeContext, useThemeOptions } from './useTheme';
 
 export const ThemeContextProvider = ({options, isEmail, children}: {
   options: AbstractThemeOptions,
@@ -22,10 +21,6 @@ export const ThemeContextProvider = ({options, isEmail, children}: {
   const themeCookie = cookies[THEME_COOKIE];
   const [themeOptions, setThemeOptions] = useState(options);
   const prefersDarkMode = usePrefersDarkMode();
-  
-  // This is safe despite breaking hook rules because the isEmail prop never changes
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const themeIsOverridden = !isEmail && useIsThemeOverridden();
 
   useEffect(() => {
     if (isEAForum) {
@@ -40,20 +35,15 @@ export const ThemeContextProvider = ({options, isEmail, children}: {
     }
   }, [themeOptions, themeCookie, setCookie, removeCookie]);
   
-  const overriddenThemeOptions = useMemo(() => themeIsOverridden
-    ? {name: "dark"} as const
-    : themeOptions,
-    [themeOptions, themeIsOverridden]
-  );
-  const concreteTheme = abstractThemeToConcrete(overriddenThemeOptions, prefersDarkMode);
+  const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode);
 
   const theme: any = useMemo(() =>
     getForumTheme(concreteTheme),
     [concreteTheme]
   );
   const themeContext = useMemo(() => (
-    {theme, themeOptions: overriddenThemeOptions, setThemeOptions}),
-    [theme, overriddenThemeOptions, setThemeOptions]
+    {theme, themeOptions, setThemeOptions}),
+    [theme, themeOptions, setThemeOptions]
   );
   
   return <ThemeContext.Provider value={themeContext}>
@@ -64,28 +54,10 @@ export const ThemeContextProvider = ({options, isEmail, children}: {
   </ThemeContext.Provider>
 }
 
-const styles = defineStyles("ThemeStylesheetSwapper", () => ({
-  "@global": {
-    "body.themeChangeLoadingDark": {
-      background: "black",
-      "& > *": {
-        display: "none",
-      }
-    },
-    "body.themeChangeLoadingLight": {
-      background: "white",
-      "& > *": {
-        display: "none",
-      }
-    },
-  },
-}), {allowNonThemeColors: true});
-
 const ThemeStylesheetSwapper = () => {
   const themeOptions = useThemeOptions();
   const prefersDarkMode = usePrefersDarkMode();
   const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode);
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   useLayoutEffect(() => {
     if (stringify(themeOptions) !== stringify(window.themeOptions)) {
@@ -102,19 +74,8 @@ const ThemeStylesheetSwapper = () => {
           } else {
             oldStyles.parentElement!.removeChild(oldStyles);
           }
-          document.body.classList.remove("themeChangeLoadingDark");
-          document.body.classList.remove("themeChangeLoadingLight");
         }
 
-        if (isFirstLoad) {
-          setIsFirstLoad(false);
-        } else {
-          if (themeOptions.name === 'dark') {
-            document.body.classList.add("themeChangeLoadingDark");
-          } else {
-            document.body.classList.add("themeChangeLoadingLight");
-          }
-        }
         if (themeOptions.name === "auto") {
           addAutoStylesheet(stylesId, onFinish, concreteTheme.siteThemeOverride);
         } else {
@@ -122,7 +83,7 @@ const ThemeStylesheetSwapper = () => {
         }
       }
     }
-  }, [themeOptions, concreteTheme, isFirstLoad]);
+  }, [themeOptions, concreteTheme]);
   
   return null;
 }

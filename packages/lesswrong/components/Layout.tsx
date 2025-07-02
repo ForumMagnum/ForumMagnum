@@ -60,7 +60,6 @@ import { SuspenseWrapper } from './common/SuspenseWrapper';
 import dynamic from 'next/dynamic';
 import { useRouteMetadata } from './RouteMetadataContext';
 import { isFullscreenRoute, isHomeRoute, isStandaloneRoute, isStaticHeaderRoute, isSunshineSidebarRoute, isUnspacedGridRoute } from '@/lib/routeChecks';
-import { useHideIfAnyoneBuildsItSplash } from './seasonal/IfAnyoneBuildsItSplash';
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -358,9 +357,6 @@ const Layout = ({currentUser, children}: {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }
 
-  const isFrontPage = (pathname === '/' || pathname === '');
-  const isMaybeIsIfAnyoneBuildsItFrontPage = !useHideIfAnyoneBuildsItSplash() && isLW && isFrontPage;
-
   const render = () => {
     const SunshineSidebar = dynamic(() => import("./sunshineDashboard/SunshineSidebar"), { ssr: false });
     // const HomepageCommunityMap = dynamic(() => import('./seasonal/HomepageMap/HomepageCommunityMap'), { ssr: false });
@@ -407,7 +403,6 @@ const Layout = ({currentUser, children}: {
         <div className={classNames(
           "wrapper",
           {'alignment-forum': isAF, [classes.fullscreen]: isFullscreenRoute(pathname), [classes.wrapper]: isLWorAF},
-          isMaybeIsIfAnyoneBuildsItFrontPage && "ifAnyoneBuildsItPage",
           useWhiteBackground && classes.whiteBackground
         )} id="wrapper">
           {buttonBurstSetting.get() && <GlobalButtonBurst />}

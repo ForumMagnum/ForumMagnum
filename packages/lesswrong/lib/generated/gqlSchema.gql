@@ -6118,7 +6118,7 @@ type RSSFeed {
   nickname: String!
   url: String!
   status: String
-  rawFeed: JSON!
+  rawFeed: JSON
   setCanonicalUrl: Boolean!
   importAsDraft: Boolean!
 }
@@ -9410,7 +9410,7 @@ input CreateRSSFeedDataInput {
   displayFullContent: Boolean
   nickname: String!
   url: String!
-  rawFeed: JSON!
+  rawFeed: JSON
   setCanonicalUrl: Boolean
   importAsDraft: Boolean
 }
