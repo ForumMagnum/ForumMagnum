@@ -4,7 +4,7 @@ import classNames from 'classnames'
 import LWTooltip from "./LWTooltip";
 import SingleColumnSection from "./SingleColumnSection";
 import ForumIcon from "./ForumIcon";
-import { isIfAnyoneBuildsItFrontPage } from '../seasonal/IfAnyoneBuildsItSplash';
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
 
 const rightFadeStyle = (theme: ThemeType) => ({
   '&:after': {

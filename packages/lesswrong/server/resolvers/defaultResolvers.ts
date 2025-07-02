@@ -99,7 +99,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     context: ResolverContext,
     info: GraphQLResolveInfo,
   ): Promise<{ results: Partial<T>[]; totalCount?: number }> => {
-    const collection = context[collectionName] as CollectionBase<N>;
+    const collection = context[collectionName] as PgCollection<N>;
     const { input, selector, limit, offset, enableTotal } = args ?? { input: {} };
 
     // We used to handle selector terms just using a generic "terms" object, but now we use a more structured approach
@@ -221,7 +221,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       : docs;
 
     // take the remaining documents and remove any fields that shouldn't be accessible
-    const restrictedDocs = await restrictViewableFieldsMultiple(currentUser, collectionName, viewableDocs);
+    const restrictedDocs = await restrictViewableFieldsMultiple(currentUser, collection, viewableDocs);
 
     // prime the cache
     restrictedDocs.forEach((doc: AnyBecauseTodo) => context.loaders[collectionName].prime(doc._id, doc));
@@ -248,7 +248,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     context: ResolverContext,
     info: GraphQLResolveInfo,
   ) => {
-    const collection = context[collectionName] as CollectionBase<N>;
+    const collection = context[collectionName] as PgCollection<N>;
     const { input: _input, selector: _selector, ...otherQueryVariables } = info.variableValues;
     allowNull ??= input.allowNull ?? false;
     // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
@@ -329,7 +329,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       }
     }
 
-    const restrictedDoc = await restrictViewableFieldsSingle(currentUser, collection.collectionName, doc);
+    const restrictedDoc = await restrictViewableFieldsSingle(currentUser, collection, doc);
 
     logGroupEnd();
     logger(`--------------- end \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`);

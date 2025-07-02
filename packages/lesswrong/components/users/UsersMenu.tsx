@@ -35,7 +35,7 @@ import DropdownDivider from "../dropdowns/DropdownDivider";
 import UsersProfileImage from "./UsersProfileImage";
 import ForumIcon from "../common/ForumIcon";
 import NewWikiTagMenu from "../tagging/NewWikiTagMenu";
-import { isIfAnyoneBuildsItFrontPage } from '../seasonal/IfAnyoneBuildsItSplash';
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
 import dynamic from 'next/dynamic';
 
 const styles = (theme: ThemeType) => ({

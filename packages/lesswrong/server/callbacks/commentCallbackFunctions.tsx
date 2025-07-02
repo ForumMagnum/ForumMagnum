@@ -758,9 +758,9 @@ export async function handleForumEventMetadataNew(comment: CreateCommentDataInpu
 
 
 /* CREATE AFTER */
-export function invalidatePostOnCommentCreate({ postId }: DbComment) {
+export function invalidatePostOnCommentCreate({ postId }: DbComment, context: ResolverContext) {
   if (!postId) return;
-  void swrInvalidatePostRoute(postId);
+  void swrInvalidatePostRoute(postId, context);
 }
 
 export async function updateDescendentCommentCountsOnCreate(comment: DbComment, properties: AfterCreateCallbackProperties<'Comments'>) {
@@ -1038,9 +1038,9 @@ export async function handleForumEventMetadataEdit(modifier: MongoModifier, comm
 }
 
 /* UPDATE AFTER */
-export function invalidatePostOnCommentUpdate({ postId }: { postId: string | null }) {
+export function invalidatePostOnCommentUpdate({ postId }: { postId: string | null }, context: ResolverContext) {
   if (!postId) return;
-  void swrInvalidatePostRoute(postId);
+  void swrInvalidatePostRoute(postId, context);
 }
 
 export async function updateDescendentCommentCountsOnEdit(comment: DbComment, properties: UpdateCallbackProperties<"Comments">) {

@@ -1,15 +1,11 @@
 import type { EditableFieldCallbackOptions } from '../../lib/editor/makeEditableOptions';
+import { isEditableField } from './isEditableField';
 
 export interface EditableField<N extends CollectionNameString> extends CollectionFieldSpecification<N> {
   graphql: GraphQLFieldSpecification<N> & {
     editableFieldOptions: EditableFieldCallbackOptions;
   }
 };
-
-export function isEditableField<N extends CollectionNameString>(field: [string, CollectionFieldSpecification<N>]): field is [string, EditableField<N>] {
-  const { graphql } = field[1];
-  return !!graphql && 'editableFieldOptions' in graphql && !!graphql.editableFieldOptions;
-}
 
 export const getEditableFieldsByCollection = (() => {
   let editableFieldsByCollection: Partial<Record<CollectionNameString, Record<string, EditableField<CollectionNameString>>>>;

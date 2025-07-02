@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { Typography } from "../common/Typography";
-import { isIfAnyoneBuildsItFrontPage } from '../seasonal/IfAnyoneBuildsItSplash';
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
 
 const styles = (theme: ThemeType) => ({
   metaInfo: {

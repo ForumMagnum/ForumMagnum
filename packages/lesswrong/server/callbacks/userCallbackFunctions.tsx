@@ -4,13 +4,12 @@ import Conversations from "@/server/collections/conversations/collection";
 import Users from "@/server/collections/users/collection";
 import { getUserEmail, userGetLocation, userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
-import { isEAForum, isLW, isLWorAF, verifyEmailsSetting } from "@/lib/instanceSettings";
+import { forumTitleSetting, isEAForum, isLW, isLWorAF, verifyEmailsSetting } from "@/lib/instanceSettings";
 import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, mailchimpEAForumNewsletterListIdSetting, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { encodeIntlError } from "@/lib/vulcan-lib/utils";
 import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 import { captureException } from "@sentry/core";
 import { getAuth0Profile, updateAuth0Email } from "../authentication/auth0";
-import { hasAuth0 } from "../authenticationMiddlewares";
 import { userFindOneByEmail } from "../commonQueries";
 import { changesAllowedSetting, forumTeamUserId, sinceDaysAgoSetting, welcomeEmailPostId } from "../databaseSettings";
 import { EventDebouncer } from "../debouncer";
@@ -23,12 +22,12 @@ import { recombeeApi } from "../recombee/client";
 import ElasticClient from "../search/elastic/ElasticClient";
 import ElasticExporter from "../search/elastic/ElasticExporter";
 import { mailchimpAPIKeySetting } from "../serverSettings";
+import { hasAuth0 } from "../databaseSettings";
 import { hasType3ApiAccess, regenerateAllType3AudioForUser } from "../type3";
 import { editableUserProfileFields, simpleUserProfileFields } from "../userProfileUpdates";
 import { userDeleteContent, userIPBanAndResetLoginTokens } from "../users/moderationUtils";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { nullifyVotesForUser } from '../nullifyVotesForUser';
-import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import difference from "lodash/difference";
 import isEqual from "lodash/isEqual";
@@ -43,6 +42,7 @@ import { updateComment } from "../collections/comments/mutations";
 import { createUser, updateUser } from "../collections/users/mutations";
 import { EmailContentItemBody } from "../emailComponents/EmailContentItemBody";
 import { PostsHTML } from "@/lib/collections/posts/fragments";
+import { emailTokenTypesByName } from "../emails/emailTokens";
 
 
 async function sendWelcomeMessageTo(userId: string) {
@@ -130,6 +130,25 @@ const welcomeMessageDelayer = new EventDebouncer({
     void sendWelcomeMessageTo(userId);
   },
 });
+
+async function sendVerificationEmail(user: DbUser) {
+  const verifyEmailLink = await emailTokenTypesByName.verifyEmail.generateLink(user._id);
+  await wrapAndSendEmail({
+    user,
+    force: true,
+    subject: `Verify your ${forumTitleSetting.get()} email`,
+    body: <div>
+      <p>
+        Click here to verify your {forumTitleSetting.get()} email
+      </p>
+      <p>
+        <a href={verifyEmailLink}>
+          {verifyEmailLink}
+        </a>
+      </p>
+    </div>
+  });
+}
 
 
 const utils = {

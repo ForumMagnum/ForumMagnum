@@ -9,7 +9,7 @@ import { Strategy as FacebookOAuthStrategy, Profile as FacebookProfile } from 'p
 import { Strategy as GithubOAuthStrategy, Profile as GithubProfile } from 'passport-github2';
 import { Strategy as Auth0Strategy, Profile as Auth0Profile, ExtraVerificationParams, AuthenticateOptions } from 'passport-auth0';
 import { VerifyCallback } from 'passport-oauth2'
-import { afGithubClientIdSetting, afGithubOAuthSecretSetting, auth0ClientIdSetting, auth0DomainSetting, auth0OAuthSecretSetting, DatabaseServerSetting, githubClientIdSetting, githubOAuthSecretSetting, googleClientIdSetting, googleOAuthSecretSetting } from './databaseSettings';
+import { afGithubClientIdSetting, afGithubOAuthSecretSetting, auth0ClientIdSetting, auth0DomainSetting, DatabaseServerSetting, githubClientIdSetting, githubOAuthSecretSetting, googleClientIdSetting, googleOAuthSecretSetting } from './databaseSettings';
 import { combineUrls, getSiteUrl } from '../lib/vulcan-lib/utils';
 import pick from 'lodash/pick';
 import { isAF, isEAForum, siteUrlSetting } from '../lib/instanceSettings';
@@ -28,6 +28,7 @@ import { isE2E } from '../lib/executionEnvironment';
 import { getUnusedSlugByCollectionName } from './utils/slugUtil';
 import { slugify } from '@/lib/utils/slugify';
 import { prepareClientId } from './clientIdMiddleware';
+import { getAuth0Credentials, hasAuth0 } from "./databaseSettings";
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -51,24 +52,6 @@ declare global {
 // Extend Auth0Strategy to include the missing userProfile method
 class Auth0StrategyFixed extends Auth0Strategy {
   userProfile!: (accessToken: string, done: (err: Error | null, profile?: Auth0Profile) => void) => void;
-}
-
-export const hasAuth0 = () => {
-  const { auth0ClientId, auth0OAuthSecret, auth0Domain } = getAuth0Credentials();
-
-  return !!(auth0ClientId && auth0OAuthSecret && auth0Domain);
-}
-
-export const getAuth0Credentials = () => {
-  const auth0ClientId = auth0ClientIdSetting.get();
-  const auth0OAuthSecret = auth0OAuthSecretSetting.get();
-  const auth0Domain = auth0DomainSetting.get();
-
-  return {
-    auth0ClientId,
-    auth0OAuthSecret,
-    auth0Domain,
-  }
 }
 
 const facebookClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.facebook.appId', null)

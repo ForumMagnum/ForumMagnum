@@ -132,3 +132,21 @@ export const githubOAuthSecretSetting = new DatabaseServerSetting<string | null>
 export const afGithubClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.afGithub.clientId', null);
 export const afGithubOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.afGithub.secret', null);
 
+export const hasAuth0 = () => {
+  const { auth0ClientId, auth0OAuthSecret, auth0Domain } = getAuth0Credentials();
+
+  return !!(auth0ClientId && auth0OAuthSecret && auth0Domain);
+};
+
+export const getAuth0Credentials = () => {
+  const auth0ClientId = auth0ClientIdSetting.get();
+  const auth0OAuthSecret = auth0OAuthSecretSetting.get();
+  const auth0Domain = auth0DomainSetting.get();
+
+  return {
+    auth0ClientId,
+    auth0OAuthSecret,
+    auth0Domain,
+  };
+};
+

@@ -11,7 +11,6 @@ import { emailTokenTypesByName } from "../../emails/emailTokens";
 import { wrapAndSendEmail } from '../../emails/renderEmail';
 import SimpleSchema from 'simpl-schema';
 import { DatabaseServerSetting } from "../../databaseSettings";
-import { forumTitleSetting } from '../../../lib/instanceSettings';
 import {userFindOneByEmail} from "../../commonQueries";
 import UsersRepo from '../../repos/UsersRepo';
 import gql from 'graphql-tag';
@@ -139,25 +138,6 @@ export async function createAndSetToken(req: NextRequest, user: DbUser) {
 
 
 
-
-export async function sendVerificationEmail(user: DbUser) {
-  const verifyEmailLink = await emailTokenTypesByName.verifyEmail.generateLink(user._id);
-  await wrapAndSendEmail({
-    user,
-    force: true,
-    subject: `Verify your ${forumTitleSetting.get()} email`,
-    body: <div>
-      <p>
-        Click here to verify your {forumTitleSetting.get()} email
-      </p>
-      <p>
-        <a href={verifyEmailLink}>
-          {verifyEmailLink}
-        </a>
-      </p>
-    </div>
-  })
-}
 
 export const loginDataGraphQLTypeDefs = gql`
   type LoginReturnData {

@@ -15,7 +15,6 @@ import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
 import { usePublishAndDeDuplicateSpotlight } from './withPublishAndDeDuplicateSpotlight';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
-import { SpotlightForm } from './SpotlightForm';
 import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
 import AnalyticsTracker from "../common/AnalyticsTracker";
@@ -35,6 +34,7 @@ import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import range from 'lodash/range';
 import CommentById from '../comments/CommentById';
 import { SingleLineCommentPlaceholder } from '../comments/SingleLineComment';
+import dynamic from 'next/dynamic';
 
 const SpotlightDisplayUpdateMutation = gql(`
   mutation updateSpotlightSpotlightItem($selector: SelectorInput!, $data: UpdateSpotlightDataInput!) {
@@ -467,6 +467,8 @@ export const SpotlightItem = ({
   className?: string,
   children?: React.ReactNode,
 }) => {
+  const SpotlightForm = dynamic(() => import('./SpotlightForm').then(mod => ({ default: mod.SpotlightForm })), { ssr: false });
+
   const classes = useStyles(styles);
   const currentUser = useCurrentUser()
 

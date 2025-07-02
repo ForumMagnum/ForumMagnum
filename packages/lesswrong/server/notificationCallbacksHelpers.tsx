@@ -4,7 +4,7 @@ import Users from '../server/collections/users/collection';
 import { userGetProfileUrl } from '../lib/collections/users/helpers';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
-import { DebouncerTiming } from './debouncer';
+import { DebouncerTiming, EventDebouncer } from './debouncer';
 import type { NotificationDocument } from './collections/notifications/constants';
 import { defaultNotificationTypeSettings, NotificationChannelSettings, NotificationTypeSettings, legacyToNewNotificationTypeSettings } from "@/lib/collections/users/notificationFieldHelpers";
 import * as _ from 'underscore';
@@ -13,6 +13,8 @@ import keyBy from 'lodash/keyBy';
 import UsersRepo, { MongoNearLocation } from './repos/UsersRepo';
 import { sequenceGetPageUrl } from '../lib/collections/sequences/helpers';
 import { createNotification as createNotificationMutator } from './collections/notifications/mutations';
+import { sendNotificationBatch } from './notificationBatching';
+import { getDocument } from '@/lib/notificationDataHelpers';
 /**
  * Return a list of users (as complete user objects) subscribed to a given
  * document. This is the union of users who have subscribed to it explicitly,
@@ -107,7 +109,7 @@ const notificationMessage = async (notificationType: string, documentType: Notif
 }
 
 const getLink = async (context: ResolverContext, notificationTypeName: string, documentType: NotificationDocument|null, documentId: string|null, extraData: any) => {
-  const { getNotificationTypeByName, getDocument } = await import('@/lib/notificationTypes');
+  const { getNotificationTypeByName } = await import('@/lib/notificationTypes');
   
   const { Posts } = context
   let document = await getDocument(documentType, documentId, context);
@@ -184,7 +186,6 @@ export const createNotification = async ({
   context: ResolverContext,
 }) => {
   const { getNotificationTypeByName } = await import('@/lib/notificationTypes');
-  const { notificationDebouncers } = await import('./notificationBatching');
 
   let user = await Users.findOne({ _id:userId });
   if (!user) throw Error(`Wasn't able to find user to create notification for with id: ${userId}`)
@@ -203,7 +204,19 @@ export const createNotification = async ({
     extraData,
   }
 
+  const debouncer = new EventDebouncer({
+    name: `notification_${notificationType}`,
+    defaultTiming: {
+      type: "delayed",
+      delayMinutes: 15,
+    },
+    callback: ({ userId, notificationType }: {userId: string, notificationType: string}, notificationIds: Array<string>) => {
+      void sendNotificationBatch({userId, notificationIds, notificationType});
+    }
+  });
+
   const { onsite, email } = notificationTypeSettings;
+
   if (onsite.enabled) {
     const createdNotification = await createNotificationMutator({
       data: {
@@ -214,7 +227,7 @@ export const createNotification = async ({
     }, context);
 
     if (onsite.batchingFrequency !== "realtime") {
-      await notificationDebouncers[notificationType]!.recordEvent({
+      await debouncer.recordEvent({
         key: {notificationType, userId},
         data: createdNotification._id,
         timing: getNotificationTiming(onsite),
@@ -231,9 +244,7 @@ export const createNotification = async ({
       }
     }, context);
 
-    if (!notificationDebouncers[notificationType])
-      throw new Error(`Invalid notification type: ${notificationType}`);
-    await notificationDebouncers[notificationType]!.recordEvent({
+    await debouncer.recordEvent({
       key: {notificationType, userId},
       data: createdNotification._id,
       timing: getNotificationTiming(email),

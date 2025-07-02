@@ -74,6 +74,7 @@ import gql from "graphql-tag";
 import { CommentsViews } from "../comments/views";
 import { commentIncludedInCounts } from "../comments/helpers";
 import { getDefaultVotingSystem } from "./helpers";
+import { votingSystemNames } from "@/lib/voting/votingSystemNames";
 
 export const graphqlTypeDefs = gql`
   type SocialPreviewType {
@@ -1921,9 +1922,7 @@ const schema = {
       // This differs from the `defaultValue` because it varies by forum-type
       // and we don't have a setup for `accepted_schema.sql` to vary by forum type.
       onCreate: async ({ document }) => {
-        // This is to break an annoying import cycle that causes a crash on start.
-        const { getVotingSystemByName } = await import('@/lib/voting/getVotingSystem');
-        const votingSystem = ('votingSystem' in document && !!getVotingSystemByName(document.votingSystem as string))
+        const votingSystem = ('votingSystem' in document && !!votingSystemNames.safeParse(document.votingSystem as string).success)
           ? document.votingSystem
           : getDefaultVotingSystem();
 

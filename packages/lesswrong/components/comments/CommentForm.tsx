@@ -38,7 +38,7 @@ import { hasDraftComments } from '@/lib/betas';
 import CommentsSubmitDropdown from "./CommentsSubmitDropdown";
 import { useTracking } from "@/lib/analyticsEvents";
 import { CommentsList } from "@/lib/collections/comments/fragments";
-import { isIfAnyoneBuildsItFrontPage } from "../seasonal/IfAnyoneBuildsItSplash";
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
 
 const CommentsListUpdateMutation = gql(`
   mutation updateCommentCommentForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {

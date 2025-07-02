@@ -1,4 +1,4 @@
-import { isIfAnyoneBuildsItFrontPage } from "@/components/seasonal/IfAnyoneBuildsItSplash";
+import { isIfAnyoneBuildsItFrontPage } from '@/components/seasonal/styles';
 import { requireCssVar } from "./cssVars";
 import { isFriendlyUI } from "./forumTheme";
 

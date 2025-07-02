@@ -42,7 +42,7 @@ type ExecuteQueryData<T extends DbObject> = {
  * PgCollection is the main external interface for other parts of the codebase to
  * access data inside of Postgres.
  */
-class PgCollection<
+class PgCollectionClass<
   N extends CollectionNameString = CollectionNameString
 > implements CollectionBase<N> {
   collectionName: N;
@@ -66,7 +66,7 @@ class PgCollection<
     return !!getSqlClient();
   }
 
-  isVoteable(): this is CollectionBase<VoteableCollectionName> & PgCollection<VoteableCollectionName> {
+  isVoteable(): this is CollectionBase<VoteableCollectionName> & PgCollectionClass<VoteableCollectionName> {
     return !!this.options.voteable;
   }
 
@@ -208,7 +208,7 @@ class PgCollection<
   async rawUpdateOne(
     selector: string | MongoSelector<ObjectsByCollectionName[N]>,
     modifier: MongoModifier,
-    options: MongoUpdateOptions<ObjectsByCollectionName[N]>,
+    options?: MongoUpdateOptions<ObjectsByCollectionName[N]>,
   ) {
     if (options?.upsert) {
       return this.upsert(selector, modifier, options);
@@ -307,7 +307,7 @@ class PgCollection<
     findOneAndUpdate: async (
       selector: string | MongoSelector<ObjectsByCollectionName[N]>,
       modifier: MongoModifier,
-      options: MongoUpdateOptions<ObjectsByCollectionName[N]>,
+      options?: MongoUpdateOptions<ObjectsByCollectionName[N]>,
     ) => {
       const update = new UpdateQuery<ObjectsByCollectionName[N]>(this.getTable(), selector, modifier, options, {limit: 1, returnUpdated: true});
       const result = await this.executeWriteQuery(update, {selector, modifier, options});
@@ -346,4 +346,8 @@ class PgCollection<
   });
 }
 
-export default PgCollection;
+declare global {
+  interface PgCollection<N extends CollectionNameString> extends PgCollectionClass<N> {}
+}
+
+export default PgCollectionClass;

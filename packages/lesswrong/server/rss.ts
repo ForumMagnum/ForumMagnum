@@ -8,7 +8,7 @@ import { forumTitleSetting, siteUrlSetting, taglineSetting } from '../lib/instan
 import moment from '../lib/moment-timezone';
 import { rssTermsToUrl, RSSTerms } from '../lib/rss_urls';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
-import { getCommentParentTitle } from '../lib/notificationTypes';
+import { getCommentParentTitle } from '@/lib/notificationDataHelpers';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import { getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 import { viewTermsToQuery } from '../lib/utils/viewUtils';

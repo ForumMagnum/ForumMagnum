@@ -3,7 +3,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { Typography } from "./Typography";
-import { isIfAnyoneBuildsItFrontPage } from '../seasonal/IfAnyoneBuildsItSplash';
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
 
 export const separatorBulletStyles = (theme: ThemeType, spacingMultiplier = 1) => ({
   '& > *': {

@@ -23,7 +23,7 @@ import UsersMenu from "../users/UsersMenu";
 import UsersAccountMenu from "../users/UsersAccountMenu";
 import NotificationsMenuButton from "../notifications/NotificationsMenuButton";
 import NavigationDrawer from "./TabNavigationMenu/NavigationDrawer";
-import { KarmaChangeNotifier } from "../users/KarmaChangeNotifier";
+import { KarmaChangeNotifier } from "../users/karmaChanges/KarmaChangeNotifier";
 import HeaderSubtitle from "./HeaderSubtitle";
 import { Typography } from "./Typography";
 import ForumIcon from "./ForumIcon";

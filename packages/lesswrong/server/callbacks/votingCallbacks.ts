@@ -1,6 +1,5 @@
 import moment from 'moment';
 import Notifications from '../../server/collections/notifications/collection';
-import { Posts } from '../../server/collections/posts/collection';
 import Users from '../../server/collections/users/collection';
 import { isLWorAF, reviewMarketCreationMinimumKarmaSetting } from '../../lib/instanceSettings';
 import type { VoteDocTuple } from '../../lib/voting/vote';
@@ -51,7 +50,9 @@ async function updateModerateOwnPersonal({newDocument, vote}: VoteDocTuple, cont
   }
 }
 
-async function increaseMaxBaseScore({newDocument, vote}: VoteDocTuple) {
+async function increaseMaxBaseScore({newDocument, vote}: VoteDocTuple, context: ResolverContext) {
+  const { Posts } = context;
+
   if (vote.collectionName === "Posts") {
     const post = newDocument as DbPost;
     if (post.baseScore > (post.maxBaseScore || 0)) {
@@ -111,7 +112,7 @@ export async function onCastVoteAsync(voteDocTuple: VoteDocTuple, collection: Co
   void grantUserAFKarmaForVote(voteDocTuple);
   void updateTrustedStatus(voteDocTuple, context);
   void updateModerateOwnPersonal(voteDocTuple, context);
-  void increaseMaxBaseScore(voteDocTuple);
+  void increaseMaxBaseScore(voteDocTuple, context);
   void voteUpdatePostDenormalizedTags(voteDocTuple);
 
   const { vote, newDocument } = voteDocTuple;
@@ -241,6 +242,8 @@ async function checkAutomod ({newDocument, vote}: VoteDocTuple, collection: Coll
 
 
 export async function updateScoreOnPostPublish(publishedPost: DbPost, context: ResolverContext) {
+  const { Posts } = context;
+
   // When a post is published (undrafted), update its score. (That is, recompute
   // the time-decaying score used for sorting, since the time that's computed
   // relative to has just changed).
@@ -288,6 +291,7 @@ export async function updateScoreOnPostPublish(publishedPost: DbPost, context: R
 // AFAIU the flow, this has a race condition. If a post is voted on twice in quick succession, it will create two markets.
 // This is probably fine, but it's worth noting. We can deal with it if it comes up.
 async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
+  const { Posts } = context;
 
   // Forum gate
   if (!isLWorAF) return;

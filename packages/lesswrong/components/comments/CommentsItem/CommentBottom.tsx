@@ -14,6 +14,7 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import CommentBottomCaveats from "./CommentBottomCaveats";
 import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 import { Link } from '@/lib/reactRouterWrapper';
+import { commentBottomComponents } from '@/lib/voting/votingSystemComponents';
 
 const styles = (theme: ThemeType) => ({
   bottom: {
@@ -51,7 +52,8 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
 }) => {
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
-  const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
+  const votingSystemName = votingSystem.name;
+  const VoteBottomComponent = commentBottomComponents[votingSystemName]?.() ?? null;
 
   const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > now;
 

@@ -2,6 +2,8 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
 import PostsVoteDefault from "./PostsVoteDefault";
+import { postBottomVotingComponents } from '@/lib/voting/votingSystemComponents';
+import type { VotingSystemName } from '@/lib/voting/votingSystemNames';
 
 const PostsVote = ({post, useHorizontalLayout, isFooter}: {
   post: PostsWithVotes,
@@ -10,9 +12,9 @@ const PostsVote = ({post, useHorizontalLayout, isFooter}: {
   /** if true, this vote is in the footer underneath the post */
   isFooter?: boolean,
 }) => {
-  const votingSystemName = post.votingSystem || "default";
+  const votingSystemName = (post.votingSystem || "default") as VotingSystemName;
   const votingSystem = getVotingSystemByName(votingSystemName);
-  const Component = votingSystem?.getPostBottomVotingComponent?.();
+  const Component = postBottomVotingComponents[votingSystemName]?.() ?? null;
   return Component
     ? (
       <Component

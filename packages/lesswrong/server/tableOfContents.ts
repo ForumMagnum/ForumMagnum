@@ -7,7 +7,7 @@ import { extractTableOfContents, getTocAnswers, getTocComments, shouldShowTableO
 import { parseDocumentFromString } from '../lib/domParser';
 import { getLatestContentsRevision } from './collections/revisions/helpers';
 import { applyCustomArbitalScripts } from './utils/arbital/arbitalCustomScripts';
-import { getEditableFieldNamesForCollection } from '@/server/editor/editableSchemaFieldHelpers';
+import { isEditableField } from './editor/isEditableField';
 import { getCollectionAccessFilter } from './permissions/accessFilters';
 
 async function getTocAnswersServer(document: DbPost, context: ResolverContext) {
@@ -55,9 +55,9 @@ async function getHtmlWithContributorAnnotations({
   version: string | null,
   context: ResolverContext,
 }) {
-  const { Revisions } = context;
+  const { Revisions, [collectionName]: collection } = context;
 
-  if (!getEditableFieldNamesForCollection(collectionName).includes(fieldName)) {
+  if (!isEditableField([fieldName, collection.schema[fieldName]])) {
     // eslint-disable-next-line no-console
     console.log(`Author annotation failed: Field ${fieldName} not in editableCollectionsFields[${collectionName}]`);
     return null;

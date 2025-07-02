@@ -92,7 +92,7 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
   let documentWithId = afterCreateProperties.document;
 
   // former createAfter callbacks
-  await swrInvalidatePostRoute(documentWithId._id);
+  await swrInvalidatePostRoute(documentWithId._id, context);
   if (!documentWithId.authorIsUnreviewed && !documentWithId.draft) {
     void onPostPublished(documentWithId, context);
   }
@@ -203,7 +203,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   let updatedDocument = await updateAndReturnDocument(data, Posts, postSelector, context);
 
   // former updateAfter callbacks
-  await swrInvalidatePostRoute(updatedDocument._id);
+  await swrInvalidatePostRoute(updatedDocument._id, context);
   updatedDocument = await sendCoauthorRequestNotifications(updatedDocument, updateCallbackProperties);
   updatedDocument = await syncTagRelevance(updatedDocument, updateCallbackProperties);
   updatedDocument = await resetDialogueMatches(updatedDocument, updateCallbackProperties);

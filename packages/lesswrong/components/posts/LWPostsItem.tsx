@@ -38,7 +38,7 @@ import PostReadCheckbox from "./PostReadCheckbox";
 import PostMostValuableCheckbox from "./PostMostValuableCheckbox";
 import { ResponseIcon } from "./PostsPage/RSVPs";
 import { maybeDate } from '@/lib/utils/dateUtils';
-import { isIfAnyoneBuildsItFrontPage } from '../seasonal/IfAnyoneBuildsItSplash';
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
 import { isBookUI } from '@/themes/forumTheme';
 
 export const KARMA_WIDTH = 32;

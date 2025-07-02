@@ -1,8 +1,7 @@
-import React from 'react';
 import { calculateVotePower } from './voteTypes';
 import { loadByIds } from '../loaders';
 import { filterNonnull } from '../utils/typeGuardUtils';
-import { getVoteAxisStrength } from './votingSystems';
+import { getVoteAxisStrength } from './voteTypes';
 import { defineVotingSystem } from './defineVotingSystem';
 import { addNameToExistingReactKarmaThreshold, addNewReactKarmaThreshold, downvoteExistingReactKarmaThreshold } from '../instanceSettings';
 import { namesAttachedReactionsByName } from './reactions';
@@ -12,7 +11,6 @@ import some from 'lodash/some';
 import sumBy from 'lodash/sumBy'
 import { isLW } from '../instanceSettings';
 import type { VotingProps } from '../../components/votes/votingProps';
-import { NamesAttachedReactionsCommentBottom, NamesAttachedReactionsVoteOnComment } from '@/components/votes/lwReactions/NamesAttachedReactionsVoteOnComment';
 import { addReactsVote, getDocumentHighlights, removeReactsVote } from './reactionDisplayHelpers';
 
 export const namesAttachedReactionsVotingSystem = defineVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
@@ -20,8 +18,6 @@ export const namesAttachedReactionsVotingSystem = defineVotingSystem<NamesAttach
   userCanActivate: isLW,
   description: "Reacts (Two-axis plus Names-attached reactions)",
   hasInlineReacts: true,
-  getCommentVotingComponent: () => NamesAttachedReactionsVoteOnComment,
-  getCommentBottomComponent: () => NamesAttachedReactionsCommentBottom,
   addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {
     voteType: string|null,
     document: VoteableTypeClient,

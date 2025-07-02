@@ -1,8 +1,5 @@
 import React from 'react';
 import { Notifications } from '../server/collections/notifications/collection';
-import { getNotificationTypes } from '../lib/notificationTypes';
-import { EventDebouncer } from './debouncer';
-import toDictionary from '../lib/utils/toDictionary';
 import { userIsAdmin } from '../lib/vulcan-users/permissions';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import Users from '@/server/collections/users/collection';
@@ -12,22 +9,6 @@ import { PostsEmail } from './emailComponents/PostsEmail';
 import { UtmParam } from './analytics/utm-tracking';
 import { isEAForum } from '@/lib/instanceSettings';
 
-// string (notification type name) => Debouncer
-export const notificationDebouncers = toDictionary(getNotificationTypes(),
-  notificationTypeName => notificationTypeName,
-  notificationTypeName => {
-    return new EventDebouncer({
-      name: `notification_${notificationTypeName}`,
-      defaultTiming: {
-        type: "delayed",
-        delayMinutes: 15,
-      },
-      callback: ({ userId, notificationType }: {userId: string, notificationType: string}, notificationIds: Array<string>) => {
-        void sendNotificationBatch({userId, notificationIds, notificationType});
-      }
-    });
-  }
-);
 
 export const getUtmParamsForNotificationType = (notificationType: string): Partial<Record<UtmParam, string>> => {
   return {
@@ -47,7 +28,7 @@ export const getUtmParamsForNotificationType = (notificationType: string): Parti
  *
  * Precondition: All notifications in a batch share a notification type
  */
-const sendNotificationBatch = async ({userId, notificationIds, notificationType}: {userId: string, notificationIds: Array<string>, notificationType: string}) => {
+export const sendNotificationBatch = async ({userId, notificationIds, notificationType}: {userId: string, notificationIds: Array<string>, notificationType: string}) => {
   const { wrapAndSendEmail } = await import('./emails/renderEmail');
   if (!notificationIds || !notificationIds.length)
     throw new Error("Missing or invalid argument: notificationIds (must be a nonempty array)");

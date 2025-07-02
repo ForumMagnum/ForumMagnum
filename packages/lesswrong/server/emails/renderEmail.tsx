@@ -25,6 +25,7 @@ import { EmailWrapper } from '../emailComponents/EmailWrapper';
 import CookiesProvider from '@/lib/vendor/react-cookie/CookiesProvider';
 import { utmifyForumBacklinks, UtmParam } from '../analytics/utm-tracking';
 import { EmailRenderContext } from './EmailRenderContext';
+import { getClient } from '@/lib/apollo/nextApolloClient';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -148,8 +149,10 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   const { renderToStaticMarkup, renderToString } = await import('react-dom/server');
   
   // Set up Apollo
-  const { createClient }: typeof import('../vulcan-lib/apollo-ssr/apolloClient') = require('../vulcan-lib/apollo-ssr/apolloClient');
-  const apolloClient = await createClient(await computeContextFromUser({user, isSSR: false}));
+  // const { createClient }: typeof import('../vulcan-lib/apollo-ssr/apolloClient') = require('../vulcan-lib/apollo-ssr/apolloClient');
+  // const apolloClient = await createClient(await computeContextFromUser({user, isSSR: false}));
+  // TODO: test that this actually works
+  const apolloClient = getClient();
   
   // Use the user's last-used timezone, which is the timezone of their browser
   // the last time they visited the site. Potentially null, if they haven't
