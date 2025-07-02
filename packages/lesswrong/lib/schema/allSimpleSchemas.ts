@@ -3,6 +3,7 @@ import type { GraphQLSchema } from 'graphql';
 import GraphQLJSON from 'graphql-type-json';
 import SimpleSchema, { SchemaDefinition } from 'simpl-schema';
 import { allSchemas } from './allSchemas';
+import { resolvers, typeDefs } from '@/server/vulcan-lib/apollo-server/initGraphQL';
 
 function getBaseType(typeString: string, graphqlSchema: GraphQLSchema) {
   switch (typeString) {
@@ -25,6 +26,7 @@ function getBaseType(typeString: string, graphqlSchema: GraphQLSchema) {
     }
   }
 }
+
 function stripRequired(typeString: string) {
   const required = typeString.endsWith('!');
   return {
@@ -32,6 +34,7 @@ function stripRequired(typeString: string) {
     required,
   };
 }
+
 function stripArray(typeString: string) {
   const array = typeString.startsWith('[') && typeString.endsWith(']');
   return {
@@ -39,6 +42,7 @@ function stripArray(typeString: string) {
     array,
   };
 }
+
 function getSimpleSchemaType(fieldName: string, graphqlSpec: GraphQLFieldSpecification<CollectionNameString>, graphqlSchema: GraphQLSchema) {
   const { validation = {} } = graphqlSpec;
   const { simpleSchema, ...remainingSimpleSchemaValidationFields } = validation;
@@ -112,12 +116,13 @@ function getSimpleSchemaType(fieldName: string, graphqlSpec: GraphQLFieldSpecifi
     },
   };
 }
+
 function isPlausiblyFormField(field: CollectionFieldSpecification<CollectionNameString>) {
   return /*field.form ||*/ !!field.graphql?.canCreate?.length || !!field.graphql?.canUpdate?.length;
 }
+
 function getSchemaDefinition(schema: SchemaType<CollectionNameString>): Record<string, SchemaDefinition> {
   // We unfortunately need this while we still have SimpleSchema implemented, so that it doesn't barf on graphql enum types.
-  const { resolvers, typeDefs }: typeof import('@/server/vulcan-lib/apollo-server/initGraphQL') = require('@/server/vulcan-lib/apollo-server/initGraphQL');
   const graphqlSchema = makeExecutableSchema({ typeDefs, resolvers });
 
   return Object.entries(schema).reduce((acc, [key, value]) => {

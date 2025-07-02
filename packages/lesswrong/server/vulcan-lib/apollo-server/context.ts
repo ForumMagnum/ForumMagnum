@@ -137,7 +137,9 @@ export function configureSentryScope(context: ResolverContext) {
 }
 
 export const getUserFromReq = async (req: NextRequest): Promise<DbUser|null> => {
-  const loginToken = req.cookies.get('loginToken')?.value ?? null;
+  // We check both cookies and headers, because requests from the browser come with cookies,
+  // but requests made by the apollo client (even during SSR) have to send it via header
+  const loginToken = req.cookies.get('loginToken')?.value ?? req.headers.get('loginToken') ?? null;
   return getUser(loginToken);
 }
 

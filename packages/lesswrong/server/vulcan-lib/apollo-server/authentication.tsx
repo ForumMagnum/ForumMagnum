@@ -1,7 +1,5 @@
 import React from 'react'
-import passport from 'passport'
 import { randomBytes } from "crypto";
-import GraphQLLocalStrategy from "./graphQLLocalStrategy";
 import sha1 from 'crypto-js/sha1';
 import { getClientIP } from '@/server/utils/getClientIP';
 import Users from "../../../server/collections/users/collection";
@@ -31,10 +29,18 @@ async function clearCookie(cookieName: string) {
   cookieStore.delete(cookieName);
 }
 
-const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPassport(username, password, done) {
+type AuthenticateWithPasswordResult = {
+  success: true;
+  user: DbUser;
+} | {
+  success: false;
+  message: string;
+};
+
+async function authenticateWithPassword(username: string, password: string): Promise<AuthenticateWithPasswordResult> {
   const user = await new UsersRepo().getUserByUsernameOrEmail(username);
 
-  if (!user) return done(null, false, { message: 'Invalid login.' }); //Don't reveal that an email exists in DB
+  if (!user) return { success: false, message: 'Invalid login.' }; //Don't reveal that an email exists in DB
   
   // Load legacyData, if applicable. Needed because imported users had their
   // passwords hashed differently.
@@ -46,7 +52,7 @@ const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPass
     // is a hash of the LW1-hash of their password. Don't accept an LW1-hash as a password.
     // (If passwords from the DB were ever leaked, this prevents logging into legacy accounts
     // that never changed their password.)
-    return done(null, false, { message: 'Incorrect password.' });
+    return { success: false, message: 'Incorrect password.' };
   }
   
   const match = !!user.services.password.bcrypt && await comparePasswords(password, user.services.password?.bcrypt);
@@ -58,14 +64,12 @@ const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPass
       const toHash = (`${salt}${user.username} ${password}`)
       const lw1PW = salt + sha1(toHash).toString();
       const lw1PWMatch = await comparePasswords(lw1PW, user.services.password.bcrypt);
-      if (lw1PWMatch) return done(null, user)
+      if (lw1PWMatch) return { success: true, user }
     }
-    return done(null, false, { message: 'Incorrect password.' });
+    return { success: false, message: 'Incorrect password.' };
   } 
-  return done(null, user)
-})
-
-passport.use(passwordAuthStrategy)
+  return { success: true, user }
+}
 
 
 function validateUsername(username: string): {validUsername: true} | {validUsername: false, reason: string} {
@@ -100,27 +104,6 @@ function isValidCharInUsername(ch: string): boolean {
   return !restrictedChars.includes(ch);
 }
 
-
-type PassportAuthenticateCallback = Exclude<Parameters<typeof passport.authenticate>[2], undefined>;
-// `options` should be `passport.AuthenticateOptions`, but those don't contain `username` and `password` in the type definition.
-// No idea where they're actually coming from, in that case
-function promisifiedAuthenticate(req: ResolverContext['req'], res: null, name: string, options: any, callback: PassportAuthenticateCallback) {
-  return new Promise((resolve, reject) => {
-    try {
-      passport.authenticate(name, options, async (err, user, info) => {
-        try {
-          const callbackResult = await callback(err, user, info);
-          resolve(callbackResult)
-        } catch(err) {
-          reject(err)
-        }
-      })(req, res)
-    } catch(err) {
-      reject(err)
-    }
-  })
-}
-
 export async function createAndSetToken(req: NextRequest, user: DbUser) {
   const token = randomBytes(32).toString('hex');
   const cookieStore = await cookies();
@@ -153,21 +136,18 @@ export const loginDataGraphQLTypeDefs = gql`
 
 export const loginDataGraphQLMutations = {
   async login(root: void, { username, password }: {username: string, password: string}, { req }: ResolverContext) {
-    let token: string | null = null
+    const result = await authenticateWithPassword(username, password);
+    if (!result.success) {
+      throw new Error(result.message);
+    }
 
-    await promisifiedAuthenticate(req, null, 'graphql-local', { username, password }, (err, user, info) => {
-      return new Promise((resolve, reject) => {
-        if (err) throw Error(err)
-        if (!user) throw new Error("Invalid username/password")
-        if (userIsBanned(user)) throw new Error("This user is banned")
+    const { user } = result;
+    if (userIsBanned(user)) {
+      throw new Error("This user is banned");
+    }
 
-        req!.logIn(user, async (err: AnyBecauseTodo) => {
-          if (err) throw new Error(err)
-          token = await createAndSetToken(req, user)
-          resolve(token)
-        })
-      })
-    })
+    const token = await createAndSetToken(req, user);
+
     return { token }
   },
   async logout(root: void, args: {}, { req }: ResolverContext) {
