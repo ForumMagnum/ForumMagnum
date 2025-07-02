@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { makeAbsolute, getSiteUrl, combineUrls } from '../lib/vulcan-lib/utils';
 import { Posts } from '../server/collections/posts/collection';
 import { postGetPageUrl, postGetAuthorName, postGetEditUrl } from '../lib/collections/posts/helpers';
@@ -794,21 +794,36 @@ export const KeywordAlertNotification = createServerNotificationType({
   name: "keywordAlert",
   canCombineEmails: true,
   emailSubject: async ({ notifications }: {notifications: DbNotification[]}) => {
+    if (notifications.length > 1) {
+      let totalCount = 0;
+      for (const notification of notifications) {
+        totalCount += notification.extraData?.count ?? 0;
+      }
+      return `${totalCount} new keyword alerts`;
+    }
     const {extraData} = notifications[0];
     const alerts = extraData?.count === 1 ? "alert" : "alerts";
     return `${extraData?.count} new ${alerts} for "${extraData?.keyword}"`;
   },
   emailBody: async ({ notifications }: {notifications: DbNotification[]}) => {
-    const {extraData} = notifications[0];
-    const {link, count} = extraData ?? {};
-    if (!link || !count) {
-      throw new Error("Missing keyword alert notification data");
+    const alerts: ReactNode[] = [];
+    for (const notification of notifications) {
+      const {extraData} = notification;
+      const {link, count} = extraData ?? {};
+      if (!link || !count) {
+        throw new Error("Missing keyword alert notification data");
+      }
+      const alerts = count === 1 ? "alert" : "alerts";
+      return (
+        <p>
+          <a href={link}>{count} new {alerts}</a> for "{extraData?.keyword}"
+        </p>
+      );
     }
-    const alerts = count === 1 ? "alert" : "alerts";
     return (
-      <p>
-        <a href={link}>{count} new {alerts}</a> for "{extraData?.keyword}"
-      </p>
+      <div>
+        {alerts}
+      </div>
     );
   },
 });
