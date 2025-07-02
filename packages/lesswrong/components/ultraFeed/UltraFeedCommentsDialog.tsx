@@ -209,6 +209,9 @@ const UltraFeedCommentsDialog = ({
   useDialogNavigation(onClose);
   useDisableBodyScroll();
   
+  // Necessary because other changes to comments can trigger the scroll useEffect to run again
+  const hasScrolledRef = useRef(false);
+
   const footnoteHandlers = useFootnoteHandlers({
     onFootnoteClick: (footnoteHTML: string) => {
       setFootnoteDialogHTML(footnoteHTML);
@@ -222,7 +225,7 @@ const UltraFeedCommentsDialog = ({
     let scrollTimer: NodeJS.Timeout | null = null;
     let fadeTimer: NodeJS.Timeout | null = null;
 
-    if (!isLoading && targetCommentId && comments && comments.length > 0) {
+    if (!isLoading && targetCommentId && comments && comments.length > 0 && !hasScrolledRef.current) {
       scrollTimer = setTimeout(() => {
         const element = window.document.getElementById(targetCommentId);
         const container = scrollableContentRef.current;
@@ -238,6 +241,9 @@ const UltraFeedCommentsDialog = ({
             const currentElement = window.document.getElementById(targetCommentId);
             currentElement?.classList.add(classes.scrolledHighlightFading);
           }, 100);
+
+          // Mark that we've scrolled
+          hasScrolledRef.current = true;
         }
       }, 200);
 

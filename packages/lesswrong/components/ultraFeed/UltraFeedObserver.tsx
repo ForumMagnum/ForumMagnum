@@ -90,8 +90,8 @@ const UltraFeedObserverContext = createContext<UltraFeedObserverContextType | nu
 // count as "visible enough" to register a view event.
 const MIN_VISIBLE_PX = 250;
 
-const VIEW_THRESHOLD_MS = 100;
-const LONG_VIEW_THRESHOLD_MS = 2000;
+const VIEW_THRESHOLD_MS = 2000;
+const LONG_VIEW_THRESHOLD_MS = 10000;
 
 const documentTypeToCollectionName = {
   post: "Posts",

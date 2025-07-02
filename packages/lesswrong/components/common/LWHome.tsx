@@ -78,11 +78,9 @@ const LWHome = () => {
             </SingleColumnSection>}
           </>}
           {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
-            <div className={classes.hideOnDesktop}>
-              <SuspenseWrapper name="DismissibleSpotlightItem" fallback={<SpotlightItemFallback/>}>
-                <DismissibleSpotlightItem/> 
-              </SuspenseWrapper>
-            </div>
+            <SuspenseWrapper name="DismissibleSpotlightItem" fallback={<SpotlightItemFallback/>}>
+              <DismissibleSpotlightItem/> 
+            </SuspenseWrapper>
           </SingleColumnSection>}
           <SuspenseWrapper name="LWHomePosts" fallback={<div style={{height: 800}}/>}>
             <AnalyticsInViewTracker

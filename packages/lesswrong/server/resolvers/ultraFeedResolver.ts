@@ -38,7 +38,7 @@ const ULTRA_FEED_DATE_CUTOFFS: UltraFeedDateCutoffs = {
   subscribedPostsMaxAgeDays: 30,
   initialCommentCandidateLookbackDays: 14,
   commentServedEventRecencyHours: 48,
-  threadEngagementLookbackDays: 45,
+  threadEngagementLookbackDays: 30,
 };
 
 export const ultraFeedGraphQLTypeDefs = gql`
@@ -679,11 +679,12 @@ export const ultraFeedGraphQLQueries = {
       }
 
       if (duplicateKeys.length > 0) {
-        captureEvent?.("ultraFeedDuplicateDetected", {
+        captureEvent("ultraFeedDuplicateDetected", {
           keys: duplicateKeys,
           resolverName: "UltraFeed",
           duplicateStage: "server-resolver-after-transform",
           sessionId,
+          userId: currentUser._id,
           offset: offset ?? 0,
         });
       }
@@ -708,7 +709,8 @@ export const ultraFeedGraphQLQueries = {
       captureEvent('ultraFeedPerformance', { 
         ultraFeedResolverTotalExecutionTime: executionTime,
         sessionId,
-        offset: offset ?? 0
+        offset: offset ?? 0,
+        userId: currentUser._id,
       });
 
       return response;
