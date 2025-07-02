@@ -28,11 +28,7 @@ export const fetchPostIdsForKeyword = async (
               multi_match: {
                 query: keyword,
                 fields: [ "title", "body" ],
-                fuzziness: 0,
-                max_expansions: 10,
-                prefix_length: 3,
-                minimum_should_match: "75%",
-                operator: "or",
+                type: "phrase",
               },
             }
           ],
