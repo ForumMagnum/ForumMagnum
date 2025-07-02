@@ -31,6 +31,13 @@ const buildVerticalFadeMask = (breakpoints: string[]) => {
   return {mask, "-webkit-mask-image": mask};
 }
 
+const generateVerticalFade = (theme: ThemeType, stops: Array<[number, number]>) => {
+  const breakpoints = stops.map(([opacity, position]) => 
+    `${theme.palette.inverseGreyAlpha(opacity)} ${position * 100}%`
+  );
+  return buildVerticalFadeMask(breakpoints);
+}
+
 const useUltraFeedSpotlightItemStyles = defineStyles(
   "UltraFeedSpotlightItem",
   (theme: ThemeType) => ({
@@ -49,16 +56,26 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
         },
       },
       [theme.breakpoints.down('sm')]: {
-        paddingTop: 24,
+        paddingTop: 12,
         paddingBottom: 16,
         paddingLeft: 16,
         paddingRight: 16,
+        overflow: "visible",
+      },
+    },
+    rootWithFooter: {
+      [theme.breakpoints.down('sm')]: {
+        paddingBottom: 0,
       },
     },
     spotlightItem: {
       position: "relative",
       borderRadius: theme.borderRadius.default,
       overflow: "hidden",
+      [theme.breakpoints.down('sm')]: {
+        overflow: "visible",
+        borderRadius: 0,
+      },
     },
     contentContainer: {
       display: "flex",
@@ -67,6 +84,9 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       overflow: "hidden",
       [theme.breakpoints.up('md')]: {
         background: theme.palette.panelBackground.default,
+      },
+      [theme.breakpoints.down('sm')]: {
+        overflow: "visible",
       },
     },
     spotlightFadeBackground: {
@@ -84,6 +104,10 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
         paddingRight: 16,
         minHeight: 100,
       },
+      [theme.breakpoints.down('sm')]: {
+        display: 'flex',
+        flexDirection: 'column',
+      },
     },
     contentWithPaddingBottom: {
       [theme.breakpoints.up('md')]: {
@@ -97,9 +121,16 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       display: 'flex',
       flexDirection: 'column',
       gap: '2px',
-      marginBottom: 12,
       [theme.breakpoints.up('md')]: {
         maxWidth: `calc(100% - ${SIDE_MARGIN}px)`,
+        marginBottom: '2px',
+      },
+      [theme.breakpoints.down('sm')]: {
+        gap: '4px',
+        position: 'relative',
+        zIndex: 3,
+        order: 1,
+        marginBottom: 12,
       },
     },
     titleContainer: {
@@ -120,7 +151,7 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       fontSize: '1.3rem',
       whiteSpace: 'normal',
       [theme.breakpoints.down('sm')]: {
-        fontSize: "1.6rem",
+        fontSize: 20.5,
       },
     },
     metaRow: {
@@ -129,10 +160,29 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontSize: theme.typography.body2.fontSize,
       alignItems: 'baseline',
-      gap: '16px',
+      columnGap: '16px',
+      rowGap: '4px',
+      [theme.breakpoints.up('md')]: {
+        marginBottom: '12px',
+      },
       [theme.breakpoints.down('sm')]: {
         fontSize: "1.3rem",
+        columnGap: '8px',
+        rowGap: '0px',
+        flexWrap: 'wrap',
+        '& > *': {
+          whiteSpace: 'nowrap',
+        },
+        order: 3,
+        marginTop: 24,
+        marginBottom: 0,
       },
+    },
+    subtitleGroup: {
+      display: 'flex',
+      alignItems: 'baseline',
+      gap: '8px',
+      flexWrap: 'nowrap',
     },
     subtitle: {
       ...theme.typography.postStyle,
@@ -145,12 +195,16 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       },
     },
     curatedIcon: {
-      "--icon-size": "14px",
-      fontSize: "14px",
+      "--icon-size": "16px",
+      fontSize: "16px",
       color: theme.palette.ultraFeed.dim,
       opacity: 0.8,
       position: "relative",
       top: 2,
+      [theme.breakpoints.down('sm')]: {
+        "--icon-size": "16px",
+        fontSize: "16px",
+      },
     },
     imageContainer: {
       position: "relative",
@@ -159,7 +213,8 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       display: "flex",
       justifyContent: "flex-end",
       [theme.breakpoints.down('sm')]: {
-        margin: "-20px -16px -16px -16px",
+        margin: "-12px -16px -20px -16px",
+        order: 2,
       },
       [theme.breakpoints.up('md')]: {
         position: "absolute",
@@ -172,17 +227,19 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
     },
     imageContainerWithAuthor: {
       [theme.breakpoints.down('sm')]: {
-        marginTop: -20,
+        marginTop: -12,
       },
     },
     image: {
       objectFit: "cover",
       [theme.breakpoints.down('sm')]: {
         maxWidth: "100%",
+        width: "100%",
         height: "auto",
-        objectPosition: "right center",
-        maxHeight: 250,
-        borderRadius: `${theme.borderRadius.default}px 0 0 ${theme.borderRadius.default}px`,
+        objectPosition: "center center",
+        maxHeight: 200,
+        minHeight: 150,
+        borderRadius: 0,
       },
       [theme.breakpoints.up('md')]: {
         height: "100%",
@@ -195,11 +252,17 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
     },
     imageVerticalFade: {
       [theme.breakpoints.down('sm')]: {
-        ...buildVerticalFadeMask([
-          "transparent 0",
-          `${theme.palette.text.alwaysWhite} 20%`,
-          `${theme.palette.text.alwaysWhite} 80%`,
-          "transparent 100%",
+        ...generateVerticalFade(theme, [
+          [0, 0],
+          [0.1, 0.05],
+          [0.5, 0.10],
+          [0.9, 0.15],
+          [1, 0.20],
+          [1, 0.80],
+          [0.9, 0.85],
+          [0.5, 0.90],
+          [0.1, 0.95],
+          [0, 1],
         ]),
       },
     },
@@ -230,6 +293,11 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       [theme.breakpoints.up('md')]: {
         maxWidth: `calc(100% - ${SIDE_MARGIN}px)`,
       },
+      [theme.breakpoints.down('sm')]: {
+        position: 'relative',
+        marginTop: 12,
+        order: 4,
+      },
     },
     descriptionWrapper: {
       cursor: 'pointer',
@@ -255,9 +323,17 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       marginBottom: 12,
       [theme.breakpoints.down('sm')]: {
         marginTop: 16,
+        marginBottom: 0,
+        marginLeft: -16,
+        marginRight: -16,
+        paddingLeft: 16,
+        paddingRight: 16,
+        paddingBottom: 12,
+        order: 5,
       },
       [theme.breakpoints.up('md')]: {
         position: 'relative',
+        zIndex: 3,
         '& .UltraFeedItemFooter-bookmarkButton': {
           filter: `
             drop-shadow(0px 0px 2px ${theme.palette.background.default})
@@ -282,6 +358,12 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
           opacity: 1,
           color: `${theme.palette.grey[1000]} !important`,
         },
+      },
+    },
+    mobileContentWrapper: {
+      [theme.breakpoints.down('sm')]: {
+        display: 'flex',
+        flexDirection: 'column',
       },
     },
   }),
@@ -375,7 +457,9 @@ const UltraFeedSpotlightItem = ({
       ref={elementRef}
       id={spotlight._id}
       style={style}
-      className={classNames(classes.root, className)}
+      className={classNames(classes.root, className, {
+        [classes.rootWithFooter]: isPost,
+      })}
     >
       <div className={classNames(classes.spotlightItem, {
         [classes.spotlightFadeBackground]: !!spotlight.imageFadeColor,
@@ -394,29 +478,59 @@ const UltraFeedSpotlightItem = ({
                   {getSpotlightDisplayTitle(spotlight)}
                 </Link>
               </div>
-              {(spotlight.showAuthor || spotlight.customSubtitle || post?.contents?.wordCount) && (
-                <div className={classes.metaRow}>
-                  {spotlight.showAuthor && spotlightDocument?.user && (
-                    <Link to={userGetProfileUrlFromSlug(spotlightDocument?.user.slug)}>
-                      {spotlightDocument?.user.displayName}
-                    </Link>
+            </div>
+            
+            <div className={classNames(
+              classes.imageContainer, 
+              {[classes.imageContainerWithAuthor]: spotlight.showAuthor && spotlightDocument?.user}
+            )}>
+              {spotlight.spotlightSplashImageUrl && 
+                <img 
+                  src={spotlight.spotlightSplashImageUrl} 
+                  className={classNames(
+                    classes.image, 
+                    classes.imageVerticalFade, 
+                    classes.imageFade,
+                    classes.splashImage
                   )}
-                  {post?.contents?.wordCount && (
-                    <span>{post.contents.wordCount} words</span>
-                  )}
-                  {spotlight.customSubtitle && showSubtitle && 
+                />
+              }
+              {spotlight.spotlightImageId && 
+                <CloudinaryImage2
+                  publicId={spotlight.spotlightImageId}
+                  darkPublicId={spotlight.spotlightDarkImageId}
+                  className={classNames(classes.image, classes.imageVerticalFade, {
+                    [classes.imageFade]: spotlight.imageFade && !spotlight.imageFadeColor,
+                    [classes.imageFadeCustom]: spotlight.imageFade && spotlight.imageFadeColor,
+                  })}
+                  imgProps={{w: "800"}}
+                  loading="lazy"
+                />
+              }
+            </div>
+            
+            {(spotlight.showAuthor || spotlight.customSubtitle || post?.contents?.wordCount) && (
+              <div className={classes.metaRow}>
+                {spotlight.showAuthor && spotlightDocument?.user && (
+                  <Link to={userGetProfileUrlFromSlug(spotlightDocument?.user.slug)}>
+                    {spotlightDocument?.user.displayName}
+                  </Link>
+                )}
+                {post?.contents?.wordCount && (
+                  <span>{post.contents.wordCount} words</span>
+                )}
+                {spotlight.customSubtitle && showSubtitle && (
+                  <span className={classes.subtitleGroup}>
                     <span className={classes.subtitle}>
                       {subtitleComponent}
                     </span>
-                  }
-                  {spotlight.customSubtitle && showSubtitle && (
                     <LWTooltip title="This is a featured item">
                       <ForumIcon icon="Star" className={classes.curatedIcon} />
                     </LWTooltip>
-                  )}
-                </div>
-              )}
-            </div>
+                  </span>
+                )}
+              </div>
+            )}
             
             {(spotlight.description?.html || isBookUI) && 
               <div className={classes.descriptionArea}>
@@ -462,35 +576,6 @@ const UltraFeedSpotlightItem = ({
                 />
               </div>
             )}
-          </div>
-            
-          <div className={classNames(
-            classes.imageContainer, 
-            {[classes.imageContainerWithAuthor]: spotlight.showAuthor && spotlightDocument?.user}
-          )}>
-            {spotlight.spotlightSplashImageUrl && 
-              <img 
-                src={spotlight.spotlightSplashImageUrl} 
-                className={classNames(
-                  classes.image, 
-                  classes.imageVerticalFade, 
-                  classes.imageFade,
-                  classes.splashImage
-                )}
-              />
-            }
-            {spotlight.spotlightImageId && 
-              <CloudinaryImage2
-                publicId={spotlight.spotlightImageId}
-                darkPublicId={spotlight.spotlightDarkImageId}
-                className={classNames(classes.image, classes.imageVerticalFade, {
-                  [classes.imageFade]: spotlight.imageFade && !spotlight.imageFadeColor,
-                  [classes.imageFadeCustom]: spotlight.imageFade && spotlight.imageFadeColor,
-                })}
-                imgProps={{w: "800"}}
-                loading="lazy"
-              />
-            }
           </div>
         </div>
       </div>
