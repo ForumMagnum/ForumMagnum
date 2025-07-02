@@ -7,6 +7,7 @@ import { useLocation } from "@/lib/routeUtil";
 import { Link } from "@/lib/reactRouterWrapper";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import uniq from "lodash/uniq";
+import toLower from "lodash/toLower";
 import classNames from "classnames";
 import SingleColumnSection from "../common/SingleColumnSection";
 import ErrorAccessDenied from "../common/ErrorAccessDenied";
@@ -77,6 +78,12 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+const caseInsensitveIncludes = (haystack: string[], needle: string) => {
+  const lowerHaystack = haystack.map(toLower);
+  const lowerNeedle = toLower(needle);
+  return lowerHaystack.indexOf(lowerNeedle) >= 0;
+}
+
 const KeywordsPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const updateCurrentUser = useUpdateCurrentUser();
   const currentUser = useCurrentUser();
@@ -87,7 +94,11 @@ const KeywordsPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
   const saveKeyword = useCallback(async (value: string) => {
     const normalized = value.trim().replace(/\s+/g, " ");
-    if (normalized && keywordAlerts && keywordAlerts.indexOf(normalized) < 0) {
+    if (
+      normalized &&
+      keywordAlerts &&
+      !caseInsensitveIncludes(keywordAlerts, normalized)
+    ) {
       setUpdating(true);
       await updateCurrentUser({
         keywordAlerts: uniq([normalized, ...keywordAlerts]),
