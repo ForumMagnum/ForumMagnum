@@ -1403,6 +1403,7 @@ type FeedCommentThread {
 type FeedSpotlightItem {
   _id: String!
   spotlight: Spotlight
+  post: Post
 }
 
 type UltraFeedQueryResults {

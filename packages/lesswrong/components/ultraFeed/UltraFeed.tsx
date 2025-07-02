@@ -24,7 +24,6 @@ import SettingsButton from "../icons/SettingsButton";
 import SpotlightFeedItem from "../spotlights/SpotlightFeedItem";
 import UltraFeedSettings from "./UltraFeedSettings";
 import UltraFeedThreadItem from "./UltraFeedThreadItem";
-import { SpotlightItem } from "../spotlights/SpotlightItem";
 import { UltraFeedQuery } from '../common/feeds/feedQueries';
 import ForumIcon from '../common/ForumIcon';
 import UltraFeedQuickTakeDialog from './UltraFeedQuickTakeDialog';
@@ -123,34 +122,6 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   },
   settingsContainer: {
     marginBottom: 32,
-  },
-  hiddenOnDesktop: {
-    display: 'none',
-    [theme.breakpoints.down('sm')]: {
-      display: 'block',
-    },
-  },
-  hiddenOnMobile: {
-    display: 'block',
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-  },
-  ultraFeedSpotlightTitle: {
-    '& .SpotlightItem-title': {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontVariant: 'normal',
-      fontSize: '1.4rem',
-      fontWeight: 600,
-      opacity: 0.8,
-      lineHeight: 1.15,
-      marginBottom: 8,
-      textWrap: 'balance',
-      width: '100%',
-      '& a:hover': {
-        opacity: 0.9,
-      },
-    },
   },
   checkboxLabel: {
     whiteSpace: 'nowrap',
@@ -318,27 +289,19 @@ const UltraFeedContent = ({alwaysShow = false}: {
                   },
                   feedSpotlight: {
                     render: (item: FeedSpotlightFragment, index: number) => {
-                      const { spotlight } = item;
+                      const { spotlight, post } = item;
                       if (!spotlight) {
                         return null;
                       }
 
                       return (
                         <FeedItemWrapper>
-                          <span className={classes.hiddenOnDesktop}>
-                            <SpotlightFeedItem 
-                              spotlight={spotlight}
-                              showSubtitle={true}
-                              index={index}
-                            />
-                          </span>
-                          <span className={classes.hiddenOnMobile}>
-                            <SpotlightItem 
-                              spotlight={spotlight}
-                              showSubtitle={true}
-                              className={classes.ultraFeedSpotlightTitle}
-                            />
-                          </span>
+                          <SpotlightFeedItem 
+                            spotlight={spotlight}
+                            post={post ?? undefined}
+                            showSubtitle={true}
+                            index={index}
+                          />
                         </FeedItemWrapper>
                       );
                     }
