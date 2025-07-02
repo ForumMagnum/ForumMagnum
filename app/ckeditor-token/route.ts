@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 
 await initDatabases({
   postgresUrl: process.env.PG_URL || '',
-  postgresReadUrl: process.env.PG_URL || '',
+  postgresReadUrl: process.env.PG_READ_URL || '',
 });
 await initSettings();
 

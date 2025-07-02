@@ -3,7 +3,6 @@ import type { GraphQLSchema } from 'graphql';
 import GraphQLJSON from 'graphql-type-json';
 import SimpleSchema, { SchemaDefinition } from 'simpl-schema';
 import { allSchemas } from './allSchemas';
-import { resolvers, typeDefs } from '@/server/vulcan-lib/apollo-server/initGraphQL';
 
 function getBaseType(typeString: string, graphqlSchema: GraphQLSchema) {
   switch (typeString) {
@@ -122,6 +121,7 @@ function isPlausiblyFormField(field: CollectionFieldSpecification<CollectionName
 }
 
 function getSchemaDefinition(schema: SchemaType<CollectionNameString>): Record<string, SchemaDefinition> {
+  const { resolvers, typeDefs }: typeof import('@/server/vulcan-lib/apollo-server/initGraphQL') = require('@/server/vulcan-lib/apollo-server/initGraphQL');
   // We unfortunately need this while we still have SimpleSchema implemented, so that it doesn't barf on graphql enum types.
   const graphqlSchema = makeExecutableSchema({ typeDefs, resolvers });
 

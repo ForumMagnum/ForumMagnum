@@ -7,6 +7,7 @@ import { cookies } from "next/headers";
 import { RouteMetadataProvider } from "@/components/RouteMetadataContext";
 import { initDatabases, initSettings } from "@/server/serverStartup";
 import { getPublicSettings } from "@/lib/settingsCache";
+import { DEFAULT_TIMEZONE } from "@/lib/utils/timeUtil";
 
 export default async function RootLayout({
   children,
@@ -15,13 +16,17 @@ export default async function RootLayout({
 }) {
   const [cookieStore] = await Promise.all([
     cookies(),
-    initDatabases({ postgresUrl: process.env.PG_URL ?? '', postgresReadUrl: process.env.PG_URL ?? '' }).then(() => initSettings()),
+    initDatabases({ postgresUrl: process.env.PG_URL ?? '', postgresReadUrl: process.env.PG_READ_URL ?? '' }).then(() => initSettings()),
   ]);
 
   const publicInstanceSettings = getInstanceSettings().public;
   const publicDatabaseSettings = getPublicSettings();
 
   const cookieStoreArray = cookieStore.getAll();
+
+  const timezoneCookie = cookieStore.get("timezone");
+
+  const timezone = timezoneCookie?.value ?? DEFAULT_TIMEZONE;
 
   return (
     <html>
@@ -40,6 +45,12 @@ export default async function RootLayout({
           abTestGroupsUsed={{}}
           themeOptions={{ name: "auto" }}
           cookies={cookieStoreArray}
+          ssrMetadata={{
+            renderedAt: new Date().toISOString(),
+            // TODO: figure out how to port the exising cache-control response header logic here
+            cacheFriendly: false,
+            timezone,
+          }}
         >
           {children}
         </AppGenerator>

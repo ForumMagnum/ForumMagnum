@@ -6,7 +6,7 @@ import type { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 
 await initDatabases({
   postgresUrl: process.env.PG_URL || '',
-  postgresReadUrl: process.env.PG_URL || '',
+  postgresReadUrl: process.env.PG_READ_URL || '',
 });
 await initSettings();
 
