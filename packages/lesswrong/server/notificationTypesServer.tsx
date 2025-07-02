@@ -30,6 +30,7 @@ import { SequenceNewPostsEmail } from './emailComponents/SequenceNewPostsEmail';
 import { PrivateMessagesEmail } from './emailComponents/PrivateMessagesEmail';
 import { EventUpdatedEmail } from './emailComponents/EventUpdatedEmail';
 import { EmailUsernameByID } from './emailComponents/EmailUsernameByID';
+import { fetchPostsForKeyword } from './keywordAlerts/keywordSearch';
 
 interface ServerNotificationType {
   name: string,
@@ -805,19 +806,35 @@ export const KeywordAlertNotification = createServerNotificationType({
     const alerts = extraData?.count === 1 ? "alert" : "alerts";
     return `${extraData?.count} new ${alerts} for "${extraData?.keyword}"`;
   },
-  emailBody: async ({ notifications }: {notifications: DbNotification[]}) => {
+  emailBody: async ({ context, notifications }: {
+    notifications: DbNotification[],
+    context: ResolverContext,
+  }) => {
     const alerts: ReactNode[] = [];
     for (const notification of notifications) {
-      const {extraData} = notification;
-      const {link, count} = extraData ?? {};
-      if (!link || !count) {
+      const {link, extraData} = notification;
+      const {count, keyword, startDate, endDate} = extraData ?? {};
+      if (!link || !count || !keyword || !startDate || !endDate) {
         throw new Error("Missing keyword alert notification data");
       }
+      const posts = await fetchPostsForKeyword(
+        context,
+        keyword,
+        new Date(startDate),
+        new Date(endDate),
+      );
       const alerts = count === 1 ? "alert" : "alerts";
       return (
-        <p>
-          <a href={link}>{count} new {alerts}</a> for "{extraData?.keyword}"
-        </p>
+        <div>
+          <p><a href={link}>{count} new {alerts}</a> for "{keyword}"</p>
+          <ul>
+            {posts.map((post) => (
+              <li key={post._id}>
+                <a href={postGetPageUrl(post)}>{post.title}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
       );
     }
     return (

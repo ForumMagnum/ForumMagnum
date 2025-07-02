@@ -50,3 +50,19 @@ export const fetchPostIdsForKeyword = async (
   });
   return results?.hits?.hits?.map(({ _id }) => _id) ?? [];
 }
+
+const isValidPost = (postOrError: DbPost | Error): postOrError is DbPost =>
+  !(postOrError instanceof Error) && !!postOrError._id;
+
+export const fetchPostsForKeyword = async (
+  context: ResolverContext,
+  keyword: string,
+  startDate: Date,
+  endDate: Date,
+  limit = 100,
+) => {
+  const postIds = await fetchPostIdsForKeyword(keyword, startDate, endDate);
+  const posts = await context.loaders.Posts.loadMany(postIds.slice(0, limit));
+  const validPosts = posts.filter(isValidPost);
+  return validPosts.sort((a, b) => b.postedAt.getTime() - a.postedAt.getTime());
+}

@@ -1,9 +1,6 @@
 import { hasKeywordAlerts } from "@/lib/betas";
 import { createPaginatedResolver } from "../resolvers/paginatedResolver";
-import { fetchPostIdsForKeyword } from "./keywordSearch";
-
-const isValidPost = (postOrError: DbPost | Error): postOrError is DbPost =>
-  !(postOrError instanceof Error) && !!postOrError._id;
+import { fetchPostsForKeyword } from "./keywordSearch";
 
 const { Query, typeDefs } = createPaginatedResolver({
   name: "KeywordAlerts",
@@ -33,10 +30,7 @@ const { Query, typeDefs } = createPaginatedResolver({
       throw new Error("Invalid endDate");
     }
 
-    const postIds = await fetchPostIdsForKeyword(keyword, startDate, endDate);
-    const posts = await context.loaders.Posts.loadMany(postIds.slice(0, limit));
-    const validPosts = posts.filter(isValidPost);
-    return validPosts.sort((a, b) => b.postedAt.getTime() - a.postedAt.getTime());
+    return fetchPostsForKeyword(context, keyword, startDate, endDate, limit);
   },
 });
 
