@@ -136,7 +136,7 @@ const KeywordsPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
         <div className={classes.title}>
           Keyword alerts
           <LWTooltip
-            title="Receive notifications for new content matching a search query"
+            title="Get notified about new posts that contains a keyword"
             className={classes.info}
           >
             <ForumIcon icon="InfoCircle" />
