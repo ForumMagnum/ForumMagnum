@@ -2,6 +2,7 @@ import React, { FormEvent, useCallback, useEffect, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from "../common/withUser";
+import { useMessages } from "../common/withMessages";
 import { useLocation } from "@/lib/routeUtil";
 import { Link } from "@/lib/reactRouterWrapper";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
@@ -79,6 +80,7 @@ const styles = (theme: ThemeType) => ({
 const KeywordsPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const updateCurrentUser = useUpdateCurrentUser();
   const currentUser = useCurrentUser();
+  const {flash} = useMessages();
   const keywordAlerts = currentUser?.keywordAlerts;
   const [keyword, setKeyword] = useState("");
   const [updating, setUpdating] = useState(false);
@@ -91,8 +93,9 @@ const KeywordsPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
         keywordAlerts: uniq([...keywordAlerts, normalized]).sort(),
       });
       setUpdating(false);
+      flash(`Added new keyword alert "${normalized}"`)
     }
-  }, [keywordAlerts, updateCurrentUser]);
+  }, [flash, keywordAlerts, updateCurrentUser]);
 
   const onSubmitKeyword = useCallback(async (ev: FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
@@ -107,8 +110,9 @@ const KeywordsPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
         keywordAlerts: uniq(keywordAlerts.filter((kw) => kw !== keyword)).sort(),
       });
       setUpdating(false);
+      flash(`Removed keyword alert "${keyword}"`)
     }
-  }, [updateCurrentUser, keywordAlerts]);
+  }, [flash, updateCurrentUser, keywordAlerts]);
 
   // Automatically add a keyword from the ?add= query param (used on search page)
   const {query} = useLocation();
