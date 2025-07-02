@@ -36,7 +36,7 @@ export function getSharingKeyFromContext(context: ResolverContext|null) {
 }
 
 export async function getCollaborativeEditorAccess({formType, post, user, context, useAdminPowers}: {
-  formType: "new"|"edit",
+  formType: "new"|"edit"|null,
   post: DbPost|null,
   user: DbUser|null,
   context: ResolverContext,

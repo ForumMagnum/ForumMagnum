@@ -1,3 +1,4 @@
+import '@/lib/utils/extendSimpleSchemaOptions';
 import { configureScope } from '@sentry/node';
 import DataLoader from 'dataloader';
 import { getAllCollections, getAllCollectionsByName } from '../../collections/allCollections';
@@ -135,9 +136,9 @@ export function configureSentryScope(context: ResolverContext) {
   }
 }
 
-export const getUserFromReq = (req: AnyBecauseTodo): DbUser|null => {
-  return req.user
-  // return getUser(getAuthToken(req));
+export const getUserFromReq = async (req: NextRequest): Promise<DbUser|null> => {
+  const loginToken = req.cookies.get('loginToken')?.value ?? null;
+  return getUser(loginToken);
 }
 
 export async function getContextFromReqAndRes({req, isSSR}: {
@@ -145,9 +146,8 @@ export async function getContextFromReqAndRes({req, isSSR}: {
   isSSR: boolean
 }): Promise<ResolverContext> {
   // TODO: do we want to abstract this out into something shared across all routes that need to grab the authenticated user for the current request?
-  const loginToken = req.headers.get('loginToken');
   const [user] = await Promise.all([
-    getUser(loginToken),
+    getUserFromReq(req),
     prepareClientId(req)
   ]);
 
