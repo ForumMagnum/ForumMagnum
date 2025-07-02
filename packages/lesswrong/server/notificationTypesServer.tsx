@@ -800,9 +800,15 @@ export const KeywordAlertNotification = createServerNotificationType({
   },
   emailBody: async ({ notifications }: {notifications: DbNotification[]}) => {
     const {extraData} = notifications[0];
-    const alerts = extraData?.count === 1 ? "alert" : "alerts";
+    const {link, count} = extraData ?? {};
+    if (!link || !count) {
+      throw new Error("Missing keyword alert notification data");
+    }
+    const alerts = count === 1 ? "alert" : "alerts";
     return (
-      <p>{extraData?.count} new {alerts} for "{extraData?.keyword}"</p>
+      <p>
+        <a href={link}>{count} new {alerts}</a> for "{extraData?.keyword}"
+      </p>
     );
   },
 });
