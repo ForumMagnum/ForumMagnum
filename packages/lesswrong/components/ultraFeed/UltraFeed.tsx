@@ -21,7 +21,7 @@ import FeedItemWrapper from "./FeedItemWrapper";
 import SectionTitle from "../common/SectionTitle";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SettingsButton from "../icons/SettingsButton";
-import UltraFeedSpotlightItem from "../spotlights/SpotlightFeedItem";
+import UltraFeedSpotlightItem from "./UltraFeedSpotlightItem";
 import UltraFeedSettings from "./UltraFeedSettings";
 import UltraFeedThreadItem from "./UltraFeedThreadItem";
 import { UltraFeedQuery } from '../common/feeds/feedQueries';

@@ -5,17 +5,17 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
 import { useStyles, defineStyles } from '../hooks/useStyles';
-import { descriptionStyles, getSpotlightDisplayTitle } from './SpotlightItem';
-import { useUltraFeedObserver } from '../../components/ultraFeed/UltraFeedObserver';
+import { descriptionStyles, getSpotlightDisplayTitle } from '../spotlights/SpotlightItem';
+import { useUltraFeedObserver } from './UltraFeedObserver';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
-import FeedContentBody from "../ultraFeed/FeedContentBody";
+import FeedContentBody from "./FeedContentBody";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import { useDialog } from '../common/withDialog';
-import UltraFeedPostDialog from '../ultraFeed/UltraFeedPostDialog';
-import UltraFeedItemFooter from '../ultraFeed/UltraFeedItemFooter';
+import UltraFeedPostDialog from './UltraFeedPostDialog';
+import UltraFeedItemFooter from './UltraFeedItemFooter';
 import ForumIcon from '../common/ForumIcon';
 import LWTooltip from '../common/LWTooltip';
-import { SHOW_ALL_BREAKPOINT_VALUE } from '../ultraFeed/ultraFeedSettingsTypes';
+import { SHOW_ALL_BREAKPOINT_VALUE } from './ultraFeedSettingsTypes';
 
 const SIDE_MARGIN = 150;
 
