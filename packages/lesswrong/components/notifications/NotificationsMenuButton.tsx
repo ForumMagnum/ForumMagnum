@@ -182,19 +182,28 @@ const FriendlyNotificationsMenuButton = ({
 
   const onOpenNotificationsPopover = useCallback(() => {
     const now = new Date();
-    void updateCurrentUser({
-      karmaChangeLastOpened: now,
-      karmaChangeBatchStart: now,
-    });
+
+    if (karmaChanges?.karmaChanges) {
+      void updateCurrentUser({
+        karmaChangeLastOpened: karmaChanges.karmaChanges.endDate,
+        karmaChangeBatchStart: now,
+      })
+    }
+
     void notificationsOpened();
-  }, [updateCurrentUser, notificationsOpened]);
+  }, [updateCurrentUser, notificationsOpened, karmaChanges?.karmaChanges.endDate]);
 
   const closePopover = useCallback(() => setOpen(false), []);
 
   const onClick = useCallback(() => {
+    if (!open) {
+      onOpenNotificationsPopover();
+    }
+
     setOpen((open) => !open);
     toggle();
-  }, [toggle]);
+  }, [toggle, open, onOpenNotificationsPopover]);
+
   return (
     <div ref={anchorEl}>
       <Badge
