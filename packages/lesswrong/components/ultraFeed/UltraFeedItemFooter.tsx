@@ -180,7 +180,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       },
     },
     [theme.breakpoints.down('sm')]: {
-      top: 2,
+      top: 1,
       opacity: 1,
     },
   },
