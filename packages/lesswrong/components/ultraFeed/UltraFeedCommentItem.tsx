@@ -180,8 +180,16 @@ const BranchNavigationButton = ({
 }) => {
   const classes = useStyles(styles);
   
+  const handleClick = () => {
+    captureEvent("ultraFeedBranchNavigationClicked", { 
+      currentBranch,
+      switchingTo: currentBranch === 'new' ? 'original' : 'new'
+    });
+    onBranchToggle?.();
+  };
+  
   return (
-    <div className={classes.branchNavContainer} onClick={onBranchToggle}>
+    <div className={classes.branchNavContainer} onClick={handleClick}>
       <span className={classes.branchNavText}>
         {currentBranch === 'new' ? 'View original thread' : 'View your new reply'}
       </span>
@@ -202,8 +210,13 @@ export const UltraFeedCompressedCommentsItem = ({
 }) => {
   const classes = useStyles(styles);
   
+  const handleClick = () => {
+    captureEvent("ultraFeedCompressedCommentsClicked", { numComments });
+    setExpanded();
+  };
+  
   return (
-    <div className={classes.compressedRoot} onClick={setExpanded}>
+    <div className={classes.compressedRoot} onClick={handleClick}>
       <div className={classes.verticalLineContainerCompressed}>
         <div className={classNames(
           classes.verticalLine,
@@ -360,8 +373,6 @@ export const UltraFeedCommentItem = ({
     });
     
     captureEvent("ultraFeedCommentItemExpanded", {
-      commentId: comment._id,
-      postId: comment.postId,
       expanded,
       wordCount,
     });
@@ -375,7 +386,7 @@ export const UltraFeedCommentItem = ({
   }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus, metaInfo.servedEventId]);
 
   const handleContinueReadingClick = useCallback(() => {
-    captureEvent("ultraFeedCommentItemContinueReadingClicked", { commentId: comment._id, postId: comment.postId });
+    captureEvent("ultraFeedCommentItemContinueReadingClicked");
     openDialog({
       name: "UltraFeedCommentsDialog",
       closeOnNavigate: true,
@@ -404,7 +415,7 @@ export const UltraFeedCommentItem = ({
   };
 
   return (
-    <AnalyticsContext ultraFeedElementType="feedComment" ultraFeedCardId={comment._id}>
+    <AnalyticsContext ultraFeedElementType="feedComment" commentId={comment._id} postId={comment.postId ?? undefined}>
     <div className={classNames(classes.root, {
       [classes.rootWithAnimation]: isHighlightAnimating
     })}>

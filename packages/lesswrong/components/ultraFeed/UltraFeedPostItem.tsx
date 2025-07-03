@@ -466,7 +466,6 @@ const UltraFeedPostItem = ({
     });
 
     captureEvent("ultraFeedPostItemExpanded", {
-      postId: post._id,
       expanded,
       wordCount,
     });
@@ -535,7 +534,7 @@ const UltraFeedPostItem = ({
   }), [isReplying, handleReplyClick, handleReplySubmit, handleReplyCancel]);
 
   const handleOpenDialog = useCallback((location: "title" | "content") => {
-    captureEvent("ultraFeedPostItemDialogOpened", {postId: post._id});
+    captureEvent("ultraFeedPostItemTitleClicked", { location });
     trackExpansion({
       documentId: post._id,
       documentType: 'post',
