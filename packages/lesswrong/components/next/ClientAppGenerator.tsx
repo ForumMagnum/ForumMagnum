@@ -1,6 +1,9 @@
 "use client";
 
-// Client-side React wrapper/context provider
+// Import needed to get the database settings from the window on the client
+import '@/client/publicSettings';
+
+
 import React, { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { PrefersDarkModeProvider } from '@/components/themes/usePrefersDarkMode';
 import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
@@ -17,14 +20,14 @@ import { useQueryCurrentUser } from '@/lib/crud/withCurrentUser';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Layout from '../Layout';
 import { HelmetProvider } from 'react-helmet-async';
-import { ApolloWrapper } from '@/components/common/ApolloWrapper';
 import { EnableSuspenseContext } from '@/lib/crud/useQuery';
 import { isServer } from '@/lib/executionEnvironment';
-// Import needed to get the database settings from the window on the client
-import '@/client/publicSettings';
+import Cookies from 'universal-cookie';
+import { ApolloWrapper } from '@/components/common/ApolloWrapper';
+
 import '@/lib/utils/extendSimpleSchemaOptions';
 import '@/lib/routes';
-import Cookies from 'universal-cookie';
+
 import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 import type { RouterLocation } from '@/lib/vulcan-lib/routes';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';

@@ -9,7 +9,7 @@ import { forumSelect } from './forumTypeUtils';
 import pickBy from 'lodash/pickBy';
 import qs from 'qs';
 import { getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getTagPingbackBySlug, getUserPingbackBySlug } from './pingback';
-import EASequencesHome, { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
+// import EASequencesHome, { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
 import { forumSpecificRoutes } from './forumSpecificRoutes';
 import { hasPostRecommendations, hasSurveys } from './betas';
 import { postRouteWillDefinitelyReturn200 } from './collections/posts/helpers';
@@ -17,156 +17,156 @@ import { sequenceRouteWillDefinitelyReturn200 } from './collections/sequences/he
 import { tagGetUrl, tagRouteWillDefinitelyReturn200 } from './collections/tags/helpers';
 import { GUIDE_PATH_PAGES_MAPPING } from './arbital/paths';
 import isEmpty from 'lodash/isEmpty';
-import { UserPageTitle } from '@/components/titles/UserPageTitle';
-import { SequencesPageTitle } from '@/components/titles/SequencesPageTitle';
-import { TagHistoryPageTitle } from '@/components/tagging/TagHistoryPageTitle';
-import { LocalgroupPageTitle } from '@/components/titles/LocalgroupPageTitle';
-import { TagPageTitle } from '@/components/tagging/TagPageTitle';
-import { PostsPageHeaderTitle } from '@/components/titles/PostsPageHeaderTitle';
-import { CommentLinkPreviewLegacy, PostCommentLinkPreviewGreaterWrong, PostLinkPreview, PostLinkPreviewLegacy, PostLinkPreviewSequencePost, PostLinkPreviewSlug, SequencePreview } from '@/components/linkPreview/PostLinkPreview';
-import { TagHoverPreview } from '@/components/tagging/TagHoverPreview';
-import AdminGoogleServiceAccount from '@/components/admin/AdminGoogleServiceAccount';
-import AdminHome from '@/components/admin/AdminHome';
-import AdminSynonymsPage from '@/components/admin/AdminSynonymsPage';
-import AdminViewOnboarding from '@/components/admin/AdminViewOnboarding';
-import CurationPage from '@/components/admin/CurationPage';
-import MigrationsDashboard from '@/components/admin/migrations/MigrationsDashboard';
-import RandomUserPage from '@/components/admin/RandomUserPage';
-import TwitterAdmin from '@/components/admin/TwitterAdmin';
-import AFLibraryPage from '@/components/alignment-forum/AFLibraryPage';
-import AlignmentForumHome from '@/components/alignment-forum/AlignmentForumHome';
-import AuthorAnalyticsPage from '@/components/analytics/AuthorAnalyticsPage';
-import MyAnalyticsPage from '@/components/analytics/MyAnalyticsPage';
-import PostsAnalyticsPage from '@/components/analytics/PostsAnalyticsPage';
-import BookmarksPage from '@/components/bookmarks/BookmarksPage';
-import Book2018Landing from '@/components/books/Book2018Landing';
-import Book2019Landing from '@/components/books/Book2019Landing';
-import AllComments from '@/components/comments/AllComments';
-import LegacyCommentRedirect from '@/components/comments/LegacyCommentRedirect';
-import ModeratorComments from '@/components/comments/ModeratorComments';
-import UserCommentsReplies from '@/components/comments/UserCommentsReplies';
-import CookiePolicy from '@/components/common/CookieBanner/CookiePolicy';
-import LWHome from '@/components/common/LWHome';
-import SearchBar from '@/components/common/SearchBar';
-import Community from '@/components/community/Community';
-import CommunityMembersFullMap from '@/components/community/modules/CommunityMembersFullMap';
-import DialoguesPage from '@/components/dialogues/DialoguesPage';
-import EditDigest from '@/components/ea-forum/digest/EditDigest';
-import EABestOfPage from '@/components/ea-forum/EABestOfPage';
-import EADigestPage from '@/components/ea-forum/EADigestPage';
-import EAHome from '@/components/ea-forum/EAHome';
-import EATermsOfUsePage from '@/components/ea-forum/EATermsOfUsePage';
-import InstagramLandingPage from '@/components/ea-forum/InstagramLandingPage';
-import EAGApplicationImportFormWrapper from '@/components/ea-forum/users/EAGApplicationImportForm';
-import EAForumWrappedPage from '@/components/ea-forum/wrapped/EAForumWrappedPage';
-import PostCollaborationEditor from '@/components/editor/PostCollaborationEditor';
-import EventsHome from '@/components/events/EventsHome';
-import AdminForumEventsPage from '@/components/forumEvents/AdminForumEventsPage';
-import EditForumEventPage from '@/components/forumEvents/EditForumEventPage';
-import GlossaryEditorPage from '@/components/jargon/GlossaryEditorPage';
-import PostsWithApprovedJargonPage from '@/components/jargon/PostsWithApprovedJargonPage';
-import AutocompleteModelSettings from '@/components/languageModels/AutocompleteModelSettings';
-import LlmConversationsViewingPage from '@/components/languageModels/LlmConversationsViewingPage';
-import AllGroupsPage from '@/components/localGroups/AllGroupsPage';
-import CommunityHome from '@/components/localGroups/CommunityHome';
-import GroupsMap from '@/components/localGroups/GroupsMap';
-import LocalGroupSingle from '@/components/localGroups/LocalGroupSingle';
-import ConversationWrapper from '@/components/messaging/ConversationWrapper';
-import InboxWrapper from '@/components/messaging/InboxWrapper';
-import MessageUser from '@/components/messaging/MessageUser';
-import ModeratorInboxWrapper from '@/components/messaging/ModeratorInboxWrapper';
-import ModerationTemplatesPage from '@/components/moderationTemplates/ModerationTemplatesPage';
-import NotificationEmailPreviewPage from '@/components/notifications/NotificationEmailPreviewPage';
-import NotificationsPage from '@/components/notifications/NotificationsPage/NotificationsPage';
-import UltraFeedPage from '@/components/pages/UltraFeedPage';
-import AdminPaymentsPage from '@/components/payments/AdminPaymentsPage';
-import EditPaymentInfoPage from '@/components/payments/EditPaymentInfoPage';
-import PeopleDirectoryPage from '@/components/peopleDirectory/PeopleDirectoryPage';
-import AllPostsPage from '@/components/posts/AllPostsPage';
-import CurrentOpenThreadPage from '@/components/posts/CurrentOpenThreadPage';
-import DraftsPage from '@/components/posts/DraftsPage';
-import EventsPast from '@/components/posts/EventsPast';
-import EventsUpcoming from '@/components/posts/EventsUpcoming';
-import LegacyPostRedirect from '@/components/posts/LegacyPostRedirect';
-import PostsCompareRevisions from '@/components/posts/PostsCompareRevisions';
-import PostsEditPage from '@/components/posts/PostsEditPage';
-import PostsNewForm from '@/components/posts/PostsNewForm';
-import PostsSingle from '@/components/posts/PostsSingle';
-import PostsSingleRoute from '@/components/posts/PostsSingleRoute';
-import PostsSingleSlug from '@/components/posts/PostsSingleSlug';
-import PostsSingleSlugRedirect from '@/components/posts/PostsSingleSlugRedirect';
-import QuestionsPage from '@/components/questions/QuestionsPage';
-import RecommendationsPage from '@/components/recommendations/RecommendationsPage';
-import RecommendationsSamplePage from '@/components/recommendations/RecommendationsSamplePage';
-import AnnualReviewPage from '@/components/review/AnnualReviewPage';
-import BestOfLessWrongAdmin from '@/components/review/BestOfLessWrongAdmin';
-import NewLongformReviewForm from '@/components/review/NewLongformReviewForm';
-import Nominations2018 from '@/components/review/Nominations2018';
-import Nominations2019 from '@/components/review/Nominations2019';
-import ReviewAdminDashboard from '@/components/review/ReviewAdminDashboard';
-import Reviews2018 from '@/components/review/Reviews2018';
-import Reviews2019 from '@/components/review/Reviews2019';
-import UserReviews from '@/components/review/UserReviews';
-import PostsRevisionSelect from '@/components/revisions/PostsRevisionSelect';
-import TagPageRevisionSelect from '@/components/revisions/TagPageRevisionSelect';
-import SearchPageTabbed from '@/components/search/SearchPageTabbed';
-import PetrovDayPoll from '@/components/seasonal/petrovDay/PetrovDayPoll';
-import Books from '@/components/sequences/Books';
-import ChaptersEditForm from '@/components/sequences/ChaptersEditForm';
-import Codex from '@/components/sequences/Codex';
-import CollectionsSingle from '@/components/sequences/CollectionsSingle';
-import CoreSequences from '@/components/sequences/CoreSequences';
-import EAIntroCurriculum from '@/components/sequences/EAIntroCurriculum';
-import HPMOR from '@/components/sequences/HPMOR';
-import LibraryPage from '@/components/sequences/LibraryPage';
-import SequencesEditForm from '@/components/sequences/SequencesEditForm';
-import SequencesHighlightsCollection from '@/components/sequences/SequencesHighlightsCollection';
-import SequencesNewForm from '@/components/sequences/SequencesNewForm';
-import SequencesPost from '@/components/sequences/SequencesPost';
-import SequencesSingle from '@/components/sequences/SequencesSingle';
-import TopPostsPage from '@/components/sequences/TopPostsPage';
-import ShortformPage from '@/components/shortform/ShortformPage';
-import SpotlightsPage from '@/components/spotlights/SpotlightsPage';
-import AllReactedCommentsPage from '@/components/sunshineDashboard/AllReactedCommentsPage';
-import { EmailHistoryPage } from '@/components/sunshineDashboard/EmailHistory';
-import ModerationAltAccounts from '@/components/sunshineDashboard/ModerationAltAccounts';
-import ModerationDashboard from '@/components/sunshineDashboard/ModerationDashboard';
-import ModerationLog from '@/components/sunshineDashboard/moderationLog/ModerationLog';
-import RecentlyActiveUsers from '@/components/sunshineDashboard/ModeratorUserInfo/RecentlyActiveUsers';
-import ModGPTDashboard from '@/components/sunshineDashboard/ModGPTDashboard';
-import SurveyAdminPage from '@/components/surveys/SurveyAdminPage';
-import SurveyEditPage from '@/components/surveys/SurveyEditPage';
-import SurveyScheduleEditPage from '@/components/surveys/SurveyScheduleEditPage';
-import ArbitalExplorePage from '@/components/tagging/ArbitalExplorePage';
-import EditTagPage from '@/components/tagging/EditTagPage';
-import TagHistoryPage from '@/components/tagging/history/TagHistoryPage';
-import NewTagPage from '@/components/tagging/NewTagPage';
-import RandomTagPage from '@/components/tagging/RandomTagPage';
-import TagSubforumPage2 from '@/components/tagging/subforums/TagSubforumPage2';
-import TagActivityFeed from '@/components/tagging/TagActivityFeed';
-import TagCompareRevisions from '@/components/tagging/TagCompareRevisions';
-import TagDiscussionPage from '@/components/tagging/TagDiscussionPage';
-import TaggingDashboard from '@/components/tagging/TaggingDashboard';
-import TagMergePage from '@/components/tagging/TagMergePage';
-import TagPageRouter from '@/components/tagging/TagPageRouter';
-import TagVoteActivity from '@/components/tagging/TagVoteActivity';
-import UsersAccount from '@/components/users/account/UsersAccount';
-import Auth0PasswordResetPage from '@/components/users/Auth0PasswordResetPage';
-import BannedNotice from '@/components/users/BannedNotice';
-import CrosspostLoginPage from '@/components/users/CrosspostLoginPage';
-import EditProfileForm from '@/components/users/EditProfileForm';
-import EmailTokenPage from '@/components/users/EmailTokenPage';
-import LoginPage from '@/components/users/LoginPage';
-import PasswordResetPage from '@/components/users/PasswordResetPage';
-import ResendVerificationEmailPage from '@/components/users/ResendVerificationEmailPage';
-import UsersSingle from '@/components/users/UsersSingle';
-import UsersViewABTests from '@/components/users/UsersViewABTests';
-import ViewSubscriptionsPage from '@/components/users/ViewSubscriptionsPage';
-import Digests from '@/components/ea-forum/digest/Digests';
-import EAAllTagsPage from '@/components/tagging/EAAllTagsPage';
-import AllWikiTagsPage from '@/components/tagging/AllWikiTagsPage';
+// import { UserPageTitle } from '@/components/titles/UserPageTitle';
+// import { SequencesPageTitle } from '@/components/titles/SequencesPageTitle';
+// import { TagHistoryPageTitle } from '@/components/tagging/TagHistoryPageTitle';
+// import { LocalgroupPageTitle } from '@/components/titles/LocalgroupPageTitle';
+// import { TagPageTitle } from '@/components/tagging/TagPageTitle';
+// import { PostsPageHeaderTitle } from '@/components/titles/PostsPageHeaderTitle';
+// import { CommentLinkPreviewLegacy, PostCommentLinkPreviewGreaterWrong, PostLinkPreview, PostLinkPreviewLegacy, PostLinkPreviewSequencePost, PostLinkPreviewSlug, SequencePreview } from '@/components/linkPreview/PostLinkPreview';
+// import { TagHoverPreview } from '@/components/tagging/TagHoverPreview';
+// import AdminGoogleServiceAccount from '@/components/admin/AdminGoogleServiceAccount';
+// import AdminHome from '@/components/admin/AdminHome';
+// import AdminSynonymsPage from '@/components/admin/AdminSynonymsPage';
+// import AdminViewOnboarding from '@/components/admin/AdminViewOnboarding';
+// import CurationPage from '@/components/admin/CurationPage';
+// import MigrationsDashboard from '@/components/admin/migrations/MigrationsDashboard';
+// import RandomUserPage from '@/components/admin/RandomUserPage';
+// import TwitterAdmin from '@/components/admin/TwitterAdmin';
+// import AFLibraryPage from '@/components/alignment-forum/AFLibraryPage';
+// import AlignmentForumHome from '@/components/alignment-forum/AlignmentForumHome';
+// import AuthorAnalyticsPage from '@/components/analytics/AuthorAnalyticsPage';
+// import MyAnalyticsPage from '@/components/analytics/MyAnalyticsPage';
+// import PostsAnalyticsPage from '@/components/analytics/PostsAnalyticsPage';
+// import BookmarksPage from '@/components/bookmarks/BookmarksPage';
+// import Book2018Landing from '@/components/books/Book2018Landing';
+// import Book2019Landing from '@/components/books/Book2019Landing';
+// import AllComments from '@/components/comments/AllComments';
+// import LegacyCommentRedirect from '@/components/comments/LegacyCommentRedirect';
+// import ModeratorComments from '@/components/comments/ModeratorComments';
+// import UserCommentsReplies from '@/components/comments/UserCommentsReplies';
+// import CookiePolicy from '@/components/common/CookieBanner/CookiePolicy';
+// import LWHome from '@/components/common/LWHome';
+// import SearchBar from '@/components/common/SearchBar';
+// import Community from '@/components/community/Community';
+// import CommunityMembersFullMap from '@/components/community/modules/CommunityMembersFullMap';
+// import DialoguesPage from '@/components/dialogues/DialoguesPage';
+// import EditDigest from '@/components/ea-forum/digest/EditDigest';
+// import EABestOfPage from '@/components/ea-forum/EABestOfPage';
+// import EADigestPage from '@/components/ea-forum/EADigestPage';
+// import EAHome from '@/components/ea-forum/EAHome';
+// import EATermsOfUsePage from '@/components/ea-forum/EATermsOfUsePage';
+// import InstagramLandingPage from '@/components/ea-forum/InstagramLandingPage';
+// import EAGApplicationImportFormWrapper from '@/components/ea-forum/users/EAGApplicationImportForm';
+// import EAForumWrappedPage from '@/components/ea-forum/wrapped/EAForumWrappedPage';
+// import PostCollaborationEditor from '@/components/editor/PostCollaborationEditor';
+// import EventsHome from '@/components/events/EventsHome';
+// import AdminForumEventsPage from '@/components/forumEvents/AdminForumEventsPage';
+// import EditForumEventPage from '@/components/forumEvents/EditForumEventPage';
+// import GlossaryEditorPage from '@/components/jargon/GlossaryEditorPage';
+// import PostsWithApprovedJargonPage from '@/components/jargon/PostsWithApprovedJargonPage';
+// import AutocompleteModelSettings from '@/components/languageModels/AutocompleteModelSettings';
+// import LlmConversationsViewingPage from '@/components/languageModels/LlmConversationsViewingPage';
+// import AllGroupsPage from '@/components/localGroups/AllGroupsPage';
+// import CommunityHome from '@/components/localGroups/CommunityHome';
+// import GroupsMap from '@/components/localGroups/GroupsMap';
+// import LocalGroupSingle from '@/components/localGroups/LocalGroupSingle';
+// import ConversationWrapper from '@/components/messaging/ConversationWrapper';
+// import InboxWrapper from '@/components/messaging/InboxWrapper';
+// import MessageUser from '@/components/messaging/MessageUser';
+// import ModeratorInboxWrapper from '@/components/messaging/ModeratorInboxWrapper';
+// import ModerationTemplatesPage from '@/components/moderationTemplates/ModerationTemplatesPage';
+// import NotificationEmailPreviewPage from '@/components/notifications/NotificationEmailPreviewPage';
+// import NotificationsPage from '@/components/notifications/NotificationsPage/NotificationsPage';
+// import UltraFeedPage from '@/components/pages/UltraFeedPage';
+// import AdminPaymentsPage from '@/components/payments/AdminPaymentsPage';
+// import EditPaymentInfoPage from '@/components/payments/EditPaymentInfoPage';
+// import PeopleDirectoryPage from '@/components/peopleDirectory/PeopleDirectoryPage';
+// import AllPostsPage from '@/components/posts/AllPostsPage';
+// import CurrentOpenThreadPage from '@/components/posts/CurrentOpenThreadPage';
+// import DraftsPage from '@/components/posts/DraftsPage';
+// import EventsPast from '@/components/posts/EventsPast';
+// import EventsUpcoming from '@/components/posts/EventsUpcoming';
+// import LegacyPostRedirect from '@/components/posts/LegacyPostRedirect';
+// import PostsCompareRevisions from '@/components/posts/PostsCompareRevisions';
+// import PostsEditPage from '@/components/posts/PostsEditPage';
+// import PostsNewForm from '@/components/posts/PostsNewForm';
+// import PostsSingle from '@/components/posts/PostsSingle';
+// import PostsSingleRoute from '@/components/posts/PostsSingleRoute';
+// import PostsSingleSlug from '@/components/posts/PostsSingleSlug';
+// import PostsSingleSlugRedirect from '@/components/posts/PostsSingleSlugRedirect';
+// import QuestionsPage from '@/components/questions/QuestionsPage';
+// import RecommendationsPage from '@/components/recommendations/RecommendationsPage';
+// import RecommendationsSamplePage from '@/components/recommendations/RecommendationsSamplePage';
+// import AnnualReviewPage from '@/components/review/AnnualReviewPage';
+// import BestOfLessWrongAdmin from '@/components/review/BestOfLessWrongAdmin';
+// import NewLongformReviewForm from '@/components/review/NewLongformReviewForm';
+// import Nominations2018 from '@/components/review/Nominations2018';
+// import Nominations2019 from '@/components/review/Nominations2019';
+// import ReviewAdminDashboard from '@/components/review/ReviewAdminDashboard';
+// import Reviews2018 from '@/components/review/Reviews2018';
+// import Reviews2019 from '@/components/review/Reviews2019';
+// import UserReviews from '@/components/review/UserReviews';
+// import PostsRevisionSelect from '@/components/revisions/PostsRevisionSelect';
+// import TagPageRevisionSelect from '@/components/revisions/TagPageRevisionSelect';
+// import SearchPageTabbed from '@/components/search/SearchPageTabbed';
+// import PetrovDayPoll from '@/components/seasonal/petrovDay/PetrovDayPoll';
+// import Books from '@/components/sequences/Books';
+// import ChaptersEditForm from '@/components/sequences/ChaptersEditForm';
+// import Codex from '@/components/sequences/Codex';
+// import CollectionsSingle from '@/components/sequences/CollectionsSingle';
+// import CoreSequences from '@/components/sequences/CoreSequences';
+// import EAIntroCurriculum from '@/components/sequences/EAIntroCurriculum';
+// import HPMOR from '@/components/sequences/HPMOR';
+// import LibraryPage from '@/components/sequences/LibraryPage';
+// import SequencesEditForm from '@/components/sequences/SequencesEditForm';
+// import SequencesHighlightsCollection from '@/components/sequences/SequencesHighlightsCollection';
+// import SequencesNewForm from '@/components/sequences/SequencesNewForm';
+// import SequencesPost from '@/components/sequences/SequencesPost';
+// import SequencesSingle from '@/components/sequences/SequencesSingle';
+// import TopPostsPage from '@/components/sequences/TopPostsPage';
+// import ShortformPage from '@/components/shortform/ShortformPage';
+// import SpotlightsPage from '@/components/spotlights/SpotlightsPage';
+// import AllReactedCommentsPage from '@/components/sunshineDashboard/AllReactedCommentsPage';
+// import { EmailHistoryPage } from '@/components/sunshineDashboard/EmailHistory';
+// import ModerationAltAccounts from '@/components/sunshineDashboard/ModerationAltAccounts';
+// import ModerationDashboard from '@/components/sunshineDashboard/ModerationDashboard';
+// import ModerationLog from '@/components/sunshineDashboard/moderationLog/ModerationLog';
+// import RecentlyActiveUsers from '@/components/sunshineDashboard/ModeratorUserInfo/RecentlyActiveUsers';
+// import ModGPTDashboard from '@/components/sunshineDashboard/ModGPTDashboard';
+// import SurveyAdminPage from '@/components/surveys/SurveyAdminPage';
+// import SurveyEditPage from '@/components/surveys/SurveyEditPage';
+// import SurveyScheduleEditPage from '@/components/surveys/SurveyScheduleEditPage';
+// import ArbitalExplorePage from '@/components/tagging/ArbitalExplorePage';
+// import EditTagPage from '@/components/tagging/EditTagPage';
+// import TagHistoryPage from '@/components/tagging/history/TagHistoryPage';
+// import NewTagPage from '@/components/tagging/NewTagPage';
+// import RandomTagPage from '@/components/tagging/RandomTagPage';
+// import TagSubforumPage2 from '@/components/tagging/subforums/TagSubforumPage2';
+// import TagActivityFeed from '@/components/tagging/TagActivityFeed';
+// import TagCompareRevisions from '@/components/tagging/TagCompareRevisions';
+// import TagDiscussionPage from '@/components/tagging/TagDiscussionPage';
+// import TaggingDashboard from '@/components/tagging/TaggingDashboard';
+// import TagMergePage from '@/components/tagging/TagMergePage';
+// import TagPageRouter from '@/components/tagging/TagPageRouter';
+// import TagVoteActivity from '@/components/tagging/TagVoteActivity';
+// import UsersAccount from '@/components/users/account/UsersAccount';
+// import Auth0PasswordResetPage from '@/components/users/Auth0PasswordResetPage';
+// import BannedNotice from '@/components/users/BannedNotice';
+// import CrosspostLoginPage from '@/components/users/CrosspostLoginPage';
+// import EditProfileForm from '@/components/users/EditProfileForm';
+// import EmailTokenPage from '@/components/users/EmailTokenPage';
+// import LoginPage from '@/components/users/LoginPage';
+// import PasswordResetPage from '@/components/users/PasswordResetPage';
+// import ResendVerificationEmailPage from '@/components/users/ResendVerificationEmailPage';
+// import UsersSingle from '@/components/users/UsersSingle';
+// import UsersViewABTests from '@/components/users/UsersViewABTests';
+// import ViewSubscriptionsPage from '@/components/users/ViewSubscriptionsPage';
+// import Digests from '@/components/ea-forum/digest/Digests';
+// import EAAllTagsPage from '@/components/tagging/EAAllTagsPage';
+// import AllWikiTagsPage from '@/components/tagging/AllWikiTagsPage';
 import { communityPath, getAllTagsPath, getAllTagsRedirectPaths } from './pathConstants';
-import Leaderboard from '@/components/users/Leaderboard';
+// import Leaderboard from '@/components/users/Leaderboard';
 
 const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Groups' : 'Community' };
 
@@ -243,7 +243,7 @@ if (isLW) {
     {
       name: 'leaderboard',
       path: '/leaderboard',
-      component: Leaderboard,
+      // component: Leaderboard,
     }
   )
 }
@@ -253,112 +253,112 @@ addRoute(
   {
     name:'users.single',
     path:'/users/:slug',
-    component: UsersSingle,
+    // component: UsersSingle,
     //titleHoC: userPageTitleHoC,
-    titleComponent: UserPageTitle,
+    // titleComponent: UserPageTitle,
     getPingback: getUserPingbackBySlug,
   },
   {
     name:'users.single.user',
     path:'/user/:slug',
-    component: UsersSingle
+    // component: UsersSingle
   },
   {
     name: "userOverview",
     path:'/user/:slug/overview',
     redirect: (location) => `/users/${location.params.slug}`,
-    component: UsersSingle,
+    // component: UsersSingle,
   },
   {
     name:'users.single.u',
     path:'/u/:slug',
-    component: UsersSingle
+    // component: UsersSingle
   },
   {
     name:'users.account',
     path:'/account',
-    component: UsersAccount,
+    // component: UsersAccount,
     title: "Account Settings",
     background: "white"
   },
   {
     name:'users.drafts',
     path:'/drafts',
-    component: DraftsPage,
+    // component: DraftsPage,
     title: "Drafts & Unpublished",
     background: "white"
   },
   {
     name:'users.manageSubscriptions',
     path:'/manageSubscriptions',
-    component: ViewSubscriptionsPage,
+    // component: ViewSubscriptionsPage,
     title: "Manage Subscriptions",
     background: "white"
   },
   {
     name:'users.edit',
     path:'/users/:slug/edit',
-    component: UsersAccount,
+    // component: UsersAccount,
     title: "Account Settings",
     background: "white",
   },
   {
     name:'users.abTestGroups',
     path:'/abTestGroups',
-    component: UsersViewABTests,
+    // component: UsersViewABTests,
     title: "A/B Test Groups",
   },
   {
     name: "users.banNotice",
     path: "/banNotice",
-    component: BannedNotice,
+    // component: BannedNotice,
   },
 
   // Miscellaneous LW2 routes
   {
     name: 'login',
     path: '/login',
-    component: LoginPage,
+    // component: LoginPage,
     title: "Login",
     background: "white"
   },
   {
     name: 'crosspostLogin',
     path: '/crosspostLogin',
-    component: CrosspostLoginPage,
+    // component: CrosspostLoginPage,
     title: 'Crosspost Login',
     standalone: true,
   },
   {
     name: 'resendVerificationEmail',
     path: '/resendVerificationEmail',
-    component: ResendVerificationEmailPage,
+    // component: ResendVerificationEmailPage,
     title: "Email Verification",
     background: "white"
   },
   {
     name: 'newPost',
     path: '/newPost',
-    component: PostsNewForm,
+    // component: PostsNewForm,
     title: "New Post",
     background: "white"
   },
   {
     name: 'editPost',
     path: '/editPost',
-    component: PostsEditPage,
+    // component: PostsEditPage,
     background: "white"
   },
   {
     name: 'postAnalytics',
     path: '/postAnalytics',
-    component: PostsAnalyticsPage,
+    // component: PostsAnalyticsPage,
     background: "white"
   },
   {
     name: 'collaboratePost',
     path: '/collaborateOnPost',
-    component: PostCollaborationEditor,
+    // component: PostCollaborationEditor,
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.query.postId),
     background: "white",
   },
@@ -372,13 +372,13 @@ addRoute(
   //   name:'reviewVoting2019',
   //   path: '/reviewVoting/2019',
   //   title: "Voting 2019 Review",
-  //   component: ReviewVotingPage2019
+  //   // component: ReviewVotingPage2019
   // },
   {
     name:'reviewVotingByYear',
     path: '/reviewVoting/:year',
     title: "Review Voting",
-    component: AnnualReviewPage
+    // component: AnnualReviewPage
   },
 
   {
@@ -390,7 +390,7 @@ addRoute(
   {
     name: 'quickReview',
     path: '/quickReview/:year',
-    component: AnnualReviewPage,
+    // component: AnnualReviewPage,
     title: "Review Quick Page",
     subtitle: "Quick Review Page"
   },
@@ -405,42 +405,42 @@ addRoute(
     name: "newLongformReviewForm",
     path: '/newLongformReview',
     title: "New Longform Review",
-    component: NewLongformReviewForm,
+    // component: NewLongformReviewForm,
   },
 
   // Sequences
   {
     name: 'sequences.single.old',
     path: '/sequences/:_id',
-    component: SequencesSingle,
-    previewComponent: SequencePreview,
+    // component: SequencesSingle,
+    // previewComponent: SequencePreview,
   },
   {
     name: 'sequences.single',
     path: '/s/:_id',
-    component: SequencesSingle,
-    titleComponent: SequencesPageTitle,
-    subtitleComponent: SequencesPageTitle,
-    previewComponent: SequencePreview,
+    // component: SequencesSingle,
+    // titleComponent: SequencesPageTitle,
+    // subtitleComponent: SequencesPageTitle,
+    // previewComponent: SequencePreview,
     enableResourcePrefetch: sequenceRouteWillDefinitelyReturn200,
   },
   {
     name: 'sequencesEdit',
     path: '/sequencesEdit/:_id',
-    component: SequencesEditForm,
+    // component: SequencesEditForm,
   },
   {
     name: 'sequencesNew',
     path: '/sequencesNew',
-    component: SequencesNewForm,
+    // component: SequencesNewForm,
     title: "New Sequence",
   },
   {
     name: 'sequencesPost',
     path: '/s/:sequenceId/p/:postId',
-    component: SequencesPost,
-    titleComponent: PostsPageHeaderTitle,
-    previewComponent: PostLinkPreviewSequencePost,
+    // component: SequencesPost,
+    // titleComponent: PostsPageHeaderTitle,
+    // previewComponent: PostLinkPreviewSequencePost,
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params.postId),
     background: "white"
   },
@@ -448,7 +448,7 @@ addRoute(
   {
     name: 'chaptersEdit',
     path: '/chaptersEdit/:_id',
-    component: ChaptersEditForm,
+    // component: ChaptersEditForm,
     title: "Edit Chapter",
     background: "white"
   },
@@ -457,7 +457,7 @@ addRoute(
   {
     name: 'collections',
     path: '/collections/:_id',
-    component: CollectionsSingle,
+    // component: CollectionsSingle,
     hasLeftNavigationColumn: isLW,
     navigationFooterBar: true,
   },
@@ -465,13 +465,13 @@ addRoute(
     name: 'highlights',
     path: '/highlights',
     title: "Sequences Highlights",
-    component: SequencesHighlightsCollection
+    // component: SequencesHighlightsCollection
   },
   {
     name: 'highlights.posts.single',
     path: '/highlights/:slug',
-    component: PostsSingleSlug,
-    previewComponent: PostLinkPreviewSlug,
+    // component: PostsSingleSlug,
+    // previewComponent: PostLinkPreviewSlug,
     ...highlightsSubtitle,
     getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
     background: postBackground
@@ -487,7 +487,7 @@ addRoute(
   {
     name: 'search',
     path: '/search',
-    component: SearchPageTabbed,
+    // component: SearchPageTabbed,
     title: 'Search',
     background: "white"
   },
@@ -505,7 +505,7 @@ addRoute(
     name: 'nominatePostsByYear',
     path: '/nominatePosts/:year',
     title: "Nominate Posts",
-    component: AnnualReviewPage
+    // component: AnnualReviewPage
   }
 );
 
@@ -513,10 +513,10 @@ addRoute(
   {
     name: 'tagsSingle',
     path: `/${tagUrlBaseSetting.get()}/:slug`,
-    component: TagPageRouter,
-    titleComponent: TagPageTitle,
-    subtitleComponent: TagPageTitle,
-    previewComponent: TagHoverPreview,
+    // component: TagPageRouter,
+    // titleComponent: TagPageTitle,
+    // subtitleComponent: TagPageTitle,
+    // previewComponent: TagHoverPreview,
     enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
     background: isLWorAF ? "white" : undefined,
     getPingback: (parsedUrl, context) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
@@ -536,10 +536,10 @@ addRoute(
   {
     name: 'tagDiscussion',
     path: `/${tagUrlBaseSetting.get()}/:slug/discussion`,
-    component: TagDiscussionPage,
-    titleComponent: TagPageTitle,
-    subtitleComponent: TagPageTitle,
-    previewComponent: TagHoverPreview,
+    // component: TagDiscussionPage,
+    // titleComponent: TagPageTitle,
+    // subtitleComponent: TagPageTitle,
+    // previewComponent: TagHoverPreview,
     background: isLWorAF ? "white" : undefined,
     noIndex: isEAForum,
     getPingback: (parsedUrl, context) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
@@ -547,48 +547,48 @@ addRoute(
   {
     name: 'tagHistory',
     path: `/${tagUrlBaseSetting.get()}/:slug/history`,
-    component: TagHistoryPage,
-    titleComponent: TagHistoryPageTitle,
-    subtitleComponent: TagHistoryPageTitle,
+    // component: TagHistoryPage,
+    // titleComponent: TagHistoryPageTitle,
+    // subtitleComponent: TagHistoryPageTitle,
     enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
     noIndex: true,
   },
   {
     name: 'tagEdit',
     path: `/${tagUrlBaseSetting.get()}/:slug/edit`,
-    component: EditTagPage,
-    titleComponent: TagPageTitle,
-    subtitleComponent: TagPageTitle,
+    // component: EditTagPage,
+    // titleComponent: TagPageTitle,
+    // subtitleComponent: TagPageTitle,
   },
   {
     name: 'tagCreate',
     path: `/${tagUrlBaseSetting.get()}/create`,
     title: `New ${taggingNameCapitalSetting.get()}`,
-    component: NewTagPage,
-    subtitleComponent: TagPageTitle,
+    // component: NewTagPage,
+    // subtitleComponent: TagPageTitle,
     background: "white"
   },
   {
     name: 'randomTag',
     path: `/${tagUrlBaseSetting.get()}/random`,
-    component: RandomTagPage,
+    // component: RandomTagPage,
   },
   {
     name: 'tagActivity',
     path: `/${tagUrlBaseSetting.get()}Activity`,
-    component: TagVoteActivity,
+    // component: TagVoteActivity,
     title: `${taggingNameCapitalizedWithPluralizationChoice.get()} Voting Activity`
   },
   {
     name: 'tagFeed',
     path: `/${tagUrlBaseSetting.get()}Feed`,
-    component: TagActivityFeed,
+    // component: TagActivityFeed,
     title: `${taggingNameCapitalizedWithPluralizationChoice.get()} Activity`
   },
   {
     name: 'taggingDashboard',
     path: `/${tagUrlBaseSetting.get()}/dashboard`,
-    component: TaggingDashboard,
+    // component: TaggingDashboard,
     title: `${taggingNameCapitalizedWithPluralizationChoice.get()} Dashboard`,
     ...taggingDashboardSubtitle
   }
@@ -662,7 +662,7 @@ addRoute(
   {
     name: 'tagsAll',
     path: getAllTagsPath(),
-    component: isEAForum ? EAAllTagsPage : AllWikiTagsPage,
+    // component: isEAForum ? EAAllTagsPage : AllWikiTagsPage,
     title: isEAForum ? `${taggingNamePluralCapitalSetting.get()} — Main Page` : "Concepts Portal",
     description: isEAForum ? `Browse the core ${taggingNamePluralSetting.get()} discussed on the EA Forum and an organised wiki of key ${taggingNameSetting.get()} pages` : undefined,
     hasLeftNavigationColumn: false,
@@ -681,7 +681,7 @@ if (isLWorAF) {
     name: 'arbitalExplore',
     title: 'Arbital',
     path: '/arbital',
-    component: ArbitalExplorePage,
+    // component: ArbitalExplorePage,
     navigationFooterBar: true,
   });
 }
@@ -708,15 +708,15 @@ export function initLegacyRoutes() {
     {
       name: 'post.legacy',
       path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug?`,
-      component: LegacyPostRedirect,
-      previewComponent: PostLinkPreviewLegacy,
+      // component: LegacyPostRedirect,
+      // previewComponent: PostLinkPreviewLegacy,
       getPingback: (parsedUrl, context) => getPostPingbackByLegacyId(parsedUrl, parsedUrl.params.id, context),
     },
     {
       name: 'comment.legacy',
       path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug/:commentId`,
-      component: LegacyCommentRedirect,
-      previewComponent: CommentLinkPreviewLegacy,
+      // component: LegacyCommentRedirect,
+      // previewComponent: CommentLinkPreviewLegacy,
       noIndex: true,
       // TODO: Pingback comment
     }
@@ -728,7 +728,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'home',
       path: '/',
-      component: EAHome,
+      // component: EAHome,
       description: "Research, discussion, and updates on the world's most pressing problems. Including global health and development, animal welfare, AI safety, and biosecurity.",
       enableResourcePrefetch: true,
       sunshineSidebar: true,
@@ -738,7 +738,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name:'about',
       path:'/about',
-      component: PostsSingleRoute,
+      // component: PostsSingleRoute,
       _id: aboutPostIdSetting.get(),
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
       background: postBackground
@@ -746,19 +746,19 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name:'notifications',
       path:'/notifications',
-      component: NotificationsPage,
+      // component: NotificationsPage,
       title: "Notifications",
     },
     {
       name: 'handbook',
       path: '/handbook',
-      component: EAIntroCurriculum,
+      // component: EAIntroCurriculum,
       title: 'The Effective Altruism Handbook',
     },
     {
       name: 'termsOfUse',
       path: '/termsOfUse',
-      component: EATermsOfUsePage,
+      // component: EATermsOfUsePage,
     },
     {
       name: 'privacyPolicy',
@@ -768,7 +768,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'intro',
       path: '/intro',
-      component: PostsSingleRoute,
+      // component: PostsSingleRoute,
       _id: introPostIdSetting.get(),
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, introPostIdSetting.get()),
       background: postBackground
@@ -776,7 +776,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'BestOf',
       path: '/best-of',
-      component: EABestOfPage,
+      // component: EABestOfPage,
       title: 'Best of the Forum',
       subtitle: 'Best of the Forum',
       subtitleLink: '/best-of',
@@ -784,18 +784,18 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'BestOfCamelCase',
       path: '/bestOf',
-      component: EABestOfPage,
+      // component: EABestOfPage,
       redirect: () => '/best-of',
     },
     {
       name: 'digest',
       path: '/digests/:num',
-      component: EADigestPage,
+      // component: EADigestPage,
     },
     {
       name: 'contact',
       path:'/contact',
-      component: PostsSingleRoute,
+      // component: PostsSingleRoute,
       _id: contactPostIdSetting.get(),
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
       background: postBackground
@@ -814,15 +814,15 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: 'eaLibrary',
       path: '/library',
       title: 'Library',
-      description: eaSequencesHomeDescription,
-      component: EASequencesHome,
+      // description: eaSequencesHomeDescription,
+      // component: EASequencesHome,
       hasLeftNavigationColumn: true,
       navigationFooterBar: true,
     },
     {
       name: 'EventsHome',
       path: '/events',
-      component: EventsHome,
+      // component: EventsHome,
       title: 'Events',
       subtitle: 'Events',
       subtitleLink: '/events'
@@ -840,7 +840,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'GroupsHome',
       path: communityPath,
-      component: Community,
+      // component: Community,
       title: 'Groups',
       description: "Discover local and online EA groups, or browse the members of the forum to find people to connect with.",
       ...communitySubtitle
@@ -848,46 +848,46 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'CommunityMembersFullMap',
       path: '/community/map',
-      component: CommunityMembersFullMap,
+      // component: CommunityMembersFullMap,
       title: 'Community Members',
       ...communitySubtitle
     },
     {
       name: 'EditMyProfile',
       path: '/profile/edit',
-      component: EditProfileForm,
+      // component: EditProfileForm,
       title: 'Edit Profile',
       background: 'white',
     },
     {
       name: 'EditProfile',
       path: '/profile/:slug/edit',
-      component: EditProfileForm,
+      // component: EditProfileForm,
       title: 'Edit Profile',
       background: 'white',
     },
     {
       name: 'ImportProfile',
       path: '/profile/import',
-      component: EAGApplicationImportFormWrapper,
+      // component: EAGApplicationImportFormWrapper,
       title: 'Import Profile',
       background: 'white',
     },
     {
       name: "userAnalytics",
       path:'/users/:slug/stats',
-      component: AuthorAnalyticsPage,
+      // component: AuthorAnalyticsPage,
       background: "white",
     },
     {
       name: "myAnalytics",
       path:'/my-stats',
-      component: MyAnalyticsPage,
+      // component: MyAnalyticsPage,
     },
     {
       name: "openThread",
       path:'/open-thread',
-      component: CurrentOpenThreadPage,
+      // component: CurrentOpenThreadPage,
     },
     {
       name: 'EAGApplicationData',
@@ -912,10 +912,10 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'tagsSubforum',
       path: `/${taggingNamePluralSetting.get()}/:slug/subforum2`,
-      component: TagSubforumPage2,
-      titleComponent: TagPageTitle,
-      subtitleComponent: TagPageTitle,
-      previewComponent: TagHoverPreview,
+      // component: TagSubforumPage2,
+      // titleComponent: TagPageTitle,
+      // subtitleComponent: TagPageTitle,
+      // previewComponent: TagHoverPreview,
       unspacedGrid: true,
       hasLeftNavigationColumn: true,
       navigationFooterBar: true,
@@ -923,35 +923,35 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'EAForumWrapped',
       path: '/wrapped/:year?',
-      component: EAForumWrappedPage,
+      // component: EAForumWrappedPage,
       title: 'EA Forum Wrapped',
       noFooter: true,
     },
     {
       name: 'Instagram landing page',
       path: '/instagram',
-      component: InstagramLandingPage,
+      // component: InstagramLandingPage,
       title: 'Instagram Links',
       noFooter: true,
     },
     {
       name: 'Twitter tools',
       path: '/admin/twitter',
-      component: TwitterAdmin,
+      // component: TwitterAdmin,
       title: 'Twitter tools',
       isAdmin: true,
     },
     {
       name: 'Digests',
       path: '/admin/digests',
-      component: Digests,
+      // component: Digests,
       title: 'Digests',
       isAdmin: true,
     },
     {
       name: 'EditDigest',
       path: '/admin/digests/:num',
-      component: EditDigest,
+      // component: EditDigest,
       title: 'Edit Digest',
       subtitle: 'Digests',
       subtitleLink: '/admin/digests',
@@ -961,14 +961,14 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'recommendationsSample',
       path: '/admin/recommendationsSample',
-      component: RecommendationsSamplePage,
+      // component: RecommendationsSamplePage,
       title: "Recommendations Sample",
       isAdmin: true,
     },
     {
       name: 'CookiePolicy',
       path: '/cookiePolicy',
-      component: CookiePolicy,
+      // component: CookiePolicy,
       title: 'Cookie Policy',
     },
     {
@@ -979,31 +979,31 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'savedAndRead',
       path: '/saved',
-      component: BookmarksPage,
+      // component: BookmarksPage,
       title: 'Saved & read',
     },
     {
       name: 'adminForumEvents',
       path: '/adminForumEvents',
-      component: AdminForumEventsPage,
+      // component: AdminForumEventsPage,
       title: 'Manage forum events',
     },
     {
       name: 'editForumEvent',
       path: '/editForumEvent/:documentId',
-      component: EditForumEventPage,
+      // component: EditForumEventPage,
       title: 'Edit forum event',
     },
     {
       name: 'peopleDirectory',
       path: '/people-directory',
-      component: PeopleDirectoryPage,
+      // component: PeopleDirectoryPage,
       title: 'People directory',
     },
     {
       name: 'setPassword',
       path: '/setPassword',
-      component: Auth0PasswordResetPage,
+      // component: Auth0PasswordResetPage,
       title: 'Set password',
     },
   ],
@@ -1011,30 +1011,30 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'home',
       path: '/',
-      component: LWHome,
+      // component: LWHome,
       enableResourcePrefetch: true,
       expectedHeadBlocks: ["title", "meta", "fonts"],
       sunshineSidebar: true, 
-      ...(blackBarTitle.get() ? { subtitleLink: "/tag/death", headerSubtitle: blackBarTitle.get()! } : {}),
+      // ...(blackBarTitle.get() ? { subtitleLink: "/tag/death", headerSubtitle: blackBarTitle.get()! } : {}),
       hasLeftNavigationColumn: true,
       navigationFooterBar: true,
     },
     {
       name: 'dialogues',
       path: '/dialogues',
-      component: DialoguesPage,
+      // component: DialoguesPage,
       title: "All Dialogues",
     },
     {
       name:'llmAutocompleteSettings',
       path:'/autocompleteSettings',
-      component: AutocompleteModelSettings,
+      // component: AutocompleteModelSettings,
       title: "LLM Autocomplete Model Settings",
     },
     {
       name: 'about',
       path: '/about',
-      component: PostsSingleRoute,
+      // component: PostsSingleRoute,
       _id: aboutPostIdSetting.get(),
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
       background: postBackground
@@ -1042,7 +1042,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'contact',
       path:'/contact',
-      component: PostsSingleRoute,
+      // component: PostsSingleRoute,
       _id: contactPostIdSetting.get(),
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
       background: postBackground
@@ -1050,7 +1050,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'faq',
       path: '/faq',
-      component: PostsSingleRoute,
+      // component: PostsSingleRoute,
       _id: faqPostIdSetting.get(),
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, faqPostIdSetting.get()),
       background: postBackground
@@ -1058,7 +1058,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'donate',
       path: '/donate',
-      component: PostsSingleRoute,
+      // component: PostsSingleRoute,
       _id:"LcpQQvcpWfPXvW7R9",
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, "LcpQQvcpWfPXvW7R9"),
       background: postBackground
@@ -1078,13 +1078,13 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'bestOfLessWrongAdminYear',
       path: '/bestoflesswrongadmin/:year',
-      component: BestOfLessWrongAdmin,
+      // component: BestOfLessWrongAdmin,
       title: "Best of LessWrong Admin",
     },
     {
       name: 'bestoflesswrong',
       path: '/bestoflesswrong',
-      component: TopPostsPage,
+      // component: TopPostsPage,
       title: "The Best of LessWrong",
       background: "#f8f4ee",
       ...leastWrongSubtitle,
@@ -1092,7 +1092,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'bestoflesswrongByYear',
       path: '/bestoflesswrong/:year/:topic',
-      component: TopPostsPage,
+      // component: TopPostsPage,
       title: "The Best of LessWrong",
       background: "#f8f4ee",
       ...leastWrongSubtitle,
@@ -1105,13 +1105,13 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     { 
       name: 'books',
       path: '/books',
-      component: Books,
+      // component: Books,
       title: "Books",
     },
     {
       name: 'HPMOR',
       path: '/hpmor',
-      component: HPMOR,
+      // component: HPMOR,
       title: "Harry Potter and the Methods of Rationality",
       ...hpmorSubtitle,
     },
@@ -1123,14 +1123,14 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'bookmarks',
       path: '/bookmarks',
-      component: BookmarksPage,
+      // component: BookmarksPage,
       title: 'Bookmarks',
     },
     {
       name: 'HPMOR.posts.single',
       path: '/hpmor/:slug',
-      component: PostsSingleSlug,
-      previewComponent: PostLinkPreviewSlug,
+      // component: PostsSingleSlug,
+      // previewComponent: PostLinkPreviewSlug,
       ...hpmorSubtitle,
       getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
       background: postBackground
@@ -1139,15 +1139,15 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'Codex',
       path: '/codex',
-      component: Codex,
+      // component: Codex,
       title: "The Codex",
       ...codexSubtitle,
     },
     {
       name: 'Codex.posts.single',
       path: '/codex/:slug',
-      component: PostsSingleSlug,
-      previewComponent: PostLinkPreviewSlug,
+      // component: PostsSingleSlug,
+      // previewComponent: PostLinkPreviewSlug,
       ...codexSubtitle,
       getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
       background: postBackground
@@ -1155,27 +1155,27 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'book2018Landing',
       path: '/books/2018',
-      component: Book2018Landing,
+      // component: Book2018Landing,
       title: "Books: A Map that Reflects the Territory",
       background: "white"
     },
     {
       name: 'book2019Landing',
       path: '/books/2019',
-      component: Book2019Landing,
+      // component: Book2019Landing,
       title: "Books: Engines of Cognition",
       background: "white"
     },
     {
       name: 'editPaymentInfo',
       path: '/payments/account',
-      component: EditPaymentInfoPage,
+      // component: EditPaymentInfoPage,
       title: "Account Payment Info"
     },
     {
       name: 'paymentsAdmin',
       path: '/payments/admin',
-      component: AdminPaymentsPage,
+      // component: AdminPaymentsPage,
       title: "Payments Admin"
     },
     {
@@ -1186,7 +1186,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'All Comments with Reacts',
       path: '/allCommentsWithReacts',
-      component: AllReactedCommentsPage,
+      // component: AllReactedCommentsPage,
       title: "All Comments with Reacts"
     },
     {
@@ -1197,7 +1197,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'nominations2018',
       path: '/nominations/2018',
-      component: Nominations2018,
+      // component: Nominations2018,
       title: "2018 Nominations",
     },
     {
@@ -1208,7 +1208,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'nominations2019',
       path: '/nominations/2019',
-      component: Nominations2019,
+      // component: Nominations2019,
       title: "2019 Nominations",
     },
     {
@@ -1229,7 +1229,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'library',
       path: '/library',
-      component: LibraryPage,
+      // component: LibraryPage,
       title: "The Library",
       hasLeftNavigationColumn: true,
       navigationFooterBar: true,
@@ -1237,21 +1237,21 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'Sequences',
       path: '/sequences',
-      component: CoreSequences,
+      // component: CoreSequences,
       title: "Rationality: A-Z",
     },
     {
       name: 'Rationality',
       path: '/rationality',
-      component: CoreSequences,
+      // component: CoreSequences,
       title: "Rationality: A-Z",
       ...rationalitySubtitle
     },
     {
       name: 'Rationality.posts.single',
       path: '/rationality/:slug',
-      component: PostsSingleSlug,
-      previewComponent: PostLinkPreviewSlug,
+      // component: PostsSingleSlug,
+      // previewComponent: PostLinkPreviewSlug,
       ...rationalitySubtitle,
       getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
       background: postBackground
@@ -1264,18 +1264,18 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'petrovDayPoll',
       path: '/petrovDayPoll',
-      component: PetrovDayPoll,
+      // component: PetrovDayPoll,
     },
     {
       name: 'petroyDayPoll',
       path: '/petroyDayPoll',
-      component: PetrovDayPoll,
+      // component: PetrovDayPoll,
       title: "Petrov Day Poll",
     },
     {
       name: 'feed',
       path: '/feed',
-      component: UltraFeedPage,
+      // component: UltraFeedPage,
       title: "LessWrong Feed",
       subtitle: "The Feed",
       hasLeftNavigationColumn: false,
@@ -1286,7 +1286,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name:'alignment.home',
       path:'/',
-      component: AlignmentForumHome,
+      // component: AlignmentForumHome,
       enableResourcePrefetch: true,
       sunshineSidebar: true,
       hasLeftNavigationColumn: true,
@@ -1295,7 +1295,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'bestoflesswrong',
       path: '/bestoflesswrong',
-      component: TopPostsPage,
+      // component: TopPostsPage,
       title: "The Best of LessWrong",
       background: "#f8f4ee",
       ...leastWrongSubtitle,
@@ -1303,13 +1303,13 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name:'about',
       path:'/about',
-      component: PostsSingleRoute,
+      // component: PostsSingleRoute,
       _id: aboutPostIdSetting.get()
     },
     {
       name: 'faq',
       path: '/faq',
-      component: PostsSingleRoute,
+      // component: PostsSingleRoute,
       _id: faqPostIdSetting.get(),
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, faqPostIdSetting.get()),
       background: postBackground
@@ -1327,7 +1327,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'nominations2018',
       path: '/nominations/2018',
-      component: Nominations2018,
+      // component: Nominations2018,
       title: "2018 Nominations",
     },
     {
@@ -1338,7 +1338,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'nominations2019',
       path: '/nominations/2019',
-      component: Nominations2019,
+      // component: Nominations2019,
       title: "2019 Nominations",
     },
     {
@@ -1354,7 +1354,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'reviews2018',
       path: '/reviews/2018',
-      component: Reviews2018,
+      // component: Reviews2018,
       title: "2018 Reviews",
     },
     {
@@ -1365,13 +1365,13 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'reviews2019',
       path: '/reviews/2019',
-      component: Reviews2019,
+      // component: Reviews2019,
       title: "2019 Reviews",
     },
     {
       name: 'library',
       path: '/library',
-      component: AFLibraryPage,
+      // component: AFLibraryPage,
       enableResourcePrefetch: true,
       title: "The Library",
       hasLeftNavigationColumn: true,
@@ -1381,21 +1381,21 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: 'Sequences',
       path: '/sequences',
       enableResourcePrefetch: true,
-      component: CoreSequences,
+      // component: CoreSequences,
       title: "Rationality: A-Z",
     },
     {
       name: 'Rationality',
       path: '/rationality',
-      component: CoreSequences,
+      // component: CoreSequences,
       title: "Rationality: A-Z",
       ...rationalitySubtitle
     },
     {
       name: 'Rationality.posts.single',
       path: '/rationality/:slug',
-      component: PostsSingleSlug,
-      previewComponent: PostLinkPreviewSlug,
+      // component: PostsSingleSlug,
+      // previewComponent: PostLinkPreviewSlug,
       ...rationalitySubtitle,
       getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
       background: postBackground
@@ -1403,7 +1403,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'bookmarks',
       path: '/bookmarks',
-      component: BookmarksPage,
+      // component: BookmarksPage,
       title: 'Bookmarks',
     },
   ],
@@ -1411,7 +1411,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name:'home',
       path:'/',
-      component: LWHome,
+      // component: LWHome,
       enableResourcePrefetch: true,
       expectedHeadBlocks: ["title", "meta", "fonts"],
       sunshineSidebar: true,
@@ -1421,13 +1421,13 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name:'about',
       path:'/about',
-      component: PostsSingleRoute,
+      // component: PostsSingleRoute,
       _id: aboutPostIdSetting.get()
     },
     {
       name: 'faq',
       path: '/faq',
-      component: PostsSingleRoute,
+      // component: PostsSingleRoute,
       _id: faqPostIdSetting.get(),
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, faqPostIdSetting.get()),
       background: postBackground
@@ -1435,7 +1435,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'contact',
       path:'/contact',
-      component: PostsSingleRoute,
+      // component: PostsSingleRoute,
       _id: contactPostIdSetting.get(),
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
       background: postBackground
@@ -1443,13 +1443,13 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'savedAndRead',
       path: '/saved',
-      component: BookmarksPage,
+      // component: BookmarksPage,
       title: 'Saved & read',
     },
     {
       name:'notifications',
       path:'/notifications',
-      component: NotificationsPage,
+      // component: NotificationsPage,
       title: "Notifications",
     },
   ],
@@ -1463,20 +1463,20 @@ addRoute(...forumSelect<Route[]>({
     {
       name: 'inbox',
       path: '/inbox',
-      component: InboxWrapper,
+      // component: InboxWrapper,
       title: "Inbox",
     },
     {
       name: 'conversation',
       path: '/inbox/:_id',
-      component: ConversationWrapper,
+      // component: ConversationWrapper,
       title: "Private Conversation",
       background: "white",
     },
     {
       name: 'moderatorInbox',
       path: '/moderatorInbox',
-      component: ModeratorInboxWrapper,
+      // component: ModeratorInboxWrapper,
       title: "Moderator Inbox",
       fullscreen: true,
     },
@@ -1485,28 +1485,28 @@ addRoute(...forumSelect<Route[]>({
     {
       name: 'inbox',
       path: '/inbox',
-      component: InboxWrapper,
+      // component: InboxWrapper,
       title: "Inbox",
       fullscreen: true,
     },
     {
       name: 'conversation',
       path: '/inbox/:_id',
-      component: InboxWrapper,
+      // component: InboxWrapper,
       title: "Inbox",
       fullscreen: true,
     },
     {
       name: 'moderatorInbox',
       path: '/moderatorInbox',
-      component: ModeratorInboxWrapper,
+      // component: ModeratorInboxWrapper,
       title: "Moderator Inbox",
       fullscreen: true,
     },
     {
       name: 'moderatorInboxConversation',
       path: '/moderatorInbox/:_id',
-      component: ModeratorInboxWrapper,
+      // component: ModeratorInboxWrapper,
       title: "Moderator Inbox",
       fullscreen: true,
     },
@@ -1516,13 +1516,13 @@ addRoute(...forumSelect<Route[]>({
 addRoute({
   name: 'userInitiateConversation',
   path: '/message/:slug',
-  component: MessageUser,
+  // component: MessageUser,
 })
 
 addRoute({
   name: 'AllComments',
   path: '/allComments',
-  component: AllComments,
+  // component: AllComments,
   enableResourcePrefetch: true,
   title: "All Comments"
 });
@@ -1531,7 +1531,7 @@ addRoute(
   {
     name: 'Shortform',
     path: '/quicktakes',
-    component: ShortformPage,
+    // component: ShortformPage,
     title: "Quick Takes",
     hasLeftNavigationColumn: true,
     navigationFooterBar: true,
@@ -1548,19 +1548,19 @@ if (hasEventsSetting.get()) {
     {
       name: 'EventsPast',
       path: '/pastEvents',
-      component: EventsPast,
+      // component: EventsPast,
       title: "Past Events by Day"
     },
     {
       name: 'EventsUpcoming',
       path: '/upcomingEvents',
-      component: EventsUpcoming,
+      // component: EventsUpcoming,
       title: "Upcoming Events by Day"
     },
     {
       name: 'CommunityHome',
       path: forumTypeSetting.get() === 'EAForum' ? '/community-old' : communityPath,
-      component: CommunityHome,
+      // component: CommunityHome,
       title: 'Community',
       navigationFooterBar: true,
       ...communitySubtitle
@@ -1568,21 +1568,21 @@ if (hasEventsSetting.get()) {
     {
       name: 'MeetupsHome',
       path: '/meetups',
-      component: CommunityHome,
+      // component: CommunityHome,
       title: 'Community',
     },
 
     {
       name: 'AllLocalGroups',
       path: '/allgroups',
-      component: AllGroupsPage,
+      // component: AllGroupsPage,
       title: "All Local Groups"
     },
     
     {
       name: 'GroupsMap',
       path: '/groups-map',
-      component: GroupsMap,
+      // component: GroupsMap,
       title: "Groups Map",
       standalone: true
     },
@@ -1590,16 +1590,16 @@ if (hasEventsSetting.get()) {
     {
       name:'Localgroups.single',
       path: '/groups/:groupId',
-      component: LocalGroupSingle,
-      titleComponent: LocalgroupPageTitle,
+      // component: LocalGroupSingle,
+      // titleComponent: LocalgroupPageTitle,
       ...communitySubtitle
     },
     {
       name:'events.single',
       path: '/events/:_id/:slug?',
-      component: PostsSingle,
-      titleComponent: PostsPageHeaderTitle,
-      previewComponent: PostLinkPreview,
+      // component: PostsSingle,
+      // titleComponent: PostsPageHeaderTitle,
+      // previewComponent: PostLinkPreview,
       subtitle: forumTypeSetting.get() === 'EAForum' ? 'Events' : 'Community',
       subtitleLink: forumTypeSetting.get() === 'EAForum' ? '/events' : communityPath,
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
@@ -1609,8 +1609,8 @@ if (hasEventsSetting.get()) {
     {
       name: 'groups.post',
       path: '/g/:groupId/p/:_id',
-      component: PostsSingle,
-      previewComponent: PostLinkPreview,
+      // component: PostsSingle,
+      // previewComponent: PostLinkPreview,
       background: postBackground,
       ...communitySubtitle,
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
@@ -1623,7 +1623,7 @@ addRoute(
   {
     name: 'searchTest',
     path: '/searchTest',
-    component: SearchBar
+    // component: SearchBar
   },
 );
 
@@ -1631,9 +1631,9 @@ addRoute(
   {
     name:'posts.single',
     path:'/posts/:_id/:slug?',
-    component: PostsSingle,
-    titleComponent: PostsPageHeaderTitle,
-    previewComponent: PostLinkPreview,
+    // component: PostsSingle,
+    // titleComponent: PostsPageHeaderTitle,
+    // previewComponent: PostLinkPreview,
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
     background: postBackground,
     noFooter: hasPostRecommendations,
@@ -1644,9 +1644,9 @@ addRoute(
   {
     name:'posts.slug.single',
     path:'/posts/slug/:slug?',
-    component: PostsSingleSlugRedirect,
-    titleComponent: PostsPageHeaderTitle,
-    previewComponent: PostLinkPreviewSlug,
+    // component: PostsSingleSlugRedirect,
+    // titleComponent: PostsPageHeaderTitle,
+    // previewComponent: PostLinkPreviewSlug,
     getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
     background: postBackground,
     noFooter: hasPostRecommendations,
@@ -1654,131 +1654,131 @@ addRoute(
   {
     name: 'posts.revisioncompare',
     path: '/compare/post/:_id/:slug',
-    component: PostsCompareRevisions,
-    titleComponent: PostsPageHeaderTitle,
+    // component: PostsCompareRevisions,
+    // titleComponent: PostsPageHeaderTitle,
   },
   {
     name: 'tags.revisioncompare',
     path: `/compare/${tagUrlBaseSetting.get()}/:slug`,
-    component: TagCompareRevisions,
-    titleComponent: TagPageTitle,
+    // component: TagCompareRevisions,
+    // titleComponent: PostsPageHeaderTitle,
   },
   {
     name: 'post.revisionsselect',
     path: '/revisions/post/:_id/:slug',
-    component: PostsRevisionSelect,
-    titleComponent: PostsPageHeaderTitle,
+    // component: PostsRevisionSelect,
+    // titleComponent: PostsPageHeaderTitle,
   },
   {
     name: 'tag.revisionsselect',
     path: `/revisions/${tagUrlBaseSetting.get()}/:slug`,
-    component: TagPageRevisionSelect,
-    titleComponent: TagPageTitle,
+    // component: TagPageRevisionSelect,
+    // titleComponent: TagPageTitle,
   },
   // ----- Admin / Moderation -----
   {
     name: 'admin',
     path: '/admin',
-    component: AdminHome,
+    // component: AdminHome,
     title: "Admin"
   },
   {
     name: 'migrations',
     path: '/admin/migrations',
-    component: MigrationsDashboard,
+    // component: MigrationsDashboard,
     title: "Migrations"
   },
   {
     name: 'moderatorActions',
     path: '/admin/moderation',
-    component: ModerationDashboard,
+    // component: ModerationDashboard,
     title: "Moderation Dashboard"
   },
   {
     name: 'tagMergeTool',
     path: '/admin/tagMerge',
-    component: TagMergePage,
+    // component: TagMergePage,
     title: `${taggingNameCapitalSetting.get()} merging tool`
   },
   {
     name: 'googleServiceAccount',
     path: '/admin/googleServiceAccount',
-    component: AdminGoogleServiceAccount,
+    // component: AdminGoogleServiceAccount,
     title: `Google Doc import service account`
   },
   {
     name: 'recentlyActiveUsers',
     path: '/admin/recentlyActiveUsers',
-    component: RecentlyActiveUsers,
+    // component: RecentlyActiveUsers,
     title: "Recently Active Users"
   },
   {
     name: 'moderationTemplates',
     path: '/admin/moderationTemplates',
-    component: ModerationTemplatesPage,
+    // component: ModerationTemplatesPage,
     title: "Moderation Message Templates"
   },
   {
     name: 'ModGPTDashboard',
     path: '/admin/modgpt',
-    component: ModGPTDashboard,
+    // component: ModGPTDashboard,
     title: "ModGPT Dashboard"
   },
   {
     name: 'synonyms',
     path: '/admin/synonyms',
-    component: AdminSynonymsPage,
+    // component: AdminSynonymsPage,
     title: "Search Synonyms"
   },
   {
     name: 'randomUser',
     path: '/admin/random-user',
-    component: RandomUserPage,
+    // component: RandomUserPage,
     title: "Random User",
   },
   {
     name: 'onboarding',
     path: '/admin/onboarding',
-    component: AdminViewOnboarding,
+    // component: AdminViewOnboarding,
     title: "Onboarding (for testing purposes)",
   },
   {
     name: 'moderation',
     path: '/moderation',
-    component: ModerationLog,
+    // component: ModerationLog,
     title: "Moderation Log",
     noIndex: true
   },
   {
     name: 'moderatorComments',
     path: '/moderatorComments',
-    component: ModeratorComments,
+    // component: ModeratorComments,
   },
   {
     name: 'moderatorViewAltAccounts',
     path: '/moderation/altAccounts',
-    component: ModerationAltAccounts,
+    // component: ModerationAltAccounts,
   },
   {
     name: 'emailHistory',
     path: '/debug/emailHistory',
-    component: EmailHistoryPage
+    // component: EmailHistoryPage
   },
   {
     name: 'notificationEmailPreview',
     path: '/debug/notificationEmailPreview',
-    component: NotificationEmailPreviewPage
+    // component: NotificationEmailPreviewPage
   },
   {
     name: 'SpotlightsPage',
     path: '/spotlights',
-    component: SpotlightsPage,
+    // component: SpotlightsPage,
     title: 'Spotlights Page'
   },
   {
     name: 'llmConversationsViewer',
     path: '/admin/llmConversations',
-    component: LlmConversationsViewingPage,
+    // component: LlmConversationsViewingPage,
     title: 'LLM Conversations Viewer',
     subtitle: 'LLM Conversations',
     noFooter: true,
@@ -1790,9 +1790,9 @@ addRoute(
   {
     path:'/posts/:_id/:slug/comment/:commentId?',
     name: 'comment.greaterwrong',
-    component: PostsSingle,
-    titleComponent: PostsPageHeaderTitle,
-    previewComponent: PostCommentLinkPreviewGreaterWrong,
+    // component: PostsSingle,
+    // titleComponent: PostsPageHeaderTitle,
+    // previewComponent: PostCommentLinkPreviewGreaterWrong,
     noIndex: true,
     noFooter: hasPostRecommendations,
     // TODO: Handle pingbacks leading to comments.
@@ -1803,7 +1803,7 @@ addRoute(
   {
     name: 'admin.curation',
     path:'/admin/curation',
-    component: CurationPage,
+    // component: CurationPage,
     title: "Curation Dashboard",
     noIndex: true,
   }
@@ -1813,7 +1813,7 @@ addRoute(
   {
     name: 'allPosts',
     path: '/allPosts',
-    component: AllPostsPage,
+    // component: AllPostsPage,
     enableResourcePrefetch: true,
     title: "All Posts",
     hasLeftNavigationColumn: true,
@@ -1822,7 +1822,7 @@ addRoute(
   {
     name: 'questions',
     path: '/questions',
-    component: QuestionsPage,
+    // component: QuestionsPage,
     title: "All Questions",
     hasLeftNavigationColumn: true,
     navigationFooterBar: true,
@@ -1830,18 +1830,18 @@ addRoute(
   {
     name: 'recommendations',
     path: '/recommendations',
-    component: RecommendationsPage,
+    // component: RecommendationsPage,
     title: "Recommendations",
   },
   {
     name: 'emailToken',
     path: '/emailToken/:token',
-    component: EmailTokenPage,
+    // component: EmailTokenPage,
   },
   {
     name: 'password-reset',
     path: '/resetPassword/:token',
-    component: PasswordResetPage,
+    // component: PasswordResetPage,
   },
   {
     name: 'nominations',
@@ -1851,13 +1851,13 @@ addRoute(
   {
     name: 'userReviewsByYear',
     path:'/users/:slug/reviews/:year',
-    component: UserReviews,
+    // component: UserReviews,
     title: "User Reviews",
   },
   {
     name: 'userReplies',
     path:'/users/:slug/replies',
-    component: UserCommentsReplies,
+    // component: UserCommentsReplies,
     title: "User Comment Replies",
   },
   {
@@ -1868,7 +1868,7 @@ addRoute(
   {
     name: 'reviews',
     path:'/reviews/:year',
-    component: AnnualReviewPage,
+    // component: AnnualReviewPage,
     title: "Reviews",
   },
   {
@@ -1879,7 +1879,7 @@ addRoute(
   {
     name: 'reviewAdmin-year',
     path: '/reviewAdmin/:year',
-    component: ReviewAdminDashboard,
+    // component: ReviewAdminDashboard,
     title: "Review Admin Dashboard",
     isAdmin: true,
   }
@@ -1891,12 +1891,12 @@ if (isLW) {
     title: "Glossary Editor",
     name: 'glossaryEditor',
     path: '/glossaryEditor',
-    component: GlossaryEditorPage,
+    // component: GlossaryEditorPage,
   }, {
     title: "Posts with approved jargon",
     name: 'postsWithApprovedJargon',
     path: '/postsWithApprovedJargon',
-    component: PostsWithApprovedJargonPage,
+    // component: PostsWithApprovedJargonPage,
   });
 }
 
@@ -1905,28 +1905,28 @@ if (hasSurveys) {
     {
       name: "surveys",
       path: "/admin/surveys",
-      component: SurveyAdminPage,
+      // component: SurveyAdminPage,
       title: "Surveys",
       isAdmin: true,
     },
     {
       name: "editSurvey",
       path: "/survey/:id/edit",
-      component: SurveyEditPage,
+      // component: SurveyEditPage,
       title: "Edit survey",
       isAdmin: true,
     },
     {
       name: "newSurveySchedule",
       path: "/surveySchedule",
-      component: SurveyScheduleEditPage,
+      // component: SurveyScheduleEditPage,
       title: "New survey schedule",
       isAdmin: true,
     },
     {
       name: "editSurveySchedule",
       path: "/surveySchedule/:id",
-      component: SurveyScheduleEditPage,
+      // component: SurveyScheduleEditPage,
       title: "Edit survey schedule",
       isAdmin: true,
     },
