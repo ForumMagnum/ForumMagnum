@@ -33,6 +33,11 @@ const styles = defineStyles("UltraFeedReplyEditor", (theme: ThemeType) => ({
       color: theme.palette.text.primary,
       opacity: 0.3,
     },
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 17,
+      paddingTop: 4,
+      paddingBottom: 4,
+    },
   },
 }));
 
