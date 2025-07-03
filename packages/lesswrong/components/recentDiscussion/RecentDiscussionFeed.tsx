@@ -22,7 +22,7 @@ import SectionTitle from "../common/SectionTitle";
 import { MixedTypeFeed } from "../common/MixedTypeFeed";
 import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
 import { RecentDiscussionFeedQuery } from '../common/feeds/feedQueries';
-import FeedSelectorDropdown from '../common/FeedSelectorDropdown';
+import FeedSelectorDropdown from '../common/FeedSelectorCheckbox';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { isBookUI } from '@/themes/forumTheme';
 

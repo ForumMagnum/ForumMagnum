@@ -64,7 +64,7 @@ const FeedSelectorCheckbox = ({ currentFeedType }: FeedSelectorCheckboxProps) =>
     return null;
   }
   
-  const message = true //(abTestGroup === 'ultraFeed' && !hasExplicitPreference)
+  const message = (abTestGroup === 'ultraFeed' && !hasExplicitPreference)
     ? "You've been placed in the test group of the New Feed a/b test →"
     : undefined;
   

@@ -26,7 +26,7 @@ import { UltraFeedQuery } from '../common/feeds/feedQueries';
 import ForumIcon from '../common/ForumIcon';
 import UltraFeedQuickTakeDialog from './UltraFeedQuickTakeDialog';
 import { useDialog } from '../common/withDialog';
-import FeedSelectorDropdown from '../common/FeedSelectorDropdown';
+import FeedSelectorDropdown from '../common/FeedSelectorCheckbox';
 import { ultraFeedEnabledSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
