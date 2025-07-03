@@ -75,16 +75,17 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   },
   sectionTitle: {
     display: 'flex',
-    width: '100%',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   titleContainer: {
     display: 'flex',
     columnGap: 10,
-    marginLeft: 8,
     alignItems: 'center',
     color: theme.palette.text.bannerAdOverlay,
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: 8,
+    },
   },
   titleText: {
   },
@@ -101,12 +102,15 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
       display: 'inline',
     },
   },
-  settingsButtonContainer: {
-    flex: '1 1 0',
+  feedCheckboxAndSettingsContainer: {
     display: 'flex',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    marginTop: 8
+    // gap: 24, // Add spacing between items
+  },
+  settingsButtonContainer: {
+    display: 'flex',
+    alignItems: 'center'
   },
   ultraFeedNewContentContainer: {
   },
@@ -114,9 +118,10 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
     marginBottom: 32,
   },
   hiddenOnDesktop: {
-    display: 'none',
+    // because of conflicting styles (this is all temporary code anyhow)
+    display: 'none !important',
     [theme.breakpoints.down('sm')]: {
-      display: 'block',
+      display: 'block !important',
     },
   },
   hiddenOnMobile: {
@@ -243,15 +248,6 @@ const UltraFeedContent = ({alwaysShow = false}: {
         </Link>
       </span>
     </div>
-    {!alwaysShow && <div className={classes.hiddenOnMobile}>
-      <FeedSelectorDropdown currentFeedType="new" />
-    </div>}
-    <div className={classes.settingsButtonContainer}>
-      <SettingsButton 
-        showIcon={true}
-        onClick={toggleSettings}
-      />
-    </div>
   </>;
 
   return (
@@ -260,10 +256,23 @@ const UltraFeedContent = ({alwaysShow = false}: {
         <UltraFeedObserverProvider incognitoMode={resolverSettings.incognitoMode}>
         <OverflowNavObserverProvider>
           <SingleColumnSection>
-            <SectionTitle title={customTitle} titleClassName={classes.sectionTitle} />
-            {!alwaysShow && <div className={classNames(classes.feedSelectorMobileContainer, classes.hiddenOnDesktop)}>
+            <SectionTitle title={customTitle} titleClassName={classes.sectionTitle}>
+              <div className={classes.feedCheckboxAndSettingsContainer}>
+              {!alwaysShow && <div className={classes.hiddenOnMobile}>
+                <FeedSelectorDropdown currentFeedType="new" />
+              </div>}
+              <div className={classes.settingsButtonContainer}>
+                <SettingsButton 
+                  showIcon={true}
+                  onClick={toggleSettings}
+                />
+              </div>
+            </div>
+            </SectionTitle>
+            {!alwaysShow && <div className={classNames(classes.hiddenOnDesktop, classes.feedSelectorMobileContainer)}>
               <FeedSelectorDropdown currentFeedType="new" />
             </div>}
+
             {settingsVisible && (
               <div className={classes.settingsContainer}>
                 <UltraFeedSettings 

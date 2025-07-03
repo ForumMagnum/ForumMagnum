@@ -11,13 +11,11 @@ import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 
 const styles = defineStyles("FeedSelectorCheckbox", (theme: ThemeType) => ({
   container: {
-    width: '100%',
     display: 'flex',
     alignItems: 'center',
     gap: 4,
     marginLeft: 8,
     marginRight: 16,
-    justifyContent: 'flex-end',
   },
   message: {
     ...theme.typography.body2,
@@ -25,6 +23,11 @@ const styles = defineStyles("FeedSelectorCheckbox", (theme: ThemeType) => ({
     lineHeight: 1.25,
     fontSize: 13,
     fontStyle: 'italic',
+    textWrap: 'balance',
+    [theme.breakpoints.down('sm')]: {
+      textAlign: 'right',
+      marginRight: 8,
+    },
   },
   checkboxWrapper: {
     marginLeft: 'auto',
@@ -61,8 +64,8 @@ const FeedSelectorCheckbox = ({ currentFeedType }: FeedSelectorCheckboxProps) =>
     return null;
   }
   
-  const message = (abTestGroup === 'ultraFeed' && !hasExplicitPreference)
-    ? "You've been placed in the test group of the New Feed a/b test. Uncheck to opt-out →"
+  const message = true //(abTestGroup === 'ultraFeed' && !hasExplicitPreference)
+    ? "You've been placed in the test group of the New Feed a/b test →"
     : undefined;
   
   const checkboxChecked = currentFeedType === 'new';
