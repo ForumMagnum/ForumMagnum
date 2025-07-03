@@ -21,11 +21,10 @@ import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import CondensedFooterReactions from "./CondensedFooterReactions";
 import LWTooltip from "../common/LWTooltip";
-import { useTracking } from "../../lib/analyticsEvents";
+import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
 import { recombeeApi } from "@/lib/recombee/client";
 import UltraFeedReplyEditor from "./UltraFeedReplyEditor";
 import { ReplyConfig } from "./UltraFeedCommentItem";
-import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 
 const UltraFeedEventsDefaultFragmentMutation = gql(`
