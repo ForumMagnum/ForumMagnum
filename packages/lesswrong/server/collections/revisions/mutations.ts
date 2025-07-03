@@ -15,6 +15,7 @@ import AutomatedContentEvaluations from "../automatedContentEvaluations/collecti
 import { z } from "zod"; // Add this import for Zod
 import { getOpenAI } from "@/server/languageModels/languageModelIntegration";
 import { assertPollsAllowed, upsertPolls } from "@/server/callbacks/forumEventCallbacks";
+import { captureException } from "@sentry/core";
 
 function editCheck(user: DbUser | null) {
   return userIsAdminOrMod(user);
@@ -55,7 +56,12 @@ export async function createRevision({ data }: { data: Partial<DbInsertion<DbRev
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('Revisions', documentWithId);
 
   if (isLW && documentWithId.collectionName === "Posts" && documentWithId.fieldName === "contents") {
-    void createAutomatedContentEvaluation(documentWithId, context);
+    try {
+      void createAutomatedContentEvaluation(documentWithId, context);
+    } catch(e) {
+      console.error("Automated content evaluation failed");
+      captureException(e);
+    }
   }
 
   return documentWithId;
@@ -115,20 +121,29 @@ async function getSaplingEvaluation(revision: DbRevision) {
     }),
   });
 
-  const saplingEvaluation = await response.json();
-
-  // Define single Zod schema for response validation
-  const saplingResponseSchema = z.object({
-    score: z.number(),
-    sentence_scores: z.array(
-      z.object({
-        sentence: z.string(),
-        score: z.number()
-      })
-    )
-  });
-
-  return saplingResponseSchema.parse(saplingEvaluation);
+  if (!response.ok) {
+    console.error(`Request to api.sapling.ai failed: ${response.status}`);
+  }
+  
+  try {
+    const saplingEvaluation = await response.json();
+  
+    // Define single Zod schema for response validation
+    const saplingResponseSchema = z.object({
+      score: z.number(),
+      sentence_scores: z.array(
+        z.object({
+          sentence: z.string(),
+          score: z.number()
+        })
+      )
+    });
+  
+    return saplingResponseSchema.parse(saplingEvaluation);
+  } catch(e) {
+    console.error(`Failed parsing response from api.sapling.ai: ${e.message}`);
+    captureException(e);
+  }
 }
 
 async function getLlmEvaluation(revision: DbRevision, context: ResolverContext) {
@@ -292,6 +307,8 @@ async function createAutomatedContentEvaluation(revision: DbRevision, context: R
     getLlmEvaluation(revision, context),
   ]);
 
+  // FIXME: If one of these two evaluations failed, we should still keep the
+  // other one rather than return before saving it here
   if (!validatedEvaluation || !llmEvaluation) {
     // eslint-disable-next-line no-console
     console.error("No evaluation returned");
