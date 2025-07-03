@@ -142,7 +142,6 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     transition: 'none',
   },
   abovePostTitle: {
-    marginBottom: 4,
     color: theme.palette.link.dim,
     fontSize: theme.typography.body2.fontSize,
     lineHeight: theme.typography.body2.lineHeight,
