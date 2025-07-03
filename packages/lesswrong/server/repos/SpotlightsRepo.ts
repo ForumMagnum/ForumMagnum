@@ -33,6 +33,7 @@ class SpotlightsRepo extends AbstractRepo<"Spotlights"> {
           AND "eventType" = 'viewed'
           AND "createdAt" > NOW() - INTERVAL '90 days'
           AND "userId" = $(userId)
+          AND "documentType" = 'Post'
         GROUP BY "documentId"
         HAVING COUNT(*) <= 5
       )
