@@ -561,7 +561,7 @@ const UltraFeedPostDialog = ({
       paperClassName={classes.dialogPaper}
       className={classes.modalWrapper}
     >
-      <AnalyticsContext pageModalContext="ultraFeedPostModal" postId={displayPost?._id}>
+      <AnalyticsContext pageModalContext="ultraFeedPostModal" postId={postId ?? post?._id}>
       <DialogContent className={classes.dialogContent}>
         <div ref={dialogInnerRef} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           {!displayPost && (
