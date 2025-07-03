@@ -7,7 +7,6 @@ import { useLocation } from "@/lib/routeUtil";
 import { Link } from "@/lib/reactRouterWrapper";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import uniq from "lodash/uniq";
-import toLower from "lodash/toLower";
 import classNames from "classnames";
 import SingleColumnSection from "../common/SingleColumnSection";
 import ErrorAccessDenied from "../common/ErrorAccessDenied";
@@ -79,8 +78,8 @@ const styles = (theme: ThemeType) => ({
 });
 
 const caseInsensitveIncludes = (haystack: string[], needle: string) => {
-  const lowerHaystack = haystack.map(toLower);
-  const lowerNeedle = toLower(needle);
+  const lowerHaystack = haystack.map((item) => item.toLowerCase());
+  const lowerNeedle = needle.toLowerCase();
   return lowerHaystack.indexOf(lowerNeedle) >= 0;
 }
 
