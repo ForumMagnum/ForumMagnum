@@ -23,18 +23,6 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 700,
     marginTop: 0,
   },
-  feedback: {
-    marginTop: -24,
-    marginBottom: 8,
-    color: theme.palette.grey[600],
-    fontWeight: 500,
-    fontStyle: "italic",
-    fontSize: 14,
-    "& a": {
-      color: theme.palette.primary.main,
-      fontWeight: 600,
-    },
-  },
 });
 
 const PeopleDirectoryPage = ({classes}: {
@@ -46,16 +34,6 @@ const PeopleDirectoryPage = ({classes}: {
         <h1 className={classes.pageTitle}>
           People directory
         </h1>
-        <div className={classes.feedback}>
-          This is a new feature, help us out by{" "}
-          <Link
-            to="https://tally.so/r/meBLeJ"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            sharing your thoughts
-          </Link>
-        </div>
         <PeopleDirectoryProvider>
           <PeopleDirectoryMainSearch />
           <PeopleDirectoryFilters />
