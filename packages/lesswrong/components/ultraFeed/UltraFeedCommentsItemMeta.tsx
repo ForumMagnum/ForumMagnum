@@ -47,12 +47,14 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
   tripleDotMenu: {
     opacity: 0.7,
     position: 'absolute',
-    right: -10,
-    top: 4,
-
+    right: -20,
+    top: -2,
+    zIndex: 10,
+    padding: '4px 10px 4px 4px',
     [theme.breakpoints.down('sm')]: {
       marginRight: 0,
-      right: 0,
+      right: -8,
+      padding: '4px'
     },
   },
   commentShortformIconContainer: {
@@ -132,7 +134,7 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     padding: '2px 8px',
     borderRadius: 4,
     [theme.breakpoints.down('sm')]: {
-      marginRight: 16,
+      marginRight: 20,
     }
   },
   sameRowPostTitleHighlighted: {
