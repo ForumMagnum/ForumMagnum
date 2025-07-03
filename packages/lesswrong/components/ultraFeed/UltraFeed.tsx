@@ -12,7 +12,7 @@ import { OverflowNavObserverProvider } from './OverflowNavObserverContext';
 import { DEFAULT_SETTINGS, UltraFeedSettingsType, ULTRA_FEED_SETTINGS_KEY } from './ultraFeedSettingsTypes';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { isClient } from '../../lib/executionEnvironment';
-import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import { MixedTypeFeed } from "../common/MixedTypeFeed";
@@ -197,6 +197,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
   const currentUser = useCurrentUser();
   const [settingsVisible, setSettingsVisible] = useState(false);
   const { openDialog } = useDialog();
+  const { captureEvent } = useTracking();
   const [settings, setSettings] = useState<UltraFeedSettingsType>(getStoredSettings);
   const [sessionId] = useState<string>(() => {
     if (typeof window === 'undefined') return randomId();
@@ -208,6 +209,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
   const refetchSubscriptionContentRef = useRef<null | ObservableQuery['refetch']>(null);
 
   const handleOpenQuickTakeDialog = () => {
+    captureEvent("ultraFeedComposerQuickTakeDialogOpened");
     openDialog({
       name: "UltraFeedQuickTakeDialog",
       contents: ({onClose}) => <UltraFeedQuickTakeDialog onClose={onClose} currentUser={currentUser} />
@@ -220,17 +222,22 @@ const UltraFeedContent = ({alwaysShow = false}: {
 
   const toggleSettings = (e: React.MouseEvent) => {
     e.stopPropagation();
+    captureEvent("ultraFeedSettingsToggled", { open: !settingsVisible });
     setSettingsVisible(!settingsVisible);
   };
   
   const updateSettings = (newSettings: Partial<UltraFeedSettingsType>) => {
     const updatedSettings = saveSettings(newSettings);
     setSettings(updatedSettings);
+    captureEvent("ultraFeedSettingsUpdated", { 
+      changedSettings: Object.keys(newSettings) 
+    });
   };
   
   const resetSettingsToDefault = () => {
     const defaultSettings = saveSettings(DEFAULT_SETTINGS);
     setSettings(defaultSettings);
+    captureEvent("ultraFeedSettingsReset");
   };
 
   const { resolverSettings } = settings;

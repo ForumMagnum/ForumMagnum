@@ -281,6 +281,7 @@ const UltraFeedCommentsItemMeta = ({
 
   const handleReplyIconClick = (event: React.MouseEvent) => {
     event.stopPropagation();
+    captureEvent("ultraFeedReplyArrowClicked");
     if (onReplyIconClick) {
       onReplyIconClick();
     }
@@ -291,10 +292,7 @@ const UltraFeedCommentsItemMeta = ({
     setPostTitleHighlighted(true);
     
     // Track the click event
-    captureEvent(iconType === 'shortform' ? "ultraFeedShortformIconClicked" : "ultraFeedDebateIconClicked", {
-      commentId: comment._id,
-      postId: post._id,
-    });
+    captureEvent(iconType === 'shortform' ? "ultraFeedShortformIconClicked" : "ultraFeedDebateIconClicked");
     
     // Remove highlight after a short delay
     setTimeout(() => {

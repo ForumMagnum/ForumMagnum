@@ -459,7 +459,6 @@ const UltraFeedPostItem = ({
     });
 
     captureEvent("ultraFeedPostItemExpanded", {
-      postId: post._id,
       expanded,
       wordCount,
     });
@@ -520,21 +519,6 @@ const UltraFeedPostItem = ({
     }
   }, [newComment, post]);
 
-  const handleViewAllComments = useCallback(() => {
-    captureEvent("ultraFeedPostItemViewAllCommentsClicked", {postId: post._id});
-    openDialog({
-      name: "commentsDialog",
-      closeOnNavigate: true,
-      contents: ({ onClose }) => (
-        <UltraFeedCommentsDialog 
-          document={post}
-          collectionName="Posts"
-          onClose={onClose}
-        />
-      )
-    });
-  }, [openDialog, post, captureEvent]);
-
   const replyConfig = useMemo(() => ({
     isReplying,
     onReplyClick: handleReplyClick,
@@ -542,8 +526,8 @@ const UltraFeedPostItem = ({
     onReplyCancel: handleReplyCancel,
   }), [isReplying, handleReplyClick, handleReplySubmit, handleReplyCancel]);
 
-  const handleOpenDialog = useCallback(() => {
-    captureEvent("ultraFeedPostItemTitleClicked", {postId: post._id});
+  const handleOpenDialog = useCallback((location: "title" | "content") => {
+    captureEvent("ultraFeedPostItemTitleClicked", { location });
     trackExpansion({
       documentId: post._id,
       documentType: 'post',
@@ -621,7 +605,7 @@ const UltraFeedPostItem = ({
           <UltraFeedPostItemHeader
             post={post}
             isRead={isRead}
-            handleOpenDialog={handleOpenDialog}
+            handleOpenDialog={() => handleOpenDialog("title")}
             sources={postMetaInfo.sources}
             isSeeLessMode={isSeeLessMode}
           />
@@ -641,7 +625,7 @@ const UltraFeedPostItem = ({
             maxWordCount={truncationParams.maxWordCount}
             wordCount={displayWordCount ?? 200}
             nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-            onContinueReadingClick={handleOpenDialog}
+            onContinueReadingClick={() => handleOpenDialog("content")}
             onExpand={handleContentExpand}
             hideSuffix={loadingFullPost}
             resetSignal={resetSig}
