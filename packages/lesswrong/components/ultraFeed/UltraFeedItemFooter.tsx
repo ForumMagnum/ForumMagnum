@@ -38,6 +38,14 @@ const UltraFeedEventsDefaultFragmentMutation = gql(`
 `);
 
 const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
+  // Hide footnote poppers/tooltips inside the footer – they appear and stay open on mobile, obscuring buttons
+  '@global': {
+    '@media (pointer: coarse)': {
+      '.LWPopper-root, .LWPopper-default, .LWPopper-tooltip': {
+        display: 'none !important',
+      },
+    },
+  },
   root: {
     position: "relative",
     display: "flex",
