@@ -35,9 +35,11 @@ import TocIcon from "@/lib/vendor/@material-ui/icons/src/Toc";
 import UltraFeedPostToCDrawer from "./UltraFeedPostToCDrawer";
 import { useDialogNavigation } from "../hooks/useDialogNavigation";
 import { useDisableBodyScroll } from "../hooks/useDisableBodyScroll";
+import { useModalHashLinkScroll, scrollToElementInContainer } from "../hooks/useModalScroll";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { NetworkStatus } from "@apollo/client";
 import UltraFeedPostFooter from "./UltraFeedPostFooter";
+import FootnoteDialog from '../linkPreview/FootnoteDialog';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300;
 
@@ -63,6 +65,14 @@ const UltraFeedPostFragmentQuery = gql(`
 `);
 
 const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
+  // Hide footnote poppers/tooltips inside the modal – primarily for footnote display issue but a general experiment
+  '@global': {
+    '@media (pointer: coarse)': {
+      '.LWPopper-root, .LWPopper-default, .LWPopper-tooltip': {
+        display: 'none !important',
+      },
+    },
+  },
   dialogContent: {
     padding: 0,
     height: '100%',
@@ -408,6 +418,7 @@ const UltraFeedPostDialog = ({
   const scrollableContentRef = useRef<HTMLDivElement>(null);
   const dialogInnerRef = useRef<HTMLDivElement>(null);
   const [navigationOpen, setNavigationOpen] = useState(false);
+  const [footnoteDialogHTML, setFootnoteDialogHTML] = useState<string | null>(null);
 
   const postId = partialPost?._id ?? undefined;
 
@@ -472,6 +483,11 @@ const UltraFeedPostDialog = ({
   // Handle browser back button / swipe back navigation
   useDialogNavigation(onClose);
   useDisableBodyScroll();
+  
+  // Handle clicks on hash links (like footnotes) within the modal. If we don't do this, clicking on hash links can close the modal, fail to scroll, etc.
+  useModalHashLinkScroll(scrollableContentRef, true, true, (footnoteHTML: string) => {
+    setFootnoteDialogHTML(footnoteHTML);
+  });
 
   // Bridge scroll events from internal container to window so hooks relying on window scroll keep working
   useEffect(() => {
@@ -495,14 +511,7 @@ const UltraFeedPostDialog = ({
     // Look for the comments section wrapper which always exists
     const commentsElement = document.getElementById('commentsSection');
     if (container && commentsElement) {
-      const containerRect = container.getBoundingClientRect();
-      const commentsRect = commentsElement.getBoundingClientRect();
-      const offsetInsideContainer = commentsRect.top - containerRect.top;
-      
-      container.scrollTo({
-        top: container.scrollTop + offsetInsideContainer - (container.clientHeight * 0.2),
-        behavior: 'smooth',
-      });
+      scrollToElementInContainer(container, commentsElement);
     }
   };
 
@@ -717,6 +726,12 @@ const UltraFeedPostDialog = ({
           )}
         </div>
       </DialogContent>
+      {footnoteDialogHTML && (
+        <FootnoteDialog
+          onClose={() => setFootnoteDialogHTML(null)}
+          footnoteHTML={footnoteDialogHTML}
+        />
+      )}
     </LWDialog>
   );
 };
