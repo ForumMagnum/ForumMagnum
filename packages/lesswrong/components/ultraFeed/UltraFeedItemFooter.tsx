@@ -51,6 +51,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
+    minHeight: 28, // Ensures consistent height whether reactions are present or not
     opacity: `1 !important`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: theme.typography.body2.fontSize,
@@ -187,7 +188,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       },
     },
     [theme.breakpoints.down('sm')]: {
-      top: 2,
+      top: 1,
       opacity: 1,
     },
   },
@@ -205,12 +206,11 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   seeLessButton: {
     position: "relative",
     top: 1,
-    opacity: 0.5,
     cursor: "pointer",
     pointerEvents: 'auto !important',
     "& svg": {
       color: `${theme.palette.ultraFeed.dim} !important`,
-      opacity: 0.7,
+      opacity: 0.5,
       height: 20,
       [theme.breakpoints.down('sm')]: {
         height: 22,
@@ -247,8 +247,6 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   overallVoteButtons: {
     position: 'relative',
-    top: 0,
-    bottom: 1,
     color: `${theme.palette.ultraFeed.dim} !important`,
     "& .VoteArrowIconSolid-root": {
     },
