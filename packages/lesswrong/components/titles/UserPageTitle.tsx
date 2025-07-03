@@ -1,11 +1,13 @@
+"use client";
+
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
 import { styles } from '../common/HeaderSubtitle';
 import { getUserFromResults } from '../users/UsersProfile';
-import { Helmet } from '../../lib/utils/componentsWithChildren';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { Helmet } from '../common/Helmet';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 
@@ -65,7 +67,7 @@ export const UserPageTitle = ({isSubtitle, siteName}: {
       </Link>
     </span>);
   } else {
-    return <Helmet>
+    return <Helmet name="title">
       <title>{titleString}</title>
       <meta property='og:title' content={titleString}/>
     </Helmet>

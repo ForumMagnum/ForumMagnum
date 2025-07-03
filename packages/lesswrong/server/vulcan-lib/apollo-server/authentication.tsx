@@ -1,7 +1,5 @@
 import React from 'react'
-import passport from 'passport'
 import { randomBytes } from "crypto";
-import GraphQLLocalStrategy from "./graphQLLocalStrategy";
 import sha1 from 'crypto-js/sha1';
 import { getClientIP } from '@/server/utils/getClientIP';
 import Users from "../../../server/collections/users/collection";
@@ -10,9 +8,7 @@ import { LegacyData } from '../../../server/collections/legacyData/collection';
 import { emailTokenTypesByName } from "../../emails/emailTokens";
 import { wrapAndSendEmail } from '../../emails/renderEmail';
 import SimpleSchema from 'simpl-schema';
-import { clearCookie } from '../../utils/httpUtil';
 import { DatabaseServerSetting } from "../../databaseSettings";
-import { forumTitleSetting } from '../../../lib/instanceSettings';
 import {userFindOneByEmail} from "../../commonQueries";
 import UsersRepo from '../../repos/UsersRepo';
 import gql from 'graphql-tag';
@@ -21,11 +17,30 @@ import { computeContextFromUser } from './context';
 import { createUser } from '@/server/collections/users/mutations';
 import { createDisplayName } from '@/lib/collections/users/newSchema';
 import { comparePasswords, createPasswordHash, validatePassword } from './passwordHelpers';
+import type { NextRequest } from 'next/server';
+import { cookies } from 'next/headers';
 
-const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPassport(username, password, done) {
+// Given an HTTP request, clear a named cookie. Handles the difference between
+// the Meteor and Express server middleware setups. Works by setting an
+// expiration date in the past, which apparently is the recommended way to
+// remove cookies.
+async function clearCookie(cookieName: string) {
+  const cookieStore = await cookies();
+  cookieStore.delete(cookieName);
+}
+
+type AuthenticateWithPasswordResult = {
+  success: true;
+  user: DbUser;
+} | {
+  success: false;
+  message: string;
+};
+
+async function authenticateWithPassword(username: string, password: string): Promise<AuthenticateWithPasswordResult> {
   const user = await new UsersRepo().getUserByUsernameOrEmail(username);
 
-  if (!user) return done(null, false, { message: 'Invalid login.' }); //Don't reveal that an email exists in DB
+  if (!user) return { success: false, message: 'Invalid login.' }; //Don't reveal that an email exists in DB
   
   // Load legacyData, if applicable. Needed because imported users had their
   // passwords hashed differently.
@@ -37,7 +52,7 @@ const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPass
     // is a hash of the LW1-hash of their password. Don't accept an LW1-hash as a password.
     // (If passwords from the DB were ever leaked, this prevents logging into legacy accounts
     // that never changed their password.)
-    return done(null, false, { message: 'Incorrect password.' });
+    return { success: false, message: 'Incorrect password.' };
   }
   
   const match = !!user.services.password.bcrypt && await comparePasswords(password, user.services.password?.bcrypt);
@@ -49,14 +64,12 @@ const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPass
       const toHash = (`${salt}${user.username} ${password}`)
       const lw1PW = salt + sha1(toHash).toString();
       const lw1PWMatch = await comparePasswords(lw1PW, user.services.password.bcrypt);
-      if (lw1PWMatch) return done(null, user)
+      if (lw1PWMatch) return { success: true, user }
     }
-    return done(null, false, { message: 'Incorrect password.' });
+    return { success: false, message: 'Incorrect password.' };
   } 
-  return done(null, user)
-})
-
-passport.use(passwordAuthStrategy)
+  return { success: true, user }
+}
 
 
 function validateUsername(username: string): {validUsername: true} | {validUsername: false, reason: string} {
@@ -91,30 +104,13 @@ function isValidCharInUsername(ch: string): boolean {
   return !restrictedChars.includes(ch);
 }
 
-
-type PassportAuthenticateCallback = Exclude<Parameters<typeof passport.authenticate>[2], undefined>;
-// `options` should be `passport.AuthenticateOptions`, but those don't contain `username` and `password` in the type definition.
-// No idea where they're actually coming from, in that case
-function promisifiedAuthenticate(req: ResolverContext['req'], res: ResolverContext['res'], name: string, options: any, callback: PassportAuthenticateCallback) {
-  return new Promise((resolve, reject) => {
-    try {
-      passport.authenticate(name, options, async (err, user, info) => {
-        try {
-          const callbackResult = await callback(err, user, info);
-          resolve(callbackResult)
-        } catch(err) {
-          reject(err)
-        }
-      })(req, res)
-    } catch(err) {
-      reject(err)
-    }
-  })
-}
-
-export async function createAndSetToken(req: AnyBecauseTodo, res: AnyBecauseTodo, user: DbUser) {
+export async function createAndSetToken(req: NextRequest, user: DbUser) {
   const token = randomBytes(32).toString('hex');
-  (res as any).setHeader("Set-Cookie", `loginToken=${token}; Max-Age=315360000; Path=/`);
+  const cookieStore = await cookies();
+  cookieStore.set("loginToken", token, {
+    maxAge: 315360000,
+    path: "/",
+  });
 
   const hashedToken = hashLoginToken(token)
   await insertHashedLoginToken(user._id, hashedToken)
@@ -125,25 +121,6 @@ export async function createAndSetToken(req: AnyBecauseTodo, res: AnyBecauseTodo
 
 
 
-
-export async function sendVerificationEmail(user: DbUser) {
-  const verifyEmailLink = await emailTokenTypesByName.verifyEmail.generateLink(user._id);
-  await wrapAndSendEmail({
-    user,
-    force: true,
-    subject: `Verify your ${forumTitleSetting.get()} email`,
-    body: <div>
-      <p>
-        Click here to verify your {forumTitleSetting.get()} email
-      </p>
-      <p>
-        <a href={verifyEmailLink}>
-          {verifyEmailLink}
-        </a>
-      </p>
-    </div>
-  })
-}
 
 export const loginDataGraphQLTypeDefs = gql`
   type LoginReturnData {
@@ -158,29 +135,26 @@ export const loginDataGraphQLTypeDefs = gql`
 `
 
 export const loginDataGraphQLMutations = {
-  async login(root: void, { username, password }: {username: string, password: string}, { req, res }: ResolverContext) {
-    let token: string | null = null
+  async login(root: void, { username, password }: {username: string, password: string}, { req }: ResolverContext) {
+    const result = await authenticateWithPassword(username, password);
+    if (!result.success) {
+      throw new Error(result.message);
+    }
 
-    await promisifiedAuthenticate(req, res, 'graphql-local', { username, password }, (err, user, info) => {
-      return new Promise((resolve, reject) => {
-        if (err) throw Error(err)
-        if (!user) throw new Error("Invalid username/password")
-        if (userIsBanned(user)) throw new Error("This user is banned")
+    const { user } = result;
+    if (userIsBanned(user)) {
+      throw new Error("This user is banned");
+    }
 
-        req!.logIn(user, async (err: AnyBecauseTodo) => {
-          if (err) throw new Error(err)
-          token = await createAndSetToken(req, res, user)
-          resolve(token)
-        })
-      })
-    })
+    const token = await createAndSetToken(req, user);
+
     return { token }
   },
-  async logout(root: void, args: {}, { req, res }: ResolverContext) {
+  async logout(root: void, args: {}, { req }: ResolverContext) {
     if (req) {
       req.logOut()
-      clearCookie(req, res, "loginToken");
-      clearCookie(req, res, "meteor_login_token");  
+      await clearCookie("loginToken");
+      await clearCookie("meteor_login_token");  
     }
     return {
       token: null
@@ -215,7 +189,7 @@ export const loginDataGraphQLMutations = {
       }
     }
 
-    const { req, res } = context
+    const { req } = context
 
     const userData = {
       email,
@@ -245,7 +219,7 @@ export const loginDataGraphQLMutations = {
       },
     }, context);
 
-    const token = await createAndSetToken(req, res, user)
+    const token = await createAndSetToken(req, user)
     return { 
       token
     }
@@ -290,7 +264,7 @@ async function insertHashedLoginToken(userId: string, hashedToken: string) {
 };
 
 
-function registerLoginEvent(user: DbUser, req: AnyBecauseTodo) {
+function registerLoginEvent(user: DbUser, req: NextRequest) {
   const document = {
     name: 'login',
     important: false,
@@ -298,8 +272,8 @@ function registerLoginEvent(user: DbUser, req: AnyBecauseTodo) {
     properties: {
       type: 'passport-login',
       ip: getClientIP(req),
-      userAgent: req.headers['user-agent'],
-      referrer: req.headers['referer']
+      userAgent: req.headers.get('user-agent'),
+      referrer: req.headers.get('referer')
     }
   }
   void computeContextFromUser({ user, isSSR: false }).then(userContext => {

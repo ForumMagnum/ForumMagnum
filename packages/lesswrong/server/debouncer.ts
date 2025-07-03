@@ -200,6 +200,8 @@ export const getWeeklyBatchTimeAfter = (now: Date, timeOfDayGMT: number, dayOfWe
 }
 
 const dispatchEvent = async (event: DbDebouncerEvents) => {
+  // TODO: this won't work in Next since we've deleted the singleton dictionary of notication type event debouncers.
+  // Probably just need to create it from scratch here?
   const eventDebouncer = eventDebouncersByName[event.name];
   if (!eventDebouncer) {
     // eslint-disable-next-line no-console

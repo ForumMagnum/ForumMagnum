@@ -55,7 +55,7 @@ import { importUrlAsDraftPostGqlMutation, importUrlAsDraftPostTypeDefs } from '@
 import { revisionResolversGraphQLQueries, revisionResolversGraphQLMutations, revisionResolversGraphQLTypeDefs } from '@/server/resolvers/revisionResolvers';
 import { moderationGqlMutations, moderationGqlQueries, moderationGqlTypeDefs } from '@/server/resolvers/moderationResolvers';
 import { multiDocumentMutations, multiDocumentTypeDefs } from '@/server/resolvers/multiDocumentResolvers';
-import { spotlightGqlMutations, spotlightGqlTypeDefs } from '@/server/resolvers/spotlightResolvers';
+import { spotlightGqlMutations, spotlightGqlQueries, spotlightGqlTypeDefs } from '@/server/resolvers/spotlightResolvers';
 import { typingIndicatorsGqlMutations, typingIndicatorsGqlTypeDefs } from '@/server/resolvers/typingIndicatorsResolvers';
 import { acceptCoauthorRequestMutations, acceptCoauthorRequestTypeDefs } from '@/server/acceptCoauthorRequest';
 import { hidePostGqlMutations, hidePostGqlTypeDefs } from '@/server/hidePostMutation';
@@ -205,7 +205,7 @@ import { createSurveyScheduleGqlMutation, updateSurveyScheduleGqlMutation, graph
 import { createSurveyGqlMutation, updateSurveyGqlMutation, graphqlSurveyTypeDefs } from "@/server/collections/surveys/mutations";
 import { createTagFlagGqlMutation, updateTagFlagGqlMutation, graphqlTagFlagTypeDefs } from "@/server/collections/tagFlags/mutations";
 import { createTagGqlMutation, updateTagGqlMutation, graphqlTagTypeDefs } from "@/server/collections/tags/mutations";
-import { createUltraFeedEventGqlMutation, graphqlUltraFeedEventTypeDefs } from "@/server/collections/ultraFeedEvents/mutations";
+import { createUltraFeedEventGqlMutation, updateUltraFeedEventGqlMutation, graphqlUltraFeedEventTypeDefs } from "@/server/collections/ultraFeedEvents/mutations";
 import { createUserEAGDetailGqlMutation, updateUserEAGDetailGqlMutation, graphqlUserEAGDetailTypeDefs } from "@/server/collections/userEAGDetails/mutations";
 import { createUserJobAdGqlMutation, updateUserJobAdGqlMutation, graphqlUserJobAdTypeDefs } from "@/server/collections/userJobAds/mutations";
 import { createUserMostValuablePostGqlMutation, updateUserMostValuablePostGqlMutation, graphqlUserMostValuablePostTypeDefs } from "@/server/collections/userMostValuablePosts/mutations";
@@ -490,6 +490,7 @@ export const resolvers = {
     ...surveyResolversGraphQLQueries,
     ...tagResolversGraphQLQueries,
     ...ultraFeedGraphQLQueries,
+    ...spotlightGqlQueries,
 
     // CRUD Query Handlers
     ...advisorRequestGqlQueryHandlers,
@@ -677,6 +678,7 @@ export const resolvers = {
     createTag: createTagGqlMutation,
     updateTag: updateTagGqlMutation,
     createUltraFeedEvent: createUltraFeedEventGqlMutation,
+    updateUltraFeedEvent: updateUltraFeedEventGqlMutation,
     createUserEAGDetail: createUserEAGDetailGqlMutation,
     updateUserEAGDetail: updateUserEAGDetailGqlMutation,
     createUserJobAd: createUserJobAdGqlMutation,

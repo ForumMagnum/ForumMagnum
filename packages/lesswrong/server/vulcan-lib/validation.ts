@@ -3,6 +3,7 @@ import mapValues from 'lodash/mapValues';
 import { userCanCreateField, userCanUpdateField } from '../../lib/vulcan-users/permissions';
 import * as _ from 'underscore';
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
+import { getSimpleSchema } from '@/lib/schema/allSimpleSchemas';
 
 interface SimpleSchemaValidationError {
   type: string;
@@ -33,7 +34,7 @@ export const validateDocument = <N extends CollectionNameString, D extends {} = 
   context: ResolverContext,
 ) => {
   const { currentUser } = context;
-  const { getSchema, getSimpleSchema }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
+  const { getSchema }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
 
   const schema = getSchema(collectionName);
 
@@ -99,7 +100,7 @@ const validateModifier = <N extends CollectionNameString>(
 ) => {
   const { currentUser } = context;
 
-  const { getSchema, getSimpleSchema }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
+  const { getSchema }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
 
   const schema = getSchema(collectionName);
   const set = modifier.$set;

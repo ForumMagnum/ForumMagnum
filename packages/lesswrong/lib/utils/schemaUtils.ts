@@ -79,7 +79,8 @@ export const accessFilterSingle = async <N extends CollectionNameString, DocType
   if (!document) return null;
   const checkAccess = getCollectionAccessFilter(collectionName);
   if (checkAccess && !(await checkAccess(currentUser, document as AnyBecauseHard, context))) return null
-  const restrictedDoc = await restrictViewableFieldsSingle(currentUser, collectionName, document)
+  const collection = context[collectionName];
+  const restrictedDoc = await restrictViewableFieldsSingle(currentUser, collection, document)
   return restrictedDoc as Partial<DocType> & { [ACCESS_FILTERED]: true };
 }
 
@@ -104,8 +105,10 @@ export const accessFilterMultiple = async <N extends CollectionNameString, DocTy
   const filteredDocs = checkAccess
     ? await asyncFilter(existingDocs, async (d) => await checkAccess(currentUser, d as AnyBecauseHard, context))
     : existingDocs
+
+  const collection = context[collectionName];
   // Apply field-level permissions
-  const restrictedDocs = await restrictViewableFieldsMultiple(currentUser, collectionName, filteredDocs)
+  const restrictedDocs = await restrictViewableFieldsMultiple(currentUser, collection, filteredDocs)
   
   return restrictedDocs;
 }
@@ -190,7 +193,7 @@ export function getDenormalizedCountOfReferencesGetValue<
     if (!isServer) {
       throw new Error(`${collectionName}.${fieldName} getValue called on the client!`);
     }
-    const foreignCollection = context[foreignCollectionName] as CollectionBase<TargetCollectionName>;
+    const foreignCollection = context[foreignCollectionName] as PgCollection<TargetCollectionName>;
     const docsThatMayCount = await getWithLoader<TargetCollectionName>(
       context,
       foreignCollection,

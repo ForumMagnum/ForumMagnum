@@ -100,7 +100,7 @@ export async function sendUserLeavingConversationNotication({newDocument, oldDoc
   }
   for (const userId of usersWhoLeft) {
     const leavingUser = (await Users.findOne(userId));
-    const adminAccountContext = await computeContextFromUser({ user: adminAccount, req: context.req, res: context.res, isSSR: context.isSSR });
+    const adminAccountContext = await computeContextFromUser({ user: adminAccount, req: context.req, isSSR: context.isSSR });
 
     await createMessage({
       data: {

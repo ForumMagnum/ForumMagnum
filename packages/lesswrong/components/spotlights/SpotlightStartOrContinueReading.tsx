@@ -2,14 +2,16 @@ import classNames from 'classnames';
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useItemsRead } from '../hooks/useRecordPostView';
 import { postProgressBoxStyles } from '../sequences/BooksProgressBar';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useQuery } from '@/lib/crud/useQuery';
+import { gql } from '@/lib/generated/gql-codegen';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SpotlightStartOrContinueReading", (theme: ThemeType) => ({
   boxesRoot: {
   },
   firstPost: {
@@ -39,16 +41,44 @@ const styles = (theme: ThemeType) => ({
       border: theme.palette.primary.dark,
       opacity: .4
     },
+}), {
+  stylePriority: -2
 });
 
-export const SpotlightStartOrContinueReading = ({classes, spotlight, className}: {
+export const SpotlightStartOrContinueReadingQuery = gql(`
+  query SpotlightStartOrContinueReadingQuery($spotlightId: String) {
+    spotlight(input: {selector: {documentId: $spotlightId}}) {
+      result {
+        _id
+        sequenceChapters {
+          ...ChaptersFragment
+        }
+      }
+    }
+  }
+`);
+
+export const SpotlightStartOrContinueReading = ({spotlight, className}: {
   spotlight: SpotlightDisplay,
-  classes: ClassesType<typeof styles>,
   className?: string,
 }) => {
-  const chapters = spotlight.sequenceChapters;
-  
+  const classes = useStyles(styles);
   const { postsRead: clientPostsRead } = useItemsRead();
+  
+  // This query is separate from the query in DismissibleSpotlightItem because
+  // when the spotlight is a sequence, the spotlight item differs based on the
+  // read-status of posts in the sequence, so using a cached logged-out version
+  // of the query won't work.
+  const { data } = useQuery(SpotlightStartOrContinueReadingQuery, {
+    variables: {spotlightId: spotlight._id}
+  });
+
+  if (spotlight.documentType !== "Sequence") // Defensive
+    return null;
+  
+  const chapters = data?.spotlight?.result?.sequenceChapters;
+  if (!chapters) return null;
+  
   const posts = chapters?.flatMap(chapter => chapter.posts ?? []) ?? []
   const readPosts = posts.filter(post => post.isRead || clientPostsRead[post._id])
   
@@ -58,9 +88,9 @@ export const SpotlightStartOrContinueReading = ({classes, spotlight, className}:
   // in that collection it wouldn't provide the right 'next post')
   // But, also, the real proper fix here is to integrate continue reading here.
   const firstPost = readPosts.length === 0 && posts[0]
-  const firstPostSequenceId = spotlight.documentType === "Sequence" ? spotlight.documentId : undefined
+  const firstPostSequenceId = spotlight.documentId;
   
-  if (spotlight.documentType !== "Sequence" || !posts.length) return null;
+  if (!posts.length) return null;
   const prefix = forumSelect({
     EAForum: preferredHeadingCase("Start with: "),
     default: preferredHeadingCase("First Post: ")
@@ -88,11 +118,5 @@ export const SpotlightStartOrContinueReading = ({classes, spotlight, className}:
   </div>
   }
 }
-
-export default registerComponent(
-  'SpotlightStartOrContinueReading',
-  SpotlightStartOrContinueReading,
-  {styles, stylePriority: -2}
-);
 
 

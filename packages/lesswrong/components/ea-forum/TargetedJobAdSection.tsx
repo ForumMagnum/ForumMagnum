@@ -5,7 +5,7 @@ import { useIsInView, useTracking } from '../../lib/analyticsEvents';
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
 import TargetedJobAd, { EAGWillingToRelocateOption, JOB_AD_DATA } from './TargetedJobAd';
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { FilterTag, filterModeIsSubscribed } from '../../lib/filterSettings';

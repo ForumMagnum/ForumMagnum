@@ -10,7 +10,7 @@ import { viewTermsToQuery } from '../../lib/utils/viewUtils';
 import { stickiedPostTerms } from '@/lib/collections/posts/constants';
 import groupBy from 'lodash/groupBy';
 import uniq from 'lodash/uniq';
-import { recommendationsTabManuallyStickiedPostIdsSetting } from '../../lib/publicSettings';
+import { recommendationsTabManuallyStickiedPostIdsSetting } from '@/lib/instanceSettings';
 import { getParentTraceId, openPerfMetric, wrapWithPerfMetric } from '../perfMetrics';
 import { performQueryFromViewParameters } from '../resolvers/defaultResolvers';
 import { captureException } from '@sentry/core';

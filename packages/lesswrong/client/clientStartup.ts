@@ -53,6 +53,9 @@ async function clientStartup() {
   initLegacyRoutes();
   hydrateClient();
   
+  // See comment in server/rendering/eventCapture.ts
+  window.__replayEvents?.();
+  
   if (enableVite) {
     setTimeout(removeStaticStylesheet, 1000);
     viteHandleReload();

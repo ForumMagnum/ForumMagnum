@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { calculateVotePower } from './voteTypes';
+import type React from 'react';
+import { calculateVotePower, getVoteAxisStrength } from './voteTypes';
 import { eaEmojiNames } from './eaEmojiPalette';
 import { loadByIds } from '../loaders';
 import { filterNonnull } from '../utils/typeGuardUtils';
@@ -13,14 +13,8 @@ import fromPairs from 'lodash/fromPairs';
 import type { VotingProps } from '../../components/votes/votingProps';
 import type { ContentItemBodyImperative, ContentReplacedSubstringComponentInfo } from '../../components/contents/contentBodyUtil';
 import type { TagLens } from '../arbital/useTagLenses';
-import EAEmojisVoteOnComment from '@/components/votes/EAEmojisVoteOnComment';
-import EAEmojisVoteOnPost from '@/components/votes/EAEmojisVoteOnPost';
-import EAEmojisVoteOnPostSecondary from '@/components/votes/EAEmojisVoteOnPostSecondary';
-import EmojiReactionVoteOnComment from '@/components/votes/EmojiReactionVoteOnComment';
-import ReactBallotVoteOnComment from '@/components/votes/ReactBallotVoteOnComment';
-import TwoAxisVoteOnComment from '@/components/votes/TwoAxisVoteOnComment';
-import VoteOnComment from '@/components/votes/VoteOnComment';
 import { defineVotingSystem } from './defineVotingSystem';
+import type { VotingSystemName } from './votingSystemNames';
 
 export type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics|MultiDocumentMinimumInfo
 
@@ -48,14 +42,10 @@ export type CommentVotingBottomComponent = React.ComponentType<NamesAttachedReac
 export type PostVotingComponent = React.ComponentType<PostVotingComponentProps>;
 
 export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
-  name: string,
+  name: VotingSystemName,
   description: string,
   hasInlineReacts?: boolean,
   userCanActivate?: boolean, // toggles whether non-admins use this voting system
-  getCommentVotingComponent?: () => CommentVotingComponent,
-  getCommentBottomComponent?: () => CommentVotingBottomComponent,
-  getPostBottomVotingComponent?: () => PostVotingComponent,
-  getPostBottomSecondaryVotingComponent?: () => PostVotingComponent,
   addVoteClient: (props: {
     voteType: string|null,
     document: VoteableTypeClient,
@@ -90,7 +80,6 @@ export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
 export const defaultVotingSystem = defineVotingSystem({
   name: "default",
   description: "Reddit-style up/down with strongvotes",
-  getCommentVotingComponent: () => VoteOnComment,
   addVoteClient: ({oldExtendedScore, extendedVote, currentUser}: {oldExtendedScore: AnyBecauseTodo, extendedVote: AnyBecauseTodo, currentUser: UsersCurrent}): AnyBecauseTodo => {
     return null;
   },
@@ -109,7 +98,6 @@ export const twoAxisVotingSystem = defineVotingSystem({
   name: "twoAxis",
   description: "Default (Two-Axis Approve and Agree)",
   userCanActivate: true,
-  getCommentVotingComponent: () => TwoAxisVoteOnComment,
   addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {voteType: string|null, document: VoteableTypeClient, oldExtendedScore: AnyBecauseTodo, extendedVote: AnyBecauseTodo, currentUser: UsersCurrent}): AnyBecauseTodo => {
     const newAgreementPower = calculateVotePower(currentUser.karma, extendedVote?.agreement||"neutral");
     const oldApprovalVoteCount = (oldExtendedScore && "approvalVoteCount" in oldExtendedScore) ? oldExtendedScore.approvalVoteCount : document.voteCount;
@@ -151,13 +139,6 @@ export const twoAxisVotingSystem = defineVotingSystem({
   },
 });
 
-export function getVoteAxisStrength(vote: DbVote, usersById: Record<string,DbUser>, axis: string) {
-  const voteType: string | undefined = vote.extendedVoteType?.[axis];
-  if (!voteType) return 0;
-  const user = usersById[vote.userId];
-  return calculateVotePower(user.karma, voteType);
-}
-
 export type ReactBallotAxis = {
   name: string,
   scoreLabel: string,
@@ -188,7 +169,6 @@ const reactBallotStandaloneReactionNames = reactBallotStandaloneReactions.map(re
 export const reactsBallotVotingSystem = defineVotingSystem({
   name: "reactsBallot",
   description: "React-Ballots",
-  getCommentVotingComponent: () => ReactBallotVoteOnComment,
   addVoteClient: ({oldExtendedScore, extendedVote, currentUser}: {oldExtendedScore: any, extendedVote: any, currentUser: UsersCurrent}): any => {
     const axisScores = fromPairs(reactBallotAxisNames.map(axis => {
       const axisPower = calculateVotePower(currentUser.karma, extendedVote?.[axis]||"neutral");
@@ -254,7 +234,6 @@ const emojiReactionNames = emojiReactions.map(reaction => reaction.name)
 export const emojiReactionsVotingSystem = defineVotingSystem({
   name: "emojiReactions",
   description: "Emoji reactions",
-  getCommentVotingComponent: () => EmojiReactionVoteOnComment,
   addVoteClient: ({oldExtendedScore, extendedVote, currentUser}: {oldExtendedScore: any, extendedVote: any, currentUser: UsersCurrent}): any => {
     const emojiReactCounts = fromPairs(emojiReactionNames.map(reaction => {
       const hasReaction = !!extendedVote?.[reaction];
@@ -292,9 +271,6 @@ const getEmojiReactionPower = (value?: boolean) =>
 export const eaEmojisVotingSystem = defineVotingSystem({
   name: "eaEmojis",
   description: "Approval voting, plus EA Forum emoji reactions",
-  getCommentVotingComponent: () => EAEmojisVoteOnComment,
-  getPostBottomVotingComponent: () => EAEmojisVoteOnPost,
-  getPostBottomSecondaryVotingComponent: () => EAEmojisVoteOnPostSecondary,
   addVoteClient: ({oldExtendedScore, extendedVote, document, voteType}: {
     oldExtendedScore?: Record<string, number>,
     extendedVote?: Record<string, boolean>,

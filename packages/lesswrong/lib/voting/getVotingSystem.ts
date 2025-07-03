@@ -3,6 +3,7 @@
 import { getVotingSystemNameForDocument } from "../collections/comments/helpers";
 import { namesAttachedReactionsVotingSystem } from "./namesAttachedReactions";
 import { reactionsAndLikesVotingSystem } from "./reactionsAndLikes";
+import { VotingSystemName } from "./votingSystemNames";
 import { defaultVotingSystem, eaEmojisVotingSystem, emojiReactionsVotingSystem, reactsBallotVotingSystem, twoAxisVotingSystem, type VotingSystem } from "./votingSystems";
 
 // const votingSystems: Partial<Record<string,VotingSystem>> = {
@@ -41,7 +42,7 @@ const getAllVotingSystems = (() => {
         reactsBallot: reactsBallotVotingSystem,
         emojiReactions: emojiReactionsVotingSystem,
         eaEmojis: eaEmojisVotingSystem,
-      }
+      } satisfies Record<VotingSystemName, VotingSystem>;
     }
     return votingSystems;
   };

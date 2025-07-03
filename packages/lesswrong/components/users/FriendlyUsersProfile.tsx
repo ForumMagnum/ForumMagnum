@@ -22,7 +22,7 @@ import InfoIcon from '@/lib/vendor/@material-ui/icons/src/Info'
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
 import LibraryAddIcon from '@/lib/vendor/@material-ui/icons/src/LibraryAdd'
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { nofollowKarmaThreshold } from '../../lib/publicSettings';
+import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { getUserStructuredData } from './UsersSingle';
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/helpers';
@@ -59,6 +59,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
 import { gql } from "@/lib/generated/gql-codegen";
 import CommentsDraftList from '../comments/CommentsDraftList';
+import { StructuredData } from '../common/StructuredData';
 
 const PostsMinimumInfoMultiQuery = gql(`
   query multiPostFriendlyUsersProfileQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -87,6 +88,12 @@ const UsersProfileMultiQuery = gql(`
     users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
         ...UsersProfile
+        profileTags {
+          ...TagPreviewFragment
+        }
+        organizerOfGroups {
+          ...localGroupsBase
+        }
       }
       totalCount
     }
@@ -524,9 +531,9 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
       description={metaDescription}
       noIndex={(!userPostsCount && !user.commentCount) || user.karma <= 0 || user.noindex}
       image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
-      structuredData={getUserStructuredData(user)}
       useSmallImage
     />
+    <StructuredData generate={() => getUserStructuredData(user)}/>
     <AnalyticsContext pageContext="userPage">
       <SingleColumnSection>
         <div className={classNames(classes.section, classes.mainSection)}>

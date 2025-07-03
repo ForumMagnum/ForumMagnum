@@ -5,16 +5,13 @@ import React, { useContext, useEffect, useState, useRef, useCallback, ReactNode 
 import { hookToHoc } from './hocUtils'
 import { isClient, isServer, isE2E } from './executionEnvironment';
 import { ColorHash } from './vendor/colorHash';
-import { DatabasePublicSetting } from './publicSettings';
+import { flushIntervalSetting } from './instanceSettings';
 import { throttle } from 'underscore';
 import moment from 'moment';
-import { serverCaptureEvent } from '@/server/analytics/serverAnalyticsWriter';
 import { FeedItemType, UltraFeedAnalyticsContext } from '@/components/ultraFeed/ultraFeedTypes';
 import { RelevantTestGroupAllocation } from './abTestImpl';
 import { getShowAnalyticsDebug } from './analyticsDebugging';
-
-export const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "dev");
-const flushIntervalSetting = new DatabasePublicSetting<number>("analyticsFlushInterval", 1000);
+import { serverCaptureEvent } from '@/server/analytics/serverAnalyticsWriter';
 
 // clientContextVars: A dictionary of variables that will be added to every
 // analytics event sent from the client. Client-side only, filled in side-
@@ -36,7 +33,9 @@ export function captureEvent(eventType: string, eventProps?: EventProps, suppres
     if (isServer) {
       // If run from the server, we can run this immediately except for a few
       // events during startup.
-      serverCaptureEvent(eventType, eventProps, suppressConsoleLog);
+      // import('@/server/analytics/serverAnalyticsWriter').then(({ serverCaptureEvent }) => {
+        serverCaptureEvent(eventType, eventProps, suppressConsoleLog);
+      // });
     } else if (isClient) {
       // If run from the client, make a graphQL mutation
       const event = {

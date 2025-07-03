@@ -71,7 +71,7 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
   const isSkippable = comments && !comments.length && !probablyNeverCommentedOn;
 
   const treeOptions: CommentTreeOptions = {
-    scrollOnExpand: true,
+    scrollOnExpand: false,
     lastCommentId: lastCommentId,
     highlightDate: lastVisitedAt ? new Date(lastVisitedAt) : undefined,
     refetch: refetch,

@@ -1,6 +1,6 @@
 import { Images } from '../../server/collections/images/collection';
 import { DatabaseServerSetting } from '../databaseSettings';
-import { ckEditorUploadUrlSetting, cloudinaryCloudNameSetting } from '../../lib/publicSettings';
+import { ckEditorUploadUrlSetting, cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import type { UploadApiResponse } from 'cloudinary';
 import cheerio from 'cheerio';

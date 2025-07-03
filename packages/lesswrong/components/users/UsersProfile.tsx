@@ -16,7 +16,7 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting, taglineSetting, isAF } from '../../lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
-import { nofollowKarmaThreshold } from '../../lib/publicSettings';
+import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { useMessages } from '../common/withMessages';
 import CopyIcon from '@/lib/vendor/@material-ui/icons/src/FileCopy'
@@ -56,6 +56,7 @@ import ContentStyles from "../common/ContentStyles";
 import ReportUserButton from "./ReportUserButton";
 import UserNotifyDropdown from "../notifications/UserNotifyDropdown";
 import CommentsSortBySelector from "../comments/CommentsSortBySelector";
+import { StructuredData } from '../common/StructuredData';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 
@@ -321,9 +322,9 @@ const UsersProfileFn = ({terms, slug, classes}: {
         <HeadTags
           description={metaDescription}
           noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0 || user.noindex}
-          structuredData={getUserStructuredData(user)}
           image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
         />
+        <StructuredData generate={() => getUserStructuredData(user)}/>
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}
           <SingleColumnSection>
@@ -344,16 +345,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                   </LWTooltip>
                 </div>
               }
-              { currentUser?.isAdmin &&
-                <div>
-                  <DialogGroup
-                    actions={[]}
-                    trigger={<a>Register RSS</a>}
-                  >
-                    <div><NewFeedButton user={user} /></div>
-                  </DialogGroup>
-                </div>
-              }
+              { currentUser?.isAdmin && <NewFeedButton user={user} /> }
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
                 {preferredHeadingCase("Manage Subscriptions")}
               </Link>}

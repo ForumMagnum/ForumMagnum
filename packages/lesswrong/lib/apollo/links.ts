@@ -3,12 +3,9 @@ import { SchemaLink } from '@apollo/client/link/schema';
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { onError } from '@apollo/client/link/error';
 import { isServer } from '../executionEnvironment';
-import { DatabasePublicSetting } from "../publicSettings";
+import { graphqlBatchMaxSetting } from '../instanceSettings';
 import { ApolloLink, Operation, selectURI } from "@apollo/client/core";
-
-const graphqlBatchMaxSetting = new DatabasePublicSetting('batchHttpLink.batchMax', 50)
-
-export const crosspostUserAgent = "ForumMagnum/2.1";
+import { crosspostUserAgent } from "./constants";
 
 /**
  * "Links" are Apollo's way of defining the source to read our data from, and they need to
@@ -29,7 +26,7 @@ export const createSchemaLink = (schema: GraphQLSchema, context: ResolverContext
 /**
  * Http link is used for client side rendering
  */
-export const createHttpLink = (baseUrl = '/') => {
+export const createHttpLink = (baseUrl: string, loginToken?: string) => {
   const uri = baseUrl + 'graphql';
 
   const batchKey = (operation: Operation) => {
@@ -59,6 +56,7 @@ export const createHttpLink = (baseUrl = '/') => {
         ...options?.headers,
         // user agent because LW bans bot agents
         'User-Agent': crosspostUserAgent,
+        ...(loginToken ? { loginToken } : {}),
       }
     })
     : globalThis.fetch;
@@ -95,15 +93,8 @@ const locationsToStr = (locations: readonly SourceLocation[] = []) =>
  * This is an extra utility link that is currently used for client side error handling
  */
 export const createErrorLink = () =>
-  onError(({ graphQLErrors, networkError }) => {
-    if (graphQLErrors)
-      graphQLErrors.map(({ message, locations, path }) => {
-        const locationStr = locations && locationsToStr([...locations]);
-        // eslint-disable-next-line no-console
-        console.error(`[GraphQL error]: Message: ${message}, Location: ${locationStr}, Path: ${path}`);
-      });
-    if (networkError) {
-      // eslint-disable-next-line no-console
-      console.error(`[Network error]: ${networkError}`);
-    }
+  onError((errorResponse) => {
+    const { error } = errorResponse;
+    // eslint-disable-next-line no-console
+    console.error(error.message);
   });

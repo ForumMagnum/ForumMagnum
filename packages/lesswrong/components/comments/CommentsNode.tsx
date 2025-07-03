@@ -7,7 +7,7 @@ import { CommentTreeNode, commentTreesEqual, flattenCommentBranch } from '../../
 import type { CommentTreeOptions } from './commentTree';
 import CommentFrame, { HIGHLIGHT_DURATION } from './CommentFrame';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
-import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
+import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { useCommentLinkState } from './CommentsItem/useCommentLink';
 import SingleLineComment from "./SingleLineComment";
 import CommentsItem from "./CommentsItem/CommentsItem";

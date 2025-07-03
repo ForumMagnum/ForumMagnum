@@ -8,6 +8,10 @@
  * - Preparing threads for display (expansion/highlighting)
  */
 
+// Safety limits for recursive thread building
+const MAX_DEPTH = 50;
+const MAX_TOTAL_PATHS = 1000;
+
 import { UltraFeedResolverSettings, CommentScoringSettings, ThreadInterestModelSettings } from '../../components/ultraFeed/ultraFeedSettingsTypes';
 import { 
   PreDisplayFeedComment, 
@@ -20,21 +24,19 @@ import {
 } from '../../components/ultraFeed/ultraFeedTypes';
 import * as crypto from 'crypto';
 
-  /**
-   * Generates a stable hash ID for a comment thread based on its comment IDs (sensitive to sort order).
-   * This MUST match the hash generation logic used in the resolver when checking against served threads.
-   */
-  export function generateThreadHash(commentIds: string[]): string {
-    if (!commentIds || commentIds.length === 0) {
-      // Return a consistent identifier for empty/invalid threads
-      return 'empty_thread_hash';
-    }
-
-    const hash = crypto.createHash('sha256');
-    hash.update(commentIds.join(','));
-    return hash.digest('hex');
+/**
+ * Generates a stable hash ID for a comment thread based on its comment IDs. This creates a consistent identifier for each unique thread composition.
+ */
+export function generateThreadHash(commentIds: string[]): string {
+  if (!commentIds || commentIds.length === 0) {
+    return 'empty_thread_hash';
   }
-
+  
+  const sortedIds = [...commentIds].sort();
+  const hash = crypto.createHash('sha256');
+  hash.update(sortedIds.join(','));
+  return hash.digest('hex');
+}
 
 /**
  * Builds distinct linear comment threads from a set of comments
@@ -44,6 +46,8 @@ export function buildDistinctLinearThreads(
   candidates: FeedCommentFromDb[]
 ): PreDisplayFeedCommentThread[] {
   if (!candidates.length) return [];
+
+  let totalPathsGenerated = 0;
 
   const children: Record<string, string[]> = {};
   for (const c of candidates) {
@@ -55,15 +59,18 @@ export function buildDistinctLinearThreads(
   }
 
   const enhancedCandidates: PreDisplayFeedComment[] = candidates.map(candidate => {
+    const descendentCount = candidate.descendentCount ?? 0;
     const directDescendentCount = children[candidate.commentId] ? children[candidate.commentId].length : 0;
 
     return {
       commentId: candidate.commentId,
       postId: candidate.postId,
       baseScore: candidate.baseScore,
+      parentCommentId: candidate.parentCommentId ?? undefined,
       topLevelCommentId: candidate.topLevelCommentId,
       metaInfo: {
         sources: candidate.sources as FeedItemSourceType[],
+        descendentCount,
         directDescendentCount,
         lastServed: candidate.lastServed,
         lastViewed: candidate.lastViewed,
@@ -85,20 +92,51 @@ export function buildDistinctLinearThreads(
     return [];
   }
 
-  const buildCommentThreads = (currentId: string): PreDisplayFeedCommentThread[] => {
+  const buildCommentThreads = (
+    currentId: string, 
+    visited = new Set<string>(),
+    depth = 0
+  ): PreDisplayFeedCommentThread[] => {
+    if (depth > MAX_DEPTH) {
+      // eslint-disable-next-line no-console
+      console.warn(`[buildDistinctLinearThreads] Max depth ${MAX_DEPTH} exceeded at comment ${currentId}`);
+      return [];
+    }
+
+    if (visited.has(currentId)) {
+      // eslint-disable-next-line no-console
+      console.error(`[buildDistinctLinearThreads] Cycle detected at comment ${currentId}`);
+      return [];
+    }
+
+    if (totalPathsGenerated >= MAX_TOTAL_PATHS) {
+      // eslint-disable-next-line no-console
+      console.warn(`[buildDistinctLinearThreads] Max total paths ${MAX_TOTAL_PATHS} reached`);
+      return [];
+    }
+
     const currentCandidate = commentsById.get(currentId);
     if (!currentCandidate) return [];
 
+    // Add current node to visited set
+    const newVisited = new Set(visited);
+    newVisited.add(currentId);
+
     const childIds = children[currentId] || [];
     if (!childIds.length) {
+      totalPathsGenerated++;
       return [[currentCandidate]]; // Leaf node
     }
 
     const results: PreDisplayFeedCommentThread[] = [];
     for (const cid of childIds) {
-      const subPaths = buildCommentThreads(cid);
+      const subPaths = buildCommentThreads(cid, newVisited, depth + 1);
       for (const subPath of subPaths) {
+        if (totalPathsGenerated >= MAX_TOTAL_PATHS) {
+          break;
+        }
         results.push([currentCandidate, ...subPath]);
+        totalPathsGenerated++;
       }
     }
     return results;
@@ -128,7 +166,7 @@ interface PrioritizedThread {
 }
 
 interface PreparedFeedCommentsThread extends FeedCommentsThread {
-  primarySource: FeedItemSourceType | null;
+  primarySource: FeedItemSourceType;
 }
 
 /**
@@ -137,7 +175,7 @@ interface PreparedFeedCommentsThread extends FeedCommentsThread {
  */
 function calculateCommentScore(
   comment: FeedCommentFromDb,
-  settings: Pick<CommentScoringSettings, 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost' | 'commentSubscribedAuthorMultiplier'>,
+  settings: Pick<CommentScoringSettings, 'commentDecayFactor' | 'commentDecayBiasHours' | 'quickTakeBoost' | 'commentSubscribedAuthorMultiplier'>,
   subscribedToUserIds: Set<string>
 ): number {
   if (!comment.postedAt) {
@@ -164,7 +202,7 @@ function calculateCommentScore(
   const boostedScore = decayedScore * boost;
 
   const hasBeenSeenOrInteracted = comment.lastViewed !== null || comment.lastInteracted !== null;
-  const finalScore = boostedScore * (hasBeenSeenOrInteracted ? settings.ultraFeedSeenPenalty : 1.0);
+  const finalScore = boostedScore * (hasBeenSeenOrInteracted ? 0 : 1.0);
 
   return Number.isFinite(finalScore) && finalScore >= 0 ? finalScore : 0;
 }
@@ -227,7 +265,7 @@ function calculateThreadBaseScore(
  */
 function scoreComments(
   comments: FeedCommentFromDb[],
-  settings: Pick<CommentScoringSettings, 'commentDecayFactor' | 'commentDecayBiasHours' | 'ultraFeedSeenPenalty' | 'quickTakeBoost' | 'commentSubscribedAuthorMultiplier'>,
+  settings: Pick<CommentScoringSettings, 'commentDecayFactor' | 'commentDecayBiasHours' | 'quickTakeBoost' | 'commentSubscribedAuthorMultiplier'>,
   subscribedToUserIds: Set<string>
 ): IntermediateScoredComment[] { 
   return comments.map(comment => ({
@@ -268,6 +306,20 @@ function calculateThreadEngagementMultiplier(
 
     if (engagementData.isOnReadPost) {
       cumulativeProductOfEffects *= Math.max(0, onReadPostFactor);
+    }
+    
+    if (engagementData.recentServingCount > 0 && engagementData.servingHoursAgo) {
+      let repetitionPenalty = 1.0;
+      const repetitionDecayHours = threadInterestModel.repetitionDecayHours;
+      const repetitionPenaltyStrength = threadInterestModel.repetitionPenaltyStrength;
+      
+      for (const hoursAgo of engagementData.servingHoursAgo) {
+        // Full penalty at 0 hours, decays as 1/(1 + hoursAgo/bias)
+        const decayFactor = 1 / (1 + (hoursAgo / repetitionDecayHours));
+        repetitionPenalty *= (1 - (repetitionPenaltyStrength * decayFactor));
+      }
+      
+      cumulativeProductOfEffects *= repetitionPenalty;
     }
   }
 
@@ -393,10 +445,11 @@ function prepareThreadForDisplay(
   const numComments = thread.length;
   if (numComments === 0) return null;
 
-  // Determine primary source (e.g., from the first comment)
-  // If the first comment has no source, the thread gets no primary source.
-  const firstCommentSource = thread[0]?.sources?.[0] as FeedItemSourceType | undefined;
-  const primarySource = firstCommentSource ?? null; // Use first source or null
+  // Find the first comment in the thread that was an initial candidate. Threads are ordered root-first, so this finds the candidate closest to the root.
+  const initialCandidateComment = thread.find(comment => comment.isInitialCandidate);
+
+  // The primarySource for the entire thread is determined by that single candidate comment.
+  const primarySource = (initialCandidateComment?.primarySource ?? thread[0]?.primarySource ?? 'recentComments')
 
   const expandedCommentIds = new Set<string>();
 
@@ -429,7 +482,8 @@ function prepareThreadForDisplay(
 
     const newMetaInfo: FeedCommentMetaInfo = {
       sources: comment.sources as FeedItemSourceType[],
-      directDescendentCount: comment.metaInfo?.directDescendentCount ?? 0, 
+      descendentCount: comment.metaInfo?.descendentCount ?? 0, 
+      directDescendentCount: comment.metaInfo?.directDescendentCount ?? 0,
       lastServed: comment.lastServed, 
       lastViewed: comment.lastViewed,
       lastInteracted: comment.lastInteracted,
@@ -449,7 +503,7 @@ function prepareThreadForDisplay(
 
   return {
     comments: finalComments,
-    primarySource
+    primarySource: primarySource as FeedItemSourceType,
   };
 }
 
@@ -461,7 +515,6 @@ export async function getUltraFeedCommentThreads(
   context: ResolverContext,
   limit = 20,
   settings: UltraFeedResolverSettings,
-  servedThreadHashes: Set<string> = new Set(),
   initialCandidateLookbackDays: number,
   commentServedEventRecencyHours: number,
   threadEngagementLookbackDays: number
@@ -520,16 +573,24 @@ export async function getUltraFeedCommentThreads(
   // --- Select Best Threads --- 
   const finalRankedThreads = selectBestThreads(allScoredThreads); 
 
-  // --- Prepare for Display --- 
-  const unservedRankedThreads = finalRankedThreads.filter(rankedThreadInfo => {
+  // --- Filter out non-viable threads ---
+  const viableThreads = finalRankedThreads.filter(rankedThreadInfo => {
     const thread = rankedThreadInfo.thread;
-    if (!thread || thread.length === 0) return false;
-    const commentIds = thread.map(c => c.commentId);
-    const threadHash = generateThreadHash(commentIds);
-    return !servedThreadHashes.has(threadHash);
+    
+    // Exclude threads with zero or negative scores
+    if (rankedThreadInfo.score <= 0) return false;
+    
+    // Exclude threads where ALL comments have been viewed or interacted with
+    const hasUnviewedComment = thread.some(comment => 
+      !comment.lastViewed && !comment.lastInteracted
+    );
+    if (!hasUnviewedComment) return false;
+    
+    return true;
   });
-  
-  const displayThreads = unservedRankedThreads
+
+  // --- Prepare for Display --- 
+  const displayThreads = viableThreads
     .slice(0, limit) 
     .map(rankedThreadInfo => prepareThreadForDisplay(rankedThreadInfo))
     .filter(rankedThreadInfo => !!rankedThreadInfo);

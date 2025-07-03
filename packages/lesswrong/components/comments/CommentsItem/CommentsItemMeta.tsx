@@ -10,7 +10,7 @@ import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
 import { isBookUI, isFriendlyUI } from "../../../themes/forumTheme";
-import { commentPermalinkStyleSetting } from "@/lib/publicSettings";
+import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import CommentShortformIcon from "./CommentShortformIcon";
 import CommentDiscussionIcon from "./CommentDiscussionIcon";
 import ShowParentComment from "../ShowParentComment";

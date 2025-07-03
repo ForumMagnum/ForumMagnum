@@ -13,6 +13,9 @@ import ContentStyles from "../common/ContentStyles";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
+import { getCkCommentEditor } from '../../lib/wrapCkEditor';
+import type { Editor } from '@ckeditor/ckeditor5-core';
 
 const ModerationTemplateFragmentMultiQuery = gql(`
   query multiModerationTemplateRejectContentDialogQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
@@ -45,6 +48,41 @@ const styles = (theme: ThemeType) => ({
   },
   hideModalTextField: {
     display: 'none'
+  },
+  editorContainer: {
+    marginTop: 10,
+    minHeight: 150,
+    '& .ck-editor__editable': {
+      minHeight: 150,
+    },
+  },
+  hideEditorContainer: {
+    display: 'none'
+  },
+  defaultIntroMessage: {
+    marginTop: 10,
+    marginBottom: 10,
+    padding: 12,
+    backgroundColor: theme.palette.grey[100],
+    borderRadius: 4,
+    fontSize: 14,
+    '& p': {
+      margin: '0 0 10px 0',
+      '&:last-child': {
+        margin: 0,
+      }
+    },
+    '& a': {
+      color: theme.palette.primary.main,
+    }
+  },
+  defaultIntroHeader: {
+    fontSize: 12,
+    fontWeight: 600,
+    color: theme.palette.grey[600],
+    marginBottom: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   card: {
     padding: 12,
@@ -81,6 +119,7 @@ const RejectContentDialog = ({classes, rejectContent}: {
   const [hideTextField, setHideTextField] = useState(true);
   const [rejectedReason, setRejectedReason] = useState('');
   const [showMore, setShowMore] = useState(false)
+  const [editor, setEditor] = useState<Editor | null>(null);
 
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(ModerationTemplateFragmentMultiQuery, {
     variables: {
@@ -112,7 +151,34 @@ const RejectContentDialog = ({classes, rejectContent}: {
     }</ul>`;
 
     setRejectedReason(composedReason);
+    if (editor) {
+      editor.setData(composedReason);
+    }
   };
+
+  const CommentEditor = getCkCommentEditor();
+
+  const editorConfig = {
+    toolbar: [
+      'bold',
+      'italic',
+      '|',
+      'link',
+      '|',
+      'bulletedList',
+      'numberedList',
+      '|',
+      'blockQuote',
+    ],
+    placeholder: 'Enter rejection reason...',
+  };
+
+  // Standard rejection intro that will be prepended to the message
+  const standardIntroHtml = `
+    <p>Unfortunately, I rejected your [content].</p>
+    <p>LessWrong aims for particularly high quality (and somewhat oddly-specific) discussion quality. We get a lot of content from new users and sadly can't give detailed feedback on every piece we reject, but I generally recommend checking out our <a href="https://www.lesswrong.com/posts/LbbrnRvc9QwjJeics/new-user-s-guide-to-lesswrong">New User's Guide</a>, in particular the section on <a href="https://www.lesswrong.com/posts/LbbrnRvc9QwjJeics/new-user-s-guide-to-lesswrong#How_to_ensure_your_first_post_or_comment_is_well_received">how to ensure your content is approved</a>.</p>
+    <p>Your content didn't meet the bar for at least the following reason(s):</p>
+  `;
 
   const dialogContent = <div className={classes.rejectionCheckboxes}>
     {rejectionTemplates.map((template, i) => {
@@ -137,15 +203,26 @@ const RejectContentDialog = ({classes, rejectContent}: {
     <div className={classes.loadMore}>
       <LoadMore {...loadMoreProps} />
     </div>
-    <TextField
-      id="comment-moderation-rejection-reason"
-      label="Full message"
-      className={classNames(classes.modalTextField, { [classes.hideModalTextField]: hideTextField })}
-      value={rejectedReason}
-      onChange={(event) => setRejectedReason(event.target.value)}
-      fullWidth
-      multiline
-    />
+    <div className={classNames(classes.editorContainer, { [classes.hideEditorContainer]: hideTextField })}>
+      <div className={classes.defaultIntroMessage}>
+        <ContentStyles contentType='comment'>
+          <ContentItemBody dangerouslySetInnerHTML={{__html: standardIntroHtml}} />
+        </ContentStyles>
+      </div>
+      <CKEditor
+        editor={CommentEditor}
+        data={rejectedReason}
+        config={editorConfig}
+        isCollaborative={false}
+        onReady={(editor: Editor) => {
+          setEditor(editor);
+        }}
+        onChange={(event: any, editor: Editor) => {
+          const data = editor.getData();
+          setRejectedReason(data);
+        }}
+      />
+    </div>
   </div>
   
   return (

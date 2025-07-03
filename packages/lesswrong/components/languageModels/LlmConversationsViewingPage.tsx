@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";

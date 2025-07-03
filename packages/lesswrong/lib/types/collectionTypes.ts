@@ -37,7 +37,6 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
 
   isConnected: () => boolean
   isVoteable: () => this is CollectionBase<VoteableCollectionName>;
-  hasSlug: () => boolean
   getTable: () => Table<ObjectsByCollectionName[N]>;
   getIndexes: () => DatabaseIndexSet;
 
@@ -88,6 +87,7 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
 type CollectionOptions<N extends CollectionNameString> = {
   typeName: string,
   collectionName: N,
+  schema: Record<string, CollectionFieldSpecification<N>>,
   dbCollectionName?: string,
   writeAheadLogged?: boolean,
   dependencies?: SchemaDependency[],
@@ -102,7 +102,7 @@ interface FindResult<T> {
 
 type ViewFunction<N extends CollectionNameString = CollectionNameString> = (
   terms: ViewTermsByCollectionName[N],
-  apolloClient?: ApolloClient<NormalizedCacheObject>,
+  apolloClient?: ApolloClient,
   context?: ResolverContext,
 ) => ViewQueryAndOptions<N>;
 
@@ -332,7 +332,15 @@ interface ResolverContext extends CollectionsByName {
   userId: string|null,
   clientId: string|null,
   currentUser: DbUser|null,
-  visitorActivity: DbUserActivity|null,
+
+  /**
+   * Hack to make visitorActivity acceptable to posts-list resolvers, in a
+   * non-async context. If missing from the ResolverContext, this hasn't been
+   * queried; if present and null, it's been queried but there's no activity
+   * data. If present it's the return value of getUserActivity.
+   */
+  visitorActivity?: DbUserActivity|null,
+
   locale: string,
   isSSR: boolean,
   isGreaterWrong: boolean,
@@ -347,8 +355,7 @@ interface ResolverContext extends CollectionsByName {
     [CollectionName in CollectionNameString]: DataLoader<string,ObjectsByCollectionName[CollectionName]>
   }
   extraLoaders: Record<string,any>
-  req?: NextRequest & {logIn: any, logOut: any, cookies: any, headers: any},
-  res?: NextResponse,
+  req?: NextRequest,
   repos: Repos,
   perfMetric?: IncompletePerfMetric,
 }

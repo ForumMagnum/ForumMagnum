@@ -4,6 +4,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useUserLocation } from '@/components/hooks/useUserLocation';
 import { isEAForum } from '../../../lib/instanceSettings';
 import TabNavigationEventsList from "../../localGroups/TabNavigationEventsList";
+import { SuspenseWrapper } from '../SuspenseWrapper';
 
 export const EventsList = ({currentUser, onClick}: {
   currentUser: UsersCurrent | null,
@@ -20,7 +21,9 @@ export const EventsList = ({currentUser, onClick}: {
     }
     return <span>
       <AnalyticsContext pageSubSectionContext="menuEventsList">
-        <TabNavigationEventsList onClick={onClick} terms={nearbyTerms} />
+        <SuspenseWrapper name="TabNavigationEventsList">
+          <TabNavigationEventsList onClick={onClick} terms={nearbyTerms} />
+        </SuspenseWrapper>
       </AnalyticsContext>
     </span>
   }
@@ -36,8 +39,10 @@ export const EventsList = ({currentUser, onClick}: {
   }
   return <span>
     <AnalyticsContext pageSubSectionContext="menuEventsList">
-      <TabNavigationEventsList onClick={onClick} terms={globalTerms} />
-      {!isEAForum && <TabNavigationEventsList onClick={onClick} terms={eventsListTerms} />}
+      <SuspenseWrapper name="TabNavigationEventsList">
+        <TabNavigationEventsList onClick={onClick} terms={globalTerms} />
+        {!isEAForum && <TabNavigationEventsList onClick={onClick} terms={eventsListTerms} />}
+      </SuspenseWrapper>
     </AnalyticsContext>
   </span>
 }

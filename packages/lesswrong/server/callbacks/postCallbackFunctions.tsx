@@ -9,7 +9,7 @@ import { getLatestContentsRevision } from "@/server/collections/revisions/helper
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { isAnyTest, isE2E } from "@/lib/executionEnvironment";
 import { eaFrontpageDateDefault, isEAForum, requireReviewToFrontpagePostsSetting } from "@/lib/instanceSettings";
-import { recombeeEnabledSetting, vertexEnabledSetting } from "@/lib/publicSettings";
+import { recombeeEnabledSetting, vertexEnabledSetting } from '@/lib/instanceSettings';
 import { asyncForeachSequential } from "@/lib/utils/asyncUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from "../curationEmails/cron";
@@ -392,7 +392,7 @@ const utils = {
       moderator: true
     };
 
-    const lwAccountContext = await computeContextFromUser({ user: lwAccount, req: context.req, res: context.res, isSSR: context.isSSR });
+    const lwAccountContext = await computeContextFromUser({ user: lwAccount, req: context.req, isSSR: context.isSSR });
 
     const conversation = await createConversation({
       data: conversationData,

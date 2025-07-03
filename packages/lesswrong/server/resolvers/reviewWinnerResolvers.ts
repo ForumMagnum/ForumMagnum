@@ -18,7 +18,7 @@ export async function initReviewWinnerCache() {
 
 async function restrictReviewWinnerPostFields(reviewWinners: ReviewWinnerWithPost[], context: ResolverContext) {
   return Promise.all(reviewWinners.map(async ({ reviewWinner, ...post }) => ({
-    ...(await restrictViewableFieldsSingle(context.currentUser, 'Posts', post)),
+    ...(await restrictViewableFieldsSingle(context.currentUser, context.Posts, post)),
     reviewWinner
   })));
 }

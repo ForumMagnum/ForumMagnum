@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { forumTypeSetting, isEAForum } from '../../instanceSettings';
-import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
+import { hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
 import { ReviewYear } from '../../reviewUtils';
 import pick from 'lodash/pick';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
@@ -104,7 +104,7 @@ const getDraftSelector = ({ drafts = "include-my-draft-replies", context }: { dr
   }
 };
 
-function defaultView(terms: CommentsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
+function defaultView(terms: CommentsViewTerms, _: ApolloClient, context?: ResolverContext) {
   const validFields = pick(terms, 'userId', 'authorIsUnreviewed');
 
   const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
@@ -537,7 +537,7 @@ function shortform(terms: CommentsViewTerms) {
   };
 }
 
-function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
+function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient, context?: ResolverContext) {
   const twoHoursAgo = moment().subtract(2, 'hours').toDate();
   const maxAgeDays = terms.maxAgeDays ?? 5;
   const currentUserId = context?.currentUser?._id;

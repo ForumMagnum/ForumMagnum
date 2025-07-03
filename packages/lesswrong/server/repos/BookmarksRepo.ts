@@ -7,12 +7,13 @@ interface UltraFeedBookmark {
   documentId: string;
   collectionName: string;
   postId: string | null;
-  directChildrenCount: number | null;
+  descendentCount: number | null;
+  directDescendentCount: number | null;
 }
 
 class BookmarksRepo extends AbstractRepo<"Bookmarks"> {
-  constructor() {
-    super(Bookmarks);
+  constructor(sqlClient?: SqlClient) {
+    super(Bookmarks, sqlClient);
   }
 
   public async upsertBookmark(userId: string, documentId: string, collectionName: string): Promise<DbBookmark> {
@@ -35,6 +36,38 @@ class BookmarksRepo extends AbstractRepo<"Bookmarks"> {
     });
   }
 
+  public async updateBookmarkCountForUser(userId: string): Promise<void> {
+    await  this.none(`
+      UPDATE "Users" u
+      SET "bookmarksCount" = (
+        SELECT count(*) FROM "Bookmarks" b
+        WHERE b."userId" = $1
+        AND b."active"
+      )
+      WHERE u._id = $1
+    `, [userId]);
+  }
+
+  /**
+   * Update the denormalized bookmarksCount field on all users. Intended for
+   * migration (ie when the field is newly created). This took ~10s on the LW
+   * dev DB.
+   */
+  public async updateBookmarkCountForAllUsers(): Promise<void> {
+    await  this.none(`
+      WITH counts AS (
+        SELECT "userId", COUNT(*) AS cnt
+        FROM   "Bookmarks"
+        WHERE  "active"
+        GROUP  BY "userId"
+      )
+      UPDATE "Users" u
+      SET    "bookmarksCount" = c.cnt
+      FROM   counts c
+      WHERE  u._id = c."userId";
+    `);
+  }
+
   /**
    * Gets bookmark items for the UltraFeed
    * Prioritizes more recent bookmarks with some randomness.
@@ -49,7 +82,8 @@ class BookmarksRepo extends AbstractRepo<"Bookmarks"> {
         b."documentId",
         b."collectionName",
         c."postId",
-        c."directChildrenCount"
+        c."descendentCount",
+        c."directChildrenCount" as "directDescendentCount"
       FROM "Bookmarks" b
       LEFT JOIN "Comments" c ON b."documentId" = c."_id"
       WHERE b."userId" = $(userId)

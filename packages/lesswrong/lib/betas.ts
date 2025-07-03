@@ -19,7 +19,7 @@ import {
 } from './instanceSettings'
 import { isAdmin, userOverNKarmaOrApproved } from "./vulcan-users/permissions";
 import {isFriendlyUI} from '../themes/forumTheme'
-import { userIdsWithAccessToLlmChat } from './publicSettings';
+import { userIdsWithAccessToLlmChat } from './instanceSettings';
 import { isAnyTest } from './executionEnvironment';
 
 // States for in-progress features

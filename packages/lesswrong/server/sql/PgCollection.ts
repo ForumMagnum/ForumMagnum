@@ -12,7 +12,6 @@ import BulkWriter, { BulkWriterResult } from "./BulkWriter";
 import util from "util";
 import { DatabaseIndexSet } from "../../lib/utils/databaseIndexSet";
 import TableIndex from "./TableIndex";
-import { getSchema } from "@/lib/schema/allSchemas";
 
 let executingQueries = 0;
 
@@ -43,7 +42,7 @@ type ExecuteQueryData<T extends DbObject> = {
  * PgCollection is the main external interface for other parts of the codebase to
  * access data inside of Postgres.
  */
-class PgCollection<
+class PgCollectionClass<
   N extends CollectionNameString = CollectionNameString
 > implements CollectionBase<N> {
   collectionName: N;
@@ -51,12 +50,14 @@ class PgCollection<
   postProcess?: (data: ObjectsByCollectionName[N]) => ObjectsByCollectionName[N];
   typeName: string;
   options: CollectionOptions<N>;
+  schema: Record<string, CollectionFieldSpecification<N>>;
 
   private table: Table<ObjectsByCollectionName[N]>;
 
   constructor(options: CollectionOptions<N>) {
     this.collectionName = options.collectionName;
     this.typeName = options.typeName;
+    this.schema = options.schema;
     this.tableName = options.dbCollectionName ?? options.collectionName.toLowerCase();
     this.options = options;
   }
@@ -65,16 +66,14 @@ class PgCollection<
     return !!getSqlClient();
   }
 
-  isVoteable(): this is CollectionBase<VoteableCollectionName> & PgCollection<VoteableCollectionName> {
+  isVoteable(): this is CollectionBase<VoteableCollectionName> & PgCollectionClass<VoteableCollectionName> {
     return !!this.options.voteable;
   }
 
-  hasSlug(): this is PgCollection<CollectionNameWithSlug> {
-    const schema = getSchema(this.collectionName);
-    return !!schema.slug;
-  }
-
   getTable() {
+    if (!this.table) {
+      this.buildPostgresTable();
+    }
     return this.table;
   }
 
@@ -209,7 +208,7 @@ class PgCollection<
   async rawUpdateOne(
     selector: string | MongoSelector<ObjectsByCollectionName[N]>,
     modifier: MongoModifier,
-    options: MongoUpdateOptions<ObjectsByCollectionName[N]>,
+    options?: MongoUpdateOptions<ObjectsByCollectionName[N]>,
   ) {
     if (options?.upsert) {
       return this.upsert(selector, modifier, options);
@@ -308,7 +307,7 @@ class PgCollection<
     findOneAndUpdate: async (
       selector: string | MongoSelector<ObjectsByCollectionName[N]>,
       modifier: MongoModifier,
-      options: MongoUpdateOptions<ObjectsByCollectionName[N]>,
+      options?: MongoUpdateOptions<ObjectsByCollectionName[N]>,
     ) => {
       const update = new UpdateQuery<ObjectsByCollectionName[N]>(this.getTable(), selector, modifier, options, {limit: 1, returnUpdated: true});
       const result = await this.executeWriteQuery(update, {selector, modifier, options});
@@ -347,4 +346,8 @@ class PgCollection<
   });
 }
 
-export default PgCollection;
+declare global {
+  interface PgCollection<N extends CollectionNameString> extends PgCollectionClass<N> {}
+}
+
+export default PgCollectionClass;

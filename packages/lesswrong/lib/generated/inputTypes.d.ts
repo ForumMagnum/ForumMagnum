@@ -35,7 +35,6 @@ interface Query {
   CuratedAndPopularThisWeek: CuratedAndPopularThisWeekResult | null;
   RecentlyActiveDialogues: RecentlyActiveDialoguesResult | null;
   MyDialogues: MyDialoguesResult | null;
-  GoogleVertexPosts: GoogleVertexPostsResult | null;
   CrossedKarmaThreshold: CrossedKarmaThresholdResult | null;
   RecombeeLatestPosts: RecombeeLatestPostsResult | null;
   RecombeeHybridPosts: RecombeeHybridPostsResult | null;
@@ -67,6 +66,7 @@ interface Query {
   convertDocument: any;
   latestGoogleDocMetadata: any;
   moderatorViewIPAddress: ModeratorIPAddressInfo | null;
+  currentSpotlight: Spotlight | null;
   RssPostChanges: RssPostChangeInfo;
   AdminMetadata: string | null;
   currentUser: User | null;
@@ -255,9 +255,6 @@ interface Mutation {
   RemoveForumEventSticker: boolean | null;
   unlockPost: Post | null;
   revertPostToRevision: Post | null;
-  sendVertexViewItemEvent: boolean;
-  sendVertexMediaCompleteEvent: boolean;
-  sendVertexViewHomePageEvent: boolean;
   importUrlAsDraftPost: ExternalPostImportData;
   revertTagToRevision: Tag | null;
   autosaveRevision: Revision | null;
@@ -359,6 +356,7 @@ interface Mutation {
   createTag: TagOutput | null;
   updateTag: TagOutput | null;
   createUltraFeedEvent: UltraFeedEventOutput | null;
+  updateUltraFeedEvent: UltraFeedEventOutput | null;
   createUserEAGDetail: UserEAGDetailOutput | null;
   updateUserEAGDetail: UserEAGDetailOutput | null;
   createUserJobAd: UserJobAdOutput | null;
@@ -420,7 +418,7 @@ interface CoauthorStatusInput {
 }
 
 interface SocialPreviewInput {
-  imageId: string;
+  imageId?: string | null;
   text?: string | null;
 }
 
@@ -437,7 +435,7 @@ interface CoauthorStatusOutput {
 }
 
 interface SocialPreviewOutput {
-  imageId: string;
+  imageId: string | null;
   text: string | null;
 }
 
@@ -878,10 +876,6 @@ interface RecentlyActiveDialoguesResult {
 
 interface MyDialoguesResult {
   results: Array<Post>;
-}
-
-interface GoogleVertexPostsResult {
-  results: Array<VertexRecommendedPost>;
 }
 
 interface CrossedKarmaThresholdResult {
@@ -7215,6 +7209,8 @@ interface User {
   bannedUserIds: Array<string> | null;
   bannedPersonalUserIds: Array<string> | null;
   bookmarkedPostsMetadata: Array<PostMetadataOutput> | null;
+  bookmarksCount: number | null;
+  hasAnyBookmarks: boolean | null;
   bookmarkedPosts: Array<Post> | null;
   hiddenPostsMetadata: Array<PostMetadataOutput> | null;
   hiddenPosts: Array<Post> | null;
@@ -7323,6 +7319,7 @@ interface User {
   shortformFeed: Post | null;
   viewUnreviewedComments: boolean | null;
   partiallyReadSequences: Array<PartiallyReadSequenceItemOutput> | null;
+  hasContinueReading: boolean | null;
   beta: boolean | null;
   reviewVotesQuadratic: boolean | null;
   reviewVotesQuadratic2019: boolean | null;
@@ -7750,6 +7747,8 @@ interface UpdateCommentDataInput {
   legacyData?: any;
   contents?: CreateRevisionDataInput | null;
   postedAt?: Date | null;
+  postId?: string | null;
+  tagId?: string | null;
   subforumStickyPriority?: number | null;
   authorIsUnreviewed?: boolean | null;
   answer?: boolean | null;
@@ -9149,6 +9148,10 @@ interface CreateUltraFeedEventInput {
   data: CreateUltraFeedEventDataInput;
 }
 
+interface UpdateUltraFeedEventDataInput {
+  event?: any;
+}
+
 interface UltraFeedEventOutput {
   data: UltraFeedEvent | null;
 }
@@ -9746,7 +9749,6 @@ interface GraphQLTypeMap {
   CuratedAndPopularThisWeekResult: CuratedAndPopularThisWeekResult;
   RecentlyActiveDialoguesResult: RecentlyActiveDialoguesResult;
   MyDialoguesResult: MyDialoguesResult;
-  GoogleVertexPostsResult: GoogleVertexPostsResult;
   CrossedKarmaThresholdResult: CrossedKarmaThresholdResult;
   RecombeeLatestPostsResult: RecombeeLatestPostsResult;
   RecombeeHybridPostsResult: RecombeeHybridPostsResult;
@@ -10630,6 +10632,7 @@ interface GraphQLTypeMap {
   TagOutput: TagOutput;
   CreateUltraFeedEventDataInput: CreateUltraFeedEventDataInput;
   CreateUltraFeedEventInput: CreateUltraFeedEventInput;
+  UpdateUltraFeedEventDataInput: UpdateUltraFeedEventDataInput;
   UltraFeedEventOutput: UltraFeedEventOutput;
   CreateUserEAGDetailDataInput: CreateUserEAGDetailDataInput;
   CreateUserEAGDetailInput: CreateUserEAGDetailInput;
