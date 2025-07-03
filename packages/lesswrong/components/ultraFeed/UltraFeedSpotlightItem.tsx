@@ -585,7 +585,6 @@ const UltraFeedSpotlightItem = ({
             <div className={classNames(classes.content, {
               [classes.contentWithPaddingBottom]: !isPost
             })}>
-              {/* Title Section */}
               <SpotlightTitle
                 spotlight={spotlight}
                 isPost={isPost}
@@ -594,14 +593,12 @@ const UltraFeedSpotlightItem = ({
                 className={classes.header}
               />
               
-              {/* Image Section */}
               <SpotlightImage
                 spotlight={spotlight}
                 spotlightDocument={spotlightDocument}
                 className={classes.imageContainer}
               />
               
-              {/* Metadata Row */}
               <SpotlightMetaRow
                 spotlight={spotlight}
                 spotlightDocument={spotlightDocument}
@@ -610,7 +607,6 @@ const UltraFeedSpotlightItem = ({
                 className={classes.metaRow}
               />
               
-              {/* Description Section */}
               <div className={classes.descriptionArea}>
                 <SpotlightContentWrapper isPost={isPost} url={url} handleContentClick={handleContentClick}>
                   <FeedContentBody
@@ -623,9 +619,7 @@ const UltraFeedSpotlightItem = ({
                 </SpotlightContentWrapper>
               </div>
               
-              {/* Footer with interactions (only for posts) */}
-              {isPost && post && (
-                <div className={classes.footer}>
+              {isPost && post && <div className={classes.footer}>
                   <UltraFeedItemFooter
                     document={post}
                     collectionName="Posts"
@@ -639,8 +633,7 @@ const UltraFeedSpotlightItem = ({
                     replyConfig={replyConfig}
                     hideReacts={true}
                   />
-                </div>
-              )}
+                </div>}
             </div>
           </div>
         </div>
