@@ -1,5 +1,4 @@
 import React from 'react';
-import { importAllComponents } from '../lib/vulcan-lib/components';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import sortBy from 'lodash/sortBy';
 import miscStyles from '../themes/globalStyles/miscStyles';
@@ -53,7 +52,7 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
 }
 
 function getAllStylesByName() {
-  importAllComponents();
+  require("@/lib/generated/allComponents");
   require("@/lib/generated/nonRegisteredComponents");
   
   return {
