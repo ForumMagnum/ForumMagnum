@@ -141,9 +141,8 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     backgroundColor: `${theme.palette.primary.main}3b`,
     transition: 'none',
   },
-  belowPostTitle: {
-    marginTop: 4,
-    marginRight: 4,
+  abovePostTitle: {
+    marginBottom: 4,
     color: theme.palette.link.dim,
     fontSize: theme.typography.body2.fontSize,
     lineHeight: theme.typography.body2.lineHeight,
@@ -159,10 +158,10 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     },
     backgroundColor: 'transparent',
     transition: 'background-color 1.5s ease-out',
-    padding: '4px 8px',
+    padding: '4px 0px',
     borderRadius: 4,
   },
-  belowPostTitleHighlighted: {
+  abovePostTitleHighlighted: {
     backgroundColor: `${theme.palette.primary.main}3b`,
     transition: 'none',
   },
@@ -198,7 +197,7 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
 
 const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick, highlighted}: {
   comment: UltraFeedComment,
-  position: 'metarow' | 'below',
+  position: 'metarow' | 'above',
   enabled?: boolean,
   onPostTitleClick?: () => void,
   highlighted?: boolean,
@@ -224,13 +223,13 @@ const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick, highligh
         [classes.sameRowPostTitle]: position === 'metarow',
         [classes.sameRowPostTitleHighlighted]: position === 'metarow' && highlighted,
         [classes.hideOnMobile]: position === 'metarow' && !post.shortform,
-        [classes.belowPostTitle]: position === 'below',
-        [classes.belowPostTitleHighlighted]: position === 'below' && highlighted,
-        [classes.hideOnDesktop]: position === 'below',
+        [classes.abovePostTitle]: position === 'above',
+        [classes.abovePostTitleHighlighted]: position === 'above' && highlighted,
+        [classes.hideOnDesktop]: position === 'above',
       })}
     >
       <PostsTooltip postId={post._id} placement="top" As="span">
-        {position === 'below' && <span className={classes.postTitleReplyTo}>Replying to</span>}
+        {position === 'above' && <span className={classes.postTitleReplyTo}>Replying to</span>}
           <a
             href={postGetPageUrl(post)}
             onClick={handleTitleClick}
@@ -314,6 +313,7 @@ const UltraFeedCommentsItemMeta = ({
           </AnalyticsContext>
         }
       </div>
+      <ReplyingToTitle enabled={showPostTitle && !post?.shortform} position="above" comment={comment} onPostTitleClick={onPostTitleClick} highlighted={postTitleHighlighted} />
       <div className={classes.metaRow}>
         {!isTopLevelComment && (
           <LWTooltip 
@@ -362,7 +362,6 @@ const UltraFeedCommentsItemMeta = ({
         }
         <ReplyingToTitle enabled={showPostTitle} position="metarow" comment={comment} onPostTitleClick={onPostTitleClick} highlighted={postTitleHighlighted} />
       </div>
-      <ReplyingToTitle enabled={showPostTitle && !post?.shortform} position="below" comment={comment} onPostTitleClick={onPostTitleClick} highlighted={postTitleHighlighted} />
     </div>
   );
 };
