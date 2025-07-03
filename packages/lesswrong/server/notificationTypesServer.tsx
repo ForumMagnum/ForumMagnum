@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { makeAbsolute, getSiteUrl, combineUrls } from '../lib/vulcan-lib/utils';
 import { Posts } from '../server/collections/posts/collection';
 import { postGetPageUrl, postGetAuthorName, postGetEditUrl } from '../lib/collections/posts/helpers';
@@ -30,6 +30,7 @@ import { SequenceNewPostsEmail } from './emailComponents/SequenceNewPostsEmail';
 import { PrivateMessagesEmail } from './emailComponents/PrivateMessagesEmail';
 import { EventUpdatedEmail } from './emailComponents/EventUpdatedEmail';
 import { EmailUsernameByID } from './emailComponents/EmailUsernameByID';
+import { fetchPostsForKeyword } from './keywordAlerts/keywordSearch';
 
 interface ServerNotificationType {
   name: string,
@@ -794,15 +795,52 @@ export const KeywordAlertNotification = createServerNotificationType({
   name: "keywordAlert",
   canCombineEmails: true,
   emailSubject: async ({ notifications }: {notifications: DbNotification[]}) => {
+    if (notifications.length > 1) {
+      let totalCount = 0;
+      for (const notification of notifications) {
+        totalCount += notification.extraData?.count ?? 0;
+      }
+      return `${totalCount} new keyword alerts`;
+    }
     const {extraData} = notifications[0];
     const alerts = extraData?.count === 1 ? "alert" : "alerts";
     return `${extraData?.count} new ${alerts} for "${extraData?.keyword}"`;
   },
-  emailBody: async ({ notifications }: {notifications: DbNotification[]}) => {
-    const {extraData} = notifications[0];
-    const alerts = extraData?.count === 1 ? "alert" : "alerts";
+  emailBody: async ({ context, notifications }: {
+    notifications: DbNotification[],
+    context: ResolverContext,
+  }) => {
+    const alerts: ReactNode[] = [];
+    for (const notification of notifications) {
+      const {link, extraData} = notification;
+      const {count, keyword, startDate, endDate} = extraData ?? {};
+      if (!link || !count || !keyword || !startDate || !endDate) {
+        throw new Error("Missing keyword alert notification data");
+      }
+      const posts = await fetchPostsForKeyword(
+        context,
+        keyword,
+        new Date(startDate),
+        new Date(endDate),
+      );
+      const alerts = count === 1 ? "alert" : "alerts";
+      return (
+        <div>
+          <p><a href={link}>{count} new {alerts}</a> for "{keyword}"</p>
+          <ul>
+            {posts.map((post) => (
+              <li key={post._id}>
+                <a href={postGetPageUrl(post)}>{post.title}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
     return (
-      <p>{extraData?.count} new {alerts} for "{extraData?.keyword}"</p>
+      <div>
+        {alerts}
+      </div>
     );
   },
 });
