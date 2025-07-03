@@ -43,6 +43,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
+    minHeight: 28, // Ensures consistent height whether reactions are present or not
     opacity: `1 !important`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: theme.typography.body2.fontSize,
@@ -239,8 +240,6 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   overallVoteButtons: {
     position: 'relative',
-    top: 0,
-    bottom: 1,
     color: `${theme.palette.ultraFeed.dim} !important`,
     "& .VoteArrowIconSolid-root": {
     },
