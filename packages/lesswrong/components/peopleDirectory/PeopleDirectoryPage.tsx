@@ -23,18 +23,6 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 700,
     marginTop: 0,
   },
-  feedback: {
-    marginTop: -24,
-    marginBottom: 8,
-    color: theme.palette.grey[600],
-    fontWeight: 500,
-    fontStyle: "italic",
-    fontSize: 14,
-    "& a": {
-      color: theme.palette.primary.main,
-      fontWeight: 600,
-    },
-  },
 });
 
 const PeopleDirectoryPage = ({classes}: {
