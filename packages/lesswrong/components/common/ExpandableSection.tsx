@@ -87,6 +87,7 @@ const ExpandableSection = ({
               </LWTooltip>
             </div>
           }
+          large
         >
           {expanded && (AfterTitleComponent || afterTitleTo) &&
             <div className={classes.afterContainer}>
