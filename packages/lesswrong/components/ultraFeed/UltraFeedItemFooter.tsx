@@ -25,6 +25,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { recombeeApi } from "@/lib/recombee/client";
 import UltraFeedReplyEditor from "./UltraFeedReplyEditor";
 import { ReplyConfig } from "./UltraFeedCommentItem";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 
 const UltraFeedEventsDefaultFragmentMutation = gql(`
@@ -364,8 +365,10 @@ const UltraFeedItemFooterCore = ({
     }
     
     if (isReplying) {
+      captureEvent("ultraFeedCommentIconClicked", { action: "closeReply" });
       onReplyCancel();
     } else {
+      captureEvent("ultraFeedCommentIconClicked", { action: "openReply" });
       handleInteractionLog('commentsClicked');
       onReplyClick();
     }
@@ -478,7 +481,10 @@ const UltraFeedItemFooterCore = ({
     ? <div className={classes.showAllCommentsWrapper}>
       <LWTooltip title={showAllCommentsTooltip}>
       <div
-        onClick={onClickComments}
+        onClick={() => {
+          captureEvent("ultraFeedShowAllCommentsClicked")
+          onClickComments();
+        }}
         className={classes.showAllComments}
       >
         <DebateIconOutline />
@@ -491,7 +497,7 @@ const UltraFeedItemFooterCore = ({
   const votingSystem = voteProps.document.votingSystem || getDefaultVotingSystem();
 
   return (
-    <>
+    <AnalyticsContext pageElementContext="ultraFeedFooter" documentId={document._id} collectionName={collectionName}>
       <div className={classNames(classes.root, className)}>
         {commentCountIcon}
         {showAllCommentsButton}
@@ -545,7 +551,7 @@ const UltraFeedItemFooterCore = ({
           </div>
         </div>
       </div>
-    </>
+    </AnalyticsContext>
   );
 };
 
