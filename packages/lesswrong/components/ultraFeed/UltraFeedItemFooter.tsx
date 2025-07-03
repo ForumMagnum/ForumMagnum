@@ -198,12 +198,11 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   seeLessButton: {
     position: "relative",
     top: 1,
-    opacity: 0.5,
     cursor: "pointer",
     pointerEvents: 'auto !important',
     "& svg": {
       color: `${theme.palette.ultraFeed.dim} !important`,
-      opacity: 0.7,
+      opacity: 0.5,
       height: 20,
       [theme.breakpoints.down('sm')]: {
         height: 22,
