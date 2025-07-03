@@ -16,6 +16,7 @@ import UltraFeedItemFooter from './UltraFeedItemFooter';
 import ForumIcon from '../common/ForumIcon';
 import LWTooltip from '../common/LWTooltip';
 import { SHOW_ALL_BREAKPOINT_VALUE } from './ultraFeedSettingsTypes';
+import { isRegularClick } from '../posts/TableOfContents/TableOfContentsList';
 
 const SIDE_MARGIN = 150;
 
@@ -56,14 +57,14 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
         marginBottom: 0,
         boxShadow: 'none',
         borderRadius: 0,
-        '&:hover': {
-          boxShadow: 'none',
-        },
         paddingTop: 12,
         paddingBottom: 16,
         paddingLeft: 16,
         paddingRight: 16,
         overflow: "visible",
+        '&:hover': {
+          boxShadow: 'none',
+        },
       },
     },
     rootWithFooter: {
@@ -365,12 +366,6 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
         },
       },
     },
-    mobileContentWrapper: {
-      [theme.breakpoints.down('sm')]: {
-        display: 'flex',
-        flexDirection: 'column',
-      },
-    },
   }),
   { stylePriority: -1 }
 );
@@ -382,20 +377,127 @@ const SpotlightContentWrapper = ({ isPost, url, handleContentClick, children }: 
   handleContentClick: (event: React.MouseEvent) => void;
   children: React.ReactNode;
 }) => {
+  const classes = useStyles(useUltraFeedSpotlightItemStyles);
+  
   if (isPost) {
     return (
-      <div className="description-wrapper" onClick={handleContentClick} style={{ cursor: 'pointer' }}>
+      <div className={classes.descriptionWrapper} onClick={handleContentClick}>
         {children}
       </div>
     );
   }
   return (
-    <Link to={url} className="description-wrapper">
+    <Link to={url} className={classes.descriptionWrapper}>
       {children}
     </Link>
   );
 };
 
+const SpotlightTitle = ({ spotlight, isPost, url, handleContentClick, className }: {
+  spotlight: SpotlightDisplay;
+  isPost: boolean;
+  url: string;
+  handleContentClick: (event: React.MouseEvent) => void;
+  className?: string;
+}) => {
+  const classes = useStyles(useUltraFeedSpotlightItemStyles);
+  
+  return (
+    <div className={className}>
+      <SpotlightContentWrapper isPost={isPost} url={url} handleContentClick={handleContentClick}>
+        <div className={classes.titleContainer}>
+          <span className={classes.title}>
+            {getSpotlightDisplayTitle(spotlight)}
+          </span>
+        </div>
+      </SpotlightContentWrapper>
+    </div>
+  );
+};
+
+const SpotlightMetaRow = ({ spotlight, spotlightDocument, post, showSubtitle, className }: {
+  spotlight: SpotlightDisplay;
+  spotlightDocument: any;
+  post?: PostsListWithVotes;
+  showSubtitle: boolean;
+  className?: string;
+}) => {
+  const classes = useStyles(useUltraFeedSpotlightItemStyles);
+  
+  const subtitleComponent = spotlight.subtitleUrl ? <Link to={spotlight.subtitleUrl}>{spotlight.customSubtitle}</Link> : spotlight.customSubtitle;
+    
+  if (!spotlight.showAuthor && !spotlight.customSubtitle && !post?.contents?.wordCount) {
+    return null;
+  }
+  
+  return (
+    <div className={className}>
+      {spotlight.showAuthor && spotlightDocument?.user && (
+        <Link to={userGetProfileUrlFromSlug(spotlightDocument?.user.slug)}>
+          {spotlightDocument?.user.displayName}
+        </Link>
+      )}
+      
+      {post?.contents?.wordCount && (
+        <span>{post.contents.wordCount} words</span>
+      )}
+      
+      {spotlight.customSubtitle && showSubtitle && (
+        <span className={classes.subtitleGroup}>
+          <span className={classes.subtitle}>
+            {subtitleComponent}
+          </span>
+          <LWTooltip title="This is a featured item">
+            <ForumIcon icon="Star" className={classes.curatedIcon} />
+          </LWTooltip>
+        </span>
+      )}
+    </div>
+  );
+};
+
+const SpotlightImage = ({ spotlight, spotlightDocument, className }: {
+  spotlight: SpotlightDisplay;
+  spotlightDocument: any;
+  className?: string;
+}) => {
+  const classes = useStyles(useUltraFeedSpotlightItemStyles);
+  
+  if (!spotlight.spotlightSplashImageUrl && !spotlight.spotlightImageId) {
+    return null;
+  }
+  
+  return (
+    <div className={classNames(
+      className,
+      {[classes.imageContainerWithAuthor]: spotlight.showAuthor && spotlightDocument?.user}
+    )}>
+      {spotlight.spotlightSplashImageUrl && 
+        <img 
+          src={spotlight.spotlightSplashImageUrl} 
+          className={classNames(
+            classes.image, 
+            classes.imageVerticalFade, 
+            classes.imageFade,
+            classes.splashImage
+          )}
+        />
+      }
+      {spotlight.spotlightImageId && 
+        <CloudinaryImage2
+          publicId={spotlight.spotlightImageId}
+          darkPublicId={spotlight.spotlightDarkImageId}
+          className={classNames(classes.image, classes.imageVerticalFade, {
+            [classes.imageFade]: spotlight.imageFade && !spotlight.imageFadeColor,
+            [classes.imageFadeCustom]: spotlight.imageFade && spotlight.imageFadeColor,
+          })}
+          imgProps={{w: "800"}}
+          loading="lazy"
+        />
+      }
+    </div>
+  );
+};
 
 const UltraFeedSpotlightItem = ({
   spotlight,
@@ -417,27 +519,25 @@ const UltraFeedSpotlightItem = ({
   const [isReplying, setIsReplying] = useState(false);
 
   const handleContentClick = useCallback((event: React.MouseEvent) => {
-    if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
-      if (post) {
-        event.preventDefault();
-        openDialog({
-          name: "UltraFeedPostDialog",
-          closeOnNavigate: true,
-          contents: ({ onClose }) => (
-            <UltraFeedPostDialog
-              partialPost={post}
-              postMetaInfo={{
-                displayStatus: 'expanded',
-                sources: ['spotlights'],
-                lastServed: new Date(),
-                lastViewed: null,
-                lastInteracted: null,
-              }}
-              onClose={onClose}
-            />
-          )
-        });
-      }
+    if (isRegularClick(event) && post) {
+      event.preventDefault();
+      openDialog({
+        name: "UltraFeedPostDialog",
+        closeOnNavigate: true,
+        contents: ({ onClose }) => (
+          <UltraFeedPostDialog
+            partialPost={post}
+            postMetaInfo={{
+              displayStatus: 'expanded',
+              sources: ['spotlights'],
+              lastServed: new Date(),
+              lastViewed: null,
+              lastInteracted: null,
+            }}
+            onClose={onClose}
+          />
+        )
+      });
     }
   }, [openDialog, post]);
 
@@ -459,12 +559,9 @@ const UltraFeedSpotlightItem = ({
   const spotlightDocument = spotlight.post ?? spotlight.sequence ?? spotlight.tag;
   const isPost = spotlight.documentType === 'Post' && !!post;
 
-  const style = {
+  const style: React.CSSProperties & { [key: `--${string}`]: string | null } = {
     "--spotlight-fade": spotlight.imageFadeColor,
-  } as CSSProperties;
-  const subtitleComponent = spotlight.subtitleUrl 
-    ? <Link to={spotlight.subtitleUrl}>{spotlight.customSubtitle}</Link> 
-    : spotlight.customSubtitle;
+  }
 
   const replyConfig = {
     isReplying,
@@ -473,121 +570,81 @@ const UltraFeedSpotlightItem = ({
     onReplyCancel: () => setIsReplying(false),
   };
 
-  // We don't actually need this since we'll show all the text
-  const descriptionWordCount = 5;
-
   return (
     <AnalyticsContext ultraFeedElementType="feedSpotlight" spotlightId={spotlight._id} ultraFeedCardIndex={index}>
-    <div
-      ref={elementRef}
-      id={spotlight._id}
-      style={style}
-      className={classNames(classes.root, className, {
-        [classes.rootWithFooter]: isPost,
-      })}
-    >
-      <div className={classNames(classes.spotlightItem, {
-        [classes.spotlightFadeBackground]: !!spotlight.imageFadeColor,
-      })}>
-        <div className={classes.contentContainer}>
-          <div className={classNames(classes.content, {
-            [classes.contentWithPaddingBottom]: !isPost
-          })}>
-            <div className={classes.header}>
-              <SpotlightContentWrapper isPost={isPost} url={url} handleContentClick={handleContentClick}>
-                <div className={classes.titleContainer}>
-                    <span className={classes.title}>
-                      {getSpotlightDisplayTitle(spotlight)}
-                    </span>
+      <div
+        ref={elementRef}
+        id={spotlight._id}
+        style={style}
+        className={classNames(classes.root, className, { [classes.rootWithFooter]: isPost, })}
+      >
+        <div className={classNames(classes.spotlightItem, {
+          [classes.spotlightFadeBackground]: !!spotlight.imageFadeColor,
+        })}>
+          <div className={classes.contentContainer}>
+            <div className={classNames(classes.content, {
+              [classes.contentWithPaddingBottom]: !isPost
+            })}>
+              {/* Title Section */}
+              <SpotlightTitle
+                spotlight={spotlight}
+                isPost={isPost}
+                url={url}
+                handleContentClick={handleContentClick}
+                className={classes.header}
+              />
+              
+              {/* Image Section */}
+              <SpotlightImage
+                spotlight={spotlight}
+                spotlightDocument={spotlightDocument}
+                className={classes.imageContainer}
+              />
+              
+              {/* Metadata Row */}
+              <SpotlightMetaRow
+                spotlight={spotlight}
+                spotlightDocument={spotlightDocument}
+                post={post}
+                showSubtitle={showSubtitle}
+                className={classes.metaRow}
+              />
+              
+              {/* Description Section */}
+              <div className={classes.descriptionArea}>
+                <SpotlightContentWrapper isPost={isPost} url={url} handleContentClick={handleContentClick}>
+                  <FeedContentBody
+                    html={spotlight.description?.html ?? ''}
+                    initialWordCount={SHOW_ALL_BREAKPOINT_VALUE}
+                    maxWordCount={SHOW_ALL_BREAKPOINT_VALUE}
+                    hideSuffix
+                    className={classes.description}
+                  />
+                </SpotlightContentWrapper>
+              </div>
+              
+              {/* Footer with interactions (only for posts) */}
+              {isPost && post && (
+                <div className={classes.footer}>
+                  <UltraFeedItemFooter
+                    document={post}
+                    collectionName="Posts"
+                    metaInfo={{
+                      displayStatus: 'expanded',
+                      sources: ['spotlights'],
+                      lastServed: new Date(),
+                      lastViewed: null,
+                      lastInteracted: null,
+                    }}
+                    replyConfig={replyConfig}
+                    hideReacts={true}
+                  />
                 </div>
-              </SpotlightContentWrapper>
+              )}
             </div>
-            
-            <div className={classNames(
-              classes.imageContainer, 
-              {[classes.imageContainerWithAuthor]: spotlight.showAuthor && spotlightDocument?.user}
-            )}>
-              {spotlight.spotlightSplashImageUrl && 
-                <img 
-                  src={spotlight.spotlightSplashImageUrl} 
-                  className={classNames(
-                    classes.image, 
-                    classes.imageVerticalFade, 
-                    classes.imageFade,
-                    classes.splashImage
-                  )}
-                />
-              }
-              {spotlight.spotlightImageId && 
-                <CloudinaryImage2
-                  publicId={spotlight.spotlightImageId}
-                  darkPublicId={spotlight.spotlightDarkImageId}
-                  className={classNames(classes.image, classes.imageVerticalFade, {
-                    [classes.imageFade]: spotlight.imageFade && !spotlight.imageFadeColor,
-                    [classes.imageFadeCustom]: spotlight.imageFade && spotlight.imageFadeColor,
-                  })}
-                  imgProps={{w: "800"}}
-                  loading="lazy"
-                />
-              }
-            </div>
-            
-            {(spotlight.showAuthor || spotlight.customSubtitle || post?.contents?.wordCount) && (
-              <div className={classes.metaRow}>
-                {spotlight.showAuthor && spotlightDocument?.user && (
-                  <Link to={userGetProfileUrlFromSlug(spotlightDocument?.user.slug)}>
-                    {spotlightDocument?.user.displayName}
-                  </Link>
-                )}
-                {post?.contents?.wordCount && (
-                  <span>{post.contents.wordCount} words</span>
-                )}
-                {spotlight.customSubtitle && showSubtitle && (
-                  <span className={classes.subtitleGroup}>
-                    <span className={classes.subtitle}>
-                      {subtitleComponent}
-                    </span>
-                    <LWTooltip title="This is a featured item">
-                      <ForumIcon icon="Star" className={classes.curatedIcon} />
-                    </LWTooltip>
-                  </span>
-                )}
-              </div>
-            )}
-            
-            <div className={classes.descriptionArea}>
-              <SpotlightContentWrapper isPost={isPost} url={url} handleContentClick={handleContentClick}>
-                <FeedContentBody
-                  html={spotlight.description?.html ?? ''}
-                  wordCount={descriptionWordCount}
-                  initialWordCount={SHOW_ALL_BREAKPOINT_VALUE}
-                  maxWordCount={SHOW_ALL_BREAKPOINT_VALUE}
-                  hideSuffix
-                  className={classes.description}
-                />
-              </SpotlightContentWrapper>
-            </div>
-            {isPost && post && (
-              <div className={classes.footer}>
-                <UltraFeedItemFooter
-                  document={post}
-                  collectionName="Posts"
-                  metaInfo={{
-                    displayStatus: 'expanded',
-                    sources: ['spotlights'],
-                    lastServed: new Date(),
-                    lastViewed: null,
-                    lastInteracted: null,
-                  }}
-                  replyConfig={replyConfig}
-                  hideReacts={true}
-                />
-              </div>
-            )}
           </div>
         </div>
       </div>
-    </div>
     </AnalyticsContext>
   )
 }

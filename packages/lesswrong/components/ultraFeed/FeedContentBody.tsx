@@ -123,7 +123,7 @@ export interface FeedContentBodyProps {
   initialWordCount: number;
   maxWordCount: number;
   onContinueReadingClick?: () => void;
-  wordCount: number;
+  wordCount?: number;
   onExpand?: (expanded: boolean, wordCount: number) => void;
   nofollow?: boolean;
   className?: string;
@@ -173,7 +173,7 @@ const FeedContentBody = ({
     if (isExpanded) return;
     
     setIsExpanded(true);
-    onExpand?.(true, wordCount);
+    onExpand?.(true, wordCount ?? 0);
   }, [isExpanded, onExpand, wordCount]);
 
   const calculateTruncationState = (): {
@@ -186,6 +186,11 @@ const FeedContentBody = ({
     let wasTruncated = false;
     let wordsLeft = 0;
     let suffix = '';
+
+    // If wordCount is undefined, show all content without truncation
+    if (wordCount === undefined) {
+      return { truncatedHtml: html, wasTruncated: false, wordsLeft: 0, suffix: '' };
+    }
 
     if (applyLineClamp) {
       wasTruncated = true; // assume truncated when line clamp is active, nothing bad happens if it's not
@@ -236,6 +241,11 @@ const FeedContentBody = ({
     // If clicking on a link, let the default behavior happen
     const anchorElement = target.closest('a');
     if (anchorElement) {
+      return;
+    }
+    
+    // If wordCount is undefined, don't handle clicks for expansion
+    if (wordCount === undefined) {
       return;
     }
     
