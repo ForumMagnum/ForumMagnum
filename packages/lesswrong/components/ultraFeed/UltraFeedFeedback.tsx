@@ -12,7 +12,6 @@ const FEEDBACK_COMMENT_ID = '9tCBbuxcFKveZGbuR';
 
 const styles = defineStyles("UltraFeedFeedback", (theme: ThemeType) => ({
   feedbackContainer: {
-    // marginTop: 16,
     marginBottom: 32,
   },
 }));
