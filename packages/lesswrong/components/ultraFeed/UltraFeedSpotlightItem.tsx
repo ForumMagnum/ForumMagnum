@@ -643,7 +643,3 @@ const UltraFeedSpotlightItem = ({
 }
 
 export default UltraFeedSpotlightItem;
-
-
-
-
