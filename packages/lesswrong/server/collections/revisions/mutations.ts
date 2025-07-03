@@ -59,6 +59,7 @@ export async function createRevision({ data }: { data: Partial<DbInsertion<DbRev
     try {
       void createAutomatedContentEvaluation(documentWithId, context);
     } catch(e) {
+      // eslint-disable-next-line no-console
       console.error("Automated content evaluation failed");
       captureException(e);
     }
@@ -122,6 +123,7 @@ async function getSaplingEvaluation(revision: DbRevision) {
   });
 
   if (!response.ok) {
+    // eslint-disable-next-line no-console
     console.error(`Request to api.sapling.ai failed: ${response.status}`);
   }
   
@@ -141,6 +143,7 @@ async function getSaplingEvaluation(revision: DbRevision) {
   
     return saplingResponseSchema.parse(saplingEvaluation);
   } catch(e) {
+    // eslint-disable-next-line no-console
     console.error(`Failed parsing response from api.sapling.ai: ${e.message}`);
     captureException(e);
   }
