@@ -191,7 +191,7 @@ const FriendlyNotificationsMenuButton = ({
     }
 
     void notificationsOpened();
-  }, [updateCurrentUser, notificationsOpened, karmaChanges?.karmaChanges.endDate]);
+  }, [updateCurrentUser, notificationsOpened, karmaChanges?.karmaChanges]);
 
   const closePopover = useCallback(() => setOpen(false), []);
 
