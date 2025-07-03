@@ -40,7 +40,7 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
   metaRow: {
     display: 'flex',
     flexWrap: 'nowrap',
-    alignItems: 'center',
+    alignItems: 'baseline',
     position: 'relative',
     width: '100%',
   },
@@ -131,6 +131,9 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     transition: 'background-color 1.5s ease-out',
     padding: '2px 8px',
     borderRadius: 4,
+    [theme.breakpoints.down('sm')]: {
+      marginRight: 16,
+    }
   },
   sameRowPostTitleHighlighted: {
     backgroundColor: `${theme.palette.primary.main}3b`,
@@ -281,6 +284,7 @@ const UltraFeedCommentsItemMeta = ({
 
   const handleReplyIconClick = (event: React.MouseEvent) => {
     event.stopPropagation();
+    captureEvent("ultraFeedReplyArrowClicked");
     if (onReplyIconClick) {
       onReplyIconClick();
     }
@@ -291,10 +295,7 @@ const UltraFeedCommentsItemMeta = ({
     setPostTitleHighlighted(true);
     
     // Track the click event
-    captureEvent(iconType === 'shortform' ? "ultraFeedShortformIconClicked" : "ultraFeedDebateIconClicked", {
-      commentId: comment._id,
-      postId: post._id,
-    });
+    captureEvent(iconType === 'shortform' ? "ultraFeedShortformIconClicked" : "ultraFeedDebateIconClicked");
     
     // Remove highlight after a short delay
     setTimeout(() => {

@@ -30,6 +30,7 @@ import FeedSelectorDropdown from '../common/FeedSelectorCheckbox';
 import { ultraFeedEnabledSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
+import UltraFeedFeedback from './UltraFeedFeedback';
 
 const ULTRAFEED_SESSION_ID_KEY = 'ultraFeedSessionId';
 
@@ -201,6 +202,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [settingsVisible, setSettingsVisible] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
   const { openDialog } = useDialog();
   const [settings, setSettings] = useState<UltraFeedSettingsType>(getStoredSettings);
   const [sessionId] = useState<string>(() => {
@@ -259,7 +261,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
             <SectionTitle title={customTitle} titleClassName={classes.sectionTitle}>
               <div className={classes.feedCheckboxAndSettingsContainer}>
               {!alwaysShow && <div className={classes.hiddenOnMobile}>
-                <FeedSelectorDropdown currentFeedType="new" />
+                <FeedSelectorDropdown currentFeedType="new" showFeedback={showFeedback} onFeedbackClick={() => setShowFeedback(!showFeedback)} />
               </div>}
               <div className={classes.settingsButtonContainer}>
                 <SettingsButton 
@@ -270,8 +272,9 @@ const UltraFeedContent = ({alwaysShow = false}: {
             </div>
             </SectionTitle>
             {!alwaysShow && <div className={classNames(classes.hiddenOnDesktop, classes.feedSelectorMobileContainer)}>
-              <FeedSelectorDropdown currentFeedType="new" />
+              <FeedSelectorDropdown currentFeedType="new" showFeedback={showFeedback} onFeedbackClick={() => setShowFeedback(!showFeedback)} />
             </div>}
+            {showFeedback && <UltraFeedFeedback />}
 
             {settingsVisible && (
               <div className={classes.settingsContainer}>

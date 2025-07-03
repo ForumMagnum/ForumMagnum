@@ -8,6 +8,7 @@ import { ultraFeedABTest } from '../../lib/abTests';
 import { useABTest } from '../../lib/abTestImpl';
 import { ultraFeedEnabledSetting } from '../../lib/publicSettings';
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
+import classNames from 'classnames';
 
 const styles = defineStyles("FeedSelectorCheckbox", (theme: ThemeType) => ({
   container: {
@@ -31,6 +32,10 @@ const styles = defineStyles("FeedSelectorCheckbox", (theme: ThemeType) => ({
   },
   checkboxWrapper: {
     marginLeft: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    // gap: 2,
     // Override the SectionFooterCheckbox's mobile flex behavior
     '& .SectionFooterCheckbox-root': {
       [theme.breakpoints.down('xs')]: {
@@ -40,15 +45,34 @@ const styles = defineStyles("FeedSelectorCheckbox", (theme: ThemeType) => ({
   },
   checkboxLabel: {
     whiteSpace: 'nowrap',
-    // fontSize: 14,
+  },
+  feedbackButton: {
+    marginLeft: 12,
+    color: theme.palette.grey[600],
+    cursor: 'pointer',
+    fontSize: 12,
+    fontStyle: 'italic',
+    padding: '4px 6px',
+    borderRadius: 4,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    '&:hover': {
+      color: theme.palette.ultraFeed.dim,
+      backgroundColor: theme.palette.panelBackground.hoverHighlightGrey,
+    },
+  },
+  feedbackButtonActive: {
+    color: theme.palette.ultraFeed.dim,
+    backgroundColor: theme.palette.panelBackground.hoverHighlightGrey,
   },
 }));
 
 interface FeedSelectorCheckboxProps {
   currentFeedType: 'new' | 'classic';
+  showFeedback?: boolean;
+  onFeedbackClick?: () => void;
 }
 
-const FeedSelectorCheckbox = ({ currentFeedType }: FeedSelectorCheckboxProps) => {
+const FeedSelectorCheckbox = ({ currentFeedType, showFeedback, onFeedbackClick }: FeedSelectorCheckboxProps) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
@@ -94,6 +118,9 @@ const FeedSelectorCheckbox = ({ currentFeedType }: FeedSelectorCheckboxProps) =>
           label="Use New Feed"
           labelClassName={classes.checkboxLabel}
         />
+        <span className={classNames(classes.feedbackButton, showFeedback && classes.feedbackButtonActive)} onClick={onFeedbackClick}>
+          give feedback
+        </span>
       </div>
     </div>
   );
