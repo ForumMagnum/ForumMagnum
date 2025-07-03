@@ -24,33 +24,23 @@ export const scrollToElementInContainer = (
 };
 
 /**
- * Utility function to highlight an element temporarily
- * @param element - The element to highlight
- * @param duration - How long to show the highlight in milliseconds (default: 1000)
- * @param color - The highlight color
- */
-export const highlightElement = (element: HTMLElement, duration = 1000, color: string) => {
-  element.style.backgroundColor = color;
-  element.style.transition = 'background-color 0.3s ease-in-out';
-  
-  setTimeout(() => {
-    element.style.backgroundColor = '';
-    setTimeout(() => {
-      element.style.transition = '';
-    }, 300);
-  }, duration);
-};
-
-
-/**
  * Hook to get theme-aware highlight function (we briefly highlight items upon scrolling to them)
  */
-export const useHighlightElement = () => {
+const useHighlightElement = () => {
   const theme = useTheme();
   
   return (element: HTMLElement, duration = 1000) => {
     const highlightColor = `${theme.palette.primary.main}4c`;
-    highlightElement(element, duration, highlightColor);
+    
+    element.style.backgroundColor = highlightColor;
+    element.style.transition = 'background-color 0.3s ease-in-out';
+    
+    setTimeout(() => {
+      element.style.backgroundColor = '';
+      setTimeout(() => {
+        element.style.transition = '';
+      }, 300);
+    }, duration);
   };
 };
 
