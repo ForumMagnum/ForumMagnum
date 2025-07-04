@@ -96,6 +96,8 @@ export interface FeedFullPost {
 
 export interface FeedSpotlight {
   spotlightId: string;
+  documentType: string;
+  documentId: string;
 }
 
 export type FeedItem = FeedCommentsThread | FeedSpotlight | FeedFullPost;
@@ -115,6 +117,7 @@ export interface FeedPostResolverType {
 export interface FeedSpotlightResolverType {
   _id: string;
   spotlight: DbSpotlight;
+  post?: DbPost;
 }
 
 export type FeedItemResolverType = FeedPostResolverType | FeedCommentsThreadResolverType | FeedSpotlightResolverType;

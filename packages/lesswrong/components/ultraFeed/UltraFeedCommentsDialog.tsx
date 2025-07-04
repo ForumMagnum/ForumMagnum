@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { DialogContent } from "../widgets/DialogContent";
@@ -12,8 +12,11 @@ import { gql } from "@/lib/generated/gql-codegen";
 import ForumIcon from '../common/ForumIcon';
 import { useDialogNavigation } from "../hooks/useDialogNavigation";
 import { useDisableBodyScroll } from "../hooks/useDisableBodyScroll";
+import { useModalHashLinkScroll, scrollToElementInContainer } from "../hooks/useModalScroll";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { NetworkStatus } from "@apollo/client";
+import FootnoteDialog from '../linkPreview/FootnoteDialog';
+import { AnalyticsContext } from "@/lib/analyticsEvents";
 
 const CommentsListMultiQuery = gql(`
   query multiCommentUltraFeedCommentsDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -138,33 +141,6 @@ const styles = defineStyles("UltraFeedCommentsDialog", (theme: ThemeType) => ({
   },
 }));
 
-/**
- * Finds the first scrollable parent container of the given element.
- * Traverses up the DOM tree from the element's parent, looking for a container
- * that has scrollable overflow (auto, scroll, or overlay) and actual content
- * to scroll (scrollHeight > clientHeight).
- * 
- * @param element - The element whose scrollable parent we want to find
- * @returns The first scrollable parent container, or null if none found
- */
-const findScrollableParent = (element: HTMLElement): HTMLElement | null => {
-  let node: HTMLElement | null = element.parentElement;
-  
-  while (node) {
-    const style = window.getComputedStyle(node);
-    const overflowY = style.overflowY;
-    
-    if ((overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay') 
-        && node.scrollHeight > node.clientHeight) {
-      return node;
-    }
-    
-    node = node.parentElement;
-  }
-  
-  return null;
-};
-
 const UltraFeedCommentsDialog = ({
   document,
   collectionName,
@@ -175,6 +151,8 @@ const UltraFeedCommentsDialog = ({
   onClose: () => void,
 }) => {
   const classes = useStyles(styles);
+  const scrollableContentRef = useRef<HTMLDivElement>(null);
+  const [footnoteDialogHTML, setFootnoteDialogHTML] = useState<string | null>(null);
 
   const isPost = collectionName === "Posts";
   const comment = isPost ? null : (document as UltraFeedComment);
@@ -224,31 +202,26 @@ const UltraFeedCommentsDialog = ({
 
   useDialogNavigation(onClose);
   useDisableBodyScroll();
+  
+  // Necessary because other changes to comments can trigger the scroll useEffect to run again
+  const hasScrolledRef = useRef(false);
 
-  // TODO: Do this more elegantly, combine within existing functionality in CommentsNode?
-  // scroll to comment clicked on when dialog opens
+  // Handle clicks on hash links (like footnotes) within the modal. If we don't do this, clicking on hash links can close the modal, fail to scroll, etc.
+  useModalHashLinkScroll(scrollableContentRef, true, true, (footnoteHTML: string) => {
+    setFootnoteDialogHTML(footnoteHTML);
+  });
+
   useEffect(() => {
     let scrollTimer: NodeJS.Timeout | null = null;
     let fadeTimer: NodeJS.Timeout | null = null;
 
-    if (!isLoading && targetCommentId && comments && comments.length > 0) {
+    if (!isLoading && targetCommentId && comments && comments.length > 0 && !hasScrolledRef.current) {
       scrollTimer = setTimeout(() => {
         const element = window.document.getElementById(targetCommentId);
+        const container = scrollableContentRef.current;
 
-        if (element) {
-          const container = findScrollableParent(element);
-
-          if (container) {
-            const elementRect = element.getBoundingClientRect();
-            const containerRect = container.getBoundingClientRect();
-            const elementTopRelativeToContainer = elementRect.top - containerRect.top;
-            const desiredScrollTop = container.scrollTop + elementTopRelativeToContainer - (container.clientHeight / 5);
-
-            container.scrollTo({
-              top: desiredScrollTop,
-              behavior: 'smooth'
-            });
-          }
+        if (element && container) {
+          scrollToElementInContainer(container, element, 0.2);
 
           // Add highlight class for immediate color
           element.classList.add(classes.scrolledHighlight);
@@ -258,6 +231,9 @@ const UltraFeedCommentsDialog = ({
             const currentElement = window.document.getElementById(targetCommentId);
             currentElement?.classList.add(classes.scrolledHighlightFading);
           }, 100);
+
+          // Mark that we've scrolled
+          hasScrolledRef.current = true;
         }
       }, 200);
 
@@ -275,6 +251,7 @@ const UltraFeedCommentsDialog = ({
       fullWidth
       paperClassName={classes.dialogPaper}
     >
+      <AnalyticsContext pageModalContext="ultraFeedCommentsModal" postId={postId} commentId={targetCommentId}>
       <DialogContent className={classes.dialogContent}>
         <div className={classes.stickyHeader}>
           <ForumIcon 
@@ -296,7 +273,7 @@ const UltraFeedCommentsDialog = ({
             : <span className={classes.title} title={postTitle ?? undefined}>{postTitle}</span>
           }
         </div>
-        <div className={classes.scrollableContent}>
+        <div className={classes.scrollableContent} ref={scrollableContentRef}>
           <div className={classes.contentColumn}>
             {isLoading && <Loading />}
             {!isLoading && postDataForTree && (
@@ -316,6 +293,13 @@ const UltraFeedCommentsDialog = ({
           </div>
         </div>
       </DialogContent>
+      {footnoteDialogHTML && (
+        <FootnoteDialog
+          onClose={() => setFootnoteDialogHTML(null)}
+          footnoteHTML={footnoteDialogHTML}
+        />
+      )}
+      </AnalyticsContext>
     </LWDialog>
   );
 };

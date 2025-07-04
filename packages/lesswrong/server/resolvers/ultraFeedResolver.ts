@@ -38,7 +38,7 @@ const ULTRA_FEED_DATE_CUTOFFS: UltraFeedDateCutoffs = {
   subscribedPostsMaxAgeDays: 30,
   initialCommentCandidateLookbackDays: 14,
   commentServedEventRecencyHours: 48,
-  threadEngagementLookbackDays: 45,
+  threadEngagementLookbackDays: 30,
 };
 
 export const ultraFeedGraphQLTypeDefs = gql`
@@ -58,6 +58,7 @@ export const ultraFeedGraphQLTypeDefs = gql`
   type FeedSpotlightItem {
     _id: String!
     spotlight: Spotlight
+    post: Post
   }
 
   type UltraFeedQueryResults {
@@ -315,6 +316,10 @@ const extractIdsToLoad = (sampled: SampledItem[]) => {
   sampled.forEach(it => {
     if (it.type === "feedSpotlight") {
       spotlightIds.push(it.feedSpotlight.spotlightId);
+      // Also extract post IDs from spotlights that have posts so we can load them
+      if (it.feedSpotlight.documentType === 'Post') {
+        postIds.push(it.feedSpotlight.documentId);
+      }
     } else if (it.type === "feedCommentThread") {
       it.feedCommentThread.comments?.forEach(c => c.commentId && commentIdsSet.add(c.commentId));
     } else if (it.type === "feedPost") {
@@ -343,11 +348,16 @@ const transformItemsForResolver = (
       const spotlight = spotlightsById.get(item.feedSpotlight.spotlightId);
       if (!spotlight) return null;
       
+      const post = spotlight.documentType === 'Post' 
+        ? postsById.get(spotlight.documentId) 
+        : undefined;
+      
       return {
         type: item.type,
         feedSpotlight: {
           _id: item.feedSpotlight.spotlightId,
-          spotlight
+          spotlight,
+          ...(post && { post })
         }
       };
     }

@@ -79,8 +79,9 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
   });
   const editableTag = data?.tag?.result;
 
-  const terms = {
-    ...tagPostTerms(tag, query),
+  const terms: PostsViewTerms = {
+    ...tagPostTerms(tag),
+    ...(query.sortedBy ? {sortedBy: query.sortedBy as PostSortingModeWithRelevanceOption} : {}),
     limit: 15
   }
   

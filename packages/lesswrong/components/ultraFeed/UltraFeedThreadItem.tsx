@@ -148,10 +148,11 @@ const initializeHighlightStatuses = (
   return result;
 };
 
-const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
+const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startReplyingTo}: {
   thread: DisplayFeedCommentThread,
   index: number,
   settings?: UltraFeedSettingsType,
+  startReplyingTo?: string,
 }) => {
   const classes = useStyles(styles);
   
@@ -163,8 +164,8 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
   // State for handling new replies (including allowing switching back to original subsequent comments)
   const [newReplies, setNewReplies] = useState<Record<string, UltraFeedComment>>({});
   const [branchViewStates, setBranchViewStates] = useState<Record<string, 'new' | 'original'>>({});
-  const [replyingToCommentId, setReplyingToCommentId] = useState<string | null>(null);
-
+  const [replyingToCommentId, setReplyingToCommentId] = useState<string | null>(startReplyingTo ?? null);
+  
   const { loading, data } = useQuery(PostsListWithVotesQuery, {
     variables: { documentId: comments[0].postId ?? undefined },
     skip: !comments[0].postId || !postExpanded,
@@ -360,13 +361,21 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
     return { showNav: false, forkParentId: null, currentBranch: 'new' as const };
   };
 
+  const handlePostExpansion = useCallback(() => {
+    captureEvent("ultraFeedThreadPostExpanded", {
+      threadId: thread._id,
+      postId: comments[0].postId,
+    });
+    setPostExpanded(true);
+  }, [thread._id, comments, captureEvent]);
+
   return (
-    <AnalyticsContext pageSubSectionContext="ultraFeedThread" ultraFeedCardId={thread._id} ultraFeedCardIndex={index}>
+    <AnalyticsContext pageParentElementContext="ultraFeedThread" ultraFeedCardId={thread._id} ultraFeedCardIndex={index}>
     {postExpanded && !post && loading && <div className={classes.postsLoadingContainer}>
       <Loading />
     </div>}
     {postExpanded && post && <div className={classes.postContainer}>
-      <UltraFeedPostItem post={post} index={index} postMetaInfo={postMetaInfo} settings={settings}/>
+      <UltraFeedPostItem post={post} index={-1} postMetaInfo={postMetaInfo} settings={settings}/>
     </div>}
     <div className={classes.commentsRoot}>
       {comments.length > 0 && <div className={classes.commentsContainer}>
@@ -374,13 +383,20 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
           {compressedItems.map((item, index) => {
             if ("placeholder" in item) {
               const hiddenCount = item.hiddenComments.length;
+              
               return (
                 <div className={classes.commentItem} key={`placeholder-${index}`}>
                   <UltraFeedCompressedCommentsItem
                     numComments={hiddenCount}
                     setExpanded={() => {
-                      captureEvent("ultraFeedThreadItemCompressedCommentsExpanded", { ultraCardIndex: index, ultraCardCount: compressedItems.length, });
-                      item.hiddenComments.forEach(h => {
+                      captureEvent("ultraFeedThreadItemCompressedCommentsExpanded", { 
+                        ultraCardIndex: index, 
+                        ultraCardCount: compressedItems.length,
+                        numExpanded: Math.min(3, hiddenCount)
+                      });
+                      
+                      // Always expand max 3 comments at a time
+                      item.hiddenComments.slice(0, 3).forEach(h => {
                         setDisplayStatus(h._id, "expanded");
                       });
                     }}
@@ -408,7 +424,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
                       ...commentMetaInfos?.[cId],
                       displayStatus: commentDisplayStatuses[cId] ?? commentMetaInfos?.[cId]?.displayStatus ?? "collapsed"
                     }}
-                    onPostTitleClick={() => setPostExpanded(true)}
+                    onPostTitleClick={handlePostExpansion}
                     onChangeDisplayStatus={(newStatus) => setDisplayStatus(cId, newStatus)}
                     showPostTitle={isFirstItem}
                     highlight={highlightStatuses[cId] || false}
@@ -422,7 +438,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
                       isReplying: replyingToCommentId === cId,
                       onReplyClick: () => handleReplyClick(cId),
                       onReplySubmit: (newComment) => handleReplySubmit(cId, newComment),
-                      onReplyCancel: () => setReplyingToCommentId(null)
+                      onReplyCancel: () => setReplyingToCommentId(null),
                     }}
                     hasFork={navigationProps.showNav}
                     currentBranch={navigationProps.currentBranch}

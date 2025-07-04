@@ -750,10 +750,11 @@ const LWTagPage = () => {
     query.sortedBy = (query.sortedBy || tag.postsDefaultSortOrder) ?? query.sortedBy
   }
 
-  const terms = {
-    ...tagPostTerms(tag, query),
+  const terms: PostsViewTerms|null = tag ? {
+    ...tagPostTerms(tag),
+    ...(query.sortedBy ? {sortedBy: query.sortedBy as PostSortingModeWithRelevanceOption} : {}),
     limit: 15
-  }
+  } : null
 
   const clickReadMore = () => {
     setTruncated(false)
@@ -864,7 +865,7 @@ const LWTagPage = () => {
       {tag.sequence && <TagIntroSequence tag={tag} />}
       {!tag.wikiOnly && <>
         <AnalyticsContext pageSectionContext="tagsSection">
-          <PostsList2
+          {terms && <PostsList2
             header={<PostsListHeading tag={tag} query={query} />}
             terms={terms}
             enableTotal
@@ -873,7 +874,7 @@ const LWTagPage = () => {
             showNoResults={false}
           >
             <AddPostsToTag tag={tag} />
-          </PostsList2>
+          </PostsList2>}
         </AnalyticsContext>
         {quickTakesTagsEnabledSetting.get() && <DeferRender ssr={false}>
           <AnalyticsContext pageSectionContext="quickTakesSection">
@@ -1011,7 +1012,7 @@ const LWTagPage = () => {
     tagName={tag.name}
     tagId={tag._id}
     sortedBy={query.sortedBy || "relevance"}
-    limit={terms.limit}
+    limit={terms?.limit ?? 0}
   >
     <TagPageContext.Provider value={{selectedLens: selectedLens ?? null}}>
       <HeadTags

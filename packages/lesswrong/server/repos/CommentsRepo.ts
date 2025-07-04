@@ -630,7 +630,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     return deduplicatedComments.map((comment): FeedCommentFromDb => {
       const sources: string[] = ['recentComments'];
       if (comment.primarySource && comment.primarySource !== 'recentComments') {
-        sources.push('recentComments'); // temporarily to avoid breaking change, we assign recentComments to all comments
+        sources.push(comment.primarySource); // temporarily to avoid breaking change, we assign recentComments to all comments
       }
       return {
         commentId: comment.commentId,
@@ -663,7 +663,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     const lookbackInterval = `${threadEngagementLookbackDays} days`;
 
     const engagementStats = await this.getRawDb().manyOrNone<ThreadEngagementStats>(`
-      -- CommentsRepo.getThreadEngagementStatsForRecentlyActiveThreads (Refactored to use JOINs with inlined subqueries)
+      -- CommentsRepo.getThreadEngagementStatsForRecentlyActiveThreads
       SELECT
         recentActiveThreads."threadTopLevelId",
         COALESCE(userVotesInThreads."votingActivityScore", 0) AS "votingActivityScore",

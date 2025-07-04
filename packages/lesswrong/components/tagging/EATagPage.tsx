@@ -331,7 +331,8 @@ const EATagPage = ({classes}: {
   }
 
   const terms = {
-    ...tagPostTerms(tag, query),
+    ...tagPostTerms(tag),
+    ...(query.sortedBy ? {sortedBy: query.sortedBy as PostSortingModeWithRelevanceOption} : {}),
     limit: 15
   }
 
