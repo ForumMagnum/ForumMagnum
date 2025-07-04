@@ -58,13 +58,13 @@ export const levelToPostWordCountMap: Record<TruncationLevel, number> = {
 
 
 export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
-  'recentComments': 30,
+  'recentComments': 20,
   'quicktakes': 20,
   'subscriptionsComments': 15,
   'recombee-lesswrong-custom': 30,
   'hacker-news': 30,
   'subscriptionsPosts': 15,
-  'spotlights': 2,
+  'spotlights': 10,
   'bookmarks': 1,
 };
 export interface CommentScoringSettings {
