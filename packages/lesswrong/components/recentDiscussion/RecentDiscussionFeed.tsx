@@ -88,7 +88,7 @@ const RecentDiscussionFeed = ({
     <AnalyticsContext pageSectionContext="recentDiscussion">
       <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
         <SingleColumnSection>
-          <SectionTitle title={title} />
+          <SectionTitle title={title} large />
           <MixedTypeFeed
             firstPageSize={10}
             pageSize={20}
