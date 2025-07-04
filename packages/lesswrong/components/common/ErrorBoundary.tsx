@@ -48,7 +48,11 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
   render() {
     if (this.state.error && !this.props.hideMessage) {
-      return <ErrorMessage message={this.state.error}/>
+      if (this.props.hideMessage) {
+        return null;
+      } else {
+        return <ErrorMessage message={this.state.error}/>
+      }
     }
     if (this.props.children)
       return this.props.children;
