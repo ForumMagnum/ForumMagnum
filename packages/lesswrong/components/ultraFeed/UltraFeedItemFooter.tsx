@@ -21,7 +21,7 @@ import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import CondensedFooterReactions from "./CondensedFooterReactions";
 import LWTooltip from "../common/LWTooltip";
-import { useTracking } from "../../lib/analyticsEvents";
+import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
 import { recombeeApi } from "@/lib/recombee/client";
 import UltraFeedReplyEditor from "./UltraFeedReplyEditor";
 import { ReplyConfig } from "./UltraFeedCommentItem";
@@ -43,6 +43,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
+    minHeight: 28, // Ensures consistent height whether reactions are present or not
     opacity: `1 !important`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: theme.typography.body2.fontSize,
@@ -65,26 +66,30 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   commentCount: {
     position: 'relative',
+    bottom: 1,
     padding: 2,
     color: `${theme.palette.ultraFeed.dim} !important`,
-    display: "flex",
+    display: "inline-flex",
     alignItems: "center",
+    verticalAlign: 'middle',
+    height: 24, // Match the height of vote buttons
     "& svg": {
       position: "relative",
       height: 18,
       top: 2,
       [theme.breakpoints.down('sm')]: {
-        top: 3,
-        height: 20,
-        width: 20,
+        top: 1,
+        height: 21,
+        width: 21,
       },
     },
     [theme.breakpoints.down('sm')]: {
-      bottom: 1
+      top: 0,
     }
   },
   showAllCommentsWrapper: {
     display: 'inline-flex',
+    alignItems: 'center',
     [theme.breakpoints.down('sm')]: {
       display: 'none',
     }
@@ -99,10 +104,11 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     borderRadius: 4,
     cursor: "pointer",
     transition: 'background-color 0.2s ease',
+    height: 24,
     "& svg": {
       position: "relative",
       height: 14,
-      top: 2,
+      top: 0,
     },
     "&:hover": {
       color: theme.palette.grey[1000],
@@ -172,8 +178,10 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   bookmarkButton: {
     position: "relative", 
-    top: 2,
+    top: 1,
     opacity: 0.7,
+    display: "inline-flex",
+    alignItems: "center",
     "& svg": {
       color: `${theme.palette.ultraFeed.dim} !important`,
       height: 20,
@@ -199,13 +207,14 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   seeLessButton: {
     position: "relative",
-    top: 1,
-    opacity: 0.5,
+    top: 0,
     cursor: "pointer",
     pointerEvents: 'auto !important',
+    display: "inline-flex",
+    alignItems: "center",
     "& svg": {
       color: `${theme.palette.ultraFeed.dim} !important`,
-      opacity: 0.7,
+      opacity: 0.5,
       height: 20,
       [theme.breakpoints.down('sm')]: {
         height: 22,
@@ -215,7 +224,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       opacity: 1,
     },
     [theme.breakpoints.down('sm')]: {
-      top: 0,
+      top: 1,
       opacity: 1,
     },
   },
@@ -242,31 +251,40 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   overallVoteButtons: {
     position: 'relative',
-    top: 0,
     bottom: 1,
     color: `${theme.palette.ultraFeed.dim} !important`,
+    display: 'inline-flex',
+    alignItems: 'center',
+    verticalAlign: 'middle',
+    height: 24,
     "& .VoteArrowIconSolid-root": {
     },
     [theme.breakpoints.down('sm')]: {
-      top: 0,
+      bottom: 0,
     }
   },
   agreementButtons: {
     position: 'relative',
+    bottom: 1,
     color: `${theme.palette.ultraFeed.dim} !important`,
-    top: 0,
-    bottom: 0,
+    display: 'inline-flex',
+    alignItems: 'center',
+    verticalAlign: 'middle',
+    height: 24,
     marginLeft: -8,
     [theme.breakpoints.down('sm')]: {
-      top: 0,
+      bottom: 0,
     }
   },
   footerVoteScoreOverride: {
     fontSize: `${theme.typography.body2.fontSize}px !important`, 
     margin: '0 7px !important',
+    lineHeight: '24px !important',
+    verticalAlign: 'middle !important',
     [theme.breakpoints.down('sm')]: {
       fontSize: '17px !important',
       margin: '0 7px !important',
+      lineHeight: '24px !important',
     }
   },
   hideSecondaryScoreOnMobile: {
@@ -277,9 +295,12 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   footerAgreementScoreOverride: {
     fontSize: `${theme.typography.body2.fontSize}px !important`,
     margin: '0 7px !important',
+    lineHeight: '24px !important',
+    verticalAlign: 'middle !important',
     [theme.breakpoints.down('sm')]: {
       fontSize: '17px !important',
       margin: '0 7px !important',
+      lineHeight: '24px !important',
     }
   },
 
@@ -369,8 +390,10 @@ const UltraFeedItemFooterCore = ({
     }
     
     if (isReplying) {
+      captureEvent("ultraFeedCommentIconClicked", { action: "closeReply" });
       onReplyCancel();
     } else {
+      captureEvent("ultraFeedCommentIconClicked", { action: "openReply" });
       handleInteractionLog('commentsClicked');
       onReplyClick();
     }
@@ -460,7 +483,7 @@ const UltraFeedItemFooterCore = ({
         }
       )}
     >
-      <LWTooltip title={commentIconTooltip}>
+      <LWTooltip title={commentIconTooltip} disabledOnMobile>
         <span className={classNames(
           classes.commentCountInner,
           { [classes.commentCountInnerActive]: isReplying }
@@ -481,9 +504,12 @@ const UltraFeedItemFooterCore = ({
 
   const showAllCommentsButton = (commentCount ?? 0) > 0 
     ? <div className={classes.showAllCommentsWrapper}>
-      <LWTooltip title={showAllCommentsTooltip}>
+      <LWTooltip title={showAllCommentsTooltip} disabledOnMobile>
       <div
-        onClick={onClickComments}
+        onClick={() => {
+          captureEvent("ultraFeedShowAllCommentsClicked")
+          onClickComments();
+        }}
         className={classes.showAllComments}
       >
         <DebateIconOutline />
@@ -496,7 +522,7 @@ const UltraFeedItemFooterCore = ({
   const votingSystem = voteProps.document.votingSystem || getDefaultVotingSystem();
 
   return (
-    <>
+    <AnalyticsContext pageElementContext="ultraFeedFooter" documentId={document._id} collectionName={collectionName}>
       <div className={classNames(classes.root, className)}>
         {commentCountIcon}
         {showAllCommentsButton}
@@ -547,7 +573,7 @@ const UltraFeedItemFooterCore = ({
           )}
           
           <div className={classNames(classes.seeLessButton, { [classes.seeLessButtonActive]: isSeeLessMode })} onClick={handleSeeLessClick}>
-            <LWTooltip title={isSeeLessMode ? "Undo see less" : "Show me less like this"}>
+            <LWTooltip title={isSeeLessMode ? "Undo see less" : "Show me less like this"} disabledOnMobile>
               <span className={classNames("SeeLessButton-root", classes.seeLessButtonInner, { [classes.seeLessButtonInnerActive]: isSeeLessMode })}>
                 <CloseIcon />
               </span>
@@ -555,7 +581,7 @@ const UltraFeedItemFooterCore = ({
           </div>
         </div>
       </div>
-    </>
+    </AnalyticsContext>
   );
 };
 

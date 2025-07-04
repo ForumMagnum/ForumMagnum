@@ -23069,6 +23069,23 @@ type UltraFeedCommentsDialogQueryVariables = Exact<{
 
 type UltraFeedCommentsDialogQuery = UltraFeedCommentsDialogQuery_Query;
 
+type SingleCommentForFeedbackQuery_comment_SingleCommentOutput_result_Comment = (
+  { __typename?: 'Comment' }
+  & UltraFeedComment
+);
+
+type SingleCommentForFeedbackQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: SingleCommentForFeedbackQuery_comment_SingleCommentOutput_result_Comment | null };
+
+type SingleCommentForFeedbackQuery_Query = { __typename?: 'Query', comment: SingleCommentForFeedbackQuery_comment_SingleCommentOutput | null };
+
+
+type SingleCommentForFeedbackQueryVariables = Exact<{
+  documentId: Scalars['String']['input'];
+}>;
+
+
+type SingleCommentForFeedbackQuery = SingleCommentForFeedbackQuery_Query;
+
 type createUltraFeedEventUltraFeedItemFooterMutation_createUltraFeedEvent_UltraFeedEventOutput_data_UltraFeedEvent = (
   { __typename?: 'UltraFeedEvent' }
   & UltraFeedEventsDefaultFragment
