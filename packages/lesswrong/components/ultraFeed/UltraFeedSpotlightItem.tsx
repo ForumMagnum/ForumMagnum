@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { CSSProperties, useCallback, useRef, useEffect, useState } from 'react';
+import React, { CSSProperties, useCallback, useRef, useEffect, useState, useMemo } from 'react';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
@@ -517,13 +517,13 @@ const UltraFeedSpotlightItem = ({
   const [isReplying, setIsReplying] = useState(false);
   const currentTime = useCurrentTime();
   
-  const postMetaInfo: FeedPostMetaInfo = {
+  const postMetaInfo: FeedPostMetaInfo = useMemo(() => ({
     displayStatus: 'expanded' as const,
     sources: ['spotlights'] as const,
     lastServed: currentTime,
     lastViewed: null,
     lastInteracted: null,
-  };
+  }), [currentTime]);
 
   const handleContentClick = useCallback((event: React.MouseEvent) => {
     if (isRegularClick(event) && post) {
@@ -540,7 +540,7 @@ const UltraFeedSpotlightItem = ({
         )
       });
     }
-  }, [openDialog, post]);
+  }, [openDialog, post, postMetaInfo]);
 
   useEffect(() => {
     const currentElement = elementRef.current;
