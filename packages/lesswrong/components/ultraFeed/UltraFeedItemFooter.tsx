@@ -66,26 +66,30 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   commentCount: {
     position: 'relative',
+    bottom: 3,
     padding: 2,
     color: `${theme.palette.ultraFeed.dim} !important`,
-    display: "flex",
+    display: "inline-flex",
     alignItems: "center",
+    verticalAlign: 'middle',
+    height: 24, // Match the height of vote buttons
     "& svg": {
       position: "relative",
       height: 18,
       top: 2,
       [theme.breakpoints.down('sm')]: {
-        top: 3,
-        height: 20,
-        width: 20,
+        top: 1,
+        height: 21,
+        width: 21,
       },
     },
     [theme.breakpoints.down('sm')]: {
-      bottom: 1
+      top: 0,
     }
   },
   showAllCommentsWrapper: {
     display: 'inline-flex',
+    alignItems: 'center',
     [theme.breakpoints.down('sm')]: {
       display: 'none',
     }
@@ -100,10 +104,11 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     borderRadius: 4,
     cursor: "pointer",
     transition: 'background-color 0.2s ease',
+    height: 24,
     "& svg": {
       position: "relative",
       height: 14,
-      top: 2,
+      top: 0,
     },
     "&:hover": {
       color: theme.palette.grey[1000],
@@ -170,8 +175,10 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   bookmarkButton: {
     position: "relative", 
-    top: 2,
+    top: 0,
     opacity: 0.7,
+    display: "inline-flex",
+    alignItems: "center",
     "& svg": {
       color: `${theme.palette.ultraFeed.dim} !important`,
       height: 20,
@@ -180,7 +187,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       },
     },
     [theme.breakpoints.down('sm')]: {
-      top: 1,
+      top: 2,
       opacity: 1,
     },
   },
@@ -200,6 +207,8 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     top: 1,
     cursor: "pointer",
     pointerEvents: 'auto !important',
+    display: "inline-flex",
+    alignItems: "center",
     "& svg": {
       color: `${theme.palette.ultraFeed.dim} !important`,
       opacity: 0.5,
@@ -212,7 +221,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       opacity: 1,
     },
     [theme.breakpoints.down('sm')]: {
-      top: 0,
+      top: 1,
       opacity: 1,
     },
   },
@@ -240,6 +249,10 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   overallVoteButtons: {
     position: 'relative',
     color: `${theme.palette.ultraFeed.dim} !important`,
+    display: 'inline-flex',
+    alignItems: 'center',
+    verticalAlign: 'middle',
+    height: 24,
     "& .VoteArrowIconSolid-root": {
     },
     [theme.breakpoints.down('sm')]: {
@@ -249,6 +262,10 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   agreementButtons: {
     position: 'relative',
     color: `${theme.palette.ultraFeed.dim} !important`,
+    display: 'inline-flex',
+    alignItems: 'center',
+    verticalAlign: 'middle',
+    height: 24,
     top: 0,
     bottom: 0,
     marginLeft: -8,
@@ -259,9 +276,12 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   footerVoteScoreOverride: {
     fontSize: `${theme.typography.body2.fontSize}px !important`, 
     margin: '0 7px !important',
+    lineHeight: '24px !important',
+    verticalAlign: 'middle !important',
     [theme.breakpoints.down('sm')]: {
       fontSize: '17px !important',
       margin: '0 7px !important',
+      lineHeight: '24px !important',
     }
   },
   hideSecondaryScoreOnMobile: {
@@ -272,9 +292,12 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   footerAgreementScoreOverride: {
     fontSize: `${theme.typography.body2.fontSize}px !important`,
     margin: '0 7px !important',
+    lineHeight: '24px !important',
+    verticalAlign: 'middle !important',
     [theme.breakpoints.down('sm')]: {
       fontSize: '17px !important',
       margin: '0 7px !important',
+      lineHeight: '24px !important',
     }
   },
 
