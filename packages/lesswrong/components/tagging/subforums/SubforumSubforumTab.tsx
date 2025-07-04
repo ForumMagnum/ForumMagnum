@@ -218,7 +218,8 @@ const SubforumSubforumTab = ({
   </>;
 
   const terms = {
-    ...tagPostTerms(tag, {...query, sortedBy: sortBy}),
+    ...tagPostTerms(tag),
+    ...(query.sortedBy ? {sortedBy: query.sortedBy as PostSortingModeWithRelevanceOption} : {}),
     limit: 10
   }
   const listLayoutComponent = (

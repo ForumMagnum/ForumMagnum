@@ -84,9 +84,6 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
     '& p:last-child': {
       marginBottom: '0 !important',
     },
-    '& p:last-child br:last-child': {
-      display: 'none !important',
-    },
     '& img': limitImageHeightClass(theme),
   },
   lineClamp1: {
