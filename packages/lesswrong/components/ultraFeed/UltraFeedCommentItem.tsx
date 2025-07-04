@@ -415,7 +415,7 @@ export const UltraFeedCommentItem = ({
   };
 
   return (
-    <AnalyticsContext ultraFeedElementType="feedComment" commentId={comment._id} postId={comment.postId ?? undefined}>
+    <AnalyticsContext ultraFeedElementType="feedComment" commentId={comment._id} postId={comment.postId ?? undefined} ultraFeedSources={metaInfo.sources}>
     <div className={classNames(classes.root, {
       [classes.rootWithAnimation]: isHighlightAnimating
     })}>

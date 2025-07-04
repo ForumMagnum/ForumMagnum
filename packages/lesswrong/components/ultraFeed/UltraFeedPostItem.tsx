@@ -592,7 +592,7 @@ const UltraFeedPostItem = ({
   }
 
   return (
-    <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index}>
+    <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index} ultraFeedSources={postMetaInfo.sources}>
     <div className={classes.root}>
       <div ref={elementRef} className={classes.mainContent}>
         {/* On small screens, the triple dot menu is positioned absolutely to the root */}

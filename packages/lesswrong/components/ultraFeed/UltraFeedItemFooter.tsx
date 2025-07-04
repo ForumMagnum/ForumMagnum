@@ -173,6 +173,9 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       
     },
   },
+  hidden: {
+    visibility: 'hidden',
+  },
   bookmarkButton: {
     position: "relative", 
     top: 1,
@@ -321,6 +324,7 @@ interface UltraFeedItemFooterCoreSharedProps {
   isSeeLessMode?: boolean;
   replyConfig: ReplyConfig;
   cannotReplyReason?: string | null;
+  hideReacts?: boolean;
 }
 
 type UltraFeedItemFooterCorePostsProps = UltraFeedItemFooterCoreSharedProps & {
@@ -352,6 +356,7 @@ const UltraFeedItemFooterCore = ({
   document,
   replyConfig,
   cannotReplyReason,
+  hideReacts = false,
 }: UltraFeedItemFooterCoreProps) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -548,7 +553,12 @@ const UltraFeedItemFooterCore = ({
         )}
 
         {voteProps.document && votingSystem === "namesAttachedReactions" && (
-          <CondensedFooterReactions voteProps={voteProps} allowReactions={collectionName === "Comments"} className={classes.condensedFooterReactions}/>
+          <div className={classNames(classes.condensedFooterReactions, {[classes.hidden]: hideReacts})}>
+            <CondensedFooterReactions
+              voteProps={voteProps}
+              allowReactions={collectionName === "Comments"}
+            />
+          </div>
         )}
 
         <div className={classes.bookmarkAndSeeLessWrapper}>
@@ -576,7 +586,7 @@ const UltraFeedItemFooterCore = ({
 };
 
 
-const UltraFeedPostFooter = ({ post, metaInfo, className, onSeeLess, isSeeLessMode, replyConfig }: { post: PostsListWithVotes, metaInfo: FeedPostMetaInfo, className?: string, onSeeLess?: (eventId: string) => void, isSeeLessMode?: boolean, replyConfig: ReplyConfig }) => {
+const UltraFeedPostFooter = ({ post, metaInfo, className, onSeeLess, isSeeLessMode, replyConfig, hideReacts }: { post: PostsListWithVotes, metaInfo: FeedPostMetaInfo, className?: string, onSeeLess?: (eventId: string) => void, isSeeLessMode?: boolean, replyConfig: ReplyConfig, hideReacts?: boolean }) => {
   const { openDialog } = useDialog();
 
   const votingSystem = getVotingSystemByName(post?.votingSystem || "default");
@@ -616,6 +626,7 @@ const UltraFeedPostFooter = ({ post, metaInfo, className, onSeeLess, isSeeLessMo
         document={post}
         replyConfig={replyConfig}
         cannotReplyReason={null}
+        hideReacts={hideReacts}
       />
 
       {isReplying && (
@@ -645,7 +656,7 @@ const UltraFeedPostFooter = ({ post, metaInfo, className, onSeeLess, isSeeLessMo
 }
 
 
-const UltraFeedCommentFooter = ({ comment, metaInfo, className, onSeeLess, isSeeLessMode, replyConfig, cannotReplyReason }: { comment: UltraFeedComment, metaInfo: FeedCommentMetaInfo, className?: string, onSeeLess?: (eventId: string) => void, isSeeLessMode?: boolean, replyConfig: ReplyConfig, cannotReplyReason?: string | null }) => {
+const UltraFeedCommentFooter = ({ comment, metaInfo, className, onSeeLess, isSeeLessMode, replyConfig, cannotReplyReason, hideReacts }: { comment: UltraFeedComment, metaInfo: FeedCommentMetaInfo, className?: string, onSeeLess?: (eventId: string) => void, isSeeLessMode?: boolean, replyConfig: ReplyConfig, cannotReplyReason?: string | null, hideReacts?: boolean }) => {
   const { openDialog } = useDialog();
 
   const parentPost = comment.post;
@@ -687,6 +698,7 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className, onSeeLess, isSee
         document={comment}
         replyConfig={replyConfig}
         cannotReplyReason={cannotReplyReason}
+        hideReacts={hideReacts}
       />
 
       {isReplying && <UltraFeedReplyEditor
@@ -723,6 +735,7 @@ interface UltraFeedPostFooterProps {
   isSeeLessMode?: boolean;
   replyConfig: ReplyConfig;
   cannotReplyReason?: string | null;
+  hideReacts?: boolean;
 }
 
 interface UltraFeedCommentFooterProps {
@@ -734,11 +747,12 @@ interface UltraFeedCommentFooterProps {
   isSeeLessMode?: boolean;
   replyConfig: ReplyConfig;
   cannotReplyReason?: string | null;
+  hideReacts?: boolean;
 }
 
 type UltraFeedItemFooterProps = UltraFeedPostFooterProps | UltraFeedCommentFooterProps;
 
-const UltraFeedItemFooter = ({ document, collectionName, metaInfo, className, onSeeLess, isSeeLessMode, replyConfig, cannotReplyReason }: UltraFeedItemFooterProps) => {
+const UltraFeedItemFooter = ({ document, collectionName, metaInfo, className, onSeeLess, isSeeLessMode, replyConfig, cannotReplyReason, hideReacts }: UltraFeedItemFooterProps) => {
   if (collectionName === "Posts") {
     return <UltraFeedPostFooter
       post={document}
@@ -747,6 +761,7 @@ const UltraFeedItemFooter = ({ document, collectionName, metaInfo, className, on
       onSeeLess={onSeeLess}
       isSeeLessMode={isSeeLessMode}
       replyConfig={replyConfig}
+      hideReacts={hideReacts}
     />;
   } else if (collectionName === "Comments") {
     return <UltraFeedCommentFooter
@@ -757,6 +772,7 @@ const UltraFeedItemFooter = ({ document, collectionName, metaInfo, className, on
       isSeeLessMode={isSeeLessMode}
       replyConfig={replyConfig}
       cannotReplyReason={cannotReplyReason}
+      hideReacts={hideReacts}
     />;
   }
   return null;
