@@ -171,12 +171,6 @@ const NotificationsPopover = ({
     previousData?.NotificationDisplays?.results ??
     [];
 
-  useEffect(() => {
-    if (!notificationsLoading && notifs.length <= defaultLimit) {
-      onOpenNotificationsPopover?.();
-    }
-  }, [notificationsLoading, onOpenNotificationsPopover, notifs.length]);
-
   const hasNewKarmaChanges = useMemo(() => cachedKarmaChanges &&
     (
       cachedKarmaChanges.posts?.length ||
