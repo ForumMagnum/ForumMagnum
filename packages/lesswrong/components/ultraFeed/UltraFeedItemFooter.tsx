@@ -38,14 +38,6 @@ const UltraFeedEventsDefaultFragmentMutation = gql(`
 `);
 
 const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
-  // Hide footnote poppers/tooltips inside the footer – they appear and stay open on mobile, obscuring buttons
-  '@global': {
-    '@media (pointer: coarse)': {
-      '.LWPopper-root, .LWPopper-default, .LWPopper-tooltip': {
-        display: 'none !important',
-      },
-    },
-  },
   root: {
     position: "relative",
     display: "flex",
@@ -463,7 +455,7 @@ const UltraFeedItemFooterCore = ({
         }
       )}
     >
-      <LWTooltip title={commentIconTooltip}>
+      <LWTooltip title={commentIconTooltip} disabledOnMobile>
         <span className={classNames(
           classes.commentCountInner,
           { [classes.commentCountInnerActive]: isReplying }
@@ -484,7 +476,7 @@ const UltraFeedItemFooterCore = ({
 
   const showAllCommentsButton = (commentCount ?? 0) > 0 
     ? <div className={classes.showAllCommentsWrapper}>
-      <LWTooltip title={showAllCommentsTooltip}>
+      <LWTooltip title={showAllCommentsTooltip} disabledOnMobile>
       <div
         onClick={() => {
           captureEvent("ultraFeedShowAllCommentsClicked")
@@ -548,7 +540,7 @@ const UltraFeedItemFooterCore = ({
           )}
           
           <div className={classNames(classes.seeLessButton, { [classes.seeLessButtonActive]: isSeeLessMode })} onClick={handleSeeLessClick}>
-            <LWTooltip title={isSeeLessMode ? "Undo see less" : "Show me less like this"}>
+            <LWTooltip title={isSeeLessMode ? "Undo see less" : "Show me less like this"} disabledOnMobile>
               <span className={classNames("SeeLessButton-root", classes.seeLessButtonInner, { [classes.seeLessButtonInnerActive]: isSeeLessMode })}>
                 <CloseIcon />
               </span>
