@@ -125,7 +125,7 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       flexDirection: 'column',
       gap: '2px',
       maxWidth: `calc(100% - ${SIDE_MARGIN}px)`,
-      marginBottom: '2px',
+      marginBottom: 4,
       [theme.breakpoints.down('sm')]: {
         maxWidth: '100%',
         gap: '4px',
@@ -317,7 +317,7 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       },
     },
     footer: {
-      // marginTop: 12,
+      marginTop: 8,
       marginBottom: 12,
       position: 'relative',
       zIndex: 3,

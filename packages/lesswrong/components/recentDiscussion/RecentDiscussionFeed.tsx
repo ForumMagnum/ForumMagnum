@@ -38,12 +38,6 @@ const styles = defineStyles("RecentDiscussionFeed", (theme: ThemeType) => ({
   },
   titleText: {
   },
-  hiddenOnDesktop: {
-    display: 'none',
-    [theme.breakpoints.down('sm')]: {
-      display: 'block',
-    },
-  },
   hiddenOnMobile: {
     display: 'block',
     [theme.breakpoints.down('sm')]: {
@@ -52,8 +46,11 @@ const styles = defineStyles("RecentDiscussionFeed", (theme: ThemeType) => ({
   },
   feedSelectorMobileContainer: {
     marginBottom: 16,
-    display: 'flex',
+    display: 'none',
     justifyContent: 'center',
+    [theme.breakpoints.down('sm')]: {
+      display: 'flex',
+    },
   },
 }));
 
@@ -133,7 +130,7 @@ const RecentDiscussionFeed = ({
               <FeedSelectorDropdown currentFeedType="classic" />
             </div>
           </SectionTitle>
-          <div className={`${classes.feedSelectorMobileContainer} ${classes.hiddenOnDesktop}`}>
+          <div className={classes.feedSelectorMobileContainer}>
             <FeedSelectorDropdown currentFeedType="classic" />
           </div>
           <MixedTypeFeed
