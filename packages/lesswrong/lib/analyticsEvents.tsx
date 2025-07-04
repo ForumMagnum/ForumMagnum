@@ -8,7 +8,7 @@ import { getPublicSettingsLoaded } from './settingsCache';
 import { throttle } from 'underscore';
 import moment from 'moment';
 import { serverWriteEvent } from '@/server/analytics/serverAnalyticsWriter';
-import { FeedItemType, UltraFeedAnalyticsContext } from '@/components/ultraFeed/ultraFeedTypes';
+import { FeedItemSourceType, FeedItemType, UltraFeedAnalyticsContext } from '@/components/ultraFeed/ultraFeedTypes';
 import { RelevantTestGroupAllocation } from './abTestImpl';
 
 const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "dev");
@@ -123,6 +123,7 @@ export type AnalyticsProps = {
   searchQuery?: string,
   componentName?: string,
   ultraFeedContext?: UltraFeedAnalyticsContext,
+  ultraFeedSources?: FeedItemSourceType[],
   ultraFeedElementType?: FeedItemType,
   ultraFeedCardId?: string,
   ultraFeedCardIndex?: number,
