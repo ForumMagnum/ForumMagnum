@@ -41,7 +41,7 @@ const styles = (theme: ThemeType) => ({
     marginRight: theme.spacing.unit,
   },
   onGrayBackground: {
-    ...(isBookUI && theme.themeOptions.name === 'dark' && {
+    ...(isBookUI && theme.dark && {
       color: theme.palette.greyAlpha(1),
     }),
   },
@@ -128,10 +128,10 @@ const styles = (theme: ThemeType) => ({
     padding: "0 6px",
     height: 20,
     border: "none",
-    backgroundColor: theme.themeOptions.name === "dark"
+    backgroundColor: theme.dark
       ? "var(--post-title-tag-foreground)"
       : "var(--post-title-tag-background)",
-    color: theme.themeOptions.name === "dark"
+    color: theme.dark
       ? "var(--post-title-tag-background)"
       : "var(--post-title-tag-foreground)",
   },

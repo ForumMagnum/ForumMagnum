@@ -141,6 +141,7 @@ export const defaultShadePalette = (): ThemeShadePalette => {
   const greyAlpha = (alpha: number) => `rgba(0,0,0,${alpha})`;
   const inverseGreyAlpha = (alpha: number) => `rgba(255,255,255,${alpha})`;
   return {
+    dark: false,
     grey,
     greyAlpha,
     inverseGreyAlpha,
