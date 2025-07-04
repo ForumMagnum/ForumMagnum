@@ -66,7 +66,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   commentCount: {
     position: 'relative',
-    bottom: 3,
+    bottom: 1,
     padding: 2,
     color: `${theme.palette.ultraFeed.dim} !important`,
     display: "inline-flex",
@@ -175,7 +175,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   bookmarkButton: {
     position: "relative", 
-    top: 0,
+    top: 1,
     opacity: 0.7,
     display: "inline-flex",
     alignItems: "center",
@@ -204,7 +204,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   seeLessButton: {
     position: "relative",
-    top: 1,
+    top: 0,
     cursor: "pointer",
     pointerEvents: 'auto !important',
     display: "inline-flex",
@@ -248,6 +248,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   overallVoteButtons: {
     position: 'relative',
+    bottom: 1,
     color: `${theme.palette.ultraFeed.dim} !important`,
     display: 'inline-flex',
     alignItems: 'center',
@@ -256,21 +257,20 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     "& .VoteArrowIconSolid-root": {
     },
     [theme.breakpoints.down('sm')]: {
-      top: 0,
+      bottom: 0,
     }
   },
   agreementButtons: {
     position: 'relative',
+    bottom: 1,
     color: `${theme.palette.ultraFeed.dim} !important`,
     display: 'inline-flex',
     alignItems: 'center',
     verticalAlign: 'middle',
     height: 24,
-    top: 0,
-    bottom: 0,
     marginLeft: -8,
     [theme.breakpoints.down('sm')]: {
-      top: 0,
+      bottom: 0,
     }
   },
   footerVoteScoreOverride: {
