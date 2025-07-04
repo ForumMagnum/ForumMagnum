@@ -17,17 +17,19 @@ import ForumIcon from '../common/ForumIcon';
 import LWTooltip from '../common/LWTooltip';
 import { SHOW_ALL_BREAKPOINT_VALUE } from './ultraFeedSettingsTypes';
 import { isRegularClick } from '../posts/TableOfContents/TableOfContentsList';
+import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { FeedPostMetaInfo } from './ultraFeedTypes';
 
 const SIDE_MARGIN = 150;
 
 const buildFadeMask = (breakpoints: string[]) => {
   const mask = `linear-gradient(to right, ${breakpoints.join(",")})`;
-  return {mask, "-webkit-mask-image": mask};
+  return {mask};
 }
 
 const buildVerticalFadeMask = (breakpoints: string[]) => {
   const mask = `linear-gradient(to bottom, ${breakpoints.join(",")})`;
-  return {mask, "-webkit-mask-image": mask};
+  return {mask};
 }
 
 const generateVerticalFade = (theme: ThemeType, stops: Array<[number, number]>) => {
@@ -168,7 +170,7 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
         columnGap: '8px',
         rowGap: '0px',
         flexWrap: 'wrap',
-        '& > *': {
+        '& > a, & > span': {
           whiteSpace: 'nowrap',
         },
         order: 3,
@@ -199,10 +201,6 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       opacity: 0.8,
       position: "relative",
       top: 2,
-      [theme.breakpoints.down('sm')]: {
-        "--icon-size": "16px",
-        fontSize: "16px",
-      },
     },
     imageContainer: {
       position: "absolute",
@@ -517,6 +515,15 @@ const UltraFeedSpotlightItem = ({
   const { openDialog } = useDialog();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const [isReplying, setIsReplying] = useState(false);
+  const currentTime = useCurrentTime();
+  
+  const postMetaInfo: FeedPostMetaInfo = {
+    displayStatus: 'expanded' as const,
+    sources: ['spotlights'] as const,
+    lastServed: currentTime,
+    lastViewed: null,
+    lastInteracted: null,
+  };
 
   const handleContentClick = useCallback((event: React.MouseEvent) => {
     if (isRegularClick(event) && post) {
@@ -527,13 +534,7 @@ const UltraFeedSpotlightItem = ({
         contents: ({ onClose }) => (
           <UltraFeedPostDialog
             partialPost={post}
-            postMetaInfo={{
-              displayStatus: 'expanded',
-              sources: ['spotlights'],
-              lastServed: new Date(),
-              lastViewed: null,
-              lastInteracted: null,
-            }}
+            postMetaInfo={postMetaInfo}
             onClose={onClose}
           />
         )
@@ -623,13 +624,7 @@ const UltraFeedSpotlightItem = ({
                   <UltraFeedItemFooter
                     document={post}
                     collectionName="Posts"
-                    metaInfo={{
-                      displayStatus: 'expanded',
-                      sources: ['spotlights'],
-                      lastServed: new Date(),
-                      lastViewed: null,
-                      lastInteracted: null,
-                    }}
+                    metaInfo={postMetaInfo}
                     replyConfig={replyConfig}
                     hideReacts={true}
                   />
