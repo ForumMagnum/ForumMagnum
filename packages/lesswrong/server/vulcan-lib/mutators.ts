@@ -1,6 +1,7 @@
 import { convertDocumentIdToIdInSelector, UpdateSelector } from '../../lib/vulcan-lib/utils';
 import { dataToModifier } from './validation';
 import { throwError } from './errors';
+import { getSchema } from '@/lib/schema/allSchemas';
 import type { CreateCallbackProperties, UpdateCallbackProperties, AfterCreateCallbackProperties } from '../mutationCallbacks';
 import isEmpty from 'lodash/isEmpty';
 import pickBy from 'lodash/pickBy';
@@ -45,7 +46,7 @@ export async function runFieldOnUpdateCallbacks<
   data: D,
   properties: UpdateCallbackProperties<CollectionName, D>
 ): Promise<D> {
-  const dataAsModifier = dataToModifier(clone(data));
+  const dataAsModifier = dataToModifier(clone(data), schema);
   for (let fieldName in schema) {
     let autoValue;
     const { graphql } = schema[fieldName];
@@ -212,7 +213,7 @@ export async function updateAndReturnDocument<N extends CollectionNameString>(
   selector: { _id: string },
   context: ResolverContext
 ): Promise<ObjectsByCollectionName[N]> {
-  const modifier = dataToModifier(data);
+  const modifier = dataToModifier(data, getSchema(collection.collectionName));
 
   // remove empty modifiers
   if (isEmpty(modifier.$set)) {
