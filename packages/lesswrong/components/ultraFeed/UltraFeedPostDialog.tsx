@@ -65,14 +65,6 @@ const UltraFeedPostFragmentQuery = gql(`
 `);
 
 const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
-  // Hide footnote poppers/tooltips inside the modal – primarily for footnote display issue but a general experiment
-  '@global': {
-    '@media (pointer: coarse)': {
-      '.LWPopper-root, .LWPopper-default, .LWPopper-tooltip': {
-        display: 'none !important',
-      },
-    },
-  },
   dialogContent: {
     padding: 0,
     height: '100%',

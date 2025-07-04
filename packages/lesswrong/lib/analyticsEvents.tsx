@@ -98,6 +98,8 @@ export type AnalyticsProps = {
   documentSlug?: string,
   postId?: string,
   forumEventId?: string,
+  documentId?: string,
+  collectionName?: string,
   sequenceId?: string,
   commentId?: string,
   spotlightId?: string,

@@ -49,6 +49,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
+    overflow: 'visible',
   },
   commentContentWrapperWithBorder: {
     borderBottom: theme.palette.border.itemSeparatorBottom,
@@ -56,6 +57,8 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   commentHeader: {
     display: 'flex',
     flexDirection: 'column',
+    overflow: 'visible',
+    position: 'relative',
   },
   contentWrapper: {
     marginTop: 12,

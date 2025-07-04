@@ -42,6 +42,7 @@ class SpotlightsRepo extends AbstractRepo<"Spotlights"> {
       LEFT JOIN "RecentViews" rv ON s._id = rv."documentId"
       WHERE s."draft" IS NOT TRUE
         AND s."deletedDraft" IS NOT TRUE
+        AND "documentType" = 'Post'
       order by
         COALESCE(rv."viewCount", 0) ASC,
         RANDOM()

@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { showReviewOnFrontPageIfActive, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive } from '../../lib/publicSettings';
+import { showReviewOnFrontPageIfActive, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive, ultraFeedEnabledSetting } from '../../lib/publicSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
+import { LAST_VISITED_FRONTPAGE_COOKIE, ULTRA_FEED_ENABLED_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
 import { userHasUltraFeed,visitorGetsDynamicFrontpage } from '../../lib/betas';
 import { isLW, isAF } from '@/lib/instanceSettings';
 import { useCurrentUser } from './withUser';
 import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import BestOfLessWrongAnnouncement from '../posts/PostsPage/BestOfLessWrong/BestOfLessWrongAnnouncement';
+import { useABTest } from '../../lib/abTestImpl';
+import { ultraFeedABTest } from '../../lib/abTests';
 import RecentDiscussionFeed from "../recentDiscussion/RecentDiscussionFeed";
 import AnalyticsInViewTracker from "./AnalyticsInViewTracker";
 import FrontpageReviewWidget from "../review/FrontpageReviewWidget";
@@ -19,7 +20,6 @@ import EAPopularCommentsSection from "../ea-forum/EAPopularCommentsSection";
 import DismissibleSpotlightItem, { SpotlightItemFallback } from "../spotlights/DismissibleSpotlightItem";
 import QuickTakesSection from "../quickTakes/QuickTakesSection";
 import LWHomePosts from "./LWHomePosts";
-import HeadTags from "./HeadTags";
 import UltraFeed from "../ultraFeed/UltraFeed";
 import { StructuredData } from './StructuredData';
 import { SuspenseWrapper } from './SuspenseWrapper';
@@ -62,8 +62,17 @@ const styles = defineStyles("LWHome", (theme: ThemeType) => ({
 }))
 
 const LWHome = () => {
-  const [isUltraFeedShowing, setIsUltraFeedShowing] = useState(false);
-  const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
+  const abTestGroup = useABTest(ultraFeedABTest);
+  const [cookies] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
+  
+  // Check if user has already made a choice via checkbox (which sets a cookie)
+  const cookieValue = cookies[ULTRA_FEED_ENABLED_COOKIE];
+  const hasExplicitPreference = cookieValue === "true" || cookieValue === "false";
+  
+  // Determine which feed to show: if cookie is set, use that preference, otherwise use A/B test assignment
+  const shouldShowUltraFeed = ultraFeedEnabledSetting.get() && currentUser && (cookieValue === "true" || (!hasExplicitPreference && abTestGroup === 'ultraFeed')
+  );
 
   return (
       <AnalyticsContext pageContext="homePage">
@@ -92,13 +101,17 @@ const LWHome = () => {
                 <SuspenseWrapper name="EAPopularCommentsSection">
                   <EAPopularCommentsSection />
                 </SuspenseWrapper>
+                
                 <SuspenseWrapper name="UltraFeed">
-                  <UltraFeed onShowingChange={setIsUltraFeedShowing} />
-                  {!isUltraFeedShowing && <RecentDiscussionFeed
-                    af={false}
-                    commentsLimit={4}
-                    maxAgeHours={18}
-                  />}
+                  {shouldShowUltraFeed ? (
+                    <UltraFeed />
+                  ) : (
+                    <RecentDiscussionFeed
+                      af={false}
+                      commentsLimit={4}
+                      maxAgeHours={18}
+                    />
+                  )}
                 </SuspenseWrapper>
               </LWHomePosts>
             </AnalyticsInViewTracker>

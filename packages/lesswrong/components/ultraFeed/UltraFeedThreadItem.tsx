@@ -148,10 +148,11 @@ const initializeHighlightStatuses = (
   return result;
 };
 
-const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
+const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startReplyingTo}: {
   thread: DisplayFeedCommentThread,
   index: number,
   settings?: UltraFeedSettingsType,
+  startReplyingTo?: string,
 }) => {
   const classes = useStyles(styles);
   
@@ -163,8 +164,8 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
   // State for handling new replies (including allowing switching back to original subsequent comments)
   const [newReplies, setNewReplies] = useState<Record<string, UltraFeedComment>>({});
   const [branchViewStates, setBranchViewStates] = useState<Record<string, 'new' | 'original'>>({});
-  const [replyingToCommentId, setReplyingToCommentId] = useState<string | null>(null);
-
+  const [replyingToCommentId, setReplyingToCommentId] = useState<string | null>(startReplyingTo ?? null);
+  
   const { loading, data } = useQuery(PostsListWithVotesQuery, {
     variables: { documentId: comments[0].postId ?? undefined },
     skip: !comments[0].postId || !postExpanded,
@@ -382,13 +383,20 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
           {compressedItems.map((item, index) => {
             if ("placeholder" in item) {
               const hiddenCount = item.hiddenComments.length;
+              
               return (
                 <div className={classes.commentItem} key={`placeholder-${index}`}>
                   <UltraFeedCompressedCommentsItem
                     numComments={hiddenCount}
                     setExpanded={() => {
-                      captureEvent("ultraFeedThreadItemCompressedCommentsExpanded", { ultraCardIndex: index, ultraCardCount: compressedItems.length, });
-                      item.hiddenComments.forEach(h => {
+                      captureEvent("ultraFeedThreadItemCompressedCommentsExpanded", { 
+                        ultraCardIndex: index, 
+                        ultraCardCount: compressedItems.length,
+                        numExpanded: Math.min(3, hiddenCount)
+                      });
+                      
+                      // Always expand max 3 comments at a time
+                      item.hiddenComments.slice(0, 3).forEach(h => {
                         setDisplayStatus(h._id, "expanded");
                       });
                     }}
@@ -430,7 +438,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
                       isReplying: replyingToCommentId === cId,
                       onReplyClick: () => handleReplyClick(cId),
                       onReplySubmit: (newComment) => handleReplySubmit(cId, newComment),
-                      onReplyCancel: () => setReplyingToCommentId(null)
+                      onReplyCancel: () => setReplyingToCommentId(null),
                     }}
                     hasFork={navigationProps.showNav}
                     currentBranch={navigationProps.currentBranch}
