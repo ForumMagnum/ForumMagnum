@@ -65,18 +65,34 @@ const AllCommentsSettings = ({ expanded, settings, setSettings }: {
   </div>
 }
 
+function selectorFromQuery(query: Record<string, any>, settings: AllCommentsViewSettings): { limit: number, selector: CommentSelector } {
+  if (isEmpty(query)) {
+    return {
+      limit: 100,
+      selector: {
+        allRecentComments: {
+          sortBy: settings.sortBy,
+          minimumKarma: settings.minimumKarma,  
+        }
+      }
+    };
+  }
+
+  const { view, limit, ...rest } = query;
+  return {
+    limit: limit ?? 10,
+    selector: {
+      [view]: rest,
+    }
+  };
+}
 
 const AllComments = () => {
   const { query } = useLocation();
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState(defaultCommentsViewSettings);
 
-  const terms: CommentsViewTerms = isEmpty(query) ? {
-    view: 'allRecentComments',
-    limit: 100,
-    sortBy: settings.sortBy,
-    minimumKarma: settings.minimumKarma,
-  } : { ...query, view: (query.view as CommentsViewName | undefined) ?? 'default' };
+  const { limit, selector } = selectorFromQuery(query, settings);
 
   const toggleSettings = () => {
     setShowSettings(!showSettings);
@@ -90,7 +106,7 @@ const AllComments = () => {
         </SectionTitle>
       </div>
       <AllCommentsSettings expanded={showSettings} settings={settings} setSettings={setSettings} />
-      <RecentComments terms={terms} truncated={true}/>
+      <RecentComments selector={selector} limit={limit} truncated={true}/>
     </SingleColumnSection>
   )
 };
