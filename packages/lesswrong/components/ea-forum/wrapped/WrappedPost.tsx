@@ -3,7 +3,6 @@ import { registerComponent } from "@/lib/vulcan-lib/components";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { InteractionWrapper, useClickableCell } from "@/components/common/useClickableCell";
 import { Link } from "@/lib/reactRouterWrapper";
-import { isPostWithForeignId } from "@/components/hooks/useForeignCrosspost";
 import { SoftUpArrowIcon } from "@/components/icons/softUpArrowIcon";
 import type { WrappedTopPost } from "./hooks";
 import PostsItemTooltipWrapper from "../../posts/PostsItemTooltipWrapper";
@@ -93,9 +92,9 @@ const WrappedPost = ({post, showMostValuableCheckbox, classes}: {
     </InteractionWrapper>
   );
 
-  const readTimeText = (!isRecommendedPost || isPostWithForeignId(post))
-    ? ""
-    : `, ${post.readTimeMinutes ?? 1} min read`;
+  const readTimeText = isRecommendedPost
+    ? `, ${post.readTimeMinutes ?? 1} min read`
+    : "";
   return (
     <article className={classes.root} ref={authorExpandContainer} onClick={onClick}>
       <div className={classes.score}>
