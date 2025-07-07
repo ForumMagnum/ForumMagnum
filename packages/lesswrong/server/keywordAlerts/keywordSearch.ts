@@ -27,7 +27,7 @@ export const fetchPostIdsForKeyword = async (
             {
               multi_match: {
                 query: keyword,
-                fields: [ "title", "body" ],
+                fields: [ "title.exact", "body.exact" ],
                 type: "phrase",
               },
             }
