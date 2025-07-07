@@ -27,7 +27,7 @@ import { useSingle } from "@/lib/crud/withSingle";
 import SectionTitle from "../common/SectionTitle";
 import PostsListSortDropdown from "../posts/PostsListSortDropdown";
 import PostsList2 from "../posts/PostsList2";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import Loading from "../vulcan-core/Loading";
 import AddPostsToTag from "./AddPostsToTag";
 import Error404 from "../common/Error404";
@@ -193,7 +193,7 @@ const PostsListHeading: FC<{
       <>
         <SectionTitle title={`Posts tagged ${tag.name}`} />
         <div className={classes.postListMeta}>
-          <PostsListSortDropdown value={query.sortedBy || "relevance"} />
+          <PostsListSortDropdown value={query.sortedBy || "top"} />
           <div className={classes.relevance}>
             <RelevanceLabel />
           </div>
@@ -204,7 +204,7 @@ const PostsListHeading: FC<{
   return (
     <div className={classes.tagHeader}>
       <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
-      <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
+      <PostsListSortDropdown value={query.sortedBy || "top"}/>
     </div>
   );
 }
@@ -333,7 +333,7 @@ const EATagPage = ({classes}: {
     : htmlWithAnchors
   }
 
-  const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
+  const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}`
   
   const tagFlagItemType: AnyBecauseTodo = {
     allPages: "allPages",
@@ -355,7 +355,7 @@ const EATagPage = ({classes}: {
     pageContext='tagPage'
     tagName={tag.name}
     tagId={tag._id}
-    sortedBy={query.sortedBy || "relevance"}
+    sortedBy={query.sortedBy || "top"}
     limit={terms.limit}
   >
     <HeadTags

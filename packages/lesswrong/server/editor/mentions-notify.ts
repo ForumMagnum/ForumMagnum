@@ -1,70 +1,193 @@
-import * as _ from 'underscore'
+import intersection from 'lodash/intersection'
+import difference from 'lodash/difference'
+import uniq from 'lodash/uniq'
 import {createNotifications} from '../notificationCallbacksHelpers'
-import {notificationDocumentTypes} from '../../lib/notificationTypes'
+import type {NotificationDocument} from '../../lib/notificationTypes'
 import {isBeingUndrafted} from './utils'
 import {canMention} from '../../lib/pingback'
+import type {PingbacksIndex} from '../pingbacks'
+import { isValidCollectionName } from '../collections/allCollections'
+import Comments from '../collections/comments/collection'
+import Posts from '../collections/posts/collection'
+import { getConfirmedCoauthorIds } from '@/lib/collections/posts/helpers'
+import { htmlToTextDefault } from '@/lib/htmlToText'
+import { dataToHTML } from './conversionUtils'
+import { createAnonymousContext } from '../vulcan-lib/createContexts'
+
+const COMMENT_EXCERPT_LENGTH = 40;
 
 export interface PingbackDocumentPartial {
   _id: string,
-  pingbacks?: {
-    Users: string[]
+  pingbacks?: PingbacksIndex,
+}
+
+const collectionNotificationTypes: Partial<Record<CollectionNameString, NotificationDocument>> = {
+  Posts: "post",
+  Comments: "comment",
+  Users: "user",
+  Messages: "message",
+  TagRels: "tagRel",
+  Localgroups: "localgroup",
+  DialogueChecks: "dialogueCheck",
+  DialogueMatchPreferences: "dialogueMatchPreference",
+};
+
+const countAllPingbacks = (pingbacks: PingbacksIndex) => {
+  let count = 0;
+  for (const pingbackCollection in pingbacks) {
+    count += pingbacks[pingbackCollection as CollectionNameString]!.length;
   }
+  return count;
 }
 
-export const notifyUsersAboutMentions = async (currentUser: DbUser, collectionType: string, document: PingbackDocumentPartial, oldDocument?: PingbackDocumentPartial) => {
-  const pingbacksToSend = getPingbacksToSend(currentUser, collectionType, document, oldDocument)
+const filterUserIds = (userIds: string[], filteredUserIds: string[]): string[] =>
+  difference(uniq(userIds), filteredUserIds);
 
-  // Todo(PR): this works, but not sure if it's generally a correct conversion. 
-  //  TagRels for example won't work, though they don't have content either.
-  //  should we define an explicit mapping?
-  const notificationType = collectionType.toLowerCase()
-
-  const newDocPingbackCount = getPingbacks(document).length
-  if (!canMention(currentUser, newDocPingbackCount).result || !notificationDocumentTypes.has(notificationType)) return
-
-  return createNotifications({
-    notificationType: 'newMention',
-    userIds: pingbacksToSend,
-    documentId: document._id,
-    documentType: notificationType,
-  })
+const getCommentExcerpt = async (comment: DbComment, context: ResolverContext) => {
+  const originalContents = comment.contents?.originalContents;
+  if (!originalContents) {
+    return "";
+  }
+  const html = await dataToHTML(
+    originalContents.data,
+    originalContents.type,
+    context,
+  );
+  return htmlToTextDefault(html).slice(0, COMMENT_EXCERPT_LENGTH);
 }
 
-const getPingbacks = (document?: PingbackDocumentPartial) => document?.pingbacks?.Users ?? []
-
-function getPingbacksToSend(
+export const notifyUsersAboutMentions = async (
   currentUser: DbUser,
-  collectionType: string,
+  collectionName: CollectionNameString,
   document: PingbackDocumentPartial,
   oldDocument?: PingbackDocumentPartial,
-) {
-  const pingbacksFromDocuments = () => {
-    const newDocPingbacks = getPingbacks(document)
-    const oldDocPingbacks = getPingbacks(oldDocument)
-    const newPingbacks = _.difference(newDocPingbacks, oldDocPingbacks)
-
-    if (collectionType !== 'Post') return newPingbacks
-
-    const post = document as DbPost
-
-    if (post.draft) {
-      const pingedUsersWhoHaveAccessToDoc = _.intersection(newPingbacks, post.shareWithUsers)
-      return pingedUsersWhoHaveAccessToDoc
-    }
-
-    const oldPost = oldDocument as DbPost | undefined
-    // This currently does not handle multiple moves between draft and published.
-    if (oldPost && isBeingUndrafted(oldPost, post)) {
-      const alreadyNotifiedUsers = _.intersection(oldDocPingbacks, oldPost.shareWithUsers)
-
-      // newDocPingbacks bc, we assume most users weren't pinged on the draft stage
-      return _.difference(newDocPingbacks, alreadyNotifiedUsers)
-    }
-
-    return newPingbacks
+) => {
+  const notificationType = collectionNotificationTypes[collectionName];
+  if (!notificationType) {
+    return;
   }
 
-  return removeSelfReference(pingbacksFromDocuments(), currentUser._id)
+  if (!canMention(currentUser, countAllPingbacks(document.pingbacks ?? {})).result) {
+    return;
+  }
+
+  const promises: Promise<unknown>[] = [];
+
+  const pingbacksToSend = getPingbacksToSend(collectionName, document, oldDocument);
+
+  const filteredUserIds: string[] = [currentUser._id];
+
+  if (pingbacksToSend.Users) {
+    const userIds = filterUserIds(pingbacksToSend.Users, filteredUserIds);
+    filteredUserIds.push(...userIds);
+    promises.push(
+      createNotifications({
+        notificationType: "newMention",
+        userIds,
+        documentId: document._id,
+        documentType: notificationType,
+      })
+    );
+  }
+
+  if (pingbacksToSend.Posts) {
+    const posts = await Posts.find({
+      _id: { $in: pingbacksToSend.Posts },
+    }).fetch();
+    for (const post of posts) {
+      const userIds = filterUserIds(
+        [post.userId, ...getConfirmedCoauthorIds(post)],
+        filteredUserIds,
+      );
+      filteredUserIds.push(...userIds);
+      promises.push(
+        createNotifications({
+          notificationType: "newPingback",
+          userIds,
+          documentId: document._id,
+          documentType: notificationType,
+          extraData: {
+            pingbackType: "post",
+            pingbackDocumentId: post._id,
+            pingbackDocumentExcerpt: post.title,
+          },
+        })
+      );
+    }
+  }
+
+  if (pingbacksToSend.Comments) {
+    const comments = await Comments.find({
+      _id: { $in: pingbacksToSend.Comments },
+    }).fetch();
+    const context = createAnonymousContext();
+    for (const comment of comments) {
+      const isQuickTake = comment.shortform && !comment.parentCommentId;
+      const userIds = filterUserIds([comment.userId], filteredUserIds);
+      filteredUserIds.push(...userIds);
+      promises.push(
+        createNotifications({
+          notificationType: "newPingback",
+          userIds,
+          documentId: document._id,
+          documentType: notificationType,
+          extraData: {
+            pingbackType: isQuickTake ? "quick take" : "comment",
+            pingbackDocumentId: comment._id,
+            pingbackDocumentExcerpt: await getCommentExcerpt(comment, context),
+          },
+        })
+      );
+    }
+  }
+
+  return Promise.all(promises);
 }
 
-const removeSelfReference = (ids: string[], id: string) => _.without(ids, id)
+const getPingbacksToSend = (
+  collectionName: CollectionNameString,
+  document: PingbackDocumentPartial,
+  oldDocument?: PingbackDocumentPartial,
+): PingbacksIndex => {
+  const pingbacksFromDocuments = (pingbackCollection: CollectionNameString) => {
+    const newDocPingbacks = document.pingbacks?.[pingbackCollection] ?? [];
+    const oldDocPingbacks = oldDocument?.pingbacks?.[pingbackCollection] ?? [];
+    const newPingbacks = difference(newDocPingbacks, oldDocPingbacks)
+
+    if (collectionName !== 'Posts' && collectionName !== 'Comments') {
+      return newPingbacks
+    }
+
+    const doc = document as DbPost | DbComment
+    const oldDoc = oldDocument as DbPost | DbComment | undefined
+
+    if (doc.draft) {
+      if (collectionName === 'Posts') {
+        const post = doc as DbPost
+        const pingedUsersWhoHaveAccessToDoc = intersection(newPingbacks, post.shareWithUsers)
+        return pingedUsersWhoHaveAccessToDoc
+      }
+      return []
+    }
+
+    // This currently does not handle multiple moves between draft and published.
+    if (oldDoc && isBeingUndrafted(oldDoc, doc)) {
+      let alreadyNotifiedUsers: string[] = []
+      if (collectionName === 'Posts') {
+        alreadyNotifiedUsers = intersection(oldDocPingbacks, (oldDoc as DbPost).shareWithUsers)
+      }
+
+      return difference(newDocPingbacks, alreadyNotifiedUsers);
+    }
+
+    return newPingbacks;
+  }
+
+  const result: PingbacksIndex = {};
+  for (const pingbackCollection in document.pingbacks) {
+    if (isValidCollectionName(pingbackCollection)) {
+      result[pingbackCollection] = pingbacksFromDocuments(pingbackCollection);
+    }
+  }
+  return result;
+}

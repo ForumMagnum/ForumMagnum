@@ -122,6 +122,7 @@ export const UsersCurrent = () => frag`
       popularComments
     }
     hidePostsRecommendations
+    keywordAlerts
     currentFrontpageFilter
     frontpageSelectedTab
     frontpageFilterSettings
@@ -606,10 +607,12 @@ export const UsersEdit = () => frag`
     notificationGroupAdministration
     notificationSubforumUnread
     notificationNewMention
+    notificationNewPingback
     notificationNewDialogueChecks
     notificationYourTurnMatchForm
     notificationDialogueMessages
     notificationPublishedDialogueMessages
+    notificationKeywordAlert
 
     hideFrontpageMap
     hideTaggingProgressBar

@@ -21,6 +21,7 @@ import { expiredRateLimitsReturnToReviewQueueCron } from "@/server/users/cron";
 import { permanentlyDeleteUsersCron } from "@/server/users/permanentDeletion";
 import { updateScoreActiveDocumentsCron, updateScoreInactiveDocumentsCron } from "@/server/votingCron";
 import { getAllPostgresViews } from "../postgresView";
+import { keywordAlertsCron } from "../keywordAlerts/keywordAlertsCron";
 
 export const allCronJobs: (CronJobSpec|null)[] = [
   cronClearOldCronHistories,
@@ -46,5 +47,6 @@ export const allCronJobs: (CronJobSpec|null)[] = [
   permanentlyDeleteUsersCron,
   updateScoreActiveDocumentsCron,
   updateScoreInactiveDocumentsCron,
+  keywordAlertsCron,
   ...getAllPostgresViews().map((view) => view.getCronJob()),
 ];

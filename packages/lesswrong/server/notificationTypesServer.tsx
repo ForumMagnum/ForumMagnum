@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { makeAbsolute, getSiteUrl, combineUrls } from '../lib/vulcan-lib/utils';
 import { Posts } from '../server/collections/posts/collection';
 import { postGetPageUrl, postGetAuthorName, postGetEditUrl } from '../lib/collections/posts/helpers';
@@ -30,6 +30,7 @@ import { SequenceNewPostsEmail } from './emailComponents/SequenceNewPostsEmail';
 import { PrivateMessagesEmail } from './emailComponents/PrivateMessagesEmail';
 import { EventUpdatedEmail } from './emailComponents/EventUpdatedEmail';
 import { EmailUsernameByID } from './emailComponents/EmailUsernameByID';
+import { fetchPostsForKeyword } from './keywordAlerts/keywordSearch';
 
 interface ServerNotificationType {
   name: string,
@@ -790,6 +791,60 @@ export const PostCoauthorAcceptNotification = createServerNotificationType({
   },
 });
 
+export const KeywordAlertNotification = createServerNotificationType({
+  name: "keywordAlert",
+  canCombineEmails: true,
+  emailSubject: async ({ notifications }: {notifications: DbNotification[]}) => {
+    if (notifications.length > 1) {
+      let totalCount = 0;
+      for (const notification of notifications) {
+        totalCount += notification.extraData?.count ?? 0;
+      }
+      return `${totalCount} new keyword alerts`;
+    }
+    const {extraData} = notifications[0];
+    const alerts = extraData?.count === 1 ? "alert" : "alerts";
+    return `${extraData?.count} new ${alerts} for "${extraData?.keyword}"`;
+  },
+  emailBody: async ({ context, notifications }: {
+    notifications: DbNotification[],
+    context: ResolverContext,
+  }) => {
+    const alerts: ReactNode[] = [];
+    for (const notification of notifications) {
+      const {link, extraData} = notification;
+      const {count, keyword, startDate, endDate} = extraData ?? {};
+      if (!link || !count || !keyword || !startDate || !endDate) {
+        throw new Error("Missing keyword alert notification data");
+      }
+      const posts = await fetchPostsForKeyword(
+        context,
+        keyword,
+        new Date(startDate),
+        new Date(endDate),
+      );
+      const alerts = count === 1 ? "alert" : "alerts";
+      return (
+        <div>
+          <p><a href={link}>{count} new {alerts}</a> for "{keyword}"</p>
+          <ul>
+            {posts.map((post) => (
+              <li key={post._id}>
+                <a href={postGetPageUrl(post)}>{post.title}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
+    return (
+      <div>
+        {alerts}
+      </div>
+    );
+  },
+});
+
 export const NewSubforumMemberNotification = createServerNotificationType({
   name: "newSubforumMember",
   canCombineEmails: false,
@@ -847,6 +902,55 @@ export const NewMentionNotification = createServerNotificationType({
   },
 });
 
+export const NewPingbackNotification = createServerNotificationType({
+  name: "newPingback",
+  emailSubject: async ({ notifications, context }: {
+    user: DbUser,
+    notifications: DbNotification[],
+    context: ResolverContext,
+  }) => {
+    const notification = notifications[0];
+    if (!notification) {
+      throw Error("Missing notification for newPingback");
+    }
+    const summary = await getDocumentSummary(
+      notification.documentType as NotificationDocument,
+      notification.documentId,
+      context,
+    );
+    if (!summary) {
+      throw Error(`Can't find document for notification: ${notification}`);
+    }
+    return `${summary.associatedUserName} mentioned your ${notification.extraData?.pingbackType} "${notification.extraData?.pingbackDocumentExcerpt}"`;
+  },
+  emailBody: async ({ notifications, context }: {
+    user: DbUser,
+    notifications: DbNotification[],
+    context: ResolverContext,
+  }) => {
+    const notification = notifications[0];
+    if (!notification) {
+      throw Error("Missing notification for newPingback");
+    }
+    const summary = await getDocumentSummary(
+      notification.documentType as NotificationDocument,
+      notification.documentId,
+      context,
+    );
+    if (!summary) {
+      throw Error(`Can't find document for notification: ${notification}`);
+    }
+    if (!notification.link) {
+      throw Error(`Can't find link for notification: ${notification}`);
+    }
+    return (
+      <p>
+        {summary.associatedUserName} <a href={makeAbsolute(notification.link)}>mentioned your {notification.extraData?.pingbackType}</a> "{notification.extraData?.pingbackDocumentExcerpt}".
+      </p>
+    );
+  },
+});
+
 const serverNotificationTypesArray: ServerNotificationType[] = [
   NewPostNotification,
   PostApprovedNotification,
@@ -881,8 +985,10 @@ const serverNotificationTypesArray: ServerNotificationType[] = [
   NewCommentOnDraftNotification,
   PostCoauthorRequestNotification,
   PostCoauthorAcceptNotification,
+  KeywordAlertNotification,
   NewSubforumMemberNotification,
   NewMentionNotification,
+  NewPingbackNotification,
 ];
 const serverNotificationTypes: Record<string,ServerNotificationType> = keyBy(serverNotificationTypesArray, n=>n.name);
 

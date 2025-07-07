@@ -369,6 +369,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly legacyId: string|null,
   readonly legacyPoll: boolean,
   readonly legacyParentId: string|null,
+  readonly draft: boolean,
   readonly retracted: boolean,
   readonly deleted: boolean,
   readonly deletedPublic: boolean,
@@ -479,6 +480,7 @@ interface CommentsList { // fragment on Comments
   readonly lastEditedAt: Date|null,
   readonly repliesBlockedUntil: Date|null,
   readonly userId: string|null,
+  readonly draft: boolean,
   readonly deleted: boolean,
   readonly deletedPublic: boolean,
   readonly deletedByUserId: string|null,
@@ -818,6 +820,16 @@ interface DigestsMinimumInfo { // fragment on Digests
   readonly onsitePrimaryColor: string|null,
 }
 
+interface DraftComments extends CommentsList { // fragment on Comments
+  readonly post: PostsMinimumInfo|null,
+  readonly parentComment: DraftComments_parentComment|null,
+}
+
+interface DraftComments_parentComment { // fragment on Comments
+  readonly _id: string,
+  readonly user: UsersMinimumInfo|null,
+}
+
 interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
   readonly _id: string,
   readonly electionName: string,
@@ -1031,6 +1043,7 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly contrastColor: string|null,
   readonly tagId: string|null,
   readonly postId: string|null,
+  readonly commentId: string|null,
   readonly bannerImageId: string|null,
   readonly includesPoll: boolean,
   readonly isGlobal: boolean,
@@ -1094,6 +1107,7 @@ interface ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly contrastColor: string|null,
   readonly tagId: string|null,
   readonly postId: string|null,
+  readonly commentId: string|null,
   readonly bannerImageId: string|null,
   readonly eventFormat: "BASIC" | "POLL" | "STICKERS",
   readonly customComponent: "GivingSeason2024Banner" | null,
@@ -2459,6 +2473,10 @@ interface ReportsDefaultFragment { // fragment on Reports
   readonly closedAt: Date|null,
   readonly markedAsSpam: boolean|null,
   readonly reportedAsSpam: boolean|null,
+}
+
+interface ReportsSlackPreview extends UnclaimedReportsList { // fragment on Reports
+  readonly comment: CommentsListWithParentMetadata|null,
 }
 
 interface ReviewVotesDefaultFragment { // fragment on ReviewVotes
@@ -3984,6 +4002,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideCommunitySection: boolean,
   readonly expandedFrontpageSections: ExpandedFrontpageSectionsSettingsOutput,
   readonly hidePostsRecommendations: boolean,
+  readonly keywordAlerts: Array<string>,
   readonly currentFrontpageFilter: string|null,
   readonly frontpageSelectedTab: string|null,
   readonly frontpageFilterSettings: any,
@@ -4191,6 +4210,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly hideCommunitySection: boolean,
   readonly showCommunityInRecentDiscussion: boolean,
   readonly hidePostsRecommendations: boolean,
+  readonly keywordAlerts: Array<string>,
   readonly petrovOptOut: boolean,
   readonly optedOutOfSurveys: boolean|null,
   readonly postGlossariesPinned: boolean|null,
@@ -4510,6 +4530,20 @@ interface UsersDefaultFragment { // fragment on Users
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   },
+  readonly notificationNewPingback: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  },
   readonly notificationDialogueMessages: {
     onsite: {
       enabled: boolean,
@@ -4539,6 +4573,20 @@ interface UsersDefaultFragment { // fragment on Users
     },
   },
   readonly notificationAddedAsCoauthor: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  },
+  readonly notificationKeywordAlert: {
     onsite: {
       enabled: boolean,
       batchingFrequency: "realtime" | "daily" | "weekly",
@@ -5072,6 +5120,20 @@ interface UsersEdit extends UsersCurrent { // fragment on Users
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   },
+  readonly notificationNewPingback: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  },
   readonly notificationNewDialogueChecks: {
     onsite: {
       enabled: boolean,
@@ -5115,6 +5177,20 @@ interface UsersEdit extends UsersCurrent { // fragment on Users
     },
   },
   readonly notificationPublishedDialogueMessages: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  },
+  readonly notificationKeywordAlert: {
     onsite: {
       enabled: boolean,
       batchingFrequency: "realtime" | "daily" | "weekly",
@@ -5565,6 +5641,7 @@ interface FragmentTypes {
   DigestPostsMinimumInfo: DigestPostsMinimumInfo
   DigestsDefaultFragment: DigestsDefaultFragment
   DigestsMinimumInfo: DigestsMinimumInfo
+  DraftComments: DraftComments
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
   ElectionCandidateSimple: ElectionCandidateSimple
   ElectionCandidatesDefaultFragment: ElectionCandidatesDefaultFragment
@@ -5686,6 +5763,7 @@ interface FragmentTypes {
   RecentDiscussionRevisionTagFragment: RecentDiscussionRevisionTagFragment
   RecommendationsCachesDefaultFragment: RecommendationsCachesDefaultFragment
   ReportsDefaultFragment: ReportsDefaultFragment
+  ReportsSlackPreview: ReportsSlackPreview
   ReviewVotesDefaultFragment: ReviewVotesDefaultFragment
   ReviewWinnerAll: ReviewWinnerAll
   ReviewWinnerAnnouncement: ReviewWinnerAnnouncement
@@ -5864,7 +5942,7 @@ interface FragmentTypesByCollection {
   ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
   Collections: "CollectionContinueReadingFragment"|"CollectionsBestOfFragment"|"CollectionsDefaultFragment"|"CollectionsEditFragment"|"CollectionsPageFragment"
   CommentModeratorActions: "CommentModeratorActionDisplay"|"CommentModeratorActionsDefaultFragment"
-  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsDefaultFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithModerationMetadata"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"UltraFeedComment"|"WithVoteComment"
+  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsDefaultFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithModerationMetadata"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"DraftComments"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"UltraFeedComment"|"WithVoteComment"
   Conversations: "ConversationsDefaultFragment"|"ConversationsList"|"ConversationsListWithReadStatus"|"ConversationsMinimumInfo"
   CronHistories: "CronHistoriesDefaultFragment"
   CurationEmails: "CurationEmailsDefaultFragment"
@@ -5916,7 +5994,7 @@ interface FragmentTypesByCollection {
   RSSFeeds: "RSSFeedMinimumInfo"|"RSSFeedMutationFragment"|"RSSFeedsDefaultFragment"|"newRSSFeedFragment"
   ReadStatuses: "ReadStatusesDefaultFragment"
   RecommendationsCaches: "RecommendationsCachesDefaultFragment"
-  Reports: "ReportsDefaultFragment"|"UnclaimedReportsList"
+  Reports: "ReportsDefaultFragment"|"ReportsSlackPreview"|"UnclaimedReportsList"
   ReviewVotes: "ReviewVotesDefaultFragment"|"reviewAdminDashboard"|"reviewVoteFragment"|"reviewVoteWithUserAndPost"
   ReviewWinnerArts: "ReviewWinnerArtImages"|"ReviewWinnerArtsDefaultFragment"
   ReviewWinners: "ReviewWinnerAll"|"ReviewWinnerAnnouncement"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsDisplay"|"ReviewWinnerTopPostsPage"|"ReviewWinnersDefaultFragment"
@@ -6009,6 +6087,7 @@ interface CollectionNamesByFragmentName {
   DigestPostsMinimumInfo: "DigestPosts"
   DigestsDefaultFragment: "Digests"
   DigestsMinimumInfo: "Digests"
+  DraftComments: "Comments"
   ElectionCandidateBasicInfo: "ElectionCandidates"
   ElectionCandidateSimple: "ElectionCandidates"
   ElectionCandidatesDefaultFragment: "ElectionCandidates"
@@ -6130,6 +6209,7 @@ interface CollectionNamesByFragmentName {
   RecentDiscussionRevisionTagFragment: "Revisions"
   RecommendationsCachesDefaultFragment: "RecommendationsCaches"
   ReportsDefaultFragment: "Reports"
+  ReportsSlackPreview: "Reports"
   ReviewVotesDefaultFragment: "ReviewVotes"
   ReviewWinnerAll: "ReviewWinners"
   ReviewWinnerAnnouncement: "ReviewWinners"

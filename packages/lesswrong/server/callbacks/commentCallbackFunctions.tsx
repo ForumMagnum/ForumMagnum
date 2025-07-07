@@ -1,5 +1,5 @@
 import React from "react";
-import { commentIsHidden } from "@/lib/collections/comments/helpers";
+import { commentIsHiddenPendingReview, commentIsNotPublicForAnyReason } from "@/lib/collections/comments/helpers";
 import { ForumEventCommentMetadata } from "@/lib/collections/forumEvents/types";
 import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/constants";
 import { tagGetDiscussionUrl, EA_FORUM_COMMUNITY_TOPIC_ID } from "@/lib/collections/tags/helpers";
@@ -155,6 +155,7 @@ const utils = {
         to: email,
         subject: `New comment on ${post.title}`,
         body: <EmailComment commentId={comment._id}/>,
+        tag: "rsvps-new-comment",
       });
     }
   },
@@ -921,7 +922,7 @@ export async function commentsAlignmentNew(comment: DbComment, context: Resolver
 
 export async function commentsNewNotifications(comment: DbComment, context: ResolverContext) {
   // if the site is currently hiding comments by unreviewed authors, do not send notifications if this comment should be hidden
-  if (commentIsHidden(comment)) return
+  if (commentIsNotPublicForAnyReason(comment)) return
   
   void utils.sendNewCommentNotifications(comment, context)
 }
@@ -939,6 +940,18 @@ export function updatePostLastCommentPromotedAt(data: UpdateCommentDataInput, { 
     return { ...data, promotedByUserId };
   }
 
+  return data;
+}
+
+export function handleDraftState(data: UpdateCommentDataInput, { oldDocument }: UpdateCallbackProperties<'Comments'>) {
+  // Prevent converting a comment back to draft
+  if (data.draft === true && oldDocument.draft === false) {
+    throw new Error("You cannot convert a published comment back to draft.");
+  }
+  // Update postedAt when a comment is moved out of drafts.
+  if (data.draft === false && oldDocument.draft) {
+    data.postedAt = new Date();
+  }
   return data;
 }
 
@@ -1133,8 +1146,7 @@ export async function commentsEditSoftDeleteCallback(comment: DbComment, oldComm
 }
 
 export async function commentsPublishedNotifications(comment: DbComment, oldComment: DbComment, context: ResolverContext) {
-  // if the site is currently hiding comments by unreviewed authors, send the proper "new comment" notifications once the comment author is reviewed
-  if (commentIsHidden(oldComment) && !commentIsHidden(comment)) {
+  if (commentIsNotPublicForAnyReason(oldComment) && !commentIsNotPublicForAnyReason(comment)) {
     void utils.sendNewCommentNotifications(comment, context)
   }
 }

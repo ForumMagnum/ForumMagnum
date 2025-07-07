@@ -204,6 +204,7 @@ interface DbComment extends DbObject {
   deletedReason: string | null
   descendentCount: number
   directChildrenCount: number
+  draft: boolean
   extendedScore: any | null
   forumEventId: string | null
   forumEventMetadata: {
@@ -531,6 +532,7 @@ interface DbForumEvent extends DbObject {
   __collectionName?: "ForumEvents"
   bannerImageId: string | null
   bannerTextColor: string
+  commentId: string | null
   commentPrompt: string | null
   contrastColor: string | null
   createdAt: Date
@@ -1759,6 +1761,7 @@ interface DbUser extends DbObject {
     dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     showNegativeKarma: boolean,
   }
+  keywordAlerts: Array<string>
   lastNotificationsCheck: Date | null
   lastUsedTimezone: string | null
   legacy: boolean
@@ -1944,6 +1947,20 @@ interface DbUser extends DbObject {
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
+  notificationKeywordAlert: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
   notificationNewDialogueChecks: {
     onsite: {
       enabled: boolean,
@@ -1959,6 +1976,20 @@ interface DbUser extends DbObject {
     },
   }
   notificationNewMention: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationNewPingback: {
     onsite: {
       enabled: boolean,
       batchingFrequency: "realtime" | "daily" | "weekly",

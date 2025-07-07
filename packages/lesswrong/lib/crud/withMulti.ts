@@ -10,6 +10,7 @@ import { extractFragmentInfo } from "../vulcan-lib/handleOptions";
 import { getFragment } from "../vulcan-lib/fragments";
 import { collectionNameToTypeName } from "../generated/collectionTypeNames";
 import { useLocation, useNavigate } from "../routeUtil";
+import { useStabilizedCallback } from '@/components/hooks/useDebouncedCallback';
 
 interface GetGraphQLMultiQueryFromOptionsArgs {
   collectionName: CollectionNameString,
@@ -198,7 +199,7 @@ export function useMulti<
   // if showLoadMore returned true.
   const showLoadMore = alwaysShowLoadMore || (enableTotal ? (count < totalCount) : (count >= effectiveLimit));
   
-  const loadMore: LoadMoreCallback = async (limitOverride?: number) => {
+  const loadMore: LoadMoreCallback = useStabilizedCallback(async (limitOverride?: number) => {
     const newLimit = limitOverride || (effectiveLimit+itemsPerPage)
     if (queryLimitName) {
       const newQuery = {...locationQuery, [queryLimitName]: newLimit}
@@ -218,7 +219,7 @@ export function useMulti<
       }
     })
     setLimit(newLimit)
-  };
+  });
   
   // A bundle of props that you can pass to Components.LoadMore, to make
   // everything just work.

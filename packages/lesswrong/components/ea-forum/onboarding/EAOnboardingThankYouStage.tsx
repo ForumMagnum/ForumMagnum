@@ -190,10 +190,10 @@ export const EAOnboardingThankYouStage = ({classes}: {
         <div className={classes.helpImproveForum}>
           <div>
             <div className={classes.heading}>
-              Help us improve the Forum
+              Join our feedback group
             </div>
             <div className={classes.subheading}>
-              A 20-min call on what you hope to get from EA and the Forum.
+              We may reach out later to get your takes on EA and the Forum.
             </div>
           </div>
           <EAButton style="grey" className={classes.helpImproveForumButton} href="https://tally.so/r/mDMR55">

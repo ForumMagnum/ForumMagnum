@@ -10,7 +10,7 @@ import { POST_PREVIEW_ELEMENT_CONTEXT, POST_PREVIEW_WIDTH } from './helpers';
 import type { PostsPreviewTooltipProps } from './PostsPreviewTooltip';
 import PostsUserAndCoauthors from "../PostsUserAndCoauthors";
 import PostsTitle from "../PostsTitle";
-import ContentItemBody from "../../common/ContentItemBody";
+import { ContentItemBody } from "../../contents/ContentItemBody";
 import CommentsNodeInner from "../../comments/CommentsNode";
 import BookmarkButton from "../BookmarkButton";
 import FormatDate from "../../common/FormatDate";

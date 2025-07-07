@@ -1,7 +1,7 @@
 import { useMulti } from '../../lib/crud/withMulti';
 import { isValidBase36Id } from '../../lib/utils/base36id';
 
-export const useCommentByLegacyId = ({ legacyId }: { legacyId: string }): {
+export const useCommentByLegacyId = ({ legacyId, ssr=true }: { legacyId: string, ssr?: boolean }): {
   comment: CommentsList|null,
   loading: boolean,
   error: any,
@@ -19,6 +19,7 @@ export const useCommentByLegacyId = ({ legacyId }: { legacyId: string }): {
     fragmentName: 'CommentsList',
     limit: 1,
     enableTotal: false,
+    ssr,
   });
   
   if (!isValidId) {

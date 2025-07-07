@@ -1,5 +1,5 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { generateIdResolverSingle } from "../../utils/schemaUtils";
+import { generateIdResolverSingle, getForeignKeySqlResolver } from "../../utils/schemaUtils";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -33,6 +33,11 @@ const schema = {
       outputType: "User",
       canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
+      sqlResolver: getForeignKeySqlResolver({
+        collectionName: "Users",
+        nullable: true,
+        idFieldName: "userId",
+      }),
     },
   },
   reportedUserId: {
@@ -54,6 +59,11 @@ const schema = {
       outputType: "User",
       canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "reportedUserId" }),
+      sqlResolver: getForeignKeySqlResolver({
+        collectionName: "Users",
+        nullable: true,
+        idFieldName: "reportedUserId",
+      }),
     },
   },
   commentId: {
@@ -75,6 +85,11 @@ const schema = {
       outputType: "Comment",
       canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Comments", fieldName: "commentId" }),
+      sqlResolver: getForeignKeySqlResolver({
+        collectionName: "Comments",
+        nullable: true,
+        idFieldName: "commentId",
+      }),
     },
   },
   postId: {
@@ -96,6 +111,11 @@ const schema = {
       outputType: "Post",
       canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "postId" }),
+      sqlResolver: getForeignKeySqlResolver({
+        collectionName: "Posts",
+        nullable: true,
+        idFieldName: "postId",
+      }),
     },
   },
   link: {
@@ -129,6 +149,11 @@ const schema = {
       outputType: "User",
       canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "claimedUserId" }),
+      sqlResolver: getForeignKeySqlResolver({
+        collectionName: "Users",
+        nullable: true,
+        idFieldName: "claimedUserId",
+      }),
     },
   },
   description: {

@@ -27,6 +27,7 @@ import { ThemeContextProvider } from '@/components/themes/useTheme';
 import { ThemeOptions } from '@/themes/themeNames';
 import { EmailWrapper } from '../emailComponents/EmailWrapper';
 import CookiesProvider from '@/lib/vendor/react-cookie/CookiesProvider';
+import { utmifyForumBacklinks, UtmParam } from '../analytics/utm-tracking';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -35,6 +36,7 @@ export interface RenderedEmail {
   subject: string,
   html: string,
   text: string,
+  tag: string,
 }
 
 // How many characters to wrap the plain-text version of the email to
@@ -134,13 +136,24 @@ function addEmailBoilerplate({ css, title, body }: {
 
 const defaultEmailSetting = new DatabaseServerSetting<string>('defaultEmail', "hello@world.com")
 
-export async function generateEmail({user, to, from, subject, bodyComponent, boilerplateGenerator=addEmailBoilerplate}: {
+export async function generateEmail({
+  user,
+  to,
+  from,
+  subject,
+  bodyComponent,
+  boilerplateGenerator=addEmailBoilerplate,
+  utmParams,
+  tag,
+}: {
   user: DbUser | null,
   to: string,
   from?: string,
   subject: string,
   bodyComponent: React.ReactNode,
   boilerplateGenerator?: (props: {css: string, title: string, body: string}) => string,
+  utmParams?: Partial<Record<UtmParam, string>>;
+  tag: string,
 }): Promise<RenderedEmail>
 {
   if (!subject) throw new Error("Missing required argument: subject");
@@ -192,13 +205,14 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   
   // Find any relative links, and convert them to absolute
   const htmlWithAbsoluteUrls = makeAllUrlsAbsolute(html, getSiteUrl());
+  const htmlWithUtmParams = utmifyForumBacklinks({ html: htmlWithAbsoluteUrls, utmParams, siteUrl: getSiteUrl() });
   
   // Since emails can't use <style> tags, only inline styles, use the Juice
   // library to convert accordingly.
-  const inlinedHTML = Juice(htmlWithAbsoluteUrls, { preserveMediaQueries: true });
+  const inlinedHTML = Juice(htmlWithUtmParams, { preserveMediaQueries: true });
   
   // Generate a plain-text representation, based on the React representation
-  const plaintext = htmlToText(htmlWithAbsoluteUrls, {
+  const plaintext = htmlToText(htmlWithUtmParams, {
     wordwrap: plainTextWordWrap
   });
   
@@ -220,10 +234,26 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     subject: isLWorAF ? taggedSubject : subject,
     html: emailDoctype + inlinedHTML,
     text: plaintext,
+    tag,
   }
 }
-
-export const wrapAndRenderEmail = async ({user, to, from, subject, body}: {user: DbUser | null, to: string, from?: string, subject: string, body: React.ReactNode}): Promise<RenderedEmail> => {
+export const wrapAndRenderEmail = async ({
+  user,
+  to,
+  from,
+  subject,
+  body,
+  utmParams,
+  tag,
+}: {
+  user: DbUser | null;
+  to: string;
+  from?: string;
+  subject: string;
+  body: React.ReactNode;
+  utmParams?: Partial<Record<UtmParam, string>>;
+  tag: string,
+}): Promise<RenderedEmail> => {
   const unsubscribeAllLink = user ? await emailTokenTypesByName.unsubscribeAll.generateLink(user._id) : null;
   return await generateEmail({
     user,
@@ -234,18 +264,31 @@ export const wrapAndRenderEmail = async ({user, to, from, subject, body}: {user:
       unsubscribeAllLink={unsubscribeAllLink}
     >
       {body}
-    </EmailWrapper>
+    </EmailWrapper>,
+    utmParams,
+    tag,
   });
 }
 
-export const wrapAndSendEmail = async ({user, force = false, to, from, subject, body}: {
-  user: DbUser|null,
-  force?: boolean,
-  to?: string,
-  from?: string,
-  subject: string,
-  body: React.ReactNode}
-): Promise<boolean> => {
+export const wrapAndSendEmail = async ({
+  user,
+  force = false,
+  to,
+  from,
+  subject,
+  body,
+  utmParams,
+  tag,
+}: {
+  user: DbUser | null;
+  force?: boolean;
+  to?: string;
+  from?: string;
+  subject: string;
+  body: React.ReactNode;
+  utmParams?: Partial<Record<UtmParam, string>>;
+  tag: string,
+}): Promise<boolean> => {
   if (isE2E) {
     return true;
   }
@@ -261,7 +304,15 @@ export const wrapAndSendEmail = async ({user, force = false, to, from, subject, 
   }
 
   try {
-    const email = await wrapAndRenderEmail({ user, to: destinationAddress, from, subject, body });
+    const email = await wrapAndRenderEmail({
+      user,
+      to: destinationAddress,
+      from,
+      subject,
+      body,
+      utmParams,
+      tag,
+    });
     const succeeded = await sendEmail(email);
     void logSentEmail(email, user, {succeeded});
     return succeeded;

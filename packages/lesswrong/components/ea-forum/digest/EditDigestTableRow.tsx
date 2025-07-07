@@ -161,7 +161,7 @@ const voteToIcon = (post: PostsListWithVotes): React.ReactNode => {
 }
 
 
-const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickStatusIcon, visibleTagIds, setTagFilter, votesVisible, classes}: {
+const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickStatusIcon, visibleTagIds, setTagFilter, votesVisible, digestNum, classes}: {
   post: PostWithRating,
   postStatus: Partial<DigestPost>,
   statusIconsDisabled: boolean,
@@ -169,6 +169,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
   visibleTagIds: string[],
   setTagFilter: (tagId: string) => void,
   votesVisible: boolean,
+  digestNum: number,
   classes: ClassesType<typeof styles>
 }) => {
   const {flash} = useMessages()
@@ -221,7 +222,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
     await navigator.clipboard.write(
       [new ClipboardItem({
         'text/html': new Blob(
-          [getEmailDigestPostData(post)],
+          [getEmailDigestPostData({ post, digestNum })],
           {type: 'text/html'}
         )
       })]

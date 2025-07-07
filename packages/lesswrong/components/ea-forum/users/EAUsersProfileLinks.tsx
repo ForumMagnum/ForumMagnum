@@ -6,6 +6,7 @@ import { useMessages } from "../../common/withMessages";
 import { useCurrentUser } from "../../common/withUser";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { separatorBulletStyles } from "../../common/SectionFooter";
+import { hasKeywordAlerts } from "@/lib/betas";
 import CopyToClipboard from "react-copy-to-clipboard";
 import CopyIcon from "@/lib/vendor/@material-ui/icons/src/FileCopy";
 import NewFeedButton from "../../rss/NewFeedButton";
@@ -52,6 +53,8 @@ const EAUsersProfileLinks = ({user, classes}: {
     return null;
   }
 
+  const isCurrentUser = currentUser && currentUser._id === user._id;
+
   return (
     <Typography variant="body2" className={classes.links}>
       {currentUser?.isAdmin &&
@@ -80,9 +83,14 @@ const EAUsersProfileLinks = ({user, classes}: {
           </DialogGroup>
         </div>
       }
-      {currentUser && currentUser._id === user._id &&
+      {isCurrentUser &&
         <Link to="/manageSubscriptions">
           Manage subscriptions
+        </Link>
+      }
+      {isCurrentUser && hasKeywordAlerts &&
+        <Link to="/keywords">
+          Manage keyword alerts
         </Link>
       }
       {userCanEditUser(currentUser, user) &&

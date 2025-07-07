@@ -273,6 +273,7 @@ const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, closeDialog
     fragmentName: 'CommentWithRepliesFragment',
     preloadFragmentName: 'CommentsList',
     documentId: commentId,
+    ssr: false,
   });
 
   const optimisticComment: CommentWithRepliesFragment | null = comment

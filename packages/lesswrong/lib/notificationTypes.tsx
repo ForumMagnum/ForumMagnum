@@ -91,7 +91,7 @@ export type NotificationDisplay =
     tagRelId?: string,
   };
 
-export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'sequence', 'localgroup', 'dialogueCheck', 'dialogueMatchPreference'] as const)
+const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'sequence', 'localgroup', 'dialogueCheck', 'dialogueMatchPreference'] as const)
 export type NotificationDocument = UnionOf<typeof notificationDocumentTypes>
 
 interface GetMessageProps {
@@ -152,11 +152,11 @@ type DocumentSummary =
 export const getDocumentSummary = async (documentType: NotificationDocument | null, documentId: string | null, context: ResolverContext): Promise<DocumentSummary | null> => {
   if (!documentId) return null
 
-  const { Posts, Comments, Users, Messages, Conversations, Localgroups, TagRels, Sequences } = context;
+  const { Posts, Comments, Users, Messages, Conversations, Localgroups, TagRels, Sequences } = context.loaders;
 
   switch (documentType) {
     case 'post':
-      const post = await Posts.findOne(documentId)
+      const post = await Posts.load(documentId)
       return post && {
         type: documentType,
         document: post,
@@ -164,15 +164,22 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         associatedUserName: await postGetAuthorName(post, context),
       }
     case 'comment':
-      const comment = await Comments.findOne(documentId)
-      return comment && {
+      const comment = await Comments.load(documentId)
+      if (!comment) {
+        return null;
+      }
+      const [displayName, associatedUserName] = await Promise.all([
+        getCommentParentTitle(comment, context),
+        commentGetAuthorName(comment, context),
+      ]);
+      return {
         type: documentType,
         document: comment,
-        displayName: await getCommentParentTitle(comment, context),
-        associatedUserName: await commentGetAuthorName(comment, context),
+        displayName,
+        associatedUserName,
       }
     case 'user':
-      const user = await Users.findOne(documentId)
+      const user = await Users.load(documentId)
       return user && {
         type: documentType,
         document: user,
@@ -180,11 +187,13 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         associatedUserName: userGetDisplayName(user),
       }
     case 'message':
-      const message = await Messages.findOne(documentId)
+      const message = await Messages.load(documentId)
       if (!message) return null
 
-      const conversation = await Conversations.findOne(message.conversationId)
-      const author = await Users.findOne(message.userId)
+      const [conversation, author] = await Promise.all([
+        Conversations.load(message.conversationId),
+        Users.load(message.userId),
+      ]);
       return {
         type: documentType,
         document: message,
@@ -192,7 +201,7 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         associatedUserName: userGetDisplayName(author),
       }
     case 'localgroup':
-      const localgroup = await Localgroups.findOne(documentId)
+      const localgroup = await Localgroups.load(documentId)
       return localgroup && {
         type: documentType,
         document: localgroup,
@@ -200,7 +209,7 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         associatedUserName: null,
       }
     case 'tagRel':
-      const tagRel = await TagRels.findOne(documentId)
+      const tagRel = await TagRels.load(documentId)
       return tagRel && {
         type: documentType,
         document: tagRel,
@@ -208,7 +217,7 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         associatedUserName: null,
       }
     case 'sequence':
-      const sequence = await Sequences.findOne(documentId)
+      const sequence = await Sequences.load(documentId)
       return sequence && {
         type: documentType,
         document: sequence,
@@ -914,6 +923,35 @@ export const CoauthorAcceptNotification = createNotificationType({
   Display: ({Post}) => <>Your co-author request for <Post /> was accepted</>,
 })
 
+export const KeywordAlertNotification = createNotificationType({
+  name: 'keywordAlert',
+  userSettingField: 'notificationKeywordAlert',
+  getLink: ({extraData}) => {
+    if (!extraData?.keyword || !extraData.startDate || !extraData.endDate) {
+      throw new Error("Invalid keyword alert data");
+    }
+    const {keyword, startDate, endDate} = extraData;
+    const start = new Date(startDate).toISOString();
+    const end = new Date(endDate).toISOString();
+    return `/keywords/${encodeURIComponent(keyword)}?start=${start}&end=${end}`;
+  },
+  async getMessage({extraData}: GetMessageProps) {
+    const alerts = extraData?.count === 1 ? "alert" : "alerts";
+    return `${extraData?.count} new ${alerts} for "${extraData?.keyword}"`;
+  },
+  getIcon() {
+    return <PostsIcon style={iconStyles} />
+  },
+  Display: ({notification: {link, extraData}}) => {
+    const alerts = extraData?.count === 1 ? "alert" : "alerts";
+    return (
+      <Link to={link}>
+        {extraData?.count} new {alerts} for {extraData?.keyword}
+      </Link>
+    )
+  },
+})
+
 export const NewMentionNotification = createNotificationType({
   name: "newMention",
   userSettingField: "notificationNewMention",
@@ -934,6 +972,21 @@ export const NewMentionNotification = createNotificationType({
       <><User /> mentioned you in {comment ? <>their <Comment /> on </> : ""}<Post /></>
     );
   },
+})
+
+export const NewPingbackNotification = createNotificationType({
+  name: "newPingback",
+  userSettingField: "notificationNewPingback",
+  async getMessage({documentType, documentId, extraData, context}: GetMessageProps) {
+    const summary = await getDocumentSummary(documentType, documentId, context)
+    return `${summary?.associatedUserName} mentioned your ${extraData?.pingbackType} "${extraData?.pingbackDocumentExcerpt}"`
+  },
+  getIcon() {
+    return <CommentsIcon style={iconStyles}/>
+  },
+  Display: ({User, notification: {extraData}}) => (
+    <><User /> mentioned your {extraData?.pingbackType} "{extraData?.pingbackDocumentExcerpt}"</>
+  ),
 })
 
 const notificationTypesArray: NotificationType[] = [
@@ -975,7 +1028,9 @@ const notificationTypesArray: NotificationType[] = [
   NewCommentOnDraftNotification,
   CoauthorRequestNotification,
   CoauthorAcceptNotification,
+  KeywordAlertNotification,
   NewMentionNotification,
+  NewPingbackNotification,
 ];
 const notificationTypes: Record<string,NotificationType> = keyBy(notificationTypesArray, n=>n.name);
 

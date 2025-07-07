@@ -126,6 +126,7 @@ const NotificationsPopover = ({
   const [limit, setLimit] = useState(defaultLimit);
   const {
     data,
+    previousData,
     loading: notificationsLoading,
     refetch,
   } = useNotificationDisplays(limit);
@@ -165,13 +166,10 @@ const NotificationsPopover = ({
     }
   }, [markAllAsReadMutation, refetch]);
 
-  const notifs: NotificationDisplay[] = data?.NotificationDisplays?.results ?? [];
-
-  useEffect(() => {
-    if (!notificationsLoading && notifs.length <= defaultLimit) {
-      onOpenNotificationsPopover?.();
-    }
-  }, [notificationsLoading, onOpenNotificationsPopover, notifs.length]);
+  const notifs: NotificationDisplay[] =
+    data?.NotificationDisplays?.results ??
+    previousData?.NotificationDisplays?.results ??
+    [];
 
   const hasNewKarmaChanges = useMemo(() => cachedKarmaChanges &&
     (
@@ -233,6 +231,7 @@ const NotificationsPopover = ({
                     loading={markingAsRead}
                     disabled={markingAsRead}
                   />
+                  <DropdownItem title="Keyword alerts" to="/keywords" />
                   <DropdownItem
                     title="Notification settings"
                     to={notificationsSettingsLink}

@@ -9,7 +9,7 @@ import {
   forumEventBannerGradientBackground,
 } from "./ForumEventFrontpageBanner";
 import ContentStyles from "../common/ContentStyles";
-import ContentItemBody from "../common/ContentItemBody";
+import { ContentItemBody } from "../contents/ContentItemBody";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 
 const BANNER_HEIGHT = 60;

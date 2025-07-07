@@ -210,6 +210,7 @@ export const CommentsDefaultFragment = `
     legacyId
     legacyPoll
     legacyParentId
+    draft
     retracted
     deleted
     deletedPublic
@@ -509,6 +510,7 @@ export const ForumEventsDefaultFragment = `
     contrastColor
     tagId
     postId
+    commentId
     bannerImageId
     includesPoll
     isGlobal
@@ -1629,6 +1631,7 @@ export const UsersDefaultFragment = `
     hideCommunitySection
     showCommunityInRecentDiscussion
     hidePostsRecommendations
+    keywordAlerts
     petrovOptOut
     optedOutOfSurveys
     postGlossariesPinned
@@ -1688,9 +1691,11 @@ export const UsersDefaultFragment = `
     notificationPostsNominatedReview
     notificationSubforumUnread
     notificationNewMention
+    notificationNewPingback
     notificationDialogueMessages
     notificationPublishedDialogueMessages
     notificationAddedAsCoauthor
+    notificationKeywordAlert
     notificationDebateCommentsOnSubscribedPost
     notificationDebateReplies
     notificationDialogueMatch

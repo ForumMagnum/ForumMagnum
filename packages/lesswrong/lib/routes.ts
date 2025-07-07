@@ -11,7 +11,7 @@ import qs from 'qs';
 import { getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getTagPingbackBySlug, getUserPingbackBySlug } from './pingback';
 import EASequencesHome, { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
 import { forumSpecificRoutes } from './forumSpecificRoutes';
-import { hasPostRecommendations, hasSurveys } from './betas';
+import { hasKeywordAlerts, hasPostRecommendations, hasSurveys } from './betas';
 import { postRouteWillDefinitelyReturn200 } from './collections/posts/helpers';
 import { sequenceRouteWillDefinitelyReturn200 } from './collections/sequences/helpers';
 import { tagGetUrl, tagRouteWillDefinitelyReturn200 } from './collections/tags/helpers';
@@ -166,6 +166,9 @@ import Digests from '@/components/ea-forum/digest/Digests';
 import EAAllTagsPage from '@/components/tagging/EAAllTagsPage';
 import AllWikiTagsPage from '@/components/tagging/AllWikiTagsPage';
 import { communityPath, getAllTagsPath, getAllTagsRedirectPaths } from './pathConstants';
+import LeaderboardComponent from '@/components/users/Leaderboard';
+import KeywordsPage from '@/components/keywords/KeywordsPage';
+import KeywordResultsPage from '@/components/keywords/KeywordResultsPage';
 
 const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Groups' : 'Community' };
 
@@ -240,6 +243,16 @@ lw18ReviewPosts.forEach(
     redirect: () => `/posts/${id}/${slug}`
   })
 )
+
+if (isLW) {
+  addRoute(
+    {
+      name: 'leaderboard',
+      path: '/leaderboard',
+      component: LeaderboardComponent,
+    }
+  )
+}
 
 // User-profile routes
 addRoute(
@@ -714,6 +727,21 @@ export function initLegacyRoutes() {
       // TODO: Pingback comment
     }
   );
+
+  if (isEAForum) {
+    addRoute(
+      {
+        name: "whatSmallThingsCanEADo",
+        path: "/ea/7k/what_small_things_can_an_ea_do",
+        redirect: () => "https://www.effectivealtruism.org/take-action",
+      },
+      {
+        name: "introductionToEffectiveAltruism",
+        path: "/ea/6x/introduction_to_effective_altruism",
+        redirect: () => "https://www.effectivealtruism.org/articles/introduction-to-effective-altruism",
+      },
+    )
+  }
 }
 
 const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
@@ -1888,6 +1916,23 @@ if (isLW) {
     path: '/postsWithApprovedJargon',
     component: PostsWithApprovedJargonPage,
   });
+}
+
+if (hasKeywordAlerts) {
+  addRoute(
+    {
+      name: "keywords",
+      path: "/keywords",
+      component: KeywordsPage,
+      title: "Keyword alerts",
+    },
+    {
+      name: "keywordResults",
+      path: "/keywords/:keyword",
+      component: KeywordResultsPage,
+      title: "Keyword results",
+    },
+  );
 }
 
 if (hasSurveys) {

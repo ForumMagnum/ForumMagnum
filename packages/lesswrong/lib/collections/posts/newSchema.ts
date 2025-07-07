@@ -72,6 +72,7 @@ import { captureException } from "@sentry/core";
 import keyBy from "lodash/keyBy";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from "graphql-tag";
+import { commentIncludedInCounts } from "../comments/helpers";
 
 export const graphqlTypeDefs = gql`
   type SocialPreviewType {
@@ -199,7 +200,9 @@ async function getUpdatedLocalStartTime(post: DbPost, context: ResolverContext) 
   if (!post.startTime) return null;
   const googleLocation = post.googleLocation || (await getDefaultPostLocationFields(post, context)).googleLocation;
   if (!googleLocation) return null;
-  return await getLocalTime(post.startTime, googleLocation);
+  const localTime = await getLocalTime(post.startTime, googleLocation);
+  if (localTime) return localTime;
+  return post.startTime;
 }
 
 function postHasEndTimeOrGoogleLocation(data: Partial<DbPost> | CreatePostDataInput | UpdatePostDataInput) {
@@ -210,7 +213,9 @@ async function getUpdatedLocalEndTime(post: DbPost, context: ResolverContext) {
   if (!post.endTime) return null;
   const googleLocation = post.googleLocation || (await getDefaultPostLocationFields(post, context)).googleLocation;
   if (!googleLocation) return null;
-  return await getLocalTime(post.endTime, googleLocation);
+  const localTime = await getLocalTime(post.endTime, googleLocation);
+  if (localTime) return localTime;
+  return post.endTime;
 }
 
 function postHasGoogleLocation(data: Partial<DbPost> | CreatePostDataInput | UpdatePostDataInput) {
@@ -852,9 +857,9 @@ const schema = {
             _id: field("contents_latest"),
           },
           resolver: (revisionsField) => `GREATEST(1, ROUND(COALESCE(
-        ${field("readTimeMinutesOverride")},
-        ${revisionsField("wordCount")}
-      ) / ${READ_WORDS_PER_MINUTE}))`,
+            ${field("readTimeMinutesOverride")},
+            ${revisionsField("wordCount")} / ${READ_WORDS_PER_MINUTE}
+          )))`,
         }),
     },
   },
@@ -3803,8 +3808,7 @@ const schema = {
         fieldName: "commentCount",
         foreignCollectionName: "Comments",
         foreignFieldName: "postId",
-        filterFn: (comment) =>
-          !comment.deleted && !comment.rejected && !comment.debateResponse && !comment.authorIsUnreviewed,
+        filterFn: commentIncludedInCounts,
       }),
       nullable: false,
     },
@@ -3816,8 +3820,7 @@ const schema = {
       countOfReferences: {
         foreignCollectionName: "Comments",
         foreignFieldName: "postId",
-        filterFn: (comment) =>
-          !comment.deleted && !comment.rejected && !comment.debateResponse && !comment.authorIsUnreviewed,
+        filterFn: commentIncludedInCounts,
         resyncElastic: false,
       },
       validation: {
@@ -3837,7 +3840,7 @@ const schema = {
         fieldName: "topLevelCommentCount",
         foreignCollectionName: "Comments",
         foreignFieldName: "postId",
-        filterFn: (comment) => !comment.deleted && !comment.parentCommentId,
+        filterFn: (comment) => commentIncludedInCounts(comment) && !comment.parentCommentId,
       }),
       nullable: false,
     },
@@ -3849,7 +3852,7 @@ const schema = {
       countOfReferences: {
         foreignCollectionName: "Comments",
         foreignFieldName: "postId",
-        filterFn: (comment) => !comment.deleted && !comment.parentCommentId,
+        filterFn: (comment) => commentIncludedInCounts(comment) && !comment.parentCommentId,
         resyncElastic: false,
       },
       validation: {
@@ -3874,6 +3877,7 @@ const schema = {
         const filter = {
           ...getDefaultViewSelector("Comments"),
           score: { $gt: 0 },
+          draft: false,
           deletedPublic: false,
           postedAt: { $gt: timeCutoff },
           ...(af ? { af: true } : {}),
@@ -4226,7 +4230,7 @@ const schema = {
         fieldName: "afCommentCount",
         foreignCollectionName: "Comments",
         foreignFieldName: "postId",
-        filterFn: (comment) => comment.af && !comment.deleted && !comment.debateResponse,
+        filterFn: (comment) => commentIncludedInCounts(comment) && comment.af,
       }),
       nullable: false,
     },
@@ -4238,7 +4242,7 @@ const schema = {
       countOfReferences: {
         foreignCollectionName: "Comments",
         foreignFieldName: "postId",
-        filterFn: (comment) => comment.af && !comment.deleted && !comment.debateResponse,
+        filterFn: (comment) => commentIncludedInCounts(comment) && comment.af,
         resyncElastic: false,
       },
       validation: {

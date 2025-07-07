@@ -27,8 +27,6 @@ const styles = defineStyles("FlashMessages", (theme) => ({
     },
   },
   message: {
-    padding: '8px 0',
-    color: theme.palette.text.maxIntensity,
     fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   action: {
@@ -138,7 +136,6 @@ export const MessageContextProvider = ({children}: {
 const FlashMessages = () => {
   const messagesState = useContext(MessagesStateContext);
   const messagesFunctions = useContext(MessageFunctionsContext);
-  const clear = messagesFunctions?.clear;
   const tick = messagesFunctions?.tick;
   const classes = useStyles(styles);
   useEffect(() => {
@@ -159,7 +156,7 @@ const FlashMessages = () => {
           elevation={6}
           className={classes.paper}
         >
-          <Typography variant="body1">
+          <Typography variant="body1" className={classes.message}>
             {messagesState.messages.map((message,i) => {
               if(typeof message === 'string') {
                 return message;

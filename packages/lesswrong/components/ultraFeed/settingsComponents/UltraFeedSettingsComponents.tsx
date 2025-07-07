@@ -6,9 +6,8 @@ import {
   UltraFeedSettingsType,
   sourceWeightConfigs,
   truncationLevels,
-  levelToCommentLinesMap,
-  levelToCommentBreakpointMap,
-  levelToPostBreakpointMap,
+  levelToWordCountMap,
+  levelToPostWordCountMap,
   DEFAULT_SETTINGS,
   ThreadInterestModelFormState,
   CommentScoringFormState
@@ -135,46 +134,6 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
     textAlign: 'center',
     width: '100%',
   },
-  truncationGridContainer: {
-    display: 'grid',
-    gridTemplateColumns: 'auto 1fr 1fr',
-    gridTemplateRows: 'auto 1fr 1fr 1fr',
-    columnGap: "1px",
-    rowGap: "2px",
-    alignItems: 'center',
-    marginTop: theme.spacing.unit * 2,
-  },
-  truncationGridHeader: {
-    fontWeight: 600,
-    textAlign: 'center',
-    fontSize: '1.1rem',
-    padding: 8,
-  },
-  truncationGridRowHeader: {
-    fontWeight: 600,
-    textAlign: 'right',
-    fontSize: '1.1rem',
-    paddingRight: 8,
-  },
-  truncationGridCell: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: 4,
-    paddingBottom: 4,
-  },
-  truncationOptionSelect: {
-    padding: '4px 2px',
-    fontSize: '1.1rem',
-    fontFamily: 'inherit',
-    cursor: 'pointer',
-    border: `1px solid ${theme.palette.grey[400]}`,
-    borderRadius: 4,
-    backgroundColor: theme.palette.background.default,
-    color: theme.palette.text.primary,
-    minWidth: 100,
-    textAlign: 'center',
-  },
   customWarningMessage: {
     fontSize: '1.1rem',
     color: theme.palette.warning.main,
@@ -223,6 +182,37 @@ const styles = defineStyles('UltraFeedSettingsComponents', (theme: ThemeType) =>
   preLineDescription: {
     whiteSpace: 'pre-line',
   },
+  truncationSection: {
+    marginBottom: 20,
+  },
+  truncationSectionTitle: {
+    fontSize: '1.2rem',
+    fontWeight: 600,
+    marginBottom: 12,
+    fontFamily: 'inherit',
+  },
+  truncationItem: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  truncationLabel: {
+    fontSize: '1.1rem',
+    flexShrink: 0,
+  },
+  truncationOptionSelect: {
+    padding: '4px 8px',
+    fontSize: '1.1rem',
+    fontFamily: 'inherit',
+    cursor: 'pointer',
+    border: `1px solid ${theme.palette.grey[400]}`,
+    borderRadius: 4,
+    backgroundColor: theme.palette.background.default,
+    color: theme.palette.text.primary,
+    minWidth: 120,
+    textAlign: 'center',
+  },
 }));
 
 interface CollapsibleSettingGroupProps {
@@ -262,50 +252,6 @@ const CollapsibleSettingGroup: React.FC<CollapsibleSettingGroupProps> = ({
         </LWTooltip>
       </div>
       {isExpanded && <>{children}</>}
-    </div>
-  );
-};
-
-const BreakpointInput = ({
-  kind,
-  index,
-  value,
-  errorMessage,
-  onChange,
-  disabled,
-}: {
-  kind: 'post' | 'comment';
-  index: number;
-  value: number | null | '';
-  errorMessage?: string;
-  disabled?: boolean;
-  onChange: (kind: 'post' | 'comment', index: number, value: string | number | null) => void;
-}) => {
-  const displayValue = value === null || value === '' ? '' : value;
-  const classes = useStyles(styles);
-  
-  return (
-    <div className={classes.truncationGridCell}>
-      <div>
-        <input
-          type="number"
-          className={classNames(classes.sourceWeightInput, {
-            [classes.invalidInput]: !!errorMessage,
-            [classes.disabledInput]: disabled,
-          })}
-          onChange={(e) => onChange(kind, index, e.target.value ?? '')}
-          value={displayValue}
-          min={10}
-          step={50}
-          placeholder={'unset'}
-          disabled={disabled}
-        />
-        {errorMessage && (
-          <p id={`breakpoint-error-${kind}-${index}`} className={classes.errorMessage} style={{textAlign: 'center'}}>
-            {errorMessage}
-          </p>
-        )}
-      </div>
     </div>
   );
 };
@@ -371,48 +317,48 @@ export const SourceWeightsSettings: React.FC<SourceWeightsSettingsProps> = ({
 };
 
 const getCommentLevelLabel = (level: TruncationLevel): string => {
-  if (level === 'Very Short') return `${level} (2 lines)`;
+  // if (level === 'Very Short') return `${level} (2 lines)`; // uncomment if we reintroduce line clamp as default
   if (level === 'Full') return `${level} (no limit)`;
-  if (level === 'Unset') return level;
   
-  const wordCount = levelToCommentBreakpointMap[level];
+  const wordCount = levelToWordCountMap[level];
   return typeof wordCount === 'number' ? `${level} (${wordCount} words)` : level;
 };
 
 const getPostLevelLabel = (level: TruncationLevel): string => {
   if (level === 'Full') return `${level} (no limit)`;
-  if (level === 'Unset') return level;
   
-  const wordCount = levelToPostBreakpointMap[level];
+  const wordCount = levelToPostWordCountMap[level];
   return typeof wordCount === 'number' ? `${level} (${wordCount} words)` : level;
 };
 
 type SimpleViewTruncationLevels = {
-  commentLevel0: TruncationLevel;
-  commentLevel1: TruncationLevel;
-  commentLevel2: TruncationLevel;
-  postLevel0: TruncationLevel;
-  postLevel1: TruncationLevel;
-  postLevel2: TruncationLevel;
+  commentCollapsedInitialLevel: TruncationLevel;
+  commentExpandedInitialLevel: TruncationLevel;
+  commentMaxLevel: TruncationLevel;
+  postInitialLevel: TruncationLevel;
+  postMaxLevel: TruncationLevel;
 };
 
 interface TruncationLevelDropdownProps {
   field: keyof SimpleViewTruncationLevels;
   value: TruncationLevel;
   onChange: (field: keyof SimpleViewTruncationLevels, value: TruncationLevel) => void;
+  label: string;
 }
 
 const TruncationLevelDropdown: React.FC<TruncationLevelDropdownProps> = ({
   field,
   value,
-  onChange
+  onChange,
+  label
 }) => {
   const classes = useStyles(styles);
   const isPostDropdown = field.startsWith('post');
   const getLabel = isPostDropdown ? getPostLevelLabel : getCommentLevelLabel;
   
   return (
-    <div className={classes.truncationGridCell}>
+    <div className={classes.truncationItem}>
+      <label className={classes.truncationLabel}>{label}</label>
       <select
         className={classes.truncationOptionSelect}
         value={value}
@@ -428,30 +374,70 @@ const TruncationLevelDropdown: React.FC<TruncationLevelDropdownProps> = ({
   );
 };
 
-const arrayHasUnsupported = (
-  arr: (number | null | undefined)[] | undefined,
-  allowed: Set<number | null>
-) => {
-  if (!arr) return false;
-  if (arr.length > 3) return true;
+interface TruncationInputProps {
+  field: 'postInitialWords' | 'postMaxWords' | 'commentCollapsedInitialWords' | 'commentExpandedInitialWords' | 'commentMaxWords' | 'lineClampNumberOfLines';
+  value: number | '';
+  onChange: (field: any, value: string | number) => void;
+  label: string;
+  error?: string;
+  disabled?: boolean;
+  min?: number;
+  max?: number;
+  step?: number;
+  placeholder?: string;
+}
+
+const TruncationInput: React.FC<TruncationInputProps> = ({
+  field,
+  value,
+  onChange,
+  label,
+  error,
+  disabled,
+  min = 10,
+  max,
+  step = 50,
+  placeholder = 'unset',
+}) => {
+  const classes = useStyles(styles);
+  const displayValue = value === '' ? '' : value;
   
-  return arr.some(v => {
-    if (v === undefined) return true;
-    return !allowed.has(v);
-  });
+  return (
+    <div className={classes.truncationItem}>
+      <label className={classes.truncationLabel}>{label}</label>
+      <input
+        type="number"
+        className={classNames(classes.sourceWeightInput, {
+          [classes.invalidInput]: !!error,
+          [classes.disabledInput]: disabled,
+        })}
+        value={displayValue}
+        onChange={(e) => onChange(field, e.target.value)}
+        min={min}
+        max={max}
+        step={step}
+        placeholder={placeholder}
+        disabled={disabled}
+      />
+      {error && <p className={classes.errorMessage}>{error}</p>}
+    </div>
+  );
 };
 
-const checkMismatch = (originalSettings: UltraFeedSettingsType) => { 
-  const allowedLineClamps = new Set(Object.values(levelToCommentLinesMap));
-  const allowedCommentValues = new Set(Object.values(levelToCommentBreakpointMap).filter(v => v !== undefined));
-  const allowedPostValues = new Set(Object.values(levelToPostBreakpointMap).filter(v => v !== undefined));
+const checkForNonstandardValues = (originalSettings: UltraFeedSettingsType) => { 
+  const allowedCommentValues = new Set(Object.values(levelToWordCountMap));
+  const allowedPostValues = new Set(Object.values(levelToPostWordCountMap));
 
   const { displaySettings } = originalSettings;
 
-  if (!allowedLineClamps.has(displaySettings.lineClampNumberOfLines)) return true;
+  if (displaySettings.lineClampNumberOfLines !== 0) return true;
 
-  if (arrayHasUnsupported(displaySettings.commentTruncationBreakpoints, allowedCommentValues)) return true;
-  if (arrayHasUnsupported(displaySettings.postTruncationBreakpoints, allowedPostValues)) return true;
+  // Check if the current word count settings match standard truncation levels
+  if (!allowedCommentValues.has(displaySettings.commentCollapsedInitialWords)) return true;
+  if (!allowedCommentValues.has(displaySettings.commentExpandedInitialWords)) return true;
+  if (!allowedCommentValues.has(displaySettings.commentMaxWords)) return true;
+  if (!allowedPostValues.has(displaySettings.postInitialWords)) return true;
+  if (!allowedPostValues.has(displaySettings.postMaxWords)) return true;
 
   return false;
 };
@@ -474,87 +460,88 @@ export const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
   commentBreakpointError,
 }) => {
   const classes = useStyles(styles);
-  const showWarning = checkMismatch(originalSettings);
-
-  const breakpointErrorDisplay = (postBreakpointError || commentBreakpointError) && (
-    <>
-      <div />
-      <div className={classes.truncationGridCell}>
-        {postBreakpointError && (
-          <p className={classNames(classes.errorMessage, classes.errorMessageCenteredText)}>
-            {postBreakpointError}
-          </p>
-        )}
-      </div>
-      <div className={classes.truncationGridCell}>
-        {commentBreakpointError && (
-          <p className={classNames(classes.errorMessage, classes.errorMessageCenteredText)}>
-            {commentBreakpointError}
-          </p>
-        )}
-      </div>
-    </>
-  );
+  const showWarning = checkForNonstandardValues(originalSettings);
 
   return (
     <CollapsibleSettingGroup title="Content Display Length" defaultOpen={defaultOpen} className={classes.settingGroup}>
       <div className={classes.groupDescription}>
-        <p>
-          Choose how much content to show for posts and comments.
-        </p>
         <ul>
-          <li>Deemphasized comments start at Level 0. Comments of primary interest start at Level 1.</li>
-          <li>If text remains after final truncation amount, a "continue reading" button will appear.</li>
+          <li>If text is longer than max word in-place, "read more" triggers a popup.</li>
+          <li>Some comments are deemphasized and will be truncated to a lower level.</li>
         </ul>
-        <p>
-          See Advanced View for granular control.
-        </p>
       </div>
       {showWarning && (
         <p className={classes.customWarningMessage}>
-          Note: Some settings were customized in the Advanced view. Saving from the Simple view will overrwrite them.
+          Note: Some settings were customized in the Advanced view. Saving from the Simple view will overwrite them.
         </p>
       )}
-      <div className={classes.truncationGridContainer}>
-        <div />
-        <div className={classes.truncationGridHeader}>Posts</div>
-        <div className={classes.truncationGridHeader}>Comments</div>
-        
-        {breakpointErrorDisplay}
+      
+      <div className={classes.truncationSection}>
+        <h4 className={classes.truncationSectionTitle}>Posts</h4>
+        <TruncationLevelDropdown
+          field="postInitialLevel"
+          value={levels.postInitialLevel}
+          onChange={onChange}
+          label="Initial words to display"
+        />
+        <TruncationLevelDropdown
+          field="postMaxLevel"
+          value={levels.postMaxLevel}
+          onChange={onChange}
+          label="Max words in-place"
+        />
+        {postBreakpointError && (
+          <p className={classes.errorMessage}>{postBreakpointError}</p>
+        )}
+      </div>
 
-        <div className={classes.truncationGridRowHeader}>Level 0</div>
-        <TruncationLevelDropdown field="postLevel0" value={levels.postLevel0} onChange={onChange} />
-        <TruncationLevelDropdown field="commentLevel0" value={levels.commentLevel0} onChange={onChange} />
-
-        <div className={classes.truncationGridRowHeader}>Level 1</div>
-        <TruncationLevelDropdown field="postLevel1" value={levels.postLevel1} onChange={onChange} />
-        <TruncationLevelDropdown field="commentLevel1" value={levels.commentLevel1} onChange={onChange} />
-
-        <div className={classes.truncationGridRowHeader}>Level 2</div>
-        <TruncationLevelDropdown field="postLevel2" value={levels.postLevel2} onChange={onChange} />
-        <TruncationLevelDropdown field="commentLevel2" value={levels.commentLevel2} onChange={onChange} />
+      <div className={classes.truncationSection}>
+        <h4 className={classes.truncationSectionTitle}>Comments</h4>
+        <TruncationLevelDropdown
+          field="commentCollapsedInitialLevel"
+          value={levels.commentCollapsedInitialLevel}
+          onChange={onChange}
+          label="Initial (deemphasized)"
+        />
+        <TruncationLevelDropdown
+          field="commentExpandedInitialLevel"
+          value={levels.commentExpandedInitialLevel}
+          onChange={onChange}
+          label="Initial (emphasized)"
+        />
+        <TruncationLevelDropdown
+          field="commentMaxLevel"
+          value={levels.commentMaxLevel}
+          onChange={onChange}
+          label="Max words in-place"
+        />
+        {commentBreakpointError && (
+          <p className={classes.errorMessage}>{commentBreakpointError}</p>
+        )}
       </div>
     </CollapsibleSettingGroup>
   );
 };
 
-type ArrayFieldError = ZodFormattedError<(number | null)[] | undefined, string> & {
-  [k: number]: ZodFormattedError<number | null, string>;
-};
-
 export interface AdvancedTruncationSettingsProps {
   values: {
     lineClampNumberOfLines: number | '';
-    postTruncationBreakpoints: (number | '')[];
-    commentTruncationBreakpoints: (number | '')[];
+    postInitialWords: number | '';
+    postMaxWords: number | '';
+    commentCollapsedInitialWords: number | '';
+    commentExpandedInitialWords: number | '';
+    commentMaxWords: number | '';
   };
   errors: {
     lineClampNumberOfLines?: string;
-    postTruncationBreakpoints?: ZodFormattedError<number[], string>;
-    commentTruncationBreakpoints?: ZodFormattedError<number[], string>;
+    postInitialWords?: string;
+    postMaxWords?: string;
+    commentCollapsedInitialWords?: string;
+    commentExpandedInitialWords?: string;
+    commentMaxWords?: string;
   };
   onLineClampChange: (value: number | string) => void;
-  onBreakpointChange: (kind: 'post' | 'comment', index: number, value: string | number) => void;
+  onWordCountChange: (field: 'postInitialWords' | 'postMaxWords' | 'commentCollapsedInitialWords' | 'commentExpandedInitialWords' | 'commentMaxWords', value: string | number) => void;
   defaultOpen?: boolean;
 }
 
@@ -562,90 +549,78 @@ export const AdvancedTruncationSettings: React.FC<AdvancedTruncationSettingsProp
   values,
   errors,
   onLineClampChange,
-  onBreakpointChange,
+  onWordCountChange,
   defaultOpen = true,
 }) => {
   const classes = useStyles(styles);
 
-  // Returns the first validation error for the given breakpoint index, falling back
-  // to an array-level error if there is none for the specific element.
-  const getBreakpointError = (
-    kind: 'post' | 'comment',
-    index: number,
-  ): string | undefined => {
-    const err = (kind === 'post'
-      ? errors.postTruncationBreakpoints
-      : errors.commentTruncationBreakpoints) as ArrayFieldError | undefined;
-
-    return err?.[index]?._errors?.[0] ?? err?._errors?.[0];
-  };
-  
-  const createBreakpointInputProps = (kind: 'post' | 'comment', index: number) => ({
-    kind,
-    index,
-    value: kind === 'post' ? values.postTruncationBreakpoints[index] : values.commentTruncationBreakpoints[index],
-    errorMessage: getBreakpointError(kind, index),
-    onChange: onBreakpointChange,
-    disabled: kind === 'comment' && index === 0 && values.lineClampNumberOfLines !== 0 && values.lineClampNumberOfLines !== '',
-  });
-
   return (
     <CollapsibleSettingGroup title="Advanced Truncation" defaultOpen={defaultOpen} className={classes.settingGroup}>
       <p className={classes.groupDescription}>
-        Fine-tune content truncation with precise word counts. Empty values are treated as "no truncation". 
+        If text is longer than max word in-place, "read more" triggers a popup.
       </p>
       
-      <div className={classes.truncationGridContainer}>
-        <div />
-        <div className={classes.truncationGridHeader}>Posts</div>
-        <div className={classes.truncationGridHeader}>Comments</div>
-
-        <div className={classes.truncationGridRowHeader}>Line Clamp</div>
-        <div className={classes.truncationGridCell} />
-        <div className={classes.truncationGridCell}>
-          <input
-            type="number"
-            className={classNames(classes.sourceWeightInput, {
-              [classes.invalidInput]: !!errors.lineClampNumberOfLines
-            })}
-            value={values.lineClampNumberOfLines}
-            onChange={(e) => onLineClampChange(e.target.value)}
-            min={0}
-            max={10}
-            step={1}
-          />
-        </div>
-        {errors.lineClampNumberOfLines && (
-          <p id="lineclamp-error" className={classes.errorMessage} style={{gridColumn: '3 / span 1'}}>
-            {errors.lineClampNumberOfLines}
-          </p>
-        )}
-
-        <div className={classes.truncationGridRowHeader}>Level 0</div>
-        <BreakpointInput {...createBreakpointInputProps('post', 0)} />
-        <BreakpointInput {...createBreakpointInputProps('comment', 0)} />
-
-        <div className={classes.truncationGridRowHeader}>Level 1</div>
-        <BreakpointInput {...createBreakpointInputProps('post', 1)} />
-        <BreakpointInput {...createBreakpointInputProps('comment', 1)} />
-
-        <div className={classes.truncationGridRowHeader}>Level 2</div>
-        <BreakpointInput {...createBreakpointInputProps('post', 2)} />
-        <BreakpointInput {...createBreakpointInputProps('comment', 2)} />
+      <div className={classes.truncationSection}>
+        <h4 className={classes.truncationSectionTitle}>Posts</h4>
+        <TruncationInput
+          field="postInitialWords"
+          value={values.postInitialWords}
+          onChange={onWordCountChange}
+          label="Initial words"
+          error={errors.postInitialWords}
+        />
+        <TruncationInput
+          field="postMaxWords"
+          value={values.postMaxWords}
+          onChange={onWordCountChange}
+          label="Max words in-place"
+          error={errors.postMaxWords}
+        />
       </div>
 
-      {values.lineClampNumberOfLines !== 0 && (
-        <p className={classes.groupDescription} style={{marginTop: 8}}>
-          When line clamp is non-zero, comments at Level 0 are truncated based on number of lines.
+      <div className={classes.truncationSection}>
+        <h4 className={classes.truncationSectionTitle}>Comments</h4>
+        <TruncationInput
+          field="lineClampNumberOfLines"
+          value={values.lineClampNumberOfLines}
+          onChange={onLineClampChange}
+          label="Truncate by line count"
+          error={errors.lineClampNumberOfLines}
+          min={0}
+          max={10}
+          step={1}
+        />
+        {values.lineClampNumberOfLines !== 0 && values.lineClampNumberOfLines !== '' && (
+          <p className={classes.groupDescription}>
+            When line clamp is non-zero, deemphasized comments are truncated based on number of lines instead of word count.
+          </p>
+        )}
+        <p className={classes.groupDescription}>
+          Some comments are deemphasized and will be truncated to a shorter length.
         </p>
-      )}
-
-      {errors.postTruncationBreakpoints?._errors?.[0] && !getBreakpointError('post', 0) && !getBreakpointError('post', 1) && !getBreakpointError('post', 2) && (
-        <p className={classes.errorMessage}>{errors.postTruncationBreakpoints._errors[0]}</p>
-      )}
-      {errors.commentTruncationBreakpoints?._errors?.[0] && !getBreakpointError('comment', 0) && !getBreakpointError('comment', 1) && !getBreakpointError('comment', 2) && (
-        <p className={classes.errorMessage}>{errors.commentTruncationBreakpoints._errors[0]}</p>
-      )}
+        <TruncationInput
+          field="commentCollapsedInitialWords"
+          value={values.commentCollapsedInitialWords}
+          onChange={onWordCountChange}
+          label="Initial (deemphasized)"
+          error={errors.commentCollapsedInitialWords}
+          disabled={values.lineClampNumberOfLines !== 0 && values.lineClampNumberOfLines !== ''}
+        />
+        <TruncationInput
+          field="commentExpandedInitialWords"
+          value={values.commentExpandedInitialWords}
+          onChange={onWordCountChange}
+          label="Initial (emphasized)"
+          error={errors.commentExpandedInitialWords}
+        />
+        <TruncationInput
+          field="commentMaxWords"
+          value={values.commentMaxWords}
+          onChange={onWordCountChange}
+          label="Max words in-place"
+          error={errors.commentMaxWords}
+        />
+      </div>
     </CollapsibleSettingGroup>
   );
 };
@@ -1007,7 +982,7 @@ export const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBoolea
           Open post titles in modals (on mobile)
         </label>
       </div>
-      <p className={classes.groupDescription} style={{marginTop: 0, marginBottom: 16}}>
+      <p className={classes.groupDescription}>
         When disabled, clicking a post title navigates directly to the post page.
       </p>
 
@@ -1023,7 +998,7 @@ export const MiscSettings: React.FC<MiscSettingsProps> = ({ formValues, onBoolea
           Incognito Mode
         </label>
       </div>
-      <p className={classes.groupDescription} style={{marginTop: 0, marginBottom: 0}}>
+      <p className={classes.groupDescription}>
         When enabled, the feed algorithm does not log viewing behavior (votes and comments will still influence it). This does not disable standard LessWrong analytics separate from the feed.
       </p>
 

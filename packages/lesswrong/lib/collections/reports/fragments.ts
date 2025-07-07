@@ -39,3 +39,12 @@ export const UnclaimedReportsList = () => frag`
     markedAsSpam
   }
 `
+
+export const ReportsSlackPreview = () => frag`
+  fragment ReportsSlackPreview on Report {
+    ...UnclaimedReportsList
+    comment {
+      ...CommentsListWithParentMetadata
+    }
+  }
+`
