@@ -1,7 +1,7 @@
 import ElasticClient from "@/server/search/elastic/ElasticClient";
 import { collectionNameToConfig } from "../search/elastic/ElasticConfig";
 import { KEYWORD_INTERVAL_HOURS } from "@/lib/keywordAlertHelpers";
-import { SearchIndexCollectionName } from "@/lib/search/searchUtil";
+import type { SearchIndexCollectionName } from "@/lib/search/searchUtil";
 
 export const getDefaultKeywordStartDate = (currentTime = new Date()) =>
   new Date(currentTime.getTime() - (KEYWORD_INTERVAL_HOURS * 60 * 60 * 1000));
