@@ -72,9 +72,10 @@ const NavigationStandalone = ({
   </>
 }
 
-const slideStyles = defineStyles("Slide", (theme: ThemeType) => ({
+const slideStyles = defineStyles("Slide", () => ({
   wrapper: {
     position: "relative",
+    minWidth: "fit-content",
   },
   slider: {
     transition: "left 0.3s ease-in-out",
@@ -106,5 +107,3 @@ const Slide = ({slidIn, children}: {
 export default registerComponent(
   'NavigationStandalone', NavigationStandalone, {styles}
 );
-
-
