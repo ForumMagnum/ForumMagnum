@@ -1,6 +1,7 @@
 import React, { ComponentType } from "react";
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import SectionTitle, { SectionTitleProps } from "./SectionTitle";
+import { isFriendlyUI } from "@/themes/forumTheme";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from "../../lib/reactRouterWrapper";
 import classNames from "classnames";
@@ -11,7 +12,7 @@ import ForumIcon from "./ForumIcon";
 const styles = (theme: ThemeType) => ({
   title: {
     display: "flex",
-    columnGap: 10
+    columnGap: isFriendlyUI ? 6 : 10,
   },
   afterContainer: {
     display: "flex",
