@@ -8,6 +8,7 @@ import { htmlToTextDefault } from "../../lib/htmlToText";
 import { useRecordPostView } from "../hooks/useRecordPostView";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
+import { isFriendlyUI } from "@/themes/forumTheme";
 import classNames from "classnames";
 import moment from "moment";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
@@ -24,6 +25,8 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.greyAlpha(0.5),
     background: theme.palette.grey[0],
     borderRadius: theme.borderRadius.default,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: isFriendlyUI ? 14 : '1.16rem',
     border: `1px solid ${theme.palette.grey[200]}`,
     padding: "8px 12px",
     cursor: "pointer",

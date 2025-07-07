@@ -1094,8 +1094,14 @@ extend type Mutation {
   RemoveForumEventSticker(forumEventId: String!, stickerId: String!): Boolean
 }
 
+type KeywordAlert {
+  _id: String!
+  post: Post
+  comment: Comment
+}
+
 type KeywordAlertsResult {
-  results: [Post!]!
+  results: [KeywordAlert!]!
 }
 
 extend type Query {
@@ -8773,6 +8779,16 @@ fragment JargonTermsWithPostInfo on JargonTerm {
   ...JargonTerms
   post {
     ...PostsMinimumInfo
+  }
+}
+
+fragment KeywordAlertDisplay on KeywordAlert {
+  _id
+  post {
+    ...PostsListWithVotes
+  }
+  comment {
+    ...CommentsListWithParentMetadata
   }
 }
 

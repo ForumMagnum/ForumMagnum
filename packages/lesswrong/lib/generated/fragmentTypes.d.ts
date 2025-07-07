@@ -1245,6 +1245,12 @@ interface JargonTermsWithPostInfo extends JargonTerms { // fragment on JargonTer
   readonly post: PostsMinimumInfo|null,
 }
 
+interface KeywordAlertDisplay { // fragment on non-collection type
+  readonly _id: any,
+  readonly post: any,
+  readonly comment: any,
+}
+
 interface LWEventsDefaultFragment { // fragment on LWEvents
   readonly _id: string,
   readonly schemaVersion: number,
@@ -5676,6 +5682,7 @@ interface FragmentTypes {
   JargonTermsDefaultFragment: JargonTermsDefaultFragment
   JargonTermsPost: JargonTermsPost
   JargonTermsWithPostInfo: JargonTermsWithPostInfo
+  KeywordAlertDisplay: KeywordAlertDisplay
   LWEventsDefaultFragment: LWEventsDefaultFragment
   LegacyDataDefaultFragment: LegacyDataDefaultFragment
   LlmConversationsDefaultFragment: LlmConversationsDefaultFragment
@@ -5968,6 +5975,7 @@ interface FragmentTypesByCollection {
   GoogleServiceAccountSessions: "GoogleServiceAccountSessionAdminInfo"|"GoogleServiceAccountSessionInfo"|"GoogleServiceAccountSessionsDefaultFragment"
   Imageses: "ImagesDefaultFragment"
   JargonTerms: "JargonTerms"|"JargonTermsDefaultFragment"|"JargonTermsPost"|"JargonTermsWithPostInfo"
+  KeywordAlerts: "KeywordAlertDisplay"
   LWEvents: "LWEventsDefaultFragment"|"emailHistoryFragment"|"lastEventFragment"|"lwEventsAdminPageFragment"|"newEventFragment"
   LegacyDatas: "LegacyDataDefaultFragment"
   LlmConversations: "LlmConversationsDefaultFragment"|"LlmConversationsFragment"|"LlmConversationsViewingPageFragment"|"LlmConversationsWithMessagesFragment"
@@ -6122,6 +6130,7 @@ interface CollectionNamesByFragmentName {
   JargonTermsDefaultFragment: "JargonTerms"
   JargonTermsPost: "JargonTerms"
   JargonTermsWithPostInfo: "JargonTerms"
+  KeywordAlertDisplay: never
   LWEventsDefaultFragment: "LWEvents"
   LegacyDataDefaultFragment: "LegacyData"
   LlmConversationsDefaultFragment: "LlmConversations"
