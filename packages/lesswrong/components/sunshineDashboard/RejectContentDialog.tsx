@@ -40,8 +40,8 @@ const styles = (theme: ThemeType) => ({
     flexDirection: 'column'
   },
   checkbox: {
-    paddingTop: 6,
-    paddingBottom: 6
+    paddingTop: 2,
+    paddingBottom: 2
   },
   modalTextField: {
     marginTop: 10,
