@@ -27,6 +27,7 @@ const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.default,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: isFriendlyUI ? 14 : '1.16rem',
+    fontWeight: 500,
     border: `1px solid ${theme.palette.grey[200]}`,
     padding: "8px 12px",
     cursor: "pointer",

@@ -17,6 +17,7 @@ const styles = (theme: ThemeType) => ({
   },
   back: {
     fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 500,
     color: theme.palette.primary.dark,
     fontSize: 14,
     "& svg": {

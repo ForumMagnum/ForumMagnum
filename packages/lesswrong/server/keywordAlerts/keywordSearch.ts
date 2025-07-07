@@ -104,7 +104,7 @@ export const fetchCommentsForKeyword = async (
   return comments.filter(isValid);
 }
 
-type KeywordAlert = {
+export type KeywordAlert = {
   _id: string,
   post: DbPost,
   comment?: never,
@@ -132,6 +132,6 @@ export const fetchContentForKeyword = async (
   return results.sort((a, b) => {
     const aTime = a.post?.postedAt ?? a.comment?.postedAt;
     const bTime = b.post?.postedAt ?? b.comment?.postedAt;
-    return aTime!.getTime() - bTime!.getTime();
+    return bTime!.getTime() - aTime!.getTime();
   });
 }
