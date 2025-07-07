@@ -43,7 +43,7 @@ export const assignPetrov2024Roles = async () => {
       }
       `,
       variables,
-      { ...context, req: {headers: {'x-forwarded-for': '127.0.0.1'}, connection: {remoteAddress: "127.0.0.1"}, socket: {remoteAddress: "127.0.0.1"}} as AnyBecauseHard, res: {setHeader: () => {}} as AnyBecauseHard}  
+      { ...context, headers: new Headers({'x-forwarded-for': '127.0.0.1'}) }  
     );
 
     if (errors) {

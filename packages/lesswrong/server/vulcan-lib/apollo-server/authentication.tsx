@@ -18,13 +18,13 @@ import { createUser } from '@/server/collections/users/mutations';
 import { createDisplayName } from '@/lib/collections/users/newSchema';
 import { comparePasswords, createPasswordHash, validatePassword } from './passwordHelpers';
 import type { NextRequest } from 'next/server';
-import { cookies } from 'next/headers';
 
 // Given an HTTP request, clear a named cookie. Handles the difference between
 // the Meteor and Express server middleware setups. Works by setting an
 // expiration date in the past, which apparently is the recommended way to
 // remove cookies.
 async function clearCookie(cookieName: string) {
+  const { cookies } = await import('next/headers');
   const cookieStore = await cookies();
   cookieStore.delete(cookieName);
 }
@@ -104,7 +104,9 @@ function isValidCharInUsername(ch: string): boolean {
   return !restrictedChars.includes(ch);
 }
 
-export async function createAndSetToken(req: NextRequest, user: DbUser) {
+export async function createAndSetToken(headers: Headers|undefined, user: DbUser) {
+  const { cookies } = await import('next/headers');
+
   const token = randomBytes(32).toString('hex');
   const cookieStore = await cookies();
   cookieStore.set("loginToken", token, {
@@ -115,7 +117,7 @@ export async function createAndSetToken(req: NextRequest, user: DbUser) {
   const hashedToken = hashLoginToken(token)
   await insertHashedLoginToken(user._id, hashedToken)
 
-  registerLoginEvent(user, req)
+  registerLoginEvent(user, headers)
   return token
 }
 
@@ -135,7 +137,7 @@ export const loginDataGraphQLTypeDefs = gql`
 `
 
 export const loginDataGraphQLMutations = {
-  async login(root: void, { username, password }: {username: string, password: string}, { req }: ResolverContext) {
+  async login(root: void, { username, password }: {username: string, password: string}, { headers }: ResolverContext) {
     const result = await authenticateWithPassword(username, password);
     if (!result.success) {
       throw new Error(result.message);
@@ -146,16 +148,13 @@ export const loginDataGraphQLMutations = {
       throw new Error("This user is banned");
     }
 
-    const token = await createAndSetToken(req, user);
+    const token = await createAndSetToken(headers, user);
 
     return { token }
   },
-  async logout(root: void, args: {}, { req }: ResolverContext) {
-    if (req) {
-      req.logOut()
-      await clearCookie("loginToken");
-      await clearCookie("meteor_login_token");  
-    }
+  async logout(root: void, args: {}, context: ResolverContext) {
+    await clearCookie("loginToken");
+    await clearCookie("meteor_login_token");
     return {
       token: null
     }
@@ -189,7 +188,7 @@ export const loginDataGraphQLMutations = {
       }
     }
 
-    const { req } = context
+    const { headers } = context
 
     const userData = {
       email,
@@ -219,7 +218,7 @@ export const loginDataGraphQLMutations = {
       },
     }, context);
 
-    const token = await createAndSetToken(req, user)
+    const token = await createAndSetToken(headers, user)
     return { 
       token
     }
@@ -264,21 +263,20 @@ async function insertHashedLoginToken(userId: string, hashedToken: string) {
 };
 
 
-function registerLoginEvent(user: DbUser, req: NextRequest) {
+function registerLoginEvent(user: DbUser, headers: Headers|undefined) {
   const document = {
     name: 'login',
     important: false,
     userId: user._id,
     properties: {
       type: 'passport-login',
-      ip: getClientIP(req),
-      userAgent: req.headers.get('user-agent'),
-      referrer: req.headers.get('referer')
+      ip: getClientIP(headers),
+      userAgent: headers?.get('user-agent'),
+      referrer: headers?.get('referer')
     }
   }
-  void computeContextFromUser({ user, isSSR: false }).then(userContext => {
-    void createLWEvent({ data: document }, userContext);
-  });
+  const context = computeContextFromUser({ user, isSSR: false });
+  void createLWEvent({ data: document }, context);
 }
 
 const reCaptchaSecretSetting = new DatabaseServerSetting<string | null>('reCaptcha.secret', null) // ReCaptcha Secret

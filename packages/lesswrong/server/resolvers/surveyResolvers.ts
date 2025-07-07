@@ -30,13 +30,13 @@ export const surveyResolversGraphQLQueries = {
   async CurrentFrontpageSurvey(
     _root: void,
     _args: void,
-    {currentUser, clientId, req, repos: {surveySchedules}}: ResolverContext,
+    {currentUser, clientId, headers, repos: {surveySchedules}}: ResolverContext,
   ): Promise<SurveyScheduleWithSurvey | null> {
     if (!hasSurveys || !clientId) {
       return null;
     }
 
-    const userAgent = req?.get("User-Agent");
+    const userAgent = headers?.get("User-Agent");
     if (!userAgent || userAgent.indexOf("Mozilla") !== 0) {
       return null;
     }

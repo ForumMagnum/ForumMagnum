@@ -167,7 +167,7 @@ class PgCollectionClass<
 
   async rawInsert(
     data: ObjectsByCollectionName[N],
-    options: MongoInsertOptions<ObjectsByCollectionName[N]>,
+    options?: MongoInsertOptions<ObjectsByCollectionName[N]>,
   ) {
     const insert = new InsertQuery<ObjectsByCollectionName[N]>(this.getTable(), data, options, {returnInserted: true});
     const result = await this.executeWriteQuery(insert, {data, options});

@@ -12,13 +12,13 @@ Take a header object, and figure out the locale
 Also accepts userLocale to indicate the current user's preferred locale
 
 */
-export const getHeaderLocale = (headers: Record<string,string>, userLocale: string|null) => {
+export const getHeaderLocale = (headers: Headers|undefined, userLocale: string|null) => {
   let cookieLocale, acceptedLocale, locale, localeMethod;
 
   // get locale from cookies
-  if (headers['cookie']) {
+  if (headers?.get('cookie')) {
     const cookies: any = {};
-    headers['cookie'].split('; ').forEach((c: string) => {
+    headers.get('cookie')?.split('; ').forEach((c: string) => {
       const cookieArray = c.split('=');
       cookies[cookieArray[0]] = cookieArray[1];
     });
@@ -26,13 +26,13 @@ export const getHeaderLocale = (headers: Record<string,string>, userLocale: stri
   }
 
   // get locale from accepted-language header
-  if (headers['accept-language']) {
-    const acceptedLanguages = headers['accept-language'].split(',').map((l: string) => l.split(';')[0]);
-    acceptedLocale = acceptedLanguages[0]; // for now only use the highest-priority accepted language
+  if (headers?.get('accept-language')) {
+    const acceptedLanguages = headers.get('accept-language')?.split(',').map((l: string) => l.split(';')[0]);
+    acceptedLocale = acceptedLanguages?.[0]; // for now only use the highest-priority accepted language
   }
 
-  if (headers.locale) {
-    locale = headers.locale;
+  if (headers?.get('locale')) {
+    locale = headers.get('locale')!;
     localeMethod = 'header';
   } else if (cookieLocale) {
     locale = cookieLocale;

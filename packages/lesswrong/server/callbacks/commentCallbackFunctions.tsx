@@ -371,7 +371,7 @@ const utils = {
       ...(action === 'rejected' ? { moderator: true } : {})
     };
 
-    const lwAccountContext = await computeContextFromUser({ user: lwAccount, req: context.req, isSSR: context.isSSR });
+    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR });
 
     const conversation = await createConversation({
       data: conversationData,
@@ -620,8 +620,8 @@ export async function createShortformPost(comment: CreateCommentDataInput, { cur
 
 export function addReferrerToComment(comment: CreateCommentDataInput, properties: CreateCallbackProperties<"Comments">) {
   if (properties && properties.context && properties.context.headers) {
-    let referrer = properties.context.headers["referer"];
-    let userAgent = properties.context.headers["user-agent"];
+    let referrer = properties.context.headers.get("referer");
+    let userAgent = properties.context.headers.get("user-agent");
     
     return {
       ...comment,

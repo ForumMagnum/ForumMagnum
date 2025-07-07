@@ -3,20 +3,26 @@ import AppGenerator from "@/components/next/ClientAppGenerator";
 import { getInstanceSettings } from "@/lib/getInstanceSettings";
 import Script from "next/script";
 import { toEmbeddableJson } from "@/lib/utils/jsonUtils";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { RouteMetadataProvider } from "@/components/RouteMetadataContext";
 import { initDatabases, initSettings } from "@/server/serverStartup";
 import { getPublicSettings } from "@/lib/settingsCache";
 import { DEFAULT_TIMEZONE } from "@/lib/utils/timeUtil";
+import { getUser } from "@/server/vulcan-lib/apollo-server/context";
 
 export default async function RootLayout({
   children,
+  searchParams,
 }: {
   children: React.ReactNode;
+  searchParams: Promise<URLSearchParams>;
 }) {
-  const [cookieStore] = await Promise.all([
+  initDatabases({ postgresUrl: process.env.PG_URL ?? '', postgresReadUrl: process.env.PG_READ_URL ?? '' });
+  const [cookieStore, headerValues, searchParamValues] = await Promise.all([
     cookies(),
-    initDatabases({ postgresUrl: process.env.PG_URL ?? '', postgresReadUrl: process.env.PG_READ_URL ?? '' }).then(() => initSettings()),
+    headers(),
+    searchParams,
+    initSettings(),
   ]);
 
   const publicInstanceSettings = getInstanceSettings().public;
@@ -27,6 +33,10 @@ export default async function RootLayout({
   const timezoneCookie = cookieStore.get("timezone");
 
   const timezone = timezoneCookie?.value ?? DEFAULT_TIMEZONE;
+
+  const user = await getUser(cookieStore.get("loginToken")?.value ?? null);
+
+  const headerEntries = Object.fromEntries(Array.from((headerValues as AnyBecauseHard).entries() as [string, string][]));
 
   return (
     <html>
@@ -51,6 +61,9 @@ export default async function RootLayout({
             cacheFriendly: false,
             timezone,
           }}
+          user={user}
+          headers={headerEntries}
+          searchParams={Object.fromEntries(searchParamValues?.entries() ?? [])}
         >
           {children}
         </AppGenerator>

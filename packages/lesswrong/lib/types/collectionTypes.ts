@@ -328,7 +328,8 @@ interface PerfMetric {
 type IncompletePerfMetric = Omit<PerfMetric, 'ended_at'>;
 
 interface ResolverContext extends CollectionsByName {
-  headers: any,
+  searchParams?: URLSearchParams,
+  headers?: Headers,
   userId: string|null,
   clientId: string|null,
   currentUser: DbUser|null,

@@ -27,7 +27,7 @@ export function accessLevelCan(accessLevel: CollaborativeEditingAccessLevel, ope
 }
 
 export function getSharingKeyFromContext(context: ResolverContext|null) {
-  const key = context?.req?.nextUrl.searchParams.get('key');
+  const key = context?.searchParams?.get('key');
   if (typeof key === 'string') {
     return key;
   }

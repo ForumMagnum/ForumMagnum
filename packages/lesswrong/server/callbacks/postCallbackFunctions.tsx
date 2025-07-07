@@ -392,7 +392,7 @@ const utils = {
       moderator: true
     };
 
-    const lwAccountContext = await computeContextFromUser({ user: lwAccount, req: context.req, isSSR: context.isSSR });
+    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR });
 
     const conversation = await createConversation({
       data: conversationData,
@@ -433,8 +433,8 @@ export async function postsNewRateLimit(post: CreatePostDataInput, currentUser: 
 /* CREATE BEFORE */
 export function addReferrerToPost(post: CreatePostDataInput, properties: CreateCallbackProperties<'Posts'>) {
   if (properties && properties.context && properties.context.headers) {
-    let referrer = properties.context.headers["referer"];
-    let userAgent = properties.context.headers["user-agent"];
+    let referrer = properties.context.headers.get("referer");
+    let userAgent = properties.context.headers.get("user-agent");
     
     return {
       ...post,

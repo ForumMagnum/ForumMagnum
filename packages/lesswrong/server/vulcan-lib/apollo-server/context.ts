@@ -13,6 +13,7 @@ import { getCookieFromReq } from '../../utils/httpUtil';
 import { asyncLocalStorage } from '../../perfMetrics';
 import type { NextRequest } from 'next/server';
 import { prepareClientId } from '@/server/clientIdMiddleware';
+import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 
 
 export const getUser = async (loginToken: string|null): Promise<DbUser|null> => {
@@ -62,40 +63,43 @@ export const generateDataLoaders = (): {
   };
 };
 
-export function requestIsFromUserAgent(req: Request, userAgentPrefix: string): boolean {
-  if (!req) return false;
-  const userAgent = req.headers?.["user-agent"];
+function requestIsFromUserAgent(headers: Headers | undefined, userAgentPrefix: string): boolean {
+  if (!headers) return false;
+  const userAgent = headers.get("user-agent");
   if (!userAgent) return false;
   if (typeof userAgent !== "string") return false;
   return userAgent.startsWith(userAgentPrefix);
 }
 
-export function requestIsFromGreaterWrong(req?: Request): boolean {
-  if (!req) return false;
-  return requestIsFromUserAgent(req, "Dexador");
+export function requestIsFromGreaterWrong(headers?: Headers): boolean {
+  if (!headers) return false;
+  return requestIsFromUserAgent(headers, "Dexador");
 }
 
-export function requestIsFromIssaRiceReader(req?: Request): boolean {
-  if (!req) return false;
-  return requestIsFromUserAgent(req, "LW/EA Forum Reader (https://github.com/riceissa/ea-forum-reader/)");
+export function requestIsFromIssaRiceReader(headers?: Headers): boolean {
+  if (!headers) return false;
+  return requestIsFromUserAgent(headers, "LW/EA Forum Reader (https://github.com/riceissa/ea-forum-reader/)");
 }
 
-export const computeContextFromUser = async ({user, req, isSSR}: {
+export const computeContextFromUser = ({user, headers, searchParams, cookies, isSSR}: {
   user: DbUser|null,
+  headers?: Headers,
+  searchParams?: URLSearchParams,
+  cookies?: RequestCookie[],
   req?: NextRequest,
   isSSR: boolean
-}): Promise<ResolverContext> => {
-  const clientId = req ? getCookieFromReq(req, "clientId") : null;
+}): ResolverContext => {
+  const clientId = cookies?.find(cookie => cookie.name === "clientId")?.value ?? null;
   
   let context: ResolverContext = {
     ...getAllCollectionsByName(),
     ...generateDataLoaders(),
-    req: req,
-    headers: (req as any)?.headers,
-    locale: (req as any)?.headers ? getHeaderLocale((req as any).headers, null) : "en-US",
+    searchParams,
+    headers,
+    locale: headers ? getHeaderLocale(headers, null) : "en-US",
     isSSR,
-    isGreaterWrong: requestIsFromGreaterWrong(req),
-    isIssaRiceReader: requestIsFromIssaRiceReader(req),
+    isGreaterWrong: requestIsFromGreaterWrong(headers),
+    isIssaRiceReader: requestIsFromIssaRiceReader(headers),
     repos: getAllRepos(),
     clientId,
     userId: user?._id ?? null,

@@ -3,7 +3,7 @@
 // import './datadog/tracer';
 import '@/lib/utils/extendSimpleSchemaOptions';
 import { createSqlConnection } from './sqlConnection';
-import { replaceDbNameInPgConnectionString, setSqlClient } from './sql/sqlClient';
+import { replaceDbNameInPgConnectionString, setSqlClient, getSqlClient } from './sql/sqlClient';
 import type { DbTarget } from './sql/PgCollection';
 import { isAnyTest } from '../lib/executionEnvironment';
 import { refreshSettingsCaches } from './loadDatabaseSettings';
@@ -35,17 +35,15 @@ const initConsole = () => {
   });
 }
 
-const connectToPostgres = async (connectionString: string, target: DbTarget = "write") => {
+initConsole();
+
+const connectToPostgres = (connectionString: string, target: DbTarget = "write") => {
   try {
-    if (connectionString) {
-      const branchDb = await getBranchDbName();
-      if (branchDb) {
-        connectionString = replaceDbNameInPgConnectionString(connectionString, branchDb);
-      }
+    if (connectionString && !getSqlClient(target)) {
       const dbName = /.*\/(.*)/.exec(connectionString)?.[1];
       // eslint-disable-next-line no-console
       console.log(`Connecting to postgres (${dbName})`);
-      const sql = await createSqlConnection(connectionString, false);
+      const sql = createSqlConnection(connectionString, false);
       setSqlClient(sql, target);
     }
   } catch(err) {
@@ -55,16 +53,15 @@ const connectToPostgres = async (connectionString: string, target: DbTarget = "w
   }
 }
 
-export const initDatabases = ({postgresUrl, postgresReadUrl}: Pick<CommandLineArguments, 'postgresUrl' | 'postgresReadUrl'>) =>
-  Promise.all([
-    connectToPostgres(postgresUrl),
-    connectToPostgres(postgresReadUrl, "read"),
-  ]);
+export const initDatabases = ({postgresUrl, postgresReadUrl}: Pick<CommandLineArguments, 'postgresUrl' | 'postgresReadUrl'>) => {
+  connectToPostgres(postgresUrl);
+  connectToPostgres(postgresReadUrl, "read");
+};
 
 export const initSettings = () => {
-  if (!isAnyTest) {
-    setInterval(refreshSettingsCaches, 1000 * 60 * 5) // We refresh the cache every 5 minutes on all servers
-  }
+  // if (!isAnyTest) {
+  //   setInterval(refreshSettingsCaches, 1000 * 60 * 5) // We refresh the cache every 5 minutes on all servers
+  // }
   return refreshSettingsCaches();
 }
 

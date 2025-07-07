@@ -225,10 +225,10 @@ const wrapQueryMethod = <T>(
   }
 }
 
-export const createSqlConnection = async (
+export const createSqlConnection = (
   url?: string,
   isTestingClient = false,
-): Promise<SqlClient> => {
+): SqlClient => {
   url = url ?? process.env.PG_URL;
   if (!url) {
     throw new Error("PG_URL not configured");

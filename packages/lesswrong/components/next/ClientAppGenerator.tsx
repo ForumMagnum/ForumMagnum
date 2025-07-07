@@ -108,11 +108,14 @@ const AppComponent = ({ children }: { children: React.ReactNode }) => {
 // Client-side wrapper around the app. There's another AppGenerator which is
 // the server-side version, which differs in how it sets up the wrappers for
 // routing and cookies and such.
-const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, cookies, children }: {
+const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, user, cookies, headers, searchParams, children }: {
   abTestGroupsUsed: RelevantTestGroupAllocation,
   themeOptions: AbstractThemeOptions,
   ssrMetadata?: SSRMetadata,
+  user: DbUser | null,
   cookies: RequestCookie[],
+  headers: Record<string, string>,
+  searchParams: Record<string, string>,
   children: React.ReactNode,
 }) => {
   const universalCookies = new Cookies(Object.fromEntries(cookies.map((cookie) => [cookie.name, cookie.value])));
@@ -122,7 +125,13 @@ const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, cookies, ch
     // <ApolloProvider client={apolloClient}>
       // <ForeignApolloClientProvider value={foreignApolloClient}>
         <EnableSuspenseContext.Provider value={isServer}>
-        <ApolloWrapper loginToken={loginToken}>
+        <ApolloWrapper
+          loginToken={loginToken}
+          user={user}
+          cookies={cookies}
+          headers={headers}
+          searchParams={searchParams}
+        >
         <CookiesProvider cookies={universalCookies}>
           <ThemeContextProvider options={themeOptions} isEmail={false}>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
