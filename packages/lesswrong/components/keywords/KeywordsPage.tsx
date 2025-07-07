@@ -2,6 +2,7 @@ import React, { FormEvent, useCallback, useEffect, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from "../common/withUser";
+import { useMessages } from "../common/withMessages";
 import { useLocation } from "@/lib/routeUtil";
 import { Link } from "@/lib/reactRouterWrapper";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
@@ -76,23 +77,35 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+const caseInsensitveIncludes = (haystack: string[], needle: string) => {
+  const lowerHaystack = haystack.map((item) => item.toLowerCase());
+  const lowerNeedle = needle.toLowerCase();
+  return lowerHaystack.indexOf(lowerNeedle) >= 0;
+}
+
 const KeywordsPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const updateCurrentUser = useUpdateCurrentUser();
   const currentUser = useCurrentUser();
+  const {flash} = useMessages();
   const keywordAlerts = currentUser?.keywordAlerts;
   const [keyword, setKeyword] = useState("");
   const [updating, setUpdating] = useState(false);
 
   const saveKeyword = useCallback(async (value: string) => {
     const normalized = value.trim().replace(/\s+/g, " ");
-    if (normalized && keywordAlerts && keywordAlerts.indexOf(normalized) < 0) {
+    if (
+      normalized &&
+      keywordAlerts &&
+      !caseInsensitveIncludes(keywordAlerts, normalized)
+    ) {
       setUpdating(true);
       await updateCurrentUser({
-        keywordAlerts: uniq([...keywordAlerts, normalized]).sort(),
+        keywordAlerts: uniq([normalized, ...keywordAlerts]),
       });
       setUpdating(false);
+      flash(`Keyword alert added "${normalized}"`)
     }
-  }, [keywordAlerts, updateCurrentUser]);
+  }, [flash, keywordAlerts, updateCurrentUser]);
 
   const onSubmitKeyword = useCallback(async (ev: FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
@@ -104,11 +117,12 @@ const KeywordsPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
     if (keywordAlerts) {
       setUpdating(true);
       await updateCurrentUser({
-        keywordAlerts: uniq(keywordAlerts.filter((kw) => kw !== keyword)).sort(),
+        keywordAlerts: uniq(keywordAlerts.filter((kw) => kw !== keyword)),
       });
       setUpdating(false);
+      flash(`Keyword alert removed "${keyword}"`)
     }
-  }, [updateCurrentUser, keywordAlerts]);
+  }, [flash, updateCurrentUser, keywordAlerts]);
 
   // Automatically add a keyword from the ?add= query param (used on search page)
   const {query} = useLocation();
@@ -132,7 +146,7 @@ const KeywordsPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
         <div className={classes.title}>
           Keyword alerts
           <LWTooltip
-            title="Receive notifications for new content matching a search query"
+            title="Get notified about new posts that contains a keyword"
             className={classes.info}
           >
             <ForumIcon icon="InfoCircle" />
