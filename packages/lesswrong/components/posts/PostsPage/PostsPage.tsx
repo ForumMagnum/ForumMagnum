@@ -567,8 +567,8 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
 
   const displayedPublicCommentCount = comments?.filter(c => commentIncludedInCounts(c))?.length ?? 0;
   const { commentCount: totalComments } = getResponseCounts({ post, answers })
-  const commentTree = unflattenComments(comments ?? []);
-  const answersTree = unflattenComments(answersAndReplies ?? []);
+  const commentTree = useMemo(() => unflattenComments(comments ?? []), [comments]);
+  const answersTree = useMemo(() => unflattenComments(answersAndReplies ?? []), [answersAndReplies]);
   const answerCount = post.question ? answersTree.length : undefined;
 
   // Hide the table of contents on questions that are foreign crossposts

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { Badge } from "@/components/widgets/Badge";
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
@@ -84,6 +84,7 @@ const NotificationsMenuInner = ({open, setIsOpen, hasOpened}: {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [tab,setTab] = useState(0);
+  const onClose = useCallback(() => setIsOpen(false), []);
 
   if (!currentUser) {
     return null;
@@ -129,7 +130,7 @@ const NotificationsMenuInner = ({open, setIsOpen, hasOpened}: {
         {open && <Drawer
           open={open}
           anchor="right"
-          onClose={() => setIsOpen(false)}
+          onClose={onClose}
           paperClassName={classes.drawerPaper}
           variant="persistent"
         >

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useMemo } from 'react';
 import { useMessages } from '../common/withMessages';
 import { useDialog } from '../common/withDialog';
 import { useMutation } from '@apollo/client/react';
@@ -166,10 +166,10 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
   }, [messages, mutate, collectionName, votingSystemOrDefault]);
 
   const result = optimisticResponseDocument || document;
-  return {
-    vote, collectionName,
-    document: result,
-    baseScore: (isAF ? result.afBaseScore : result.baseScore) || 0,
-    voteCount: (result.voteCount) || 0,
-  };
+  const baseScore = (isAF ? result.afBaseScore : result.baseScore) || 0;
+  const voteCount = (result.voteCount) || 0;
+  return useMemo(
+    () => ({ vote, collectionName, document: result, baseScore, voteCount }),
+    [vote, collectionName, result, baseScore, voteCount]
+  );
 }

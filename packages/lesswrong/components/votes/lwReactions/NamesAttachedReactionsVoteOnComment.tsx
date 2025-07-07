@@ -6,7 +6,7 @@ import { reactionsListToDisplayedNumbers, getNormalizedReactionsListFromVoteProp
 import { getNamesAttachedReactionsByName } from '../../../lib/voting/reactions';
 import type { VotingProps } from '../votingProps';
 import classNames from 'classnames';
-import { useCurrentUser } from '../../common/withUser';
+import { useCurrentUser, useFilteredCurrentUser } from '../../common/withUser';
 import { useVote } from '../withVote';
 import { useHover } from '../../common/withHover';
 import { useDialog } from '../../common/withDialog';
@@ -320,21 +320,21 @@ const NamesAttachedReactionsCommentBottomInner = ({
   document, hideKarma=false, commentBodyRef, classes, voteProps, post
 }: NamesAttachedReactionsCommentBottomProps & WithStylesProps) => {
   const anchorEl = useRef<HTMLElement|null>(null);
-  const currentUser = useCurrentUser();
+  const currentUserId = useFilteredCurrentUser(u => u?._id);
 
   const { getAlreadyUsedReactTypesByKarma } = useNamesAttachedReactionsVoting(voteProps)
 
   const allReactions = getAlreadyUsedReactTypesByKarma();
 
   const reactionsList = getNormalizedReactionsListFromVoteProps(voteProps);
-  const visibleReactionsDisplay = reactionsListToDisplayedNumbers(reactionsList?.reacts ?? null, currentUser?._id);
+  const visibleReactionsDisplay = reactionsListToDisplayedNumbers(reactionsList?.reacts ?? null, currentUserId);
   
   const visibleReacts = visibleReactionsDisplay.map(r => r.react)
   const hiddenReacts = difference(allReactions, visibleReacts)
 
   const isDebateComment = post?.debate && document.debateResponse
   const canReactUserIds = post ? [...getConfirmedCoauthorIds(post), post.userId] : []
-  const userIsDebateParticipant = currentUser && canReactUserIds.includes(currentUser._id)
+  const userIsDebateParticipant = !!currentUserId && canReactUserIds.includes(currentUserId)
   const showReactButton = !isDebateComment || userIsDebateParticipant
 
   return <span className={classes.footerReactionsRow} ref={anchorEl}>

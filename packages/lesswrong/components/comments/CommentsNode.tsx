@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { useCurrentUser } from '../common/withUser';
+import { useFilteredCurrentUser } from '../common/withUser';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents"
 import { CommentTreeNode, commentTreesEqual, flattenCommentBranch } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
@@ -125,7 +125,7 @@ const CommentsNodeInner = ({
   className,
   classes,
 }: CommentsNodeProps) => {
-  const currentUser = useCurrentUser();
+  const currentUserNoSingleLineCommentsSetting = useFilteredCurrentUser(u => u?.noSingleLineComments);
   const { captureEvent } = useTracking()
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
 
@@ -205,28 +205,6 @@ const CommentsNodeInner = ({
     }, HIGHLIGHT_DURATION*1000);
   }, [comment._id, hasInContextLinks]);
 
-  const handleExpand = ({
-    event,
-    scroll = false,
-    scrollBehaviour = "smooth",
-  }: {
-    event?: React.MouseEvent;
-    scroll?: boolean;
-    scrollBehaviour?: "auto" | "smooth";
-  }) => {
-    event?.stopPropagation();
-    if (isTruncated || isSingleLine) {
-      captureEvent("commentExpanded", { postId: comment.postId, commentId: comment._id, draft: comment.draft });
-      setTruncated(false);
-      setSingleLine(false);
-      setTruncatedStateSet(true);
-    }
-
-    if (scroll) {
-      scrollIntoView(scrollBehaviour);
-    }
-  };
-
   // If not using in-context comments, scroll to top when the `commentId` query changes
   useEffect(() => {
     if (!hasInContextLinks && !noAutoScroll && comment && linkedCommentId === comment._id) {
@@ -265,7 +243,7 @@ const CommentsNodeInner = ({
   const isNewComment = !!(highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime()))
 
   const isSingleLine = ((): boolean => {
-    if (!singleLine || currentUser?.noSingleLineComments) return false;
+    if (!singleLine || currentUserNoSingleLineCommentsSetting) return false;
     if (forceSingleLine) return true;
     if (forceNotSingleLine) return false
 
@@ -296,11 +274,37 @@ const CommentsNodeInner = ({
       enableGuidelines={enableGuidelines} />)}
   </div>;
 
+  const handleExpand = useCallback(({
+    event,
+    scroll = false,
+    scrollBehaviour = "smooth",
+  }: {
+    event?: React.MouseEvent;
+    scroll?: boolean;
+    scrollBehaviour?: "auto" | "smooth";
+  }) => {
+    event?.stopPropagation();
+    if (isTruncated || isSingleLine) {
+      captureEvent("commentExpanded", { postId: comment.postId, commentId: comment._id, draft: comment.draft });
+      setTruncated(false);
+      setSingleLine(false);
+      setTruncatedStateSet(true);
+    }
+
+    if (scroll) {
+      scrollIntoView(scrollBehaviour);
+    }
+  }, [isTruncated, isSingleLine, comment.postId, comment._id, comment.draft]);
+
+  const onClickFrame = useCallback((event: React.MouseEvent) => {
+    handleExpand({ event, scroll: scrollOnExpand });
+  }, [handleExpand, scrollOnExpand]);
+
   return <div className={comment.gapIndicator ? classes.gapIndicator : undefined}>
     <CommentFrame
       comment={comment}
       treeOptions={treeOptions}
-      onClick={(event) => handleExpand({ event, scroll: scrollOnExpand })}
+      onClick={onClickFrame}
       id={!noDOMId ? comment._id : undefined}
       nestingLevel={updatedNestingLevel}
       hasChildren={childComments && childComments.length>0}
