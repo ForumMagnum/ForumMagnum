@@ -124,7 +124,7 @@ const RejectContentDialog = ({classes, rejectContent}: {
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(ModerationTemplateFragmentMultiQuery, {
     variables: {
       selector: { moderationTemplatesList: { collectionName: "Rejections" } },
-      limit: 25,
+      limit: 50,
       enableTotal: true,
     },
   });
