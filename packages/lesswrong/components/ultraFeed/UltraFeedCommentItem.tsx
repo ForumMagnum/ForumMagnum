@@ -403,8 +403,17 @@ export const UltraFeedCommentItem = ({
   const truncationParams = useMemo(() => {
     const { displaySettings } = settings;
     
+    let initialWordCount: number;
+    if (displayStatus === "hidden") {
+      initialWordCount = 10;
+    } else if (displayStatus === "collapsed") {
+      initialWordCount = displaySettings.commentCollapsedInitialWords;
+    } else {
+      initialWordCount = displaySettings.commentExpandedInitialWords;
+    }
+    
     return {
-      initialWordCount: displayStatus === "collapsed" ? displaySettings.commentCollapsedInitialWords : displaySettings.commentExpandedInitialWords,
+      initialWordCount,
       maxWordCount: displaySettings.commentMaxWords
     };
   }, [settings, displayStatus]);
