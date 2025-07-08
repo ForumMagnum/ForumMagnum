@@ -4,7 +4,7 @@ import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';
 import { useLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
-import { UserContext } from './common/withUser';
+import { UserContext, UserContextProvider } from './common/withUser';
 import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './hooks/useCommentBox';
@@ -383,7 +383,7 @@ const Layout = ({currentUser, children}: {
     
     return (
       <AnalyticsContext path={pathname}>
-      <UserContext.Provider value={currentUser}>
+      <UserContextProvider value={currentUser}>
       <UnreadNotificationsContextProvider>
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
@@ -521,7 +521,7 @@ const Layout = ({currentUser, children}: {
       </ItemsReadContextWrapper>
       </TimezoneWrapper>
       </UnreadNotificationsContextProvider>
-      </UserContext.Provider>
+      </UserContextProvider>
       </AnalyticsContext>
     )
   };
