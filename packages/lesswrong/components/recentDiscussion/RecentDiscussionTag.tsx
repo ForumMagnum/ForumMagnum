@@ -126,7 +126,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   return <AnalyticsContext pageSubSectionContext='recentDiscussionTag' recentDiscussionCardIndex={index}>
     <div ref={viewTrackingRef} className={classes.root}>
       <div className={classes.tag}>
-        <Link to={tagGetDiscussionUrl(tag)} className={classes.title} onClick={handleTagClick}>
+        <Link to={tagGetDiscussionUrl(tag)} className={classes.title}>
           {tag.name}
         </Link>
         
