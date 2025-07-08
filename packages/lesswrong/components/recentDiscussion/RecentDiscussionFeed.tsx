@@ -94,7 +94,6 @@ const RecentDiscussionFeed = ({
   const currentUser = useCurrentUser();
   const expandAll = currentUser?.noCollapseCommentsFrontpage || expandAllThreads
   
-  // Session tracking similar to UltraFeed
   const [sessionId] = useState<string>(() => {
     if (typeof window === 'undefined') return randomId();
     const storage = window.sessionStorage;

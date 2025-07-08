@@ -84,7 +84,6 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   const [truncated, setTruncated] = useState(true);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   
-  // Track view duration
   const viewTrackingRef = useRecentDiscussionViewTracking({
     documentId: tag._id,
     documentType: 'tag',

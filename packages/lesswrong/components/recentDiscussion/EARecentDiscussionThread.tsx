@@ -126,7 +126,6 @@ const EARecentDiscussionThread = ({
     initialExpandAllThreads,
   });
 
-  // Track view duration
   const viewTrackingRef = useRecentDiscussionViewTracking({
     documentId: post._id,
     documentType: 'post',
