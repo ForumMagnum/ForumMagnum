@@ -1,3 +1,4 @@
+import set from "lodash/set";
 import { baserates } from "./baserates";
 import { localAfDevDb } from "./localAfDevDb";
 import { localAfProdDb } from "./localAfProdDb";
@@ -56,8 +57,7 @@ function getPrivateSettings() {
 
       return acc;
     }
-    const settingName = settingNameParts.join(".");
-    acc[settingName] = value;
+    set(acc, settingNameParts, value);
     return acc;
   }, privateSettings);
 
