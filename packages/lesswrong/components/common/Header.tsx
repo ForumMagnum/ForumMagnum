@@ -368,7 +368,7 @@ const Header = ({
     } else {
       setNotificationOpen(false);
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, notificationsOpened]);
 
   const handleNotificationToggle = () => {
     const currentUser = getCurrentUser()!
