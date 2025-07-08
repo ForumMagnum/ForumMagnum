@@ -15,7 +15,7 @@ import CommentsNodeInner from "../comments/CommentsNode";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import { maybeDate } from '@/lib/utils/dateUtils';
-import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { AnalyticsContext, captureEvent } from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -97,7 +97,14 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   const clickExpandDescription = useCallback(() => {
     setTruncated(false);
     setExpandAllThreads(true);
-  }, []);
+    
+    captureEvent("readMoreClicked", {
+      tagId: tag._id,
+      tagName: tag.name,
+      pageSectionContext: "recentDiscussion"
+    });
+  }, [tag._id, tag.name]);
+
   
   const descriptionHtml = tag.description?.html;
   const readMore = `<a>(${preferredHeadingCase("Read More")})</a>`;
@@ -119,7 +126,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   return <AnalyticsContext pageSubSectionContext='recentDiscussionTag' recentDiscussionCardIndex={index}>
     <div ref={viewTrackingRef} className={classes.root}>
       <div className={classes.tag}>
-        <Link to={tagGetDiscussionUrl(tag)} className={classes.title}>
+        <Link to={tagGetDiscussionUrl(tag)} className={classes.title} onClick={handleTagClick}>
           {tag.name}
         </Link>
         
