@@ -16,13 +16,11 @@ const styles = defineStyles("ContributorsList", (theme: ThemeType) => ({
     fontWeight: 550,
   },
   tocContributors: {
-    display: 'flex',
-    flexDirection: 'row',
-    gap: '4px',
     marginBottom: 12,
     marginLeft: 16,
   },
   tocContributor: {
+    cursor: "pointer",
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.greyAlpha(0.5),
     fontWeight: 550,
@@ -111,7 +109,7 @@ export const HeadingContributorsList = ({topContributors, smallContributors, onH
 }) => {
   const classes = useStyles(styles);
   return <span className={classes.contributorNameWrapper}>
-    <span>Written by </span>
+    <span>Edited by </span>
     <ContributorsList
       contributors={topContributors}
       onHoverContributor={onHoverContributor}
