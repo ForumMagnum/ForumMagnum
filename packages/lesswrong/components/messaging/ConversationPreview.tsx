@@ -5,6 +5,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
 import MessageItem from "./MessageItem";
+import { useCurrentUser } from '../common/withUser';
 
 const messageListFragmentMultiQuery = gql(`
   query multiMessageConversationPreviewQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {
@@ -43,13 +44,13 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ConversationPreview = ({conversationId, currentUser, classes, showTitle=true, count=10}: {
+const ConversationPreview = ({conversationId, classes, showTitle=true, count=10}: {
   conversationId: string,
-  currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
   showTitle?: boolean,
   count?: number
 }) => {
+  const currentUser = useCurrentUser()!;
   const { loading: conversationLoading, data } = useQuery(ConversationsListQuery, {
     variables: { documentId: conversationId },
     fetchPolicy: 'cache-first',

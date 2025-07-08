@@ -359,7 +359,7 @@ const Header = ({
     captureEvent("navigationBarToggle", {open: open})
   }
 
-  const handleSetNotificationDrawerOpen = async (isOpen: boolean): Promise<void> => {
+  const handleSetNotificationDrawerOpen = useCallback(async (isOpen: boolean): Promise<void> => {
     if (!isLoggedIn) return;
     if (isOpen) {
       setNotificationOpen(true);
@@ -368,7 +368,7 @@ const Header = ({
     } else {
       setNotificationOpen(false);
     }
-  }
+  }, [isLoggedIn]);
 
   const handleNotificationToggle = () => {
     const currentUser = getCurrentUser()!

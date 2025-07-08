@@ -7,7 +7,7 @@ import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import PostsIcon from '@/lib/vendor/@material-ui/icons/src/Description';
 import CommentsIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import MailIcon from '@/lib/vendor/@material-ui/icons/src/Mail';
-import { useCurrentUser } from '../common/withUser';
+import { useCurrentUserId } from '../common/withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { Drawer } from '@/components/material-ui/Drawer'
@@ -16,6 +16,7 @@ import ErrorBoundary from "../common/ErrorBoundary";
 import NotificationsList from "./NotificationsList";
 import { useReadQuery } from '@apollo/client/react';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 
 const styles = defineStyles("NotificationsMenu", (theme: ThemeType) => ({
   root: {
@@ -82,11 +83,11 @@ const NotificationsMenuInner = ({open, setIsOpen, hasOpened}: {
   hasOpened: boolean,
 }) => {
   const classes = useStyles(styles);
-  const currentUser = useCurrentUser();
+  const currentUserId = useCurrentUserId();
   const [tab,setTab] = useState(0);
   const onClose = useCallback(() => setIsOpen(false), [setIsOpen]);
 
-  if (!currentUser) {
+  if (!currentUserId) {
     return null;
   }
   const notificationCategoryTabs: Array<{ name: string, icon: () => React.ReactNode, terms: NotificationsViewTerms }> = [
@@ -169,7 +170,7 @@ const NotificationsMenuInner = ({open, setIsOpen, hasOpened}: {
             <div className={classes.cancelWrapper} onClick={() => setIsOpen(false)}>
               <ClearIcon className={classes.cancel} />
             </div>
-            <NotificationsList terms={{...notificationTerms, userId: currentUser._id}} currentUser={currentUser}/>
+            <NotificationsList terms={{...notificationTerms, userId: currentUserId}}/>
           </div>}
         </Drawer>}
       </ErrorBoundary>
@@ -196,7 +197,9 @@ const NotificationsMenu = ({open, setIsOpen, hasOpened}: {
   </SuspenseWrapper>
 }
 
-export default NotificationsMenu;
+export default registerComponent("NotificationsMenu", NotificationsMenu, {
+  areEqual: "auto"
+});
 
 
 

@@ -226,7 +226,7 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>,
-  dialogueResponses: CommentsList[],
+  dialogueResponses: readonly CommentsList[],
   answerCount?: number,
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   showSplashPageHeader?: boolean
@@ -327,9 +327,10 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
   </div>
 }
 
-export default registerComponent(
-  'LWPostsPageHeader', LWPostsPageHeader, {styles}
-);
+export default registerComponent('LWPostsPageHeader', LWPostsPageHeader, {
+  styles,
+  areEqual: "auto"
+});
 
 
 

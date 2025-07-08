@@ -1,7 +1,7 @@
 import React, { useContext, useCallback, useState, useMemo } from 'react';
 import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { gql } from '@/lib/generated/gql-codegen';
-import { useCurrentUser } from '../common/withUser';
+import { useGetCurrentUser } from '../common/withUser';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { hookToHoc } from '../../lib/hocUtils';
 import { recombeeApi } from '../../lib/recombee/client';
@@ -66,7 +66,7 @@ export const useRecordPostView = (post: ViewablePost) => {
   `));
   
   const {recordEvent} = useNewEvents()
-  const currentUser = useCurrentUser();
+  const getCurrentUser = useGetCurrentUser();
   const clientId = useClientId();
   const {postsRead, setPostRead} = useItemsRead();
   const isRead = post && !!((post._id in postsRead) ? postsRead[post._id] : post.isRead)
@@ -74,6 +74,7 @@ export const useRecordPostView = (post: ViewablePost) => {
   const recordPostView = useCallback(async ({post, extraEventProperties, recommendationOptions}: RecordPostViewArgs) => {
     try {
       if (!post) throw new Error("Tried to record view of null post");
+      const currentUser = getCurrentUser();
       
       // a post id has been found & it's has not been seen yet on this client session
       if (!postsRead[post._id]) {
@@ -126,9 +127,10 @@ export const useRecordPostView = (post: ViewablePost) => {
     } catch(error) {
       console.log("recordPostView error:", error); // eslint-disable-line
     }
-  }, [postsRead, setPostRead, increasePostViewCount, sendVertexViewItemEvent, currentUser, clientId, recordEvent]);
+  }, [postsRead, setPostRead, increasePostViewCount, sendVertexViewItemEvent, getCurrentUser, clientId, recordEvent]);
 
   const recordPostCommentsView = ({ post }: Pick<RecordPostViewArgs, 'post'>) => {
+    const currentUser = getCurrentUser();
     if (currentUser) {
       if (!postsRead[post._id]) {
         // Update the client-side read status cache.
@@ -158,7 +160,7 @@ function excludeUserFromRecombee(user: UsersCurrent) {
 
 export const useRecordTagView = (tag: TagFragment): {recordTagView: any, isRead: boolean} => {
   const {recordEvent} = useNewEvents()
-  const currentUser = useCurrentUser();
+  const getCurrentUser = useGetCurrentUser();
   const {tagsRead, setTagRead} = useItemsRead();
   const isRead = tag && !!((tag._id in tagsRead) ? tagsRead[tag._id] : tag.isRead)
   
@@ -166,6 +168,7 @@ export const useRecordTagView = (tag: TagFragment): {recordTagView: any, isRead:
     tag: TagBasicInfo
     extraEventProperties: AnyBecauseHard
   }) => {
+    const currentUser = getCurrentUser();
     try {
       if (!tag) throw new Error("Tried to record view of null tag");
       
@@ -194,7 +197,7 @@ export const useRecordTagView = (tag: TagFragment): {recordTagView: any, isRead:
     } catch(error) {
       console.log("recordTagView error:", error); // eslint-disable-line
     }
-  }, [tagsRead, setTagRead, currentUser, recordEvent]);
+  }, [tagsRead, setTagRead, getCurrentUser, recordEvent]);
   
   return { recordTagView, isRead };
 }

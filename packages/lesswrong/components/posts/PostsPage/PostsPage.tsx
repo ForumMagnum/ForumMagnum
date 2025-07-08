@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { getResponseCounts, isDialogueParticipant, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView, commentIncludedInCounts } from '../../../lib/collections/comments/helpers'
@@ -102,6 +102,7 @@ const CommentsListMultiQuery = gql(`
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
+const emptyArray: readonly any[] = [];
 
 const getRecommendationsPosition = (): "right" | "underPost" => "underPost";
 
@@ -267,7 +268,7 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   },
 }));
 
-const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
+const getDebateResponseBlocks = (responses: readonly CommentsList[], replies: readonly CommentsList[]) => responses.map(debateResponse => ({
   comment: debateResponse,
   replies: replies.filter(reply => reply.topLevelCommentId === debateResponse._id)
 }));
@@ -350,7 +351,10 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
   // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
 
-  const toggleEmbeddedPlayer = post && postHasAudioPlayer(post) ? () => {
+  const toggleEmbeddedPlayer = useCallback(() => {
+    if (!post || !postHasAudioPlayer(post)) {
+      return;
+    }
     const action = showEmbeddedPlayer ? "close" : "open";
     const newCookieValue = showEmbeddedPlayer ? "false" : "true";
     captureEvent("toggleAudioPlayer", { action });
@@ -361,7 +365,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
       path: "/"
     });
     setShowEmbeddedPlayer(!showEmbeddedPlayer);
-  } : undefined;
+  }, [post, showEmbeddedPlayer, captureEvent, setCookie]);
 
   const getSequenceId = () => {
     return params.sequenceId || fullPost?.canonicalSequenceId || null;
@@ -423,7 +427,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
     notifyOnNetworkStatusChange: true,
   });
 
-  const debateResponses = dataDebateResponses?.comments?.results ?? [];
+  const debateResponses = dataDebateResponses?.comments?.results ?? emptyArray;
   
   useOnServerSentEvent('notificationCheck', currentUser, (message) => {
     if (currentUser && isDialogueParticipant(currentUser._id, post)) {
@@ -686,6 +690,9 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
     </>}
   </>;
 
+  const postsPageContext = useMemo(() => ({fullPost: fullPost ?? null, postPreload: postPreload ?? null}), [fullPost, postPreload]);
+
+
   // If this is a non-AF post being viewed on AF, redirect to LW.
   if (isAF && !post.af) {
     const lwURL = "https://www.lesswrong.com" + location.url;
@@ -844,7 +851,7 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
     : undefined
 
   return <AnalyticsContext pageContext="postsPage" postId={post._id}>
-    <PostsPageContext.Provider value={{fullPost: fullPost ?? null, postPreload: postPreload ?? null}}>
+    <PostsPageContext.Provider value={postsPageContext}>
     <RecombeeRecommendationsContextWrapper postId={post._id} recommId={recommId}>
     <SideItemsContainer>
     <ImageProvider>
