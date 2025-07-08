@@ -286,7 +286,15 @@ ${output_text}`,
   };
 };
 
-async function createAutomatedContentEvaluation(revision: DbRevision, context: ResolverContext) {
+export async function createAutomatedContentEvaluation(revision: DbRevision, context: ResolverContext) {
+  // Check if evaluation already exists for this revision
+  const existingEvaluation = await AutomatedContentEvaluations.findOne({ revisionId: revision._id });
+  if (existingEvaluation) {
+    // eslint-disable-next-line no-console
+    console.log(`Automated content evaluation already exists for revision ${revision._id}`);
+    return;
+  }
+
   const [validatedEvaluation, llmEvaluation] = await Promise.all([
     getSaplingEvaluation(revision),
     getLlmEvaluation(revision, context),

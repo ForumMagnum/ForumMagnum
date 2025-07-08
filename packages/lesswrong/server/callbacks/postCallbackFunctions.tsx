@@ -8,7 +8,7 @@ import { getConfirmedCoauthorIds, isRecombeeRecommendablePost, postIsApproved, p
 import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { isAnyTest, isE2E } from "@/lib/executionEnvironment";
-import { eaFrontpageDateDefault, isEAForum, requireReviewToFrontpagePostsSetting } from "@/lib/instanceSettings";
+import { eaFrontpageDateDefault, isEAForum, requireReviewToFrontpagePostsSetting, isLW } from "@/lib/instanceSettings";
 import { recombeeEnabledSetting, vertexEnabledSetting } from "@/lib/publicSettings";
 import { asyncForeachSequential } from "@/lib/utils/asyncUtils";
 import { isWeekend } from "@/lib/utils/timeUtil";
@@ -52,6 +52,7 @@ import { updateNotification } from "../collections/notifications/mutations";
 import { EmailCuratedAuthors } from "../emailComponents/EmailCuratedAuthors";
 import { EventUpdatedEmail } from "../emailComponents/EventUpdatedEmail";
 import { PostsHTML } from "@/lib/collections/posts/fragments";
+import { createAutomatedContentEvaluation } from "../collections/revisions/mutations";
 
 /** Create notifications for a new post being published */
 export async function sendNewPostNotifications(post: DbPost) {
@@ -143,6 +144,15 @@ export async function onPostPublished(post: DbPost, context: ResolverContext) {
   const { updateScoreOnPostPublish } = require("./votingCallbacks");
   await updateScoreOnPostPublish(post, context);
   await onPublishUtils.ensureNonzeroRevisionVersionsAfterUndraft(post, context);
+  
+  // Trigger automated content evaluation for posts being published
+  // This handles the case where a post was created as a draft and is now being published
+  if (isLW) {
+    const latestRevision = await getLatestContentsRevision(post, context);
+    if (latestRevision && latestRevision.collectionName === "Posts" && latestRevision.fieldName === "contents") {
+      void createAutomatedContentEvaluation(latestRevision, context);
+    }
+  }
 }
 
 const utils = {
