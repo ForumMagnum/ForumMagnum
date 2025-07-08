@@ -1,3 +1,4 @@
+import { frag } from "./fragments/fragmentWrapper";
 import { useCurrentTime } from "./utils/timeUtil";
 import { useLocation } from "@/lib/routeUtil";
 
@@ -30,3 +31,15 @@ export const useKeywordFromUrl = () => {
   const endDate = parseKeywordAlertEndDate(query.end, currentTime);
   return { keyword, startDate, endDate };
 }
+
+export const KeywordAlertDisplay = () => frag`
+  fragment KeywordAlertDisplay on KeywordAlert {
+    _id
+    post {
+      ...PostsListWithVotes
+    }
+    comment {
+      ...CommentsListWithParentMetadata
+    }
+  }
+`;
