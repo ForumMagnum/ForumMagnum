@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Set login token
-    await createAndSetToken(request, user);
+    await createAndSetToken(request.headers, user);
     
     // Get return URL
     const returnTo = cookieStore.get('github_oauth_return')?.value ?? '/';
