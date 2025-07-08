@@ -46,6 +46,10 @@ module.exports = {
   },
   serverExternalPackages,
 
+  outputFileTracingIncludes: {
+    '/**': ['./node_modules/mathjax/**/*'],
+  },
+
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
