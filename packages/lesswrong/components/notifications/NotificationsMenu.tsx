@@ -84,7 +84,7 @@ const NotificationsMenuInner = ({open, setIsOpen, hasOpened}: {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [tab,setTab] = useState(0);
-  const onClose = useCallback(() => setIsOpen(false), []);
+  const onClose = useCallback(() => setIsOpen(false), [setIsOpen]);
 
   if (!currentUser) {
     return null;

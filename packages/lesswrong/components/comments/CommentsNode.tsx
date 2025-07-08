@@ -294,7 +294,7 @@ const CommentsNodeInner = ({
     if (scroll) {
       scrollIntoView(scrollBehaviour);
     }
-  }, [isTruncated, isSingleLine, comment.postId, comment._id, comment.draft]);
+  }, [isTruncated, isSingleLine, comment.postId, comment._id, comment.draft, captureEvent, scrollIntoView]);
 
   const onClickFrame = useCallback((event: React.MouseEvent) => {
     handleExpand({ event, scroll: scrollOnExpand });

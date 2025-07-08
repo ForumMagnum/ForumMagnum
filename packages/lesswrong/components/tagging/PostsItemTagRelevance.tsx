@@ -1,8 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useVote } from '../votes/withVote';
-import { useCurrentUser } from '../common/withUser';
-import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
+import { useVoteButtonsDisabled } from '../votes/useVoteButtonsDisabled';
 import classNames from 'classnames';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { forumSelect } from '@/lib/forumTypeUtils';
@@ -53,8 +52,7 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const voteProps = useVote(tagRel, "TagRels");
-  const currentUser = useCurrentUser();
-  const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
+  const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
   const canVote = !fail;
   
   const tooltip = <div>

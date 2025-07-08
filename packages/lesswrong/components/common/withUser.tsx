@@ -1,7 +1,23 @@
-import React, { ForwardedRef, createContext, forwardRef, useContext } from 'react';
+import React, { ForwardedRef, createContext, forwardRef, useCallback, useContext, useRef } from 'react';
 import { createContext as contextSelectorCreateContext, useContextSelector } from "use-context-selector";
 
 export const UserContext = contextSelectorCreateContext<UsersCurrent|null>(null);
+export const GetUserContext = createContext<()=>(UsersCurrent|null)>(() => null);
+
+export const UserContextProvider = ({value, children}: {
+  value: UsersCurrent|null
+  children: React.ReactNode
+}) => {
+  const lastCurrentUser = useRef(value);
+  lastCurrentUser.current = value;
+  const getCurrentUser = useCallback(() => lastCurrentUser.current, []);
+
+  return <UserContext.Provider value={value}>
+    <GetUserContext.Provider value={getCurrentUser}>
+      {children}
+    </GetUserContext.Provider>
+  </UserContext.Provider>
+}
 
 /**
  * React hook for getting the currently logged in user (or null, if not logged
@@ -14,6 +30,12 @@ export const useCurrentUser = () => useContextSelector(UserContext, u=>u);
 export function useFilteredCurrentUser<T>(filter: (u: UsersCurrent|null) => T): T {
   return useContextSelector(UserContext, filter);
 }
+
+export const useGetCurrentUser = () => {
+  return useContext(GetUserContext);
+};
+
+export const useCurrentUserId = () => useFilteredCurrentUser(u => u?._id);
 
 interface WithUserProps {
   currentUser: UsersCurrent | null;

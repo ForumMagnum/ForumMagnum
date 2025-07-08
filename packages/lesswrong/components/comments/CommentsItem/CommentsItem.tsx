@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import withErrorBoundary from '../../common/withErrorBoundary';
-import { useCurrentUser, useFilteredCurrentUser } from '../../common/withUser';
+import { useCurrentUserId, useFilteredCurrentUser } from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { tagGetCommentLink } from "../../../lib/collections/tags/helpers";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
@@ -215,7 +215,7 @@ export const CommentsItem = ({
   const [showEditState, setShowEditState] = useState(treeOptions.initialShowEdit || false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
   const isMinimalist = treeOptions.formStyle === "minimalist"
-  const currentUserId = useFilteredCurrentUser(u => u?._id);
+  const currentUserId = useCurrentUserId();
   const currentUserEligibleToNominate = useFilteredCurrentUser(u => eligibleToNominate(u));
 
   const {

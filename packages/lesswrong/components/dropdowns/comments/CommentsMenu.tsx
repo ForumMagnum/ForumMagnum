@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
 import { Menu } from '@/components/widgets/Menu';
-import { useFilteredCurrentUser } from '../../common/withUser';
+import { useCurrentUserId } from '../../common/withUser';
 import { useTracking } from "../../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import CommentActions from "./CommentActions";
@@ -44,7 +44,7 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon, A
   // contents when closed after open, because of closing animation).
   const [everOpened, setEverOpened] = useState(false);
 
-  const isLoggedIn = useFilteredCurrentUser(u => !!u);
+  const isLoggedIn = !!useCurrentUserId();
   const { captureEvent } = useTracking({eventType: "commentMenuClicked", eventProps: {commentId: comment._id, itemType: "comment"}})
 
   if (!isLoggedIn) return null
