@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 
 const serverExternalPackages = [
-  'superagent-proxy', 'gpt-3-encoder', 'mathjax-node', 'turndown', 'cloudinary',
+  'superagent-proxy', 'gpt-3-encoder', 'mathjax-node', 'mathjax', 'turndown', 'cloudinary',
   '@aws-sdk/client-cloudfront', 'auth0', 'jimp', '@datadog/browser-rum', 'juice',
   'request', 'stripe', 'openai',
 ];
@@ -493,4 +493,4 @@ module.exports = {
   typescript: {
     ignoreBuildErrors: true,
   },
-}
+};
