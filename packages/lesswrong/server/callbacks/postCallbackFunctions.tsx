@@ -1063,7 +1063,7 @@ export async function sendEAFCuratedAuthorsNotification(post: DbPost, oldPost: D
     
     void Promise.all(authors.map(author => wrapAndSendEmail({
         user: author,
-        subject: "We've curated your post",
+        subject: "We’ve curated your post",
         body: <EmailCuratedAuthors user={author} post={post} />
       })
     ))
