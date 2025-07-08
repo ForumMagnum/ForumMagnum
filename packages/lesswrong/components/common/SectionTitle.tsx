@@ -38,6 +38,18 @@ const styles = (theme: ThemeType) => ({
     paddingBottom: 0
   },
   title: sectionTitleStyle(theme),
+  largeTitle: isFriendlyUI
+    ? {
+      margin: 0,
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      fontSize: 20,
+      fontWeight: 700,
+      color: theme.palette.grey[1000],
+      [theme.breakpoints.down("xs")]: {
+        fontSize: 16,
+      },
+    }
+    : sectionTitleStyle(theme),
   children: {
     ...theme.typography.commentStyle,
     [theme.breakpoints.down('sm')]: {
@@ -63,6 +75,7 @@ export type SectionTitleProps = {
   titleClassName?: string,
   rootClassName?: string,
   title: React.ReactNode,
+  large?: boolean,
   noTopMargin?: boolean,
   noBottomPadding?: boolean,
   centered?: boolean,
@@ -73,6 +86,7 @@ export type SectionTitleProps = {
 // This is meant to be used as the primary section title for the central page layout (normally used in conjunction with SingleColumnSection){}
 const SectionTitle = ({
   title,
+  large,
   noTopMargin,
   noBottomPadding,
   centered,
@@ -88,7 +102,10 @@ const SectionTitle = ({
       <Typography
         id={getAnchorId(anchor, title)}
         variant='display1'
-        className={classNames(classes.title, titleClassName)}
+        className={classNames(
+          large ? classes.largeTitle : classes.title,
+          titleClassName,
+        )}
       >
         {href
           ? <Link to={href}>{title}</Link>

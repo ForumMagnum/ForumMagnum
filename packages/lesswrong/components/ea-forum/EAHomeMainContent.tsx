@@ -101,7 +101,7 @@ const EAHomeMainContent = ({FrontpageNode, classes}: {
             spotlight={spotlight}
             className={classes.spotlightMargin}
           />} */}
-          <SectionTitle title="New & upvoted" noTopMargin>
+          <SectionTitle title="New & upvoted" noTopMargin large>
             <div className={classes.postsListSettings}>
               <Link to={`/topics/${activeTab.slug}`} className={classes.learnMoreLink}>
                 View more
