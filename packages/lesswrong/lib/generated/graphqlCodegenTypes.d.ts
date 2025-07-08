@@ -23156,6 +23156,23 @@ type UltraFeedPostDialogQueryVariables = Exact<{
 
 type UltraFeedPostDialogQuery = UltraFeedPostDialogQuery_Query;
 
+type UltraFeedPostDialogWrapperQuery_post_SinglePostOutput_result_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type UltraFeedPostDialogWrapperQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: UltraFeedPostDialogWrapperQuery_post_SinglePostOutput_result_Post | null };
+
+type UltraFeedPostDialogWrapperQuery_Query = { __typename?: 'Query', post: UltraFeedPostDialogWrapperQuery_post_SinglePostOutput | null };
+
+
+type UltraFeedPostDialogWrapperQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type UltraFeedPostDialogWrapperQuery = UltraFeedPostDialogWrapperQuery_Query;
+
 type LocalPostQueryQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
   & UltraFeedPostFragment

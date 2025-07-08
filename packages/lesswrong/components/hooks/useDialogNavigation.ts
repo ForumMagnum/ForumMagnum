@@ -1,4 +1,6 @@
 import { useEffect, useRef } from 'react';
+import qs from 'qs';
+import omit from 'lodash/omit';
 
 /**
  * Manages browser navigation for dialogs by:
@@ -10,17 +12,41 @@ import { useEffect, useRef } from 'react';
  * navigating away from the page.
  * 
  * @param onClose - Function to call when the dialog should close
+ * @param queryParam - Optional query parameter to add/remove (e.g., { key: 'modalPostId', value: 'abc123' })
  */
-export const useDialogNavigation = (onClose: () => void) => {
+export const useDialogNavigation = (
+  onClose: () => void,
+  queryParam?: { key: string; value: string | null }
+) => {
   const isClosingViaBackRef = useRef(false);
 
   useEffect(() => {
-    window.history.pushState({ dialogOpen: true }, '');
+    const currentQuery = qs.parse(window.location.search.slice(1));
+    
+    if (queryParam?.value) {
+      if (currentQuery[queryParam.key] !== queryParam.value) {
+        const newQuery = { ...currentQuery, [queryParam.key]: queryParam.value };
+        const search = qs.stringify(newQuery);
+        const newUrl = `${window.location.pathname}${search ? `?${search}` : ''}${window.location.hash}`;
+        window.history.pushState({ dialogOpen: true }, '', newUrl);
+      }
+    } else if (!queryParam) {
+      window.history.pushState({ dialogOpen: true }, '');
+    }
 
-    const handlePopState = (event: PopStateEvent) => {
-      if (!event.state?.dialogOpen) {
-        isClosingViaBackRef.current = true;
-        onClose();
+    const handlePopState = () => {
+      if (queryParam) {
+        const currentQuery = qs.parse(window.location.search.slice(1));
+        if (!currentQuery[queryParam.key]) {
+          isClosingViaBackRef.current = true;
+          onClose();
+        }
+      } else {
+        // Fallback mode: check history state
+        if (!window.history.state?.dialogOpen) {
+          isClosingViaBackRef.current = true;
+          onClose();
+        }
       }
     };
 
@@ -28,10 +54,21 @@ export const useDialogNavigation = (onClose: () => void) => {
 
     return () => {
       window.removeEventListener('popstate', handlePopState);
-      // If dialog is closing normally (not via back), remove the history entry
-      if (!isClosingViaBackRef.current && window.history.state?.dialogOpen) {
-        window.history.back();
+      
+      if (!isClosingViaBackRef.current) {
+        if (queryParam) {
+          const currentQuery = qs.parse(window.location.search.slice(1));
+          const queryWithoutParam = omit(currentQuery, queryParam.key);
+          const search = qs.stringify(queryWithoutParam);
+          const newUrl = `${window.location.pathname}${search ? `?${search}` : ''}${window.location.hash}`;
+          window.history.replaceState({}, '', newUrl);
+        } else if (window.history.state?.dialogOpen) {
+          // Fallback mode: go back to remove the history entry
+          window.history.back();
+        }
       }
     };
-  }, [onClose]);
+    // run once on mount/unmount only
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 }; 

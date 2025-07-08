@@ -13,6 +13,7 @@ import UltraFeedPostItem from "../ultraFeed/UltraFeedPostItem";
 import UltraFeedThreadItem from "../ultraFeed/UltraFeedThreadItem";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useRestorePostModal } from '../ultraFeed/useRestorePostModal';
 
 const BookmarksFeedItemFragmentMultiQuery = gql(`
   query multiBookmarkBookmarksFeedQuery($selector: BookmarkSelector, $limit: Int, $enableTotal: Boolean) {
@@ -27,6 +28,9 @@ const BookmarksFeedItemFragmentMultiQuery = gql(`
 
 const BookmarksFeed = () => {
   const currentUser = useCurrentUser();
+
+  // Handle restoring post modal from URL
+  useRestorePostModal();
 
   const { data, error, loading } = useQuery(BookmarksFeedItemFragmentMultiQuery, {
     variables: {

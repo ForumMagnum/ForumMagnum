@@ -30,6 +30,7 @@ import { ultraFeedEnabledSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import UltraFeedFeedback from './UltraFeedFeedback';
+import { useRestorePostModal } from './useRestorePostModal';
 
 const ULTRAFEED_SESSION_ID_KEY = 'ultraFeedSessionId';
 
@@ -197,6 +198,9 @@ const UltraFeedContent = ({alwaysShow = false}: {
     return currentId;
   });
   const refetchSubscriptionContentRef = useRef<null | ObservableQuery['refetch']>(null);
+
+  // Handle restoring post modal from URL
+  useRestorePostModal();
 
   const handleOpenQuickTakeDialog = () => {
     captureEvent("ultraFeedComposerQuickTakeDialogOpened");

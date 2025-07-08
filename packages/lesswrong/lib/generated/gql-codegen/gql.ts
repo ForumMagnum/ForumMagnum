@@ -598,6 +598,7 @@ type Documents = {
     "\n  mutation createUltraFeedEventUltraFeedObserver($data: CreateUltraFeedEventDataInput!) {\n    createUltraFeedEvent(data: $data) {\n      data {\n        ...UltraFeedEventsDefaultFragment\n      }\n    }\n  }\n": typeof types.createUltraFeedEventUltraFeedObserverDocument,
     "\n  query multiCommentUltraFeedPostDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentUltraFeedPostDialogQueryDocument,
     "\n  query UltraFeedPostDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": typeof types.UltraFeedPostDialogDocument,
+    "\n  query UltraFeedPostDialogWrapper($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.UltraFeedPostDialogWrapperDocument,
     "\n  query LocalPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": typeof types.LocalPostQueryDocument,
     "\n  query ForeignPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.ForeignPostQueryDocument,
     "\n  query UltraFeedThreadItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.UltraFeedThreadItemDocument,
@@ -1588,6 +1589,7 @@ const documents: Documents = {
     "\n  mutation createUltraFeedEventUltraFeedObserver($data: CreateUltraFeedEventDataInput!) {\n    createUltraFeedEvent(data: $data) {\n      data {\n        ...UltraFeedEventsDefaultFragment\n      }\n    }\n  }\n": types.createUltraFeedEventUltraFeedObserverDocument,
     "\n  query multiCommentUltraFeedPostDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": types.multiCommentUltraFeedPostDialogQueryDocument,
     "\n  query UltraFeedPostDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": types.UltraFeedPostDialogDocument,
+    "\n  query UltraFeedPostDialogWrapper($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.UltraFeedPostDialogWrapperDocument,
     "\n  query LocalPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": types.LocalPostQueryDocument,
     "\n  query ForeignPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": types.ForeignPostQueryDocument,
     "\n  query UltraFeedThreadItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.UltraFeedThreadItemDocument,
@@ -4344,6 +4346,10 @@ export function gql(source: "\n  query multiCommentUltraFeedPostDialogQuery($sel
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query UltraFeedPostDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query UltraFeedPostDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query UltraFeedPostDialogWrapper($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"): (typeof documents)["\n  query UltraFeedPostDialogWrapper($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

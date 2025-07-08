@@ -473,7 +473,7 @@ const UltraFeedPostDialog = ({
   const hasTocData = !!tocData && (tocData.sections ?? []).length > 0;
 
   // Handle browser back button / swipe back navigation
-  useDialogNavigation(onClose);
+  useDialogNavigation(onClose, { key: 'modalPostId', value: displayPost._id });
   useDisableBodyScroll();
   
   // Handle clicks on hash links (like footnotes) within the modal. If we don't do this, clicking on hash links can close the modal, fail to scroll, etc.
