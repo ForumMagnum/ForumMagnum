@@ -82,6 +82,7 @@ import * as votesFragments from '../collections/votes/fragments';
 // Non-collection fragments
 import * as subscribedUserFeedFragments from '../subscribedUsersFeed';
 import * as ultraFeedFragments from '../ultraFeed';
+import { KeywordAlertDisplay } from '../keywordAlertHelpers';
 import { transformFragments } from './fragmentWrapper';
 
 // Unfortunately the inversion with sql fragment compilation is a bit tricky to unroll, so for now we just dynamically load the test fragments if we're in a test environment.
@@ -166,6 +167,7 @@ const staticFragments = transformFragments({
   // Non-collection fragments
   ...subscribedUserFeedFragments,
   ...ultraFeedFragments,
+  KeywordAlertDisplay,
 
   // Test fragments
   ...testFragments,

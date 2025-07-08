@@ -781,8 +781,14 @@ interface LoginReturnData {
   token: string | null;
 }
 
+interface KeywordAlert {
+  _id: string;
+  post: Post | null;
+  comment: Comment | null;
+}
+
 interface KeywordAlertsResult {
-  results: Array<Post>;
+  results: Array<KeywordAlert>;
 }
 
 interface MigrationsDashboardData {
@@ -6540,6 +6546,7 @@ interface GraphQLTypeMap {
   WrappedDataByYear: WrappedDataByYear;
   Site: Site;
   LoginReturnData: LoginReturnData;
+  KeywordAlert: KeywordAlert;
   KeywordAlertsResult: KeywordAlertsResult;
   MigrationsDashboardData: MigrationsDashboardData;
   MigrationStatus: MigrationStatus;

@@ -2,7 +2,11 @@ import { hasKeywordAlerts } from "@/lib/betas";
 import { addCronJob } from "../cron/cronUtil";
 import { createNotifications } from "../notificationCallbacksHelpers";
 import { createAdminContext } from "../vulcan-lib/createContexts";
-import { fetchPostIdsForKeyword, getDefaultKeywordStartDate } from "./keywordSearch";
+import {
+  fetchCommentIdsForKeyword,
+  fetchPostIdsForKeyword,
+  getDefaultKeywordStartDate,
+} from "./keywordSearch";
 import CronHistories from "../collections/cronHistories/collection";
 import UsersRepo from "../repos/UsersRepo";
 
@@ -19,25 +23,26 @@ export const generateKeywordAlerts = async (
   const alerts = await usersRepo.getUserIdsByKeywordAlerts();
 
   for (const {keyword, userIds} of alerts) {
-    const postIds = await fetchPostIdsForKeyword(keyword, startDate, endDate);
-    if (!postIds.length) {
+    const [postIds, commentIds] = await Promise.all([
+      fetchPostIdsForKeyword(keyword, startDate, endDate),
+      fetchCommentIdsForKeyword(keyword, startDate, endDate),
+    ]);
+    if (!postIds.length && !commentIds.length) {
       continue;
     }
+    const contentType = postIds.length ? "post" : "comment";
     await createNotifications({
       context,
       userIds,
       notificationType: "keywordAlert",
-      documentType: "post",
-      documentId: postIds[0],
+      documentType: contentType,
+      documentId: postIds[0] ?? commentIds[0],
       extraData: {
         keyword,
-        count: postIds.length,
+        count: postIds.length + commentIds.length,
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
-        // Currently keyword alerts only support posts, but we're adding this
-        // content type to future-proof so we can expand to comments in the
-        // future
-        contentType: "post",
+        contentType,
       },
     });
   }

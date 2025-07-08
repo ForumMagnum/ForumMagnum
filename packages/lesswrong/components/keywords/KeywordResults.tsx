@@ -2,6 +2,7 @@ import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
 import EAPostsItem from "../posts/EAPostsItem";
+import FriendlyPopularComment from "../comments/FriendlyPopularComment";
 import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
@@ -18,7 +19,7 @@ const KeywordResults = ({keyword, startDate, endDate, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { results, loading } = usePaginatedResolver({
-    fragmentName: "PostsListWithVotes",
+    fragmentName: "KeywordAlertDisplay",
     resolverName: "KeywordAlerts",
     limit: 100,
     itemsPerPage: 100,
@@ -43,8 +44,12 @@ const KeywordResults = ({keyword, startDate, endDate, classes}: {
   });
   return (
     <div>
-      {results?.map((post) => (
-        <EAPostsItem key={post._id} post={post} viewType="card" />
+      {results?.map(({_id, post, comment}) => (
+        post
+          ? <EAPostsItem key={_id} post={post} viewType="card" />
+          : comment
+            ? <FriendlyPopularComment comment={comment} />
+            : null
       ))}
       {loading && <Loading />}
       {!loading && (results?.length ?? 0) === 0 &&
