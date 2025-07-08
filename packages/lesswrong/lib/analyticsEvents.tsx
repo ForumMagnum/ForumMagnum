@@ -127,6 +127,8 @@ export type AnalyticsProps = {
   ultraFeedElementType?: FeedItemType,
   ultraFeedCardId?: string,
   ultraFeedCardIndex?: number,
+  recentDiscussionContext?: { sessionId: string },
+  recentDiscussionCardIndex?: number,
   /** @deprecated Use `pageSectionContext` instead */
   listContext?: string,
   /** @deprecated Use `pageSectionContext` instead */
