@@ -56,13 +56,7 @@ export async function createRevision({ data }: { data: Partial<DbInsertion<DbRev
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('Revisions', documentWithId);
 
   if (isLW && documentWithId.collectionName === "Posts" && documentWithId.fieldName === "contents") {
-    try {
-      void createAutomatedContentEvaluation(documentWithId, context);
-    } catch(e) {
-      // eslint-disable-next-line no-console
-      console.error("Automated content evaluation failed");
-      captureException(e);
-    }
+    void createAutomatedContentEvaluation(documentWithId, context);
   }
 
   return documentWithId;
@@ -305,28 +299,34 @@ ${output_text}`,
 };
 
 async function createAutomatedContentEvaluation(revision: DbRevision, context: ResolverContext) {
-  const [validatedEvaluation, llmEvaluation] = await Promise.all([
-    getSaplingEvaluation(revision),
-    getLlmEvaluation(revision, context),
-  ]);
+  try {
+    const [validatedEvaluation, llmEvaluation] = await Promise.all([
+      getSaplingEvaluation(revision),
+      getLlmEvaluation(revision, context),
+    ]);
 
-  // FIXME: If one of these two evaluations failed, we should still keep the
-  // other one rather than return before saving it here
-  if (!validatedEvaluation || !llmEvaluation) {
+    // FIXME: If one of these two evaluations failed, we should still keep the
+    // other one rather than return before saving it here
+    if (!validatedEvaluation || !llmEvaluation) {
+      // eslint-disable-next-line no-console
+      console.error("No evaluation returned");
+      return;
+    }
+  
+    await AutomatedContentEvaluations.rawInsert({
+      createdAt: new Date(),
+      revisionId: revision._id,
+      score: validatedEvaluation.score,
+      sentenceScores: validatedEvaluation.sentence_scores,
+      aiChoice: llmEvaluation.decision,
+      aiReasoning: llmEvaluation.reasoning,
+      aiCoT: llmEvaluation.cot,
+    });
+  } catch(e) {
     // eslint-disable-next-line no-console
-    console.error("No evaluation returned");
-    return;
+    console.error("Automated content evaluation failed: ", e);
+    captureException(e);
   }
-
-  await AutomatedContentEvaluations.rawInsert({
-    createdAt: new Date(),
-    revisionId: revision._id,
-    score: validatedEvaluation.score,
-    sentenceScores: validatedEvaluation.sentence_scores,
-    aiChoice: llmEvaluation.decision,
-    aiReasoning: llmEvaluation.reasoning,
-    aiCoT: llmEvaluation.cot,
-  });
 }
 
 export const graphqlRevisionTypeDefs = gql`
