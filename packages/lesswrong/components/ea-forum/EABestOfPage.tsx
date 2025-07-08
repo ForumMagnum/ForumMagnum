@@ -15,6 +15,7 @@ import EACollectionCard from "./EACollectionCard";
 import EAPostsItem from "../posts/EAPostsItem";
 import PostsAudioCard from "../posts/PostsAudioCard";
 import PostsVideoCard from "../posts/PostsVideoCard";
+import SectionTitle from "../common/SectionTitle";
 
 const MAX_WIDTH = 1500;
 const MD_WIDTH = 1000;
@@ -74,11 +75,8 @@ const styles = (theme: ThemeType) => ({
     },
   },
   heading: {
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 20,
-    fontWeight: 700,
     marginTop: 0,
-    marginBottom: 20,
+    marginBottom: 12,
   },
   gridSection: {
     display: "grid",
@@ -212,7 +210,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
             </div>
             <AnalyticsContext pageSectionContext="featuredCollections">
               <div>
-                <h2 className={classes.heading}>Featured collections</h2>
+                <SectionTitle title="Featured collections" large rootClassName={classes.heading} />
                 <div className={classes.gridSection}>
                   {featuredCollectionCollections.map((collection) => (
                     <EACollectionCard key={collection._id} collection={collection} />
@@ -228,7 +226,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
             </AnalyticsContext>
             <AnalyticsContext pageSectionContext="highlightsThisYear">
               <div>
-                <h2 className={classes.heading}>Highlights this year</h2>
+                <SectionTitle title="Highlights this year" large rootClassName={classes.heading} />
                 <div className={classes.listSection}>
                   {bestOfYearPosts.map((post) => (
                     <EAPostsItem
@@ -245,7 +243,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
             </AnalyticsContext>
             <AnalyticsContext pageSectionContext="exploreCauseAreas">
               <div>
-                <h2 className={classes.heading}>Explore cause areas</h2>
+                <SectionTitle title="Explore cause areas" large rootClassName={classes.heading} />
                 <div className={classes.gridSection}>
                   {introToCauseAreasSequences.map((sequence) => (
                     <EASequenceCard key={sequence._id} sequence={sequence} />
@@ -257,7 +255,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
           <div className={classNames(classes.column, classes.rightColumn)}>
             <AnalyticsContext pageSectionContext="highlightsThisMonth">
               <div>
-                <h2 className={classes.heading}>Highlights this month</h2>
+                <SectionTitle title="Highlights this month" large rootClassName={classes.heading} />
                 <div className={classes.listSection}>
                   {monthlyHighlights?.map((post, i) => (
                     <EAPostsItem
@@ -278,7 +276,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
             </AnalyticsContext>
             <AnalyticsContext pageSectionContext="featuredVideo">
               <div>
-                <h2 className={classes.heading}>Featured videos</h2>
+                <SectionTitle title="Featured videos" large rootClassName={classes.heading} />
                 <div className={classNames(classes.listSection, classes.listGap)}>
                   {featuredVideoPosts.map((post) => (
                     <PostsVideoCard key={post._id} post={post} />
@@ -291,7 +289,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
             </AnalyticsContext>
             {/* <AnalyticsContext pageSectionContext="featuredAudio">
               <div>
-                <h2 className={classes.heading}>Featured audio</h2>
+                <SectionTitle title="Featured audio" large rootClassName={classes.heading} />
                 <div className={classNames(classes.listSection, classes.listGap)}>
                   {featuredAudioPosts.map((post) => (
                     <PostsAudioCard key={post._id} post={post} />
