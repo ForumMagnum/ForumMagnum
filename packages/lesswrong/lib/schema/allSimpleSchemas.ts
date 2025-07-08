@@ -1,10 +1,8 @@
-import { makeExecutableSchema } from '@graphql-tools/schema';
-import type { GraphQLSchema } from 'graphql';
 import GraphQLJSON from 'graphql-type-json';
 import SimpleSchema, { SchemaDefinition } from 'simpl-schema';
 import { allSchemas } from './allSchemas';
 
-function getBaseType(typeString: string, graphqlSchema: GraphQLSchema) {
+function getBaseType(typeString: string, hasAllowedValues: boolean) {
   switch (typeString) {
     case 'String':
       return String;
@@ -17,8 +15,7 @@ function getBaseType(typeString: string, graphqlSchema: GraphQLSchema) {
     case 'Date':
       return Date;
     default: {
-      const type = graphqlSchema.getType(typeString);
-      if (type?.astNode?.kind === 'EnumTypeDefinition') {
+      if (hasAllowedValues) {
         return 'String';
       }
       return Object;
@@ -42,7 +39,7 @@ function stripArray(typeString: string) {
   };
 }
 
-function getSimpleSchemaType(fieldName: string, graphqlSpec: GraphQLFieldSpecification<CollectionNameString>, graphqlSchema: GraphQLSchema) {
+function getSimpleSchemaType(fieldName: string, graphqlSpec: GraphQLFieldSpecification<CollectionNameString>) {
   const { validation = {} } = graphqlSpec;
   const { simpleSchema, ...remainingSimpleSchemaValidationFields } = validation;
   if (simpleSchema) {
@@ -86,7 +83,7 @@ function getSimpleSchemaType(fieldName: string, graphqlSpec: GraphQLFieldSpecifi
   const { typeString: typeStringWithoutArray, array } = stripArray(outerTypeStringWithoutRequired);
   const { typeString: innerTypeWithoutRequired, required: innerRequired } = stripRequired(typeStringWithoutArray);
   const typeString = array ? innerTypeWithoutRequired : outerTypeStringWithoutRequired;
-  const baseType = getBaseType(typeString, graphqlSchema);
+  const baseType = getBaseType(typeString, !!remainingSimpleSchemaValidationFields.allowedValues);
 
   if (array) {
     const outerType = {
@@ -121,17 +118,13 @@ function isPlausiblyFormField(field: CollectionFieldSpecification<CollectionName
 }
 
 function getSchemaDefinition(schema: SchemaType<CollectionNameString>): Record<string, SchemaDefinition> {
-  const { resolvers, typeDefs }: typeof import('@/server/vulcan-lib/apollo-server/initGraphQL') = require('@/server/vulcan-lib/apollo-server/initGraphQL');
-  // We unfortunately need this while we still have SimpleSchema implemented, so that it doesn't barf on graphql enum types.
-  const graphqlSchema = makeExecutableSchema({ typeDefs, resolvers });
-
   return Object.entries(schema).reduce((acc, [key, value]) => {
     if (!value.graphql) {
       return acc;
     }
 
     // type, optional, regEx, allowedValues, and blackbox are handled by getSimpleSchemaType
-    const typeDefs = getSimpleSchemaType(key, value.graphql, graphqlSchema);
+    const typeDefs = getSimpleSchemaType(key, value.graphql);
 
     // database field which is nontheless used for form generation
     const defaultValue = value.database?.defaultValue;

@@ -1,10 +1,10 @@
 import { convertDocumentIdToIdInSelector, UpdateSelector } from '../../lib/vulcan-lib/utils';
-import { dataToModifier } from './validation';
 import { throwError } from './errors';
 import type { CreateCallbackProperties, UpdateCallbackProperties, AfterCreateCallbackProperties } from '../mutationCallbacks';
 import isEmpty from 'lodash/isEmpty';
 import pickBy from 'lodash/pickBy';
 import clone from 'lodash/clone';
+import mapValues from 'lodash/mapValues';
 
 /**
  * @deprecated Prefer to avoid using onCreate callbacks on fields for new collections.
@@ -244,3 +244,13 @@ export async function updateAndReturnDocument<N extends CollectionNameString>(
 
   return updatedDocument;
 }
+
+export const dataToModifier = <T extends Record<any, any>>(data: T): MongoModifier => ({
+  $set: pickBy(data, f => f !== null),
+  $unset: mapValues(pickBy(data, f => f === null), () => true),
+});
+
+export const modifierToData = (modifier: MongoModifier): any => ({
+  ...modifier.$set,
+  ...mapValues(modifier.$unset, () => null),
+});

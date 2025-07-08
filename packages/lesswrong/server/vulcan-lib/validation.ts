@@ -1,24 +1,12 @@
-import pickBy from 'lodash/pickBy';
-import mapValues from 'lodash/mapValues';
 import { userCanCreateField, userCanUpdateField } from '../../lib/vulcan-users/permissions';
 import * as _ from 'underscore';
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
-import { getSimpleSchema } from '@/lib/schema/allSimpleSchemas';
+import { dataToModifier } from './mutators';
 
 interface SimpleSchemaValidationError {
   type: string;
   [key: string]: number | string;
 }
-
-export const dataToModifier = <T extends Record<any, any>>(data: T): MongoModifier => ({ 
-  $set: pickBy(data, f => f !== null), 
-  $unset: mapValues(pickBy(data, f => f === null), () => true),
-});
-
-export const modifierToData = (modifier: MongoModifier): any => ({
-  ...modifier.$set,
-  ...mapValues(modifier.$unset, () => null),
-});
 
 /*
 
@@ -28,13 +16,14 @@ export const modifierToData = (modifier: MongoModifier): any => ({
   2. Run SimpleSchema validation step
 
 */
-export const validateDocument = <N extends CollectionNameString, D extends {} = CreateInputsByCollectionName[N]['data']>(
+export const validateDocument = async <N extends CollectionNameString, D extends {} = CreateInputsByCollectionName[N]['data']>(
   document: D,
   collectionName: N,
   context: ResolverContext,
 ) => {
   const { currentUser } = context;
-  const { getSchema }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
+  const { getSchema } = await import('../../lib/schema/allSchemas');
+  const { getSimpleSchema } = await import('@/lib/schema/allSimpleSchemas');
 
   const schema = getSchema(collectionName);
 
@@ -92,7 +81,7 @@ export const validateDocument = <N extends CollectionNameString, D extends {} = 
   2. Run SimpleSchema validation step
   
 */
-const validateModifier = <N extends CollectionNameString>(
+const validateModifier = async <N extends CollectionNameString>(
   modifier: MongoModifier,
   document: any,
   collectionName: N,
@@ -100,7 +89,8 @@ const validateModifier = <N extends CollectionNameString>(
 ) => {
   const { currentUser } = context;
 
-  const { getSchema }: typeof import('../../lib/schema/allSchemas') = require('../../lib/schema/allSchemas');
+  const { getSchema } = await import('../../lib/schema/allSchemas');
+  const { getSimpleSchema } = await import('@/lib/schema/allSimpleSchemas');
 
   const schema = getSchema(collectionName);
   const set = modifier.$set;

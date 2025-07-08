@@ -33,7 +33,7 @@ export function makeGqlCreateMutation<
       throwError({ id: 'app.operation_not_allowed' });
     }
 
-    const validationErrors = validateDocument(args.data, collectionName, context);
+    const validationErrors = await validateDocument(args.data, collectionName, context);
     if (validationErrors.length) {
       throwError({ id: 'app.validation_error', data: { break: true, errors: validationErrors } });
     }
@@ -92,7 +92,7 @@ type UpdateFunc<N extends CollectionNameString, D extends CreateInputsByCollecti
       throwError({ id: 'app.operation_not_allowed', data: { documentId: id } });
     }
 
-    const validationErrors = validateData<N>(data, previewDocument, collectionName, context);
+    const validationErrors = await validateData<N>(data, previewDocument, collectionName, context);
     if (validationErrors.length) {
       const ValidationError = createError('app.validation_error', { message: JSON.stringify(validationErrors) });
       throw new ValidationError({ data: { break: true, errors: validationErrors } });

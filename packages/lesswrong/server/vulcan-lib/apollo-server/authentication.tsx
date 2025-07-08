@@ -5,7 +5,6 @@ import { getClientIP } from '@/server/utils/getClientIP';
 import Users from "../../../server/collections/users/collection";
 import { hashLoginToken, userIsBanned } from "../../loginTokens";
 import { LegacyData } from '../../../server/collections/legacyData/collection';
-import { emailTokenTypesByName } from "../../emails/emailTokens";
 import { wrapAndSendEmail } from '../../emails/renderEmail';
 import SimpleSchema from 'simpl-schema';
 import { DatabaseServerSetting } from "../../databaseSettings";
@@ -227,6 +226,8 @@ export const loginDataGraphQLMutations = {
     if (!email) throw Error("Email is required for resetting passwords")
     const user = await userFindOneByEmail(email)
     if (!user) throw Error("Can't find user with given email address")
+    const { emailTokenTypesByName } = await import("@/server/emails/emailTokens");
+
     const tokenLink = await emailTokenTypesByName.resetPassword.generateLink(user._id)
     const emailSucceeded = await wrapAndSendEmail({
       user,
