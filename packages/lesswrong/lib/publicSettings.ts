@@ -218,3 +218,5 @@ export const auth0FacebookLoginEnabled = new DatabasePublicSetting<boolean>(
 export const mapsAPIKeySetting = new DatabasePublicSetting<string | null>('googleMaps.apiKey', null);
 
 export const siteImageSetting = new DatabasePublicSetting<string>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg'); // An image used to represent the site on social media
+
+export const ultraFeedEnabledSetting = new DatabasePublicSetting<boolean>('ultraFeedEnabled', false);

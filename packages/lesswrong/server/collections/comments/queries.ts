@@ -266,7 +266,7 @@ export const graphqlCommentQueryTypeDefs = gql`
     authorIsUnreviewed: Boolean
     before: String
     after: String
-    shortformFrontpage: String
+    shortformFrontpage: Boolean
   }
   
   input CommentsShortformInput {

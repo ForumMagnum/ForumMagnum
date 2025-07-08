@@ -319,7 +319,10 @@ const UltraFeedSettings = ({
 
   const { ultraFeedSettingsViewMode, setUltraFeedSettingsViewMode } = useLocalStorageState('ultraFeedSettingsViewMode', (key) => key, initialViewMode);
   const viewMode = ultraFeedSettingsViewMode && ['simple', 'advanced'].includes(ultraFeedSettingsViewMode) ? ultraFeedSettingsViewMode : initialViewMode;
-  const setViewMode = (mode: 'simple' | 'advanced') => setUltraFeedSettingsViewMode(mode);
+  const setViewMode = (mode: 'simple' | 'advanced') => {
+    captureEvent("ultraFeedSettingsViewModeChanged", { from: viewMode, to: mode });
+    setUltraFeedSettingsViewMode(mode);
+  };
 
   const [simpleViewTruncationLevels, setSimpleViewTruncationLevels] = useState(() => 
     deriveSimpleViewTruncationLevelsFromSettings(settings)
@@ -574,8 +577,9 @@ const UltraFeedSettings = ({
   
   const handleReset = useCallback(() => {
     resetSettingsToDefault();
-    setZodErrors(null); 
-  }, [resetSettingsToDefault]);
+    setZodErrors(null);
+    captureEvent("ultraFeedSettingsReset");
+  }, [resetSettingsToDefault, captureEvent]);
 
   const truncationGridProps = {
     levels: simpleViewTruncationLevels,

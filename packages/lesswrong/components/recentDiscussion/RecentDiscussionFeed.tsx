@@ -22,6 +22,37 @@ import SectionTitle from "../common/SectionTitle";
 import { MixedTypeFeed } from "../common/MixedTypeFeed";
 import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
 import { RecentDiscussionFeedQuery } from '../common/feeds/feedQueries';
+import FeedSelectorDropdown from '../common/FeedSelectorCheckbox';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { isBookUI } from '@/themes/forumTheme';
+
+const styles = defineStyles("RecentDiscussionFeed", (theme: ThemeType) => ({
+  titleRow: {
+    display: 'flex',
+    columnGap: 10,
+    alignItems: 'center',
+    width: '100%',
+    ...(isBookUI && {
+      color: theme.palette.text.bannerAdOverlay,
+    }),
+  },
+  titleText: {
+  },
+  hiddenOnMobile: {
+    display: 'block',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
+  feedSelectorMobileContainer: {
+    marginBottom: 16,
+    display: 'none',
+    justifyContent: 'center',
+    [theme.breakpoints.down('sm')]: {
+      display: 'flex',
+    },
+  },
+}));
 
 const recentDisucssionFeedComponents = () => forumSelect({
   LWAF: {
@@ -52,6 +83,7 @@ const RecentDiscussionFeed = ({
   title?: string,
   shortformButton?: boolean,
 }) => {
+  const classes = useStyles(styles);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const [showShortformFeed, setShowShortformFeed] = useState(false);
   const refetchRef = useRef<null|ObservableQuery['refetch']>(null);
@@ -93,7 +125,14 @@ const RecentDiscussionFeed = ({
     <AnalyticsContext pageSectionContext="recentDiscussion">
       <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
         <SingleColumnSection>
-          <SectionTitle title={title} />
+          <SectionTitle title={title} titleClassName={classes.titleText}>
+            <div className={classes.hiddenOnMobile}>
+              <FeedSelectorDropdown currentFeedType="classic" />
+            </div>
+          </SectionTitle>
+          <div className={classes.feedSelectorMobileContainer}>
+            <FeedSelectorDropdown currentFeedType="classic" />
+          </div>
           <MixedTypeFeed
             query={RecentDiscussionFeedQuery}
             variables={{

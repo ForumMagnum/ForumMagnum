@@ -16,6 +16,7 @@ import { useModalHashLinkScroll, scrollToElementInContainer } from "../hooks/use
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { NetworkStatus } from "@apollo/client";
 import FootnoteDialog from '../linkPreview/FootnoteDialog';
+import { AnalyticsContext } from "@/lib/analyticsEvents";
 
 const CommentsListMultiQuery = gql(`
   query multiCommentUltraFeedCommentsDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -39,14 +40,6 @@ const PostsDetailsQuery = gql(`
 `);
 
 const styles = defineStyles("UltraFeedCommentsDialog", (theme: ThemeType) => ({
-  // Hide footnote poppers/tooltips inside the modal – primarily for footnote display issue but a general experiment
-  '@global': {
-    '@media (pointer: coarse)': {
-      '.LWPopper-root, .LWPopper-default, .LWPopper-tooltip': {
-        display: 'none !important',
-      },
-    },
-  },
   dialogContent: {
     padding: 0,
     height: '100%',
@@ -258,6 +251,7 @@ const UltraFeedCommentsDialog = ({
       fullWidth
       paperClassName={classes.dialogPaper}
     >
+      <AnalyticsContext pageModalContext="ultraFeedCommentsModal" postId={postId} commentId={targetCommentId}>
       <DialogContent className={classes.dialogContent}>
         <div className={classes.stickyHeader}>
           <ForumIcon 
@@ -305,6 +299,7 @@ const UltraFeedCommentsDialog = ({
           footnoteHTML={footnoteDialogHTML}
         />
       )}
+      </AnalyticsContext>
     </LWDialog>
   );
 };

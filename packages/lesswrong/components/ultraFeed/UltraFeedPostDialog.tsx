@@ -65,14 +65,6 @@ const UltraFeedPostFragmentQuery = gql(`
 `);
 
 const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
-  // Hide footnote poppers/tooltips inside the modal – primarily for footnote display issue but a general experiment
-  '@global': {
-    '@media (pointer: coarse)': {
-      '.LWPopper-root, .LWPopper-default, .LWPopper-tooltip': {
-        display: 'none !important',
-      },
-    },
-  },
   dialogContent: {
     padding: 0,
     height: '100%',
@@ -507,6 +499,8 @@ const UltraFeedPostDialog = ({
     e.preventDefault();
     e.stopPropagation();
     
+    captureEvent("ultraFeedPostDialogScrollToComments");
+    
     const container = scrollableContentRef.current;
     // Look for the comments section wrapper which always exists
     const commentsElement = document.getElementById('commentsSection');
@@ -542,6 +536,7 @@ const UltraFeedPostDialog = ({
       onClick={(e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
+        captureEvent("ultraFeedPostDialogToCToggled", { open: !navigationOpen });
         setNavigationOpen(prev => !prev);
       }}
       className={classes.hamburgerIcon}
@@ -558,6 +553,7 @@ const UltraFeedPostDialog = ({
       paperClassName={classes.dialogPaper}
       className={classes.modalWrapper}
     >
+      <AnalyticsContext pageModalContext="ultraFeedPostModal" postId={postId ?? post?._id}>
       <DialogContent className={classes.dialogContent}>
         <div ref={dialogInnerRef} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           {!displayPost && (
@@ -732,6 +728,7 @@ const UltraFeedPostDialog = ({
           footnoteHTML={footnoteDialogHTML}
         />
       )}
+      </AnalyticsContext>
     </LWDialog>
   );
 };
