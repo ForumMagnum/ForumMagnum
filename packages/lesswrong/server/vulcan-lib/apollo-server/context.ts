@@ -14,6 +14,7 @@ import { asyncLocalStorage } from '../../perfMetrics';
 import type { NextRequest } from 'next/server';
 import { prepareClientId } from '@/server/clientIdMiddleware';
 import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';
+import { unstable_cache } from 'next/cache';
 
 
 export const getUser = async (loginToken: string|null): Promise<DbUser|null> => {
@@ -140,11 +141,13 @@ export function configureSentryScope(context: ResolverContext) {
   }
 }
 
+const getCachedUser = unstable_cache(getUser, undefined, { revalidate: 5 });
+
 export const getUserFromReq = async (req: NextRequest): Promise<DbUser|null> => {
   // We check both cookies and headers, because requests from the browser come with cookies,
   // but requests made by the apollo client (even during SSR) have to send it via header
   const loginToken = req.cookies.get('loginToken')?.value ?? req.headers.get('loginToken') ?? null;
-  return getUser(loginToken);
+  return getCachedUser(loginToken);
 }
 
 export async function getContextFromReqAndRes({req, isSSR}: {
