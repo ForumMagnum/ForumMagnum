@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useLocation } from '../../lib/routeUtil';
 import qs from 'qs';
 import omit from 'lodash/omit';
 
@@ -19,15 +20,14 @@ export const useDialogNavigation = (
   queryParam?: { key: string; value: string | null }
 ) => {
   const isClosingViaBackRef = useRef(false);
+  const { query, pathname, hash } = useLocation();
 
   useEffect(() => {
-    const currentQuery = qs.parse(window.location.search.slice(1));
-    
     if (queryParam?.value) {
-      if (currentQuery[queryParam.key] !== queryParam.value) {
-        const newQuery = { ...currentQuery, [queryParam.key]: queryParam.value };
+      if (query[queryParam.key] !== queryParam.value) {
+        const newQuery = { ...query, [queryParam.key]: queryParam.value };
         const search = qs.stringify(newQuery);
-        const newUrl = `${window.location.pathname}${search ? `?${search}` : ''}${window.location.hash}`;
+        const newUrl = `${pathname}${search ? `?${search}` : ''}${hash}`;
         window.history.pushState({ dialogOpen: true }, '', newUrl);
       }
     } else if (!queryParam) {
@@ -36,6 +36,7 @@ export const useDialogNavigation = (
 
     const handlePopState = () => {
       if (queryParam) {
+        // Need to check actual URL state at time of popstate event
         const currentQuery = qs.parse(window.location.search.slice(1));
         if (!currentQuery[queryParam.key]) {
           isClosingViaBackRef.current = true;
@@ -57,6 +58,7 @@ export const useDialogNavigation = (
       
       if (!isClosingViaBackRef.current) {
         if (queryParam) {
+          // Get current URL state at cleanup time
           const currentQuery = qs.parse(window.location.search.slice(1));
           const queryWithoutParam = omit(currentQuery, queryParam.key);
           const search = qs.stringify(queryWithoutParam);
