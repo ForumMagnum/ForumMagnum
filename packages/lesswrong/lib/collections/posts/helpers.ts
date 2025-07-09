@@ -39,7 +39,6 @@ interface LinkpostDetectionResult {
   linkpostDomain?: string;
 }
 
-// Simple URL parsing helper to avoid circular dependencies
 const parseUrlHostname = (url: string): string | undefined => {
   try {
     const urlWithProtocol = url.slice(0, 4) === 'http' ? url : `https://${url}`;
