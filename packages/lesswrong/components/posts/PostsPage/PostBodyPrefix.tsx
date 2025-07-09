@@ -15,7 +15,7 @@ import LWTooltip from "../../common/LWTooltip";
 import { ContentItemBody } from "../../contents/ContentItemBody";
 import ContentStyles from "../../common/ContentStyles";
 import PostPageReviewButton from "./PostPageReviewButton";
-import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from '@/lib/collections/posts/helpers';
+import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from '@/components/posts/PostsPage/LWPostsPageHeader';
 
 const shortformDraftMessage = isFriendlyUI
   ? "This is a special post that holds your quick takes. Because it's marked as a draft, your quick takes will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish."

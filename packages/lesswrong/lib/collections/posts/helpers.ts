@@ -35,8 +35,6 @@ export const postGetLinkTarget = function (post: PostsBase|DbPost): string {
   return !!post.url ? '_blank' : '';
 };
 
-export const BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD = 800;
-
 interface LinkpostDetectionResult {
   isLinkpost: boolean;
   linkpostDomain?: string;

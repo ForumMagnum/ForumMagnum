@@ -3,7 +3,7 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import classNames from 'classnames';
-import { postGetLink, postGetLinkTarget, detectLinkpost, BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from '@/lib/collections/posts/helpers';
+import { postGetLink, postGetLinkTarget, detectLinkpost, parseUnsafeUrl } from '@/lib/collections/posts/helpers';
 import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
 import ReviewPillContainer from './BestOfLessWrong/ReviewPillContainer';
 import PostsTopSequencesNav, { titleStyles } from './PostsTopSequencesNav';
@@ -28,6 +28,7 @@ import LWCommentCount from "../TableOfContents/LWCommentCount";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 
 export const LW_POST_PAGE_PADDING = 110;
+export const BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD = 800;
 
 const styles = (theme: ThemeType) => ({
   root: {

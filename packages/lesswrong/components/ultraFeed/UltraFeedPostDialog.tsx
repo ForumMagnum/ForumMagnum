@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { Link } from "../../lib/reactRouterWrapper";
-import { postGetPageUrl, postGetLink, postGetLinkTarget, detectLinkpost, BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from "@/lib/collections/posts/helpers";
+import { postGetPageUrl, postGetLink, postGetLinkTarget, detectLinkpost } from "@/lib/collections/posts/helpers";
+import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from "@/components/posts/PostsPage/LWPostsPageHeader";
 import LWDialog from "../common/LWDialog";
 import FeedContentBody from "./FeedContentBody";
 import Loading from "../vulcan-core/Loading";
@@ -456,7 +457,7 @@ const UltraFeedPostDialog = ({
   const votingSystem = getVotingSystemByName(displayPost.votingSystem || 'default');
 
   const { isLinkpost, linkpostDomain } = detectLinkpost(displayPost);
-  const aboveLinkpostThreshold = displayPost.contents?.wordCount && displayPost.contents?.wordCount > BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD;
+  const aboveLinkpostThreshold = displayPost.contents?.wordCount && displayPost.contents?.wordCount >= BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD;
   const linkpostTooltip = <div>View the original at:<br/>{displayPost.url}</div>;
 
   const toggleEmbeddedPlayer = displayPost && postHasAudioPlayer(displayPost) ? (e: React.MouseEvent) => {
