@@ -4,8 +4,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import classNames from 'classnames';
 import { parseUnsafeUrl } from './PostsPagePostHeader';
-import { postGetLink, postGetLinkTarget } from '@/lib/collections/posts/helpers';
-import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './PostBodyPrefix';
+import { postGetLink, postGetLinkTarget, detectLinkpost } from '@/lib/collections/posts/helpers';
 import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
 import ReviewPillContainer from './BestOfLessWrong/ReviewPillContainer';
 import PostsTopSequencesNav, { titleStyles } from './PostsTopSequencesNav';
@@ -248,13 +247,9 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
   // TODO: If we are not the primary author of this post, but it was shared with
   // us as a draft, display a notice and a link to the collaborative editor.
 
-  const { hostname: linkpostDomain } = post.url
-    ? parseUnsafeUrl(post.url)
-    : { hostname: undefined };
-
+  const { isLinkpost, linkpostDomain } = detectLinkpost(post, feedLinkDomain);
   const linkpostTooltip = <div>View the original at:<br/>{post.url}</div>;
-  const displayLinkpost = post.url && feedLinkDomain !== linkpostDomain && (post.contents?.wordCount ?? 0) >= BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD;
-  const linkpostNode = displayLinkpost ? <LWTooltip title={linkpostTooltip}>
+  const linkpostNode = isLinkpost && linkpostDomain ? <LWTooltip title={linkpostTooltip}>
     <a href={postGetLink(post)} target={postGetLinkTarget(post)}>
       Linkpost from {linkpostDomain}
     </a>

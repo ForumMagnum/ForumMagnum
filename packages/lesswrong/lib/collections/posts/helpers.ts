@@ -32,6 +32,47 @@ export const postGetLinkTarget = function (post: PostsBase|DbPost): string {
   return !!post.url ? '_blank' : '';
 };
 
+export const BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD = 800;
+
+interface LinkpostDetectionResult {
+  isLinkpost: boolean;
+  linkpostDomain?: string;
+}
+
+// Simple URL parsing helper to avoid circular dependencies
+const parseUrlHostname = (url: string): string | undefined => {
+  try {
+    const urlWithProtocol = url.slice(0, 4) === 'http' ? url : `https://${url}`;
+    return new URL(urlWithProtocol).hostname;
+  } catch {
+    return undefined;
+  }
+};
+
+// Detect if a post is a linkpost and get the domain
+export const detectLinkpost = (
+  post: { url?: string | null; contents?: { wordCount?: number | null } | null },
+  rssFeedDomain?: string | null
+): LinkpostDetectionResult => {
+  if (!post.url) {
+    return { isLinkpost: false };
+  }
+
+  const linkpostDomain = parseUrlHostname(post.url);
+  const wordCount = post.contents?.wordCount ?? 0;
+  
+  if (wordCount < BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD) {
+    return { isLinkpost: false, linkpostDomain };
+  }
+
+  if (rssFeedDomain) {
+    const isLinkpost = linkpostDomain !== rssFeedDomain;
+    return { isLinkpost, linkpostDomain };
+  }
+
+  return { isLinkpost: true, linkpostDomain };
+};
+
 ///////////////////
 // Other Helpers //
 ///////////////////

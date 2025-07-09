@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef, useEffect, useMemo } from "react"
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { postGetPageUrl, postGetLink, postGetLinkTarget, detectLinkpost } from "@/lib/collections/posts/helpers";
 import { FeedPostMetaInfo, FeedItemSourceType } from "./ultraFeedTypes";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
@@ -37,6 +37,7 @@ import { UltraFeedCommentItem } from "./UltraFeedCommentItem";
 import type { FeedCommentMetaInfo } from "./ultraFeedTypes";
 import PostsUserAndCoauthors from "../posts/PostsUserAndCoauthors";
 import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
+import ForumIcon from "../common/ForumIcon";
 
 const localPostQuery = gql(`
   query LocalPostQuery($documentId: String!) {
@@ -240,7 +241,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     order: 1,
-    gap: '8px',
+    gap: '4px',
     [theme.breakpoints.down('sm')]: {
       order: 3,
       flexShrink: 0,
@@ -302,6 +303,8 @@ const UltraFeedPostItemHeader = ({
     .filter(({ source }) => sources.includes(source))
     .map(({ source, icon, tooltip }) => ({ icon, tooltip, key: source }));
 
+  const { isLinkpost, linkpostDomain } = detectLinkpost(post);
+
   return (
     <div className={classes.header}>
       <div className={classes.titleContainer}>
@@ -333,6 +336,13 @@ const UltraFeedPostItemHeader = ({
               </span>
             </LWTooltip>
           ))}
+          {isLinkpost && (
+            <LWTooltip title={`Linkpost from ${linkpostDomain}`} placement="top">
+              <a href={postGetLink(post)} target={postGetLinkTarget(post)} onClick={(e) => e.stopPropagation()}>
+                <ForumIcon icon="Link" className={classes.sourceIcon} />
+              </a>
+            </LWTooltip>
+          )}
         </div>
         <div className={classes.desktopTripleDotWrapper}>
           <AnalyticsContext pageElementContext="tripleDotMenu">
