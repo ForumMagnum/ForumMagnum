@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useMemo } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
@@ -94,13 +94,13 @@ const RecentDiscussionFeed = ({
   const currentUser = useCurrentUser();
   const expandAll = currentUser?.noCollapseCommentsFrontpage || expandAllThreads
   
-  const [sessionId] = useState<string>(() => {
+  const sessionId = useMemo<string>(() => {
     if (typeof window === 'undefined') return randomId();
     const storage = window.sessionStorage;
     const currentId = storage ? storage.getItem('recentDiscussionSessionId') ?? randomId() : randomId();
     storage.setItem('recentDiscussionSessionId', currentId);
     return currentId;
-  });
+  }, []);
 
   useGlobalKeydown(event => {
     const F_Key = 70
