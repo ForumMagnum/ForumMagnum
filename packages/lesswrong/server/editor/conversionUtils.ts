@@ -4,18 +4,12 @@ import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../draftConvert';
 import { captureException } from '@sentry/core';
 import type TurndownService from 'turndown';
-import markdownIt from 'markdown-it'
-import markdownItMathjax from './markdown-mathjax'
-import markdownItContainer from 'markdown-it-container'
-import markdownItFootnote from 'markdown-it-footnote'
-import markdownItSub from 'markdown-it-sub'
-import markdownItSup from 'markdown-it-sup'
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { cheerioParse } from '../utils/htmlUtil';
 import { sanitize } from '../../lib/vulcan-lib/utils';
 import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import escape from 'lodash/escape';
-import { markdownCollapsibleSections } from './markdownCollapsibleSections';
+import { getMarkdownIt } from '@/lib/utils/markdownItPlugins';
 
 let _turndownService: TurndownService|null = null;
 function getTurndown(): TurndownService {
@@ -79,14 +73,6 @@ function getTurndown(): TurndownService {
   }
   return _turndownService;
 }
-
-const mdi = markdownIt({linkify: true})
-mdi.use(markdownItMathjax())
-mdi.use(markdownItContainer as AnyBecauseHard, 'spoiler')
-mdi.use(markdownItFootnote)
-mdi.use(markdownItSub)
-mdi.use(markdownItSup)
-mdi.use(markdownCollapsibleSections);
 
 export function mjPagePromise(html: string, beforeSerializationCallback: (dom: any, css: string) => any): Promise<string> {
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
@@ -274,7 +260,7 @@ export function ckEditorMarkupToMarkdown(markup: string): string {
 
 export function markdownToHtmlNoLaTeX(markdown: string): string {
   const id = randomId()
-  const renderedMarkdown = mdi.render(markdown, {docId: id})
+  const renderedMarkdown = getMarkdownIt().render(markdown, {docId: id})
   return trimLeadingAndTrailingWhiteSpace(renderedMarkdown)
 }
 
