@@ -132,7 +132,6 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
         maxWidth: '100%',
         gap: '4px',
         position: 'relative',
-        zIndex: 3,
         order: 1,
         marginBottom: 12,
       },
