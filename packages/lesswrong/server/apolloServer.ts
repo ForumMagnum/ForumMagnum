@@ -1,6 +1,5 @@
 import { ApolloServer, ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from '@apollo/server';
 import { expressMiddleware } from '@as-integrations/express5';
-import { makeExecutableSchema } from '@graphql-tools/schema';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import { handleRequest } from './rendering/renderPage';
 import cors from 'cors';
@@ -40,7 +39,7 @@ import { getSqlClientOrThrow } from './sql/sqlClient';
 import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
 import { getCommandLineArguments } from './commandLine';
 import { isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
-import { resolvers, typeDefs } from './vulcan-lib/apollo-server/initGraphQL';
+import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
 import express from 'express';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 import { botProtectionCommentRedirectSetting } from './databaseSettings';
@@ -163,7 +162,7 @@ export async function startWebserver() {
     introspection: true,
     includeStacktraceInErrorResponses: isDevelopment,
     
-    schema: makeExecutableSchema({ typeDefs, resolvers }),
+    schema: getExecutableSchema(),
     formatError: (e): GraphQLFormattedError => {
       Sentry.captureException(new GraphQLError(e.message, e));
       const {message, ...properties} = e;
