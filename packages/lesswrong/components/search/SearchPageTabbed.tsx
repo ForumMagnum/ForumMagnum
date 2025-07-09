@@ -37,6 +37,7 @@ import ExpandedSequencesSearchHit from "./ExpandedSequencesSearchHit";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import LWDialog from '../common/LWDialog';
+import HeadTags from '../common/HeadTags';
 
 const hitsPerPage = 10
 
@@ -369,6 +370,7 @@ const SearchPageTabbed = ({classes}: {
   const HitComponent = hitComponents[tab]
 
   return <div className={classes.root}>
+    <HeadTags title="Search" canonicalUrl='/search' />
     <InstantSearch
       indexName={getElasticIndexNameWithSorting(tab, sorting)}
       searchClient={getSearchClient({emptyStringSearchResults: "default"})}
