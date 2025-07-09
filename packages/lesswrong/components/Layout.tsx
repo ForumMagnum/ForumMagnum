@@ -399,6 +399,12 @@ const Layout = ({currentUser, children}: {
                   )
                 }
                 <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
+                <link
+                  rel="sitemap"
+                  type="application/xml"
+                  title="Sitemap"
+                  href="/sitemap.xml"
+                />
               </Helmet>
 
               <AnalyticsClient/>

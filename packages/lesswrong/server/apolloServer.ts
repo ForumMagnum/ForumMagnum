@@ -62,6 +62,7 @@ import { makeAbsolute, urlIsAbsolute, getSiteUrl } from '@/lib/vulcan-lib/utils'
 import { faviconUrlSetting, isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
 import { resolvers, typeDefs } from './vulcan-lib/apollo-server/initGraphQL';
 import { botProtectionCommentRedirectSetting } from './databaseSettings';
+import { getSitemapWithCache } from './sitemap';
 
 /**
  * End-to-end tests automate interactions with the page. If we try to, for
@@ -255,6 +256,13 @@ export function startWebserver() {
   app.use('/graphql', express.text({ type: 'application/graphql' }));
   app.use('/graphql', clientIdMiddleware, perfMetricMiddleware);
   apolloServer.applyMiddleware({ app })
+
+  addStaticRoute("/sitemap.xml", async (_props, _req, res, _next) => {
+    const sitemap = await getSitemapWithCache();
+    res.setHeader("Content-Type", "text/xml");
+    res.write(sitemap);
+    res.end();
+  });
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
     const {hash: bundleHash, content: bundleBuffer, brotli: bundleBrotliBuffer} = getClientBundle().resource;

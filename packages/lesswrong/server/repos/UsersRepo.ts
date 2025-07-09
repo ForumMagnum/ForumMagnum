@@ -688,6 +688,20 @@ class UsersRepo extends AbstractRepo<"Users"> {
       LIMIT $2
     `, [userId, limit]);
   }
+
+  async getSitemapUsers(): Promise<Pick<DbUser, "slug">[]> {
+    return this.getRawDb().any(`
+      -- UsersRepo.getSitemapUsers
+      SELECT "slug"
+      FROM "Users"
+      WHERE
+        NOT "noindex"
+        AND NOT "deleted"
+        AND "banned" IS NULL
+        AND "reviewedAt" IS NOT NULL
+      ORDER BY "createdAt" DESC
+    `);
+  }
 }
 
 recordPerfMetrics(UsersRepo, { excludeMethods: ['getUserByLoginToken', 'getActiveDialogues'] });
