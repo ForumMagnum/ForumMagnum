@@ -456,6 +456,7 @@ const UltraFeedPostDialog = ({
   const votingSystem = getVotingSystemByName(displayPost.votingSystem || 'default');
 
   const { isLinkpost, linkpostDomain } = detectLinkpost(displayPost);
+  const aboveLinkpostThreshold = displayPost.contents?.wordCount && displayPost.contents?.wordCount > BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD;
   const linkpostTooltip = <div>View the original at:<br/>{displayPost.url}</div>;
 
   const toggleEmbeddedPlayer = displayPost && postHasAudioPlayer(displayPost) ? (e: React.MouseEvent) => {
@@ -652,7 +653,7 @@ const UltraFeedPostDialog = ({
                             {displayPost.readTimeMinutes && (
                               <ReadTime post={displayPost} dialogueResponses={[]} />
                             )}
-                            {isLinkpost && linkpostDomain && (
+                            {isLinkpost && linkpostDomain && aboveLinkpostThreshold && (
                               <LWTooltip title={linkpostTooltip}>
                                 <a href={postGetLink(displayPost)} target={postGetLinkTarget(displayPost)} className={classes.linkpost}>
                                   Linkpost from {linkpostDomain}
@@ -669,7 +670,7 @@ const UltraFeedPostDialog = ({
 
                     {fullPostForContent && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPostForContent}/>}
 
-                    {displayPost && ((displayPost.contents?.wordCount ?? 0) < BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD) && (
+                    {displayPost && !aboveLinkpostThreshold && (
                       <LinkPostMessage post={displayPost} />
                     )}
 

@@ -3,8 +3,7 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import classNames from 'classnames';
-import { parseUnsafeUrl } from './PostsPagePostHeader';
-import { postGetLink, postGetLinkTarget, detectLinkpost } from '@/lib/collections/posts/helpers';
+import { postGetLink, postGetLinkTarget, detectLinkpost, BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from '@/lib/collections/posts/helpers';
 import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
 import ReviewPillContainer from './BestOfLessWrong/ReviewPillContainer';
 import PostsTopSequencesNav, { titleStyles } from './PostsTopSequencesNav';
@@ -249,7 +248,8 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
 
   const { isLinkpost, linkpostDomain } = detectLinkpost(post, feedLinkDomain);
   const linkpostTooltip = <div>View the original at:<br/>{post.url}</div>;
-  const linkpostNode = isLinkpost && linkpostDomain ? <LWTooltip title={linkpostTooltip}>
+  const shouldShowLinkpostText = isLinkpost && linkpostDomain && (post.contents?.wordCount ?? 0) >= BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD;
+  const linkpostNode = shouldShowLinkpostText ? <LWTooltip title={linkpostTooltip}>
     <a href={postGetLink(post)} target={postGetLinkTarget(post)}>
       Linkpost from {linkpostDomain}
     </a>
