@@ -43,16 +43,6 @@ export async function getRecommendedPostsForUltraFeed(
     
     const unviewedRatio = unviewedRecombeePostIds.length / limit;
     
-    // eslint-disable-next-line no-console
-    console.log("getRecommendedPostsForUltraFeed: Unviewed optimization", {
-      userId: currentUser._id,
-      requestedLimit: limit,
-      unviewedCount: unviewedRecombeePostIds.length,
-      unviewedRatio,
-      willSkipAPI: unviewedRatio >= UNVIEWED_RECOMBEE_CONFIG.skipFetchThreshold,
-      willReduceAPI: unviewedRatio >= UNVIEWED_RECOMBEE_CONFIG.reduceFetchThreshold
-    });
-    
     if (unviewedRatio >= UNVIEWED_RECOMBEE_CONFIG.skipFetchThreshold) {
       // We have enough cached items, return them directly
       const posts = await context.loaders.Posts.loadMany(unviewedRecombeePostIds.slice(0, limit));
