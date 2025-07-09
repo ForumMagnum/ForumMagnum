@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useMemo } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
@@ -25,6 +25,7 @@ import { RecentDiscussionFeedQuery } from '../common/feeds/feedQueries';
 import FeedSelectorDropdown from '../common/FeedSelectorCheckbox';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { isBookUI } from '@/themes/forumTheme';
+import { randomId } from '../../lib/random';
 
 const styles = defineStyles("RecentDiscussionFeed", (theme: ThemeType) => ({
   titleRow: {
@@ -89,6 +90,14 @@ const RecentDiscussionFeed = ({
   const refetchRef = useRef<null|ObservableQuery['refetch']>(null);
   const currentUser = useCurrentUser();
   const expandAll = currentUser?.noCollapseCommentsFrontpage || expandAllThreads
+  
+  const sessionId = useMemo<string>(() => {
+    if (typeof window === 'undefined') return randomId();
+    const storage = window.sessionStorage;
+    const currentId = storage ? storage.getItem('recentDiscussionSessionId') ?? randomId() : randomId();
+    storage.setItem('recentDiscussionSessionId', currentId);
+    return currentId;
+  }, []);
 
   useGlobalKeydown(event => {
     const F_Key = 70
@@ -122,7 +131,7 @@ const RecentDiscussionFeed = ({
     : undefined;
 
   return (
-    <AnalyticsContext pageSectionContext="recentDiscussion">
+    <AnalyticsContext pageSectionContext="recentDiscussion" recentDiscussionContext={{ sessionId }}>
       <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
         <SingleColumnSection>
           <SectionTitle title={title} titleClassName={classes.titleText}>
@@ -146,43 +155,50 @@ const RecentDiscussionFeed = ({
             refetchRef={refetchRef}
             renderers={{
               postCommented: {
-                render: (post: PostsRecentDiscussion) => (
+                render: (post: PostsRecentDiscussion, index: number) => (
                   <ThreadComponent
                     post={post}
                     refetch={refetch}
                     comments={post.recentComments ?? undefined}
                     expandAllThreads={expandAll}
+                    index={index}
                   />
                 )
               },
               shortformCommented: {
-                render: (post: ShortformRecentDiscussion) => (
+                render: (post: ShortformRecentDiscussion, index: number) => (
                   <ShortformComponent
                     post={post}
                     refetch={refetch}
                     comments={post.recentComments ?? undefined}
                     expandAllThreads={expandAll}
+                    index={index}
                   />
                 )
               },
               tagDiscussed: {
-                render: (tag: TagRecentDiscussion) => (
+                render: (tag: TagRecentDiscussion, index: number) => (
                   <TagCommentedComponent
                     tag={tag}
                     refetch={refetch}
                     comments={tag.recentComments}
                     expandAllThreads={expandAll}
+                    index={index}
                   />
                 )
               },
               tagRevised: {
-                render: (revision: RecentDiscussionRevisionTagFragment) => <div>
-                  {revision.tag && revision.documentId && <TagRevisionComponent
-                    tag={revision.tag}
-                    revision={revision}
-                    headingStyle="full"
-                    documentId={revision.documentId}
-                  />}
+                render: (revision: RecentDiscussionRevisionTagFragment, index: number) => <div>
+                  {revision.tag && revision.documentId && (
+                    <AnalyticsContext recentDiscussionCardIndex={index}>
+                      <TagRevisionComponent
+                        tag={revision.tag}
+                        revision={revision}
+                        headingStyle="full"
+                        documentId={revision.documentId}
+                      />
+                    </AnalyticsContext>
+                  )}
                 </div>,
               },
 

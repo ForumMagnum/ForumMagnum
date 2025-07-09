@@ -433,6 +433,7 @@ const UltraFeedItemFooterCore = ({
             other: false,
             text: '',
           },
+          sources: metaInfo?.sources,
           cancelled: false,
         }
       }
