@@ -3,15 +3,13 @@ import { randomId } from '../../lib/random';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../draftConvert';
 import { captureException } from '@sentry/core';
-import TurndownService from 'turndown';
-import {gfm} from 'turndown-plugin-gfm';
+import type TurndownService from 'turndown';
 import markdownIt from 'markdown-it'
 import markdownItMathjax from './markdown-mathjax'
 import markdownItContainer from 'markdown-it-container'
 import markdownItFootnote from 'markdown-it-footnote'
 import markdownItSub from 'markdown-it-sub'
 import markdownItSup from 'markdown-it-sup'
-import { mjpage }  from 'mathjax-node-page'
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { cheerioParse } from '../utils/htmlUtil';
 import { sanitize } from '../../lib/vulcan-lib/utils';
@@ -19,58 +17,68 @@ import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import escape from 'lodash/escape';
 import { markdownCollapsibleSections } from './markdownCollapsibleSections';
 
-export const turndownService = new TurndownService()
-turndownService.use(gfm); // Add support for strikethrough and tables
-turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
-turndownService.addRule('footnote-ref', {
-  filter: (node, options) => node.classList?.contains('footnote-reference'),
-  replacement: (content, node) => {
-    // Use the data-footnote-id attribute to get the footnote id
-    const id = (node as Element).getAttribute('data-footnote-id') || 'MISSING-ID'
-    return `[^${id}]`
-  }
-})
+let _turndownService: TurndownService|null = null;
+function getTurndown(): TurndownService {
+  if (!_turndownService) {
+    const TurndownService = require('turndown');
+    const {gfm} = require('turndown-plugin-gfm');
 
-turndownService.addRule('footnote', {
-  filter: (node, options) => node.classList?.contains('footnote-item'),
-  replacement: (content, node) => {
-    // Use the data-footnote-id attribute to get the footnote id
-    const id = (node as Element).getAttribute('data-footnote-id') || 'MISSING-ID'
-
-    // Get the content of the footnote by getting the content of the footnote-content div
-    const text = (node as Element).querySelector('.footnote-content')?.textContent || ''
-    return `[^${id}]: ${text} \n\n`
+    const turndownService: TurndownService = new TurndownService()
+    turndownService.use(gfm); // Add support for strikethrough and tables
+    turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
+    turndownService.addRule('footnote-ref', {
+      filter: (node, options) => node.classList?.contains('footnote-reference'),
+      replacement: (content, node) => {
+        // Use the data-footnote-id attribute to get the footnote id
+        const id = (node as Element).getAttribute('data-footnote-id') || 'MISSING-ID'
+        return `[^${id}]`
+      }
+    })
+    
+    turndownService.addRule('footnote', {
+      filter: (node, options) => node.classList?.contains('footnote-item'),
+      replacement: (content, node) => {
+        // Use the data-footnote-id attribute to get the footnote id
+        const id = (node as Element).getAttribute('data-footnote-id') || 'MISSING-ID'
+    
+        // Get the content of the footnote by getting the content of the footnote-content div
+        const text = (node as Element).querySelector('.footnote-content')?.textContent || ''
+        return `[^${id}]: ${text} \n\n`
+      }
+    })
+    turndownService.addRule('subscript', {
+      filter: ['sub'],
+      replacement: (content) => `~${content}~`
+    })
+    turndownService.addRule('supscript', {
+      filter: ['sup'],
+      replacement: (content) => `^${content}^`
+    })
+    turndownService.addRule('italic', {
+      filter: ['i'],
+      replacement: (content) => `*${content}*`
+    })
+    //If we have a math-tex block, we want to leave it as is without escaping it
+    turndownService.addRule('latex-spans', {
+      filter: (node, options) => node.classList?.contains('math-tex'),
+      replacement: (content) => {
+        // Leave the first three and last three characters alone, and then replace every escaped markdown control character with its unescaped version
+        return content.slice(0, 3) + content.slice(3, -3).replace(/\\([ \\!"#$%&'()*+,./:;<=>?@[\]^_`{|}~-])/g, '$1') + content.slice(-3)
+      }
+    })
+    
+    turndownService.addRule('collapsible-section-start', {
+      filter: (node, options) => node.classList?.contains('detailsBlockTitle'),
+      replacement: (content) => `+++ ${content.trim()}\n`
+    });
+    turndownService.addRule('collapsible-section-end', {
+      filter: (node, options) => node.classList?.contains('detailsBlock'),
+      replacement: (content) => `${content}\n+++`
+    });
+    _turndownService = turndownService;
   }
-})
-turndownService.addRule('subscript', {
-  filter: ['sub'],
-  replacement: (content) => `~${content}~`
-})
-turndownService.addRule('supscript', {
-  filter: ['sup'],
-  replacement: (content) => `^${content}^`
-})
-turndownService.addRule('italic', {
-  filter: ['i'],
-  replacement: (content) => `*${content}*`
-})
-//If we have a math-tex block, we want to leave it as is without escaping it
-turndownService.addRule('latex-spans', {
-  filter: (node, options) => node.classList?.contains('math-tex'),
-  replacement: (content) => {
-    // Leave the first three and last three characters alone, and then replace every escaped markdown control character with its unescaped version
-    return content.slice(0, 3) + content.slice(3, -3).replace(/\\([ \\!"#$%&'()*+,./:;<=>?@[\]^_`{|}~-])/g, '$1') + content.slice(-3)
-  }
-})
-
-turndownService.addRule('collapsible-section-start', {
-  filter: (node, options) => node.classList?.contains('detailsBlockTitle'),
-  replacement: (content) => `+++ ${content.trim()}\n`
-});
-turndownService.addRule('collapsible-section-end', {
-  filter: (node, options) => node.classList?.contains('detailsBlock'),
-  replacement: (content) => `${content}\n+++`
-});
+  return _turndownService;
+}
 
 const mdi = markdownIt({linkify: true})
 mdi.use(markdownItMathjax())
@@ -120,6 +128,7 @@ export function mjPagePromise(html: string, beforeSerializationCallback: (dom: a
       return beforeSerializationCallback(dom, css);
     };
 
+    const { mjpage } = require('mathjax-node-page')
     mjpage(html, { fragment: true, errorHandler, format: ["MathML", "TeX"] } , {html: true, css: true}, resolve)
       .on('beforeSerialization', callbackAndMarkFinished);
   })
@@ -255,12 +264,12 @@ export async function draftJSToHtmlWithLatex(draftJS: AnyBecauseTodo) {
 }
 
 export function htmlToMarkdown(html: string): string {
-  return turndownService.turndown(html)
+  return getTurndown().turndown(html)
 }
 
 export function ckEditorMarkupToMarkdown(markup: string): string {
   // Sanitized CKEditor markup is just html
-  return turndownService.turndown(sanitize(markup))
+  return getTurndown().turndown(sanitize(markup))
 }
 
 export function markdownToHtmlNoLaTeX(markdown: string): string {
