@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { Link } from "../../lib/reactRouterWrapper";
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { postGetPageUrl, postGetLink, postGetLinkTarget, detectLinkpost } from "@/lib/collections/posts/helpers";
+import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from "@/components/posts/PostsPage/LWPostsPageHeader";
 import LWDialog from "../common/LWDialog";
 import FeedContentBody from "./FeedContentBody";
 import Loading from "../vulcan-core/Loading";
@@ -22,7 +23,6 @@ import { useDynamicTableOfContents } from "../hooks/useDynamicTableOfContents";
 import PostFixedPositionToCHeading from '../posts/TableOfContents/PostFixedPositionToCHeading';
 import LWCommentCount from '../posts/TableOfContents/LWCommentCount';
 import { postPageTitleStyles } from "../posts/PostsPage/PostsPageTitle";
-import { isFriendlyUI, isBookUI } from '../../themes/forumTheme';
 import AudioToggle from '../posts/PostsPage/AudioToggle';
 import BookmarkButton from '../posts/BookmarkButton';
 import LWPostsPageTopHeaderVote from '../votes/LWPostsPageTopHeaderVote';
@@ -40,6 +40,8 @@ import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { NetworkStatus } from "@apollo/client";
 import UltraFeedPostFooter from "./UltraFeedPostFooter";
 import FootnoteDialog from '../linkPreview/FootnoteDialog';
+import LWTooltip from "../common/LWTooltip";
+import LinkPostMessage from "../posts/LinkPostMessage";
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300;
 
@@ -121,8 +123,7 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     alignItems: "baseline",
     columnGap: 20,
     rowGap: 6,
-    fontSize: isFriendlyUI ? theme.typography.body1.fontSize : '1.4rem',
-    fontWeight: isFriendlyUI ? 450 : undefined,
+    fontSize: '1.4rem',
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.text.dim3,
     [theme.breakpoints.down('sm')]: {
@@ -157,6 +158,14 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     minWidth: 0,
     overflow: 'hidden',
     whiteSpace: 'nowrap',
+  },
+  linkpost: {
+    fontSize: theme.typography.body2.fontSize,
+    textDecoration: 'none',
+    '&:hover': {
+      opacity: 0.7,
+      cursor: 'pointer',
+    }
   },
   scrollableContent: {
     flex: 1,
@@ -447,6 +456,10 @@ const UltraFeedPostDialog = ({
 
   const votingSystem = getVotingSystemByName(displayPost.votingSystem || 'default');
 
+  const { isLinkpost, linkpostDomain } = detectLinkpost(displayPost);
+  const aboveLinkpostThreshold = displayPost.contents?.wordCount && displayPost.contents?.wordCount >= BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD;
+  const linkpostTooltip = <div>View the original at:<br/>{displayPost.url}</div>;
+
   const toggleEmbeddedPlayer = displayPost && postHasAudioPlayer(displayPost) ? (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -641,6 +654,13 @@ const UltraFeedPostDialog = ({
                             {displayPost.readTimeMinutes && (
                               <ReadTime post={displayPost} dialogueResponses={[]} />
                             )}
+                            {isLinkpost && linkpostDomain && aboveLinkpostThreshold && (
+                              <LWTooltip title={linkpostTooltip}>
+                                <a href={postGetLink(displayPost)} target={postGetLinkTarget(displayPost)} className={classes.linkpost}>
+                                  Linkpost from {linkpostDomain}
+                                </a>
+                              </LWTooltip>
+                            )}
                             <div className={classes.mobileCommentCount} onClick={scrollToComments} style={{cursor: 'pointer'}}>
                               <LWCommentCount commentCount={displayPost.commentCount} label={false} />
                             </div>
@@ -650,6 +670,10 @@ const UltraFeedPostDialog = ({
                     </div>
 
                     {fullPostForContent && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPostForContent}/>}
+
+                    {displayPost && !aboveLinkpostThreshold && (
+                      <LinkPostMessage post={displayPost} />
+                    )}
 
                     {contentData && (
                       <>
