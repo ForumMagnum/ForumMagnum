@@ -11,7 +11,8 @@ import {
   getDenormalizedFieldOnUpdate,
   getForeignKeySqlResolver,
   getFillIfMissing,
-  throwIfSetToNull
+  throwIfSetToNull,
+  optionalUrlRegex
 } from "../../utils/schemaUtils";
 import {
   postCanEditHideCommentKarma,
@@ -3163,7 +3164,7 @@ const schema = {
       canUpdate: ["members"],
       canCreate: ["members"],
       validation: {
-        regEx: SimpleSchema.RegEx.Url,
+        regEx: optionalUrlRegex,
         optional: true,
       },
     },
@@ -3178,7 +3179,7 @@ const schema = {
       canUpdate: ["members"],
       canCreate: ["members"],
       validation: {
-        regEx: SimpleSchema.RegEx.Url,
+        regEx: optionalUrlRegex,
         optional: true,
       },
     },
@@ -3291,7 +3292,7 @@ const schema = {
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members"],
       validation: {
-        regEx: SimpleSchema.RegEx.Url,
+        regEx: optionalUrlRegex,
         optional: true,
       },
     },
@@ -3306,7 +3307,7 @@ const schema = {
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members"],
       validation: {
-        regEx: SimpleSchema.RegEx.Url,
+        regEx: optionalUrlRegex,
         optional: true,
       },
     },
@@ -3321,7 +3322,7 @@ const schema = {
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members"],
       validation: {
-        regEx: SimpleSchema.RegEx.Url,
+        regEx: optionalUrlRegex,
         optional: true,
       },
     },
