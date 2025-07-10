@@ -584,7 +584,9 @@ export const SpotlightItem = ({
               {spotlight.showAuthor && spotlightDocument?.user && <Typography variant='body2' className={classes.author}>
                 by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlightDocument?.user.slug)}>{spotlightDocument?.user.displayName}</Link>
               </Typography>}
-              {spotlight.documentType === 'Sequence' && <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />}
+              {spotlight.documentType === 'Sequence' && <SuspenseWrapper name="SpotlightStartOrContinueReading">
+                <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
+              </SuspenseWrapper>}
             </div>
             {/* note: if the height of SingleLineComment ends up changing, this will need to be updated */}
             {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer} style={{height: `calc(100% + ${(spotlightReviews.length ?? 0) * 30}px)`}}>
