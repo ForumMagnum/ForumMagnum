@@ -370,7 +370,7 @@ const SearchPageTabbed = ({classes}: {
   const HitComponent = hitComponents[tab]
 
   return <div className={classes.root}>
-    <HeadTags title="Search" canonicalUrl='/search' />
+    <HeadTags canonicalUrl='/search' />
     <InstantSearch
       indexName={getElasticIndexNameWithSorting(tab, sorting)}
       searchClient={getSearchClient({emptyStringSearchResults: "default"})}
