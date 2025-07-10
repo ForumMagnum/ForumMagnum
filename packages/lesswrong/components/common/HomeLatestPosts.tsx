@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useLocation } from '../../lib/routeUtil';
 import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
 import { FilterSettings } from '../../lib/filterSettings';
 import { useFilterSettings } from '../hooks/useFilterSettings';
@@ -113,7 +112,6 @@ const applyConstantFilters = (filterSettings: FilterSettings): FilterSettings =>
 }
 
 const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
-  const location = useLocation();
   const updateCurrentUser = useUpdateCurrentUser();
   const currentUser = useCurrentUser();
 
@@ -131,19 +129,15 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
     },
     captureOnMount: true,
   })
-  const { query } = location;
-  const limit = parseInt(query.limit) || defaultLimit;
-
   const now = useCurrentTime();
   const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get()*24, 'hours').startOf('hour').toISOString()
 
   const recentPostsTerms = {
-    ...query,
     filterSettings: applyConstantFilters(filterSettings),
     after: dateCutoff,
     view: "magic",
     forum: true,
-    limit:limit
+    limit: defaultLimit,
   } as const;
   
   const changeShowTagFilterSettingsDesktop = () => {

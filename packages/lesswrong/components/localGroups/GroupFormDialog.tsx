@@ -175,7 +175,6 @@ const LocalGroupForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
-      {displayedErrorComponent}
       <div className={classes.fieldWrapper}>
         <form.Field name="name">
           {(field) => (
@@ -396,6 +395,7 @@ const LocalGroupForm = ({
           />
         )}
       </form.Subscribe>
+      {displayedErrorComponent}
     </form>
   );
 };

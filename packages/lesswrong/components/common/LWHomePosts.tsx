@@ -608,17 +608,15 @@ const LWHomePosts = ({ children, }: {
     settings = recombeeSettingsElement;
   }
 
-  const limit = parseInt(query.limit) || defaultLimit;
   const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get()*24, 'hours').startOf('hour').toISOString();
 
-  const recentPostsTerms = {
-    ...query,
+  const recentPostsTerms: PostsViewTerms = {
     filterSettings,
     after: dateCutoff,
     view: "magic",
     forum: true,
-    limit:limit
-  } as const;
+    limit: defaultLimit
+  };
 
   return (
     // TODO: do we need capturePostItemOnMount here?
@@ -644,7 +642,7 @@ const LWHomePosts = ({ children, }: {
               {(selectedTab === 'forum-classic') && <AnalyticsContext feedType={selectedTab}>
                 <SuspenseWrapper
                   name="LWHomePosts-forum-classic"
-                  fallback={<PostsLoading placeholderCount={recentPostsTerms.limit+2} loadMore/>}
+                  fallback={<PostsLoading placeholderCount={defaultLimit+2} loadMore/>}
                 >
                   <HideRepeatedPostsProvider>
                     <WelcomePostItem repeatedPostsPrecedence={1} />

@@ -1238,6 +1238,7 @@ interface FeedCommentThread {
 interface FeedSpotlightItem {
   _id: string;
   spotlight: Spotlight | null;
+  post: Post | null;
 }
 
 interface UltraFeedQueryResults {
@@ -2074,7 +2075,7 @@ interface CommentsTopShortformInput {
   authorIsUnreviewed?: boolean | null;
   before?: string | null;
   after?: string | null;
-  shortformFrontpage?: string | null;
+  shortformFrontpage?: boolean | null;
 }
 
 interface CommentsShortformInput {

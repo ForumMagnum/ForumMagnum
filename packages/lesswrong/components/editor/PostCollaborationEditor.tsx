@@ -62,6 +62,7 @@ const PostCollaborationEditor = ({ classes }: {
       postId,
       linkSharingKey: key||"",
     },
+    skip: !postId,
     ssr: true,
   });
 
@@ -71,6 +72,9 @@ const PostCollaborationEditor = ({ classes }: {
   const post: PostsPage | undefined = data?.getLinkSharedPost ? { ...data.getLinkSharedPost, contents: null } : undefined;
   
   // Error handling and loading state
+  if (!postId) {
+    return <Error404 />
+  }
   if (error) {
     if (isMissingDocumentError(error)) {
       return <Error404 />

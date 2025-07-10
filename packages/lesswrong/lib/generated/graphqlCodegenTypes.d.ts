@@ -993,7 +993,7 @@ type CommentsTopShortformInput = {
   before?: InputMaybe<Scalars['String']['input']>;
   commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
-  shortformFrontpage?: InputMaybe<Scalars['String']['input']>;
+  shortformFrontpage?: InputMaybe<Scalars['Boolean']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -2527,6 +2527,7 @@ type FeedPost = {
 type FeedSpotlightItem = {
   __typename?: 'FeedSpotlightItem';
   _id: Scalars['String']['output'];
+  post?: Maybe<Post>;
   spotlight?: Maybe<Spotlight>;
 };
 
@@ -23072,6 +23073,23 @@ type UltraFeedCommentsDialogQueryVariables = Exact<{
 
 type UltraFeedCommentsDialogQuery = UltraFeedCommentsDialogQuery_Query;
 
+type SingleCommentForFeedbackQuery_comment_SingleCommentOutput_result_Comment = (
+  { __typename?: 'Comment' }
+  & UltraFeedComment
+);
+
+type SingleCommentForFeedbackQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: SingleCommentForFeedbackQuery_comment_SingleCommentOutput_result_Comment | null };
+
+type SingleCommentForFeedbackQuery_Query = { __typename?: 'Query', comment: SingleCommentForFeedbackQuery_comment_SingleCommentOutput | null };
+
+
+type SingleCommentForFeedbackQueryVariables = Exact<{
+  documentId: Scalars['String']['input'];
+}>;
+
+
+type SingleCommentForFeedbackQuery = SingleCommentForFeedbackQuery_Query;
+
 type createUltraFeedEventUltraFeedItemFooterMutation_createUltraFeedEvent_UltraFeedEventOutput_data_UltraFeedEvent = (
   { __typename?: 'UltraFeedEvent' }
   & UltraFeedEventsDefaultFragment
@@ -26413,7 +26431,12 @@ type FeedSpotlightFragment_FeedSpotlightItem_spotlight_Spotlight = (
   & SpotlightDisplay
 );
 
-type FeedSpotlightFragment = { __typename?: 'FeedSpotlightItem', _id: string, spotlight: FeedSpotlightFragment_FeedSpotlightItem_spotlight_Spotlight | null };
+type FeedSpotlightFragment_FeedSpotlightItem_post_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type FeedSpotlightFragment = { __typename?: 'FeedSpotlightItem', _id: string, spotlight: FeedSpotlightFragment_FeedSpotlightItem_spotlight_Spotlight | null, post: FeedSpotlightFragment_FeedSpotlightItem_post_Post | null };
 
 type multiPostsForAutocompleteQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }

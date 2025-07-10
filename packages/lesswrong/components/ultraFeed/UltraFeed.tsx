@@ -1,84 +1,156 @@
-import React, { useEffect } from 'react';
-import { registerComponent } from "../../lib/vulcan-lib/components";
-import { useCurrentUser } from '../common/withUser';
-import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { ULTRA_FEED_ENABLED_COOKIE, ULTRA_FEED_PAGE_VISITED_COOKIE } from '../../lib/cookies/cookies';
-import DeferRender from '../common/DeferRender';
-import { defineStyles, useStyles } from '../hooks/useStyles';
-import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
-import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
-import SingleColumnSection from "../common/SingleColumnSection";
+import React from 'react';
 import dynamic from 'next/dynamic';
+import { ultraFeedEnabledSetting } from '../../lib/instanceSettings';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import DeferRender from '../common/DeferRender';
+import SingleColumnSection from "../common/SingleColumnSection";
+import { useCurrentUser } from '../common/withUser';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
-  checkboxLabel: {
-    whiteSpace: 'nowrap',
-    justifyContent: 'center',
+  root: {
+    // Remove padding inserted by Layout.tsx to be flush with sides of screen
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: -8,
+      marginRight: -8,
+    },
   },
-  checkboxLabelAlwaysShow: {
-    fontSize: '1.8rem',
-    justifyContent: 'center',
+  feedComementItem: {
+    marginBottom: 16
   },
-  toggleContainer: {
+  sectionTitle: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  titleContainer: {
+    display: 'flex',
+    columnGap: 10,
+    alignItems: 'center',
+    color: theme.palette.text.bannerAdOverlay,
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: 8,
+    },
+  },
+  titleText: {
+  },
+  titleTextDesktop: {
+    display: 'inline',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
+  titleTextMobile: {
+    display: 'none',
+    marginLeft: 8,
+    [theme.breakpoints.down('sm')]: {
+      display: 'inline',
+    },
+  },
+  feedCheckboxAndSettingsContainer: {
     display: 'flex',
     justifyContent: 'flex-end',
-    marginLeft: 'auto',
-    marginBottom: 8,
-    marginRight: 8,
+    alignItems: 'center',
+    // gap: 24, // Add spacing between items
+  },
+  settingsButtonContainer: {
+    display: 'flex',
+    alignItems: 'center'
+  },
+  ultraFeedNewContentContainer: {
+  },
+  settingsContainer: {
+    marginBottom: 32,
+  },
+  hiddenOnDesktop: {
+    // because of conflicting styles (this is all temporary code anyhow)
+    display: 'none !important',
+    [theme.breakpoints.down('sm')]: {
+      display: 'block !important',
+    },
+  },
+  hiddenOnMobile: {
+    display: 'block',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
+  composerButton: {
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'flex',
+      position: 'fixed',
+      bottom: 18,
+      right: 18,
+      width: 42,
+      height: 42,
+      borderRadius: 8,
+      backgroundColor: theme.palette.primary.main,
+      color: theme.palette.text.alwaysWhite,
+      alignItems: 'center',
+      justifyContent: 'center',
+      boxShadow: theme.palette.boxShadow.default,
+      cursor: 'pointer',
+      zIndex: theme.zIndexes.intercomButton,
+      '&:hover': {
+        backgroundColor: theme.palette.primary.dark,
+      },
+      '&:active': {
+        transform: 'scale(0.95)',
+      },
+    },
+  },
+  composerIcon: {
+    fontSize: 24,
+  },
+  disabledMessage: {
+    textAlign: 'center',
+    padding: 40,
+    ...theme.typography.body1,
+    color: theme.palette.text.dim,
+  },
+  titleLink: {
+    color: 'inherit',
+    '&:hover': {
+      color: 'inherit',
+      opacity: 0.8,
+    },
+  },
+  feedSelectorMobileContainer: {
+    // marginTop: 8,
+    marginBottom: 16,
+    display: 'flex',
+    justifyContent: 'center',
   },
 }));
 
-
-const UltraFeed = ({alwaysShow = false, onShowingChange}: {
+const UltraFeed = ({alwaysShow = false}: {
   alwaysShow?: boolean
-  onShowingChange?: (isShowing: boolean) => void
 }) => {
   const UltraFeedContent = dynamic(() => import('./UltraFeedContent'), { ssr: false });
   
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const [ultraFeedCookie, setUltraFeedCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
-  const [ultraFeedPageVisitedCookie] = useCookiesWithConsent([ULTRA_FEED_PAGE_VISITED_COOKIE]);
-
-  
-  const hasVisitedFeedPage = ultraFeedPageVisitedCookie[ULTRA_FEED_PAGE_VISITED_COOKIE] === "true";
-  const checkboxChecked = ultraFeedCookie[ULTRA_FEED_ENABLED_COOKIE] === "true";
-
-  const showFeed = (alwaysShow || checkboxChecked || userIsAdminOrMod(currentUser)) && !!currentUser;
-  const showCheckbox = (checkboxChecked || hasVisitedFeedPage || alwaysShow) && !!currentUser && !userIsAdminOrMod(currentUser);
-
-  useEffect(() => {
-    onShowingChange?.(showFeed);
-  }, [showFeed, onShowingChange]);
 
   if (!currentUser) {
     return null;
   }
 
-  const toggleUltraFeed = () => {
-    setUltraFeedCookie(ULTRA_FEED_ENABLED_COOKIE, String(!checkboxChecked), { path: "/" });
-  };
-
-  const checkBoxLabel = alwaysShow ? "Use New Feed on the frontpage (in place of Recent Discussion)" : "Use New Feed";
-  const labelClassName = alwaysShow ? classes.checkboxLabelAlwaysShow : classes.checkboxLabel;
+  if (!ultraFeedEnabledSetting.get()) {
+    return (
+      <SingleColumnSection>
+        <div className={classes.disabledMessage}>
+          The New Feed is currently disabled.
+        </div>
+      </SingleColumnSection>
+    );
+  }
 
   return (
     <>
-      {showCheckbox && <SingleColumnSection>
-          <div className={classes.toggleContainer}>
-            <SectionFooterCheckbox 
-            value={checkboxChecked} 
-            onClick={toggleUltraFeed} 
-            label={checkBoxLabel}
-            labelClassName={labelClassName}
-          />
-        </div>
-      </SingleColumnSection>}
-      {showFeed && (
-        <DeferRender ssr={false}>
-          <UltraFeedContent alwaysShow={alwaysShow} />
-        </DeferRender>
-      )}
+      <DeferRender ssr={false}>
+        <UltraFeedContent alwaysShow={alwaysShow} />
+      </DeferRender>
     </>
   );
 };

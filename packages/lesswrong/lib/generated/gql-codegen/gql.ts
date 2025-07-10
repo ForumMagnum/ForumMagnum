@@ -594,6 +594,7 @@ type Documents = {
     "\n  query multiUserUserPageTitleQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersMinimumInfo\n      }\n      totalCount\n    }\n  }\n": typeof types.multiUserUserPageTitleQueryDocument,
     "\n  query multiCommentUltraFeedCommentsDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentUltraFeedCommentsDialogQueryDocument,
     "\n  query UltraFeedCommentsDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsDetails\n      }\n    }\n  }\n": typeof types.UltraFeedCommentsDialogDocument,
+    "\n  query SingleCommentForFeedback($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...UltraFeedComment\n      }\n    }\n  }\n": typeof types.SingleCommentForFeedbackDocument,
     "\n  mutation createUltraFeedEventUltraFeedItemFooter($data: CreateUltraFeedEventDataInput!) {\n    createUltraFeedEvent(data: $data) {\n      data {\n        ...UltraFeedEventsDefaultFragment\n      }\n    }\n  }\n": typeof types.createUltraFeedEventUltraFeedItemFooterDocument,
     "\n  mutation createUltraFeedEventUltraFeedObserver($data: CreateUltraFeedEventDataInput!) {\n    createUltraFeedEvent(data: $data) {\n      data {\n        ...UltraFeedEventsDefaultFragment\n      }\n    }\n  }\n": typeof types.createUltraFeedEventUltraFeedObserverDocument,
     "\n  query multiCommentUltraFeedPostDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentUltraFeedPostDialogQueryDocument,
@@ -980,7 +981,7 @@ type Documents = {
     "\n  fragment SubscribedPostAndCommentsFeed on SubscribedPostAndComments {\n    _id\n    post {\n      ...PostsList\n    }\n    comments {\n      ...CommentsList\n    }\n    expandCommentIds\n    postIsFromSubscribedUser\n  }\n": typeof types.SubscribedPostAndCommentsFeedDoc,
     "\n  fragment FeedPostFragment on FeedPost {\n    _id\n    postMetaInfo\n    post {\n      ...PostsListWithVotes\n    }\n  }\n": typeof types.FeedPostFragmentDoc,
     "\n  fragment FeedCommentThreadFragment on FeedCommentThread {\n    _id\n    commentMetaInfos\n    comments {\n      ...UltraFeedComment\n    }\n  }\n": typeof types.FeedCommentThreadFragmentDoc,
-    "\n  fragment FeedSpotlightFragment on FeedSpotlightItem {\n    _id\n    spotlight {\n      ...SpotlightDisplay\n    }\n  }\n": typeof types.FeedSpotlightFragmentDoc,
+    "\n  fragment FeedSpotlightFragment on FeedSpotlightItem {\n    _id\n    spotlight {\n      ...SpotlightDisplay\n    }\n    post {\n      ...PostsListWithVotes\n    }\n  }\n": typeof types.FeedSpotlightFragmentDoc,
     "\n  query multiPostsForAutocompleteQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsForAutocomplete\n      }\n    }\n  }\n": typeof types.multiPostsForAutocompleteQueryDocument,
     "\n  query multiCommentsForAutocompleteQuery($input: MultiCommentInput) {\n    comments(input: $input) {\n      results {\n        ...CommentsForAutocomplete\n      }\n    }\n  }\n": typeof types.multiCommentsForAutocompleteQueryDocument,
     "\n  query multiCommentsForAutocompleteWithParentsQuery($input: MultiCommentInput) {\n    comments(input: $input) {\n      results {\n        ...CommentsForAutocompleteWithParents\n      }\n    }\n  }\n": typeof types.multiCommentsForAutocompleteWithParentsQueryDocument,
@@ -1586,6 +1587,7 @@ const documents: Documents = {
     "\n  query multiUserUserPageTitleQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersMinimumInfo\n      }\n      totalCount\n    }\n  }\n": types.multiUserUserPageTitleQueryDocument,
     "\n  query multiCommentUltraFeedCommentsDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": types.multiCommentUltraFeedCommentsDialogQueryDocument,
     "\n  query UltraFeedCommentsDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsDetails\n      }\n    }\n  }\n": types.UltraFeedCommentsDialogDocument,
+    "\n  query SingleCommentForFeedback($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...UltraFeedComment\n      }\n    }\n  }\n": types.SingleCommentForFeedbackDocument,
     "\n  mutation createUltraFeedEventUltraFeedItemFooter($data: CreateUltraFeedEventDataInput!) {\n    createUltraFeedEvent(data: $data) {\n      data {\n        ...UltraFeedEventsDefaultFragment\n      }\n    }\n  }\n": types.createUltraFeedEventUltraFeedItemFooterDocument,
     "\n  mutation createUltraFeedEventUltraFeedObserver($data: CreateUltraFeedEventDataInput!) {\n    createUltraFeedEvent(data: $data) {\n      data {\n        ...UltraFeedEventsDefaultFragment\n      }\n    }\n  }\n": types.createUltraFeedEventUltraFeedObserverDocument,
     "\n  query multiCommentUltraFeedPostDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": types.multiCommentUltraFeedPostDialogQueryDocument,
@@ -1972,7 +1974,7 @@ const documents: Documents = {
     "\n  fragment SubscribedPostAndCommentsFeed on SubscribedPostAndComments {\n    _id\n    post {\n      ...PostsList\n    }\n    comments {\n      ...CommentsList\n    }\n    expandCommentIds\n    postIsFromSubscribedUser\n  }\n": types.SubscribedPostAndCommentsFeedDoc,
     "\n  fragment FeedPostFragment on FeedPost {\n    _id\n    postMetaInfo\n    post {\n      ...PostsListWithVotes\n    }\n  }\n": types.FeedPostFragmentDoc,
     "\n  fragment FeedCommentThreadFragment on FeedCommentThread {\n    _id\n    commentMetaInfos\n    comments {\n      ...UltraFeedComment\n    }\n  }\n": types.FeedCommentThreadFragmentDoc,
-    "\n  fragment FeedSpotlightFragment on FeedSpotlightItem {\n    _id\n    spotlight {\n      ...SpotlightDisplay\n    }\n  }\n": types.FeedSpotlightFragmentDoc,
+    "\n  fragment FeedSpotlightFragment on FeedSpotlightItem {\n    _id\n    spotlight {\n      ...SpotlightDisplay\n    }\n    post {\n      ...PostsListWithVotes\n    }\n  }\n": types.FeedSpotlightFragmentDoc,
     "\n  query multiPostsForAutocompleteQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsForAutocomplete\n      }\n    }\n  }\n": types.multiPostsForAutocompleteQueryDocument,
     "\n  query multiCommentsForAutocompleteQuery($input: MultiCommentInput) {\n    comments(input: $input) {\n      results {\n        ...CommentsForAutocomplete\n      }\n    }\n  }\n": types.multiCommentsForAutocompleteQueryDocument,
     "\n  query multiCommentsForAutocompleteWithParentsQuery($input: MultiCommentInput) {\n    comments(input: $input) {\n      results {\n        ...CommentsForAutocompleteWithParents\n      }\n    }\n  }\n": types.multiCommentsForAutocompleteWithParentsQueryDocument,
@@ -4335,6 +4337,10 @@ export function gql(source: "\n  query UltraFeedCommentsDialog($documentId: Stri
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  query SingleCommentForFeedback($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...UltraFeedComment\n      }\n    }\n  }\n"): (typeof documents)["\n  query SingleCommentForFeedback($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...UltraFeedComment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  mutation createUltraFeedEventUltraFeedItemFooter($data: CreateUltraFeedEventDataInput!) {\n    createUltraFeedEvent(data: $data) {\n      data {\n        ...UltraFeedEventsDefaultFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createUltraFeedEventUltraFeedItemFooter($data: CreateUltraFeedEventDataInput!) {\n    createUltraFeedEvent(data: $data) {\n      data {\n        ...UltraFeedEventsDefaultFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -5879,7 +5885,7 @@ export function gql(source: "\n  fragment FeedCommentThreadFragment on FeedComme
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  fragment FeedSpotlightFragment on FeedSpotlightItem {\n    _id\n    spotlight {\n      ...SpotlightDisplay\n    }\n  }\n"): (typeof documents)["\n  fragment FeedSpotlightFragment on FeedSpotlightItem {\n    _id\n    spotlight {\n      ...SpotlightDisplay\n    }\n  }\n"];
+export function gql(source: "\n  fragment FeedSpotlightFragment on FeedSpotlightItem {\n    _id\n    spotlight {\n      ...SpotlightDisplay\n    }\n    post {\n      ...PostsListWithVotes\n    }\n  }\n"): (typeof documents)["\n  fragment FeedSpotlightFragment on FeedSpotlightItem {\n    _id\n    spotlight {\n      ...SpotlightDisplay\n    }\n    post {\n      ...PostsListWithVotes\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

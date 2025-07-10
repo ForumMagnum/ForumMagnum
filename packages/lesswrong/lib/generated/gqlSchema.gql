@@ -1389,6 +1389,7 @@ type FeedCommentThread {
 type FeedSpotlightItem {
   _id: String!
   spotlight: Spotlight
+  post: Post
 }
 
 type UltraFeedQueryResults {
@@ -2298,7 +2299,7 @@ input CommentsTopShortformInput {
   authorIsUnreviewed: Boolean
   before: String
   after: String
-  shortformFrontpage: String
+  shortformFrontpage: Boolean
 }
 
 input CommentsShortformInput {

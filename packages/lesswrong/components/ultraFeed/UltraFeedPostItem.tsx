@@ -81,17 +81,19 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   tripleDotMenu: {
     position: 'relative',
     bottom: 1,
+    color: theme.palette.ultraFeed.dim,
+    opacity: 0.7,
     "& svg": {
       fontSize: 18,
       cursor: "pointer",
-      color: theme.palette.text.dim,
     },
     [theme.breakpoints.down('sm')]: {
       position: 'absolute',
-      right: 2,
-      top: 5,
+      right: 16,
+      top: 12,
       padding: 5,
       marginLeft: 4,
+      zIndex: 10,
     },
   },
   header: {
@@ -244,17 +246,22 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
       flexShrink: 0,
     },
   },
-  desktopTripleDot: {
+  desktopTripleDotWrapper: {
     display: 'block',
     order: 4,
     [theme.breakpoints.down('sm')]: {
       display: 'none',
     },
   },
-  mobileTripleDot: {
+  mobileTripleDotWrapper: {
     display: 'none',
     [theme.breakpoints.down('sm')]: {
       display: 'block',
+      position: 'absolute',
+      right: -10,
+      top: 0,
+      height: 'auto',
+      width: 'auto',
     },
   },
 }));
@@ -327,7 +334,7 @@ const UltraFeedPostItemHeader = ({
             </LWTooltip>
           ))}
         </div>
-        <div className={classes.desktopTripleDot}>
+        <div className={classes.desktopTripleDotWrapper}>
           <AnalyticsContext pageElementContext="tripleDotMenu">
             <PostActionsButton
               post={post}
@@ -459,7 +466,6 @@ const UltraFeedPostItem = ({
     });
 
     captureEvent("ultraFeedPostItemExpanded", {
-      postId: post._id,
       expanded,
       wordCount,
     });
@@ -520,21 +526,6 @@ const UltraFeedPostItem = ({
     }
   }, [newComment, post]);
 
-  const handleViewAllComments = useCallback(() => {
-    captureEvent("ultraFeedPostItemViewAllCommentsClicked", {postId: post._id});
-    openDialog({
-      name: "commentsDialog",
-      closeOnNavigate: true,
-      contents: ({ onClose }) => (
-        <UltraFeedCommentsDialog 
-          document={post}
-          collectionName="Posts"
-          onClose={onClose}
-        />
-      )
-    });
-  }, [openDialog, post, captureEvent]);
-
   const replyConfig = useMemo(() => ({
     isReplying,
     onReplyClick: handleReplyClick,
@@ -542,8 +533,8 @@ const UltraFeedPostItem = ({
     onReplyCancel: handleReplyCancel,
   }), [isReplying, handleReplyClick, handleReplySubmit, handleReplyCancel]);
 
-  const handleOpenDialog = useCallback(() => {
-    captureEvent("ultraFeedPostItemTitleClicked", {postId: post._id});
+  const handleOpenDialog = useCallback((location: "title" | "content") => {
+    captureEvent("ultraFeedPostDialogOpened", { location });
     trackExpansion({
       documentId: post._id,
       documentType: 'post',
@@ -601,11 +592,11 @@ const UltraFeedPostItem = ({
   }
 
   return (
-    <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index}>
+    <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index} ultraFeedSources={postMetaInfo.sources}>
     <div className={classes.root}>
       <div ref={elementRef} className={classes.mainContent}>
         {/* On small screens, the triple dot menu is positioned absolutely to the root */}
-        <div className={classes.mobileTripleDot}>
+        <div className={classes.mobileTripleDotWrapper}>
           <AnalyticsContext pageElementContext="tripleDotMenu">
             <PostActionsButton
               post={post}
@@ -621,7 +612,7 @@ const UltraFeedPostItem = ({
           <UltraFeedPostItemHeader
             post={post}
             isRead={isRead}
-            handleOpenDialog={handleOpenDialog}
+            handleOpenDialog={() => handleOpenDialog("title")}
             sources={postMetaInfo.sources}
             isSeeLessMode={isSeeLessMode}
           />
@@ -641,7 +632,7 @@ const UltraFeedPostItem = ({
             maxWordCount={truncationParams.maxWordCount}
             wordCount={displayWordCount ?? 200}
             nofollow={(post.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-            onContinueReadingClick={handleOpenDialog}
+            onContinueReadingClick={() => handleOpenDialog("content")}
             onExpand={handleContentExpand}
             hideSuffix={loadingFullPost}
             resetSignal={resetSig}

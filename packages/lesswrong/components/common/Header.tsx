@@ -128,7 +128,7 @@ export const styles = (theme: ThemeType) => ({
           },
         } : {
           backgroundColor: theme.palette.header.background,
-          backdropFilter: 'unset',
+          backdropFilter: 'blur(4px)',
           "&$blackBackgroundAppBar": {
             boxShadow: theme.palette.boxShadow.appBar,
             background: theme.palette.header.background,

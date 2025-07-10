@@ -3,12 +3,10 @@ import AppGenerator from './AppGenerator';
 
 import { createApolloClient } from './apolloClient';
 import { fmCrosspostBaseUrlSetting } from "../lib/instanceSettings";
-import { populateComponentsAppDebug } from '@/lib/vulcan-lib/importAllComponents';
 import { initServerSentEvents } from "./serverSentEventsClient";
 import { hydrateRoot } from 'react-dom/client';
 
 export function hydrateClient() {
-  populateComponentsAppDebug();
   initServerSentEvents();
   const apolloClient = createApolloClient();
   apolloClient.prioritizeCacheValues = true;

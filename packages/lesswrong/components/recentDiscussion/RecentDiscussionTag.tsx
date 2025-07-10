@@ -10,10 +10,12 @@ import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import { useRecentDiscussionViewTracking } from './useRecentDiscussionViewTracking';
 import CommentsNodeInner from "../comments/CommentsNode";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import { maybeDate } from '@/lib/utils/dateUtils';
+import { AnalyticsContext, captureEvent } from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -70,16 +72,23 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = "DISCUSSION", classes }: {
+const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = "DISCUSSION", index, classes }: {
   tag: TagRecentDiscussion,
   refetch?: any,
   comments: Array<CommentsList>,
   expandAllThreads?: boolean
   tagCommentType?: TagCommentType,
+  index?: number,
   classes: ClassesType<typeof styles>
 }) => {
   const [truncated, setTruncated] = useState(true);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
+  
+  const viewTrackingRef = useRecentDiscussionViewTracking({
+    documentId: tag._id,
+    documentType: 'tag',
+    index,
+  });
   
   const lastCommentId = comments && comments[0]?._id
   const nestedComments = useOrderPreservingArray(unflattenComments(comments), (comment) => comment.item._id);
@@ -87,7 +96,14 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   const clickExpandDescription = useCallback(() => {
     setTruncated(false);
     setExpandAllThreads(true);
-  }, []);
+    
+    captureEvent("readMoreClicked", {
+      tagId: tag._id,
+      tagName: tag.name,
+      pageSectionContext: "recentDiscussion"
+    });
+  }, [tag._id, tag.name]);
+
   
   const descriptionHtml = tag.description?.html;
   const readMore = `<a>(${preferredHeadingCase("Read More")})</a>`;
@@ -106,44 +122,46 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   
   const metadataWording = tag.wikiOnly ? "Wiki page" : `${taggingNameCapitalSetting.get()} page - ${tag.postCount} posts`;
   
-  return <div className={classes.root}>
-    <div className={classes.tag}>
-      <Link to={tagGetDiscussionUrl(tag)} className={classes.title}>
-        {tag.name}
-      </Link>
-      
-      <div className={classes.metadata}>
-        <span>{metadataWording}</span>
-      </div>
-      
-      <div onClick={clickExpandDescription}>
-        <ContentStyles contentType="comment">
-          <ContentItemBody
-            dangerouslySetInnerHTML={{__html: maybeTruncatedDescriptionHtml||""}}
-            description={`tag ${tag.name}`}
-          />
-        </ContentStyles>
-      </div>
-    </div>
-    
-    {nestedComments.length ? <div className={classes.content}>
-      <div className={classes.commentsList}>
-        {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
-          <div key={comment.item._id}>
-            <CommentsNodeInner
-              treeOptions={commentTreeOptions}
-              startThreadTruncated={true}
-              expandAllThreads={initialExpandAllThreads || expandAllThreads}
-              nestingLevel={1}
-              comment={comment.item}
-              childComments={comment.children}
-              key={comment.item._id}
+  return <AnalyticsContext pageSubSectionContext='recentDiscussionTag' recentDiscussionCardIndex={index}>
+    <div ref={viewTrackingRef} className={classes.root}>
+      <div className={classes.tag}>
+        <Link to={tagGetDiscussionUrl(tag)} className={classes.title}>
+          {tag.name}
+        </Link>
+        
+        <div className={classes.metadata}>
+          <span>{metadataWording}</span>
+        </div>
+        
+        <div onClick={clickExpandDescription}>
+          <ContentStyles contentType="comment">
+            <ContentItemBody
+              dangerouslySetInnerHTML={{__html: maybeTruncatedDescriptionHtml||""}}
+              description={`tag ${tag.name}`}
             />
-          </div>
-        )}
+          </ContentStyles>
+        </div>
       </div>
-    </div> : null}
-  </div>
+      
+      {nestedComments.length ? <div className={classes.content}>
+        <div className={classes.commentsList}>
+          {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
+            <div key={comment.item._id}>
+              <CommentsNodeInner
+                treeOptions={commentTreeOptions}
+                startThreadTruncated={true}
+                expandAllThreads={initialExpandAllThreads || expandAllThreads}
+                nestingLevel={1}
+                comment={comment.item}
+                childComments={comment.children}
+                key={comment.item._id}
+              />
+            </div>
+          )}
+        </div>
+      </div> : null}
+    </div>
+  </AnalyticsContext>
 }
 
 export default registerComponent(

@@ -64,8 +64,8 @@ const EAHomeMainContent = ({FrontpageNode, classes}: {
 }) => {
   const [activeTab, setActiveTab] = useState<TopicsBarTab>(frontpageTab)
 
-  const topicPostTerms = {
-    ...tagPostTerms(activeTab, {}),
+  const topicPostTerms: PostsViewTerms = {
+    ...tagPostTerms(activeTab),
     sortedBy: 'magic',
     limit: 30
   }

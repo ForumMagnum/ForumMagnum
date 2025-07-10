@@ -21,9 +21,10 @@ export const userGetDisplayName = (user: UserDisplayNameInfo | null): string => 
   if (!user) {
     return "";
   } else {
-    return forumTypeSetting.get() === 'AlignmentForum' ? 
-      (user.fullName || user.displayName) ?? "" :
-      (user.displayName || getUserName(user)) ?? ""
+    return (forumTypeSetting.get() === 'AlignmentForum'
+      ? (user.fullName || user.displayName) ?? ""
+      : (user.displayName || getUserName(user)) ?? ""
+    ).trim();
   }
 };
 
