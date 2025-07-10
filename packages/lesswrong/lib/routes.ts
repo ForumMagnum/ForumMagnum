@@ -24,6 +24,7 @@ import { LocalgroupPageTitle } from '@/components/titles/LocalgroupPageTitle';
 import { TagPageTitle } from '@/components/tagging/TagPageTitle';
 import { PostsPageHeaderTitle } from '@/components/titles/PostsPageHeaderTitle';
 import { CommentLinkPreviewLegacy, PostCommentLinkPreviewGreaterWrong, PostLinkPreview, PostLinkPreviewLegacy, PostLinkPreviewSequencePost, PostLinkPreviewSlug, SequencePreview } from '@/components/linkPreview/PostLinkPreview';
+import { eaLegacyRedirects } from "./eaLegacyRedirects";
 import { TagHoverPreview } from '@/components/tagging/TagHoverPreview';
 import AdminGoogleServiceAccount from '@/components/admin/AdminGoogleServiceAccount';
 import AdminHome from '@/components/admin/AdminHome';
@@ -746,23 +747,11 @@ export function initLegacyRoutes() {
   );
 
   if (isEAForum) {
-    addRoute(
-      {
-        name: "givingPortal",
-        path: "/giving-portal",
-        redirect: () => "/posts/j6fmnYM5ZRu9fJyrq/donation-election-how-to-vote",
-      },
-      {
-        name: "whatSmallThingsCanEADo",
-        path: "/ea/7k/what_small_things_can_an_ea_do",
-        redirect: () => "https://www.effectivealtruism.org/take-action",
-      },
-      {
-        name: "introductionToEffectiveAltruism",
-        path: "/ea/6x/introduction_to_effective_altruism",
-        redirect: () => "https://www.effectivealtruism.org/articles/introduction-to-effective-altruism",
-      },
-    )
+    addRoute(...eaLegacyRedirects.map(({from, to}) => ({
+      name: `eaLegacyRedirect-${from}`,
+      path: from,
+      redirect: () => to,
+    })));
   }
 }
 
