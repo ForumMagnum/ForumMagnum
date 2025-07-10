@@ -76,7 +76,7 @@ const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<type
   const currentHideCommunity = (query.hideCommunity === 'true') || currentUser?.allPostsHideCommunity || false;
   return (
     <>
-      <HeadTags description={description} />
+      <HeadTags description={description} canonicalUrl='/allPosts' />
       <AnalyticsContext pageContext="allPostsPage">
         <SingleColumnSection>
         <DeferRender ssr={false}>

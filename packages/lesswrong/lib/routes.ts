@@ -24,6 +24,7 @@ import { LocalgroupPageTitle } from '@/components/titles/LocalgroupPageTitle';
 import { TagPageTitle } from '@/components/tagging/TagPageTitle';
 import { PostsPageHeaderTitle } from '@/components/titles/PostsPageHeaderTitle';
 import { CommentLinkPreviewLegacy, PostCommentLinkPreviewGreaterWrong, PostLinkPreview, PostLinkPreviewLegacy, PostLinkPreviewSequencePost, PostLinkPreviewSlug, SequencePreview } from '@/components/linkPreview/PostLinkPreview';
+import { eaLegacyRedirects } from "./eaLegacyRedirects";
 import { TagHoverPreview } from '@/components/tagging/TagHoverPreview';
 import AdminGoogleServiceAccount from '@/components/admin/AdminGoogleServiceAccount';
 import AdminHome from '@/components/admin/AdminHome';
@@ -250,8 +251,100 @@ if (isLW) {
       name: 'leaderboard',
       path: '/leaderboard',
       component: LeaderboardComponent,
-    }
-  )
+    },
+    // disabled except during review voting phase
+    {
+      name:'reviewVoting',
+      path: '/reviewVoting',
+      redirect: () => `/reviewVoting/${REVIEW_YEAR}`,
+    },
+    // {
+    //   name:'reviewVoting2019',
+    //   path: '/reviewVoting/2019',
+    //   title: "Voting 2019 Review",
+    //   component: ReviewVotingPage2019
+    // },
+    {
+      name:'reviewVotingByYear',
+      path: '/reviewVoting/:year',
+      title: "Review Voting",
+      component: AnnualReviewPage
+    },
+
+    {
+      name: 'reviewQuickPage',
+      path: '/reviewQuickPage',
+      redirect: () => `/quickReview/${REVIEW_YEAR}`
+    },
+
+    {
+      name: 'quickReview',
+      path: '/quickReview/:year',
+      component: AnnualReviewPage,
+      title: "Review Quick Page",
+      subtitle: "Quick Review Page"
+    },
+
+    {
+      name: 'quickReviewRedirect',
+      path: '/quickReview',
+      redirect: () => `/quickReview/${REVIEW_YEAR}`
+    },
+
+    {
+      name: "newLongformReviewForm",
+      path: '/newLongformReview',
+      title: "New Longform Review",
+      component: NewLongformReviewForm,
+    },
+
+    {
+      name: 'searchTest',
+      path: '/searchTest',
+      component: SearchBar
+    },
+
+    // Collections
+    {
+      name: 'collections',
+      path: '/collections/:_id',
+      component: CollectionsSingle,
+      hasLeftNavigationColumn: isLW,
+      navigationFooterBar: true,
+    },
+    {
+      name: 'highlights',
+      path: '/highlights',
+      title: "Sequences Highlights",
+      component: SequencesHighlightsCollection
+    },
+    {
+      name: 'highlights.posts.single',
+      path: '/highlights/:slug',
+      component: PostsSingleSlug,
+      previewComponent: PostLinkPreviewSlug,
+      ...highlightsSubtitle,
+      getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
+      background: postBackground
+    },
+
+    {
+      name: 'votesByYear',
+      path: '/votesByYear/:year',
+      redirect: ({params}) => `/nominatePosts/${params.year}`
+    },
+    {
+      name: 'nominatePosts',
+      path: '/nominatePosts',
+      redirect: () => `/nominatePosts/${REVIEW_YEAR}`
+    },
+    {
+      name: 'nominatePostsByYear',
+      path: '/nominatePosts/:year',
+      title: "Nominate Posts",
+      component: AnnualReviewPage
+    },
+  );
 }
 
 // User-profile routes
@@ -285,21 +378,24 @@ addRoute(
     path:'/account',
     component: UsersAccount,
     title: "Account Settings",
-    background: "white"
+    background: "white",
+    hideFromSitemap: true,
   },
   {
     name:'users.drafts',
     path:'/drafts',
     component: DraftsPage,
     title: "Drafts & Unpublished",
-    background: "white"
+    background: "white",
+    hideFromSitemap: true,
   },
   {
     name:'users.manageSubscriptions',
     path:'/manageSubscriptions',
     component: ViewSubscriptionsPage,
     title: "Manage Subscriptions",
-    background: "white"
+    background: "white",
+    hideFromSitemap: true,
   },
   {
     name:'users.edit',
@@ -318,6 +414,7 @@ addRoute(
     name: "users.banNotice",
     path: "/banNotice",
     component: BannedNotice,
+    hideFromSitemap: true,
   },
 
   // Miscellaneous LW2 routes
@@ -334,13 +431,15 @@ addRoute(
     component: CrosspostLoginPage,
     title: 'Crosspost Login',
     standalone: true,
+    noIndex: true,
   },
   {
     name: 'resendVerificationEmail',
     path: '/resendVerificationEmail',
     component: ResendVerificationEmailPage,
     title: "Email Verification",
-    background: "white"
+    background: "white",
+    noIndex: true,
   },
   {
     name: 'newPost',
@@ -353,13 +452,15 @@ addRoute(
     name: 'editPost',
     path: '/editPost',
     component: PostsEditPage,
-    background: "white"
+    background: "white",
+    hideFromSitemap: true,
   },
   {
     name: 'postAnalytics',
     path: '/postAnalytics',
     component: PostsAnalyticsPage,
-    background: "white"
+    background: "white",
+    hideFromSitemap: true,
   },
   {
     name: 'collaboratePost',
@@ -367,51 +468,7 @@ addRoute(
     component: PostCollaborationEditor,
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.query.postId),
     background: "white",
-  },
-  // disabled except during review voting phase
-  {
-    name:'reviewVoting',
-    path: '/reviewVoting',
-    redirect: () => `/reviewVoting/${REVIEW_YEAR}`,
-  },
-  // {
-  //   name:'reviewVoting2019',
-  //   path: '/reviewVoting/2019',
-  //   title: "Voting 2019 Review",
-  //   component: ReviewVotingPage2019
-  // },
-  {
-    name:'reviewVotingByYear',
-    path: '/reviewVoting/:year',
-    title: "Review Voting",
-    component: AnnualReviewPage
-  },
-
-  {
-    name: 'reviewQuickPage',
-    path: '/reviewQuickPage',
-    redirect: () => `/quickReview/${REVIEW_YEAR}`
-  },
-
-  {
-    name: 'quickReview',
-    path: '/quickReview/:year',
-    component: AnnualReviewPage,
-    title: "Review Quick Page",
-    subtitle: "Quick Review Page"
-  },
-
-  {
-    name: 'quickReviewRedirect',
-    path: '/quickReview',
-    redirect: () => `/quickReview/${REVIEW_YEAR}`
-  },
-
-  {
-    name: "newLongformReviewForm",
-    path: '/newLongformReview',
-    title: "New Longform Review",
-    component: NewLongformReviewForm,
+    hideFromSitemap: true,
   },
 
   // Sequences
@@ -459,30 +516,6 @@ addRoute(
     background: "white"
   },
 
-  // Collections
-  {
-    name: 'collections',
-    path: '/collections/:_id',
-    component: CollectionsSingle,
-    hasLeftNavigationColumn: isLW,
-    navigationFooterBar: true,
-  },
-  {
-    name: 'highlights',
-    path: '/highlights',
-    title: "Sequences Highlights",
-    component: SequencesHighlightsCollection
-  },
-  {
-    name: 'highlights.posts.single',
-    path: '/highlights/:slug',
-    component: PostsSingleSlug,
-    previewComponent: PostLinkPreviewSlug,
-    ...highlightsSubtitle,
-    getPingback: (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
-    background: postBackground
-  },
-
   // Tags redirects
   {
     name: 'tagVoting',
@@ -497,22 +530,6 @@ addRoute(
     title: 'Search',
     background: "white"
   },
-  {
-    name: 'votesByYear',
-    path: '/votesByYear/:year',
-    redirect: ({params}) => `/nominatePosts/${params.year}`
-  },
-  {
-    name: 'nominatePosts',
-    path: '/nominatePosts',
-    redirect: () => `/nominatePosts/${REVIEW_YEAR}`
-  },
-  {
-    name: 'nominatePostsByYear',
-    path: '/nominatePosts/:year',
-    title: "Nominate Posts",
-    component: AnnualReviewPage
-  }
 );
 
 addRoute(
@@ -578,6 +595,7 @@ addRoute(
     name: 'randomTag',
     path: `/${tagUrlBaseSetting.get()}/random`,
     component: RandomTagPage,
+    hideFromSitemap: true,
   },
   {
     name: 'tagActivity',
@@ -729,18 +747,11 @@ export function initLegacyRoutes() {
   );
 
   if (isEAForum) {
-    addRoute(
-      {
-        name: "whatSmallThingsCanEADo",
-        path: "/ea/7k/what_small_things_can_an_ea_do",
-        redirect: () => "https://www.effectivealtruism.org/take-action",
-      },
-      {
-        name: "introductionToEffectiveAltruism",
-        path: "/ea/6x/introduction_to_effective_altruism",
-        redirect: () => "https://www.effectivealtruism.org/articles/introduction-to-effective-altruism",
-      },
-    )
+    addRoute(...eaLegacyRedirects.map(({from, to}) => ({
+      name: `eaLegacyRedirect-${from}`,
+      path: from,
+      redirect: () => to,
+    })));
   }
 }
 
@@ -762,13 +773,15 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       component: PostsSingleRoute,
       _id: aboutPostIdSetting.get(),
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
-      background: postBackground
+      background: postBackground,
+      hideFromSitemap: true,
     },
     {
       name:'notifications',
       path:'/notifications',
       component: NotificationsPage,
       title: "Notifications",
+      hideFromSitemap: true,
     },
     {
       name: 'handbook',
@@ -879,6 +892,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       component: EditProfileForm,
       title: 'Edit Profile',
       background: 'white',
+      hideFromSitemap: true,
     },
     {
       name: 'EditProfile',
@@ -893,6 +907,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       component: EAGApplicationImportFormWrapper,
       title: 'Import Profile',
       background: 'white',
+      hideFromSitemap: true,
     },
     {
       name: "userAnalytics",
@@ -904,15 +919,18 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: "myAnalytics",
       path:'/my-stats',
       component: MyAnalyticsPage,
+      hideFromSitemap: true,
     },
     {
       name: "openThread",
       path:'/open-thread',
       component: CurrentOpenThreadPage,
+      hideFromSitemap: true,
     },
     {
       name: 'EAGApplicationData',
-      path: '/api/eag-application-data'
+      path: '/api/eag-application-data',
+      hideFromSitemap: true,
     },
     {
       name: 'subforum',
@@ -1002,18 +1020,21 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/saved',
       component: BookmarksPage,
       title: 'Saved & read',
+      hideFromSitemap: true,
     },
     {
       name: 'adminForumEvents',
       path: '/adminForumEvents',
       component: AdminForumEventsPage,
       title: 'Manage forum events',
+      isAdmin: true,
     },
     {
       name: 'editForumEvent',
       path: '/editForumEvent/:documentId',
       component: EditForumEventPage,
       title: 'Edit forum event',
+      isAdmin: true,
     },
     {
       name: 'peopleDirectory',
@@ -1026,6 +1047,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/setPassword',
       component: Auth0PasswordResetPage,
       title: 'Set password',
+      hideFromSitemap: true,
     },
   ],
   LessWrong: [
@@ -1507,6 +1529,7 @@ addRoute(...forumSelect<Route[]>({
       component: InboxWrapper,
       title: "Inbox",
       fullscreen: true,
+      hideFromSitemap: true,
     },
     {
       name: 'conversation',
@@ -1514,6 +1537,7 @@ addRoute(...forumSelect<Route[]>({
       component: InboxWrapper,
       title: "Inbox",
       fullscreen: true,
+      hideFromSitemap: true,
     },
     {
       name: 'moderatorInbox',
@@ -1521,6 +1545,7 @@ addRoute(...forumSelect<Route[]>({
       component: ModeratorInboxWrapper,
       title: "Moderator Inbox",
       fullscreen: true,
+      hideFromSitemap: true,
     },
     {
       name: 'moderatorInboxConversation',
@@ -1528,6 +1553,7 @@ addRoute(...forumSelect<Route[]>({
       component: ModeratorInboxWrapper,
       title: "Moderator Inbox",
       fullscreen: true,
+      hideFromSitemap: true,
     },
   ]
 }))
@@ -1582,7 +1608,8 @@ if (hasEventsSetting.get()) {
       component: CommunityHome,
       title: 'Community',
       navigationFooterBar: true,
-      ...communitySubtitle
+      ...communitySubtitle,
+      hideFromSitemap: true,
     },
     {
       name: 'MeetupsHome',
@@ -1640,14 +1667,6 @@ if (hasEventsSetting.get()) {
 
 addRoute(
   {
-    name: 'searchTest',
-    path: '/searchTest',
-    component: SearchBar
-  },
-);
-
-addRoute(
-  {
     name:'posts.single',
     path:'/posts/:_id/:slug?',
     component: PostsSingle,
@@ -1698,67 +1717,78 @@ addRoute(
     name: 'admin',
     path: '/admin',
     component: AdminHome,
-    title: "Admin"
+    title: "Admin",
+    isAdmin: true,
   },
   {
     name: 'migrations',
     path: '/admin/migrations',
     component: MigrationsDashboard,
-    title: "Migrations"
+    title: "Migrations",
+    isAdmin: true,
   },
   {
     name: 'moderatorActions',
     path: '/admin/moderation',
     component: ModerationDashboard,
-    title: "Moderation Dashboard"
+    title: "Moderation Dashboard",
+    isAdmin: true,
   },
   {
     name: 'tagMergeTool',
     path: '/admin/tagMerge',
     component: TagMergePage,
-    title: `${taggingNameCapitalSetting.get()} merging tool`
+    title: `${taggingNameCapitalSetting.get()} merging tool`,
+    isAdmin: true,
   },
   {
     name: 'googleServiceAccount',
     path: '/admin/googleServiceAccount',
     component: AdminGoogleServiceAccount,
-    title: `Google Doc import service account`
+    title: `Google Doc import service account`,
+    isAdmin: true,
   },
   {
     name: 'recentlyActiveUsers',
     path: '/admin/recentlyActiveUsers',
     component: RecentlyActiveUsers,
-    title: "Recently Active Users"
+    title: "Recently Active Users",
+    isAdmin: true,
   },
   {
     name: 'moderationTemplates',
     path: '/admin/moderationTemplates',
     component: ModerationTemplatesPage,
-    title: "Moderation Message Templates"
+    title: "Moderation Message Templates",
+    isAdmin: true,
   },
   {
     name: 'ModGPTDashboard',
     path: '/admin/modgpt',
     component: ModGPTDashboard,
-    title: "ModGPT Dashboard"
+    title: "ModGPT Dashboard",
+    isAdmin: true,
   },
   {
     name: 'synonyms',
     path: '/admin/synonyms',
     component: AdminSynonymsPage,
-    title: "Search Synonyms"
+    title: "Search Synonyms",
+    isAdmin: true,
   },
   {
     name: 'randomUser',
     path: '/admin/random-user',
     component: RandomUserPage,
     title: "Random User",
+    isAdmin: true,
   },
   {
     name: 'onboarding',
     path: '/admin/onboarding',
     component: AdminViewOnboarding,
     title: "Onboarding (for testing purposes)",
+    isAdmin: true,
   },
   {
     name: 'moderation',
@@ -1776,22 +1806,26 @@ addRoute(
     name: 'moderatorViewAltAccounts',
     path: '/moderation/altAccounts',
     component: ModerationAltAccounts,
+    hideFromSitemap: true,
   },
   {
     name: 'emailHistory',
     path: '/debug/emailHistory',
-    component: EmailHistoryPage
+    component: EmailHistoryPage,
+    isAdmin: true,
   },
   {
     name: 'notificationEmailPreview',
     path: '/debug/notificationEmailPreview',
-    component: NotificationEmailPreviewPage
+    component: NotificationEmailPreviewPage,
+    isAdmin: true,
   },
   {
     name: 'SpotlightsPage',
     path: '/spotlights',
     component: SpotlightsPage,
-    title: 'Spotlights Page'
+    title: 'Spotlights Page',
+    hideFromSitemap: true,
   },
   {
     name: 'llmConversationsViewer',
@@ -1925,6 +1959,7 @@ if (hasKeywordAlerts) {
       path: "/keywords",
       component: KeywordsPage,
       title: "Keyword alerts",
+      hideFromSitemap: true,
     },
     {
       name: "keywordResults",

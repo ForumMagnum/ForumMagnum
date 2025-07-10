@@ -8,7 +8,7 @@ import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isAF } from "../../lib/instanceSettings";
 import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
 import { FilterSettings, FilterMode } from "@/lib/filterSettings";
-import { FeedFullPost, FeedItemSourceType, FeedPostFromDb } from "@/components/ultraFeed/ultraFeedTypes";
+import { FeedFullPost, FeedPostFromDb } from "@/components/ultraFeed/ultraFeedTypes";
 import { TIME_DECAY_FACTOR, SCORE_BIAS } from "@/lib/scoring";
 import { accessFilterMultiple } from "@/lib/utils/schemaUtils";
 
@@ -1273,6 +1273,19 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       maxAgeDaysParam: maxAgeDays,
       limitParam: limit
     });
+  }
+
+  async getSitemapPosts(): Promise<Pick<
+    DbPost,
+    "_id" | "slug" | "isEvent" | "groupId" | "modifiedAt"
+  >[]> {
+    return this.getRawDb().any(`
+      -- PostsRepo.getSitemapPosts
+      SELECT "_id", "slug", "isEvent", "groupId", "modifiedAt"
+      FROM "Posts"
+      WHERE ${getViewablePostsSelector()}
+      ORDER BY "postedAt" DESC
+    `);
   }
 }
 
