@@ -37,8 +37,22 @@ function makeClient({ loginToken, user, cookies, headers, searchParams }: MakeCl
     headerLink,
     createErrorLink(),
     new LoggedOutCacheLink(),
-    createHttpLink(isServer ? getSiteUrl() : '/', loginToken, headers)
   ];
+  if (isServer) {
+    const { computeContextFromUser } = require("@/server/vulcan-lib/apollo-server/context");
+
+    const context = computeContextFromUser({
+      user,
+      cookies,
+      headers: new Headers(headers),
+      searchParams: new URLSearchParams(searchParams),
+      isSSR: true,
+    });
+    links.push(createSchemaLink(getExecutableSchema(), context));
+    initDatabases({postgresUrl: process.env.PG_URL ?? '', postgresReadUrl: process.env.PG_READ_URL ?? ''});
+  } else {
+    links.push(createHttpLink(isServer ? getSiteUrl() : '/', loginToken, headers));
+  }
   return new ApolloClient({
     cache: new InMemoryCache(),
     link: ApolloLink.from(links),
