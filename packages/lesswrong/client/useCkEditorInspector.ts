@@ -1,7 +1,7 @@
 import { RefObject } from "react";
 import { useGlobalKeydown } from "@/components/common/withGlobalKeydown";
-import CKEditorInspector from "@ckeditor/ckeditor5-inspector";
 import type CKEditor from "@/lib/vendor/ckeditor5-react/ckeditor";
+import CKEditorInspector from "@ckeditor/ckeditor5-inspector";
 
 export function useCkEditorInspector(editorRef: RefObject<CKEditor<any>|null>) {
   useGlobalKeydown(ev => {

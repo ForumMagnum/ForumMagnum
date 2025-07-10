@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { useTagBySlug } from './useTag';
@@ -5,8 +7,8 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { styles } from '../common/HeaderSubtitle';
 import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { getAllTagsPath } from '@/lib/pathConstants';
-import { Helmet } from '../../lib/utils/componentsWithChildren';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { Helmet } from '../common/Helmet';
 
 const titleComponentStyles = defineStyles('TagHistoryPageTitle', styles);
 
@@ -28,7 +30,7 @@ export const TagHistoryPageTitle = ({isSubtitle, siteName}: {
   } else if (!tag) {
     return null;
   } else {
-    return <Helmet>
+    return <Helmet name="title">
       <title>{titleString}</title>
       <meta property='og:title' content={titleString}/>
     </Helmet>

@@ -22,6 +22,11 @@ export async function getOpenAI(): Promise<OpenAI|null> {
   return openAIApi;
 }
 
+export function isOpenAIAPIEnabled() {
+  const apiKey = openAIApiKey.get();
+  return !!apiKey;
+}
+
 type LanguageModelAPI = "disabled"|"stub"|"openai";
 type LanguageModelClassificationTask = "isSpam"|"isFrontpage";
 type LanguageModelGenerationTask = "summarize"|"authorFeedback";

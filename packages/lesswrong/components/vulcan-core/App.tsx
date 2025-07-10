@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import moment from 'moment';
-import { localeSetting, siteImageSetting } from '../../lib/publicSettings';
+import { localeSetting, siteImageSetting } from '@/lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 // eslint-disable-next-line no-restricted-imports
 import { useHistory, useLocation } from 'react-router';
@@ -24,6 +24,7 @@ import Loading from "./Loading";
 import HeadTags from "../common/HeadTags";
 import ScrollToTop from "./ScrollToTop";
 import Layout from "../Layout";
+import NavigationEventSender from "../hooks/useOnNavigate";
 
 interface ExternalProps {
   apolloClient: AnyBecauseTodo,
@@ -112,6 +113,8 @@ const App = ({serverRequestStatus}: ExternalProps) => {
         <Layout currentUser={currentUser}>
           <location.RouteComponent />
         </Layout>
+        {/* keep at bottom so its effect runs after DialogManager registers its close-on-navigate callback */}
+        <NavigationEventSender /> 
       </MessageContextProvider>
     </RefetchCurrentUserContext.Provider>
     </ServerRequestStatusContext.Provider>

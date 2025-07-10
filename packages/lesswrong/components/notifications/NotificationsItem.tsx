@@ -15,6 +15,7 @@ import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import ConversationPreview from "../messaging/ConversationPreview";
 import PostNominatedNotification from "../review/PostNominatedNotification";
 import TagRelNotificationItem from "./TagRelNotificationItem";
+import { onsiteHoverViewComponents } from '@/lib/notificationTypeComponents';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -115,10 +116,11 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
   );
 
   const PreviewTooltip: FC<{children: ReactNode}> = useCallback(({children}) => {
-    if (notificationType.onsiteHoverView) {
+    const OnsiteHoverView = onsiteHoverViewComponents[notificationType.name]?.() ?? null;
+    if (OnsiteHoverView) {
       return (
         <TooltipWrapper
-          title={notificationType.onsiteHoverView({notification})}
+          title={<OnsiteHoverView notification={notification}/>}
           classes={classes}
         >
           {children}

@@ -36,7 +36,7 @@ const InboxNavigation = ({
   title=preferredHeadingCase("Your Conversations"),
 }: InboxComponentProps) => {
   const location = useLocation();
-  const { currentRoute, query } = location;
+  const { pathname, query } = location;
   const navigate = useNavigate();
 
   const { view, limit, ...selectorTerms } = terms;
@@ -62,7 +62,7 @@ const InboxNavigation = ({
     navigate({...location, search: `?${qs.stringify({expanded: !expanded})}`})
   }
 
-  const showModeratorLink = userCanDo(currentUser, 'conversations.view.all') && currentRoute?.name !== "moderatorInbox"
+  const showModeratorLink = userCanDo(currentUser, 'conversations.view.all') && pathname !== "/moderatorInbox"
 
   return (
     <SingleColumnSection>

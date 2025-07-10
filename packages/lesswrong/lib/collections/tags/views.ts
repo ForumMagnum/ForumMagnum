@@ -22,7 +22,7 @@ declare global {
 /**
  * Default view. When changing this, also update getViewableTagsSelector.
  */
-function defaultView(terms: TagsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
+function defaultView(terms: TagsViewTerms, _: ApolloClient, context?: ResolverContext) {
   const currentUser = context?.currentUser ?? null;
 
   return {
@@ -58,7 +58,7 @@ function userTags(terms: TagsViewTerms) {
   }
 }
 
-function currentUserSubforums(terms: TagsViewTerms, _: ApolloClient<NormalizedCacheObject>, context?: ResolverContext) {
+function currentUserSubforums(terms: TagsViewTerms, _: ApolloClient, context?: ResolverContext) {
   return {
     selector: {
       // Always show core subforums

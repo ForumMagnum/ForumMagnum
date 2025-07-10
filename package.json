@@ -2,7 +2,7 @@
   "name": "lesswrong",
   "version": "2.1.0",
   "scripts": {
-    "run-next": "next dev --turbopack",
+    "run-next": "NODE_OPTIONS='--inspect --no-deprecation' next dev --turbopack",
     "postinstall": "scripts/postinstall.sh",
     "checktypes": "scripts/lint_and_checktypes.sh",
     "lint": "scripts/lint_and_checktypes.sh",
@@ -78,11 +78,13 @@
     "create-collection": "scripts/createCollection.sh",
     "graphql-codegen": "graphql-codegen --config codegen.ts",
     "depcruise": "dependency-cruiser packages app --config .dependency-cruiser.js",
-    "depcruise:validate": "dependency-cruiser packages app --validate .dependency-cruiser.js"
+    "depcruise:validate": "dependency-cruiser packages app --validate .dependency-cruiser.js",
+    "next-start": "next start"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.1",
-    "@apollo/client": "^3.13.6",
+    "@apollo/client": "4.0.0-alpha.17",
+    "@apollo/client-integration-nextjs": "^0.12.2",
     "@apollo/server": "^4.12.0",
     "@as-integrations/express5": "^1.0.0",
     "@as-integrations/next": "^3.2.0",
@@ -305,7 +307,7 @@
     "react-dom": "^19.0.0",
     "react-event-listener": "^0.6.6",
     "react-geosuggest": "^2.8.0",
-    "react-helmet": "^6.1.0",
+    "react-helmet-async": "^2.0.5",
     "react-instantsearch": "6.40.4",
     "react-instantsearch-core": "6.40.4",
     "react-instantsearch-dom": "6.40.4",

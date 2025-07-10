@@ -19,7 +19,7 @@ import SidebarAction from "./SidebarAction";
 import SidebarActionMenu from "./SidebarActionMenu";
 import ForumIcon from "../common/ForumIcon";
 import FormatDate from "../common/FormatDate";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { isEAForum } from '@/lib/instanceSettings';
 

@@ -65,7 +65,7 @@ export const getLinkSharedPostGraphQLQueries = {
       }
       
       // Return the post
-      const filteredPost = restrictViewableFields(currentUser, 'Posts', post);
+      const filteredPost = restrictViewableFields(currentUser, Posts, post);
       return filteredPost;
     } else {
       throw new Error("Invalid postId or not shared with you");

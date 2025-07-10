@@ -113,3 +113,5 @@ test-results
 dependency-graph.svg
 
 .env
+.vercel
+.env*.local

@@ -5,13 +5,14 @@ import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import NotifyMeToggleDropdownItem from "../dropdowns/NotifyMeToggleDropdownItem";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
+import EditCommentDropdownItem from "../dropdowns/comments/EditCommentDropdownItem";
 
-const UltraFeedCommentActions = ({ comment, post, currentUser, closeMenu }: {
+const UltraFeedCommentActions = ({ comment, post, currentUser, closeMenu, showEdit }: {
   comment: CommentsList,
   post?: PostsMinimumInfo,
-  showEdit: () => void,
   currentUser: UsersCurrent,
   closeMenu?: () => void,
+  showEdit: () => void,
 }) => {
 
   const url = comment.postId
@@ -45,15 +46,16 @@ const UltraFeedCommentActions = ({ comment, post, currentUser, closeMenu }: {
         subscriptionType="newReplies"
       />
       <DropdownItem
-        title="Copy link"
-        icon="Link"
-        onClick={handleCopyLink}
-      />
-      <DropdownItem
         title="Open in new tab"
         icon="ArrowRight"
         onClick={handleOpenInNewTab}
       />
+      <DropdownItem
+        title="Copy link"
+        icon="Link"
+        onClick={handleCopyLink}
+      />
+      <EditCommentDropdownItem comment={comment} showEdit={showEdit} />
     </DropdownMenu>
   );
 };

@@ -56,7 +56,7 @@ const TagFlagToggleList = ({ value, path, updateCurrentValues }: {
     {results?.map(({_id}) => {
       const selected = value && value.includes(_id);
       return <a key={_id} onClick={() => handleClick(_id)}>
-        <TagFlagItem documentId={_id} style={selected ? "grey" : "white"} showNumber={false} />
+        <TagFlagItem documentId={_id} style={selected ? "grey" : "white"} />
       </a>
     })}
   </div></DeferRender>

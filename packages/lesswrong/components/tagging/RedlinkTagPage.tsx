@@ -4,7 +4,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { tagUrlBaseSetting } from '@/lib/instanceSettings';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
-import { ApolloError } from '@apollo/client';
+import { type ErrorLike } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery"
 import { Link } from "../../lib/reactRouterWrapper";
 import { useNavigate } from "../../lib/routeUtil";
@@ -67,7 +67,7 @@ export const useRedLinkPingbacks = (documentId: string|undefined, excludedDocume
   results: RedLinkPingback[]
   totalCount: number
   loading: boolean
-  error: ApolloError|undefined
+  error: ErrorLike|undefined
 } => {
   const tagPingbacks = useQuery(TagBasicInfoMultiQuery, {
     variables: {

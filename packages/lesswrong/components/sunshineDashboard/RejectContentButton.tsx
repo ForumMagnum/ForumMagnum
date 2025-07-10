@@ -58,7 +58,7 @@ export const RejectContentButton = ({contentWrapper, classes}: {
       anchorEl={anchorEl}
       clickable={true}
       allowOverflow={true}
-      placement={"right"}
+      placement={"right-start"}
     >
       <LWClickAwayListener onClickAway={() => setShowRejectionDialog(false)}>
         <RejectContentDialog rejectContent={handleRejectContent}/>

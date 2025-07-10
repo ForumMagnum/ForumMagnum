@@ -1,30 +1,19 @@
 /* eslint-disable no-console */
 // TODO: figure out if we can gate this on forum-type
 // import './datadog/tracer';
+import '@/lib/utils/extendSimpleSchemaOptions';
 import { createSqlConnection } from './sqlConnection';
-import { replaceDbNameInPgConnectionString, setSqlClient } from './sql/sqlClient';
-import PgCollection, { DbTarget } from './sql/PgCollection';
-import { getAllCollections } from './collections/allCollections';
+import { replaceDbNameInPgConnectionString, setSqlClient, getSqlClient } from './sql/sqlClient';
+import type { DbTarget } from './sql/PgCollection';
 import { isAnyTest } from '../lib/executionEnvironment';
-import { PublicInstanceSetting } from "../lib/instanceSettings";
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { CommandLineArguments, getCommandLineArguments } from './commandLine';
 import { getBranchDbName } from "./branchDb";
 import { dropAndCreatePg } from './testingSqlClient';
 import process from 'process';
 import { filterConsoleLogSpam, wrapConsoleLogFunctions } from '../lib/consoleFilters';
-import cluster from 'node:cluster';
-import { cpus } from 'node:os';
 import { panic } from './utils/errorUtil';
 
-const numCPUs = cpus().length;
-
-/**
- * Whether to run multiple node processes in a cluster.
- * The main reason this is a PublicInstanceSetting because it would be annoying and disruptive for other devs to change this while you're running the server.
- */
-export const clusterSetting = new PublicInstanceSetting<boolean>('cluster.enabled', false, 'optional')
-export const numWorkersSetting = new PublicInstanceSetting<number>('cluster.numWorkers', numCPUs, 'optional')
 const processRestartDelay = 5000;
 
 const initConsole = () => {
@@ -35,8 +24,8 @@ const initConsole = () => {
 
   filterConsoleLogSpam();
   wrapConsoleLogFunctions((log, ...message) => {
-    const pidString = clusterSetting.get() ? ` (pid: ${process.pid})` : "";
-    process.stdout.write(`${blue}${new Date().toISOString()}${pidString}:${endBlue} `);
+    // const pidString = clusterSetting.get() ? ` (pid: ${process.pid})` : "";
+    process.stdout.write(`${blue}${new Date().toISOString()}:${endBlue} `);
     log(...message);
 
     // Uncomment to add stacktraces to every console.log, for debugging where
@@ -46,17 +35,15 @@ const initConsole = () => {
   });
 }
 
-const connectToPostgres = async (connectionString: string, target: DbTarget = "write") => {
+initConsole();
+
+const connectToPostgres = (connectionString: string, target: DbTarget = "write") => {
   try {
-    if (connectionString) {
-      const branchDb = await getBranchDbName();
-      if (branchDb) {
-        connectionString = replaceDbNameInPgConnectionString(connectionString, branchDb);
-      }
+    if (connectionString && !getSqlClient(target)) {
       const dbName = /.*\/(.*)/.exec(connectionString)?.[1];
       // eslint-disable-next-line no-console
       console.log(`Connecting to postgres (${dbName})`);
-      const sql = await createSqlConnection(connectionString, false);
+      const sql = createSqlConnection(connectionString, false);
       setSqlClient(sql, target);
     }
   } catch(err) {
@@ -66,28 +53,18 @@ const connectToPostgres = async (connectionString: string, target: DbTarget = "w
   }
 }
 
-export const initDatabases = ({postgresUrl, postgresReadUrl}: Pick<CommandLineArguments, 'postgresUrl' | 'postgresReadUrl'>) =>
-  Promise.all([
-    connectToPostgres(postgresUrl),
-    connectToPostgres(postgresReadUrl, "read"),
-  ]);
+export const initDatabases = ({postgresUrl, postgresReadUrl}: Pick<CommandLineArguments, 'postgresUrl' | 'postgresReadUrl'>) => {
+  connectToPostgres(postgresUrl);
+  connectToPostgres(postgresReadUrl, "read");
+};
 
 export const initSettings = () => {
-  if (!isAnyTest) {
-    setInterval(refreshSettingsCaches, 1000 * 60 * 5) // We refresh the cache every 5 minutes on all servers
-  }
+  // if (!isAnyTest) {
+  //   setInterval(refreshSettingsCaches, 1000 * 60 * 5) // We refresh the cache every 5 minutes on all servers
+  // }
   return refreshSettingsCaches();
 }
 
-export const initPostgres = async () => {
-  if (getAllCollections().some(collection => collection instanceof PgCollection)) {
-    for (const collection of getAllCollections()) {
-      if (collection instanceof PgCollection) {
-        collection.buildPostgresTable();
-      }
-    }
-  }
-}
 
 export const initServer = async (commandLineArguments: CommandLineArguments) => {
   initConsole();
@@ -97,23 +74,23 @@ export const initServer = async (commandLineArguments: CommandLineArguments) => 
   await initDatabases(commandLineArguments);
   await initSettings();
   // importAllServerFiles();
-  await initPostgres();
+  // await initPostgres();
 }
 
 // function importAllServerFiles() {
 //   require('../server.ts');
 // }
 
-function getClusterRole(): "standalone"|"primary"|"worker" {
-  if (!clusterSetting.get()) {
-    return "standalone";
-  }
-  if (cluster.isPrimary) {
-    return "primary";
-  } else {
-    return "worker";
-  }
-}
+// function getClusterRole(): "standalone"|"primary"|"worker" {
+//   if (!clusterSetting.get()) {
+//     return "standalone";
+//   }
+//   if (cluster.isPrimary) {
+//     return "primary";
+//   } else {
+//     return "worker";
+//   }
+// }
 
 // export const serverStartup = async () => {
 //   const commandLineArguments = getCommandLineArguments();

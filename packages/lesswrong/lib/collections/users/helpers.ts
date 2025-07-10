@@ -3,14 +3,12 @@ import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf, PermissionableUser } from '../../vulcan-users/permissions';
 import * as _ from 'underscore';
 import type { PermissionResult } from '../../make_voteable';
-import { DatabasePublicSetting } from '../../publicSettings';
+import { newUserIconKarmaThresholdSetting } from '@/lib/instanceSettings';
 import { hasAuthorModeration } from '../../betas';
 import { DeferredForumSelect } from '@/lib/forumTypeUtils';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 import type { ForumIconName } from '@/components/common/ForumIcon';
 import type { EditablePost } from '../posts/helpers';
-
-const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
 export const ACCOUNT_DELETION_COOLING_OFF_DAYS = 14;
 
@@ -23,9 +21,10 @@ export const userGetDisplayName = (user: UserDisplayNameInfo | null): string => 
   if (!user) {
     return "";
   } else {
-    return forumTypeSetting.get() === 'AlignmentForum' ? 
-      (user.fullName || user.displayName) ?? "" :
-      (user.displayName || getUserName(user)) ?? ""
+    return (forumTypeSetting.get() === 'AlignmentForum'
+      ? (user.fullName || user.displayName) ?? ""
+      : (user.displayName || getUserName(user)) ?? ""
+    ).trim();
   }
 };
 
@@ -131,7 +130,7 @@ const postHasModerationGuidelines = (
 }
 
 export const userCanModeratePost = (
-  user: UsersProfile|DbUser|null,
+  user: UsersProfile|UsersCurrent|DbUser|null,
   post?: PostsBase|PostsModerationGuidelines|DbPost|null,
 ): boolean => {
   if (userCanDo(user,"posts.moderate.all")) {
@@ -166,7 +165,7 @@ export const userCanModeratePost = (
   )
 }
 
-export const userCanModerateComment = (user: UsersProfile|DbUser|null, post: PostsBase|DbPost|null , tag: TagBasicInfo|DbTag|null, comment: CommentsList|DbComment) => {
+export const userCanModerateComment = (user: UsersProfile|UsersCurrent|DbUser|null, post: PostsBase|DbPost|null , tag: TagBasicInfo|DbTag|null, comment: CommentsList|DbComment) => {
   if (!user || !comment) {
     return false;
   }
@@ -205,6 +204,14 @@ export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PostsD
   return !!(
     post.bannedUserIds?.includes(user._id) &&
     postAuthor && userOwns(postAuthor, post)
+  )
+}
+
+export const userIsNotShortformOwner = (user: UsersCurrent|DbUser, post: PostsDetails|DbPost): boolean => {
+  return !!(
+    post.shortform &&
+    post.userId &&
+    post.userId !== user._id
   )
 }
 
@@ -384,7 +391,7 @@ export const userGetCommentCount = (user: UsersMinimumInfo|DbUser): number => {
   }
 }
 
-export const isMod = (user: UsersProfile|DbUser): boolean => {
+export const isMod = (user: UsersProfile|UsersCurrent|DbUser): boolean => {
   return (user.isAdmin || user.groups?.includes('sunshineRegiment')) ?? false
 }
 

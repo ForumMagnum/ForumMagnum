@@ -8,7 +8,7 @@ import { forumTitleSetting, siteUrlSetting, taglineSetting } from '../lib/instan
 import moment from '../lib/moment-timezone';
 import { rssTermsToUrl, RSSTerms } from '../lib/rss_urls';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
-import { getCommentParentTitle } from '../lib/notificationTypes';
+import { getCommentParentTitle } from '@/lib/notificationDataHelpers';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import { getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 import { viewTermsToQuery } from '../lib/utils/viewUtils';
@@ -111,7 +111,7 @@ const servePostRSS = async (terms: RSSTerms, url?: string) => {
 const serveCommentRSS = async (terms: RSSTerms, req: any, res: any, url?: string) => {
   url = url || rssTermsToUrl(terms); // Default value is the custom rss feed computed from terms
   const feed = new RSS(getMeta(url));
-  const context = await getContextFromReqAndRes({req, res, isSSR: false});
+  const context = await getContextFromReqAndRes({req, isSSR: false});
 
   let parameters = viewTermsToQuery(CommentsViews, terms);
   parameters.options.limit = 50;

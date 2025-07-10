@@ -5,7 +5,7 @@ import CommentsNewForm, {
   CommentCancelCallback,
   CommentSuccessCallback } from "../comments/CommentsNewForm";
 import classNames from "classnames";
-import { isFriendlyUI } from "../../themes/forumTheme";
+import { isBookUI, isFriendlyUI } from "../../themes/forumTheme";
 import { useDialog } from "../common/withDialog";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import { COMMENTS_NEW_FORM_PADDING } from "@/lib/collections/comments/constants";
@@ -16,9 +16,13 @@ const COLLAPSED_HEIGHT = 40;
 const styles = (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
+    border: `1px solid ${theme.palette.grey[200]}`,
+    ...(isBookUI && {
+      background: theme.palette.panelBackground.bannerAdTranslucentStrong,
+      border: "none",
+    }),
     borderRadius: theme.borderRadius.quickTakesEntry,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    border: `1px solid ${theme.palette.grey[200]}`,
   },
   commentEditor: {
     "& .ck-placeholder": {

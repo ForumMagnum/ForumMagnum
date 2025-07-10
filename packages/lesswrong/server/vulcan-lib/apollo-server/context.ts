@@ -1,35 +1,21 @@
-/**
- * Context prop of the ApolloServer config
- *
- * It sets up the server options based on the current request
- * Replacement to the syntax graphqlExpress(async req => {... })
- * Current pattern:
- * @see https://www.apollographql.com/docs/apollo-server/migration-two-dot.html#request-headers
- * @see https://github.com/apollographql/apollo-server/issues/1066
- * Previous implementation:
- * @see https://github.com/apollographql/apollo-server/issues/420
- */
-
+import '@/lib/utils/extendSimpleSchemaOptions';
 import { configureScope } from '@sentry/node';
 import DataLoader from 'dataloader';
 import { getAllCollections, getAllCollectionsByName } from '../../collections/allCollections';
 import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
-import * as _ from 'underscore';
 import { hashLoginToken, tokenExpiration, userIsBanned } from '../../loginTokens';
-import type { Request, Response } from 'express';
 import {getUserEmail} from "../../../lib/collections/users/helpers";
 import { getAllRepos } from '../../repos';
 import UsersRepo from '../../repos/UsersRepo';
-import UserActivities from '../../../server/collections/useractivities/collection';
-import { getCookieFromReq } from '../../utils/httpUtil';
-import { isEAForum } from '../../../lib/instanceSettings';
 import { asyncLocalStorage } from '../../perfMetrics';
-import { visitorGetsDynamicFrontpage } from '../../../lib/betas';
-import type { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { prepareClientId } from '@/server/clientIdMiddleware';
+import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';
+import { unstable_cache } from 'next/cache';
 
-// From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
-export const getUser = async (loginToken: string): Promise<DbUser|null> => {
+
+export const getUser = async (loginToken: string|null): Promise<DbUser|null> => {
   if (loginToken) {
     if (typeof loginToken !== 'string')
       throw new Error("Login token is not a string");
@@ -58,24 +44,6 @@ export const getUser = async (loginToken: string): Promise<DbUser|null> => {
   return null;
 }
 
-// @see https://www.apollographql.com/docs/react/recipes/meteor#Server
-const setupAuthToken = async (user: DbUser|null): Promise<{
-  userId: string|null,
-  currentUser: DbUser|null,
-}> => {
-  if (user) {
-    return {
-      userId: user._id,
-      currentUser: user,
-    };
-  } else {
-    return {
-      userId: null,
-      currentUser: null,
-    };
-  }
-};
-
 // Generate a set of DataLoader objects, one per collection, to be added to a resolver context
 export const generateDataLoaders = (): {
   loaders: Record<CollectionNameString, DataLoader<string,any>>
@@ -94,53 +62,47 @@ export const generateDataLoaders = (): {
   };
 };
 
-
-export function requestIsFromUserAgent(req: Request, userAgentPrefix: string): boolean {
-  if (!req) return false;
-  const userAgent = req.headers?.["user-agent"];
+function requestIsFromUserAgent(headers: Headers | undefined, userAgentPrefix: string): boolean {
+  if (!headers) return false;
+  const userAgent = headers.get("user-agent");
   if (!userAgent) return false;
   if (typeof userAgent !== "string") return false;
   return userAgent.startsWith(userAgentPrefix);
 }
 
-export function requestIsFromGreaterWrong(req?: Request): boolean {
-  if (!req) return false;
-  return requestIsFromUserAgent(req, "Dexador");
+export function requestIsFromGreaterWrong(headers?: Headers): boolean {
+  if (!headers) return false;
+  return requestIsFromUserAgent(headers, "Dexador");
 }
 
-export function requestIsFromIssaRiceReader(req?: Request): boolean {
-  if (!req) return false;
-  return requestIsFromUserAgent(req, "LW/EA Forum Reader (https://github.com/riceissa/ea-forum-reader/)");
+export function requestIsFromIssaRiceReader(headers?: Headers): boolean {
+  if (!headers) return false;
+  return requestIsFromUserAgent(headers, "LW/EA Forum Reader (https://github.com/riceissa/ea-forum-reader/)");
 }
 
-export const computeContextFromUser = async ({user, req, res, isSSR}: {
+export const computeContextFromUser = ({user, headers, searchParams, cookies, isSSR}: {
   user: DbUser|null,
+  headers?: Headers,
+  searchParams?: URLSearchParams,
+  cookies?: RequestCookie[],
   req?: NextRequest,
-  res?: NextResponse,
   isSSR: boolean
-}): Promise<ResolverContext> => {
-  let visitorActivity: DbUserActivity|null = null;
-  const clientId = req ? getCookieFromReq(req, "clientId") : null;
-  if ((user || clientId) && (isEAForum || visitorGetsDynamicFrontpage(user))) {
-    visitorActivity = user ?
-      await UserActivities.findOne({visitorId: user._id, type: 'userId'}) :
-      await UserActivities.findOne({visitorId: clientId, type: 'clientId'});
-  }
+}): ResolverContext => {
+  const clientId = cookies?.find(cookie => cookie.name === "clientId")?.value ?? null;
   
   let context: ResolverContext = {
     ...getAllCollectionsByName(),
     ...generateDataLoaders(),
-    req: req,
-    res,
-    headers: (req as any)?.headers,
-    locale: (req as any)?.headers ? getHeaderLocale((req as any).headers, null) : "en-US",
+    searchParams,
+    headers,
+    locale: headers ? getHeaderLocale(headers, null) : "en-US",
     isSSR,
-    isGreaterWrong: requestIsFromGreaterWrong(req),
-    isIssaRiceReader: requestIsFromIssaRiceReader(req),
+    isGreaterWrong: requestIsFromGreaterWrong(headers),
+    isIssaRiceReader: requestIsFromIssaRiceReader(headers),
     repos: getAllRepos(),
     clientId,
-    visitorActivity,
-    ...await setupAuthToken(user),
+    userId: user?._id ?? null,
+    currentUser: user,
     perfMetric: asyncLocalStorage.getStore()?.requestPerfMetric,
   };
 
@@ -177,17 +139,25 @@ export function configureSentryScope(context: ResolverContext) {
   }
 }
 
-export const getUserFromReq = (req: AnyBecauseTodo): DbUser|null => {
-  return req.user
-  // return getUser(getAuthToken(req));
+export const getCachedUser = unstable_cache(getUser, undefined, { revalidate: 5 });
+
+export const getUserFromReq = async (req: NextRequest): Promise<DbUser|null> => {
+  // We check both cookies and headers, because requests from the browser come with cookies,
+  // but requests made by the apollo client (even during SSR) have to send it via header
+  const loginToken = req.cookies.get('loginToken')?.value ?? req.headers.get('loginToken') ?? null;
+  return getCachedUser(loginToken);
 }
 
-export async function getContextFromReqAndRes({req, res, isSSR}: {
+export async function getContextFromReqAndRes({req, isSSR}: {
   req: NextRequest,
-  res: NextResponse,
   isSSR: boolean
 }): Promise<ResolverContext> {
-  const user = getUserFromReq(req);
-  const context = await computeContextFromUser({user, req, res, isSSR});
+  // TODO: do we want to abstract this out into something shared across all routes that need to grab the authenticated user for the current request?
+  const [user] = await Promise.all([
+    getUserFromReq(req),
+    prepareClientId(req)
+  ]);
+
+  const context = computeContextFromUser({user, req, isSSR: isSSR || req.headers.get('isSSR') === 'true'});
   return context;
 }

@@ -10,7 +10,7 @@ import UserMultiselect from "../form-components/UserMultiselect";
 import LWDialog from "../common/LWDialog";
 import Loading from "../vulcan-core/Loading";
 import EAButton from "../ea-forum/EAButton";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsEditMutation = gql(`

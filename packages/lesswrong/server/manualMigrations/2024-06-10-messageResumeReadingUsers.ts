@@ -2,7 +2,7 @@ import { registerMigration } from './migrationUtils';
 import { Users } from '../../server/collections/users/collection';
 import { getAdminTeamAccount } from '../utils/adminTeamAccount';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
-import { adminAccountSetting } from '@/lib/publicSettings';
+import { adminAccountSetting } from '@/lib/instanceSettings';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
 import { createConversation } from '../collections/conversations/mutations';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';

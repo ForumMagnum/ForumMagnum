@@ -16,7 +16,8 @@
  * (e.g. zod validation, hidden‑functions, Editor callbacks, etc.).
  */
 
-import { getSchema, getSimpleSchema } from '@/lib/schema/allSchemas';
+import { getSchema } from '@/lib/schema/allSchemas';
+import { getSimpleSchema } from '@/lib/schema/allSimpleSchemas';
 import * as fs from 'fs';
 import * as path from 'path';
 import SimpleSchema from 'simpl-schema';

@@ -1,40 +1,8 @@
 import React, { useCallback } from "react";
 import { requireCssVar } from "../../themes/cssVars";
-import {
-  cloudinaryCloudNameSetting,
-  DatabasePublicSetting,
-} from "../../lib/publicSettings";
+import { cloudinaryCloudNameSetting, cloudinaryUploadPresetBannerSetting, cloudinaryUploadPresetDigestSetting, cloudinaryUploadPresetEventImageSetting, cloudinaryUploadPresetGridImageSetting, cloudinaryUploadPresetProfileSetting, cloudinaryUploadPresetSocialPreviewSetting, cloudinaryUploadPresetSpotlightSetting } from '@/lib/instanceSettings';
 import { useTheme } from "../themes/useTheme";
-import { Helmet } from "../../lib/utils/componentsWithChildren";
-
-const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>(
-  "cloudinary.uploadPresetGridImage",
-  "tz0mgw2s",
-);
-const cloudinaryUploadPresetBannerSetting = new DatabasePublicSetting<string>(
-  "cloudinary.uploadPresetBanner",
-  "navcjwf7",
-);
-const cloudinaryUploadPresetProfileSetting = new DatabasePublicSetting<string | null>(
-  "cloudinary.uploadPresetProfile",
-  null,
-);
-const cloudinaryUploadPresetSocialPreviewSetting = new DatabasePublicSetting<string | null>(
-  "cloudinary.uploadPresetSocialPreview",
-  null,
-);
-const cloudinaryUploadPresetEventImageSetting = new DatabasePublicSetting<string | null>(
-  "cloudinary.uploadPresetEventImage",
-  null,
-);
-const cloudinaryUploadPresetSpotlightSetting = new DatabasePublicSetting<string | null>(
-  "cloudinary.uploadPresetSpotlight",
-  "yjgxmsio",
-);
-const cloudinaryUploadPresetDigestSetting = new DatabasePublicSetting<string | null>(
-  "cloudinary.uploadPresetDigest",
-  null,
-);
+import { Helmet } from "../common/Helmet";
 
 type CloudinaryImageUploadError = {
   statusText: string,
@@ -303,7 +271,7 @@ export const useImageUpload = ({
   return {
     uploadImage,
     ImageUploadScript: () => (
-      <Helmet>
+      <Helmet name="imageUploadScript">
         <script
           src="https://upload-widget.cloudinary.com/global/all.js"
           type="text/javascript"

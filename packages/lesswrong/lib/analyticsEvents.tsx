@@ -5,16 +5,13 @@ import React, { useContext, useEffect, useState, useRef, useCallback, ReactNode 
 import { hookToHoc } from './hocUtils'
 import { isClient, isServer, isE2E } from './executionEnvironment';
 import { ColorHash } from './vendor/colorHash';
-import { DatabasePublicSetting } from './publicSettings';
+import { flushIntervalSetting } from './instanceSettings';
 import { throttle } from 'underscore';
 import moment from 'moment';
-import { serverCaptureEvent } from '@/server/analytics/serverAnalyticsWriter';
-import { FeedItemType, UltraFeedAnalyticsContext } from '@/components/ultraFeed/ultraFeedTypes';
+import { FeedItemSourceType, FeedItemType, UltraFeedAnalyticsContext } from '@/components/ultraFeed/ultraFeedTypes';
 import { RelevantTestGroupAllocation } from './abTestImpl';
 import { getShowAnalyticsDebug } from './analyticsDebugging';
-
-export const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "dev");
-const flushIntervalSetting = new DatabasePublicSetting<number>("analyticsFlushInterval", 1000);
+import { serverCaptureEvent } from '@/server/analytics/serverAnalyticsWriter';
 
 // clientContextVars: A dictionary of variables that will be added to every
 // analytics event sent from the client. Client-side only, filled in side-
@@ -36,7 +33,9 @@ export function captureEvent(eventType: string, eventProps?: EventProps, suppres
     if (isServer) {
       // If run from the server, we can run this immediately except for a few
       // events during startup.
-      serverCaptureEvent(eventType, eventProps, suppressConsoleLog);
+      // import('@/server/analytics/serverAnalyticsWriter').then(({ serverCaptureEvent }) => {
+        serverCaptureEvent(eventType, eventProps, suppressConsoleLog);
+      // });
     } else if (isClient) {
       // If run from the client, make a graphQL mutation
       const event = {
@@ -66,6 +65,8 @@ export type AnalyticsProps = {
   pageSubSectionContext?: string,
   pageElementContext?: string,
   pageElementSubContext?: string,
+  pageParentElementContext?: string,
+  pageModalContext?: string,
   /** WARNING: read the documentation before using this.  Avoid unless you have a very good reason. */
   nestedPageElementContext?: string,
   reviewYear?: string,
@@ -76,6 +77,8 @@ export type AnalyticsProps = {
   documentSlug?: string,
   postId?: string,
   forumEventId?: string,
+  documentId?: string,
+  collectionName?: string,
   sequenceId?: string,
   commentId?: string,
   spotlightId?: string,
@@ -99,9 +102,12 @@ export type AnalyticsProps = {
   searchQuery?: string,
   componentName?: string,
   ultraFeedContext?: UltraFeedAnalyticsContext,
+  ultraFeedSources?: FeedItemSourceType[],
   ultraFeedElementType?: FeedItemType,
   ultraFeedCardId?: string,
   ultraFeedCardIndex?: number,
+  recentDiscussionContext?: { sessionId: string },
+  recentDiscussionCardIndex?: number,
   /** @deprecated Use `pageSectionContext` instead */
   listContext?: string,
   /** @deprecated Use `pageSectionContext` instead */
@@ -135,6 +141,10 @@ USE THIS CONVENTION FOR TRACKING EVENT LOCATION
 * pageSubSectionContext is used when a section meaningfully has subsections (such as bookmarks list within the recommendations section on the frontpage)
 * pageElementContext={elementName}> e.g. hoverPreview, commentItem, answerItem
     -use when wanting to mark where within a section something occurs
+* pageParentElementContext={parentElementName}> e.g. ultraFeedThread
+    -use when an element is nested within another element
+* pageModalContext={modalName}> e.g. commentsDialog, ultraFeedPostItemDialog
+    -use for modals
 * listContext is historical. Now just use pageSection.
 
 When adding a new prop simply add it to the list in the type of the `props` argument here.

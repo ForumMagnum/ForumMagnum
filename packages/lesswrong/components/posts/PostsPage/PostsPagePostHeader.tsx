@@ -1,4 +1,4 @@
-import React, { FC, MouseEvent, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { getResponseCounts, postGetAnswerCountStr, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
@@ -27,6 +27,7 @@ import GroupLinks from "../../localGroups/GroupLinks";
 import SharePostButton from "../SharePostButton";
 import AudioToggle from "./AudioToggle";
 import ReadTime from "./ReadTime";
+import { CommentsLink } from './CommentsLink';
 
 const SECONDARY_SPACING = 20;
 
@@ -204,29 +205,6 @@ export function parseUnsafeUrl(url: string) {
   }
 
   return {};
-}
-
-export const CommentsLink: FC<{
-  anchor: string,
-  children: React.ReactNode,
-  className?: string,
-}> = ({anchor, children, className}) => {
-  const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    const elem = document.querySelector(anchor);
-    if (elem) {
-      // Match the scroll behaviour from TableOfContentsList
-      window.scrollTo({
-        top: elem.getBoundingClientRect().y - (window.innerHeight / 3) + 1,
-        behavior: "smooth",
-      });
-    }
-  }
-  return (
-    <a className={className} {...(isFriendlyUI ? {onClick} : {href: anchor})}>
-      {children}
-    </a>
-  );
 }
 
 /// PostsPagePostHeader: The metadata block at the top of a post page, with

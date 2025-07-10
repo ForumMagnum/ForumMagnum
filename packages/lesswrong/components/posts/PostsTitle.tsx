@@ -7,7 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { communityPath } from '@/lib/pathConstants';
 import { InteractionWrapper } from '../common/useClickableCell';
-import { isFriendlyUI } from '../../themes/forumTheme';
+import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
 import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
@@ -15,14 +15,14 @@ import { useTheme } from '../themes/useTheme';
 import { PostsItemIcons, CuratedIcon } from "./PostsItemIcons";
 import ForumIcon from "../common/ForumIcon";
 import TagsTooltip from "../tagging/TagsTooltip";
-import { amaTagIdSetting, annualReviewAnnouncementPostPathSetting, openThreadTagIdSetting } from '@/lib/publicSettings';
-import { startHerePostIdSetting } from '@/lib/publicSettings';
-import { DatabasePublicSetting } from '@/lib/publicSettings';
+import { amaTagIdSetting, annualReviewAnnouncementPostPathSetting, openThreadTagIdSetting } from '@/lib/instanceSettings';
+import { startHerePostIdSetting } from '@/lib/instanceSettings';
 import QuestionAnswerIcon from '@/lib/vendor/@material-ui/icons/src/QuestionAnswer';
 import ArrowForwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowForward';
 import AllInclusiveIcon from '@/lib/vendor/@material-ui/icons/src/AllInclusive';
 import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
 import { isEAForum } from '@/lib/instanceSettings';
+import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -45,6 +45,11 @@ const styles = (theme: ThemeType) => ({
       lineHeight: "1.8rem",
     },
     marginRight: theme.spacing.unit,
+  },
+  onGrayBackground: {
+    ...(isBookUI && theme.themeOptions.name === 'dark' && {
+      color: theme.palette.greyAlpha(1),
+    }),
   },
   wrap: {
     whiteSpace: "normal",
@@ -145,7 +150,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const tagSettingIcons = new Map<DatabasePublicSetting<string | null>, React.ComponentType<React.SVGProps<SVGElement>>>([
+const tagSettingIcons = new Map([
   [amaTagIdSetting, QuestionAnswerIcon], 
   [openThreadTagIdSetting, AllInclusiveIcon],
 ]);
@@ -160,7 +165,7 @@ const reviewPostIdSetting = {
 const idSettingIcons = new Map([
   [startHerePostIdSetting, ArrowForwardIcon],
   // use an imposter to avoid duplicating annualReviewAnnouncementPostPathSetting, which is a path not a post id
-  [reviewPostIdSetting as DatabasePublicSetting<string | null>, StarIcon]
+  [reviewPostIdSetting, StarIcon]
 ]);
 
 const postIcon = (post: PostsBase|PostsListBase) => {
@@ -238,6 +243,7 @@ const PostsTitle = ({
   const {event: taggedEvent, current: taggedEventIsCurrent} = useTaggedEvent(showEventTag ?? false, post) ?? {};
   const theme = useTheme();
   const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
+  const isOnGrayBackground = useIsOnGrayBackground();
 
   const shouldRenderEventsTag = (pathname !== communityPath) && (pathname !== '/pastEvents') && (pathname !== '/upcomingEvents') &&
     !pathname.includes('/events') && !pathname.includes('/groups') && !pathname.includes('/community');
@@ -266,6 +272,7 @@ const PostsTitle = ({
       classes.root,
       read && classes.read,
       wrap && classes.wrap,
+      isOnGrayBackground && classes.onGrayBackground,
       strikethroughTitle && classes.strikethroughTitle,
       className,
     )}>

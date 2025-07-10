@@ -25,7 +25,7 @@ import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import LWDialog from "../common/LWDialog";
 import Loading from "../vulcan-core/Loading";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { withDateFields } from '@/lib/utils/dateUtils';
@@ -175,7 +175,6 @@ const LocalGroupForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
-      {displayedErrorComponent}
       <div className={classes.fieldWrapper}>
         <form.Field name="name">
           {(field) => (
@@ -396,6 +395,7 @@ const LocalGroupForm = ({
           />
         )}
       </form.Subscribe>
+      {displayedErrorComponent}
     </form>
   );
 };

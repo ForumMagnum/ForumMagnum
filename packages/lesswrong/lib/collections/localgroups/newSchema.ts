@@ -5,7 +5,8 @@ import {
   arrayOfForeignKeysOnCreate,
   generateIdResolverMulti,
   getDenormalizedFieldOnCreate,
-  getDenormalizedFieldOnUpdate
+  getDenormalizedFieldOnUpdate,
+  optionalUrlRegex
 } from "../../utils/schemaUtils";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
@@ -233,7 +234,7 @@ const schema = {
       canUpdate: ["members"],
       canCreate: ["members"],
       validation: {
-        regEx: SimpleSchema.RegEx.Url,
+        regEx: optionalUrlRegex,
         optional: true,
       },
     },
@@ -248,7 +249,7 @@ const schema = {
       canUpdate: ["members"],
       canCreate: ["members"],
       validation: {
-        regEx: SimpleSchema.RegEx.Url,
+        regEx: optionalUrlRegex,
         optional: true,
       },
     },
@@ -263,7 +264,7 @@ const schema = {
       canUpdate: ["members"],
       canCreate: ["members"],
       validation: {
-        regEx: SimpleSchema.RegEx.Url,
+        regEx: optionalUrlRegex,
         optional: true,
       },
     },
@@ -278,7 +279,7 @@ const schema = {
       canUpdate: ["members"],
       canCreate: ["members"],
       validation: {
-        regEx: SimpleSchema.RegEx.Url,
+        regEx: optionalUrlRegex,
         optional: true,
       },
     },
@@ -293,7 +294,7 @@ const schema = {
       canUpdate: ["members"],
       canCreate: ["members"],
       validation: {
-        regEx: SimpleSchema.RegEx.Url,
+        regEx: optionalUrlRegex,
         optional: true,
       },
     },

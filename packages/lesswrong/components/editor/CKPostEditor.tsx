@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { ckEditorBundleVersion, getCkPostEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
-import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
+import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '@/lib/instanceSettings';
 import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import EditorTopBar, { CollaborationMode } from './EditorTopBar';
 import { useSubscribedLocation } from '../../lib/routeUtil';
@@ -15,7 +15,7 @@ import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 import sortBy from 'lodash/sortBy'
 import uniqBy from 'lodash/uniqBy';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
 import type { Editor } from '@ckeditor/ckeditor5-core';

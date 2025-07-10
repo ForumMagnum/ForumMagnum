@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
 import { useCurrentUser } from '../../common/withUser'
-import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
+import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import ContentStyles, { ContentStyleType } from '../../common/ContentStyles';
 import { VotingProps } from '../../votes/votingProps';
 import { ContentItemBody } from '../../contents/ContentItemBody';

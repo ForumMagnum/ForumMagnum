@@ -9,7 +9,7 @@ import { Strategy as FacebookOAuthStrategy, Profile as FacebookProfile } from 'p
 import { Strategy as GithubOAuthStrategy, Profile as GithubProfile } from 'passport-github2';
 import { Strategy as Auth0Strategy, Profile as Auth0Profile, ExtraVerificationParams, AuthenticateOptions } from 'passport-auth0';
 import { VerifyCallback } from 'passport-oauth2'
-import { DatabaseServerSetting } from './databaseSettings';
+import { afGithubClientIdSetting, afGithubOAuthSecretSetting, auth0ClientIdSetting, auth0DomainSetting, DatabaseServerSetting, githubClientIdSetting, githubOAuthSecretSetting, googleClientIdSetting, googleOAuthSecretSetting } from './databaseSettings';
 import { combineUrls, getSiteUrl } from '../lib/vulcan-lib/utils';
 import pick from 'lodash/pick';
 import { isAF, isEAForum, siteUrlSetting } from '../lib/instanceSettings';
@@ -27,6 +27,8 @@ import { userIsAdmin } from '../lib/vulcan-users/permissions';
 import { isE2E } from '../lib/executionEnvironment';
 import { getUnusedSlugByCollectionName } from './utils/slugUtil';
 import { slugify } from '@/lib/utils/slugify';
+import { prepareClientId } from './clientIdMiddleware';
+import { getAuth0Credentials, hasAuth0 } from "./databaseSettings";
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -52,38 +54,9 @@ class Auth0StrategyFixed extends Auth0Strategy {
   userProfile!: (accessToken: string, done: (err: Error | null, profile?: Auth0Profile) => void) => void;
 }
 
-const googleClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.google.clientId', null)
-const googleOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.google.secret', null)
-
-const auth0ClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.auth0.appId', null)
-const auth0OAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.auth0.secret', null)
-const auth0DomainSetting = new DatabaseServerSetting<string | null>('oAuth.auth0.domain', null)
-
-export const hasAuth0 = () => {
-  const { auth0ClientId, auth0OAuthSecret, auth0Domain } = getAuth0Credentials();
-
-  return !!(auth0ClientId && auth0OAuthSecret && auth0Domain);
-}
-
-export const getAuth0Credentials = () => {
-  const auth0ClientId = auth0ClientIdSetting.get();
-  const auth0OAuthSecret = auth0OAuthSecretSetting.get();
-  const auth0Domain = auth0DomainSetting.get();
-
-  return {
-    auth0ClientId,
-    auth0OAuthSecret,
-    auth0Domain,
-  }
-}
-
 const facebookClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.facebook.appId', null)
 const facebookOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.facebook.secret', null)
 
-const githubClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.github.clientId', null)
-const githubOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.github.secret', null)
-const afGithubClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.afGithub.clientId', null)
-const afGithubOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.afGithub.secret', null)
 export const expressSessionSecretSetting = new DatabaseServerSetting<string | null>('expressSessionSecret', null)
 
 
@@ -148,12 +121,22 @@ function getReturnTo(req: any): string {
   return req.session.loginReturnTo.path
 }
 
-const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req: any, done) {
-  const loginToken = getCookieFromReq(req, 'loginToken') || getCookieFromReq(req, 'meteor_login_token') // Backwards compatibility with meteor_login_token here
-  if (!loginToken) {
-    return done(null, false)
-  }
-  const user = await getUser(loginToken)
+function getLoginTokenFromReq(req: Request): string|null {
+  return getCookieFromReq(req, 'loginToken') || getCookieFromReq(req, 'meteor_login_token') // Backwards compatibility with meteor_login_token here
+}
+
+const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req: Request, done) {
+  const loginToken = getLoginTokenFromReq(req);
+
+  // Get the user from their login token, if they have one. In parallel with
+  // this, look up their client ID, if they have one, and monkeypatch related
+  // information onto the request. This is an awkward place for this, but it has
+  // to be here so that it can run in parallel with the query to get the user.
+  const [user, _] = await Promise.all([
+    getUser(loginToken),
+    prepareClientId(req)
+  ]);
+
   if (!user) {
     return done(null, false)
   }
@@ -292,7 +275,7 @@ const handleAuthenticate = (
     if (err) {
       return next(err);
     }
-    await createAndSetToken(req, res, user);
+    await createAndSetToken(req, user);
 
     const returnTo = getReturnTo(req);
     res.statusCode = 302;

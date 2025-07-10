@@ -2,7 +2,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React, { FC, useState, useCallback, useEffect } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { nofollowKarmaThreshold } from '../../lib/publicSettings';
+import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import { useForeignCrosspost, isPostWithForeignId, PostWithForeignId } from "../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import { captureException }from "@sentry/core";

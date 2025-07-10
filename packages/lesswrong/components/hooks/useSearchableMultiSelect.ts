@@ -4,7 +4,7 @@ import { useLRUCache } from "./useLRUCache";
 import { useSearchAnalytics } from "../search/useSearchAnalytics";
 import { captureException } from "@sentry/core";
 import { getSearchClient } from "@/lib/search/searchUtil";
-import { algoliaPrefixSetting } from "@/lib/publicSettings";
+import { algoliaPrefixSetting } from '@/lib/instanceSettings';
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
 

@@ -185,5 +185,3 @@ const memoizeComponent = (areEqual: AreEqualOption, component: any, name: string
     });
   }
 }
-
-

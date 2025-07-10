@@ -1,4 +1,4 @@
-import { importAllComponents } from '@/lib/vulcan-lib/importAllComponents';
+import React from 'react';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import miscStyles from '../themes/globalStyles/miscStyles';
 import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
@@ -50,7 +50,7 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
 }
 
 function getAllStylesByName() {
-  importAllComponents();
+  require("@/lib/generated/allComponents");
   require("@/lib/generated/nonRegisteredComponents");
   
   return {

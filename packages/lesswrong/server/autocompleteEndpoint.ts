@@ -10,7 +10,6 @@ import { pipeline } from 'stream/promises'
 import { hyperbolicApiKey } from "@/lib/instanceSettings";
 import { runQuery } from "./vulcan-lib/query";
 import Users from "@/server/collections/users/collection";
-import { clientIdMiddleware } from "./clientIdMiddleware";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const postsForAutocompleteQuery = gql(`
@@ -281,9 +280,9 @@ ${finalSection}`.trim();
 
 
 export function addAutocompleteEndpoint(app: Express) {
-  app.use("/api/autocomplete", express.json(), clientIdMiddleware);
+  app.use("/api/autocomplete", express.json());
   app.post("/api/autocomplete", async (req, res) => {
-    const context = await getContextFromReqAndRes({req, res, isSSR: false});
+    const context = await getContextFromReqAndRes({req, isSSR: false});
     const currentUser = context.currentUser
     if (!currentUser) {
       return res.status(401).json({ error: "Unauthorized" });
@@ -348,7 +347,7 @@ export function addAutocompleteEndpoint(app: Express) {
   });
   app.use("/api/autocomplete405b", express.json());
   app.post("/api/autocomplete405b", async (req, res) => {
-    const context = await getContextFromReqAndRes({req, res, isSSR: false});
+    const context = await getContextFromReqAndRes({req, isSSR: false});
     const currentUser = context.currentUser
     if (!currentUser) {
       return res.status(401).json({ error: "Unauthorized" });

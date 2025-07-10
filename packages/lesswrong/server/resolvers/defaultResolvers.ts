@@ -1,6 +1,6 @@
 import { getMultiResolverName, getSingleResolverName } from "@/lib/crud/utils";
 import { collectionNameToTypeName } from "@/lib/generated/collectionTypeNames";
-import { maxAllowedApiSkip } from "@/lib/instanceSettings";
+import { isEAForum, maxAllowedApiSkip } from "@/lib/instanceSettings";
 import { asyncFilter } from "@/lib/utils/asyncUtils";
 import { logGroupConstructor, loggerConstructor } from "@/lib/utils/logging";
 import { describeTerms, viewTermsToQuery } from "@/lib/utils/viewUtils";
@@ -15,6 +15,9 @@ import isEqual from "lodash/isEqual";
 import { getCollectionAccessFilter } from "../permissions/accessFilters";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { CollectionViewSet } from "@/lib/views/collectionViewSet";
+import UserActivities from "../collections/useractivities/collection";
+import { visitorGetsDynamicFrontpage } from "@/lib/betas";
+import { getWithCustomLoader } from "@/lib/loaders";
 
 
 const getFragmentInfo = ({ fieldName, fieldNodes, fragments }: GraphQLResolveInfo, resultFieldName: string, typeName: string) => {
@@ -75,7 +78,6 @@ type DefaultMultiResolverHandler<N extends CollectionNameString> = {
 export const getDefaultResolvers = <N extends CollectionNameString>(
   collectionName: N,
   viewSet: CollectionViewSet<N, Record<string, ViewFunction<N>>>,
-  
 ): DefaultSingleResolverHandler<N> & DefaultMultiResolverHandler<N> => {
   type T = ObjectsByCollectionName[N];
   const typeName = collectionNameToTypeName[collectionName];
@@ -97,7 +99,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     context: ResolverContext,
     info: GraphQLResolveInfo,
   ): Promise<{ results: Partial<T>[]; totalCount?: number }> => {
-    const collection = context[collectionName] as CollectionBase<N>;
+    const collection = context[collectionName] as PgCollection<N>;
     const { input, selector, limit, offset, enableTotal } = args ?? { input: {} };
 
     // We used to handle selector terms just using a generic "terms" object, but now we use a more structured approach
@@ -159,6 +161,18 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
 
     // get currentUser and Users collection from context
     const { currentUser }: {currentUser: DbUser|null} = context;
+    
+    // HACK: If this is a post query, the default view sometimes uses
+    // `context.visitorActivity`, to adjust the time-decay constant, but it isn't
+    // async so can't await the required DB fetch. So if this is a query on the
+    // Posts collection, add that to the context now.
+    // (This was previously in computeContextFromUser, which was much more
+    // costly since it adds a DB roundtrip to the start of every request.)
+    if (collectionName === "Posts" && 'filterSettings' in terms && terms.filterSettings && !('visitorActivity' in context)) {
+      context.visitorActivity = await getWithCustomLoader(context, "visitorActivityLoader", "_",
+        async () => [await getUserActivity(currentUser, context.clientId)]
+      );
+    }
 
     // Get selector and options from terms and perform Mongo query
     // Downcasts terms because there are collection-specific terms but this function isn't collection-specific
@@ -171,7 +185,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     let fetchDocs: () => Promise<T[]>;
     if (fragmentInfo) {
       // Make a dynamic require here to avoid our circular dependency lint rule, since really by this point we should be fine
-      const getSqlFragment: typeof import('../../lib/fragments/sqlFragments').getSqlFragment = require('../../lib/fragments/sqlFragments').getSqlFragment;
+      const { getSqlFragment } = await import('../../lib/fragments/sqlFragments');
       const sqlFragment = getSqlFragment(fragmentInfo.fragmentName, fragmentInfo.fragmentText);
       const query = new SelectFragmentQuery(
         sqlFragment,
@@ -207,7 +221,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       : docs;
 
     // take the remaining documents and remove any fields that shouldn't be accessible
-    const restrictedDocs = await restrictViewableFieldsMultiple(currentUser, collectionName, viewableDocs);
+    const restrictedDocs = await restrictViewableFieldsMultiple(currentUser, collection, viewableDocs);
 
     // prime the cache
     restrictedDocs.forEach((doc: AnyBecauseTodo) => context.loaders[collectionName].prime(doc._id, doc));
@@ -234,7 +248,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     context: ResolverContext,
     info: GraphQLResolveInfo,
   ) => {
-    const collection = context[collectionName] as CollectionBase<N>;
+    const collection = context[collectionName] as PgCollection<N>;
     const { input: _input, selector: _selector, ...otherQueryVariables } = info.variableValues;
     allowNull ??= input.allowNull ?? false;
     // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
@@ -254,11 +268,22 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     const { currentUser } = context;
 
     // useSingle allows passing in `_id` as `documentId`
-    if (usedSelector.documentId) {
+    if ('documentId' in usedSelector) {
       usedSelector._id = usedSelector.documentId;
       delete usedSelector.documentId;
     }
     const documentId = usedSelector._id;
+    
+    if (!documentId) {
+      if (allowNull) {
+        return { result: null };
+      } else {
+        throwError({
+          id: 'app.missing_document',
+          data: { documentId, selector, collectionName: collection.collectionName },
+        });
+      }
+    }
 
     // get fragment from GraphQL AST
     const fragmentInfo = getFragmentInfo(info, "result", typeName);
@@ -266,9 +291,10 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     let doc: ObjectsByCollectionName[N] | null;
     if (fragmentInfo) {
       // Make a dynamic require here to avoid our circular dependency lint rule, since really by this point we should be fine
-      const getSqlFragment: typeof import('../../lib/fragments/sqlFragments').getSqlFragment = require('../../lib/fragments/sqlFragments').getSqlFragment;
+      const { getSqlFragment } = await import('../../lib/fragments/sqlFragments');
       const sqlFragment = getSqlFragment(fragmentInfo.fragmentName, fragmentInfo.fragmentText);
-      const query = new SelectFragmentQuery(
+      let query: SelectFragmentQuery;
+      query = new SelectFragmentQuery(
         sqlFragment,
         currentUser,
         otherQueryVariables,
@@ -314,7 +340,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       }
     }
 
-    const restrictedDoc = await restrictViewableFieldsSingle(currentUser, collection.collectionName, doc);
+    const restrictedDoc = await restrictViewableFieldsSingle(currentUser, collection, doc);
 
     logGroupEnd();
     logger(`--------------- end \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`);
@@ -384,4 +410,15 @@ export const performQueryFromViewParameters = async <N extends CollectionNameStr
       ...selector,
     }, options).fetch();
   }
+}
+
+async function getUserActivity(user: DbUser|null, clientId: string|null): Promise<DbUserActivity|null> {
+  if ((user || clientId) && (isEAForum || visitorGetsDynamicFrontpage(user))) {
+    if (user) {
+      return await UserActivities.findOne({visitorId: user._id, type: 'userId'});
+    } else if (clientId) {
+      return await UserActivities.findOne({visitorId: clientId, type: 'clientId'});
+    }
+  }
+  return null;
 }
