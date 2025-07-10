@@ -486,7 +486,7 @@ const UltraFeedPostDialog = ({
   });
   const hasTocData = !!tocData && (tocData.sections ?? []).length > 0;
 
-  // Handle browser back button / swipe back navigation  
+  // Handle dialog navigation (browser back button / swipe back navigation  + replacing url)
   const postUrl = displayPost 
     ? `${postGetPageUrl(displayPost)}?${qs.stringify({ from: 'feedModal' })}`
     : undefined;
