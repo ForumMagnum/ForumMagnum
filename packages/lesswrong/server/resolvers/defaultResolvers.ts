@@ -168,7 +168,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     // Posts collection, add that to the context now.
     // (This was previously in computeContextFromUser, which was much more
     // costly since it adds a DB roundtrip to the start of every request.)
-    if (collectionName === "Posts" && !('visitorActivity' in context)) {
+    if (collectionName === "Posts" && 'filterSettings' in terms && terms.filterSettings && !('visitorActivity' in context)) {
       context.visitorActivity = await getWithCustomLoader(context, "visitorActivityLoader", "_",
         async () => [await getUserActivity(currentUser, context.clientId)]
       );
