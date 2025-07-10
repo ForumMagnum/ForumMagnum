@@ -508,6 +508,12 @@ const schema = {
         ).fetch();
         return await accessFilterMultiple(context.currentUser, "Chapters", chapters, context);
       },
+      sqlResolver: ({ field }) => `(
+        SELECT ARRAY_AGG(ROW_TO_JSON(c.*) ORDER BY c."number" ASC)
+        FROM "Chapters" c
+        WHERE c."sequenceId" = ${field("documentId")}
+        LIMIT 100
+      )`
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"Spotlights">>;
