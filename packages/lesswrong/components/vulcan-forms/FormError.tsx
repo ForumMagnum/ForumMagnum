@@ -1,19 +1,10 @@
 import React from 'react';
 import FormattedMessage from '../../lib/vulcan-i18n/message';
-import { CombinedGraphQLErrors } from '@apollo/client';
 
 export const FormError = ({ error, errorContext="" }: {
   error: any,
   errorContext: any,
 }) => {
-  if (error instanceof CombinedGraphQLErrors) {
-    return <>{error.errors.map((err,i) => <FormError
-      key={i}
-      error={err}
-      errorContext={errorContext}
-    />)}</>
-  }
-
   if (isJsonString(error.message)) {
     const parsed = JSON.parse(error.message);
     if (Array.isArray(parsed)) {
