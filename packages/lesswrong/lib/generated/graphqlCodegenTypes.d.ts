@@ -21281,7 +21281,7 @@ type DeletedCommentsModerationLogQueryQuery_comments_MultiCommentOutput_results_
   & DeletedCommentsModerationLog
 );
 
-type DeletedCommentsModerationLogQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<DeletedCommentsModerationLogQueryQuery_comments_MultiCommentOutput_results_Comment> };
+type DeletedCommentsModerationLogQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<DeletedCommentsModerationLogQueryQuery_comments_MultiCommentOutput_results_Comment> };
 
 type DeletedCommentsModerationLogQueryQuery_Query = { __typename?: 'Query', comments: DeletedCommentsModerationLogQueryQuery_comments_MultiCommentOutput | null };
 
@@ -21289,6 +21289,7 @@ type DeletedCommentsModerationLogQueryQuery_Query = { __typename?: 'Query', comm
 type DeletedCommentsModerationLogQueryQueryVariables = Exact<{
   selector: InputMaybe<CommentSelector>;
   limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -21299,7 +21300,7 @@ type UsersBannedFromPostsModerationLogQueryQuery_posts_MultiPostOutput_results_P
   & UsersBannedFromPostsModerationLog
 );
 
-type UsersBannedFromPostsModerationLogQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<UsersBannedFromPostsModerationLogQueryQuery_posts_MultiPostOutput_results_Post> };
+type UsersBannedFromPostsModerationLogQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<UsersBannedFromPostsModerationLogQueryQuery_posts_MultiPostOutput_results_Post> };
 
 type UsersBannedFromPostsModerationLogQueryQuery_Query = { __typename?: 'Query', posts: UsersBannedFromPostsModerationLogQueryQuery_posts_MultiPostOutput | null };
 
@@ -21307,6 +21308,7 @@ type UsersBannedFromPostsModerationLogQueryQuery_Query = { __typename?: 'Query',
 type UsersBannedFromPostsModerationLogQueryQueryVariables = Exact<{
   selector: InputMaybe<PostSelector>;
   limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -21317,7 +21319,7 @@ type UsersBannedFromUsersModerationLogQueryQuery_users_MultiUserOutput_results_U
   & UsersBannedFromUsersModerationLog
 );
 
-type UsersBannedFromUsersModerationLogQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<UsersBannedFromUsersModerationLogQueryQuery_users_MultiUserOutput_results_User> };
+type UsersBannedFromUsersModerationLogQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', totalCount: number | null, results: Array<UsersBannedFromUsersModerationLogQueryQuery_users_MultiUserOutput_results_User> };
 
 type UsersBannedFromUsersModerationLogQueryQuery_Query = { __typename?: 'Query', users: UsersBannedFromUsersModerationLogQueryQuery_users_MultiUserOutput | null };
 
@@ -21325,6 +21327,7 @@ type UsersBannedFromUsersModerationLogQueryQuery_Query = { __typename?: 'Query',
 type UsersBannedFromUsersModerationLogQueryQueryVariables = Exact<{
   selector: InputMaybe<UserSelector>;
   limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -21335,7 +21338,7 @@ type ModeratorActionModerationLogQueryQuery_moderatorActions_MultiModeratorActio
   & ModeratorActionDisplay
 );
 
-type ModeratorActionModerationLogQueryQuery_moderatorActions_MultiModeratorActionOutput = { __typename?: 'MultiModeratorActionOutput', results: Array<ModeratorActionModerationLogQueryQuery_moderatorActions_MultiModeratorActionOutput_results_ModeratorAction> };
+type ModeratorActionModerationLogQueryQuery_moderatorActions_MultiModeratorActionOutput = { __typename?: 'MultiModeratorActionOutput', totalCount: number | null, results: Array<ModeratorActionModerationLogQueryQuery_moderatorActions_MultiModeratorActionOutput_results_ModeratorAction> };
 
 type ModeratorActionModerationLogQueryQuery_Query = { __typename?: 'Query', moderatorActions: ModeratorActionModerationLogQueryQuery_moderatorActions_MultiModeratorActionOutput | null };
 
@@ -21343,6 +21346,7 @@ type ModeratorActionModerationLogQueryQuery_Query = { __typename?: 'Query', mode
 type ModeratorActionModerationLogQueryQueryVariables = Exact<{
   selector: InputMaybe<ModeratorActionSelector>;
   limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -21353,7 +21357,7 @@ type UserRateLimitModerationLogQueryQuery_userRateLimits_MultiUserRateLimitOutpu
   & UserRateLimitDisplay
 );
 
-type UserRateLimitModerationLogQueryQuery_userRateLimits_MultiUserRateLimitOutput = { __typename?: 'MultiUserRateLimitOutput', results: Array<UserRateLimitModerationLogQueryQuery_userRateLimits_MultiUserRateLimitOutput_results_UserRateLimit> };
+type UserRateLimitModerationLogQueryQuery_userRateLimits_MultiUserRateLimitOutput = { __typename?: 'MultiUserRateLimitOutput', totalCount: number | null, results: Array<UserRateLimitModerationLogQueryQuery_userRateLimits_MultiUserRateLimitOutput_results_UserRateLimit> };
 
 type UserRateLimitModerationLogQueryQuery_Query = { __typename?: 'Query', userRateLimits: UserRateLimitModerationLogQueryQuery_userRateLimits_MultiUserRateLimitOutput | null };
 
@@ -21361,6 +21365,7 @@ type UserRateLimitModerationLogQueryQuery_Query = { __typename?: 'Query', userRa
 type UserRateLimitModerationLogQueryQueryVariables = Exact<{
   selector: InputMaybe<UserRateLimitSelector>;
   limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
