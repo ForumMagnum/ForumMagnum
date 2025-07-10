@@ -52,6 +52,7 @@ const EAEmojisVoteOnPost = ({
       <PostsVoteDefault
         post={document}
         votingSystem={votingSystem}
+        useHorizontalLayout
       />
     );
   }
