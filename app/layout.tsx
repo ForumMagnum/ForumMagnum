@@ -8,7 +8,7 @@ import { RouteMetadataProvider } from "@/components/RouteMetadataContext";
 import { initDatabases, initSettings } from "@/server/serverStartup";
 import { getPublicSettings } from "@/lib/settingsCache";
 import { DEFAULT_TIMEZONE } from "@/lib/utils/timeUtil";
-import { getUser } from "@/server/vulcan-lib/apollo-server/context";
+import { getCachedUser } from "@/server/vulcan-lib/apollo-server/context";
 
 export default async function RootLayout({
   children,
@@ -34,7 +34,7 @@ export default async function RootLayout({
 
   const timezone = timezoneCookie?.value ?? DEFAULT_TIMEZONE;
 
-  const user = await getUser(cookieStore.get("loginToken")?.value ?? null);
+  const user = await getCachedUser(cookieStore.get("loginToken")?.value ?? null);
 
   const headerEntries = Object.fromEntries(Array.from((headerValues as AnyBecauseHard).entries() as [string, string][]));
 

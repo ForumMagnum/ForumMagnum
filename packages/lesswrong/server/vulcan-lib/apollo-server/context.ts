@@ -5,11 +5,9 @@ import { getAllCollections, getAllCollectionsByName } from '../../collections/al
 import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
 import { hashLoginToken, tokenExpiration, userIsBanned } from '../../loginTokens';
-import type { Request, Response } from 'express';
 import {getUserEmail} from "../../../lib/collections/users/helpers";
 import { getAllRepos } from '../../repos';
 import UsersRepo from '../../repos/UsersRepo';
-import { getCookieFromReq } from '../../utils/httpUtil';
 import { asyncLocalStorage } from '../../perfMetrics';
 import type { NextRequest } from 'next/server';
 import { prepareClientId } from '@/server/clientIdMiddleware';
@@ -141,7 +139,7 @@ export function configureSentryScope(context: ResolverContext) {
   }
 }
 
-const getCachedUser = unstable_cache(getUser, undefined, { revalidate: 5 });
+export const getCachedUser = unstable_cache(getUser, undefined, { revalidate: 5 });
 
 export const getUserFromReq = async (req: NextRequest): Promise<DbUser|null> => {
   // We check both cookies and headers, because requests from the browser come with cookies,
@@ -160,6 +158,6 @@ export async function getContextFromReqAndRes({req, isSSR}: {
     prepareClientId(req)
   ]);
 
-  const context = await computeContextFromUser({user, req, isSSR});
+  const context = computeContextFromUser({user, req, isSSR: isSSR || req.headers.get('isSSR') === 'true'});
   return context;
 }
