@@ -561,6 +561,8 @@ export const mapsAPIKeySetting = new PublicInstanceSetting<string | null>('googl
 
 export const siteImageSetting = new PublicInstanceSetting<string>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg', "optional"); // An image used to represent the site on social media
 
+export const ultraFeedEnabledSetting = new PublicInstanceSetting<boolean>('ultraFeedEnabled', false, "optional");
+
 export const petrovBeforeTime = new PublicInstanceSetting<number>('petrov.beforeTime', 0, "optional");
 export const petrovAfterTime = new PublicInstanceSetting<number>('petrov.afterTime', 0, "optional");
 
