@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react';
-import { useLocation } from '@/lib/routeUtil';
 
 /**
  * Manages browser navigation for dialogs by:
@@ -17,12 +16,10 @@ import { useLocation } from '@/lib/routeUtil';
  */
 export const useDialogNavigation = (onClose: () => void, modalUrl?: string) => {
   const isClosingViaBackRef = useRef(false);
-  const location = useLocation();
 
   useEffect(() => {
-    const originalUrl = location.url;
-    
-    window.history.pushState({ dialogOpen: true }, '', modalUrl || originalUrl);
+    // Push a new history entry. If modalUrl is provided, use it; otherwise keep current URL
+    window.history.pushState({ dialogOpen: true }, '', modalUrl);
 
     const handlePopState = (event: PopStateEvent) => {
       if (!event.state?.dialogOpen) {
@@ -40,5 +37,5 @@ export const useDialogNavigation = (onClose: () => void, modalUrl?: string) => {
         window.history.back();
       }
     };
-  }, [onClose, modalUrl, location.url]);
+  }, [onClose, modalUrl]);
 }; 
