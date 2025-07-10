@@ -171,7 +171,7 @@ const logIfSlow = async <T>(
   const isSSRRequest = getIsSSRRequest();
 
   const queryID = ++queriesExecuted;
-  if (logAllQueries && isSSRRequest) {
+  if (logAllQueries) {
     // eslint-disable-next-line no-console
     console.log(`Running Postgres query #${queryID}: ${getDescription()}`);
   }
@@ -186,7 +186,7 @@ const logIfSlow = async <T>(
   if (measureSqlBytesDownloaded || logAllQueries) {
     sqlBytesDownloaded += JSON.stringify(result).length;
   }
-  if (logAllQueries && isSSRRequest) {
+  if (logAllQueries) {
     // eslint-disable-next-line no-console
     console.log(`Finished query #${queryID}, ${getParentTraceId().parent_trace_id} (${milliseconds} ms) (${JSON.stringify(result).length}b)`);
   } else if (SLOW_QUERY_REPORT_CUTOFF_MS >= 0 && milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
