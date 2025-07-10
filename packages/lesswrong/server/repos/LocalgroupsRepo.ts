@@ -15,6 +15,19 @@ class LocalgroupsRepo extends AbstractRepo<"Localgroups"> {
       WHERE ARRAY_POSITION("organizerIds", $1) IS NOT NULL
     `, [oldUserId, newUserId]);
   }
+
+  async getSitemapLocalgroups(): Promise<Pick<
+    DbLocalgroup,
+    "_id" | "lastActivity"
+  >[]> {
+    return this.getRawDb().any(`
+      -- LocalgroupsRepo.getSitemapLocalgroups
+      SELECT "_id", "lastActivity"
+      FROM "Localgroups"
+      WHERE NOT "deleted"
+      ORDER BY "createdAt" DESC
+    `);
+  }
 }
 
 recordPerfMetrics(LocalgroupsRepo);
