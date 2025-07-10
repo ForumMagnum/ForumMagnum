@@ -41,6 +41,7 @@ export default async function RootLayout({
   return (
     <html>
       <head>
+        <link rel="stylesheet" href="https://www.lesswrong.com/allStyles" />
         <Script strategy="beforeInteractive" id="public-instance-settings">
           {`window.publicInstanceSettings = ${toEmbeddableJson(publicInstanceSettings)}`}
           {`window.publicSettings = ${toEmbeddableJson(publicDatabaseSettings)}`}
