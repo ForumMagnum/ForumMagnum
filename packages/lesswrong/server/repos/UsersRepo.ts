@@ -694,11 +694,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
       -- UsersRepo.getSitemapUsers
       SELECT "slug"
       FROM "Users"
-      WHERE
-        NOT "noindex"
-        AND NOT "deleted"
-        AND "banned" IS NULL
-        AND "reviewedAt" IS NOT NULL
+      WHERE NOT "noindex" AND NOT "deleted" AND "banned" IS NULL
       ORDER BY "createdAt" DESC
     `);
   }
