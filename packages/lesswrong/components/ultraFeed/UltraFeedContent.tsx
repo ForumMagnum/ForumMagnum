@@ -3,7 +3,7 @@ import { isClient } from '@/lib/executionEnvironment';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { UltraFeedSettingsType, DEFAULT_SETTINGS, ULTRA_FEED_SETTINGS_KEY } from './ultraFeedSettingsTypes';
-import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 import { randomId } from '@/lib/random';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { ObservableQuery } from '@apollo/client';
@@ -15,8 +15,6 @@ import SingleColumnSection from '../common/SingleColumnSection';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import SettingsButton from '../icons/SettingsButton';
-import SpotlightFeedItem from '../spotlights/SpotlightFeedItem';
-import { SpotlightItem } from '../spotlights/SpotlightItem';
 import FeedItemWrapper from './FeedItemWrapper';
 import { OverflowNavObserverProvider } from './OverflowNavObserverContext';
 import { UltraFeedObserverProvider } from './UltraFeedObserver';
@@ -24,6 +22,11 @@ import UltraFeedPostItem from './UltraFeedPostItem';
 import UltraFeedQuickTakeDialog from './UltraFeedQuickTakeDialog';
 import UltraFeedSettings from './UltraFeedSettings';
 import UltraFeedThreadItem from './UltraFeedThreadItem';
+import { Link } from 'react-router-dom';
+import classNames from 'classnames';
+import UltraFeedFeedback from './UltraFeedFeedback';
+import FeedSelectorDropdown from '../common/FeedSelectorCheckbox';
+import UltraFeedSpotlightItem from './UltraFeedSpotlightItem';
 
 const contentStyles = defineStyles("UltraFeedContent", (theme: ThemeType) => ({
   root: {
@@ -38,23 +41,20 @@ const contentStyles = defineStyles("UltraFeedContent", (theme: ThemeType) => ({
   },
   sectionTitle: {
     display: 'flex',
-    width: '100%',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   titleContainer: {
     display: 'flex',
-    flex: '1 1 0',
-    width: 'auto',
+    columnGap: 10,
     alignItems: 'center',
-    justifyContent: 'space-between',
-    cursor: 'pointer',
-    minHeight: 24,
-    '&:hover': {
-      opacity: 0.8
-    }
+    color: theme.palette.text.bannerAdOverlay,
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: 8,
+    },
   },
-  titleText: {},
+  titleText: {
+  },
   titleTextDesktop: {
     display: 'inline',
     [theme.breakpoints.down('sm')]: {
@@ -63,48 +63,37 @@ const contentStyles = defineStyles("UltraFeedContent", (theme: ThemeType) => ({
   },
   titleTextMobile: {
     display: 'none',
-    marginLeft: 12,
+    marginLeft: 8,
     [theme.breakpoints.down('sm')]: {
       display: 'inline',
     },
   },
-  settingsButtonContainer: {
-    flex: '1 1 0',
+  feedCheckboxAndSettingsContainer: {
     display: 'flex',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    marginTop: 8
+    // gap: 24, // Add spacing between items
   },
-  ultraFeedNewContentContainer: {},
+  settingsButtonContainer: {
+    display: 'flex',
+    alignItems: 'center'
+  },
+  ultraFeedNewContentContainer: {
+  },
   settingsContainer: {
     marginBottom: 32,
   },
   hiddenOnDesktop: {
-    display: 'none',
+    // because of conflicting styles (this is all temporary code anyhow)
+    display: 'none !important',
     [theme.breakpoints.down('sm')]: {
-      display: 'block',
+      display: 'block !important',
     },
   },
   hiddenOnMobile: {
     display: 'block',
     [theme.breakpoints.down('sm')]: {
       display: 'none',
-    },
-  },
-  ultraFeedSpotlightTitle: {
-    '& .SpotlightItem-title': {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontVariant: 'normal',
-      fontSize: '1.4rem',
-      fontWeight: 600,
-      opacity: 0.8,
-      lineHeight: 1.15,
-      marginBottom: 8,
-      textWrap: 'balance',
-      width: '100%',
-      '& a:hover': {
-        opacity: 0.9,
-      },
     },
   },
   composerButton: {
@@ -135,19 +124,38 @@ const contentStyles = defineStyles("UltraFeedContent", (theme: ThemeType) => ({
   composerIcon: {
     fontSize: 24,
   },
+  disabledMessage: {
+    textAlign: 'center',
+    padding: 40,
+    ...theme.typography.body1,
+    color: theme.palette.text.dim,
+  },
+  titleLink: {
+    color: 'inherit',
+    '&:hover': {
+      color: 'inherit',
+      opacity: 0.8,
+    },
+  },
+  feedSelectorMobileContainer: {
+    // marginTop: 8,
+    marginBottom: 16,
+    display: 'flex',
+    justifyContent: 'center',
+  },
 }));
 
 const ULTRAFEED_SESSION_ID_KEY = 'ultraFeedSessionId';
 
 const getStoredSettings = (): UltraFeedSettingsType => {
   if (!isClient) return DEFAULT_SETTINGS;
-
+  
   const ls = getBrowserLocalStorage();
   if (!ls) return DEFAULT_SETTINGS;
-
+  
   const storedSettings = ls.getItem(ULTRA_FEED_SETTINGS_KEY);
   if (!storedSettings) return DEFAULT_SETTINGS;
-
+  
   try {
     return { ...DEFAULT_SETTINGS, ...JSON.parse(storedSettings) };
   } catch (e) {
@@ -160,10 +168,10 @@ const getStoredSettings = (): UltraFeedSettingsType => {
 const saveSettings = (settings: Partial<UltraFeedSettingsType>): UltraFeedSettingsType => {
   const ls = getBrowserLocalStorage();
   if (!ls) return DEFAULT_SETTINGS;
-
+  
   const currentSettings = getStoredSettings();
   const newSettings = { ...currentSettings, ...settings };
-
+  
   ls.setItem(ULTRA_FEED_SETTINGS_KEY, JSON.stringify(newSettings));
   return newSettings;
 };
@@ -174,7 +182,9 @@ const UltraFeedContent = ({alwaysShow = false}: {
   const classes = useStyles(contentStyles);
   const currentUser = useCurrentUser();
   const [settingsVisible, setSettingsVisible] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
   const { openDialog } = useDialog();
+  const { captureEvent } = useTracking();
   const [settings, setSettings] = useState<UltraFeedSettingsType>(getStoredSettings);
   const [sessionId] = useState<string>(() => {
     if (typeof window === 'undefined') return randomId();
@@ -186,6 +196,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
   const refetchSubscriptionContentRef = useRef<null | ObservableQuery['refetch']>(null);
 
   const handleOpenQuickTakeDialog = () => {
+    captureEvent("ultraFeedComposerQuickTakeDialogOpened");
     openDialog({
       name: "UltraFeedQuickTakeDialog",
       contents: ({onClose}) => <UltraFeedQuickTakeDialog onClose={onClose} currentUser={currentUser} />
@@ -198,17 +209,22 @@ const UltraFeedContent = ({alwaysShow = false}: {
 
   const toggleSettings = (e: React.MouseEvent) => {
     e.stopPropagation();
+    captureEvent("ultraFeedSettingsToggled", { open: !settingsVisible });
     setSettingsVisible(!settingsVisible);
   };
   
   const updateSettings = (newSettings: Partial<UltraFeedSettingsType>) => {
     const updatedSettings = saveSettings(newSettings);
     setSettings(updatedSettings);
+    captureEvent("ultraFeedSettingsUpdated", { 
+      changedSettings: Object.keys(newSettings) 
+    });
   };
   
   const resetSettingsToDefault = () => {
     const defaultSettings = saveSettings(DEFAULT_SETTINGS);
     setSettings(defaultSettings);
+    captureEvent("ultraFeedSettingsReset");
   };
 
   const { resolverSettings } = settings;
@@ -216,15 +232,10 @@ const UltraFeedContent = ({alwaysShow = false}: {
   const customTitle = <>
     <div className={classes.titleContainer}>
       <span className={classes.titleText}>
-        <span className={classes.titleTextDesktop}>Update Feed</span>
-        <span className={classes.titleTextMobile}>The Feed</span>
+        <Link to="/feed" className={classes.titleLink}>
+          Update Feed
+        </Link>
       </span>
-    </div>
-    <div className={classes.settingsButtonContainer}>
-      <SettingsButton 
-        showIcon={true}
-        onClick={toggleSettings}
-      />
     </div>
   </>;
 
@@ -234,7 +245,24 @@ const UltraFeedContent = ({alwaysShow = false}: {
         <UltraFeedObserverProvider incognitoMode={resolverSettings.incognitoMode}>
         <OverflowNavObserverProvider>
           <SingleColumnSection>
-            <SectionTitle title={customTitle} titleClassName={classes.sectionTitle} />
+            <SectionTitle title={customTitle} titleClassName={classes.sectionTitle}>
+              <div className={classes.feedCheckboxAndSettingsContainer}>
+              {!alwaysShow && <div className={classes.hiddenOnMobile}>
+                <FeedSelectorDropdown currentFeedType="new" showFeedback={showFeedback} onFeedbackClick={() => setShowFeedback(!showFeedback)} />
+              </div>}
+              <div className={classes.settingsButtonContainer}>
+                <SettingsButton 
+                  showIcon={true}
+                  onClick={toggleSettings}
+                />
+              </div>
+            </div>
+            </SectionTitle>
+            {!alwaysShow && <div className={classNames(classes.hiddenOnDesktop, classes.feedSelectorMobileContainer)}>
+              <FeedSelectorDropdown currentFeedType="new" showFeedback={showFeedback} onFeedbackClick={() => setShowFeedback(!showFeedback)} />
+            </div>}
+            {showFeedback && <UltraFeedFeedback />}
+
             {settingsVisible && (
               <div className={classes.settingsContainer}>
                 <UltraFeedSettings 
@@ -296,27 +324,19 @@ const UltraFeedContent = ({alwaysShow = false}: {
                   },
                   feedSpotlight: {
                     render: (item: FeedSpotlightFragment, index: number) => {
-                      const { spotlight } = item;
+                      const { spotlight, post } = item;
                       if (!spotlight) {
                         return null;
                       }
 
                       return (
                         <FeedItemWrapper>
-                          <span className={classes.hiddenOnDesktop}>
-                            <SpotlightFeedItem 
-                              spotlight={spotlight}
-                              showSubtitle={true}
-                              index={index}
-                            />
-                          </span>
-                          <span className={classes.hiddenOnMobile}>
-                            <SpotlightItem 
-                              spotlight={spotlight}
-                              showSubtitle={true}
-                              className={classes.ultraFeedSpotlightTitle}
-                            />
-                          </span>
+                          <UltraFeedSpotlightItem 
+                            spotlight={spotlight}
+                            post={post ?? undefined}
+                            showSubtitle={true}
+                            index={index}
+                          />
                         </FeedItemWrapper>
                       );
                     }
