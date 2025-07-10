@@ -4,7 +4,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
-import { AnalyticsContext, captureEvent } from "@/lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { FeedCommentMetaInfo, FeedItemDisplayStatus } from "./ultraFeedTypes";
 import { useOverflowNav } from "./OverflowNavObserverContext";
 import { useDialog } from "../common/withDialog";
@@ -179,6 +179,7 @@ const BranchNavigationButton = ({
   onBranchToggle?: () => void;
 }) => {
   const classes = useStyles(styles);
+  const { captureEvent } = useTracking();
   
   const handleClick = () => {
     captureEvent("ultraFeedBranchNavigationClicked", { 
@@ -209,6 +210,7 @@ export const UltraFeedCompressedCommentsItem = ({
   isLastComment?: boolean,
 }) => {
   const classes = useStyles(styles);
+  const { captureEvent } = useTracking();
   
   const handleClick = () => {
     captureEvent("ultraFeedCompressedCommentsClicked", { numComments });
@@ -289,6 +291,7 @@ export const UltraFeedCommentItem = ({
   const { openDialog } = useDialog();
   const overflowNav = useOverflowNav(elementRef);
   const currentUser = useCurrentUser();
+  const { captureEvent } = useTracking();
   
   const cannotReplyReason = customCannotReplyReason ?? (userOwns(currentUser, comment) ? "You cannot reply to your own comment from within the feed" : null);
 
@@ -383,7 +386,7 @@ export const UltraFeedCommentItem = ({
       onChangeDisplayStatus("expanded");
     }
 
-  }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus, metaInfo.servedEventId]);
+  }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus, metaInfo.servedEventId, captureEvent]);
 
   const handleContinueReadingClick = useCallback(() => {
     captureEvent("ultraFeedCommentItemContinueReadingClicked");
@@ -398,7 +401,7 @@ export const UltraFeedCommentItem = ({
         />
       )
     });
-  }, [openDialog, comment]);
+  }, [openDialog, comment, captureEvent]);
 
   const truncationParams = useMemo(() => {
     const { displaySettings } = settings;

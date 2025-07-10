@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { AnalyticsContext, captureEvent } from "../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import { defineStyles, useStyles } from "../hooks/useStyles";
@@ -265,6 +265,7 @@ const UltraFeedCommentsItemMeta = ({
   const currentUser = useCurrentUser();
   const [postTitleHighlighted, setPostTitleHighlighted] = useState(false);
   const { post } = comment;
+  const { captureEvent } = useTracking();
 
   if (!post) {
     return null;

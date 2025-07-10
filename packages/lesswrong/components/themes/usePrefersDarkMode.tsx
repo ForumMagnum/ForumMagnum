@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { isClient } from "../../lib/executionEnvironment";
-import { captureEvent } from "../../lib/analyticsEvents";
+import { useTracking } from "../../lib/analyticsEvents";
 
 const prefersDarkModeContext = createContext(false);
 
@@ -18,6 +18,7 @@ export const PrefersDarkModeProvider = ({children}: {
 }) => {
   const [query] = useState(() => buildQuery());
   const [prefersDarkMode, setPrefersDarkMode] = useState(query.matches);
+  const { captureEvent } = useTracking();
 
   useEffect(() => {
     const handler = ({matches}: MediaQueryListEvent) => {
@@ -32,7 +33,7 @@ export const PrefersDarkModeProvider = ({children}: {
       query.addEventListener("change", handler);
       return () => query.removeEventListener("change", handler);
     }
-  }, [query]);
+  }, [query, captureEvent]);
 
   return (
     <prefersDarkModeContext.Provider value={prefersDarkMode}>

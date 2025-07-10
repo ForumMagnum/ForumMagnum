@@ -15,7 +15,7 @@ import CommentsNodeInner from "../comments/CommentsNode";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import { maybeDate } from '@/lib/utils/dateUtils';
-import { AnalyticsContext, captureEvent } from "../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -83,6 +83,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
 }) => {
   const [truncated, setTruncated] = useState(true);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
+  const { captureEvent } = useTracking();
   
   const viewTrackingRef = useRecentDiscussionViewTracking({
     documentId: tag._id,
@@ -102,7 +103,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
       tagName: tag.name,
       pageSectionContext: "recentDiscussion"
     });
-  }, [tag._id, tag.name]);
+  }, [tag._id, tag.name, captureEvent]);
 
   
   const descriptionHtml = tag.description?.html;

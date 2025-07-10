@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { useMutation } from '@apollo/client/react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useCurrentUser } from '../common/withUser';
-import { captureEvent } from '@/lib/analyticsEvents';
+import { useTracking } from '@/lib/analyticsEvents';
 import { recombeeApi } from '@/lib/recombee/client';
 import { FeedbackOptions } from './SeeLessFeedback';
 import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
@@ -29,6 +29,7 @@ export const useSeeLess = ({ documentId, documentType, recommId }: UseSeeLessOpt
   const [seeLessEventId, setSeeLessEventId] = useState<string | null>(null);
   const [pendingFeedback, setPendingFeedback] = useState<FeedbackOptions | null>(null);
   const [updateUltraFeedEvent] = useMutation(updateUltraFeedEventMutation);
+  const { captureEvent } = useTracking();
 
   const handleSeeLess = useCallback((eventId: string) => {
     setIsSeeLessMode(true);
@@ -69,7 +70,7 @@ export const useSeeLess = ({ documentId, documentType, recommId }: UseSeeLessOpt
     });
     
     setSeeLessEventId(null);
-  }, [currentUser, seeLessEventId, documentId, documentType, recommId, updateUltraFeedEvent]);
+  }, [currentUser, seeLessEventId, documentId, documentType, recommId, updateUltraFeedEvent, captureEvent]);
 
   const debouncedFeedbackUpdate = useDebouncedCallback(async (feedback: FeedbackOptions) => {
     if (!seeLessEventId || seeLessEventId === 'pending') return;

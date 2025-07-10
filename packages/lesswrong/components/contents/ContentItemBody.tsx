@@ -13,13 +13,14 @@ import { hasCollapsedFootnotes } from '@/lib/betas';
 import { CollapsedFootnotes } from './CollapsedFootnotes';
 import { WrappedStrawPoll } from './WrappedStrawPoll';
 import { validateUrl } from '@/lib/vulcan-lib/utils';
-import { captureEvent } from '@/lib/analyticsEvents';
+import { useTracking } from '@/lib/analyticsEvents';
 import ForumEventPostPagePollSection from '../forumEvents/ForumEventPostPagePollSection';
 import repeat from 'lodash/repeat';
 import { captureException } from '@sentry/core';
 
 type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"> & {
-  bodyRef: React.RefObject<HTMLDivElement|null>
+  bodyRef: React.RefObject<HTMLDivElement|null>,
+  captureEvent: (eventType: string, eventData: any) => void
 }
 
 type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: boolean}>;
@@ -54,6 +55,7 @@ type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: 
 export const ContentItemBody = (props: ContentItemBodyProps) => {
   const { onContentReady, nofollow, dangerouslySetInnerHTML, replacedSubstrings, className, ref } = props;
   const bodyRef = useRef<HTMLDivElement|null>(null);
+  const { captureEvent } = useTracking();
   const html = (nofollow
     ? addNofollowToHTML(dangerouslySetInnerHTML.__html)
     : dangerouslySetInnerHTML.__html
@@ -87,6 +89,7 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
   const passedThroughProps = {
     ...pick(props, ["description", "noHoverPreviewPrefetch", "nofollow", "contentStyleType", "replacedSubstrings", "idInsertions"]),
     bodyRef,
+    captureEvent,
   };
   
   return <div className={className} ref={bodyRef}>
@@ -196,7 +199,7 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         }
         const originalOnClick = attribs['onClick'];
         attribs['onClick'] = (ev: React.MouseEvent<HTMLAnchorElement>) => {
-          captureEvent("ctaButtonClicked", {href: attribs['data-href']});
+          passedThroughProps.captureEvent("ctaButtonClicked", {href: attribs['data-href']});
           originalOnClick?.(ev);
         }
       }
