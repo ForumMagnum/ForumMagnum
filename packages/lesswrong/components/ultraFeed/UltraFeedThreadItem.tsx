@@ -100,14 +100,10 @@ const compressCollapsedComments = (
     const commentId = comment._id;
     const localStatus = displayStatuses[commentId] || "collapsed"
 
-    if (localStatus === "hidden") {
-      continue;
-    }
-
-    if (localStatus === "collapsed") {
+    if (localStatus === "collapsed" || localStatus === "hidden") {
       tempGroup.push(comment);
     } else {
-      // If we hit a non-collapsed, flush the current group
+      // If we hit a non-collapsed/hidden comment, flush the current group
       flushGroupIfNeeded();
       result.push(comment);
     }
