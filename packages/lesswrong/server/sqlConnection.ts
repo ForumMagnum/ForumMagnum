@@ -5,7 +5,7 @@ import { isAnyTest, isDevelopment } from "../lib/executionEnvironment";
 import { pgConnIdleTimeoutMsSetting } from "../lib/instanceSettings";
 import omit from "lodash/omit";
 import { logAllQueries, logQueryArguments, measureSqlBytesDownloaded } from "@/server/sql/sqlClient";
-import { recordSqlQueryPerfMetric } from "./perfMetrics";
+import { getIsSSRRequest, getParentTraceId, recordSqlQueryPerfMetric } from "./perfMetrics";
 
 let sqlBytesDownloaded = 0;
 
@@ -168,8 +168,10 @@ const logIfSlow = async <T>(
     return describeString.slice(0, truncateLength ?? 5000)
   }
 
+  const isSSRRequest = getIsSSRRequest();
+
   const queryID = ++queriesExecuted;
-  if (logAllQueries) {
+  if (logAllQueries && isSSRRequest) {
     // eslint-disable-next-line no-console
     console.log(`Running Postgres query #${queryID}: ${getDescription()}`);
   }
@@ -184,9 +186,9 @@ const logIfSlow = async <T>(
   if (measureSqlBytesDownloaded || logAllQueries) {
     sqlBytesDownloaded += JSON.stringify(result).length;
   }
-  if (logAllQueries) {
+  if (logAllQueries && isSSRRequest) {
     // eslint-disable-next-line no-console
-    console.log(`Finished query #${queryID} (${milliseconds} ms) (${JSON.stringify(result).length}b)`);
+    console.log(`Finished query #${queryID}, ${getParentTraceId().parent_trace_id} (${milliseconds} ms) (${JSON.stringify(result).length}b)`);
   } else if (SLOW_QUERY_REPORT_CUTOFF_MS >= 0 && milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
     const description = isDevelopment ? getDescription(50) : getDescription(5000);
     const message = `Slow Postgres query detected (${milliseconds} ms): ${description}`;

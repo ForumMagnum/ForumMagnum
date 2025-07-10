@@ -3,7 +3,7 @@ import { isProduction } from "@/lib/executionEnvironment";
 
 // logAllQueries: If true, generate a console log for all postgres queries.
 // Intended for debugging and performance investigation, not for prod.
-export const logAllQueries = false;
+export const logAllQueries = process.env.QUERY_LOGGING === 'true';
 
 // logQueryArguments: If true, logged queries will include the parameters to
 // the query (which may include sensitive data). Intended for debugging, not for

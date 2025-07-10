@@ -5,6 +5,8 @@ import { ApolloServer } from '@apollo/server';
 import { getContextFromReqAndRes } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/context';
 import { initDatabases, initSettings } from '../../packages/lesswrong/server/serverStartup';
 import type { NextRequest } from 'next/server';
+import { asyncLocalStorage, closeRequestPerfMetric, openPerfMetric } from '@/server/perfMetrics';
+import { logAllQueries } from '@/server/sql/sqlClient';
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
@@ -29,4 +31,32 @@ const handler = startServerAndCreateNextHandler<NextRequest, ResolverContext>(se
  context: async (req) => await getContextFromReqAndRes({ req, isSSR: false }),
 });
 
-export { handler as GET, handler as POST };
+// export { handler as GET, handler as POST };
+
+export function GET(request: NextRequest) {
+  const perfMetric = openPerfMetric({
+    op_type: 'request',
+    op_name: request.url,
+  });
+
+  return asyncLocalStorage.run({ requestPerfMetric: perfMetric }, () => handler(request)).then(res => {
+    closeRequestPerfMetric();
+    return res;
+  });
+}
+
+export async function POST(request: NextRequest) {
+  const isSSRRequest = request.headers.get('isSSR') === 'true';
+  
+  const perfMetric = openPerfMetric({
+    op_type: 'request',
+    op_name: request.url,
+  });
+
+  const clonedRequest = request.clone();
+  if (isSSRRequest && logAllQueries) {
+    console.log(`Entering /graphql with traceId ${perfMetric.trace_id} and gql op ${(await clonedRequest.json())[0]?.operationName}`)
+  }
+
+  return asyncLocalStorage.run({ requestPerfMetric: perfMetric, isSSRRequest }, () => handler(request));
+}
