@@ -257,10 +257,17 @@ export function startWebserver() {
   app.use('/graphql', clientIdMiddleware, perfMetricMiddleware);
   apolloServer.applyMiddleware({ app })
 
-  addStaticRoute("/sitemap.xml", async (_props, _req, res, _next) => {
-    const sitemap = await getSitemapWithCache();
-    res.setHeader("Content-Type", "text/xml");
-    res.write(sitemap);
+  addStaticRoute(/^\/sitemap([0-9]?).xml$/, async (props, _req, res, _next) => {
+    const rawIndex = parseInt(props["0"]);
+    const index = Number.isInteger(rawIndex) ? rawIndex : undefined;
+    const sitemap = await getSitemapWithCache(index);
+    if (sitemap) {
+      res.statusCode = 200;
+      res.setHeader("Content-Type", "text/xml");
+      res.write(sitemap);
+    } else {
+      res.statusCode = 404;
+    }
     res.end();
   });
 
