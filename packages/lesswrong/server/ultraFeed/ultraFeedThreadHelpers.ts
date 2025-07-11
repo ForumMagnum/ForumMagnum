@@ -500,7 +500,6 @@ function prepareThreadForDisplay(
     const shouldHighlight = !comment.lastViewed && !comment.lastInteracted && postedAtRecently;
     
     let displayStatus: FeedItemDisplayStatus;
-    // Safety check - this should be unreachable since we truncate earlier
     if ((comment.baseScore ?? 0) < 0) {
       displayStatus = 'hidden';
     } else if (expandedCommentIds.has(comment.commentId)) {
