@@ -1,10 +1,9 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { captureEvent } from '../../lib/analyticsEvents';
+import { useTracking } from '../../lib/analyticsEvents';
 
 interface ViewTrackingOptions {
   documentId: string;
   documentType: 'post' | 'comment' | 'tag';
-  index?: number;
   wordCount?: number;
 }
 
@@ -18,7 +17,6 @@ const LONG_VIEW_THRESHOLD_MS = 10000;
 export function useRecentDiscussionViewTracking({
   documentId,
   documentType,
-  index,
   wordCount,
 }: ViewTrackingOptions) {
   const elementRef = useRef<HTMLDivElement | null>(null);
@@ -26,6 +24,7 @@ export function useRecentDiscussionViewTracking({
   const longViewTimerRef = useRef<NodeJS.Timeout | null>(null);
   const hasLoggedViewRef = useRef(false);
   const hasLoggedLongViewRef = useRef(false);
+  const { captureEvent } = useTracking();
 
   const handleIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
     const entry = entries[0];
@@ -38,8 +37,6 @@ export function useRecentDiscussionViewTracking({
             documentId,
             documentType,
             durationMs: VIEW_THRESHOLD_MS,
-            index,
-            wordCount,
           });
           hasLoggedViewRef.current = true;
         }, VIEW_THRESHOLD_MS);
@@ -51,8 +48,6 @@ export function useRecentDiscussionViewTracking({
             documentId,
             documentType,
             durationMs: LONG_VIEW_THRESHOLD_MS,
-            index,
-            wordCount,
           });
           hasLoggedLongViewRef.current = true;
         }, LONG_VIEW_THRESHOLD_MS);
@@ -68,7 +63,7 @@ export function useRecentDiscussionViewTracking({
         longViewTimerRef.current = null;
       }
     }
-  }, [documentId, documentType, index, wordCount]);
+  }, [documentId, documentType, wordCount, captureEvent]);
 
   useEffect(() => {
     const element = elementRef.current;

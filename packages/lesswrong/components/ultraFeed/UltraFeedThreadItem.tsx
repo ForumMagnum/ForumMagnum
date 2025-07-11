@@ -385,12 +385,6 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
                   <UltraFeedCompressedCommentsItem
                     numComments={hiddenCount}
                     setExpanded={() => {
-                      captureEvent("ultraFeedThreadItemCompressedCommentsExpanded", { 
-                        ultraCardIndex: index, 
-                        ultraCardCount: compressedItems.length,
-                        numExpanded: Math.min(3, hiddenCount)
-                      });
-                      
                       // Always expand max 3 comments at a time
                       item.hiddenComments.slice(0, 3).forEach(h => {
                         setDisplayStatus(h._id, "expanded");

@@ -15,7 +15,7 @@ import CommentsNodeInner from "../comments/CommentsNode";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import { maybeDate } from '@/lib/utils/dateUtils';
-import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
+import { useTracking } from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -72,13 +72,12 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = "DISCUSSION", index, classes }: {
+const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = "DISCUSSION", classes }: {
   tag: TagRecentDiscussion,
   refetch?: any,
   comments: Array<CommentsList>,
   expandAllThreads?: boolean
   tagCommentType?: TagCommentType,
-  index?: number,
   classes: ClassesType<typeof styles>
 }) => {
   const [truncated, setTruncated] = useState(true);
@@ -88,7 +87,6 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   const viewTrackingRef = useRecentDiscussionViewTracking({
     documentId: tag._id,
     documentType: 'tag',
-    index,
   });
   
   const lastCommentId = comments && comments[0]?._id
@@ -123,7 +121,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   
   const metadataWording = tag.wikiOnly ? "Wiki page" : `${taggingNameCapitalSetting.get()} page - ${tag.postCount} posts`;
   
-  return <AnalyticsContext pageSubSectionContext='recentDiscussionTag' recentDiscussionCardIndex={index}>
+  return (
     <div ref={viewTrackingRef} className={classes.root}>
       <div className={classes.tag}>
         <Link to={tagGetDiscussionUrl(tag)} className={classes.title}>
@@ -162,7 +160,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
         </div>
       </div> : null}
     </div>
-  </AnalyticsContext>
+  )
 }
 
 export default registerComponent(

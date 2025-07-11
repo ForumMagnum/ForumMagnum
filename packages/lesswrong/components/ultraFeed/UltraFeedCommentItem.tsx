@@ -213,7 +213,12 @@ export const UltraFeedCompressedCommentsItem = ({
   const { captureEvent } = useTracking();
   
   const handleClick = () => {
-    captureEvent("ultraFeedCompressedCommentsClicked", { numComments });
+    captureEvent("ultraFeedCompressedCommentsClicked", { 
+      numComments,
+      numExpanded: Math.min(3, numComments), // We always expand max 3 at a time
+      isFirstComment,
+      isLastComment,
+    });
     setExpanded();
   };
   

@@ -22,6 +22,7 @@ import PostsListSortDropdown from "../../posts/PostsListSortDropdown";
 import PostsLayoutDropdown from "../../posts/PostsLayoutDropdown";
 import { gql } from "@/lib/generated/gql-codegen";
 import { SubforumFeedQueries } from '@/components/common/feeds/feedQueries';
+import { AnalyticsContext } from '../../../lib/analyticsEvents';
 
 const UserTagRelDetailsUpdateMutation = gql(`
   mutation updateUserTagRelSubforumSubforumTab($selector: SelectorInput!, $data: UpdateUserTagRelDataInput!) {
@@ -142,6 +143,7 @@ const SubforumSubforumTab = ({
   const cardLayoutComponent = <>
     {tag.subforumIntroPost && !hideIntroPost && (
       <div className={classes.feedPostWrapper}>
+        <AnalyticsContext pageSubSectionContext='recentDiscussionThread' recentDiscussionCardIndex={0}>
         <RecentDiscussionThread
           key={tag.subforumIntroPost._id}
           post={{ ...tag.subforumIntroPost, recentComments: [] }}
@@ -152,6 +154,7 @@ const SubforumSubforumTab = ({
           dismissCallback={dismissIntroPost}
           isSubforumIntroPost
         />
+        </AnalyticsContext>
       </div>
     )}
     <MixedTypeFeed
@@ -167,10 +170,11 @@ const SubforumSubforumTab = ({
       }}
       renderers={{
         tagSubforumPosts: {
-          render: (post: PostsRecentDiscussion) => {
+          render: (post: PostsRecentDiscussion, index: number) => {
             // Remove the intro post from the feed IFF it has not been dismissed from the top
             return !(post._id === tag.subforumIntroPost?._id && !hideIntroPost) && (
               <div className={classes.feedPostWrapper}>
+                <AnalyticsContext pageSubSectionContext='recentDiscussionThread' recentDiscussionCardIndex={index}>
                 <RecentDiscussionThread
                   key={post._id}
                   post={{ ...post }}
@@ -180,6 +184,7 @@ const SubforumSubforumTab = ({
                   refetch={refetch}
                   smallerFonts
                 />
+                </AnalyticsContext>
               </div>
             );
           },

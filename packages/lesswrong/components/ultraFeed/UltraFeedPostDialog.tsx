@@ -466,7 +466,7 @@ const UltraFeedPostDialog = ({
     e.stopPropagation();
     const action = showEmbeddedPlayer ? "close" : "open";
     const newCookieValue = showEmbeddedPlayer ? "false" : "true";
-    captureEvent("toggleAudioPlayer", { action });
+    captureEvent("toggleAudioPlayer", { action, pageModalContext: "ultraFeedPostModal" });
     setCookie(
       SHOW_PODCAST_PLAYER_COOKIE,
       newCookieValue, {
