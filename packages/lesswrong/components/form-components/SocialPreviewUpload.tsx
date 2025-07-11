@@ -7,11 +7,6 @@ import {
   PLAINTEXT_DESCRIPTION_LENGTH,
   PLAINTEXT_HTML_TRUNCATION_LENGTH
 } from '@/lib/collections/revisions/revisionConstants';
-import markdownIt from "markdown-it";
-import markdownItContainer from "markdown-it-container";
-import markdownItFootnote from "markdown-it-footnote";
-import markdownItSub from "markdown-it-sub";
-import markdownItSup from "markdown-it-sup";
 import { randomId } from "../../lib/random";
 import { ckEditorName } from "../editor/Editor";
 import Input from "@/lib/vendor/@material-ui/core/src/Input";
@@ -20,6 +15,7 @@ import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAp
 import type { EditablePost } from '../../lib/collections/posts/helpers';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import ImageUpload2 from "./ImageUpload2";
+import { getMarkdownIt, getMarkdownItNoMathjax } from "@/lib/utils/markdownItPlugins";
 
 const DESCRIPTION_HEIGHT = 56; // 3 lines
 
@@ -112,14 +108,6 @@ const styles = defineStyles('SocialPreviewUpload', (theme: ThemeType) => ({
   },
 }));
 
-// FIXME This is a copy-paste of a markdown config from conversionUtils that has gotten out of sync
-const mdi = markdownIt({ linkify: true });
-// mdi.use(markdownItMathjax()) // for performance, don't render mathjax
-mdi.use(markdownItContainer as AnyBecauseHard, "spoiler");
-mdi.use(markdownItFootnote);
-mdi.use(markdownItSub);
-mdi.use(markdownItSup);
-
 /**
  * Build the preview description and extract the first image in the document to use as a fallback. This is duplicating
  * the fairly roundabout process that happens on the server to generate the preview description and image. The logic here
@@ -147,7 +135,7 @@ const buildPreviewFromDocument = (
 
   const toPlainText = (content: string, type: string) => {
     if (!content) return null;
-    const html = type === "markdown" ? mdi.render(content, { docId: randomId() }) : content;
+    const html = type === "markdown" ? getMarkdownItNoMathjax().render(content, { docId: randomId() }) : content;
     const truncatedHtml = truncate(sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH);
     return htmlToText(truncatedHtml, {
       wordwrap: false,
@@ -170,7 +158,7 @@ const buildPreviewFromDocument = (
       };
     }
     const data = document.contents?.dataWithDiscardedSuggestions ?? contents.data;
-    const html = contents.type === "markdown" ? mdi.render(data, { docId: randomId() }) : data;
+    const html = contents.type === "markdown" ? getMarkdownIt().render(data, { docId: randomId() }) : data;
     const parser = new DOMParser();
     const htmlDoc = parser.parseFromString(html, "text/html");
     const img = htmlDoc.querySelector("img");

@@ -1,7 +1,6 @@
 import OpenAI from "openai";
 import { dataToMarkdown } from '../editor/conversionUtils';
-import { DatabaseServerSetting, openAIApiKey, openAIOrganizationId } from '../databaseSettings';
-import { encode as gpt3encode, decode as gpt3decode } from 'gpt-3-encoder'
+import { openAIApiKey, openAIOrganizationId } from '../databaseSettings';
 import drop from 'lodash/drop';
 import take from 'lodash/take';
 
@@ -167,6 +166,7 @@ export function substituteIntoTemplate({template, variables, maxLengthTokens, tr
 function countGptTokens(str: string): number {
   if (!str) return 0;
   try {
+    const { encode: gpt3encode } = require("gpt-3-encoder");
     return gpt3encode(str).length;
   } catch(e) {
     return str.length;
@@ -188,6 +188,7 @@ function truncateByTokenCount(str: string, tokens: number): string {
   
   // First try an encode-then-decode roundtrip
   try {
+    const { encode: gpt3encode, decode: gpt3decode } = require("gpt-3-encoder");
     const encoded = gpt3encode(str);
     
     if (encoded.length <= tokens) return str;

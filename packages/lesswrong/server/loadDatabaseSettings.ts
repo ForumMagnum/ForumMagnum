@@ -30,11 +30,7 @@ const loadDatabaseSettingsPostgres = async (): Promise<DatabaseSettings> => {
     serverSettingsObject,
     publicSettingsObject,
     loadedDatabaseId,
-  ] = await Promise.all([
-    repo.getServerSettings(),
-    repo.getPublicSettings(),
-    repo.getDatabaseId(),
-  ]);
+  ] = await repo.getByNames(['serverSettings', 'publicSettings', 'databaseId']);
   
   if (!isAnyTest && (!serverSettingsObject || !publicSettingsObject)) {
     // eslint-disable-next-line no-console

@@ -8,19 +8,7 @@ import { useUpdate } from '@/lib/crud/withUpdate';
 import keyBy from 'lodash/keyBy';
 import { randomId } from '@/lib/random';
 import { z } from 'zod';
-import markdownIt from "markdown-it";
-import markdownItContainer from "markdown-it-container";
-import markdownItFootnote from "markdown-it-footnote";
-import markdownItSub from "markdown-it-sub";
-import markdownItSup from "markdown-it-sup";
-
-// FIXME This is a copy-paste of a markdown config from conversionUtils that has gotten out of sync
-const mdi = markdownIt({ linkify: true });
-// mdi.use(markdownItMathjax()) // for performance, don't render mathjax
-mdi.use(markdownItContainer as AnyBecauseHard, "spoiler");
-mdi.use(markdownItFootnote);
-mdi.use(markdownItSub);
-mdi.use(markdownItSup);
+import { getMarkdownItNoMathjax } from '@/lib/utils/markdownItPlugins';
 
 export const RAG_MODE_SET = ['Auto', 'None', 'CurrentPost', 'Search', 'Provided'] as const;
 export type RagModeType = typeof RAG_MODE_SET[number];
@@ -257,7 +245,7 @@ const LlmChatWrapper = ({children}: {
         newBuffer = chunk;
       }
 
-      const parsedContent = mdi.render(newBuffer, { docId: randomId() });
+      const parsedContent = getMarkdownItNoMathjax().render(newBuffer, { docId: randomId() });
   
       const newMessage: NewLlmMessage = { 
         conversationId,
