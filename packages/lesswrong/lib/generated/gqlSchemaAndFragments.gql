@@ -4963,7 +4963,7 @@ type User {
   allCommentingDisabled: Boolean
   commentingOnOtherUsersDisabled: Boolean
   conversationsDisabled: Boolean
-  mentionsDisabled: Boolean!
+  mentionsDisabled: Boolean
   associatedClientId: ClientId
   associatedClientIds: [ClientId!]
   altAccountsDetected: Boolean
@@ -7215,7 +7215,7 @@ input CreateUserDataInput {
   allCommentingDisabled: Boolean
   commentingOnOtherUsersDisabled: Boolean
   conversationsDisabled: Boolean
-  mentionsDisabled: Boolean!
+  mentionsDisabled: Boolean
   acknowledgedNewUserGuidelines: Boolean
   subforumPreferredLayout: String
   hideJobAdUntil: Date
