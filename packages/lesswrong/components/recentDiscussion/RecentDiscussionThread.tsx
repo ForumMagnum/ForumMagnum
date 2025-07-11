@@ -194,7 +194,6 @@ const RecentDiscussionThread = ({
   const viewTrackingRef = useRecentDiscussionViewTracking({
     documentId: post._id,
     documentType: 'post',
-    wordCount: post.contents?.wordCount,
   });
 
   if (isSkippable) {
