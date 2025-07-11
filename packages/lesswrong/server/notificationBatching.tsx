@@ -104,15 +104,22 @@ const notificationBatchToEmails = async ({user, notificationType, notifications,
   return await Promise.all(
     groupedNotifications
       .filter((_, idx) => !shouldSkip[idx])
-      .map(async (notifications: DbNotification[]) => ({
-        user,
-        to: getUserEmail(user),
-        from: notificationTypeRenderer.from,
-        subject: await notificationTypeRenderer.emailSubject({ user, notifications, context }),
-        body: await notificationTypeRenderer.emailBody({ user, notifications, context }),
-        ...(isEAForum && { utmParams: { ...utmParams, utm_user_id: user._id } }),
-        tag: `notification-${notificationType}`,
-      }))
+      .map(async (notifications: DbNotification[]) => {
+        const utmContent = notifications.length === 1
+          ? notifications[0]._id
+          // Limit to 8 to avoid bloating the url too much
+          : encodeURIComponent(JSON.stringify(notifications.slice(0, 8).map(n => n._id)));
+
+        return {
+          user,
+          to: getUserEmail(user),
+          from: notificationTypeRenderer.from,
+          subject: await notificationTypeRenderer.emailSubject({ user, notifications, context }),
+          body: await notificationTypeRenderer.emailBody({ user, notifications, context }),
+          ...(isEAForum && { utmParams: { ...utmParams, utm_user_id: user._id, utm_content: utmContent } }),
+          tag: `notification-${notificationType}`,
+        };
+      })
   );
 }
 
