@@ -114,6 +114,7 @@ const privilegeCheckboxFields = [
   { fieldName: "allCommentingDisabled", label: "All commenting disabled" },
   { fieldName: "commentingOnOtherUsersDisabled", label: "Commenting on other users disabled" },
   { fieldName: "conversationsDisabled", label: "Conversations disabled" },
+  { fieldName: "mentionsDisabled", label: "Mentions disabled" },
 ] as const;
 
 export const GROUP_OPTIONS = Object.keys(getAllUserGroups())

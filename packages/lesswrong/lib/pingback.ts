@@ -67,6 +67,7 @@ export async function getTagPingbackBySlug(parsedUrl: RouterLocation, slug: stri
 interface ValidationUserPartial {
   isAdmin: boolean
   karma: number | null
+  mentionsDisabled: boolean | null
   conversationsDisabled: boolean | null
 }
 
@@ -90,7 +91,7 @@ export const canMention = (currentUser: ValidationUserPartial, mentionsCount: nu
     reason: `You can notify ${mentionsLimit} users at most in a single post. ${youCanStillPost}`,
   }
 
-  if (currentUser.conversationsDisabled) return {
+  if (currentUser.conversationsDisabled || currentUser.mentionsDisabled) return {
     result: false,
     reason: `Ability to mention users has been disabled for this account. ${youCanStillPost}`,
   }
