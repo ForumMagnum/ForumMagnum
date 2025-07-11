@@ -3490,6 +3490,7 @@ CREATE TABLE "Users" (
   "allCommentingDisabled" BOOL,
   "commentingOnOtherUsersDisabled" BOOL,
   "conversationsDisabled" BOOL,
+  "mentionsDisabled" BOOL NOT NULL DEFAULT FALSE,
   "acknowledgedNewUserGuidelines" BOOL,
   "subforumPreferredLayout" TEXT,
   "hideJobAdUntil" TIMESTAMPTZ,

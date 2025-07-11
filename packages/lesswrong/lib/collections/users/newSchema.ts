@@ -3841,6 +3841,23 @@ const schema = {
       },
     },
   },
+  mentionsDisabled: {
+    database: {
+      type: "BOOL",
+      defaultValue: false,
+      canAutofillDefault: true,
+      nullable: false
+    },
+    graphql: {
+      outputType: "Boolean",
+      canRead: ["members"],
+      canUpdate: ["sunshineRegiment", "admins"],
+      canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   associatedClientId: {
     graphql: {
       outputType: "ClientId",
