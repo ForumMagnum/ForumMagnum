@@ -156,35 +156,38 @@ const RecentDiscussionFeed = ({
             renderers={{
               postCommented: {
                 render: (post: PostsRecentDiscussion, index: number) => (
+                  <AnalyticsContext pageSubSectionContext='recentDiscussionThread' recentDiscussionCardIndex={index}>
                   <ThreadComponent
                     post={post}
                     refetch={refetch}
                     comments={post.recentComments ?? undefined}
                     expandAllThreads={expandAll}
-                    index={index}
                   />
+                  </AnalyticsContext>
                 )
               },
               shortformCommented: {
                 render: (post: ShortformRecentDiscussion, index: number) => (
+                  <AnalyticsContext pageSubSectionContext='recentDiscussionShortform' recentDiscussionCardIndex={index}>
                   <ShortformComponent
                     post={post}
                     refetch={refetch}
                     comments={post.recentComments ?? undefined}
                     expandAllThreads={expandAll}
-                    index={index}
                   />
+                  </AnalyticsContext>
                 )
               },
               tagDiscussed: {
                 render: (tag: TagRecentDiscussion, index: number) => (
+                  <AnalyticsContext pageSubSectionContext='recentDiscussionTag' recentDiscussionCardIndex={index}>
                   <TagCommentedComponent
                     tag={tag}
                     refetch={refetch}
                     comments={tag.recentComments}
                     expandAllThreads={expandAll}
-                    index={index}
                   />
+                  </AnalyticsContext>
                 )
               },
               tagRevised: {

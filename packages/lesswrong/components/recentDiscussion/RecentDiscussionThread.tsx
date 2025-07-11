@@ -162,7 +162,6 @@ const RecentDiscussionThread = ({
   isSubforumIntroPost,
   commentTreeOptions = {},
   dismissCallback = () => {},
-  index,
   classes,
 }: {
   post: PostsRecentDiscussion,
@@ -174,7 +173,6 @@ const RecentDiscussionThread = ({
   isSubforumIntroPost?: boolean,
   commentTreeOptions?: CommentTreeOptions,
   dismissCallback?: () => void,
-  index?: number,
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -196,8 +194,6 @@ const RecentDiscussionThread = ({
   const viewTrackingRef = useRecentDiscussionViewTracking({
     documentId: post._id,
     documentType: 'post',
-    index,
-    wordCount: post.contents?.wordCount,
   });
 
   if (isSkippable) {
@@ -209,63 +205,61 @@ const RecentDiscussionThread = ({
     [classes.noComments]: post.commentCount === null
   });
   return (
-    <AnalyticsContext pageSubSectionContext='recentDiscussionThread' recentDiscussionCardIndex={index}>
-      <div ref={viewTrackingRef} className={classNames(
-        classes.root,
+    <div ref={viewTrackingRef} className={classNames(
+      classes.root,
+      {
+        [classes.plainBackground]: !isSubforumIntroPost,
+        [classes.primaryBackground]: isSubforumIntroPost
+      }
+    )}>
+      <div className={classNames(
+        classes.post,
         {
-          [classes.plainBackground]: !isSubforumIntroPost,
           [classes.primaryBackground]: isSubforumIntroPost
         }
       )}>
-        <div className={classNames(
-          classes.post,
-          {
-            [classes.primaryBackground]: isSubforumIntroPost
-          }
-        )}>
-          <div className={classes.postItem}>
-            {post.group && <PostsGroupDetails post={post} documentId={post.group._id} inRecentDiscussion={true} />}
-            <div className={classes.titleAndActions}>
-              <Link to={postGetPageUrl(post)} className={classNames(classes.title, {[classes.smallerTitle]: smallerFonts})} eventProps={{intent: 'expandPost'}}>
-                {post.title}
-              </Link>
-              {isSubforumIntroPost && currentUser ? <Button
-                className={classes.closeButton}
-                onClick={dismissCallback}
-              >
-                <CloseIcon className={classes.closeIcon} />
-              </Button> : <div className={classes.actions}>
-                <PostActionsButton post={post} autoPlace vertical />
-              </div>}
-            </div>
-            <div className={classNames(classes.threadMeta, {[classes.smallerMeta]: smallerFonts})} onClick={showHighlight}>
-              <PostsItemMeta post={post} hideTags={!isFriendlyUI}/>
-            </div>
+        <div className={classes.postItem}>
+          {post.group && <PostsGroupDetails post={post} documentId={post.group._id} inRecentDiscussion={true} />}
+          <div className={classes.titleAndActions}>
+            <Link to={postGetPageUrl(post)} className={classNames(classes.title, {[classes.smallerTitle]: smallerFonts})} eventProps={{intent: 'expandPost'}}>
+              {post.title}
+            </Link>
+            {isSubforumIntroPost && currentUser ? <Button
+              className={classes.closeButton}
+              onClick={dismissCallback}
+            >
+              <CloseIcon className={classes.closeIcon} />
+            </Button> : <div className={classes.actions}>
+              <PostActionsButton post={post} autoPlace vertical />
+            </div>}
           </div>
-          <div className={highlightClasses}>
-            <PostsHighlight post={post} maxLengthWords={maxLengthWords ?? lastVisitedAt ? 50 : 170} smallerFonts={smallerFonts} />
+          <div className={classNames(classes.threadMeta, {[classes.smallerMeta]: smallerFonts})} onClick={showHighlight}>
+            <PostsItemMeta post={post} hideTags={!isFriendlyUI}/>
           </div>
         </div>
-        <div className={classes.content}>
-          <div className={classes.commentsList}>
-            {!!nestedComments.length && nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
-              <div key={comment.item._id}>
-                <CommentsNodeInner
-                  treeOptions={treeOptions}
-                  startThreadTruncated={true}
-                  expandAllThreads={expandAllThreads}
-                  expandNewComments={false}
-                  nestingLevel={1}
-                  comment={comment.item}
-                  childComments={comment.children}
-                  key={comment.item._id}
-                />
-              </div>
-            )}
-          </div>
+        <div className={highlightClasses}>
+          <PostsHighlight post={post} maxLengthWords={maxLengthWords ?? lastVisitedAt ? 50 : 170} smallerFonts={smallerFonts} />
         </div>
       </div>
-    </AnalyticsContext>
+      <div className={classes.content}>
+        <div className={classes.commentsList}>
+          {!!nestedComments.length && nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
+            <div key={comment.item._id}>
+              <CommentsNodeInner
+                treeOptions={treeOptions}
+                startThreadTruncated={true}
+                expandAllThreads={expandAllThreads}
+                expandNewComments={false}
+                nestingLevel={1}
+                comment={comment.item}
+                childComments={comment.children}
+                key={comment.item._id}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   )
 };
 

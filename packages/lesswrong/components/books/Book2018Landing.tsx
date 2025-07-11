@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
-import {captureEvent, useTracking} from "../../lib/analyticsEvents";
+import { useTracking } from "../../lib/analyticsEvents";
 import BookAnimation from "./BookAnimation";
 import BookCheckout from "../review/BookCheckout";
 import HeadTags from "../common/HeadTags";
@@ -362,6 +362,8 @@ const Interlude = ({classes, imageURL, coverImageUrl, spreadImageUrl, bigQuote, 
 const Book2018Landing = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const { captureEvent } = useTracking();
+  
   return (
     <div>
       <HeadTags 

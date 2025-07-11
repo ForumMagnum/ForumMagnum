@@ -104,14 +104,12 @@ const EARecentDiscussionThread = ({
   comments,
   refetch,
   expandAllThreads: initialExpandAllThreads,
-  index,
   classes,
 }: {
   post: PostsRecentDiscussion,
   comments?: CommentsList[],
   refetch: () => void,
   expandAllThreads?: boolean,
-  index?: number,
   classes: ClassesType<typeof styles>,
 }) => {
   const {
@@ -129,15 +127,12 @@ const EARecentDiscussionThread = ({
   const viewTrackingRef = useRecentDiscussionViewTracking({
     documentId: post._id,
     documentType: 'post',
-    index,
-    wordCount: post.contents?.wordCount,
   });
 
   if (isSkippable) {
     return null;
   }
   return (
-    <AnalyticsContext recentDiscussionCardIndex={index}>
     <EARecentDiscussionItem {...getItemProps(post, comments)}>
       <div ref={viewTrackingRef} className={classes.header}>
         {!post.isEvent &&
@@ -184,7 +179,6 @@ const EARecentDiscussionThread = ({
         </div>
       )}
     </EARecentDiscussionItem>
-    </AnalyticsContext>
   );
 }
 

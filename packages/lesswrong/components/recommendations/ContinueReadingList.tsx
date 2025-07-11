@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDismissRecommendation } from './withDismissRecommendation';
-import { captureEvent, AnalyticsContext } from '../../lib/analyticsEvents';
+import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
 import PostsItem from "../posts/PostsItem";
 import PostsLoading from "../posts/PostsLoading";
@@ -17,6 +17,7 @@ const ContinueReadingList = ({ continueReading, continueReadingLoading, limit=3,
   const dismissRecommendation = useDismissRecommendation();
   const [dismissedRecommendations, setDismissedRecommendations] = useState<any>({});
   const [showAll, setShowAll] = useState(false);
+  const { captureEvent } = useTracking();
   
   const dismissAndHideRecommendation = (postId: string) => {
     void dismissRecommendation(postId);
