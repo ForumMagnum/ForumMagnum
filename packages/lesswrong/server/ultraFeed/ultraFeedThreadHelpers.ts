@@ -372,6 +372,12 @@ function buildAndScoreThreads(
   for (const [_topLevelId, groupComments] of Object.entries(groups)) {
     if (!groupComments || groupComments.length === 0) continue;
 
+    // Skip this thread group if the top-level comment has negative karma
+    const topLevelComment = groupComments.find(c => c.topLevelCommentId === c.commentId || !c.parentCommentId);
+    if (topLevelComment && (topLevelComment.baseScore ?? 0) < 0) {
+      continue;
+    }
+
     const generatedPreDisplayThreads = buildDistinctLinearThreads(groupComments);
 
     for (const preDisplayThread of generatedPreDisplayThreads) {
@@ -453,21 +459,28 @@ function prepareThreadForDisplay(
   const numComments = thread.length;
   if (numComments === 0) return null;
 
+  // Truncate thread at the first negative karma comment
+  const firstNegativeIndex = thread.findIndex(comment => (comment.baseScore ?? 0) < 0);
+  const truncatedThread = firstNegativeIndex === -1 ? thread : thread.slice(0, firstNegativeIndex);
+
+  // If the truncation removed all comments, return null
+  if (truncatedThread.length === 0) return null;
+
   // Find the first comment in the thread that was an initial candidate. Threads are ordered root-first, so this finds the candidate closest to the root.
-  const initialCandidateComment = thread.find(comment => comment.isInitialCandidate);
+  const initialCandidateComment = truncatedThread.find(comment => comment.isInitialCandidate);
 
   // The primarySource for the entire thread is determined by that single candidate comment.
-  const primarySource = (initialCandidateComment?.primarySource ?? thread[0]?.primarySource ?? 'recentComments')
+  const primarySource = (initialCandidateComment?.primarySource ?? truncatedThread[0]?.primarySource ?? 'recentComments')
 
   const expandedCommentIds = new Set<string>();
 
   // 1. Identify unviewed comments and sort by BASE SCORE (karma) descending
-  const unviewedComments = thread
+  const unviewedComments = truncatedThread
     .filter(comment => !comment.lastViewed && !comment.lastInteracted) 
     .sort((a, b) => (b.baseScore ?? 0) - (a.baseScore ?? 0)); 
 
   // 2. Determine if the first comment is unviewed
-  const firstComment = thread[0];
+  const firstComment = truncatedThread[0];
   const isFirstCommentUnviewed = firstComment && !firstComment.lastViewed && !firstComment.lastInteracted;
 
   // 3. Apply expansion rules (similar to original)
@@ -483,7 +496,7 @@ function prepareThreadForDisplay(
   }
   
   // 4. Map to final comment structure with display status and highlight
-  const finalComments: PreDisplayFeedComment[] = thread.map((comment): PreDisplayFeedComment => {
+  const finalComments: PreDisplayFeedComment[] = truncatedThread.map((comment): PreDisplayFeedComment => {
     const postedAtRecently = comment.postedAt && comment.postedAt > new Date(Date.now() - (7 * 24 * 60 * 60 * 1000));
     const shouldHighlight = !comment.lastViewed && !comment.lastInteracted && postedAtRecently;
     
