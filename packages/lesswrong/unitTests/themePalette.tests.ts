@@ -50,7 +50,7 @@ function assertNoNonPaletteColorsRec(componentName: string, path: string, lightM
   if (typeof lightModeStyleFragment === "string") {
     const mentionedColor = stringMentionsAnyColor(lightModeStyleFragment);
     if (mentionedColor && lightModeStyleFragment === darkModeStyleFragment) {
-      outNonPaletteColors.push(`Non-palette color in styles for ${componentName} at ${path} - ${mentionedColor}`);
+      outNonPaletteColors.push(`Color for ${componentName} at ${path} (${mentionedColor}) is the same in light mode and dark mode. To prevent black-on-black text, use either a theme palette color, or check for dark mode with theme.dark ? colorOne : colorTwo. Or disable the warning for this component by passing {allowNonThemeColors: true} in the stylesheet options.`);
     }
   } else if (typeof lightModeStyleFragment === "object") {
     for (let key of Object.keys(lightModeStyleFragment)) {

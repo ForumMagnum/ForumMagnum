@@ -15,6 +15,7 @@ import LoadMore from "../common/LoadMore";
 import { NetworkStatus } from "@apollo/client";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { AnalyticsContext } from '../../lib/analyticsEvents';
 
 const PostsRecentDiscussionMultiQuery = gql(`
   query multiPostRecentDiscussionThreadsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean, $commentsLimit: Int, $maxAgeHours: Int, $af: Boolean) {
@@ -92,13 +93,14 @@ const RecentDiscussionThreadsList = ({
       <div>
         {results && <div>
           {results.map((post, i) =>
+            <AnalyticsContext key={post._id} pageSubSectionContext='recentDiscussionThread' recentDiscussionCardIndex={i}>
             <RecentDiscussionThread
-              key={post._id}
               post={post}
               refetch={refetch}
               comments={post.recentComments ?? undefined}
               expandAllThreads={expandAll}
             />
+            </AnalyticsContext>
           )}
         </div>}
         <AnalyticsInViewTracker eventProps={{inViewType: "loadMoreButton"}}>

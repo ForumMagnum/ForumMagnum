@@ -2,7 +2,8 @@
 // addGraphQLResolvers &c.
 
 import gql from 'graphql-tag'; 
-import type { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLSchema } from 'graphql';
 import GraphQLJSON from 'graphql-type-json';
 import GraphQLDate from './graphql-date';
 import { graphqlTypeDefs as notificationTypeDefs, graphqlQueries as notificationQueries } from '@/server/notificationBatching';
@@ -802,4 +803,13 @@ export type SchemaGraphQLFieldDescription = {
   directive?: string
   required?: boolean
 };
+
+let _executableSchema: GraphQLSchema|null = null;
+export function getExecutableSchema() {
+  if (!_executableSchema) {
+    _executableSchema = makeExecutableSchema({ typeDefs, resolvers });
+  }
+  return _executableSchema;
+}
+
 

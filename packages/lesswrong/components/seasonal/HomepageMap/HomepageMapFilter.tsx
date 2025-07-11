@@ -8,7 +8,7 @@ import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import { useDialog } from '../../common/withDialog'
 import { useCurrentUser } from '../../common/withUser';
 import moment from 'moment';
-import { captureEvent } from '../../../lib/analyticsEvents';
+import { useTracking } from '../../../lib/analyticsEvents';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { HIDE_MAP_COOKIE } from '../../../lib/cookies/cookies';
@@ -70,6 +70,7 @@ const HomepageMapFilter = ({classes}: {classes: ClassesType<typeof styles>}) => 
   const currentUser = useCurrentUser()
   const { flash } = useMessages()
   const updateCurrentUser = useUpdateCurrentUser();
+  const { captureEvent } = useTracking();
   
   const [_, setCookie, removeCookie] = useCookiesWithConsent([HIDE_MAP_COOKIE]);
 

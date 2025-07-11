@@ -100,14 +100,10 @@ const compressCollapsedComments = (
     const commentId = comment._id;
     const localStatus = displayStatuses[commentId] || "collapsed"
 
-    if (localStatus === "hidden") {
-      continue;
-    }
-
-    if (localStatus === "collapsed") {
+    if (localStatus === "collapsed" || localStatus === "hidden") {
       tempGroup.push(comment);
     } else {
-      // If we hit a non-collapsed, flush the current group
+      // If we hit a non-collapsed/hidden comment, flush the current group
       flushGroupIfNeeded();
       result.push(comment);
     }
@@ -389,12 +385,6 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
                   <UltraFeedCompressedCommentsItem
                     numComments={hiddenCount}
                     setExpanded={() => {
-                      captureEvent("ultraFeedThreadItemCompressedCommentsExpanded", { 
-                        ultraCardIndex: index, 
-                        ultraCardCount: compressedItems.length,
-                        numExpanded: Math.min(3, hiddenCount)
-                      });
-                      
                       // Always expand max 3 comments at a time
                       item.hiddenComments.slice(0, 3).forEach(h => {
                         setDisplayStatus(h._id, "expanded");

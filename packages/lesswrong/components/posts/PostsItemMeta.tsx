@@ -16,7 +16,7 @@ import { isBookUI } from '@/themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({
   onGrayBackground: {
-    ...(isBookUI && theme.themeOptions.name === 'dark' && {
+    ...(isBookUI && theme.dark && {
       color: theme.palette.greyAlpha(1),
     }),
   },

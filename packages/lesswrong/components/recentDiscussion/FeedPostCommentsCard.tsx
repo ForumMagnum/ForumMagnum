@@ -7,7 +7,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { AnalyticsContext, captureEvent } from "../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useRecentDiscussionThread } from './useRecentDiscussionThread';
@@ -128,6 +128,7 @@ const FeedPostCommentsBranch = ({ comment, treeOptions, expandAllThreads, classe
   classes: ClassesType<typeof styles>
 }) => {
   const [expanded, setExpanded] = useState(expandAllThreads);
+  const { captureEvent } = useTracking();
 
   const flattenedCommentBranch = flattenCommentBranch(comment);
   let commentBranchWithGaps = flattenedCommentBranch.slice(1);

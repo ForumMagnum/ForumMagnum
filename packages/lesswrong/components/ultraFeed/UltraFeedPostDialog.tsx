@@ -1,3 +1,4 @@
+import qs from 'qs';
 import React, { useEffect, useRef, useState } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -465,7 +466,7 @@ const UltraFeedPostDialog = ({
     e.stopPropagation();
     const action = showEmbeddedPlayer ? "close" : "open";
     const newCookieValue = showEmbeddedPlayer ? "false" : "true";
-    captureEvent("toggleAudioPlayer", { action });
+    captureEvent("toggleAudioPlayer", { action, pageModalContext: "ultraFeedPostModal" });
     setCookie(
       SHOW_PODCAST_PLAYER_COOKIE,
       newCookieValue, {
@@ -485,8 +486,11 @@ const UltraFeedPostDialog = ({
   });
   const hasTocData = !!tocData && (tocData.sections ?? []).length > 0;
 
-  // Handle browser back button / swipe back navigation
-  useDialogNavigation(onClose);
+  // Handle dialog navigation (browser back button / swipe back navigation  + replacing url)
+  const postUrl = displayPost 
+    ? `${postGetPageUrl(displayPost)}?${qs.stringify({ from: 'feedModal' })}`
+    : undefined;
+  useDialogNavigation(onClose, postUrl);
   useDisableBodyScroll();
   
   // Handle clicks on hash links (like footnotes) within the modal. If we don't do this, clicking on hash links can close the modal, fail to scroll, etc.

@@ -360,23 +360,6 @@ const UltraFeedPostItemHeader = ({
   );
 };
 
-const calculateDisplayWordCount = (
-  fullPost: PostsPage | UltraFeedPostFragment | null | undefined,
-  post: PostsListWithVotes,
-  displayHtml: string | undefined
-): number | undefined => {
-  if (fullPost?.contents?.wordCount) {
-    return fullPost.contents.wordCount;
-  }
-  if (displayHtml === post.contents?.htmlHighlight && displayHtml) {
-    return Math.floor(displayHtml.length / 5);
-  }
-  if (post.shortform) {
-    return 0;
-  }
-  return post.contents?.wordCount;
-};
-
 const UltraFeedPostItem = ({
   post,
   postMetaInfo,
@@ -587,8 +570,7 @@ const UltraFeedPostItem = ({
 
   const displayHtml = fullPost?.contents?.html ?? post.contents?.htmlHighlight ?? shortformHtml;
   
-  // Calculate the appropriate word count based on what content we're displaying
-  const displayWordCount = calculateDisplayWordCount(fullPost, post, displayHtml);
+  const displayWordCount = post.shortform ? 0 : post.contents?.wordCount;
 
   const truncationParams = useMemo(() => {
     return {
