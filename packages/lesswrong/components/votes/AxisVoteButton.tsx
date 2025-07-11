@@ -2,11 +2,12 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUserId } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
+import { useTracking } from '../../lib/analyticsEvents';
 import type { VoteArrowIconProps } from '../votes/VoteArrowIcon';
 import LoginPopup from "../users/LoginPopup";
 import VoteButton from "./VoteButton";
 
-const AxisVoteButton = <T extends VoteableTypeClient>({VoteIconComponent, vote, document, axis, upOrDown, color, orientation, enabled}: {
+const AxisVoteButton = <T extends VoteableTypeClient>({VoteIconComponent, vote, document, axis, upOrDown, color, orientation, enabled, collectionName}: {
   VoteIconComponent: React.ComponentType<VoteArrowIconProps>,
   vote: (props: {document: T, voteType: string|null, extendedVote?: any}) => void,
   document: T,
@@ -15,9 +16,11 @@ const AxisVoteButton = <T extends VoteableTypeClient>({VoteIconComponent, vote, 
   color: "error"|"primary"|"secondary",
   orientation: "up"|"down"|"left"|"right",
   enabled: boolean,
+  collectionName?: CollectionNameString,
 }) => {
   const currentUserId = useCurrentUserId();
   const { openDialog } = useDialog();
+  const { captureEvent } = useTracking();
 
   const wrappedVote = (strength: "big"|"small"|"neutral") => {
     if(!currentUserId){
@@ -33,6 +36,12 @@ const AxisVoteButton = <T extends VoteableTypeClient>({VoteIconComponent, vote, 
           ...document.currentUserExtendedVote,
           [axis]: (strength==="neutral") ? "neutral" : (strength+upOrDown),
         },
+      });
+      
+      // Track axis votes (like agreement votes)
+      captureEvent("axisVote", {
+        axis,
+        ...(collectionName && { collectionName }),
       });
     }
   };

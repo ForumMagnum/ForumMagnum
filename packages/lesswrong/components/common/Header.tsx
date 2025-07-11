@@ -117,7 +117,7 @@ export const styles = (theme: ThemeType) => ({
     color: theme.palette.text.bannerAdOverlay,
 
     ...(forumSelect({
-      LWAF: (theme.themeOptions.name === 'dark'
+      LWAF: (theme.dark
         ? {
           background: theme.palette.panelBackground.bannerAdTranslucent,
           backdropFilter: 'blur(4px) brightness(1.1)',
@@ -127,7 +127,7 @@ export const styles = (theme: ThemeType) => ({
           },
         } : {
           backgroundColor: theme.palette.header.background,
-          backdropFilter: 'unset',
+          backdropFilter: 'blur(4px)',
           "&$blackBackgroundAppBar": {
             boxShadow: theme.palette.boxShadow.appBar,
             background: theme.palette.header.background,

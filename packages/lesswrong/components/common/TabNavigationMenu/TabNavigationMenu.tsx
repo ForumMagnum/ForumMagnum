@@ -41,7 +41,7 @@ const styles = (theme: ThemeType) => {
     divider: {
       width: 50,
       borderBottom: theme.palette.border.normal,
-      ...(isBookUI && theme.themeOptions.name==='dark' && {
+      ...(isBookUI && theme.dark && {
         color: theme.palette.text.bannerAdOverlay,
         background: theme.palette.text.bannerAdOverlay,
       }),

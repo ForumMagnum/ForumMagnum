@@ -113,7 +113,9 @@ const NotificationsMenuInner = ({open, setIsOpen, hasOpened}: {
           className={classes.badgeContainer}
           badgeClassName={classes.badge}
           badgeContent={<SuspenseWrapper name="UnreadPrivateMessagesCountBadge">
-            <UnreadPrivateMessagesCountBadge/>
+            <ErrorBoundary hideMessage>
+              <UnreadPrivateMessagesCountBadge/>
+            </ErrorBoundary>
           </SuspenseWrapper>}
         >
           <MailIcon className={classes.icon} />

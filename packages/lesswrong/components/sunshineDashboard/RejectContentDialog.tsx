@@ -40,8 +40,8 @@ const styles = (theme: ThemeType) => ({
     flexDirection: 'column'
   },
   checkbox: {
-    paddingTop: 6,
-    paddingBottom: 6
+    paddingTop: 2,
+    paddingBottom: 2
   },
   modalTextField: {
     marginTop: 10,
@@ -124,7 +124,7 @@ const RejectContentDialog = ({classes, rejectContent}: {
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(ModerationTemplateFragmentMultiQuery, {
     variables: {
       selector: { moderationTemplatesList: { collectionName: "Rejections" } },
-      limit: 25,
+      limit: 50,
       enableTotal: true,
     },
   });

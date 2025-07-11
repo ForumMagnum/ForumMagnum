@@ -4,7 +4,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
-import { AnalyticsContext, captureEvent } from "@/lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { FeedCommentMetaInfo, FeedItemDisplayStatus } from "./ultraFeedTypes";
 import { useOverflowNav } from "./OverflowNavObserverContext";
 import { useDialog } from "../common/withDialog";
@@ -49,6 +49,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
+    overflow: 'visible',
   },
   commentContentWrapperWithBorder: {
     borderBottom: theme.palette.border.itemSeparatorBottom,
@@ -56,6 +57,8 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   commentHeader: {
     display: 'flex',
     flexDirection: 'column',
+    overflow: 'visible',
+    position: 'relative',
   },
   contentWrapper: {
     marginTop: 12,
@@ -176,6 +179,7 @@ const BranchNavigationButton = ({
   onBranchToggle?: () => void;
 }) => {
   const classes = useStyles(styles);
+  const { captureEvent } = useTracking();
   
   const handleClick = () => {
     captureEvent("ultraFeedBranchNavigationClicked", { 
@@ -206,9 +210,15 @@ export const UltraFeedCompressedCommentsItem = ({
   isLastComment?: boolean,
 }) => {
   const classes = useStyles(styles);
+  const { captureEvent } = useTracking();
   
   const handleClick = () => {
-    captureEvent("ultraFeedCompressedCommentsClicked", { numComments });
+    captureEvent("ultraFeedCompressedCommentsClicked", { 
+      numComments,
+      numExpanded: Math.min(3, numComments), // We always expand max 3 at a time
+      isFirstComment,
+      isLastComment,
+    });
     setExpanded();
   };
   
@@ -286,6 +296,7 @@ export const UltraFeedCommentItem = ({
   const { openDialog } = useDialog();
   const overflowNav = useOverflowNav(elementRef);
   const currentUser = useCurrentUser();
+  const { captureEvent } = useTracking();
   
   const cannotReplyReason = customCannotReplyReason ?? (userOwns(currentUser, comment) ? "You cannot reply to your own comment from within the feed" : null);
 
@@ -380,7 +391,7 @@ export const UltraFeedCommentItem = ({
       onChangeDisplayStatus("expanded");
     }
 
-  }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus, metaInfo.servedEventId]);
+  }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus, metaInfo.servedEventId, captureEvent]);
 
   const handleContinueReadingClick = useCallback(() => {
     captureEvent("ultraFeedCommentItemContinueReadingClicked");
@@ -395,13 +406,22 @@ export const UltraFeedCommentItem = ({
         />
       )
     });
-  }, [openDialog, comment]);
+  }, [openDialog, comment, captureEvent]);
 
   const truncationParams = useMemo(() => {
     const { displaySettings } = settings;
     
+    let initialWordCount: number;
+    if (displayStatus === "hidden") {
+      initialWordCount = 10;
+    } else if (displayStatus === "collapsed") {
+      initialWordCount = displaySettings.commentCollapsedInitialWords;
+    } else {
+      initialWordCount = displaySettings.commentExpandedInitialWords;
+    }
+    
     return {
-      initialWordCount: displayStatus === "collapsed" ? displaySettings.commentCollapsedInitialWords : displaySettings.commentExpandedInitialWords,
+      initialWordCount,
       maxWordCount: displaySettings.commentMaxWords
     };
   }, [settings, displayStatus]);
@@ -412,7 +432,7 @@ export const UltraFeedCommentItem = ({
   };
 
   return (
-    <AnalyticsContext ultraFeedElementType="feedComment" commentId={comment._id} postId={comment.postId ?? undefined}>
+    <AnalyticsContext ultraFeedElementType="feedComment" commentId={comment._id} postId={comment.postId ?? undefined} ultraFeedSources={metaInfo.sources}>
     <div className={classNames(classes.root, {
       [classes.rootWithAnimation]: isHighlightAnimating
     })}>

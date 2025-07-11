@@ -9,6 +9,9 @@ import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import type { Request, Response } from 'express';
 import pathToRegexp from "path-to-regexp";
 import type { RouterLocation } from '../../vulcan-lib/routes';
+import { isServer } from '@/lib/executionEnvironment';
+import { getUrlClass } from '@/server/utils/getUrlClass';
+import { captureException } from '@sentry/core';
 
 export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
 export type PostCategory = UnionOf<typeof postCategories>;
@@ -30,6 +33,81 @@ export const postGetLink = function (post: PostsBase|DbPost, isAbsolute=false, i
 // Whether a post's link should open in a new tab or not
 export const postGetLinkTarget = function (post: PostsBase|DbPost): string {
   return !!post.url ? '_blank' : '';
+};
+
+interface LinkpostDetectionResult {
+  isLinkpost: boolean;
+  linkpostDomain?: string;
+}
+
+// On the server, use the 'url' library for parsing hostname out of feed URLs.
+// On the client, we instead create an <a> tag, set its href, and extract
+// properties from that. (There is a URL class which theoretically would work,
+// but it doesn't have the hostname field on IE11 and it's missing entirely on
+// Opera Mini.)
+const URLClass = getUrlClass()
+
+export function getProtocol(url: string): string {
+  if (isServer)
+    return new URLClass(url).protocol;
+
+  // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
+  var parser = document.createElement('a');
+  parser.href = url;
+  return parser.protocol;
+}
+
+export function getHostname(url: string): string {
+  if (isServer)
+    return new URLClass(url).hostname;
+
+  // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
+  var parser = document.createElement('a');
+  parser.href = url;
+  return parser.hostname;
+}
+
+/**
+ * Intended to be used when you have a url-like string that might be missing the protocol (http(s)://) prefix
+ * Trying to parse those with `new URL()`/`new URLClass()` blows up, so this tries to correctly handle them
+ * We default to logging an error to sentry and returning nothing if even that fails, but not confident we shouldn't just continue to throw in a visible way
+ */
+export function parseUnsafeUrl(url: string) {
+  const urlWithProtocol = url.slice(0, 4) === 'http'
+    ? url
+    : `https://${url}`;
+
+  try {
+    const parsedUrl = new URLClass(urlWithProtocol);
+    const protocol = getProtocol(urlWithProtocol);
+    const hostname = getHostname(urlWithProtocol);
+  
+    return { protocol, hostname, parsedUrl };
+  } catch (err) {
+    captureException(`Tried to parse url ${url} as ${urlWithProtocol} and failed`);
+  }
+
+  return {};
+}
+
+
+// Detect if a post is a linkpost and get the domain
+export const detectLinkpost = (
+  post: { url?: string | null },
+  rssFeedDomain?: string | null
+): LinkpostDetectionResult => {
+  if (!post.url) {
+    return { isLinkpost: false };
+  }
+
+  const { hostname: linkpostDomain } = parseUnsafeUrl(post.url);
+  
+  if (rssFeedDomain) {
+    const isLinkpost = linkpostDomain !== rssFeedDomain;
+    return { isLinkpost, linkpostDomain };
+  }
+
+  return { isLinkpost: true, linkpostDomain };
 };
 
 ///////////////////

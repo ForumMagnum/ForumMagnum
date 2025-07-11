@@ -68,6 +68,7 @@ declare global {
     710: ColorString,
   }
   type ThemeShadePalette = {
+    dark: boolean,
     grey: ThemeGreyscale,
     greyAlpha: (alpha: number) => ColorString,
     inverseGreyAlpha: (alpha: number) => ColorString,
@@ -634,6 +635,7 @@ declare global {
   type ThemeType = {
     forumType: ForumTypeString,
     themeOptions: ThemeOptions,
+    dark: boolean,
 
     baseFontSize: number,
     

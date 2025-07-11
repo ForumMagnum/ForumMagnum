@@ -2,6 +2,7 @@ import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useRecentDiscussionThread } from "./useRecentDiscussionThread";
+import { useRecentDiscussionViewTracking } from "./useRecentDiscussionViewTracking";
 import { postGetCommentsUrl } from "../../lib/collections/posts/helpers";
 import type { CommentTreeNode } from "../../lib/utils/unflatten";
 import EARecentDiscussionItem, { EARecentDiscussionItemProps } from "./EARecentDiscussionItem";
@@ -14,6 +15,7 @@ import LinkPostMessage from "../posts/LinkPostMessage";
 import EAKarmaDisplay from "../common/EAKarmaDisplay";
 import PostsTitle from "../posts/PostsTitle";
 import { maybeDate } from "@/lib/utils/dateUtils";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType) => ({
   header: {
@@ -122,12 +124,17 @@ const EARecentDiscussionThread = ({
     initialExpandAllThreads,
   });
 
+  const viewTrackingRef = useRecentDiscussionViewTracking({
+    documentId: post._id,
+    documentType: 'post',
+  });
+
   if (isSkippable) {
     return null;
   }
   return (
     <EARecentDiscussionItem {...getItemProps(post, comments)}>
-      <div className={classes.header}>
+      <div ref={viewTrackingRef} className={classes.header}>
         {!post.isEvent &&
           <EAKarmaDisplay post={post} className={classes.karmaDisplay} />
         }

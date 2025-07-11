@@ -20,6 +20,7 @@ import {
   FeedCommentMetaInfo, 
   FeedCommentFromDb,
   FeedItemSourceType,
+  FeedItemDisplayStatus,
   ThreadEngagementStats,
 } from '../../components/ultraFeed/ultraFeedTypes';
 import * as crypto from 'crypto';
@@ -202,8 +203,15 @@ function calculateCommentScore(
   const boostedScore = decayedScore * boost;
 
   const hasBeenSeenOrInteracted = comment.lastViewed !== null || comment.lastInteracted !== null;
+  
+  // For negative scores, always count them (even if viewed) and apply 2x multiplier
+  if (boostedScore < 0) {
+    const negativeScore = boostedScore * 2;
+    return Number.isFinite(negativeScore) ? negativeScore : 0;
+  }
+  
+  // For positive scores, zero out if viewed
   const finalScore = boostedScore * (hasBeenSeenOrInteracted ? 0 : 1.0);
-
   return Number.isFinite(finalScore) && finalScore >= 0 ? finalScore : 0;
 }
 
@@ -364,6 +372,12 @@ function buildAndScoreThreads(
   for (const [_topLevelId, groupComments] of Object.entries(groups)) {
     if (!groupComments || groupComments.length === 0) continue;
 
+    // Skip this thread group if the top-level comment has negative karma
+    const topLevelComment = groupComments.find(c => c.topLevelCommentId === c.commentId || !c.parentCommentId);
+    if (topLevelComment && (topLevelComment.baseScore ?? 0) < 0) {
+      continue;
+    }
+
     const generatedPreDisplayThreads = buildDistinctLinearThreads(groupComments);
 
     for (const preDisplayThread of generatedPreDisplayThreads) {
@@ -383,7 +397,13 @@ function buildAndScoreThreads(
         .filter(finalScoredComment => !!finalScoredComment);
       
       if (finalScoredThread.length > 0) {
-        allPossibleFinalThreads.push(finalScoredThread);
+        // Truncate thread at the first negative karma comment
+        const firstNegativeIndex = finalScoredThread.findIndex(comment => (comment.baseScore ?? 0) < 0);
+        const truncatedThread = firstNegativeIndex === -1 ? finalScoredThread : finalScoredThread.slice(0, firstNegativeIndex);
+        
+        if (truncatedThread.length > 0) {
+          allPossibleFinalThreads.push(truncatedThread);
+        }
       }
     }
   }
@@ -478,7 +498,15 @@ function prepareThreadForDisplay(
   const finalComments: PreDisplayFeedComment[] = thread.map((comment): PreDisplayFeedComment => {
     const postedAtRecently = comment.postedAt && comment.postedAt > new Date(Date.now() - (7 * 24 * 60 * 60 * 1000));
     const shouldHighlight = !comment.lastViewed && !comment.lastInteracted && postedAtRecently;
-    const displayStatus = expandedCommentIds.has(comment.commentId) ? 'expanded' : 'collapsed';
+    
+    let displayStatus: FeedItemDisplayStatus;
+    if ((comment.baseScore ?? 0) < 0) {
+      displayStatus = 'hidden';
+    } else if (expandedCommentIds.has(comment.commentId)) {
+      displayStatus = 'expanded';
+    } else {
+      displayStatus = 'collapsed';
+    }
 
     const newMetaInfo: FeedCommentMetaInfo = {
       sources: comment.sources as FeedItemSourceType[],

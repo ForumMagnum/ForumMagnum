@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef, useEffect, useMemo } from "react"
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { postGetPageUrl, postGetLink, postGetLinkTarget, detectLinkpost } from "@/lib/collections/posts/helpers";
 import { FeedPostMetaInfo, FeedItemSourceType } from "./ultraFeedTypes";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
@@ -37,6 +37,7 @@ import { UltraFeedCommentItem } from "./UltraFeedCommentItem";
 import type { FeedCommentMetaInfo } from "./ultraFeedTypes";
 import PostsUserAndCoauthors from "../posts/PostsUserAndCoauthors";
 import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
+import ForumIcon from "../common/ForumIcon";
 
 const localPostQuery = gql(`
   query LocalPostQuery($documentId: String!) {
@@ -81,17 +82,19 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   tripleDotMenu: {
     position: 'relative',
     bottom: 1,
+    color: theme.palette.ultraFeed.dim,
+    opacity: 0.7,
     "& svg": {
       fontSize: 18,
       cursor: "pointer",
-      color: theme.palette.text.dim,
     },
     [theme.breakpoints.down('sm')]: {
       position: 'absolute',
-      right: 2,
-      top: 5,
+      right: 16,
+      top: 12,
       padding: 5,
       marginLeft: 4,
+      zIndex: 10,
     },
   },
   header: {
@@ -238,23 +241,28 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     order: 1,
-    gap: '8px',
+    gap: '4px',
     [theme.breakpoints.down('sm')]: {
       order: 3,
       flexShrink: 0,
     },
   },
-  desktopTripleDot: {
+  desktopTripleDotWrapper: {
     display: 'block',
     order: 4,
     [theme.breakpoints.down('sm')]: {
       display: 'none',
     },
   },
-  mobileTripleDot: {
+  mobileTripleDotWrapper: {
     display: 'none',
     [theme.breakpoints.down('sm')]: {
       display: 'block',
+      position: 'absolute',
+      right: -10,
+      top: 0,
+      height: 'auto',
+      width: 'auto',
     },
   },
 }));
@@ -295,6 +303,8 @@ const UltraFeedPostItemHeader = ({
     .filter(({ source }) => sources.includes(source))
     .map(({ source, icon, tooltip }) => ({ icon, tooltip, key: source }));
 
+  const { isLinkpost, linkpostDomain } = detectLinkpost(post);
+
   return (
     <div className={classes.header}>
       <div className={classes.titleContainer}>
@@ -326,8 +336,15 @@ const UltraFeedPostItemHeader = ({
               </span>
             </LWTooltip>
           ))}
+          {isLinkpost && (
+            <LWTooltip title={`Linkpost from ${linkpostDomain}`} placement="top">
+              <a href={postGetLink(post)} target={postGetLinkTarget(post)} onClick={(e) => e.stopPropagation()}>
+                <ForumIcon icon="Link" className={classes.sourceIcon} />
+              </a>
+            </LWTooltip>
+          )}
         </div>
-        <div className={classes.desktopTripleDot}>
+        <div className={classes.desktopTripleDotWrapper}>
           <AnalyticsContext pageElementContext="tripleDotMenu">
             <PostActionsButton
               post={post}
@@ -341,23 +358,6 @@ const UltraFeedPostItemHeader = ({
       </div>
     </div>
   );
-};
-
-const calculateDisplayWordCount = (
-  fullPost: PostsPage | UltraFeedPostFragment | null | undefined,
-  post: PostsListWithVotes,
-  displayHtml: string | undefined
-): number | undefined => {
-  if (fullPost?.contents?.wordCount) {
-    return fullPost.contents.wordCount;
-  }
-  if (displayHtml === post.contents?.htmlHighlight && displayHtml) {
-    return Math.floor(displayHtml.length / 5);
-  }
-  if (post.shortform) {
-    return 0;
-  }
-  return post.contents?.wordCount;
 };
 
 const UltraFeedPostItem = ({
@@ -527,7 +527,7 @@ const UltraFeedPostItem = ({
   }), [isReplying, handleReplyClick, handleReplySubmit, handleReplyCancel]);
 
   const handleOpenDialog = useCallback((location: "title" | "content") => {
-    captureEvent("ultraFeedPostItemTitleClicked", { location });
+    captureEvent("ultraFeedPostDialogOpened", { location });
     trackExpansion({
       documentId: post._id,
       documentType: 'post',
@@ -570,8 +570,7 @@ const UltraFeedPostItem = ({
 
   const displayHtml = fullPost?.contents?.html ?? post.contents?.htmlHighlight ?? shortformHtml;
   
-  // Calculate the appropriate word count based on what content we're displaying
-  const displayWordCount = calculateDisplayWordCount(fullPost, post, displayHtml);
+  const displayWordCount = post.shortform ? 0 : post.contents?.wordCount;
 
   const truncationParams = useMemo(() => {
     return {
@@ -585,11 +584,11 @@ const UltraFeedPostItem = ({
   }
 
   return (
-    <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index}>
+    <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index} ultraFeedSources={postMetaInfo.sources}>
     <div className={classes.root}>
       <div ref={elementRef} className={classes.mainContent}>
         {/* On small screens, the triple dot menu is positioned absolutely to the root */}
-        <div className={classes.mobileTripleDot}>
+        <div className={classes.mobileTripleDotWrapper}>
           <AnalyticsContext pageElementContext="tripleDotMenu">
             <PostActionsButton
               post={post}

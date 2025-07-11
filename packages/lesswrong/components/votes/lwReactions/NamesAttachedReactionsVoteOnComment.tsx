@@ -168,6 +168,7 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
 } => {
   const { openDialog } = useDialog()
   const currentUserId = useCurrentUserId()
+  const { captureEvent } = useTracking()
   const currentUserExtendedVote = getNormalizedUserVoteFromVoteProps(voteProps) ?? null;
   
   /**
@@ -202,6 +203,14 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
       return;
     }
     const shouldClearUserReaction = !!getCurrentUserReactionVote(name, quote);
+
+    captureEvent("reactionToggled", {
+      reactionName: name,
+      action: shouldClearUserReaction ? "remove" : "add",
+      isInlineReaction: !!quote,
+      documentId: voteProps.document._id,
+      collectionName: voteProps.collectionName,
+    });
 
     if (shouldClearUserReaction) {
       await clearCurrentUserReaction(name, quote);

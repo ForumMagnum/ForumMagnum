@@ -16,7 +16,7 @@ const styles = defineStyles("DatePicker", (theme: ThemeType) => {
   const datepicker__holidaysColor = theme.palette.invertIfDarkMode("#ff6803");
   const datepicker__mutedColor = theme.palette.invertIfDarkMode("#ccc");
   const datepicker__selectedColor = theme.palette.invertIfDarkMode("#216ba5");
-  const datepicker__selectedColorDisabled = theme.themeOptions.name === 'dark'
+  const datepicker__selectedColorDisabled = theme.dark
     ? "rgba(222, 148, 90, .5)"
     : "rgba(33, 107, 165, .5)";
   const datepicker__textColor = theme.palette.text.maxIntensity;

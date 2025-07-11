@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { useRecordPostView } from "../hooks/useRecordPostView";
 import { ThreadableCommentType, unflattenComments } from "../../lib/utils/unflatten";
 import type { CommentTreeOptions } from "../comments/commentTree";
+import { useTracking } from "../../lib/analyticsEvents";
 
 export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
   post,
@@ -20,6 +21,7 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
   const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null);
   const [expandAllThreads, setExpandAllThreads] = useState(initialExpandAllThreads ?? false);
   const {recordPostView, recordPostCommentsView} = useRecordPostView(post);
+  const { captureEvent } = useTracking();
 
   const markAsRead = useCallback(
     () => {
@@ -31,10 +33,18 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
   );
   const showHighlight = useCallback(
     () => {
-      setHighlightVisible(!highlightVisible);
+      const newHighlightVisible = !highlightVisible;
+      setHighlightVisible(newHighlightVisible);
+      
+      captureEvent("recentDiscussionPostHighlightToggled", {
+        postId: post._id,
+        expanded: newHighlightVisible,
+        wordCount: post.contents?.wordCount,
+      });
+      
       markAsRead();
     },
-    [setHighlightVisible, highlightVisible, markAsRead],
+    [setHighlightVisible, highlightVisible, markAsRead, post._id, post.contents?.wordCount, captureEvent],
   );
 
   const markCommentsAsRead = useCallback(

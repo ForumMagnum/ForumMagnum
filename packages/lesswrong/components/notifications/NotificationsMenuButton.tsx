@@ -18,6 +18,7 @@ import NotificationsPopover from "./NotificationsPopover";
 import { useReadQuery } from '@apollo/client/react';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import ErrorBoundary from '../common/ErrorBoundary';
 
 const UserKarmaChangesQuery = gql(`
   query NotificationsMenuButton($documentId: String) {
@@ -298,17 +299,19 @@ const FriendlyNotificationsMenuButtonPlaceholder = ({toggle}: {
 }
 
 const NotificationsMenuButton = ({ open, toggle, className }: NotificationsMenuButtonProps) => {
+  const fallback = isFriendlyUI
+    ? <FriendlyNotificationsMenuButtonPlaceholder toggle={toggle} />
+    : <BookNotificationsMenuButtonPlaceholder toggle={toggle} />
   return <SuspenseWrapper
     name="NotificationsMenuButton"
-    fallback={isFriendlyUI
-      ? <FriendlyNotificationsMenuButtonPlaceholder toggle={toggle} />
-      : <BookNotificationsMenuButtonPlaceholder toggle={toggle} />
-    }
+    fallback={fallback}
   >
-    {isFriendlyUI
-      ? <FriendlyNotificationsMenuButtonInner open={open} toggle={toggle} className={className}/>
-      : <BookNotificationsMenuButtonInner open={open} toggle={toggle} className={className}/>
-    }
+    <ErrorBoundary fallback={fallback}>
+      {isFriendlyUI
+        ? <FriendlyNotificationsMenuButtonInner open={open} toggle={toggle} className={className}/>
+        : <BookNotificationsMenuButtonInner open={open} toggle={toggle} className={className}/>
+      }
+    </ErrorBoundary>
   </SuspenseWrapper>
 }
 
