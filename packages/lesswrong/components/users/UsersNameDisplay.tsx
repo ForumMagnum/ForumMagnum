@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useHover } from '../common/withHover'
 import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { useCurrentUser } from '../common/withUser';
+import { useFilteredCurrentUser } from '../common/withUser';
 import type { Placement as PopperPlacementType } from "popper.js"
 import UserNameDeleted from "./UserNameDeleted";
 import UserTooltip from "./UserTooltip";
@@ -75,9 +75,9 @@ const UsersNameDisplay = ({
       userId: user?._id
     },
   });
-  const currentUser = useCurrentUser();
   const {disableNoKibitz} = useContext(DisableNoKibitzContext);
-  const noKibitz = (currentUser
+  const noKibitz = useFilteredCurrentUser(currentUser =>
+    currentUser
     && (currentUser.noKibitz ?? false)
     && user
     && currentUser._id !== user._id  //don't nokibitz your own name

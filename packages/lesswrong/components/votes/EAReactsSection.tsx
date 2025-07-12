@@ -276,7 +276,6 @@ const EAReactsSection: FC<{
       document: voteProps.document,
       voteType: voteProps.document.currentUserVote ?? "neutral",
       extendedVote,
-      currentUser,
     });
   }, [currentUser, openDialog, voteProps, viewOnly]);
 

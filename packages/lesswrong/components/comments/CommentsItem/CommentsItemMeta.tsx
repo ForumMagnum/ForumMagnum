@@ -6,7 +6,7 @@ import { isEAForum } from "../../../lib/instanceSettings";
 import { userIsPostCoauthor } from "../../../lib/collections/posts/helpers";
 import { useCommentLink, useCommentLinkState } from "./useCommentLink";
 import { userIsAdmin } from "../../../lib/vulcan-users/permissions";
-import { useCurrentUser } from "../../common/withUser";
+import { useFilteredCurrentUser } from "../../common/withUser";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
 import { isBookUI, isFriendlyUI } from "../../../themes/forumTheme";
@@ -175,7 +175,7 @@ export const CommentsItemMeta = ({
   rightSectionElements?: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser();
+  const currentUserIsAdmin = useFilteredCurrentUser(u => userIsAdmin(u));
   const { scrollToCommentId } = useCommentLinkState();
 
   const {
@@ -202,7 +202,7 @@ export const CommentsItemMeta = ({
    * 2) the user is either an admin, or the moderatorHat isn't deliberately hidden
    */
   const showModeratorCommentAnnotation = comment.moderatorHat && (
-    userIsAdmin(currentUser)
+    currentUserIsAdmin
       ? true
       : !comment.hideModeratorHat
     );

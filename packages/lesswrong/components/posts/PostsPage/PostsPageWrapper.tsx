@@ -1,8 +1,6 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib/utils/errorUtil';
 import PostsPageCrosspostWrapper, { isPostWithForeignId } from "./PostsPageCrosspostWrapper";
-import { commentGetDefaultView } from '../../../lib/collections/comments/helpers';
-import { useCurrentUser } from '../../common/withUser';
 import { useSubscribedLocation } from '../../../lib/routeUtil';
 import { useApolloClient } from '@apollo/client/react';
 import { useQuery } from "@/lib/crud/useQuery"
@@ -15,7 +13,6 @@ import Loading from "../../vulcan-core/Loading";
 import { PostFetchProps } from '@/components/hooks/useForeignCrosspost';
 import { PostsListWithVotes } from '@/lib/collections/posts/fragments';
 import { SequencesPageFragment } from '@/lib/collections/sequences/fragments';
-import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
 
 const PostsWithNavigationAndRevisionQuery = gql(`
   query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {
@@ -42,7 +39,6 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   version?: string,
   documentId: string,
 }) => {
-  const currentUser = useCurrentUser();
   const { query } = useSubscribedLocation();
 
   // Check the cache for a copy of the post with the PostsListWithVotes fragment, so that when you click through
@@ -83,10 +79,10 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   const post = version ? postWithRevision : postWithoutRevision;
   const loading = version ? postWithRevisionLoading : postWithoutRevisionLoading;
   const error = version ? postWithRevisionError : postWithoutRevisionError;
-  const refetch = async () => {
+  const refetch = useCallback(async () => {
     if (version) await refetchPostWithRevision();
     else await refetchPostWithoutRevision();
-  };
+  }, [refetchPostWithRevision, refetchPostWithoutRevision, version]);
 
   const crosspostFetchProps: PostFetchProps<'PostsWithNavigation' | 'PostsWithNavigationAndRevision'> = {
     collectionName: 'Posts',

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useMemo } from 'react';
 import { useMessages } from '../common/withMessages';
 import { useDialog } from '../common/withDialog';
 import { useMutation } from '@apollo/client/react';
@@ -12,6 +12,7 @@ import { VotingProps } from './votingProps';
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
 import VotingPatternsWarningPopup from "./VotingPatternsWarningPopup";
 import { gql } from '@/lib/generated/gql-codegen';
+import { useGetCurrentUser } from '../common/withUser';
 
 const performVoteCommentMutation = gql(`
   mutation performVoteComment($documentId: String, $voteType: String, $extendedVote: JSON) {
@@ -101,6 +102,7 @@ const performVoteMutations = {
 } satisfies Record<typeof collectionNameToTypeName[VoteableCollectionName], DocumentNode>;
 
 export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: VoteableCollectionName, votingSystem?: VotingSystem): VotingProps<T> => {
+  const getCurrentUser = useGetCurrentUser();
   const messages = useMessages();
   const [optimisticResponseDocument, setOptimisticResponseDocument] = useState<any>(null);
   const mutationCounts = useRef({optimisticMutationIndex: 0, completedMutationIndex: 0});
@@ -130,11 +132,10 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
     }, [typeName, showVotingPatternWarningPopup]),
   });
   
-  const vote = useCallback(async ({document, voteType, extendedVote=null, currentUser}: {
+  const vote = useCallback(async ({document, voteType, extendedVote=null}: {
     document: T,
     voteType: string,
     extendedVote?: any,
-    currentUser: UsersCurrent,
   }) => {
     // Cast a vote. Because the vote buttons are easy to mash repeatedly (and
     // the strong-voting mechanic encourages this), there could be multiple
@@ -147,6 +148,11 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
     // means that if you double-click a vote button, you can get a weird result
     // due to votes being processed out of order.
     
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
+      throw new Error("You must be logged in to vote");
+    }
+
     const newDocument = await setVoteClient({collectionName, document, user: currentUser, voteType, extendedVote, votingSystem: votingSystemOrDefault });
 
     try {
@@ -163,13 +169,13 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
       messages.flash({ messageString: errorMessage });
       setOptimisticResponseDocument(null);
     }
-  }, [messages, mutate, collectionName, votingSystemOrDefault]);
+  }, [messages, mutate, collectionName, votingSystemOrDefault, getCurrentUser]);
 
   const result = optimisticResponseDocument || document;
-  return {
-    vote, collectionName,
-    document: result,
-    baseScore: (isAF ? result.afBaseScore : result.baseScore) || 0,
-    voteCount: (result.voteCount) || 0,
-  };
+  const baseScore = (isAF ? result.afBaseScore : result.baseScore) || 0;
+  const voteCount = (result.voteCount) || 0;
+  return useMemo(
+    () => ({ vote, collectionName, document: result, baseScore, voteCount }),
+    [vote, collectionName, result, baseScore, voteCount]
+  );
 }

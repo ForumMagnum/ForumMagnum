@@ -47,6 +47,7 @@ import { ObservableQuery } from '@apollo/client';
 import { SuspenseWrapper } from './SuspenseWrapper';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import PostsLoading from '../posts/PostsLoading';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 
 const SubscriptionStateMultiQuery = gql(`
   query multiSubscriptionLWHomePostsQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -771,6 +772,8 @@ function SubscriptionSettings({
   </>;
 }
 
-export default LWHomePosts;
+export default registerComponent("LWHomePosts", LWHomePosts, {
+  areEqual: "auto",
+});
 
 

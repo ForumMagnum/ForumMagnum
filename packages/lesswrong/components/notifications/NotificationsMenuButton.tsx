@@ -150,9 +150,11 @@ const BookNotificationsMenuButtonInner = ({
   );
 }
 
-const BookNotificationsMenuButtonPlaceholder = () => {
+const BookNotificationsMenuButtonPlaceholder = ({toggle}: {
+  toggle: () => void,
+}) => {
   const classes = useStyles(styles);
-  return <IconButton classes={{ root: classes.buttonClosed }} >
+  return <IconButton classes={{ root: classes.buttonClosed }} onClick={toggle}>
     <ForumIcon icon="BellBorder"/>
   </IconButton>
 }
@@ -284,7 +286,9 @@ const FriendlyNotificationsMenuButtonInner = ({
   );
 }
 
-const FriendlyNotificationsMenuButtonPlaceholder = () => {
+const FriendlyNotificationsMenuButtonPlaceholder = ({toggle}: {
+  toggle: () => void,
+}) => {
   // ea-forum-look-here
   // This component is a loading-placeholder that will be shown briefly (less
   // than a second) during pageload. It should visually match
@@ -296,8 +300,8 @@ const FriendlyNotificationsMenuButtonPlaceholder = () => {
 
 const NotificationsMenuButton = ({ open, toggle, className }: NotificationsMenuButtonProps) => {
   const fallback = isFriendlyUI
-    ? <FriendlyNotificationsMenuButtonPlaceholder/>
-    : <BookNotificationsMenuButtonPlaceholder/>
+    ? <FriendlyNotificationsMenuButtonPlaceholder toggle={toggle} />
+    : <BookNotificationsMenuButtonPlaceholder toggle={toggle} />
   return <SuspenseWrapper
     name="NotificationsMenuButton"
     fallback={fallback}

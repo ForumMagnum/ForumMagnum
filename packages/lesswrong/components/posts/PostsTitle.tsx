@@ -1,7 +1,7 @@
 import React, { CSSProperties, FC, PropsWithChildren } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import { useCurrentUser } from "../common/withUser";
+import { useCurrentUser, useCurrentUserId } from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -214,11 +214,11 @@ const PostsTitle = ({
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser();
+  const currentUserId = useCurrentUserId();
   const { pathname } = useLocation();
   const {event: taggedEvent, current: taggedEventIsCurrent} = useTaggedEvent(showEventTag ?? false, post) ?? {};
   const theme = useTheme();
-  const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
+  const shared = post.draft && (post.userId !== currentUserId) && post.shareWithUsers
   const isOnGrayBackground = useIsOnGrayBackground();
 
   const shouldRenderEventsTag = (pathname !== communityPath) && (pathname !== '/pastEvents') && (pathname !== '/upcomingEvents') &&

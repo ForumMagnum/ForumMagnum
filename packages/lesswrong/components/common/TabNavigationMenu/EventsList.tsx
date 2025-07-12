@@ -5,11 +5,12 @@ import { useUserLocation } from '../../../lib/collections/users/helpers';
 import { isEAForum } from '../../../lib/instanceSettings';
 import TabNavigationEventsList from "../../localGroups/TabNavigationEventsList";
 import { SuspenseWrapper } from '../SuspenseWrapper';
+import { useCurrentUser } from '../withUser';
 
-export const EventsList = ({currentUser, onClick}: {
-  currentUser: UsersCurrent | null,
+export const EventsList = ({onClick}: {
   onClick: (e?: React.BaseSyntheticEvent) => void
 }) => {
+  const currentUser = useCurrentUser();
   const {lat, lng, known} = useUserLocation(currentUser, true)
   
   if (lat && lng && known) {

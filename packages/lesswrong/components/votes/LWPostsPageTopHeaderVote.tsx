@@ -2,8 +2,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useVote } from './withVote';
 import { isAF, isLW } from '../../lib/instanceSettings';
-import { useCurrentUser } from '../common/withUser';
-import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
+import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
 import { VotingSystem } from '../../lib/voting/votingSystems';
 import { TooltipSpan } from '../common/FMTooltip';
 import OverallVoteButton from "./OverallVoteButton";
@@ -59,9 +58,8 @@ const LWPostsPageTopHeaderVote = ({
   classes: ClassesType<typeof styles>
 }) => {
   const voteProps = useVote(post, "Posts", votingSystem);
-  const currentUser = useCurrentUser();
 
-  const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
+  const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
   const canVote = !fail;
 
   // Can't do top, since in context this always has tags above it

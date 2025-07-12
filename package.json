@@ -332,6 +332,7 @@
     "universal-cookie": "^4.0.0",
     "universal-cookie-express": "^4.0.0",
     "url": "^0.11.0",
+    "use-context-selector": "^2.0.0",
     "uuid": "^7.0.0",
     "warning": "^4.0.3",
     "zod": "^3.24.2",

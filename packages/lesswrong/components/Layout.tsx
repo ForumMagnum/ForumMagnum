@@ -4,12 +4,12 @@ import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';
 import { useLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
-import { UserContext } from './common/withUser';
+import { UserContext, UserContextProvider } from './common/withUser';
 import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
-import { commentBodyStyles, pBodyStyle } from '../themes/stylePiping';
+import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, blackBarTitle, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
@@ -50,19 +50,15 @@ import HomepageCommunityMap from "./seasonal/HomepageMap/HomepageCommunityMap";
 import AdminToggle from "./admin/AdminToggle";
 import SunshineSidebar from "./sunshineDashboard/SunshineSidebar";
 import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
-import CloudinaryImage2 from "./common/CloudinaryImage2";
 import ForumEventBanner from "./forumEvents/ForumEventBanner";
 import GlobalHotkeys from "./common/GlobalHotkeys";
 import LanguageModelLauncherButton from "./languageModels/LanguageModelLauncherButton";
 import LlmChatWrapper from "./languageModels/LlmChatWrapper";
-import TabNavigationMenuFooter from "./common/TabNavigationMenu/TabNavigationMenuFooter";
-import ReviewVotingCanvas from "./review/ReviewVotingCanvas";
 import LWBackgroundImage from "./LWBackgroundImage";
 import IntercomWrapper from "./common/IntercomWrapper";
 import CookieBanner from "./common/CookieBanner/CookieBanner";
 import { defineStyles, useStyles } from './hooks/useStyles';
-import Loading from './vulcan-core/Loading';
-import { useMutation } from "@apollo/client/react";
+import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { gql } from "@/lib/generated/gql-codegen";
 import { DelayedLoading } from './common/DelayedLoading';
 import { SuspenseWrapper } from './common/SuspenseWrapper';
@@ -278,6 +274,7 @@ const Layout = ({currentUser, children}: {
   children?: React.ReactNode,
 }) => {
   const classes = useStyles(styles);
+  const currentUserId = currentUser?._id;
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false); 
   const [autosaveEditorState, setAutosaveEditorState] = useState<(() => Promise<void>) | null>(null);
@@ -292,13 +289,13 @@ const Layout = ({currentUser, children}: {
   const renderCommunityMap = false // replace with following line to enable during ACX Everywhere
   // (isLW) && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
-  const [updateUser] = useMutation(UsersCurrentUpdateMutation);
+  const [updateUserNoCache] = useMutationNoCache(UsersCurrentUpdateMutation);
   
   const toggleStandaloneNavigation = useCallback(() => {
-    if (currentUser) {
-      void updateUser({
+    if (currentUserId) {
+      void updateUserNoCache({
         variables: {
-          selector: { _id: currentUser._id },
+          selector: { _id: currentUserId },
           data: {
             hideNavigationSidebar: !hideNavigationSidebar
           }
@@ -306,7 +303,7 @@ const Layout = ({currentUser, children}: {
       })
     }
     setHideNavigationSidebar(!hideNavigationSidebar);
-  }, [updateUser, currentUser, hideNavigationSidebar]);
+  }, [updateUserNoCache, currentUserId, hideNavigationSidebar]);
 
   // Some pages (eg post pages) have a solid white background, others (eg front page) have a gray
   // background against which individual elements in the central column provide their own
@@ -386,7 +383,7 @@ const Layout = ({currentUser, children}: {
     
     return (
       <AnalyticsContext path={pathname}>
-      <UserContext.Provider value={currentUser}>
+      <UserContextProvider value={currentUser}>
       <UnreadNotificationsContextProvider>
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
@@ -524,7 +521,7 @@ const Layout = ({currentUser, children}: {
       </ItemsReadContextWrapper>
       </TimezoneWrapper>
       </UnreadNotificationsContextProvider>
-      </UserContext.Provider>
+      </UserContextProvider>
       </AnalyticsContext>
     )
   };

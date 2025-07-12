@@ -4,7 +4,7 @@ import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSetting
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
-import { useCurrentUser } from '../../common/withUser';
+import { useFilteredCurrentUser } from '../../common/withUser';
 import type { VotingProps } from '../../votes/votingProps';
 import type { CommentTreeOptions } from '../commentTree';
 import type { VotingSystem } from '../../../lib/voting/votingSystems';
@@ -49,7 +49,16 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   replyButton: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser();
+  const userCanReplyOnBlocked = useFilteredCurrentUser(u => userCanDo(u, 'comments.replyOnBlocked.all'));
+  const userCanModerateAll = useFilteredCurrentUser(u => userCanDo(u, 'posts.moderate.all'));
+
+  // FIXME userIsAllowedToComment depends on some post metadatadata that we
+  // often don't want to include in fragments, producing a type-check error
+  // here. We should do something more complicated to give client-side feedback
+  // if you're banned.
+  // @ts-ignore
+  const userCanCommentOrLoggedOut = useFilteredCurrentUser(u => !u || userIsAllowedToComment(u, treeOptions.post ?? null, null, true));
+
   const now = useCurrentTime();
   const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
 
@@ -61,14 +70,9 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   const showReplyButton = (
     !treeOptions.hideReply &&
     !comment.deleted &&
-    (!blockedReplies || userCanDo(currentUser,'comments.replyOnBlocked.all')) &&
-    // FIXME userIsAllowedToComment depends on some post metadatadata that we
-    // often don't want to include in fragments, producing a type-check error
-    // here. We should do something more complicated to give client-side feedback
-    // if you're banned.
-    // @ts-ignore
-    (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post ?? null, null, true)) &&
-    (!commentHidden || userCanDo(currentUser, 'posts.moderate.all'))
+    (!blockedReplies || userCanReplyOnBlocked) &&
+    userCanCommentOrLoggedOut &&
+    (!commentHidden || userCanModerateAll)
   )
   const showEditInContext = treeOptions.showEditInContext;
 

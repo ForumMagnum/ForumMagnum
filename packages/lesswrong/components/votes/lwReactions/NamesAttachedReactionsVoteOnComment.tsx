@@ -6,7 +6,7 @@ import { reactionsListToDisplayedNumbers, getNormalizedReactionsListFromVoteProp
 import { getNamesAttachedReactionsByName } from '../../../lib/voting/reactions';
 import type { VotingProps } from '../votingProps';
 import classNames from 'classnames';
-import { useCurrentUser } from '../../common/withUser';
+import { useCurrentUserId } from '../../common/withUser';
 import { useVote } from '../withVote';
 import { useHover } from '../../common/withHover';
 import { useDialog } from '../../common/withDialog';
@@ -167,7 +167,7 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
   getAlreadyUsedReacts: () => NamesAttachedReactionsList,
 } => {
   const { openDialog } = useDialog()
-  const currentUser = useCurrentUser()
+  const currentUserId = useCurrentUserId()
   const { captureEvent } = useTracking()
   const currentUserExtendedVote = getNormalizedUserVoteFromVoteProps(voteProps) ?? null;
   
@@ -198,7 +198,7 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
   }
 
   async function toggleReaction(name: string, quote: QuoteLocator|null) {
-    if (!currentUser) {
+    if (!currentUserId) {
       openLoginDialog();
       return;
     }
@@ -221,7 +221,7 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
   }
 
   async function addCurrentUserReaction(reactionName: EmojiReactName, vote: VoteOnReactionType, quote: QuoteLocator|null) {
-    if (!currentUser) {
+    if (!currentUserId) {
       openLoginDialog();
       return;
     }
@@ -244,12 +244,11 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
       document: voteProps.document,
       voteType: voteProps.document.currentUserVote || null,
       extendedVote: newExtendedVote,
-      currentUser,
     });
   }
 
   async function clearCurrentUserReaction(reactionName: string, quote: QuoteLocator|null) {
-    if (!currentUser) {
+    if (!currentUserId) {
       openLoginDialog();
       return;
     }
@@ -264,7 +263,6 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
       document: voteProps.document,
       voteType: voteProps.document.currentUserVote || null,
       extendedVote: newExtendedVote,
-      currentUser,
     });
   }
 
@@ -329,21 +327,21 @@ const NamesAttachedReactionsCommentBottomInner = ({
   document, hideKarma=false, commentBodyRef, classes, voteProps, post
 }: NamesAttachedReactionsCommentBottomProps & WithStylesProps) => {
   const anchorEl = useRef<HTMLElement|null>(null);
-  const currentUser = useCurrentUser();
+  const currentUserId = useCurrentUserId();
 
   const { getAlreadyUsedReactTypesByKarma } = useNamesAttachedReactionsVoting(voteProps)
 
   const allReactions = getAlreadyUsedReactTypesByKarma();
 
   const reactionsList = getNormalizedReactionsListFromVoteProps(voteProps);
-  const visibleReactionsDisplay = reactionsListToDisplayedNumbers(reactionsList?.reacts ?? null, currentUser?._id);
+  const visibleReactionsDisplay = reactionsListToDisplayedNumbers(reactionsList?.reacts ?? null, currentUserId);
   
   const visibleReacts = visibleReactionsDisplay.map(r => r.react)
   const hiddenReacts = difference(allReactions, visibleReacts)
 
   const isDebateComment = post?.debate && document.debateResponse
   const canReactUserIds = post ? [...getConfirmedCoauthorIds(post), post.userId] : []
-  const userIsDebateParticipant = currentUser && canReactUserIds.includes(currentUser._id)
+  const userIsDebateParticipant = !!currentUserId && canReactUserIds.includes(currentUserId)
   const showReactButton = !isDebateComment || userIsDebateParticipant
 
   return <span className={classes.footerReactionsRow} ref={anchorEl}>
