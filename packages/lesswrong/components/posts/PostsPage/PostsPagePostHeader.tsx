@@ -182,7 +182,7 @@ export const CommentsLink: FC<{
 const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, annualReviewMarketInfo, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   answers?: CommentsList[],
-  dialogueResponses?: CommentsList[],
+  dialogueResponses?: readonly CommentsList[],
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
   hideMenu?: boolean,
