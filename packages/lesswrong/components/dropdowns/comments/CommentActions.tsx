@@ -20,6 +20,7 @@ import ShortformFrontpageDropdownItem from "./ShortformFrontpageDropdownItem";
 import { CommentSubscriptionsDropdownItem } from "./CommentSubscriptionsDropdownItem";
 import BanUserFromPostDropdownItem from "./BanUserFromPostDropdownItem";
 import LockThreadDropdownItem from "./LockThreadDropdownItem";
+import { useCurrentUser } from '@/components/common/withUser';
 
 
 const PostsDetailsQuery = gql(`
@@ -32,13 +33,13 @@ const PostsDetailsQuery = gql(`
   }
 `);
 
-const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
-  currentUser: UsersCurrent, // Must be logged in
+const CommentActions = ({comment, post, tag, showEdit}: {
   comment: CommentsList,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
   showEdit: () => void,
 }) => {
+  const currentUser = useCurrentUser();
   const { data } = useQuery(PostsDetailsQuery, {
     variables: { documentId: post?._id },
     skip: !post,

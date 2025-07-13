@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { userHasCommentProfileImages } from '../../../lib/betas';
-import { useCurrentUser } from '../../common/withUser';
+import { useFilteredCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import UserNameDeleted from "../../users/UserNameDeleted";
 import UsersName from "../../users/UsersName";
@@ -75,7 +75,7 @@ const CommentUserName = ({
   simple?: boolean,
   className?: string
 }) => {
-  const currentUser = useCurrentUser();
+  const currentUserHasProfileImages = useFilteredCurrentUser(u => userHasCommentProfileImages(u));
   const author = comment.user;
 
   if (comment.deleted) {
@@ -111,7 +111,7 @@ const CommentUserName = ({
       );
     return (
       <Wrapper>
-        {userHasCommentProfileImages(currentUser)
+        {currentUserHasProfileImages
           ? <UsersProfileImage
             user={author}
             size={PROFILE_IMAGE_SIZE}
