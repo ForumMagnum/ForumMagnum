@@ -150,3 +150,6 @@ export const getAuth0Credentials = () => {
   };
 };
 
+export const connectionStringSetting = new DatabaseServerSetting<string | null>("analytics.connectionString", null);
+export const mirrorConnectionSettingString = new DatabaseServerSetting<string | null>("analytics.mirrorConnectionString", null); //for streaming to two DB at once
+

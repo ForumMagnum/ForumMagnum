@@ -6,7 +6,6 @@ import {initializeSetting} from './settingsCache'
 import { getInstanceSettings } from './getInstanceSettings';
 import { getCommandLineArguments } from '@/server/commandLine';
 import type { FilterTag } from './filterSettings';
-import { forumSelect } from './forumTypeUtils';
 import type { ReviewWinnerCategory, ReviewYear } from './reviewUtils';
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
@@ -522,7 +521,7 @@ export const requestFeedbackKarmaLevelSetting = new PublicInstanceSetting<number
 
 export const alwaysShowAnonymousReactsSetting = new PublicInstanceSetting<boolean>('voting.eaEmoji.alwaysShowAnonymousReacts', true, "optional");
 
-export const showSubscribeReminderInFeed = new PublicInstanceSetting<boolean>('feed.showSubscribeReminder', forumSelect({ EAForum: true, LWAF: true, default: false }), "optional");
+export const showSubscribeReminderInFeed = new PublicInstanceSetting<boolean>('feed.showSubscribeReminder', true, "optional");
 
 export const hasGoogleDocImportSetting = new PublicInstanceSetting<boolean>('googleDocImport.enabled', false, "optional");
 

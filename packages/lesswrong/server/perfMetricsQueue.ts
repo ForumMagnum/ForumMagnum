@@ -16,6 +16,9 @@ async function flushPerfMetrics() {
 
   if (queuedPerfMetrics.length < batchSize) return;
 
+  const { refreshSettingsCaches } = await import('./loadDatabaseSettings');
+  await refreshSettingsCaches();
+
   const connection = getAnalyticsConnection();
   if (!connection) return;
 

@@ -1,7 +1,7 @@
 import { isAnyTest } from "../../lib/executionEnvironment";
 import pgp, { IDatabase } from "pg-promise";
 import type { IClient } from "pg-promise/typescript/pg-subset";
-import { DatabaseServerSetting } from "../databaseSettings";
+import { connectionStringSetting, DatabaseServerSetting, mirrorConnectionSettingString } from "../databaseSettings";
 import { isEAForum, sslCAFileSetting } from "../../lib/instanceSettings";
 import fs from "fs";
 import { forumSelect } from "../../lib/forumTypeUtils";
@@ -9,9 +9,6 @@ import { getInstanceSettingsFilePath } from "../commandLine";
 import path from "path";
 
 export const pgPromiseLib = pgp({});
-
-export const connectionStringSetting = new DatabaseServerSetting<string | null>("analytics.connectionString", null);
-export const mirrorConnectionSettingString = new DatabaseServerSetting<string | null>("analytics.mirrorConnectionString", null); //for streaming to two DB at once
 
 interface SSLSettings {
   require?: boolean
