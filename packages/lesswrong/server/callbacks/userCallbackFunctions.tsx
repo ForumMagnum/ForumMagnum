@@ -315,9 +315,6 @@ export async function updateMailchimpSubscription(data: UpdateUserDataInput, {ol
   if (hasDigests && (unsubscribedFromAll || deactivatedAccount)) {
     data.subscribedToDigest = false
   }
-  if (hasNewsletter && (unsubscribedFromAll || deactivatedAccount)) {
-    data.subscribedToNewsletter = false
-  }
 
   const handleErrorCase = (errorMessage: string) => {
     // If the user is deactivating their account, allow the update to continue. Otherwise,
@@ -328,7 +325,6 @@ export async function updateMailchimpSubscription(data: UpdateUserDataInput, {ol
       throw err
     }
     data.subscribedToDigest = false
-    data.subscribedToNewsletter = false
     return data;
   }
 
