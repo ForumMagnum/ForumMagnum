@@ -4285,6 +4285,21 @@ const schema = {
       },
     },
   },
+  inactiveSummaryEmailSentAt: {
+    database: {
+      type: "TIMESTAMPTZ",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Date",
+      canRead: ["admins"],
+      canUpdate: ["admins"],
+      canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   karmaChanges: {
     graphql: {
       outputType: "KarmaChanges",

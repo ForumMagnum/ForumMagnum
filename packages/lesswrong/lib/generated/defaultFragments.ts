@@ -1821,6 +1821,7 @@ export const UsersDefaultFragment = `
     hideSunshineSidebar
     inactiveSurveyEmailSentAt
     userSurveyEmailSentAt
+    inactiveSummaryEmailSentAt
     recommendationSettings
   }
 `;

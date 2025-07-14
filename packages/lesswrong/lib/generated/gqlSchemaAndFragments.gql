@@ -4987,6 +4987,7 @@ type User {
   hideSunshineSidebar: Boolean
   inactiveSurveyEmailSentAt: Date
   userSurveyEmailSentAt: Date
+  inactiveSummaryEmailSentAt: Date
   karmaChanges(startDate: Date, endDate: Date): KarmaChanges
   recommendationSettings: JSON
 }
@@ -7227,6 +7228,7 @@ input CreateUserDataInput {
   hideSunshineSidebar: Boolean
   inactiveSurveyEmailSentAt: Date
   userSurveyEmailSentAt: Date
+  inactiveSummaryEmailSentAt: Date
 }
 
 input CreateUserInput {
@@ -7428,6 +7430,7 @@ input UpdateUserDataInput {
   hideSunshineSidebar: Boolean
   inactiveSurveyEmailSentAt: Date
   userSurveyEmailSentAt: Date
+  inactiveSummaryEmailSentAt: Date
   recommendationSettings: RecommendationSettingsInput
 }
 
@@ -12440,6 +12443,7 @@ fragment UsersDefaultFragment on User {
   hideSunshineSidebar
   inactiveSurveyEmailSentAt
   userSurveyEmailSentAt
+  inactiveSummaryEmailSentAt
   recommendationSettings
 }
 

@@ -4801,6 +4801,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly hideSunshineSidebar: boolean|null,
   readonly inactiveSurveyEmailSentAt: Date|null,
   readonly userSurveyEmailSentAt: Date|null,
+  readonly inactiveSummaryEmailSentAt: Date|null,
   readonly recommendationSettings: RecommendationSettingsInput,
 }
 

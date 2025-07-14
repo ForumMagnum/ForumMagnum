@@ -1749,6 +1749,7 @@ interface DbUser extends DbObject {
   howOthersCanHelpMe: EditableFieldContents | null
   howOthersCanHelpMe_latest: string | null
   htmlMapMarkerText: string | null
+  inactiveSummaryEmailSentAt: Date | null
   inactiveSurveyEmailSentAt: Date | null
   isAdmin: boolean
   jobTitle: string | null

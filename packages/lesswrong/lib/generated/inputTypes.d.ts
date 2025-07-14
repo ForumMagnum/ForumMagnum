@@ -4201,6 +4201,7 @@ interface User {
   hideSunshineSidebar: boolean | null;
   inactiveSurveyEmailSentAt: Date | null;
   userSurveyEmailSentAt: Date | null;
+  inactiveSummaryEmailSentAt: Date | null;
   karmaChanges: KarmaChanges | null;
   recommendationSettings: any;
 }
@@ -6215,6 +6216,7 @@ interface CreateUserDataInput {
   hideSunshineSidebar?: boolean | null;
   inactiveSurveyEmailSentAt?: Date | null;
   userSurveyEmailSentAt?: Date | null;
+  inactiveSummaryEmailSentAt?: Date | null;
 }
 
 interface CreateUserInput {
@@ -6416,6 +6418,7 @@ interface UpdateUserDataInput {
   hideSunshineSidebar?: boolean | null;
   inactiveSurveyEmailSentAt?: Date | null;
   userSurveyEmailSentAt?: Date | null;
+  inactiveSummaryEmailSentAt?: Date | null;
   recommendationSettings?: RecommendationSettingsInput | null;
 }
 

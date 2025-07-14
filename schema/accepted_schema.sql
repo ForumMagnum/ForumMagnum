@@ -3507,6 +3507,7 @@ CREATE TABLE "Users" (
   "hideSunshineSidebar" BOOL NOT NULL DEFAULT FALSE,
   "inactiveSurveyEmailSentAt" TIMESTAMPTZ,
   "userSurveyEmailSentAt" TIMESTAMPTZ,
+  "inactiveSummaryEmailSentAt" TIMESTAMPTZ,
   "recommendationSettings" JSONB
 );
 
