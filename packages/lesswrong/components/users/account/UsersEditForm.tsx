@@ -28,7 +28,7 @@ import { getCommentViewOptions } from '@/lib/commentViewOptions';
 import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 import { getAllUserGroups, userHasntChangedName, userIsAdmin, userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { FormComponentDatePicker } from '@/components/form-components/FormComponentDateTime';
-import { allowSubscribeToSequencePosts, hasAccountDeletionFlow, hasAuthorModeration, hasKeywordAlerts, hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '@/lib/betas';
+import { allowSubscribeToSequencePosts, hasAccountDeletionFlow, hasAuthorModeration, hasInactiveSummaryEmail, hasKeywordAlerts, hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '@/lib/betas';
 import { ThemeSelect } from '@/components/form-components/ThemeSelect';
 import { FormComponentCheckboxGroup } from '@/components/form-components/FormComponentCheckboxGroup';
 import { MODERATION_GUIDELINES_OPTIONS } from '@/lib/collections/posts/constants';
@@ -907,6 +907,23 @@ const UsersForm = ({
           </form.Field>
         </div>
         </HighlightableField>}
+
+        {hasInactiveSummaryEmail &&
+          <div className={classes.fieldWrapper}>
+            <form.Field name="sendInactiveSummaryEmail">
+              {(field) => (
+                <LWTooltip
+                  title="Sent when you haven’t visited the Forum in a while. Includes a summary of your notifications and suggested reading based on your interests."
+                >
+                  <FormComponentCheckbox
+                    field={field}
+                    label="Send me a summary when I’ve been inactive"
+                  />
+                </LWTooltip>
+              )}
+            </form.Field>
+          </div>
+        }
 
         <div className={classes.fieldWrapper}>
           <form.Field name="unsubscribeFromAll">
