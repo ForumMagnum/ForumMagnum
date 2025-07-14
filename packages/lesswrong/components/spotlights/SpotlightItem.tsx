@@ -34,7 +34,8 @@ import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import range from 'lodash/range';
 import CommentById from '../comments/CommentById';
 import { SingleLineCommentPlaceholder } from '../comments/SingleLineComment';
-import dynamic from 'next/dynamic';
+import { SpotlightForm } from './SpotlightForm';
+// import dynamic from 'next/dynamic';
 
 const SpotlightDisplayUpdateMutation = gql(`
   mutation updateSpotlightSpotlightItem($selector: SelectorInput!, $data: UpdateSpotlightDataInput!) {
@@ -467,7 +468,7 @@ export const SpotlightItem = ({
   className?: string,
   children?: React.ReactNode,
 }) => {
-  const SpotlightForm = dynamic(() => import('./SpotlightForm').then(mod => ({ default: mod.SpotlightForm })), { ssr: false });
+  // const SpotlightForm = dynamic(() => import('./SpotlightForm').then(mod => ({ default: mod.SpotlightForm })), { ssr: false });
 
   const classes = useStyles(styles);
   const currentUser = useCurrentUser()

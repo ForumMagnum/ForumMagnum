@@ -36,7 +36,8 @@ import UsersProfileImage from "./UsersProfileImage";
 import ForumIcon from "../common/ForumIcon";
 import NewWikiTagMenu from "../tagging/NewWikiTagMenu";
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
-import dynamic from 'next/dynamic';
+import NewShortformDialog from '../shortform/NewShortformDialog';
+// import dynamic from 'next/dynamic';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -242,7 +243,7 @@ const UsersMenu = ({classes}: {
           <DropdownItem
             title={styleSelect({friendly: "Quick take", default: preferredHeadingCase("New Quick Take")})}
             onClick={() => {
-              const NewShortformDialog = dynamic(() => import("../shortform/NewShortformDialog"), { ssr: false });
+              // const NewShortformDialog = dynamic(() => import("../shortform/NewShortformDialog"), { ssr: false });
               openDialog({
                 name:"NewShortformDialog",
                 contents: ({onClose}) => <NewShortformDialog onClose={onClose}/>

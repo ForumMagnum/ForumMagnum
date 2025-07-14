@@ -15,7 +15,8 @@ import ErrorBoundary from '../../common/ErrorBoundary';
 import { ColoredNumber } from './ColoredNumber';
 import { styles } from './styles';
 import { useStyles } from '../../hooks/useStyles';
-import dynamic from 'next/dynamic';
+import KarmaChangesDisplay from './KarmaChangesDisplay';
+// import dynamic from 'next/dynamic';
 
 const UserKarmaChangesQuery = gql(`
   query KarmaChangeNotifier($documentId: String) {
@@ -84,7 +85,7 @@ const KarmaChangeNotifierLoaded = ({currentUser, className}: {
     if (settings && settings.updateFrequency === "disabled")
       return null;
 
-    const KarmaChangesDisplay = dynamic(() => import('./KarmaChangesDisplay'), { ssr: false });
+    // const KarmaChangesDisplay = dynamic(() => import('./KarmaChangesDisplay'), { ssr: false });
 
     const { posts, comments, tagRevisions, endDate, totalChange } = karmaChanges
     //Check if user opened the karmaChangeNotifications for the current interval

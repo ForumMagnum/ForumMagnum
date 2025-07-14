@@ -1,3 +1,5 @@
+'use client';
+
 import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
 import { registerComponent } from '../lib/vulcan-lib/components';
 import classNames from 'classnames'
@@ -45,8 +47,8 @@ import BasicOnboardingFlow from "./onboarding/BasicOnboardingFlow";
 import { CommentOnSelectionPageWrapper } from "./comments/CommentOnSelection";
 import SidebarsWrapper from "./common/SidebarsWrapper";
 import AdminToggle from "./admin/AdminToggle";
-import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
-import ForumEventBanner from "./forumEvents/ForumEventBanner";
+// import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
+// import ForumEventBanner from "./forumEvents/ForumEventBanner";
 import GlobalHotkeys from "./common/GlobalHotkeys";
 import LlmChatWrapper from "./languageModels/LlmChatWrapper";
 import LWBackgroundImage from "./LWBackgroundImage";
@@ -57,9 +59,11 @@ import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { DelayedLoading } from './common/DelayedLoading';
 import { SuspenseWrapper } from './common/SuspenseWrapper';
-import dynamic from 'next/dynamic';
+// import dynamic from 'next/dynamic';
 import { useRouteMetadata } from './RouteMetadataContext';
 import { isFullscreenRoute, isHomeRoute, isStandaloneRoute, isStaticHeaderRoute, isSunshineSidebarRoute, isUnspacedGridRoute } from '@/lib/routeChecks';
+import SunshineSidebar from './sunshineDashboard/SunshineSidebar';
+import LanguageModelLauncherButton from './languageModels/LanguageModelLauncherButton';
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -358,9 +362,9 @@ const Layout = ({currentUser, children}: {
   }
 
   const render = () => {
-    const SunshineSidebar = dynamic(() => import("./sunshineDashboard/SunshineSidebar"), { ssr: false });
+    // const SunshineSidebar = dynamic(() => import("./sunshineDashboard/SunshineSidebar"), { ssr: false });
     // const HomepageCommunityMap = dynamic(() => import('./seasonal/HomepageMap/HomepageCommunityMap'), { ssr: false });
-    const LanguageModelLauncherButton = dynamic(() => import("./languageModels/LanguageModelLauncherButton"), { ssr: false });
+    // const LanguageModelLauncherButton = dynamic(() => import("./languageModels/LanguageModelLauncherButton"), { ssr: false });
 
     const baseLayoutOptions: LayoutOptions = {
       // Check whether the current route is one which should have standalone
@@ -439,9 +443,9 @@ const Layout = ({currentUser, children}: {
                   backgroundColor={headerBackgroundColor}
                 />
               </SuspenseWrapper>}
-              <SuspenseWrapper name="ForumEventBanner">
+              {/* <SuspenseWrapper name="ForumEventBanner">
                 <ForumEventBanner />
-              </SuspenseWrapper>
+              </SuspenseWrapper> */}
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}>
                 {/* <SuspenseWrapper name="HomepageCommunityMap">
@@ -490,7 +494,7 @@ const Layout = ({currentUser, children}: {
                   {!isFullscreenRoute(pathname) && !routeMetadata.noFooter && <Footer />}
                 </div>
                 {isLW && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
-                {!renderSunshineSidebar &&
+                {/* {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
                   <MaybeStickyWrapper sticky={friendlyHomeLayout}>
                     <DeferRender ssr={true} clientTiming='mobile-aware'>
@@ -499,7 +503,7 @@ const Layout = ({currentUser, children}: {
                       </SuspenseWrapper>
                     </DeferRender>
                   </MaybeStickyWrapper>
-                }
+                } */}
                 {renderSunshineSidebar && <div className={classes.sunshine}>
                   <DeferRender ssr={false}>
                     <SuspenseWrapper name="SunshineSidebar">

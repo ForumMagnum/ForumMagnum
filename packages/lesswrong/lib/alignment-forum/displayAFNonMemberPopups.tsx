@@ -5,7 +5,9 @@ import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import uniq from 'lodash/uniq';
 import { useCurrentUser } from '@/components/common/withUser';
-import dynamic from 'next/dynamic';
+import AFNonMemberInitialPopup from '@/components/alignment-forum/AFNonMemberInitialPopup';
+import AFNonMemberSuccessPopup from '@/components/alignment-forum/AFNonMemberSuccessPopup';
+// import dynamic from 'next/dynamic';
 
 const SuggestAlignmentCommentUpdateMutation = gql(`
   mutation updateCommentCommentsNewForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -34,7 +36,7 @@ const isComment = (document: PostsBase | CommentsList): document is CommentsList
 
 export const afNonMemberDisplayInitialPopup = (currentUser: UsersCurrent|null, openDialog: OpenDialogContextType["openDialog"]): boolean => {
   if (userNeedsAFNonMemberWarning(currentUser)) { //only fires on AF for non-members
-    const AFNonMemberInitialPopup = dynamic(() => import("@/components/alignment-forum/AFNonMemberInitialPopup"), { ssr: false });
+    // const AFNonMemberInitialPopup = dynamic(() => import("@/components/alignment-forum/AFNonMemberInitialPopup"), { ssr: false });
 
     openDialog({
       name: "AFNonMemberInitialPopup",
@@ -54,7 +56,7 @@ export const useAfNonMemberSuccessHandling = () => {
   const [updatePost] = useMutation(SuggestAlignmentPostUpdateMutation);
   
   return useCallback((document: PostsBase | CommentsList) => {
-    const AFNonMemberSuccessPopup = dynamic(() => import("@/components/alignment-forum/AFNonMemberSuccessPopup"), { ssr: false });
+    // const AFNonMemberSuccessPopup = dynamic(() => import("@/components/alignment-forum/AFNonMemberSuccessPopup"), { ssr: false });
 
     if (!!currentUser && userNeedsAFNonMemberWarning(currentUser, false)) {
       if (isComment(document)) {
