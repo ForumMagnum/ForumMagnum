@@ -3,11 +3,12 @@ import { combineUrls, getSiteUrl } from "@/lib/vulcan-lib/utils";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { userGetProfileUrlFromSlug } from "@/lib/collections/users/helpers";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
+import { localgroupGetUrl } from "@/lib/collections/localgroups/helpers";
 import PostsRepo from "./repos/PostsRepo";
 import UsersRepo from "./repos/UsersRepo";
 import SequencesRepo from "./repos/SequencesRepo";
 import LocalgroupsRepo from "./repos/LocalgroupsRepo";
-import { localgroupGetUrl } from "@/lib/collections/localgroups/helpers";
+import chunk from "lodash/chunk";
 
 type ChangeFreq =
   | 'always'
@@ -97,7 +98,21 @@ const generateLocalgroupsEntries = async (): Promise<SitemapEntry[]> => {
   }));
 }
 
-export const generateSitemap = async () => {
+const generateSitemapIndex = (sitemapCount: number) => {
+  const baseUrl = getSiteUrl();
+  const now = new Date().toISOString();
+  const sitemaps = new Array(sitemapCount).fill(null).map((_, i) => `
+    <sitemap>
+      <loc>${combineUrls(baseUrl, `sitemap${i + 1}.xml`)}</loc>
+      <lastmod>${now}</lastmod>
+    </sitemap>`);
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  ${sitemaps.join("")}
+</sitemapindex>`;
+}
+
+export const generateSitemaps = async (): Promise<string[]> => {
   const [
     postEntries,
     userEntries,
@@ -116,27 +131,35 @@ export const generateSitemap = async () => {
     ...sequenceEntries,
     ...localgroupEntries,
   ];
-  if (entries.length > 50000) {
-    throw new Error("Sitemaps can only contain 50,000 entries");
+  const sections = chunk(entries, 49999);
+  if (sections.length === 1) {
+    return [compileEntries(entries)];
   }
-  return compileEntries(entries);
+  return [
+    generateSitemapIndex(sections.length),
+    ...sections.map((section) => compileEntries(section)),
+  ];
 }
 
 type CachedSitemap = {
-  sitemap: Promise<string>,
+  sitemaps: Promise<string[]>,
   expiresAt: Date,
 }
 
 let cachedSitemap: CachedSitemap | null = null;
 
-export const getSitemapWithCache = (expiresInMinutes = 5): Promise<string> => {
+export const getSitemapWithCache = async (
+  index?: number,
+  expiresInMinutes = 5,
+): Promise<string> => {
   if (!cachedSitemap || cachedSitemap.expiresAt <= new Date()) {
     cachedSitemap = {
-      sitemap: generateSitemap(),
+      sitemaps: generateSitemaps(),
       expiresAt: new Date(
         new Date().setMinutes(new Date().getMinutes() + expiresInMinutes),
       ),
     };
   }
-  return cachedSitemap!.sitemap;
+  const sitemaps = await cachedSitemap!.sitemaps;
+  return sitemaps[index ?? 0];
 }
