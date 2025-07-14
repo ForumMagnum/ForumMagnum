@@ -4,10 +4,10 @@ import { isServer } from "@/lib/executionEnvironment";
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
 import { ApolloLink } from "@apollo/client";
 import {
-  ApolloNextAppProvider,
   ApolloClient,
   InMemoryCache,
 } from "@apollo/client-integration-nextjs";
+import { ApolloNextAppProvider } from "@/lib/vendor/@apollo/client-integration-nextjs/ApolloNextAppProvider";
 import type { GraphQLSchema } from "graphql";
 import type { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import { typeDefs, resolvers } from "@/server/vulcan-lib/apollo-server/initGraphQL";
@@ -39,7 +39,7 @@ function makeClient({ loginToken, user, cookies, headers, searchParams }: MakeCl
     new LoggedOutCacheLink(),
   ];
   if (isServer) {
-    const { computeContextFromUser } = require("@/server/vulcan-lib/apollo-server/context");
+    const { computeContextFromUser }: typeof import("@/server/vulcan-lib/apollo-server/context") = require("@/server/vulcan-lib/apollo-server/context");
 
     const context = computeContextFromUser({
       user,

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "lib": ["es2019", "dom"],
+    "lib": ["es2021", "dom"],
     "noImplicitAny": true,
     "noImplicitThis": true,
     "strictNullChecks": true,
