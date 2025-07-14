@@ -1,7 +1,6 @@
 import RSS from 'rss';
 import { Comments } from '../server/collections/comments/collection';
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers';
-import { Posts } from '../server/collections/posts/collection';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { userGetDisplayNameById } from '../lib/vulcan-users/helpers';
 import { forumTitleSetting, siteUrlSetting, taglineSetting } from '../lib/instanceSettings';
@@ -13,12 +12,12 @@ import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import { getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 import { viewTermsToQuery } from '../lib/utils/viewUtils';
 import { fetchFragment } from './fetchFragment';
-import { addStaticRoute } from "./vulcan-lib/staticRoutes";
 import { createAnonymousContext } from "./vulcan-lib/createContexts";
 import { PostsViews } from '@/lib/collections/posts/views';
 import { CommentsViews } from '@/lib/collections/comments/views';
 import { PostsRSSFeed } from '@/lib/collections/posts/fragments';
 import { camelCaseify } from '@/lib/vulcan-lib/utils';
+import type { NextRequest } from 'next/server';
 
 export const getMeta = (url: string) => {
   const siteUrl = siteUrlSetting.get();
@@ -43,10 +42,10 @@ const roundKarmaThreshold = (threshold: number): KarmaThreshold =>
   : (threshold < 162) ? 125
   : 200;
 
-const servePostRSS = async (terms: RSSTerms, url?: string) => {
+export const servePostRSS = async (terms: RSSTerms,) => {
   // LESSWRONG - this was added to handle karmaThresholds
   let karmaThreshold = terms.karmaThreshold = roundKarmaThreshold(parseInt(terms.karmaThreshold, 10));
-  url = url || rssTermsToUrl(terms); // Default value is the custom rss feed computed from terms
+  const url = rssTermsToUrl(terms);
   const feed = new RSS(getMeta(url));
 
   // We renamed the rss views to no longer have dashes in them
@@ -108,8 +107,8 @@ const servePostRSS = async (terms: RSSTerms, url?: string) => {
   return feed.xml();
 };
 
-const serveCommentRSS = async (terms: RSSTerms, req: any, res: any, url?: string) => {
-  url = url || rssTermsToUrl(terms); // Default value is the custom rss feed computed from terms
+export const serveCommentRSS = async (terms: RSSTerms, req: NextRequest) => {
+  const url = rssTermsToUrl(terms);
   const feed = new RSS(getMeta(url));
   const context = await getContextFromReqAndRes({req, isSSR: false});
 
@@ -134,18 +133,3 @@ const serveCommentRSS = async (terms: RSSTerms, req: any, res: any, url?: string
   return feed.xml();
 };
 
-
-addStaticRoute('/feed.xml', async function(params, req, res, _next) {
-  res.setHeader('Content-Type', 'application/rss+xml; charset=utf-8')
-  if (typeof params.query.view === 'undefined') {
-    params.query.view = 'rss';
-  }
-  if (params.query.filterSettings) {
-    params.query.filterSettings = JSON.parse(params.query.filterSettings);
-  }
-  if (params.query.type && params.query.type === "comments") {
-    res.end(await serveCommentRSS(params.query, req, res));
-  } else {
-    res.end(await servePostRSS(params.query));
-  }
-});
