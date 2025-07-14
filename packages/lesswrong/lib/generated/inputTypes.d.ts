@@ -4075,6 +4075,7 @@ interface User {
   karmaChangeBatchStart: Date | null;
   emailSubscribedToCurated: boolean | null;
   subscribedToDigest: boolean | null;
+  sendInactiveSummaryEmail: boolean | null;
   subscribedToNewsletter: boolean | null;
   unsubscribeFromAll: boolean | null;
   hideSubscribePoke: boolean | null;
@@ -6161,6 +6162,7 @@ interface CreateUserDataInput {
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
   subscribedToDigest?: boolean | null;
+  sendInactiveSummaryEmail?: boolean | null;
   subscribedToNewsletter?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
@@ -6336,6 +6338,7 @@ interface UpdateUserDataInput {
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
   subscribedToDigest?: boolean | null;
+  sendInactiveSummaryEmail?: boolean | null;
   subscribedToNewsletter?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;

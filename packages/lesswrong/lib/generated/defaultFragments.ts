@@ -1714,6 +1714,7 @@ export const UsersDefaultFragment = `
     karmaChangeBatchStart
     emailSubscribedToCurated
     subscribedToDigest
+    sendInactiveSummaryEmail
     subscribedToNewsletter
     unsubscribeFromAll
     hideSubscribePoke

@@ -4861,6 +4861,7 @@ type User {
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
   subscribedToDigest: Boolean
+  sendInactiveSummaryEmail: Boolean
   subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
@@ -7173,6 +7174,7 @@ input CreateUserDataInput {
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
   subscribedToDigest: Boolean
+  sendInactiveSummaryEmail: Boolean
   subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
@@ -7348,6 +7350,7 @@ input UpdateUserDataInput {
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
   subscribedToDigest: Boolean
+  sendInactiveSummaryEmail: Boolean
   subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
@@ -12330,6 +12333,7 @@ fragment UsersDefaultFragment on User {
   karmaChangeBatchStart
   emailSubscribedToCurated
   subscribedToDigest
+  sendInactiveSummaryEmail
   subscribedToNewsletter
   unsubscribeFromAll
   hideSubscribePoke
@@ -12471,6 +12475,7 @@ fragment UsersEdit on User {
   emailSubscribedToCurated
   subscribedToDigest
   subscribedToNewsletter
+  sendInactiveSummaryEmail
   unsubscribeFromAll
   hasAuth0Id
 

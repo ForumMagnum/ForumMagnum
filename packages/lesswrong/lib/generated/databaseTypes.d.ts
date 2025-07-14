@@ -2244,6 +2244,7 @@ interface DbUser extends DbObject {
   reviewVotesQuadratic2020: boolean | null
   reviewedAt: Date | null
   reviewedByUserId: string | null
+  sendInactiveSummaryEmail: boolean
   sequenceCount: number
   sequenceDraftCount: number
   services: any | null

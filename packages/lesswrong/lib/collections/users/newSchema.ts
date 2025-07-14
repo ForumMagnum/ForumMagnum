@@ -2220,6 +2220,23 @@ const schema = {
       },
     },
   },
+  sendInactiveSummaryEmail: {
+    database: {
+      type: "BOOL",
+      defaultValue: true,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean",
+      canRead: ["members"],
+      canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   subscribedToNewsletter: {
     database: {
       type: "BOOL",

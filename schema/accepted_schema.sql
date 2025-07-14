@@ -3399,6 +3399,7 @@ CREATE TABLE "Users" (
   "karmaChangeBatchStart" TIMESTAMPTZ,
   "emailSubscribedToCurated" BOOL,
   "subscribedToDigest" BOOL NOT NULL DEFAULT FALSE,
+  "sendInactiveSummaryEmail" BOOL NOT NULL DEFAULT TRUE,
   "subscribedToNewsletter" BOOL NOT NULL DEFAULT FALSE,
   "unsubscribeFromAll" BOOL,
   "hideSubscribePoke" BOOL NOT NULL DEFAULT FALSE,
