@@ -1776,6 +1776,7 @@ interface DbUser extends DbObject {
   markDownPostEditor: boolean
   maxCommentCount: number
   maxPostCount: number
+  mentionsDisabled: boolean
   moderationGuidelines: EditableFieldContents | null
   moderationGuidelines_latest: string | null
   moderationStyle: string | null

@@ -41,6 +41,7 @@ export const UserReviewStatus = ({classes, user}: {
     {user.allCommentingDisabled && <div className={classes.accountFlag}>All commenting disabled</div>}
     {user.commentingOnOtherUsersDisabled && <div className={classes.accountFlag}>Commenting on other users disabled</div>}
     {user.conversationsDisabled && <div className={classes.accountFlag}>Private messaging disabled</div>}
+    {user.mentionsDisabled && <div className={classes.accountFlag}>Mentions disabled</div>}
     {user.postingDisabled && <div className={classes.accountFlag}>Posting disabled</div>}
     {user.nullifyVotes && <div className={classes.accountFlag}>Previous votes deleted</div>}
     {user.deleteContent && <div className={classes.accountFlag}>Content purged</div>}

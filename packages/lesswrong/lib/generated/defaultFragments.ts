@@ -1804,6 +1804,7 @@ export const UsersDefaultFragment = `
     allCommentingDisabled
     commentingOnOtherUsersDisabled
     conversationsDisabled
+    mentionsDisabled
     acknowledgedNewUserGuidelines
     subforumPreferredLayout
     hideJobAdUntil

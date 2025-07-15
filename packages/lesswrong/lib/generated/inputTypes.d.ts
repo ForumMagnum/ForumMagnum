@@ -4177,6 +4177,7 @@ interface User {
   allCommentingDisabled: boolean | null;
   commentingOnOtherUsersDisabled: boolean | null;
   conversationsDisabled: boolean | null;
+  mentionsDisabled: boolean | null;
   associatedClientId: ClientId | null;
   associatedClientIds: Array<ClientId> | null;
   altAccountsDetected: boolean | null;
@@ -6202,6 +6203,7 @@ interface CreateUserDataInput {
   allCommentingDisabled?: boolean | null;
   commentingOnOtherUsersDisabled?: boolean | null;
   conversationsDisabled?: boolean | null;
+  mentionsDisabled?: boolean | null;
   acknowledgedNewUserGuidelines?: boolean | null;
   subforumPreferredLayout?: string | null;
   hideJobAdUntil?: Date | null;
@@ -6401,6 +6403,7 @@ interface UpdateUserDataInput {
   allCommentingDisabled?: boolean | null;
   commentingOnOtherUsersDisabled?: boolean | null;
   conversationsDisabled?: boolean | null;
+  mentionsDisabled?: boolean | null;
   acknowledgedNewUserGuidelines?: boolean | null;
   subforumPreferredLayout?: string | null;
   hideJobAdUntil?: Date | null;
