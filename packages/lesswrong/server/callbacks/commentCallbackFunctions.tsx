@@ -848,7 +848,7 @@ export async function checkCommentForSpamWithAkismet(comment: DbComment, current
 
 /* CREATE ASYNC */
 export async function newCommentTriggerReview({document, context}: AfterCreateCallbackProperties<'Comments'>) {
-  await triggerReviewIfNeeded(document.userId, context);
+  await triggerReviewIfNeeded({userId: document.userId, context, newDocument: document});
 }
 
 export async function trackCommentRateLimitHit({document, context}: AfterCreateCallbackProperties<'Comments'>) {
@@ -1068,7 +1068,7 @@ export async function updatedCommentMaybeTriggerReview({ currentUser, context }:
   currentUser.snoozedUntilContentCount && await updateUser({ data: {
         snoozedUntilContentCount: currentUser.snoozedUntilContentCount - 1,
       }, selector: { _id: currentUser._id } }, createAnonymousContext())
-  await triggerReviewIfNeeded(currentUser._id, context)
+  await triggerReviewIfNeeded({userId: currentUser._id, context})
 }
 
 export async function updateUserNotesOnCommentRejection({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Comments">) {

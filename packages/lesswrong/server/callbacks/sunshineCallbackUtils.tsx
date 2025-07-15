@@ -1,6 +1,6 @@
 import moment from "moment";
 import { DOWNVOTED_COMMENT_ALERT } from "@/lib/collections/commentModeratorActions/constants";
-import { getReasonForReview, isLowAverageKarmaContent } from "../../lib/collections/moderatorActions/helpers";
+import { isLowAverageKarmaContent } from "../../lib/collections/moderatorActions/helpers";
 import { isActionActive } from "../../lib/collections/moderatorActions/newSchema";
 import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, NEGATIVE_KARMA_USER_ALERT, postAndCommentRateLimits, rateLimitSet, RECENTLY_DOWNVOTED_CONTENT_ALERT } from "@/lib/collections/moderatorActions/constants";
 import { getWithLoader } from "../../lib/loaders";
@@ -8,18 +8,19 @@ import { forumSelect } from "../../lib/forumTypeUtils";
 import { createModeratorAction, updateModeratorAction } from "../collections/moderatorActions/mutations";
 import { triggerReview } from "./helpers";
 import { createCommentModeratorAction } from "../collections/commentModeratorActions/mutations";
+import { getReasonForReview } from "../collections/users/serverHelpers";
 
 /** 
  * This function contains all logic for determining whether a given user needs review in the moderation sidebar.
  * It's important this this only be be added to async callbacks on posts and comments, so that postCount and commentCount have time to update first
  */
-export async function triggerReviewIfNeeded(userId: string, context: ResolverContext) {
+export async function triggerReviewIfNeeded({userId, context, newDocument}: {userId: string, context: ResolverContext, newDocument?: DbPost|DbComment}) {
   const { Users } = context;
   const user = await Users.findOne({ _id: userId });
   if (!user)
     throw new Error("user is null");
 
-  const {needsReview, reason} = getReasonForReview(user);
+  const {needsReview, reason} = await getReasonForReview(user, newDocument);
   if (needsReview) {
     await triggerReview(user._id, context, reason);
   }

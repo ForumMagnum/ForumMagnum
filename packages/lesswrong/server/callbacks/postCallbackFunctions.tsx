@@ -680,7 +680,7 @@ export async function notifyUsersAddedAsPostCoauthors({ document: post }: AfterC
 
 export async function triggerReviewForNewPostIfNeeded({ document, context }: AfterCreateCallbackProperties<'Posts'>) {
   if (!document.draft) {
-    await triggerReviewIfNeeded(document.userId, context)
+    await triggerReviewIfNeeded({userId: document.userId, context})
   }
 }
 
@@ -901,7 +901,7 @@ export async function updatePostEmbeddingsOnChange(newPost: Pick<DbPost, '_id' |
 export async function updatedPostMaybeTriggerReview({newDocument, oldDocument, context}: UpdateCallbackProperties<'Posts'>) {
   if (newDocument.draft || newDocument.rejected) return
 
-  await triggerReviewIfNeeded(oldDocument.userId, context)
+  await triggerReviewIfNeeded({userId: oldDocument.userId, context, newDocument})
   
   // if the post author is already approved and the post is getting undrafted,
   // or the post author is getting approved,

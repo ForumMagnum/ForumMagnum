@@ -1,11 +1,10 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
 import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { hideScrollBars } from '../../themes/styleUtils';
-import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
 import { truncate } from '../../lib/editor/ellipsize';
 import { usePublishedPosts } from '../hooks/usePublishedPosts';
 import MetaInfo from "../common/MetaInfo";
@@ -205,8 +204,6 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   });
 
   const comments = data?.comments?.results ?? [];
-
-  const {needsReview: showReviewTrigger, reason: reviewTrigger} = getReasonForReview(user)
   
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
   
@@ -216,7 +213,6 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         <UsersName user={user}/>
         <FirstContentIcons user={user}/>
         {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
-        {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
       </div>
       <UserReviewStatus user={user}/>
       <UserReviewMetadata user={user}/>

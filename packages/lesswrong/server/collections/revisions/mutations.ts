@@ -56,7 +56,7 @@ export async function createRevision({ data }: { data: Partial<DbInsertion<DbRev
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('Revisions', documentWithId);
 
   if (isLW && documentWithId.collectionName === "Posts" && documentWithId.fieldName === "contents") {
-    void createAutomatedContentEvaluation(documentWithId, context);
+    await createAutomatedContentEvaluation(documentWithId, context);
   }
 
   return documentWithId;
@@ -86,7 +86,7 @@ export async function updateRevision({ selector, data }: UpdateRevisionInput, co
   void logFieldChanges({ currentUser, collection: Revisions, oldDocument, data: origData });
 
   if (!updatedDocument.draft && isLW && updatedDocument.collectionName === "Posts" && updatedDocument.fieldName === "contents") {
-    void createAutomatedContentEvaluation(updatedDocument, context);
+    await createAutomatedContentEvaluation(updatedDocument, context);
   }
 
   return updatedDocument;
@@ -299,6 +299,8 @@ ${output_text}`,
 };
 
 async function createAutomatedContentEvaluation(revision: DbRevision, context: ResolverContext) {
+  if (revision.draft) return;
+
   try {
     const [validatedEvaluation, llmEvaluation] = await Promise.all([
       getSaplingEvaluation(revision),
@@ -322,6 +324,7 @@ async function createAutomatedContentEvaluation(revision: DbRevision, context: R
       aiReasoning: llmEvaluation.reasoning,
       aiCoT: llmEvaluation.cot,
     });
+
   } catch(e) {
     // eslint-disable-next-line no-console
     console.error("Automated content evaluation failed: ", e);
