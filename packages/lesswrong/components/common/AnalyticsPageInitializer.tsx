@@ -3,6 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { flushClientEvents, useTracking } from "../../lib/analyticsEvents";
 import { isClient } from '../../lib/executionEnvironment';
 import { useEventListener } from '../hooks/useEventListener';
+import { useSessionManagement } from '../hooks/useSessionManagement';
 
 function useBeforeUnloadTracking() {
   const { captureEvent } = useTracking()
@@ -112,10 +113,27 @@ const AnalyticsPageInitializer = () => {
     const { pageIsVisible } = usePageVisibility()
     const { userIsIdle } = useIdlenessDetection(60)
     const { setTimerIsActive } = useCountUpTimer([10, 30], 60)
+    const { updateLastActivity } = useSessionManagement()
 
     useEffect(() => {
       setTimerIsActive(pageIsVisible && !userIsIdle); //disable timer whenever tab hidden or user inactive
     }, [pageIsVisible, userIsIdle, setTimerIsActive])
+
+    useEffect(() => {
+      if (!userIsIdle && pageIsVisible) {
+        updateLastActivity();
+      }
+    }, [userIsIdle, pageIsVisible, updateLastActivity])
+
+    useEffect(() => {
+      if (!userIsIdle && pageIsVisible) {
+        const interval = setInterval(() => {
+          updateLastActivity();
+        }, 120 * 1000); // 120 seconds
+
+        return () => clearInterval(interval);
+      }
+    }, [userIsIdle, pageIsVisible, updateLastActivity])
 
   return <></>
 };

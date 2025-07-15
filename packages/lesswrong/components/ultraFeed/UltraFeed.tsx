@@ -243,7 +243,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
   </>;
 
   return (
-    <AnalyticsContext pageSectionContext="ultraFeed" ultraFeedContext={{ sessionId }}>
+    <AnalyticsContext pageSectionContext="ultraFeed" ultraFeedContext={{ feedSessionId: sessionId }}>
       <div className={classes.root}>
         <UltraFeedObserverProvider incognitoMode={resolverSettings.incognitoMode}>
         <OverflowNavObserverProvider>

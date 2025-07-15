@@ -131,7 +131,7 @@ const RecentDiscussionFeed = ({
     : undefined;
 
   return (
-    <AnalyticsContext pageSectionContext="recentDiscussion" recentDiscussionContext={{ sessionId }}>
+    <AnalyticsContext pageSectionContext="recentDiscussion" recentDiscussionContext={{ feedSessionId: sessionId }}>
       <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
         <SingleColumnSection>
           <SectionTitle title={title} titleClassName={classes.titleText}>
