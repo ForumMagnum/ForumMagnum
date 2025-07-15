@@ -4861,6 +4861,7 @@ type User {
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
   subscribedToDigest: Boolean
+  sendInactiveSummaryEmail: Boolean
   subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
@@ -4987,6 +4988,7 @@ type User {
   hideSunshineSidebar: Boolean
   inactiveSurveyEmailSentAt: Date
   userSurveyEmailSentAt: Date
+  inactiveSummaryEmailSentAt: Date
   karmaChanges(startDate: Date, endDate: Date): KarmaChanges
   recommendationSettings: JSON
 }
@@ -7174,6 +7176,7 @@ input CreateUserDataInput {
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
   subscribedToDigest: Boolean
+  sendInactiveSummaryEmail: Boolean
   subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
@@ -7227,6 +7230,7 @@ input CreateUserDataInput {
   hideSunshineSidebar: Boolean
   inactiveSurveyEmailSentAt: Date
   userSurveyEmailSentAt: Date
+  inactiveSummaryEmailSentAt: Date
 }
 
 input CreateUserInput {
@@ -7350,6 +7354,7 @@ input UpdateUserDataInput {
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
   subscribedToDigest: Boolean
+  sendInactiveSummaryEmail: Boolean
   subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
@@ -7428,6 +7433,7 @@ input UpdateUserDataInput {
   hideSunshineSidebar: Boolean
   inactiveSurveyEmailSentAt: Date
   userSurveyEmailSentAt: Date
+  inactiveSummaryEmailSentAt: Date
   recommendationSettings: RecommendationSettingsInput
 }
 
@@ -12334,6 +12340,7 @@ fragment UsersDefaultFragment on User {
   karmaChangeBatchStart
   emailSubscribedToCurated
   subscribedToDigest
+  sendInactiveSummaryEmail
   subscribedToNewsletter
   unsubscribeFromAll
   hideSubscribePoke
@@ -12441,6 +12448,7 @@ fragment UsersDefaultFragment on User {
   hideSunshineSidebar
   inactiveSurveyEmailSentAt
   userSurveyEmailSentAt
+  inactiveSummaryEmailSentAt
   recommendationSettings
 }
 
@@ -12476,6 +12484,7 @@ fragment UsersEdit on User {
   emailSubscribedToCurated
   subscribedToDigest
   subscribedToNewsletter
+  sendInactiveSummaryEmail
   unsubscribeFromAll
   hasAuth0Id
 

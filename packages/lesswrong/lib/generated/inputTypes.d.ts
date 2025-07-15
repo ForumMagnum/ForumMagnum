@@ -4075,6 +4075,7 @@ interface User {
   karmaChangeBatchStart: Date | null;
   emailSubscribedToCurated: boolean | null;
   subscribedToDigest: boolean | null;
+  sendInactiveSummaryEmail: boolean | null;
   subscribedToNewsletter: boolean | null;
   unsubscribeFromAll: boolean | null;
   hideSubscribePoke: boolean | null;
@@ -4201,6 +4202,7 @@ interface User {
   hideSunshineSidebar: boolean | null;
   inactiveSurveyEmailSentAt: Date | null;
   userSurveyEmailSentAt: Date | null;
+  inactiveSummaryEmailSentAt: Date | null;
   karmaChanges: KarmaChanges | null;
   recommendationSettings: any;
 }
@@ -6162,6 +6164,7 @@ interface CreateUserDataInput {
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
   subscribedToDigest?: boolean | null;
+  sendInactiveSummaryEmail?: boolean | null;
   subscribedToNewsletter?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
@@ -6215,6 +6218,7 @@ interface CreateUserDataInput {
   hideSunshineSidebar?: boolean | null;
   inactiveSurveyEmailSentAt?: Date | null;
   userSurveyEmailSentAt?: Date | null;
+  inactiveSummaryEmailSentAt?: Date | null;
 }
 
 interface CreateUserInput {
@@ -6338,6 +6342,7 @@ interface UpdateUserDataInput {
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
   subscribedToDigest?: boolean | null;
+  sendInactiveSummaryEmail?: boolean | null;
   subscribedToNewsletter?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
@@ -6416,6 +6421,7 @@ interface UpdateUserDataInput {
   hideSunshineSidebar?: boolean | null;
   inactiveSurveyEmailSentAt?: Date | null;
   userSurveyEmailSentAt?: Date | null;
+  inactiveSummaryEmailSentAt?: Date | null;
   recommendationSettings?: RecommendationSettingsInput | null;
 }
 

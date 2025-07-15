@@ -4695,6 +4695,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly karmaChangeBatchStart: Date|null,
   readonly emailSubscribedToCurated: boolean|null,
   readonly subscribedToDigest: boolean|null,
+  readonly sendInactiveSummaryEmail: boolean|null,
   readonly subscribedToNewsletter: boolean|null,
   readonly unsubscribeFromAll: boolean|null,
   readonly hideSubscribePoke: boolean|null,
@@ -4802,6 +4803,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly hideSunshineSidebar: boolean|null,
   readonly inactiveSurveyEmailSentAt: Date|null,
   readonly userSurveyEmailSentAt: Date|null,
+  readonly inactiveSummaryEmailSentAt: Date|null,
   readonly recommendationSettings: RecommendationSettingsInput,
 }
 
@@ -4830,6 +4832,7 @@ interface UsersEdit extends UsersCurrent { // fragment on Users
   readonly emailSubscribedToCurated: boolean|null,
   readonly subscribedToDigest: boolean|null,
   readonly subscribedToNewsletter: boolean|null,
+  readonly sendInactiveSummaryEmail: boolean|null,
   readonly unsubscribeFromAll: boolean|null,
   readonly hasAuth0Id: boolean|null,
   readonly moderatorAssistance: boolean|null,

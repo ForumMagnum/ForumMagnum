@@ -2220,6 +2220,23 @@ const schema = {
       },
     },
   },
+  sendInactiveSummaryEmail: {
+    database: {
+      type: "BOOL",
+      defaultValue: true,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean",
+      canRead: ["members"],
+      canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   subscribedToNewsletter: {
     database: {
       type: "BOOL",
@@ -4271,6 +4288,21 @@ const schema = {
   },
   // Used by EAF to track when we last emailed the user about the annual user survey
   userSurveyEmailSentAt: {
+    database: {
+      type: "TIMESTAMPTZ",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Date",
+      canRead: ["admins"],
+      canUpdate: ["admins"],
+      canCreate: ["members"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  inactiveSummaryEmailSentAt: {
     database: {
       type: "TIMESTAMPTZ",
       nullable: true,
