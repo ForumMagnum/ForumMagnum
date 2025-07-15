@@ -17,7 +17,6 @@ export function useGetUserBySlug<FragmentName extends FragmentTypesByCollection[
     }
     ${fragmentTextForQuery(fragmentName)}
   `, {
-    fetchPolicy: 'network-only',
     variables: { slug },
     skip: skip || !slug,
   });

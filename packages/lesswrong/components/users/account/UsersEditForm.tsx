@@ -877,7 +877,13 @@ const UsersForm = ({
         </HighlightableField>
       </LegacyFormGroupLayout>
 
-      <LegacyFormGroupLayout label="Emails" startCollapsed={true && highlightedField !== "subscribedToDigest"}>
+      <LegacyFormGroupLayout
+        label="Emails"
+        startCollapsed={
+          highlightedField !== "subscribedToDigest" &&
+          highlightedField !== "unsubscribeFromAll"
+        }
+      >
         {verifyEmailsSetting.get() && <div className={classes.fieldWrapper}>
           <form.Field name="whenConfirmationEmailSent">
             {() => <UsersEmailVerification />}
@@ -908,16 +914,18 @@ const UsersForm = ({
         </div>
         </HighlightableField>}
 
-        <div className={classes.fieldWrapper}>
-          <form.Field name="unsubscribeFromAll">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="Do not send me any emails (unsubscribe from all)"
-              />
-            )}
-          </form.Field>
-        </div>
+        <HighlightableField name="unsubscribeFromAll">
+          <div className={classes.fieldWrapper}>
+            <form.Field name="unsubscribeFromAll">
+              {(field) => (
+                <FormComponentCheckbox
+                  field={field}
+                  label="Do not send me any emails (unsubscribe from all)"
+                />
+              )}
+            </form.Field>
+          </div>
+        </HighlightableField>
       </LegacyFormGroupLayout>
 
       {isEAForum && <LegacyFormGroupLayout label={preferredHeadingCase("Privacy Settings")} startCollapsed={true}>
@@ -1360,7 +1368,7 @@ const UsersEditForm = ({ terms }: {
   const { flash } = useMessages();
   const navigate = useNavigate();
   const client = useApolloClient();
-  const [mutate, loading] = useMutation(gql`
+  const [mutate] = useMutation(gql`
     mutation resetPassword($email: String) {
       resetPassword(email: $email)
     }
