@@ -37,6 +37,8 @@ const sendInactiveUserSummaryEmail = async (
   const now = new Date();
   const votesRepo = new VotesRepo();
   const postsRepo = new PostsRepo();
+  const featureStrategy = new FeatureStrategy();
+
   const [
     karmaChanges,
     reacts,
@@ -51,8 +53,8 @@ const sendInactiveUserSummaryEmail = async (
       endDate: now,
       showNegative: true,
     }),
-    votesRepo.getEAWrappedReactsReceived(user._id, fetchActivitySince, now),
-    votesRepo.getEAWrappedAgreements(user._id, fetchActivitySince, now),
+    votesRepo.getEAReactsReceived(user._id, fetchActivitySince, now),
+    votesRepo.getEAAgreements(user._id, fetchActivitySince, now),
     postsRepo.getUsersMostCommentedPostSince(user._id, fetchActivitySince),
     Notifications.find({
       userId: user._id,
@@ -61,7 +63,7 @@ const sendInactiveUserSummaryEmail = async (
       emailed: false,
       deleted: false,
     }).count(),
-    new FeatureStrategy().recommend(user, 5, {
+    featureStrategy.recommend(user, 5, {
       name: "feature",
       postId: "",
       features: [
@@ -73,10 +75,6 @@ const sendInactiveUserSummaryEmail = async (
     }),
   ]);
 
-  const karmaChange = sum(karmaChanges.map(({scoreChange}) => scoreChange));
-  const reactions = {...reacts, ...agreements};
-  const bestReaction = chooseBestReaction(reactions);
-
   const recommendedPosts = await fetchFragment({
     collectionName: "Posts",
     fragmentName: "PostsList",
@@ -85,6 +83,10 @@ const sendInactiveUserSummaryEmail = async (
       _id: {$in: recommendations.posts.map((post) => post._id)},
     },
   });
+
+  const karmaChange = sum(karmaChanges.map(({scoreChange}) => scoreChange));
+  const reactions = {...reacts, ...agreements};
+  const bestReaction = chooseBestReaction(reactions);
 
   const from = "EA Forum Team <eaforum@centreforeffectivealtruism.org>";
   const subject = "See what you’ve missed on the Forum";
