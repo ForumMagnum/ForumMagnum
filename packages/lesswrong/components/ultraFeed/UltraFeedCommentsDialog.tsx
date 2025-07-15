@@ -255,6 +255,7 @@ const UltraFeedCommentsDialog = ({
       open={true}
       onClose={handleClose}
       fullWidth
+      disableBackdropClick
       paperClassName={classes.dialogPaper}
     >
       <AnalyticsContext pageModalContext="ultraFeedCommentsModal" postId={postId} commentId={targetCommentId}>

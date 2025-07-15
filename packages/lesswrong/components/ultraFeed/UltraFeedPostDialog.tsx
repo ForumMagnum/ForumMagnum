@@ -572,6 +572,7 @@ const UltraFeedPostDialog = ({
       open={true}
       onClose={handleClose}
       fullWidth
+      disableBackdropClick
       paperClassName={classes.dialogPaper}
       className={classes.modalWrapper}
     >
