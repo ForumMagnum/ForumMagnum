@@ -30,6 +30,7 @@ import { ultraFeedEnabledSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import UltraFeedFeedback from './UltraFeedFeedback';
+import AnalyticsInViewTracker from '../common/AnalyticsInViewTracker';
 
 const ULTRAFEED_SESSION_ID_KEY = 'ultraFeedSessionId';
 
@@ -244,6 +245,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
 
   return (
     <AnalyticsContext pageSectionContext="ultraFeed" ultraFeedContext={{ feedSessionId: sessionId }}>
+      <AnalyticsInViewTracker eventProps={{inViewType: "ultraFeed"}}>
       <div className={classes.root}>
         <UltraFeedObserverProvider incognitoMode={resolverSettings.incognitoMode}>
         <OverflowNavObserverProvider>
@@ -357,6 +359,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
           </div>
         )}
       </div>
+      </AnalyticsInViewTracker>
     </AnalyticsContext>
   );
 };
