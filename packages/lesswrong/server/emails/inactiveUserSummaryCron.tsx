@@ -3,9 +3,10 @@ import { hasInactiveSummaryEmail } from "@/lib/betas"
 import { generateEmail, wrapAndSendEmail } from "./renderEmail";
 import { fetchFragment } from "../fetchFragment";
 import {
-  BestReaction,
+  type BestReaction,
   EmailInactiveUserSummary,
 } from "../emailComponents/EmailInactiveUserSummary";
+import { EmailWrapper } from "../emailComponents/EmailWrapper";
 import FeatureStrategy from "../recommendations/FeatureStrategy";
 import Notifications from "../collections/notifications/collection";
 import Users from "../collections/users/collection";
@@ -81,7 +82,7 @@ const sendInactiveUserSummaryEmail = async (
     fragmentName: "PostsList",
     currentUser: user,
     selector: {
-      _id: { $in: recommendations.posts.map((post) => post._id) },
+      _id: {$in: recommendations.posts.map((post) => post._id)},
     },
   });
 
@@ -109,7 +110,11 @@ const sendInactiveUserSummaryEmail = async (
       from,
       to: user.email,
       subject,
-      bodyComponent: body,
+      bodyComponent: (
+        <EmailWrapper unsubscribeAllLink="#">
+          {body}
+        </EmailWrapper>
+      ),
       utmParams,
       tag,
     });
@@ -132,17 +137,17 @@ export const sendInactiveUserSummaryEmails = async (
     return;
   }
 
-  const promises: Promise<void>[] = [];
   const users = await new UsersRepo().getUsersForInactiveSummaryEmail(limit);
   for (const user of users) {
     try {
-      promises.push(sendInactiveUserSummaryEmail(user, dryRun));
+      // await one at a time to avoid blasting the DB
+      await sendInactiveUserSummaryEmail(user, dryRun);
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error(
         `Error sending inactive user summary email to ${user._id}`,
         err,
       );
     }
   }
-  await Promise.all(promises);
 }

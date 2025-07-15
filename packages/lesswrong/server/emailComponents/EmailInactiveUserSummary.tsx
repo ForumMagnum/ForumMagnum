@@ -9,6 +9,8 @@ export type BestReaction = {name: string, count: number};
 
 const styles = defineStyles("EmailInactiveUserSummary", (theme: ThemeType) => ({
   root: {
+    background: theme.palette.text.alwaysWhite,
+    color: theme.palette.text.alwaysBlack,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 12,
     fontWeight: 400,
@@ -51,6 +53,10 @@ const styles = defineStyles("EmailInactiveUserSummary", (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.serifStack,
     fontSize: 12,
     fontWeight: 400,
+  },
+  hr: {
+    border: "none",
+    borderBottom: `1px solid ${theme.palette.text.alwaysBlack}`,
   },
 }));
 
@@ -155,6 +161,7 @@ export const EmailInactiveUserSummary = ({
           }
         </div>
       ))}
+      <hr className={classes.hr} />
     </div>
   );
 };
