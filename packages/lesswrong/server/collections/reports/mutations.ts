@@ -60,7 +60,7 @@ export async function createReport({ data }: CreateReportInput, context: Resolve
 
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('Reports', documentWithId);
 
-  await forwardReportToModSlack(documentWithId._id);
+  void forwardReportToModSlack(documentWithId._id);
 
   return documentWithId;
 }

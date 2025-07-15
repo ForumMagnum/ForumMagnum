@@ -46,16 +46,15 @@ const PasswordResetPage = ({classes}: {
     setUseTokenResult(result?.data?.useEmailToken)
   }
   const ResultComponent = useTokenResult?.componentName && emailTokenResultComponents[useTokenResult.componentName];
-  
+  const props = useTokenResult?.props as AnyBecauseHard;
+
   return <SingleColumnSection className={classes.root}>
     {!useTokenResult && <> 
       <input value={password} type="password" name="password" placeholder="new password" className={classes.input} onChange={event => setPassword(event.target.value)}/>
       <Button onClick={submitFunction} className={classes.submit}>Set New Password</Button>
     </>}
-    {useTokenResult && ResultComponent && <ResultComponent {...useTokenResult.props}/>}
+    {useTokenResult && ResultComponent && <ResultComponent {...props}/>}
   </SingleColumnSection>
 }
 
 export default registerComponent("PasswordResetPage", PasswordResetPage, { styles });
-
-

@@ -4964,6 +4964,7 @@ type User {
   allCommentingDisabled: Boolean
   commentingOnOtherUsersDisabled: Boolean
   conversationsDisabled: Boolean
+  mentionsDisabled: Boolean
   associatedClientId: ClientId
   associatedClientIds: [ClientId!]
   altAccountsDetected: Boolean
@@ -7217,6 +7218,7 @@ input CreateUserDataInput {
   allCommentingDisabled: Boolean
   commentingOnOtherUsersDisabled: Boolean
   conversationsDisabled: Boolean
+  mentionsDisabled: Boolean
   acknowledgedNewUserGuidelines: Boolean
   subforumPreferredLayout: String
   hideJobAdUntil: Date
@@ -7418,6 +7420,7 @@ input UpdateUserDataInput {
   allCommentingDisabled: Boolean
   commentingOnOtherUsersDisabled: Boolean
   conversationsDisabled: Boolean
+  mentionsDisabled: Boolean
   acknowledgedNewUserGuidelines: Boolean
   subforumPreferredLayout: String
   hideJobAdUntil: Date
@@ -10926,6 +10929,7 @@ fragment SunshineUsersList on User {
   allCommentingDisabled
   commentingOnOtherUsersDisabled
   conversationsDisabled
+  mentionsDisabled
   snoozedUntilContentCount
   nullifyVotes
   deleteContent
@@ -12427,6 +12431,7 @@ fragment UsersDefaultFragment on User {
   allCommentingDisabled
   commentingOnOtherUsersDisabled
   conversationsDisabled
+  mentionsDisabled
   acknowledgedNewUserGuidelines
   subforumPreferredLayout
   hideJobAdUntil
@@ -12675,6 +12680,7 @@ fragment UsersProfile on User {
   allCommentingDisabled
   commentingOnOtherUsersDisabled
   conversationsDisabled
+  mentionsDisabled
 }
 
 fragment UsersProfileEdit on User {
