@@ -16,7 +16,7 @@ import { useModalHashLinkScroll, scrollToElementInContainer } from "../hooks/use
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { NetworkStatus } from "@apollo/client";
 import FootnoteDialog from '../linkPreview/FootnoteDialog';
-import { AnalyticsContext } from "@/lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 
 const CommentsListMultiQuery = gql(`
   query multiCommentUltraFeedCommentsDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -151,6 +151,7 @@ const UltraFeedCommentsDialog = ({
   onClose: () => void,
 }) => {
   const classes = useStyles(styles);
+  const { captureEvent } = useTracking();
   const scrollableContentRef = useRef<HTMLDivElement>(null);
   const [footnoteDialogHTML, setFootnoteDialogHTML] = useState<string | null>(null);
 
@@ -200,7 +201,12 @@ const UltraFeedCommentsDialog = ({
   const isLoading = loadingPost || (loadingComments && networkStatus !== NetworkStatus.fetchMore);
   const loadingMoreComments = (networkStatus === NetworkStatus.fetchMore);
 
-  useDialogNavigation(onClose);
+  const handleClose = () => {
+    captureEvent("ultraFeedDialogClosed", { collectionName: "Comments", postId, commentId: targetCommentId, });
+    onClose();
+  };
+
+  useDialogNavigation(handleClose);
   useDisableBodyScroll();
   
   // Necessary because other changes to comments can trigger the scroll useEffect to run again
@@ -247,7 +253,7 @@ const UltraFeedCommentsDialog = ({
   return (
     <LWDialog
       open={true}
-      onClose={onClose}
+      onClose={handleClose}
       fullWidth
       paperClassName={classes.dialogPaper}
     >
@@ -256,7 +262,7 @@ const UltraFeedCommentsDialog = ({
         <div className={classes.stickyHeader}>
           <ForumIcon 
             icon="Close"
-            onClick={onClose}
+            onClick={handleClose}
             className={classes.closeButton}
           />
           {postDataForTree
@@ -265,7 +271,7 @@ const UltraFeedCommentsDialog = ({
                 className={classes.title}
                 onClick={(e) => {
                   e.stopPropagation();
-                  onClose();
+                  handleClose();
                 }}
               >
                 {postTitle}

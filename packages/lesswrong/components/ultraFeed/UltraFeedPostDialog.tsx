@@ -486,11 +486,16 @@ const UltraFeedPostDialog = ({
   });
   const hasTocData = !!tocData && (tocData.sections ?? []).length > 0;
 
+  const handleClose = () => {
+    captureEvent("ultraFeedDialogClosed", { collectionName: "Posts", postId: postId ?? post?._id });
+    onClose();
+  };
+
   // Handle dialog navigation (browser back button / swipe back navigation  + replacing url)
   const postUrl = displayPost 
     ? `${postGetPageUrl(displayPost)}?${qs.stringify({ from: 'feedModal' })}`
     : undefined;
-  useDialogNavigation(onClose, postUrl);
+  useDialogNavigation(handleClose, postUrl);
   useDisableBodyScroll();
   
   // Handle clicks on hash links (like footnotes) within the modal. If we don't do this, clicking on hash links can close the modal, fail to scroll, etc.
@@ -565,7 +570,7 @@ const UltraFeedPostDialog = ({
   return (
     <LWDialog
       open={true}
-      onClose={onClose}
+      onClose={handleClose}
       fullWidth
       paperClassName={classes.dialogPaper}
       className={classes.modalWrapper}
@@ -584,7 +589,7 @@ const UltraFeedPostDialog = ({
               <div className={classes.stickyHeader}>
                 <ForumIcon 
                   icon="Close"
-                  onClick={onClose}
+                  onClick={handleClose}
                   className={classes.closeButton}
                 />
                 {tocButton}
@@ -638,7 +643,7 @@ const UltraFeedPostDialog = ({
                             className={classes.title}
                             onClick={(e) => {
                               e.stopPropagation();
-                              onClose();
+                              handleClose();
                             }
                           }>
                             {displayPost.title}

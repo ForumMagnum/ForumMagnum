@@ -21,7 +21,8 @@ export const clientContextVars: {
   userId?: string | undefined;
   clientId?: string;
   tabId?: string | null;
-  abTestGroupsUsed?: RelevantTestGroupAllocation
+  abTestGroupsUsed?: RelevantTestGroupAllocation;
+  sessionId?: string;
 } = {};
 
 function getShowAnalyticsDebug() {
@@ -127,7 +128,7 @@ export type AnalyticsProps = {
   ultraFeedElementType?: FeedItemType,
   ultraFeedCardId?: string,
   ultraFeedCardIndex?: number,
-  recentDiscussionContext?: { sessionId: string },
+  recentDiscussionContext?: { feedSessionId: string },
   recentDiscussionCardIndex?: number,
   /** @deprecated Use `pageSectionContext` instead */
   listContext?: string,
