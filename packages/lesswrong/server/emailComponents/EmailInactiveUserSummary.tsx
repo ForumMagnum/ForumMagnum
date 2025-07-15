@@ -43,10 +43,12 @@ const styles = defineStyles("EmailInactiveUserSummary", (theme: ThemeType) => ({
   postTitle: {
     fontSize: 30,
     fontWeight: 700,
+    lineHeight: "36px",
     marginBottom: 0,
     color: "inherit",
   },
   postAuthors: {
+    fontWeight: 500,
     marginBottom: 16,
   },
   postBody: {

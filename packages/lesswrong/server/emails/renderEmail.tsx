@@ -243,6 +243,7 @@ export const wrapAndRenderEmail = async ({
   from,
   subject,
   body,
+  centerFooter,
   utmParams,
   tag,
 }: {
@@ -251,6 +252,7 @@ export const wrapAndRenderEmail = async ({
   from?: string;
   subject: string;
   body: React.ReactNode;
+  centerFooter?: boolean,
   utmParams?: Partial<Record<UtmParam, string>>;
   tag: string,
 }): Promise<RenderedEmail> => {
@@ -260,11 +262,14 @@ export const wrapAndRenderEmail = async ({
     to,
     from,
     subject: subject,
-    bodyComponent: <EmailWrapper
-      unsubscribeAllLink={unsubscribeAllLink}
-    >
-      {body}
-    </EmailWrapper>,
+    bodyComponent: (
+      <EmailWrapper
+        unsubscribeAllLink={unsubscribeAllLink}
+        centerFooter={centerFooter}
+      >
+        {body}
+      </EmailWrapper>
+    ),
     utmParams,
     tag,
   });
@@ -277,6 +282,7 @@ export const wrapAndSendEmail = async ({
   from,
   subject,
   body,
+  centerFooter,
   utmParams,
   tag,
 }: {
@@ -286,6 +292,7 @@ export const wrapAndSendEmail = async ({
   from?: string;
   subject: string;
   body: React.ReactNode;
+  centerFooter?: boolean,
   utmParams?: Partial<Record<UtmParam, string>>;
   tag: string,
 }): Promise<boolean> => {
@@ -312,6 +319,7 @@ export const wrapAndSendEmail = async ({
       body,
       utmParams,
       tag,
+      centerFooter,
     });
     const succeeded = await sendEmail(email);
     void logSentEmail(email, user, {succeeded});

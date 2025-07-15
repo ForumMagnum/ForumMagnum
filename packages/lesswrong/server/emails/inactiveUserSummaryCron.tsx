@@ -111,7 +111,7 @@ const sendInactiveUserSummaryEmail = async (
       to: user.email,
       subject,
       bodyComponent: (
-        <EmailWrapper unsubscribeAllLink="#">
+        <EmailWrapper unsubscribeAllLink="#" centerFooter>
           {body}
         </EmailWrapper>
       ),
@@ -121,7 +121,15 @@ const sendInactiveUserSummaryEmail = async (
     // eslint-disable-next-line no-console
     console.log("Generated dry-run email HTML:", email.html);
   } else {
-    await wrapAndSendEmail({user, from, subject, body, utmParams, tag});
+    await wrapAndSendEmail({
+      user,
+      from,
+      subject,
+      body,
+      utmParams,
+      tag,
+      centerFooter: true,
+    });
     await Users.rawUpdateOne(
       {_id: user._id},
       {$set: {inactiveSummaryEmailSentAt: now}},
