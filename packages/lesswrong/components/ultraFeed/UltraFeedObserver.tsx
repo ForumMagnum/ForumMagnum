@@ -45,6 +45,7 @@ import React, {
 import { useCurrentUser } from "../common/withUser";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useTracking } from "../../lib/analyticsEvents";
 
 const UltraFeedEventsDefaultFragmentMutation = gql(`
   mutation createUltraFeedEventUltraFeedObserver($data: CreateUltraFeedEventDataInput!) {
@@ -101,6 +102,7 @@ const documentTypeToCollectionName = {
 
 export const UltraFeedObserverProvider = ({ children, incognitoMode }: { children: ReactNode, incognitoMode: boolean }) => {
   const currentUser = useCurrentUser();
+  const { captureEvent } = useTracking();
   
   const [createUltraFeedEvent] = useMutation(UltraFeedEventsDefaultFragmentMutation);
   
@@ -128,7 +130,14 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
       }
     };
     void createUltraFeedEvent({ variables: eventPayload });
-  }, [createUltraFeedEvent, currentUser, incognitoMode]);
+    
+    captureEvent("ultraFeedItemViewed", {
+      documentId: elementData.documentId,
+      collectionName: documentTypeToCollectionName[elementData.documentType],
+      durationMs: durationMs,
+      feedItemId: elementData.servedEventId,
+    });
+  }, [createUltraFeedEvent, currentUser, incognitoMode, captureEvent]);
 
   const handleIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
     if (!currentUser) return;
@@ -285,7 +294,14 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
       }
     };
     void createUltraFeedEvent({ variables: eventData });
-  }, [createUltraFeedEvent, currentUser, incognitoMode]);
+    
+    captureEvent("ultraFeedItemExpanded", {
+      documentId: data.documentId,
+      collectionName: documentTypeToCollectionName[data.documentType],
+      expansionLevel: data.level,
+      feedItemId: data.servedEventId,
+    });
+  }, [createUltraFeedEvent, currentUser, incognitoMode, captureEvent]);
 
   const contextValue = useMemo(() => ({ 
     observe, 
