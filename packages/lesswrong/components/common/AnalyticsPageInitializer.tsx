@@ -115,6 +115,14 @@ const AnalyticsPageInitializer = () => {
     const { setTimerIsActive } = useCountUpTimer([10, 30], 60)
     const { updateLastActivity } = useSessionManagement()
 
+    const userIsIdleRef = useRef(userIsIdle);
+    const pageIsVisibleRef = useRef(pageIsVisible);
+
+    useEffect(() => {
+      userIsIdleRef.current = userIsIdle;
+      pageIsVisibleRef.current = pageIsVisible;
+    }, [userIsIdle, pageIsVisible]);
+
     useEffect(() => {
       setTimerIsActive(pageIsVisible && !userIsIdle); //disable timer whenever tab hidden or user inactive
     }, [pageIsVisible, userIsIdle, setTimerIsActive])
@@ -126,14 +134,14 @@ const AnalyticsPageInitializer = () => {
     }, [userIsIdle, pageIsVisible, updateLastActivity])
 
     useEffect(() => {
-      if (!userIsIdle && pageIsVisible) {
-        const interval = setInterval(() => {
+      const interval = setInterval(() => {
+        if (!userIsIdleRef.current && pageIsVisibleRef.current) {
           updateLastActivity();
-        }, 120 * 1000); // 120 seconds
+        }
+      }, 120 * 1000);
 
-        return () => clearInterval(interval);
-      }
-    }, [userIsIdle, pageIsVisible, updateLastActivity])
+      return () => clearInterval(interval);
+    }, [updateLastActivity])
 
   return <></>
 };

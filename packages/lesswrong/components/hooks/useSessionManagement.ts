@@ -1,8 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback } from 'react';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { randomId } from '../../lib/random';
 import { clientContextVars, useTracking } from '../../lib/analyticsEvents';
-import { isClient } from '../../lib/executionEnvironment';
 
 const SESSION_STORAGE_KEY = 'lwSessionTracker';
 const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
@@ -13,13 +12,7 @@ interface SessionData {
 }
 
 export function useSessionManagement() {
-  const [sessionData, setSessionData] = useState<SessionData | null>(null);
-  const sessionDataRef = useRef<SessionData | null>(null);
   const { captureEvent } = useTracking();
-
-  useEffect(() => {
-    sessionDataRef.current = sessionData;
-  }, [sessionData]);
 
   const getOrCreateSession = useCallback((): SessionData => {
     const ls = getBrowserLocalStorage();
@@ -56,35 +49,35 @@ export function useSessionManagement() {
     captureEvent('sessionStarted');
     
     return newSession;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [captureEvent]);
 
   const updateLastActivity = useCallback(() => {
     const ls = getBrowserLocalStorage();
-    if (!ls || !sessionDataRef.current) return;
+    if (!ls) return;
 
-    const updatedSession = { ...sessionDataRef.current, lastActivityTimestamp: Date.now() };
-    ls.setItem(SESSION_STORAGE_KEY, JSON.stringify(updatedSession));
-    setSessionData(updatedSession);
+    const storedData = ls.getItem(SESSION_STORAGE_KEY);
+    if (!storedData) return;
+
+    try {
+      const session = JSON.parse(storedData) as SessionData;
+      const updatedSession = { ...session, lastActivityTimestamp: Date.now() };
+      ls.setItem(SESSION_STORAGE_KEY, JSON.stringify(updatedSession));
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error("Failed to update session data", e);
+    }
   }, []);
 
   useEffect(() => {
     const session = getOrCreateSession();
-    setSessionData(session);
-    
-    if (isClient) {
-      clientContextVars.sessionId = session.sessionId;
-    }
+    clientContextVars.sessionId = session.sessionId;
 
     // Listen for cross-tab session updates
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === SESSION_STORAGE_KEY && e.newValue) {
         try {
           const newSession = JSON.parse(e.newValue) as SessionData;
-          setSessionData(newSession);
-          if (isClient) {
-            clientContextVars.sessionId = newSession.sessionId;
-          }
+          clientContextVars.sessionId = newSession.sessionId;
         } catch (err) {
           // eslint-disable-next-line no-console
           console.error("Failed to parse session data from storage event", err);
@@ -96,5 +89,5 @@ export function useSessionManagement() {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [getOrCreateSession]);
 
-  return { sessionData, updateLastActivity };
+  return { updateLastActivity };
 } 
