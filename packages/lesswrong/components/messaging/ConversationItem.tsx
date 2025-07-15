@@ -96,7 +96,7 @@ const ConversationItem = ({conversation, currentUser, classes, expanded}: {
         </div>}
     </div>
       {expanded && <div className={classes.expanded}>
-        <ConversationPreview count={3} key={conversation._id} conversationId={conversation._id} currentUser={currentUser} showTitle={false} />
+        <ConversationPreview count={3} key={conversation._id} conversationId={conversation._id} showTitle={false} />
       </div>}
     </div>
   )

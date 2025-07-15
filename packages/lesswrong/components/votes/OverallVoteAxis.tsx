@@ -1,10 +1,9 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import moment from '../../lib/moment-timezone';
 import { useCurrentUser } from '../common/withUser';
 import { isAF } from '../../lib/instanceSettings';
-import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
+import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
 import type { VotingProps } from './votingProps';
 import OverallVoteButton, { OverallVoteButtonProps } from './OverallVoteButton';
 import classNames from 'classnames';
@@ -94,23 +93,16 @@ const OverallVoteAxis = ({
   secondaryScoreClassName?: string,
 }) => {
   const classes = useStyles(styles);
-
-  const currentUser = useCurrentUser();
   const collectionName = voteProps.collectionName;
   const extendedScore = voteProps.document?.extendedScore
   const voteCount = extendedScore && ("approvalVoteCount" in extendedScore)
     ? extendedScore.approvalVoteCount
     : (voteProps.voteCount || 0);
   const karma = voteProps.baseScore;
-  const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
+  const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
   const canVote = !fail;
 
-  let moveToAlignnmentUserId: string | null = "";
   let documentTypeName = "comment";
-  if (collectionName === "Comments") {
-    const comment = document as CommentsList
-    moveToAlignnmentUserId = comment.moveToAlignmentUserId
-  }
   if (collectionName === "Posts") {
     documentTypeName = "post";
   }
@@ -119,14 +111,7 @@ const OverallVoteAxis = ({
   }
 
   const af = (document as any).af;
-  const afDate = (document as any).afDate;
   const afBaseScore = voteProps.document.afBaseScore;
-
-  const moveToAfInfo = userIsAdmin(currentUser) && !!moveToAlignnmentUserId && (
-    <div className={classes.tooltipHelp}>
-      <span>Moved to AF by <UsersName documentId={moveToAlignnmentUserId }/> on { afDate && moment(new Date(afDate)).format('YYYY-MM-DD') }</span>
-    </div>
-  )
 
   const karmaTooltipTitle = React.useMemo(() =>  hideKarma
     ? 'This post has disabled karma visibility'
@@ -175,7 +160,7 @@ const OverallVoteAxis = ({
           title={
             <div>
               <p>AI Alignment Forum Karma</p>
-              { moveToAfInfo }
+              <MoveToAFInfo collectionName={collectionName} document={document} />
             </div>
           }
         >
@@ -242,8 +227,28 @@ const OverallVoteAxis = ({
   </TooltipIfDisabled>
 }
 
-export default registerComponent('OverallVoteAxis', OverallVoteAxis);
+const MoveToAFInfo = ({collectionName, document}: {
+  collectionName: CollectionNameString,
+  document: VoteableTypeClient,
+}) => {
+  const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
 
+  let moveToAlignnmentUserId: string | null = "";
+  if (collectionName === "Comments") {
+    const comment = document as CommentsList
+    moveToAlignnmentUserId = comment.moveToAlignmentUserId
+  }
 
+  const afDate = (document as any).afDate;
 
+  return userIsAdmin(currentUser) && !!moveToAlignnmentUserId && (
+    <div className={classes.tooltipHelp}>
+      <span>Moved to AF by <UsersName documentId={moveToAlignnmentUserId }/> on { afDate && moment(new Date(afDate)).format('YYYY-MM-DD') }</span>
+    </div>
+  )
+
+}
+
+export default OverallVoteAxis;
 

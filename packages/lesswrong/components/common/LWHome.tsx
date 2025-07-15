@@ -133,6 +133,8 @@ const UpdateLastVisitCookie = () => {
   return <></>
 }
 
-export default registerComponent('LWHome', LWHome);
+export default registerComponent('LWHome', LWHome, {
+  areEqual: "auto",
+});
 
 

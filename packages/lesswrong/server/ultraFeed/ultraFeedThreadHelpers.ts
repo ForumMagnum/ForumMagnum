@@ -372,6 +372,12 @@ function buildAndScoreThreads(
   for (const [_topLevelId, groupComments] of Object.entries(groups)) {
     if (!groupComments || groupComments.length === 0) continue;
 
+    // Skip this thread group if the top-level comment has negative karma
+    const topLevelComment = groupComments.find(c => c.topLevelCommentId === c.commentId || !c.parentCommentId);
+    if (topLevelComment && (topLevelComment.baseScore ?? 0) < 0) {
+      continue;
+    }
+
     const generatedPreDisplayThreads = buildDistinctLinearThreads(groupComments);
 
     for (const preDisplayThread of generatedPreDisplayThreads) {
@@ -391,7 +397,13 @@ function buildAndScoreThreads(
         .filter(finalScoredComment => !!finalScoredComment);
       
       if (finalScoredThread.length > 0) {
-        allPossibleFinalThreads.push(finalScoredThread);
+        // Truncate thread at the first negative karma comment
+        const firstNegativeIndex = finalScoredThread.findIndex(comment => (comment.baseScore ?? 0) < 0);
+        const truncatedThread = firstNegativeIndex === -1 ? finalScoredThread : finalScoredThread.slice(0, firstNegativeIndex);
+        
+        if (truncatedThread.length > 0) {
+          allPossibleFinalThreads.push(truncatedThread);
+        }
       }
     }
   }

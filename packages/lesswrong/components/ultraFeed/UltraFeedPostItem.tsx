@@ -208,19 +208,19 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     flexGrow: 1,
     minWidth: 0,
     order: 2,
-    display: 'none',
+    display: 'block',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
-    [theme.breakpoints.up('sm')]: {
-      display: 'block',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
     },
   },
   mobileAuthorsListWrapper: {
     order: 1,
     minWidth: 0,
-    display: 'block',
-    [theme.breakpoints.up('sm')]: {
-      display: 'none',
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'block',
     },
   },
   authorsList: {

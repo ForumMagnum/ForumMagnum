@@ -226,11 +226,11 @@ const KarmaChangesDisplay = ({karmaChanges, handleClose }: {
   );
 }
 
-const KarmaChangeNotifierLoaded = ({currentUser, className}: {
-  currentUser: UsersCurrent, //component can only be used if logged in
+const KarmaChangeNotifierLoaded = ({className}: {
   className?: string,
 }) => {
   const classes = useStyles(styles);
+  const currentUser = useCurrentUser()!;
   const updateCurrentUser = useUpdateCurrentUser();
   const [cleared,setCleared] = useState(false);
   const [open, setOpen] = useState(false);
@@ -376,8 +376,7 @@ const NewReactions = ({reactionChanges}: {
   </span>
 }
 
-export const KarmaChangeNotifier = ({currentUser, className}: {
-  currentUser: UsersCurrent, //component can only be used if logged in
+export const KarmaChangeNotifier = ({className}: {
   className?: string,
 }) => {
   return <SuspenseWrapper
@@ -385,7 +384,7 @@ export const KarmaChangeNotifier = ({currentUser, className}: {
     fallback={<KarmaChangeNotifierPlaceholder className={className}
   />}>
     <ErrorBoundary>
-      <KarmaChangeNotifierLoaded currentUser={currentUser} className={className}/>
+      <KarmaChangeNotifierLoaded className={className}/>
     </ErrorBoundary>
   </SuspenseWrapper>
 }
