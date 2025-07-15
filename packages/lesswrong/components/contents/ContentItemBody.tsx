@@ -126,8 +126,7 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
       const styleText: string = parsedHtml.childNodes
         .map((c,i) => c.type === htmlparser2.ElementType.Text ? c.data : "")
         .join("");
-      const markerText = `/* ${passedThroughProps.description} */`;
-      return <style>{markerText + styleText}</style>;
+      return <style>{styleText}</style>;
     }
 
     case htmlparser2.ElementType.Tag: {
