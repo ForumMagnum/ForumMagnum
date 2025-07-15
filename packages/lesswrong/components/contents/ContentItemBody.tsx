@@ -126,12 +126,13 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
       const styleText: string = parsedHtml.childNodes
         .map((c,i) => c.type === htmlparser2.ElementType.Text ? c.data : "")
         .join("");
-      return <style>{styleText}</style>;
+      const markerText = `/* ${passedThroughProps.description} */`;
+      return <style>{markerText + styleText}</style>;
     }
 
     case htmlparser2.ElementType.Tag: {
       let TagName = parsedHtml.tagName.toLowerCase() as any;
-      if (TagName === 'html' || TagName === 'body') {
+      if (TagName === 'html' || TagName === 'body' || TagName === 'head') {
         TagName = 'div';
       }
       const attribs = translateAttribs(parsedHtml.attribs);
