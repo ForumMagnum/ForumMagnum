@@ -2,18 +2,19 @@ import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { EmailTokens } from '../../server/collections/emailTokens/collection';
 import { randomSecret } from '../../lib/random';
 import Users from '../../server/collections/users/collection';
-import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import gql from 'graphql-tag';
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateEmailToken } from '../collections/emailTokens/mutations';
 import { updateUser } from '../collections/users/mutations';
 import { EmailTokenResult } from '@/components/users/EmailTokenResult';
+import EmailTokenEmailUnsubscribeResult from '@/components/users/EmailTokenEmailUnsubscribeResult';
 import { userEmailAddressIsVerified } from '@/lib/collections/users/helpers';
 import UsersRepo from '../repos/UsersRepo';
 import { createPasswordHash, validatePassword } from '../vulcan-lib/apollo-server/passwordHelpers';
 
 const emailTokenResultComponents = {
   EmailTokenResult,
+  EmailTokenEmailUnsubscribeResult,
 };
 
 export type EmailTokenResultComponentName = keyof typeof emailTokenResultComponents;
@@ -69,7 +70,7 @@ export class EmailTokenType<T extends EmailTokenResultComponentName> {
     const actionResult = await this.onUseAction(user, token.params, args);
     return {
       componentName: this.resultComponentName,
-      props: {...actionResult}
+      props: actionResult,
     };
   }
 }
@@ -131,9 +132,9 @@ export const emailTokenTypesByName = {
         data: { unsubscribeFromAll: true },
         selector: { _id: user._id }
       }, createAnonymousContext());
-      return {message: `You have been unsubscribed from all emails on ${siteNameWithArticleSetting.get()}.` };
+      return {};
     },
-    resultComponentName: "EmailTokenResult",
+    resultComponentName: "EmailTokenEmailUnsubscribeResult",
   }),
 
   verifyEmail: new EmailTokenType({

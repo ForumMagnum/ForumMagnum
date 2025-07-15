@@ -3135,6 +3135,7 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly allCommentingDisabled: boolean|null,
   readonly commentingOnOtherUsersDisabled: boolean|null,
   readonly conversationsDisabled: boolean|null,
+  readonly mentionsDisabled: boolean|null,
   readonly snoozedUntilContentCount: number|null,
   readonly nullifyVotes: boolean|null,
   readonly deleteContent: boolean|null,
@@ -4694,6 +4695,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly karmaChangeBatchStart: Date|null,
   readonly emailSubscribedToCurated: boolean|null,
   readonly subscribedToDigest: boolean|null,
+  readonly sendInactiveSummaryEmail: boolean|null,
   readonly subscribedToNewsletter: boolean|null,
   readonly unsubscribeFromAll: boolean|null,
   readonly hideSubscribePoke: boolean|null,
@@ -4784,6 +4786,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly allCommentingDisabled: boolean|null,
   readonly commentingOnOtherUsersDisabled: boolean|null,
   readonly conversationsDisabled: boolean|null,
+  readonly mentionsDisabled: boolean|null,
   readonly acknowledgedNewUserGuidelines: boolean|null,
   readonly subforumPreferredLayout: "card" | "list" | null,
   readonly hideJobAdUntil: Date|null,
@@ -4800,6 +4803,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly hideSunshineSidebar: boolean|null,
   readonly inactiveSurveyEmailSentAt: Date|null,
   readonly userSurveyEmailSentAt: Date|null,
+  readonly inactiveSummaryEmailSentAt: Date|null,
   readonly recommendationSettings: RecommendationSettingsInput,
 }
 
@@ -4828,6 +4832,7 @@ interface UsersEdit extends UsersCurrent { // fragment on Users
   readonly emailSubscribedToCurated: boolean|null,
   readonly subscribedToDigest: boolean|null,
   readonly subscribedToNewsletter: boolean|null,
+  readonly sendInactiveSummaryEmail: boolean|null,
   readonly unsubscribeFromAll: boolean|null,
   readonly hasAuth0Id: boolean|null,
   readonly moderatorAssistance: boolean|null,
@@ -5317,6 +5322,7 @@ interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragmen
   readonly allCommentingDisabled: boolean|null,
   readonly commentingOnOtherUsersDisabled: boolean|null,
   readonly conversationsDisabled: boolean|null,
+  readonly mentionsDisabled: boolean|null,
 }
 
 interface UsersProfileEdit { // fragment on Users

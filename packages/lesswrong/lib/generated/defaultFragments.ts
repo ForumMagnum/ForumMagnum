@@ -1714,6 +1714,7 @@ export const UsersDefaultFragment = `
     karmaChangeBatchStart
     emailSubscribedToCurated
     subscribedToDigest
+    sendInactiveSummaryEmail
     subscribedToNewsletter
     unsubscribeFromAll
     hideSubscribePoke
@@ -1804,6 +1805,7 @@ export const UsersDefaultFragment = `
     allCommentingDisabled
     commentingOnOtherUsersDisabled
     conversationsDisabled
+    mentionsDisabled
     acknowledgedNewUserGuidelines
     subforumPreferredLayout
     hideJobAdUntil
@@ -1820,6 +1822,7 @@ export const UsersDefaultFragment = `
     hideSunshineSidebar
     inactiveSurveyEmailSentAt
     userSurveyEmailSentAt
+    inactiveSummaryEmailSentAt
     recommendationSettings
   }
 `;
