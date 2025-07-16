@@ -4,7 +4,6 @@ import { useLocation } from '../../../lib/routeUtil';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { EditTagForm } from '../EditTagPage';
-import { useApolloClient } from '@apollo/client/react';
 import truncateTagDescription from "../../../lib/utils/truncateTagDescription";
 import { taggingNamePluralSetting } from '../../../lib/instanceSettings';
 import { truncate } from '../../../lib/editor/ellipsize';
@@ -49,8 +48,9 @@ const styles = (theme: ThemeType) => ({
   ...tagPageHeaderStyles(theme),
 });
 
-const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
+const SubforumWikiTab = ({tag, refetchTag, revision, truncated, setTruncated, classes}: {
   tag: TagPageFragment | TagPageWithRevisionFragment,
+  refetchTag?: () => Promise<void>
   revision?: string,
   truncated: boolean,
   setTruncated: (truncated: boolean) => void,
@@ -58,11 +58,10 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
 }) => {
   const currentUser = useCurrentUser();
   const { query } = useLocation();
-  const client = useApolloClient()
   const { captureEvent } =  useTracking()
   const [editing, setEditing] = useState(!!query.edit || !!query.flagId)
 
-  const { document: editableTag } = useSingle({
+  const { document: editableTag, refetch: refetchEditableTag } = useSingle({
     documentId: tag._id,
     collectionName: 'Tags',
     fragmentName: 'TagEditFragment',
@@ -98,11 +97,22 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
       : htmlWithAnchors
   }
 
+  const onEditSuccess = useCallback(async () => {
+    await Promise.all([
+      refetchTag?.(),
+      refetchEditableTag(),
+    ]);
+    setEditing(false);
+  }, [refetchTag, refetchEditableTag]);
+  const onEditCancel = useCallback(async () => {
+    setEditing(false);
+  }, []);
+
   const editTagForm = editableTag
     ? <EditTagForm
       tag={editableTag}
-      successCallback={() => setEditing(false)}
-      cancelCallback={() => setEditing(false)}
+      successCallback={onEditSuccess}
+      cancelCallback={onEditCancel}
     />
     : <Loading />;
 
