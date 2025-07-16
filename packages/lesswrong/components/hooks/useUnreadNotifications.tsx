@@ -10,6 +10,7 @@ import { NotificationsListMultiQuery } from '../notifications/NotificationsList'
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import type { ResultOf } from '@graphql-typed-document-node/core';
 import ErrorBoundary from '../common/ErrorBoundary';
+import { safeLocalStorage } from '@/lib/utils/safeLocalStorage';
 
 export type NotificationCountsResult = {
   checkedAt: Date,
@@ -162,7 +163,7 @@ export const UnreadNotificationsContextProvider: FC<{
       lastNotificationsCheck: now,
     });
     await refetchBoth();
-    window.localStorage.setItem(notificationsCheckedAtLocalStorageKey, now.toISOString());
+    safeLocalStorage.setItem(notificationsCheckedAtLocalStorageKey, now.toISOString());
   }, [refetchBoth, updateCurrentUser]);
 
   const providedContext: UnreadNotificationsContext = useMemo(() => ({

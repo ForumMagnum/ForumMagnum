@@ -60,6 +60,7 @@ import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
 import { gql } from "@/lib/generated/gql-codegen";
 import CommentsDraftList from '../comments/CommentsDraftList';
 import { StructuredData } from '../common/StructuredData';
+import { safeLocalStorage } from '@/lib/utils/safeLocalStorage';
 
 const PostsMinimumInfoMultiQuery = gql(`
   query multiPostFriendlyUsersProfileQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -281,10 +282,9 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
 
   // track profile views in local storage
   useEffect(() => {
-    const ls = getBrowserLocalStorage()
-    if (currentUser && user && currentUser._id !== user._id && ls) {
+    if (currentUser && user && currentUser._id !== user._id) {
       let from = query.from
-      const storedLastViewedProfiles = ls.getItem('lastViewedProfiles')
+      const storedLastViewedProfiles = safeLocalStorage.getItem('lastViewedProfiles')
       let profiles: any[] = storedLastViewedProfiles ? JSON.parse(storedLastViewedProfiles) : []
       // if the profile user is already in the list, then remove them before re-adding them at the end
       const profileUserIndex = profiles?.findIndex(profile => profile.userId === user._id)
@@ -298,7 +298,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
       // we only bother to save the last 10 profiles
       if (profiles.length > 10) profiles.shift()
       // save it in local storage
-      ls.setItem('lastViewedProfiles', JSON.stringify(profiles))
+      safeLocalStorage.setItem('lastViewedProfiles', JSON.stringify(profiles))
     }
   }, [currentUser, user, query.from])
 

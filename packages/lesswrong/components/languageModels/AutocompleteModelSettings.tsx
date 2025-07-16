@@ -17,6 +17,7 @@ import LoadMore from "../common/LoadMore";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { safeLocalStorage } from '@/lib/utils/safeLocalStorage';
 
 const CommentsListMultiQuery = gql(`
   query multiCommentAutocompleteModelSettingsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -381,15 +382,15 @@ const debouncedSaveSelection = debounce((selectedItems: Record<string, boolean>,
       ),
   );
 
-  localStorage.setItem("selectedTrainingPosts", JSON.stringify(selectedPosts));
-  localStorage.setItem("selectedTrainingComments", JSON.stringify(selectedComments));
+  safeLocalStorage.setItem("selectedTrainingPosts", JSON.stringify(selectedPosts));
+  safeLocalStorage.setItem("selectedTrainingComments", JSON.stringify(selectedComments));
 }, 200);
 
 const AutocompleteModelSettings = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const currentUser = useCurrentUser();
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>(() => {
-    const savedPosts = JSON.parse(localStorage.getItem("selectedTrainingPosts") ?? "[]");
-    const savedComments = JSON.parse(localStorage.getItem("selectedTrainingComments") ?? "[]");
+    const savedPosts = JSON.parse(safeLocalStorage.getItem("selectedTrainingPosts") ?? "[]");
+    const savedComments = JSON.parse(safeLocalStorage.getItem("selectedTrainingComments") ?? "[]");
     const initialSelectedItems: Record<string, boolean> = {};
     [...savedPosts, ...savedComments].forEach((id) => {
       initialSelectedItems[id] = true;

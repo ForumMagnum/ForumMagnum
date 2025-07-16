@@ -1,6 +1,7 @@
 import { isServer } from "../../../lib/executionEnvironment";
 import { DatabasePublicSetting, hasCookieConsentSetting } from "../../../lib/publicSettings";
 import { getBrowserLocalStorage } from "../../editor/localStorageHandlers";
+import { safeLocalStorage } from "../../../lib/utils/safeLocalStorage";
 
 const ipApiKeySetting = new DatabasePublicSetting<string | null>('ipapi.apiKey', null);
 
@@ -36,10 +37,8 @@ const GDPR_COUNTRY_CODES: string[] = [
 ];
 
 function getCountryCodeFromLocalStorage(): string | null {
-  const ls = getBrowserLocalStorage();
-
-  const cachedCountryCode = ls?.getItem('countryCode');
-  const cachedTimestamp = ls?.getItem('countryCodeTimestamp');
+  const cachedCountryCode = safeLocalStorage.getItem('countryCode');
+  const cachedTimestamp = safeLocalStorage.getItem('countryCodeTimestamp');
 
   if (!cachedCountryCode || !cachedTimestamp) {
     return null;
@@ -51,8 +50,8 @@ function getCountryCodeFromLocalStorage(): string | null {
   // 48 hours
   const cacheTTL = 48 * 60 * 60 * 1000;
   if (timeDifference > cacheTTL) {
-    localStorage.removeItem('countryCode');
-    localStorage.removeItem('countryCodeTimestamp');
+    safeLocalStorage.removeItem('countryCode');
+    safeLocalStorage.removeItem('countryCodeTimestamp');
     return null;
   }
 
@@ -60,11 +59,9 @@ function getCountryCodeFromLocalStorage(): string | null {
 }
 
 function setCountryCodeToLocalStorage(countryCode: string) {
-  const ls = getBrowserLocalStorage();
-
   const timestamp = new Date().getTime();
-  ls?.setItem('countryCode', countryCode);
-  ls?.setItem('countryCodeTimestamp', timestamp.toString());
+  safeLocalStorage.setItem('countryCode', countryCode);
+  safeLocalStorage.setItem('countryCodeTimestamp', timestamp.toString());
 }
 
 export function getCachedUserCountryCode() {

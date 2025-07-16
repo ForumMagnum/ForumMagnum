@@ -31,6 +31,7 @@ import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { safeLocalStorage } from '@/lib/utils/safeLocalStorage';
 
 const PostsListMultiQuery = gql(`
   query multiPostEventsHomeQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -259,9 +260,8 @@ const EventsHome = ({classes}: {
       })
     } else {
       // save it in local storage
-      const ls = getBrowserLocalStorage()
       try {
-        ls?.setItem('userlocation', JSON.stringify({lat, lng, known: true, label: gmaps?.formatted_address}))
+        safeLocalStorage.setItem('userlocation', JSON.stringify({lat, lng, known: true, label: gmaps?.formatted_address}))
       } catch(e) {
         // eslint-disable-next-line no-console
         console.error(e);
@@ -341,9 +341,8 @@ const EventsHome = ({classes}: {
     setDistance(distance)
     
     // save it in local storage in km
-    const ls = getBrowserLocalStorage()
     const distanceKm = `${distanceUnit === 'mi' ? Math.round(distance / 0.621371) : distance}`
-    ls?.setItem('eventsDistanceFilter', distanceKm)
+    safeLocalStorage.setItem('eventsDistanceFilter', distanceKm)
   }
   
   const handleChangeDistanceUnit = (unit: 'km' | 'mi') => {

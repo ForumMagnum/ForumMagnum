@@ -30,6 +30,7 @@ import DistanceUnitToggle from "./modules/DistanceUnitToggle";
 import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { safeLocalStorage } from '@/lib/utils/safeLocalStorage';
 
 const UsersProfileUpdateMutation = gql(`
   mutation updateUserCommunity($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -281,9 +282,8 @@ const Community = ({classes}: {
       })
     } else {
       // save it in local storage
-      const ls = getBrowserLocalStorage()
       try {
-        ls?.setItem('userlocation', JSON.stringify({lat, lng, known: true, label: gmaps?.formatted_address}))
+        safeLocalStorage.setItem('userlocation', JSON.stringify({lat, lng, known: true, label: gmaps?.formatted_address}))
       } catch(e) {
         // eslint-disable-next-line no-console
         console.error(e);
