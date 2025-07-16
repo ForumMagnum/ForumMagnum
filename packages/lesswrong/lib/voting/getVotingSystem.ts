@@ -1,5 +1,3 @@
-'use client';
-
 import { getVotingSystemNameForDocument } from "../collections/comments/helpers";
 import { namesAttachedReactionsVotingSystem } from "./namesAttachedReactions";
 import { reactionsAndLikesVotingSystem } from "./reactionsAndLikes";

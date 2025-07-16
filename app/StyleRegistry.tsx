@@ -6,6 +6,8 @@ import { StylesContext, StylesContextType, setClientMountedStyles } from '@/comp
 import { getForumTheme } from '@/themes/forumTheme'
 import type { ThemeOptions } from '@/themes/themeNames'
 import { getJss } from '@/lib/jssStyles'
+import { requestedCssVarsToString } from '@/themes/cssVars'
+import miscStyles from '@/themes/globalStyles/miscStyles'
 
 const applyStylesScript = `function applyStyles(themeName) {
   // Sort all collected styles by priority
@@ -116,21 +118,40 @@ export default function StyleRegistry({
     const chunkId = ++chunkCountRef.current;
     
     // Generate CSS for each style individually so we can sort them later
-    const styleChunks = getStylesForTheme(stylesToInject, theme);
+    const styleChunks: StyleChunk[] = [];
+
+    if (chunkId === 1) {
+      styleChunks.push({
+        name: 'miscStyles',
+        priority: 0,
+        cssRules: miscStyles()
+      }, {
+        name: 'cssVars',
+        priority: 0,
+        cssRules: requestedCssVarsToString(theme)
+      });
+
+      styleChunks.push(...theme.rawCSS.map(css => ({
+        name: 'rawCSS',
+        priority: 0,
+        cssRules: css
+      })));
+    }
+
+    styleChunks.push(...getStylesForTheme(stylesToInject, theme));
 
     // Serialize the style data
     const serializedChunks = JSON.stringify(styleChunks);
 
-    // Set the inactive stylesheet first, so it gets overriden by the active one
-    const setBothStyles = `setStyles(${serializedChunks}, '${theme.themeOptions.name}');`
+    const setStyles = `setStyles(${serializedChunks}, '${theme.themeOptions.name}');`
 
     return (
       <script
         dangerouslySetInnerHTML={{
           // Only send the scripts once, with the first chunk
           __html: chunkId === 1
-            ? applyStylesScript + setStylesScript + setBothStyles
-            : setBothStyles
+            ? applyStylesScript + setStylesScript + setStyles
+            : setStyles
         }}
       />
     );
