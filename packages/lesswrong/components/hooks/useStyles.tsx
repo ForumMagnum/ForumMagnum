@@ -308,10 +308,24 @@ function styleNodeToString(theme: ThemeType, styleDefinition: StyleDefinition): 
   return sheets.toString();
 }
 
+
+// JSON-serialized theme => style name => style script tag
+const serverEmbeddedStylesCache: Record<string, Record<string,string>> = {};
+
 function serverEmbeddedStyles(theme: ThemeType, styleDefinition: StyleDefinition) {
-  const stylesStr = styleNodeToString(theme, styleDefinition);
-  const priority = styleDefinition.options?.stylePriority ?? 0;
-  return `<script>_embedStyles(${JSON.stringify(styleDefinition.name)},${priority},${JSON.stringify(stylesStr)})</script>`;
+  const serializedTheme = JSON.stringify(theme);
+  const styleName = styleDefinition.name;
+
+  if (!serverEmbeddedStylesCache[serializedTheme]) {
+    serverEmbeddedStylesCache[serializedTheme] = {};
+  }
+  if (!serverEmbeddedStylesCache[serializedTheme][styleName]) {
+    const stylesStr = styleNodeToString(theme, styleDefinition);
+    const priority = styleDefinition.options?.stylePriority ?? 0;
+    const styleScriptTag = `<script>_embedStyles(${JSON.stringify(styleDefinition.name)},${priority},${JSON.stringify(stylesStr)})</script>`;
+    serverEmbeddedStylesCache[serializedTheme][styleName] = styleScriptTag;
+  }
+  return serverEmbeddedStylesCache[serializedTheme][styleName];
 }
 
 export function getEmbeddedStyleLoaderScript() {
