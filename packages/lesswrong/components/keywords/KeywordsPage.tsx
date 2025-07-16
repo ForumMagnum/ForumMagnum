@@ -3,9 +3,10 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from "../common/withUser";
 import { useMessages } from "../common/withMessages";
-import { useLocation } from "@/lib/routeUtil";
+import { useLocation, useNavigate } from "@/lib/routeUtil";
 import { Link } from "@/lib/reactRouterWrapper";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
+import qs from "qs";
 import uniq from "lodash/uniq";
 import classNames from "classnames";
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -125,13 +126,18 @@ const KeywordsPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   }, [flash, updateCurrentUser, keywordAlerts]);
 
   // Automatically add a keyword from the ?add= query param (used on search page)
-  const {query} = useLocation();
-  const keywordToAdd = query.add;
+  const navigate = useNavigate();
+  const location = useLocation();
   useEffect(() => {
+    const {add: keywordToAdd, ...restOfQuery} = location.query;
     if (keywordToAdd) {
       void saveKeyword(keywordToAdd);
+      navigate(
+        {...location, search: qs.stringify(restOfQuery)},
+        {replace: true},
+      );
     }
-  }, [keywordToAdd, saveKeyword]);
+  }, [navigate, location, saveKeyword]);
 
   if (!currentUser) {
     return (
