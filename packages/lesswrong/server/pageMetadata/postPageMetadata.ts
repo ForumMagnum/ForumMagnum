@@ -7,6 +7,7 @@ import { defaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields,
 import { postCoauthorIsPending, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
+import { captureException } from "@sentry/core";
 
 const PostMetadataQuery = gql(`
   query PostMetadata($postId: String) {
@@ -117,51 +118,58 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
 
     const client = getClient();
 
-    const [{ data: postData }, { data: commentData }] = await Promise.all([
-      client.query({
-        query: PostMetadataQuery,
-        variables: { postId },
-      }),
-      commentId
-        ? client.query({
-            query: CommentPermalinkMetadataQuery,
-            variables: { commentId },
-          })
-        : { data: null },
-    ]);
-
-    const post = postData?.post?.result;
-    const comment = commentData?.comment?.result;
-
-    if (!post) return {};
-
-    const description = comment
-      ? getCommentDescription(comment)
-      : getPostDescription(post) ?? defaultMetadata.description;
-
-    const ogUrl = postGetPageUrl(post, true);
-    const canonicalUrl = post.canonicalSource ?? ogUrl;
-    const socialPreviewImageUrl = getSocialPreviewImageUrl(post);
-    const postNoIndex = post.noIndex || post.rejected || (post.baseScore <= 0 && isEAForum);
-    const noIndex = postNoIndex || options?.noIndex;
-
-    const titleFields = getPageTitleFields(post.title);
-    const descriptionFields = getMetadataDescriptionFields(description);
-    const imagesFields = getMetadataImagesFields(socialPreviewImageUrl);
-    
-    const postMetadata = {
-      openGraph: {
-        url: ogUrl,
-      },
-      alternates: {
-        canonical: canonicalUrl,
-      },
-      other: {
-        ...getCitationTags(post),
-      },
-      ...(noIndex ? { robots: { index: false } } : {}),
-    } satisfies Metadata;
-
-    return merge(defaultMetadata, postMetadata, titleFields, descriptionFields, imagesFields);
+    try {
+      const [{ data: postData }, { data: commentData }] = await Promise.all([
+        client.query({
+          query: PostMetadataQuery,
+          variables: { postId },
+        }),
+        commentId
+          ? client.query({
+              query: CommentPermalinkMetadataQuery,
+              variables: { commentId },
+            })
+          : { data: null },
+      ]);
+  
+      const post = postData?.post?.result;
+      const comment = commentData?.comment?.result;
+  
+      if (!post) return {};
+  
+      const description = comment
+        ? getCommentDescription(comment)
+        : getPostDescription(post) ?? defaultMetadata.description;
+  
+      const ogUrl = postGetPageUrl(post, true);
+      const canonicalUrl = post.canonicalSource ?? ogUrl;
+      const socialPreviewImageUrl = getSocialPreviewImageUrl(post);
+      const postNoIndex = post.noIndex || post.rejected || (post.baseScore <= 0 && isEAForum);
+      const noIndex = postNoIndex || options?.noIndex;
+  
+      const titleFields = getPageTitleFields(post.title);
+      const descriptionFields = getMetadataDescriptionFields(description);
+      const imagesFields = getMetadataImagesFields(socialPreviewImageUrl);
+      
+      const postMetadata = {
+        openGraph: {
+          url: ogUrl,
+        },
+        alternates: {
+          canonical: canonicalUrl,
+        },
+        other: {
+          ...getCitationTags(post),
+        },
+        ...(noIndex ? { robots: { index: false } } : {}),
+      } satisfies Metadata;
+  
+      return merge(defaultMetadata, postMetadata, titleFields, descriptionFields, imagesFields);
+    } catch (error) {
+      //eslint-disable-next-line no-console
+      console.error('Error generating post page metadata:', error);
+      captureException(error);
+      return {};
+    }
   }
 }
