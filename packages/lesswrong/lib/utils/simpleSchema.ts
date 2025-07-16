@@ -104,3 +104,7 @@ SimpleSchema.extendOptions([
   // used on array fields
    'vectorSize'
 ]);
+
+// We re-export the SimpleSchema constructor to avoid import order issues
+// e.g. in schema files that use the above custom properties
+export default SimpleSchema;

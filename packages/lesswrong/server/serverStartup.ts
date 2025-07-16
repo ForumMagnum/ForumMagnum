@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 // TODO: figure out if we can gate this on forum-type
 // import './datadog/tracer';
-import '@/lib/utils/extendSimpleSchemaOptions';
 import { createSqlConnection } from './sqlConnection';
 import { replaceDbNameInPgConnectionString, setSqlClient, getSqlClient } from './sql/sqlClient';
 import type { DbTarget } from './sql/PgCollection';

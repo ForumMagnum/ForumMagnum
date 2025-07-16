@@ -1,7 +1,6 @@
 // Generate GraphQL-syntax schemas from resolvers &c that were set up with
 // addGraphQLResolvers &c.
 
-import '@/lib/utils/extendSimpleSchemaOptions';
 import gql from 'graphql-tag'; 
 import type { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';
 import GraphQLJSON from 'graphql-type-json';

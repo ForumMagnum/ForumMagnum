@@ -6,7 +6,7 @@ import Users from "../../../server/collections/users/collection";
 import { hashLoginToken, userIsBanned } from "../../loginTokens";
 import { LegacyData } from '../../../server/collections/legacyData/collection';
 import { wrapAndSendEmail } from '../../emails/renderEmail';
-import SimpleSchema from 'simpl-schema';
+import SimpleSchema from '@/lib/utils/simpleSchema';
 import { DatabaseServerSetting } from "../../databaseSettings";
 import {userFindOneByEmail} from "../../commonQueries";
 import UsersRepo from '../../repos/UsersRepo';

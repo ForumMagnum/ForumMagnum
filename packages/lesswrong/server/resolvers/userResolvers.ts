@@ -1,6 +1,6 @@
 import { slugify } from '@/lib/utils/slugify';
 import pick from 'lodash/pick';
-import SimpleSchema from 'simpl-schema';
+import SimpleSchema from '@/lib/utils/simpleSchema';
 import { getUserEmail, userCanEditUser } from "../../lib/collections/users/helpers";
 import { isEAForum, airtableApiKeySetting } from '../../lib/instanceSettings';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';

@@ -1,4 +1,3 @@
-import '@/lib/utils/extendSimpleSchemaOptions';
 import { configureScope } from '@sentry/node';
 import DataLoader from 'dataloader';
 import { getAllCollections, getAllCollectionsByName } from '../../collections/allCollections';

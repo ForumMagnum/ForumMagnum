@@ -1,4 +1,4 @@
-import SimpleSchema from "simpl-schema";
+import SimpleSchema from "@/lib/utils/simpleSchema";
 
 /**
  * This covers the type of originalContents for all editor types.

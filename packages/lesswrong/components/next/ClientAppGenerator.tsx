@@ -25,7 +25,6 @@ import { isServer } from '@/lib/executionEnvironment';
 import Cookies from 'universal-cookie';
 import { ApolloWrapper } from '@/components/common/ApolloWrapper';
 
-import '@/lib/utils/extendSimpleSchemaOptions';
 import '@/lib/routes';
 
 import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';

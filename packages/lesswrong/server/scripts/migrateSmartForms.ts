@@ -20,7 +20,7 @@ import { getSchema } from '@/lib/schema/allSchemas';
 import { getSimpleSchema } from '@/lib/schema/allSimpleSchemas';
 import * as fs from 'fs';
 import * as path from 'path';
-import SimpleSchema from 'simpl-schema';
+import SimpleSchema from '@/lib/utils/simpleSchema';
 import util from 'util';
 import { exec as execSync } from 'child_process';
 import { forumTypeSetting } from '@/lib/instanceSettings';

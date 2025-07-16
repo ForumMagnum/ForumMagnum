@@ -1,7 +1,7 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { userOwns } from "../../vulcan-users/permissions";
-import SimpleSchema from "simpl-schema";
+import SimpleSchema from "@/lib/utils/simpleSchema";
 
 export interface JobAdsType {
   state: "seen" | "expanded" | "interested" | "uninterested";

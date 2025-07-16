@@ -1,5 +1,5 @@
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-import SimpleSchema from "simpl-schema";
+import SimpleSchema from "@/lib/utils/simpleSchema";
 
 ///////////////////////////////////////////////
 // Migration of NotificationTypeSettings     //

@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import '@/lib/utils/extendSimpleSchemaOptions';
 import '@/lib/routes'
 import { Routes, Route } from '@/lib/vulcan-lib/routes';
 import util from 'util';
@@ -494,4 +493,28 @@ export function getAllComponents() {
   const components = routes.map(route => route.component).filter(c => !!c);
   const componentNames = new Set(components.map(c => c.displayName ?? c.name));
   console.log(componentNames);
+}
+
+function addUseClientDirectiveToComponent(componentPath: string) {
+  const componentFileContents = fs.readFileSync(componentPath, 'utf8');
+  const useClientDirective = componentFileContents.includes('use client');
+  if (!useClientDirective) {
+    fs.writeFileSync(componentPath, `"use client";\n\n${componentFileContents}`);
+  }
+}
+
+export function addUseClientToAllComponents() {
+  const allComponentsFile = fs.readFileSync('packages/lesswrong/lib/generated/allComponents.ts', 'utf8');
+  const nonRegisteredComponentsFile = fs.readFileSync('packages/lesswrong/lib/generated/nonRegisteredComponents.ts', 'utf8');
+
+  const allComponentImports = allComponentsFile.split('\n').filter(line => line.startsWith('import')).map(line => line.split('"')[1].replace('../../', 'packages/lesswrong/'));
+  const nonRegisteredComponentImports = nonRegisteredComponentsFile.split('\n').filter(line => line.startsWith('import')).map(line => line.split('"')[1].replace('../../', 'packages/lesswrong/'));
+
+  for (const importLine of allComponentImports) {
+    addUseClientDirectiveToComponent(importLine);
+  }
+
+  for (const importLine of nonRegisteredComponentImports) {
+    addUseClientDirectiveToComponent(importLine);
+  }
 }
