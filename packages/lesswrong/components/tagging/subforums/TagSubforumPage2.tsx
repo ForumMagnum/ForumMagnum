@@ -150,7 +150,11 @@ const TagSubforumPage2 = ({classes}: {
   const revision = queryVersion ?? queryRevision ?? undefined;
   
   const contributorsLimit = 7;
-  const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagPageWithRevisionFragment" : "TagPageFragment", {
+  const {
+    tag,
+    loading: loadingTag,
+    refetch: refetchTag,
+  } = useTagBySlug(slug, revision ? "TagPageWithRevisionFragment" : "TagPageFragment", {
     extraVariables: revision ? {
       version: 'String',
       contributorsLimit: 'Int',
@@ -346,7 +350,15 @@ const TagSubforumPage2 = ({classes}: {
         setNewShortformOpen={setNewShortformOpen}
       />
     ),
-    wiki: <SubforumWikiTab tag={tag} revision={revision} truncated={truncated} setTruncated={setTruncated} />,
+    wiki: (
+      <SubforumWikiTab
+        tag={tag}
+        refetchTag={refetchTag}
+        revision={revision}
+        truncated={truncated}
+        setTruncated={setTruncated}
+      />
+    ),
   };
 
   return (
