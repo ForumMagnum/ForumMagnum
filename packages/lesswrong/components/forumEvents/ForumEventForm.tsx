@@ -23,6 +23,7 @@ import LWTooltip from "../common/LWTooltip";
 import Error404 from "../common/Error404";
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
+import { useFormErrors } from "../tanstack-form-components/BaseAppForm";
 
 const styles = defineStyles('ForumEventForm', (theme: ThemeType) => ({
   root: {},
@@ -63,30 +64,37 @@ const InnerForumEventForm = ({
     fragmentName: 'ForumEventsEdit',
   });
 
+  const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
   const form = useForm({
     defaultValues: {
       ...initialData,
+      isGlobal: true,
     },
     onSubmit: async ({ value, formApi }) => {
       await onSubmitCallback.current?.();
 
       let result: ForumEventsEdit;
 
-      if (formType === 'new') {
-        const { data } = await create({ data: value });
-        result = data?.createForumEvent.data;
-      } else {
-        const updatedFields = getUpdatedFieldValues(formApi, ['frontpageDescription', 'frontpageDescriptionMobile', 'pollQuestion', 'postPageDescription']);
-        const { data } = await mutate({
-          selector: { _id: initialData?._id },
-          data: updatedFields,
-        });
-        result = data?.updateForumEvent.data;
+      try {
+        if (formType === 'new') {
+          const { data } = await create({ data: value });
+          result = data?.createForumEvent.data;
+        } else {
+          const updatedFields = getUpdatedFieldValues(formApi, ['frontpageDescription', 'frontpageDescriptionMobile', 'pollQuestion', 'postPageDescription']);
+          const { data } = await mutate({
+            selector: { _id: initialData?._id },
+            data: updatedFields,
+          });
+          result = data?.updateForumEvent.data;
+        }
+
+        onSuccessCallback.current?.(result);
+
+        onSuccess(result);
+      } catch (error) {
+        setCaughtError(error);
       }
-
-      onSuccessCallback.current?.(result);
-
-      onSuccess(result);
     },
   });
 
@@ -100,6 +108,7 @@ const InnerForumEventForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+      {displayedErrorComponent}
       <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
         <form.Field name="frontpageDescription">
           {(field) => (
