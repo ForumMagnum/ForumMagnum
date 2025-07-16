@@ -11,6 +11,7 @@ import jssPropsSort from 'jss-plugin-props-sort';
 import { isClient } from "@/lib/executionEnvironment";
 import { useTheme } from "../themes/useTheme";
 import { useServerInsertedHtml } from "./useServerInsertedHtml";
+import { maybeMinifyCSS } from "@/server/maybeMinifyCSS";
 
 export type StylesContextType = {
   theme: ThemeType
@@ -282,7 +283,7 @@ function styleNodeToString(theme: ThemeType, styleDefinition: StyleDefinition): 
     }
   );
   sheets.add(sheet);
-  return sheets.toString();
+  return maybeMinifyCSS(sheets.toString());
 }
 
 
