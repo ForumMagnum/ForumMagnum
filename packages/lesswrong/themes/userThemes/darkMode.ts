@@ -33,6 +33,7 @@ export const invertedGreyscale = {
   110: invertHexColor("#f3f3f3"),
   120: invertHexColor('#f2f2f2'),
   140: invertHexColor("#f0f0f0"),
+  240: invertHexColor("#e4e4e4"),
   250: invertHexColor("#e8e8e8"),
   310: invertHexColor("#dddddd"),
   315: invertHexColor("#d4d4d4"),

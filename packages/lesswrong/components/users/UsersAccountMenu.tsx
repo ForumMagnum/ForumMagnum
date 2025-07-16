@@ -23,11 +23,10 @@ const styles = (theme: ThemeType) => ({
     color: blackBarTitle.get() ? theme.palette.text.alwaysWhite : theme.palette.header.text,
   },
   login: {
-    marginLeft: 12,
     marginRight: 8
   },
   signUp: {
-    display: 'inline-block',
+    marginLeft: 12,
     marginRight: 8,
     '@media (max-width: 540px)': {
       display: 'none'
@@ -42,19 +41,19 @@ const EAUsersAccountMenu = ({classes}: {
   return (
     <div className={classes.root}>
       <EAButton
+        onClick={onSignup}
+        data-testid="user-signup-button"
+        className={classes.signUp}
+      >
+        Sign up
+      </EAButton>
+      <EAButton
         style="grey"
         onClick={onLogin}
         data-testid="user-login-button"
         className={classes.login}
       >
         Login
-      </EAButton>
-      <EAButton
-        onClick={onSignup}
-        data-testid="user-signup-button"
-        className={classes.signUp}
-      >
-        Sign up
       </EAButton>
       <EALoginPopover />
     </div>

@@ -1,4 +1,4 @@
-import React, { useContext, useState, useCallback, useEffect, CSSProperties } from 'react';
+import React, { useContext, useState, useCallback, useEffect, CSSProperties, FC } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
@@ -10,15 +10,14 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, isEAForum, isLW } from '../../lib/instanceSettings';
+import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, isEAForum } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
-import { hasProminentLogoSetting, lightconeFundraiserUnsyncedAmount, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive, lightconeFundraiserPostId } from '../../lib/publicSettings';
+import { hasProminentLogoSetting } from '../../lib/publicSettings';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from './CloudinaryImage2';
 import { hasForumEvents } from '@/lib/betas';
-import { useFundraiserStripeTotal, useLivePercentage } from '@/lib/lightconeFundraiser';
 import SearchBar from "./SearchBar";
 import UsersMenu from "../users/UsersMenu";
 import UsersAccountMenu from "../users/UsersAccountMenu";
@@ -125,7 +124,7 @@ export const styles = (theme: ThemeType) => ({
     ...(isFriendlyUI ? {
       maxWidth: "100vw",
       overflow: "hidden",
-      padding: '1px 20px',
+      padding: '1px 16px',
       [theme.breakpoints.down('sm')]: {
         padding: '1px 11px',
       },
@@ -158,11 +157,6 @@ export const styles = (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center'
   },
-  titleFundraiserContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
   title: {
     flex: 1,
     position: "relative",
@@ -172,19 +166,31 @@ export const styles = (theme: ThemeType) => ({
   },
   titleLink: {
     color: theme.palette.header.text,
-    fontSize: 19,
     '&:hover, &:active': {
       textDecoration: 'none',
       opacity: 0.7,
     },
     display: 'flex',
     alignItems: 'center',
-    fontWeight: isFriendlyUI ? 400 : undefined,
-    height: isFriendlyUI ? undefined : '19px',
-    
     ...(isAF && {
       top: 0,
     }),
+    ...(isFriendlyUI
+      ? {
+        transform: "translateY(-2px)",
+        fontSize: 17,
+        fontFamily: theme.palette.fonts.brandStack,
+        fontWeight: 400,
+        lineHeight: "110%",
+        "& strong": {
+          fontWeight: 700,
+        },
+      }
+      : {
+        fontSize: 19,
+        height: 19,
+      }
+    ),
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,
@@ -285,6 +291,25 @@ export const styles = (theme: ThemeType) => ({
     marginBottom: 1.5,
   },
 });
+
+const EAForumTitle: FC<{title: string}> = ({title}) => {
+  const words = title.split(/\s+/);
+  const head = words.slice(0, words.length - 1);
+  const last = words[words.length - 1];
+  return (
+    <>{head.join(" ")}&nbsp;<strong>{last}</strong></>
+  );
+}
+
+const LongTitle: FC = () => {
+  const title = forumHeaderTitleSetting.get();
+  return isEAForum ? <EAForumTitle title={title} /> : title;
+}
+
+const ShortTitle: FC = () => {
+  const title = forumShortTitleSetting.get();
+  return isEAForum ? <EAForumTitle title={title} /> : title;
+}
 
 const Header = ({
   standaloneNavigationPresent,
@@ -504,6 +529,14 @@ const Header = ({
   // Make all the text and icons the same color as the text on the current forum event banner
   const useContrastText = Object.keys(headerStyle).length > 0;
 
+  const logoNode = hasProminentLogoSetting.get()
+    ? (
+      <div className={classes.siteLogo}>
+        <SiteLogo eaContrast={useContrastText}/>
+      </div>
+    )
+    : null;
+
   return (
     <AnalyticsContext pageSectionContext="header">
       <div className={classes.root}>
@@ -530,23 +563,21 @@ const Header = ({
               <Typography className={classes.title} variant="title">
                 <div className={classes.hideSmDown}>
                   <div className={classes.titleSubtitleContainer}>
-                    <div className={classes.titleFundraiserContainer}>
-                      <Link to="/" className={classes.titleLink}>
-                        {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaContrast={useContrastText}/></div>}
-                        {forumHeaderTitleSetting.get()}
-                      </Link>
-                    </div>
-                    <HeaderSubtitle />
+                    <Link to="/" className={classes.titleLink}>
+                      {logoNode}
+                      <LongTitle />
+                    </Link>
                   </div>
+                  <HeaderSubtitle />
                 </div>
-                <div className={classNames(classes.hideMdUp, classes.titleFundraiserContainer)}>
+                <div className={classes.hideMdUp}>
                   <Link to="/" className={classes.titleLink}>
-                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaContrast={useContrastText}/></div>}
-                    {forumShortTitleSetting.get()}
+                    {logoNode}
+                    <ShortTitle />
                   </Link>
                 </div>
               </Typography>
-              {!isEAForum &&<ActiveDialogues />}
+              {!isFriendlyUI && <ActiveDialogues />}
               {rightHeaderItemsNode}
             </Toolbar>
           </header>
