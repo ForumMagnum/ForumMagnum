@@ -46,10 +46,6 @@ module.exports = {
   },
   serverExternalPackages,
 
-  outputFileTracingIncludes: {
-    '/**': ['./node_modules/mathjax/**/*'],
-  },
-
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
@@ -491,6 +487,14 @@ module.exports = {
       source: "/user/:slug/overview",
       destination: "/users/:slug",
       permanent: true
+    }, {
+      source: "/posts/:id/:slug/:commentId",
+      destination: "/posts/:id/:slug?commentId=:commentId",
+      permanent: true
+    }, {
+      source: "/r/:subreddit(all|discussion|lesswrong)/lw/:id*",
+      destination: "/lw/:id*",
+      permanent: false,
     }];
   },
   // TODO: remove this after we fix the remaining issues with the webpack build
