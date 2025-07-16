@@ -18,7 +18,7 @@ import { createLWEvent } from '../collections/lwevents/mutations';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
 import { FMJssProvider } from '@/components/hooks/FMJssProvider';
 import { createStylesContext } from '@/lib/jssStyles';
-import { generateEmailStylesheet } from '../styleHelpers';
+import { generateEmailStylesheet } from '../../lib/styleHelpers';
 import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
 import { ThemeOptions } from '@/themes/themeNames';
 import { EmailWrapper } from '../emailComponents/EmailWrapper';

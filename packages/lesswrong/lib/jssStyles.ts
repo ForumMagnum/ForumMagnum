@@ -106,6 +106,7 @@ export function createAndInsertStyleNode(theme: ThemeType, styleDefinition: Styl
   styleNode.append(document.createTextNode(stylesStr));
   styleNode.setAttribute("data-name", styleDefinition.name);
   styleNode.setAttribute("data-priority", styleDefinition.name);
+  styleNode.setAttribute("data-theme-name", theme.themeOptions.name);
   insertStyleNodeAtCorrectPosition(styleNode, styleDefinition.name, styleDefinition.options?.stylePriority ?? 0);
   return styleNode;
 }

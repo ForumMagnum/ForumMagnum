@@ -1,12 +1,12 @@
 import type { ThemeOptions } from "@/themes/themeNames";
-import type { StyleDefinition } from "./styleGeneration";
+import type { StyleDefinition } from "../server/styleGeneration";
 import sortBy from "lodash/sortBy";
 import { type StylesContextType } from "@/components/hooks/useStyles";
 import { getJss } from "@/lib/jssStyles";
 import { SheetsRegistry } from 'jss';
 import { keyBy } from "lodash";
 
-export function stylesToStylesheet(allStyles: Record<string,StyleDefinition>, theme: ThemeType, themeOptions: ThemeOptions): string {
+export function stylesToStylesheet(allStyles: Record<string,StyleDefinition>, theme: ThemeType): string {
   const stylesByName = sortBy(Object.keys(allStyles), n=>n);
   const stylesByNameAndPriority = sortBy(stylesByName, n=>allStyles[n].options?.stylePriority ?? 0);
 
@@ -30,10 +30,10 @@ export function stylesToStylesheet(allStyles: Record<string,StyleDefinition>, th
 export function generateEmailStylesheet({ stylesContext, theme, themeOptions }: {
   stylesContext: StylesContextType;
   theme: ThemeType;
-  themeOptions: ThemeOptions;
+  themeOptions?: ThemeOptions;
 }): string {
   const mountedStyles = stylesContext.mountedStyles;
   const usedStyleDefinitions = [...mountedStyles.values()].map(s => s.styleDefinition);
   const usedStylesByName = keyBy(usedStyleDefinitions, s => s.name);
-  return stylesToStylesheet(usedStylesByName, theme, themeOptions);
+  return stylesToStylesheet(usedStylesByName, theme);
 }

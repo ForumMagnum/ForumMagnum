@@ -1,16 +1,15 @@
 import React from 'react';
-import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import miscStyles from '../themes/globalStyles/miscStyles';
-import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
+import { ThemeOptions, getForumType } from '../themes/themeNames';
 import type { ForumTypeString } from '../lib/instanceSettings';
 import { getForumTheme } from '../themes/forumTheme';
 import { minify } from 'csso';
 import { requestedCssVarsToString } from '../themes/cssVars';
 import stringify from 'json-stringify-deterministic';
 import { brotliCompressResource, CompressedCacheResource } from './utils/bundleUtils';
-import { topLevelStyleDefinitions } from "@/lib/styles/defineStyles";
+import { topLevelStyleDefinitions } from '@/components/hooks/useStyles';
 import type { JssStyles } from '@/lib/jssStyles';
-import { stylesToStylesheet } from './styleHelpers';
+import { stylesToStylesheet } from '../lib/styleHelpers';
 
 export type ClassNameProxy<T extends string = string> = Record<T,string>
 export type StyleDefinition<T extends string = string, N extends string = string> = {
@@ -36,7 +35,7 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   
   const theme = getForumTheme(themeOptions);
   const cssVars = requestedCssVarsToString(theme);
-  const jssStylesheet = stylesToStylesheet(allStyles, theme, themeOptions);
+  const jssStylesheet = stylesToStylesheet(allStyles, theme);
   
   const mergedCSS = [
     miscStyles(),
@@ -93,39 +92,3 @@ export const getMergedStylesheet = (theme: ThemeOptions): StylesheetAndHash => {
   
   return mergedStylesheet;
 }
-
-addStaticRoute("/allStyles", async ({query}, req, res, next) => {
-  const expectedHash = query?.hash;
-  const encodedThemeOptions = query?.theme;
-  const serializedThemeOptions = decodeURIComponent(encodedThemeOptions);
-  const validThemeOptions = isValidSerializedThemeOptions(serializedThemeOptions) ? JSON.parse(serializedThemeOptions) : {name:"default"}
-  const mergedStylesheet = getMergedStylesheet(validThemeOptions);
-  const stylesheetHash = mergedStylesheet.resource.hash;
-  
-  if (!expectedHash) {
-    res.writeHead(302, {
-      'Location': `/allStyles?theme=${encodedThemeOptions}&hash=${stylesheetHash}`
-    })
-    res.end('')
-  } else if (expectedHash === stylesheetHash) {
-    let headers: Record<string,string> = {
-      "Cache-Control": expectedHash ? "public, max-age=604800, immutable" : "public, max-age=604800",
-      "Content-Type": "text/css; charset=utf-8"
-    };
-    const canSendBrotli = mergedStylesheet.resource.brotli
-      && req.headers['accept-encoding']
-      && req.headers['accept-encoding'].includes('br');
-
-    if (canSendBrotli) {
-      headers["Content-Encoding"] = "br";
-      res.writeHead(200, headers);
-      res.end(mergedStylesheet.resource.brotli);
-    } else {
-      res.writeHead(200, headers);
-      res.end(mergedStylesheet.resource.content);
-    }
-  } else {
-    res.writeHead(404);
-    res.end("");
-  }
-});

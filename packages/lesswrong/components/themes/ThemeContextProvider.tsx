@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useMemo, useEffect, useLayoutEffect, useContext } from 'react';
 import { getForumTheme } from '../../themes/forumTheme';
 import { AbstractThemeOptions, abstractThemeToConcrete } from '../../themes/themeNames';
 import { usePrefersDarkMode } from './usePrefersDarkMode';
@@ -9,8 +9,9 @@ import { isEAForum } from '../../lib/instanceSettings';
 import { THEME_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import stringify from 'json-stringify-deterministic';
-import { FMJssProvider } from '../hooks/FMJssProvider';
-import { ThemeContext, useThemeOptions } from './useTheme';
+import { ThemeContext, useTheme } from './useTheme';
+import { StylesContext, topLevelStyleDefinitions } from '../hooks/useStyles';
+import { createAndInsertStyleNode } from '@/lib/jssStyles';
 
 export const ThemeContextProvider = ({options, isEmail, children}: {
   options: AbstractThemeOptions,
@@ -47,83 +48,38 @@ export const ThemeContextProvider = ({options, isEmail, children}: {
   );
   
   return <ThemeContext.Provider value={themeContext}>
-    <FMJssProvider>
-      {!isEmail && <ThemeStylesheetSwapper/>}
-      {children}
-    </FMJssProvider>
+    {!isEmail && <ThemeStylesheetSwapper/>}
+    {children}
   </ThemeContext.Provider>
 }
 
 const ThemeStylesheetSwapper = () => {
-  const themeOptions = useThemeOptions();
-  const prefersDarkMode = usePrefersDarkMode();
-  const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode);
+  const stylesContext = useContext(StylesContext);
+  const theme = useTheme();
 
   useLayoutEffect(() => {
-    if (stringify(themeOptions) !== stringify(window.themeOptions)) {
-      window.themeOptions = themeOptions;
-      const stylesId = "main-styles";
-      const tempStylesId = stylesId + "-temp";
-      const oldStyles = document.getElementById(stylesId);
-      if (oldStyles) {
-        oldStyles.setAttribute("id", tempStylesId);
-        const onFinish = (error?: string | Event) => {
-          if (error) {
-            // eslint-disable-next-line no-console
-            console.error("Failed to load stylesheet for theme:", themeOptions, "Error:", error);
-          } else {
-            oldStyles.parentElement!.removeChild(oldStyles);
+    if (stringify(theme.themeOptions) !== stringify(window.themeOptions)) {
+      window.themeOptions = theme.themeOptions;
+
+      // Get all style elements which have both a data-name and data-theme-name attribute
+      const oldStyleElements = document.querySelectorAll('style[data-name][data-theme-name]');
+
+      oldStyleElements.forEach(style => {
+        if (style.getAttribute("data-theme-name") !== theme.themeOptions.name) {
+          const styleName = style.getAttribute("data-name");
+          const styleDefinition = topLevelStyleDefinitions[styleName!];
+          if (theme && styleDefinition) {
+            style.remove();
+            createAndInsertStyleNode(theme, styleDefinition);
           }
         }
+      });
 
-        if (themeOptions.name === "auto") {
-          addAutoStylesheet(stylesId, onFinish, concreteTheme.siteThemeOverride);
-        } else {
-          addStylesheet(makeStylesheetUrl(concreteTheme), stylesId, onFinish);
-        }
+      if (stylesContext) {
+        stylesContext.theme = theme;
       }
     }
-  }, [themeOptions, concreteTheme]);
+  }, [theme]);
   
   return null;
-}
-
-const makeStylesheetUrl = (themeOptions: AbstractThemeOptions) =>
-  `/allStyles?theme=${encodeURIComponent(stringify(themeOptions))}`;
-
-type OnFinish = (error?: string | Event) => void;
-
-const addStylesheet = (href: string, id: string, onFinish: OnFinish) => {
-  const styleNode = document.createElement("link");
-  styleNode.setAttribute("id", id);
-  styleNode.setAttribute("rel", "stylesheet");
-  styleNode.setAttribute("href", href);
-  styleNode.onload = () => {
-    onFinish();
-  }
-  styleNode.onerror = onFinish;
-  document.head.appendChild(styleNode);
-}
-
-
-/**
- * The 'auto' stylesheet is an inline style that will automatically import
- * either the light or dark theme based on the device preferences. If the
- * preference changes whilst the site is open, the sheet will automatically
- * be switched.
- */
-const addAutoStylesheet = (id: string, onFinish: OnFinish, siteThemeOverride?: SiteThemeOverride) => {
-  const light = makeStylesheetUrl({name: "default", siteThemeOverride})
-  const dark = makeStylesheetUrl({name: "dark", siteThemeOverride})
-  const styleNode = document.createElement("style");
-  styleNode.setAttribute("id", id);
-  styleNode.innerHTML = `
-    @import url("${light}") screen and (prefers-color-scheme: light);
-    @import url("${dark}") screen and (prefers-color-scheme: dark);
-  `;
-  styleNode.onload = () => {
-    onFinish();
-  }
-  styleNode.onerror = onFinish;
-  document.head.appendChild(styleNode);
 }
