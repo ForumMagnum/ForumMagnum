@@ -169,31 +169,8 @@ export const useStyles = <T extends string>(styles: StyleDefinition<T>, override
  * material-UI code.
  */
 export const useStylesNonProxy = <T extends string>(styles: StyleDefinition<T>, overrideClasses?: Partial<JssStyles<T>>): JssStyles<T> => {
-  const stylesContext = useContext(StylesContext);
+  useStyles(styles, overrideClasses);
   const theme = useTheme();
-
-  if (bundleIsServer) {
-    // If we're rendering server-side, we might or might not have
-    // StylesContext. If we do, use it to record which styles were used during
-    // the render. This is used when rendering emails, or if you want to server
-    // an SSR with styles inlined rather than in a static stlyesheet.
-    if (stylesContext) {
-      if (!stylesContext.mountedStyles.has(styles.name)) {
-        stylesContext.mountedStyles.set(styles.name, {
-          refcount: 1,
-          styleDefinition: styles,
-        });
-      }
-    }
-  } else {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useLayoutEffect(() => {
-      if (stylesContext) {
-        addStyleUsage(stylesContext, styles);
-        return () => removeStyleUsage(stylesContext, styles);
-      }
-    }, [styles, stylesContext, stylesContext?.theme]);
-  }
 
   const styleKeys = Object.keys(styles.styles(theme));
   const styleKeysSet = new Set(styleKeys);
