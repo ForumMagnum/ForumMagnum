@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 // TODO: see if we can successfully move all of the <head> metadata to NextJS-native functionality
 // like metadata objects or generateMetadata functions.  Probably depends on whether we can use
@@ -46,6 +46,16 @@ export const RouteMetadataSetter = ({ metadata }: { metadata: RouteMetadata }) =
   setTimeout(() => {
     setMetadata(metadata);
   }, 0);
+
+  // TODO: I don't like this fix since it's sometimes visible
+  // when navigating to/from a page with a white background.
+  // Might need to refactor `RouteMetadataSetter` into nested layouts instead, annoyingly.
+  useEffect(() => {
+    return () => {
+      setMetadata({});
+    }
+  }, []);
+
   return <></>;
 };
 
