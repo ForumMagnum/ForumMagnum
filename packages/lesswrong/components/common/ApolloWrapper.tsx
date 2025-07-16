@@ -1,5 +1,4 @@
 import { headerLink, createErrorLink, createHttpLink, createSchemaLink } from "@/lib/apollo/links";
-import { LoggedOutCacheLink } from "@/lib/apollo/loggedOutCacheLink";
 import { isServer } from "@/lib/executionEnvironment";
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
 import { ApolloLink } from "@apollo/client";
@@ -36,9 +35,11 @@ function makeClient({ loginToken, user, cookies, headers, searchParams }: MakeCl
   const links = [
     headerLink,
     createErrorLink(),
-    new LoggedOutCacheLink(),
   ];
   if (isServer) {
+    const { LoggedOutCacheLink }: typeof import("@/lib/apollo/loggedOutCacheLink") = require("@/lib/apollo/loggedOutCacheLink");
+    links.push(new LoggedOutCacheLink());
+
     const { computeContextFromUser }: typeof import("@/server/vulcan-lib/apollo-server/context") = require("@/server/vulcan-lib/apollo-server/context");
 
     const context = computeContextFromUser({
