@@ -8,7 +8,7 @@ import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { FeedCommentMetaInfo, FeedItemDisplayStatus } from "./ultraFeedTypes";
 import { useOverflowNav } from "./OverflowNavObserverContext";
 import { useDialog } from "../common/withDialog";
-import UltraFeedCommentsDialog from "./UltraFeedCommentsDialog";
+import UltraFeedPostDialog from "./UltraFeedPostDialog";
 import UltraFeedCommentsItemMeta from "./UltraFeedCommentsItemMeta";
 import FeedContentBody from "./FeedContentBody";
 import UltraFeedItemFooter from "./UltraFeedItemFooter";
@@ -395,18 +395,32 @@ export const UltraFeedCommentItem = ({
 
   const handleContinueReadingClick = useCallback(() => {
     captureEvent("ultraFeedCommentItemContinueReadingClicked");
+    
+    // If comment doesn't have a post, we can't open the dialog but this should never happen
+    if (!comment.post) {
+      return;
+    }
+    
+    const post = comment.post;
+    
     openDialog({
-      name: "UltraFeedCommentsDialog",
+      name: "UltraFeedPostDialog",
       closeOnNavigate: true,
       contents: ({ onClose }) => (
-        <UltraFeedCommentsDialog 
-          document={comment}
-          collectionName="Comments"
+        <UltraFeedPostDialog 
+          partialPost={post}
+          postMetaInfo={{
+            sources: metaInfo.sources,
+            displayStatus: 'expanded' as const,
+            servedEventId: metaInfo.servedEventId ?? '',
+          }}
+          targetCommentId={comment._id}
+          topLevelCommentId={comment.topLevelCommentId ?? comment._id}
           onClose={onClose}
         />
       )
     });
-  }, [openDialog, comment, captureEvent]);
+  }, [openDialog, comment, captureEvent, metaInfo]);
 
   const truncationParams = useMemo(() => {
     const { displaySettings } = settings;

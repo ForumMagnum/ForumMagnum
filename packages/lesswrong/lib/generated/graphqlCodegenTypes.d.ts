@@ -24116,8 +24116,8 @@ type CommentsListWithTopLevelComment = (
 );
 
 type UltraFeedComment_Comment_post_Post = (
-  { __typename?: 'Post', votingSystem: string | null }
-  & PostsMinimumInfo
+  { __typename?: 'Post' }
+  & PostsListWithVotes
 );
 
 type UltraFeedComment = (

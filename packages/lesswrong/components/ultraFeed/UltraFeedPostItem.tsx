@@ -15,7 +15,6 @@ import { useDialog } from "../common/withDialog";
 import { isPostWithForeignId } from "../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import UltraFeedPostDialog from "./UltraFeedPostDialog";
-import UltraFeedCommentsDialog from "./UltraFeedCommentsDialog";
 import FormatDate from "../common/FormatDate";
 import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 import FeedContentBody from "./FeedContentBody";

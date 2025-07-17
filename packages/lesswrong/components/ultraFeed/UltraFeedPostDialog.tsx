@@ -1,5 +1,5 @@
 import qs from 'qs';
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl, postGetLink, postGetLinkTarget, detectLinkpost, getResponseCounts } from "@/lib/collections/posts/helpers";
@@ -47,7 +47,69 @@ import { unflattenComments } from '../../lib/utils/unflatten';
 import PostsPageQuestionContent from "../questions/PostsPageQuestionContent";
 import { useSubscribedLocation } from "@/lib/routeUtil";
 
+const useEnsureCommentLoaded = (
+  targetCommentId: string | undefined,
+  comments: CommentsList[] | undefined,
+  loadMore: () => void,
+  totalCount: number | undefined,
+  loading: boolean
+) => {
+  const [isSearching, setIsSearching] = useState(false);
+  const loadAttempts = useRef(0);
+  const MAX_ATTEMPTS = 3; // Prevent infinite loading
+  
+  useEffect(() => {
+    if (!targetCommentId || !comments || loading || isSearching) return;
+    
+    const targetFound = comments.some(c => c._id === targetCommentId);
+    
+    if (!targetFound && loadAttempts.current < MAX_ATTEMPTS && comments.length < (totalCount ?? 0)) {
+      setIsSearching(true);
+      loadAttempts.current++;
+      
+      setTimeout(() => {
+        loadMore();
+        setIsSearching(false);
+      }, 100);
+    }
+  }, [targetCommentId, comments, loading, isSearching, totalCount, loadMore]);
+};
+
 const HIDE_TOC_WORDCOUNT_LIMIT = 300;
+
+// Helper to attempt scrolling to an element with retries
+const useScrollToElementWithRetry = (
+  scrollableContentRef: React.RefObject<HTMLDivElement | null>,
+  onScrollSuccess?: () => void
+) => {
+  const scrollToElement = useCallback((elementId: string, onSuccess?: () => void, delay = 200) => {
+    let scrollTimer: NodeJS.Timeout | null = null;
+    let retryCount = 0;
+    const MAX_RETRIES = 10;
+
+    const attemptScroll = () => {
+      const element = document.getElementById(elementId);
+      const container = scrollableContentRef.current;
+
+      if (element && container) {
+        scrollToElementInContainer(container, element, 0.2);
+        onScrollSuccess?.();
+        onSuccess?.();
+      } else if (retryCount < MAX_RETRIES) {
+        retryCount++;
+        scrollTimer = setTimeout(attemptScroll, 100);
+      }
+    };
+
+    scrollTimer = setTimeout(attemptScroll, delay);
+
+    return () => {
+      if (scrollTimer) clearTimeout(scrollTimer);
+    };
+  }, [scrollableContentRef, onScrollSuccess]);
+
+  return scrollToElement;
+};
 
 const CommentsListMultiQuery = gql(`
   query multiCommentUltraFeedPostDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -174,11 +236,10 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   scrollableContent: {
     flex: 1,
     padding: '0 20px 20px 20px',
-    paddingTop: 84,
+    paddingTop: 20,
     [theme.breakpoints.down('sm')]: {
       padding: '0 10px 10px 10px',
-      paddingTop: 36,
-      overflowY: 'auto',
+      paddingTop: 10,
     }
   },
   title: {
@@ -260,22 +321,6 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   footer: {
     marginTop: 24,
     marginBottom: 24,
-  },
-  tocWrapper: {
-  },
-  scrollableContentWithToc: {
-    flex: 1,
-    overflowY: 'auto',
-    padding: '0 20px 20px 20px',
-    [theme.breakpoints.down('sm')]: {
-      padding: '0 10px 10px 10px',
-    },
-  },
-  gridWrapper: {
-    display: 'grid',
-    gridTemplateColumns: 'minmax(200px, 270px) 1fr',
-    height: '100%',
-    overflow: 'hidden',
   },
   dialogInnerWrapper: {
     display: 'grid',
@@ -386,6 +431,13 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   modalWrapper: {
     zIndex: `${theme.zIndexes.ultrafeedModal} !important`,
   },
+  scrolledHighlight: {
+    backgroundColor: `${theme.palette.secondary.light}6c`,
+  },
+  scrolledHighlightFading: {
+    backgroundColor: 'transparent !important',
+    transition: 'background-color 3s ease-out',
+  },
   '& .PostsPagePostFooter-voteBottom': {
     '&.PostsPagePostFooter-lwVote': {
       marginTop: '0 !important',
@@ -397,22 +449,29 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   },
 }));
 
+type UltraFeedPostDialogBaseProps = {
+  postMetaInfo: FeedPostMetaInfo;
+  targetCommentId?: string;
+  openAtComments?: boolean;
+  topLevelCommentId?: string;
+  onClose: () => void;
+}
+
 type UltraFeedPostDialogProps = {
   post?: never;
   partialPost: PostsListWithVotes;
-  postMetaInfo: FeedPostMetaInfo;
-  onClose: () => void;
-} | {
+} & UltraFeedPostDialogBaseProps | {
   post: PostsPage | UltraFeedPostFragment;
   partialPost?: never;
-  postMetaInfo: FeedPostMetaInfo;
-  onClose: () => void;
-}
+} & UltraFeedPostDialogBaseProps
 
 const UltraFeedPostDialog = ({
   post,
   partialPost,
   postMetaInfo,
+  targetCommentId,
+  openAtComments,
+  topLevelCommentId,
   onClose,
 }: UltraFeedPostDialogProps) => {
   const classes = useStyles(styles);
@@ -437,15 +496,27 @@ const UltraFeedPostDialog = ({
 
   const fullPostForContent = fetchedPost ?? post;
 
-  const commentsQuery = useQueryWithLoadMore(CommentsListMultiQuery, {
+  const postCommentsQuery = useQueryWithLoadMore(CommentsListMultiQuery, {
     variables: {
       selector: { postCommentsTop: { postId: postId ?? post?._id } },
       limit: 1000,
       enableTotal: true,
     },
-    skip: !(postId ?? post?._id),
+    skip: !!topLevelCommentId || !(postId ?? post?._id),
     itemsPerPage: 500,
   });
+
+  const threadCommentsQuery = useQueryWithLoadMore(CommentsListMultiQuery, {
+    variables: {
+      selector: { repliesToCommentThreadIncludingRoot: { topLevelCommentId: topLevelCommentId ?? '' } },
+      limit: 200,
+      enableTotal: true,
+    },
+    skip: !topLevelCommentId,
+    itemsPerPage: 100,
+  });
+  
+  const commentsQuery = topLevelCommentId ? threadCommentsQuery : postCommentsQuery;
   
   const {
     data: dataCommentsList,
@@ -456,6 +527,25 @@ const UltraFeedPostDialog = ({
   
   const comments = dataCommentsList?.comments?.results;
   const loadingMoreComments = networkStatus === NetworkStatus.fetchMore;
+
+  // Use the hook to ensure target comment is loaded (progressive loading)
+  useEnsureCommentLoaded(
+    targetCommentId,
+    comments,
+    loadMoreProps.loadMore,
+    dataCommentsList?.comments?.totalCount ?? undefined,
+    isCommentsLoading
+  );
+
+  // Track if we've already scrolled to the target comment
+  const hasScrolledRef = useRef(false);
+
+  // Reset scroll tracking when target changes
+  useEffect(() => {
+    hasScrolledRef.current = false;
+  }, [targetCommentId]);
+
+  const scrollToElement = useScrollToElementWithRetry(scrollableContentRef);
 
   const displayPost = fetchedPost ?? post ?? partialPost;
 
@@ -501,8 +591,9 @@ const UltraFeedPostDialog = ({
   } : undefined;
 
   // Predict if there will be a ToC based on word count to prevent layout shift
-  const wordCount = displayPost.contents?.wordCount ?? 0;
-  const shouldShowToc = wordCount > HIDE_TOC_WORDCOUNT_LIMIT;
+  // Make a stable decision based on initial data - if we have any indication this is a long post, show ToC
+  const initialWordCount = partialPost?.contents?.wordCount ?? post?.contents?.wordCount ?? 0;
+  const shouldShowToc = initialWordCount > HIDE_TOC_WORDCOUNT_LIMIT;
 
   const tocData = useDynamicTableOfContents({
     html: fullPostForContent?.contents?.html ?? null,
@@ -527,6 +618,41 @@ const UltraFeedPostDialog = ({
   useModalHashLinkScroll(scrollableContentRef, true, true, (footnoteHTML: string) => {
     setFootnoteDialogHTML(footnoteHTML);
   });
+
+  // Scroll to target comment when it's loaded
+  useEffect(() => {
+    let fadeTimer: NodeJS.Timeout | null = null;
+
+    if (!isCommentsLoading && targetCommentId && comments && comments.length > 0 && !hasScrolledRef.current) {
+      const targetFound = comments.some(c => c._id === targetCommentId);
+      
+      if (targetFound) {
+        const cleanup = scrollToElement(targetCommentId, () => {
+          const element = document.getElementById(targetCommentId);
+          if (element) {
+            // Add highlight animation
+            element.classList.add(classes.scrolledHighlight);
+
+            fadeTimer = setTimeout(() => {
+              element.classList.add(classes.scrolledHighlightFading);
+            }, 100);
+
+            // Mark that we've scrolled
+            hasScrolledRef.current = true;
+          }
+        });
+
+        return () => {
+          cleanup();
+          if (fadeTimer) clearTimeout(fadeTimer);
+        };
+      }
+    }
+
+    return () => {
+      if (fadeTimer) clearTimeout(fadeTimer);
+    };
+  }, [isCommentsLoading, targetCommentId, comments, classes.scrolledHighlight, classes.scrolledHighlightFading, scrollToElement]);
 
   // Bridge scroll events from internal container to window so hooks relying on window scroll keep working
   useEffect(() => {
@@ -563,6 +689,13 @@ const UltraFeedPostDialog = ({
       scrollToElementInContainer(container, commentsElement);
     }
   };
+
+  useEffect(() => {
+    if (openAtComments && !isCommentsLoading) {
+      const cleanup = scrollToElement('commentsSection', undefined, 300);
+      return cleanup;
+    }
+  }, [openAtComments, isCommentsLoading, scrollToElement]);
 
   let contentData = null;
   
@@ -645,27 +778,24 @@ const UltraFeedPostDialog = ({
                   </AnalyticsContext>
                 </div>
               </div>
-              <div className={shouldShowToc ? classes.dialogInnerWrapper : undefined} ref={shouldShowToc ? scrollableContentRef : undefined}>
-                {shouldShowToc && (
-                  <>
-                    {/* placeholders for side comments, reacts, and notes with grid layout (helps get centering right) */}
-                    <div />
-                    <div className={classes.tocColumnWrapper}>
-                      {hasTocData && tocData && (
-                        <FixedPositionToC
-                          tocSections={tocData.sections}
-                          title={displayPost.title}
-                          heading={<PostFixedPositionToCHeading post={displayPost as PostsListWithVotes}/>}
-                          scrollContainerRef={scrollableContentRef as React.RefObject<HTMLElement>}
-                        />
-                      )}
-                    </div>
-                    <div />
-                  </>
-                )}
+              <div className={classes.dialogInnerWrapper} ref={scrollableContentRef}>
+                <>
+                  {/* placeholders for side comments, reacts, and notes with grid layout (helps get centering right) */}
+                  <div />
+                  <div className={classes.tocColumnWrapper}>
+                    {shouldShowToc && hasTocData && tocData && (
+                      <FixedPositionToC
+                        tocSections={tocData.sections}
+                        title={displayPost.title}
+                        heading={<PostFixedPositionToCHeading post={displayPost as PostsListWithVotes}/>}
+                        scrollContainerRef={scrollableContentRef as React.RefObject<HTMLElement>}
+                      />
+                    )}
+                  </div>
+                  <div />
+                </>
                 <div 
-                  className={classes.scrollableContent} 
-                  ref={!shouldShowToc ? scrollableContentRef : undefined} 
+                  className={classes.scrollableContent}
                   id="postBody"
                 >
                   <div id="postContent" className={classes.contentColumn}>
@@ -723,9 +853,8 @@ const UltraFeedPostDialog = ({
                         <FeedContentBody
                           html={finalHtml}
                           wordCount={contentData.wordCount}
-                          initialWordCount={contentData.wordCount}
+                          initialWordCount={(openAtComments || !!targetCommentId) ? 100 : contentData.wordCount}
                           maxWordCount={contentData.wordCount}
-                          hideSuffix
                           serifStyle
                         />
                         {contentData.showLoading && (
@@ -736,7 +865,7 @@ const UltraFeedPostDialog = ({
                       </>
                     )}
                     
-                    {!contentData && (
+                    {!contentData && loadingPost && (
                       <div className={classes.loadingContainer}>
                         <Loading />
                       </div>
