@@ -31,8 +31,6 @@ const styles = defineStyles("EmailInactiveUserSummary", (theme: ThemeType) => ({
   },
   notifications: {
     fontSize: 11,
-  },
-  notificationsLink: {
     fontStyle: "italic",
     textDecoration: "underline",
     color: "inherit",
@@ -114,22 +112,11 @@ export const EmailInactiveUserSummary = ({
           </a>.
         </p>
       }
-      <p className={classes.notifications}>
-        {unreadNotifications > 0
-          ? (
-            <>
-              You have {unreadNotifications} unread notifications -{" "}
-              <a href={getSiteUrl()} className={classes.notificationsLink}>
-                View on the EA Forum
-              </a>
-            </>
-          )
-          : (
-            <a href={getSiteUrl()} className={classes.notificationsLink}>
-              See all your notifications on the EA Forum
-            </a>
-          )
-        }
+      <p>
+        <a href={getSiteUrl()} className={classes.notifications}>
+          See all your notifications on the EA Forum
+          {unreadNotifications > 0 && ` (${unreadNotifications} unread)`}
+        </a>
       </p>
       <div className={classes.spacing} />
       {recommendedPosts.length > 0 &&
