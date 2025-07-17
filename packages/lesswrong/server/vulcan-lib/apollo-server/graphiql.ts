@@ -223,32 +223,39 @@ export function renderGraphiQL(data: any) {
 
 /////////////////////////////
 // resolveGraphiqlString
-function isOptionsFunction(arg: any) {
-  return typeof arg === 'function';
-}
-
-async function resolveGraphiQLOptions(options: any, ...args: any) {
-  if (isOptionsFunction(options)) {
-    try {
-      return await options(...args);
-    } catch (e) {
-      throw new Error(`Invalid options provided for GraphiQL: ${e.message}`);
-    }
-  } else {
-    return options;
-  }
-}
-
-function createGraphiQLParams(query: any) {
+function createGraphiQLParams(query: URLSearchParams) {
   const queryObject = query || {};
   return {
-    query: queryObject.query || '',
-    variables: queryObject.variables,
-    operationName: queryObject.operationName || '',
+    query: queryObject.get('query') || '',
+    variables: queryObject.get('variables') || '',
+    operationName: queryObject.get('operationName') || '',
   };
 }
 
-function createGraphiQLData(params: any, options: any) {
+/**
+ * These were inferred from field access; in practice we don't seem to use any of them except `endpointURL`.
+ * I guess some of them can come from the url query parameters, but I don't think anyone uses the /graphiql
+ * interface that way.
+ */
+interface GraphiQLOptions {
+  endpointURL?: string;
+  subscriptionsEndpoint?: string;
+  query?: string;
+  variables?: any;
+  operationName?: string;
+  passHeader?: string;
+  editorTheme?: string;
+  websocketConnectionParams?: any;
+  rewriteURL?: string;
+}
+
+interface GraphiQLParams {
+  query?: string;
+  variables?: any;
+  operationName?: string;
+}
+
+function createGraphiQLData(params: GraphiQLParams, options: GraphiQLOptions) {
   return {
     endpointURL: options.endpointURL,
     subscriptionsEndpoint: options.subscriptionsEndpoint,
@@ -262,10 +269,9 @@ function createGraphiQLData(params: any, options: any) {
   };
 }
 
-async function resolveGraphiQLString(query: any, options: any, ...args: any) {
+export async function resolveGraphiQLString(query: URLSearchParams, options: GraphiQLOptions) {
   const graphiqlParams = createGraphiQLParams(query);
-  const graphiqlOptions = await resolveGraphiQLOptions(options, ...args);
-  const graphiqlData = createGraphiQLData(graphiqlParams, graphiqlOptions);
+  const graphiqlData = createGraphiQLData(graphiqlParams, options);
   return renderGraphiQL(graphiqlData);
 }
 
