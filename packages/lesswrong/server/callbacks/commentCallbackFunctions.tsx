@@ -848,7 +848,10 @@ export async function checkCommentForSpamWithAkismet(comment: DbComment, current
 
 /* CREATE ASYNC */
 export async function newCommentTriggerReview({document, context}: AfterCreateCallbackProperties<'Comments'>) {
-  await triggerReviewIfNeeded({userId: document.userId, context, newDocument: document});
+  await triggerReviewIfNeeded({userId: document.userId, context, rejectableContent: {
+    content: document,
+    collectionName: "Comments"
+  }});
 }
 
 export async function trackCommentRateLimitHit({document, context}: AfterCreateCallbackProperties<'Comments'>) {

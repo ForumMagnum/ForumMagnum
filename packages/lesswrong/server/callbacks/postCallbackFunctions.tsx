@@ -901,7 +901,10 @@ export async function updatePostEmbeddingsOnChange(newPost: Pick<DbPost, '_id' |
 export async function updatedPostMaybeTriggerReview({newDocument, oldDocument, context}: UpdateCallbackProperties<'Posts'>) {
   if (newDocument.draft || newDocument.rejected) return
 
-  await triggerReviewIfNeeded({userId: oldDocument.userId, context, newDocument})
+  await triggerReviewIfNeeded({userId: oldDocument.userId, context, rejectableContent: {
+    content: newDocument,
+    collectionName: "Posts"
+  }})
   
   // if the post author is already approved and the post is getting undrafted,
   // or the post author is getting approved,

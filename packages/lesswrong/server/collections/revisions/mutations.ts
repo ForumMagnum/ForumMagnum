@@ -24,6 +24,7 @@ function editCheck(user: DbUser | null) {
 // This has mutators because of a few mutable metadata fields (eg
 // skipAttributions), but most parts of revisions are create-only immutable.
 export async function createRevision({ data }: { data: Partial<DbInsertion<DbRevision>> }, context: ResolverContext) {
+  console.log("createRevision", data);
   const { currentUser } = context;
 
   const callbackProps = await getLegacyCreateCallbackProps('Revisions', {
@@ -301,35 +302,37 @@ ${output_text}`,
 async function createAutomatedContentEvaluation(revision: DbRevision, context: ResolverContext) {
   if (revision.draft) return;
 
-  try {
-    const [validatedEvaluation, llmEvaluation] = await Promise.all([
-      getSaplingEvaluation(revision),
-      getLlmEvaluation(revision, context),
-    ]);
-
-    // FIXME: If one of these two evaluations failed, we should still keep the
-    // other one rather than return before saving it here
-    if (!validatedEvaluation || !llmEvaluation) {
+  const [validatedEvaluation, llmEvaluation] = await Promise.all([
+    getSaplingEvaluation(revision).catch((err) => {
       // eslint-disable-next-line no-console
-      console.error("No evaluation returned");
-      return;
-    }
-  
-    await AutomatedContentEvaluations.rawInsert({
-      createdAt: new Date(),
-      revisionId: revision._id,
-      score: validatedEvaluation.score,
-      sentenceScores: validatedEvaluation.sentence_scores,
-      aiChoice: llmEvaluation.decision,
-      aiReasoning: llmEvaluation.reasoning,
-      aiCoT: llmEvaluation.cot,
-    });
+      console.error("Sapling evaluation failed: ", err);
+      captureException(err);
+      return null;
+    }),
+    getLlmEvaluation(revision, context).catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error("LLM evaluation failed: ", err);
+      captureException(err);
+      return null;
+    }),
+  ]);
 
-  } catch(e) {
+  if (!validatedEvaluation && !llmEvaluation) {
     // eslint-disable-next-line no-console
-    console.error("Automated content evaluation failed: ", e);
-    captureException(e);
+    console.error("No evaluation returned");
+    return;
   }
+
+  await AutomatedContentEvaluations.rawInsert({
+    createdAt: new Date(),
+    documentId: revision.documentId,
+    revisionId: revision._id,
+    score: validatedEvaluation?.score,
+    sentenceScores: validatedEvaluation?.sentence_scores,
+    aiChoice: llmEvaluation?.decision,
+    aiReasoning: llmEvaluation?.reasoning,
+    aiCoT: llmEvaluation?.cot,
+  });
 }
 
 export const graphqlRevisionTypeDefs = gql`
