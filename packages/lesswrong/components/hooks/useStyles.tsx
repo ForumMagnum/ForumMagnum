@@ -59,9 +59,15 @@ export function setClientMountedStyles(styles: StylesContextType) {
  * find all the <style> nodes we previously inserted and regenerate their
  * contents.
  */
-export function regeneratePageStyles(themeContext: ThemeContextType) {
+export function regeneratePageStyles(themeContext: ThemeContextType, stylesContext: StylesContextType) {
   if (isClient) {
-    // TODO
+    const mountedStyles = stylesContext.mountedStyles.entries();
+    for (const [_, mounted] of mountedStyles) {
+      if (mounted.styleNode) {
+        const styleText = styleNodeToString(themeContext.theme, mounted.styleDefinition);
+        mounted.styleNode.innerText = styleText;
+      }
+    }
   }
 }
 
@@ -340,7 +346,6 @@ function serverEmbeddedStyles(abstractThemeOptions: AbstractThemeOptions, styleD
 }
 
 export function getEmbeddedStyleLoaderScript() {
-  // FIXME: Needs auto-dark-mode support
   return `
   <style id="jss-insertion-start"></style>
   <style id="jss-insertion-end"></style>
