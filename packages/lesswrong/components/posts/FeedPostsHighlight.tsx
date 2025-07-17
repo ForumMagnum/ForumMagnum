@@ -4,9 +4,6 @@ import React, { FC, useState, useCallback, useEffect } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useSingle } from '../../lib/crud/withSingle';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
-import { useForeignCrosspost, isPostWithForeignId, PostWithForeignId } from "../hooks/useForeignCrosspost";
-import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
-import { captureException }from "@sentry/core";
 import classNames from 'classnames';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { useTracking } from '../../lib/analyticsEvents';
@@ -47,11 +44,6 @@ const TruncatedSuffix: FC<{
     </Link>
   );
 }
-
-const foreignFetchProps = {
-  collectionName: "Posts",
-  fragmentName: "PostsList",
-} as const;
 
 const expandedFetchProps = {
   collectionName: "Posts",
@@ -131,38 +123,23 @@ const FeedPostsHighlight = ({post, ...rest}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [expanded, setExpanded] = useState(false);
-  const isForeignCrosspost = isPostWithForeignId(post) && !post.fmCrosspost.hostedHere
-
-  const { loading, error, combinedPost } = useForeignCrosspost(post, foreignFetchProps);
-  const availablePost = combinedPost ?? post;
-  if (error) {
-    captureException(error);
-  }
-
-  const apolloClient = useForeignApolloClient();
-
-  const documentId = (isForeignCrosspost && !error) ? (availablePost.fmCrosspost.foreignPostId ?? undefined) : availablePost._id;
 
   const { document: expandedDocument, loading: expandedLoading } = useSingle({
-    documentId,
-    apolloClient: isForeignCrosspost ? apolloClient : undefined,
+    documentId: post._id,
     skip: !expanded && !!post.contents,
     ...expandedFetchProps,
   });
 
-  return loading
-    ? <Loading />
-    : <FeedPostHighlightBody {...{
-        post,
-        expanded,
-        setExpanded,
-        expandedLoading,
-        expandedDocument,
-        ...rest
-      }}/>;
+  return (
+    <FeedPostHighlightBody {...{
+      post,
+      expanded,
+      setExpanded,
+      expandedLoading,
+      expandedDocument,
+      ...rest
+    }}/>
+  );
 }
 
 export default registerComponent('FeedPostsHighlight', FeedPostsHighlight, {styles});
-
-
-
