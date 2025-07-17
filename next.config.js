@@ -28,11 +28,6 @@ function loadTsConfig(configPath) {
 /** @type {import('next').NextConfig} */
 module.exports = {
   turbopack: {
-    rules: {
-      'packages/lesswrong/server/utils/arbital/resources/bayesGuideMultipleChoice.html': {
-        loaders: ['html-loader']
-      },
-    },
     resolveAlias: {
       // Replicate the path mappings from tsconfig-client.json
       '@/server/*': { browser: './packages/lesswrong/stubs/server/*' },
