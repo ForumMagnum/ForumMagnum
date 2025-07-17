@@ -7,6 +7,7 @@ import { cronDebouncedEventHandler } from "@/server/debouncer";
 import { cronUpdateMissingEmbeddings } from "@/server/embeddings";
 import { cronCheckAndSendUpcomingEventEmails } from "@/server/eventReminders";
 import { sendInactiveUserSurveyEmailsCron } from "@/server/inactiveUserSurveyCron";
+import { sendInactiveUserSummaryEmailsCron } from "@/server/emails/inactiveUserSummaryCron";
 import { refreshKarmaInflationCron } from "@/server/karmaInflation/cron";
 import { checkScheduledPostsCron } from "@/server/posts/cron";
 import { prunePerfMetricsCron } from "@/server/prunePerfMetricsCron";
@@ -33,6 +34,7 @@ export const allCronJobs: (CronJobSpec|null)[] = [
   cronUpdateMissingEmbeddings,
   cronCheckAndSendUpcomingEventEmails,
   sendInactiveUserSurveyEmailsCron,
+  sendInactiveUserSummaryEmailsCron,
   refreshKarmaInflationCron,
   checkScheduledPostsCron,
   prunePerfMetricsCron,

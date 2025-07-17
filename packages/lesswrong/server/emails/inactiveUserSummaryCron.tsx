@@ -14,6 +14,7 @@ import UsersRepo from "../repos/UsersRepo";
 import VotesRepo from "../repos/VotesRepo";
 import PostsRepo from "../repos/PostsRepo";
 import sum from "lodash/sum";
+import { addCronJob } from "../cron/cronUtil";
 
 const chooseBestReaction = (
   reactions: Record<string, number>,
@@ -144,7 +145,7 @@ const sendInactiveUserSummaryEmail = async (
 }
 
 export const sendInactiveUserSummaryEmails = async (
-  limit = 10,
+  limit = 20,
   dryRun = false,
 ) => {
   if (!hasInactiveSummaryEmail) {
@@ -165,3 +166,10 @@ export const sendInactiveUserSummaryEmails = async (
     }
   }
 }
+
+export const sendInactiveUserSummaryEmailsCron = addCronJob({
+  name: "sendInactiveUserSummaryEmails",
+  interval: "every 1 day",
+  disabled: !hasInactiveSummaryEmail,
+  job: sendInactiveUserSummaryEmails,
+});
