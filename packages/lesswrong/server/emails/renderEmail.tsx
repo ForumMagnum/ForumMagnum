@@ -89,12 +89,32 @@ const emailGlobalCss = () => `
   }
 `;
 
-function addEmailBoilerplate({ css, title, body }: {
+const getEmailCustomFontLinks = () => {
+  const theme = getForumTheme({name: "default"});
+  const {fontDownloads} = theme.typography;
+  if (!fontDownloads?.length) {
+    return "";
+  }
+  const links = fontDownloads.map((href) => (
+    `<link href='${href}' rel='stylesheet' type='text/css'>`
+  ));
+  // Desktop outlook chokes on external font references
+  return `\n<!--[if !mso]><!-->\n${links.join("\n")}\n<!--<![endif]-->`;
+}
+
+type BoilerplateGenerator = (options: {
   css: string,
   title: string,
-  body: string
-}): string
-{
+  body: string,
+  includeCustomFonts?: boolean,
+}) => string;
+
+const addEmailBoilerplate: BoilerplateGenerator = ({
+  css,
+  title,
+  body,
+  includeCustomFonts,
+}) => {
   return `
     <html lang="en">
     <head>
@@ -103,8 +123,8 @@ function addEmailBoilerplate({ css, title, body }: {
       <meta name="viewport" content="initial-scale=1.0"/>
       <!-- disable auto telephone linking in iOS -->
       <meta name="format-detection" content="telephone=no"/>
-   
       <title>${title}</title>
+      ${includeCustomFonts ? getEmailCustomFontLinks() : ""}
       <style>
         ${emailGlobalCss()}
         ${css}
@@ -142,7 +162,8 @@ export async function generateEmail({
   from,
   subject,
   bodyComponent,
-  boilerplateGenerator=addEmailBoilerplate,
+  boilerplateGenerator = addEmailBoilerplate,
+  includeCustomFonts,
   utmParams,
   tag,
 }: {
@@ -151,7 +172,8 @@ export async function generateEmail({
   from?: string,
   subject: string,
   bodyComponent: React.ReactNode,
-  boilerplateGenerator?: (props: {css: string, title: string, body: string}) => string,
+  boilerplateGenerator?: BoilerplateGenerator,
+  includeCustomFonts?: boolean,
   utmParams?: Partial<Record<UtmParam, string>>;
   tag: string,
 }): Promise<RenderedEmail>
@@ -201,8 +223,13 @@ export async function generateEmail({
   // Get JSS styles, which were added to sheetsRegistry as a byproduct of
   // renderToString.
   const css = generateEmailStylesheet({ stylesContext, theme, themeOptions });
-  const html = boilerplateGenerator({ css, body, title:subject })
-  
+  const html = boilerplateGenerator({
+    css,
+    body,
+    title: subject,
+    includeCustomFonts,
+  });
+
   // Find any relative links, and convert them to absolute
   const htmlWithAbsoluteUrls = makeAllUrlsAbsolute(html, getSiteUrl());
   const htmlWithUtmParams = utmifyForumBacklinks({ html: htmlWithAbsoluteUrls, utmParams, siteUrl: getSiteUrl() });
@@ -244,6 +271,7 @@ export const wrapAndRenderEmail = async ({
   subject,
   body,
   centerFooter,
+  includeCustomFonts,
   utmParams,
   tag,
 }: {
@@ -253,6 +281,7 @@ export const wrapAndRenderEmail = async ({
   subject: string;
   body: React.ReactNode;
   centerFooter?: boolean,
+  includeCustomFonts?: boolean,
   utmParams?: Partial<Record<UtmParam, string>>;
   tag: string,
 }): Promise<RenderedEmail> => {
@@ -271,6 +300,7 @@ export const wrapAndRenderEmail = async ({
       </EmailWrapper>
     ),
     utmParams,
+    includeCustomFonts,
     tag,
   });
 }
@@ -283,6 +313,7 @@ export const wrapAndSendEmail = async ({
   subject,
   body,
   centerFooter,
+  includeCustomFonts,
   utmParams,
   tag,
 }: {
@@ -293,6 +324,7 @@ export const wrapAndSendEmail = async ({
   subject: string;
   body: React.ReactNode;
   centerFooter?: boolean,
+  includeCustomFonts?: boolean,
   utmParams?: Partial<Record<UtmParam, string>>;
   tag: string,
 }): Promise<boolean> => {
@@ -318,6 +350,7 @@ export const wrapAndSendEmail = async ({
       subject,
       body,
       utmParams,
+      includeCustomFonts,
       tag,
       centerFooter,
     });

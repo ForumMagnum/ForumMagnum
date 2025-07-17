@@ -23,7 +23,7 @@ const chooseBestReaction = (
     (max, entry) => entry[1] > max[1] ? entry : max,
     entries[0],
   );
-  return maxEntry ? {name: maxEntry[0], count: maxEntry[1]} : undefined;
+  return maxEntry?.[1] ? {name: maxEntry[0], count: maxEntry[1]} : undefined;
 }
 
 const sendInactiveUserSummaryEmail = async (
@@ -119,6 +119,7 @@ const sendInactiveUserSummaryEmail = async (
           {body}
         </EmailWrapper>
       ),
+      includeCustomFonts: true,
       utmParams,
       tag,
     });
@@ -131,6 +132,7 @@ const sendInactiveUserSummaryEmail = async (
       subject,
       body,
       utmParams,
+      includeCustomFonts: true,
       tag,
       centerFooter: true,
     });
