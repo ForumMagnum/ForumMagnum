@@ -9,8 +9,13 @@ import NewAnswerCommentQuestionForm from "./NewAnswerCommentQuestionForm";
 import CantCommentExplanation from "../comments/CantCommentExplanation";
 import RelatedQuestionsList from "./RelatedQuestionsList";
 
+// Check if post has the fields required by RelatedQuestionsList
+const hasRelatedQuestionsFields = (post: PostsListWithVotes|PostsWithNavigation|PostsWithNavigationAndRevision): boolean => {
+  return 'sourcePostRelations' in post && 'targetPostRelations' in post;
+}
+
 const PostsPageQuestionContent = ({post, answersTree, refetch}: {
-  post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  post: PostsListWithVotes|PostsWithNavigation|PostsWithNavigationAndRevision,
   answersTree: CommentTreeNode<CommentsList>[],
   refetch: () => void,
 }) => {
@@ -23,7 +28,7 @@ const PostsPageQuestionContent = ({post, answersTree, refetch}: {
         <CantCommentExplanation post={post}/>
       }
       <AnswersList post={post} answersTree={answersTree} />
-      <RelatedQuestionsList post={post} />
+      {hasRelatedQuestionsFields(post) && <RelatedQuestionsList post={post as PostsDetails} />}
     </div>
   )
 

@@ -1,8 +1,8 @@
 import qs from 'qs';
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { Link } from "../../lib/reactRouterWrapper";
-import { postGetPageUrl, postGetLink, postGetLinkTarget, detectLinkpost } from "@/lib/collections/posts/helpers";
+import { postGetPageUrl, postGetLink, postGetLinkTarget, detectLinkpost, getResponseCounts } from "@/lib/collections/posts/helpers";
 import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from "@/components/posts/PostsPage/LWPostsPageHeader";
 import LWDialog from "../common/LWDialog";
 import FeedContentBody from "./FeedContentBody";
@@ -43,6 +43,9 @@ import UltraFeedPostFooter from "./UltraFeedPostFooter";
 import FootnoteDialog from '../linkPreview/FootnoteDialog';
 import LWTooltip from "../common/LWTooltip";
 import LinkPostMessage from "../posts/LinkPostMessage";
+import { unflattenComments } from '../../lib/utils/unflatten';
+import PostsPageQuestionContent from "../questions/PostsPageQuestionContent";
+import { useSubscribedLocation } from "@/lib/routeUtil";
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300;
 
@@ -414,6 +417,8 @@ const UltraFeedPostDialog = ({
 }: UltraFeedPostDialogProps) => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
+  const location = useSubscribedLocation();
+  const { query } = location;
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
@@ -450,10 +455,30 @@ const UltraFeedPostDialog = ({
   } = commentsQuery;
   
   const comments = dataCommentsList?.comments?.results;
-  const commentsTotalCount = dataCommentsList?.comments?.totalCount;
   const loadingMoreComments = networkStatus === NetworkStatus.fetchMore;
 
   const displayPost = fetchedPost ?? post ?? partialPost;
+
+  const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000;
+  const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
+  
+  const { data: dataAnswers, loading: isAnswersLoading, refetch: refetchAnswers } = useQuery(CommentsListMultiQuery, {
+    variables: {
+      selector: { answersAndReplies: { postId: displayPost._id, sortBy } },
+      limit: MAX_ANSWERS_AND_REPLIES_QUERIED,
+      enableTotal: true,
+    },
+    skip: !displayPost.question,
+    fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const answersAndReplies = dataAnswers?.comments?.results;
+  const answers = answersAndReplies?.filter(c => c.answer) ?? [];
+  const answersTree = useMemo(() => unflattenComments(answersAndReplies ?? []), [answersAndReplies]);
+  const answerCount = displayPost.question ? answersTree.length : undefined;
+
+  const { commentCount: totalComments } = getResponseCounts({ post: displayPost, answers });
 
   const votingSystem = getVotingSystemByName(displayPost.votingSystem || 'default');
 
@@ -524,7 +549,15 @@ const UltraFeedPostDialog = ({
     captureEvent("ultraFeedPostDialogScrollToComments");
     
     const container = scrollableContentRef.current;
-    // Look for the comments section wrapper which always exists
+    
+    if (displayPost.question) {
+      const answersElement = document.getElementById('answers');
+      if (container && answersElement) {
+        scrollToElementInContainer(container, answersElement);
+        return;
+      }
+    }
+    
     const commentsElement = document.getElementById('commentsSection');
     if (container && commentsElement) {
       scrollToElementInContainer(container, commentsElement);
@@ -672,7 +705,7 @@ const UltraFeedPostDialog = ({
                               </LWTooltip>
                             )}
                             <div className={classes.mobileCommentCount} onClick={scrollToComments} style={{cursor: 'pointer'}}>
-                              <LWCommentCount commentCount={displayPost.commentCount} label={false} />
+                              <LWCommentCount commentCount={displayPost.commentCount} answerCount={answerCount} label={false} />
                             </div>
                           </div>
                         </div>
@@ -715,6 +748,26 @@ const UltraFeedPostDialog = ({
                     )}
                   </div>
                   
+                  {displayPost.question && fullPostForContent && (
+                    <div id="answers" className={classes.contentColumn}>
+                      <AnalyticsContext pageSectionContext="answersSection">
+                        {isAnswersLoading ? (
+                          <div className={classes.loadingContainer}>
+                            <Loading />
+                          </div>
+                        ) : (
+                          <PostsPageQuestionContent 
+                            post={fullPostForContent} 
+                            answersTree={answersTree} 
+                            refetch={() => {
+                              void refetchAnswers();
+                            }}
+                          />
+                        )}
+                      </AnalyticsContext>
+                    </div>
+                  )}
+                  
                   {isCommentsLoading && !loadingMoreComments && fullPostForContent && (
                     <div className={classes.loadingContainer}><Loading /></div>
                   )}
@@ -723,7 +776,7 @@ const UltraFeedPostDialog = ({
                       <CommentsListSection
                         post={fullPostForContent}
                         comments={comments ?? []}
-                        totalComments={commentsTotalCount ?? 0}
+                        totalComments={totalComments}
                         commentCount={(comments ?? []).length}
                         loadMoreComments={loadMoreProps.loadMore}
                         loadingMoreComments={loadingMoreComments}
@@ -742,7 +795,7 @@ const UltraFeedPostDialog = ({
               </div>
               {shouldShowToc && (
                 <div className={classes.commentCount} onClick={scrollToComments} style={{ cursor: 'pointer' }}>
-                  <LWCommentCount commentCount={displayPost.commentCount} />
+                  <LWCommentCount commentCount={displayPost.commentCount} answerCount={answerCount} />
                 </div>
               )}
               <UltraFeedPostToCDrawer
