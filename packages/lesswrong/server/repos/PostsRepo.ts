@@ -1281,20 +1281,20 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   } | null> {
     return this.getRawDb().oneOrNone(`
       -- PostsRepo.getUsersMostCommentedPostSince
-        SELECT
-          ROW_TO_JSON(p.*) "post",
-          COUNT(c.*) FILTER (WHERE c."postedAt" > $2) "commentCount"
-        FROM "Posts" p
-        LEFT JOIN (
-          SELECT "_id", UNNEST("coauthorStatuses")->>'userId' "coauthorId"
-          FROM "Posts"
-        ) q ON p."_id" = q."_id"
-        JOIN "Comments" c ON p."_id" = c."postId"
-        WHERE
-          p."userId" = $1 OR q."coauthorId" = $1
-        GROUP BY p."_id"
-        ORDER BY "commentCount" DESC
-        LIMIT 1
+      SELECT
+        ROW_TO_JSON(p.*) "post",
+        COUNT(c.*) FILTER (WHERE c."postedAt" > $2) "commentCount"
+      FROM "Posts" p
+      LEFT JOIN (
+        SELECT "_id", UNNEST("coauthorStatuses")->>'userId' "coauthorId"
+        FROM "Posts"
+      ) q ON p."_id" = q."_id"
+      JOIN "Comments" c ON p."_id" = c."postId"
+      WHERE
+        p."userId" = $1 OR q."coauthorId" = $1
+      GROUP BY p."_id"
+      ORDER BY "commentCount" DESC
+      LIMIT 1
     `, [userId, since]);
   }
 
