@@ -60,7 +60,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { DelayedLoading } from './common/DelayedLoading';
 import { SuspenseWrapper } from './common/SuspenseWrapper';
 // import dynamic from 'next/dynamic';
-import { useRouteMetadata } from './RouteMetadataContext';
+import { useRouteMetadata } from './ClientRouteMetadataContext';
 import { isFullscreenRoute, isHomeRoute, isStandaloneRoute, isStaticHeaderRoute, isSunshineSidebarRoute, isUnspacedGridRoute } from '@/lib/routeChecks';
 import SunshineSidebar from './sunshineDashboard/SunshineSidebar';
 import LanguageModelLauncherButton from './languageModels/LanguageModelLauncherButton';

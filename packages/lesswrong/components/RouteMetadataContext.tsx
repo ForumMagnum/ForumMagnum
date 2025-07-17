@@ -1,68 +1,32 @@
-'use client';
-
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-
-// TODO: see if we can successfully move all of the <head> metadata to NextJS-native functionality
-// like metadata objects or generateMetadata functions.  Probably depends on whether we can use
-// Apollo client from within generateMetadata.
-interface RouteMetadata {
-  title?: string;
-  titleComponent?: React.FunctionComponent<{ siteName: string, isSubtitle: boolean }>;
-  subtitle?: string;
-  headerSubtitle?: string;
-  subtitleLink?: string;
-  subtitleComponent?: React.FunctionComponent<{ isSubtitle?: boolean }>;
-  description?: string;
-  noIndex?: boolean;
-  background?: string;
-  hasLeftNavigationColumn?: boolean;
-  isAdmin?: boolean;
-  noFooter?: boolean;
-}
-
-interface RouteMetadataContextType {
-  metadata: RouteMetadata;
-  setMetadata: (metadata: RouteMetadata) => void;
-}
-
-const RouteMetadataContext = createContext<RouteMetadataContextType | null>(null);
-
-export const RouteMetadataProvider = ({ children }: { children: ReactNode }) => {
-  const [metadata, setMetadata] = useState<RouteMetadata>({});
-  
-  return (
-    <RouteMetadataContext.Provider value={{ metadata, setMetadata }}>
-      {children}
-    </RouteMetadataContext.Provider>
-  );
-};
+import { ClientRouteMetadataSetter, type RouteMetadata } from "./ClientRouteMetadataContext";
+import { RouteMetadataSetter as ServerRouteMetadataSetter } from "./ServerRouteMetadataContext";
 
 /**
- * Do not use this component outside of a route-entrypoint server component!
- * This is purely to set route metadata for use by components like Header, HeadTags, etc.
+ * Modifying our `Layout` from a child route creates two distinct challenges:
+ *
+ * 1.  Initial Server Render: The server must generate the correct HTML on the first request.
+ *     If not handled properly, the user sees a default layout that then "flickers" to the
+ *     correct state after the client-side JavaScript loads.  As an example, the home page
+ *     has a left-hand navigation column, but the default layout does not.  If we don't
+ *     handle this properly, the user will see the initial page content render in the center
+ *     of the page, which will then reflow to be more left-aligned after the client metadata
+ *     setter applies the layout configuration for that page.
+ * 
+ *     The solution is to use a Server Component to grab the configuration and pass it into a provider,
+ *     which causes it to get pushed to the client as part of the RSC rehydration payload, so
+ *     that the very first client-side rendering pass already has the correct configuration.
+ *
+ * 2.  Client-Side Navigation: When navigating between pages on the client, the root layout
+ *     persists. Its state must be updated to reflect the new page's configuration and be
+ *     reset when navigating away.
+ * 
+ *     Here we just use a thin wrapper around a `useEffect` call to update the metadata
+ *     when the component mounts (and clear it when it unmounts), which should happen
+ *     automatically on client-side navigation to another page.
  */
-export const RouteMetadataSetter = ({ metadata }: { metadata: RouteMetadata }) => {
-  const { setMetadata } = useRouteMetadata();
-  setTimeout(() => {
-    setMetadata(metadata);
-  }, 0);
-
-  // TODO: I don't like this fix since it's sometimes visible
-  // when navigating to/from a page with a white background.
-  // Might need to refactor `RouteMetadataSetter` into nested layouts instead, annoyingly.
-  useEffect(() => {
-    return () => {
-      setMetadata({});
-    }
-  }, []);
-
-  return <></>;
-};
-
-export const useRouteMetadata = () => {
-  const context = useContext(RouteMetadataContext);
-  if (!context) {
-    throw new Error('useRouteMetadata must be used within a RouteMetadataProvider');
-  }
-  return context;
-}; 
+export function RouteMetadataSetter({ metadata }: { metadata: RouteMetadata }): React.ReactNode {
+  return <>
+    <ServerRouteMetadataSetter metadata={metadata} />
+    <ClientRouteMetadataSetter metadata={metadata} />
+  </>;
+}

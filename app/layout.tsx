@@ -4,12 +4,13 @@ import { getInstanceSettings } from "@/lib/getInstanceSettings";
 import Script from "next/script";
 import { toEmbeddableJson } from "@/lib/utils/jsonUtils";
 import { cookies, headers } from "next/headers";
-import { RouteMetadataProvider } from "@/components/RouteMetadataContext";
+import { ClientRouteMetadataProvider } from "@/components/ClientRouteMetadataContext";
 import { initDatabases, initSettings } from "@/server/serverStartup";
 import { DEFAULT_TIMEZONE } from "@/lib/utils/timeUtil";
 import { getCachedUser } from "@/server/vulcan-lib/apollo-server/context";
 import { abstractThemeToConcrete, getThemeOptions } from "@/themes/themeNames";
 import StyleRegistry from "app/StyleRegistry";
+import { getRouteMetadata } from "@/components/ServerRouteMetadataContext";
 
 export default async function RootLayout({
   children,
@@ -41,6 +42,8 @@ export default async function RootLayout({
 
   const headerEntries = Object.fromEntries(Array.from((headerValues as AnyBecauseHard).entries() as [string, string][]));
 
+  const routeMetadata = getRouteMetadata().get();
+
   return (
     <html>
       <head>
@@ -53,7 +56,7 @@ export default async function RootLayout({
         <style id="jss-insertion-start" />
         <style id="jss-insertion-end" />
         <StyleRegistry themeOptions={themeOptions}>
-        <RouteMetadataProvider>
+        <ClientRouteMetadataProvider initialMetadata={routeMetadata}>
         <AppGenerator
           abTestGroupsUsed={{}}
           themeOptions={abstractThemeOptions}
@@ -70,7 +73,7 @@ export default async function RootLayout({
         >
           {children}
         </AppGenerator>
-        </RouteMetadataProvider>
+        </ClientRouteMetadataProvider>
         </StyleRegistry>
       </body>
     </html>

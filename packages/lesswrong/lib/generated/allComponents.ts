@@ -1,7 +1,7 @@
 // Generated file - run "yarn generate" to update
 import "../../components/LWBackgroundImage.tsx"
 import "../../components/Layout.tsx"
-import "../../components/RouteMetadataContext.tsx"
+import "../../components/ClientRouteMetadataContext.tsx"
 import "../../components/admin/AdminGoogleServiceAccount.tsx"
 import "../../components/admin/AdminHome.tsx"
 import "../../components/admin/AdminMetadata.tsx"

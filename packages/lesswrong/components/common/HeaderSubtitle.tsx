@@ -4,7 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { blackBarTitle } from '@/lib/instanceSettings';
 import HeaderEventSubtitle from "./HeaderEventSubtitle";
-import { useRouteMetadata } from '../RouteMetadataContext';
+import { useRouteMetadata } from '../ClientRouteMetadataContext';
 
 export const styles = (theme: ThemeType) => ({
   subtitle: {
@@ -22,7 +22,7 @@ const HeaderSubtitle = ({classes}: {
   const { metadata: routeMetadata } = useRouteMetadata();
 
   const SubtitleComponent = routeMetadata.subtitleComponent;
-  const subtitleString = routeMetadata.headerSubtitle ?? routeMetadata.subtitle;
+  const subtitleString = routeMetadata.subtitle;
   const subtitleLink = routeMetadata.subtitleLink;
 
   if (SubtitleComponent) {

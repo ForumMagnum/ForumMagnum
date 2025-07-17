@@ -31,7 +31,7 @@ import SiteLogo from "../ea-forum/SiteLogo";
 import MessagesMenuButton from "../messaging/MessagesMenuButton";
 import { SuspenseWrapper } from './SuspenseWrapper';
 import { isHomeRoute } from '@/lib/routeChecks';
-import { useRouteMetadata } from '../RouteMetadataContext';
+import { useRouteMetadata } from '../ClientRouteMetadataContext';
 import { forumSelect } from '@/lib/forumTypeUtils';
 import NotificationsMenu from '../notifications/NotificationsMenu';
 // import dynamic from 'next/dynamic';
