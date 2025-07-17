@@ -1,7 +1,7 @@
 import { useEffect, useCallback } from 'react';
-import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { randomId } from '../../lib/random';
 import { clientContextVars, useTracking } from '../../lib/analyticsEvents';
+import { safeLocalStorage } from '../../lib/utils/safeLocalStorage';
 
 const SESSION_STORAGE_KEY = 'lwSessionTracker';
 const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
@@ -15,12 +15,7 @@ export function useSessionManagement() {
   const { captureEvent } = useTracking();
 
   const getOrCreateSession = useCallback((): SessionData => {
-    const ls = getBrowserLocalStorage();
-    if (!ls) {
-      return { sessionId: randomId(), lastActivityTimestamp: Date.now() };
-    }
-
-    const storedData = ls.getItem(SESSION_STORAGE_KEY);
+    const storedData = safeLocalStorage.getItem(SESSION_STORAGE_KEY);
     if (storedData) {
       try {
         const parsed = JSON.parse(storedData) as SessionData;
@@ -31,7 +26,7 @@ export function useSessionManagement() {
           sessionId: randomId(),
           lastActivityTimestamp: Date.now()
         };
-        ls.setItem(SESSION_STORAGE_KEY, JSON.stringify(newSession));
+        safeLocalStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(newSession));
         captureEvent('sessionStarted', { previousSessionId: parsed.sessionId, previousSessionLastActivity: parsed.lastActivityTimestamp });
         
         return newSession;
@@ -45,23 +40,20 @@ export function useSessionManagement() {
       sessionId: randomId(),
       lastActivityTimestamp: Date.now()
     };
-    ls.setItem(SESSION_STORAGE_KEY, JSON.stringify(newSession));
+    safeLocalStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(newSession));
     captureEvent('sessionStarted');
     
     return newSession;
   }, [captureEvent]);
 
   const updateLastActivity = useCallback(() => {
-    const ls = getBrowserLocalStorage();
-    if (!ls) return;
-
-    const storedData = ls.getItem(SESSION_STORAGE_KEY);
+    const storedData = safeLocalStorage.getItem(SESSION_STORAGE_KEY);
     if (!storedData) return;
 
     try {
       const session = JSON.parse(storedData) as SessionData;
       const updatedSession = { ...session, lastActivityTimestamp: Date.now() };
-      ls.setItem(SESSION_STORAGE_KEY, JSON.stringify(updatedSession));
+      safeLocalStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updatedSession));
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error("Failed to update session data", e);

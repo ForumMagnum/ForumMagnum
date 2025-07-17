@@ -15,6 +15,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { hasDigests } from '@/lib/betas';
 import { isEAForum } from '@/lib/instanceSettings';
 import { isServer } from '@/lib/executionEnvironment';
+import { safeLocalStorage } from '@/lib/utils/safeLocalStorage';
 
 const styles = defineStyles("StickyDigestAd", (theme: ThemeType) => ({
   '@keyframes digest-fade-in': {
@@ -214,11 +215,10 @@ export const MaybeStickyDigestAd = ({post}: {
   const [showDigestAd, setShowDigestAd] = useState(false)
 
   // postReadCount is currently only used by StickyDigestAd, to only show the ad after the client has visited multiple posts.
-  const ls = getBrowserLocalStorage()
   useEffect(() => {
-    if (ls && hasDigests) {
-      const postReadCount = ls.getItem('postReadCount') ?? '0'
-      ls.setItem('postReadCount', `${parseInt(postReadCount) + 1}`)
+    if (hasDigests) {
+      const postReadCount = safeLocalStorage.getItem('postReadCount') ?? '0'
+      safeLocalStorage.setItem('postReadCount', `${parseInt(postReadCount) + 1}`)
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 

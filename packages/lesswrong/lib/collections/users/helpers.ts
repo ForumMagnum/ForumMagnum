@@ -12,6 +12,7 @@ import { DeferredForumSelect } from '@/lib/forumTypeUtils';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 import type { ForumIconName } from '@/components/common/ForumIcon';
 import type { EditablePost } from '../posts/helpers';
+import { safeLocalStorage } from '@/lib/utils/safeLocalStorage';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
@@ -445,10 +446,9 @@ export const useUserLocation = (currentUser: UsersCurrent|DbUser|null, dontAsk?:
       return {lat: placeholderLat, lng: placeholderLng, loading: true, known: false, label: null}
     } else {
       // If we're on the browser, and the user isn't logged in, see if we saved it in local storage
-      const ls = getBrowserLocalStorage()
-      if (!currentUser && ls) {
+      if (!currentUser) {
         try {
-          const storedUserLocation = ls.getItem('userlocation')
+          const storedUserLocation = safeLocalStorage.getItem('userlocation')
           const lsLocation = storedUserLocation ? JSON.parse(storedUserLocation) : null
           if (lsLocation) {
             return {...lsLocation, loading: false}

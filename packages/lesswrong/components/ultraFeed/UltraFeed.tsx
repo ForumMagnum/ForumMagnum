@@ -31,16 +31,14 @@ import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import UltraFeedFeedback from './UltraFeedFeedback';
 import AnalyticsInViewTracker from '../common/AnalyticsInViewTracker';
+import { safeLocalStorage } from '@/lib/utils/safeLocalStorage';
 
 const ULTRAFEED_SESSION_ID_KEY = 'ultraFeedSessionId';
 
 const getStoredSettings = (): UltraFeedSettingsType => {
   if (!isClient) return DEFAULT_SETTINGS;
   
-  const ls = getBrowserLocalStorage();
-  if (!ls) return DEFAULT_SETTINGS;
-  
-  const storedSettings = ls.getItem(ULTRA_FEED_SETTINGS_KEY);
+  const storedSettings = safeLocalStorage.getItem(ULTRA_FEED_SETTINGS_KEY);
   if (!storedSettings) return DEFAULT_SETTINGS;
   
   try {
@@ -53,13 +51,12 @@ const getStoredSettings = (): UltraFeedSettingsType => {
 };
 
 const saveSettings = (settings: Partial<UltraFeedSettingsType>): UltraFeedSettingsType => {
-  const ls = getBrowserLocalStorage();
-  if (!ls) return DEFAULT_SETTINGS;
+  if (!isClient) return DEFAULT_SETTINGS;
   
   const currentSettings = getStoredSettings();
   const newSettings = { ...currentSettings, ...settings };
   
-  ls.setItem(ULTRA_FEED_SETTINGS_KEY, JSON.stringify(newSettings));
+  safeLocalStorage.setItem(ULTRA_FEED_SETTINGS_KEY, JSON.stringify(newSettings));
   return newSettings;
 };
 
