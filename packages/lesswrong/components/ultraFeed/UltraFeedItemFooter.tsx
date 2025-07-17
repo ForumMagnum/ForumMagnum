@@ -377,7 +377,7 @@ const UltraFeedItemFooterCore = ({
         userId: currentUser._id,
         eventType: 'interacted' as const,
         documentId: voteProps.document._id,
-        collectionName: voteProps.collectionName as "Posts" | "Comments" | "Spotlights",
+        collectionName: voteProps.collectionName,
         feedItemId: metaInfo?.servedEventId,
         event: { interactionType },
       }
