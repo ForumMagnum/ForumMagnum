@@ -1,14 +1,16 @@
-import React, { useState, useMemo, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useMemo, useEffect, useLayoutEffect, useContext } from 'react';
 import { getForumTheme } from '../../themes/forumTheme';
 import { AbstractThemeOptions, abstractThemeToConcrete } from '../../themes/themeNames';
-import { usePrefersDarkMode } from './usePrefersDarkMode';
 import moment from 'moment';
 import { isEAForum } from '../../lib/instanceSettings';
 import { THEME_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import stringify from 'json-stringify-deterministic';
 import { FMJssProvider } from '../hooks/FMJssProvider';
-import { ThemeContext, useThemeOptions } from './useTheme';
+import { ThemeContext } from './useTheme';
+import { isClient } from '@/lib/executionEnvironment';
+import { useTracking } from '@/lib/analyticsEvents';
+import { regeneratePageStyles, StylesContext } from '../hooks/useStyles';
 
 export const ThemeContextProvider = ({options, isEmail, children}: {
   options: AbstractThemeOptions,
@@ -33,15 +35,15 @@ export const ThemeContextProvider = ({options, isEmail, children}: {
     }
   }, [themeOptions, themeCookie, setCookie, removeCookie]);
   
-  const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode);
+  const concreteThemeOptions = abstractThemeToConcrete(themeOptions, prefersDarkMode);
 
   const theme: any = useMemo(() =>
-    getForumTheme(concreteTheme),
-    [concreteTheme]
+    getForumTheme(concreteThemeOptions),
+    [concreteThemeOptions]
   );
   const themeContext = useMemo(() => (
-    {theme, themeOptions, setThemeOptions}),
-    [theme, themeOptions, setThemeOptions]
+    {theme, abstractThemeOptions: options, concreteThemeOptions, setThemeOptions}),
+    [theme, options, concreteThemeOptions, setThemeOptions]
   );
   
   return <ThemeContext.Provider value={themeContext}>
@@ -53,35 +55,16 @@ export const ThemeContextProvider = ({options, isEmail, children}: {
 }
 
 const ThemeStylesheetSwapper = () => {
-  const themeOptions = useThemeOptions();
-  const prefersDarkMode = usePrefersDarkMode();
-  const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode);
+  const themeContext = useContext(ThemeContext)!;
+  const stylesContext = useContext(StylesContext)!;
+  const abstractThemeOptions = themeContext!.abstractThemeOptions;
 
   useLayoutEffect(() => {
-    if (stringify(themeOptions) !== stringify(window.themeOptions)) {
-      window.themeOptions = themeOptions;
-      const stylesId = "main-styles";
-      const tempStylesId = stylesId + "-temp";
-      const oldStyles = document.getElementById(stylesId);
-      if (oldStyles) {
-        oldStyles.setAttribute("id", tempStylesId);
-        const onFinish = (error?: string | Event) => {
-          if (error) {
-            // eslint-disable-next-line no-console
-            console.error("Failed to load stylesheet for theme:", themeOptions, "Error:", error);
-          } else {
-            oldStyles.parentElement!.removeChild(oldStyles);
-          }
-        }
-
-        if (themeOptions.name === "auto") {
-          addAutoStylesheet(stylesId, onFinish, concreteTheme.siteThemeOverride);
-        } else {
-          addStylesheet(makeStylesheetUrl(concreteTheme), stylesId, onFinish);
-        }
-      }
+    if (stringify(abstractThemeOptions) !== stringify(window.themeOptions)) {
+      window.themeOptions = abstractThemeOptions;
+      regeneratePageStyles(themeContext, stylesContext);
     }
-  }, [themeOptions, concreteTheme]);
+  }, []);
   
   return null;
 }
@@ -124,4 +107,43 @@ const addAutoStylesheet = (id: string, onFinish: OnFinish, siteThemeOverride?: S
   }
   styleNode.onerror = onFinish;
   document.head.appendChild(styleNode);
+}
+
+
+
+const buildPrefersDarkModeQuery = () =>
+  isClient && "matchMedia" in window
+    ? window.matchMedia("(prefers-color-scheme: dark)")
+    : {
+      matches: false,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    };
+
+export const usePrefersDarkMode = () => {
+  const [query] = useState(() => buildPrefersDarkModeQuery());
+  const [prefersDarkMode, setPrefersDarkMode] = useState(query.matches);
+  const { captureEvent } = useTracking();
+
+  useEffect(() => {
+    const handler = ({matches}: MediaQueryListEvent) => {
+      setPrefersDarkMode(matches);
+      captureEvent("prefersDarkModeChange", {
+        prefersDarkMode: matches,
+      });
+    }
+    // Check that query.addEventListener exists before using it, because on
+    // some browsers (older iOS Safari) it doesn't.
+    if (query.addEventListener) {
+      query.addEventListener("change", handler);
+      return () => query.removeEventListener("change", handler);
+    }
+  }, [query, captureEvent]);
+  
+  return prefersDarkMode;
+}
+
+export const devicePrefersDarkMode = () => {
+  const query = buildPrefersDarkModeQuery();
+  return query?.matches ?? false;
 }

@@ -1,4 +1,4 @@
-import React, { createContext, forwardRef, useContext, useLayoutEffect } from "react";
+import React, { createContext, forwardRef, use, useContext, useLayoutEffect } from "react";
 import type { ClassNameProxy, StyleDefinition, StyleOptions } from "@/server/styleGeneration";
 import type { JssStyles } from "@/lib/jssStyles";
 import { create as jssCreate, SheetsRegistry } from 'jss';
@@ -9,12 +9,15 @@ import jssDefaultUnit from 'jss-plugin-default-unit';
 import jssVendorPrefixer from 'jss-plugin-vendor-prefixer';
 import jssPropsSort from 'jss-plugin-props-sort';
 import { isClient } from "@/lib/executionEnvironment";
-import { useTheme } from "../themes/useTheme";
+import { ThemeContext, ThemeContextType, useTheme } from "../themes/useTheme";
 import { useServerInsertedHtml } from "./useServerInsertedHtml";
 import { maybeMinifyCSS } from "@/server/maybeMinifyCSS";
+import { type AbstractThemeOptions, abstractThemeToConcrete, getDefaultThemeOptions, themeOptionsAreConcrete } from "@/themes/themeNames";
+import { getForumTheme } from "@/themes/forumTheme";
 
 export type StylesContextType = {
   theme: ThemeType
+  abstractThemeOptions: AbstractThemeOptions
   mountedStyles: Map<string, {
     refcount: number
     styleDefinition: StyleDefinition<any>
@@ -25,9 +28,10 @@ export type StylesContextType = {
 export const StylesContext = createContext<StylesContextType|null>(null);
 
 
-export function createStylesContext(theme: ThemeType): StylesContextType {
+export function createStylesContext(theme: ThemeType, abstractThemeOptions: AbstractThemeOptions): StylesContextType {
   return {
     theme,
+    abstractThemeOptions,
     mountedStyles: new Map<string, {
       refcount: number
       styleDefinition: StyleDefinition<any>
@@ -48,6 +52,17 @@ export function createStylesContext(theme: ThemeType): StylesContextType {
 let _clientMountedStyles: StylesContextType|null = null;
 export function setClientMountedStyles(styles: StylesContextType) {
   _clientMountedStyles = styles;
+}
+
+/**
+ * Client-side only: If the theme has changed (eg with the theme-picker UI),
+ * find all the <style> nodes we previously inserted and regenerate their
+ * contents.
+ */
+export function regeneratePageStyles(themeContext: ThemeContextType) {
+  if (isClient) {
+    // TODO
+  }
 }
 
 export const topLevelStyleDefinitions: Record<string,StyleDefinition<string>> = {};
@@ -118,6 +133,8 @@ export const useStyles = <T extends string>(styles: StyleDefinition<T>, override
   const stylesContext = useContext(StylesContext);
 
   if (bundleIsServer) {
+    const themeContext = use(ThemeContext);
+
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useServerInsertedHtml(() => {
       if (!stylesContext || stylesContext.mountedStyles.has(styles.name)) {
@@ -128,7 +145,7 @@ export const useStyles = <T extends string>(styles: StyleDefinition<T>, override
         styleDefinition: styles,
       });
 
-      return serverEmbeddedStyles(stylesContext.theme, styles);
+      return serverEmbeddedStyles(themeContext?.abstractThemeOptions ?? getDefaultThemeOptions(), styles);
     });
 
     if (stylesContext) {
@@ -290,20 +307,36 @@ function styleNodeToString(theme: ThemeType, styleDefinition: StyleDefinition): 
 // JSON-serialized theme => style name => style script tag
 const serverEmbeddedStylesCache: Record<string, Record<string,string>> = {};
 
-function serverEmbeddedStyles(theme: ThemeType, styleDefinition: StyleDefinition) {
-  const serializedTheme = JSON.stringify(theme);
+function serverEmbeddedStyles(abstractThemeOptions: AbstractThemeOptions, styleDefinition: StyleDefinition) {
+  const themeKey = JSON.stringify(abstractThemeOptions);
   const styleName = styleDefinition.name;
 
-  if (!serverEmbeddedStylesCache[serializedTheme]) {
-    serverEmbeddedStylesCache[serializedTheme] = {};
+  if (!serverEmbeddedStylesCache[themeKey]) {
+    serverEmbeddedStylesCache[themeKey] = {};
   }
-  if (!serverEmbeddedStylesCache[serializedTheme][styleName]) {
-    const stylesStr = styleNodeToString(theme, styleDefinition);
+  if (!serverEmbeddedStylesCache[themeKey][styleName]) {
     const priority = styleDefinition.options?.stylePriority ?? 0;
-    const styleScriptTag = `<script>_embedStyles(${JSON.stringify(styleDefinition.name)},${priority},${JSON.stringify(stylesStr)})</script>`;
-    serverEmbeddedStylesCache[serializedTheme][styleName] = styleScriptTag;
+
+    if (themeOptionsAreConcrete(abstractThemeOptions)) {
+      const theme = getForumTheme(abstractThemeOptions);
+      const stylesStr = styleNodeToString(theme, styleDefinition);
+      const priority = styleDefinition.options?.stylePriority ?? 0;
+      const styleScriptTag = `<script>_embedStyles(${JSON.stringify(styleDefinition.name)},${priority},${JSON.stringify(stylesStr)})</script>`;
+      serverEmbeddedStylesCache[themeKey][styleName] = styleScriptTag;
+    } else {
+      const lightThemeOptions = abstractThemeToConcrete(abstractThemeOptions, false);
+      const darkThemeOptions = abstractThemeToConcrete(abstractThemeOptions, true);
+      const lightTheme = getForumTheme(lightThemeOptions);
+      const darkTheme = getForumTheme(darkThemeOptions);
+      const lightStylesStr = styleNodeToString(lightTheme, styleDefinition);
+      const darkStylesStr = styleNodeToString(darkTheme, styleDefinition);
+      const stylesStr = `@media (prefers-color-scheme: light) {\n${lightStylesStr}\n}\n@media (prefers-color-scheme: dark) {\n${darkStylesStr}\n}`;
+      const styleScriptTag = `<script>_embedStyles(${JSON.stringify(styleDefinition.name)},${priority},${JSON.stringify(stylesStr)})
+      </script>`;
+      serverEmbeddedStylesCache[themeKey][styleName] = styleScriptTag;
+    }
   }
-  return serverEmbeddedStylesCache[serializedTheme][styleName];
+  return serverEmbeddedStylesCache[themeKey][styleName];
 }
 
 export function getEmbeddedStyleLoaderScript() {

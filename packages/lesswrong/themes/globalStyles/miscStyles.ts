@@ -138,46 +138,15 @@ html {
 
 /* ************************************************************************ */
 
-
-select.form-control{
-  height: 38px;
-}
-
 /* Styles for vulcan-forms */
-.control-label strong {
-  font-weight: normal;
-}
-
 .form-input {
   margin:16px 0;
   position: relative;
 }
 
-.form-group {
-  margin-bottom: 0;
-}
-
 .form-component-EditTitle {
   margin:0;
   flex-grow:1;
-}
-
-.form-group.row {
-  display:flex;
-  justify-content: flex-start;
-  align-items: center;
-}
-.form-control-limit{
-  position: absolute;
-  background: white;
-  padding: 5px;
-  bottom: 5px;
-  right: 5px;
-  color: #ddd;
-  font-size: 80%;
-}
-.form-control-limit.danger{
-  color: #EF1642;
 }
 
 /* //////////////////////////////////////////////////////////////////////// */
