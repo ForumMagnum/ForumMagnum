@@ -172,7 +172,7 @@ const QuickTakesEntry = ({
   const showNewUserMessage = !currentUser?.reviewedByUserId && !isFriendlyUI;
   return <div className={classNames(classes.root, className)} ref={ref}>
     {/* TODO: Write a better message for new users */}
-    {expanded && showNewUserMessage && <div className={classes.userNotApprovedMessage}>Quick Takes is an excellent place for your first contribution!</div>}
+    {/* {expanded && showNewUserMessage && <div className={classes.userNotApprovedMessage}>Quick Takes is an excellent place for your first contribution!</div>} */}
     <div
       className={classNames(classes.commentEditor, {[classes.collapsed]: !expanded})}
       onFocus={onFocus}
