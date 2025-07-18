@@ -344,7 +344,7 @@ export const UltraFeedCommentItem = ({
         documentType: 'comment',
         postId: comment.postId ?? undefined,
         servedEventId: metaInfo.servedEventId,
-        ultraFeedCardIndex: threadIndex,
+        feedCardIndex: threadIndex,
         ultraFeedCommentIndex: commentIndex
       });
     }
@@ -384,7 +384,7 @@ export const UltraFeedCommentItem = ({
       maxLevelReached: expanded,
       wordCount,
       servedEventId: metaInfo.servedEventId,
-      ultraFeedCardIndex: threadIndex,
+      feedCardIndex: threadIndex,
       ultraFeedCommentIndex: commentIndex,
     });
     

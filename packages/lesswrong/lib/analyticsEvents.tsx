@@ -127,10 +127,9 @@ export type AnalyticsProps = {
   ultraFeedSources?: FeedItemSourceType[],
   ultraFeedElementType?: FeedItemType,
   ultraFeedCardId?: string,
-  ultraFeedCardIndex?: number,
+  feedCardIndex?: number,
   modalInstanceId?: string,
   recentDiscussionContext?: { feedSessionId: string },
-  recentDiscussionCardIndex?: number,
   /** @deprecated Use `pageSectionContext` instead */
   listContext?: string,
   /** @deprecated Use `pageSectionContext` instead */

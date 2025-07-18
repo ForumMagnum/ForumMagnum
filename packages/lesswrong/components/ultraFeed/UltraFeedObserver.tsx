@@ -64,7 +64,7 @@ interface ObserveData {
   documentType: DocumentType;
   postId?: string;
   servedEventId?: string;
-  ultraFeedCardIndex?: number;
+  feedCardIndex?: number;
   ultraFeedCommentIndex?: number;
 }
 
@@ -76,7 +76,7 @@ interface TrackExpansionData {
   maxLevelReached: boolean;
   wordCount: number;
   servedEventId?: string;
-  ultraFeedCardIndex?: number;
+  feedCardIndex?: number;
   ultraFeedCommentIndex?: number;
 }
 
@@ -140,7 +140,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
       collectionName: documentTypeToCollectionName[elementData.documentType],
       durationMs: durationMs,
       feedItemId: elementData.servedEventId,
-      ultraFeedCardIndex: elementData.ultraFeedCardIndex,
+      feedCardIndex: elementData.feedCardIndex,
       ultraFeedCommentIndex: elementData.ultraFeedCommentIndex,
     });
   }, [createUltraFeedEvent, currentUser, incognitoMode, captureEvent]);
@@ -306,7 +306,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
       collectionName: documentTypeToCollectionName[data.documentType],
       expansionLevel: data.level,
       feedItemId: data.servedEventId,
-      ultraFeedCardIndex: data.ultraFeedCardIndex,
+      feedCardIndex: data.feedCardIndex,
       ultraFeedCommentIndex: data.ultraFeedCommentIndex,
     });
   }, [createUltraFeedEvent, currentUser, incognitoMode, captureEvent]);

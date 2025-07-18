@@ -366,7 +366,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
   }, [thread._id, comments, captureEvent]);
 
   return (
-    <AnalyticsContext pageParentElementContext="ultraFeedThread" ultraFeedCardId={thread._id} ultraFeedCardIndex={index}>
+    <AnalyticsContext pageParentElementContext="ultraFeedThread" ultraFeedCardId={thread._id} feedCardIndex={index}>
     {postExpanded && !post && loading && <div className={classes.postsLoadingContainer}>
       <Loading />
     </div>}

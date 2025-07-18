@@ -437,7 +437,7 @@ const UltraFeedPostItem = ({
         documentId: post._id, 
         documentType: 'post',
         servedEventId: postMetaInfo.servedEventId,
-        ultraFeedCardIndex: index
+        feedCardIndex: index
       });
     }
   }, [observe, post._id, postMetaInfo.servedEventId, index]);
@@ -456,7 +456,7 @@ const UltraFeedPostItem = ({
       maxLevelReached: expanded,
       wordCount,
       servedEventId: postMetaInfo.servedEventId,
-      ultraFeedCardIndex: index,
+      feedCardIndex: index,
     });
 
     captureEvent("ultraFeedPostItemExpanded", {
@@ -537,7 +537,7 @@ const UltraFeedPostItem = ({
       maxLevelReached: true,
       wordCount: post.contents?.wordCount ?? 0,
       servedEventId: postMetaInfo.servedEventId,
-      ultraFeedCardIndex: index,
+      feedCardIndex: index,
     });
     
     if (!hasRecordedViewOnExpand) {
@@ -588,7 +588,7 @@ const UltraFeedPostItem = ({
   }
 
   return (
-    <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index} ultraFeedSources={postMetaInfo.sources}>
+    <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} feedCardIndex={index} ultraFeedSources={postMetaInfo.sources}>
     <div className={classes.root}>
       <div ref={elementRef} className={classes.mainContent}>
         {/* On small screens, the triple dot menu is positioned absolutely to the root */}

@@ -557,7 +557,7 @@ const UltraFeedSpotlightItem = ({
       observe(currentElement, {
         documentId: spotlight._id,
         documentType: 'spotlight',
-        ultraFeedCardIndex: index
+        feedCardIndex: index
       });
     }
   }, [observe, spotlight, index]);
@@ -582,7 +582,7 @@ const UltraFeedSpotlightItem = ({
   };
 
   return (
-    <AnalyticsContext ultraFeedElementType="feedSpotlight" spotlightId={spotlight._id} ultraFeedCardIndex={index}>
+    <AnalyticsContext ultraFeedElementType="feedSpotlight" spotlightId={spotlight._id} feedCardIndex={index}>
       <div
         ref={elementRef}
         id={spotlight._id}
