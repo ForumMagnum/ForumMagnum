@@ -1,6 +1,6 @@
 import moment from "moment";
 import { DOWNVOTED_COMMENT_ALERT } from "@/lib/collections/commentModeratorActions/constants";
-import { getReasonForReview, isLowAverageKarmaContent } from "../../lib/collections/moderatorActions/helpers";
+import { isLowAverageKarmaContent } from "../../lib/collections/moderatorActions/helpers";
 import { isActionActive } from "../../lib/collections/moderatorActions/newSchema";
 import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, NEGATIVE_KARMA_USER_ALERT, postAndCommentRateLimits, rateLimitSet, RECENTLY_DOWNVOTED_CONTENT_ALERT } from "@/lib/collections/moderatorActions/constants";
 import { getWithLoader } from "../../lib/loaders";
@@ -8,18 +8,64 @@ import { forumSelect } from "../../lib/forumTypeUtils";
 import { createModeratorAction, updateModeratorAction } from "../collections/moderatorActions/mutations";
 import { triggerReview } from "./helpers";
 import { createCommentModeratorAction } from "../collections/commentModeratorActions/mutations";
+import { getReasonForReview } from "../collections/users/serverHelpers";
+import { useRejectContent } from "@/components/hooks/useRejectContent";
+import { Comments } from "../collections/comments/collection";
+import { Posts } from "../collections/posts/collection";
+import ModerationTemplates from "../collections/moderationTemplates/collection";
+
+type RejectableContent = {
+  content: DbPost,
+  collectionName: "Posts"
+} | {
+  content: DbComment,
+  collectionName: "Comments"
+}
+
+const NO_LLM_AUTOREJECT_TEMPLATE = "No LLM (autoreject)";
+
+async function rejectContent(rejectableContent: RejectableContent, reason: string) {
+  if (rejectableContent.collectionName === "Posts") {
+    const moderationTemplate = await ModerationTemplates.findOne({ name: NO_LLM_AUTOREJECT_TEMPLATE });
+    if (!moderationTemplate) {
+      throw new Error("Moderation template not found");
+    }
+    await Posts.rawUpdateOne(
+      { _id: rejectableContent.content._id },
+      { 
+        $set: { 
+          rejected: true, 
+          rejectedReason: moderationTemplate.contents?.html ?? "" 
+        } 
+      }
+    );
+  } else {
+    await Comments.rawUpdateOne(
+      { _id: rejectableContent.content._id },
+      { 
+        $set: { 
+          rejected: true, 
+          rejectedReason: reason 
+        } 
+      }
+    );
+  }
+}
 
 /** 
  * This function contains all logic for determining whether a given user needs review in the moderation sidebar.
  * It's important this this only be be added to async callbacks on posts and comments, so that postCount and commentCount have time to update first
  */
-export async function triggerReviewIfNeeded(userId: string, context: ResolverContext) {
+export async function triggerReviewIfNeeded({userId, context, rejectableContent}: {userId: string, context: ResolverContext, rejectableContent?: RejectableContent}) {
   const { Users } = context;
   const user = await Users.findOne({ _id: userId });
   if (!user)
     throw new Error("user is null");
-
-  const {needsReview, reason} = getReasonForReview(user);
+  
+  const {needsReview, reason} = await getReasonForReview(user, rejectableContent?.content);
+  if (reason === 'llmRejected' && rejectableContent) {
+    await rejectContent(rejectableContent, reason);
+  }
   if (needsReview) {
     await triggerReview(user._id, context, reason);
   }

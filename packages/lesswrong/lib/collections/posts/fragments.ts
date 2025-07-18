@@ -713,18 +713,18 @@ export const SunshinePostsList = gql(`
       htmlHighlight
       wordCount
       version
-
-      automatedContentEvaluations {
-        _id
+    }
+    
+    automatedContentEvaluations {
+      _id
+      score
+      sentenceScores {
+        sentence
         score
-        sentenceScores {
-          sentence
-          score
-        }
-        aiChoice
-        aiReasoning
-        aiCoT
       }
+      aiChoice
+      aiReasoning
+      aiCoT
     }
 
     moderationGuidelines {
