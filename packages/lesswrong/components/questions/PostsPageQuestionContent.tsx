@@ -7,10 +7,11 @@ import { CommentTreeNode } from '../../lib/utils/unflatten';
 import AnswersList from "./AnswersList";
 import NewAnswerCommentQuestionForm from "./NewAnswerCommentQuestionForm";
 import CantCommentExplanation from "../comments/CantCommentExplanation";
-import RelatedQuestionsList from "./RelatedQuestionsList";
+import RelatedQuestionsList, { PostWithRelations } from "./RelatedQuestionsList";
 
-// Check if post has the fields required by RelatedQuestionsList
-const hasRelatedQuestionsFields = (post: PostsListWithVotes|PostsWithNavigation|PostsWithNavigationAndRevision): boolean => {
+const hasRelatedQuestionsFields = (
+  post: PostsListWithVotes | PostsWithNavigation | PostsWithNavigationAndRevision
+): post is (PostsListWithVotes | PostsWithNavigation | PostsWithNavigationAndRevision) & PostWithRelations => {
   return 'sourcePostRelations' in post && 'targetPostRelations' in post;
 }
 
@@ -28,7 +29,7 @@ const PostsPageQuestionContent = ({post, answersTree, refetch}: {
         <CantCommentExplanation post={post}/>
       }
       <AnswersList post={post} answersTree={answersTree} />
-      {hasRelatedQuestionsFields(post) && <RelatedQuestionsList post={post as PostsDetails} />}
+      {hasRelatedQuestionsFields(post) && <RelatedQuestionsList post={post} />}
     </div>
   )
 

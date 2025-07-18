@@ -391,65 +391,7 @@ const ULTRA_FEED_POST_FRAGMENT_QUERY = gql(`
   }
 `);
 
-const useEnsureCommentLoaded = (
-  targetCommentId: string | undefined,
-  comments: CommentsList[] | undefined,
-  loadMore: () => void,
-  totalCount: number | undefined,
-  loading: boolean
-) => {
-  const [isSearching, setIsSearching] = useState(false);
-  const loadAttempts = useRef(0);
-  
-  useEffect(() => {
-    if (!targetCommentId || !comments || loading || isSearching) return;
-    
-    const targetFound = comments.some(c => c._id === targetCommentId);
-    
-    if (!targetFound && loadAttempts.current < MAX_LOAD_MORE_ATTEMPTS && comments.length < (totalCount ?? 0)) {
-      setIsSearching(true);
-      loadAttempts.current++;
-      
-      setTimeout(() => {
-        loadMore();
-        setIsSearching(false);
-      }, 100);
-    }
-  }, [targetCommentId, comments, loading, isSearching, totalCount, loadMore]);
-};
 
-const useScrollToElementWithRetry = (
-  scrollableContentRef: React.RefObject<HTMLDivElement | null>,
-  onScrollSuccess?: () => void
-) => {
-  const scrollToElement = useCallback((elementId: string, onSuccess?: () => void, delay = 200) => {
-    let scrollTimer: NodeJS.Timeout | null = null;
-    let retryCount = 0;
-    const MAX_RETRIES = 10;
-
-    const attemptScroll = () => {
-      const element = document.getElementById(elementId);
-      const container = scrollableContentRef.current;
-
-      if (element && container) {
-        scrollToElementInContainer(container, element, 0.2);
-        onScrollSuccess?.();
-        onSuccess?.();
-      } else if (retryCount < MAX_RETRIES) {
-        retryCount++;
-        scrollTimer = setTimeout(attemptScroll, 100);
-      }
-    };
-
-    scrollTimer = setTimeout(attemptScroll, delay);
-
-    return () => {
-      if (scrollTimer) clearTimeout(scrollTimer);
-    };
-  }, [scrollableContentRef, onScrollSuccess]);
-
-  return scrollToElement;
-};
 
 type UltraFeedPostDialogBaseProps = {
   postMetaInfo: FeedPostMetaInfo;
@@ -573,15 +515,22 @@ const UltraFeedPostDialog = ({
   
   const finalHtml = tocData?.html ?? fullPostForContent?.contents?.html ?? partialPost?.contents?.htmlHighlight ?? "";
   
-  useEnsureCommentLoaded(
-    targetCommentId,
-    comments,
-    loadMoreProps.loadMore,
-    totalCount ?? undefined,
-    isCommentsLoading
-  );
-  
-  const scrollToElement = useScrollToElementWithRetry(scrollableContentRef);
+  const scrollToElement = useCallback((elementId: string, onSuccess?: () => void) => {
+    const scrollTimer = setTimeout(() => {
+      const element = document.getElementById(elementId);
+      const container = scrollableContentRef.current;
+
+      if (element && container) {
+        scrollToElementInContainer(container, element, 0.2);
+        onSuccess?.();
+      }
+    }, 300);
+
+    return () => {
+      clearTimeout(scrollTimer);
+    };
+  }, [scrollableContentRef]);
+
   
   const handleClose = () => {
     captureEvent("ultraFeedDialogClosed", { collectionName: "Posts", postId: postId ?? post?._id });
@@ -649,7 +598,6 @@ const UltraFeedPostDialog = ({
               element.classList.add(classes.scrolledHighlightFading);
             }, 100);
 
-            // Mark that we've scrolled
             hasScrolledRef.current = true;
           }
         });
@@ -669,7 +617,7 @@ const UltraFeedPostDialog = ({
   // Scroll to comments section if requested
   useEffect(() => {
     if (openAtComments && !isCommentsLoading) {
-      const cleanup = scrollToElement('commentsSection', undefined, 300);
+      const cleanup = scrollToElement('commentsSection');
       return cleanup;
     }
   }, [openAtComments, isCommentsLoading, scrollToElement]);

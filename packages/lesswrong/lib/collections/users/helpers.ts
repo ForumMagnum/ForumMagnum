@@ -31,6 +31,10 @@ export interface PermissionsPostMinimumInfo {
   frontpageDate: Date | string | null,
 }
 
+export const ensureIsDate = (dateValue: Date | string | null | undefined): Date | null => {
+  if (!dateValue) return null;
+  return dateValue instanceof Date ? dateValue : new Date(dateValue);
+};
 
 // Get a user's display name (not unique, can take special characters and spaces)
 export const userGetDisplayName = (user: UserDisplayNameInfo | null): string => {
@@ -271,7 +275,11 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Per
     if (post.rejected) {
       return false
     }
-    if (post.commentsLockedToAccountsCreatedAfter && new Date(user.createdAt) < new Date(post.commentsLockedToAccountsCreatedAfter)) {
+    
+    const lockDate = ensureIsDate(post.commentsLockedToAccountsCreatedAfter)
+    const userCreatedDate = ensureIsDate(user.createdAt);
+    
+    if (userCreatedDate && lockDate && lockDate < userCreatedDate) {
       return false
     }
   
