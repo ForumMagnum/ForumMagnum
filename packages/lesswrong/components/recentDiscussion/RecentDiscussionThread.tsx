@@ -14,6 +14,7 @@ import type { CommentTreeOptions } from '../comments/commentTree';
 import { useCurrentUser } from '../common/withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useRecentDiscussionThread } from './useRecentDiscussionThread';
+import { useRecentDiscussionViewTracking } from './useRecentDiscussionViewTracking';
 import PostsGroupDetails from "../posts/PostsGroupDetails";
 import PostsItemMeta from "../posts/PostsItemMeta";
 import CommentsNodeInner from "../comments/CommentsNode";
@@ -30,6 +31,7 @@ const styles = (theme: ThemeType) => ({
   },
   plainBackground: {
     backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
+    backdropFilter: theme.palette.filters.bannerAdBlur,
   },
   primaryBackground: {
     backgroundColor: theme.palette.background.primaryDim,
@@ -160,6 +162,7 @@ const RecentDiscussionThread = ({
   isSubforumIntroPost,
   commentTreeOptions = {},
   dismissCallback = () => {},
+  index,
   classes,
 }: {
   post: PostsRecentDiscussion,
@@ -171,6 +174,7 @@ const RecentDiscussionThread = ({
   isSubforumIntroPost?: boolean,
   commentTreeOptions?: CommentTreeOptions,
   dismissCallback?: () => void,
+  index?: number,
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -189,6 +193,13 @@ const RecentDiscussionThread = ({
     initialExpandAllThreads,
   });
 
+  const viewTrackingRef = useRecentDiscussionViewTracking({
+    documentId: post._id,
+    documentType: 'post',
+    index,
+    wordCount: post.contents?.wordCount,
+  });
+
   if (isSkippable) {
     return null
   }
@@ -198,8 +209,8 @@ const RecentDiscussionThread = ({
     [classes.noComments]: post.commentCount === null
   });
   return (
-    <AnalyticsContext pageSubSectionContext='recentDiscussionThread'>
-      <div className={classNames(
+    <AnalyticsContext pageSubSectionContext='recentDiscussionThread' recentDiscussionCardIndex={index}>
+      <div ref={viewTrackingRef} className={classNames(
         classes.root,
         {
           [classes.plainBackground]: !isSubforumIntroPost,
@@ -209,7 +220,6 @@ const RecentDiscussionThread = ({
         <div className={classNames(
           classes.post,
           {
-            [classes.plainBackground]: !isSubforumIntroPost,
             [classes.primaryBackground]: isSubforumIntroPost
           }
         )}>

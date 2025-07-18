@@ -278,10 +278,5 @@ export const tableNameToCollectionName = {
   users: 'Users',
   votes: 'Votes',
   ...((isAnyTest && !isIntegrationTest) ? {
-    testcollection: 'TestCollection',
-    testcollection2: 'TestCollection2',
-    testcollection3: 'TestCollection3',
-    testcollection4: 'TestCollection4',
-    testcollection5: 'TestCollection5',
   } : {}),
 } as const;

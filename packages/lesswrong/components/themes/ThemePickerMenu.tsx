@@ -42,7 +42,6 @@ const ThemePickerMenu = ({children, classes}: {
   const setTheme = useSetTheme();
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
-
   const selectedForumTheme = getForumType(currentThemeOptions);
 
   const persistUserTheme = (newThemeOptions: AbstractThemeOptions) => {
@@ -145,7 +144,6 @@ const ThemePickerMenu = ({children, classes}: {
     {children}
   </LWTooltip>
 }
-
 
 export default registerComponent('ThemePickerMenu', ThemePickerMenu, {styles});
 

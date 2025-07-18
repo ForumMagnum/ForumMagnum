@@ -5,7 +5,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
+import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { KARMA_WIDTH } from './LWPostsItem';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import KarmaDisplay from "../common/KarmaDisplay";

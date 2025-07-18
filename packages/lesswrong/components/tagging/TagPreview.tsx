@@ -209,7 +209,7 @@ const TagPreview = ({
   };
 
   const showPosts = postCount > 0 && !!tag?._id && !isFriendlyUI;
-  const { view, limit, ...selectorTerms } = tagPostTerms(tag, {});
+  const { view, limit, ...selectorTerms } = tagPostTerms(tag);
   const { data } = useQuery(PostsListMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },

@@ -16,6 +16,7 @@ declare global {
     __APOLLO_STATE__: any,
     __APOLLO_FOREIGN_STATE__: any,
     missingMainStylesheet?: boolean,
+    __replayEvents?: () => void,
     
     googleMapsFinishedLoading?: () => void,
     killPreloadScroll?: () => void,

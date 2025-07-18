@@ -1,4 +1,4 @@
-import { blackBarTitle } from "../../lib/publicSettings";
+import { blackBarTitle } from '@/lib/instanceSettings';
 
 const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently
@@ -51,6 +51,9 @@ export const lessWrongTheme: SiteThemeSpecification = {
     },
     header: {
       background: blackBarTitle.get() ? shadePalette.inverseGreyAlpha(.1) : shadePalette.inverseGreyAlpha(.65)
+    },
+    ultrafeedModalHeader: {
+      background: blackBarTitle.get() ? shadePalette.inverseGreyAlpha(.4) : shadePalette.inverseGreyAlpha(.95)
     },
     background: {
       default: '#f8f4ee'

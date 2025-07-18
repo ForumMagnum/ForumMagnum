@@ -8,7 +8,7 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import PersonAddIcon from '@/lib/vendor/@material-ui/icons/src/PersonAdd';
-import { moderationEmail } from '../../lib/publicSettings';
+import { moderationEmail } from '@/lib/instanceSettings';
 import { EditablePost, getPostCollaborateUrl, PostSubmitMeta } from '../../lib/collections/posts/helpers';
 import { ckEditorName } from './Editor';
 import { isFriendlyUI } from '../../themes/forumTheme';

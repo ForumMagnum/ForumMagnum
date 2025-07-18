@@ -9,8 +9,9 @@ import CommentsNodeInner from "../comments/CommentsNode";
 import QuickTakesCollapsedListItem from "./QuickTakesCollapsedListItem";
 import LWQuickTakesCollapsedListItem from "./LWQuickTakesCollapsedListItem";
 
-const styles = (_theme: ThemeType) => ({
+const styles = (theme: ThemeType) => ({
   expandedRoot: {
+    background: theme.palette.panelBackground.bannerAdTranslucentDeep,
     position: "relative",
     "& .comments-node-root": {
       marginBottom: 8,

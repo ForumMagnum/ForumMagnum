@@ -9,7 +9,6 @@ import PlusOneIcon from '@/lib/vendor/@material-ui/icons/src/PlusOne';
 import UndoIcon from '@/lib/vendor/@material-ui/icons/src/Undo';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
-import {DatabasePublicSetting} from "../../lib/publicSettings";
 import SunshineListItem from "./SunshineListItem";
 import SidebarHoverOver from "./SidebarHoverOver";
 import ContentStyles from "../common/ContentStyles";
@@ -21,7 +20,7 @@ import FormatDate from "../common/FormatDate";
 import SidebarActionMenu from "./SidebarActionMenu";
 import SidebarAction from "./SidebarAction";
 import OmegaIcon from "../icons/OmegaIcon";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import uniq from 'lodash/uniq';
 import without from 'lodash/without';
@@ -35,8 +34,6 @@ const SuggestAlignmentPostUpdateMutation = gql(`
     }
   }
 `);
-
-export const defaultAFModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultAFModeratorPMsTagSlug', "af-default-moderator-responses")
 
 export const afSubmissionHeader = (theme: ThemeType) => ({
   marginBottom: 24,

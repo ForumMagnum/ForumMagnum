@@ -5,7 +5,7 @@ import { useDialog } from '../common/withDialog';
 import { useTracking } from '../../lib/analyticsEvents';
 import { recombeeApi } from '../../lib/recombee/client';
 import { RecombeeRecommendationsContext } from '../recommendations/RecombeeRecommendationsContextWrapper';
-import { recombeeEnabledSetting } from '../../lib/publicSettings';
+import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import LoginPopup from "../users/LoginPopup";
 import VoteButton from "./VoteButton";
 import VoteArrowIcon from "./VoteArrowIcon";

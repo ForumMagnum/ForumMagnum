@@ -6,13 +6,17 @@ import type { PostsListViewType } from '../hooks/usePostsListView';
 import Loading from "../vulcan-core/Loading";
 import FriendlyPlaceholderPostsItem from "./FriendlyPlaceholderPostsItem";
 import LWPlaceholderPostsItem from "./LWPlaceholderPostsItem";
+import { LoadMorePlaceholder } from '../common/LoadMore';
+import SectionFooter from '../common/SectionFooter';
 
 const PostsLoading = ({
   placeholderCount,
+  loadMore,
   showFinalBottomBorder,
   viewType = "list",
 }: {
   placeholderCount?: number,
+  loadMore?: boolean,
   showFinalBottomBorder?: boolean
   viewType?: PostsListViewType,
 }) => {
@@ -35,6 +39,9 @@ const PostsLoading = ({
           key={i}
           showBottomBorder={showFinalBottomBorder || i+1<placeholderCount}
         />)}
+      {loadMore && <SectionFooter>
+        <LoadMorePlaceholder sectionFooterStyles/>
+      </SectionFooter>}
     </>
   }
 };

@@ -1,5 +1,5 @@
 import PetrovDayActions from "@/server/collections/petrovDayActions/collection";
-import { petrovBeforeTime } from '@/lib/publicSettings';
+import { petrovBeforeTime } from '@/lib/instanceSettings';
 import { DatabaseServerSetting } from "../databaseSettings";
 import { inWarningWindow } from '@/lib/collections/petrovDayActions/helpers';
 import gql from "graphql-tag";

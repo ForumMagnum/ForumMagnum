@@ -1,8 +1,9 @@
 import React, { useCallback } from 'react'
 import { isBotSiteSetting, isEAForum } from '../../lib/instanceSettings'
-import { DatabasePublicSetting } from '../../lib/publicSettings'
+import { showEventBannerSetting, showMaintenanceBannerSetting, showSmallpoxSetting } from '@/lib/instanceSettings'
 import { useCurrentUser } from '../common/withUser'
-import MaintenanceBanner, { maintenanceTime } from '../common/MaintenanceBanner'
+import MaintenanceBanner from '../common/MaintenanceBanner'
+import { maintenanceTime } from '@/lib/instanceSettings'
 import { AnalyticsContext } from '../../lib/analyticsEvents'
 import DeferRender from '../common/DeferRender'
 import { registerComponent } from "../../lib/vulcan-lib/components";
@@ -19,10 +20,7 @@ import EventBanner from "./EventBanner";
 import HeadTags from "../common/HeadTags";
 import BotSiteBanner from "../common/BotSiteBanner";
 import EAGBanner from "./EAGBanner";
-
-const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
-const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBanner', false)
-const showMaintenanceBannerSetting = new DatabasePublicSetting<boolean>('showMaintenanceBanner', false)
+import { StructuredData } from '../common/StructuredData'
 
 /**
  * Build structured data to help with SEO.
@@ -63,7 +61,7 @@ const FrontpageNode = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const recentDiscussionCommentsPerPost = currentUser && currentUser.isAdmin ? 4 : 3;
   return (
     <>
-      <DismissibleSpotlightItem current className={classes.spotlightMargin} />
+      <DismissibleSpotlightItem className={classes.spotlightMargin} />
       <HomeLatestPosts />
       <DeferRender ssr={true} clientTiming="mobile-aware">
         {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
@@ -100,7 +98,7 @@ const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
   return (
     <AnalyticsContext pageContext="homePage">
-      <HeadTags structuredData={getStructuredData()}/>
+      <StructuredData generate={()=>getStructuredData()}/>
       {shouldRenderMaintenanceBanner && <MaintenanceBanner />}
       {shouldRenderSmallpox && <SmallpoxBanner/>}
       {shouldRenderEventBanner && <EventBanner />}

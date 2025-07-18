@@ -1,6 +1,6 @@
 import NativeSearchClient, { SearchOptions } from "./NativeSearchClient";
 import { TupleSet, UnionOf } from "../utils/typeGuardUtils";
-import { algoliaPrefixSetting } from '../publicSettings';
+import { algoliaPrefixSetting } from '../instanceSettings';
 import type { Client } from "algoliasearch/lite";
 import {isElasticEnabled} from '../instanceSettings'
 import stringify from "json-stringify-deterministic";

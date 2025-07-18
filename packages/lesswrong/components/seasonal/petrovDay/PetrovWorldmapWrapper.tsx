@@ -1,9 +1,6 @@
 import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
-import ReactMapGL from 'react-map-gl';
-import { mapboxAPIKeySetting } from '@/lib/publicSettings';
-import { Helmet } from '@/lib/utils/componentsWithChildren';
-import { useMapStyle } from '@/components/hooks/useMapStyle';
+import { WrappedReactMapGL } from '@/components/community/WrappedReactMapGL';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -42,17 +39,11 @@ export const PetrovWorldmapWrapper = ({classes, children}: {
   children: React.ReactNode
 }) => {
 
-  const mapStyle = useMapStyle()
   return <div className={classes.root}>
-      <Helmet> 
-        <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
-      </Helmet>
-      <ReactMapGL
+      <WrappedReactMapGL
         zoom={2}
         width="100%"
         height="100%"
-        mapStyle={mapStyle}
-        mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
       />
       <div className={classes.panelBacking}>
         <div className={classes.panel}>

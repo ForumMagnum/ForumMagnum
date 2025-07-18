@@ -1,3 +1,5 @@
+"use client";
+
 import { postGetEditUrl, isPostCategory, postDefaultCategory, userCanEditCoauthors } from '@/lib/collections/posts/helpers';
 import { userCanPost } from '@/lib/collections/users/helpers';
 import pick from 'lodash/pick';
@@ -7,7 +9,7 @@ import { isAF } from '../../lib/instanceSettings';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { hasAuthorModeration } from '@/lib/betas';
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { userIsMemberOf } from '@/lib/vulcan-users/permissions';

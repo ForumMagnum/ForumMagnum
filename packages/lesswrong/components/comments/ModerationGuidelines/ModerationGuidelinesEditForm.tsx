@@ -17,7 +17,7 @@ import LWDialog from "../../common/LWDialog";
 import { Typography } from "../../common/Typography";
 import Loading from "../../vulcan-core/Loading";
 import { gql } from '@/lib/generated/gql-codegen';
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 
 const postUpdateMutation = gql(`

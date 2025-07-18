@@ -43,7 +43,7 @@ import React, {
   useMemo,
 } from 'react';
 import { useCurrentUser } from "../common/withUser";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const UltraFeedEventsDefaultFragmentMutation = gql(`
@@ -62,6 +62,7 @@ interface ObserveData {
   documentId: string;
   documentType: DocumentType;
   postId?: string;
+  servedEventId?: string;
 }
 
 interface TrackExpansionData {
@@ -71,6 +72,7 @@ interface TrackExpansionData {
   level: number;
   maxLevelReached: boolean;
   wordCount: number;
+  servedEventId?: string;
 }
 
 interface UltraFeedObserverContextType {
@@ -88,8 +90,8 @@ const UltraFeedObserverContext = createContext<UltraFeedObserverContextType | nu
 // count as "visible enough" to register a view event.
 const MIN_VISIBLE_PX = 250;
 
-const VIEW_THRESHOLD_MS = 300;
-const LONG_VIEW_THRESHOLD_MS = 2000;
+const VIEW_THRESHOLD_MS = 2000;
+const LONG_VIEW_THRESHOLD_MS = 10000;
 
 const documentTypeToCollectionName = {
   post: "Posts",
@@ -119,6 +121,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
         eventType: 'viewed' as const,
         documentId: elementData.documentId,
         collectionName: documentTypeToCollectionName[elementData.documentType],
+        feedItemId: elementData.servedEventId,
         event: { 
           durationMs: durationMs
         }
@@ -273,6 +276,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
         eventType: 'expanded' as const,
         documentId: data.documentId,
         collectionName: documentTypeToCollectionName[data.documentType],
+        feedItemId: data.servedEventId,
         event: {
           expansionLevel: data.level,
           maxExpansionReached: data.maxLevelReached,

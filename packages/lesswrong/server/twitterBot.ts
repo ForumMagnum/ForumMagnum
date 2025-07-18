@@ -6,15 +6,9 @@ import { TwitterApi } from 'twitter-api-v2';
 import { getConfirmedCoauthorIds, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import Users from "@/server/collections/users/collection";
 import { dogstatsd } from "./datadog/tracer";
-import { PublicInstanceSetting, twitterBotEnabledSetting, twitterBotKarmaThresholdSetting } from "@/lib/instanceSettings";
+import { accessTokenSecretSetting, accessTokenSetting, apiKeySecretSetting, apiKeySetting, twitterBotEnabledSetting, twitterBotKarmaThresholdSetting } from "@/lib/instanceSettings";
 import { createAnonymousContext } from "./vulcan-lib/createContexts";
 import { createTweet } from "./collections/tweets/mutations";
-// import { createTweet } from "@/server/collections/tweets/mutations";
-
-const apiKeySetting = new PublicInstanceSetting<string | null>("twitterBot.apiKey", null, "optional");
-const apiKeySecretSetting = new PublicInstanceSetting<string | null>("twitterBot.apiKeySecret", null, "optional");
-const accessTokenSetting = new PublicInstanceSetting<string | null>("twitterBot.accessToken", null, "optional");
-const accessTokenSecretSetting = new PublicInstanceSetting<string | null>("twitterBot.accessTokenSecret", null, "optional");
 
 const TWEET_MAX_LENGTH = 279;
 const URL_LENGTH = 24;

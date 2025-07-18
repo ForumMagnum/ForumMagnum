@@ -2,21 +2,20 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { useUserLocation } from '@/components/hooks/useUserLocation';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
-import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
+import { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { defaultCenter } from '../../localGroups/CommunityMap';
-import { mapboxAPIKeySetting } from '../../../lib/publicSettings';
 import { ArrowSVG } from '../../localGroups/Icons';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { ACX_EVENTS_LAST_UPDATED, LocalEvent, localEvents } from './acxEvents';
 import classNames from 'classnames';
 import moment from 'moment';
-import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWithChildren';
-import { useMapStyle } from '@/components/hooks/useMapStyle';
+import { componentWithChildren } from '../../../lib/utils/componentsWithChildren';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import StyledMapPopup from "../../localGroups/StyledMapPopup";
 import GroupLinks from "../../localGroups/GroupLinks";
 import HomepageMapFilter from "./HomepageMapFilter";
+import { WrappedReactMapGL } from '@/components/community/WrappedReactMapGL';
 
 const PostsListQuery = gql(`
   query HomepageCommunityMap($documentId: String) {
@@ -28,7 +27,6 @@ const PostsListQuery = gql(`
   }
 `);
 
-const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
 
 const styles = (theme: ThemeType) => ({
@@ -182,22 +180,15 @@ export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
     </>
   }, [classes.mapButtons])
 
-  const mapStyle = useMapStyle();
-
   return <div className={classes.root}>
-    <Helmet> 
-      <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
-    </Helmet>
-    <ReactMapGL
+    <WrappedReactMapGL
       {...viewport}
       width="100%"
       height="100%"
-      mapStyle={mapStyle}
       onViewportChange={viewport => setViewport(viewport)}
-      mapboxApiAccessToken={mapboxAPIKeySetting.get() ?? undefined}
     >
       {renderedMarkers}
-    </ReactMapGL>
+    </WrappedReactMapGL>
   </div>;
 }
 

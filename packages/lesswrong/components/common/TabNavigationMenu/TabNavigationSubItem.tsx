@@ -3,7 +3,7 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import { iconWidth } from './TabNavigationItem'
 import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
-import { isFriendlyUI } from '../../../themes/forumTheme';
+import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 
 const iconPadding = (theme: ThemeType) =>
   isFriendlyUI ? theme.spacing.unit / 2 : iconWidth + (theme.spacing.unit * 2);
@@ -15,7 +15,10 @@ const styles = (theme: ThemeType) => ({
     paddingBottom: theme.spacing.unit,
     // padding reflects how large an icon+padding is
     paddingLeft: (theme.spacing.unit*2) + iconPadding(theme),
-    color: theme.palette.grey[isFriendlyUI ? 600 : 700],
+    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.grey[700],
+    ...(isBookUI && theme.themeOptions.name==='dark' && {
+      color: theme.palette.text.bannerAdOverlay,
+    }),
     width:
       TAB_NAVIGATION_MENU_WIDTH - // base width
       ((theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2))) - // paddingLeft,

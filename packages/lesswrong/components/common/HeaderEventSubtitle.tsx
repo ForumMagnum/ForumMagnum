@@ -1,11 +1,12 @@
 import React from "react";
-import { useCurrentFrontpageSpotlight } from "../hooks/useCurrentFrontpageSpotlight";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { getSpotlightUrl } from "../../lib/collections/spotlights/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
 import { isLWorAF } from "../../lib/instanceSettings";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 
-const styles = (_theme: ThemeType) => ({
+const styles = defineStyles("HeaderEventSubtitle", (_theme: ThemeType) => ({
   root: {
     marginLeft: "1em",
     backgroundClip: "text !important",
@@ -15,7 +16,15 @@ const styles = (_theme: ThemeType) => ({
       opacity: 0.8,
     },
   },
-});
+}));
+
+const HeaderEventSubtitleSpotlightQuery = gql(`
+  query HeaderEventSubtitleSpotlightQuery {
+    currentSpotlight {
+      ...SpotlightHeaderEventSubtitle
+    }
+  }
+`);
 
 const makeBackground = (leftColor?: string | null, rightColor?: string | null) =>
   `linear-gradient(
@@ -31,10 +40,10 @@ type CurrentEvent = {
 }
 
 const useCurrentEvent = (): CurrentEvent | null => {
-  const spotlight = useCurrentFrontpageSpotlight({
-    fragmentName: "SpotlightHeaderEventSubtitle",
+  const { data } = useQuery(HeaderEventSubtitleSpotlightQuery, {
     skip: isLWorAF
   });
+  const spotlight = data?.currentSpotlight;
   
   if (!spotlight?.headerTitle) {
     return null;
@@ -50,7 +59,8 @@ const useCurrentEvent = (): CurrentEvent | null => {
   };
 }
 
-const HeaderEventSubtitle = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const HeaderEventSubtitle = () => {
+  const classes = useStyles(styles);
   const currentEvent = useCurrentEvent();
   return currentEvent
     ? (
@@ -65,10 +75,6 @@ const HeaderEventSubtitle = ({classes}: {classes: ClassesType<typeof styles>}) =
     : null;
 }
 
-export default registerComponent(
-  "HeaderEventSubtitle",
-  HeaderEventSubtitle,
-  {styles},
-);
+export default HeaderEventSubtitle;
 
 

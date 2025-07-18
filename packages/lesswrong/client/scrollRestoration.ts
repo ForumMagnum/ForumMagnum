@@ -1,4 +1,4 @@
-import { commentPermalinkStyleSetting } from "@/lib/publicSettings";
+import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 
 /**
  * When refreshing the page, tell the browser to remember the scroll position.

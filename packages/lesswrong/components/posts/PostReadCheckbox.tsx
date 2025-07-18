@@ -6,7 +6,7 @@ import { useItemsRead } from '../hooks/useRecordPostView';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import LWTooltip from "../common/LWTooltip";
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 
 const styles = (theme: ThemeType) => ({

@@ -1,4 +1,3 @@
-import { Posts } from "../../server/collections/posts/collection";
 import { PostsMinimumForGetPageUrl, postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { loggerConstructor } from "../../lib/utils/logging";
 import { serverId } from "@/server/analytics/serverAnalyticsWriter";
@@ -133,7 +132,9 @@ export const scheduleQueueProcessing = () => {
 /**
  * Invalidate the CDN cache entry for the given post by pinging the URL
  */
-export const swrInvalidatePostRoute = async (postId: string) => {
+export const swrInvalidatePostRoute = async (postId: string, context: ResolverContext) => {
+  const { Posts } = context;
+
   if (!swrCachingEnabledSetting.get() || invalidationQueue.length > MAX_LENGTH) return;
   const post = await Posts.findOne({_id: postId, swrCachingEnabled: true}, {}, {_id: 1, slug: 1, isEvent: 1, groupId: 1}) as PostsMinimumForGetPageUrl;
 

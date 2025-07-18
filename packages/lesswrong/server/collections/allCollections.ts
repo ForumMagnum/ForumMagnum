@@ -4,6 +4,7 @@
 // Helper imports
 import { isAnyTest, isIntegrationTest, isMigrations } from '@/lib/executionEnvironment';
 import sortBy from 'lodash/sortBy';
+import type PgCollection from '../sql/PgCollection';
 
 // Collection imports
 import { AdvisorRequests } from './advisorRequests/collection';
@@ -123,7 +124,7 @@ const allCollections = {
   RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates,
   Spotlights, Subscriptions, SurveyQuestions, SurveyResponses, SurveySchedules, Surveys, TagFlags, TagRels, Tags, Tweets,
   TypingIndicators, UltraFeedEvents, UserActivities, UserEAGDetails, UserJobAds, UserMostValuablePosts, UserRateLimits, UserTagRels, Users, Votes
-} satisfies CollectionsByName;
+};
 
 const collectionsByLowercaseName = Object.fromEntries(
   Object.values(allCollections).map((collection) => [collection.collectionName.toLowerCase(), collection]),
@@ -133,9 +134,9 @@ const collectionsByTypeName = Object.fromEntries(
   Object.values(allCollections).map((collection) => [collection.typeName, collection]),
 );
 
-export function getCollection<N extends CollectionNameString>(name: N): CollectionBase<N> {
+export function getCollection<N extends CollectionNameString>(name: N): PgCollection<N> {
   const collectionsWithTestCollections = { ...allCollections, ...getTestCollections() };
-  return collectionsWithTestCollections[name] as CollectionBase<N>;
+  return collectionsWithTestCollections[name] as PgCollection<N>;
 }
 
 export function getAllCollections(): Array<CollectionBase<CollectionNameString>> {

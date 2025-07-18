@@ -1,6 +1,6 @@
 import { simplSchemaToGraphQLtype } from '../../lib/utils/schemaUtils';
 import GraphQLJSON from 'graphql-type-json';
-import SimpleSchema from 'simpl-schema'
+import SimpleSchema from '@/lib/utils/simpleSchema'
 import { graphqlTypeToCollectionName } from "../../lib/vulcan-lib/collections";
 import { isValidCollectionName } from "@/server/collections/allCollections";
 

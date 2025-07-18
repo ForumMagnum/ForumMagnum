@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
-import {parseRoute, parsePath, checkUserRouteAccess} from '../../lib/vulcan-core/appContext'
+import {parsePath, parseRoute2} from '../../lib/vulcan-core/appContext'
 import { classifyHost, useLocation } from '../../lib/routeUtil';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -13,8 +13,28 @@ import { DefaultPreview, MetaculusPreview, ManifoldPreview, FatebookPreview, Neu
 import FootnotePreview from "./FootnotePreview";
 import { NoSideItems } from '../contents/SideItems';
 
+import { SequencePreview, PostLinkPreviewSequencePost, PostLinkPreviewSlug, PostLinkPreview, PostCommentLinkPreviewGreaterWrong } from '@/components/linkPreview/PostLinkPreview';
+import { TagHoverPreview } from '@/components/tagging/TagHoverPreview';
+
+export const routePreviewComponentMapping = {
+  '/sequences/:_id': SequencePreview,
+  '/s/:_id': SequencePreview,
+  '/s/:sequenceId/p/:postId': PostLinkPreviewSequencePost,
+  '/highlights/:slug': PostLinkPreviewSlug,
+  '/w/:slug': TagHoverPreview,
+  '/w/:slug/discussion': TagHoverPreview,
+  '/hpmor/:slug': PostLinkPreviewSlug,
+  '/codex/:slug': PostLinkPreviewSlug,
+  '/rationality/:slug': PostLinkPreviewSlug,
+  '/events/:_id/:slug?': PostLinkPreview,
+  '/g/:groupId/p/:_id': PostLinkPreview,
+  '/posts/:_id/:slug?': PostLinkPreview,
+  '/posts/slug/:slug?': PostLinkPreviewSlug,
+  '/posts/:_id/:slug/comment/:commentId?': PostCommentLinkPreviewGreaterWrong,
+};
+
 export const parseRouteWithErrors = (onsiteUrl: string, contentSourceDescription?: string) => {
-  return parseRoute({
+  return parseRoute2({
     location: parsePath(onsiteUrl),
     onError: (pathname) => {
       // Don't capture broken links in Sentry (too spammy, but maybe we'll
@@ -25,7 +45,8 @@ export const parseRouteWithErrors = (onsiteUrl: string, contentSourceDescription
       //  else
       //    Sentry.captureException(new Error(`Broken link from ${location.pathname} to ${pathname}`));
       //}
-    }
+    },
+    routePatterns: Object.keys(routePreviewComponentMapping).reverse() as (keyof typeof routePreviewComponentMapping)[]
   });
 }
 
@@ -90,17 +111,17 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
     const hostType = classifyHost(linkTargetAbsolute.host)
     if (!linkIsExcludedFromPreview(onsiteUrl) && (hostType==="onsite" || hostType==="mirrorOfUs")) {
-      const parsedUrl = checkUserRouteAccess(currentUser, parseRouteWithErrors(onsiteUrl, contentSourceDescription))
+      const parsedUrl = parseRouteWithErrors(onsiteUrl, contentSourceDescription)
       const destinationUrl = hostType==="onsite" ? parsedUrl.url : href;
 
-      if (parsedUrl.currentRoute) {
-        const PreviewComponent = parsedUrl.currentRoute.previewComponent;
+      if (parsedUrl.routePattern) {
+        const PreviewComponent = routePreviewComponentMapping[parsedUrl.routePattern];
         const previewComponentName = PreviewComponent?.name;
 
         if (PreviewComponent) {
           return <AnalyticsContext pageElementContext="linkPreview" href={destinationUrl} hoverPreviewType={previewComponentName} onsite>
             <NoSideItems>
-              <PreviewComponent href={destinationUrl} targetLocation={parsedUrl} id={id} noPrefetch={noPrefetch} className={className}>
+              <PreviewComponent href={destinationUrl} targetLocation={parsedUrl} id={id ?? ''} noPrefetch={noPrefetch} className={className}>
                 {children}
               </PreviewComponent>
             </NoSideItems>

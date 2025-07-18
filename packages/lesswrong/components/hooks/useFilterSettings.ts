@@ -1,11 +1,13 @@
 import { useTracking } from '@/lib/analyticsEvents';
 import { useQuery } from '@/lib/crud/useQuery';
-import { getDefaultFilterSettings, FilterSettings, addSuggestedTagsToSettings, FilterMode, filterModeIsSubscribed } from '@/lib/filterSettings';
+import { getDefaultFilterSettings, FilterSettings, FilterMode, filterModeIsSubscribed, FilterTag } from '@/lib/filterSettings';
 import { findIndex, filter } from 'lodash';
 import { useState, useCallback } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from './useUpdateCurrentUser';
 import { gql } from '@/lib/generated/gql-codegen';
+import { type QueryRef, useReadQuery, useBackgroundQuery } from '@apollo/client/react';
+import type { ResultOf } from '@graphql-typed-document-node/core';
 
 export const TagBasicInfoMultiQuery = gql(`
   query multiTagfilterSettingsQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -17,6 +19,24 @@ export const TagBasicInfoMultiQuery = gql(`
     }
   }
 `);
+
+export const useReadSuggestedTags = (
+  existingFilterSettings: FilterSettings,
+  suggestedTagsQueryRef: QueryRef<ResultOf<typeof TagBasicInfoMultiQuery>>
+): FilterTag[] => {
+  const potentialSuggestedTags = useReadQuery(suggestedTagsQueryRef).data.tags?.results ?? [];
+  const tagsIncluded: Record<string,boolean> = {};
+  for (let tag of existingFilterSettings.tags)
+    tagsIncluded[tag.tagId] = true;
+  const tagsNotIncluded = potentialSuggestedTags.filter(tag=>!(tag._id in tagsIncluded));
+
+  return tagsNotIncluded.map((tag: TagPreviewFragment): FilterTag => ({
+    tagId: tag._id,
+    tagName: tag.name,
+    filterMode: "Default",
+  }));
+}
+
 
 /**
  * Get the users frontpage tag filter settings, and methods to update them
@@ -37,94 +57,84 @@ export const TagBasicInfoMultiQuery = gql(`
  * which we don't wait for.
  */
 export const useFilterSettings = () => {
-  const currentUser = useCurrentUser();
-  const updateCurrentUser = useUpdateCurrentUser();
-  const { captureEvent } = useTracking();
-
-  const defaultSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
-  let [filterSettings, setFilterSettingsLocally] = useState<FilterSettings>(defaultSettings);
-
-  const { data, error: errorLoadingSuggestedTags, loading: loadingSuggestedTags } = useQuery(TagBasicInfoMultiQuery, {
+  const currentUser = useCurrentUser()
+  const updateCurrentUser = useUpdateCurrentUser()
+  const { captureEvent } = useTracking()
+  
+  const defaultSettings = currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings()
+  let [filterSettings, setFilterSettingsLocally] = useState<FilterSettings>(defaultSettings)
+  
+  const [suggestedTagsQueryRef] = useBackgroundQuery(TagBasicInfoMultiQuery, {
     variables: {
       selector: { suggestedFilterTags: {} },
       limit: 100,
       enableTotal: false,
     },
-    notifyOnNetworkStatusChange: true,
   });
 
-  const suggestedTags = data?.tags?.results;
-
-  if (suggestedTags) {
-    filterSettings = addSuggestedTagsToSettings(filterSettings, suggestedTags);
-  }
-
+  
   /** Set the whole mess */
   const setFilterSettings = useCallback((newSettings: FilterSettings) => {
-    setFilterSettingsLocally(newSettings);
+    setFilterSettingsLocally(newSettings)
     void updateCurrentUser({
       frontpageFilterSettings: newSettings,
-    });
-  }, [updateCurrentUser]);
-
+    })
+  }, [updateCurrentUser])
+  
   const setPersonalBlogFilter = useCallback((mode: FilterMode) => {
     setFilterSettings({
       personalBlog: mode,
       tags: filterSettings.tags,
-    });
-  }, [setFilterSettings, filterSettings]);
-
+    })
+  }, [setFilterSettings, filterSettings])
+  
   /** Upsert - tagName required for insert */
-  const setTagFilter = useCallback(({ tagId, tagName, filterMode }: { tagId: string; tagName?: string; filterMode: FilterMode; }) => {
+  const setTagFilter = useCallback(({tagId, tagName, filterMode}: {tagId: string, tagName?: string, filterMode: FilterMode}) => {
     // update
-    let existingTagFilter = filterSettings.tags.find(tag => tag.tagId === tagId);
+    let existingTagFilter = filterSettings.tags.find(tag => tag.tagId === tagId)
     if (existingTagFilter) {
-      const replacedIndex = findIndex(filterSettings.tags, t => t.tagId === tagId);
-      let newTagFilters = [...filterSettings.tags];
+      const replacedIndex = findIndex(filterSettings.tags, t => t.tagId === tagId)
+      let newTagFilters = [...filterSettings.tags]
       newTagFilters[replacedIndex] = {
         ...filterSettings.tags[replacedIndex],
         filterMode,
-      };
+      }
       setFilterSettings({
         personalBlog: filterSettings.personalBlog,
         tags: newTagFilters,
-      });
-      captureEvent('tagFilterModified', { tagId, tagName, newMode: filterMode });
-      return;
+      })
+      captureEvent('tagFilterModified', {tagId, tagName, newMode: filterMode})
+      return
     }
     // insert
     if (!tagName) {
-      throw new Error("tagName required for insert");
+      throw new Error("tagName required for insert")
     }
-    captureEvent("tagAddedToFilters", { tagId, tagName });
+    captureEvent("tagAddedToFilters", {tagId, tagName})
     setFilterSettings({
       personalBlog: filterSettings.personalBlog,
       tags: [...filterSettings.tags, { tagId, tagName, filterMode }],
-    });
-  }, [setFilterSettings, filterSettings, captureEvent]);
-
+    })
+  }, [setFilterSettings, filterSettings, captureEvent])
+  
   const removeTagFilter = useCallback((tagId: string) => {
-    if (suggestedTags && suggestedTags.find(tag => tag._id === tagId)) {
-      throw new Error("Can't remove suggested tag");
-    }
-    captureEvent("tagRemovedFromFilters", { tagId });
-    const newTags = filter(filterSettings.tags, tag => tag.tagId !== tagId);
+    captureEvent("tagRemovedFromFilters", {tagId});
+    const newTags = filter(filterSettings.tags, tag => tag.tagId !== tagId)
     setFilterSettings({
       personalBlog: filterSettings.personalBlog,
       tags: newTags,
-    });
-  }, [setFilterSettings, filterSettings, suggestedTags, captureEvent]);
-
+    })
+  }, [setFilterSettings, filterSettings, captureEvent])
+  
   return {
     filterSettings,
-    loadingSuggestedTags,
-    errorLoadingSuggestedTags,
+    suggestedTagsQueryRef,
     setFilterSettings,
     setPersonalBlogFilter,
     removeTagFilter,
     setTagFilter,
-  };
-};
+  }
+}
 
 /**
  * A simple wrapper on top of useFilterSettings focused on a single tag

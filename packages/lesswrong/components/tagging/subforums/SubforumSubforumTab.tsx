@@ -8,7 +8,8 @@ import { tagPostTerms } from '../TagPageUtils';
 import { TAG_POSTS_SORT_ORDER_OPTIONS } from "@/lib/collections/tags/helpers";
 import difference from 'lodash/fp/difference';
 import { PostsLayout } from '../../../lib/collections/posts/dropdownOptions';
-import { ObservableQuery, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
+import { ObservableQuery } from '@apollo/client';
 import CommentPermalink from "../../comments/CommentPermalink";
 import { MixedTypeFeed } from "../../common/MixedTypeFeed";
 import RecentDiscussionThread from "../../recentDiscussion/RecentDiscussionThread";
@@ -217,7 +218,8 @@ const SubforumSubforumTab = ({
   </>;
 
   const terms = {
-    ...tagPostTerms(tag, {...query, sortedBy: sortBy}),
+    ...tagPostTerms(tag),
+    ...(query.sortedBy ? {sortedBy: query.sortedBy as PostSortingModeWithRelevanceOption} : {}),
     limit: 10
   }
   const listLayoutComponent = (
