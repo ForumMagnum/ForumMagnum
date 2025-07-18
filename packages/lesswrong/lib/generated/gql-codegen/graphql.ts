@@ -602,6 +602,17 @@ export type CommentSelector = {
   topShortform?: InputMaybe<CommentsTopShortformInput>;
 };
 
+export type CommentSortingMode =
+  | 'groupByPost'
+  | 'magic'
+  | 'new'
+  | 'newest'
+  | 'old'
+  | 'oldest'
+  | 'recentComments'
+  | 'recentDiscussion'
+  | 'top';
+
 export type CommentsAfPostCommentsTopInput = {
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
   commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -735,6 +746,8 @@ export type CommentsNominations2018Input = {
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
   commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<CommentSortingMode>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -742,6 +755,8 @@ export type CommentsNominations2019Input = {
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
   commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<CommentSortingMode>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -822,6 +837,7 @@ export type CommentsPostsItemCommentsInput = {
 export type CommentsProfileCommentsInput = {
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
   commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  drafts?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['String']['input']>;
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
   sortBy?: InputMaybe<Scalars['String']['input']>;
@@ -908,6 +924,8 @@ export type CommentsReviews2018Input = {
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
   commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<CommentSortingMode>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -915,6 +933,8 @@ export type CommentsReviews2019Input = {
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
   commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<CommentSortingMode>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 

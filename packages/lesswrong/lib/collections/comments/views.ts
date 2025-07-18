@@ -9,6 +9,17 @@ import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/helpers';
 
+/**
+ * Comment sorting mode, a string which gets translated into a mongodb sort
+ * order. Not every mode is shown in the UI in every context. Corresponds to
+ * `sortings` (below).
+ *
+ * new/newest, old/oldest, and recentComments/recentDiscussion are synonyms.
+ * In past versions, different subsets of these depending on whether you were
+ * using an answers view, a subforum view, or something else.
+ * 
+ * needs to correspond to the CommentSortingMode enum declared in @/server/collections/comments/queries.ts
+ */
 export const COMMENT_SORTING_MODES = new TupleSet([ 
   "top", "groupByPost", "new", "newest", "old", "oldest", "magic", "recentComments", "recentDiscussion"
 ] as const);
@@ -38,17 +49,6 @@ declare global {
     commentIds?: string[],
     minimumKarma?: number,
   }
-  
-  /**
-   * Comment sorting mode, a string which gets translated into a mongodb sort
-   * order. Not every mode is shown in the UI in every context. Corresponds to
-   * `sortings` (below).
-   *
-   * new/newest, old/oldest, and recentComments/recentDiscussion are synonyms.
-   * In past versions, different subsets of these depending on whether you were
-   * using an answers view, a subforum view, or something else.
-   */
-  type CommentSortingMode = UnionOf<typeof COMMENT_SORTING_MODES>;
 }
 
 // Spread into a view to remove the part of the default view selector that hides deleted and
