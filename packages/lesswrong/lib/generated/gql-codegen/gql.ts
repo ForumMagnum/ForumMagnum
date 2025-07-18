@@ -591,8 +591,6 @@ type Documents = {
     "\n  query PostsPageHeaderTitle($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsBase\n      }\n    }\n  }\n": typeof types.PostsPageHeaderTitleDocument,
     "\n  query SequencesPageTitle($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SequencesPageTitleFragment\n      }\n    }\n  }\n": typeof types.SequencesPageTitleDocument,
     "\n  query multiUserUserPageTitleQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersMinimumInfo\n      }\n      totalCount\n    }\n  }\n": typeof types.multiUserUserPageTitleQueryDocument,
-    "\n  query multiCommentUltraFeedCommentsDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentUltraFeedCommentsDialogQueryDocument,
-    "\n  query UltraFeedCommentsDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsDetails\n      }\n    }\n  }\n": typeof types.UltraFeedCommentsDialogDocument,
     "\n  query SingleCommentForFeedback($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...UltraFeedComment\n      }\n    }\n  }\n": typeof types.SingleCommentForFeedbackDocument,
     "\n  mutation createUltraFeedEventUltraFeedItemFooter($data: CreateUltraFeedEventDataInput!) {\n    createUltraFeedEvent(data: $data) {\n      data {\n        ...UltraFeedEventsDefaultFragment\n      }\n    }\n  }\n": typeof types.createUltraFeedEventUltraFeedItemFooterDocument,
     "\n  mutation createUltraFeedEventUltraFeedObserver($data: CreateUltraFeedEventDataInput!) {\n    createUltraFeedEvent(data: $data) {\n      data {\n        ...UltraFeedEventsDefaultFragment\n      }\n    }\n  }\n": typeof types.createUltraFeedEventUltraFeedObserverDocument,
@@ -1581,8 +1579,6 @@ const documents: Documents = {
     "\n  query PostsPageHeaderTitle($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsBase\n      }\n    }\n  }\n": types.PostsPageHeaderTitleDocument,
     "\n  query SequencesPageTitle($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SequencesPageTitleFragment\n      }\n    }\n  }\n": types.SequencesPageTitleDocument,
     "\n  query multiUserUserPageTitleQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersMinimumInfo\n      }\n      totalCount\n    }\n  }\n": types.multiUserUserPageTitleQueryDocument,
-    "\n  query multiCommentUltraFeedCommentsDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": types.multiCommentUltraFeedCommentsDialogQueryDocument,
-    "\n  query UltraFeedCommentsDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsDetails\n      }\n    }\n  }\n": types.UltraFeedCommentsDialogDocument,
     "\n  query SingleCommentForFeedback($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...UltraFeedComment\n      }\n    }\n  }\n": types.SingleCommentForFeedbackDocument,
     "\n  mutation createUltraFeedEventUltraFeedItemFooter($data: CreateUltraFeedEventDataInput!) {\n    createUltraFeedEvent(data: $data) {\n      data {\n        ...UltraFeedEventsDefaultFragment\n      }\n    }\n  }\n": types.createUltraFeedEventUltraFeedItemFooterDocument,
     "\n  mutation createUltraFeedEventUltraFeedObserver($data: CreateUltraFeedEventDataInput!) {\n    createUltraFeedEvent(data: $data) {\n      data {\n        ...UltraFeedEventsDefaultFragment\n      }\n    }\n  }\n": types.createUltraFeedEventUltraFeedObserverDocument,
@@ -4316,14 +4312,6 @@ export function gql(source: "\n  query SequencesPageTitle($documentId: String) {
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query multiUserUserPageTitleQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersMinimumInfo\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiUserUserPageTitleQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersMinimumInfo\n      }\n      totalCount\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query multiCommentUltraFeedCommentsDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiCommentUltraFeedCommentsDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query UltraFeedCommentsDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsDetails\n      }\n    }\n  }\n"): (typeof documents)["\n  query UltraFeedCommentsDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsDetails\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
