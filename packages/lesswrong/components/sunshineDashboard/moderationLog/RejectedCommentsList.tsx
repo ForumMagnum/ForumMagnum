@@ -54,7 +54,7 @@ export const RejectedCommentsList = ({classes}: {
     variables: {
       selector: { rejected: {} },
       limit: 10,
-      enableTotal: false,
+      enableTotal: true,
     },
   });
 
