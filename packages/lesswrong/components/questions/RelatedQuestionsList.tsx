@@ -30,8 +30,22 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
+export type PostWithRelations = {
+  _id: string;
+  sourcePostRelations: Array<{
+    _id: string;
+    sourcePost?: PostsListWithVotes | null;
+  }>;
+  targetPostRelations: Array<{
+    _id: string;
+    sourcePostId: string;
+    targetPostId: string;
+    targetPost?: PostsListWithVotes | null;
+  }>;
+};
+
 const RelatedQuestionsList = ({ post, classes }: {
-  post: PostsDetails,
+  post: PostWithRelations,
   classes: ClassesType<typeof styles>,
 }) => {
   const sourcePostRelations = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)
