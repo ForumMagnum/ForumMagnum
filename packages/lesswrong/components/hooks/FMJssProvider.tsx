@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useTheme } from "../themes/useTheme";
+import { useTheme, useThemeOptions } from "../themes/useTheme";
 import { createStylesContext, setClientMountedStyles, StylesContext, StylesContextType } from "./useStyles";
 import { isClient } from "@/lib/executionEnvironment";
 
@@ -8,7 +8,8 @@ export const FMJssProvider = ({stylesContext, children}: {
   children: React.ReactNode
 }) => {
   const theme = useTheme();
-  const [jssState] = useState(() => stylesContext ?? createStylesContext(theme));
+  const themeOptions = useThemeOptions();
+  const [jssState] = useState(() => stylesContext ?? createStylesContext(theme, themeOptions));
   
   if (isClient) {
     setClientMountedStyles(jssState);

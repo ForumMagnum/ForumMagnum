@@ -1,4 +1,4 @@
-import React, { createContext, forwardRef, useContext, useLayoutEffect } from "react";
+import React, { createContext, forwardRef, use, useContext, useLayoutEffect } from "react";
 import type { ClassNameProxy, StyleDefinition, StyleOptions } from "@/server/styleGeneration";
 import type { JssStyles } from "@/lib/jssStyles";
 import { create as jssCreate, SheetsRegistry } from 'jss';
@@ -9,10 +9,15 @@ import jssDefaultUnit from 'jss-plugin-default-unit';
 import jssVendorPrefixer from 'jss-plugin-vendor-prefixer';
 import jssPropsSort from 'jss-plugin-props-sort';
 import { isClient } from "@/lib/executionEnvironment";
-import { useTheme } from "../themes/useTheme";
+import { ThemeContext, ThemeContextType, useTheme } from "../themes/useTheme";
+import { useServerInsertedHtml } from "./useServerInsertedHtml";
+import { maybeMinifyCSS } from "@/server/maybeMinifyCSS";
+import { type AbstractThemeOptions, abstractThemeToConcrete, getDefaultThemeOptions, themeOptionsAreConcrete } from "@/themes/themeNames";
+import { getForumTheme } from "@/themes/forumTheme";
 
 export type StylesContextType = {
   theme: ThemeType
+  abstractThemeOptions: AbstractThemeOptions
   mountedStyles: Map<string, {
     refcount: number
     styleDefinition: StyleDefinition<any>
@@ -23,9 +28,10 @@ export type StylesContextType = {
 export const StylesContext = createContext<StylesContextType|null>(null);
 
 
-export function createStylesContext(theme: ThemeType): StylesContextType {
+export function createStylesContext(theme: ThemeType, abstractThemeOptions: AbstractThemeOptions): StylesContextType {
   return {
     theme,
+    abstractThemeOptions,
     mountedStyles: new Map<string, {
       refcount: number
       styleDefinition: StyleDefinition<any>
@@ -46,6 +52,23 @@ export function createStylesContext(theme: ThemeType): StylesContextType {
 let _clientMountedStyles: StylesContextType|null = null;
 export function setClientMountedStyles(styles: StylesContextType) {
   _clientMountedStyles = styles;
+}
+
+/**
+ * Client-side only: If the theme has changed (eg with the theme-picker UI),
+ * find all the <style> nodes we previously inserted and regenerate their
+ * contents.
+ */
+export function regeneratePageStyles(themeContext: ThemeContextType, stylesContext: StylesContextType) {
+  if (isClient) {
+    const mountedStyles = stylesContext.mountedStyles.entries();
+    for (const [_, mounted] of mountedStyles) {
+      if (mounted.styleNode) {
+        const styleText = styleNodeToString(themeContext.theme, mounted.styleDefinition);
+        mounted.styleNode.innerText = styleText;
+      }
+    }
+  }
 }
 
 export const topLevelStyleDefinitions: Record<string,StyleDefinition<string>> = {};
@@ -116,11 +139,26 @@ export const useStyles = <T extends string>(styles: StyleDefinition<T>, override
   const stylesContext = useContext(StylesContext);
 
   if (bundleIsServer) {
-    // If we're rendering server-side, we might or might not have
-    // StylesContext. If we do, use it to record which styles were used during
-    // the render. This is used when rendering emails, or if you want to server
-    // an SSR with styles inlined rather than in a static stlyesheet.
+    const themeContext = use(ThemeContext);
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useServerInsertedHtml(() => {
+      if (!stylesContext || stylesContext.mountedStyles.has(styles.name)) {
+        return null;
+      }
+      stylesContext.mountedStyles.set(styles.name, {
+        refcount: 1,
+        styleDefinition: styles,
+      });
+
+      return serverEmbeddedStyles(themeContext?.abstractThemeOptions ?? getDefaultThemeOptions(), styles);
+    });
+
     if (stylesContext) {
+      // If we're rendering server-side, we might or might not have
+      // StylesContext. If we do, use it to record which styles were used during
+      // the render. This is used when rendering emails, or if you want to serve
+      // an SSR with styles inlined rather than in a static stlyesheet.
       if (!stylesContext.mountedStyles.has(styles.name)) {
         stylesContext.mountedStyles.set(styles.name, {
           refcount: 1,
@@ -155,31 +193,8 @@ export const useStyles = <T extends string>(styles: StyleDefinition<T>, override
  * material-UI code.
  */
 export const useStylesNonProxy = <T extends string>(styles: StyleDefinition<T>, overrideClasses?: Partial<JssStyles<T>>): JssStyles<T> => {
-  const stylesContext = useContext(StylesContext);
+  useStyles(styles, overrideClasses);
   const theme = useTheme();
-
-  if (bundleIsServer) {
-    // If we're rendering server-side, we might or might not have
-    // StylesContext. If we do, use it to record which styles were used during
-    // the render. This is used when rendering emails, or if you want to server
-    // an SSR with styles inlined rather than in a static stlyesheet.
-    if (stylesContext) {
-      if (!stylesContext.mountedStyles.has(styles.name)) {
-        stylesContext.mountedStyles.set(styles.name, {
-          refcount: 1,
-          styleDefinition: styles,
-        });
-      }
-    }
-  } else {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useLayoutEffect(() => {
-      if (stylesContext) {
-        addStyleUsage(stylesContext, styles);
-        return () => removeStyleUsage(stylesContext, styles);
-      }
-    }, [styles, stylesContext, stylesContext?.theme]);
-  }
 
   const styleKeys = Object.keys(styles.styles(theme));
   const styleKeysSet = new Set(styleKeys);
@@ -291,7 +306,99 @@ function styleNodeToString(theme: ThemeType, styleDefinition: StyleDefinition): 
     }
   );
   sheets.add(sheet);
-  return sheets.toString();
+  return maybeMinifyCSS(sheets.toString());
+}
+
+
+// JSON-serialized theme => style name => style script tag
+const serverEmbeddedStylesCache: Record<string, Record<string,string>> = {};
+
+function serverEmbeddedStyles(abstractThemeOptions: AbstractThemeOptions, styleDefinition: StyleDefinition) {
+  const themeKey = JSON.stringify(abstractThemeOptions);
+  const styleName = styleDefinition.name;
+
+  if (!serverEmbeddedStylesCache[themeKey]) {
+    serverEmbeddedStylesCache[themeKey] = {};
+  }
+  if (!serverEmbeddedStylesCache[themeKey][styleName]) {
+    const priority = styleDefinition.options?.stylePriority ?? 0;
+
+    if (themeOptionsAreConcrete(abstractThemeOptions)) {
+      const theme = getForumTheme(abstractThemeOptions);
+      const stylesStr = styleNodeToString(theme, styleDefinition);
+      const priority = styleDefinition.options?.stylePriority ?? 0;
+      const styleScriptTag = `<script>_embedStyles(${JSON.stringify(styleDefinition.name)},${priority},${JSON.stringify(stylesStr)})</script>`;
+      serverEmbeddedStylesCache[themeKey][styleName] = styleScriptTag;
+    } else {
+      const lightThemeOptions = abstractThemeToConcrete(abstractThemeOptions, false);
+      const darkThemeOptions = abstractThemeToConcrete(abstractThemeOptions, true);
+      const lightTheme = getForumTheme(lightThemeOptions);
+      const darkTheme = getForumTheme(darkThemeOptions);
+      const lightStylesStr = styleNodeToString(lightTheme, styleDefinition);
+      const darkStylesStr = styleNodeToString(darkTheme, styleDefinition);
+      const stylesStr = `@media (prefers-color-scheme: light) {\n${lightStylesStr}\n}\n@media (prefers-color-scheme: dark) {\n${darkStylesStr}\n}`;
+      const styleScriptTag = `<script>_embedStyles(${JSON.stringify(styleDefinition.name)},${priority},${JSON.stringify(stylesStr)})
+      </script>`;
+      serverEmbeddedStylesCache[themeKey][styleName] = styleScriptTag;
+    }
+  }
+  return serverEmbeddedStylesCache[themeKey][styleName];
+}
+
+export function getEmbeddedStyleLoaderScript() {
+  return `
+  <style id="jss-insertion-start"></style>
+  <style id="jss-insertion-end"></style>
+  <script>_embedStyles=function(name,priority,css) {
+    const styleNode = document.createElement("style");
+    styleNode.append(document.createTextNode(css));
+    styleNode.setAttribute("data-name", name);
+    styleNode.setAttribute("data-priority", priority);
+
+    const head = document.head;
+    const startNode = document.getElementById('jss-insertion-start');
+    const endNode = document.getElementById('jss-insertion-end');
+  
+    if (!startNode || !endNode) {
+      throw new Error('Insertion point markers not found');
+    }
+  
+    styleNode.setAttribute('data-priority', priority.toString());
+    styleNode.setAttribute('data-name', name);
+  
+    const styleNodes = Array.from(head.querySelectorAll('style[data-priority]'));
+    let left = 0;
+    let right = styleNodes.length - 1;
+  
+    while (left <= right) {
+      const mid = Math.floor((left + right) / 2);
+      const midNode = styleNodes[mid];
+      const midPriority = parseInt(midNode.getAttribute('data-priority') || '0', 10);
+      const midName = midNode.getAttribute('data-name') || '';
+    
+      if (midPriority < priority || (midPriority === priority && midName < name)) {
+        left = mid + 1;
+      } else if (midPriority > priority || (midPriority === priority && midName > name)) {
+        right = mid - 1;
+      } else {
+        // Equal priority and name, insert after this node
+        midNode.insertAdjacentElement('afterend', styleNode);
+        return;
+      }
+    }
+  
+    // If we didn't find an exact match, insert at the position determined by 'left'
+    if (left === styleNodes.length) {
+      // Insert before the end marker
+      endNode.insertAdjacentElement('beforebegin', styleNode);
+    } else if (left === 0) {
+      // Insert after the start marker
+      startNode.insertAdjacentElement('afterend', styleNode);
+    } else {
+      // Insert before the node at the 'left' index
+      styleNodes[left].insertAdjacentElement('beforebegin', styleNode);
+    }
+  }</script>`
 }
 
 export function getJss() {

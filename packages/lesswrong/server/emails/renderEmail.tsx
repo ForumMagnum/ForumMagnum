@@ -159,7 +159,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   
   const themeOptions: ThemeOptions = {name: "default", siteThemeOverride: {}};
   const theme = getForumTheme(themeOptions);
-  const stylesContext = createStylesContext(theme);
+  const stylesContext = createStylesContext(theme, themeOptions);
   
   // Wrap the body in Apollo, JSS, and MUI wrappers.
   const wrappedBodyComponent = (

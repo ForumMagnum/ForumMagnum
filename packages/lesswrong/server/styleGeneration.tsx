@@ -5,7 +5,6 @@ import miscStyles from '../themes/globalStyles/miscStyles';
 import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
 import type { ForumTypeString } from '../lib/instanceSettings';
 import { getForumTheme } from '../themes/forumTheme';
-import { minify } from 'csso';
 import { requestedCssVarsToString } from '../themes/cssVars';
 import stringify from 'json-stringify-deterministic';
 import { brotliCompressResource, CompressedCacheResource } from './utils/bundleUtils';
@@ -13,6 +12,7 @@ import { getJss, type StylesContextType, topLevelStyleDefinitions } from '@/comp
 import keyBy from 'lodash/keyBy';
 import type { JssStyles } from '@/lib/jssStyles';
 import { SheetsRegistry } from 'jss';
+import { maybeMinifyCSS } from './maybeMinifyCSS';
 
 export type ClassNameProxy<T extends string = string> = Record<T,string>
 export type StyleDefinition<T extends string = string, N extends string = string> = {
@@ -47,7 +47,7 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
     cssVars,
   ].join("\n");
 
-  const minifiedCSS = minify(mergedCSS).css;
+  const minifiedCSS = maybeMinifyCSS(mergedCSS);
   return Buffer.from(minifiedCSS, "utf8");
 }
 
