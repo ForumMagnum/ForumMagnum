@@ -133,6 +133,17 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
         }
       }
     };
+    
+    // Debug logging to verify indices are being passed
+    if (elementData.feedCardIndex !== undefined || elementData.feedCommentIndex !== undefined) {
+      console.log('UltraFeed view event with indices:', {
+        documentId: elementData.documentId,
+        feedCardIndex: elementData.feedCardIndex,
+        feedCommentIndex: elementData.feedCommentIndex,
+        collectionName: documentTypeToCollectionName[elementData.documentType]
+      });
+    }
+    
     void createUltraFeedEvent({ variables: eventPayload });
     
     captureEvent("ultraFeedItemViewed", {
