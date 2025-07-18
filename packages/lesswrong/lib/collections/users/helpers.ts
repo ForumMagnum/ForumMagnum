@@ -12,6 +12,7 @@ import { DeferredForumSelect } from '@/lib/forumTypeUtils';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 import type { ForumIconName } from '@/components/common/ForumIcon';
 import type { EditablePost } from '../posts/helpers';
+import { maybeDate } from '@/lib/utils/dateUtils';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
@@ -30,11 +31,6 @@ export interface PermissionsPostMinimumInfo {
   bannedUserIds: string[] | null,
   frontpageDate: Date | string | null,
 }
-
-export const ensureIsDate = (dateValue: Date | string | null | undefined): Date | null => {
-  if (!dateValue) return null;
-  return dateValue instanceof Date ? dateValue : new Date(dateValue);
-};
 
 // Get a user's display name (not unique, can take special characters and spaces)
 export const userGetDisplayName = (user: UserDisplayNameInfo | null): string => {
@@ -276,10 +272,10 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Per
       return false
     }
     
-    const lockDate = ensureIsDate(post.commentsLockedToAccountsCreatedAfter)
-    const userCreatedDate = ensureIsDate(user.createdAt);
+    const lockDate = maybeDate(post.commentsLockedToAccountsCreatedAfter)
+    const userCreatedDate = maybeDate(user.createdAt);
     
-    if (userCreatedDate && lockDate && lockDate < userCreatedDate) {
+    if (lockDate && lockDate < userCreatedDate) {
       return false
     }
   
