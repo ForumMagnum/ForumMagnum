@@ -143,7 +143,7 @@ const SubforumSubforumTab = ({
   const cardLayoutComponent = <>
     {tag.subforumIntroPost && !hideIntroPost && (
       <div className={classes.feedPostWrapper}>
-        <AnalyticsContext pageSubSectionContext='recentDiscussionThread' recentDiscussionCardIndex={0}>
+        <AnalyticsContext pageSubSectionContext='recentDiscussionThread' feedCardIndex={0}>
         <RecentDiscussionThread
           key={tag.subforumIntroPost._id}
           post={{ ...tag.subforumIntroPost, recentComments: [] }}
@@ -174,7 +174,7 @@ const SubforumSubforumTab = ({
             // Remove the intro post from the feed IFF it has not been dismissed from the top
             return !(post._id === tag.subforumIntroPost?._id && !hideIntroPost) && (
               <div className={classes.feedPostWrapper}>
-                <AnalyticsContext pageSubSectionContext='recentDiscussionThread' recentDiscussionCardIndex={index}>
+                <AnalyticsContext pageSubSectionContext='recentDiscussionThread' feedCardIndex={index}>
                 <RecentDiscussionThread
                   key={post._id}
                   post={{ ...post }}

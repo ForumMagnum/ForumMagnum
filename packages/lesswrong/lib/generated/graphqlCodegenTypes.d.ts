@@ -23033,42 +23033,6 @@ type multiUserUserPageTitleQueryQueryVariables = Exact<{
 
 type multiUserUserPageTitleQueryQuery = multiUserUserPageTitleQueryQuery_Query;
 
-type multiCommentUltraFeedCommentsDialogQueryQuery_comments_MultiCommentOutput_results_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsList
-);
-
-type multiCommentUltraFeedCommentsDialogQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<multiCommentUltraFeedCommentsDialogQueryQuery_comments_MultiCommentOutput_results_Comment> };
-
-type multiCommentUltraFeedCommentsDialogQueryQuery_Query = { __typename?: 'Query', comments: multiCommentUltraFeedCommentsDialogQueryQuery_comments_MultiCommentOutput | null };
-
-
-type multiCommentUltraFeedCommentsDialogQueryQueryVariables = Exact<{
-  selector: InputMaybe<CommentSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiCommentUltraFeedCommentsDialogQueryQuery = multiCommentUltraFeedCommentsDialogQueryQuery_Query;
-
-type UltraFeedCommentsDialogQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostsDetails
-);
-
-type UltraFeedCommentsDialogQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: UltraFeedCommentsDialogQuery_post_SinglePostOutput_result_Post | null };
-
-type UltraFeedCommentsDialogQuery_Query = { __typename?: 'Query', post: UltraFeedCommentsDialogQuery_post_SinglePostOutput | null };
-
-
-type UltraFeedCommentsDialogQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type UltraFeedCommentsDialogQuery = UltraFeedCommentsDialogQuery_Query;
-
 type SingleCommentForFeedbackQuery_comment_SingleCommentOutput_result_Comment = (
   { __typename?: 'Comment' }
   & UltraFeedComment
@@ -24116,8 +24080,8 @@ type CommentsListWithTopLevelComment = (
 );
 
 type UltraFeedComment_Comment_post_Post = (
-  { __typename?: 'Post', votingSystem: string | null }
-  & PostsMinimumInfo
+  { __typename?: 'Post' }
+  & PostsListWithVotes
 );
 
 type UltraFeedComment = (
@@ -24818,7 +24782,7 @@ type PostsList_Post_contents_Revision = { __typename?: 'Revision', _id: string, 
 type PostsList_Post_fmCrosspost_CrosspostOutput = { __typename?: 'CrosspostOutput', isCrosspost: boolean, hostedHere: boolean | null, foreignPostId: string | null };
 
 type PostsList = (
-  { __typename?: 'Post', deletedDraft: boolean, contents: PostsList_Post_contents_Revision | null, fmCrosspost: PostsList_Post_fmCrosspost_CrosspostOutput | null }
+  { __typename?: 'Post', deletedDraft: boolean, bannedUserIds: Array<string> | null, contents: PostsList_Post_contents_Revision | null, fmCrosspost: PostsList_Post_fmCrosspost_CrosspostOutput | null }
   & PostsListBase
 );
 

@@ -15,7 +15,6 @@ import { useDialog } from "../common/withDialog";
 import { isPostWithForeignId } from "../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import UltraFeedPostDialog from "./UltraFeedPostDialog";
-import UltraFeedCommentsDialog from "./UltraFeedCommentsDialog";
 import FormatDate from "../common/FormatDate";
 import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 import FeedContentBody from "./FeedContentBody";
@@ -437,10 +436,11 @@ const UltraFeedPostItem = ({
       observe(currentElement, { 
         documentId: post._id, 
         documentType: 'post',
-        servedEventId: postMetaInfo.servedEventId
+        servedEventId: postMetaInfo.servedEventId,
+        feedCardIndex: index
       });
     }
-  }, [observe, post._id, postMetaInfo.servedEventId]);
+  }, [observe, post._id, postMetaInfo.servedEventId, index]);
 
   const handleContentExpand = useCallback((expanded: boolean, wordCount: number) => {
     setIsContentExpanded(expanded);
@@ -456,6 +456,7 @@ const UltraFeedPostItem = ({
       maxLevelReached: expanded,
       wordCount,
       servedEventId: postMetaInfo.servedEventId,
+      feedCardIndex: index,
     });
 
     captureEvent("ultraFeedPostItemExpanded", {
@@ -477,6 +478,7 @@ const UltraFeedPostItem = ({
     isLoadingFull, 
     fullPost,
     postMetaInfo.servedEventId,
+    index,
   ]);
 
   const handleCollapse = () => {
@@ -535,6 +537,7 @@ const UltraFeedPostItem = ({
       maxLevelReached: true,
       wordCount: post.contents?.wordCount ?? 0,
       servedEventId: postMetaInfo.servedEventId,
+      feedCardIndex: index,
     });
     
     if (!hasRecordedViewOnExpand) {
@@ -562,6 +565,7 @@ const UltraFeedPostItem = ({
     postMetaInfo,
     hasRecordedViewOnExpand,
     recordPostView,
+    index,
   ]);
 
   const shortformHtml = post.shortform 
@@ -584,7 +588,7 @@ const UltraFeedPostItem = ({
   }
 
   return (
-    <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index} ultraFeedSources={postMetaInfo.sources}>
+    <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} feedCardIndex={index} ultraFeedSources={postMetaInfo.sources}>
     <div className={classes.root}>
       <div ref={elementRef} className={classes.mainContent}>
         {/* On small screens, the triple dot menu is positioned absolutely to the root */}
@@ -670,6 +674,8 @@ const UltraFeedPostItem = ({
               }}
               cannotReplyReason="You cannot reply to your own comment within the feed"
               onEditSuccess={handleCommentEdit}
+              threadIndex={index}
+              commentIndex={0}
             />
           </div>
         )}
