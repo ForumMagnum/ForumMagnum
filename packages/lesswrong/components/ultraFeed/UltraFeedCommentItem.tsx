@@ -268,6 +268,8 @@ export interface UltraFeedCommentItemProps {
   onBranchToggle?: () => void;
   cannotReplyReason?: string | null;
   onEditSuccess: (editedComment: CommentsList) => void;
+  threadIndex?: number;
+  commentIndex?: number;
 }
 
 export const UltraFeedCommentItem = ({
@@ -289,6 +291,8 @@ export const UltraFeedCommentItem = ({
   onBranchToggle,
   cannotReplyReason: customCannotReplyReason,
   onEditSuccess,
+  threadIndex,
+  commentIndex,
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
   const { observe, unobserve, trackExpansion, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView } = useUltraFeedObserver();
@@ -339,7 +343,9 @@ export const UltraFeedCommentItem = ({
         documentId: comment._id,
         documentType: 'comment',
         postId: comment.postId ?? undefined,
-        servedEventId: metaInfo.servedEventId
+        servedEventId: metaInfo.servedEventId,
+        ultraFeedCardIndex: threadIndex,
+        ultraFeedCommentIndex: commentIndex
       });
     }
 
@@ -348,7 +354,7 @@ export const UltraFeedCommentItem = ({
         unobserve(currentElement);
       }
     };
-  }, [observe, unobserve, comment._id, comment.postId, metaInfo.servedEventId]);
+  }, [observe, unobserve, comment._id, comment.postId, metaInfo.servedEventId, threadIndex, commentIndex]);
 
   useEffect(() => {
     const initialHighlightState = highlight && !hasBeenLongViewed(comment._id) ? 'highlighted-unviewed' : 'never-highlighted';
@@ -378,6 +384,8 @@ export const UltraFeedCommentItem = ({
       maxLevelReached: expanded,
       wordCount,
       servedEventId: metaInfo.servedEventId,
+      ultraFeedCardIndex: threadIndex,
+      ultraFeedCommentIndex: commentIndex,
     });
     
     captureEvent("ultraFeedCommentItemExpanded", {
@@ -391,7 +399,7 @@ export const UltraFeedCommentItem = ({
       onChangeDisplayStatus("expanded");
     }
 
-  }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus, metaInfo.servedEventId, captureEvent]);
+  }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus, metaInfo.servedEventId, captureEvent, threadIndex, commentIndex]);
 
   const handleContinueReadingClick = useCallback(() => {
     captureEvent("ultraFeedCommentItemContinueReadingClicked");

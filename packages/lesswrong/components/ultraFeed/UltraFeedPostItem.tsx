@@ -436,10 +436,11 @@ const UltraFeedPostItem = ({
       observe(currentElement, { 
         documentId: post._id, 
         documentType: 'post',
-        servedEventId: postMetaInfo.servedEventId
+        servedEventId: postMetaInfo.servedEventId,
+        ultraFeedCardIndex: index
       });
     }
-  }, [observe, post._id, postMetaInfo.servedEventId]);
+  }, [observe, post._id, postMetaInfo.servedEventId, index]);
 
   const handleContentExpand = useCallback((expanded: boolean, wordCount: number) => {
     setIsContentExpanded(expanded);
@@ -455,6 +456,7 @@ const UltraFeedPostItem = ({
       maxLevelReached: expanded,
       wordCount,
       servedEventId: postMetaInfo.servedEventId,
+      ultraFeedCardIndex: index,
     });
 
     captureEvent("ultraFeedPostItemExpanded", {
@@ -476,6 +478,7 @@ const UltraFeedPostItem = ({
     isLoadingFull, 
     fullPost,
     postMetaInfo.servedEventId,
+    index,
   ]);
 
   const handleCollapse = () => {
@@ -534,6 +537,7 @@ const UltraFeedPostItem = ({
       maxLevelReached: true,
       wordCount: post.contents?.wordCount ?? 0,
       servedEventId: postMetaInfo.servedEventId,
+      ultraFeedCardIndex: index,
     });
     
     if (!hasRecordedViewOnExpand) {
@@ -561,6 +565,7 @@ const UltraFeedPostItem = ({
     postMetaInfo,
     hasRecordedViewOnExpand,
     recordPostView,
+    index,
   ]);
 
   const shortformHtml = post.shortform 
@@ -669,6 +674,8 @@ const UltraFeedPostItem = ({
               }}
               cannotReplyReason="You cannot reply to your own comment within the feed"
               onEditSuccess={handleCommentEdit}
+              threadIndex={index}
+              commentIndex={0}
             />
           </div>
         )}

@@ -677,7 +677,7 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className, onSeeLess, isSee
       return;
     }
     
-    const post = comment.post; // TypeScript now knows this is not null
+    const post = comment.post;
     
     openDialog({
       name: "UltraFeedPostDialog", 

@@ -556,10 +556,11 @@ const UltraFeedSpotlightItem = ({
     if (currentElement && spotlight) {
       observe(currentElement, {
         documentId: spotlight._id,
-        documentType: 'spotlight'
+        documentType: 'spotlight',
+        ultraFeedCardIndex: index
       });
     }
-  }, [observe, spotlight]);
+  }, [observe, spotlight, index]);
 
   if (!spotlight) {
     return null;

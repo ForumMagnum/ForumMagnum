@@ -376,12 +376,12 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
     <div className={classes.commentsRoot}>
       {comments.length > 0 && <div className={classes.commentsContainer}>
         <div className={classes.commentsList}>
-          {compressedItems.map((item, index) => {
+          {compressedItems.map((item, commentIndex) => {
             if ("placeholder" in item) {
               const hiddenCount = item.hiddenComments.length;
               
               return (
-                <div className={classes.commentItem} key={`placeholder-${index}`}>
+                <div className={classes.commentItem} key={`placeholder-${commentIndex}`}>
                   <UltraFeedCompressedCommentsItem
                     numComments={hiddenCount}
                     setExpanded={() => {
@@ -390,15 +390,15 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
                         setDisplayStatus(h._id, "expanded");
                       });
                     }}
-                    isFirstComment={index === 0}
-                    isLastComment={index === compressedItems.length - 1}
+                    isFirstComment={commentIndex === 0}
+                    isLastComment={commentIndex === compressedItems.length - 1}
                   />
                 </div>
               );
             } else {
               const cId = item._id;
-              const isFirstItem = index === 0;
-              const isLastItem = index === compressedItems.length - 1;
+              const isFirstItem = commentIndex === 0;
+              const isLastItem = commentIndex === compressedItems.length - 1;
               const parentAuthorName = item.parentCommentId ? commentAuthorsMap[item.parentCommentId] : null;
               const isAnimating = animatingCommentIds.has(cId);
               
@@ -432,6 +432,8 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
                     }}
                     hasFork={navigationProps.showNav}
                     currentBranch={navigationProps.currentBranch}
+                    threadIndex={index}
+                    commentIndex={commentIndex}
                     onBranchToggle={() => navigationProps.forkParentId && handleBranchToggle(navigationProps.forkParentId)}
                     onEditSuccess={isNewReply ? handleNewReplyEdit : () => {}}
                   />
