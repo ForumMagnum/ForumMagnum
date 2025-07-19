@@ -532,10 +532,10 @@ const UltraFeedPostDialog = ({
   }, [scrollableContentRef]);
 
   
-  const handleClose = () => {
-    captureEvent("ultraFeedDialogClosed", { collectionName: "Posts", postId: postId ?? post?._id });
+  const handleClose = useCallback(() => {
+    captureEvent("ultraFeedDialogClosed", { collectionName: "Posts", postId });
     onClose();
-  };
+  }, [captureEvent, onClose, postId]);
   
   // Dialog navigation and scroll behavior
   const postUrl = displayPost ? `${postGetPageUrl(displayPost)}?${qs.stringify({ from: 'feedModal' })}` : undefined;

@@ -1,12 +1,13 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
+import { MIN_VISIBLE_PX } from '../ultraFeed/UltraFeedObserver';
 
 interface ViewTrackingOptions {
   documentId: string;
   documentType: 'post' | 'comment' | 'tag';
 }
 
-const VIEW_THRESHOLD_MS = 2000;
+const VIEW_THRESHOLD_MS = 1000;
 const LONG_VIEW_THRESHOLD_MS = 10000;
 
 /**
@@ -67,9 +68,9 @@ export function useRecentDiscussionViewTracking({
     const element = elementRef.current;
     if (!element) return;
 
-    // Create observer with same margins as UltraFeed (250px threshold)
+    // Create observer with same margins as UltraFeed
     const observer = new IntersectionObserver(handleIntersection, {
-      rootMargin: '-250px 0px -250px 0px',
+      rootMargin: `-${MIN_VISIBLE_PX}px 0px -${MIN_VISIBLE_PX}px 0px`,
       threshold: 0,
     });
 
