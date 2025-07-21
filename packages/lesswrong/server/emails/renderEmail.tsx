@@ -7,7 +7,7 @@ import { TimezoneContext, UserContext } from '../../components/common/sharedCont
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { forumTitleSetting, isLWorAF } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
-import { DatabaseServerSetting } from '../databaseSettings';
+import { defaultEmailSetting, enableDevelopmentEmailsSetting } from '../databaseSettings';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { emailTokenTypesByName } from '../emails/emailTokens';
 import { captureException } from '@sentry/core';
@@ -130,7 +130,6 @@ function addEmailBoilerplate({ css, title, body }: {
 //     limited and inconsistent subset is supported by mail clients
 //
 
-const defaultEmailSetting = new DatabaseServerSetting<string>('defaultEmail', "hello@world.com")
 
 export async function generateEmail({user, to, from, subject, bodyComponent, boilerplateGenerator=addEmailBoilerplate, utmParams}: {
   user: DbUser | null,
@@ -303,7 +302,6 @@ export const wrapAndSendEmail = async ({
   }
 }
 
-const enableDevelopmentEmailsSetting = new DatabaseServerSetting<boolean>('enableDevelopmentEmails', false)
 async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
 {
   if (process.env.NODE_ENV === 'production' || enableDevelopmentEmailsSetting.get()) {

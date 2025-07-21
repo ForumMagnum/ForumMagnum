@@ -4,9 +4,8 @@ import { CompleteTestGroupAllocation, RelevantTestGroupAllocation, getABTestsMet
 import type { Request, Response } from 'express';
 import { getCookieFromReq, getPathFromReq } from '@/server/utils/httpUtil';
 import { isValidSerializedThemeOptions, getDefaultThemeOptions } from '@/themes/themeNames';
-import { healthCheckUserAgentSetting } from './renderUtil';
 import PageCacheRepo, { maxCacheAgeMs } from '@/server/repos/PageCacheRepo';
-import { DatabaseServerSetting } from '@/server/databaseSettings';
+import { dbPageCacheEnabledSetting } from '@/server/databaseSettings';
 import { isDatadogEnabled } from '@/lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
 import { ResponseManager } from './ResponseManager';
@@ -24,7 +23,6 @@ import { ResponseManager } from './ResponseManager';
 //   3. When a page that is getting a lot of traffic expires from the page
 //      cache, we don't want to start many rerenders of it in parallel
 
-const dbPageCacheEnabledSetting = new DatabaseServerSetting<boolean>("dbPageCacheEnabled", true);
 
 const maxPageCacheSizeBytes = 32*1024*1024; //32MB
 

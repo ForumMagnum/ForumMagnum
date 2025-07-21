@@ -4,10 +4,8 @@ import { closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '@/se
 import { performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
 import { getClientIP } from '@/server/utils/getClientIP';
 import { captureEvent } from '@/lib/analyticsEvents';
-import { DatabaseServerSetting } from '../databaseSettings';
 import { type RenderParams, RenderResult } from './renderPage';
 
-export const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
 export type RenderTimings = {
   wallTime: number

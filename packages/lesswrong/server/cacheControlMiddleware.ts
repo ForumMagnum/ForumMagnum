@@ -3,7 +3,7 @@ import { parsePath, parseRoute } from '../lib/vulcan-core/appContext';
 import { getUserFromReq } from './vulcan-lib/apollo-server/context';
 import express from 'express';
 import { getCookieFromReq } from './utils/httpUtil';
-import { swrCachingEnabledSetting } from './cache/swr';
+import { swrCachingEnabledSetting } from './databaseSettings';
 
 /**
  * Returns whether the Cache-Control header indicates that this response may be cached by a shared

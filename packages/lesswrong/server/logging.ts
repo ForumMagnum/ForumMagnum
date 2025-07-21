@@ -1,6 +1,6 @@
 import { captureException } from '@sentry/core';
 import { isAnyTest } from '../lib/executionEnvironment';
-import { DatabaseServerSetting } from './databaseSettings';
+import { consoleLogMemoryUsageThreshold, sentryErrorMemoryUsageThreshold, memoryUsageCheckInterval, logGraphqlQueriesSetting, logGraphqlMutationsSetting } from './databaseSettings';
 import { printInFlightRequests } from '@/server/rendering/pageCache';
 
 import * as Sentry from '@sentry/node';
@@ -58,10 +58,6 @@ export const addSentryMiddlewares = (addConnectHandler: AddMiddlewareType) => {
   addConnectHandler(Sentry.Handlers.errorHandler());
 }
 
-const gigabytes = 1024*1024*1024;
-const consoleLogMemoryUsageThreshold = new DatabaseServerSetting<number>("consoleLogMemoryUsage", 1.5*gigabytes);
-const sentryErrorMemoryUsageThreshold = new DatabaseServerSetting<number>("sentryErrorMemoryUsage", 2.1*gigabytes);
-const memoryUsageCheckInterval = new DatabaseServerSetting<number>("memoryUsageCheckInterval", 10000);
 
 export function startMemoryUsageMonitor() {
   if (!isAnyTest) {
@@ -92,8 +88,6 @@ function checkForCoreDumps() {
   }
 }
 
-const logGraphqlQueriesSetting = new DatabaseServerSetting<boolean>("logGraphqlQueries", false);
-const logGraphqlMutationsSetting = new DatabaseServerSetting<boolean>("logGraphqlMutations", false);
 
 const queriesInProgress: Record<string,number> = {}; // operationName => number of copies in progress
 

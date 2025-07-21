@@ -153,3 +153,134 @@ export const getAuth0Credentials = () => {
 export const connectionStringSetting = new DatabaseServerSetting<string | null>("analytics.connectionString", null);
 export const mirrorConnectionSettingString = new DatabaseServerSetting<string | null>("analytics.mirrorConnectionString", null); //for streaming to two DB at once
 
+export const googleMapsApiKeySetting = new DatabaseServerSetting<string | null>('googleMaps.serverApiKey', null)
+
+interface SSLSettings {
+  require?: boolean
+  allowUnauthorized?: boolean
+  ca?: string
+}
+
+export const sslSetting = new DatabaseServerSetting<SSLSettings | null>(
+  "analytics.ssl",
+  forumSelect({
+    EAForum: {
+      require: true,
+      allowUnauthorized: false,
+    },
+    default: null,
+  })
+);
+
+// robotsTxt: Optional setting to entirely replace the contents of robots.txt,
+// to allow quickly banning a bad crawler or a slow endpoint without a redeploy,
+// if quick response is needed. If null (the default), robots.txt is generated
+// from other settings and the function below instead.
+//
+// (If you use this setting, remember to convert the robots.txt update into a
+// PR to this file, and then set the setting back to null when it's merged,
+// since the setting will override any future robots.txt updates.)
+export const robotsTxtSetting = new DatabaseServerSetting<string|null>('robotsTxt', null)
+
+const gigabytes = 1024*1024*1024;
+export const consoleLogMemoryUsageThreshold = new DatabaseServerSetting<number>("consoleLogMemoryUsage", 1.5*gigabytes);
+export const sentryErrorMemoryUsageThreshold = new DatabaseServerSetting<number>("sentryErrorMemoryUsage", 2.1*gigabytes);
+export const memoryUsageCheckInterval = new DatabaseServerSetting<number>("memoryUsageCheckInterval", 10000);
+
+export const logGraphqlQueriesSetting = new DatabaseServerSetting<boolean>("logGraphqlQueries", false);
+export const logGraphqlMutationsSetting = new DatabaseServerSetting<boolean>("logGraphqlMutations", false);
+
+export const swrCachingEnabledSetting = new DatabaseServerSetting<boolean>('swrCaching.enabled', false)
+export const swrCachingInvalidationIntervalMsSetting = new DatabaseServerSetting<number>('swrCaching.invalidationIntervalMs', 30_000)
+
+export const awsRegionSetting = new DatabaseServerSetting<string>('swrCaching.awsRegion', 'us-east-1');
+export const awsAccessKeyIdSetting = new DatabaseServerSetting<string | null>('swrCaching.accessKeyId', null);
+export const awsSecretAccessKeySetting = new DatabaseServerSetting<string | null>('swrCaching.secretAccessKey', null);
+export const cloudFrontDistributionIdSetting = new DatabaseServerSetting<string | null>('swrCaching.distributionId', null);
+
+export const mailchimpAPIKeySetting = new DatabaseServerSetting<string | null>('mailchimp.apiKey', null)
+export const lightconeFundraiserStripeSecretKeySetting = new DatabaseServerSetting<string | null>('stripe.lightconeFundraiserSecretKey', null)
+
+export const googleDocImportClientIdSetting = new DatabaseServerSetting<string | null>('googleDocImport.oAuth.clientId', null)
+export const googleDocImportClientSecretSetting = new DatabaseServerSetting<string | null>('googleDocImport.oAuth.secret', null)
+
+/* Currently unused
+const type3ClientIdSetting = new DatabaseServerSetting<string | null>('type3.clientId', null)
+const type3WebhookSecretSetting = new DatabaseServerSetting<string | null>('type3.webhookSecret', null)
+*/
+export const type3ApiTokenSetting = new DatabaseServerSetting<string | null>("type3.apiToken", null);
+export const type3SourceUrlSetting = new DatabaseServerSetting<string>("type3.sourceUrl", "");
+
+export const elicitAPIKey = new DatabaseServerSetting('elicitAPIKey', null)
+
+export const mailUrlSetting = new DatabaseServerSetting<string | null>('mailUrl', null) // The SMTP URL used to send out email
+
+export const facebookClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.facebook.appId', null)
+export const facebookOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.facebook.secret', null)
+
+export const expressSessionSecretSetting = new DatabaseServerSetting<string | null>('expressSessionSecret', null)
+
+export const reCaptchaSecretSetting = new DatabaseServerSetting<string | null>('reCaptcha.secret', null) // ReCaptcha Secret
+
+export const defaultEmailSetting = new DatabaseServerSetting<string>('defaultEmail', "hello@world.com")
+
+export const enableDevelopmentEmailsSetting = new DatabaseServerSetting<boolean>('enableDevelopmentEmails', false)
+
+export const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
+// Minimum version number of the GatherTown bot that should run. If this is higher
+// than the bot version in this file, then the cronjob shuts off so some other
+// server can update it instead.
+export const minGatherTownTrackerVersion = new DatabaseServerSetting<number>("gatherTownTrackerVersion", 7);
+
+export const petrovFalseAlarmMissileCount = new DatabaseServerSetting<number[]>('petrovFalseAlarmMissileCount', [])
+export const petrovRealAttackMissileCount = new DatabaseServerSetting<number[]>('petrovRealAttackMissileCount', [])
+
+/**
+ * Timeout for cross-site requests to prevent crosspost requests from hanging
+ * the site
+ */
+export const fmCrosspostTimeoutMsSetting = new DatabaseServerSetting<number>('fmCrosspostTimeoutMs', 15000)
+
+export const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
+export const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
+
+type Auth0Settings = {
+  appId: string;
+  secret: string;
+  domain: string;
+  originalDomain: string;
+}
+
+export const auth0SettingsDatabaseServerSetting = new DatabaseServerSetting<Auth0Settings|null>("oAuth.auth0", null);
+
+export const dbPageCacheEnabledSetting = new DatabaseServerSetting<boolean>("dbPageCacheEnabled", true);
+
+// Found in CkEditor Dashboard -- https://dashboard.ckeditor.com/
+export const ckEditorEnvironmentIdSetting = new DatabaseServerSetting<string | null>('ckEditor.environmentId', null)
+
+// Found in CkEditor Dashboard>Environment>Access credentials>Create new access key
+export const ckEditorSecretKeySetting = new DatabaseServerSetting<string | null>('ckEditor.secretKey', null)
+
+// Found in CkEditor Dashboard>Environment>API Configuration>API base URL
+export const ckEditorApiPrefixSetting = new DatabaseServerSetting<string | null>('ckEditor.apiPrefix', null)
+
+// Found in CkEditor Dashboard>Environment>Access credentials>Create new access key
+export const ckEditorApiSecretKeySetting = new DatabaseServerSetting<string | null>('ckEditor.apiSecretKey', null)
+
+export const healthCheckUserAgentSetting = new DatabaseServerSetting<string>("healthCheckUserAgent", "ELB-HealthChecker/2.0");
+
+export const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
+
+export const disableServerSentEvents = new DatabaseServerSetting<boolean>("disableServerSentEvents", false);
+
+export const zohoClientId = new DatabaseServerSetting('zoho.clientId', '')
+export const zohoClientSecret = new DatabaseServerSetting('zoho.secret', '')
+export const zohoRefreshToken = new DatabaseServerSetting('zoho.refreshToken', '')
+
+export const apolloEngineSettings = new DatabaseServerSetting<string | null>('apolloEngine.apiKey', null)
+
+// Initiate Intercom on the server
+export const intercomTokenSetting = new DatabaseServerSetting<string | null>("intercomToken", null)
+
+export const crosspostSigningKeySetting = new DatabaseServerSetting<string|null>("fmCrosspostSigningKey", null);
+

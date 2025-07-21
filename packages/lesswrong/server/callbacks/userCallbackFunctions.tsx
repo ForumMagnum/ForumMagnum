@@ -21,7 +21,7 @@ import { createNotifications } from "../notificationCallbacksHelpers";
 import { recombeeApi } from "../recombee/client";
 import ElasticClient from "../search/elastic/ElasticClient";
 import ElasticExporter from "../search/elastic/ElasticExporter";
-import { mailchimpAPIKeySetting } from "../serverSettings";
+import { mailchimpAPIKeySetting } from "../databaseSettings";
 import { hasAuth0 } from "../databaseSettings";
 import { hasType3ApiAccess, regenerateAllType3AudioForUser } from "../type3";
 import { editableUserProfileFields, simpleUserProfileFields } from "../userProfileUpdates";

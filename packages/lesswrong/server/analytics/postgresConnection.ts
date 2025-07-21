@@ -1,31 +1,14 @@
 import { isAnyTest } from "../../lib/executionEnvironment";
 import pgp, { IDatabase } from "pg-promise";
 import type { IClient } from "pg-promise/typescript/pg-subset";
-import { connectionStringSetting, DatabaseServerSetting, mirrorConnectionSettingString } from "../databaseSettings";
+import { connectionStringSetting, mirrorConnectionSettingString, sslSetting } from "../databaseSettings";
 import { isEAForum, sslCAFileSetting } from "../../lib/instanceSettings";
 import fs from "fs";
-import { forumSelect } from "../../lib/forumTypeUtils";
 import { getInstanceSettingsFilePath } from "../commandLine";
 import path from "path";
 
 export const pgPromiseLib = pgp({});
 
-interface SSLSettings {
-  require?: boolean
-  allowUnauthorized?: boolean
-  ca?: string
-}
-
-const sslSetting = new DatabaseServerSetting<SSLSettings | null>(
-  "analytics.ssl",
-  forumSelect({
-    EAForum: {
-      require: true,
-      allowUnauthorized: false,
-    },
-    default: null,
-  })
-);
 
 const getFullCAFilePath = (): string | null => {
   const caFilePath = sslCAFileSetting.get();

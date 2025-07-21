@@ -2,12 +2,11 @@ import type { Express, Response } from 'express';
 import { getUserFromReq } from './vulcan-lib/apollo-server/context';
 import { Notifications } from "../server/collections/notifications/collection";
 import { getSiteUrl } from "../lib/vulcan-lib/utils";
-import { DatabaseServerSetting } from './databaseSettings';
+import { disableServerSentEvents } from './databaseSettings';
 import maxBy from 'lodash/maxBy';
 import moment from 'moment';
 import { ServerSentEventsMessage } from '../components/hooks/useUnreadNotifications';
 
-const disableServerSentEvents = new DatabaseServerSetting<boolean>("disableServerSentEvents", false);
 
 interface ConnectionInfo {
   newestNotificationTimestamp: Date|null,

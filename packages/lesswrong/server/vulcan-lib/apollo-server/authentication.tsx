@@ -7,7 +7,7 @@ import { hashLoginToken, userIsBanned } from "../../loginTokens";
 import { LegacyData } from '../../../server/collections/legacyData/collection';
 import { wrapAndSendEmail } from '../../emails/renderEmail';
 import SimpleSchema from '@/lib/utils/simpleSchema';
-import { DatabaseServerSetting } from "../../databaseSettings";
+import { reCaptchaSecretSetting } from "../../databaseSettings";
 import {userFindOneByEmail} from "../../commonQueries";
 import UsersRepo from '../../repos/UsersRepo';
 import gql from 'graphql-tag';
@@ -280,7 +280,6 @@ function registerLoginEvent(user: DbUser, headers: Headers|undefined) {
   void createLWEvent({ data: document }, context);
 }
 
-const reCaptchaSecretSetting = new DatabaseServerSetting<string | null>('reCaptcha.secret', null) // ReCaptcha Secret
 const getCaptchaRating = async (token: string): Promise<string|null> => {
   const { default: request } = await import('request');
 

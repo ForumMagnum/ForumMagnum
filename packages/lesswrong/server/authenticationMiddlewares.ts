@@ -9,7 +9,7 @@ import { Strategy as FacebookOAuthStrategy, Profile as FacebookProfile } from 'p
 import { Strategy as GithubOAuthStrategy, Profile as GithubProfile } from 'passport-github2';
 import { Strategy as Auth0Strategy, Profile as Auth0Profile, ExtraVerificationParams, AuthenticateOptions } from 'passport-auth0';
 import { VerifyCallback } from 'passport-oauth2'
-import { afGithubClientIdSetting, afGithubOAuthSecretSetting, auth0ClientIdSetting, auth0DomainSetting, DatabaseServerSetting, githubClientIdSetting, githubOAuthSecretSetting, googleClientIdSetting, googleOAuthSecretSetting } from './databaseSettings';
+import { afGithubClientIdSetting, afGithubOAuthSecretSetting, auth0ClientIdSetting, auth0DomainSetting, githubClientIdSetting, githubOAuthSecretSetting, googleClientIdSetting, googleOAuthSecretSetting, googleDocImportClientIdSetting, googleDocImportClientSecretSetting, facebookClientIdSetting, facebookOAuthSecretSetting, expressSessionSecretSetting } from './databaseSettings';
 import { combineUrls, getSiteUrl } from '../lib/vulcan-lib/utils';
 import pick from 'lodash/pick';
 import { isAF, isEAForum, siteUrlSetting } from '../lib/instanceSettings';
@@ -22,7 +22,7 @@ import { IdFromProfile, UserDataFromProfile, getOrCreateForumUser } from './auth
 import { promisify } from 'util';
 import { OAuth2Client as GoogleOAuth2Client } from 'google-auth-library';
 import { oauth2 } from '@googleapis/oauth2';
-import { googleDocImportClientIdSetting, googleDocImportClientSecretSetting, updateActiveServiceAccount } from './posts/googleDocImport';
+import { updateActiveServiceAccount } from './posts/googleDocImport';
 import { userIsAdmin } from '../lib/vulcan-users/permissions';
 import { isE2E } from '../lib/executionEnvironment';
 import { getUnusedSlugByCollectionName } from './utils/slugUtil';
@@ -54,10 +54,6 @@ class Auth0StrategyFixed extends Auth0Strategy {
   userProfile!: (accessToken: string, done: (err: Error | null, profile?: Auth0Profile) => void) => void;
 }
 
-const facebookClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.facebook.appId', null)
-const facebookOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.facebook.secret', null)
-
-export const expressSessionSecretSetting = new DatabaseServerSetting<string | null>('expressSessionSecret', null)
 
 
 /**

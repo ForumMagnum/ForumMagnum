@@ -1,6 +1,5 @@
 import { crosspostKarmaThreshold } from '@/lib/instanceSettings';
 import { InsufficientKarmaError, InvalidUserError } from "./errors";
-import { DatabaseServerSetting } from "../databaseSettings";
 
 /**
  * Check if the user has enough karma to be allowed to crosspost.
@@ -26,8 +25,3 @@ import { DatabaseServerSetting } from "../databaseSettings";
   }
 }
 
-/**
- * Timeout for cross-site requests to prevent crosspost requests from hanging
- * the site
- */
-export const fmCrosspostTimeoutMsSetting = new DatabaseServerSetting<number>('fmCrosspostTimeoutMs', 15000)

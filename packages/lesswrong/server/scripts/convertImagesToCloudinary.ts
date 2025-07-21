@@ -1,5 +1,5 @@
 import { Images } from '../../server/collections/images/collection';
-import { DatabaseServerSetting } from '../databaseSettings';
+import { cloudinaryApiKey, cloudinaryApiSecret } from '../databaseSettings';
 import { ckEditorUploadUrlSetting, cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import type { UploadApiResponse } from 'cloudinary';
@@ -20,8 +20,6 @@ import { sleep } from '@/lib/utils/asyncUtils';
 import SideCommentCaches from '@/server/collections/sideCommentCaches/collection';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
 
-const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
-const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
 
 export type CloudinaryCredentials = {
   cloud_name: string,

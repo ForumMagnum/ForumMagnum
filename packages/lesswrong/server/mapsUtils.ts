@@ -1,8 +1,6 @@
 import { Client, LatLng } from '@googlemaps/google-maps-services-js'
-import { DatabaseServerSetting } from './databaseSettings';
+import { googleMapsApiKeySetting } from './databaseSettings';
 import { captureException } from '@sentry/core';
-
-const googleMapsApiKeySetting = new DatabaseServerSetting<string | null>('googleMaps.serverApiKey', null)
 
 export async function getLocalTime(time: AnyBecauseTodo, googleLocation: AnyBecauseTodo): Promise<Date|null> {
   const googleMapsApiKey = googleMapsApiKeySetting.get()

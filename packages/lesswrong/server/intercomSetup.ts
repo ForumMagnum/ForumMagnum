@@ -1,8 +1,5 @@
 import { Client as IntercomClient } from 'intercom-client';
-import { DatabaseServerSetting } from './databaseSettings';
-
-// Initiate Intercom on the server
-const intercomTokenSetting = new DatabaseServerSetting<string | null>("intercomToken", null)
+import { intercomTokenSetting } from './databaseSettings';
 
 let intercomClient: IntercomClient | null = null;
 export const getIntercomClient = () => {

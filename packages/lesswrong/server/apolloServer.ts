@@ -12,7 +12,8 @@ import { formatError } from 'apollo-errors';
 import * as Sentry from '@sentry/node';
 import { app } from './expressServer';
 import path from 'path'
-import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
+import { addAuthMiddlewares } from './authenticationMiddlewares';
+import { expressSessionSecretSetting } from './databaseSettings';
 import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
 import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
 import expressSession from 'express-session';

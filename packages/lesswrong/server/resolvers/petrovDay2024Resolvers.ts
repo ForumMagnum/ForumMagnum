@@ -1,11 +1,9 @@
 import PetrovDayActions from "@/server/collections/petrovDayActions/collection";
 import { petrovBeforeTime } from '@/lib/instanceSettings';
-import { DatabaseServerSetting } from "../databaseSettings";
+import { petrovFalseAlarmMissileCount, petrovRealAttackMissileCount } from "../databaseSettings";
 import { inWarningWindow } from '@/lib/collections/petrovDayActions/helpers';
 import gql from "graphql-tag";
 
-const petrovFalseAlarmMissileCount = new DatabaseServerSetting<number[]>('petrovFalseAlarmMissileCount', [])
-const petrovRealAttackMissileCount = new DatabaseServerSetting<number[]>('petrovRealAttackMissileCount', [])
 
 const getIncomingCount = (incoming: boolean, role: 'eastPetrov' | 'westPetrov') => {
   const currentHour = new Date().getHours();

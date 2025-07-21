@@ -3,7 +3,7 @@ import { addCronJob } from "../cron/cronUtil";
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS, getUserEmail } from "@/lib/collections/users/helpers";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { loggerConstructor } from "@/lib/utils/logging";
-import { mailchimpAPIKeySetting } from "../serverSettings";
+import { mailchimpAPIKeySetting } from "../databaseSettings";
 import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from '@/lib/instanceSettings';
 import md5 from "md5";
 import { captureException } from "@sentry/core";

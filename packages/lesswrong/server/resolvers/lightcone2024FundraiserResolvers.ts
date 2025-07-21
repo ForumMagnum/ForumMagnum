@@ -1,5 +1,5 @@
 import { getStripeIntentsCache } from "../lesswrongFundraiser/stripeIntentsCache";
-import { lightconeFundraiserStripeSecretKeySetting } from "../serverSettings";
+import { lightconeFundraiserStripeSecretKeySetting } from "../databaseSettings";
 import gql from "graphql-tag";
 
 export const lightcone2024FundraiserGraphQLTypeDefs = gql`

@@ -3,7 +3,7 @@ import { FMCrosspostRoute } from "@/lib/fmCrosspost/routes"
 import { combineUrls } from "@/lib/vulcan-lib/utils.ts";
 import { fmCrosspostBaseUrlSetting } from "@/lib/instanceSettings";
 import { crosspostUserAgent } from "@/lib/apollo/constants";
-import { fmCrosspostTimeoutMsSetting } from "../fmCrosspost/helpers";
+import { fmCrosspostTimeoutMsSetting } from "../databaseSettings";
 import {
   ApiError,
   TOS_NOT_ACCEPTED_ERROR,
