@@ -9,7 +9,6 @@ import {
 } from "./errors";
 import {
   assertCrosspostingKarmaThreshold,
-  fmCrosspostTimeoutMsSetting,
 } from "./helpers";
 import { makeApiUrl, PostRequestTypes, PostResponseTypes, ValidatedPostRouteName, validatedPostRoutes, ValidatedPostRoutes } from "./routes";
 import { ConnectCrossposterArgs, GetCrosspostRequest } from "./types";
@@ -23,6 +22,7 @@ import {
   unlinkCrossposterRoute,
 } from "@/lib/fmCrosspost/routes";
 import gql from "graphql-tag";
+import { fmCrosspostTimeoutMsSetting } from "../databaseSettings";
 
 const getUserId = (req?: Request) => {
   const userId = req?.user?._id;
