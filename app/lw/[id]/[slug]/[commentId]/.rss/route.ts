@@ -3,14 +3,8 @@ import Comments from "@/server/collections/comments/collection";
 import { commentGetRSSUrl } from '@/lib/collections/comments/helpers';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { redirect } from "next/navigation";
-import { initDatabases, initSettings } from "@/server/serverStartup";
 import type { NextRequest } from "next/server";
 
-await initDatabases({
-  postgresUrl: process.env.PG_URL || '',
-  postgresReadUrl: process.env.PG_READ_URL || '',
-});
-await initSettings();
 
 async function findPostByLegacyId(legacyId: string) {
   const parsedId = parseInt(legacyId, 36);

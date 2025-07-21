@@ -3,25 +3,17 @@ import { startServerAndCreateNextHandler } from '@as-integrations/next';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { ApolloServer } from '@apollo/server';
 import { getContextFromReqAndRes } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/context';
-import { initDatabases, initSettings } from '../../packages/lesswrong/server/serverStartup';
 import type { NextRequest } from 'next/server';
 import { asyncLocalStorage, closeRequestPerfMetric, openPerfMetric } from '@/server/perfMetrics';
 import { logAllQueries } from '@/server/sql/sqlClient';
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
-await initDatabases({
- postgresUrl: process.env.PG_URL || '',
- postgresReadUrl: process.env.PG_READ_URL || '',
-});
-await initSettings();
-
-
 const server = new ApolloServer<ResolverContext>({
- schema,
- introspection: true,
- allowBatchedHttpRequests: true,
- csrfPrevention: false,
+  schema,
+  introspection: true,
+  allowBatchedHttpRequests: true,
+  csrfPrevention: false,
 });
 
 

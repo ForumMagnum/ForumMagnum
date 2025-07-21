@@ -5,7 +5,6 @@ import Script from "next/script";
 import { toEmbeddableJson } from "@/lib/utils/jsonUtils";
 import { cookies, headers } from "next/headers";
 import { ClientRouteMetadataProvider } from "@/components/ClientRouteMetadataContext";
-import { initDatabases, initSettings } from "@/server/serverStartup";
 import { DEFAULT_TIMEZONE } from "@/lib/utils/timeUtil";
 import { getCachedUser } from "@/server/vulcan-lib/apollo-server/context";
 import { abstractThemeToConcrete, getThemeOptions } from "@/themes/themeNames";
@@ -19,12 +18,10 @@ export default async function RootLayout({
   children: React.ReactNode;
   searchParams: Promise<URLSearchParams>;
 }) {
-  initDatabases({ postgresUrl: process.env.PG_URL ?? '', postgresReadUrl: process.env.PG_READ_URL ?? '' });
   const [cookieStore, headerValues, searchParamValues] = await Promise.all([
     cookies(),
     headers(),
     searchParams,
-    initSettings(),
   ]);
 
   const publicInstanceSettings = getInstanceSettings().public;

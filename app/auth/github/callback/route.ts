@@ -1,16 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { initDatabases, initSettings } from '@/server/serverStartup';
 import { exchangeCodeForTokens, fetchGitHubUserProfile, getGitHubPrimaryEmail } from '@/lib/auth/githubOAuth';
 import { getOrCreateGitHubUser } from '@/server/authentication/githubAccounts';
 import { createAndSetToken } from '@/server/vulcan-lib/apollo-server/authentication';
 import { captureException } from '@sentry/core';
 
-await initDatabases({
-  postgresUrl: process.env.PG_URL || '',
-  postgresReadUrl: process.env.PG_READ_URL || '',
-});
-await initSettings();
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;

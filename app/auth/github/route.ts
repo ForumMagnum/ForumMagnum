@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { initDatabases, initSettings } from '@/server/serverStartup';
 import { generateOAuthState, getGitHubAuthUrl } from '@/lib/auth/githubOAuth';
 import type { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 
-await initDatabases({
-  postgresUrl: process.env.PG_URL || '',
-  postgresReadUrl: process.env.PG_READ_URL || '',
-});
-await initSettings();
 
 const GITHUB_OAUTH_COOKIE_SETTINGS: Omit<ResponseCookie, 'name' | 'value'> = {
   httpOnly: true,

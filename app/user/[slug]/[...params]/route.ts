@@ -1,14 +1,8 @@
 import Users from "@/server/collections/users/collection";
 import { userGetProfileUrl } from "@/lib/collections/users/helpers";
 import { redirect } from "next/navigation";
-import { initDatabases, initSettings } from '@/server/serverStartup';
 import type { NextRequest } from "next/server";
 
-await initDatabases({
-  postgresUrl: process.env.PG_URL || '',
-  postgresReadUrl: process.env.PG_READ_URL || '',
-});
-await initSettings();
 
 // This is the legacy `/user/:slug/:category?/:filter?` redirect route
 export async function GET(

@@ -227,15 +227,10 @@ const wrapQueryMethod = <T>(
   }
 }
 
-export const createSqlConnection = (
+function getWrappedClient(
   url?: string,
   isTestingClient = false,
-): SqlClient => {
-  url = url ?? process.env.PG_URL;
-  if (!url) {
-    throw new Error("PG_URL not configured");
-  }
-
+): SqlClient {
   const db = pgPromiseLib({
     connectionString: url,
     max: MAX_CONNECTIONS,
@@ -255,6 +250,46 @@ export const createSqlConnection = (
     concat,
     isTestingClient,
   };
+
+  return client;
+}
+
+declare global {
+  var pgClients: Record<string, SqlClient>;
+}
+
+if (!globalThis['pgClients']) {
+  globalThis['pgClients'] = {
+    ...(process.env.PG_URL ? {
+      [process.env.PG_URL]: getWrappedClient(process.env.PG_URL, false),
+    } : {}),
+    ...(process.env.PG_READ_URL ? {
+      [process.env.PG_READ_URL]: getWrappedClient(process.env.PG_READ_URL, false),
+    } : {}),
+    ...(process.env.PG_NO_TRANSACTION_URL ? {
+      [process.env.PG_NO_TRANSACTION_URL]: getWrappedClient(process.env.PG_NO_TRANSACTION_URL, false),
+    } : {}),
+  };
+}
+
+export const createSqlConnection = (
+  url?: string,
+  isTestingClient = false,
+): SqlClient => {
+  // If we get an empty string, explicitly fall back to PG_URL
+  url = url || process.env.PG_URL;
+  if (url === undefined) {
+    throw new Error("PG_URL not configured");
+  }
+
+  const existingClient = globalThis['pgClients'][url];
+  if (existingClient) {
+    return existingClient;
+  }
+
+  const client = getWrappedClient(url, isTestingClient);
+
+  globalThis['pgClients'][url] = client;
 
   return client;
 }
