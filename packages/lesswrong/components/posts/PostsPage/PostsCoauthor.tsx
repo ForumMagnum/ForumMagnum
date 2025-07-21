@@ -1,5 +1,5 @@
 import React from 'react'
-import { useCurrentUser } from '../../common/withUser';
+import { useCurrentUserId } from '../../common/withUser';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { postCoauthorIsPending } from '../../../lib/collections/posts/helpers';
 import { AUTHOR_MARKER_STYLES } from './PostsAuthors';
@@ -17,11 +17,11 @@ const PostsCoauthor = ({ post, coauthor, pageSectionContext, classes }: {
   pageSectionContext?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser();
+  const currentUserId = useCurrentUserId();
   const isPending = postCoauthorIsPending(post, coauthor._id);
   if (
-    currentUser?._id !== post.userId &&
-    !post.coauthorStatuses?.find(({ userId }) => currentUser?._id === userId) &&
+    currentUserId !== post.userId &&
+    !post.coauthorStatuses?.find(({ userId }) => currentUserId === userId) &&
     isPending
   ) {
     return null;

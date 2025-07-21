@@ -1,8 +1,8 @@
 'use client';
 
 import React, { createContext } from 'react';
+import { createContext as contextSelectorCreateContext } from "use-context-selector";
 import type { EditorContents } from '../editor/Editor';
-
 
 interface DynamicTableOfContentsContextType {
   setToc: (document: EditorContents) => void;
@@ -24,7 +24,7 @@ interface AutosaveEditorStateContext {
 type DisableNoKibitzContextType = { disableNoKibitz: boolean; setDisableNoKibitz: (disableNoKibitz: boolean) => void; };
 
 export const TimezoneContext = createContext<string | null>(null);
-export const UserContext = createContext<UsersCurrent | null>(null);
+export const UserContext = contextSelectorCreateContext<UsersCurrent|null>(null);
 export const DynamicTableOfContentsContext = createContext<DynamicTableOfContentsContextType | null>(null);
 export const AutosaveEditorStateContext = React.createContext<AutosaveEditorStateContext>({
   autosaveEditorState: null,

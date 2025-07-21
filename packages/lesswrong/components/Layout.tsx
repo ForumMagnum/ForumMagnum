@@ -6,7 +6,7 @@ import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';
 import { useLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
-import { UserContext } from './common/sharedContexts';
+import { UserContextProvider } from './common/withUser';
 import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './hooks/useCommentBox';
@@ -47,22 +47,22 @@ import BasicOnboardingFlow from "./onboarding/BasicOnboardingFlow";
 import { CommentOnSelectionPageWrapper } from "./comments/CommentOnSelection";
 import SidebarsWrapper from "./common/SidebarsWrapper";
 import AdminToggle from "./admin/AdminToggle";
-// import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
-// import ForumEventBanner from "./forumEvents/ForumEventBanner";
+import SunshineSidebar from "./sunshineDashboard/SunshineSidebar";
+import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
+import ForumEventBanner from "./forumEvents/ForumEventBanner";
 import GlobalHotkeys from "./common/GlobalHotkeys";
 import LlmChatWrapper from "./languageModels/LlmChatWrapper";
 import LWBackgroundImage from "./LWBackgroundImage";
 import IntercomWrapper from "./common/IntercomWrapper";
 import CookieBanner from "./common/CookieBanner/CookieBanner";
 import { defineStyles, useStyles } from './hooks/useStyles';
-import { useMutation } from "@apollo/client/react";
+import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { gql } from "@/lib/generated/gql-codegen";
 import { DelayedLoading } from './common/DelayedLoading';
 import { SuspenseWrapper } from './common/SuspenseWrapper';
 // import dynamic from 'next/dynamic';
 import { useRouteMetadata } from './ClientRouteMetadataContext';
 import { isFullscreenRoute, isHomeRoute, isStandaloneRoute, isStaticHeaderRoute, isSunshineSidebarRoute, isUnspacedGridRoute } from '@/lib/routeChecks';
-import SunshineSidebar from './sunshineDashboard/SunshineSidebar';
 import LanguageModelLauncherButton from './languageModels/LanguageModelLauncherButton';
 
 const UsersCurrentUpdateMutation = gql(`
@@ -276,6 +276,7 @@ const Layout = ({currentUser, children}: {
   children?: React.ReactNode,
 }) => {
   const classes = useStyles(styles);
+  const currentUserId = currentUser?._id;
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false); 
   const [autosaveEditorState, setAutosaveEditorState] = useState<(() => Promise<void>) | null>(null);
@@ -296,13 +297,13 @@ const Layout = ({currentUser, children}: {
   const renderCommunityMap = false
   // (isLW) && isHomeRoute(pathname) && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
-  const [updateUser] = useMutation(UsersCurrentUpdateMutation);
+  const [updateUserNoCache] = useMutationNoCache(UsersCurrentUpdateMutation);
   
   const toggleStandaloneNavigation = useCallback(() => {
-    if (currentUser) {
-      void updateUser({
+    if (currentUserId) {
+      void updateUserNoCache({
         variables: {
-          selector: { _id: currentUser._id },
+          selector: { _id: currentUserId },
           data: {
             hideNavigationSidebar: !hideNavigationSidebar
           }
@@ -310,7 +311,7 @@ const Layout = ({currentUser, children}: {
       })
     }
     setHideNavigationSidebar(!hideNavigationSidebar);
-  }, [updateUser, currentUser, hideNavigationSidebar]);
+  }, [updateUserNoCache, currentUserId, hideNavigationSidebar]);
 
   // Some pages (eg post pages) have a solid white background, others (eg front page) have a gray
   // background against which individual elements in the central column provide their own
@@ -393,7 +394,7 @@ const Layout = ({currentUser, children}: {
     
     return (
       <AnalyticsContext path={pathname}>
-      <UserContext.Provider value={currentUser}>
+      <UserContextProvider value={currentUser}>
       <UnreadNotificationsContextProvider>
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
@@ -530,7 +531,7 @@ const Layout = ({currentUser, children}: {
       </ItemsReadContextWrapper>
       </TimezoneWrapper>
       </UnreadNotificationsContextProvider>
-      </UserContext.Provider>
+      </UserContextProvider>
       </AnalyticsContext>
     )
   };

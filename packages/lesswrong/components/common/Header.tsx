@@ -5,7 +5,7 @@ import Headroom from '../../lib/react-headroom'
 import Toolbar from '@/lib/vendor/@material-ui/core/src/Toolbar';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import TocIcon from '@/lib/vendor/@material-ui/icons/src/Toc';
-import { useCurrentUser } from '../common/withUser';
+import { useCurrentUserId, useFilteredCurrentUser, useGetCurrentUser } from '../common/withUser';
 import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
@@ -119,7 +119,7 @@ export const styles = (theme: ThemeType) => ({
     color: theme.palette.text.bannerAdOverlay,
 
     ...(forumSelect({
-      LWAF: (theme.themeOptions.name === 'dark'
+      LWAF: (theme.dark
         ? {
           background: theme.palette.panelBackground.bannerAdTranslucent,
           backdropFilter: 'blur(4px) brightness(1.1)',
@@ -335,7 +335,9 @@ const Header = ({
   const [notificationHasOpened, setNotificationHasOpened] = useState(false);
   const [searchOpen, setSearchOpenState] = useState(false);
   const [unFixed, setUnFixed] = useState(true);
-  const currentUser = useCurrentUser();
+  const getCurrentUser = useGetCurrentUser();
+  const isLoggedIn = !!useCurrentUserId();
+  const usernameUnset = useFilteredCurrentUser(u => !!u?.usernameUnset);
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const { notificationsOpened } = useUnreadNotifications();
@@ -352,16 +354,16 @@ const Header = ({
   }, [pathname, hash]);
 
   const hasNotificationsPopover = isFriendlyUI;
-  const hasKarmaChangeNotifier = !isFriendlyUI && currentUser && !currentUser.usernameUnset;
-  const hasMessagesButton = isFriendlyUI && currentUser && !currentUser.usernameUnset;
+  const hasKarmaChangeNotifier = !isFriendlyUI && isLoggedIn && !usernameUnset;
+  const hasMessagesButton = isFriendlyUI && isLoggedIn && !usernameUnset;
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
     captureEvent("navigationBarToggle", {open: open})
   }
 
-  const handleSetNotificationDrawerOpen = async (isOpen: boolean): Promise<void> => {
-    if (!currentUser) return;
+  const handleSetNotificationDrawerOpen = useCallback(async (isOpen: boolean): Promise<void> => {
+    if (!isLoggedIn) return;
     if (isOpen) {
       setNotificationOpen(true);
       setNotificationHasOpened(true);
@@ -369,11 +371,12 @@ const Header = ({
     } else {
       setNotificationOpen(false);
     }
-  }
+  }, [isLoggedIn, notificationsOpened]);
 
   const handleNotificationToggle = () => {
+    const currentUser = getCurrentUser()!
     if (!currentUser) return;
-    const { lastNotificationsCheck } = currentUser
+    const { lastNotificationsCheck } = currentUser;
 
     if (hasNotificationsPopover) {
       captureEvent("notificationsIconToggle", {
@@ -462,7 +465,7 @@ const Header = ({
   )
 
   const usersMenuClass = isFriendlyUI ? classes.hideXsDown : classes.hideMdDown
-  const usersMenuNode = currentUser && <div className={searchOpen ? usersMenuClass : undefined}>
+  const usersMenuNode = isLoggedIn && <div className={searchOpen ? usersMenuClass : undefined}>
     <AnalyticsContext pageSectionContext="usersMenu">
       <UsersMenu />
     </AnalyticsContext>
@@ -472,12 +475,11 @@ const Header = ({
   const rightHeaderItemsNode = <div className={classNames(classes.rightHeaderItems)}>
     <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
     {!isFriendlyUI && usersMenuNode}
-    {!currentUser && <UsersAccountMenu />}
+    {!isLoggedIn && <UsersAccountMenu />}
     {hasKarmaChangeNotifier && <KarmaChangeNotifier
-      currentUser={currentUser}
       className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
     />}
-    {currentUser && !currentUser.usernameUnset && <NotificationsMenuButton
+    {isLoggedIn && !usernameUnset && <NotificationsMenuButton
       toggle={handleNotificationToggle}
       open={notificationOpen}
       className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
@@ -501,7 +503,7 @@ const Header = ({
   // const NotificationsMenu = dynamic(() => import("../notifications/NotificationsMenu"), { ssr: false });
 
   // the right side notifications menu
-  const headerNotificationsMenu = currentUser && !hasNotificationsPopover
+  const headerNotificationsMenu = isLoggedIn && !hasNotificationsPopover
     && (
       <NotificationsMenu
         open={notificationOpen}

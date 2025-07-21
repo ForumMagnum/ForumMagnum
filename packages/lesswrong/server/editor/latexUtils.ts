@@ -1,4 +1,3 @@
-// import mjAPI from 'mathjax-node'
 import {isAnyTest, isMigrations} from '../../lib/executionEnvironment'
 
 export const trimLatexAndAddCSS = (dom: any, css: string) => {
@@ -36,12 +35,16 @@ const MATHJAX_OPTIONS = {
   delayStartupTypeset: true,
 }
 
-// if (!isAnyTest && !isMigrations) {
-//   mjAPI.config({
-//     MathJax: MATHJAX_OPTIONS
-//   });
-//   mjAPI.start();
-// }
+function getMathjax() {
+  const mjAPI = require('mathjax-node');
+  if (!isAnyTest && !isMigrations) {
+    mjAPI.config({
+      MathJax: MATHJAX_OPTIONS
+    });
+    mjAPI.start();
+  }
+  return mjAPI;
+}
 
 export const preProcessLatex = async (content: AnyBecauseTodo) => {
   // MathJax-rendered LaTeX elements have an associated stylesheet. We put this
@@ -58,6 +61,8 @@ export const preProcessLatex = async (content: AnyBecauseTodo) => {
 
   // gets set to true if a stylesheet has already been added
   let mathjaxStyleUsed = false;
+
+  const mjAPI = getMathjax();
 
   for (let key in content.entityMap) { // Can't use forEach with await
     let value = content.entityMap[key];

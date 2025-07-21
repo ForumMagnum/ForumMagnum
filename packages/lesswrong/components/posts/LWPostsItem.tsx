@@ -80,7 +80,7 @@ export const styles = (theme: ThemeType) => ({
   background: {
     width: "100%",
     background: theme.palette.panelBackground.default,
-    ...(isBookUI && theme.themeOptions.name === 'dark' && {
+    ...(isBookUI && theme.dark && {
       background: theme.palette.panelBackground.bannerAdTranslucent,
       backdropFilter: theme.palette.filters.bannerAdBlur,
       ...isIfAnyoneBuildsItFrontPage({
@@ -113,7 +113,7 @@ export const styles = (theme: ThemeType) => ({
   withGrayHover: {
     '&:hover': {
       backgroundColor: theme.palette.panelBackground.postsItemHover,
-      ...(isBookUI && theme.themeOptions.name === 'dark' && {
+      ...(isBookUI && theme.dark && {
         backgroundColor: theme.palette.panelBackground.bannerAdTranslucentHeavy,
       }),
     },

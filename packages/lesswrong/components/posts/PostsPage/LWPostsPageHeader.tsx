@@ -3,9 +3,7 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import classNames from 'classnames';
-import { parseUnsafeUrl } from './PostsPagePostHeader';
-import { postGetLink, postGetLinkTarget } from '@/lib/collections/posts/helpers';
-import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './PostBodyPrefix';
+import { postGetLink, postGetLinkTarget, detectLinkpost, parseUnsafeUrl } from '@/lib/collections/posts/helpers';
 import type { AnnualReviewMarketInfo } from '@/lib/collections/posts/annualReviewMarkets';
 import ReviewPillContainer from './BestOfLessWrong/ReviewPillContainer';
 import PostsTopSequencesNav, { titleStyles } from './PostsTopSequencesNav';
@@ -30,6 +28,7 @@ import LWCommentCount from "../TableOfContents/LWCommentCount";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 
 export const LW_POST_PAGE_PADDING = 110;
+export const BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD = 800;
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -226,7 +225,7 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>,
-  dialogueResponses: CommentsList[],
+  dialogueResponses: readonly CommentsList[],
   answerCount?: number,
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   showSplashPageHeader?: boolean
@@ -248,13 +247,10 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
   // TODO: If we are not the primary author of this post, but it was shared with
   // us as a draft, display a notice and a link to the collaborative editor.
 
-  const { hostname: linkpostDomain } = post.url
-    ? parseUnsafeUrl(post.url)
-    : { hostname: undefined };
-
+  const { isLinkpost, linkpostDomain } = detectLinkpost(post, feedLinkDomain);
   const linkpostTooltip = <div>View the original at:<br/>{post.url}</div>;
-  const displayLinkpost = post.url && feedLinkDomain !== linkpostDomain && (post.contents?.wordCount ?? 0) >= BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD;
-  const linkpostNode = displayLinkpost ? <LWTooltip title={linkpostTooltip}>
+  const shouldShowLinkpostText = isLinkpost && linkpostDomain && (post.contents?.wordCount ?? 0) >= BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD;
+  const linkpostNode = shouldShowLinkpostText ? <LWTooltip title={linkpostTooltip}>
     <a href={postGetLink(post)} target={postGetLinkTarget(post)}>
       Linkpost from {linkpostDomain}
     </a>
@@ -327,9 +323,10 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
   </div>
 }
 
-export default registerComponent(
-  'LWPostsPageHeader', LWPostsPageHeader, {styles}
-);
+export default registerComponent('LWPostsPageHeader', LWPostsPageHeader, {
+  styles,
+  areEqual: "auto"
+});
 
 
 

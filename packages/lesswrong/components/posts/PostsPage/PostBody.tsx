@@ -148,6 +148,6 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   }
 }
 
-export default registerComponent('PostBody', PostBody);
+export default registerComponent('PostBody', PostBody, { areEqual: "auto" });
 
 

@@ -27,8 +27,9 @@ import classNames from 'classnames';
 import UltraFeedFeedback from './UltraFeedFeedback';
 import FeedSelectorDropdown from '../common/FeedSelectorCheckbox';
 import UltraFeedSpotlightItem from './UltraFeedSpotlightItem';
+import AnalyticsInViewTracker from '../common/AnalyticsInViewTracker';
 
-const contentStyles = defineStyles("UltraFeedContent", (theme: ThemeType) => ({
+const styles = defineStyles("UltraFeedContent", (theme: ThemeType) => ({
   root: {
     // Remove padding inserted by Layout.tsx to be flush with sides of screen
     [theme.breakpoints.down('sm')]: {
@@ -179,7 +180,7 @@ const saveSettings = (settings: Partial<UltraFeedSettingsType>): UltraFeedSettin
 const UltraFeedContent = ({alwaysShow = false}: {
   alwaysShow?: boolean
 }) => {
-  const classes = useStyles(contentStyles);
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -240,7 +241,8 @@ const UltraFeedContent = ({alwaysShow = false}: {
   </>;
 
   return (
-    <AnalyticsContext pageSectionContext="ultraFeed" ultraFeedContext={{ sessionId }}>
+    <AnalyticsContext pageSectionContext="ultraFeed" ultraFeedContext={{ feedSessionId: sessionId }}>
+      <AnalyticsInViewTracker eventProps={{inViewType: "ultraFeed"}}>
       <div className={classes.root}>
         <UltraFeedObserverProvider incognitoMode={resolverSettings.incognitoMode}>
         <OverflowNavObserverProvider>
@@ -354,6 +356,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
           </div>
         )}
       </div>
+      </AnalyticsInViewTracker>
     </AnalyticsContext>
   );
 };

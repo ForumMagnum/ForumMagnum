@@ -6,7 +6,6 @@ import { classifyHost, useLocation } from '../../lib/routeUtil';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import withErrorBoundary from '../common/withErrorBoundary';
 import { locationHashIsFootnote, locationHashIsFootnoteBackreference } from '../contents/CollapsedFootnotes';
-import {useCurrentUser} from '../common/withUser'
 import { getUrlClass } from '@/server/utils/getUrlClass';
 import type { ContentStyleType } from '../common/ContentStyles';
 import { DefaultPreview, MetaculusPreview, ManifoldPreview, FatebookPreview, NeuronpediaPreview, MetaforecastPreview, OWIDPreview, ArbitalPreview, EstimakerPreview, ViewpointsPreview } from './PostLinkPreview';
@@ -82,7 +81,6 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
 }) => {
   const URLClass = getUrlClass()
   const location = useLocation();
-  const currentUser = useCurrentUser()
 
   // Invalid link with no href? Don't transform it.
   if (!href) {

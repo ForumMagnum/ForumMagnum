@@ -95,14 +95,7 @@ export const truncateWithGrace = (html: string, maxLengthWords: number, graceWor
   };
 }
 
-export function getTruncationCharCount (comment: CommentsList, currentUser?: UsersCurrent|null, postPage?: boolean) {
-  // Do not truncate for users who have disabled it in their user settings. Might want to do someting more elegant here someday.
-  if (currentUser && currentUser.noCollapseCommentsPosts && postPage) {
-    return 10000000
-  }
-  if (currentUser && currentUser.noCollapseCommentsFrontpage && !postPage) {
-    return 10000000
-  }
+export function getTruncationCharCount (comment: CommentsList, postPage?: boolean) {
   const commentIsByGPT2 = !!(comment && comment.user && comment.user.displayName === "GPT2")
   if (commentIsByGPT2) return GTP2_TRUNCATION_CHAR_COUNT
 
@@ -134,13 +127,13 @@ export const answerTocExcerptFromHTML = (html: string): string => {
   });
 };
 
-export function commentExcerptFromHTML (comment: CommentsList, currentUser?: UsersCurrent|null, postPage?: boolean) {
+export function commentExcerptFromHTML (comment: CommentsList, postPage?: boolean) {
   const html = comment.contents?.html;
   if(!html) return ""
   const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
   const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
 
-  const truncationCharCount = getTruncationCharCount(comment, currentUser, postPage)
+  const truncationCharCount = getTruncationCharCount(comment, postPage)
 
   if (htmlRemovedStyles.length > truncationCharCount) {
     return truncatise(htmlRemovedStyles, {

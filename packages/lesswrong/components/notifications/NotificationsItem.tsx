@@ -94,10 +94,9 @@ const TooltipWrapper: FC<{
   );
 }
 
-const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, classes}: {
+const NotificationsItem = ({notification, lastNotificationsCheck, classes}: {
   notification: NotificationsList,
   lastNotificationsCheck: any,
-  currentUser: UsersCurrent, // *Not* from an HoC, this must be passed (to enforce this component being shown only when logged in)
   classes: ClassesType<typeof styles>,
 }) => {
   const [clicked,setClicked] = useState(false);
@@ -149,7 +148,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
       )
     }
 
-    const parsedPath = checkUserRouteAccess(currentUser, parseRouteWithErrors(notificationLink));
+    const parsedPath = parseRouteWithErrors(notificationLink);
     switch (notification.documentType) {
       case "tagRel":
         return (
@@ -181,12 +180,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
       case "message":
         return (
           <TooltipWrapper
-            title={
-              <ConversationPreview
-                conversationId={parsedPath?.params?._id}
-                currentUser={currentUser}
-              />
-            }
+            title={<ConversationPreview conversationId={parsedPath?.params?._id} />}
             classes={classes}
           >
             {children}
@@ -199,7 +193,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
     return (
       <>{children}</>
     );
-  }, [classes, currentUser, notification, notificationLink, notificationType, documentId]);
+  }, [classes, notification, notificationLink, notificationType, documentId]);
 
   const renderMessage = () => {
     switch (notification.documentType) {

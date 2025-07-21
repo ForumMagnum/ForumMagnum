@@ -46,6 +46,8 @@ import { ObservableQuery } from '@apollo/client';
 import { SuspenseWrapper } from './SuspenseWrapper';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import PostsLoading from '../posts/PostsLoading';
+import { registerComponent } from '@/lib/vulcan-lib/components';
+import AnalyticsInViewTracker from './AnalyticsInViewTracker';
 
 const SubscriptionStateMultiQuery = gql(`
   query multiSubscriptionLWHomePostsQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -620,6 +622,10 @@ const LWHomePosts = ({ children, }: {
 
   return (
     // TODO: do we need capturePostItemOnMount here?
+    <AnalyticsInViewTracker
+      eventProps={{inViewType: "postsFeed"}}
+      observerProps={{threshold:[0, 0.5, 1]}}
+    >
     <AnalyticsContext pageSectionContext="postsFeed">
       <SingleColumnSection>
         <div className={classes.settingsVisibilityControls}>
@@ -715,6 +721,7 @@ const LWHomePosts = ({ children, }: {
         </>}
       </SingleColumnSection>
     </AnalyticsContext>
+    </AnalyticsInViewTracker>
   )
 }
 
@@ -756,6 +763,8 @@ function SubscriptionSettings({
   </>;
 }
 
-export default LWHomePosts;
+export default registerComponent("LWHomePosts", LWHomePosts, {
+  areEqual: "auto",
+});
 
 

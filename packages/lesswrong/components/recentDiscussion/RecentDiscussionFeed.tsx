@@ -131,7 +131,7 @@ const RecentDiscussionFeed = ({
     : undefined;
 
   return (
-    <AnalyticsContext pageSectionContext="recentDiscussion" recentDiscussionContext={{ sessionId }}>
+    <AnalyticsContext pageSectionContext="recentDiscussion" recentDiscussionContext={{ feedSessionId: sessionId }}>
       <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
         <SingleColumnSection>
           <SectionTitle title={title} titleClassName={classes.titleText}>
@@ -156,41 +156,44 @@ const RecentDiscussionFeed = ({
             renderers={{
               postCommented: {
                 render: (post: PostsRecentDiscussion, index: number) => (
+                  <AnalyticsContext pageSubSectionContext='recentDiscussionThread' feedCardIndex={index}>
                   <ThreadComponent
                     post={post}
                     refetch={refetch}
                     comments={post.recentComments ?? undefined}
                     expandAllThreads={expandAll}
-                    index={index}
                   />
+                  </AnalyticsContext>
                 )
               },
               shortformCommented: {
                 render: (post: ShortformRecentDiscussion, index: number) => (
+                  <AnalyticsContext pageSubSectionContext='recentDiscussionShortform' feedCardIndex={index}>
                   <ShortformComponent
                     post={post}
                     refetch={refetch}
                     comments={post.recentComments ?? undefined}
                     expandAllThreads={expandAll}
-                    index={index}
                   />
+                  </AnalyticsContext>
                 )
               },
               tagDiscussed: {
                 render: (tag: TagRecentDiscussion, index: number) => (
+                  <AnalyticsContext pageSubSectionContext='recentDiscussionTag' feedCardIndex={index}>
                   <TagCommentedComponent
                     tag={tag}
                     refetch={refetch}
                     comments={tag.recentComments}
                     expandAllThreads={expandAll}
-                    index={index}
                   />
+                  </AnalyticsContext>
                 )
               },
               tagRevised: {
                 render: (revision: RecentDiscussionRevisionTagFragment, index: number) => <div>
                   {revision.tag && revision.documentId && (
-                    <AnalyticsContext recentDiscussionCardIndex={index}>
+                    <AnalyticsContext feedCardIndex={index}>
                       <TagRevisionComponent
                         tag={revision.tag}
                         revision={revision}

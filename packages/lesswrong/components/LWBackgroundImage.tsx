@@ -11,6 +11,7 @@ import { isHomeRoute } from '@/lib/routeChecks';
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
     position: 'absolute',
+    top: 0,
     right: 0,
   },
   backgroundImage: {
@@ -39,7 +40,7 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
     right: 0,
     height: "100vh",
     width: '57vw',
-    ['@media(max-width: 1000px)']: {
+    [theme.breakpoints.down('sm')]: {
       display: 'none'
     },
   },

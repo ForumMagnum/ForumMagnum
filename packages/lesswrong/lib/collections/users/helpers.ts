@@ -9,12 +9,23 @@ import { DeferredForumSelect } from '@/lib/forumTypeUtils';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 import type { ForumIconName } from '@/components/common/ForumIcon';
 import type { EditablePost } from '../posts/helpers';
+import { maybeDate } from '@/lib/utils/dateUtils';
 
 export const ACCOUNT_DELETION_COOLING_OFF_DAYS = 14;
 
 export const spamRiskScoreThreshold = 0.16 // Corresponds to recaptchaScore of 0.2
 
 export type UserDisplayNameInfo = { username?: string | null, fullName?: string | null, displayName: string | null };
+export interface PermissionsPostMinimumInfo {
+  shortform: boolean,
+  user?: PostsAuthors['user'],
+  userId: string | null,
+  rejected: boolean | null,
+  commentsLocked: boolean | null,
+  commentsLockedToAccountsCreatedAfter: Date | string | null,
+  bannedUserIds: string[] | null,
+  frontpageDate: Date | string | null,
+}
 
 // Get a user's display name (not unique, can take special characters and spaces)
 export const userGetDisplayName = (user: UserDisplayNameInfo | null): string => {
@@ -199,7 +210,7 @@ export const userCanCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBa
   )
 }
 
-export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PostsDetails|DbPost, postAuthor: PermissionableUser|DbUser|null): boolean => {
+export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PermissionsPostMinimumInfo, postAuthor: PermissionableUser|DbUser|null): boolean => {
   if (!post) return false;
   return !!(
     post.bannedUserIds?.includes(user._id) &&
@@ -207,7 +218,7 @@ export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PostsD
   )
 }
 
-export const userIsNotShortformOwner = (user: UsersCurrent|DbUser, post: PostsDetails|DbPost): boolean => {
+export const userIsNotShortformOwner = (user: UsersCurrent|DbUser, post: PermissionsPostMinimumInfo): boolean => {
   return !!(
     post.shortform &&
     post.userId &&
@@ -215,7 +226,7 @@ export const userIsNotShortformOwner = (user: UsersCurrent|DbUser, post: PostsDe
   )
 }
 
-export const userIsBannedFromAllPosts = (user: UsersCurrent|DbUser, post: PostsDetails|DbPost, postAuthor: PermissionableUser|DbUser|null): boolean => {
+export const userIsBannedFromAllPosts = (user: UsersCurrent|DbUser, post: PermissionsPostMinimumInfo, postAuthor: PermissionableUser|DbUser|null): boolean => {
   return !!(
     // @ts-ignore FIXME: Not enforcing that the fragment includes bannedUserIds
     postAuthor?.bannedUserIds?.includes(user._id) &&
@@ -225,7 +236,7 @@ export const userIsBannedFromAllPosts = (user: UsersCurrent|DbUser, post: PostsD
   )
 }
 
-export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post: PostsDetails|DbPost, postAuthor: PermissionableUser|DbUser|null): boolean => {
+export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post: PermissionsPostMinimumInfo, postAuthor: PermissionableUser|DbUser|null): boolean => {
   return !!(
     // @ts-ignore FIXME: Not enforcing that the fragment includes bannedUserIds
     postAuthor?.bannedPersonalUserIds?.includes(user._id) &&
@@ -235,7 +246,7 @@ export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post
   )
 }
 
-export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost|null, postAuthor: PermissionableUser|DbUser|null, isReply: boolean): boolean => {
+export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: PermissionsPostMinimumInfo|null, postAuthor: PermissionableUser|DbUser|null, isReply: boolean): boolean => {
   if (!user) return false
   if (user.deleted) return false
   if (user.allCommentingDisabled) return false
@@ -255,7 +266,11 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
     if (post.rejected) {
       return false
     }
-    if ((post.commentsLockedToAccountsCreatedAfter ?? new Date()) < user.createdAt) {
+    
+    const lockDate = maybeDate(post.commentsLockedToAccountsCreatedAfter)
+    const userCreatedDate = maybeDate(user.createdAt);
+    
+    if (lockDate && lockDate < userCreatedDate) {
       return false
     }
   

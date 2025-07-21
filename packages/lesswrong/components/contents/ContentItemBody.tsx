@@ -13,13 +13,13 @@ import { hasCollapsedFootnotes } from '@/lib/betas';
 import { CollapsedFootnotes } from './CollapsedFootnotes';
 import { WrappedStrawPoll } from './WrappedStrawPoll';
 import { validateUrl } from '@/lib/vulcan-lib/utils';
-import { captureEvent } from '@/lib/analyticsEvents';
+import { useTracking } from '@/lib/analyticsEvents';
 import ForumEventPostPagePollSection from '../forumEvents/ForumEventPostPagePollSection';
 import repeat from 'lodash/repeat';
 import { captureException } from '@sentry/core';
 
 type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"> & {
-  bodyRef: React.RefObject<HTMLDivElement|null>
+  bodyRef: React.RefObject<HTMLDivElement|null>,
 }
 
 type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: boolean}>;
@@ -104,7 +104,9 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
   passedThroughProps: PassedThroughContentItemBodyProps,
   root?: boolean,
 }) => {
-  const { replacedSubstrings } = passedThroughProps;;
+  const { replacedSubstrings } = passedThroughProps;
+  const { captureEvent } = useTracking();
+  
   switch (parsedHtml.type) {
     case htmlparser2.ElementType.CDATA:
     case htmlparser2.ElementType.Directive:
@@ -131,7 +133,7 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
 
     case htmlparser2.ElementType.Tag: {
       let TagName = parsedHtml.tagName.toLowerCase() as any;
-      if (TagName === 'html' || TagName === 'body') {
+      if (TagName === 'html' || TagName === 'body' || TagName === 'head') {
         TagName = 'div';
       }
       const attribs = translateAttribs(parsedHtml.attribs);

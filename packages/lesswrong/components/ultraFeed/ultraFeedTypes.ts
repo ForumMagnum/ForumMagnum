@@ -155,7 +155,7 @@ export interface LinearCommentThreadStatistics {
 }
 
 export interface UltraFeedAnalyticsContext {
-  sessionId: string;
+  feedSessionId: string;
 }
 export interface ThreadEngagementStats {
   threadTopLevelId: string;

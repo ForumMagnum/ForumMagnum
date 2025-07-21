@@ -94,29 +94,24 @@ const LWHome = () => {
             </SuspenseWrapper>
           </SingleColumnSection>}
           <SuspenseWrapper name="LWHomePosts" fallback={<div style={{height: 800}}/>}>
-            <AnalyticsInViewTracker
-              eventProps={{inViewType: "homePosts"}}
-              observerProps={{threshold:[0, 0.5, 1]}}
-            >
-              <LWHomePosts>
-                <QuickTakesSection />
-                <SuspenseWrapper name="EAPopularCommentsSection">
-                  <EAPopularCommentsSection />
-                </SuspenseWrapper>
-                
+            <LWHomePosts>
+              <QuickTakesSection />
+              <SuspenseWrapper name="EAPopularCommentsSection">
+                <EAPopularCommentsSection />
+              </SuspenseWrapper>
+              
+              <AnalyticsInViewTracker eventProps={{inViewType: "feedSection"}} observerProps={{threshold:[0, 0.5, 1]}}>
                 <SuspenseWrapper name="UltraFeed">
-                  {shouldShowUltraFeed ? (
-                    <UltraFeed />
-                  ) : (
-                    <RecentDiscussionFeed
+                  {shouldShowUltraFeed && <UltraFeed />}
+                  {!shouldShowUltraFeed && <RecentDiscussionFeed
                       af={false}
                       commentsLimit={4}
                       maxAgeHours={18}
-                    />
-                  )}
+                    />}
                 </SuspenseWrapper>
-              </LWHomePosts>
-            </AnalyticsInViewTracker>
+              </AnalyticsInViewTracker>
+
+            </LWHomePosts>
           </SuspenseWrapper>
         </React.Fragment>
       </AnalyticsContext>
@@ -135,6 +130,8 @@ const UpdateLastVisitCookie = () => {
   return <></>
 }
 
-export default registerComponent('LWHome', LWHome);
+export default registerComponent('LWHome', LWHome, {
+  areEqual: "auto",
+});
 
 

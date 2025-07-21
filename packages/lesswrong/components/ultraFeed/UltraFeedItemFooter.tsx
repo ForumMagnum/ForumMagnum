@@ -13,7 +13,7 @@ import { useCurrentUser } from "../common/withUser";
 import { useDialog } from "../common/withDialog";
 import { bookmarkableCollectionNames } from "@/lib/collections/bookmarks/constants";
 import BookmarkButton from "../posts/BookmarkButton";
-import UltraFeedCommentsDialog from "./UltraFeedCommentsDialog";
+import UltraFeedPostDialog from "./UltraFeedPostDialog";
 import OverallVoteAxis from "../votes/OverallVoteAxis";
 import AgreementVoteAxis from "../votes/AgreementVoteAxis";
 import { getDefaultVotingSystem } from "@/lib/collections/posts/helpers";
@@ -155,8 +155,9 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   },
   commentCountText: {
     marginLeft: 4,
-    [theme.breakpoints.up('md')]: {
-      display: 'none',
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'inline',
     }
   },
   reactionIcon: {
@@ -376,7 +377,7 @@ const UltraFeedItemFooterCore = ({
         userId: currentUser._id,
         eventType: 'interacted' as const,
         documentId: voteProps.document._id,
-        collectionName: voteProps.collectionName as "Posts" | "Comments" | "Spotlights",
+        collectionName: voteProps.collectionName,
         feedItemId: metaInfo?.servedEventId,
         event: { interactionType },
       }
@@ -598,11 +599,12 @@ const UltraFeedPostFooter = ({ post, metaInfo, className, onSeeLess, isSeeLessMo
   
   const onClickComments = () => {
     openDialog({
-      name: "commentsDialog",
+      name: "UltraFeedPostDialog",
       closeOnNavigate: true,
-      contents: ({onClose}) => <UltraFeedCommentsDialog 
-        document={post}
-        collectionName="Posts"
+      contents: ({onClose}) => <UltraFeedPostDialog 
+        partialPost={post}
+        postMetaInfo={metaInfo}
+        openAtComments={true}
         onClose={onClose}
       />
     });
@@ -639,12 +641,13 @@ const UltraFeedPostFooter = ({ post, metaInfo, className, onSeeLess, isSeeLessMo
           onReplyCancel={onReplyCancel}
           onViewAllComments={() => {
             openDialog({
-              name: "UltraFeedCommentsDialog",
+              name: "UltraFeedPostDialog",
               closeOnNavigate: true,
               contents: ({ onClose }) => (
-                <UltraFeedCommentsDialog
-                  document={post}
-                  collectionName="Posts"
+                <UltraFeedPostDialog
+                  partialPost={post}
+                  postMetaInfo={metaInfo}
+                  openAtComments={true}
                   onClose={onClose}
                 />
               ),
@@ -669,17 +672,30 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className, onSeeLess, isSee
   const bookmarkProps: BookmarkProps = {documentId: comment._id, highlighted: metaInfo.sources?.includes("bookmarks")};
   
   const onClickComments = () => {
+    // If comment doesn't have a post, we can't open the dialog, but this should never happen
+    if (!comment.post) {
+      return;
+    }
+    
+    const post = comment.post;
+    
     openDialog({
-      name: "UltraFeedCommentsDialog",
+      name: "UltraFeedPostDialog", 
       closeOnNavigate: true,
-      contents: ({onClose}) => <UltraFeedCommentsDialog 
-        document={comment}
-        collectionName="Comments"
+      contents: ({onClose}) => <UltraFeedPostDialog 
+        partialPost={post}
+        postMetaInfo={{
+          sources: metaInfo.sources,
+          displayStatus: 'expanded' as const,
+          servedEventId: metaInfo.servedEventId ?? '',
+        }}
+        targetCommentId={comment._id}
+        topLevelCommentId={post.shortform ? (comment.topLevelCommentId ?? comment._id) : undefined}
         onClose={onClose}
       />
     });
-  }
-
+  };
+  
   const { isReplying, onReplySubmit, onReplyCancel } = replyConfig;
 
   return (
@@ -708,19 +724,7 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className, onSeeLess, isSee
         cannotReplyReason={cannotReplyReason}
         onReplySubmit={onReplySubmit}
         onReplyCancel={onReplyCancel}
-        onViewAllComments={() => {
-          openDialog({
-            name: "UltraFeedCommentsDialog",
-            closeOnNavigate: true,
-            contents: ({ onClose }) => (
-              <UltraFeedCommentsDialog
-                document={comment}
-                collectionName="Comments"
-                onClose={onClose}
-              />
-            ),
-          });
-        }}
+        onViewAllComments={onClickComments}
       />}
     </>
   );

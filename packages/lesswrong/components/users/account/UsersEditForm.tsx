@@ -7,7 +7,7 @@ import { useMutation, useApolloClient } from '@apollo/client/react';
 import { useQuery } from "@/lib/crud/useQuery"
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, verifyEmailsSetting } from '@/lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from '@/components/themes/useTheme';
-import { captureEvent } from '@/lib/analyticsEvents';
+
 import { configureDatadogRum } from '@/client/datadogRum';
 import { isBookUI, isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useLocation, useNavigate } from '@/lib/routeUtil.tsx';
@@ -46,6 +46,7 @@ import ErrorAccessDenied from "../../common/ErrorAccessDenied";
 import { withDateFields } from '@/lib/utils/dateUtils';
 import { gql } from "@/lib/generated/gql-codegen";
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
+import { useTracking } from '@/lib/analyticsEvents';
 
 const UsersEditUpdateMutation = gql(`
   mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -1343,6 +1344,7 @@ const UsersEditForm = ({ terms }: {
   `), { errorPolicy: 'all' })
   const currentThemeOptions = useThemeOptions();
   const setTheme = useSetTheme();
+  const { captureEvent } = useTracking();
 
   const userHasEditAccess = userCanEditUser(currentUser, terms);
 

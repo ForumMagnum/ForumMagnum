@@ -100,14 +100,10 @@ const compressCollapsedComments = (
     const commentId = comment._id;
     const localStatus = displayStatuses[commentId] || "collapsed"
 
-    if (localStatus === "hidden") {
-      continue;
-    }
-
-    if (localStatus === "collapsed") {
+    if (localStatus === "collapsed" || localStatus === "hidden") {
       tempGroup.push(comment);
     } else {
-      // If we hit a non-collapsed, flush the current group
+      // If we hit a non-collapsed/hidden comment, flush the current group
       flushGroupIfNeeded();
       result.push(comment);
     }
@@ -370,7 +366,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
   }, [thread._id, comments, captureEvent]);
 
   return (
-    <AnalyticsContext pageParentElementContext="ultraFeedThread" ultraFeedCardId={thread._id} ultraFeedCardIndex={index}>
+    <AnalyticsContext pageParentElementContext="ultraFeedThread" ultraFeedCardId={thread._id} feedCardIndex={index}>
     {postExpanded && !post && loading && <div className={classes.postsLoadingContainer}>
       <Loading />
     </div>}
@@ -380,35 +376,29 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
     <div className={classes.commentsRoot}>
       {comments.length > 0 && <div className={classes.commentsContainer}>
         <div className={classes.commentsList}>
-          {compressedItems.map((item, index) => {
+          {compressedItems.map((item, commentIndex) => {
             if ("placeholder" in item) {
               const hiddenCount = item.hiddenComments.length;
               
               return (
-                <div className={classes.commentItem} key={`placeholder-${index}`}>
+                <div className={classes.commentItem} key={`placeholder-${commentIndex}`}>
                   <UltraFeedCompressedCommentsItem
                     numComments={hiddenCount}
                     setExpanded={() => {
-                      captureEvent("ultraFeedThreadItemCompressedCommentsExpanded", { 
-                        ultraCardIndex: index, 
-                        ultraCardCount: compressedItems.length,
-                        numExpanded: Math.min(3, hiddenCount)
-                      });
-                      
                       // Always expand max 3 comments at a time
                       item.hiddenComments.slice(0, 3).forEach(h => {
                         setDisplayStatus(h._id, "expanded");
                       });
                     }}
-                    isFirstComment={index === 0}
-                    isLastComment={index === compressedItems.length - 1}
+                    isFirstComment={commentIndex === 0}
+                    isLastComment={commentIndex === compressedItems.length - 1}
                   />
                 </div>
               );
             } else {
               const cId = item._id;
-              const isFirstItem = index === 0;
-              const isLastItem = index === compressedItems.length - 1;
+              const isFirstItem = commentIndex === 0;
+              const isLastItem = commentIndex === compressedItems.length - 1;
               const parentAuthorName = item.parentCommentId ? commentAuthorsMap[item.parentCommentId] : null;
               const isAnimating = animatingCommentIds.has(cId);
               
@@ -442,6 +432,8 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
                     }}
                     hasFork={navigationProps.showNav}
                     currentBranch={navigationProps.currentBranch}
+                    threadIndex={index}
+                    commentIndex={commentIndex}
                     onBranchToggle={() => navigationProps.forkParentId && handleBranchToggle(navigationProps.forkParentId)}
                     onEditSuccess={isNewReply ? handleNewReplyEdit : () => {}}
                   />

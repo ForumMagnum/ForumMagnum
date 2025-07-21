@@ -56,7 +56,10 @@ const AFSuggestUsersList = ({ classes }: {
   }
 }
 
-export default registerComponent('AFSuggestUsersList', AFSuggestUsersList, {styles});
+export default registerComponent('AFSuggestUsersList', AFSuggestUsersList, {
+  styles,
+  areEqual: "auto",
+});
 
 
 

@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef, useEffect, useMemo } from "react"
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { postGetPageUrl, postGetLink, postGetLinkTarget, detectLinkpost } from "@/lib/collections/posts/helpers";
 import { FeedPostMetaInfo, FeedItemSourceType } from "./ultraFeedTypes";
 import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
@@ -15,7 +15,6 @@ import { useDialog } from "../common/withDialog";
 import { isPostWithForeignId } from "../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import UltraFeedPostDialog from "./UltraFeedPostDialog";
-import UltraFeedCommentsDialog from "./UltraFeedCommentsDialog";
 import FormatDate from "../common/FormatDate";
 import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 import FeedContentBody from "./FeedContentBody";
@@ -37,6 +36,7 @@ import { UltraFeedCommentItem } from "./UltraFeedCommentItem";
 import type { FeedCommentMetaInfo } from "./ultraFeedTypes";
 import PostsUserAndCoauthors from "../posts/PostsUserAndCoauthors";
 import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
+import ForumIcon from "../common/ForumIcon";
 
 const localPostQuery = gql(`
   query LocalPostQuery($documentId: String!) {
@@ -207,19 +207,19 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     flexGrow: 1,
     minWidth: 0,
     order: 2,
-    display: 'none',
+    display: 'block',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
-    [theme.breakpoints.up('sm')]: {
-      display: 'block',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
     },
   },
   mobileAuthorsListWrapper: {
     order: 1,
     minWidth: 0,
-    display: 'block',
-    [theme.breakpoints.up('sm')]: {
-      display: 'none',
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'block',
     },
   },
   authorsList: {
@@ -240,7 +240,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     order: 1,
-    gap: '8px',
+    gap: '4px',
     [theme.breakpoints.down('sm')]: {
       order: 3,
       flexShrink: 0,
@@ -302,6 +302,8 @@ const UltraFeedPostItemHeader = ({
     .filter(({ source }) => sources.includes(source))
     .map(({ source, icon, tooltip }) => ({ icon, tooltip, key: source }));
 
+  const { isLinkpost, linkpostDomain } = detectLinkpost(post);
+
   return (
     <div className={classes.header}>
       <div className={classes.titleContainer}>
@@ -333,6 +335,13 @@ const UltraFeedPostItemHeader = ({
               </span>
             </LWTooltip>
           ))}
+          {isLinkpost && (
+            <LWTooltip title={`Linkpost from ${linkpostDomain}`} placement="top">
+              <a href={postGetLink(post)} target={postGetLinkTarget(post)} onClick={(e) => e.stopPropagation()}>
+                <ForumIcon icon="Link" className={classes.sourceIcon} />
+              </a>
+            </LWTooltip>
+          )}
         </div>
         <div className={classes.desktopTripleDotWrapper}>
           <AnalyticsContext pageElementContext="tripleDotMenu">
@@ -348,23 +357,6 @@ const UltraFeedPostItemHeader = ({
       </div>
     </div>
   );
-};
-
-const calculateDisplayWordCount = (
-  fullPost: PostsPage | UltraFeedPostFragment | null | undefined,
-  post: PostsListWithVotes,
-  displayHtml: string | undefined
-): number | undefined => {
-  if (fullPost?.contents?.wordCount) {
-    return fullPost.contents.wordCount;
-  }
-  if (displayHtml === post.contents?.htmlHighlight && displayHtml) {
-    return Math.floor(displayHtml.length / 5);
-  }
-  if (post.shortform) {
-    return 0;
-  }
-  return post.contents?.wordCount;
 };
 
 const UltraFeedPostItem = ({
@@ -444,10 +436,11 @@ const UltraFeedPostItem = ({
       observe(currentElement, { 
         documentId: post._id, 
         documentType: 'post',
-        servedEventId: postMetaInfo.servedEventId
+        servedEventId: postMetaInfo.servedEventId,
+        feedCardIndex: index
       });
     }
-  }, [observe, post._id, postMetaInfo.servedEventId]);
+  }, [observe, post._id, postMetaInfo.servedEventId, index]);
 
   const handleContentExpand = useCallback((expanded: boolean, wordCount: number) => {
     setIsContentExpanded(expanded);
@@ -463,6 +456,7 @@ const UltraFeedPostItem = ({
       maxLevelReached: expanded,
       wordCount,
       servedEventId: postMetaInfo.servedEventId,
+      feedCardIndex: index,
     });
 
     captureEvent("ultraFeedPostItemExpanded", {
@@ -484,6 +478,7 @@ const UltraFeedPostItem = ({
     isLoadingFull, 
     fullPost,
     postMetaInfo.servedEventId,
+    index,
   ]);
 
   const handleCollapse = () => {
@@ -542,6 +537,7 @@ const UltraFeedPostItem = ({
       maxLevelReached: true,
       wordCount: post.contents?.wordCount ?? 0,
       servedEventId: postMetaInfo.servedEventId,
+      feedCardIndex: index,
     });
     
     if (!hasRecordedViewOnExpand) {
@@ -569,6 +565,7 @@ const UltraFeedPostItem = ({
     postMetaInfo,
     hasRecordedViewOnExpand,
     recordPostView,
+    index,
   ]);
 
   const shortformHtml = post.shortform 
@@ -577,8 +574,7 @@ const UltraFeedPostItem = ({
 
   const displayHtml = fullPost?.contents?.html ?? post.contents?.htmlHighlight ?? shortformHtml;
   
-  // Calculate the appropriate word count based on what content we're displaying
-  const displayWordCount = calculateDisplayWordCount(fullPost, post, displayHtml);
+  const displayWordCount = post.shortform ? 0 : post.contents?.wordCount;
 
   const truncationParams = useMemo(() => {
     return {
@@ -592,7 +588,7 @@ const UltraFeedPostItem = ({
   }
 
   return (
-    <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index} ultraFeedSources={postMetaInfo.sources}>
+    <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} feedCardIndex={index} ultraFeedSources={postMetaInfo.sources}>
     <div className={classes.root}>
       <div ref={elementRef} className={classes.mainContent}>
         {/* On small screens, the triple dot menu is positioned absolutely to the root */}
@@ -678,6 +674,8 @@ const UltraFeedPostItem = ({
               }}
               cannotReplyReason="You cannot reply to your own comment within the feed"
               onEditSuccess={handleCommentEdit}
+              threadIndex={index}
+              commentIndex={0}
             />
           </div>
         )}

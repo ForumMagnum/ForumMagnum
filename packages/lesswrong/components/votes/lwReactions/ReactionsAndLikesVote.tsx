@@ -106,14 +106,12 @@ export const ReactionsAndLikesVote = ({
         document: voteProps.document,
         voteType: "neutral",
         extendedVote: document?.currentUserExtendedVote,
-        currentUser
       });
     } else {
       await voteProps.vote({
         document: voteProps.document,
         voteType: "bigUpvote",
         extendedVote: document?.currentUserExtendedVote,
-        currentUser
       });
     }
   }

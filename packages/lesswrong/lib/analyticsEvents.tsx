@@ -20,7 +20,8 @@ export const clientContextVars: {
   userId?: string | undefined;
   clientId?: string;
   tabId?: string | null;
-  abTestGroupsUsed?: RelevantTestGroupAllocation
+  abTestGroupsUsed?: RelevantTestGroupAllocation;
+  sessionId?: string;
 } = {};
 
 export type EventProps = AnalyticsProps | Record<string, Json | undefined>;
@@ -105,9 +106,9 @@ export type AnalyticsProps = {
   ultraFeedSources?: FeedItemSourceType[],
   ultraFeedElementType?: FeedItemType,
   ultraFeedCardId?: string,
-  ultraFeedCardIndex?: number,
-  recentDiscussionContext?: { sessionId: string },
-  recentDiscussionCardIndex?: number,
+  feedCardIndex?: number,
+  modalInstanceId?: string,
+  recentDiscussionContext?: { feedSessionId: string },
   /** @deprecated Use `pageSectionContext` instead */
   listContext?: string,
   /** @deprecated Use `pageSectionContext` instead */

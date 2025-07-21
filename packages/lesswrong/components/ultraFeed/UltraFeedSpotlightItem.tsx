@@ -126,11 +126,12 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       gap: '2px',
       maxWidth: `calc(100% - ${SIDE_MARGIN}px)`,
       marginBottom: 4,
+      position: 'relative',
+      zIndex: 3,
       [theme.breakpoints.down('sm')]: {
         maxWidth: '100%',
         gap: '4px',
         position: 'relative',
-        zIndex: 3,
         order: 1,
         marginBottom: 12,
       },
@@ -402,13 +403,21 @@ const SpotlightTitle = ({ spotlight, isPost, url, handleContentClick, className 
   
   return (
     <div className={className}>
-      <SpotlightContentWrapper isPost={isPost} url={url} handleContentClick={handleContentClick}>
-        <div className={classes.titleContainer}>
-          <span className={classes.title}>
+      <div className={classes.titleContainer}>
+        {isPost ? (
+          <a 
+            href={url} 
+            onClick={handleContentClick}
+            className={classes.title}
+          >
             {getSpotlightDisplayTitle(spotlight)}
-          </span>
-        </div>
-      </SpotlightContentWrapper>
+          </a>
+        ) : (
+          <Link to={url} className={classes.title}>
+            {getSpotlightDisplayTitle(spotlight)}
+          </Link>
+        )}
+      </div>
     </div>
   );
 };
@@ -547,10 +556,11 @@ const UltraFeedSpotlightItem = ({
     if (currentElement && spotlight) {
       observe(currentElement, {
         documentId: spotlight._id,
-        documentType: 'spotlight'
+        documentType: 'spotlight',
+        feedCardIndex: index
       });
     }
-  }, [observe, spotlight]);
+  }, [observe, spotlight, index]);
 
   if (!spotlight) {
     return null;
@@ -572,7 +582,7 @@ const UltraFeedSpotlightItem = ({
   };
 
   return (
-    <AnalyticsContext ultraFeedElementType="feedSpotlight" spotlightId={spotlight._id} ultraFeedCardIndex={index}>
+    <AnalyticsContext ultraFeedElementType="feedSpotlight" spotlightId={spotlight._id} feedCardIndex={index}>
       <div
         ref={elementRef}
         id={spotlight._id}

@@ -4,7 +4,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
-import { captureEvent } from "../../lib/analyticsEvents";
+import { useTracking } from "../../lib/analyticsEvents";
 import Book2019Animation from "./Book2019Animation";
 import HeadTags from "../common/HeadTags";
 import LWTooltip from "../common/LWTooltip";
@@ -264,9 +264,9 @@ const HiddenQuote = ({classes}: {classes: ClassesType<typeof styles>}) => {
   )
 }
 
-const Book2019Landing = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const Book2019Landing = ({classes}: {classes: ClassesType<typeof styles>}) => {
+  const { captureEvent } = useTracking();
+
   return (
     <div>
       <HeadTags 

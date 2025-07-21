@@ -126,7 +126,7 @@ const EARecentDiscussionQuickTake = ({
           return null;
         }
         return (
-          <AnalyticsContext key={quickTake._id} recentDiscussionCardIndex={index}>
+          <AnalyticsContext key={quickTake._id} feedCardIndex={index}>
           <EARecentDiscussionItem
             {...getItemProps(post, comments[0])}
           >

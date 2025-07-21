@@ -46,8 +46,8 @@ export async function runServerOnStartupFunctions() {
   serverInitSentry();
   startMemoryUsageMonitor();
   initLegacyRoutes();
-  await startupSanityChecks();
-  await refreshKarmaInflationCache();
+  void startupSanityChecks();
+  void refreshKarmaInflationCache();
   addLegacyRssRoutes();
   void initReviewWinnerCache();
   void updateStripeIntentsCache();

@@ -1,7 +1,7 @@
 import React, { CSSProperties, FC, PropsWithChildren } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import { useCurrentUser } from "../common/withUser";
+import { useCurrentUser, useCurrentUserId } from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -47,7 +47,7 @@ const styles = (theme: ThemeType) => ({
     marginRight: theme.spacing.unit,
   },
   onGrayBackground: {
-    ...(isBookUI && theme.themeOptions.name === 'dark' && {
+    ...(isBookUI && theme.dark && {
       color: theme.palette.greyAlpha(1),
     }),
   },
@@ -134,10 +134,10 @@ const styles = (theme: ThemeType) => ({
     padding: "0 6px",
     height: 20,
     border: "none",
-    backgroundColor: theme.themeOptions.name === "dark"
+    backgroundColor: theme.dark
       ? "var(--post-title-tag-foreground)"
       : "var(--post-title-tag-background)",
-    color: theme.themeOptions.name === "dark"
+    color: theme.dark
       ? "var(--post-title-tag-background)"
       : "var(--post-title-tag-foreground)",
   },
@@ -238,11 +238,11 @@ const PostsTitle = ({
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser();
+  const currentUserId = useCurrentUserId();
   const { pathname } = useLocation();
   const {event: taggedEvent, current: taggedEventIsCurrent} = useTaggedEvent(showEventTag ?? false, post) ?? {};
   const theme = useTheme();
-  const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
+  const shared = post.draft && (post.userId !== currentUserId) && post.shareWithUsers
   const isOnGrayBackground = useIsOnGrayBackground();
 
   const shouldRenderEventsTag = (pathname !== communityPath) && (pathname !== '/pastEvents') && (pathname !== '/upcomingEvents') &&

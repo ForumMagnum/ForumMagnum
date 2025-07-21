@@ -1,7 +1,7 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useTracking } from "../../lib/analyticsEvents";
-import { voteButtonsDisabledForUser } from "../../lib/collections/users/helpers";
+import { useVoteButtonsDisabled } from "../votes/useVoteButtonsDisabled";
 import { useDialog } from "../common/withDialog";
 import { useCurrentUser } from "../common/withUser";
 import { useVote } from "../votes/withVote";
@@ -52,7 +52,7 @@ const EAPostsItemTagRelevance = ({tagRel, classes}: {
   const {flash} = useMessages();
   const {captureEvent} = useTracking();
   const currentUser = useCurrentUser();
-  const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
+  const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
   const canVote = !fail;
   const {
     document,
@@ -67,7 +67,6 @@ const EAPostsItemTagRelevance = ({tagRel, classes}: {
       await vote({
         document,
         voteType: isVoted ? "neutral" : voteType,
-        currentUser,
       });
       captureEvent("vote", {collectionName});
     } else if (currentUser) {

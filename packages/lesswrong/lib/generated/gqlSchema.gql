@@ -2046,6 +2046,18 @@ enum TagCommentType {
   DISCUSSION
 }
 
+enum CommentSortingMode {
+  top
+  groupByPost
+  new
+  newest
+  old
+  oldest
+  magic
+  recentComments
+  recentDiscussion
+}
+
 input SingleCommentInput {
   selector: SelectorInput
   resolverArgs: JSON
@@ -2170,6 +2182,7 @@ input CommentsProfileCommentsInput {
   minimumKarma: Int
   authorIsUnreviewed: Boolean
   sortBy: String
+  drafts: String
   limit: String
 }
 
@@ -2348,6 +2361,8 @@ input CommentsNominations2018Input {
   commentIds: [String!]
   minimumKarma: Int
   authorIsUnreviewed: Boolean
+  postId: String
+  sortBy: CommentSortingMode
 }
 
 input CommentsNominations2019Input {
@@ -2355,6 +2370,8 @@ input CommentsNominations2019Input {
   commentIds: [String!]
   minimumKarma: Int
   authorIsUnreviewed: Boolean
+  postId: String
+  sortBy: CommentSortingMode
 }
 
 input CommentsReviews2018Input {
@@ -2362,6 +2379,8 @@ input CommentsReviews2018Input {
   commentIds: [String!]
   minimumKarma: Int
   authorIsUnreviewed: Boolean
+  postId: String
+  sortBy: CommentSortingMode
 }
 
 input CommentsReviews2019Input {
@@ -2369,6 +2388,8 @@ input CommentsReviews2019Input {
   commentIds: [String!]
   minimumKarma: Int
   authorIsUnreviewed: Boolean
+  postId: String
+  sortBy: CommentSortingMode
 }
 
 input CommentsReviewsInput {

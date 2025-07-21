@@ -23,6 +23,7 @@ export const baseTheme: BaseThemeSpecification = {
     const spacingUnit = 8
   
     return {
+      dark: false,
       baseFontSize: 13,
       breakpoints: {
         values: {

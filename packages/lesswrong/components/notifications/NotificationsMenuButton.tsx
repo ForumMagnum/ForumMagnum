@@ -20,6 +20,7 @@ import { SuspenseWrapper } from '../common/SuspenseWrapper';
 // import dynamic from 'next/dynamic';
 import { styles } from './notificationsMenuButtonStyles';
 import NotificationsPopover from './NotificationsPopover';
+import ErrorBoundary from '../common/ErrorBoundary';
 
 const UserKarmaChangesQuery = gql(`
   query NotificationsMenuButton($documentId: String) {
@@ -63,9 +64,11 @@ const BookNotificationsMenuButtonInner = ({
   );
 }
 
-const BookNotificationsMenuButtonPlaceholder = () => {
+const BookNotificationsMenuButtonPlaceholder = ({toggle}: {
+  toggle: () => void,
+}) => {
   const classes = useStyles(styles);
-  return <IconButton classes={{ root: classes.buttonClosed }} >
+  return <IconButton classes={{ root: classes.buttonClosed }} onClick={toggle}>
     <ForumIcon icon="BellBorder"/>
   </IconButton>
 }
@@ -199,7 +202,9 @@ const FriendlyNotificationsMenuButtonInner = ({
   );
 }
 
-const FriendlyNotificationsMenuButtonPlaceholder = () => {
+const FriendlyNotificationsMenuButtonPlaceholder = ({toggle}: {
+  toggle: () => void,
+}) => {
   // ea-forum-look-here
   // This component is a loading-placeholder that will be shown briefly (less
   // than a second) during pageload. It should visually match
@@ -210,17 +215,19 @@ const FriendlyNotificationsMenuButtonPlaceholder = () => {
 }
 
 const NotificationsMenuButton = ({ open, toggle, className }: NotificationsMenuButtonProps) => {
+  const fallback = isFriendlyUI
+    ? <FriendlyNotificationsMenuButtonPlaceholder toggle={toggle} />
+    : <BookNotificationsMenuButtonPlaceholder toggle={toggle} />
   return <SuspenseWrapper
     name="NotificationsMenuButton"
-    fallback={isFriendlyUI
-      ? <FriendlyNotificationsMenuButtonPlaceholder/>
-      : <BookNotificationsMenuButtonPlaceholder/>
-    }
+    fallback={fallback}
   >
-    {isFriendlyUI
-      ? <FriendlyNotificationsMenuButtonInner open={open} toggle={toggle} className={className}/>
-      : <BookNotificationsMenuButtonInner open={open} toggle={toggle} className={className}/>
-    }
+    <ErrorBoundary fallback={fallback}>
+      {isFriendlyUI
+        ? <FriendlyNotificationsMenuButtonInner open={open} toggle={toggle} className={className}/>
+        : <BookNotificationsMenuButtonInner open={open} toggle={toggle} className={className}/>
+      }
+    </ErrorBoundary>
   </SuspenseWrapper>
 }
 

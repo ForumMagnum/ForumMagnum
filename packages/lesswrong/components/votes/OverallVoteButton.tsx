@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useCurrentUser } from '../common/withUser';
+import { useCurrentUserId } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import { useTracking } from '../../lib/analyticsEvents';
 import { recombeeApi } from '../../lib/recombee/client';
@@ -15,7 +14,6 @@ export interface OverallVoteButtonProps<T extends VoteableTypeClient> {
     document: T,
     voteType: string|null,
     extendedVote?: any,
-    currentUser: UsersCurrent,
   }) => void,
   collectionName: CollectionNameString,
   document: T,
@@ -35,7 +33,7 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
   solidArrow,
   largeArrow,
 }: OverallVoteButtonProps<T>) => {
-  const currentUser = useCurrentUser();
+  const currentUserId = useCurrentUserId();
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking();
   const recombeeRecommendationsContext = useContext(RecombeeRecommendationsContext);
@@ -43,16 +41,16 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
   const wrappedVote = (strength: "big"|"small"|"neutral") => {
     const voteType = strength === 'neutral' ? 'neutral' : strength+upOrDown;
     
-    if(!currentUser){
+    if(!currentUserId){
       openDialog({
         name: "LoginPopup",
         contents: ({onClose}) => <LoginPopup onClose={onClose}/>
       });
     } else {
-      vote?.({document, voteType: voteType, extendedVote: document?.currentUserExtendedVote, currentUser});
+      vote?.({document, voteType: voteType, extendedVote: document?.currentUserExtendedVote});
       captureEvent("vote", {collectionName});
       if (recombeeEnabledSetting.get() && collectionName === "Posts" && recombeeRecommendationsContext?.postId === document._id) {
-        void recombeeApi.createRating(document._id, currentUser._id, voteType, recombeeRecommendationsContext.recommId);
+        void recombeeApi.createRating(document._id, currentUserId, voteType, recombeeRecommendationsContext.recommId);
       }
     }
   }
@@ -78,6 +76,6 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
   />
 }
 
-export default registerComponent('OverallVoteButton', OverallVoteButton);
+export default OverallVoteButton;
 
 
