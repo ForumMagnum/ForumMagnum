@@ -9,15 +9,15 @@ import jssDefaultUnit from 'jss-plugin-default-unit';
 import jssVendorPrefixer from 'jss-plugin-vendor-prefixer';
 import jssPropsSort from 'jss-plugin-props-sort';
 import { isClient } from "@/lib/executionEnvironment";
-import { ThemeContext, ThemeContextType, useTheme } from "../themes/useTheme";
-import { useServerInsertedHtml } from "./useServerInsertedHtml";
+import { ThemeContextType, useTheme } from "../themes/useTheme";
 import { maybeMinifyCSS } from "@/server/maybeMinifyCSS";
-import { type AbstractThemeOptions, abstractThemeToConcrete, getDefaultThemeOptions, themeOptionsAreConcrete } from "@/themes/themeNames";
+import { type AbstractThemeOptions, abstractThemeToConcrete, themeOptionsAreConcrete } from "@/themes/themeNames";
 import { getForumTheme } from "@/themes/forumTheme";
 
 export type StylesContextType = {
   theme: ThemeType
   abstractThemeOptions: AbstractThemeOptions
+  stylesAwaitingServerInjection: StyleDefinition[]
   mountedStyles: Map<string, {
     refcount: number
     styleDefinition: StyleDefinition<any>
@@ -32,6 +32,7 @@ export function createStylesContext(theme: ThemeType, abstractThemeOptions: Abst
   return {
     theme,
     abstractThemeOptions,
+    stylesAwaitingServerInjection: [],
     mountedStyles: new Map<string, {
       refcount: number
       styleDefinition: StyleDefinition<any>
@@ -139,27 +140,15 @@ export const useStyles = <T extends string>(styles: StyleDefinition<T>, override
   const stylesContext = useContext(StylesContext);
 
   if (bundleIsServer) {
-    const themeContext = use(ThemeContext);
-
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useServerInsertedHtml(() => {
-      if (!stylesContext || stylesContext.mountedStyles.has(styles.name)) {
-        return null;
-      }
-      stylesContext.mountedStyles.set(styles.name, {
-        refcount: 1,
-        styleDefinition: styles,
-      });
-
-      return serverEmbeddedStyles(themeContext?.abstractThemeOptions ?? getDefaultThemeOptions(), styles);
-    });
-
     if (stylesContext) {
       // If we're rendering server-side, we might or might not have
       // StylesContext. If we do, use it to record which styles were used during
       // the render. This is used when rendering emails, or if you want to serve
       // an SSR with styles inlined rather than in a static stlyesheet.
       if (!stylesContext.mountedStyles.has(styles.name)) {
+        if (bundleIsServer) {
+          stylesContext.stylesAwaitingServerInjection.push(styles);
+        }
         stylesContext.mountedStyles.set(styles.name, {
           refcount: 1,
           styleDefinition: styles,
@@ -313,36 +302,42 @@ function styleNodeToString(theme: ThemeType, styleDefinition: StyleDefinition): 
 // JSON-serialized theme => style name => style script tag
 const serverEmbeddedStylesCache: Record<string, Record<string,string>> = {};
 
-function serverEmbeddedStyles(abstractThemeOptions: AbstractThemeOptions, styleDefinition: StyleDefinition) {
+export function serverEmbeddedStyles(abstractThemeOptions: AbstractThemeOptions, styleDefinitions: StyleDefinition[]) {
   const themeKey = JSON.stringify(abstractThemeOptions);
-  const styleName = styleDefinition.name;
 
   if (!serverEmbeddedStylesCache[themeKey]) {
     serverEmbeddedStylesCache[themeKey] = {};
   }
-  if (!serverEmbeddedStylesCache[themeKey][styleName]) {
-    const priority = styleDefinition.options?.stylePriority ?? 0;
-
-    if (themeOptionsAreConcrete(abstractThemeOptions)) {
-      const theme = getForumTheme(abstractThemeOptions);
-      const stylesStr = styleNodeToString(theme, styleDefinition);
+  
+  const result: string[] = [];
+  for (const styleDefinition of styleDefinitions) {
+    const styleName = styleDefinition.name;
+    if (!serverEmbeddedStylesCache[themeKey][styleName]) {
       const priority = styleDefinition.options?.stylePriority ?? 0;
-      const styleScriptTag = `<script>_embedStyles(${JSON.stringify(styleDefinition.name)},${priority},${JSON.stringify(stylesStr)})</script>`;
-      serverEmbeddedStylesCache[themeKey][styleName] = styleScriptTag;
-    } else {
-      const lightThemeOptions = abstractThemeToConcrete(abstractThemeOptions, false);
-      const darkThemeOptions = abstractThemeToConcrete(abstractThemeOptions, true);
-      const lightTheme = getForumTheme(lightThemeOptions);
-      const darkTheme = getForumTheme(darkThemeOptions);
-      const lightStylesStr = styleNodeToString(lightTheme, styleDefinition);
-      const darkStylesStr = styleNodeToString(darkTheme, styleDefinition);
-      const stylesStr = `@media (prefers-color-scheme: light) {\n${lightStylesStr}\n}\n@media (prefers-color-scheme: dark) {\n${darkStylesStr}\n}`;
-      const styleScriptTag = `<script>_embedStyles(${JSON.stringify(styleDefinition.name)},${priority},${JSON.stringify(stylesStr)})
-      </script>`;
-      serverEmbeddedStylesCache[themeKey][styleName] = styleScriptTag;
+  
+      if (themeOptionsAreConcrete(abstractThemeOptions)) {
+        const theme = getForumTheme(abstractThemeOptions);
+        const stylesStr = styleNodeToString(theme, styleDefinition);
+        const priority = styleDefinition.options?.stylePriority ?? 0;
+        const styleScriptTag = `_embedStyles(${JSON.stringify(styleDefinition.name)},${priority},${JSON.stringify(stylesStr)})`;
+        serverEmbeddedStylesCache[themeKey][styleName] = styleScriptTag;
+      } else {
+        const lightThemeOptions = abstractThemeToConcrete(abstractThemeOptions, false);
+        const darkThemeOptions = abstractThemeToConcrete(abstractThemeOptions, true);
+        const lightTheme = getForumTheme(lightThemeOptions);
+        const darkTheme = getForumTheme(darkThemeOptions);
+        const lightStylesStr = styleNodeToString(lightTheme, styleDefinition);
+        const darkStylesStr = styleNodeToString(darkTheme, styleDefinition);
+        const stylesStr = (lightStylesStr === darkStylesStr)
+          ? lightStylesStr
+          : `@media (prefers-color-scheme: light) {\n${lightStylesStr}\n}\n@media (prefers-color-scheme: dark) {\n${darkStylesStr}\n}`
+        const styleScriptTag = `_embedStyles(${JSON.stringify(styleDefinition.name)},${priority},${JSON.stringify(stylesStr)})`;
+        serverEmbeddedStylesCache[themeKey][styleName] = styleScriptTag;
+      }
     }
+    result.push(serverEmbeddedStylesCache[themeKey][styleName]);
   }
-  return serverEmbeddedStylesCache[themeKey][styleName];
+  return `<script>${result.join(";")}</script>`;
 }
 
 export function getEmbeddedStyleLoaderScript() {

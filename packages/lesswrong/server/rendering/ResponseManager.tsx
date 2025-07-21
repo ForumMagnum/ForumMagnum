@@ -302,9 +302,13 @@ export class ResponseForwarderStream extends Writable {
 
   _write(chunk: any, _encoding: string, callback: (error?: Error|null) => void) {
     this.pendingData.push(chunk);
-    if (this.serverInsertedHtmlProvider.pendingBlocks.length > 0) {
-      this.pendingServerInsertedHtml.push(...this.serverInsertedHtmlProvider.pendingBlocks);
-      this.serverInsertedHtmlProvider.pendingBlocks = [];
+    if (this.serverInsertedHtmlProvider.callbacks.length > 0) {
+      for (const callback of this.serverInsertedHtmlProvider.callbacks) {
+        const insertedHtml = callback();
+        if (insertedHtml) {
+          this.pendingServerInsertedHtml.push(insertedHtml);
+        }
+      }
     }
     
     this.waitForInsertionPointAndFlush();

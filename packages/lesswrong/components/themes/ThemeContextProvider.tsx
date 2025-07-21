@@ -8,9 +8,10 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import stringify from 'json-stringify-deterministic';
 import { FMJssProvider } from '../hooks/FMJssProvider';
 import { ThemeContext } from './useTheme';
-import { isClient } from '@/lib/executionEnvironment';
+import { isClient, isServer } from '@/lib/executionEnvironment';
 import { useTracking } from '@/lib/analyticsEvents';
-import { regeneratePageStyles, StylesContext } from '../hooks/useStyles';
+import { regeneratePageStyles, serverEmbeddedStyles, StylesContext } from '../hooks/useStyles';
+import { useServerInsertedHtml } from '../hooks/useServerInsertedHtml';
 
 export const ThemeContextProvider = ({options, isEmail, children}: {
   options: AbstractThemeOptions,
@@ -48,7 +49,8 @@ export const ThemeContextProvider = ({options, isEmail, children}: {
   
   return <ThemeContext.Provider value={themeContext}>
     <FMJssProvider>
-      {!isEmail && <ThemeStylesheetSwapper/>}
+      {isClient && <ThemeStylesheetSwapper/>}
+      {isServer && !isEmail && <StyleHTMLInjector/>}
       {children}
     </FMJssProvider>
   </ThemeContext.Provider>
@@ -65,6 +67,22 @@ const ThemeStylesheetSwapper = () => {
       regeneratePageStyles(themeContext, stylesContext);
     }
   }, []);
+  
+  return null;
+}
+
+const StyleHTMLInjector = () => {
+  const stylesContext = useContext(StylesContext)!;
+  const themeContext = useContext(ThemeContext)!;
+  
+  useServerInsertedHtml(() => {
+    if (stylesContext.stylesAwaitingServerInjection.length > 0) {
+      const injectedStyles = serverEmbeddedStyles(themeContext.abstractThemeOptions, stylesContext.stylesAwaitingServerInjection)
+      stylesContext.stylesAwaitingServerInjection = [];
+      return injectedStyles;
+    }
+    return null;
+  });
   
   return null;
 }
