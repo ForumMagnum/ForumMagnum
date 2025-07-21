@@ -43,7 +43,7 @@ function getPublicSettings() {
   }
 }
 
-function getPrivateSettings() {
+export function getPrivateSettings() {
   const rawPrivateSettings = Object.entries(process.env).filter((setting): setting is [string, string] => {
     const [key, value] = setting;
     return key.startsWith("private_") && value !== undefined;
