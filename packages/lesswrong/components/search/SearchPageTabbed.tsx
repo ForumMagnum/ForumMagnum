@@ -453,9 +453,9 @@ const SearchPageTabbed = ({classes}: {
           <Configure hitsPerPage={hitsPerPage} />
           <div className={classes.statsContainer}>
             <CustomStats className={classes.resultCount} />
-            {hasKeywordAlerts && tab === "Posts" &&
+            {hasKeywordAlerts && (tab === "Posts" || tab === "Comments") &&
               <LWTooltip
-                title="Get notified about new posts matching this search"
+                title="Get notified about new posts and comments matching this search"
                 placement="top"
                 As="div"
               >
