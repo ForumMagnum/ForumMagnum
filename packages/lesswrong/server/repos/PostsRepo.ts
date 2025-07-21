@@ -1291,7 +1291,8 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       ) q ON p."_id" = q."_id"
       JOIN "Comments" c ON p."_id" = c."postId"
       WHERE
-        p."userId" = $1 OR q."coauthorId" = $1
+        (p."userId" = $1 OR q."coauthorId" = $1)
+        AND ${getViewablePostsSelector("p")}
       GROUP BY p."_id"
       ORDER BY "commentCount" DESC
       LIMIT 1
