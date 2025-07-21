@@ -761,7 +761,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: 'home',
       path: '/',
       component: EAHome,
-      description: "Research, discussion, and updates on the world's most pressing problems. Including global health and development, animal welfare, AI safety, and biosecurity.",
+      description: "The EA Forum hosts research, discussion, and updates on the world's most pressing problems. Including global health and development, animal welfare, AI safety, and biosecurity.",
       enableResourcePrefetch: true,
       sunshineSidebar: true,
       hasLeftNavigationColumn: true,
