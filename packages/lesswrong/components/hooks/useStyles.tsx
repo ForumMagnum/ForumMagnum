@@ -136,6 +136,7 @@ function importServerInsertedStyles(context: StylesContextType) {
   let numImported = 0;
   const jssInsertionStart = document.getElementById("jss-insertion-start");
   if (!jssInsertionStart) {
+    // eslint-disable-next-line no-console
     console.error("JSS insertion markers not found");
     return;
   }
