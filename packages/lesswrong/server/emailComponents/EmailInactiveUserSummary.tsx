@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
@@ -46,8 +46,12 @@ const styles = defineStyles("EmailInactiveUserSummary", (theme: ThemeType) => ({
     color: "inherit",
   },
   postAuthors: {
-    fontWeight: 500,
     marginBottom: 16,
+  },
+  postAuthor: {
+    fontWeight: 500,
+    color: theme.palette.text.alwaysBlack,
+    textDecoration: "none",
   },
   postBody: {
     fontFamily: theme.palette.fonts.serifStack,
@@ -148,7 +152,12 @@ export const EmailInactiveUserSummary = ({
             </a>
           </h3>
           <p className={classes.postAuthors}>
-            by {post.user?.displayName}
+            by <EmailUsername user={post.user} className={classes.postAuthor} />
+            {post.coauthors.map((coauthor) => (
+              <Fragment key={coauthor._id}>
+                {", "}<EmailUsername user={coauthor} className={classes.postAuthor} />
+              </Fragment>
+            ))}
           </p>
           {post.contents?.htmlHighlight &&
             <div
