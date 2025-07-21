@@ -96,7 +96,7 @@ export const EmailInactiveUserSummary = ({
       }
       {bestReaction && bestReaction.count > 0 &&
         <p>
-          You received {bestReaction.count} :{bestReaction.name}:.
+          You received {bestReaction.count} :{bestReaction.name}: react{bestReaction.count > 1 ? 's' : ''}.
         </p>
       }
       {mostCommentedPost && mostCommentedPost.commentCount > 0 &&
