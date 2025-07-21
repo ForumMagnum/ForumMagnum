@@ -122,7 +122,7 @@ export function generateEmailStylesheet({stylesContext, theme, themeOptions}: {
   themeOptions: ThemeOptions
 }): string {
   const mountedStyles = stylesContext.mountedStyles;
-  const usedStyleDefinitions = [...mountedStyles.values()].map(s => s.styleDefinition)
+  const usedStyleDefinitions = [...mountedStyles.values()].map(s => s.styleDefinition).filter(s => !!s);
   const usedStylesByName = keyBy(usedStyleDefinitions, s=>s.name);
   return stylesToStylesheet(usedStylesByName, theme, themeOptions);
 }

@@ -6,11 +6,10 @@ import { isEAForum } from '../../lib/instanceSettings';
 import { THEME_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import stringify from 'json-stringify-deterministic';
-import { FMJssProvider } from '../hooks/FMJssProvider';
-import { ThemeContext } from './useTheme';
+import { ThemeContext, useTheme, useThemeOptions } from './useTheme';
 import { isClient, isServer } from '@/lib/executionEnvironment';
 import { useTracking } from '@/lib/analyticsEvents';
-import { regeneratePageStyles, serverEmbeddedStyles, StylesContext } from '../hooks/useStyles';
+import { createStylesContext, regeneratePageStyles, serverEmbeddedStyles, setClientMountedStyles, StylesContext, type StylesContextType } from '../hooks/useStyles';
 import { useServerInsertedHtml } from '../hooks/useServerInsertedHtml';
 
 export const ThemeContextProvider = ({options, isEmail, children}: {
@@ -43,18 +42,34 @@ export const ThemeContextProvider = ({options, isEmail, children}: {
     [concreteThemeOptions]
   );
   const themeContext = useMemo(() => (
-    {theme, abstractThemeOptions: options, concreteThemeOptions, setThemeOptions}),
-    [theme, options, concreteThemeOptions, setThemeOptions]
+    {theme, abstractThemeOptions: themeOptions, concreteThemeOptions, setThemeOptions}),
+    [theme, themeOptions, concreteThemeOptions, setThemeOptions]
   );
   
+  const [stylesContext] = useState(() => createStylesContext(theme, themeOptions));
+  
   return <ThemeContext.Provider value={themeContext}>
-    <FMJssProvider>
+    <FMJssProvider stylesContext={stylesContext}>
       {isClient && <ThemeStylesheetSwapper/>}
       {isServer && !isEmail && <StyleHTMLInjector/>}
       {children}
     </FMJssProvider>
   </ThemeContext.Provider>
 }
+
+export const FMJssProvider = ({stylesContext, children}: {
+  stylesContext: StylesContextType
+  children: React.ReactNode
+}) => {
+  if (isClient) {
+    setClientMountedStyles(stylesContext);
+  }
+  
+  return <StylesContext.Provider value={stylesContext}>
+    {children}
+  </StylesContext.Provider>
+}
+
 
 const ThemeStylesheetSwapper = () => {
   const themeContext = useContext(ThemeContext)!;
@@ -66,7 +81,7 @@ const ThemeStylesheetSwapper = () => {
       window.themeOptions = abstractThemeOptions;
       regeneratePageStyles(themeContext, stylesContext);
     }
-  }, []);
+  }, [abstractThemeOptions, themeContext, stylesContext]);
   
   return null;
 }

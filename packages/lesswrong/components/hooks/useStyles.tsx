@@ -9,18 +9,18 @@ import jssDefaultUnit from 'jss-plugin-default-unit';
 import jssVendorPrefixer from 'jss-plugin-vendor-prefixer';
 import jssPropsSort from 'jss-plugin-props-sort';
 import { isClient } from "@/lib/executionEnvironment";
-import { ThemeContextType, useTheme } from "../themes/useTheme";
+import { ThemeContext, ThemeContextType, useTheme } from "../themes/useTheme";
 import { maybeMinifyCSS } from "@/server/maybeMinifyCSS";
 import { type AbstractThemeOptions, abstractThemeToConcrete, themeOptionsAreConcrete } from "@/themes/themeNames";
 import { getForumTheme } from "@/themes/forumTheme";
 
 export type StylesContextType = {
-  theme: ThemeType
-  abstractThemeOptions: AbstractThemeOptions
+  initialTheme: ThemeType
   stylesAwaitingServerInjection: StyleDefinition[]
+  serverInsertedStylesImported: boolean
   mountedStyles: Map<string, {
     refcount: number
-    styleDefinition: StyleDefinition<any>
+    styleDefinition?: StyleDefinition<any>
     styleNode?: HTMLStyleElement
   }>
 }
@@ -30,9 +30,9 @@ export const StylesContext = createContext<StylesContextType|null>(null);
 
 export function createStylesContext(theme: ThemeType, abstractThemeOptions: AbstractThemeOptions): StylesContextType {
   return {
-    theme,
-    abstractThemeOptions,
+    initialTheme: theme,
     stylesAwaitingServerInjection: [],
+    serverInsertedStylesImported: false,
     mountedStyles: new Map<string, {
       refcount: number
       styleDefinition: StyleDefinition<any>
@@ -63,10 +63,13 @@ export function setClientMountedStyles(styles: StylesContextType) {
 export function regeneratePageStyles(themeContext: ThemeContextType, stylesContext: StylesContextType) {
   if (isClient) {
     const mountedStyles = stylesContext.mountedStyles.entries();
-    for (const [_, mounted] of mountedStyles) {
-      if (mounted.styleNode) {
+    for (const [name, mounted] of mountedStyles) {
+      if (mounted.styleNode && mounted.styleDefinition) {
         const styleText = styleNodeToString(themeContext.theme, mounted.styleDefinition);
         mounted.styleNode.innerText = styleText;
+      } else if (mounted.styleNode) {
+        mounted.styleNode.remove();
+        stylesContext.mountedStyles.delete(name);
       }
     }
   }
@@ -91,17 +94,19 @@ export const defineStyles = <T extends string, N extends string>(
     const mountedStyles = _clientMountedStyles.mountedStyles.get(name);
     if (mountedStyles) {
       mountedStyles.styleNode?.remove();
-      mountedStyles.styleNode = createAndInsertStyleNode(_clientMountedStyles.theme, definition);
+      mountedStyles.styleNode = createAndInsertStyleNode(_clientMountedStyles.initialTheme, definition);
     }
   }
   
   return definition;
 }
 
-function addStyleUsage<T extends string>(context: StylesContextType, styleDefinition: StyleDefinition<T>) {
-  const theme = context.theme;
+function addStyleUsage<T extends string>(context: StylesContextType, theme: ThemeType, styleDefinition: StyleDefinition<T>) {
   const name = styleDefinition.name;
 
+  if (!context.serverInsertedStylesImported) {
+    importServerInsertedStyles(context);
+  }
   if (!context.mountedStyles.has(name)) {
     // No style mounted by that name? Add it
     context.mountedStyles.set(name, {
@@ -114,14 +119,47 @@ function addStyleUsage<T extends string>(context: StylesContextType, styleDefini
     if (mountedStyleNode.styleDefinition !== styleDefinition) {
       // Style is mounted by that name, but it doesn't match? Replace it, keeping
       // the ref count
-      mountedStyleNode.styleNode?.remove();
-      mountedStyleNode.styleNode = createAndInsertStyleNode(theme, styleDefinition);
-      context.mountedStyles.get(name)!.refcount++;
+      if (mountedStyleNode.styleDefinition) {
+        mountedStyleNode.styleNode?.remove();
+        mountedStyleNode.styleNode = createAndInsertStyleNode(theme, styleDefinition);
+      }
+      mountedStyleNode.styleDefinition = styleDefinition;
+      mountedStyleNode.refcount++;
     } else {
       // Otherwise, just incr the refcount
       context.mountedStyles.get(name)!.refcount++;
     }
   }
+}
+
+function importServerInsertedStyles(context: StylesContextType) {
+  let numImported = 0;
+  const jssInsertionStart = document.getElementById("jss-insertion-start");
+  if (!jssInsertionStart) {
+    console.error("JSS insertion markers not found");
+    return;
+  }
+  let pos: HTMLElement = jssInsertionStart;
+  while (pos) {
+    if (pos.tagName === 'STYLE') {
+      const name = pos.getAttribute("data-name");
+      if (name) {
+        numImported++;
+        context.mountedStyles.set(name, {
+          refcount: 1,
+          styleDefinition: undefined,
+          styleNode: pos as HTMLStyleElement,
+        });
+      }
+    }
+    const next = pos.nextElementSibling;
+    if (!next || next.id==='jss-insertion-end' || next.tagName !== 'STYLE') {
+      break;
+    } else {
+      pos = next as HTMLElement;
+    }
+  }
+  context.serverInsertedStylesImported = true;
 }
 
 function removeStyleUsage<T extends string>(context: StylesContextType, styleDefinition: StyleDefinition<T>) {
@@ -138,6 +176,8 @@ function removeStyleUsage<T extends string>(context: StylesContextType, styleDef
 
 export const useStyles = <T extends string>(styles: StyleDefinition<T>, overrideClasses?: Partial<JssStyles<T>>): JssStyles<T> => {
   const stylesContext = useContext(StylesContext);
+  const themeContext = useContext(ThemeContext);
+  const theme = themeContext!.theme;
 
   if (bundleIsServer) {
     if (stylesContext) {
@@ -159,10 +199,10 @@ export const useStyles = <T extends string>(styles: StyleDefinition<T>, override
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useLayoutEffect(() => {
       if (stylesContext) {
-        addStyleUsage(stylesContext, styles);
+        addStyleUsage(stylesContext, theme, styles);
         return () => removeStyleUsage(stylesContext, styles);
       }
-    }, [styles, stylesContext, stylesContext?.theme]);
+    }, [styles, stylesContext, theme]);
   }
 
   if (!styles.nameProxy) {
@@ -468,3 +508,4 @@ function insertStyleNodeAtCorrectPosition(styleNode: HTMLStyleElement, name: str
     styleNodes[left].insertAdjacentElement('beforebegin', styleNode);
   }
 }
+
