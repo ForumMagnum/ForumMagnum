@@ -105,6 +105,7 @@ export async function POST(req: NextRequest) {
     const stream = new ReadableStream({
       async start(controller) {
         try {
+          // eslint-disable-next-line no-constant-condition
           while (true) {
             const { done, value } = await reader.read();
             
@@ -123,7 +124,7 @@ export async function POST(req: NextRequest) {
         }
       },
       cancel() {
-        reader.cancel();
+        void reader.cancel();
       }
     });
 

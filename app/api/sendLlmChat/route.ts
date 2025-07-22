@@ -92,6 +92,7 @@ export async function POST(req: NextRequest) {
               const data = `data: ${JSON.stringify(event)}\n\n`;
               controller.enqueue(encoder.encode(data));
             } catch (error) {
+              // eslint-disable-next-line no-console
               console.error('Error sending event to client:', error);
             }
           };
@@ -108,6 +109,7 @@ export async function POST(req: NextRequest) {
           // This catch block now only handles runtime streaming errors
           // All validation errors are handled above
           if (!streamClosed) {
+            // eslint-disable-next-line no-console
             console.error('Error during streaming:', error);
           }
           controller.close();
@@ -127,6 +129,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     // Handle any unexpected errors (e.g., JSON parsing failures)
+    // eslint-disable-next-line no-console
     console.error('Unexpected error in sendLlmChat:', error);
     return new Response('Internal server error', {
       status: 500
