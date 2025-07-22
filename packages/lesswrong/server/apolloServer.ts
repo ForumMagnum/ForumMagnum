@@ -35,9 +35,9 @@ import ElasticController from './search/elastic/ElasticController';
 import { closePerfMetric, openPerfMetric, perfMetricMiddleware } from './perfMetrics';
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
 import { addCacheControlMiddleware } from './cacheControlMiddleware';
-import { addAutocompleteEndpoint } from './autocompleteEndpoint';
+// import { addAutocompleteEndpoint } from './autocompleteEndpoint';
 import { getSqlClientOrThrow } from './sql/sqlClient';
-import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
+// import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
 import { getCommandLineArguments } from './commandLine';
 import { isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
 import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
@@ -283,7 +283,7 @@ export async function startWebserver() {
   addCrosspostRoutes(app);
   addV2CrosspostHandlers(app);
   addTestingRoutes(app);
-  addLlmChatEndpoint(app);
+  // addLlmChatEndpoint(app);
 
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {
@@ -293,7 +293,7 @@ export async function startWebserver() {
   }
 
   addServerSentEventsEndpoint(app);
-  addAutocompleteEndpoint(app);
+  // addAutocompleteEndpoint(app);
   
   app.get('/node_modules/*', (req, res) => {
     // Under some circumstances (I'm not sure exactly what the trigger is), the

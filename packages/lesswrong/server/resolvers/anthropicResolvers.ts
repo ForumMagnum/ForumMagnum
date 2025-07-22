@@ -7,8 +7,9 @@ import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitl
 import { userHasLlmChat } from "@/lib/betas";
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
-import { ClaudeMessageRequestSchema, ClientMessage, LlmCreateConversationMessage, LlmStreamChunkMessage, LlmStreamContentMessage, 
-  LlmStreamEndMessage, LlmStreamErrorMessage, LlmStreamMessage, RagModeType, PromptContextOptions } from "@/components/languageModels/LlmChatWrapper";
+import type { LlmCreateConversationMessage, LlmStreamChunkMessage, LlmStreamContentMessage, 
+  LlmStreamEndMessage, LlmStreamErrorMessage, LlmStreamMessage } from "@/components/languageModels/LlmChatWrapper";
+import { ClaudeMessageRequestSchema, ClientMessage, RagModeType, PromptContextOptions, ClaudeMessageRequest } from "@/components/languageModels/schema";
 import { LlmVisibleMessageRole, UserVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/newSchema";
 import { asyncMapSequential } from "@/lib/utils/asyncUtils";
 import { markdownToHtml, htmlToMarkdown } from "../editor/conversionUtils";
@@ -558,6 +559,73 @@ async function prepareMessagesForConversation({ newMessage, conversationId, cont
   };
 }
 
+export async function sendLlmChatHandler({
+  parsedBody,
+  currentUser,
+  context,
+  sendEventToClient
+}: {
+  parsedBody: ClaudeMessageRequest;
+  currentUser: DbUser;
+  context: ResolverContext;
+  sendEventToClient: (event: LlmStreamMessage) => Promise<void>;
+}) {
+  const { newMessage, promptContextOptions, newConversationChannelId } = parsedBody;    
+  const { postId: currentPostId, ragMode, postContext } = promptContextOptions;
+
+  const conversationContext = getConversationContext(newConversationChannelId, newMessage);
+
+  const model = 'claude-3-5-sonnet-20240620';
+  // TODO: Probably should be output by new conversation function
+  const systemPrompt = CLAUDE_CHAT_SYSTEM_PROMPT;
+  
+  // TODO: also figure out if we want prevent users from creating new conversations with multiple pre-filled messages
+
+  const { conversation, newMessageRecords } = conversationContext.type === 'new'
+    ? await createConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, ragMode, postContext, currentUser, context })
+    : await prepareMessagesForConversation({ newMessage, conversationId: conversationContext.conversationId, context });
+
+  const conversationId = conversation._id;
+
+  const now = new Date();
+  const fetchPreviousMessagesPromise = context.LlmMessages.find({ conversationId, role: { $in: [...llmVisibleMessageRoles] }, createdAt: { $lt: now } }, { sort: { createdAt: 1 } }).fetch();
+
+  const createNewMessagesSequentiallyPromise = asyncMapSequential(
+    newMessageRecords,
+    (message) => {
+      return createLlmMessage({ data: message }, context);
+    }
+  );
+
+  const [previousMessages, newMessages] = await Promise.all([
+    fetchPreviousMessagesPromise,
+    createNewMessagesSequentiallyPromise,
+  ]);
+
+  try {
+    // TODO: figure out if we can relocate this to be earlier by fixing the thing on the client where we refetch the latest conversation
+    // which will be missing the latest messages, if we haven't actually inserted them into the database (which we do above)
+    await sendNewConversationEvent(conversationContext, conversation, currentUser, sendEventToClient);
+    
+    const claudeResponse = await sendMessagesToClaude({
+      previousMessages,
+      newMessages,
+      conversationId,
+      model,
+      currentUser,
+      context,
+      sendEventToClient
+    });
+
+    await createLlmMessage({ data: claudeResponse }, context);
+    
+    await sendStreamEndEvent(conversationId, sendEventToClient);
+  } catch (err) {
+    captureException(err);
+    await sendStreamErrorEvent(conversationId, err.message, sendEventToClient);
+    throw err;
+  }
+}
 
 export function addLlmChatEndpoint(app: Express) {
   app.use("/api/sendLlmChat", express.json());

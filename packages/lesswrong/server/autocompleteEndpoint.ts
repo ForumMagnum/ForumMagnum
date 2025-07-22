@@ -91,7 +91,7 @@ ${currentUser.displayName} 1h ${Math.floor(20 + (Math.random() * 75))} ${Math.fl
 ${prefix}`.trim();
 }
 
-async function constructMessageHistory(
+export async function constructMessageHistory(
   prefix: string,
   commentIds: string[],
   postIds: string[],
@@ -212,7 +212,7 @@ async function constructMessageHistory(
   return messages;
 }
 
-async function construct405bPrompt(
+export async function construct405bPrompt(
   prefix: string,
   commentIds: string[],
   postIds: string[],
