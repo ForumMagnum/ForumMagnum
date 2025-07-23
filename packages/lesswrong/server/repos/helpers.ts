@@ -6,7 +6,8 @@ import { postStatuses } from "../../lib/collections/posts/constants";
 export const getViewableSequencesSelector = (sequencesTableAlias?: string) => {
   const aliasPrefix = sequencesTableAlias ? `${sequencesTableAlias}.` : "";
   return `
-    ${aliasPrefix}"hidden" = FALSE
+    ${aliasPrefix}"hidden" IS NOT TRUE AND
+    ${aliasPrefix}"draft" IS NOT TRUE
   `;
 }
 

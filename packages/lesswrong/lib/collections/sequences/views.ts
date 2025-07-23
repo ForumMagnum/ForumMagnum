@@ -17,6 +17,7 @@ function defaultView(terms: SequencesViewTerms) {
   let params = {
     selector: {
       hidden: false,
+      draft: {$ne: true},
       ...(terms.sequenceIds && {_id: {$in: terms.sequenceIds}}),
       ...alignmentForum
     }
