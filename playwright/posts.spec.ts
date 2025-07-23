@@ -36,20 +36,20 @@ test("create and edit post", async ({page, context}) => {
   await expect(page.getByText(newBody)).toBeVisible();
 });
 
-test("can create 5 posts per day, but not 6", async ({page, context}) => {
+test("can create 2 posts per week, but not 3 (as a new user)", async ({page, context}) => {
   await loginNewUser(context);
 
-  // Create five posts with a single user
-  for (let i = 0; i < 5; i++) {
+  // Create 2 posts with a single user
+  for (let i = 0; i < 2; i++) {
     await page.goto("/newPost");
     await setPostContent(page, {title: `Test post ${i}`, body: `Test body ${i}`});
     await page.getByText("Publish").click();
     await page.waitForURL("/posts/**");
   }
 
-  // After creating five posts the post rate limit should be triggered
+  // After creating 2 posts the post rate limit should be triggered
   await page.goto("/newPost");
-  await expect(page.getByText("Users cannot post more than 5 posts a day")).toBeVisible();
+  await expect(page.getByText(/Users with less than 5 karma can write up to 2 posts a week/)).toBeVisible();
 });
 
 test("voting on a post gives karma", async ({page, context}) => {
