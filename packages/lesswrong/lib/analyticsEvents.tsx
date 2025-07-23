@@ -94,6 +94,7 @@ export type AnalyticsProps = {
   resourceUrl?: string,
   chapter?: string,
   documentSlug?: string,
+  notificationId?: string,
   postId?: string,
   forumEventId?: string,
   sequenceId?: string,

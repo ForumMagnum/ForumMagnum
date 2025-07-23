@@ -140,6 +140,9 @@ const NotificationsPopoverNotification = ({notification, refetch, classes}: {
     <PostsTooltip
       postId={post?._id ?? comment?.post?._id}
       commentId={comment?._id}
+      analyticsProps={{
+        notificationId: _id,
+      }}
       placement="left-start"
       clickable
     >
