@@ -178,7 +178,15 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
     ALL.COMMENTS.ONE_PER_EIGHT_SECONDS
   ]
 }
-const EA = LW;
+const EA = {
+  POSTS: [
+    ...LW.POSTS,
+    ALL.POSTS.FIVE_PER_DAY
+  ],
+  COMMENTS: [
+    ...LW.COMMENTS
+  ]
+}
 
 export const autoPostRateLimits: ForumOptions<PostAutoRateLimit[]> = {
   EAForum: [
