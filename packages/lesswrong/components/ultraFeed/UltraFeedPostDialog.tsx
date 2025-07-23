@@ -907,6 +907,7 @@ const UltraFeedPostDialog = ({
                         setHighlightDate={() => {}}
                         hideDateHighlighting={true}
                         newForm={true}
+                        treeOptions={{ forceNotSingleLine: true }}
                       />
                     )}
                   </div>
