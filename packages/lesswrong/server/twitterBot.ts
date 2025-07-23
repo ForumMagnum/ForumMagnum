@@ -1,4 +1,3 @@
-import { addCronJob } from "./cron/cronUtil";
 import TweetsRepo from "./repos/TweetsRepo";
 import { loggerConstructor } from "@/lib/utils/logging";
 import { Posts } from "@/server/collections/posts/collection.ts";
@@ -114,12 +113,4 @@ export async function runTwitterBot() {
 
   logger(`All attempts failed, no tweets created.`);
 }
-
-export const runTwitterBotCron = addCronJob({
-  name: "runTwitterBot",
-  interval: "every 31 minutes",
-  job: async () => {
-    await runTwitterBot();
-  },
-});
 

@@ -1,3 +1,101 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json"
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "crons": [
+    {
+      "path": "/api/cron/clear-old-cron-histories",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/update-analytics-collections",
+      "schedule": "*/20 * * * *"
+    },
+    {
+      "path": "/api/cron/maintain-analytics-views",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/clear-expired-page-cache",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/send-curation-emails",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/cron/debounced-event-handler",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/cron/update-missing-embeddings",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/check-upcoming-event-emails",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/cron/send-inactive-user-survey-emails",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/refresh-karma-inflation",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/check-scheduled-posts",
+      "schedule": "*/10 * * * *"
+    },
+    {
+      "path": "/api/cron/prune-perf-metrics",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/clear-stale-recommendations",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/clear-arbital-cache",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/add-new-rss-posts",
+      "schedule": "*/10 * * * *"
+    },
+    {
+      "path": "/api/cron/update-promoted-spotlight-item",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/run-twitter-bot",
+      "schedule": "*/31 * * * *"
+    },
+    {
+      "path": "/api/cron/clear-old-ultrafeed-served-events",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/update-user-activities",
+      "schedule": "0 */3 * * *"
+    },
+    {
+      "path": "/api/cron/send-job-ad-reminder-emails",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/expired-rate-limits-return-to-review-queue",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/permanently-delete-users",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/update-score-active-documents",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/cron/update-score-inactive-documents",
+      "schedule": "0 0 * * *"
+    }
+  ]
 }

@@ -1,4 +1,3 @@
-import { addCronJob } from '../cron/cronUtil';
 import RSSFeeds from '../../server/collections/rssfeeds/collection';
 import Users from '../../server/collections/users/collection';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
@@ -189,9 +188,3 @@ export const cronGraphQLMutations = {
     
   }
 }
-
-export const addNewRSSPostsCron = addCronJob({
-  name: 'addNewRSSPosts',
-  interval: 'every 10 minutes',
-  job: runRSSImport
-});

@@ -29,11 +29,3 @@ export async function clearOldCronHistories() {
     },
   });
 }
-
-export const cronClearOldCronHistories = addCronJob({
-  name: "clearOldCronHistories",
-  interval: 'every 24 hours',
-  job: async () => {
-    await clearOldCronHistories();
-  }
-});

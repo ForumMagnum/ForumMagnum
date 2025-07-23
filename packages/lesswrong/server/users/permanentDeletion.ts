@@ -1,5 +1,4 @@
 import Users from "@/server/collections/users/collection";
-import { addCronJob } from "../cron/cronUtil";
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS, getUserEmail } from "@/lib/collections/users/helpers";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { loggerConstructor } from "@/lib/utils/logging";
@@ -139,28 +138,24 @@ export async function permanentlyDeleteUserById(userId: string, options?: Delete
 
 const cutoffOffsetMs = ACCOUNT_DELETION_COOLING_OFF_DAYS * 24 * 60 * 60 * 1000;
 
-export const permanentlyDeleteUsersCron = addCronJob({
-  name: "permanentlyDeleteUsers",
-  interval: "every 1 hour",
-  job: async () => {
-    const deletionRequestCutoff = new Date(Date.now() - cutoffOffsetMs)
+export async function permanentlyDeleteUsers() {
+  const deletionRequestCutoff = new Date(Date.now() - cutoffOffsetMs)
 
-    const usersToDelete = await Users.find({ permanentDeletionRequestedAt: { $lt: deletionRequestCutoff } }).fetch();
+  const usersToDelete = await Users.find({ permanentDeletionRequestedAt: { $lt: deletionRequestCutoff } }).fetch();
 
-    if (usersToDelete.length > 10) {
-      dogstatsd?.increment("user_deleted", usersToDelete.length, 1.0, {outcome: 'error'})
-      throw new Error("Unexpectedly high number of users queued for deletion")
+  if (usersToDelete.length > 10) {
+    dogstatsd?.increment("user_deleted", usersToDelete.length, 1.0, {outcome: 'error'})
+    throw new Error("Unexpectedly high number of users queued for deletion")
+  }
+
+  for (const user of usersToDelete) {
+    try {
+      await permanentlyDeleteUser(user, defaultDeleteOptions)
+      dogstatsd?.increment("user_deleted", 1, 1.0, {outcome: 'success'})
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e)
+      dogstatsd?.increment("user_deleted", 1, 1.0, {outcome: 'error'})
     }
-
-    for (const user of usersToDelete) {
-      try {
-        await permanentlyDeleteUser(user, defaultDeleteOptions)
-        dogstatsd?.increment("user_deleted", 1, 1.0, {outcome: 'success'})
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error(e)
-        dogstatsd?.increment("user_deleted", 1, 1.0, {outcome: 'error'})
-      }
-    }
-  },
-});
+  }
+}
