@@ -354,7 +354,6 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     backgroundColor: `${theme.palette.secondary.light}6c`,
   },
   scrolledHighlightFading: {
-    backgroundColor: 'transparent !important',
     transition: 'background-color 3s ease-out',
   },
   '& .PostsPagePostFooter-voteBottom': {
@@ -586,7 +585,8 @@ const UltraFeedPostDialog = ({
   
   // Scroll to target comment when loaded
   useEffect(() => {
-    let fadeTimer: NodeJS.Timeout | null = null;
+    let removeHighlightTimer: NodeJS.Timeout | null = null;
+    let cleanupTimer: NodeJS.Timeout | null = null;
 
     if (!isCommentsLoading && targetCommentId && comments && comments.length > 0 && !hasScrolledRef.current) {
       const targetFound = comments.some(c => c._id === targetCommentId);
@@ -595,11 +595,18 @@ const UltraFeedPostDialog = ({
         const cleanup = scrollToElement(targetCommentId, () => {
           const element = document.getElementById(targetCommentId);
           if (element) {
-            // Add highlight animation
+            // Add highlight instantly
             element.classList.add(classes.scrolledHighlight);
 
-            fadeTimer = setTimeout(() => {
+            // After a brief delay, add transition and remove highlight to trigger fade
+            removeHighlightTimer = setTimeout(() => {
               element.classList.add(classes.scrolledHighlightFading);
+              element.classList.remove(classes.scrolledHighlight);
+              
+              // Clean up transition class after animation completes
+              cleanupTimer = setTimeout(() => {
+                element.classList.remove(classes.scrolledHighlightFading);
+              }, 3000); // Match the 3s transition animationduration
             }, 100);
 
             hasScrolledRef.current = true;
@@ -608,13 +615,15 @@ const UltraFeedPostDialog = ({
 
         return () => {
           cleanup();
-          if (fadeTimer) clearTimeout(fadeTimer);
+          if (removeHighlightTimer) clearTimeout(removeHighlightTimer);
+          if (cleanupTimer) clearTimeout(cleanupTimer);
         };
       }
     }
 
     return () => {
-      if (fadeTimer) clearTimeout(fadeTimer);
+      if (removeHighlightTimer) clearTimeout(removeHighlightTimer);
+      if (cleanupTimer) clearTimeout(cleanupTimer);
     };
   }, [isCommentsLoading, targetCommentId, comments, classes.scrolledHighlight, classes.scrolledHighlightFading, scrollToElement]);
   
