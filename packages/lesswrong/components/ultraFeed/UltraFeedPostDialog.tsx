@@ -706,9 +706,7 @@ const UltraFeedPostDialog = ({
       className={classes.modalWrapper}
     >
       <RecombeeRecommendationsContextWrapper postId={postId} recommId={recommId}>
-      <AttributionInViewTracker eventProps={{ post: displayPost, portion: 1, recommId }}>
       <AnalyticsContext pageModalContext="ultraFeedPostModal" postId={postId}>
-      <AnalyticsInViewTracker eventProps={{ inViewType: "commentsSection" }}>
         <DialogContent className={classes.dialogContent}>
           <div ref={dialogInnerRef} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             {/* Header */}
@@ -868,48 +866,52 @@ const UltraFeedPostDialog = ({
                   )}
                 </div>
                 
-                {displayPost.question && fullPostForContent && (
-                  <div id="answers" className={classes.contentColumn}>
-                    <AnalyticsContext pageSectionContext="answersSection">
-                      {isAnswersLoading ? (
-                        <div className={classes.loadingContainer}>
-                          <Loading />
-                        </div>
-                      ) : (
-                        <PostsPageQuestionContent 
-                          post={fullPostForContent} 
-                          answersTree={answersTree} 
-                          refetch={() => {
-                            void refetchAnswers();
-                          }}
-                        />
-                      )}
-                    </AnalyticsContext>
-                  </div>
-                )}
-                
-                {isCommentsLoading && !loadingMoreComments && fullPostForContent && (
-                  <div className={classes.loadingContainer}>
-                    <Loading />
-                  </div>
-                )}
-                
-                <div id="commentsSection">
-                  {comments && (
-                    <CommentsListSection
-                      post={fullPostForContent}
-                      comments={comments ?? []}
-                      totalComments={totalComments}
-                      commentCount={(comments ?? []).length}
-                      loadMoreComments={loadMoreProps.loadMore}
-                      loadingMoreComments={loadingMoreComments}
-                      highlightDate={undefined}
-                      setHighlightDate={() => {}}
-                      hideDateHighlighting={true}
-                      newForm={true}
-                    />
+                <AnalyticsInViewTracker eventProps={{ inViewType: "commentsSection" }}>
+                <AttributionInViewTracker eventProps={{ post: displayPost, portion: 1, recommId }}>
+                  {displayPost.question && fullPostForContent && (
+                    <div id="answers" className={classes.contentColumn}>
+                      <AnalyticsContext pageSectionContext="answersSection">
+                        {isAnswersLoading ? (
+                          <div className={classes.loadingContainer}>
+                            <Loading />
+                          </div>
+                        ) : (
+                          <PostsPageQuestionContent 
+                            post={fullPostForContent} 
+                            answersTree={answersTree} 
+                            refetch={() => {
+                              void refetchAnswers();
+                            }}
+                          />
+                        )}
+                      </AnalyticsContext>
+                    </div>
                   )}
-                </div>
+                  
+                  {isCommentsLoading && !loadingMoreComments && fullPostForContent && (
+                    <div className={classes.loadingContainer}>
+                      <Loading />
+                    </div>
+                  )}
+                  
+                  <div id="commentsSection">
+                    {comments && (
+                      <CommentsListSection
+                        post={fullPostForContent}
+                        comments={comments ?? []}
+                        totalComments={totalComments}
+                        commentCount={(comments ?? []).length}
+                        loadMoreComments={loadMoreProps.loadMore}
+                        loadingMoreComments={loadingMoreComments}
+                        highlightDate={undefined}
+                        setHighlightDate={() => {}}
+                        hideDateHighlighting={true}
+                        newForm={true}
+                      />
+                    )}
+                  </div>
+                </AttributionInViewTracker>
+                </AnalyticsInViewTracker>
               </div>
               
               {/* Grid placeholders so we can match the grid layout of PostsPage.tsx, placeholders for side comments, etc */}
@@ -948,9 +950,7 @@ const UltraFeedPostDialog = ({
             footnoteHTML={footnoteDialogHTML}
           />
         )}
-      </AnalyticsInViewTracker>
       </AnalyticsContext>
-      </AttributionInViewTracker>
       </RecombeeRecommendationsContextWrapper>
     </LWDialog>
   );
