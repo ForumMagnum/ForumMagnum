@@ -6,20 +6,20 @@ import { getVoteableCollections } from '@/server/collections/allCollections';
 // seconds >= 60; rather than treat them as minutes (like you'd expect), it
 // treats intervals like "every 100 seconds" as a syntax error.
 
-export function updateScoreActiveDocuments() {
-  getVoteableCollections().forEach(collection => {
+export async function updateScoreActiveDocuments() {
+  for (const collection of getVoteableCollections()) {
     const options = collection.options.voteable!;
     if (options.timeDecayScoresCronjob) {
-      void batchUpdateScore({collection});
+      await batchUpdateScore({collection});
     }
-  });
+  }
 }
 
-export function updateScoreInactiveDocuments() {
-  getVoteableCollections().forEach(collection => {
+export async function updateScoreInactiveDocuments() {
+  for (const collection of getVoteableCollections()) {
     const options = collection.options.voteable!;
     if (options.timeDecayScoresCronjob) {
-      void batchUpdateScore({collection, inactive: true});
+      await batchUpdateScore({collection, inactive: true});
     }
-  });
+  }
 }
