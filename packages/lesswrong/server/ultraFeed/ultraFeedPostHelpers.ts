@@ -7,7 +7,7 @@ import keyBy from 'lodash/keyBy';
 
 // Configuration for unviewed items optimization
 const UNVIEWED_RECOMBEE_CONFIG = {
-  lookbackDays: 14,
+  lookbackDays: 14, // relevant for view events as we truncate served events sooner
   skipFetchThreshold: 0.5, // Skip if we have 70% of requested items
   reduceFetchThreshold: 0.3, // Reduce to 50% if we have 30% of requested items
 };
