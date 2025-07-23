@@ -57,6 +57,19 @@ export const ThemeContextProvider = ({options, isEmail, children}: {
   </ThemeContext.Provider>
 }
 
+export const AutoDarkModeWrapper = ({children}: {
+  children: React.ReactNode
+}) => {
+  const themeOptions = useThemeOptions();
+  if (themeOptions.name === "auto") {
+    return <div>{children}</div>
+  } else if (themeOptions.name === "dark") {
+    return <div style={{colorScheme: "only light"}}>{children}</div>
+  } else if (themeOptions.name === "default") {
+    return <div style={{colorScheme: "only dark"}}>{children}</div>
+  }
+}
+
 export const FMJssProvider = ({stylesContext, children}: {
   stylesContext: StylesContextType
   children: React.ReactNode
