@@ -89,7 +89,7 @@ export async function getRecommendedPostsForUltraFeed(
     filterSettings: currentUser?.frontpageFilterSettings,
     skipTopOfListPosts: true,
     rotationRate: 0.5,
-    rotationTime: 24 * 30, // 30 days (in hours)
+    rotationTime: 24 * 30, // 30 days
     ...(exclusionFilterString && { filter: exclusionFilterString }),
   };
 
