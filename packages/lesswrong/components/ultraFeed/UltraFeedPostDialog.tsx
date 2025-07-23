@@ -47,6 +47,9 @@ import { unflattenComments } from '../../lib/utils/unflatten';
 import PostsPageQuestionContent from "../questions/PostsPageQuestionContent";
 import { useSubscribedLocation } from "@/lib/routeUtil";
 import { randomId } from '@/lib/random';
+import { RecombeeRecommendationsContextWrapper } from '../recommendations/RecombeeRecommendationsContextWrapper';
+import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
+import AttributionInViewTracker from "../common/AttributionInViewTracker";
 
 const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   dialogContent: {
@@ -435,7 +438,8 @@ const UltraFeedPostDialog = ({
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
   
-  const postId = partialPost?._id ?? post?._id;
+  const postId = (partialPost ?? post)._id;
+  const recommId = postMetaInfo.recommInfo?.recommId;
   
   // Fetch full post if needed
   const { loading: loadingPost, data: postData } = useQuery(ULTRA_FEED_POST_FRAGMENT_QUERY, {
@@ -701,6 +705,7 @@ const UltraFeedPostDialog = ({
       paperClassName={classes.dialogPaper}
       className={classes.modalWrapper}
     >
+      <RecombeeRecommendationsContextWrapper postId={postId} recommId={recommId}>
       <AnalyticsContext pageModalContext="ultraFeedPostModal" postId={postId}>
         <DialogContent className={classes.dialogContent}>
           <div ref={dialogInnerRef} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -861,48 +866,52 @@ const UltraFeedPostDialog = ({
                   )}
                 </div>
                 
-                {displayPost.question && fullPostForContent && (
-                  <div id="answers" className={classes.contentColumn}>
-                    <AnalyticsContext pageSectionContext="answersSection">
-                      {isAnswersLoading ? (
-                        <div className={classes.loadingContainer}>
-                          <Loading />
-                        </div>
-                      ) : (
-                        <PostsPageQuestionContent 
-                          post={fullPostForContent} 
-                          answersTree={answersTree} 
-                          refetch={() => {
-                            void refetchAnswers();
-                          }}
-                        />
-                      )}
-                    </AnalyticsContext>
-                  </div>
-                )}
-                
-                {isCommentsLoading && !loadingMoreComments && fullPostForContent && (
-                  <div className={classes.loadingContainer}>
-                    <Loading />
-                  </div>
-                )}
-                
-                <div id="commentsSection">
-                  {comments && (
-                    <CommentsListSection
-                      post={fullPostForContent}
-                      comments={comments ?? []}
-                      totalComments={totalComments}
-                      commentCount={(comments ?? []).length}
-                      loadMoreComments={loadMoreProps.loadMore}
-                      loadingMoreComments={loadingMoreComments}
-                      highlightDate={undefined}
-                      setHighlightDate={() => {}}
-                      hideDateHighlighting={true}
-                      newForm={true}
-                    />
+                <AnalyticsInViewTracker eventProps={{ inViewType: "commentsSection" }}>
+                <AttributionInViewTracker eventProps={{ post: displayPost, portion: 1, recommId }}>
+                  {displayPost.question && fullPostForContent && (
+                    <div id="answers" className={classes.contentColumn}>
+                      <AnalyticsContext pageSectionContext="answersSection">
+                        {isAnswersLoading ? (
+                          <div className={classes.loadingContainer}>
+                            <Loading />
+                          </div>
+                        ) : (
+                          <PostsPageQuestionContent 
+                            post={fullPostForContent} 
+                            answersTree={answersTree} 
+                            refetch={() => {
+                              void refetchAnswers();
+                            }}
+                          />
+                        )}
+                      </AnalyticsContext>
+                    </div>
                   )}
-                </div>
+                  
+                  {isCommentsLoading && !loadingMoreComments && fullPostForContent && (
+                    <div className={classes.loadingContainer}>
+                      <Loading />
+                    </div>
+                  )}
+                  
+                  <div id="commentsSection">
+                    {comments && (
+                      <CommentsListSection
+                        post={fullPostForContent}
+                        comments={comments ?? []}
+                        totalComments={totalComments}
+                        commentCount={(comments ?? []).length}
+                        loadMoreComments={loadMoreProps.loadMore}
+                        loadingMoreComments={loadingMoreComments}
+                        highlightDate={undefined}
+                        setHighlightDate={() => {}}
+                        hideDateHighlighting={true}
+                        newForm={true}
+                      />
+                    )}
+                  </div>
+                </AttributionInViewTracker>
+                </AnalyticsInViewTracker>
               </div>
               
               {/* Grid placeholders so we can match the grid layout of PostsPage.tsx, placeholders for side comments, etc */}
@@ -942,6 +951,7 @@ const UltraFeedPostDialog = ({
           />
         )}
       </AnalyticsContext>
+      </RecombeeRecommendationsContextWrapper>
     </LWDialog>
   );
 };
