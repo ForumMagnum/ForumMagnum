@@ -487,9 +487,99 @@ module.exports = {
       destination: "/posts/:id/:slug?commentId=:commentId",
       permanent: true
     }, {
-      source: "/r/:subreddit(all|discussion|lesswrong)/lw/:id*",
+      source: "/:section(r)?/:subreddit(all|discussion|lesswrong)?/lw/:id*",
       destination: "/lw/:id*",
       permanent: false,
+    }, {
+      source: "/static/imported/:year/:month/:day/:imageName",
+      destination: "https://raw.githubusercontent.com/tricycle/lesswrong/master/r2/r2/public/static/imported/:year/:month/:day/:imageName",
+      permanent: true
+    }, {
+      source: "/.rss",
+      destination: "/feed.xml",
+      permanent: true
+    }, {
+      source: "/comments/.rss",
+      destination: "/feed.xml?type=comments",
+      permanent: true
+    }, {
+      source: "/rss/comments.xml",
+      destination: "/feed.xml?type=comments",
+      permanent: true
+    }, {
+      source: "/daily",
+      destination: "/allPosts",
+      permanent: true
+    }, {
+      source: "/:section?/:subreddit?/:new?/.rss",
+      destination: "/feed.xml",
+      permanent: true
+    }, {
+      source: "/promoted",
+      destination: "/allPosts?filter=curated&sortedBy=new&timeframe=allTime",
+      permanent: true
+    }, {
+      source: "/promoted/.rss",
+      destination: "/feed.xml?view=curatedRss",
+      permanent: true
+    }, {
+      source: "/favicon.ico",
+      destination: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1497915096/favicon_lncumn.ico",
+      permanent: true
+    }, {
+      source: "/featured",
+      destination: "/allPosts?filter=curated&view=new&timeframe=allTime",
+      permanent: true
+    }, {
+      source: "/recentComments",
+      destination: "/allComments",
+      permanent: true
+    },
+    // TODO: all the redirects from here until "saved" need to be gated to AF somehow.
+    {
+      source: "/newcomments",
+      destination: "/allComments",
+      permanent: true
+    }, {
+      source: "/how-to-contribute",
+      destination: "/posts/FoiiRDC3EhjHx7ayY/introducing-the-ai-alignment-forum-faq",
+      permanent: true
+    }, {
+      source: "/submitted",
+      has: [{
+        type: "query",
+        key: "id",
+      }],
+      destination: "/users/:id",
+      permanent: true
+    }, {
+      source: "/threads",
+      has: [{
+        type: "query",
+        key: "id",
+      }],
+      destination: "/users/:id",
+      permanent: true
+    }, {
+      source: "/user",
+      has: [{
+        type: "query",
+        key: "id",
+      }],
+      destination: "/users/:id",
+      permanent: true
+    }, {
+      source: "/submit",
+      destination: "/newPost",
+      permanent: true
+    }, {
+      source: "/rss",
+      destination: "/feed.xml",
+      permanent: true
+    }, {
+      source: "/saved",
+      destination: "/account",
+      permanent: true
     }];
   },
   // TODO: remove this after we fix the remaining issues with the webpack build
