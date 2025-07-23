@@ -27,7 +27,9 @@ const PostsItemTooltipWrapper = ({
       post={post}
       postsList
       placement={placement}
-      pageElementContext="postItemTooltip"
+      analyticsProps={{
+        pageElementContext: "postItemTooltip"
+      }}
       As={As}
       className={className}
       inlineBlock={false}
