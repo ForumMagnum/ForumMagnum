@@ -37,6 +37,7 @@ import type { FeedCommentMetaInfo } from "./ultraFeedTypes";
 import PostsUserAndCoauthors from "../posts/PostsUserAndCoauthors";
 import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
 import ForumIcon from "../common/ForumIcon";
+import { RecombeeRecommendationsContextWrapper } from "../recommendations/RecombeeRecommendationsContextWrapper";
 
 const localPostQuery = gql(`
   query LocalPostQuery($documentId: String!) {
@@ -588,6 +589,7 @@ const UltraFeedPostItem = ({
   }
 
   return (
+    <RecombeeRecommendationsContextWrapper postId={post._id} recommId={postMetaInfo.recommInfo?.recommId}>
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} feedCardIndex={index} ultraFeedSources={postMetaInfo.sources}>
     <div className={classes.root}>
       <div ref={elementRef} className={classes.mainContent}>
@@ -684,6 +686,7 @@ const UltraFeedPostItem = ({
       {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={isContentExpanded ? handleCollapse : undefined} />}
     </div>
     </AnalyticsContext>
+    </RecombeeRecommendationsContextWrapper>
   );
 };
 

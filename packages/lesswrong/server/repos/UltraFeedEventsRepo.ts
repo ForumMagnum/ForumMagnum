@@ -46,7 +46,7 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
           )
         GROUP BY "documentId"
       ) s
-      WHERE s.serve_count < 4 AND s.was_viewed = 0
+      WHERE s.serve_count < 3 AND s.was_viewed = 0
       ORDER BY s.last_served
       LIMIT $[limit]
     `, {
