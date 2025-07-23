@@ -27,20 +27,27 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
   ): Promise<string[]> {
     const unviewedItems = await this.manyOrNone(`
       -- UltraFeedEventsRepo.getUnviewedRecombeePostIds
-      SELECT DISTINCT ON (uf_served."documentId")
-        uf_served."documentId"
-      FROM "UltraFeedEvents" uf_served
-      LEFT JOIN "UltraFeedEvents" uf_viewed
-        ON uf_served."documentId" = uf_viewed."documentId"
-        AND uf_served."userId" = uf_viewed."userId"
-        AND uf_viewed."eventType" = 'viewed'
-      WHERE uf_served."eventType" = 'served'
-        AND uf_served."userId" = $[userId]
-        AND uf_served."createdAt" > (NOW() - INTERVAL '1 day' * $[lookbackDays])
-        AND uf_served."collectionName" = 'Posts'
-        AND uf_served.event->'sources' ? $[scenarioId]
-        AND uf_viewed._id IS NULL
-      ORDER BY uf_served."documentId", uf_served."createdAt" DESC
+      SELECT
+        s."documentId"
+      FROM (
+        SELECT
+          "documentId",
+          SUM(CASE WHEN "eventType" = 'served' THEN 1 ELSE 0 END) as serve_count,
+          MAX(CASE WHEN "eventType" = 'served' THEN "createdAt" END) as last_served,
+          MAX(CASE WHEN "eventType" = 'viewed' THEN 1 ELSE 0 END) as was_viewed
+        FROM "UltraFeedEvents"
+        WHERE "userId" = $[userId]
+          AND "collectionName" = 'Posts'
+          AND "eventType" IN ('served', 'viewed')
+          AND "createdAt" > (NOW() - INTERVAL '1 day' * $[lookbackDays])
+          AND (
+            ("eventType" = 'served' AND event->'sources' ? $[scenarioId])
+            OR "eventType" = 'viewed'
+          )
+        GROUP BY "documentId"
+      ) s
+      WHERE s.serve_count < 3 AND s.was_viewed = 0
+      ORDER BY s.last_served
       LIMIT $[limit]
     `, {
       userId,
