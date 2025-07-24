@@ -111,16 +111,16 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   },
   verticalLine: {
     width: 0,
-    borderLeft: `4px solid ${theme.palette.grey[300]}ac`,
+    borderLeft: `5px solid ${theme.palette.grey[300]}ac`,
     flex: 1,
-    marginLeft: -10,
+    marginLeft: -11,
   },
   verticalLineHighlightedUnviewed: {
-    borderLeftColor: `${theme.palette.secondary.light}bc`,
+    borderLeftColor: `${theme.palette.secondary.light}ec`,
   },
   verticalLineHighlightedViewed: {
-    borderLeftColor: `${theme.palette.secondary.light}6c`,
-    transition: 'border-left-color 1.0s ease-out',
+    borderLeftColor: `${theme.palette.secondary.light}5f`,
+    transition: 'border-left-color 0.5s ease-out',
   },
   verticalLineFirstComment: {
     marginTop: commentHeaderPaddingDesktop,
@@ -295,7 +295,7 @@ export const UltraFeedCommentItem = ({
   commentIndex,
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
-  const { observe, unobserve, trackExpansion, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView } = useUltraFeedObserver();
+  const { observe, unobserve, trackExpansion, hasBeenFadeViewed, subscribeToFadeView, unsubscribeFromFadeView } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { openDialog } = useDialog();
   const overflowNav = useOverflowNav(elementRef);
@@ -306,7 +306,7 @@ export const UltraFeedCommentItem = ({
 
   const displayStatus = metaInfo.displayStatus ?? 'expanded';
 
-  const initialHighlightState = (highlight && !hasBeenLongViewed(comment._id)) ? 'highlighted-unviewed' : 'never-highlighted';
+  const initialHighlightState = (highlight && !hasBeenFadeViewed(comment._id)) ? 'highlighted-unviewed' : 'never-highlighted';
   const [highlightState, setHighlightState] = useState<HighlightStateType>(initialHighlightState);
   const [resetSig, setResetSig] = useState(0);
   const [showEditState, setShowEditState] = useState(false);
@@ -356,24 +356,25 @@ export const UltraFeedCommentItem = ({
     };
   }, [observe, unobserve, comment._id, comment.postId, metaInfo.servedEventId, threadIndex, commentIndex]);
 
+  // Manage highlight fading using observer's fade timer (2s)
   useEffect(() => {
-    const initialHighlightState = highlight && !hasBeenLongViewed(comment._id) ? 'highlighted-unviewed' : 'never-highlighted';
-    setHighlightState(initialHighlightState);
+    const initialState: HighlightStateType = (highlight && !hasBeenFadeViewed(comment._id)) ? 'highlighted-unviewed' : 'never-highlighted';
+    setHighlightState(initialState);
 
-    const handleLongView = () => {
-      setHighlightState(prevState => prevState === 'highlighted-unviewed' ? 'highlighted-viewed' : prevState);
+    const handleFade = () => {
+      setHighlightState(prev => prev === 'highlighted-unviewed' ? 'highlighted-viewed' : prev);
     };
 
-    if (initialHighlightState === 'highlighted-unviewed') {
-      subscribeToLongView(comment._id, handleLongView);
+    if (initialState === 'highlighted-unviewed') {
+      subscribeToFadeView(comment._id, handleFade);
     }
 
     return () => {
-      if (initialHighlightState === 'highlighted-unviewed') {
-        unsubscribeFromLongView(comment._id, handleLongView);
+      if (initialState === 'highlighted-unviewed') {
+        unsubscribeFromFadeView(comment._id, handleFade);
       }
     };
-  }, [highlight, comment._id, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView]);
+  }, [highlight, comment._id, hasBeenFadeViewed, subscribeToFadeView, unsubscribeFromFadeView]);
 
   const handleContentExpand = useCallback((expanded: boolean, wordCount: number) => {
     trackExpansion({
