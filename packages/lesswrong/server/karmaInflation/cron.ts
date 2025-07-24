@@ -49,6 +49,7 @@ export async function refreshKarmaInflation() {
     console.error(err);
   }
 
+  // TODO: fix this to work in serverless world; right now it's setting a global state variable
   // refresh the cache after every update
   // it's a bit wasteful to immediately go and fetch the thing we just calculated from the db again,
   // but seeing as this is a cron job it doesn't really matter

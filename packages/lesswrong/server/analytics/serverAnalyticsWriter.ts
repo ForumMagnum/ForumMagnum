@@ -130,7 +130,8 @@ export async function pruneOldPerfMetrics() {
       WHERE started_at < CURRENT_DATE - INTERVAL '30 days'
     `);
 
-    await connection.none(`
+    // Don't await this one; it might take longer than five minutes to finish and there's no reason to keep a function instance around that long.
+    void connection.none(`
       SET LOCAL work_mem = '2GB';
 
       DELETE
