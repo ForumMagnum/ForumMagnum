@@ -576,22 +576,17 @@ export const getSignatureWithNote = (name: string, note: string) => {
   return `${getSignature(name)}: ${note}\n`;
 };
 
-export const getNewSunshineNotes = async (userId: string, adminName: string, note: string, context: ResolverContext) => {
-  const user = await context.loaders.Users.load(userId);
-  if (!user) throw "Invalid userId in getNewSunshineNotes";
-  const newNote = getSignatureWithNote(adminName, note);
-  const oldNotes = user.sunshineNotes ?? "";
-  const updatedNotes = `${newNote}${oldNotes}`;
-  return updatedNotes;
-};
-
 export async function appendToSunshineNotes({moderatedUserId, adminName, text, context}: {
   moderatedUserId: string,
   adminName: string,
   text: string,
   context: ResolverContext,
 }): Promise<void> {
-  const updatedNotes = await getNewSunshineNotes(moderatedUserId, adminName, text, context);
+  const moderatedUser = await context.Users.findOne({_id: moderatedUserId});
+  if (!moderatedUser) throw "Invalid userId in appendToSunshineNotes";
+  const newNote = getSignatureWithNote(adminName, text);
+  const oldNotes = moderatedUser.sunshineNotes ?? "";
+  const updatedNotes = `${newNote}${oldNotes}`;
   await context.Users.rawUpdateOne({_id: moderatedUserId}, {$set: {sunshineNotes: updatedNotes}});
 }
 
