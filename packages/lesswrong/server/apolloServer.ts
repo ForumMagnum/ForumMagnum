@@ -27,7 +27,6 @@ import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
 import { datadogMiddleware } from './datadog/datadogMiddleware';
 import { Sessions } from '../server/collections/sessions/collection';
-import { addServerSentEventsEndpoint } from "./serverSentEvents";
 import { botRedirectMiddleware } from './botRedirect';
 import { hstsMiddleware } from './hsts';
 import { getClientBundle } from './utils/bundleUtils';
@@ -292,7 +291,6 @@ export async function startWebserver() {
     })
   }
 
-  addServerSentEventsEndpoint(app);
   // addAutocompleteEndpoint(app);
   
   app.get('/node_modules/*', (req, res) => {

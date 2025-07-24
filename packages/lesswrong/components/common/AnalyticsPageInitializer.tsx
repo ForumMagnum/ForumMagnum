@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { flushClientEvents, useTracking } from "../../lib/analyticsEvents";
-import { isClient } from '../../lib/executionEnvironment';
 import { useEventListener } from '../hooks/useEventListener';
 import { useSessionManagement } from '../hooks/useSessionManagement';
+import { useIdlenessDetection } from '../hooks/useIdlenessDetection';
+import { usePageVisibility } from '../hooks/usePageVisibility';
 
 function useBeforeUnloadTracking() {
   const { captureEvent } = useTracking()
@@ -16,65 +17,6 @@ function useBeforeUnloadTracking() {
   );
 
   useEventListener('beforeunload', trackBeforeUnload)
-}
-
-
-function usePageVisibility() {
-  const { captureEvent } = useTracking()
-  const doc = isClient ? document : null
-  const [pageIsVisible, setPageIsVisible] = useState(!doc?.hidden)
-  const [pageVisibilityState, setPageVisibilityState] = useState(doc?.visibilityState)
-
-  const handleVisibilityChange = useCallback(() => {
-    const isVisible = !doc?.hidden
-    const visibilityState = doc?.visibilityState
-    setPageIsVisible(isVisible) //these aren't accessible till re-render or something
-    setPageVisibilityState(visibilityState)
-    captureEvent("pageVisibilityChange", {isVisible, visibilityState});
-  }, [doc, captureEvent]);
-
-  useEffect(() => {
-    captureEvent("pageVisibilityChange", {isVisible: pageIsVisible, visibilityState: pageVisibilityState});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // visibilitychange seems to be missing from Typescript's list of window events?
-  useEventListener('visibilitychange' as keyof WindowEventMap, handleVisibilityChange)
-
-  return { pageIsVisible, pageVisibilityState }
-}
-
-
-function useIdlenessDetection(timeoutInSeconds=60) {
-  const { captureEvent } = useTracking()
-  const [userIsIdle, setUserIsIdle] = useState(false)
-  const countdownTimer = useRef<any>(null)
-
-  const inactivityAlert = useCallback(() => {
-    captureEvent("idlenessDetection", {state: "inactive"})
-    setUserIsIdle(true)
-  }, [captureEvent, setUserIsIdle])
-
-  const reset = useCallback(()=>{
-    const prevUserIsIdle = userIsIdle //so can do this real quick?
-    setUserIsIdle(false)
-    clearTimeout(countdownTimer.current)
-    countdownTimer.current = setTimeout(inactivityAlert, timeoutInSeconds*1000) //setTimeout uses milliseconds
-    if (prevUserIsIdle) captureEvent("idlenessDetection", {state: "active"})
-  }, [userIsIdle, setUserIsIdle, captureEvent, inactivityAlert, timeoutInSeconds])
-
-
-  useEventListener("mousemove", reset)
-  useEventListener("keypress", reset)
-  useEventListener("scroll", reset)
-
-  useEffect(() => {
-    reset()
-    return () => clearTimeout(countdownTimer.current)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  return { userIsIdle }
 }
 
 

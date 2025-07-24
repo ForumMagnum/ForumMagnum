@@ -3,11 +3,9 @@ import AppGenerator from './AppGenerator';
 
 import { createApolloClient } from './apolloClient';
 import { fmCrosspostBaseUrlSetting } from "../lib/instanceSettings";
-import { initServerSentEvents } from "./serverSentEventsClient";
 import { hydrateRoot } from 'react-dom/client';
 
 export function hydrateClient() {
-  initServerSentEvents();
   const apolloClient = createApolloClient();
   apolloClient.prioritizeCacheValues = true;
   const foreignApolloClient = createApolloClient(fmCrosspostBaseUrlSetting.get() ?? "/");

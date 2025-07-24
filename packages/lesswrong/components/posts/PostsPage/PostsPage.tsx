@@ -18,7 +18,6 @@ import { isValidCommentView } from '../../../lib/commentViewOptions';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
-import { useOnServerSentEvent } from '../../hooks/useUnreadNotifications';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/helpers';
 import { unflattenComments } from '../../../lib/utils/unflatten';
 import PostsAudioPlayerWrapper, { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
@@ -428,12 +427,6 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
   });
 
   const debateResponses = dataDebateResponses?.comments?.results ?? emptyArray;
-  
-  useOnServerSentEvent('notificationCheck', currentUser, (message) => {
-    if (currentUser && isDialogueParticipant(currentUser._id, post)) {
-      void refetchDebateResponses();
-    }
-  });
 
   const defaultView = commentGetDefaultView(post, currentUser);
   const defaultTerms = { view: defaultView, limit: 1000 };

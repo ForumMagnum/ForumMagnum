@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import {useOnServerSentEvent} from '../hooks/useUnreadNotifications';
 import {useCurrentUser} from '../common/withUser';
 import {useGlobalKeydown} from '../common/withGlobalKeydown';
 import {useMutation} from '@apollo/client/react';
@@ -44,14 +43,6 @@ export const DebateTypingIndicator = ({classes, post}: {
       void upsertTypingIndicator({variables: {documentId: post._id}})
     }
   }, INCIDATOR_UPDATE_PERIOD));
-
-  useOnServerSentEvent('typingIndicator', currentUser, (message) => {
-    const typingIndicators = message.typingIndicators
-    const filteredIndicators = typingIndicators.filter((typingIndicator) => {
-      return typingIndicator.documentId === post._id
-    })
-    setTypingIndicators(filteredIndicators)
-  });
 
   if (!currentUser) return null;
 
