@@ -1,7 +1,6 @@
 import React from 'react';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import sortBy from 'lodash/sortBy';
-import miscStyles from '../themes/globalStyles/miscStyles';
 import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
 import type { ForumTypeString } from '../lib/instanceSettings';
 import { getForumTheme } from '../themes/forumTheme';
@@ -41,7 +40,6 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   const jssStylesheet = stylesToStylesheet(allStyles, theme, themeOptions);
   
   const mergedCSS = [
-    miscStyles(),
     jssStylesheet,
     ...theme.rawCSS,
     cssVars,

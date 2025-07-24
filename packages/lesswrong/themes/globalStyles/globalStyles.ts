@@ -1,5 +1,6 @@
 import type { JssStyles } from "@/lib/jssStyles";
 import { isFriendlyUI } from "../forumTheme";
+import { miscStyles } from "./miscStyles";
 
 export const maxSmallish = "@media screen and (max-width: 715px)";
 export const maxTiny = "@media screen and (max-width: 400px)";
@@ -451,4 +452,5 @@ export const globalStyles = (theme: ThemeType) => ({
   ...commentsStyle(theme),
   ...dialogueStyle(theme),
   ...audioPlayerStyles(theme),
+  ...miscStyles(theme),
 });
