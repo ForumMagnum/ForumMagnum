@@ -16,7 +16,7 @@ import CommentShortformIcon from "./CommentsItem/CommentShortformIcon";
 import PostsItemComments from "../posts/PostsItemComments";
 import ContentStyles from "../common/ContentStyles";
 import LWPopper from "../common/LWPopper";
-import CommentsNodeInner from "./CommentsNode";
+import CommentsNode from "./CommentsNode";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 export const SINGLE_LINE_PADDING_TOP = 5
@@ -245,7 +245,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         clickable={false}
       >
           <div className={classes.preview}>
-            <CommentsNodeInner
+            <CommentsNode
               truncated
               nestingLevel={1}
               comment={comment}

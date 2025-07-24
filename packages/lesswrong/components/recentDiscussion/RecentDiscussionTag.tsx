@@ -11,7 +11,7 @@ import { TagCommentType } from '../../lib/collections/comments/types';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { useRecentDiscussionViewTracking } from './useRecentDiscussionViewTracking';
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import { maybeDate } from '@/lib/utils/dateUtils';
@@ -146,7 +146,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
         <div className={classes.commentsList}>
           {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
             <div key={comment.item._id}>
-              <CommentsNodeInner
+              <CommentsNode
                 treeOptions={commentTreeOptions}
                 startThreadTruncated={true}
                 expandAllThreads={initialExpandAllThreads || expandAllThreads}

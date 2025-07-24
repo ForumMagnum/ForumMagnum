@@ -6,7 +6,7 @@ import { commentsNodeRootMarginBottom, maxSmallish, maxTiny } from '../../themes
 import Loading from "../vulcan-core/Loading";
 import SectionTitle from "../common/SectionTitle";
 import PostsItem from "../posts/PostsItem";
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -76,7 +76,7 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType<typeof styles>}) => {
       );
     } else if (vote.comment) {
       const item = vote.comment;
-      return <CommentsNodeInner
+      return <CommentsNode
         key={item._id}
         comment={item}
         treeOptions={{showPostTitle: true, forceNotSingleLine: true, post: item.post || undefined}}
