@@ -8,7 +8,7 @@ import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { FeedCommentMetaInfo, FeedItemDisplayStatus } from "./ultraFeedTypes";
 import { useOverflowNav } from "./OverflowNavObserverContext";
 import { useDialog } from "../common/withDialog";
-import UltraFeedCommentsDialog from "./UltraFeedCommentsDialog";
+import UltraFeedPostDialog from "./UltraFeedPostDialog";
 import UltraFeedCommentsItemMeta from "./UltraFeedCommentsItemMeta";
 import FeedContentBody from "./FeedContentBody";
 import UltraFeedItemFooter from "./UltraFeedItemFooter";
@@ -268,6 +268,8 @@ export interface UltraFeedCommentItemProps {
   onBranchToggle?: () => void;
   cannotReplyReason?: string | null;
   onEditSuccess: (editedComment: CommentsList) => void;
+  threadIndex?: number;
+  commentIndex?: number;
 }
 
 export const UltraFeedCommentItem = ({
@@ -289,6 +291,8 @@ export const UltraFeedCommentItem = ({
   onBranchToggle,
   cannotReplyReason: customCannotReplyReason,
   onEditSuccess,
+  threadIndex,
+  commentIndex,
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
   const { observe, unobserve, trackExpansion, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView } = useUltraFeedObserver();
@@ -339,7 +343,9 @@ export const UltraFeedCommentItem = ({
         documentId: comment._id,
         documentType: 'comment',
         postId: comment.postId ?? undefined,
-        servedEventId: metaInfo.servedEventId
+        servedEventId: metaInfo.servedEventId,
+        feedCardIndex: threadIndex,
+        feedCommentIndex: commentIndex
       });
     }
 
@@ -348,7 +354,7 @@ export const UltraFeedCommentItem = ({
         unobserve(currentElement);
       }
     };
-  }, [observe, unobserve, comment._id, comment.postId, metaInfo.servedEventId]);
+  }, [observe, unobserve, comment._id, comment.postId, metaInfo.servedEventId, threadIndex, commentIndex]);
 
   useEffect(() => {
     const initialHighlightState = highlight && !hasBeenLongViewed(comment._id) ? 'highlighted-unviewed' : 'never-highlighted';
@@ -378,6 +384,8 @@ export const UltraFeedCommentItem = ({
       maxLevelReached: expanded,
       wordCount,
       servedEventId: metaInfo.servedEventId,
+      feedCardIndex: threadIndex,
+      feedCommentIndex: commentIndex,
     });
     
     captureEvent("ultraFeedCommentItemExpanded", {
@@ -391,22 +399,36 @@ export const UltraFeedCommentItem = ({
       onChangeDisplayStatus("expanded");
     }
 
-  }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus, metaInfo.servedEventId, captureEvent]);
+  }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus, metaInfo.servedEventId, captureEvent, threadIndex, commentIndex]);
 
   const handleContinueReadingClick = useCallback(() => {
     captureEvent("ultraFeedCommentItemContinueReadingClicked");
+    
+    // If comment doesn't have a post, we can't open the dialog but this should never happen
+    if (!comment.post) {
+      return;
+    }
+    
+    const post = comment.post;
+    
     openDialog({
-      name: "UltraFeedCommentsDialog",
+      name: "UltraFeedPostDialog",
       closeOnNavigate: true,
       contents: ({ onClose }) => (
-        <UltraFeedCommentsDialog 
-          document={comment}
-          collectionName="Comments"
+        <UltraFeedPostDialog 
+          partialPost={post}
+          postMetaInfo={{
+            sources: metaInfo.sources,
+            displayStatus: 'expanded' as const,
+            servedEventId: metaInfo.servedEventId ?? '',
+          }}
+          targetCommentId={comment._id}
+          topLevelCommentId={comment.topLevelCommentId ?? comment._id}
           onClose={onClose}
         />
       )
     });
-  }, [openDialog, comment, captureEvent]);
+  }, [openDialog, comment, captureEvent, metaInfo]);
 
   const truncationParams = useMemo(() => {
     const { displaySettings } = settings;

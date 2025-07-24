@@ -599,6 +599,17 @@ type CommentSelector = {
   topShortform?: InputMaybe<CommentsTopShortformInput>;
 };
 
+type CommentSortingMode =
+  | 'groupByPost'
+  | 'magic'
+  | 'new'
+  | 'newest'
+  | 'old'
+  | 'oldest'
+  | 'recentComments'
+  | 'recentDiscussion'
+  | 'top';
+
 type CommentsAfPostCommentsTopInput = {
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
   commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -732,6 +743,8 @@ type CommentsNominations2018Input = {
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
   commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<CommentSortingMode>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -739,6 +752,8 @@ type CommentsNominations2019Input = {
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
   commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<CommentSortingMode>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -819,6 +834,7 @@ type CommentsPostsItemCommentsInput = {
 type CommentsProfileCommentsInput = {
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
   commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  drafts?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['String']['input']>;
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
   sortBy?: InputMaybe<Scalars['String']['input']>;
@@ -905,6 +921,8 @@ type CommentsReviews2018Input = {
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
   commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<CommentSortingMode>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -912,6 +930,8 @@ type CommentsReviews2019Input = {
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
   commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<CommentSortingMode>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -21281,7 +21301,7 @@ type DeletedCommentsModerationLogQueryQuery_comments_MultiCommentOutput_results_
   & DeletedCommentsModerationLog
 );
 
-type DeletedCommentsModerationLogQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<DeletedCommentsModerationLogQueryQuery_comments_MultiCommentOutput_results_Comment> };
+type DeletedCommentsModerationLogQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<DeletedCommentsModerationLogQueryQuery_comments_MultiCommentOutput_results_Comment> };
 
 type DeletedCommentsModerationLogQueryQuery_Query = { __typename?: 'Query', comments: DeletedCommentsModerationLogQueryQuery_comments_MultiCommentOutput | null };
 
@@ -21289,6 +21309,7 @@ type DeletedCommentsModerationLogQueryQuery_Query = { __typename?: 'Query', comm
 type DeletedCommentsModerationLogQueryQueryVariables = Exact<{
   selector: InputMaybe<CommentSelector>;
   limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -21299,7 +21320,7 @@ type UsersBannedFromPostsModerationLogQueryQuery_posts_MultiPostOutput_results_P
   & UsersBannedFromPostsModerationLog
 );
 
-type UsersBannedFromPostsModerationLogQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<UsersBannedFromPostsModerationLogQueryQuery_posts_MultiPostOutput_results_Post> };
+type UsersBannedFromPostsModerationLogQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<UsersBannedFromPostsModerationLogQueryQuery_posts_MultiPostOutput_results_Post> };
 
 type UsersBannedFromPostsModerationLogQueryQuery_Query = { __typename?: 'Query', posts: UsersBannedFromPostsModerationLogQueryQuery_posts_MultiPostOutput | null };
 
@@ -21307,6 +21328,7 @@ type UsersBannedFromPostsModerationLogQueryQuery_Query = { __typename?: 'Query',
 type UsersBannedFromPostsModerationLogQueryQueryVariables = Exact<{
   selector: InputMaybe<PostSelector>;
   limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -21317,7 +21339,7 @@ type UsersBannedFromUsersModerationLogQueryQuery_users_MultiUserOutput_results_U
   & UsersBannedFromUsersModerationLog
 );
 
-type UsersBannedFromUsersModerationLogQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<UsersBannedFromUsersModerationLogQueryQuery_users_MultiUserOutput_results_User> };
+type UsersBannedFromUsersModerationLogQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', totalCount: number | null, results: Array<UsersBannedFromUsersModerationLogQueryQuery_users_MultiUserOutput_results_User> };
 
 type UsersBannedFromUsersModerationLogQueryQuery_Query = { __typename?: 'Query', users: UsersBannedFromUsersModerationLogQueryQuery_users_MultiUserOutput | null };
 
@@ -21325,6 +21347,7 @@ type UsersBannedFromUsersModerationLogQueryQuery_Query = { __typename?: 'Query',
 type UsersBannedFromUsersModerationLogQueryQueryVariables = Exact<{
   selector: InputMaybe<UserSelector>;
   limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -21335,7 +21358,7 @@ type ModeratorActionModerationLogQueryQuery_moderatorActions_MultiModeratorActio
   & ModeratorActionDisplay
 );
 
-type ModeratorActionModerationLogQueryQuery_moderatorActions_MultiModeratorActionOutput = { __typename?: 'MultiModeratorActionOutput', results: Array<ModeratorActionModerationLogQueryQuery_moderatorActions_MultiModeratorActionOutput_results_ModeratorAction> };
+type ModeratorActionModerationLogQueryQuery_moderatorActions_MultiModeratorActionOutput = { __typename?: 'MultiModeratorActionOutput', totalCount: number | null, results: Array<ModeratorActionModerationLogQueryQuery_moderatorActions_MultiModeratorActionOutput_results_ModeratorAction> };
 
 type ModeratorActionModerationLogQueryQuery_Query = { __typename?: 'Query', moderatorActions: ModeratorActionModerationLogQueryQuery_moderatorActions_MultiModeratorActionOutput | null };
 
@@ -21343,6 +21366,7 @@ type ModeratorActionModerationLogQueryQuery_Query = { __typename?: 'Query', mode
 type ModeratorActionModerationLogQueryQueryVariables = Exact<{
   selector: InputMaybe<ModeratorActionSelector>;
   limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -21353,7 +21377,7 @@ type UserRateLimitModerationLogQueryQuery_userRateLimits_MultiUserRateLimitOutpu
   & UserRateLimitDisplay
 );
 
-type UserRateLimitModerationLogQueryQuery_userRateLimits_MultiUserRateLimitOutput = { __typename?: 'MultiUserRateLimitOutput', results: Array<UserRateLimitModerationLogQueryQuery_userRateLimits_MultiUserRateLimitOutput_results_UserRateLimit> };
+type UserRateLimitModerationLogQueryQuery_userRateLimits_MultiUserRateLimitOutput = { __typename?: 'MultiUserRateLimitOutput', totalCount: number | null, results: Array<UserRateLimitModerationLogQueryQuery_userRateLimits_MultiUserRateLimitOutput_results_UserRateLimit> };
 
 type UserRateLimitModerationLogQueryQuery_Query = { __typename?: 'Query', userRateLimits: UserRateLimitModerationLogQueryQuery_userRateLimits_MultiUserRateLimitOutput | null };
 
@@ -21361,6 +21385,7 @@ type UserRateLimitModerationLogQueryQuery_Query = { __typename?: 'Query', userRa
 type UserRateLimitModerationLogQueryQueryVariables = Exact<{
   selector: InputMaybe<UserRateLimitSelector>;
   limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -23033,42 +23058,6 @@ type multiUserUserPageTitleQueryQueryVariables = Exact<{
 
 type multiUserUserPageTitleQueryQuery = multiUserUserPageTitleQueryQuery_Query;
 
-type multiCommentUltraFeedCommentsDialogQueryQuery_comments_MultiCommentOutput_results_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsList
-);
-
-type multiCommentUltraFeedCommentsDialogQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<multiCommentUltraFeedCommentsDialogQueryQuery_comments_MultiCommentOutput_results_Comment> };
-
-type multiCommentUltraFeedCommentsDialogQueryQuery_Query = { __typename?: 'Query', comments: multiCommentUltraFeedCommentsDialogQueryQuery_comments_MultiCommentOutput | null };
-
-
-type multiCommentUltraFeedCommentsDialogQueryQueryVariables = Exact<{
-  selector: InputMaybe<CommentSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiCommentUltraFeedCommentsDialogQueryQuery = multiCommentUltraFeedCommentsDialogQueryQuery_Query;
-
-type UltraFeedCommentsDialogQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostsDetails
-);
-
-type UltraFeedCommentsDialogQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: UltraFeedCommentsDialogQuery_post_SinglePostOutput_result_Post | null };
-
-type UltraFeedCommentsDialogQuery_Query = { __typename?: 'Query', post: UltraFeedCommentsDialogQuery_post_SinglePostOutput | null };
-
-
-type UltraFeedCommentsDialogQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type UltraFeedCommentsDialogQuery = UltraFeedCommentsDialogQuery_Query;
-
 type SingleCommentForFeedbackQuery_comment_SingleCommentOutput_result_Comment = (
   { __typename?: 'Comment' }
   & UltraFeedComment
@@ -24116,8 +24105,8 @@ type CommentsListWithTopLevelComment = (
 );
 
 type UltraFeedComment_Comment_post_Post = (
-  { __typename?: 'Post', votingSystem: string | null }
-  & PostsMinimumInfo
+  { __typename?: 'Post' }
+  & PostsListWithVotes
 );
 
 type UltraFeedComment = (
@@ -24818,7 +24807,7 @@ type PostsList_Post_contents_Revision = { __typename?: 'Revision', _id: string, 
 type PostsList_Post_fmCrosspost_CrosspostOutput = { __typename?: 'CrosspostOutput', isCrosspost: boolean, hostedHere: boolean | null, foreignPostId: string | null };
 
 type PostsList = (
-  { __typename?: 'Post', deletedDraft: boolean, contents: PostsList_Post_contents_Revision | null, fmCrosspost: PostsList_Post_fmCrosspost_CrosspostOutput | null }
+  { __typename?: 'Post', deletedDraft: boolean, bannedUserIds: Array<string> | null, contents: PostsList_Post_contents_Revision | null, fmCrosspost: PostsList_Post_fmCrosspost_CrosspostOutput | null }
   & PostsListBase
 );
 

@@ -1174,7 +1174,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
           AND "collectionName" = 'Posts'
           AND "eventType" = 'viewed'
           AND "createdAt" > NOW() - INTERVAL '$(maxAgeDays) days'
-        LIMIT 1000
+        LIMIT 2000
       ) ue ON p._id = ue."documentId"
       WHERE
         p."postedAt" > NOW() - INTERVAL '$(maxAgeDays) days'

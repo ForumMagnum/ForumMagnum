@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
-import { userIsBannedFromAllPersonalPosts, userIsBannedFromAllPosts, userIsBannedFromPost, userIsNotShortformOwner } from '../../lib/collections/users/helpers';
+import { PermissionsPostMinimumInfo as PostPermissionsMinimumInfo, userIsBannedFromAllPersonalPosts, userIsBannedFromAllPosts, userIsBannedFromPost, userIsNotShortformOwner } from '../../lib/collections/users/helpers';
 import classNames from 'classnames';
 import { moderationEmail } from '../../lib/publicSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost, postAuthor: PostsAuthors['user']|null): React.JSX.Element => {
+const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: PostPermissionsMinimumInfo, postAuthor: PostsAuthors['user']|null): React.JSX.Element => {
   if (!user) {
     return <>Can't recognize user</>
   }
@@ -53,11 +53,11 @@ const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: Posts
 }
 
 const CantCommentExplanation = ({post, classes}: {
-  post: PostsDetails,
+  post: PostPermissionsMinimumInfo,
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const author = post.user;
+  const author = post.user ?? null;
   const email = moderationEmail.get()
   if (isFriendlyUI && post.shortform) {
     return null;

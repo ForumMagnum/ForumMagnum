@@ -64,6 +64,8 @@ interface ObserveData {
   documentType: DocumentType;
   postId?: string;
   servedEventId?: string;
+  feedCardIndex?: number;
+  feedCommentIndex?: number;
 }
 
 interface TrackExpansionData {
@@ -74,6 +76,8 @@ interface TrackExpansionData {
   maxLevelReached: boolean;
   wordCount: number;
   servedEventId?: string;
+  feedCardIndex?: number;
+  feedCommentIndex?: number;
 }
 
 interface UltraFeedObserverContextType {
@@ -89,9 +93,9 @@ const UltraFeedObserverContext = createContext<UltraFeedObserverContextType | nu
 
 // Minimum amount of the element (in pixels) that must be inside the viewport to
 // count as "visible enough" to register a view event.
-const MIN_VISIBLE_PX = 250;
+export const MIN_VISIBLE_PX = 100;
 
-const VIEW_THRESHOLD_MS = 2000;
+const VIEW_THRESHOLD_MS = 1000;
 const LONG_VIEW_THRESHOLD_MS = 10000;
 
 const documentTypeToCollectionName = {
@@ -129,6 +133,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
         }
       }
     };
+    
     void createUltraFeedEvent({ variables: eventPayload });
     
     captureEvent("ultraFeedItemViewed", {
@@ -136,6 +141,8 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
       collectionName: documentTypeToCollectionName[elementData.documentType],
       durationMs: durationMs,
       feedItemId: elementData.servedEventId,
+      feedCardIndex: elementData.feedCardIndex,
+      feedCommentIndex: elementData.feedCommentIndex,
     });
   }, [createUltraFeedEvent, currentUser, incognitoMode, captureEvent]);
 
@@ -300,6 +307,8 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
       collectionName: documentTypeToCollectionName[data.documentType],
       expansionLevel: data.level,
       feedItemId: data.servedEventId,
+      feedCardIndex: data.feedCardIndex,
+      feedCommentIndex: data.feedCommentIndex,
     });
   }, [createUltraFeedEvent, currentUser, incognitoMode, captureEvent]);
 

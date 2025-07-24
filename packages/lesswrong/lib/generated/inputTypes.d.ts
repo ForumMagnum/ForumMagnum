@@ -1954,6 +1954,7 @@ interface CommentsProfileCommentsInput {
   minimumKarma?: number | null;
   authorIsUnreviewed?: boolean | null;
   sortBy?: string | null;
+  drafts?: string | null;
   limit?: string | null;
 }
 
@@ -2132,6 +2133,8 @@ interface CommentsNominations2018Input {
   commentIds?: Array<string> | null;
   minimumKarma?: number | null;
   authorIsUnreviewed?: boolean | null;
+  postId?: string | null;
+  sortBy?: CommentSortingMode | null;
 }
 
 interface CommentsNominations2019Input {
@@ -2139,6 +2142,8 @@ interface CommentsNominations2019Input {
   commentIds?: Array<string> | null;
   minimumKarma?: number | null;
   authorIsUnreviewed?: boolean | null;
+  postId?: string | null;
+  sortBy?: CommentSortingMode | null;
 }
 
 interface CommentsReviews2018Input {
@@ -2146,6 +2151,8 @@ interface CommentsReviews2018Input {
   commentIds?: Array<string> | null;
   minimumKarma?: number | null;
   authorIsUnreviewed?: boolean | null;
+  postId?: string | null;
+  sortBy?: CommentSortingMode | null;
 }
 
 interface CommentsReviews2019Input {
@@ -2153,6 +2160,8 @@ interface CommentsReviews2019Input {
   commentIds?: Array<string> | null;
   minimumKarma?: number | null;
   authorIsUnreviewed?: boolean | null;
+  postId?: string | null;
+  sortBy?: CommentSortingMode | null;
 }
 
 interface CommentsReviewsInput {
