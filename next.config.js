@@ -4,7 +4,7 @@ const fs = require('fs');
 const serverExternalPackages = [
   'superagent-proxy', 'gpt-3-encoder', 'mathjax-node', 'mathjax', 'turndown', 'cloudinary',
   '@aws-sdk/client-cloudfront', 'auth0', 'jimp', '@datadog/browser-rum', 'juice',
-  'request', 'stripe', 'openai', 'twitter-api-v2', 'dd-trace',
+  'request', 'stripe', 'openai', 'twitter-api-v2',
 ];
 
 const webpackExternalPackages = [
