@@ -18,7 +18,7 @@ import LWTooltip from '../common/LWTooltip';
 import { SHOW_ALL_BREAKPOINT_VALUE } from './ultraFeedSettingsTypes';
 import { isRegularClick } from '../posts/TableOfContents/TableOfContentsList';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
-import { FeedPostMetaInfo } from './ultraFeedTypes';
+import { FeedPostMetaInfo, FeedSpotlightMetaInfo } from './ultraFeedTypes';
 
 const SIDE_MARGIN = 150;
 
@@ -512,12 +512,14 @@ const UltraFeedSpotlightItem = ({
   index,
   showSubtitle=true,
   className,
+  spotlightMetaInfo,
 }: {
   spotlight: SpotlightDisplay,
   post?: PostsListWithVotes,
   index: number,
   showSubtitle?: boolean,
   className?: string,
+  spotlightMetaInfo: FeedSpotlightMetaInfo,
 }) => {
   const classes = useStyles(useUltraFeedSpotlightItemStyles);
   const { observe } = useUltraFeedObserver();
@@ -557,10 +559,11 @@ const UltraFeedSpotlightItem = ({
       observe(currentElement, {
         documentId: spotlight._id,
         documentType: 'spotlight',
-        feedCardIndex: index
+        feedCardIndex: index,
+        servedEventId: spotlightMetaInfo.servedEventId,
       });
     }
-  }, [observe, spotlight, index]);
+  }, [observe, spotlight, index, spotlightMetaInfo.servedEventId]);
 
   if (!spotlight) {
     return null;

@@ -51,6 +51,11 @@ export interface FeedCommentMetaInfo {
   servedEventId?: string;
 }
 
+export interface FeedSpotlightMetaInfo {
+  sources: FeedItemSourceType[];
+  servedEventId: string;
+}
+
 export interface FeedCommentFromDb {
   commentId: string;
   authorId: string;
@@ -118,6 +123,7 @@ export interface FeedSpotlightResolverType {
   _id: string;
   spotlight: DbSpotlight;
   post?: DbPost;
+  spotlightMetaInfo: FeedSpotlightMetaInfo;
 }
 
 export type FeedItemResolverType = FeedPostResolverType | FeedCommentsThreadResolverType | FeedSpotlightResolverType;

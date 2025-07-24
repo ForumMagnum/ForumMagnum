@@ -59,6 +59,7 @@ export const ultraFeedGraphQLTypeDefs = gql`
     _id: String!
     spotlight: Spotlight
     post: Post
+    spotlightMetaInfo: JSON
   }
 
   type UltraFeedQueryResults {
@@ -357,7 +358,11 @@ const transformItemsForResolver = (
         feedSpotlight: {
           _id: item.feedSpotlight.spotlightId,
           spotlight,
-          ...(post && { post })
+          ...(post && { post }),
+          spotlightMetaInfo: {
+            servedEventId: randomId(),
+            sources: ['spotlights' as const]
+          }
         }
       };
     }
@@ -473,8 +478,9 @@ const createUltraFeedEvents = (
     const actualItemIndex = offset + index;
     
     if (item.type === "feedSpotlight" && item.feedSpotlight?.spotlight?._id) {
+      const servedEventId = item.feedSpotlight.spotlightMetaInfo.servedEventId;
       eventsToCreate.push({
-        _id: randomId(),
+        _id: servedEventId,
         userId,
         eventType: "served",
         collectionName: "Spotlights",
