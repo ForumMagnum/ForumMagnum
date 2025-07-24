@@ -715,15 +715,7 @@ export const SunshinePostsList = gql(`
     }
     
     automatedContentEvaluations {
-      _id
-      score
-      sentenceScores {
-        sentence
-        score
-      }
-      aiChoice
-      aiReasoning
-      aiCoT
+      ...AutomatedContentEvaluations
     }
 
     moderationGuidelines {

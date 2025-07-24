@@ -41,7 +41,7 @@ const styles = defineStyles("RejectedContentControls", (theme: ThemeType) => ({
 export const RejectedContentControls = ({ contentWrapper }: {
   contentWrapper: RejectContentParams
 }) => {
-  const { collectionName, content } = contentWrapper;
+  const { collectionName, document } = contentWrapper;
   const classes = useStyles(styles);
 
   const { openDialog } = useDialog();
@@ -50,13 +50,13 @@ export const RejectedContentControls = ({ contentWrapper }: {
   if (collectionName === 'Posts' && !hasRejectedContentSectionSetting.get()) return null;
   if (collectionName === 'Comments' && !isLWorAF) return null;
 
-  const automatedContentEvaluations = 'automatedContentEvaluations' in content && content.automatedContentEvaluations;
+  const automatedContentEvaluations = 'automatedContentEvaluations' in document && document.automatedContentEvaluations;
   console.log("automatedContentEvaluations", automatedContentEvaluations);
 
   function handleLLMScoreClick() {
     if (!automatedContentEvaluations) return;
     const highlightedHtml = highlightHtmlWithLlmDetectionScores(
-      content.contents?.html || '',
+      document.contents?.html || '',
       automatedContentEvaluations.sentenceScores || []
     );
 

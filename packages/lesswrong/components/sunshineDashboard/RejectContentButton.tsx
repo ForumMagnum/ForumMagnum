@@ -37,7 +37,7 @@ export const RejectContentButton = ({contentWrapper, classes}: {
   const { eventHandlers, anchorEl } = useHover();
   const { rejectContent, unrejectContent } = useRejectContent(contentWrapper);
   const [showRejectionDialog, setShowRejectionDialog] = useState(false);
-  const { content } = contentWrapper;
+  const { document: content } = contentWrapper;
 
   const handleRejectContent = (reason: string) => {
     setShowRejectionDialog(false);

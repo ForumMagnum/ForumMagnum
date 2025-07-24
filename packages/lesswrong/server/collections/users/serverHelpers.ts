@@ -28,7 +28,7 @@ const checkIfLLMRejected = async (newDocument: DbPost|DbComment): Promise<boolea
 
 export async function getReasonForReview(user: DbUser|SunshineUsersList, newDocument?: DbPost|DbComment): Promise<GetReasonForReviewResult>
 {
-  /**
+  /*
    * This covers several cases
    * 1) never reviewed users
    * 2) users who were removed from the review queue and weren't previously reviewed
