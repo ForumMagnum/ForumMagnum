@@ -159,7 +159,6 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
 
       if (attribs["style"]) {
         const transformedStyle = transformStylesForDarkMode(attribs["style"], themeName);
-        console.log(`Mapped ${JSON.stringify(attribs["style"])} => ${JSON.stringify(transformedStyle)}`);
         attribs["style"] = transformedStyle;
       }
 
