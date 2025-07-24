@@ -7,7 +7,7 @@ import classNames from "classnames";
 import { commentBodyStyles } from "../../themes/stylePiping";
 import ForumIcon from "../common/ForumIcon";
 import LWPopper from "../common/LWPopper";
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 import CommentsItemMeta from "../comments/CommentsItem/CommentsItemMeta";
 import CommentBottomCaveats from "../comments/CommentsItem/CommentBottomCaveats";
 
@@ -140,7 +140,7 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
       clickable={false}
     >
       <div className={classes.hoverOver}>
-        <CommentsNodeInner
+        <CommentsNode
           truncated
           nestingLevel={1}
           comment={quickTake}

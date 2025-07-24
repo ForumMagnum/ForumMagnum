@@ -4,7 +4,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import SingleColumnSection from "../common/SingleColumnSection";
 import { MixedTypeFeed } from "../common/MixedTypeFeed";
 import TagRevisionItem from "./TagRevisionItem";
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 import NewTagItem from "./NewTagItem";
 import SectionTitle from "../common/SectionTitle";
 import { AllTagsActivityFeedQuery } from '../common/feeds/feedQueries';
@@ -35,7 +35,7 @@ const TagActivityFeed = ({pageSize = 50}: {
         },
         tagDiscussionComment: {
           render: (comment: CommentsListWithParentMetadata) => <div>
-            <CommentsNodeInner
+            <CommentsNode
               treeOptions={{
                 showPostTitle: true,
                 tag: comment.tag || undefined,
