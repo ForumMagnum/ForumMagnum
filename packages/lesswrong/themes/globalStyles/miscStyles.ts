@@ -5,20 +5,6 @@ export default (): string => `
   margin-bottom: 2em;
 }
 
-/*
- * FIXME TODO: This CSS is unused/not being applied, but actually it should
- * be--it would fix the click-target of the comment and post editors being
- * really short.
- */
-.editor :global(.public-DraftEditor-content) {
-  min-height: 140px;
-}
-.public-DraftStyleDefault-unorderedListItem div,
-.public-DraftStyleDefault-orderedListItem div {
-  margin:0;
-}
-
-
 .editor blockquote div, .editor blockquote span {
   margin:0;
 }
