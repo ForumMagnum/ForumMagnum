@@ -41,6 +41,16 @@ module.exports = {
   },
   serverExternalPackages,
 
+  headers: async () => {
+    return [{
+      source: '/(.*?)',
+      headers: [{
+        key: 'Strict-Transport-Security',
+        value: 'max-age=63072000; includeSubDomains; preload',
+      }]
+    }]
+  },
+
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
