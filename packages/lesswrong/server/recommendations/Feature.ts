@@ -98,6 +98,42 @@ class TextSimilarityFeature extends Feature {
   }
 }
 
+class SubscribedAuthorPostsFeature extends Feature {
+  getJoin() {
+    return `
+      LEFT JOIN "Subscriptions" author_subs ON
+        author_subs."collectionName" = 'Users' AND
+        author_subs."state" = 'subscribed' AND
+        author_subs."deleted" IS NOT TRUE AND
+        author_subs."type" = 'newPosts' AND
+        author_subs."userId" = $(userId) AND
+        author_subs."documentId" = p."userId"
+    `;
+  }
+
+  getScore() {
+    return `(CASE WHEN author_subs."_id" IS NULL THEN 0 ELSE 1 END)`;
+  }
+}
+
+class SubscribedTagPostsFeature extends Feature {
+  getJoin() {
+    return `
+      LEFT JOIN "Subscriptions" tag_subs ON
+        tag_subs."collectionName" = 'Tags' AND
+        tag_subs."state" = 'subscribed' AND
+        tag_subs."deleted" IS NOT TRUE AND
+        tag_subs."type" = 'newTagPosts' AND
+        tag_subs."userId" = $(userId) AND
+        (p."tagRelevance"->tag_subs."documentId")::INTEGER >= 1
+    `;
+  }
+
+  getScore() {
+    return `(CASE WHEN tag_subs."_id" IS NULL THEN 0 ELSE 1 END)`;
+  }
+}
+
 export const featureRegistry: Record<
   RecommendationFeatureName,
   ConstructableFeature
@@ -107,4 +143,6 @@ export const featureRegistry: Record<
   tagSimilarity: TagSimilarityFeature,
   collabFilter: CollabFilterFeature,
   textSimilarity: TextSimilarityFeature,
+  subscribedAuthorPosts: SubscribedAuthorPostsFeature,
+  subscribedTagPosts: SubscribedTagPostsFeature,
 };

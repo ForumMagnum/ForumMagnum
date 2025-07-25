@@ -667,7 +667,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
     `, [userId]);
   }
 
-  async getEAWrappedReactsReceived(
+  async getEAReactsReceived(
     userId: string,
     start: Date,
     end: Date,
@@ -676,7 +676,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
       `COUNT(*) FILTER (WHERE ("extendedVoteType"->'${name}')::BOOLEAN) AS "${name}"`,
     );
     const result = await this.getRawDb().oneOrNone(`
-      -- VotesRepo.getEAWrappedReactsReceived
+      -- VotesRepo.getEAReactsReceived
       SELECT ${fields.join(", ")}
       FROM "Votes"
       WHERE
@@ -696,7 +696,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
     return result;
   }
 
-  async getEAWrappedReactsGiven(
+  async getEAReactsGiven(
     userId: string,
     start: Date,
     end: Date,
@@ -705,7 +705,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
       `COUNT(*) FILTER (WHERE ("extendedVoteType"->'${name}')::BOOLEAN) AS "${name}"`,
     );
     const result = await this.getRawDb().oneOrNone(`
-      -- VotesRepo.getEAWrappedReactsGiven
+      -- VotesRepo.getEAReactsGiven
       SELECT ${fields.join(", ")}
       FROM "Votes"
       WHERE
@@ -725,13 +725,13 @@ class VotesRepo extends AbstractRepo<"Votes"> {
     return result;
   }
 
-  async getEAWrappedAgreements(
+  async getEAAgreements(
     userId: string,
     start: Date,
     end: Date,
   ): Promise<Record<"agree" | "disagree", number>> {
     const result = await this.getRawDb().oneOrNone(`
-      -- VotesRepo.getEAWrappedAgreements
+      -- VotesRepo.getEAAgreements
       SELECT
         COUNT(*) FILTER
           (WHERE ("extendedVoteType"->'agree')::BOOLEAN IS TRUE) AS "agree",
@@ -754,6 +754,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
     }
     return result;
   }
+
   async getNetKarmaChangesForAuthorsOverPeriod(days: number, limit: number): Promise<Array<{ userId: string; netKarma: number }>> {
     return this.getRawDb().any(`
       -- VotesRepo.getNetKarmaChangesForAuthorsOverPeriod
