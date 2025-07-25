@@ -329,7 +329,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
                   },
                   feedSpotlight: {
                     render: (item: FeedSpotlightFragment, index: number) => {
-                      const { spotlight, post } = item;
+                      const { spotlight, post, spotlightMetaInfo } = item;
                       if (!spotlight) {
                         return null;
                       }
@@ -339,6 +339,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
                           <UltraFeedSpotlightItem 
                             spotlight={spotlight}
                             post={post ?? undefined}
+                            spotlightMetaInfo={spotlightMetaInfo}
                             showSubtitle={true}
                             index={index}
                           />

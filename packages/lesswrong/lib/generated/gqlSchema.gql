@@ -1404,6 +1404,7 @@ type FeedSpotlightItem {
   _id: String!
   spotlight: Spotlight
   post: Post
+  spotlightMetaInfo: JSON
 }
 
 type UltraFeedQueryResults {

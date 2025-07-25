@@ -48,6 +48,7 @@ import PostsPageQuestionContent from "../questions/PostsPageQuestionContent";
 import { useSubscribedLocation } from "@/lib/routeUtil";
 import { randomId } from '@/lib/random';
 import { RecombeeRecommendationsContextWrapper } from '../recommendations/RecombeeRecommendationsContextWrapper';
+import { Helmet } from '../common/Helmet';
 import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
 import AttributionInViewTracker from "../common/AttributionInViewTracker";
 
@@ -715,10 +716,16 @@ const UltraFeedPostDialog = ({
       className={classes.modalWrapper}
     >
       <RecombeeRecommendationsContextWrapper postId={postId} recommId={recommId}>
-      <AnalyticsContext pageModalContext="ultraFeedPostModal" postId={postId}>
-        <DialogContent className={classes.dialogContent}>
-          <div ref={dialogInnerRef} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-            {/* Header */}
+        <AnalyticsContext pageModalContext="ultraFeedPostModal" postId={postId}>
+          <DialogContent className={classes.dialogContent}>
+            {/* Canonical URL changed to enable audio player to work */}
+            {postUrl && (
+              <Helmet name="ultraFeedPostDialogCanonical">
+                <link rel="canonical" href={postUrl} />
+              </Helmet>
+            )}
+            <div ref={dialogInnerRef} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+              {/* Header */}
             <div className={classes.stickyHeader}>
               <ForumIcon 
                 icon="Close"
