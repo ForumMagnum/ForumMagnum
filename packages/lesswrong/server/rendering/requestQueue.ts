@@ -81,7 +81,8 @@ function maybeStartQueuedRequests() {
       });
 
       inFlightRenderCount++;
-      void request.callback();
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      request.callback();
     }
   }
 }

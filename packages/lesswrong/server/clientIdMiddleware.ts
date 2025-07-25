@@ -5,6 +5,7 @@ import { responseIsCacheable } from './cacheControlMiddleware';
 import ClientIdsRepo from './repos/ClientIdsRepo';
 import LRU from 'lru-cache';
 import { getUserFromReq } from './vulcan-lib/apollo-server/context';
+import { backgroundTask } from './utils/backgroundTask';
 
 // Cache of seen (clientId, userId) pairs
 const seenClientIds = new LRU<string, boolean>({ max: 10_000, maxAge: 1000 * 60 * 60 });
@@ -90,12 +91,12 @@ export function ensureClientId(req: express.Request, res: express.Response): voi
         });
         
         if (!hasSeen({ clientId: req.clientId, userId })) {
-          void clientIdsRepo.ensureClientId({
+          backgroundTask(clientIdsRepo.ensureClientId({
             clientId: req.clientId,
             userId,
             referrer,
             landingPage: url,
-          });
+          }));
         }
         setHasSeen({ clientId: req.clientId, userId: getUserFromReq(req)?._id });
       } catch (e) {

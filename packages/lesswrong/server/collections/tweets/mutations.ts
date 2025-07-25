@@ -1,7 +1,7 @@
-
 import schema from "@/lib/collections/tweets/newSchema";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -47,7 +47,7 @@ export async function updateTweet({ selector, data }: { selector: SelectorInput,
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Tweets', updatedDocument, oldDocument);
 
-  void logFieldChanges({ currentUser, collection: Tweets, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: Tweets, oldDocument, data: origData }));
 
   return updatedDocument;
 }

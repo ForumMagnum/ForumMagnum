@@ -9,6 +9,7 @@ import { wrapAndSendEmail } from './emails/renderEmail';
 import { loggerConstructor } from '../lib/utils/logging';
 import { isEAForum } from '../lib/instanceSettings';
 import { EmailJobAdReminder } from './emailComponents/EmailJobAdReminder';
+import { backgroundTask } from './utils/backgroundTask';
 
 // Exported to allow running with "yarn repl"
 export const sendJobAdReminderEmails = async () => {
@@ -52,12 +53,12 @@ export const sendJobAdReminderEmails = async () => {
     const recipient = users.find(u => u._id === userJobAd.userId)
     if (recipient) {
       const jobAdData = JOB_AD_DATA[userJobAd.jobName]
-      void wrapAndSendEmail({
+      backgroundTask(wrapAndSendEmail({
         user: recipient,
         subject: `Reminder: ${jobAdData.role} role at${jobAdData.insertThe ? ' the ' : ' '}${jobAdData.org}`,
         body: <EmailJobAdReminder jobName={userJobAd.jobName} />,
         force: true  // ignore the "unsubscribe to all" in this case, since the user initiated it
-      })
+      }))
     }
   }
   
@@ -69,7 +70,7 @@ export const sendJobAdReminderEmailsCron = addCronJob({
   interval: `every 1 day`,
   disabled: !isEAForum,
   job() {
-    void sendJobAdReminderEmails();
+    backgroundTask(sendJobAdReminderEmails());
   }
 });
 
