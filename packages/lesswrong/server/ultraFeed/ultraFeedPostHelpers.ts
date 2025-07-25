@@ -92,7 +92,7 @@ export async function getRecommendedPostsForUltraFeed(
   ];
   
   let viewedPostIds = new Set<string>();
-  if (currentUser && currentUser._id && allPostIds.length > 0) {
+  if (currentUser?._id && allPostIds.length > 0) {
     viewedPostIds = await repos.ultraFeedEvents.getViewedPostIds( currentUser._id, allPostIds);
   }
   
