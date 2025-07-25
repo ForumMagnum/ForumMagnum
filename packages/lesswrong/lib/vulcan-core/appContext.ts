@@ -5,7 +5,7 @@ import React from 'react';
 import { matchPath } from 'react-router';
 
 import qs from 'qs'
-import { captureException } from '@sentry/core';
+import { captureException } from '@sentry/nextjs';
 import { isClient } from '../executionEnvironment';
 import type { RouterLocation, Route, SegmentedUrl } from '../vulcan-lib/routes';
 import { getRouteMatchingPathname, userCanAccessRoute } from "../vulcan-lib/routes";

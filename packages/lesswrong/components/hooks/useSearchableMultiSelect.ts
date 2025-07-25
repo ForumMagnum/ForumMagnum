@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { MultiSelectState, buildMultiSelectSummary } from "./useMultiSelect";
 import { useLRUCache } from "./useLRUCache";
 import { useSearchAnalytics } from "../search/useSearchAnalytics";
-import { captureException } from "@sentry/core";
+import { captureException } from "@sentry/nextjs";
 import { getSearchClient } from "@/lib/search/searchUtil";
 import { algoliaPrefixSetting } from '@/lib/instanceSettings';
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";

@@ -3,7 +3,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import type { Metadata } from "next";
 import { defaultMetadata, getMetadataDescriptionFields, getPageTitleFields } from "./sharedMetadata";
 import merge from "lodash/merge";
-import { captureException } from "@sentry/core";
+import { captureException } from "@sentry/nextjs";
 
 const TagMetadataQuery = gql(`
   query TagMetadata($tagSlug: String) {

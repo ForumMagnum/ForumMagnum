@@ -68,7 +68,7 @@ import { getPostReviewWinnerInfo } from "@/server/review/reviewWinnersCache";
 import { matchSideComments } from "@/server/sideComments";
 import { getToCforPost } from "@/server/tableOfContents";
 import { cheerioParse } from "@/server/utils/htmlUtil";
-import { captureException } from "@sentry/core";
+import { captureException } from "@sentry/nextjs";
 import keyBy from "lodash/keyBy";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from "graphql-tag";

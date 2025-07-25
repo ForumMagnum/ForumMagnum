@@ -1,4 +1,4 @@
-import { configureScope } from '@sentry/node';
+import type { Scope } from '@sentry/nextjs';
 import DataLoader from 'dataloader';
 import { getAllCollections, getAllCollectionsByName } from '../../collections/allCollections';
 import findByIds from '../findbyids';
@@ -112,28 +112,22 @@ export const computeContextFromUser = ({user, headers, searchParams, cookies, is
   return context;
 }
 
-export function configureSentryScope(context: ResolverContext) {
+export function configureSentryScope(context: ResolverContext, scope: Scope) {
   const user = context.currentUser;
   
   if (user) {
-    configureScope(scope => {
-      scope.setUser({
-        id: user._id,
-        email: getUserEmail(user),
-        username: context.isGreaterWrong ? `${user.username} (via GreaterWrong)` : user.username ?? undefined,
-      });
+    scope.setUser({
+      id: user._id,
+      email: getUserEmail(user),
+      username: context.isGreaterWrong ? `${user.username} (via GreaterWrong)` : user.username ?? undefined,
     });
   } else if (context.isGreaterWrong) {
-    configureScope(scope => {
-      scope.setUser({
-        username: `Logged out (via GreaterWrong)`,
-      });
+    scope.setUser({
+      username: `Logged out (via GreaterWrong)`,
     });
   } else if (context.isIssaRiceReader) {
-    configureScope(scope => {
-      scope.setUser({
-        username: `Logged out (via lw2.issarice.com)`
-      });
+    scope.setUser({
+      username: `Logged out (via lw2.issarice.com)`
     });
   }
 }

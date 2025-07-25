@@ -1,5 +1,5 @@
 import { SqlFragment, getResolverCollection, extractFragmentDefinitions, topologicalSort } from "@/server/sql/SqlFragment";
-import GraphQLJSON from "graphql-type-json";
+import GraphQLJSON from "@/lib/vendor/graphql-type-json";
 import type { GraphQLScalarType } from "graphql";
 
 describe("SqlFragment", () => {

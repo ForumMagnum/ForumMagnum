@@ -2,10 +2,11 @@ import { typeDefs, resolvers } from '../../packages/lesswrong/server/vulcan-lib/
 import { startServerAndCreateNextHandler } from '@as-integrations/next';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { ApolloServer } from '@apollo/server';
-import { getContextFromReqAndRes } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/context';
+import { configureSentryScope, getContextFromReqAndRes } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/context';
 import type { NextRequest } from 'next/server';
 import { asyncLocalStorage, closeRequestPerfMetric, openPerfMetric } from '@/server/perfMetrics';
 import { logAllQueries } from '@/server/sql/sqlClient';
+import { getIsolationScope } from '@sentry/nextjs';
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
@@ -20,7 +21,12 @@ const server = new ApolloServer<ResolverContext>({
 const handler = startServerAndCreateNextHandler<NextRequest, ResolverContext>(server, {
   // IDK if that cast is actually safe/correct; I'm pretty sure the conditional type provided for `res` is wrong
   // but :shrug:
- context: async (req) => await getContextFromReqAndRes({ req, isSSR: false }),
+  context: async (req) => {
+    const context = await getContextFromReqAndRes({ req, isSSR: false });
+    const isolationScope = getIsolationScope();
+    configureSentryScope(context, isolationScope);
+    return context;
+  }
 });
 
 // export { handler as GET, handler as POST };

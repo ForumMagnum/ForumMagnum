@@ -7,7 +7,7 @@ import { defaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields,
 import { postCoauthorIsPending, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
-import { captureException } from "@sentry/core";
+import { captureException } from "@sentry/nextjs";
 
 const PostMetadataQuery = gql(`
   query PostMetadata($postId: String) {

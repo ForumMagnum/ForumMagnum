@@ -15,7 +15,7 @@ import AutomatedContentEvaluations from "../automatedContentEvaluations/collecti
 import { z } from "zod"; // Add this import for Zod
 import { getOpenAI } from "@/server/languageModels/languageModelIntegration";
 import { assertPollsAllowed, upsertPolls } from "@/server/callbacks/forumEventCallbacks";
-import { captureException } from "@sentry/core";
+import { captureException } from "@sentry/nextjs";
 
 function editCheck(user: DbUser | null) {
   return userIsAdminOrMod(user);

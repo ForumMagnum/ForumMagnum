@@ -14,7 +14,7 @@ import { ReviewYear, REVIEW_YEAR, getReviewPeriodStart, getReviewPeriodEnd } fro
 import moment from 'moment';
 import { isServer } from '@/lib/executionEnvironment';
 import { getUrlClass } from '@/server/utils/getUrlClass';
-import { captureException } from '@sentry/core';
+import { captureException } from '@sentry/nextjs';
 
 export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
 export type PostCategory = UnionOf<typeof postCategories>;

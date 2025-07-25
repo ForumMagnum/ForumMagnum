@@ -1,6 +1,6 @@
 import type { Profile } from "passport";
 import type { VerifyCallback } from "passport-oauth2";
-import { captureException } from "@sentry/core";
+import { captureException } from "@sentry/nextjs";
 import { userFindOneByEmail, usersFindAllByEmail } from "../commonQueries";
 import Users from "../../server/collections/users/collection";
 import { promisify } from "util";

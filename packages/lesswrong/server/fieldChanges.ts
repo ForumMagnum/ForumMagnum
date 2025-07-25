@@ -1,7 +1,7 @@
 import { FieldChanges } from '@/server/collections/fieldChanges/collection';
 import { getSchema } from '@/lib/schema/allSchemas';
 import { randomId } from '@/lib/random';
-import { captureException } from '@sentry/core';
+import { captureException } from '@sentry/nextjs';
 
 export const logFieldChanges = async <
   N extends CollectionNameString

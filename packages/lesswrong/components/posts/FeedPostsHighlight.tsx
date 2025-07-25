@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import { useForeignCrosspost, isPostWithForeignId, PostWithForeignId } from "../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
-import { captureException }from "@sentry/core";
+import { captureException }from "@sentry/nextjs";
 import classNames from 'classnames';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { useTracking } from '../../lib/analyticsEvents';

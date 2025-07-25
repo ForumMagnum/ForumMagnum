@@ -34,7 +34,7 @@ import { cheerioParse } from "../utils/htmlUtil";
 import { createAdminContext, createAnonymousContext } from "../vulcan-lib/createContexts";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
-import { captureException } from "@sentry/core";
+import { captureException } from "@sentry/nextjs";
 import moment from "moment";
 import _ from "underscore";
 import { getRejectionMessage, generateLinkSharingKey } from "./helpers";

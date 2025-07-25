@@ -30,6 +30,9 @@ import '@/lib/routes';
 import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 import type { RouterLocation } from '@/lib/vulcan-lib/routes';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+import { onUserChanged } from '@/client/logging';
+import moment from 'moment';
+import { localeSetting } from '@/lib/instanceSettings';
 
 const AppComponent = ({ children }: { children: React.ReactNode }) => {
   const locationContext = useRef<RouterLocation | null>(null);
@@ -45,6 +48,18 @@ const AppComponent = ({ children }: { children: React.ReactNode }) => {
   const location = parseRoute({ location: parsedPath, onError: undefined });
 
   const {currentUser, refetchCurrentUser, currentUserLoading} = useQueryCurrentUser();
+
+  const locale = localeSetting.get();
+
+  useEffect(() => {
+    onUserChanged(currentUser);
+    moment.locale(locale);
+  }, [currentUser, locale]);
+
+  useEffect(() => {
+    onUserChanged(currentUser);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser?._id]);
 
   // TODO: implement the below logic taken from App.tsx if needed?
   // const location = checkUserRouteAccess(currentUser, parseRoute({location: reactDomLocation}));

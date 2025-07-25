@@ -1,49 +1,19 @@
-import * as Sentry from '@sentry/browser';
-import * as SentryIntegrations from '@sentry/integrations';
 import { captureEvent } from '../lib/analyticsEvents';
 import { browserProperties } from '../lib/utils/browserProperties';
-import { sentryUrlSetting, sentryReleaseSetting, sentryEnvironmentSetting } from '../lib/instanceSettings';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { devicePrefersDarkMode } from "../components/themes/usePrefersDarkMode";
 import { configureDatadogRum } from './datadogRum';
 import type { UtmParam } from '@/server/analytics/utm-tracking';
 import { CamelCaseify } from '@/lib/vulcan-lib/utils';
-
-const sentryUrl = sentryUrlSetting.get()
-const sentryEnvironment = sentryEnvironmentSetting.get()
-const sentryRelease = sentryReleaseSetting.get()
-
-if (sentryUrl && sentryEnvironment && sentryRelease) {
-  Sentry.init({
-    dsn: sentryUrl,
-    environment: sentryEnvironment,
-    release: sentryRelease,
-    integrations: [
-      new SentryIntegrations.Dedupe(),
-      new SentryIntegrations.ExtraErrorData(),
-    ],
-    beforeSend: (event, hint) => {
-      // Suppress an uninformative error from ReCaptcha
-      // See: https://github.com/getsentry/sentry-javascript/issues/2514
-      if (hint?.originalException === "Timeout") {
-        return null;
-      }
-      
-      return event;
-    }
-  });
-} else {
-  // eslint-disable-next-line no-console
-  console.log("Unable to find sentry credentials, so sentry logging is disabled")
-}
+import { getIsolationScope } from '@sentry/nextjs';
 
 
 // Initializing sentry on the client browser
 function identifyUserToSentry(user: UsersCurrent | null) {
   // Set user in sentry scope, or clear user if they have logged out
-  Sentry.configureScope((scope) => {
-    scope.setUser(user ? {id: user._id, email: getUserEmail(user), username: user.username ?? undefined} : null);
-  });
+  // Requests are carved up with isolation scopes
+  const scope = getIsolationScope();
+  scope.setUser(user ? {id: user._id, email: getUserEmail(user), username: user.username ?? undefined} : null);
 }
 
 function addUserIdToGoogleAnalytics(user: UsersCurrent | null) {

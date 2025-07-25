@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
-import { captureException } from "@sentry/core";
+import { captureException } from "@sentry/nextjs";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from "../common/withUser";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";

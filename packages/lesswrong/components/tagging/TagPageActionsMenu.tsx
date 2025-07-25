@@ -9,7 +9,7 @@ import { useMutation, useApolloClient } from '@apollo/client/react';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
 import { useMessages } from '../common/withMessages';
-import { captureException } from '@sentry/core';
+import { captureException } from '@sentry/nextjs';
 import { tagGetHistoryUrl, tagUserHasSufficientKarma } from '@/lib/collections/tags/helpers';
 import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
 import ForumIcon from "../common/ForumIcon";

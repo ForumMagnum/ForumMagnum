@@ -4,7 +4,7 @@
 import gql from 'graphql-tag'; 
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLSchema } from 'graphql';
-import GraphQLJSON from 'graphql-type-json';
+import GraphQLJSON from '@/lib/vendor/graphql-type-json';
 import GraphQLDate from './graphql-date';
 import { graphqlTypeDefs as notificationTypeDefs, graphqlQueries as notificationQueries } from '@/server/notificationBatching';
 import { graphqlTypeDefs as arbitalLinkedPagesTypeDefs } from '@/lib/collections/helpers/arbitalLinkedPagesField';

@@ -15,7 +15,7 @@ import { asyncMapSequential } from "@/lib/utils/asyncUtils";
 import { markdownToHtml, htmlToMarkdown } from "../editor/conversionUtils";
 import { getOpenAI } from "../languageModels/languageModelIntegration";
 import express, { Express } from "express";
-import { captureException } from "@sentry/core";
+import { captureException } from "@sentry/nextjs";
 import { getContextFromReqAndRes } from "../vulcan-lib/apollo-server/context";
 import { runQuery } from "../vulcan-lib/query";
 import { createLlmConversation } from "../collections/llmConversations/mutations";

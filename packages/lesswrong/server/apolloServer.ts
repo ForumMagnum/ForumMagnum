@@ -9,13 +9,13 @@ import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import { getUserFromReq, configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 import universalCookiesMiddleware from 'universal-cookie-express';
 import { formatError } from 'apollo-errors';
-import * as Sentry from '@sentry/node';
+import * as Sentry from '@sentry/nextjs';
 import { app } from './expressServer';
 import path from 'path'
 import { addAuthMiddlewares } from './authenticationMiddlewares';
 import { expressSessionSecretSetting } from './databaseSettings';
 import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
-import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
+import { logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
 import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
@@ -146,7 +146,7 @@ export async function startWebserver() {
   addAuthMiddlewares(addMiddleware);
   addAdminRoutesMiddleware(addMiddleware);
   addForumSpecificMiddleware(addMiddleware);
-  addSentryMiddlewares(addMiddleware);
+  // addSentryMiddlewares(addMiddleware);
   addCacheControlMiddleware(addMiddleware);
   if (isDatadogEnabled) {
     app.use(datadogMiddleware);

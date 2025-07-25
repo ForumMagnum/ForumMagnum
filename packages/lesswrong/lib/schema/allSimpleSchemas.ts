@@ -1,4 +1,4 @@
-import GraphQLJSON from 'graphql-type-json';
+import GraphQLJSON from '@/lib/vendor/graphql-type-json';
 import SimpleSchema, { SchemaDefinition } from 'simpl-schema';
 import { allSchemas } from './allSchemas';
 

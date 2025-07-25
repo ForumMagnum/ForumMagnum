@@ -8,7 +8,7 @@ import { forumTitleSetting, isEAForum, isLW, isLWorAF, verifyEmailsSetting } fro
 import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, mailchimpEAForumNewsletterListIdSetting, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { encodeIntlError } from "@/lib/vulcan-lib/utils";
 import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
-import { captureException } from "@sentry/core";
+import { captureException } from "@sentry/nextjs";
 import { getAuth0Profile, updateAuth0Email } from "../authentication/auth0";
 import { userFindOneByEmail } from "../commonQueries";
 import { changesAllowedSetting, forumTeamUserId, sinceDaysAgoSetting, welcomeEmailPostId } from "../databaseSettings";

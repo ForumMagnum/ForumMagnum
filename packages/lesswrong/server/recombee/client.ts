@@ -13,7 +13,7 @@ import uniq from 'lodash/uniq';
 import { recommendationsTabManuallyStickiedPostIdsSetting } from '@/lib/instanceSettings';
 import { getParentTraceId, openPerfMetric, wrapWithPerfMetric } from '../perfMetrics';
 import { performQueryFromViewParameters } from '../resolvers/defaultResolvers';
-import { captureException } from '@sentry/core';
+import { captureException } from '@sentry/nextjs';
 import { randomId } from '../../lib/random';
 import { fetchFragmentSingle } from '../fetchFragment';
 import { createAdminContext } from '../vulcan-lib/createContexts';

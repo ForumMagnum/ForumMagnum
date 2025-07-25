@@ -15,7 +15,7 @@ import Head from './Head';
 import { embedAsGlobalVar } from './renderUtil';
 import { healthCheckUserAgentSetting } from '../databaseSettings';
 import AppGenerator from '@/server/vulcan-lib/apollo-ssr/components/AppGenerator';
-import { captureException } from '@sentry/core';
+import { captureException } from '@sentry/nextjs';
 import { ServerRequestStatusContextType, parseRoute, parsePath } from '@/lib/vulcan-core/appContext';
 import { getCookieFromReq, getPathFromReq, getRequestMetadata, trySetResponseStatus } from '@/server/utils/httpUtil';
 import { getThemeOptions, AbstractThemeOptions } from '@/themes/themeNames';

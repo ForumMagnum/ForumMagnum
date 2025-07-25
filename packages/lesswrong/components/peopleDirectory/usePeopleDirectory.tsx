@@ -6,7 +6,7 @@ import { PeopleDirectoryColumn, peopleDirectoryColumns } from "./peopleDirectory
 import { SearchableMultiSelectResult, useSearchableMultiSelect } from "../hooks/useSearchableMultiSelect";
 import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
 import { useSearchAnalytics } from "../search/useSearchAnalytics";
-import { captureException } from "@sentry/core";
+import { captureException } from "@sentry/nextjs";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { taggingNamePluralSetting, taggingNameCapitalSetting } from "@/lib/instanceSettings";
