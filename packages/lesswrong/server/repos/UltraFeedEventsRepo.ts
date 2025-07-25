@@ -58,6 +58,49 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
 
     return unviewedItems.map((row: any) => row.documentId);
   }
+
+  /**
+   * Checks whether posts have been viewed by a user.
+   * Returns a Set of post IDs that have been viewed (either in UltraFeedEvents or ReadStatuses).
+   */
+  async getViewedPostIds(
+    userId: string,
+    postIds: string[],
+  ): Promise<Set<string>> {
+    if (postIds.length === 0) {
+      return new Set();
+    }
+
+    const viewedPosts = await this.manyOrNone(`
+      -- UltraFeedEventsRepo.getViewedPostIds
+      SELECT DISTINCT "postId"
+      FROM (
+        -- Check UltraFeedEvents for viewed events
+        SELECT "documentId" AS "postId"
+        FROM "UltraFeedEvents"
+        WHERE 
+          "userId" = $[userId]
+          AND "collectionName" = 'Posts'
+          AND "eventType" = 'viewed'
+          AND "documentId" = ANY($[postIds]::text[])
+        
+        UNION
+        
+        -- Check ReadStatuses for read posts
+        SELECT "postId"
+        FROM "ReadStatuses"
+        WHERE 
+          "userId" = $[userId]
+          AND "isRead" IS TRUE
+          AND "postId" = ANY($[postIds]::text[])
+      ) AS viewed
+    `, {
+      userId,
+      postIds,
+    });
+
+    return new Set(viewedPosts.map((row: any) => row.postId));
+  }
 }
 
 recordPerfMetrics(UltraFeedEventsRepo);

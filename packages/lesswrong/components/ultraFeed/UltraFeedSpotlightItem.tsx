@@ -531,6 +531,7 @@ const UltraFeedSpotlightItem = ({
   const postMetaInfo: FeedPostMetaInfo = useMemo(() => ({
     displayStatus: 'expanded' as const,
     sources: ['spotlights'] as const,
+    highlight: true, // TODO: might not always be true?
     lastServed: currentTime,
     lastViewed: null,
     lastInteracted: null,

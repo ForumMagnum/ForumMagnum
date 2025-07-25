@@ -422,6 +422,7 @@ export const UltraFeedCommentItem = ({
             sources: metaInfo.sources,
             displayStatus: 'expanded' as const,
             servedEventId: metaInfo.servedEventId ?? '',
+            highlight: false
           }}
           targetCommentId={comment._id}
           topLevelCommentId={comment.topLevelCommentId ?? comment._id}

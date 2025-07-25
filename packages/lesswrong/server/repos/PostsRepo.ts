@@ -1213,6 +1213,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         postMetaInfo: {
           sources,
           displayStatus: 'expanded',
+          highlight: true, // All posts from this query are unviewed, so highlight them all
         },
       };
     });

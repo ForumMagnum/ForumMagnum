@@ -34,6 +34,7 @@ export interface FeedPostMetaInfo {
   lastServed?: Date | null;
   lastViewed?: Date | null;
   lastInteracted?: Date | null;
+  highlight: boolean;
   displayStatus: FeedItemDisplayStatus;
   servedEventId?: string;
 }
