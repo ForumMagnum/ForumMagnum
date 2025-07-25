@@ -75,7 +75,6 @@ import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from "graphql-tag";
 import { CommentsViews } from "../comments/views";
 import { commentIncludedInCounts } from "../comments/helpers";
-import Revisions from "@/server/collections/revisions/collection";
 
 export const graphqlTypeDefs = gql`
   type SocialPreviewType {
@@ -4422,7 +4421,7 @@ const schema = {
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (post, args, context) => {
         if (!isLWorAF) return null;
-        const {AutomatedContentEvaluations} =  context;
+        const {AutomatedContentEvaluations, Revisions} =  context;
         const revisionIds = (await Revisions.find({
           documentId: post._id,
           fieldName: "contents",

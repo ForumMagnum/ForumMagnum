@@ -1,4 +1,4 @@
-import { getNewSunshineNotes, getSignatureWithNote } from "@/lib/collections/users/helpers";
+import { appendToSunshineNotes, getSignatureWithNote } from "@/lib/collections/users/helpers";
 import { randomSecret } from "@/lib/random";
 
 export function getRejectionMessage(rejectedContentLink: string, rejectedReason: string|null) {
@@ -14,8 +14,8 @@ export function getRejectionMessage(rejectedContentLink: string, rejectedReason:
 
 export async function triggerReview(userId: string, context: ResolverContext, reason?: string) {
   if (reason) {
-    const updatedNotes = await getNewSunshineNotes(userId, 'Automod', reason, context);
-    await context.Users.rawUpdateOne({_id: userId}, {$set: {needsReview: true, sunshineNotes: updatedNotes}});
+    await appendToSunshineNotes({moderatedUserId: userId, adminName: 'Automod', text: reason, context});
+    await context.Users.rawUpdateOne({_id: userId}, {$set: {needsReview: true}});
   } else {
     await context.Users.rawUpdateOne({_id: userId}, {$set: {needsReview: true}});
   }

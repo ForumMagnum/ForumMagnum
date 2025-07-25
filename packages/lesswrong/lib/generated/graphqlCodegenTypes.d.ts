@@ -133,13 +133,13 @@ type ArbitalTagContentRelSelector = {
 type AutomatedContentEvaluation = {
   __typename?: 'AutomatedContentEvaluation';
   _id: Scalars['String']['output'];
-  aiChoice: Scalars['String']['output'];
-  aiCoT: Scalars['String']['output'];
-  aiReasoning: Scalars['String']['output'];
+  aiChoice?: Maybe<Scalars['String']['output']>;
+  aiCoT?: Maybe<Scalars['String']['output']>;
+  aiReasoning?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
   revisionId: Scalars['String']['output'];
-  score: Scalars['Float']['output'];
-  sentenceScores: Array<SentenceScore>;
+  score?: Maybe<Scalars['Float']['output']>;
+  sentenceScores?: Maybe<Array<SentenceScore>>;
 };
 
 type AutosaveContentType = {
@@ -5535,6 +5535,7 @@ type Post = {
   author?: Maybe<Scalars['String']['output']>;
   authorIsUnreviewed: Scalars['Boolean']['output'];
   autoFrontpage?: Maybe<Scalars['String']['output']>;
+  automatedContentEvaluations?: Maybe<AutomatedContentEvaluation>;
   bannedUserIds?: Maybe<Array<Scalars['String']['output']>>;
   baseScore: Scalars['Float']['output'];
   bestAnswer?: Maybe<Comment>;
@@ -9316,7 +9317,6 @@ type Revision = {
   afBaseScore?: Maybe<Scalars['Float']['output']>;
   afExtendedScore?: Maybe<Scalars['JSON']['output']>;
   afVoteCount?: Maybe<Scalars['Float']['output']>;
-  automatedContentEvaluations?: Maybe<AutomatedContentEvaluation>;
   baseScore: Scalars['Float']['output'];
   changeMetrics: Scalars['JSON']['output'];
   ckEditorMarkup?: Maybe<Scalars['String']['output']>;
@@ -23935,6 +23935,10 @@ type updatePostPostsEditFormMutation = updatePostPostsEditFormMutation_Mutation;
 
 type AdvisorRequestsMinimumInfo = { __typename?: 'AdvisorRequest', _id: string, userId: string | null, createdAt: string, interestedInMetaculus: boolean | null, jobAds: any | null };
 
+type AutomatedContentEvaluations_AutomatedContentEvaluation_sentenceScores_SentenceScore = { __typename?: 'SentenceScore', sentence: string, score: number };
+
+type AutomatedContentEvaluations = { __typename?: 'AutomatedContentEvaluation', _id: string, score: number | null, aiChoice: string | null, aiReasoning: string | null, aiCoT: string | null, sentenceScores: Array<AutomatedContentEvaluations_AutomatedContentEvaluation_sentenceScores_SentenceScore> | null };
+
 type BansAdminPageFragment_Ban_user_User = (
   { __typename?: 'User' }
   & UsersMinimumInfo
@@ -25085,11 +25089,12 @@ type UsersBannedFromPostsModerationLog = { __typename?: 'Post', title: string, s
 
 type SunshinePostsList_Post_fmCrosspost_CrosspostOutput = { __typename?: 'CrosspostOutput', isCrosspost: boolean, hostedHere: boolean | null, foreignPostId: string | null };
 
-type SunshinePostsList_Post_contents_Revision_automatedContentEvaluations_AutomatedContentEvaluation_sentenceScores_SentenceScore = { __typename?: 'SentenceScore', sentence: string, score: number };
+type SunshinePostsList_Post_contents_Revision = { __typename?: 'Revision', _id: string, html: string | null, htmlHighlight: string, wordCount: number, version: string };
 
-type SunshinePostsList_Post_contents_Revision_automatedContentEvaluations_AutomatedContentEvaluation = { __typename?: 'AutomatedContentEvaluation', _id: string, score: number, aiChoice: string, aiReasoning: string, aiCoT: string, sentenceScores: Array<SunshinePostsList_Post_contents_Revision_automatedContentEvaluations_AutomatedContentEvaluation_sentenceScores_SentenceScore> };
-
-type SunshinePostsList_Post_contents_Revision = { __typename?: 'Revision', _id: string, html: string | null, htmlHighlight: string, wordCount: number, version: string, automatedContentEvaluations: SunshinePostsList_Post_contents_Revision_automatedContentEvaluations_AutomatedContentEvaluation | null };
+type SunshinePostsList_Post_automatedContentEvaluations_AutomatedContentEvaluation = (
+  { __typename?: 'AutomatedContentEvaluation' }
+  & AutomatedContentEvaluations
+);
 
 type SunshinePostsList_Post_moderationGuidelines_Revision = { __typename?: 'Revision', _id: string, html: string | null };
 
@@ -25111,7 +25116,7 @@ type SunshinePostsList_Post_user_User = (
 );
 
 type SunshinePostsList = (
-  { __typename?: 'Post', currentUserVote: string | null, currentUserExtendedVote: any | null, rejectedReason: string | null, autoFrontpage: string | null, fmCrosspost: SunshinePostsList_Post_fmCrosspost_CrosspostOutput | null, contents: SunshinePostsList_Post_contents_Revision | null, moderationGuidelines: SunshinePostsList_Post_moderationGuidelines_Revision | null, user: SunshinePostsList_Post_user_User | null }
+  { __typename?: 'Post', currentUserVote: string | null, currentUserExtendedVote: any | null, rejectedReason: string | null, autoFrontpage: string | null, fmCrosspost: SunshinePostsList_Post_fmCrosspost_CrosspostOutput | null, contents: SunshinePostsList_Post_contents_Revision | null, automatedContentEvaluations: SunshinePostsList_Post_automatedContentEvaluations_AutomatedContentEvaluation | null, moderationGuidelines: SunshinePostsList_Post_moderationGuidelines_Revision | null, user: SunshinePostsList_Post_user_User | null }
   & PostsListBase
 );
 
@@ -26228,7 +26233,7 @@ type ArbitalCachesDefaultFragment = { __typename?: 'ArbitalCaches', _id: string,
 
 type ArbitalTagContentRelsDefaultFragment = { __typename?: 'ArbitalTagContentRel', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, parentDocumentId: string, childDocumentId: string, parentCollectionName: string, childCollectionName: string, type: string, level: number, isStrong: boolean };
 
-type AutomatedContentEvaluationsDefaultFragment = { __typename?: 'AutomatedContentEvaluation', _id: string, createdAt: string, revisionId: string, score: number, aiChoice: string, aiReasoning: string, aiCoT: string };
+type AutomatedContentEvaluationsDefaultFragment = { __typename?: 'AutomatedContentEvaluation', _id: string, createdAt: string, revisionId: string, score: number | null, aiChoice: string | null, aiReasoning: string | null, aiCoT: string | null };
 
 type BansDefaultFragment = { __typename?: 'Ban', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, expirationDate: string | null, userId: string, ip: string | null, reason: string | null, comment: string, properties: any | null };
 

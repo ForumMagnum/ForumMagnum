@@ -24,7 +24,6 @@ function editCheck(user: DbUser | null) {
 // This has mutators because of a few mutable metadata fields (eg
 // skipAttributions), but most parts of revisions are create-only immutable.
 export async function createRevision({ data }: { data: Partial<DbInsertion<DbRevision>> }, context: ResolverContext) {
-  console.log("createRevision", data);
   const { currentUser } = context;
 
   const callbackProps = await getLegacyCreateCallbackProps('Revisions', {
@@ -300,6 +299,8 @@ ${output_text}`,
 };
 
 async function createAutomatedContentEvaluation(revision: DbRevision, context: ResolverContext) {
+  // we shouldn't be ending up running this on revisions where draft is true (which is for autosaves)
+  // but if we did we'd want to return early.
   if (revision.draft) return;
 
   const [validatedEvaluation, llmEvaluation] = await Promise.all([

@@ -12,4 +12,4 @@ export const AutomatedContentEvaluations = gql(`
     aiReasoning
     aiCoT
   }
-`)
+`);
