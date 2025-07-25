@@ -57,7 +57,7 @@ export const miscStyles = (theme: ThemeType) => ({
     
     ".dividerBlock::after": {
       marginLeft: 12,
-      color: "rgba(0, 0, 0, 0.26)",
+      color: theme.palette.greyAlpha(0.26),
       fontSize: "1rem",
       // increase space between dots
       letterSpacing: 12,
@@ -188,8 +188,8 @@ export const miscStyles = (theme: ThemeType) => ({
       top: 0,
       width: "100%",
       position: "relative",
-      backgroundColor: "#fff",
-      border: "1px solid #aaa",
+      backgroundColor: theme.palette.panelBackground.default,
+      border: `1px solid ${theme.palette.grey.A200}`,
     },
     ".ais-RangeSlider .rheostat-handle": {
       marginLeft:-12,
@@ -199,15 +199,15 @@ export const miscStyles = (theme: ThemeType) => ({
       position: "absolute",
       top:1,
       height:4,
-      backgroundColor: "#333",
+      backgroundColor: theme.palette.grey.A400,
     },
     ".rheostat-handle": {
       position: "relative",
       zIndex:1,
       width:20,
       height:20,
-      backgroundColor: "#fff",
-      border: "1px solid #333",
+      backgroundColor: theme.palette.panelBackground.default,
+      border: `1px solid ${theme.palette.grey.A400}`,
       borderRadius: "50%",
       cursor: "grab",
     },
@@ -216,7 +216,7 @@ export const miscStyles = (theme: ThemeType) => ({
       position: "absolute",
       width:1,
       height:5,
-      backgroundColor: "#aaa",
+      backgroundColor: theme.palette.grey.A200,
     },
     ".rheostat-marker--large": {
       height:9,
