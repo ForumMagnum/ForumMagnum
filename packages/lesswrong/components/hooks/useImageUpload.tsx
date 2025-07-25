@@ -1,10 +1,9 @@
 import React, { useCallback } from "react";
-import { requireCssVar } from "../../themes/cssVars";
 import {
   cloudinaryCloudNameSetting,
   DatabasePublicSetting,
 } from "../../lib/publicSettings";
-import { useTheme } from "../themes/useTheme";
+import { useTheme, useThemeColor } from "../themes/useTheme";
 import { Helmet } from "../common/Helmet";
 
 const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>(
@@ -191,8 +190,6 @@ const cloudinaryArgsByImageType = {
   },
 } as const;
 
-const primaryMain = requireCssVar("palette", "primary", "main");
-
 /**
  * In order to work in both light and dark mode, we need to store the colors in a CSS
  * variable. However, the cloudinary widget is loaded in an iframe which can't access
@@ -225,6 +222,7 @@ export const useImageUpload = ({
   croppingAspectRatio,
 }: UseImageUploadProps) => {
   const theme = useTheme();
+  const primaryMainColor = useThemeColor(theme => theme.palette.primary.main);
 
   const uploadImage = useCallback(() => {
     if (!window.cloudinary) {
@@ -241,7 +239,7 @@ export const useImageUpload = ({
       throw new Error(`Cloudinary upload preset not configured for ${imageType}`)
     }
 
-    const color = getCssVarValue(primaryMain);
+    const color = getCssVarValue(primaryMainColor);
 
     window.cloudinary.openUploadWidget({
       multiple: false,
@@ -298,6 +296,7 @@ export const useImageUpload = ({
     onUploadError,
     theme.typography.cloudinaryFont.stack,
     theme.typography.cloudinaryFont.url,
+    primaryMainColor,
   ]);
 
   return {

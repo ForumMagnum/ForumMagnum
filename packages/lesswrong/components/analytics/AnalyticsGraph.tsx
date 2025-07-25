@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { TooltipProps } from "recharts";
-import { requireCssVar } from "../../themes/cssVars";
+import { useThemeColor } from "../themes/useTheme";
 import moment from "moment";
 import { AnalyticsField, analyticsFieldsList, useAnalyticsSeries } from "../hooks/useAnalytics";
 import startCase from "lodash/startCase";
@@ -165,13 +165,6 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-const LINE_COLORS: Record<AnalyticsField, string> = {
-  reads: requireCssVar("palette", "graph", "analyticsReads"),
-  views: requireCssVar("palette", "primary", "main"),
-  karma: requireCssVar("palette", "primary", "light"),
-  comments: requireCssVar("palette", "grey", 800),
-};
-
 const dateOptions = {
   last7Days: {
     label: "Last 7 days",
@@ -259,6 +252,13 @@ export const AnalyticsGraph = ({
   disclaimerEarliestDate?: Date,
   classes: ClassesType<typeof styles>;
 }) => {
+  const LINE_COLORS: Record<AnalyticsField, string> = {
+    reads: useThemeColor(theme => theme.palette.graph.analyticsReads),
+    views: useThemeColor(theme => theme.palette.primary.main),
+    karma: useThemeColor(theme => theme.palette.primary.light),
+    comments: useThemeColor(theme => theme.palette.grey[800]),
+  };
+
   const [displayFields, setDisplayFields] = useState<AnalyticsField[]>(initialDisplayFields);
   const [dateOption, setDateOption] = useState<string>(dateOptions.last30Days.value);
 

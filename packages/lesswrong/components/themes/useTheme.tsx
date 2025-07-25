@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react';
-import { AbstractThemeOptions, ThemeOptions } from '../../themes/themeNames';
+import { AbstractThemeOptions, abstractThemeToConcrete, ThemeOptions } from '../../themes/themeNames';
+import { getForumTheme } from '@/themes/forumTheme';
 
 export type ThemeContextType = {
   theme: ThemeType,
@@ -14,7 +15,7 @@ export const ThemeContext = React.createContext<ThemeContextType|null>(null);
  * particular, they should never be used for dynamically applying styles/colors/etc. to
  * components as this will have undesired results during SSR where we may or may not know
  * which theme to use if the user has their theme set to "auto". For this use case you should
- * instead use `requireCssVar`.
+ * instead use `useThemeColor`.
  */
 export const useTheme = (): ThemeType => {
   const themeContext = React.useContext(ThemeContext);
@@ -46,4 +47,21 @@ export const useSetTheme = () => {
   const themeContext = React.useContext(ThemeContext);
   if (!themeContext) throw "useSetTheme() used without the context available";
   return themeContext.setThemeOptions;
+}
+
+export const useThemeColor = (fn: (theme: ThemeType) => string) => {
+  const themeContext = React.useContext(ThemeContext);
+  if (!themeContext) {
+    throw new Error("No theme context");
+  } else if (themeContext.abstractThemeOptions.name === 'auto') {
+    const lightThemeOptions = abstractThemeToConcrete(themeContext.abstractThemeOptions, false);
+    const darkThemeOptions = abstractThemeToConcrete(themeContext.abstractThemeOptions, true);
+    const lightTheme = getForumTheme(lightThemeOptions);
+    const darkTheme = getForumTheme(darkThemeOptions);
+    const lightModeColor = fn(lightTheme);
+    const darkModeColor = fn(darkTheme);
+    return `light-dark(${lightModeColor},${darkModeColor})`;
+  } else {
+    return fn(themeContext.theme);
+  }
 }
