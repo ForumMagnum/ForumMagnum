@@ -111,9 +111,9 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   },
   verticalLine: {
     width: 0,
-    borderLeft: `5px solid ${theme.palette.grey[300]}ac`,
+    borderLeft: `4px solid ${theme.palette.grey[300]}ac`,
     flex: 1,
-    marginLeft: -11,
+    marginLeft: -12,
   },
   verticalLineHighlightedUnviewed: {
     borderLeftColor: `${theme.palette.secondary.light}ec`,

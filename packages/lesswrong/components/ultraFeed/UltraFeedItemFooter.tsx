@@ -688,6 +688,7 @@ const UltraFeedCommentFooter = ({ comment, metaInfo, className, onSeeLess, isSee
           sources: metaInfo.sources,
           displayStatus: 'expanded' as const,
           servedEventId: metaInfo.servedEventId ?? '',
+          highlight: false,
         }}
         targetCommentId={comment._id}
         topLevelCommentId={post.shortform ? (comment.topLevelCommentId ?? comment._id) : undefined}

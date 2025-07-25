@@ -87,9 +87,9 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
   verticalLine: {
     width: 0,
-    borderLeft: `5px solid ${theme.palette.grey[300]}ac`,
+    borderLeft: `4px solid ${theme.palette.grey[300]}ac`,
     flex: 1,
-    marginLeft: -11,
+    marginLeft: -12,
     marginTop: 12,
     marginBottom: 12,
     [theme.breakpoints.down('sm')]: {
@@ -151,7 +151,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
   titleContainer: {
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'baseline',
     flexGrow: 1,
     minWidth: 0,
     [theme.breakpoints.down('sm')]: {
@@ -192,7 +192,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     color: theme.palette.text.dim,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: theme.typography.body2.fontSize,
-    alignItems: 'center',
+    alignItems: 'baseline',
     flexShrink: 0,
     flexWrap: 'nowrap',
     columnGap: '8px',
