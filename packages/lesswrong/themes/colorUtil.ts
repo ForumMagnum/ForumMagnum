@@ -43,6 +43,15 @@ export function parseColor(color: string): ColorTuple|null
       return [r/15.0, g/15.0, b/15.0, 1.0];
     }
   } else {
+    const match = /rgba?\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(,\s*\d+)?\)/.exec(color);
+    if (match) {
+      const [color,r,g,b,a] = match;
+      const parsedR = parseFloat(r) / 255.0;
+      const parsedG = parseFloat(g) / 255.0;
+      const parsedB = parseFloat(b) / 255.0;
+      const parsedA = (a !== undefined) ? parseFloat(a.substring(1)) : 1.0;
+      return [parsedR, parsedG, parsedB, parsedA];
+    }
     // TODO: Support more color formats
     return null;
   }

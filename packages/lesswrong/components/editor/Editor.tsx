@@ -53,18 +53,12 @@ export const styles = (theme: ThemeType) => ({
     ...editorStyles(theme),
     cursor: "text",
     padding: 0,
-    '& li .public-DraftStyleDefault-block': {
-      margin: 0
-    }
   },
 
   answerStyles: {
     ...editorStyles(theme),
     cursor: "text",
     maxWidth:620,
-    '& li .public-DraftStyleDefault-block': {
-      margin: 0
-    }
   },
 
   commentBodyStyles: {

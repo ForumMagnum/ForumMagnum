@@ -1,8 +1,8 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { VoteColor } from './voteColors';
 import VoteArrowIconSolid from "./VoteArrowIconSolid";
 import VoteArrowIconHollow from "./VoteArrowIconHollow";
+import { VoteColor } from './VoteButton';
 
 export interface BaseVoteArrowIconProps {
   strongVoteDelay: number,

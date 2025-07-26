@@ -62,6 +62,7 @@ import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { gql } from "@/lib/generated/gql-codegen";
 import { DelayedLoading } from './common/DelayedLoading';
 import { SuspenseWrapper } from './common/SuspenseWrapper';
+import { AutoDarkModeWrapper } from './themes/ThemeContextProvider';
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -383,6 +384,7 @@ const Layout = ({currentUser, children}: {
     
     return (
       <AnalyticsContext path={pathname}>
+      <AutoDarkModeWrapper>
       <UserContextProvider value={currentUser}>
       <UnreadNotificationsContextProvider>
       <TimezoneWrapper>
@@ -522,6 +524,7 @@ const Layout = ({currentUser, children}: {
       </TimezoneWrapper>
       </UnreadNotificationsContextProvider>
       </UserContextProvider>
+      </AutoDarkModeWrapper>
       </AnalyticsContext>
     )
   };

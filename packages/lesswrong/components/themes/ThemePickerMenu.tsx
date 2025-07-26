@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { ThemeMetadata, themeMetadata, getForumType, AbstractThemeOptions } from '../../themes/themeNames';
 import { ForumTypeString, allForumTypes, forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
-import { useThemeOptions, useSetTheme } from './useTheme';
+import { useThemeOptions, useSetTheme, ThemeContext } from './useTheme';
 import { useCurrentUser } from '../common/withUser';
 import { isMobile } from '../../lib/utils/isMobile'
 import { Paper }from '@/components/widgets/Paper';
@@ -38,8 +38,8 @@ const ThemePickerMenu = ({children, classes}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const currentThemeOptions = useThemeOptions();
-  const setTheme = useSetTheme();
+  const themeContext = React.useContext(ThemeContext)!;
+  const currentThemeOptions = themeContext!.abstractThemeOptions;
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const selectedForumTheme = getForumType(currentThemeOptions);
@@ -65,7 +65,7 @@ const ThemePickerMenu = ({children, classes}: {
     dontCloseMenu(event);
 
     const newThemeOptions = {...currentThemeOptions, name};
-    setTheme(newThemeOptions);
+    themeContext.setThemeOptions(newThemeOptions);
     persistUserTheme(newThemeOptions);
   }
 
@@ -79,7 +79,7 @@ const ThemePickerMenu = ({children, classes}: {
         [forumTypeSetting.get()]: forumType,
       },
     };
-    setTheme(newThemeOptions);
+    themeContext.setThemeOptions(newThemeOptions);
     persistUserTheme(newThemeOptions);
   }
   const submenu = (

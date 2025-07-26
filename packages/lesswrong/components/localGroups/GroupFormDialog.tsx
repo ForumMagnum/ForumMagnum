@@ -75,10 +75,6 @@ const styles = defineStyles('GroupFormDialog', (theme: ThemeType) => ({
       textAlign: "right",
     },
     "& .form-component-select": {
-      "& .col-sm-9": {
-        width: "100%",
-        padding: 0,
-      },
       "& label": {
         display: "none",
       },

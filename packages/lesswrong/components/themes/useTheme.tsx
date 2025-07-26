@@ -1,13 +1,13 @@
 import React, { forwardRef } from 'react';
-import { AbstractThemeOptions, ThemeOptions, abstractThemeToConcrete } from '../../themes/themeNames';
-import { usePrefersDarkMode } from './usePrefersDarkMode';
+import { AbstractThemeOptions, ThemeOptions } from '../../themes/themeNames';
 
-type ThemeContextObj = {
+export type ThemeContextType = {
   theme: ThemeType,
-  themeOptions: AbstractThemeOptions,
+  abstractThemeOptions: AbstractThemeOptions,
+  concreteThemeOptions: ThemeOptions,
   setThemeOptions: (options: AbstractThemeOptions) => void
 }
-export const ThemeContext = React.createContext<ThemeContextObj|null>(null);
+export const ThemeContext = React.createContext<ThemeContextType|null>(null);
 
 /**
  * You should NOT use the hooks in this file unless you _really_ know what you're doing - in
@@ -33,14 +33,13 @@ export const withTheme = <T extends {theme: ThemeType}>(Component: React.Compone
 export const useThemeOptions = (): AbstractThemeOptions => {
   const themeContext = React.useContext(ThemeContext);
   if (!themeContext) throw "useThemeOptions() used without the context available";
-  return themeContext.themeOptions;
+  return themeContext.concreteThemeOptions;
 }
 
 export const useConcreteThemeOptions = (): ThemeOptions => {
-  const prefersDarkMode = usePrefersDarkMode();
   const themeContext = React.useContext(ThemeContext);
   if (!themeContext) throw "useConcreteThemeOptions() used without the context available";
-  return abstractThemeToConcrete(themeContext.themeOptions, prefersDarkMode);
+  return themeContext.concreteThemeOptions;
 }
 
 export const useSetTheme = () => {

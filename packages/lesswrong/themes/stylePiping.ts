@@ -21,9 +21,6 @@ const spoilerStyles = (theme: ThemeType) => ({
     padding: 8,
     pointerEvents: 'auto',
     minHeight: theme.typography.commentStyle.fontSize,
-    '& .public-DraftStyleDefault-block': {
-      margin: 0,
-    },
     '&:not(:hover)': { // using ':not(:hover)' means we don't need to manually reset elements with special colors or backgrounds, instead they just automatically stay the same if we're not hovering
       ...hideSpoilers(theme),
     }
@@ -717,20 +714,12 @@ export const pBodyStyle = (_theme: ThemeType) => ({
 export const ckEditorStyles = (theme: ThemeType) => {
   return {
     '& .ck': {
-      '& code .public-DraftStyleDefault-block': {
-        marginTop: 0,
-        marginBottom: 0,  
-      },
       '& blockquote': {
         fontStyle: "unset",
         ...theme.typography.blockquote,
         '& p': {
           ...pBodyStyle(theme),
         },
-        '& .public-DraftStyleDefault-block': {
-          marginTop: 0,
-          marginBottom: 0,
-        }
       },
       '--ck-spacing-standard': `${theme.spacing.unit}px`,
       '&.ck-content': {
@@ -847,18 +836,6 @@ export const ckEditorStyles = (theme: ThemeType) => {
 }
 
 export const editorStyles = (theme: ThemeType) => ({
-    '& .public-DraftStyleDefault-block': {
-      marginTop: '1em',
-      marginBottom: '1em',  
-    },
-    '& code .public-DraftStyleDefault-block': {
-      marginTop: 0,
-      marginBottom: 0,  
-    },
-    '& blockquote .public-DraftStyleDefault-block': {
-      marginTop: 0,
-      marginBottom: 0,
-    },
     // Using '*' selectors is a bit dangerous, as is using '!important'
     // This is necessary to catch spoiler-selectors on 'code' elemenents, as implemented in draft-js, 
     // which involved nested spans with manually set style attributes, which can't be overwritten except via 'important'
