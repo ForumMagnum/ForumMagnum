@@ -4,14 +4,13 @@ import { Posts } from '../server/collections/posts/collection';
 import { postStatuses } from '../lib/collections/posts/constants';
 import { Users } from '../server/collections/users/collection';
 import { getUsersToNotifyAboutEvent } from './notificationCallbacks';
-import { addCronJob } from './cron/cronUtil';
 import { wrapAndSendEmail } from './emails/renderEmail';
 import moment from '../lib/moment-timezone';
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updatePost } from './collections/posts/mutations';
 import { EventTomorrowReminder } from './emailComponents/EventTomorrowReminder';
 
-async function checkAndSendUpcomingEventEmails() {
+export async function checkAndSendUpcomingEventEmails() {
   const in24hours = moment(new Date()).add(24, 'hours').toDate();
   
   // Find events that:
@@ -57,13 +56,3 @@ async function checkAndSendUpcomingEventEmails() {
     }
   }
 }
-
-export const cronCheckAndSendUpcomingEventEmails = addCronJob({
-  name: "Send upcoming-event reminders",
-  // every minute
-  cronStyleSchedule: '* * * * *',
-  disabled: testServerSetting.get(),
-  job() {
-    void checkAndSendUpcomingEventEmails();
-  }
-});

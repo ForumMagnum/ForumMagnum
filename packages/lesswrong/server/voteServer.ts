@@ -85,7 +85,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
     void elasticSyncDocument(collection.collectionName, newDocument._id);
   }
   if (collection.collectionName === "Posts") {
-    void swrInvalidatePostRoute(newDocument._id)
+    void swrInvalidatePostRoute(newDocument._id, context);
   }
   return {newDocument, vote};
 }

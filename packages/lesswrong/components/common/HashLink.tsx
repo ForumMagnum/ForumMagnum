@@ -7,6 +7,8 @@ import Link from 'next/link';
 // eslint-disable-next-line no-restricted-imports
 import type { LinkProps } from 'react-router-dom';
 import { useNavigate } from '@/lib/routeUtil';
+import { isClient } from '@/lib/executionEnvironment';
+import bowser from 'bowser';
 
 type ScrollFunction = ((el: HTMLElement) => void);
 
@@ -73,6 +75,7 @@ function hashLinkScroll() {
 
 export function HashLink(props: HashLinkProps) {
   const navigate = useNavigate();
+  const isIOS = isClient && bowser.ios;
 
   function handleClick(e: React.MouseEvent<HTMLAnchorElement>) {
     reset();
@@ -92,7 +95,7 @@ export function HashLink(props: HashLinkProps) {
     }
   }
   const { anchorRef, scroll, smooth, children, doOnDown, to, ...filteredProps } = props;
-  if (doOnDown && !filteredProps.target) {
+  if (doOnDown && !isIOS && !filteredProps.target) {
     return <a
       {...filteredProps}
       ref={anchorRef}

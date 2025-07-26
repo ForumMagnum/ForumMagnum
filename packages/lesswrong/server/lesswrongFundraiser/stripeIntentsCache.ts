@@ -1,7 +1,7 @@
 import type Stripe from 'stripe';
-import * as Sentry from '@sentry/node';
-import { lightconeFundraiserPaymentLinkId } from '@/lib/publicSettings';
-import { lightconeFundraiserStripeSecretKeySetting } from '../serverSettings';
+import * as Sentry from '@sentry/nextjs';
+import { lightconeFundraiserPaymentLinkId } from '@/lib/instanceSettings';
+import { lightconeFundraiserStripeSecretKeySetting } from '../databaseSettings';
 export type SucceededPaymentIntent = Stripe.PaymentIntent & { status: 'succeeded' };
 
 export const stripeIntentsCache: { intents: SucceededPaymentIntent[] } = { intents: [] };

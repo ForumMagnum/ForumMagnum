@@ -43,8 +43,9 @@ import React, {
   useMemo,
 } from 'react';
 import { useCurrentUser } from "../common/withUser";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useTracking } from "../../lib/analyticsEvents";
 
 const UltraFeedEventsDefaultFragmentMutation = gql(`
   mutation createUltraFeedEventUltraFeedObserver($data: CreateUltraFeedEventDataInput!) {
@@ -62,6 +63,9 @@ interface ObserveData {
   documentId: string;
   documentType: DocumentType;
   postId?: string;
+  servedEventId?: string;
+  feedCardIndex?: number;
+  feedCommentIndex?: number;
 }
 
 interface TrackExpansionData {
@@ -71,6 +75,9 @@ interface TrackExpansionData {
   level: number;
   maxLevelReached: boolean;
   wordCount: number;
+  servedEventId?: string;
+  feedCardIndex?: number;
+  feedCommentIndex?: number;
 }
 
 interface UltraFeedObserverContextType {
@@ -86,10 +93,10 @@ const UltraFeedObserverContext = createContext<UltraFeedObserverContextType | nu
 
 // Minimum amount of the element (in pixels) that must be inside the viewport to
 // count as "visible enough" to register a view event.
-const MIN_VISIBLE_PX = 250;
+export const MIN_VISIBLE_PX = 100;
 
-const VIEW_THRESHOLD_MS = 300;
-const LONG_VIEW_THRESHOLD_MS = 2000;
+const VIEW_THRESHOLD_MS = 1000;
+const LONG_VIEW_THRESHOLD_MS = 10000;
 
 const documentTypeToCollectionName = {
   post: "Posts",
@@ -99,6 +106,7 @@ const documentTypeToCollectionName = {
 
 export const UltraFeedObserverProvider = ({ children, incognitoMode }: { children: ReactNode, incognitoMode: boolean }) => {
   const currentUser = useCurrentUser();
+  const { captureEvent } = useTracking();
   
   const [createUltraFeedEvent] = useMutation(UltraFeedEventsDefaultFragmentMutation);
   
@@ -119,13 +127,24 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
         eventType: 'viewed' as const,
         documentId: elementData.documentId,
         collectionName: documentTypeToCollectionName[elementData.documentType],
+        feedItemId: elementData.servedEventId,
         event: { 
           durationMs: durationMs
         }
       }
     };
+    
     void createUltraFeedEvent({ variables: eventPayload });
-  }, [createUltraFeedEvent, currentUser, incognitoMode]);
+    
+    captureEvent("ultraFeedItemViewed", {
+      documentId: elementData.documentId,
+      collectionName: documentTypeToCollectionName[elementData.documentType],
+      durationMs: durationMs,
+      feedItemId: elementData.servedEventId,
+      feedCardIndex: elementData.feedCardIndex,
+      feedCommentIndex: elementData.feedCommentIndex,
+    });
+  }, [createUltraFeedEvent, currentUser, incognitoMode, captureEvent]);
 
   const handleIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
     if (!currentUser) return;
@@ -273,6 +292,7 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
         eventType: 'expanded' as const,
         documentId: data.documentId,
         collectionName: documentTypeToCollectionName[data.documentType],
+        feedItemId: data.servedEventId,
         event: {
           expansionLevel: data.level,
           maxExpansionReached: data.maxLevelReached,
@@ -281,7 +301,16 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
       }
     };
     void createUltraFeedEvent({ variables: eventData });
-  }, [createUltraFeedEvent, currentUser, incognitoMode]);
+    
+    captureEvent("ultraFeedItemExpanded", {
+      documentId: data.documentId,
+      collectionName: documentTypeToCollectionName[data.documentType],
+      expansionLevel: data.level,
+      feedItemId: data.servedEventId,
+      feedCardIndex: data.feedCardIndex,
+      feedCommentIndex: data.feedCommentIndex,
+    });
+  }, [createUltraFeedEvent, currentUser, incognitoMode, captureEvent]);
 
   const contextValue = useMemo(() => ({ 
     observe, 

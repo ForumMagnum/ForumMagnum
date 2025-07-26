@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 import { googleVertexApi, helpers as googleVertexHelpers } from "../google-vertex/client";
 import type { PostEvent } from "../google-vertex/types";
-import { captureException } from "@sentry/core";
+import { captureException } from "@sentry/nextjs";
 
 export const googleVertexGqlTypeDefs = gql`
   extend type Mutation {

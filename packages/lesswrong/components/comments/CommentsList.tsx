@@ -13,8 +13,9 @@ import CommentsNodeInner from "./CommentsNode";
 import SettingsButton from "../icons/SettingsButton";
 import LoginPopupButton from "../users/LoginPopupButton";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommentsList", (theme: ThemeType) => ({
   button: {
     color: theme.palette.lwTertiary.main
   },
@@ -36,11 +37,11 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
-})
+}))
 
 export const POST_COMMENT_COUNT_TRUNCATE_THRESHOLD = 70
 
-const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTruncated, parentAnswerId, defaultNestingLevel=1, parentCommentId, loading, classes}: {
+const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTruncated, parentAnswerId, defaultNestingLevel=1, parentCommentId, loading}: {
   treeOptions: CommentTreeOptions,
   comments: Array<CommentTreeNode<CommentsList>>,
   totalComments?: number,
@@ -49,9 +50,8 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
   defaultNestingLevel?: number,
   parentCommentId?: string,
   loading?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser();
+  const classes = useStyles(styles);
   const [expandAllThreads,setExpandAllThreads] = useState(false);
   
   useOnSearchHotkey(() => setExpandAllThreads(true));
@@ -65,24 +65,7 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
             <a className={!expandAllThreads ? classes.button : undefined} onClick={()=>setExpandAllThreads(true)}>(⌘F to expand all)</a>
           </LWTooltip>
         </span>
-        {currentUser 
-          ? <LWTooltip title="Go to your settings page to update your Comment Truncation Options">
-              <Link to="/account">
-                <SettingsButton label={
-                  <span className={classes.settingsLabel}>
-                    Change default truncation settings
-                  </span>
-                }/>
-              </Link>
-            </LWTooltip>
-          : <LoginPopupButton title={"Login to change default truncation settings"}>
-              <SettingsButton label={
-                <span className={classes.settingsLabel}>
-                  Change truncation settings
-                </span>
-              }/>
-            </LoginPopupButton>
-        }
+        <TruncationSettingsButton/>
       </div>
     }
   }
@@ -116,9 +99,33 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
   </ErrorBoundary>
 }
 
+const TruncationSettingsButton = () => {
+  const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
+
+  return currentUser
+    ? <LWTooltip title="Go to your settings page to update your Comment Truncation Options">
+        <Link to="/account">
+          <SettingsButton label={
+            <span className={classes.settingsLabel}>
+              Change default truncation settings
+            </span>
+          }/>
+        </Link>
+      </LWTooltip>
+    : <LoginPopupButton title={"Login to change default truncation settings"}>
+        <SettingsButton label={
+          <span className={classes.settingsLabel}>
+            Change truncation settings
+          </span>
+        }/>
+      </LoginPopupButton>
+}
+
 
 export default registerComponent('CommentsList', CommentsListFn, {
-  styles, hocs: [withErrorBoundary]
+  hocs: [withErrorBoundary],
+  areEqual: "auto",
 });
 
 

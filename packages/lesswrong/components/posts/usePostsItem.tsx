@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useMemo } from "react";
-import { useHideRepeatedPosts } from "./HideRepeatedPostsContext";
 import { RecommendationOptions, useRecordPostView } from "../hooks/useRecordPostView";
 import { useCurrentUser } from "../common/withUser";
 import {
@@ -16,7 +15,7 @@ import { AnnualReviewMarketInfo, getMarketInfo, highlightMarket } from "../../li
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import { RECOMBEE_RECOMM_ID_QUERY_PARAM, VERTEX_ATTRIBUTION_ID_QUERY_PARAM } from './PostsPage/constants';
-import { recombeeEnabledSetting, vertexEnabledSetting } from "../../lib/publicSettings";
+import { recombeeEnabledSetting, vertexEnabledSetting } from '@/lib/instanceSettings';
 import type { PostsListViewType } from "../hooks/usePostsListView";
 import { maybeDate } from "@/lib/utils/dateUtils";
 
@@ -144,7 +143,6 @@ export const usePostsItem = ({
   const [readComments, setReadComments] = useState(false);
   const [showDialogueMessages, setShowDialogueMessages] = useState(false);
   const {isRead, recordPostView} = useRecordPostView(post);
-  const {isPostRepeated, addPost} = useHideRepeatedPosts();
 
   const currentUser = useCurrentUser();
 
@@ -206,11 +204,6 @@ export const usePostsItem = ({
     after: (defaultToShowUnreadComments && !showComments) ? post.lastVisitedAt : null
   }
 
-  const isRepeated = isPostRepeated(post._id);
-  if (!isRepeated) {
-    addPost(post._id);
-  }
-
   const analyticsProps = {
     pageElementContext: "postItem",
     postId: post._id,
@@ -258,7 +251,6 @@ export const usePostsItem = ({
     hasUnreadComments,
     hasNewPromotedComments,
     commentTerms,
-    isRepeated,
     analyticsProps,
     translucentBackground,
     isRead,

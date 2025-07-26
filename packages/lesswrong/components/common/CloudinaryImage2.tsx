@@ -1,6 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { CSSProperties } from 'react';
-import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
+import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { useThemeOptions } from '../themes/useTheme';
 
 const DEFAULT_HEADER_HEIGHT = 300;

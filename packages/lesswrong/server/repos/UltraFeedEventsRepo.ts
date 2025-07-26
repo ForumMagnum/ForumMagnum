@@ -1,8 +1,14 @@
 import AbstractRepo from './AbstractRepo';
 import UltraFeedEvents from '../collections/ultraFeedEvents/collection';
-import groupBy from 'lodash/groupBy';
 import { recordPerfMetrics } from './perfMetricWrapper';
-import { generateThreadHash } from '@/server/ultraFeed/ultraFeedThreadHelpers';
+import { FeedItemSourceType } from '@/components/ultraFeed/ultraFeedTypes';
+
+export interface UnviewedItem {
+  documentId: string;
+  collectionName: "Posts" | "Spotlights";
+  sources: FeedItemSourceType[];
+  servedAt: Date;
+}
 
 class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
   constructor() {
@@ -10,56 +16,40 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
   }
 
   /**
-   * Fetches served comment events for a specific user and session,
-   * groups them by itemIndex (representing a served thread),
-   * and returns a Set of unique, stable hashes identifying those served threads.
+   * Fetches unviewed Recombee post IDs for feed optimization.
+   * This is a lighter query that only returns document IDs.
    */
-  async getRecentlyServedCommentThreadHashes(
+  async getUnviewedRecombeePostIds(
     userId: string,
-    sessionId: string,
-    lookbackHours = 48
-  ): Promise<Set<string>> {
-    // Fetch relevant 'served' comment events for the session
-    const servedEvents = await this.getRawDb().manyOrNone<{ documentId: string, itemIndex: number | null, commentIndex: number | null }>(`
-      -- UltraFeedEventsRepo.getRecentlyServedCommentThreadHashes
-      SELECT
-          "documentId", -- The comment ID
-          (event->>'itemIndex')::INTEGER AS "itemIndex", -- The index of the thread item in the feed batch
-          (event->>'commentIndex')::INTEGER AS "commentIndex" -- Index within the thread
-      FROM "UltraFeedEvents"
-      WHERE
-          "userId" = $1
-          AND event->>'sessionId' = $2
-          AND "collectionName" = 'Comments'
-          AND "eventType" = 'served'
-          AND "createdAt" > NOW() - INTERVAL $3
-          AND event->>'itemIndex' IS NOT NULL
-      ORDER BY
-          "itemIndex" ASC,
-          "commentIndex" ASC NULLS LAST
-    `, [userId, sessionId, `${lookbackHours} hours`]);
+    scenarioId: string,
+    lookbackDays: number,
+    limit: number
+  ): Promise<string[]> {
+    const unviewedItems = await this.manyOrNone(`
+      -- UltraFeedEventsRepo.getUnviewedRecombeePostIds
+      SELECT DISTINCT ON (uf_served."documentId")
+        uf_served."documentId"
+      FROM "UltraFeedEvents" uf_served
+      LEFT JOIN "UltraFeedEvents" uf_viewed
+        ON uf_served."documentId" = uf_viewed."documentId"
+        AND uf_served."userId" = uf_viewed."userId"
+        AND uf_viewed."eventType" = 'viewed'
+      WHERE uf_served."eventType" = 'served'
+        AND uf_served."userId" = $[userId]
+        AND uf_served."createdAt" > (NOW() - INTERVAL '1 day' * $[lookbackDays])
+        AND uf_served."collectionName" = 'Posts'
+        AND uf_served.event->'sources' ? $[scenarioId]
+        AND uf_viewed._id IS NULL
+      ORDER BY uf_served."documentId", uf_served."createdAt" DESC
+      LIMIT $[limit]
+    `, {
+      userId,
+      scenarioId,
+      lookbackDays,
+      limit
+    });
 
-    if (!servedEvents || servedEvents.length === 0) {
-      return new Set<string>();
-    }
-
-    // Group events by the itemIndex they appeared at in the feed
-    // Filter out any groups with null itemIndex just in case
-    const groupedByItemIndex = groupBy(servedEvents.filter((e: { itemIndex: number | null }) => e.itemIndex !== null), 'itemIndex');
-
-    const servedThreadHashes = new Set<string>();
-
-    // Generate a hash for each group (each served thread)
-    for (const itemIndex in groupedByItemIndex) {
-      const commentsInGroup = groupedByItemIndex[itemIndex];
-      // Sort by commentIndex again here just to be absolutely sure before hashing
-      const sortedComments = commentsInGroup.sort((a, b) => (a.commentIndex ?? Infinity) - (b.commentIndex ?? Infinity));
-      const commentIds = sortedComments.map(event => event.documentId);
-      const threadHash = generateThreadHash(commentIds);
-      servedThreadHashes.add(threadHash);
-    }
-
-    return servedThreadHashes;
+    return unviewedItems.map((row: any) => row.documentId);
   }
 }
 

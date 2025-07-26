@@ -17,6 +17,7 @@
     "playwright",
     "./build.ts",
     ".next/types/**/*.ts",
-    "app"
+    "app",
+    "app/**/.*/**/*"
   ]
 }

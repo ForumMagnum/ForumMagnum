@@ -252,7 +252,6 @@ const deriveFormValuesFromSettings = (settings: UltraFeedSettingsType): Settings
       commentCollapsedInitialWords: displaySettings.commentCollapsedInitialWords ?? defaultDisplaySettings.commentCollapsedInitialWords,
       commentExpandedInitialWords: displaySettings.commentExpandedInitialWords ?? defaultDisplaySettings.commentExpandedInitialWords,
       commentMaxWords: displaySettings.commentMaxWords ?? defaultDisplaySettings.commentMaxWords,
-      postTitlesAreModals: displaySettings.postTitlesAreModals ?? defaultDisplaySettings.postTitlesAreModals,
     },
     commentScoring: mergeWith(
       cloneDeep(defaultCommentScoring),
@@ -320,7 +319,10 @@ const UltraFeedSettings = ({
 
   const { ultraFeedSettingsViewMode, setUltraFeedSettingsViewMode } = useLocalStorageState('ultraFeedSettingsViewMode', (key) => key, initialViewMode);
   const viewMode = ultraFeedSettingsViewMode && ['simple', 'advanced'].includes(ultraFeedSettingsViewMode) ? ultraFeedSettingsViewMode : initialViewMode;
-  const setViewMode = (mode: 'simple' | 'advanced') => setUltraFeedSettingsViewMode(mode);
+  const setViewMode = (mode: 'simple' | 'advanced') => {
+    captureEvent("ultraFeedSettingsViewModeChanged", { from: viewMode, to: mode });
+    setUltraFeedSettingsViewMode(mode);
+  };
 
   const [simpleViewTruncationLevels, setSimpleViewTruncationLevels] = useState(() => 
     deriveSimpleViewTruncationLevelsFromSettings(settings)
@@ -392,16 +394,14 @@ const UltraFeedSettings = ({
   }, []);
 
   const handleBooleanChange = useCallback((
-    field: 'incognitoMode' | 'postTitlesAreModals',
+    field: 'incognitoMode',
     checked: boolean
   ) => {
     setZodErrors(null);
     if (field === 'incognitoMode') {
       updateForm(field, checked);
-    } else if (field === 'postTitlesAreModals') {
-      updateDisplaySettingForm(field, checked);
     }
-  }, [updateForm, updateDisplaySettingForm]);
+  }, [updateForm]);
 
   const handleLineClampChange = useCallback((value: number | string) => {
     const strValue = String(value).trim();
@@ -508,7 +508,6 @@ const UltraFeedSettings = ({
         ),
       },
       displaySettings: {
-        postTitlesAreModals: formValues.displaySetting.postTitlesAreModals,
         lineClampNumberOfLines: 0, // Placeholder, will be set below
         postInitialWords: 0, // Placeholder, will be set below
         postMaxWords: 0, // Placeholder, will be set below
@@ -578,8 +577,9 @@ const UltraFeedSettings = ({
   
   const handleReset = useCallback(() => {
     resetSettingsToDefault();
-    setZodErrors(null); 
-  }, [resetSettingsToDefault]);
+    setZodErrors(null);
+    captureEvent("ultraFeedSettingsReset");
+  }, [resetSettingsToDefault, captureEvent]);
 
   const truncationGridProps = {
     levels: simpleViewTruncationLevels,
@@ -606,7 +606,6 @@ const UltraFeedSettings = ({
   const miscSettingsProps = {
     formValues: {
       incognitoMode: formValues.incognitoMode,
-      postTitlesAreModals: formValues.displaySetting.postTitlesAreModals,
     },
     onBooleanChange: handleBooleanChange,
 

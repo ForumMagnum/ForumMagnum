@@ -6,7 +6,7 @@ import { CommentVotingComponentProps, reactBallotAxes, ReactBallotAxis, ReactBal
 import { useVote } from './withVote';
 import { useHover } from '../common/withHover';
 import { useDialog } from '../common/withDialog';
-import { useCurrentUser } from '../common/withUser';
+import { useCurrentUserId } from '../common/withUser';
 import classNames from 'classnames';
 import chunk from 'lodash/chunk';
 import { VotingProps } from './votingProps';
@@ -188,10 +188,10 @@ const BallotStandaloneReaction = ({reaction, voteProps, classes}: {
   const emoji = reaction.icon;
   const isSelected = !!voteProps.document?.currentUserExtendedVote?.[reaction.name];
   const { openDialog } = useDialog();
-  const currentUser = useCurrentUser();
+  const currentUserId = useCurrentUserId();
   
   return <div className={classNames(classes.voteButton, classes.standaloneReaction, {[classes.voteButtonSelected]: isSelected})} onClick={async ev => {
-    if(!currentUser){
+    if(!currentUserId){
       openDialog({
         name: "LoginPopup",
         contents: ({onClose}) => <LoginPopup onClose={onClose}/>
@@ -204,7 +204,6 @@ const BallotStandaloneReaction = ({reaction, voteProps, classes}: {
           ...voteProps.document.currentUserExtendedVote,
           [reaction.name]: !isSelected,
         },
-        currentUser,
       });
     }
   }}>

@@ -1,31 +1,29 @@
 import { htmlToText } from 'html-to-text';
 import { sendEmailSmtp } from './sendEmail';
 import React from 'react';
-import { ApolloProvider } from '@apollo/client';
-import { getDataFromTree } from '@apollo/client/react/ssr';
-// import { renderToString } from 'react-dom/server';
+import { ApolloProvider } from '@apollo/client/react';
+import { getMarkupFromTree } from '@apollo/client/react/ssr';
 import { TimezoneContext, UserContext } from '../../components/common/sharedContexts';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { forumTitleSetting, isLWorAF } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
-import { DatabaseServerSetting } from '../databaseSettings';
+import { defaultEmailSetting, enableDevelopmentEmailsSetting } from '../databaseSettings';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { emailTokenTypesByName } from '../emails/emailTokens';
-import { captureException } from '@sentry/core';
+import { captureException } from '@sentry/nextjs';
 import { isE2E } from '../../lib/executionEnvironment';
 import { cheerioParse } from '../utils/htmlUtil';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 import { createLWEvent } from '../collections/lwevents/mutations';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
-import { createStylesContext } from "@/lib/jssStyles";
-import { generateEmailStylesheet } from '../styleHelpers';
+import { FMJssProvider } from '@/components/hooks/FMJssProvider';
+import { createStylesContext } from '@/lib/jssStyles';
+import { generateEmailStylesheet } from '../../lib/styleHelpers';
+import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
 import { ThemeOptions } from '@/themes/themeNames';
 import { EmailWrapper } from '../emailComponents/EmailWrapper';
 import CookiesProvider from '@/lib/vendor/react-cookie/CookiesProvider';
 import { utmifyForumBacklinks, UtmParam } from '../analytics/utm-tracking';
-import dynamic from 'next/dynamic';
-import { ThemeContextProvider } from '@/components/themes/useTheme';
-import { FMJssProvider } from '@/components/hooks/FMJssProvider';
 import { EmailRenderContext } from './EmailRenderContext';
 
 export interface RenderedEmail {
@@ -132,7 +130,6 @@ function addEmailBoilerplate({ css, title, body }: {
 //     limited and inconsistent subset is supported by mail clients
 //
 
-const defaultEmailSetting = new DatabaseServerSetting<string>('defaultEmail', "hello@world.com")
 
 export async function generateEmail({user, to, from, subject, bodyComponent, boilerplateGenerator=addEmailBoilerplate, utmParams}: {
   user: DbUser | null,
@@ -147,11 +144,11 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   if (!subject) throw new Error("Missing required argument: subject");
   if (!bodyComponent) throw new Error("Missing required argument: bodyComponent");
 
-  const { renderToString } = await import('react-dom/server');
+  const { renderToStaticMarkup, renderToString } = await import('react-dom/server');
   
   // Set up Apollo
   const { createClient }: typeof import('../vulcan-lib/apollo-ssr/apolloClient') = require('../vulcan-lib/apollo-ssr/apolloClient');
-  const apolloClient = await createClient(await computeContextFromUser({user, isSSR: false}));
+  const apolloClient = await createClient(computeContextFromUser({user, isSSR: false}));
   
   // Use the user's last-used timezone, which is the timezone of their browser
   // the last time they visited the site. Potentially null, if they haven't
@@ -167,7 +164,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     <EmailRenderContext.Provider value={{isEmailRender:true}}>
     <ApolloProvider client={apolloClient}>
     <CookiesProvider>
-    <ThemeContextProvider options={themeOptions}>
+    <ThemeContextProvider options={themeOptions} isEmail={true}>
     <FMJssProvider stylesContext={stylesContext}>
     <UserContext.Provider value={user as unknown as UsersCurrent | null /*FIXME> */}>
     <TimezoneContext.Provider value={timezone}>
@@ -183,7 +180,11 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   
   // Traverse the tree, running GraphQL queries and expanding the tree
   // accordingly.
-  await getDataFromTree(wrappedBodyComponent);
+  await getMarkupFromTree({
+    tree: wrappedBodyComponent,
+    context: {},
+    renderFunction: renderToStaticMarkup,
+  });
   
   // Render the REACT tree to an HTML string
   const body = renderToString(wrappedBodyComponent);
@@ -301,7 +302,6 @@ export const wrapAndSendEmail = async ({
   }
 }
 
-const enableDevelopmentEmailsSetting = new DatabaseServerSetting<boolean>('enableDevelopmentEmails', false)
 async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
 {
   if (process.env.NODE_ENV === 'production' || enableDevelopmentEmailsSetting.get()) {

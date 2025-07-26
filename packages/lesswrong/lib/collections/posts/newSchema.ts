@@ -11,7 +11,8 @@ import {
   getDenormalizedFieldOnUpdate,
   getForeignKeySqlResolver,
   getFillIfMissing,
-  throwIfSetToNull
+  throwIfSetToNull,
+  optionalUrlRegex
 } from "../../utils/schemaUtils";
 import {
   postCanEditHideCommentKarma,
@@ -30,7 +31,7 @@ import {
 import { postStatuses, sideCommentAlwaysExcludeKarma, sideCommentFilterMinKarma } from "./constants";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
 import { loadByIds, getWithLoader, getWithCustomLoader } from "../../loaders";
-import SimpleSchema from "simpl-schema";
+import SimpleSchema from "@/lib/utils/simpleSchema";
 import { getCollaborativeEditorAccess } from "./collabEditingPermissions";
 import { eaFrontpageDateDefault, isEAForum, isLWorAF, requireReviewToFrontpagePostsSetting, reviewUserBotSetting } from "../../instanceSettings";
 import * as _ from "underscore";
@@ -67,13 +68,14 @@ import { getPostReviewWinnerInfo } from "@/server/review/reviewWinnersCache";
 import { matchSideComments } from "@/server/sideComments";
 import { getToCforPost } from "@/server/tableOfContents";
 import { cheerioParse } from "@/server/utils/htmlUtil";
-import { captureException } from "@sentry/core";
+import { captureException } from "@sentry/nextjs";
 import keyBy from "lodash/keyBy";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from "graphql-tag";
 import { CommentsViews } from "../comments/views";
 import { commentIncludedInCounts } from "../comments/helpers";
 import { getDefaultVotingSystem } from "./helpers";
+import { votingSystemNames } from "@/lib/voting/votingSystemNames";
 
 export const graphqlTypeDefs = gql`
   type SocialPreviewType {
@@ -90,7 +92,7 @@ export const graphqlTypeDefs = gql`
   }
 
   input SocialPreviewInput {
-    imageId: String!
+    imageId: String
     text: String
   }
 
@@ -107,7 +109,7 @@ export const graphqlTypeDefs = gql`
   }
 
   type SocialPreviewOutput {
-    imageId: String!
+    imageId: String
     text: String
   }
 
@@ -1921,9 +1923,7 @@ const schema = {
       // This differs from the `defaultValue` because it varies by forum-type
       // and we don't have a setup for `accepted_schema.sql` to vary by forum type.
       onCreate: async ({ document }) => {
-        // This is to break an annoying import cycle that causes a crash on start.
-        const { getVotingSystemByName } = await import('@/lib/voting/getVotingSystem');
-        const votingSystem = ('votingSystem' in document && !!getVotingSystemByName(document.votingSystem as string))
+        const votingSystem = ('votingSystem' in document && !!votingSystemNames.safeParse(document.votingSystem as string).success)
           ? document.votingSystem
           : getDefaultVotingSystem();
 
@@ -2364,7 +2364,7 @@ const schema = {
       inputType: "SocialPreviewInput",
       validation: { blackbox: true },
       canRead: ["guests"],
-      canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members", "sunshineRegiment", "admins"],
     },
   },
@@ -3154,7 +3154,7 @@ const schema = {
       canUpdate: ["members"],
       canCreate: ["members"],
       validation: {
-        regEx: SimpleSchema.RegEx.Url,
+        regEx: optionalUrlRegex,
         optional: true,
       },
     },
@@ -3169,7 +3169,7 @@ const schema = {
       canUpdate: ["members"],
       canCreate: ["members"],
       validation: {
-        regEx: SimpleSchema.RegEx.Url,
+        regEx: optionalUrlRegex,
         optional: true,
       },
     },
@@ -3282,7 +3282,7 @@ const schema = {
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members"],
       validation: {
-        regEx: SimpleSchema.RegEx.Url,
+        regEx: optionalUrlRegex,
         optional: true,
       },
     },
@@ -3297,7 +3297,7 @@ const schema = {
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members"],
       validation: {
-        regEx: SimpleSchema.RegEx.Url,
+        regEx: optionalUrlRegex,
         optional: true,
       },
     },
@@ -3312,7 +3312,7 @@ const schema = {
       canUpdate: ["members", "sunshineRegiment", "admins"],
       canCreate: ["members"],
       validation: {
-        regEx: SimpleSchema.RegEx.Url,
+        regEx: optionalUrlRegex,
         optional: true,
       },
     },

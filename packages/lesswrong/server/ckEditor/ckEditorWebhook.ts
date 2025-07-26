@@ -33,7 +33,7 @@ addStaticRoute('/ckeditor-webhook', async ({query}, req, res, next) => {
 //   https://ckeditor.com/docs/cs/latest/guides/webhooks/events.html
 // Webhook payloads don't seem to have Typescript types exported anywhere, but
 // they're pretty simple so we define them inline.
-async function handleCkEditorWebhook(message: any) {
+export async function handleCkEditorWebhook(message: any) {
   // eslint-disable-next-line no-console
   console.log(`Got CkEditor webhook: ${JSON.stringify(message)}`);
   

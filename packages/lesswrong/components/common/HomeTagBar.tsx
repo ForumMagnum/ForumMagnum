@@ -150,10 +150,10 @@ const styles = (theme: ThemeType) => ({
     },
   },
   eventTab: {
-    ...eventTabStyles(theme.themeOptions.name === "dark"),
+    ...eventTabStyles(theme.dark),
   },
   activeEventTab: {
-    ...eventTabStyles(theme.themeOptions.name !== "dark"),
+    ...eventTabStyles(theme.dark),
   },
   placeholderTab: {
     flex: 'none',

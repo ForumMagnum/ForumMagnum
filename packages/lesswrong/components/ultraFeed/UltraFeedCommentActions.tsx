@@ -5,15 +5,16 @@ import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import NotifyMeToggleDropdownItem from "../dropdowns/NotifyMeToggleDropdownItem";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
+import EditCommentDropdownItem from "../dropdowns/comments/EditCommentDropdownItem";
+import { useCurrentUserId } from "../common/withUser";
 
-const UltraFeedCommentActions = ({ comment, post, currentUser, closeMenu }: {
+const UltraFeedCommentActions = ({ comment, post, closeMenu, showEdit }: {
   comment: CommentsList,
   post?: PostsMinimumInfo,
-  showEdit: () => void,
-  currentUser: UsersCurrent,
   closeMenu?: () => void,
+  showEdit: () => void,
 }) => {
-
+  const currentUserId = useCurrentUserId();
   const url = comment.postId
     ? `${postGetPageUrl({ _id: comment.postId, slug: post?.slug ?? "" })}#${comment._id}`
     : commentGetPageUrlFromIds({ commentId: comment._id, postId: comment.postId ?? undefined, postSlug: post?.slug, tagSlug: undefined });
@@ -29,7 +30,7 @@ const UltraFeedCommentActions = ({ comment, post, currentUser, closeMenu }: {
     closeMenu?.();
   }, [url, closeMenu]);
 
-  const isOwnComment = currentUser && (comment.userId === currentUser._id);
+  const isOwnComment = currentUserId && (comment.userId === currentUserId);
 
   return (
     <DropdownMenu>
@@ -45,15 +46,16 @@ const UltraFeedCommentActions = ({ comment, post, currentUser, closeMenu }: {
         subscriptionType="newReplies"
       />
       <DropdownItem
-        title="Copy link"
-        icon="Link"
-        onClick={handleCopyLink}
-      />
-      <DropdownItem
         title="Open in new tab"
         icon="ArrowRight"
         onClick={handleOpenInNewTab}
       />
+      <DropdownItem
+        title="Copy link"
+        icon="Link"
+        onClick={handleCopyLink}
+      />
+      <EditCommentDropdownItem comment={comment} showEdit={showEdit} />
     </DropdownMenu>
   );
 };

@@ -1,3 +1,5 @@
+"use client";
+
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useEffect, useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';

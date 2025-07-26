@@ -1,7 +1,7 @@
 // import { startWebserver } from './apolloServer';
 import { scheduleQueueProcessing } from './cache/swr';
-import { initRenderQueueLogging } from './vulcan-lib/apollo-ssr/renderPage';
-import { serverInitSentry, startMemoryUsageMonitor } from './logging';
+import { initRenderQueueLogging } from './rendering/requestQueue';
+import { startMemoryUsageMonitor } from './logging';
 import { initLegacyRoutes } from '@/lib/routes';
 import { startupSanityChecks } from './startupSanityChecks';
 import { refreshKarmaInflationCache } from './karmaInflation/cron';
@@ -43,11 +43,10 @@ export async function runServerOnStartupFunctions() {
   startAnalyticsWriter();
   scheduleQueueProcessing();
   initRenderQueueLogging();
-  serverInitSentry();
   startMemoryUsageMonitor();
   initLegacyRoutes();
-  await startupSanityChecks();
-  await refreshKarmaInflationCache();
+  void startupSanityChecks();
+  void refreshKarmaInflationCache();
   addLegacyRssRoutes();
   void initReviewWinnerCache();
   void updateStripeIntentsCache();

@@ -165,7 +165,8 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
   const [footnoteHTML,setFootnoteHTML] = useState<string|null>(null);
   const memoizedEmptyArray = useMemo(() => [], []);
   const footnoteAncestors = useContext(FootnoteAncestorsContext) ?? memoizedEmptyArray;
-  
+  const newFootnoteAncestors = useMemo(() => [...footnoteAncestors, href], [footnoteAncestors, href])
+
   useEffect(() => {
     const extractedFootnoteHTML = footnoteAncestors.includes(href)
       ? null
@@ -217,7 +218,7 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
               eitherHovered && classes.sidenoteHover
             )}
           >
-            <FootnoteAncestorsContext.Provider value={[...footnoteAncestors, href]}>
+            <FootnoteAncestorsContext.Provider value={newFootnoteAncestors}>
               <SidenoteDisplay
                 footnoteHref={href}
                 footnoteHTML={footnoteHTML}

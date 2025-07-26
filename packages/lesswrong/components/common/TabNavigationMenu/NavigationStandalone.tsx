@@ -4,7 +4,7 @@ import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import TabNavigationMenu, { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { HOME_RHS_MAX_SCREEN_WIDTH } from '../../ea-forum/EAHomeRightHandSide';
+import { HOME_RHS_MAX_SCREEN_WIDTH } from '@/components/ea-forum/constants';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { communityPath } from '@/lib/pathConstants';
 

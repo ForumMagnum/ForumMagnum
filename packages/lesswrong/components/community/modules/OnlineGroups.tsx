@@ -1,7 +1,7 @@
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { MouseEventHandler } from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
+import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { requireCssVar } from '../../../themes/cssVars';
 

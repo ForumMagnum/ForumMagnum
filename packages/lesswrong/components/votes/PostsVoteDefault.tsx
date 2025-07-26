@@ -3,8 +3,7 @@ import React, { Ref } from 'react';
 import classNames from 'classnames';
 import { useVote } from './withVote';
 import { isAF, isLW } from '../../lib/instanceSettings';
-import { useCurrentUser } from '../common/withUser';
-import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
+import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
 import { VotingSystem } from '../../lib/voting/votingSystems';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { TooltipRef, TooltipSpan } from '../common/FMTooltip';
@@ -101,9 +100,8 @@ const PostsVoteDefault = ({
   classes: ClassesType<typeof styles>
 }) => {
   const voteProps = useVote(post, "Posts", votingSystem);
-  const currentUser = useCurrentUser();
 
-  const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
+  const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
   const canVote = !fail;
 
   let tooltipPlacement: "left"|"right"|"top" = isFriendlyUI ? "left" : "right";

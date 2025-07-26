@@ -1,6 +1,6 @@
 import { accessFilterMultiple, getDenormalizedCountOfReferencesGetValue } from './utils/schemaUtils';
 import { getWithLoader } from './loaders';
-import GraphQLJSON from 'graphql-type-json';
+import GraphQLJSON from '@/lib/vendor/graphql-type-json';
 
 export type PermissionResult = {
   fail: false,

@@ -1,6 +1,6 @@
 import type { Request } from "express";
 import { isLeft } from 'fp-ts/Either';
-import { crosspostUserAgent } from "../../lib/apollo/links";
+import { crosspostUserAgent } from "@/lib/apollo/constants";
 import {
   ApiError,
   UnauthorizedError,
@@ -9,7 +9,6 @@ import {
 } from "./errors";
 import {
   assertCrosspostingKarmaThreshold,
-  fmCrosspostTimeoutMsSetting,
 } from "./helpers";
 import { makeApiUrl, PostRequestTypes, PostResponseTypes, ValidatedPostRouteName, validatedPostRoutes, ValidatedPostRoutes } from "./routes";
 import { ConnectCrossposterArgs, GetCrosspostRequest } from "./types";
@@ -23,6 +22,7 @@ import {
   unlinkCrossposterRoute,
 } from "@/lib/fmCrosspost/routes";
 import gql from "graphql-tag";
+import { fmCrosspostTimeoutMsSetting } from "../databaseSettings";
 
 const getUserId = (req?: Request) => {
   const userId = req?.user?._id;
@@ -44,7 +44,7 @@ const foreignPostCache = new LRU<string, Promise<AnyBecauseHard>>({
  * This is still here to support the `getCrosspost` graphql query, which will be
  * removed once crosspost bodies are denormalized across sites.
  */
-const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteName>(
+export const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteName>(
   routeName: RouteName,
   body: PostRequestTypes<RouteName>,
   onErrorMessage: string,

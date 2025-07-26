@@ -1,29 +1,36 @@
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
 import { hookToHoc } from '../hocUtils';
+import { useApolloClient } from "@apollo/client/react";
+
+const CurrentUserQuery = gql(`
+  query getCurrentUser {
+    currentUser {
+      ...UsersCurrent
+    }
+  }
+`);
 
 /**
- * HoC for a graphQL that fetches the logged-in user object. This is used once,
- * in App.tsx, and then provided to the rest of the page as React context which
- * you can retrieve with useCurrentUser or withUser. Don't use this directly;
- * creating duplicate Apollo queries is much slower than using the React
- * context.
+ * Hook for a graphQL query that fetches the logged-in user object. This is
+ * used once, in App.tsx, and then provided to the rest of the page as React
+ * context which you can retrieve with useCurrentUser or withUser. Don't use
+ * this directly; creating duplicate Apollo queries is much slower than using
+ * the React context.
  */
 export const useQueryCurrentUser = () => {
-  const {data, refetch, loading} = useQuery(gql(`
-    query getCurrentUser {
-      currentUser {
-        ...UsersCurrent
-      }
-    }
-  `), {
+  const client = useApolloClient();
+  const {data, refetch, loading} = useQuery(CurrentUserQuery, {
     fetchPolicy: "cache-first",
     ssr: true,
   });
   
   return {
     currentUser: data?.currentUser ?? null,
-    refetchCurrentUser: refetch,
+    refetchCurrentUser: async () => {
+      client.prioritizeCacheValues = false;
+      await refetch();
+    },
     currentUserLoading: loading,
   }
 }

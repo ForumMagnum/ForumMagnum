@@ -12,7 +12,8 @@ import keyBy from 'lodash/keyBy';
 import Users from '../server/collections/users/collection';
 import { userGetDisplayName, userGetProfileUrl } from '../lib/collections/users/helpers';
 import * as _ from 'underscore';
-import {getDocumentSummary, taggedPostMessage, getDocument} from '../lib/notificationTypes'
+import { taggedPostMessage } from '@/lib/notificationDataHelpers';
+import { getDocumentSummary, getDocument } from '@/lib/notificationDataHelpers';
 import type { NotificationDocument } from './collections/notifications/constants';
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { getReviewTitle, REVIEW_YEAR } from '../lib/reviewUtils';

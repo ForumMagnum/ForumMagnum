@@ -10,7 +10,6 @@ import { pipeline } from 'stream/promises'
 import { hyperbolicApiKey } from "@/lib/instanceSettings";
 import { runQuery } from "./vulcan-lib/query";
 import Users from "@/server/collections/users/collection";
-import { clientIdMiddleware } from "./clientIdMiddleware";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const postsForAutocompleteQuery = gql(`
@@ -92,7 +91,7 @@ ${currentUser.displayName} 1h ${Math.floor(20 + (Math.random() * 75))} ${Math.fl
 ${prefix}`.trim();
 }
 
-async function constructMessageHistory(
+export async function constructMessageHistory(
   prefix: string,
   commentIds: string[],
   postIds: string[],
@@ -213,7 +212,7 @@ async function constructMessageHistory(
   return messages;
 }
 
-async function construct405bPrompt(
+export async function construct405bPrompt(
   prefix: string,
   commentIds: string[],
   postIds: string[],
@@ -281,9 +280,9 @@ ${finalSection}`.trim();
 
 
 export function addAutocompleteEndpoint(app: Express) {
-  app.use("/api/autocomplete", express.json(), clientIdMiddleware);
+  app.use("/api/autocomplete", express.json());
   app.post("/api/autocomplete", async (req, res) => {
-    const context = await getContextFromReqAndRes({req, res, isSSR: false});
+    const context = await getContextFromReqAndRes({req, isSSR: false});
     const currentUser = context.currentUser
     if (!currentUser) {
       return res.status(401).json({ error: "Unauthorized" });
@@ -348,7 +347,7 @@ export function addAutocompleteEndpoint(app: Express) {
   });
   app.use("/api/autocomplete405b", express.json());
   app.post("/api/autocomplete405b", async (req, res) => {
-    const context = await getContextFromReqAndRes({req, res, isSSR: false});
+    const context = await getContextFromReqAndRes({req, isSSR: false});
     const currentUser = context.currentUser
     if (!currentUser) {
       return res.status(401).json({ error: "Unauthorized" });

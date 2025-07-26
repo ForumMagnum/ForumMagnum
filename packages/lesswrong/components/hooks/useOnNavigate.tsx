@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { RouterLocation } from '../../lib/vulcan-lib/routes';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { isClient } from '../../lib/executionEnvironment';
-import { captureEvent } from '../../lib/analyticsEvents';
+import { useTracking } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
 
 let lastLocation: RouterLocation|null = null;
@@ -12,6 +12,7 @@ let onNavigateFunctions: Array<(locationChange: LocationChange) => void> = [];
 
 const NavigationEventSender = () => {
   const location = useSubscribedLocation();
+  const { captureEvent } = useTracking();
   
   useEffect(() => {
     // Only handle navigation events on the client (they don't apply to SSR)
@@ -32,7 +33,7 @@ const NavigationEventSender = () => {
         lastLocation = _.clone(location);
       }
     }
-  }, [location]);
+  }, [location, captureEvent]);
   
   return null;
 }

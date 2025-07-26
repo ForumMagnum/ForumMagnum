@@ -1,10 +1,8 @@
-import markdownIt from 'markdown-it'
-import markdownItMathjax from '../editor/markdown-mathjax'
 import { mjPagePromise } from '../editor/conversionUtils';
 import { trimLatexAndAddCSS } from '../editor/latexUtils';
 import { ArbitalCaches } from '../collections/arbitalCache/collection';
-import { addCronJob } from '../cron/cronUtil';
 import gql from 'graphql-tag';
+import { getMarkdownItArbital } from '@/lib/utils/markdownItPlugins';
 
 export const arbitalCacheExpirationMs = 2*60*60*1000;
 
@@ -22,10 +20,6 @@ type ArbitalPageData = {
   html: string
   title: string
 }
-
-const mdi = markdownIt({linkify: true})
-mdi.use(markdownItMathjax())
-
 
 
 async function fetchArbitalPageData(pageAlias: string) {
@@ -95,7 +89,7 @@ async function fetchArbitalPageAsHtml(pageAlias: string): Promise<ArbitalPageDat
   )
   let htmlWithLaTeX: string;
   try {
-    const htmlNoLaTeX = mdi.render(fixedMarkdown)
+    const htmlNoLaTeX = getMarkdownItArbital().render(fixedMarkdown)
     htmlWithLaTeX = await mjPagePromise(htmlNoLaTeX, trimLatexAndAddCSS)
   } catch(e) {
     throw new Error(`Error during Arbital hover-preview markdown/LaTeX conversion for "${pageAlias}"`);
@@ -137,17 +131,13 @@ function isValidArbitalPageAlias(pageAlias: string) {
   return !!pageAlias && pageAlias.length>0;
 }
 
-export const clearArbitalCacheCron = addCronJob({
-  name: "clearArbitalCache",
-  interval: "every 1 hour",
-  job: async () => {
-    const now = new Date();
-    const oldestAgeToKeep = new Date(now.getTime() - (arbitalCacheExpirationMs*2));
-    await ArbitalCaches.rawRemove({
-      fetchedAt: { $lt: oldestAgeToKeep },
-    });
-  },
-});
+export const clearArbitalCache = async () => {
+  const now = new Date();
+  const oldestAgeToKeep = new Date(now.getTime() - (arbitalCacheExpirationMs*2));
+  await ArbitalCaches.rawRemove({
+    fetchedAt: { $lt: oldestAgeToKeep },
+  });
+};
 
 export const arbitalGraphQLQueries = {
   async ArbitalPageData(root: void, { pageAlias }: { pageAlias: string }, context: ResolverContext) {

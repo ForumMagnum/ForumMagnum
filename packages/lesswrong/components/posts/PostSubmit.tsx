@@ -5,7 +5,7 @@ import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
 import {forumTitleSetting, isEAForum, isLW, isLWorAF } from "../../lib/instanceSettings";
 import { isFriendlyUI } from '../../themes/forumTheme';
-import {requestFeedbackKarmaLevelSetting} from '../../lib/publicSettings.ts'
+import { requestFeedbackKarmaLevelSetting } from '@/lib/instanceSettings.ts';
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import type { EditablePost } from '@/lib/collections/posts/helpers.ts';
 import type { TypedFormApi } from '@/components/tanstack-form-components/BaseAppForm.tsx';

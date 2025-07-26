@@ -1,11 +1,6 @@
 import React from 'react';
 import { Notifications } from '../server/collections/notifications/collection';
-import { getNotificationTypes } from '../lib/notificationTypes';
-import { getNotificationTypeByNameServer } from './notificationTypesServer';
-import { EventDebouncer } from './debouncer';
-import toDictionary from '../lib/utils/toDictionary';
 import { userIsAdmin } from '../lib/vulcan-users/permissions';
-import { Posts } from '../server/collections/posts/collection';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import Users from '@/server/collections/users/collection';
 import { computeContextFromUser } from './vulcan-lib/apollo-server/context';
@@ -14,22 +9,6 @@ import { PostsEmail } from './emailComponents/PostsEmail';
 import { UtmParam } from './analytics/utm-tracking';
 import { isEAForum } from '@/lib/instanceSettings';
 
-// string (notification type name) => Debouncer
-export const notificationDebouncers = toDictionary(getNotificationTypes(),
-  notificationTypeName => notificationTypeName,
-  notificationTypeName => {
-    return new EventDebouncer({
-      name: `notification_${notificationTypeName}`,
-      defaultTiming: {
-        type: "delayed",
-        delayMinutes: 15,
-      },
-      callback: ({ userId, notificationType }: {userId: string, notificationType: string}, notificationIds: Array<string>) => {
-        void sendNotificationBatch({userId, notificationIds, notificationType});
-      }
-    });
-  }
-);
 
 export const getUtmParamsForNotificationType = (notificationType: string): Partial<Record<UtmParam, string>> => {
   return {
@@ -49,7 +28,7 @@ export const getUtmParamsForNotificationType = (notificationType: string): Parti
  *
  * Precondition: All notifications in a batch share a notification type
  */
-const sendNotificationBatch = async ({userId, notificationIds, notificationType}: {userId: string, notificationIds: Array<string>, notificationType: string}) => {
+export const sendNotificationBatch = async ({userId, notificationIds, notificationType}: {userId: string, notificationIds: Array<string>, notificationType: string}) => {
   const { wrapAndSendEmail } = await import('./emails/renderEmail');
   if (!notificationIds || !notificationIds.length)
     throw new Error("Missing or invalid argument: notificationIds (must be a nonempty array)");
@@ -93,6 +72,7 @@ const notificationBatchToEmails = async ({user, notificationType, notifications,
   notifications: Array<DbNotification>,
   context: ResolverContext,
 }) => {
+  const { getNotificationTypeByNameServer } = await import('./notificationTypesServer');
   const notificationTypeRenderer = getNotificationTypeByNameServer(notificationType);
   const utmParams = getUtmParamsForNotificationType(notificationType);
   
@@ -119,7 +99,7 @@ const notificationBatchToEmails = async ({user, notificationType, notifications,
 export const graphqlQueries = {
   async EmailPreview(root: void, {notificationIds, postId}: {notificationIds?: Array<string>, postId?: string}, context: ResolverContext) {
     const { wrapAndRenderEmail } = await import('./emails/renderEmail');
-    const { currentUser } = context;
+    const { currentUser, Posts } = context;
     if (!currentUser || !userIsAdmin(currentUser)) {
       throw new Error("This debug feature is only available to admin accounts");
     }

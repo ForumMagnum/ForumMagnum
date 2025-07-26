@@ -68,6 +68,7 @@ declare global {
     710: ColorString,
   }
   type ThemeShadePalette = {
+    dark: boolean,
     grey: ThemeGreyscale,
     greyAlpha: (alpha: number) => ColorString,
     inverseGreyAlpha: (alpha: number) => ColorString,
@@ -209,6 +210,11 @@ declare global {
       },
 
       jargonTerm: ColorString,
+      // Banner ad compatibility - text colors that work well over background images
+      bannerAdOverlay: ColorString,
+      bannerAdDim: ColorString,
+      bannerAdDim2: ColorString,
+      bannerAdDim3: ColorString,
     },
     linkHover: {
       dim: ColorString,
@@ -326,6 +332,7 @@ declare global {
       newCommentFormModerationGuidelines: ColorString,
       commentNodeEven: ColorString,
       commentNodeOdd: ColorString,
+      commentNodeRoot: ColorString,
       commentModeratorHat: ColorString,
       commentHighlightAnimation: ColorString,
       postsItemExpandedComments: ColorString,
@@ -363,6 +370,14 @@ declare global {
       onboardingPodcast: ColorString,
       placeholderGradient: ColorString,
       tagLensTab: ColorString,
+      // Banner ad compatibility - translucent backgrounds with blur effects
+      bannerAdTranslucent: ColorString,
+      bannerAdTranslucentHeavy: ColorString,
+      bannerAdTranslucentLight: ColorString,
+      bannerAdTranslucentMedium: ColorString,
+      bannerAdTranslucentDeep: ColorString,
+      bannerAdTranslucentStrong: ColorString,
+      appBarDarkBackground: ColorString,
     },
     boxShadow: {
       default: string,
@@ -371,6 +386,7 @@ declare global {
       
       notificationsDrawer: string,
       appBar: string,
+      appBarDarkBackground: string,
       sequencesGridItemHover: string,
       eventCard: string,
       featuredResourcesCard: string,
@@ -455,16 +471,28 @@ declare global {
         text: ColorString,
         hover: {
           text: ColorString,
-        }
+        },
+        // Banner ad compatibility
+        bannerAdBackground: ColorString,
+        bannerAdBackgroundBlur: ColorString,
       },
       active: {
         text: ColorString,
         background: ColorString
         hover: {
           background: ColorString,
-        }
+        },
+        // Banner ad compatibility 
+        bannerAdOpacity: number,
       },
-    }
+    },
+    // Banner ad compatibility - CSS filters and effects
+    filters: {
+      bannerAdBlur: string,
+      bannerAdBlurLight: string,
+      bannerAdBlurMedium: string,
+      bannerAdBlurHeavy: string,
+    },
     geosuggest: {
       dropdownBackground: ColorString,
       dropdownText: ColorString,
@@ -513,6 +541,9 @@ declare global {
       text: ColorString,
       background: ColorString,
     },
+    ultrafeedModalHeader: {
+      background: ColorString,
+    },
     datePicker: {
       selectedDate: ColorString,
     },
@@ -521,6 +552,8 @@ declare global {
       sideCommentEditorBackground: ColorString,
       commentMarker: ColorString,
       commentMarkerActive: ColorString,
+      // Banner ad compatibility
+      bannerAdBackground: ColorString,
     },
     blockquoteHighlight: {
       commentHovered: ColorString,
@@ -583,16 +616,26 @@ declare global {
     namesAttachedReactions: {
       selectedAnti: ColorString,
     },
+    bookPromotion: {
+      twilightLight: ColorString,
+      twilightDark: ColorString,
+      twilightMid: ColorString,
+      starGold: ColorString,
+      starRedShift: ColorString,
+    },
     ultraFeed: {
       dim: ColorString,
       cardSeparator: string,
     }
   };
-  type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>
+  type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette> & {
+    shadePalette: ThemeShadePalette
+  }
   
   type ThemeType = {
     forumType: ForumTypeString,
     themeOptions: ThemeOptions,
+    dark: boolean,
 
     baseFontSize: number,
     

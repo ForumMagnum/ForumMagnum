@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';

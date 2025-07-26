@@ -5,17 +5,22 @@ import { hasForumEvents } from "../../lib/betas";
 import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import ForumEventFrontpageBanner from "./ForumEventFrontpageBanner";
 import ForumEventPostPageBanner from "./ForumEventPostPageBanner";
+import { isHomeRoute, isPostsSingleRoute } from "@/lib/routeChecks";
 
 type BannerType = "frontpage" | "postpage";
 
-const bannerTypes: Record<string, BannerType> = {
-  "home": "frontpage",
-  "posts.single": "postpage",
-};
+function getBannerType(pathname: string): BannerType | null {
+  if (isPostsSingleRoute(pathname)) {
+    return "postpage";
+  } else if (isHomeRoute(pathname)) {
+    return "frontpage";
+  }
+  return null;
+}
 
 export const ForumEventBanner = () => {
-  const {currentRoute} = useLocation();
-  const bannerType = bannerTypes[currentRoute?.name ?? ""];
+  const {pathname} = useLocation();
+  const bannerType = getBannerType(pathname);
   const {currentForumEvent} = useCurrentAndRecentForumEvents();
   
   if (!hasForumEvents) {

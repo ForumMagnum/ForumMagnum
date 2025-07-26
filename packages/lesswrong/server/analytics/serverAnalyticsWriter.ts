@@ -1,6 +1,6 @@
 import { isDevelopment, isE2E } from '@/lib/executionEnvironment';
 import { randomId } from '@/lib/random';
-import { PublicInstanceSetting, performanceMetricLoggingBatchSize } from '@/lib/instanceSettings';
+import { environmentDescriptionSetting, performanceMetricLoggingBatchSize } from '@/lib/instanceSettings';
 import { addStaticRoute } from '@/server/vulcan-lib/staticRoutes';
 import { pgPromiseLib, getAnalyticsConnection } from './postgresConnection'
 import chunk from 'lodash/chunk';
@@ -9,9 +9,6 @@ import type { EventProps } from '@/lib/analyticsEvents';
 import { getShowAnalyticsDebug } from '@/lib/analyticsDebugging';
 import { ColorHash } from '@/lib/vendor/colorHash';
 import moment from 'moment';
-
-// Since different environments are connected to the same DB, this setting cannot be moved to the database
-export const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning")
 
 export const serverId = randomId();
 
@@ -133,7 +130,8 @@ export async function pruneOldPerfMetrics() {
       WHERE started_at < CURRENT_DATE - INTERVAL '30 days'
     `);
 
-    await connection.none(`
+    // Don't await this one; it might take longer than five minutes to finish and there's no reason to keep a function instance around that long.
+    void connection.none(`
       SET LOCAL work_mem = '2GB';
 
       DELETE

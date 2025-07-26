@@ -5,7 +5,7 @@ import { userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from "../users/helpers";
 import { tagGetCommentLink } from '../tags/helpers';
 import { TagCommentType } from './types';
-import { commentPermalinkStyleSetting, hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
+import { commentPermalinkStyleSetting, hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
 import { forumSelect } from '../../forumTypeUtils';
 
 // Get a comment author's name

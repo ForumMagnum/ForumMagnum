@@ -9,8 +9,8 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useRefetchCurrentUser } from "../../common/withUser";
 import {forumTitleSetting, siteNameWithArticleSetting} from '../../../lib/instanceSettings'
 import { LoginAction, useLoginPopoverContext } from "../../hooks/useLoginPopoverContext";
-import { captureException } from '@sentry/core';
-import { auth0FacebookLoginEnabled } from "@/lib/publicSettings";
+import { captureException } from '@sentry/nextjs';
+import { auth0FacebookLoginEnabled } from '@/lib/instanceSettings';
 import BlurredBackgroundModal from "../../common/BlurredBackgroundModal";
 import ForumIcon from "../../common/ForumIcon";
 import EAButton from "../EAButton";
