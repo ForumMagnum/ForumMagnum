@@ -131,7 +131,8 @@ export const useTagPreview = (
     error: queryErrorWithLenses
   } = useQuery<getTagOrLensPreviewQuery | getTagOrLensSectionPreviewQuery>(queryWithLens, {
     skip: skip || !hasWikiLenses,
-    variables: { ...hashVariables, slug }
+    variables: { ...hashVariables, slug },
+    ssr: false,
   });
 
   const {
