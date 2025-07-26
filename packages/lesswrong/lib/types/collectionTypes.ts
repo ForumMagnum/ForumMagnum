@@ -404,6 +404,12 @@ type DbInsertion<T extends DbObject> = Omit<
   _id?: T["_id"];
 };
 
+type InsertionRecord<T extends DbObject & { createdAt?: Date }> = Omit<T, "_id" | "createdAt" | "schemaVersion" | "legacyData"> & {
+  _id?: T["_id"];
+  createdAt?: T["createdAt"];
+};
+
+
 type CollectionNameWithPingbacks = {
   [K in CollectionNameString]: 'pingbacks' extends keyof ObjectsByCollectionName[K] ? K : never
 }[CollectionNameString];

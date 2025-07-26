@@ -56,7 +56,7 @@ type UpsertOperator = keyof typeof UPSERT_OPERATORS;
 class InsertQuery<T extends DbObject> extends Query<T> {
   constructor(
     table: Table<T>,
-    data: InsertQueryData<T> | InsertQueryData<T>[],
+    data: InsertQueryData<InsertionRecord<T>> | InsertQueryData<InsertionRecord<T>>[],
     _options: MongoInsertOptions<T> = {}, // TODO: What can options be?
     sqlOptions?: InsertSqlOptions<T>,
   ) {
@@ -89,7 +89,7 @@ class InsertQuery<T extends DbObject> extends Query<T> {
     }
   }
 
-  private appendValuesList(data: T[]): void {
+  private appendValuesList(data: InsertionRecord<T>[]): void {
     if (!data.length) {
       throw new Error("Empty insert data");
     }
@@ -110,7 +110,7 @@ class InsertQuery<T extends DbObject> extends Query<T> {
     }
   }
 
-  private appendItem(fields: Record<string, Type>, item: T): void {
+  private appendItem(fields: Record<string, Type>, item: InsertionRecord<T>): void {
     const usedOperators: Partial<Record<keyof T, UpsertOperator>> = {};
     for (const operator in UPSERT_OPERATORS) {
       if ((item as AnyBecauseTodo)[operator]) {
@@ -147,7 +147,7 @@ class InsertQuery<T extends DbObject> extends Query<T> {
     this.atoms.push(")");
   }
 
-  private compileUpsert(data: T, selector?: MongoSelector<T>): Atom<T>[] {
+  private compileUpsert(data: InsertionRecord<T>, selector?: MongoSelector<T>): Atom<T>[] {
     let result: Atom<T>[] = ["ON CONFLICT ("];
 
     if (selector) {
