@@ -10,6 +10,7 @@ import moment from '../lib/moment-timezone';
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updatePost } from './collections/posts/mutations';
 import { EventTomorrowReminder } from './emailComponents/EventTomorrowReminder';
+import { backgroundTask } from './utils/backgroundTask';
 
 async function checkAndSendUpcomingEventEmails() {
   const in24hours = moment(new Date()).add(24, 'hours').toDate();
@@ -64,6 +65,6 @@ export const cronCheckAndSendUpcomingEventEmails = addCronJob({
   cronStyleSchedule: '* * * * *',
   disabled: testServerSetting.get(),
   job() {
-    void checkAndSendUpcomingEventEmails();
+    backgroundTask(checkAndSendUpcomingEventEmails());
   }
 });

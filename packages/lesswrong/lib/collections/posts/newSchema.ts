@@ -75,6 +75,7 @@ import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from "graphql-tag";
 import { CommentsViews } from "../comments/views";
 import { commentIncludedInCounts } from "../comments/helpers";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 
 export const graphqlTypeDefs = gql`
   type SocialPreviewType {
@@ -3608,11 +3609,11 @@ const schema = {
             })),
           });
 
-          void context.repos.sideComments.saveSideCommentCache(
+          backgroundTask(context.repos.sideComments.saveSideCommentCache(
             post._id,
             sideCommentMatches.html,
             sideCommentMatches.sideCommentsByBlock
-          );
+          ));
 
           unfilteredResult = {
             annotatedHtml: sideCommentMatches.html,

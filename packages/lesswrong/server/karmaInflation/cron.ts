@@ -3,6 +3,7 @@ import { nullKarmaInflationSeries, setKarmaInflationSeries, TimeSeries } from '.
 import { addCronJob } from '../cron/cronUtil';
 import PostsRepo from '../repos/PostsRepo';
 import DatabaseMetadataRepo from '../repos/DatabaseMetadataRepo';
+import { backgroundTask } from "../utils/backgroundTask";
 
 const AVERAGING_WINDOW_MS = 1000 * 60 * 60 * 24 * 28; // 28 days
 
@@ -65,6 +66,6 @@ export const refreshKarmaInflationCron = addCronJob({
   name: 'refreshKarmaInflationCron',
   interval: 'every 24 hours',
   job() {
-    void refreshKarmaInflation();
+    backgroundTask(refreshKarmaInflation());
   }
 });

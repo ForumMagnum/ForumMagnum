@@ -5,6 +5,7 @@ import Users from '../../server/collections/users/collection';
 import { wrapVulcanAsyncScript } from './utils';
 import UserEAGDetails from '../../server/collections/userEAGDetails/collection';
 import moment from 'moment';
+import { backgroundTask } from '../utils/backgroundTask';
 
 const csvSchema = z.object({
   email: z.string(),
@@ -77,7 +78,7 @@ export const importEAGUserDetails = wrapVulcanAsyncScript(
     
     // Upsert EAG data for all the users in the CSV
     // WARNING: Upserts will be deprecated at some point
-    void UserEAGDetails.rawCollection().bulkWrite(Object.values(records).map((record) => {
+    backgroundTask((UserEAGDetails.rawCollection().bulkWrite(Object.values(records).map((record) => {
       delete record.submissionDate
       return {
         updateOne: {
@@ -86,6 +87,6 @@ export const importEAGUserDetails = wrapVulcanAsyncScript(
           upsert: true,
         }
       }
-    }));
+    }))));
   }
 )

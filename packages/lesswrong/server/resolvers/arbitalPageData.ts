@@ -4,6 +4,7 @@ import { ArbitalCaches } from '../collections/arbitalCache/collection';
 import { addCronJob } from '../cron/cronUtil';
 import gql from 'graphql-tag';
 import { getMarkdownItArbital } from '@/lib/utils/markdownItPlugins';
+import { backgroundTask } from '../utils/backgroundTask';
 
 export const arbitalCacheExpirationMs = 2*60*60*1000;
 
@@ -118,12 +119,12 @@ async function getArbitalPageWithCache(pageAlias: string): Promise<{ html: strin
   
   const result =  await fetchArbitalPageAsHtml(pageAlias);
   if (!result) return null;
-  void ArbitalCaches.rawInsert({
+  backgroundTask(ArbitalCaches.rawInsert({
     pageAlias,
     title: result.title,
     fetchedAt: now,
     sanitizedHtml: result.html, //TODO: This came out of a markdown conversion; is it safe?
-  });
+  }));
   
   return result;
 }

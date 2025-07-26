@@ -5,6 +5,7 @@ import type { SurveyScheduleWithSurvey } from "../repos/SurveySchedulesRepo";
 import gql from "graphql-tag";
 import { createSurveyQuestion, updateSurveyQuestion } from "../collections/surveyQuestions/mutations";
 import { updateSurvey } from "../collections/surveys/mutations";
+import { backgroundTask } from "../utils/backgroundTask";
 
 type EditSurveyArgs = {
   surveyId: string,
@@ -46,7 +47,7 @@ export const surveyResolversGraphQLQueries = {
       clientId,
     );
     if (survey) {
-      void surveySchedules.assignClientToSurveySchedule(survey._id, clientId);
+      backgroundTask(surveySchedules.assignClientToSurveySchedule(survey._id, clientId));
       return survey;
     }
     return null;

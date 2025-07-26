@@ -52,6 +52,7 @@ import { updateNotification } from "../collections/notifications/mutations";
 import { EmailCuratedAuthors } from "../emailComponents/EmailCuratedAuthors";
 import { EventUpdatedEmail } from "../emailComponents/EventUpdatedEmail";
 import { PostsHTML } from "@/lib/collections/posts/fragments";
+import { backgroundTask } from "../utils/backgroundTask";
 
 /** Create notifications for a new post being published */
 export async function sendNewPostNotifications(post: DbPost) {
@@ -113,15 +114,17 @@ const onPublishUtils = {
     if (!isRecombeeRecommendablePost(post)) return;
   
     if (recombeeEnabledSetting.get()) {
-      void recombeeApi.upsertPost(post, context)
+      backgroundTask(recombeeApi.upsertPost(post, context)
         // eslint-disable-next-line no-console
-        .catch(e => console.log('Error when sending published post to recombee', { e }));
+        .catch(e => console.log('Error when sending published post to recombee', { e }))
+      );
     }
   
     if (vertexEnabledSetting.get()) {
-      void googleVertexApi.upsertPost({ post }, context)
+      backgroundTask(googleVertexApi.upsertPost({ post }, context)
         // eslint-disable-next-line no-console
-        .catch(e => console.log('Error when sending published post to google vertex', { e }));
+        .catch(e => console.log('Error when sending published post to google vertex', { e }))
+      );
     }
   },
 
@@ -578,7 +581,7 @@ export async function createNewJargonTermsCallback<T extends Pick<DbPost, '_id' 
   // TODO: do we want different behavior for new vs updated posts?
   if (changeMetrics.added > 1000 || !existingJargon.length) {
     // TODO: do we want to exclude existing jargon terms from being added again for posts which had a large diff but already had some jargon terms?
-    void createNewJargonTerms({ postId: post._id, currentUser, context });
+    backgroundTask(createNewJargonTerms({ postId: post._id, currentUser, context }));
   }
 
   return post;
@@ -624,13 +627,13 @@ export async function lwPostsNewUpvoteOwnPost(post: DbPost, callbackProperties: 
 
 export function postsNewPostRelation(post: DbPost, { context }: AfterCreateCallbackProperties<'Posts'>) {
   if (post.originalPostRelationSourceId) {
-    void createPostRelation({
+    backgroundTask(createPostRelation({
       data: {
         type: "subQuestion",
         sourcePostId: post.originalPostRelationSourceId,
         targetPostId: post._id,
       }
-    }, context);
+    }, context));
   }
   return post
 }
@@ -687,7 +690,7 @@ export async function triggerReviewForNewPostIfNeeded({ document, context }: Aft
 export async function autoTagNewPost({ document, context }: AfterCreateCallbackProperties<"Posts">) {
   if (!document.draft) {
     // Post created (and is not a draft)
-    void utils.applyAutoTags(document, context);
+    backgroundTask(utils.applyAutoTags(document, context));
   }
 }
 
@@ -870,7 +873,7 @@ export async function notifyUsersAddedAsCoauthors({ oldDocument: oldPost, newDoc
 export async function autoTagUndraftedPost({oldDocument, newDocument, context}: UpdateCallbackProperties<'Posts'>) {
   if (oldDocument.draft && !newDocument.draft) {
     // Post was undrafted
-    void utils.applyAutoTags(newDocument, context);
+    backgroundTask(utils.applyAutoTags(newDocument, context));
   }
 }
 
@@ -944,25 +947,25 @@ export async function sendRejectionPM({ newDocument: post, oldDocument: oldPost,
  */
 export async function updateUserNotesOnPostDraft({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Posts">) {
   if (!oldDocument.draft && newDocument.draft && userIsAdmin(currentUser)) {
-    void createModeratorAction({
+    backgroundTask(createModeratorAction({
       data: {
         userId: newDocument.userId,
         type: MOVED_POST_TO_DRAFT,
         endedAt: new Date()
       },
-    }, context);
+    }, context));
   }
 }
 
 export async function updateUserNotesOnPostRejection({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Posts">) {
   if (!oldDocument.rejected && newDocument.rejected) {
-    void createModeratorAction({
+    backgroundTask(createModeratorAction({
       data: {
         userId: newDocument.userId,
         type: REJECTED_POST,
         endedAt: new Date()
       },
-    }, context);
+    }, context));
   }
 }
 
@@ -974,22 +977,24 @@ export async function updateRecombeePost({ newDocument, oldDocument, context }: 
   if ((post.draft && !redrafted) || !isRecombeeRecommendablePost(post)) return;
 
   if (recombeeEnabledSetting.get()) {
-    void recombeeApi.upsertPost(post, context)
-    // eslint-disable-next-line no-console
-    .catch(e => console.log('Error when sending updated post to recombee', { e }));
+    backgroundTask(recombeeApi.upsertPost(post, context)
+      // eslint-disable-next-line no-console
+      .catch(e => console.log('Error when sending updated post to recombee', { e }))
+    )
   }
 
   if (vertexEnabledSetting.get()) {
-    void googleVertexApi.upsertPost({ post }, context)
+    backgroundTask(googleVertexApi.upsertPost({ post }, context)
       // eslint-disable-next-line no-console
-      .catch(e => console.log('Error when sending updated post to google vertex', { e }));
+      .catch(e => console.log('Error when sending updated post to google vertex', { e }))
+    );
   }
 }
 
 /* EDIT ASYNC */
 export function sendPostApprovalNotifications(post: Pick<DbPost, '_id' | 'userId' | 'status'>, oldPost: DbPost) {
   if (postIsApproved(post) && !postIsApproved(oldPost)) {
-    void createNotifications({userIds: [post.userId], notificationType: 'postApproved', documentType: 'post', documentId: post._id});
+    backgroundTask(createNotifications({userIds: [post.userId], notificationType: 'postApproved', documentType: 'post', documentId: post._id}));
   }
 }
 
@@ -1030,13 +1035,17 @@ export async function removeRedraftNotifications(newPost: Pick<DbPost, '_id' | '
 
     // delete post notifications
     const postNotifications = await Notifications.find({documentId: newPost._id}).fetch()
-    postNotifications.forEach(notification => void updateNotification({ data: { deleted: true }, selector: { _id: notification._id } }, context));
+    postNotifications.forEach(notification =>
+      backgroundTask(updateNotification({ data: { deleted: true }, selector: { _id: notification._id } }, context))
+    );
 
     // delete tagRel notifications (note this deletes them even if the TagRel itself has `deleted: true`)
     const tagRels = await TagRels.find({postId:newPost._id}).fetch()
     await asyncForeachSequential(tagRels, async (tagRel) => {
       const tagRelNotifications = await Notifications.find({documentId: tagRel._id}).fetch()
-      tagRelNotifications.forEach(notification => void updateNotification({ data: { deleted: true }, selector: { _id: notification._id } }, context));
+      tagRelNotifications.forEach(notification =>
+        backgroundTask(updateNotification({ data: { deleted: true }, selector: { _id: notification._id } }, context))
+      );
     });
   }
 }
@@ -1051,12 +1060,13 @@ export async function sendEAFCuratedAuthorsNotification(post: DbPost, oldPost: D
       _id: {$in: authorIds}
     }).fetch()
     
-    void Promise.all(authors.map(author => wrapAndSendEmail({
+    backgroundTask(Promise.all(
+      authors.map(author => wrapAndSendEmail({
         user: author,
         subject: "We’ve curated your post",
         body: <EmailCuratedAuthors user={author} post={post} />
       })
-    ))
+    )))
   }
 }
 

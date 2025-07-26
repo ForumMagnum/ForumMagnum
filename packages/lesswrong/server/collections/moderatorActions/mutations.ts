@@ -1,10 +1,10 @@
-
 import schema from "@/lib/collections/moderatorActions/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { triggerReviewAfterModeration } from "@/server/callbacks/moderatorActionCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -74,7 +74,7 @@ export async function updateModeratorAction({ selector, data }: UpdateModeratorA
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('ModeratorActions', updatedDocument, oldDocument);
 
-  void logFieldChanges({ currentUser, collection: ModeratorActions, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: ModeratorActions, oldDocument, data: origData }));
 
   return updatedDocument;
 }

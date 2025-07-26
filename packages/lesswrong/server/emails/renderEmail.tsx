@@ -28,6 +28,7 @@ import { ThemeOptions } from '@/themes/themeNames';
 import { EmailWrapper } from '../emailComponents/EmailWrapper';
 import CookiesProvider from '@/lib/vendor/react-cookie/CookiesProvider';
 import { utmifyForumBacklinks, UtmParam } from '../analytics/utm-tracking';
+import { backgroundTask } from '../utils/backgroundTask';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -293,7 +294,7 @@ export const wrapAndSendEmail = async ({
   try {
     const email = await wrapAndRenderEmail({ user, to: destinationAddress, from, subject, body, utmParams });
     const succeeded = await sendEmail(email);
-    void logSentEmail(email, user, {succeeded});
+    backgroundTask(logSentEmail(email, user, {succeeded}));
     return succeeded;
   } catch(e) {
     // eslint-disable-next-line no-console

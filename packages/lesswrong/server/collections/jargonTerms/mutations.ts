@@ -1,4 +1,3 @@
-
 import { userCanCreateAndEditJargonTerms } from "@/lib/betas";
 import schema from "@/lib/collections/jargonTerms/newSchema";
 import { userIsPostCoauthor } from "@/lib/collections/posts/helpers";
@@ -11,6 +10,7 @@ import { logFieldChanges } from "@/server/fieldChanges";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
+import { backgroundTask } from "@/stubs/server/utils/backgroundTask";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -127,7 +127,7 @@ export async function updateJargonTerm({ selector, data }: UpdateJargonTermInput
     props: updateCallbackProperties,
   });
 
-  void logFieldChanges({ currentUser, collection: JargonTerms, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: JargonTerms, oldDocument, data: origData }));
 
   return updatedDocument;
 }

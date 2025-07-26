@@ -13,6 +13,7 @@ import util from "util";
 import { DatabaseIndexSet } from "../../lib/utils/databaseIndexSet";
 import TableIndex from "./TableIndex";
 import { getSchema } from "@/lib/schema/allSchemas";
+import { backgroundTask } from "../utils/backgroundTask";
 
 let executingQueries = 0;
 
@@ -261,7 +262,7 @@ class PgCollection<
         `as this would cause a deadlock. If your code relies on this index existing immediately ` +
         `you should deploy in two stages. This is the query in question: "${query.compile()?.sql}"`
       )
-      void this.executeQuery(query, {fieldOrSpec, options}, "noTransaction")
+      backgroundTask(this.executeQuery(query, {fieldOrSpec, options}, "noTransaction"))
     }
   }
 

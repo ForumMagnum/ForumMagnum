@@ -5,6 +5,7 @@ import moment from '../lib/moment-timezone';
 import { addCronJob } from './cron/cronUtil';
 import DebouncerEventsRepo from './repos/DebouncerEventsRepo';
 import { isAnyTest } from '../lib/executionEnvironment';
+import { backgroundTask } from './utils/backgroundTask';
 
 let eventDebouncersByName: Partial<Record<string,EventDebouncer<any>>> = {};
 
@@ -314,7 +315,7 @@ export const cronDebouncedEventHandler = addCronJob({
   cronStyleSchedule: '* * * * *',
   disabled: testServerSetting.get(),
   job() {
-    void dispatchPendingEvents();
+    backgroundTask(dispatchPendingEvents());
   }
 });
 

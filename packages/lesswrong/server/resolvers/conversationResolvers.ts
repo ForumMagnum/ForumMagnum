@@ -8,6 +8,7 @@ import { createMessage } from '../collections/messages/mutations';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { ACCESS_FILTERED, accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { isAF } from "@/lib/instanceSettings";
+import { backgroundTask } from "../utils/backgroundTask";
 
 export const dmTriggeringEvents = new TupleSet(['newFollowSubscription'] as const)
 export type DmTriggeringEvent = UnionOf<typeof dmTriggeringEvents>;
@@ -110,9 +111,9 @@ export const conversationGqlMutations = {
       conversationId: conversation._id
     }
 
-    void createMessage({
+    backgroundTask(createMessage({
       data: firstMessageData
-    }, lwContext);
+    }, lwContext));
 
     return true;
   },

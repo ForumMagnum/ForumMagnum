@@ -10,6 +10,7 @@ import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { createMessage } from '../collections/messages/mutations';
 import { updateUser } from '../collections/users/mutations';
+import { backgroundTask } from "../utils/backgroundTask";
 
 /**
  * Before a user has been fully approved, keep track of the number of users
@@ -63,21 +64,21 @@ export async function flagOrBlockUserOnManyDMs({
   if (allUsersEverContacted.length > MAX_ALLOWED_CONTACTS_BEFORE_FLAG && !currentUser.reviewedAt) {
     // Flag users that have sent N+ DMs if they've never been reviewed
     logger('Flagging user')
-    void createModeratorAction({
+    backgroundTask(createModeratorAction({
       data: {
         userId: currentUser._id,
         type: FLAGGED_FOR_N_DMS,
       },
-    }, context);
+    }, context));
   }
   
   // Always update the numUsersContacted field, for denormalization
-  void updateUser({
+  backgroundTask(updateUser({
     data: {
       usersContactedBeforeReview: allUsersEverContacted,
     },
     selector: { _id: currentUser._id }
-  }, createAnonymousContext());
+  }, createAnonymousContext()));
   
   if (allUsersEverContacted.length > MAX_ALLOWED_CONTACTS_BEFORE_BLOCK && !currentUser.reviewedAt) {
     logger('Blocking user')

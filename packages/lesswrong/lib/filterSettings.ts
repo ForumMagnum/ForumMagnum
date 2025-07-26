@@ -5,10 +5,10 @@ import { defaultVisibilityTags } from './publicSettings';
 import filter from 'lodash/filter';
 import findIndex from 'lodash/findIndex'
 import { useTracking } from './analyticsEvents';
-import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { type QueryRef, useBackgroundQuery, useReadQuery } from '@apollo/client/react';
 import { type ResultOf } from '@graphql-typed-document-node/core';
+import { backgroundTask } from '@/server/utils/backgroundTask';
 
 export const TagBasicInfoMultiQuery = gql(`
   query multiTagfilterSettingsQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -105,13 +105,12 @@ export const useFilterSettings = () => {
     },
   });
 
-  
   /** Set the whole mess */
   const setFilterSettings = useCallback((newSettings: FilterSettings) => {
     setFilterSettingsLocally(newSettings)
-    void updateCurrentUser({
+    backgroundTask(updateCurrentUser({
       frontpageFilterSettings: newSettings,
-    })
+    }))
   }, [updateCurrentUser])
   
   const setPersonalBlogFilter = useCallback((mode: FilterMode) => {

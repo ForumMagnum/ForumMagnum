@@ -8,6 +8,7 @@ import { createRSSFeed } from '../collections/rssfeeds/mutations';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { createPost, updatePost } from '../collections/posts/mutations';
+import { backgroundTask } from '../utils/backgroundTask';
 
 async function rssImport(userId: string, rssURL: string, pages = 100, overwrite = false, feedName = "", feedLink = "") {
   try {
@@ -61,11 +62,11 @@ async function rssImport(userId: string, rssURL: string, pages = 100, overwrite 
         const userContext = await computeContextFromUser({ user: lwUser, isSSR: false });
 
         if (!oldPost){
-          void createPost({ data: post }, userContext);
+          backgroundTask(createPost({ data: post }, userContext));
         } else {
           if(overwrite) {
             const userContext = await computeContextFromUser({ user: lwUser, isSSR: false });
-            void updatePost({ data: {...post}, selector: { _id: oldPost._id } }, userContext)
+            backgroundTask(updatePost({ data: {...post}, selector: { _id: oldPost._id } }, userContext))
           }
           //eslint-disable-next-line no-console
           console.warn("Post already imported: ", oldPost.title);
@@ -83,7 +84,7 @@ let zviId = "N9zj5qpTfqmbn9dro"
 let zviImport = false;
 
 if (zviImport) {
-  void rssImport(zviId, zviRSS, 10, true);
+  backgroundTask(rssImport(zviId, zviRSS, 10, true));
 }
 
 let katjaRSS = "https://meteuphoric.wordpress.com/feed/?paged="
@@ -91,7 +92,7 @@ let katjaId = "jRRYAy2mQAHy2Mq3f"
 let katjaImport = false;
 
 if (katjaImport) {
-  void rssImport(katjaId, katjaRSS, 40, true);
+  backgroundTask(rssImport(katjaId, katjaRSS, 40, true));
 }
 
 let putanumonitRSS = "https://putanumonit.com/feed/?paged=";
@@ -99,5 +100,5 @@ let putanumonitId = "tzER8b2F9ofG5wq5p";
 let putanumonitImport = false;
 
 if (putanumonitImport) {
-  void rssImport(putanumonitId, putanumonitRSS, 4, false, "putanumonit", "https://putanumonit.com/feed/");
+  backgroundTask(rssImport(putanumonitId, putanumonitRSS, 4, false, "putanumonit", "https://putanumonit.com/feed/"));
 }

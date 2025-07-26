@@ -8,6 +8,7 @@ import * as _ from 'underscore';
 import { isLW } from '../lib/instanceSettings';
 import { createLWEvent } from './collections/lwevents/mutations';
 import { createAdminContext } from './vulcan-lib/createContexts';
+import { backgroundTask } from './utils/backgroundTask';
 
 const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
 
@@ -29,7 +30,7 @@ export function initGatherTownCron() {
         name: 'gatherTownBot'+currentGatherTownTrackerVersion,
         interval: "every 3 minutes",
         job() {
-          void pollGatherTownUsers();
+          backgroundTask(pollGatherTownUsers());
         }
       });
     }
@@ -48,7 +49,7 @@ const pollGatherTownUsers = async () => {
   const {gatherTownUsers, checkFailed, failureReason} = result;
   // eslint-disable-next-line no-console
   console.log(`GatherTown users: ${JSON.stringify(result)}`);
-  void createLWEvent({
+  backgroundTask(createLWEvent({
     data: {
       name: 'gatherTownUsersCheck',
       important: false,
@@ -58,7 +59,7 @@ const pollGatherTownUsers = async () => {
         gatherTownUsers, checkFailed, failureReason
       }
     }
-  }, createAdminContext());
+  }, createAdminContext()));
 }
 
 type GatherTownPlayerInfo = any;

@@ -5,6 +5,7 @@ import { addStaticRoute } from '@/server/vulcan-lib/staticRoutes';
 import { pgPromiseLib, getAnalyticsConnection } from './postgresConnection'
 import chunk from 'lodash/chunk';
 import gql from 'graphql-tag';
+import { backgroundTask } from '../utils/backgroundTask';
 
 // Since different environments are connected to the same DB, this setting cannot be moved to the database
 export const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning")
@@ -21,7 +22,7 @@ export const analyticsEventTypeDefs = gql`
 
 export const analyticsEventGraphQLMutations = {
   analyticsEvent(root: void, { events, now: clientTime }: AnyBecauseTodo, context: ResolverContext) {
-    void handleAnalyticsEventWriteRequest(events, clientTime);
+    backgroundTask(handleAnalyticsEventWriteRequest(events, clientTime));
   },
 }
 
@@ -40,7 +41,7 @@ addStaticRoute('/analyticsEvent', ({query}, req, res, next) => {
     return;
   }
   
-  void handleAnalyticsEventWriteRequest(body.events, body.now);
+  backgroundTask(handleAnalyticsEventWriteRequest(body.events, body.now));
   res.writeHead(200, {
     "Content-Type": "text/plain;charset=UTF-8"
   });
@@ -118,7 +119,7 @@ const queuedPerfMetrics: PerfMetric[] = [];
 
 export function queuePerfMetric(perfMetric: PerfMetric) {
   queuedPerfMetrics.push(perfMetric);
-  void flushPerfMetrics();
+  backgroundTask(flushPerfMetrics());
 }
 
 async function flushPerfMetrics() {
@@ -223,13 +224,13 @@ export function serverWriteEvent(event: AnyBecauseTodo) {
     pendingEvents.push(event);
     return;
   }
-  void writeEventsToAnalyticsDB([{
+  backgroundTask(writeEventsToAnalyticsDB([{
     type, timestamp,
     props: {
       ...props,
       serverId: serverId,
     }
-  }]);
+  }]));
 }
 
 // Analytics events that were recorded during startup before we were ready
