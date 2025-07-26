@@ -78,11 +78,11 @@ CREATE TABLE "AutomatedContentEvaluations" (
   _id VARCHAR(27) PRIMARY KEY,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "revisionId" VARCHAR(27) NOT NULL,
-  "score" DOUBLE PRECISION NOT NULL,
-  "sentenceScores" JSONB NOT NULL,
-  "aiChoice" TEXT NOT NULL,
-  "aiReasoning" TEXT NOT NULL,
-  "aiCoT" TEXT NOT NULL
+  "score" DOUBLE PRECISION,
+  "sentenceScores" JSONB,
+  "aiChoice" TEXT,
+  "aiReasoning" TEXT,
+  "aiCoT" TEXT
 );
 
 -- Index "idx_AutomatedContentEvaluations_revisionId"
