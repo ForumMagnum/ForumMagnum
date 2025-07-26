@@ -1,16 +1,16 @@
 import React, { FC, MouseEvent, useMemo } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { getResponseCounts, postGetAnswerCountStr, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
+import { getResponseCounts, postGetAnswerCountStr, postGetCommentCountStr, postGetLink, postGetLinkTarget } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import classNames from 'classnames';
+import { isFriendlyUI } from '@/themes/forumTheme';
 import { isServer } from '../../../lib/executionEnvironment';
-import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { captureException } from '@sentry/core';
 import type { AnnualReviewMarketInfo } from '../../../lib/collections/posts/annualReviewMarkets';
 import { getUrlClass } from '@/server/utils/getUrlClass';
+import { AUTHOR_MARKER_STYLES } from './PostsAuthors';
 import PostsPageTitle from "./PostsPageTitle";
-import PostsAuthors from "./PostsAuthors";
 import LWTooltip from "../../common/LWTooltip";
 import PostsPageDate from "./PostsPageDate";
 import CrosspostHeaderIcon from "./CrosspostHeaderIcon";
@@ -27,55 +27,93 @@ import GroupLinks from "../../localGroups/GroupLinks";
 import SharePostButton from "../SharePostButton";
 import AudioToggle from "./AudioToggle";
 import ReadTime from "./ReadTime";
+import UsersProfileImage from '@/components/users/UsersProfileImage';
+import UserNameDeleted from '@/components/users/UserNameDeleted';
+import UsersName from '@/components/users/UsersName';
+import UserCommentMarkers from '@/components/users/UserCommentMarkers';
+import PostsCoauthor from './PostsCoauthor';
 
 const SECONDARY_SPACING = 20;
 
 const styles = (theme: ThemeType) => ({
+  root: {
+    marginTop: isFriendlyUI ? 110 : 70,
+  },
   header: {
     position: 'relative',
     display:"flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: isFriendlyUI ? 20 : theme.spacing.unit*2,
+    marginBottom: 20,
   },
   headerLeft: {
     width: "100%"
   },
-  headerVote: {
-    textAlign: 'center',
-    fontSize: 42,
-    position: isFriendlyUI ? 'absolute' : "relative",
-    top: isFriendlyUI ? 0 : undefined,
-    left: isFriendlyUI ? -93 : undefined,
-    [theme.breakpoints.down("sm")]: {
-      position: 'relative',
-      top: 'auto',
-      left: 'auto'
-    }
-  },
   eventHeader: {
     marginBottom: 0,
   },
-  authorAndSecondaryInfo: {
+  authorSection: {
     display: 'flex',
-    alignItems: 'baseline',
-    columnGap: SECONDARY_SPACING,
-    flexWrap: 'wrap',
-    fontSize: isFriendlyUI ? theme.typography.body1.fontSize : '1.4rem',
-    fontWeight: isFriendlyUI ? 450 : undefined,
-    fontFamily: theme.typography.uiSecondary.fontFamily,
-    color: theme.palette.text.dim3,
-    paddingBottom: isFriendlyUI ? 12 : undefined,
-    borderBottom: isFriendlyUI ? theme.palette.border.grey300 : undefined
+    columnGap: 12,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 14,
+    lineHeight: '18px',
+    padding: isFriendlyUI ? "40px 0 24px" : "30px 0 24px",
+    borderBottom: isFriendlyUI
+      ? `1px solid ${theme.palette.grey[240]}`
+      : theme.palette.border.grey300,
   },
+  authorPhotos: {
+    display: 'flex',
+    zIndex: 1,
+  },
+  coauthorPhoto: {
+    marginLeft: -12,
+  },
+  authorPhotoBorder: {
+    border: `2px solid ${theme.palette.grey[0]}`,
+  },
+  authors: {
+    fontWeight: 500,
+    lineHeight: '1.5',
+  },
+  authorMarkers: AUTHOR_MARKER_STYLES,
+  dateAndReadTime: {
+    display: 'flex',
+    columnGap: 6,
+    fontSize: 14,
+    fontWeight: 500,
+    color: theme.palette.text.dim3,
+  },
+  // authorAndSecondaryInfo: {
+  //   display: 'flex',
+  //   alignItems: 'baseline',
+  //   columnGap: SECONDARY_SPACING,
+  //   flexWrap: 'wrap',
+  //   fontSize: theme.typography.body1.fontSize,
+  //   fontWeight: 450,
+  //   fontFamily: theme.typography.uiSecondary.fontFamily,
+  //   color: theme.palette.text.dim3,
+  //   paddingBottom: 12,
+  //   borderBottom: isFriendlyUI
+  //     ? `1px solid ${theme.palette.grey[240]}`
+  //     : theme.palette.border.grey300,
+  // },
   secondaryInfo: {
-    flexGrow: 1,
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'baseline',
+    alignItems: 'center',
     columnGap: SECONDARY_SPACING,
     rowGap: '10px',
     flexWrap: 'wrap',
+    fontSize: 14,
+    fontWeight: 500,
+    fontFamily: theme.typography.uiSecondary.fontFamily,
+    color: theme.palette.text.dim3,
+    padding: isFriendlyUI ? "10px 0" : "12px 0",
+    borderBottom: isFriendlyUI
+      ? `1px solid ${theme.palette.grey[240]}`
+      : theme.palette.border.grey300,
     [theme.breakpoints.down("sm")]: {
       justifyContent: 'flex-start'
     }
@@ -86,18 +124,15 @@ const styles = (theme: ThemeType) => ({
     columnGap: SECONDARY_SPACING,
     flexWrap: 'wrap'
   },
+  postsVote: {
+    fontSize: 32,
+  },
   secondaryInfoRight: {
     flex: 'none',
     display: 'flex',
     columnGap: SECONDARY_SPACING
   },
-  secondaryInfoLink: {
-    fontWeight: isFriendlyUI ? 450 : undefined,
-    fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
-    "@media print": { display: "none" },
-  },
   actions: {
-    color: isFriendlyUI ? undefined : theme.palette.grey[500],
     "&:hover": {
       opacity: 0.5,
     },
@@ -106,31 +141,39 @@ const styles = (theme: ThemeType) => ({
     },
     "@media print": { display: "none" },
   },
-  authorInfo: {
-    display: 'flex',
-    alignItems: 'baseline',
-    columnGap: SECONDARY_SPACING,
-  },
-  authors: {
-    fontSize: theme.typography.body1.fontSize,
-  },
+  // authorInfo: {
+  //   display: 'flex',
+  //   alignItems: 'baseline',
+  //   columnGap: SECONDARY_SPACING,
+  // },
   feedName: {
     fontSize: theme.typography.body2.fontSize,
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
   },
-  divider: {
-    marginTop: theme.spacing.unit*2,
-    marginLeft:0,
-    borderTop: theme.palette.border.faint,
-    borderLeft: 'transparent'
+  secondaryInfoLink: {
+    fontWeight: 450,
+    ...(isFriendlyUI && {
+      display: "flex",
+      alignItems: "flex-end",
+      gap: "4px",
+      transform: "translateY(2px)",
+    }),
+    "@media print": {
+      display: "none",
+    },
   },
-  commentIcon: {
-    fontSize: "1.4em",
-    marginRight: 1,
-    transform: "translateY(5px)",
-  },
+  commentIcon: isFriendlyUI
+    ? {
+      "--icon-size": "22px",
+      transform: "translateY(2px)",
+    }
+    : {
+      fontSize: "1.4em",
+      marginRight: 1,
+      transform: "translateY(5px)",
+    },
   bookmarkButton: {
     marginBottom: -5,
     height: 22,
@@ -139,7 +182,7 @@ const styles = (theme: ThemeType) => ({
       opacity: 0.5,
     },
   },
-  headerFooter: { 
+  headerFooter: {
     display: 'flex',
     justifyContent: 'space-between',
     [theme.breakpoints.down('sm')]: {
@@ -151,7 +194,7 @@ const styles = (theme: ThemeType) => ({
   tagSection: {
     flex: 1,
     display: "flex",
-    flexDirection: isFriendlyUI ? "column" : "row",
+    flexDirection: "column",
     height: "100%",
   }
 });
@@ -163,7 +206,7 @@ const styles = (theme: ThemeType) => ({
 // Opera Mini.)
 const URLClass = getUrlClass()
 
-export function getProtocol(url: string): string {
+function getProtocol(url: string): string {
   if (isServer)
     return new URLClass(url).protocol;
 
@@ -173,7 +216,7 @@ export function getProtocol(url: string): string {
   return parser.protocol;
 }
 
-export function getHostname(url: string): string {
+function getHostname(url: string): string {
   if (isServer)
     return new URLClass(url).hostname;
 
@@ -223,7 +266,7 @@ export const CommentsLink: FC<{
     }
   }
   return (
-    <a className={className} {...(isFriendlyUI ? {onClick} : {href: anchor})}>
+    <a className={className} onClick={onClick}>
       {children}
     </a>
   );
@@ -251,6 +294,16 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
     ({ hostname: feedLinkDomain, protocol: feedLinkProtocol } = parseUnsafeUrl(rssFeedSource.url));
     feedLink = `${feedLinkProtocol}//${feedLinkDomain}`;
   }
+  const { hostname: linkpostDomain } = post.url
+    ? parseUnsafeUrl(post.url)
+    : { hostname: undefined };
+  const linkpostTooltip = <div>View the original at:<br/>{post.url}</div>;
+  const displayLinkpost = post.url && feedLinkDomain !== linkpostDomain;
+  const linkpostNode = displayLinkpost ? <LWTooltip title={linkpostTooltip}>
+    <a href={postGetLink(post)} target={postGetLinkTarget(post)}>
+      Link post from {linkpostDomain}
+    </a>
+  </LWTooltip> : null;
   const crosspostNode = post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere &&
     <CrosspostHeaderIcon post={post} />
 
@@ -259,7 +312,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
     commentCount,
   } = useMemo(() => getResponseCounts({ post, answers }), [post, answers]);
 
-  const minimalSecondaryInfo = post.isEvent || (isFriendlyUI && post.shortform);
+  const minimalSecondaryInfo = post.isEvent || post.shortform;
 
   const answersNode = !post.question || minimalSecondaryInfo
     ? null
@@ -276,22 +329,17 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   const tripleDotMenuNode = !hideMenu &&
     <span className={classes.actions}>
       <AnalyticsContext pageElementContext="tripleDotMenu">
-        <PostActionsButton post={post} includeBookmark={isBookUI} flip={true}/>
+        <PostActionsButton post={post} flip={true} />
       </AnalyticsContext>
     </span>
 
   // EA Forum splits the info into two sections, plus has the info in a different order
-  const secondaryInfoNode = <div className={classes.secondaryInfo}>
+  const secondaryInfoNode = (
+    <div className={classes.secondaryInfo}>
       <div className={classes.secondaryInfoLeft}>
-        {!minimalSecondaryInfo &&
-          <>
-            <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
-            <ReadTime post={post} dialogueResponses={dialogueResponses} />
-          </>
-        }
-        <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
-        {post.isEvent && <GroupLinks document={post} noMargin />}
-        {answersNode}
+        <div className={classes.postsVote}>
+          <PostsVote post={post} useHorizontalLayout />
+        </div>
         {!post.shortform &&
           <LWTooltip title={postGetCommentCountStr(post, commentCount)}>
             <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
@@ -299,20 +347,31 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
             </CommentsLink>
           </LWTooltip>
         }
+        {answersNode}
+        {post.isEvent && <GroupLinks document={post} noMargin />}
         {addToCalendarNode}
-        {crosspostNode}
       </div>
       <div className={classes.secondaryInfoRight}>
+        {crosspostNode}
+        <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
         <BookmarkButton documentId={post._id} collectionName="Posts" className={classes.bookmarkButton} placement='bottom-start' />
         <SharePostButton post={post} />
         {tripleDotMenuNode}
       </div>
     </div>
+  );
+
+  const dateNode = (
+    <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
+  );
+  const readTimeNode = (
+    <ReadTime post={post} dialogueResponses={dialogueResponses} />
+  );
 
   // TODO: If we are not the primary author of this post, but it was shared with
   // us as a draft, display a notice and a link to the collaborative editor.
 
-  return <>
+  return <div className={classes.root}>
     {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
     <AnalyticsContext pageSectionContext="topSequenceNavigation">
       {('sequence' in post) && <PostsTopSequencesNav post={post} />}
@@ -320,7 +379,68 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
     <div className={classNames(classes.header, {[classes.eventHeader]: post.isEvent})}>
       <div className={classes.headerLeft}>
         <PostsPageTitle post={post} />
-        <div className={classes.authorAndSecondaryInfo}>
+        <div className={classes.authorSection}>
+          {post.user && <div className={classes.authorPhotos}>
+            <div style={{position: 'relative', zIndex: 1}}>
+              <UsersProfileImage
+                key={post.user._id}
+                user={post.user}
+                size={40}
+                className={classes.authorPhotoBorder}
+              />
+            </div>
+            {post.coauthors.map((coauthor, i) =>
+              <div
+                key={coauthor._id}
+                style={{position: 'relative', zIndex: 0 - i}}
+              >
+                <UsersProfileImage
+                  key={coauthor._id}
+                  user={coauthor}
+                  size={40}
+                  wrapperClassName={classes.coauthorPhoto}
+                  className={classes.authorPhotoBorder}
+                />
+              </div>
+            )}
+          </div>}
+          <div>
+            <div className={classes.authors}>
+              {!post.user || post.hideAuthor
+                ? <UserNameDeleted />
+                : <>
+                  <UsersName user={post.user} pageSectionContext="post_header" />
+                  <UserCommentMarkers user={post.user} className={classes.authorMarkers} />
+                </>
+              }
+              {post.coauthors.map(coauthor =>
+                <PostsCoauthor key={coauthor._id} post={post} coauthor={coauthor} pageSectionContext="post_header" />
+              )}
+            </div>
+            {!minimalSecondaryInfo &&
+              <div className={classes.dateAndReadTime}>
+                {isFriendlyUI ? readTimeNode : dateNode}
+                <div>·</div>
+                {isFriendlyUI ? dateNode : readTimeNode}
+                {rssFeedSource && rssFeedSource.user &&
+                  <>
+                    <div>·</div>
+                    <LWTooltip title={`Crossposted from ${feedLinkDomain}`} className={classes.feedName}>
+                      <a href={feedLink}>{rssFeedSource.nickname}</a>
+                    </LWTooltip>
+                  </>
+                }
+                {displayLinkpost && <>
+                  <div>·</div>
+                  {linkpostNode}
+                </>}
+              </div>
+            }
+          </div>
+        </div>
+        {secondaryInfoNode}
+
+        {/* <div className={classes.authorAndSecondaryInfo}>
           <div className={classes.authorInfo}>
             <div className={classes.authors}>
               <PostsAuthors post={post} pageSectionContext="post_header" />
@@ -331,27 +451,21 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
               </LWTooltip>
             }
           </div>
-          {secondaryInfoNode}
-        </div>
+        </div> */}
       </div>
-      {!post.shortform && <div className={classes.headerVote}>
-        <PostsVote post={post} />
-      </div>}
     </div>
     <div className={classes.headerFooter}>
       <div className={classes.tagSection}>
-        {!post.shortform && !post.isEvent && !hideTags && 
+        {!post.shortform && !post.isEvent && !hideTags &&
         <AnalyticsContext pageSectionContext="tagHeader">
           <FooterTagList post={post} hideScore allowTruncate overrideMargins={true} annualReviewMarketInfo={annualReviewMarketInfo} />
         </AnalyticsContext>}
       </div>
     </div>
     {post.isEvent && <PostsPageEventData post={post}/>}
-  </>
+  </div>
 }
 
 export default registerComponent(
   'PostsPagePostHeader', PostsPagePostHeader, {styles}
 );
-
-
