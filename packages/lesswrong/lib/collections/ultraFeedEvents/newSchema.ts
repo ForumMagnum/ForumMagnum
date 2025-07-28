@@ -27,8 +27,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "UltraFeedEventCollectionName",
+      inputType: "UltraFeedEventCollectionName!",
       canRead: ["admins"],
       canCreate: ["members"],
       validation: {
@@ -43,8 +43,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String",
-      inputType: "String!",
+      outputType: "UltraFeedEventEventType",
+      inputType: "UltraFeedEventEventType!",
       canRead: ["admins"], 
       canCreate: ["members"],
       validation: {
@@ -73,7 +73,7 @@ const schema = {
     },
     graphql: {
       outputType: "JSON",
-      inputType: "JSON",
+      inputType: "JSON!",
       canRead: ["admins"],
       canCreate: ["members"],
       canUpdate: ["members"],

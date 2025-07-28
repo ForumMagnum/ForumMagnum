@@ -22,6 +22,20 @@ const seeLessEventDataSchema = z.object({
 });
 
 export const graphqlUltraFeedEventTypeDefs = gql`
+  enum UltraFeedEventCollectionName {
+    Comments
+    Posts
+    Spotlights
+  }
+  
+  enum UltraFeedEventEventType {
+    served
+    viewed
+    expanded
+    interacted
+    seeLess
+  }
+
   input CreateUltraFeedEventDataInput ${
     getCreatableGraphQLFields(schema)
   }
@@ -46,9 +60,10 @@ export const graphqlUltraFeedEventTypeDefs = gql`
 
 export async function createUltraFeedEvent({ data }: CreateUltraFeedEventInput, context: ResolverContext) {
   const { currentUser } = context;
-  assignUserIdToData(data, currentUser, schema);
+  // We check that there exists a currentUser in the newCheck
+  const dataWithUserId = { ...data, userId: currentUser!._id, feedItemId: data.feedItemId ?? null };
 
-  const document = await insertAndReturnDocument(data, 'UltraFeedEvents', context);
+  const document = await insertAndReturnDocument(dataWithUserId, 'UltraFeedEvents', context);
 
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('UltraFeedEvents', document);
 

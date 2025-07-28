@@ -404,9 +404,13 @@ type DbInsertion<T extends DbObject> = Omit<
   _id?: T["_id"];
 };
 
-type InsertionRecord<T extends DbObject & { createdAt?: Date }> = Omit<T, "_id" | "createdAt" | "schemaVersion" | "legacyData"> & {
+type OptionalIfPresent<T, K extends keyof T> = T extends { [P in K]?: infer U } ? U : never;
+
+type InsertionRecord<T extends DbObject & { createdAt?: Date; legacyData?: Json }> = Omit<T, "_id" | "createdAt" | "schemaVersion" | "legacyData"> & {
   _id?: T["_id"];
-  createdAt?: T["createdAt"];
+  createdAt?: OptionalIfPresent<T, "createdAt">;
+  schemaVersion?: OptionalIfPresent<T, "schemaVersion">;
+  legacyData?: OptionalIfPresent<T, "legacyData">;
 };
 
 

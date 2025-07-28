@@ -1822,10 +1822,10 @@ type CreateTagInput = {
 };
 
 type CreateUltraFeedEventDataInput = {
-  collectionName: Scalars['String']['input'];
+  collectionName: UltraFeedEventCollectionName;
   documentId: Scalars['String']['input'];
-  event?: InputMaybe<Scalars['JSON']['input']>;
-  eventType: Scalars['String']['input'];
+  event: Scalars['JSON']['input'];
+  eventType: UltraFeedEventEventType;
   feedItemId?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
@@ -11089,14 +11089,26 @@ type UltraFeedEntryType =
 type UltraFeedEvent = {
   __typename?: 'UltraFeedEvent';
   _id: Scalars['String']['output'];
-  collectionName?: Maybe<Scalars['String']['output']>;
+  collectionName?: Maybe<UltraFeedEventCollectionName>;
   createdAt: Scalars['Date']['output'];
   documentId?: Maybe<Scalars['String']['output']>;
   event?: Maybe<Scalars['JSON']['output']>;
-  eventType?: Maybe<Scalars['String']['output']>;
+  eventType?: Maybe<UltraFeedEventEventType>;
   feedItemId?: Maybe<Scalars['String']['output']>;
   userId?: Maybe<Scalars['String']['output']>;
 };
+
+type UltraFeedEventCollectionName =
+  | 'Comments'
+  | 'Posts'
+  | 'Spotlights';
+
+type UltraFeedEventEventType =
+  | 'expanded'
+  | 'interacted'
+  | 'seeLess'
+  | 'served'
+  | 'viewed';
 
 type UltraFeedEventOutput = {
   __typename?: 'UltraFeedEventOutput';
@@ -23362,23 +23374,6 @@ type multiUserFriendlyUsersProfileQueryQueryVariables = Exact<{
 
 type multiUserFriendlyUsersProfileQueryQuery = multiUserFriendlyUsersProfileQueryQuery_Query;
 
-type KarmaChangeNotifierQuery_user_SingleUserOutput_result_User = (
-  { __typename?: 'User' }
-  & UserKarmaChanges
-);
-
-type KarmaChangeNotifierQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: KarmaChangeNotifierQuery_user_SingleUserOutput_result_User | null };
-
-type KarmaChangeNotifierQuery_Query = { __typename?: 'Query', user: KarmaChangeNotifierQuery_user_SingleUserOutput | null };
-
-
-type KarmaChangeNotifierQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type KarmaChangeNotifierQuery = KarmaChangeNotifierQuery_Query;
-
 type multiPostLWUserTooltipContentQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & PostsList
@@ -23629,6 +23624,23 @@ type UsersEditFormGetUserBySlugQueryVariables = Exact<{
 
 
 type UsersEditFormGetUserBySlugQuery = UsersEditFormGetUserBySlugQuery_Query;
+
+type KarmaChangeNotifierQuery_user_SingleUserOutput_result_User = (
+  { __typename?: 'User' }
+  & UserKarmaChanges
+);
+
+type KarmaChangeNotifierQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: KarmaChangeNotifierQuery_user_SingleUserOutput_result_User | null };
+
+type KarmaChangeNotifierQuery_Query = { __typename?: 'Query', user: KarmaChangeNotifierQuery_user_SingleUserOutput | null };
+
+
+type KarmaChangeNotifierQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type KarmaChangeNotifierQuery = KarmaChangeNotifierQuery_Query;
 
 type SubscribedUserQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
@@ -26363,7 +26375,7 @@ type TweetsDefaultFragment = { __typename?: 'Tweet', _id: string, schemaVersion:
 
 type TypingIndicatorsDefaultFragment = { __typename?: 'TypingIndicator', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string | null, documentId: string | null, lastUpdated: string | null };
 
-type UltraFeedEventsDefaultFragment = { __typename?: 'UltraFeedEvent', _id: string, createdAt: string, documentId: string | null, collectionName: string | null, eventType: string | null, userId: string | null, event: any | null, feedItemId: string | null };
+type UltraFeedEventsDefaultFragment = { __typename?: 'UltraFeedEvent', _id: string, createdAt: string, documentId: string | null, collectionName: UltraFeedEventCollectionName | null, eventType: UltraFeedEventEventType | null, userId: string | null, event: any | null, feedItemId: string | null };
 
 type UserActivitiesDefaultFragment = { __typename?: 'UserActivity', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null };
 

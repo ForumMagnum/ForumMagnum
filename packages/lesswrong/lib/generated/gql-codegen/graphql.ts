@@ -1825,10 +1825,10 @@ export type CreateTagInput = {
 };
 
 export type CreateUltraFeedEventDataInput = {
-  collectionName: Scalars['String']['input'];
+  collectionName: UltraFeedEventCollectionName;
   documentId: Scalars['String']['input'];
-  event?: InputMaybe<Scalars['JSON']['input']>;
-  eventType: Scalars['String']['input'];
+  event: Scalars['JSON']['input'];
+  eventType: UltraFeedEventEventType;
   feedItemId?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
@@ -11092,14 +11092,26 @@ export type UltraFeedEntryType =
 export type UltraFeedEvent = {
   __typename?: 'UltraFeedEvent';
   _id: Scalars['String']['output'];
-  collectionName: Maybe<Scalars['String']['output']>;
+  collectionName: Maybe<UltraFeedEventCollectionName>;
   createdAt: Scalars['Date']['output'];
   documentId: Maybe<Scalars['String']['output']>;
   event: Maybe<Scalars['JSON']['output']>;
-  eventType: Maybe<Scalars['String']['output']>;
+  eventType: Maybe<UltraFeedEventEventType>;
   feedItemId: Maybe<Scalars['String']['output']>;
   userId: Maybe<Scalars['String']['output']>;
 };
+
+export type UltraFeedEventCollectionName =
+  | 'Comments'
+  | 'Posts'
+  | 'Spotlights';
+
+export type UltraFeedEventEventType =
+  | 'expanded'
+  | 'interacted'
+  | 'seeLess'
+  | 'served'
+  | 'viewed';
 
 export type UltraFeedEventOutput = {
   __typename?: 'UltraFeedEventOutput';
@@ -19313,16 +19325,6 @@ export type multiUserFriendlyUsersProfileQueryQuery = { __typename?: 'Query', us
       & UsersProfile
     )> } | null };
 
-export type KarmaChangeNotifierQueryVariables = Exact<{
-  documentId?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type KarmaChangeNotifierQuery = { __typename?: 'Query', user: { __typename?: 'SingleUserOutput', result: (
-      { __typename?: 'User' }
-      & UserKarmaChanges
-    ) | null } | null };
-
 export type multiPostLWUserTooltipContentQueryQueryVariables = Exact<{
   selector?: InputMaybe<PostSelector>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -19481,6 +19483,16 @@ export type UsersEditFormGetUserBySlugQuery = { __typename?: 'Query', GetUserByS
     { __typename?: 'User' }
     & UsersEdit
   ) | null };
+
+export type KarmaChangeNotifierQueryVariables = Exact<{
+  documentId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type KarmaChangeNotifierQuery = { __typename?: 'Query', user: { __typename?: 'SingleUserOutput', result: (
+      { __typename?: 'User' }
+      & UserKarmaChanges
+    ) | null } | null };
 
 export type SubscribedUserQueryVariables = Exact<{
   documentId: Scalars['String']['input'];
@@ -21360,7 +21372,7 @@ export type TweetsDefaultFragment = { __typename?: 'Tweet', _id: string, schemaV
 
 export type TypingIndicatorsDefaultFragment = { __typename?: 'TypingIndicator', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, userId: string | null, documentId: string | null, lastUpdated: string | null };
 
-export type UltraFeedEventsDefaultFragment = { __typename?: 'UltraFeedEvent', _id: string, createdAt: string, documentId: string | null, collectionName: string | null, eventType: string | null, userId: string | null, event: any | null, feedItemId: string | null };
+export type UltraFeedEventsDefaultFragment = { __typename?: 'UltraFeedEvent', _id: string, createdAt: string, documentId: string | null, collectionName: UltraFeedEventCollectionName | null, eventType: UltraFeedEventEventType | null, userId: string | null, event: any | null, feedItemId: string | null };
 
 export type UserActivitiesDefaultFragment = { __typename?: 'UserActivity', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null };
 

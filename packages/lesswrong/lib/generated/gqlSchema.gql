@@ -7427,8 +7427,8 @@ type UltraFeedEvent {
   _id: String!
   createdAt: Date!
   documentId: String
-  collectionName: String
-  eventType: String
+  collectionName: UltraFeedEventCollectionName
+  eventType: UltraFeedEventEventType
   userId: String
   event: JSON
   feedItemId: String
@@ -9988,12 +9988,26 @@ extend type Mutation {
   updateTag(selector: SelectorInput!, data: UpdateTagDataInput!): TagOutput
 }
 
+enum UltraFeedEventCollectionName {
+  Comments
+  Posts
+  Spotlights
+}
+
+enum UltraFeedEventEventType {
+  served
+  viewed
+  expanded
+  interacted
+  seeLess
+}
+
 input CreateUltraFeedEventDataInput {
   documentId: String!
-  collectionName: String!
-  eventType: String!
+  collectionName: UltraFeedEventCollectionName!
+  eventType: UltraFeedEventEventType!
   userId: String
-  event: JSON
+  event: JSON!
   feedItemId: String
 }
 

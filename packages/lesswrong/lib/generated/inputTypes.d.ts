@@ -6877,8 +6877,8 @@ interface UltraFeedEvent {
   _id: string;
   createdAt: Date;
   documentId: string | null;
-  collectionName: string | null;
-  eventType: string | null;
+  collectionName: UltraFeedEventCollectionName | null;
+  eventType: UltraFeedEventEventType | null;
   userId: string | null;
   event: any;
   feedItemId: string | null;
@@ -9147,8 +9147,8 @@ interface TagOutput {
 
 interface CreateUltraFeedEventDataInput {
   documentId: string;
-  collectionName: string;
-  eventType: string;
+  collectionName: UltraFeedEventCollectionName;
+  eventType: UltraFeedEventEventType;
   userId?: string | null;
   event?: any;
   feedItemId?: string | null;

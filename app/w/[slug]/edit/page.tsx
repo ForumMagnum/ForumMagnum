@@ -8,7 +8,7 @@ export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ 
 
 export default function Page() {
   return <>
-    <RouteMetadataSetter metadata={{ titleComponent: 'TagPageTitle', subtitleComponent: TagPageTitle }} />
+    <RouteMetadataSetter metadata={{ titleComponent: TagPageTitle, subtitleComponent: TagPageTitle }} />
     <EditTagPage />
   </>;
 }

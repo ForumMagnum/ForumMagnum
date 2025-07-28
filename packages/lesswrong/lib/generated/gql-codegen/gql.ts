@@ -610,7 +610,6 @@ type Documents = {
     "\n  query multiPostFriendlyUsersProfileQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsMinimumInfo\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostFriendlyUsersProfileQueryDocument,
     "\n  query multiLocalgroupFriendlyUsersProfileQuery($selector: LocalgroupSelector, $limit: Int, $enableTotal: Boolean) {\n    localgroups(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...localGroupsHomeFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiLocalgroupFriendlyUsersProfileQueryDocument,
     "\n  query multiUserFriendlyUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n        profileTags {\n          ...TagPreviewFragment\n        }\n        organizerOfGroups {\n          ...localGroupsBase\n        }\n      }\n      totalCount\n    }\n  }\n": typeof types.multiUserFriendlyUsersProfileQueryDocument,
-    "\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n": typeof types.KarmaChangeNotifierDocument,
     "\n  query multiPostLWUserTooltipContentQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostLWUserTooltipContentQueryDocument,
     "\n  query TopKarmaUsers($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersMinimumInfo\n      }\n      totalCount\n    }\n  }\n": typeof types.TopKarmaUsersDocument,
     "\n  query AirtableLeaderboards {\n    AirtableLeaderboards {\n      name\n      leaderboardAmount\n    }\n  }\n": typeof types.AirtableLeaderboardsDocument,
@@ -627,6 +626,7 @@ type Documents = {
     "\n  query UsersAccountManagementGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": typeof types.UsersAccountManagementGetUserBySlugDocument,
     "\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserUsersEditFormDocument,
     "\n  query UsersEditFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": typeof types.UsersEditFormGetUserBySlugDocument,
+    "\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n": typeof types.KarmaChangeNotifierDocument,
     "\n  query SubscribedUser($documentId: String!) {\n    user(input: { selector: { _id: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": typeof types.SubscribedUserDocument,
     "\n  query SubscribedPost($documentId: String!) {\n    post(input: { selector: { _id: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.SubscribedPostDocument,
     "\n  query SubscribedComment($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": typeof types.SubscribedCommentDocument,
@@ -1601,7 +1601,6 @@ const documents: Documents = {
     "\n  query multiPostFriendlyUsersProfileQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsMinimumInfo\n      }\n      totalCount\n    }\n  }\n": types.multiPostFriendlyUsersProfileQueryDocument,
     "\n  query multiLocalgroupFriendlyUsersProfileQuery($selector: LocalgroupSelector, $limit: Int, $enableTotal: Boolean) {\n    localgroups(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...localGroupsHomeFragment\n      }\n      totalCount\n    }\n  }\n": types.multiLocalgroupFriendlyUsersProfileQueryDocument,
     "\n  query multiUserFriendlyUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n        profileTags {\n          ...TagPreviewFragment\n        }\n        organizerOfGroups {\n          ...localGroupsBase\n        }\n      }\n      totalCount\n    }\n  }\n": types.multiUserFriendlyUsersProfileQueryDocument,
-    "\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n": types.KarmaChangeNotifierDocument,
     "\n  query multiPostLWUserTooltipContentQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": types.multiPostLWUserTooltipContentQueryDocument,
     "\n  query TopKarmaUsers($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersMinimumInfo\n      }\n      totalCount\n    }\n  }\n": types.TopKarmaUsersDocument,
     "\n  query AirtableLeaderboards {\n    AirtableLeaderboards {\n      name\n      leaderboardAmount\n    }\n  }\n": types.AirtableLeaderboardsDocument,
@@ -1618,6 +1617,7 @@ const documents: Documents = {
     "\n  query UsersAccountManagementGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": types.UsersAccountManagementGetUserBySlugDocument,
     "\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserUsersEditFormDocument,
     "\n  query UsersEditFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": types.UsersEditFormGetUserBySlugDocument,
+    "\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n": types.KarmaChangeNotifierDocument,
     "\n  query SubscribedUser($documentId: String!) {\n    user(input: { selector: { _id: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": types.SubscribedUserDocument,
     "\n  query SubscribedPost($documentId: String!) {\n    post(input: { selector: { _id: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": types.SubscribedPostDocument,
     "\n  query SubscribedComment($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": types.SubscribedCommentDocument,
@@ -4397,10 +4397,6 @@ export function gql(source: "\n  query multiUserFriendlyUsersProfileQuery($selec
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n"): (typeof documents)["\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
 export function gql(source: "\n  query multiPostLWUserTooltipContentQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiPostLWUserTooltipContentQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -4462,6 +4458,10 @@ export function gql(source: "\n  mutation updateUserUsersEditForm($selector: Sel
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query UsersEditFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n"): (typeof documents)["\n  query UsersEditFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n"): (typeof documents)["\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
