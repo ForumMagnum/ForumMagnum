@@ -1,8 +1,7 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { explanationText, maintenanceTime } from '@/lib/instanceSettings';
+import { siteNameWithArticleSetting, explanationText, maintenanceTime } from '@/lib/instanceSettings';
 import { ExpandedDate } from "../common/FormatDate";
-import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { isMobile } from "../../lib/utils/isMobile";
 import classNames from "classnames";
 import startCase from "lodash/startCase";

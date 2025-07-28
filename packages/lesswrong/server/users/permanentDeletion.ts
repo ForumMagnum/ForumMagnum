@@ -3,12 +3,11 @@ import { ACCOUNT_DELETION_COOLING_OFF_DAYS, getUserEmail } from "@/lib/collectio
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { loggerConstructor } from "@/lib/utils/logging";
 import { mailchimpAPIKeySetting } from "../databaseSettings";
-import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from '@/lib/instanceSettings';
+import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, isEAForum } from "@/lib/instanceSettings";
 import md5 from "md5";
 import { captureException } from "@sentry/nextjs";
 import { auth0RemoveAssociationAndTryDeleteUser } from "../authentication/auth0";
 // import { dogstatsd } from "../datadog/tracer";
-import { isEAForum } from "@/lib/instanceSettings";
 import { createAdminContext } from "../vulcan-lib/createContexts";
 import { updateUser } from "../collections/users/mutations";
 

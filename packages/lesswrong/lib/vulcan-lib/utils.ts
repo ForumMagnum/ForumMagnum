@@ -1,7 +1,6 @@
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
-import { siteUrlSetting } from '../instanceSettings';
-import { logoUrlSetting } from '../instanceSettings';
+import { siteUrlSetting, logoUrlSetting } from '../instanceSettings';
 import sanitizeHtml from 'sanitize-html';
 import { getUrlClass } from '@/server/utils/getUrlClass';
 

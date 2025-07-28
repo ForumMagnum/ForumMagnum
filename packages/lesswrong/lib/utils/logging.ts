@@ -17,8 +17,7 @@
  * setting `instanceDebuggers` to the same.
  */
 import util from 'util'
-import { instanceDebuggersSetting } from '../instanceSettings'
-import { databaseDebuggersSetting } from '../instanceSettings'
+import { instanceDebuggersSetting, databaseDebuggersSetting } from '../instanceSettings'
 
 const instanceDebuggers = instanceDebuggersSetting.get()
 

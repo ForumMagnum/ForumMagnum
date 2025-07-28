@@ -6,20 +6,9 @@
 //
 // Beta-feature test functions must handle the case where user is null.
 
-import {
-  testServerSetting,
-  isEAForum,
-  isLWorAF,
-  hasCommentsTableOfContentSetting,
-  hasSideCommentsSetting, 
-  hasDialoguesSetting, 
-  hasPostInlineReactionsSetting,
-  isBotSiteSetting,
-  isLW,
-} from './instanceSettings'
+import { testServerSetting, isEAForum, isLWorAF, hasCommentsTableOfContentSetting, hasSideCommentsSetting, hasDialoguesSetting, hasPostInlineReactionsSetting, isBotSiteSetting, isLW, userIdsWithAccessToLlmChat } from './instanceSettings';
 import { isAdmin, userOverNKarmaOrApproved } from "./vulcan-users/permissions";
 import {isFriendlyUI} from '../themes/forumTheme'
-import { userIdsWithAccessToLlmChat } from './instanceSettings';
 import { isAnyTest } from './executionEnvironment';
 
 // States for in-progress features

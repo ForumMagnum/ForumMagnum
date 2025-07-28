@@ -1,15 +1,13 @@
-import { calculateVotePower } from './voteTypes';
+import { calculateVotePower, getVoteAxisStrength } from './voteTypes';
 import { loadByIds } from '../loaders';
 import { filterNonnull } from '../utils/typeGuardUtils';
-import { getVoteAxisStrength } from './voteTypes';
 import { defineVotingSystem } from './defineVotingSystem';
-import { addNameToExistingReactKarmaThreshold, addNewReactKarmaThreshold, downvoteExistingReactKarmaThreshold } from '../instanceSettings';
+import { addNameToExistingReactKarmaThreshold, addNewReactKarmaThreshold, downvoteExistingReactKarmaThreshold, isLW } from '../instanceSettings';
 import { namesAttachedReactionsByName } from './reactions';
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
 import some from 'lodash/some';
 import sumBy from 'lodash/sumBy'
-import { isLW } from '../instanceSettings';
 import type { VotingProps } from '../../components/votes/votingProps';
 import { addReactsVote, getDocumentHighlights, removeReactsVote } from './reactionDisplayHelpers';
 

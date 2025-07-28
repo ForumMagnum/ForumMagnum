@@ -1,8 +1,8 @@
 import {
   aboutPostIdSetting, contactPostIdSetting, faqPostIdSetting, forumTypeSetting, hasEventsSetting, introPostIdSetting, isEAForum, isLW, isLWorAF, tagUrlBaseSetting, taggingNameCapitalSetting, taggingNameCapitalizedWithPluralizationChoice, taggingNameIsSet,
-  taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting
+  taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting,
+  blackBarTitle, legacyRouteAcronymSetting
 } from './instanceSettings';
-import { blackBarTitle, legacyRouteAcronymSetting } from './instanceSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
 import { BEST_OF_LESSWRONG_PUBLISH_YEAR, REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';

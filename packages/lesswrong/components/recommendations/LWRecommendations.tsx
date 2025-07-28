@@ -6,8 +6,7 @@ import RecommendationsAlgorithmPicker, { getRecommendationSettings } from './Rec
 import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { bookDisplaySetting } from '@/lib/instanceSettings';
-import { hasCuratedPostsSetting } from '../../lib/instanceSettings';
+import { bookDisplaySetting, hasCuratedPostsSetting } from '../../lib/instanceSettings';
 import DismissibleSpotlightItem from "../spotlights/DismissibleSpotlightItem";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SettingsButton from "../icons/SettingsButton";

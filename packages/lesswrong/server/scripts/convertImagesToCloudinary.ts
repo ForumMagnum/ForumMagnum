@@ -1,12 +1,11 @@
 import { Images } from '../../server/collections/images/collection';
 import { cloudinaryApiKey, cloudinaryApiSecret } from '../databaseSettings';
-import { ckEditorUploadUrlSetting, cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
+import { ckEditorUploadUrlSetting, cloudinaryCloudNameSetting, ckEditorUploadUrlOverrideSetting } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import type { UploadApiResponse } from 'cloudinary';
 import cheerio from 'cheerio';
 import { cheerioParse } from '../utils/htmlUtil';
 import { URL } from 'url';
-import { ckEditorUploadUrlOverrideSetting } from '../../lib/instanceSettings';
 import uniq from 'lodash/uniq';
 import { loggerConstructor } from '../../lib/utils/logging';
 import { Posts } from '../../server/collections/posts/collection';

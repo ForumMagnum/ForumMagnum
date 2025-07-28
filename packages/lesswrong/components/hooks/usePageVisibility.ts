@@ -33,4 +33,4 @@ export function usePageVisibility() {
   useEventListener('visibilitychange' as keyof WindowEventMap, handleVisibilityChange);
 
   return { pageIsVisible, pageVisibilityState };
-} 
+}

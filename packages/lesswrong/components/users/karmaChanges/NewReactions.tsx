@@ -1,3 +1,4 @@
+import React from 'react';
 import LWTooltip from '@/components/common/LWTooltip';
 import ReactionIcon from '@/components/votes/ReactionIcon';
 import UsersName from '../UsersName';

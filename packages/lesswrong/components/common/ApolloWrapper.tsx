@@ -1,3 +1,4 @@
+import React from 'react';
 import { headerLink, createErrorLink, createHttpLink, createSchemaLink } from "@/lib/apollo/links";
 import { isServer } from "@/lib/executionEnvironment";
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";

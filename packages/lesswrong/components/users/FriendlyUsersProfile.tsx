@@ -7,13 +7,7 @@ import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userCanEditUser, userGetDisplayName, userGetProfileUrlFromSlug, PROGRAM_PARTICIPATION } from '../../lib/collections/users/helpers';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
-import {
-  siteNameWithArticleSetting,
-  taggingNameIsSet,
-  taggingNameCapitalSetting,
-  taglineSetting,
-  isEAForum,
-} from '../../lib/instanceSettings'
+import { siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taglineSetting, isEAForum, nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
 import EAUsersProfileTabbedSection, { eaUsersProfileSectionStyles, UserProfileTabType } from '../ea-forum/users/modules/EAUsersProfileTabbedSection';
@@ -22,7 +16,6 @@ import InfoIcon from '@/lib/vendor/@material-ui/icons/src/Info'
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
 import LibraryAddIcon from '@/lib/vendor/@material-ui/icons/src/LibraryAdd'
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { getUserStructuredData } from './UsersSingle';
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/helpers';

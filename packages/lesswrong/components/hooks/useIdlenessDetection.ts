@@ -48,4 +48,4 @@ export function useIdlenessDetection(timeoutInSeconds = 60) {
   }, []);
 
   return { userIsIdle };
-} 
+}

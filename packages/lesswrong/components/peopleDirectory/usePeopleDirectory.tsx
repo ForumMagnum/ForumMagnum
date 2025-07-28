@@ -1,16 +1,14 @@
 import React, { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { getSearchClient } from "../../lib/search/searchUtil";
 import { MultiSelectResult, MultiSelectState, useMultiSelect } from "../hooks/useMultiSelect";
-import { CAREER_STAGES } from "@/lib/collections/users/helpers";
+import { CAREER_STAGES, MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
 import { PeopleDirectoryColumn, peopleDirectoryColumns } from "./peopleDirectoryColumns";
 import { SearchableMultiSelectResult, useSearchableMultiSelect } from "../hooks/useSearchableMultiSelect";
-import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
 import { useSearchAnalytics } from "../search/useSearchAnalytics";
 import { captureException } from "@sentry/nextjs";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-import { taggingNamePluralSetting, taggingNameCapitalSetting } from "@/lib/instanceSettings";
-import { algoliaPrefixSetting } from '@/lib/instanceSettings';
+import { taggingNamePluralSetting, taggingNameCapitalSetting, algoliaPrefixSetting } from '@/lib/instanceSettings';
 import qs from "qs";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";

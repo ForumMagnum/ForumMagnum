@@ -1,11 +1,10 @@
 import { addCronJob, removeCronJob } from './cronUtil';
 import WebSocket from 'ws';
 import { gatherTownRoomPassword, minGatherTownTrackerVersion } from './databaseSettings';
-import { gatherTownRoomId, gatherTownRoomName } from '@/lib/instanceSettings';
+import { gatherTownRoomId, gatherTownRoomName, isLW } from '@/lib/instanceSettings';
 import { isProduction } from '../lib/executionEnvironment';
 import { toDictionary } from '../lib/utils/toDictionary';
 import * as _ from 'underscore';
-import { isLW } from '../lib/instanceSettings';
 import { createLWEvent } from './collections/lwevents/mutations';
 import { createAdminContext } from './vulcan-lib/createContexts';
 import { backgroundTask } from './utils/backgroundTask';

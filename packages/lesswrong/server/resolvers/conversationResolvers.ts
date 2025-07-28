@@ -2,12 +2,11 @@ import gql from "graphql-tag"
 import { forumSelect } from "@/lib/forumTypeUtils";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-import { adminAccountSetting } from '@/lib/instanceSettings';
+import { adminAccountSetting, isAF } from "@/lib/instanceSettings";
 import { createConversation, createConversationGqlMutation } from '../collections/conversations/mutations';
 import { createMessage } from '../collections/messages/mutations';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { ACCESS_FILTERED, accessFilterSingle } from "@/lib/utils/schemaUtils";
-import { isAF } from "@/lib/instanceSettings";
 import { backgroundTask } from "../utils/backgroundTask";
 
 export const dmTriggeringEvents = new TupleSet(['newFollowSubscription'] as const)

@@ -76,4 +76,4 @@ export async function getOrCreateGoogleUser(profile: GoogleUserProfile): Promise
   }, createAnonymousContext());
   
   return newUser;
-} 
+}

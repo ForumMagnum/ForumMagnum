@@ -8,10 +8,9 @@ import {
   SHOW_QUICK_TAKES_SECTION_COOKIE,
   SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE,
 } from "../../lib/cookies/cookies";
-import { isEAForum } from "../../lib/instanceSettings";
+import { isEAForum, quickTakesMaxAgeDaysSetting } from '@/lib/instanceSettings';
 import { isFriendlyUI, preferredHeadingCase } from "../../themes/forumTheme";
 import { Link } from '../../lib/reactRouterWrapper';
-import { quickTakesMaxAgeDaysSetting } from '@/lib/instanceSettings';
 import ExpandableSection from "../common/ExpandableSection";
 import LWTooltip from "../common/LWTooltip";
 import QuickTakesEntry from "./QuickTakesEntry";

@@ -5,8 +5,7 @@ import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox'
-import { isLWorAF } from '../../lib/instanceSettings';
-import { showSubscribeReminderInFeed } from '@/lib/instanceSettings';
+import { isLWorAF, showSubscribeReminderInFeed } from '@/lib/instanceSettings';
 import { ObservableQuery } from '@apollo/client';
 import RecentDiscussionThread from "./RecentDiscussionThread";
 import RecentDiscussionTag from "./RecentDiscussionTag";

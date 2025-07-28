@@ -7,14 +7,13 @@ import { startupSanityChecks } from './startupSanityChecks';
 import { refreshKarmaInflationCache } from './karmaInflation/cron';
 import { addLegacyRssRoutes } from './legacy-redirects/routes';
 import { initReviewWinnerCache } from './resolvers/reviewWinnerResolvers';
-import { startAnalyticsWriter } from './analytics/serverAnalyticsWriter';
+import { startAnalyticsWriter, serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
 import { startSyncedCron } from './cron/startCron';
 import { isAnyTest, isMigrations } from '@/lib/executionEnvironment';
 import chokidar from 'chokidar';
 import fs from 'fs';
 import { basename, join } from 'path';
 import type { CommandLineArguments } from './commandLine';
-import { serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
 import { updateStripeIntentsCache } from './lesswrongFundraiser/stripeIntentsCache';
 import { backgroundTask } from './utils/backgroundTask';
 
