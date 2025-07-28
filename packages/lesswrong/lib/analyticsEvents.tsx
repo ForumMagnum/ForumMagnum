@@ -21,7 +21,8 @@ export const clientContextVars: {
   userId?: string | undefined;
   clientId?: string;
   tabId?: string | null;
-  abTestGroupsUsed?: RelevantTestGroupAllocation
+  abTestGroupsUsed?: RelevantTestGroupAllocation;
+  sessionId?: string;
 } = {};
 
 function getShowAnalyticsDebug() {
@@ -126,9 +127,9 @@ export type AnalyticsProps = {
   ultraFeedSources?: FeedItemSourceType[],
   ultraFeedElementType?: FeedItemType,
   ultraFeedCardId?: string,
-  ultraFeedCardIndex?: number,
-  recentDiscussionContext?: { sessionId: string },
-  recentDiscussionCardIndex?: number,
+  feedCardIndex?: number,
+  modalInstanceId?: string,
+  recentDiscussionContext?: { feedSessionId: string },
   /** @deprecated Use `pageSectionContext` instead */
   listContext?: string,
   /** @deprecated Use `pageSectionContext` instead */
@@ -431,6 +432,7 @@ export function flushClientEvents(force: boolean = false) {
 
   const eventsToWrite = pendingAnalyticsEvents;
   pendingAnalyticsEvents = [];
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
   void clientWriteEvents(eventsToWrite.map(event => ({
     ...event,
     props: {

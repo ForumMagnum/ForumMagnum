@@ -21,6 +21,7 @@ import { FilterSettings, getDefaultFilterSettings } from '@/lib/filterSettings';
 import { PostsViews } from '@/lib/collections/posts/views';
 import { RevisionHTML } from '@/lib/collections/revisions/fragments';
 import type { RecommendedPost, RecombeeRecommendedPost, NativeRecommendedPost } from '@/lib/recombee/types';
+import { backgroundTask } from '../utils/backgroundTask';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -436,7 +437,7 @@ const helpers = {
       }
     }));
 
-    void context.RecommendationsCaches.rawCollection().bulkWrite(recsToInsert);
+    backgroundTask(context.RecommendationsCaches.rawCollection().bulkWrite(recsToInsert));
   },
 
   async getCachedRecommendations({ recRequest, scenario, batch, skipCache, context }: GetCachedRecommendationsArgs): Promise<RecResponse[]> {
@@ -474,9 +475,10 @@ const helpers = {
         }));
     }
 
-    void helpers
+    backgroundTask(helpers
       .sendRecRequestWithPerfMetrics(recRequest, batch, true)
-      .then((recResponse) => helpers.backfillRecommendationsCache(userId, scenario, recResponse, context));
+      .then((recResponse) => helpers.backfillRecommendationsCache(userId, scenario, recResponse, context))
+    );
 
     return formattedRecommendations;
   },

@@ -4,13 +4,14 @@ import { reviewWinnerCache, ReviewWinnerWithPost } from "@/server/review/reviewW
 import { isLWorAF } from "../../lib/instanceSettings";
 import gql from "graphql-tag";
 import { createAdminContext, createAnonymousContext } from "../vulcan-lib/createContexts";
+import { backgroundTask } from "../utils/backgroundTask";
 
 
 export async function initReviewWinnerCache() {
   if (isLWorAF) {
     const context = createAnonymousContext();
-    void reviewWinnerCache.get(context);
-    void splashArtCoordinateCache.get(context);
+    backgroundTask(reviewWinnerCache.get(context));
+    backgroundTask(splashArtCoordinateCache.get(context));
   }
 }
 

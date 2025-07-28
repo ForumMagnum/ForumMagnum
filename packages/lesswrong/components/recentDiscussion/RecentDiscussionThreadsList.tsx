@@ -93,7 +93,7 @@ const RecentDiscussionThreadsList = ({
       <div>
         {results && <div>
           {results.map((post, i) =>
-            <AnalyticsContext key={post._id} pageSubSectionContext='recentDiscussionThread' recentDiscussionCardIndex={i}>
+            <AnalyticsContext key={post._id} pageSubSectionContext='recentDiscussionThread' feedCardIndex={i}>
             <RecentDiscussionThread
               post={post}
               refetch={refetch}

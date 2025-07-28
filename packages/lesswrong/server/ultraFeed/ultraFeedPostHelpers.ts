@@ -7,7 +7,7 @@ import keyBy from 'lodash/keyBy';
 
 // Configuration for unviewed items optimization
 const UNVIEWED_RECOMBEE_CONFIG = {
-  lookbackDays: 14,
+  lookbackDays: 14, // relevant for view events as we truncate served events sooner
   skipFetchThreshold: 0.5, // Skip if we have 70% of requested items
   reduceFetchThreshold: 0.3, // Reduce to 50% if we have 30% of requested items
 };
@@ -43,16 +43,6 @@ export async function getRecommendedPostsForUltraFeed(
     
     const unviewedRatio = unviewedRecombeePostIds.length / limit;
     
-    // eslint-disable-next-line no-console
-    console.log("getRecommendedPostsForUltraFeed: Unviewed optimization", {
-      userId: currentUser._id,
-      requestedLimit: limit,
-      unviewedCount: unviewedRecombeePostIds.length,
-      unviewedRatio,
-      willSkipAPI: unviewedRatio >= UNVIEWED_RECOMBEE_CONFIG.skipFetchThreshold,
-      willReduceAPI: unviewedRatio >= UNVIEWED_RECOMBEE_CONFIG.reduceFetchThreshold
-    });
-    
     if (unviewedRatio >= UNVIEWED_RECOMBEE_CONFIG.skipFetchThreshold) {
       // We have enough cached items, return them directly
       const posts = await context.loaders.Posts.loadMany(unviewedRecombeePostIds.slice(0, limit));
@@ -65,6 +55,7 @@ export async function getRecommendedPostsForUltraFeed(
           postMetaInfo: {
             sources: [scenarioId as FeedItemSourceType],
             displayStatus: 'expanded',
+            highlight: true, // May be overridden by getViewedPostIds (these are unviewed from recent lookback period but concievably were viewed in the past)
           },
         }));
     } else if (unviewedRatio >= UNVIEWED_RECOMBEE_CONFIG.reduceFetchThreshold) {
@@ -88,10 +79,23 @@ export async function getRecommendedPostsForUltraFeed(
     scenario: scenarioId,
     filterSettings: currentUser?.frontpageFilterSettings,
     skipTopOfListPosts: true,
+    rotationRate: 0.5,
+    rotationTime: 24 * 30, // 30 days
     ...(exclusionFilterString && { filter: exclusionFilterString }),
   };
 
   const recommendedResults = await recombeeApi.getRecommendationsForUser(recombeeUser, adjustedLimit, lwAlgoSettings, context);
+  
+  const allPostIds = [
+    ...unviewedRecombeePostIds.slice(0, limit),
+    ...recommendedResults.map(item => item.post?._id).filter((id): id is string => !!id)
+  ];
+  
+  let viewedPostIds = new Set<string>();
+  if (currentUser?._id && allPostIds.length > 0) {
+    viewedPostIds = await repos.ultraFeedEvents.getViewedPostIds( currentUser._id, allPostIds);
+  }
+  
   const displayPosts = recommendedResults.map((item): FeedFullPost | null => {
     if (!item.post?._id) return null;
     const { post, recommId, scenario, generatedAt } = item;
@@ -108,6 +112,7 @@ export async function getRecommendedPostsForUltraFeed(
         sources: [scenario as FeedItemSourceType],
         displayStatus: 'expanded',
         recommInfo: recommInfo,
+        highlight: post._id ? !viewedPostIds.has(post._id) : true,
       },
     };
   }).filter((p) => !!p);
@@ -124,6 +129,7 @@ export async function getRecommendedPostsForUltraFeed(
         postMetaInfo: {
           sources: [scenarioId as FeedItemSourceType],
           displayStatus: 'expanded',
+          highlight: !viewedPostIds.has(post._id),
         },
       }));
     

@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { Typography } from "../common/Typography";
 import Loading from "../vulcan-core/Loading";
-import CommentsNodeInner from "./CommentsNode";
+import CommentsNode from "./CommentsNode";
 import LoadMore from "../common/LoadMore";
 import { NetworkStatus } from "@apollo/client";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
@@ -31,17 +31,17 @@ const styles = (theme: ThemeType) =>  ({
   },
 })
 
-const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=false, noResultsMessage="No Comments Found"}: {
+const RecentComments = ({classes, selector, limit, truncated=false, showPinnedOnProfile=false, noResultsMessage="No Comments Found"}: {
   classes: ClassesType<typeof styles>,
-  terms: CommentsViewTerms,
+  selector: CommentSelector,
+  limit?: number,
   truncated?: boolean,
   showPinnedOnProfile?: boolean,
   noResultsMessage?: string,
 }) => {
-  const { view, limit, ...selectorTerms } = terms;
   const { data, networkStatus, loadMoreProps } = useQueryWithLoadMore(CommentsListWithParentMetadataMultiQuery, {
     variables: {
-      selector: { [view]: selectorTerms },
+      selector,
       limit: limit ?? 10,
       enableTotal: false,
     },
@@ -65,7 +65,7 @@ const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=fa
   return <div className={classes.root}>
     {validResults.map(comment =>
       <div key={comment._id}>
-        <CommentsNodeInner
+        <CommentsNode
           treeOptions={{
             condensed: false,
             post: comment.post || undefined,

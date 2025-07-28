@@ -8,7 +8,7 @@ import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { FeedCommentMetaInfo, FeedItemDisplayStatus } from "./ultraFeedTypes";
 import { useOverflowNav } from "./OverflowNavObserverContext";
 import { useDialog } from "../common/withDialog";
-import UltraFeedCommentsDialog from "./UltraFeedCommentsDialog";
+import UltraFeedPostDialog from "./UltraFeedPostDialog";
 import UltraFeedCommentsItemMeta from "./UltraFeedCommentsItemMeta";
 import FeedContentBody from "./FeedContentBody";
 import UltraFeedItemFooter from "./UltraFeedItemFooter";
@@ -113,14 +113,14 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     width: 0,
     borderLeft: `4px solid ${theme.palette.grey[300]}ac`,
     flex: 1,
-    marginLeft: -10,
+    marginLeft: -12,
   },
   verticalLineHighlightedUnviewed: {
-    borderLeftColor: `${theme.palette.secondary.light}bc`,
+    borderLeftColor: `${theme.palette.secondary.light}ec`,
   },
   verticalLineHighlightedViewed: {
-    borderLeftColor: `${theme.palette.secondary.light}6c`,
-    transition: 'border-left-color 1.0s ease-out',
+    borderLeftColor: `${theme.palette.secondary.light}5f`,
+    transition: 'border-left-color 0.5s ease-out',
   },
   verticalLineFirstComment: {
     marginTop: commentHeaderPaddingDesktop,
@@ -268,6 +268,8 @@ export interface UltraFeedCommentItemProps {
   onBranchToggle?: () => void;
   cannotReplyReason?: string | null;
   onEditSuccess: (editedComment: CommentsList) => void;
+  threadIndex?: number;
+  commentIndex?: number;
 }
 
 export const UltraFeedCommentItem = ({
@@ -289,9 +291,11 @@ export const UltraFeedCommentItem = ({
   onBranchToggle,
   cannotReplyReason: customCannotReplyReason,
   onEditSuccess,
+  threadIndex,
+  commentIndex,
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
-  const { observe, unobserve, trackExpansion, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView } = useUltraFeedObserver();
+  const { observe, unobserve, trackExpansion, hasBeenFadeViewed, subscribeToFadeView, unsubscribeFromFadeView } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { openDialog } = useDialog();
   const overflowNav = useOverflowNav(elementRef);
@@ -302,7 +306,7 @@ export const UltraFeedCommentItem = ({
 
   const displayStatus = metaInfo.displayStatus ?? 'expanded';
 
-  const initialHighlightState = (highlight && !hasBeenLongViewed(comment._id)) ? 'highlighted-unviewed' : 'never-highlighted';
+  const initialHighlightState = (highlight && !hasBeenFadeViewed(comment._id)) ? 'highlighted-unviewed' : 'never-highlighted';
   const [highlightState, setHighlightState] = useState<HighlightStateType>(initialHighlightState);
   const [resetSig, setResetSig] = useState(0);
   const [showEditState, setShowEditState] = useState(false);
@@ -339,7 +343,9 @@ export const UltraFeedCommentItem = ({
         documentId: comment._id,
         documentType: 'comment',
         postId: comment.postId ?? undefined,
-        servedEventId: metaInfo.servedEventId
+        servedEventId: metaInfo.servedEventId,
+        feedCardIndex: threadIndex,
+        feedCommentIndex: commentIndex
       });
     }
 
@@ -348,26 +354,27 @@ export const UltraFeedCommentItem = ({
         unobserve(currentElement);
       }
     };
-  }, [observe, unobserve, comment._id, comment.postId, metaInfo.servedEventId]);
+  }, [observe, unobserve, comment._id, comment.postId, metaInfo.servedEventId, threadIndex, commentIndex]);
 
+  // Manage highlight fading using observer's fade timer (2s)
   useEffect(() => {
-    const initialHighlightState = highlight && !hasBeenLongViewed(comment._id) ? 'highlighted-unviewed' : 'never-highlighted';
-    setHighlightState(initialHighlightState);
+    const initialState: HighlightStateType = (highlight && !hasBeenFadeViewed(comment._id)) ? 'highlighted-unviewed' : 'never-highlighted';
+    setHighlightState(initialState);
 
-    const handleLongView = () => {
-      setHighlightState(prevState => prevState === 'highlighted-unviewed' ? 'highlighted-viewed' : prevState);
+    const handleFade = () => {
+      setHighlightState(prev => prev === 'highlighted-unviewed' ? 'highlighted-viewed' : prev);
     };
 
-    if (initialHighlightState === 'highlighted-unviewed') {
-      subscribeToLongView(comment._id, handleLongView);
+    if (initialState === 'highlighted-unviewed') {
+      subscribeToFadeView(comment._id, handleFade);
     }
 
     return () => {
-      if (initialHighlightState === 'highlighted-unviewed') {
-        unsubscribeFromLongView(comment._id, handleLongView);
+      if (initialState === 'highlighted-unviewed') {
+        unsubscribeFromFadeView(comment._id, handleFade);
       }
     };
-  }, [highlight, comment._id, hasBeenLongViewed, subscribeToLongView, unsubscribeFromLongView]);
+  }, [highlight, comment._id, hasBeenFadeViewed, subscribeToFadeView, unsubscribeFromFadeView]);
 
   const handleContentExpand = useCallback((expanded: boolean, wordCount: number) => {
     trackExpansion({
@@ -378,6 +385,8 @@ export const UltraFeedCommentItem = ({
       maxLevelReached: expanded,
       wordCount,
       servedEventId: metaInfo.servedEventId,
+      feedCardIndex: threadIndex,
+      feedCommentIndex: commentIndex,
     });
     
     captureEvent("ultraFeedCommentItemExpanded", {
@@ -391,22 +400,37 @@ export const UltraFeedCommentItem = ({
       onChangeDisplayStatus("expanded");
     }
 
-  }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus, metaInfo.servedEventId, captureEvent]);
+  }, [trackExpansion, comment._id, comment.postId, displayStatus, onChangeDisplayStatus, metaInfo.servedEventId, captureEvent, threadIndex, commentIndex]);
 
   const handleContinueReadingClick = useCallback(() => {
     captureEvent("ultraFeedCommentItemContinueReadingClicked");
+    
+    // If comment doesn't have a post, we can't open the dialog but this should never happen
+    if (!comment.post) {
+      return;
+    }
+    
+    const post = comment.post;
+    
     openDialog({
-      name: "UltraFeedCommentsDialog",
+      name: "UltraFeedPostDialog",
       closeOnNavigate: true,
       contents: ({ onClose }) => (
-        <UltraFeedCommentsDialog 
-          document={comment}
-          collectionName="Comments"
+        <UltraFeedPostDialog 
+          partialPost={post}
+          postMetaInfo={{
+            sources: metaInfo.sources,
+            displayStatus: 'expanded' as const,
+            servedEventId: metaInfo.servedEventId ?? '',
+            highlight: false
+          }}
+          targetCommentId={comment._id}
+          topLevelCommentId={comment.topLevelCommentId ?? comment._id}
           onClose={onClose}
         />
       )
     });
-  }, [openDialog, comment, captureEvent]);
+  }, [openDialog, comment, captureEvent, metaInfo]);
 
   const truncationParams = useMemo(() => {
     const { displaySettings } = settings;

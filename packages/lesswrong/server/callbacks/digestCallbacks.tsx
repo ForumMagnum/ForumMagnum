@@ -1,4 +1,5 @@
 import { UpdateCallbackProperties } from '../mutationCallbacks';
+import { backgroundTask } from '../utils/backgroundTask';
 
 export async function createNextDigestOnPublish({newDocument, oldDocument, context}: UpdateCallbackProperties<"Digests">) {
   const { Digests } = context;
@@ -10,12 +11,12 @@ export async function createNextDigestOnPublish({newDocument, oldDocument, conte
 
   const { createDigest }: typeof import('../collections/digests/mutations') = await require('../collections/digests/mutations');
 
-  void createDigest({
+  backgroundTask(createDigest({
     data: {
       num: (newDocument.num ?? 0) + 1,
       startDate: newDocument.endDate ?? new Date()
     }
-  }, context);
+  }, context));
 }
 
 export async function backdatePreviousDigest({newDocument, oldDocument, context}: UpdateCallbackProperties<"Digests">) {

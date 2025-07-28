@@ -111,11 +111,13 @@ const DatatableContents = (props: {
   emptyState?: React.JSX.Element;
 }) => {
   const { title, collectionName, results, columns, loading, loadingMore, loadMore, count, totalCount, emptyState } = props;
-  if (loading) {
+  if (loading && (!results || !results.length)) {
     return <div className="datatable-list datatable-list-loading"><Loading /></div>;
-  } else if (!results || !results.length) {
+  } else if (!loading && (!results || !results.length)) {
     return emptyState || null;
   }
+
+  if (!results) return null;
 
   const hasMore = totalCount > results.length;
   const sortedColumns = _sortBy(columns, column => column.order);

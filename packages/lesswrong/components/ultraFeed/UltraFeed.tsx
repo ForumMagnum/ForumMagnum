@@ -30,6 +30,7 @@ import { ultraFeedEnabledSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import UltraFeedFeedback from './UltraFeedFeedback';
+import AnalyticsInViewTracker from '../common/AnalyticsInViewTracker';
 
 const ULTRAFEED_SESSION_ID_KEY = 'ultraFeedSessionId';
 
@@ -243,7 +244,8 @@ const UltraFeedContent = ({alwaysShow = false}: {
   </>;
 
   return (
-    <AnalyticsContext pageSectionContext="ultraFeed" ultraFeedContext={{ sessionId }}>
+    <AnalyticsContext pageSectionContext="ultraFeed" ultraFeedContext={{ feedSessionId: sessionId }}>
+      <AnalyticsInViewTracker eventProps={{inViewType: "ultraFeed"}}>
       <div className={classes.root}>
         <UltraFeedObserverProvider incognitoMode={resolverSettings.incognitoMode}>
         <OverflowNavObserverProvider>
@@ -327,7 +329,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
                   },
                   feedSpotlight: {
                     render: (item: FeedSpotlightFragment, index: number) => {
-                      const { spotlight, post } = item;
+                      const { spotlight, post, spotlightMetaInfo } = item;
                       if (!spotlight) {
                         return null;
                       }
@@ -337,6 +339,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
                           <UltraFeedSpotlightItem 
                             spotlight={spotlight}
                             post={post ?? undefined}
+                            spotlightMetaInfo={spotlightMetaInfo}
                             showSubtitle={true}
                             index={index}
                           />
@@ -357,6 +360,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
           </div>
         )}
       </div>
+      </AnalyticsInViewTracker>
     </AnalyticsContext>
   );
 };

@@ -15,7 +15,6 @@ import { useDialog } from "../common/withDialog";
 import { isPostWithForeignId } from "../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import UltraFeedPostDialog from "./UltraFeedPostDialog";
-import UltraFeedCommentsDialog from "./UltraFeedCommentsDialog";
 import FormatDate from "../common/FormatDate";
 import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 import FeedContentBody from "./FeedContentBody";
@@ -38,6 +37,7 @@ import type { FeedCommentMetaInfo } from "./ultraFeedTypes";
 import PostsUserAndCoauthors from "../posts/PostsUserAndCoauthors";
 import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
 import ForumIcon from "../common/ForumIcon";
+import { RecombeeRecommendationsContextWrapper } from "../recommendations/RecombeeRecommendationsContextWrapper";
 
 const localPostQuery = gql(`
   query LocalPostQuery($documentId: String!) {
@@ -63,16 +63,52 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
     position: 'relative',
     paddingTop: 12,
-    paddingLeft: 16,
+    paddingLeft: 20,
     paddingRight: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
     background: theme.palette.panelBackground.bannerAdTranslucentHeavy,
     backdropFilter: theme.palette.filters.bannerAdBlurHeavy,
     borderRadius: 4,
+    display: 'flex',
+    flexDirection: 'row',
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 16,
+    },
+  },
+  verticalLineContainer: {
+    width: 0,
+    display: 'flex',
+    justifyContent: 'center',
+    marginRight: 6,
+    marginTop: -12,
+    [theme.breakpoints.down('sm')]: {
+      marginRight: 2,
+    },
+  },
+  verticalLine: {
+    width: 0,
+    borderLeft: `4px solid ${theme.palette.grey[300]}ac`,
+    flex: 1,
+    marginLeft: -12,
+    marginTop: 12,
+    marginBottom: 12,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 12,
+      marginBottom: 12,
+    },
+  },
+  verticalLineHighlightedUnviewed: {
+    borderLeftColor: `${theme.palette.secondary.light}ec`,
+  },
+  verticalLineHighlightedViewed: {
+    borderLeftColor: `${theme.palette.secondary.light}5f`,
+    transition: 'border-left-color 0.5s ease-out',
   },
   mainContent: {
     display: 'flex',
     flexDirection: 'column',
+    flexGrow: 1,
+    minWidth: 0,
   },
   greyedOut: {
     opacity: 0.5,
@@ -115,7 +151,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
   titleContainer: {
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'baseline',
     flexGrow: 1,
     minWidth: 0,
     [theme.breakpoints.down('sm')]: {
@@ -156,7 +192,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     color: theme.palette.text.dim,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: theme.typography.body2.fontSize,
-    alignItems: 'center',
+    alignItems: 'baseline',
     flexShrink: 0,
     flexWrap: 'nowrap',
     columnGap: '8px',
@@ -267,6 +303,8 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
 }));
 
+type HighlightStateType = 'never-highlighted' | 'highlighted-unviewed' | 'highlighted-viewed';
+
 const sourceIconMap: Array<{ source: FeedItemSourceType, icon: any, tooltip: string }> = [
   { source: 'bookmarks' as FeedItemSourceType, icon: BookmarksIcon, tooltip: "From your bookmarks" },
   { source: 'subscriptionsPosts' as FeedItemSourceType, icon: SubscriptionsIcon, tooltip: "From users you follow" },
@@ -374,7 +412,7 @@ const UltraFeedPostItem = ({
   settings?: UltraFeedSettingsType,
 }) => {
   const classes = useStyles(styles);
-  const { observe, trackExpansion } = useUltraFeedObserver();
+  const { observe, trackExpansion, hasBeenFadeViewed, subscribeToFadeView, unsubscribeFromFadeView } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { openDialog } = useDialog();
   const overflowNav = useOverflowNav(elementRef);
@@ -396,6 +434,28 @@ const UltraFeedPostItem = ({
   const [newComment, setNewComment] = useState<UltraFeedComment | null>(null);
   const [newCommentMetaInfo, setNewCommentMetaInfo] = useState<FeedCommentMetaInfo | null>(null);
   
+  const initialHighlightState = (postMetaInfo.highlight && !hasBeenFadeViewed(post._id)) ? 'highlighted-unviewed' : 'never-highlighted';
+  const [highlightState, setHighlightState] = useState<HighlightStateType>(initialHighlightState);
+
+  useEffect(() => {
+    const initialState: HighlightStateType = (postMetaInfo.highlight && !hasBeenFadeViewed(post._id)) ? 'highlighted-unviewed' : 'never-highlighted';
+    setHighlightState(initialState);
+
+    const handleFade = () => {
+      setHighlightState(prev => prev === 'highlighted-unviewed' ? 'highlighted-viewed' : prev);
+    };
+
+    if (initialState === 'highlighted-unviewed') {
+      subscribeToFadeView(post._id, handleFade);
+    }
+
+    return () => {
+      if (initialState === 'highlighted-unviewed') {
+        unsubscribeFromFadeView(post._id, handleFade);
+      }
+    };
+  }, [postMetaInfo.highlight, post._id, hasBeenFadeViewed, subscribeToFadeView, unsubscribeFromFadeView]);
+
   const {
     isSeeLessMode,
     handleSeeLess,
@@ -437,10 +497,11 @@ const UltraFeedPostItem = ({
       observe(currentElement, { 
         documentId: post._id, 
         documentType: 'post',
-        servedEventId: postMetaInfo.servedEventId
+        servedEventId: postMetaInfo.servedEventId,
+        feedCardIndex: index
       });
     }
-  }, [observe, post._id, postMetaInfo.servedEventId]);
+  }, [observe, post._id, postMetaInfo.servedEventId, index]);
 
   const handleContentExpand = useCallback((expanded: boolean, wordCount: number) => {
     setIsContentExpanded(expanded);
@@ -456,6 +517,7 @@ const UltraFeedPostItem = ({
       maxLevelReached: expanded,
       wordCount,
       servedEventId: postMetaInfo.servedEventId,
+      feedCardIndex: index,
     });
 
     captureEvent("ultraFeedPostItemExpanded", {
@@ -477,6 +539,7 @@ const UltraFeedPostItem = ({
     isLoadingFull, 
     fullPost,
     postMetaInfo.servedEventId,
+    index,
   ]);
 
   const handleCollapse = () => {
@@ -535,6 +598,7 @@ const UltraFeedPostItem = ({
       maxLevelReached: true,
       wordCount: post.contents?.wordCount ?? 0,
       servedEventId: postMetaInfo.servedEventId,
+      feedCardIndex: index,
     });
     
     if (!hasRecordedViewOnExpand) {
@@ -562,6 +626,7 @@ const UltraFeedPostItem = ({
     postMetaInfo,
     hasRecordedViewOnExpand,
     recordPostView,
+    index,
   ]);
 
   const shortformHtml = post.shortform 
@@ -584,8 +649,18 @@ const UltraFeedPostItem = ({
   }
 
   return (
-    <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} ultraFeedCardIndex={index} ultraFeedSources={postMetaInfo.sources}>
+    <RecombeeRecommendationsContextWrapper postId={post._id} recommId={postMetaInfo.recommInfo?.recommId}>
+    <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} feedCardIndex={index} ultraFeedSources={postMetaInfo.sources}>
     <div className={classes.root}>
+      <div className={classes.verticalLineContainer}>
+        <div className={classnames(
+          classes.verticalLine,
+          {
+            [classes.verticalLineHighlightedUnviewed]: highlightState === 'highlighted-unviewed',
+            [classes.verticalLineHighlightedViewed]: highlightState === 'highlighted-viewed',
+          }
+        )} />
+      </div>
       <div ref={elementRef} className={classes.mainContent}>
         {/* On small screens, the triple dot menu is positioned absolutely to the root */}
         <div className={classes.mobileTripleDotWrapper}>
@@ -670,6 +745,8 @@ const UltraFeedPostItem = ({
               }}
               cannotReplyReason="You cannot reply to your own comment within the feed"
               onEditSuccess={handleCommentEdit}
+              threadIndex={index}
+              commentIndex={0}
             />
           </div>
         )}
@@ -678,6 +755,7 @@ const UltraFeedPostItem = ({
       {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={isContentExpanded ? handleCollapse : undefined} />}
     </div>
     </AnalyticsContext>
+    </RecombeeRecommendationsContextWrapper>
   );
 };
 
