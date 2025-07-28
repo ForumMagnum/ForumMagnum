@@ -27,15 +27,16 @@
  * Stringifies a value to be injected into JavaScript "text" - preserves `undefined` values.
  */
 export function stringify(value: any) {
-  let undefinedPlaceholder = "$apollo.undefined$";
+  let undefinedPlaceholder = '$"""$';
 
-  const stringified = JSON.stringify(value);
-  while (stringified.includes(JSON.stringify(undefinedPlaceholder))) {
-    undefinedPlaceholder = "$" + undefinedPlaceholder;
-  }
-  return JSON.stringify(value, (_, v) =>
-    v === undefined ? undefinedPlaceholder : v
-  ).replaceAll(JSON.stringify(undefinedPlaceholder), "undefined");
+  const result = JSON.stringify(value, (_, v) => {
+    if (v === undefined) {
+      return undefinedPlaceholder;
+    } else {
+      return v;
+    }
+  })
+  return result.replaceAll(undefinedPlaceholder, "undefined");
 }
 
 export function revive(value: any): any {
