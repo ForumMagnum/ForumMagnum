@@ -26,7 +26,7 @@ function ensureRequestHasBackgroundTaskHandler() {
     if (contextValue && !contextValue.hasAddedWaitForBackgroundTasks) {
       console.log("Installing waitForBackgroundTasks handler");
       contextValue.hasAddedWaitForBackgroundTasks = true;
-      const after = require("next/server");
+      const { after }: typeof import("next/server") = require("next/server");
       after(async () => {
         console.log("Waiting for background tasks");
         await waitForBackgroundTasks();
