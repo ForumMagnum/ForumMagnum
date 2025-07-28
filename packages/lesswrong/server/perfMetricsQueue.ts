@@ -2,12 +2,13 @@ import { isDevelopment } from '@/lib/executionEnvironment';
 import { environmentDescriptionSetting, performanceMetricLoggingBatchSize } from '@/lib/instanceSettings';
 import chunk from 'lodash/chunk';
 import { pgPromiseLib, getAnalyticsConnection } from './analytics/postgresConnection'
+import { backgroundTask } from './utils/backgroundTask';
 
 const queuedPerfMetrics: PerfMetric[] = [];
 
 export function queuePerfMetric(perfMetric: PerfMetric) {
   queuedPerfMetrics.push(perfMetric);
-  void flushPerfMetrics();
+  backgroundTask(flushPerfMetrics());
 }
 
 async function flushPerfMetrics() {

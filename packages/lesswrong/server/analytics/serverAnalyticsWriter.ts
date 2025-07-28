@@ -132,7 +132,7 @@ export async function pruneOldPerfMetrics() {
     `);
 
     // Don't await this one; it might take longer than five minutes to finish and there's no reason to keep a function instance around that long.
-    void connection.none(`
+    backgroundTask(connection.none(`
       SET LOCAL work_mem = '2GB';
 
       DELETE
@@ -160,7 +160,7 @@ export async function pruneOldPerfMetrics() {
           AND ch.started_at BETWEEN CURRENT_DATE - INTERVAL '9 days' AND CURRENT_DATE - INTERVAL '7 days'
           AND SUBSTR(ch.trace_id, 36, 1) != '0'
       )
-    `);
+    `));
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error('Error when pruning old perf metrics', { err });
