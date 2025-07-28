@@ -50,8 +50,8 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
     <DropdownMenu>
       <EditCommentDropdownItem comment={comment} showEdit={showEdit} />
       <PinToProfileDropdownItem comment={comment} post={post} />
-      <BookmarkDropdownItem documentId={comment._id} collectionName="Comments" preventMenuClose />
       <CommentSubscriptionsDropdownItem comment={comment} post={post} />
+      <BookmarkDropdownItem documentId={comment._id} collectionName="Comments" preventMenuClose />
       <ReportCommentDropdownItem comment={comment} post={post} />
       <MoveToAlignmentCommentDropdownItem comment={comment} post={postDetails} />
       <SuggestAlignmentCommentDropdownItem comment={comment} post={postDetails} />
