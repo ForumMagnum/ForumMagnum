@@ -20,7 +20,7 @@ function ensureRequestHasBackgroundTaskHandler() {
   // But empirically that doesn't work (inside a graphql handler, the most
   // relevant case, we just get undefined). So I think we have to do this
   // manually on each entry point.
-  /*const RequestContext = (globalThis as any)[Symbol.for('@next/request-context')];
+  const RequestContext = (globalThis as any)[Symbol.for('@next/request-context')];
   if (RequestContext) {
     const contextValue = RequestContext?.get()
     if (contextValue && !contextValue.hasAddedWaitForBackgroundTasks) {
@@ -32,7 +32,7 @@ function ensureRequestHasBackgroundTaskHandler() {
         await waitForBackgroundTasks();
       });
     }
-  }*/
+  }
 }
 
 export async function waitForBackgroundTasks() {
