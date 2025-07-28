@@ -8,7 +8,7 @@ import gql from 'graphql-tag';
 import { PostsEmail } from './emailComponents/PostsEmail';
 import { UtmParam } from './analytics/utm-tracking';
 import { isEAForum } from '@/lib/instanceSettings';
-
+import { backgroundTask } from './utils/backgroundTask';
 
 export const getUtmParamsForNotificationType = (notificationType: string): Partial<Record<UtmParam, string>> => {
   return {

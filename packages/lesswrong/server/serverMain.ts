@@ -16,6 +16,7 @@ import { basename, join } from 'path';
 import type { CommandLineArguments } from './commandLine';
 import { serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
 import { updateStripeIntentsCache } from './lesswrongFundraiser/stripeIntentsCache';
+import { backgroundTask } from './utils/backgroundTask';
 
 /**
  * Entry point for the server, assuming it's a webserver (ie not cluster mode,
@@ -45,11 +46,11 @@ export async function runServerOnStartupFunctions() {
   initRenderQueueLogging();
   startMemoryUsageMonitor();
   initLegacyRoutes();
-  void startupSanityChecks();
-  void refreshKarmaInflationCache();
+  backgroundTask(startupSanityChecks());
+  backgroundTask(refreshKarmaInflationCache());
   addLegacyRssRoutes();
-  void initReviewWinnerCache();
-  void updateStripeIntentsCache();
+  backgroundTask(initReviewWinnerCache());
+  backgroundTask(updateStripeIntentsCache());
 
   startSyncedCron();
   captureEvent("serverStarted", {});

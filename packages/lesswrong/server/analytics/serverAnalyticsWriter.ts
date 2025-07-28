@@ -9,6 +9,7 @@ import type { EventProps } from '@/lib/analyticsEvents';
 import { getShowAnalyticsDebug } from '@/lib/analyticsDebugging';
 import { ColorHash } from '@/lib/vendor/colorHash';
 import moment from 'moment';
+import { backgroundTask } from '../utils/backgroundTask';
 
 export const serverId = randomId();
 
@@ -22,7 +23,7 @@ export const analyticsEventTypeDefs = gql`
 
 export const analyticsEventGraphQLMutations = {
   analyticsEvent(root: void, { events, now: clientTime }: AnyBecauseTodo, context: ResolverContext) {
-    void handleAnalyticsEventWriteRequest(events, clientTime);
+    backgroundTask(handleAnalyticsEventWriteRequest(events, clientTime));
   },
 }
 
@@ -41,7 +42,7 @@ addStaticRoute('/analyticsEvent', ({query}, req, res, next) => {
     return;
   }
   
-  void handleAnalyticsEventWriteRequest(body.events, body.now);
+  backgroundTask(handleAnalyticsEventWriteRequest(body.events, body.now));
   res.writeHead(200, {
     "Content-Type": "text/plain;charset=UTF-8"
   });
@@ -177,13 +178,13 @@ export function serverWriteEvent(event: AnyBecauseTodo) {
     pendingEvents.push(event);
     return;
   }
-  void writeEventsToAnalyticsDB([{
+  backgroundTask(writeEventsToAnalyticsDB([{
     type, timestamp,
     props: {
       ...props,
       serverId: serverId,
     }
-  }]);
+  }]));
 }
 
 function serverConsoleLogAnalyticsEvent(event: any) {

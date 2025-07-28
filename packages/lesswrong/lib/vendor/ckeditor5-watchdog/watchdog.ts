@@ -234,6 +234,7 @@ export default abstract class Watchdog {
 			this._fire( 'error', { error, causesRestart } );
 
 			if ( causesRestart ) {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
 				void this._restart();
 			} else {
 				this.state = 'crashedPermanently';

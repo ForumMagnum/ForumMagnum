@@ -2,6 +2,7 @@ import gql from "graphql-tag";
 import { googleVertexApi, helpers as googleVertexHelpers } from "../google-vertex/client";
 import type { PostEvent } from "../google-vertex/types";
 import { captureException } from "@sentry/nextjs";
+import { backgroundTask } from "../utils/backgroundTask";
 
 export const googleVertexGqlTypeDefs = gql`
   extend type Mutation {
@@ -26,8 +27,8 @@ export const googleVertexGqlMutations = {
       const viewItemEvent = googleVertexHelpers.createViewItemEvent('view-item', eventInfo);
       const mediaPlayEvent = googleVertexHelpers.createViewItemEvent('media-play', eventInfo);
   
-      void googleVertexApi.writeUserEvent(viewItemEvent);
-      void googleVertexApi.writeUserEvent(mediaPlayEvent);
+      backgroundTask(googleVertexApi.writeUserEvent(viewItemEvent));
+      backgroundTask(googleVertexApi.writeUserEvent(mediaPlayEvent));
       return true;
     } catch(e) {
       captureException(e);
@@ -45,7 +46,7 @@ export const googleVertexGqlMutations = {
       const now = new Date();
       const viewHomePageEvent = googleVertexHelpers.createViewHomePageEvent({ userId: currentUser._id, timestamp: now });
   
-      void googleVertexApi.writeUserEvent(viewHomePageEvent);
+      backgroundTask(googleVertexApi.writeUserEvent(viewHomePageEvent));
       return true;
     } catch(e) {
       captureException(e);
@@ -65,7 +66,7 @@ export const googleVertexGqlMutations = {
       const eventInfo: PostEvent = { userId: currentUser._id, postId, timestamp: now, attributionId };
       const mediaCompleteEvent = googleVertexHelpers.createMediaCompleteEvent(eventInfo);
   
-      void googleVertexApi.writeUserEvent(mediaCompleteEvent);
+      backgroundTask(googleVertexApi.writeUserEvent(mediaCompleteEvent));
       return true;
     } catch(e) {
       captureException(e);

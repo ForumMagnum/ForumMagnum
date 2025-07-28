@@ -699,7 +699,7 @@ export const ArbitalPreview = ({href, id, className, children}: {
       }
     }
   `), {
-    ssr: true,
+    ssr: false,
     skip: !arbitalSlug,
     variables: {
       arbitalSlug,

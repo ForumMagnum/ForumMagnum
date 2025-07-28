@@ -7,6 +7,7 @@ import { createAnonymousContext } from '../vulcan-lib/createContexts';
 import { createConversation } from '../collections/conversations/mutations';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { createMessage } from '../collections/messages/mutations';
+import { backgroundTask } from '../utils/backgroundTask';
 
 const messageResumeReadingUsers = async (user: DbUser) => {
   const context = createAnonymousContext();
@@ -46,7 +47,7 @@ const messageResumeReadingUsers = async (user: DbUser) => {
     conversationId: conversation._id
   }
 
-  void createMessage({ data: firstMessageData }, lwAccountContext);
+  backgroundTask(createMessage({ data: firstMessageData }, lwAccountContext));
 }
 
 
@@ -58,7 +59,7 @@ export default registerMigration({
     const users = await Users.find({frontpageSelectedTab: 'forum-continue-reading'}).fetch();
 
     for (let user of users) {
-      void messageResumeReadingUsers(user);
+      backgroundTask(messageResumeReadingUsers(user));
     }
   },
 });

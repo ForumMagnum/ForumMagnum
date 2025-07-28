@@ -166,6 +166,7 @@ export async function handleRequest(request: Request, response: Response) {
   const resourcePrefetchOption = parsedRoute.currentRoute?.enableResourcePrefetch
   if (resourcePrefetchOption) {
     if (typeof resourcePrefetchOption === 'function') {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       void (async () => {
         if (await resourcePrefetchOption(request, response, parsedRoute, createAnonymousContext())) {
           responseManager.setStatus(200);

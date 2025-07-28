@@ -4,6 +4,7 @@ import { Posts } from "@/server/collections/posts/collection.ts";
 import { karmaRewarderId100, karmaRewarderId1000 } from '@/lib/instanceSettings';
 import { createPost } from "../collections/posts/mutations";
 import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
+import { backgroundTask } from "../utils/backgroundTask";
 
 const createKarmaAwardForUser = async (userId: string, karmaAmount: 100|1000, reason: string) => {
   // eslint-disable-next-line no-console
@@ -37,12 +38,12 @@ const createKarmaAwardForUser = async (userId: string, karmaAmount: 100|1000, re
     data: { userId: user._id, draft: true, deletedDraft: true, title: postInfo, contents } as CreatePostDataInput // deletedDraft isn't allowed through the create API, so we need validation disabled and a type cast
   }, userContext);
 
-  void performVoteServer({documentId: post._id, voteType: "bigUpvote", user: karmaAwardGivingUser, collection: Posts, skipRateLimits: true});
+  backgroundTask(performVoteServer({documentId: post._id, voteType: "bigUpvote", user: karmaAwardGivingUser, collection: Posts, skipRateLimits: true}));
 }
 
 // Exported to allow running manually with "yarn repl"
 export const createKarmaAwards = async (userIds: string[], karmaAmount: 100|1000, reason: string) => {
   for (const userId of userIds) {
-    void createKarmaAwardForUser(userId, karmaAmount, reason);
+    backgroundTask(createKarmaAwardForUser(userId, karmaAmount, reason));
   }
 }

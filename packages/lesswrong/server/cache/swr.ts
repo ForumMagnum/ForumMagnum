@@ -3,6 +3,7 @@ import { loggerConstructor } from "../../lib/utils/logging";
 import { serverId } from "@/server/analytics/serverAnalyticsWriter";
 import { swrCachingEnabledSetting, swrCachingInvalidationIntervalMsSetting, awsRegionSetting, awsAccessKeyIdSetting, awsSecretAccessKeySetting, cloudFrontDistributionIdSetting } from "../databaseSettings";
 import type { CloudFrontClient } from "@aws-sdk/client-cloudfront";
+import { backgroundTask } from "../utils/backgroundTask";
 
 const INVALIDATION_USER_AGENT = `ForumMagnumCacheInvalidator/1.0 (Server ID: ${serverId})`;
 
@@ -115,7 +116,7 @@ export const scheduleQueueProcessing = () => {
     const logger = loggerConstructor(`swr-invalidation-queue`)
     logger(`Running invalidateUrlFromQueue from setTimeout. serverId: ${serverId}`)
 
-    void invalidateUrlFromQueue();
+    backgroundTask(invalidateUrlFromQueue());
     eager = true;
     scheduleQueueProcessing();
   }, swrCachingInvalidationIntervalMsSetting.get());
@@ -138,7 +139,7 @@ export const swrInvalidatePostRoute = async (postId: string, context: ResolverCo
   invalidationQueue.push(url)
   if (eager) {
     eager = false;
-    void invalidateUrlFromQueue();
+    backgroundTask(invalidateUrlFromQueue());
   }
 };
 

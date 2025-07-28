@@ -24,6 +24,7 @@ import { captureEvent } from '@/lib/analyticsEvents';
 import union from 'lodash/union';
 import groupBy from 'lodash/groupBy';
 import mergeWith from 'lodash/mergeWith';
+import { backgroundTask } from "../utils/backgroundTask";
 
 interface UltraFeedDateCutoffs {
   latestPostsMaxAgeDays: number;
@@ -711,7 +712,7 @@ export const ultraFeedGraphQLQueries = {
         const currentOffset = offset ?? 0; 
         const eventsToCreate = createUltraFeedEvents(results, currentUser._id, sessionId, currentOffset);
         if (eventsToCreate.length > 0) {
-          void bulkRawInsert("UltraFeedEvents", eventsToCreate as DbUltraFeedEvent[]);
+          backgroundTask(bulkRawInsert("UltraFeedEvents", eventsToCreate as DbUltraFeedEvent[]));
         }
       }
 

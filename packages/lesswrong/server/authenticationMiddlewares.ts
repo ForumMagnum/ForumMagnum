@@ -29,6 +29,7 @@ import { getUnusedSlugByCollectionName } from './utils/slugUtil';
 import { slugify } from '@/lib/utils/slugify';
 import { prepareClientId } from './clientIdMiddleware';
 import { getAuth0Credentials, hasAuth0 } from "./databaseSettings";
+import { backgroundTask } from './utils/backgroundTask';
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -153,7 +154,7 @@ function createAccessTokenStrategy(auth0Strategy: AnyBecauseTodo) {
     } else {
       auth0Strategy.userProfile(accessToken, (_err: AnyBecauseTodo, profile: AnyBecauseTodo) => {
         if (profile) {
-          void accessTokenUserHandler(accessToken, resumeToken, profile, done)
+          backgroundTask(accessTokenUserHandler(accessToken, resumeToken, profile, done))
         } else {
           return done("Invalid token")
         }
