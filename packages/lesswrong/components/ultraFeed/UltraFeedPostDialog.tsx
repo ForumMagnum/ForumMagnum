@@ -47,6 +47,10 @@ import { unflattenComments } from '../../lib/utils/unflatten';
 import PostsPageQuestionContent from "../questions/PostsPageQuestionContent";
 import { useSubscribedLocation } from "@/lib/routeUtil";
 import { randomId } from '@/lib/random';
+import { RecombeeRecommendationsContextWrapper } from '../recommendations/RecombeeRecommendationsContextWrapper';
+import { Helmet } from '../common/Helmet';
+import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
+import AttributionInViewTracker from "../common/AttributionInViewTracker";
 
 const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   dialogContent: {
@@ -351,7 +355,6 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     backgroundColor: `${theme.palette.secondary.light}6c`,
   },
   scrolledHighlightFading: {
-    backgroundColor: 'transparent !important',
     transition: 'background-color 3s ease-out',
   },
   '& .PostsPagePostFooter-voteBottom': {
@@ -435,7 +438,8 @@ const UltraFeedPostDialog = ({
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
   
-  const postId = partialPost?._id ?? post?._id;
+  const postId = (partialPost ?? post)._id;
+  const recommId = postMetaInfo.recommInfo?.recommId;
   
   // Fetch full post if needed
   const { loading: loadingPost, data: postData } = useQuery(ULTRA_FEED_POST_FRAGMENT_QUERY, {
@@ -582,7 +586,8 @@ const UltraFeedPostDialog = ({
   
   // Scroll to target comment when loaded
   useEffect(() => {
-    let fadeTimer: NodeJS.Timeout | null = null;
+    let removeHighlightTimer: NodeJS.Timeout | null = null;
+    let cleanupTimer: NodeJS.Timeout | null = null;
 
     if (!isCommentsLoading && targetCommentId && comments && comments.length > 0 && !hasScrolledRef.current) {
       const targetFound = comments.some(c => c._id === targetCommentId);
@@ -591,11 +596,18 @@ const UltraFeedPostDialog = ({
         const cleanup = scrollToElement(targetCommentId, () => {
           const element = document.getElementById(targetCommentId);
           if (element) {
-            // Add highlight animation
+            // Add highlight instantly
             element.classList.add(classes.scrolledHighlight);
 
-            fadeTimer = setTimeout(() => {
+            // After a brief delay, add transition and remove highlight to trigger fade
+            removeHighlightTimer = setTimeout(() => {
               element.classList.add(classes.scrolledHighlightFading);
+              element.classList.remove(classes.scrolledHighlight);
+              
+              // Clean up transition class after animation completes
+              cleanupTimer = setTimeout(() => {
+                element.classList.remove(classes.scrolledHighlightFading);
+              }, 3000); // Match the 3s transition animationduration
             }, 100);
 
             hasScrolledRef.current = true;
@@ -604,13 +616,15 @@ const UltraFeedPostDialog = ({
 
         return () => {
           cleanup();
-          if (fadeTimer) clearTimeout(fadeTimer);
+          if (removeHighlightTimer) clearTimeout(removeHighlightTimer);
+          if (cleanupTimer) clearTimeout(cleanupTimer);
         };
       }
     }
 
     return () => {
-      if (fadeTimer) clearTimeout(fadeTimer);
+      if (removeHighlightTimer) clearTimeout(removeHighlightTimer);
+      if (cleanupTimer) clearTimeout(cleanupTimer);
     };
   }, [isCommentsLoading, targetCommentId, comments, classes.scrolledHighlight, classes.scrolledHighlightFading, scrollToElement]);
   
@@ -701,10 +715,17 @@ const UltraFeedPostDialog = ({
       paperClassName={classes.dialogPaper}
       className={classes.modalWrapper}
     >
-      <AnalyticsContext pageModalContext="ultraFeedPostModal" postId={postId}>
-        <DialogContent className={classes.dialogContent}>
-          <div ref={dialogInnerRef} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-            {/* Header */}
+      <RecombeeRecommendationsContextWrapper postId={postId} recommId={recommId}>
+        <AnalyticsContext pageModalContext="ultraFeedPostModal" postId={postId}>
+          <DialogContent className={classes.dialogContent}>
+            {/* Canonical URL changed to enable audio player to work */}
+            {postUrl && (
+              <Helmet name="ultraFeedPostDialogCanonical">
+                <link rel="canonical" href={postUrl} />
+              </Helmet>
+            )}
+            <div ref={dialogInnerRef} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+              {/* Header */}
             <div className={classes.stickyHeader}>
               <ForumIcon 
                 icon="Close"
@@ -861,48 +882,53 @@ const UltraFeedPostDialog = ({
                   )}
                 </div>
                 
-                {displayPost.question && fullPostForContent && (
-                  <div id="answers" className={classes.contentColumn}>
-                    <AnalyticsContext pageSectionContext="answersSection">
-                      {isAnswersLoading ? (
-                        <div className={classes.loadingContainer}>
-                          <Loading />
-                        </div>
-                      ) : (
-                        <PostsPageQuestionContent 
-                          post={fullPostForContent} 
-                          answersTree={answersTree} 
-                          refetch={() => {
-                            void refetchAnswers();
-                          }}
-                        />
-                      )}
-                    </AnalyticsContext>
-                  </div>
-                )}
-                
-                {isCommentsLoading && !loadingMoreComments && fullPostForContent && (
-                  <div className={classes.loadingContainer}>
-                    <Loading />
-                  </div>
-                )}
-                
-                <div id="commentsSection">
-                  {comments && (
-                    <CommentsListSection
-                      post={fullPostForContent}
-                      comments={comments ?? []}
-                      totalComments={totalComments}
-                      commentCount={(comments ?? []).length}
-                      loadMoreComments={loadMoreProps.loadMore}
-                      loadingMoreComments={loadingMoreComments}
-                      highlightDate={undefined}
-                      setHighlightDate={() => {}}
-                      hideDateHighlighting={true}
-                      newForm={true}
-                    />
+                <AnalyticsInViewTracker eventProps={{ inViewType: "commentsSection" }}>
+                <AttributionInViewTracker eventProps={{ post: displayPost, portion: 1, recommId }}>
+                  {displayPost.question && fullPostForContent && (
+                    <div id="answers" className={classes.contentColumn}>
+                      <AnalyticsContext pageSectionContext="answersSection">
+                        {isAnswersLoading ? (
+                          <div className={classes.loadingContainer}>
+                            <Loading />
+                          </div>
+                        ) : (
+                          <PostsPageQuestionContent 
+                            post={fullPostForContent} 
+                            answersTree={answersTree} 
+                            refetch={() => {
+                              void refetchAnswers();
+                            }}
+                          />
+                        )}
+                      </AnalyticsContext>
+                    </div>
                   )}
-                </div>
+                  
+                  {isCommentsLoading && !loadingMoreComments && fullPostForContent && (
+                    <div className={classes.loadingContainer}>
+                      <Loading />
+                    </div>
+                  )}
+                  
+                  <div id="commentsSection">
+                    {comments && (
+                      <CommentsListSection
+                        post={fullPostForContent}
+                        comments={comments ?? []}
+                        totalComments={totalComments}
+                        commentCount={(comments ?? []).length}
+                        loadMoreComments={loadMoreProps.loadMore}
+                        loadingMoreComments={loadingMoreComments}
+                        highlightDate={undefined}
+                        setHighlightDate={() => {}}
+                        hideDateHighlighting={true}
+                        newForm={true}
+                        treeOptions={{ forceNotSingleLine: true }}
+                      />
+                    )}
+                  </div>
+                </AttributionInViewTracker>
+                </AnalyticsInViewTracker>
               </div>
               
               {/* Grid placeholders so we can match the grid layout of PostsPage.tsx, placeholders for side comments, etc */}
@@ -942,6 +968,7 @@ const UltraFeedPostDialog = ({
           />
         )}
       </AnalyticsContext>
+      </RecombeeRecommendationsContextWrapper>
     </LWDialog>
   );
 };

@@ -2549,6 +2549,7 @@ type FeedSpotlightItem = {
   _id: Scalars['String']['output'];
   post?: Maybe<Post>;
   spotlight?: Maybe<Spotlight>;
+  spotlightMetaInfo?: Maybe<Scalars['JSON']['output']>;
 };
 
 type FieldChange = {
@@ -26425,7 +26426,7 @@ type FeedSpotlightFragment_FeedSpotlightItem_post_Post = (
   & PostsListWithVotes
 );
 
-type FeedSpotlightFragment = { __typename?: 'FeedSpotlightItem', _id: string, spotlight: FeedSpotlightFragment_FeedSpotlightItem_spotlight_Spotlight | null, post: FeedSpotlightFragment_FeedSpotlightItem_post_Post | null };
+type FeedSpotlightFragment = { __typename?: 'FeedSpotlightItem', _id: string, spotlightMetaInfo: any | null, spotlight: FeedSpotlightFragment_FeedSpotlightItem_spotlight_Spotlight | null, post: FeedSpotlightFragment_FeedSpotlightItem_post_Post | null };
 
 type multiPostsForAutocompleteQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }

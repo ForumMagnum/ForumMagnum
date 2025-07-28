@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { CommentTreeOptions } from './commentTree';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import CommentsNodeInner from "./CommentsNode";
+import CommentsNode from "./CommentsNode";
 
 const CommentsListQuery = gql(`
   query CommentById($documentId: String) {
@@ -28,7 +28,7 @@ const CommentById = ({commentId, nestingLevel=0, isChild=false, treeOptions, loa
   const comment = data?.comment?.result;
   if (!comment) return null;
   
-  return <CommentsNodeInner
+  return <CommentsNode
     comment={comment}
     nestingLevel={nestingLevel}
     isChild={isChild}

@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { Typography } from "../common/Typography";
 import Loading from "../vulcan-core/Loading";
-import CommentsNodeInner from "./CommentsNode";
+import CommentsNode from "./CommentsNode";
 import LoadMore from "../common/LoadMore";
 import { NetworkStatus } from "@apollo/client";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
@@ -65,7 +65,7 @@ const RecentComments = ({classes, selector, limit, truncated=false, showPinnedOn
   return <div className={classes.root}>
     {validResults.map(comment =>
       <div key={comment._id}>
-        <CommentsNodeInner
+        <CommentsNode
           treeOptions={{
             condensed: false,
             post: comment.post || undefined,

@@ -628,10 +628,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     const deduplicatedComments = Array.from(uniqueMap.values());
 
     return deduplicatedComments.map((comment): FeedCommentFromDb => {
-      const sources: string[] = ['recentComments'];
-      if (comment.primarySource && comment.primarySource !== 'recentComments') {
-        sources.push(comment.primarySource); // temporarily to avoid breaking change, we assign recentComments to all comments
-      }
+      const sources: string[] = [comment.primarySource ?? 'recentComments'];
       return {
         commentId: comment.commentId,
         authorId: comment.authorId,

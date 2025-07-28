@@ -13,7 +13,7 @@ import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import UsersName from "../users/UsersName";
 import FooterTag from "../tagging/FooterTag";
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -112,7 +112,7 @@ const ShortformListItem = ({comment, hideTag, classes}: {
   if (expanded) {
     return (
       <div className={classes.expandedRoot}>
-        <CommentsNodeInner
+        <CommentsNode
           treeOptions={treeOptions}
           comment={comment}
           loadChildrenSeparately
@@ -173,7 +173,7 @@ const ShortformListItem = ({comment, hideTag, classes}: {
         clickable={false}
       >
         <div className={classes.hoverOver}>
-          <CommentsNodeInner
+          <CommentsNode
             truncated
             nestingLevel={1}
             comment={comment}

@@ -304,6 +304,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
     filters: [
       {term: {deleted: false}},
       {term: {deleteContent: false}},
+      ...(isEAForum ? [] : [{term: {isReviewed: true}}]),
     ],
     mappings: {
       displayName: shingleTextMapping,

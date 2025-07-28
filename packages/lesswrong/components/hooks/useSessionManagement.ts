@@ -72,6 +72,14 @@ export function useSessionManagement() {
     const session = getOrCreateSession();
     clientContextVars.sessionId = session.sessionId;
 
+    // Check session validity on ANY visibility change
+    const handleVisibilityChange = () => {
+      const currentSession = getOrCreateSession();
+      clientContextVars.sessionId = currentSession.sessionId;
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     // Listen for cross-tab session updates
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === SESSION_STORAGE_KEY && e.newValue) {
@@ -86,7 +94,10 @@ export function useSessionManagement() {
     };
 
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, [getOrCreateSession]);
 
   return { updateLastActivity };
