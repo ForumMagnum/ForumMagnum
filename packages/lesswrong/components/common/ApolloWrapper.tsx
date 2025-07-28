@@ -11,6 +11,14 @@ import { ApolloNextAppProvider } from "@/lib/vendor/@apollo/client-integration-n
 import type { GraphQLSchema } from "graphql";
 import type { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import { typeDefs, resolvers } from "@/server/vulcan-lib/apollo-server/initGraphQL";
+import { disableFragmentWarnings } from "graphql-tag";
+
+// In the internals of apollo client, they do two round-trips that look like `gql(print(gql(options.query)))`
+// This causes graphql-tag to emit warnings that look like "Warning: fragment with name PostsMinimumInfo already exists",
+// because it caches fragments by name and considers them different if they have different whitespace (i.e. minified and un-minified versions).
+// This is already known to the library maintainers as a bug: https://github.com/apollographql/apollo-client-integrations/issues/328#issuecomment-2254191710
+// Disabling the warnings should basically be harmless as long as they're still enabled in the codegen context.
+disableFragmentWarnings();
 
 const getExecutableSchema = (() => {
   let _executableSchema: GraphQLSchema|null = null;

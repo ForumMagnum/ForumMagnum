@@ -7,6 +7,10 @@ import {
 } from "@apollo/client-integration-nextjs";
 import type { ApolloClient as ApolloClientType } from "@apollo/client"
 import { ApolloLink } from "@apollo/client";
+import { disableFragmentWarnings } from "graphql-tag";
+
+// See comment on other instance of this function being invoked.
+disableFragmentWarnings();
 
 const { getClient: getClientInner, query, PreloadQuery } = registerApolloClient(() => {
   return new ApolloClient({
