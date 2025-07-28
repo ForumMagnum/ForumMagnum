@@ -1,5 +1,4 @@
 import { isIfAnyoneBuildsItFrontPage } from "@/components/seasonal/IfAnyoneBuildsItSplash";
-import { requireCssVar } from "./cssVars";
 import { isFriendlyUI } from "./forumTheme";
 
 const hideSpoilers = (theme: ThemeType) => ({
@@ -356,23 +355,6 @@ const conditionallyVisibleBlockStyles = (theme: ThemeType) => ({
     },
   },
 });
-
-// Calling requireCssVar results in the variable being defined in the stylesheet
-// (e.g. --palette-fonts-sansSerifStack). These are required for use in styles that
-// are within the ckeditor bundle (in ckEditor/src/ckeditor5-cta-button/ctaform.css
-// and ckEditor/src/ckeditor5-poll/poll.css)
-requireCssVar("palette", "fonts", "sansSerifStack")
-requireCssVar("borderRadius", "default")
-requireCssVar("borderRadius", "small")
-requireCssVar("palette", "buttons", "alwaysPrimary")
-requireCssVar("palette", "text", "alwaysWhite")
-requireCssVar("palette", "primary", "dark")
-requireCssVar("palette", "panelBackground", "default")
-requireCssVar("palette", "error", "main")
-requireCssVar("palette", "grey", 200)
-requireCssVar("palette", "grey", 300)
-requireCssVar("palette", "grey", 600)
-requireCssVar("palette", "grey", 1000)
 
 const ctaButtonStyles = (theme: ThemeType) => ({
   '& .ck-cta-button': {

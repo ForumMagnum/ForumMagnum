@@ -4,7 +4,6 @@ import sortBy from 'lodash/sortBy';
 import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
 import type { ForumTypeString } from '../lib/instanceSettings';
 import { getForumTheme } from '../themes/forumTheme';
-import { requestedCssVarsToString } from '../themes/cssVars';
 import stringify from 'json-stringify-deterministic';
 import { brotliCompressResource, CompressedCacheResource } from './utils/bundleUtils';
 import { getJss, type StylesContextType, topLevelStyleDefinitions } from '@/components/hooks/useStyles';
@@ -36,13 +35,11 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   const allStyles = getAllStylesByName();
   
   const theme = getForumTheme(themeOptions);
-  const cssVars = requestedCssVarsToString(theme);
   const jssStylesheet = stylesToStylesheet(allStyles, theme, themeOptions);
   
   const mergedCSS = [
     jssStylesheet,
     ...theme.rawCSS,
-    cssVars,
   ].join("\n");
 
   const minifiedCSS = maybeMinifyCSS(mergedCSS);
