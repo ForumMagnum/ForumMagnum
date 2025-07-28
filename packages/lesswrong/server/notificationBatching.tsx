@@ -13,6 +13,7 @@ import gql from 'graphql-tag';
 import { PostsEmail } from './emailComponents/PostsEmail';
 import { UtmParam } from './analytics/utm-tracking';
 import { isEAForum } from '@/lib/instanceSettings';
+import { backgroundTask } from './utils/backgroundTask';
 
 // string (notification type name) => Debouncer
 export const notificationDebouncers = toDictionary(getNotificationTypes(),
@@ -25,7 +26,7 @@ export const notificationDebouncers = toDictionary(getNotificationTypes(),
         delayMinutes: 15,
       },
       callback: ({ userId, notificationType }: {userId: string, notificationType: string}, notificationIds: Array<string>) => {
-        void sendNotificationBatch({userId, notificationIds, notificationType});
+        backgroundTask(sendNotificationBatch({userId, notificationIds, notificationType}));
       }
     });
   }

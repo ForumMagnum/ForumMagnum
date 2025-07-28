@@ -1,4 +1,3 @@
-
 import schema from "@/lib/collections/chapters/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
@@ -6,6 +5,7 @@ import { canonizeChapterPostInfo, notifyUsersOfNewPosts, updateSequenceLastUpdat
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -112,7 +112,7 @@ export async function updateChapter({ selector, data }: UpdateChapterInput, cont
     props: updateCallbackProperties,
   });
 
-  void logFieldChanges({ currentUser, collection: Chapters, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: Chapters, oldDocument, data: origData }));
 
   return updatedDocument;
 }

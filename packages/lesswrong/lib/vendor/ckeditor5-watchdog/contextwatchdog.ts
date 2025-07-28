@@ -302,6 +302,7 @@ export default class ContextWatchdog<TContext extends Context = Context> extends
 							return;
 						}
 
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
 						void this._actionQueues.enqueue( item.id, () => new Promise<void>( res => {
 							const rethrowRestartEventOnce = () => {
 								watchdog.off( 'restart', rethrowRestartEventOnce );

@@ -22,6 +22,7 @@ import { computeContextFromUser } from './context';
 import { createUser } from '@/server/collections/users/mutations';
 import { createDisplayName } from '@/lib/collections/users/newSchema';
 import { comparePasswords, createPasswordHash, validatePassword } from './passwordHelpers';
+import { backgroundTask } from '@/server/utils/backgroundTask';
 
 const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPassport(username, password, done) {
   const user = await new UsersRepo().getUserByUsernameOrEmail(username);
@@ -303,9 +304,9 @@ function registerLoginEvent(user: DbUser, req: AnyBecauseTodo) {
       referrer: req.headers['referer']
     }
   }
-  void computeContextFromUser({ user, isSSR: false }).then(userContext => {
-    void createLWEvent({ data: document }, userContext);
-  });
+  backgroundTask(computeContextFromUser({ user, isSSR: false }).then(userContext => {
+    backgroundTask(createLWEvent({ data: document }, userContext));
+  }));
 }
 
 const reCaptchaSecretSetting = new DatabaseServerSetting<string | null>('reCaptcha.secret', null) // ReCaptcha Secret

@@ -42,6 +42,7 @@ import { updateUser } from "../collections/users/mutations";
 import { updateComment } from "../collections/comments/mutations";
 import { EmailComment } from "../emailComponents/EmailComment";
 import { PostsOriginalContents, PostsRevision } from "@/lib/collections/posts/fragments";
+import { backgroundTask } from "../utils/backgroundTask";
 
 interface SendModerationPMParams {
   action: 'deleted' | 'rejected',
@@ -71,7 +72,7 @@ export async function recalculateAFCommentMetadata(postId: string|null, context:
   const lastComment: DbComment = _.max(afComments, function(c){return c.postedAt;})
   const lastCommentedAt = (lastComment && lastComment.postedAt) || (await loaders.Posts.load(postId))?.postedAt || new Date()
 
-  void updatePost({
+  backgroundTask(updatePost({
     data: {
       // Needs to be recomputed after anything moves to/from AF; can't be handled
       // incrementally by simpler callbacks because a comment being removed from
@@ -82,7 +83,7 @@ export async function recalculateAFCommentMetadata(postId: string|null, context:
       afCommentCount: afComments.length,
     },
     selector: { _id: postId }
-  }, createAnonymousContext())
+  }, createAnonymousContext()))
 }
 
 const utils = {
@@ -504,17 +505,17 @@ const utils = {
       const lastComment: DbComment = _.max(comments, (c) => c.postedAt)
       const lastCommentedAt = (lastComment && lastComment.postedAt) || (await loaders.Posts.load(comment.postId))?.postedAt || new Date()
     
-      void updatePost({
+      backgroundTask(updatePost({
         data: {
           lastCommentedAt: new Date(lastCommentedAt),
         },
         selector: { _id: comment.postId }
-      }, createAnonymousContext())
+      }, createAnonymousContext()));
     }
     if (action === 'deleted') {
-      void utils.commentsDeleteSendPMAsync(comment, currentUser, context);
+      backgroundTask(utils.commentsDeleteSendPMAsync(comment, currentUser, context));
     } else {
-      void utils.commentsRejectSendPMAsync(comment, currentUser, context);
+      backgroundTask(utils.commentsRejectSendPMAsync(comment, currentUser, context));
     }
   }
 };
@@ -722,7 +723,7 @@ export async function commentsNewOperations(comment: CreateCommentDataInput, _: 
       const post = await loaders.Posts.load(comment.postId)
       if (post) {
         // eslint-disable-next-line no-console
-        void recombeeApi.upsertPost(post, context).catch(e => console.log('Error when sending commented on post to recombee', { e }));  
+        backgroundTask(recombeeApi.upsertPost(post, context).catch(e => console.log('Error when sending commented on post to recombee', { e })));
       }
     }
 
@@ -760,7 +761,7 @@ export async function handleForumEventMetadataNew(comment: CreateCommentDataInpu
 /* CREATE AFTER */
 export function invalidatePostOnCommentCreate({ postId }: DbComment) {
   if (!postId) return;
-  void swrInvalidatePostRoute(postId);
+  backgroundTask(swrInvalidatePostRoute(postId));
 }
 
 export async function updateDescendentCommentCountsOnCreate(comment: DbComment, properties: AfterCreateCallbackProperties<'Comments'>) {
@@ -901,7 +902,7 @@ export async function checkModGPTOnCommentCreate({document, context}: AfterCreat
   const postTags = post.tagRelevance
   if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
   
-  void checkModGPT(document, post, context)
+  backgroundTask(checkModGPT(document, post, context))
 }
 
 // Elastic callback might go here
@@ -924,7 +925,7 @@ export async function commentsNewNotifications(comment: DbComment, context: Reso
   // if the site is currently hiding comments by unreviewed authors, do not send notifications if this comment should be hidden
   if (commentIsNotPublicForAnyReason(comment)) return
   
-  void utils.sendNewCommentNotifications(comment, context)
+  backgroundTask(utils.sendNewCommentNotifications(comment, context))
 }
 
 /* UPDATE VALIDATE */
@@ -933,9 +934,12 @@ export async function commentsNewNotifications(comment: DbComment, context: Reso
 /* UPDATE BEFORE */
 export function updatePostLastCommentPromotedAt(data: UpdateCommentDataInput, { oldDocument, newDocument, context, currentUser }: UpdateCallbackProperties<"Comments">) {
   if (data?.promoted && !oldDocument.promoted && newDocument.postId) {
-    void updatePost({ data: {
-            lastCommentPromotedAt: new Date(),
-          }, selector: { _id: newDocument.postId } }, context);
+    backgroundTask(updatePost({
+      data: {
+        lastCommentPromotedAt: new Date(),
+      },
+      selector: { _id: newDocument.postId }
+    }, context));
     const promotedByUserId = currentUser?._id;
     return { ...data, promotedByUserId };
   }
@@ -1040,7 +1044,7 @@ export async function handleForumEventMetadataEdit(modifier: MongoModifier, comm
 /* UPDATE AFTER */
 export function invalidatePostOnCommentUpdate({ postId }: { postId: string | null }) {
   if (!postId) return;
-  void swrInvalidatePostRoute(postId);
+  backgroundTask(swrInvalidatePostRoute(postId));
 }
 
 export async function updateDescendentCommentCountsOnEdit(comment: DbComment, properties: UpdateCallbackProperties<"Comments">) {
@@ -1073,13 +1077,13 @@ export async function updatedCommentMaybeTriggerReview({ currentUser, context }:
 
 export async function updateUserNotesOnCommentRejection({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Comments">) {
   if (!oldDocument.rejected && newDocument.rejected) {
-    void createModeratorAction({
+    backgroundTask(createModeratorAction({
       data: {
         userId: newDocument.userId,
         type: REJECTED_COMMENT,
         endedAt: new Date(),
       }
-    }, context);
+    }, context));
   }
 }
 
@@ -1119,7 +1123,7 @@ export async function checkModGPTOnCommentUpdate({oldDocument, newDocument, cont
   const postTags = post.tagRelevance
   if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
   
-  void checkModGPT(newDocument, post, context)
+  backgroundTask(checkModGPT(newDocument, post, context))
 }
 
 /* EDIT ASYNC */
@@ -1147,6 +1151,6 @@ export async function commentsEditSoftDeleteCallback(comment: DbComment, oldComm
 
 export async function commentsPublishedNotifications(comment: DbComment, oldComment: DbComment, context: ResolverContext) {
   if (commentIsNotPublicForAnyReason(oldComment) && !commentIsNotPublicForAnyReason(comment)) {
-    void utils.sendNewCommentNotifications(comment, context)
+    backgroundTask(utils.sendNewCommentNotifications(comment, context))
   }
 }
