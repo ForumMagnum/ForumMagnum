@@ -21,6 +21,7 @@ import { CommentSubscriptionsDropdownItem } from "./CommentSubscriptionsDropdown
 import BanUserFromPostDropdownItem from "./BanUserFromPostDropdownItem";
 import LockThreadDropdownItem from "./LockThreadDropdownItem";
 import { useCurrentUser } from '@/components/common/withUser';
+import BookmarkDropdownItem from "../posts/BookmarkDropdownItem";
 
 
 const PostsDetailsQuery = gql(`
@@ -61,6 +62,7 @@ const CommentActions = ({comment, post, tag, showEdit}: {
     <DropdownMenu>
       <EditCommentDropdownItem comment={comment} showEdit={showEdit} />
       <PinToProfileDropdownItem comment={comment} post={post} />
+      <BookmarkDropdownItem documentId={comment._id} collectionName="Comments" preventMenuClose />
       <CommentSubscriptionsDropdownItem comment={comment} post={post} />
       <ReportCommentDropdownItem comment={comment} post={post} />
       <MoveToAlignmentCommentDropdownItem comment={comment} post={postDetails} />
