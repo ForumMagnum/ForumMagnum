@@ -9,7 +9,7 @@ import { Strategy as FacebookOAuthStrategy, Profile as FacebookProfile } from 'p
 import { Strategy as GithubOAuthStrategy, Profile as GithubProfile } from 'passport-github2';
 import { Strategy as Auth0Strategy, Profile as Auth0Profile, ExtraVerificationParams, AuthenticateOptions } from 'passport-auth0';
 import { VerifyCallback } from 'passport-oauth2'
-import { afGithubClientIdSetting, afGithubOAuthSecretSetting, auth0ClientIdSetting, auth0DomainSetting, githubClientIdSetting, githubOAuthSecretSetting, googleClientIdSetting, googleOAuthSecretSetting, googleDocImportClientIdSetting, googleDocImportClientSecretSetting, facebookClientIdSetting, facebookOAuthSecretSetting, expressSessionSecretSetting } from './databaseSettings';
+import { afGithubClientIdSetting, afGithubOAuthSecretSetting, auth0ClientIdSetting, auth0DomainSetting, githubClientIdSetting, githubOAuthSecretSetting, googleClientIdSetting, googleOAuthSecretSetting, googleDocImportClientIdSetting, googleDocImportClientSecretSetting, facebookClientIdSetting, facebookOAuthSecretSetting, expressSessionSecretSetting, getAuth0Credentials, hasAuth0 } from "./databaseSettings";
 import { combineUrls, getSiteUrl } from '../lib/vulcan-lib/utils';
 import pick from 'lodash/pick';
 import { isAF, isEAForum, siteUrlSetting } from '../lib/instanceSettings';
@@ -28,7 +28,7 @@ import { isE2E } from '../lib/executionEnvironment';
 import { getUnusedSlugByCollectionName } from './utils/slugUtil';
 import { slugify } from '@/lib/utils/slugify';
 import { prepareClientId } from './clientIdMiddleware';
-import { getAuth0Credentials, hasAuth0 } from "./databaseSettings";
+import { backgroundTask } from './utils/backgroundTask';
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -153,7 +153,7 @@ function createAccessTokenStrategy(auth0Strategy: AnyBecauseTodo) {
     } else {
       auth0Strategy.userProfile(accessToken, (_err: AnyBecauseTodo, profile: AnyBecauseTodo) => {
         if (profile) {
-          void accessTokenUserHandler(accessToken, resumeToken, profile, done)
+          backgroundTask(accessTokenUserHandler(accessToken, resumeToken, profile, done))
         } else {
           return done("Invalid token")
         }

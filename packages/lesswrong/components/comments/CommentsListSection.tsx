@@ -113,6 +113,7 @@ const CommentsListSection = ({
   highlightDate,
   hideDateHighlighting,
   setHighlightDate,
+  treeOptions: treeOptionsOverride,
 }: {
   post?: PostsDetails,
   tag?: TagBasicInfo,
@@ -130,6 +131,7 @@ const CommentsListSection = ({
   highlightDate: Date|undefined,
   hideDateHighlighting?: boolean,
   setHighlightDate: (newValue: Date|undefined) => void,
+  treeOptions?: Partial<CommentTreeOptions>,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -160,7 +162,8 @@ const CommentsListSection = ({
     postPage: true,
     showCollapseButtons: true,
     tag: tag,
-  }), [highlightDate, post, tag]);
+    ...treeOptionsOverride,
+  }), [highlightDate, post, tag, treeOptionsOverride]);
 
   return (
     <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>

@@ -9,6 +9,7 @@ import gql from "graphql-tag";
 import { z } from "zod";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { userOwns } from "@/lib/vulcan-users/permissions";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 
 const seeLessEventDataSchema = z.object({
   feedbackReasons: z.object({
@@ -92,7 +93,7 @@ export async function updateUltraFeedEvent(args: { selector: string, data: Updat
     }
   }
   
-  void logFieldChanges({ currentUser, collection: UltraFeedEvents, oldDocument: existingDoc, data: inputData });
+  backgroundTask(logFieldChanges({ currentUser, collection: UltraFeedEvents, oldDocument: existingDoc, data: inputData }));
   
   const updatedDocument = await updateAndReturnDocument(inputData, UltraFeedEvents, { _id: selector }, context);
 

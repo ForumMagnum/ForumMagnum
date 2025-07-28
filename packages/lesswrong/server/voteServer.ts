@@ -29,6 +29,7 @@ import { capitalize } from '@/lib/vulcan-lib/utils';
 import { createVote as createVoteMutator } from '@/server/collections/votes/mutations';
 import { createModeratorAction } from './collections/moderatorActions/mutations';
 import { getSchema } from '@/lib/schema/allSchemas';
+import { backgroundTask } from './utils/backgroundTask';
 
 
 // Test if a user has voted on the server
@@ -82,10 +83,10 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
     {}
   );
   if (isElasticEnabled && collectionIsSearchIndexed(collection.collectionName)) {
-    void elasticSyncDocument(collection.collectionName, newDocument._id);
+    backgroundTask(elasticSyncDocument(collection.collectionName, newDocument._id));
   }
   if (collection.collectionName === "Posts") {
-    void swrInvalidatePostRoute(newDocument._id, context);
+    backgroundTask(swrInvalidatePostRoute(newDocument._id, context))
   }
   return {newDocument, vote};
 }
@@ -205,7 +206,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
     ...newScores,
   };
   if (isElasticEnabled && collectionIsSearchIndexed(collection.collectionName)) {
-    void elasticSyncDocument(collection.collectionName, newDocument._id);
+    backgroundTask(elasticSyncDocument(collection.collectionName, newDocument._id));
   }
   return newDocument;
 }
@@ -296,12 +297,12 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
       const { moderatorActionType } = await checkVotingRateLimits({ document, collection, voteType, user, context });
       if (moderatorActionType && !(await wasVotingPatternWarningDeliveredRecently(user, moderatorActionType))) {
         if (moderatorActionType === RECEIVED_VOTING_PATTERN_WARNING) showVotingPatternWarning = true;
-        void createModeratorAction({
+        backgroundTask(createModeratorAction({
           data: {
             userId: user._id,
             type: moderatorActionType,
           }
-        }, context);
+        }, context));
       }
     }
     
@@ -325,7 +326,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
 
     voteDocTuple.newDocument = document
     
-    void onCastVoteAsync(voteDocTuple, collection, user, context);
+    backgroundTask(onCastVoteAsync(voteDocTuple, collection, user, context));
 
     return {
       vote: voteDocTuple.vote,

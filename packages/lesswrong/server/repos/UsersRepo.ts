@@ -181,6 +181,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
         COALESCE(u."isAdmin", FALSE) AS "isAdmin",
         COALESCE(u."deleted", FALSE) AS "deleted",
         COALESCE(u."deleteContent", FALSE) AS "deleteContent",
+        (u."reviewedByUserId" IS NOT NULL) AS "isReviewed",
         COALESCE(u."hideFromPeopleDirectory", FALSE) AS "hideFromPeopleDirectory",
         u."profileImageId",
         u."biography"->>'html' AS "bio",

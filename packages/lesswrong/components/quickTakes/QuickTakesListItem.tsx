@@ -5,13 +5,12 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 import { isLWorAF } from "../../lib/instanceSettings";
 import classNames from "classnames";
 import DeferRender from "../common/DeferRender";
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 import QuickTakesCollapsedListItem from "./QuickTakesCollapsedListItem";
 import LWQuickTakesCollapsedListItem from "./LWQuickTakesCollapsedListItem";
 
 const styles = (theme: ThemeType) => ({
   expandedRoot: {
-    background: theme.palette.panelBackground.bannerAdTranslucentDeep,
     position: "relative",
     "& .comments-node-root": {
       marginBottom: 8,
@@ -46,7 +45,7 @@ const QuickTakesListItem = ({quickTake, classes}: {
   const expandedComment = (
     <DeferRender ssr={false}>
       <div className={classNames(classes.expandedRoot, { [classes.hidden]: !expanded })}>
-        <CommentsNodeInner
+        <CommentsNode
           treeOptions={{
             post: quickTake.post ?? undefined,
             showCollapseButtons: isFriendlyUI,

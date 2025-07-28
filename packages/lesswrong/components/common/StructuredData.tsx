@@ -1,3 +1,4 @@
+import React from 'react';
 import { toEmbeddableJson } from '@/lib/utils/jsonUtils';
 import { SuspenseWrapper } from './SuspenseWrapper';
 

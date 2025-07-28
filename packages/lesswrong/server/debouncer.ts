@@ -4,6 +4,7 @@ import { isAF, testServerSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import DebouncerEventsRepo from './repos/DebouncerEventsRepo';
 import { isAnyTest } from '../lib/executionEnvironment';
+import { backgroundTask } from './utils/backgroundTask';
 
 let eventDebouncersByName: Partial<Record<string,EventDebouncer<any>>> = {};
 

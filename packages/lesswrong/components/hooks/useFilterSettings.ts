@@ -1,7 +1,8 @@
 import { useTracking } from '@/lib/analyticsEvents';
 import { useQuery } from '@/lib/crud/useQuery';
 import { getDefaultFilterSettings, FilterSettings, FilterMode, filterModeIsSubscribed, FilterTag } from '@/lib/filterSettings';
-import { findIndex, filter } from 'lodash';
+import findIndex from 'lodash/findIndex';
+import filter from 'lodash/filter';
 import { useState, useCallback } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from './useUpdateCurrentUser';

@@ -16,6 +16,7 @@ function prepareBookmarksForUltraFeed(bookmarks: UltraFeedBookmark[]): PreparedB
             postMetaInfo: { 
               sources: ['bookmarks'] as const, 
               displayStatus: 'expanded',
+              highlight: false,
             }
           }
         };

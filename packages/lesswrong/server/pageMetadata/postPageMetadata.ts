@@ -1,11 +1,10 @@
 import { getClient } from "@/lib/apollo/nextApolloClient";
 import { gql } from "@/lib/generated/gql-codegen";
-import { isEAForum } from "@/lib/instanceSettings";
+import { isEAForum, cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import { defaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields } from "./sharedMetadata";
 import { postCoauthorIsPending, postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
 import { captureException } from "@sentry/nextjs";
 

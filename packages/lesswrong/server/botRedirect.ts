@@ -1,7 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
-import { botSiteUrlSetting, botSiteUserAgentRegexesSetting } from '@/lib/instanceSettings';
+import { botSiteUrlSetting, botSiteUserAgentRegexesSetting, botSiteRedirectEnabledSetting } from '@/lib/instanceSettings';
 import { combineUrls } from '../lib/vulcan-lib/utils';
-import { botSiteRedirectEnabledSetting } from '../lib/instanceSettings';
 
 const getBaseUrl = () => {
   const botSiteBaseUrl = botSiteUrlSetting.get();

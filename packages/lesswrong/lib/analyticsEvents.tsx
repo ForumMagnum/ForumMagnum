@@ -411,6 +411,7 @@ export function flushClientEvents(force: boolean = false) {
 
   const eventsToWrite = pendingAnalyticsEvents;
   pendingAnalyticsEvents = [];
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
   void clientWriteEvents(eventsToWrite.map(event => ({
     ...event,
     props: {

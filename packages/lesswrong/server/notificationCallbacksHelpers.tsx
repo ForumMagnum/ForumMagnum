@@ -15,6 +15,7 @@ import { sequenceGetPageUrl } from '../lib/collections/sequences/helpers';
 import { createNotification as createNotificationMutator } from './collections/notifications/mutations';
 import { sendNotificationBatch } from './notificationBatching';
 import { getDocument } from '@/lib/notificationDataHelpers';
+import { backgroundTask } from './utils/backgroundTask';
 /**
  * Return a list of users (as complete user objects) subscribed to a given
  * document. This is the union of users who have subscribed to it explicitly,
@@ -211,7 +212,7 @@ export const createNotification = async ({
       delayMinutes: 15,
     },
     callback: ({ userId, notificationType }: {userId: string, notificationType: string}, notificationIds: Array<string>) => {
-      void sendNotificationBatch({userId, notificationIds, notificationType});
+      backgroundTask(sendNotificationBatch({userId, notificationIds, notificationType}));
     }
   });
 

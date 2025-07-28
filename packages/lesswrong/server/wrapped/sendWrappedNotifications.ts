@@ -3,6 +3,7 @@ import ReadStatuses from "../../server/collections/readStatus/collection";
 import Users from "../../server/collections/users/collection";
 import { createNotifications } from "../notificationCallbacksHelpers";
 import { WrappedYear, isWrappedYear } from "@/components/ea-forum/wrapped/constants";
+import { backgroundTask } from "../utils/backgroundTask";
 
 export const getWrappedUsers = async (
   year: WrappedYear,
@@ -39,7 +40,7 @@ export const sendWrappedNotifications = async (year: WrappedYear) => {
 
   // eslint-disable-next-line no-console
   console.log(`Sending onsite Wrapped ${year} notifications to ${users.length} users`);
-  void createNotifications({
+  backgroundTask(createNotifications({
     userIds: users.map(u => u._id),
     notificationType: 'wrapped',
     documentId: null,
@@ -59,11 +60,11 @@ export const sendWrappedNotifications = async (year: WrappedYear) => {
         dayOfWeekGMT: "Monday",
       }
     },
-  });
+  }));
 
   // eslint-disable-next-line no-console
   console.log(`Sending email Wrapped ${year} notifications to ${emailUsers.length} users`);
-  void createNotifications({
+  backgroundTask(createNotifications({
     userIds: emailUsers.map(u => u._id),
     notificationType: 'wrapped',
     documentId: null,
@@ -83,5 +84,5 @@ export const sendWrappedNotifications = async (year: WrappedYear) => {
         dayOfWeekGMT: "Monday",
       }
     },
-  });
+  }));
 }

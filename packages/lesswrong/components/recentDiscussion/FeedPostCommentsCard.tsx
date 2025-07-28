@@ -11,7 +11,7 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useRecentDiscussionThread } from './useRecentDiscussionThread';
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 import FeedPostsHighlight from "../posts/FeedPostsHighlight";
 import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 import FeedPostCardMeta from "../posts/FeedPostCardMeta";
@@ -161,7 +161,7 @@ const FeedPostCommentsBranch = ({ comment, treeOptions, expandAllThreads, classe
     ) : null;
 
   return <div key={comment.item._id}>
-    <CommentsNodeInner
+    <CommentsNode
       treeOptions={treeOptions}
       startThreadTruncated={true}
       showExtraChildrenButton={showExtraChildrenButton}

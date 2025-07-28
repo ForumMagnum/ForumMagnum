@@ -5,12 +5,11 @@ import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { htmlToTextDefault } from '../../lib/htmlToText';
 import { truncate } from '../../lib/editor/ellipsize';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
-import { aboutPostIdSetting, recombeeCacheTtlMsSetting, recombeeDatabaseIdSetting, recombeePrivateApiTokenSetting } from '../../lib/instanceSettings';
+import { aboutPostIdSetting, recombeeCacheTtlMsSetting, recombeeDatabaseIdSetting, recombeePrivateApiTokenSetting, recommendationsTabManuallyStickiedPostIdsSetting } from '@/lib/instanceSettings';
 import { viewTermsToQuery } from '../../lib/utils/viewUtils';
 import { stickiedPostTerms } from '@/lib/collections/posts/constants';
 import groupBy from 'lodash/groupBy';
 import uniq from 'lodash/uniq';
-import { recommendationsTabManuallyStickiedPostIdsSetting } from '@/lib/instanceSettings';
 import { getParentTraceId, openPerfMetric, wrapWithPerfMetric } from '../perfMetrics';
 import { performQueryFromViewParameters } from '../resolvers/defaultResolvers';
 import { captureException } from '@sentry/nextjs';
@@ -21,6 +20,7 @@ import { FilterSettings, getDefaultFilterSettings } from '@/lib/filterSettings';
 import { PostsViews } from '@/lib/collections/posts/views';
 import { RevisionHTML } from '@/lib/collections/revisions/fragments';
 import type { RecommendedPost, RecombeeRecommendedPost, NativeRecommendedPost } from '@/lib/recombee/types';
+import { backgroundTask } from '../utils/backgroundTask';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -436,7 +436,7 @@ const helpers = {
       }
     }));
 
-    void context.RecommendationsCaches.rawCollection().bulkWrite(recsToInsert);
+    backgroundTask(context.RecommendationsCaches.rawCollection().bulkWrite(recsToInsert));
   },
 
   async getCachedRecommendations({ recRequest, scenario, batch, skipCache, context }: GetCachedRecommendationsArgs): Promise<RecResponse[]> {
@@ -474,9 +474,10 @@ const helpers = {
         }));
     }
 
-    void helpers
+    backgroundTask(helpers
       .sendRecRequestWithPerfMetrics(recRequest, batch, true)
-      .then((recResponse) => helpers.backfillRecommendationsCache(userId, scenario, recResponse, context));
+      .then((recResponse) => helpers.backfillRecommendationsCache(userId, scenario, recResponse, context))
+    );
 
     return formattedRecommendations;
   },

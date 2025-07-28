@@ -1,11 +1,10 @@
 import React from 'react';
 import { commentIsHiddenPendingReview } from '../../lib/collections/comments/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { isLWorAF } from '../../lib/instanceSettings';
+import { isLWorAF, commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isNotRandomId } from '@/lib/random';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
-import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { isBookUI } from '@/themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";

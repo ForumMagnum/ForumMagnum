@@ -9,6 +9,7 @@ import { dbPageCacheEnabledSetting } from '@/server/databaseSettings';
 import { isDatadogEnabled } from '@/lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
 import { ResponseManager } from './ResponseManager';
+import { backgroundTask } from '../utils/backgroundTask';
 
 // Page cache. This applies only to logged-out requests, and exists primarily
 // to handle the baseload of traffic going to the front page and to pages that
@@ -254,7 +255,7 @@ const cacheStoreLocal = (cacheKey: string, abTestGroups: RelevantTestGroupAlloca
 }
 
 const cacheStoreDB = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: CachedRenderResult): void => {
-  void new PageCacheRepo().upsertPageCacheEntry(cacheKey, abTestGroups, rendered);
+  backgroundTask(new PageCacheRepo().upsertPageCacheEntry(cacheKey, abTestGroups, rendered));
 }
 
 const cacheStore = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: CachedRenderResult): void => {

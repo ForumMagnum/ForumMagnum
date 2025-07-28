@@ -1,9 +1,8 @@
-import {forumTypeSetting, isEAForum, verifyEmailsSetting} from '../../instanceSettings'
+import { forumTypeSetting, isEAForum, verifyEmailsSetting, newUserIconKarmaThresholdSetting } from '@/lib/instanceSettings';
 import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf, PermissionableUser } from '../../vulcan-users/permissions';
 import * as _ from 'underscore';
 import type { PermissionResult } from '../../make_voteable';
-import { newUserIconKarmaThresholdSetting } from '@/lib/instanceSettings';
 import { hasAuthorModeration } from '../../betas';
 import { DeferredForumSelect } from '@/lib/forumTypeUtils';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';

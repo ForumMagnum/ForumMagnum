@@ -25,7 +25,7 @@ import TagRevisionItem from "../TagRevisionItem";
 import LensRevisionItem from "./LensRevisionItem";
 import SummaryRevisionItem from "./SummaryRevisionItem";
 import FormatDate from "../../common/FormatDate";
-import CommentsNodeInner from "../../comments/CommentsNode";
+import CommentsNode from "../../comments/CommentsNode";
 import Loading from "../../vulcan-core/Loading";
 import LinkToPost from "../../linkPreview/LinkToPost";
 import SingleLineFeedEvent from "../../common/SingleLineFeedEvent";
@@ -199,7 +199,7 @@ const TagHistoryPage = () => {
               return null;
             return <div>
               <SingleLineFeedEvent icon={<ForumIcon className={classNames(classes.feedIcon, classes.commentIcon)} icon="Comment"/>}>
-                <CommentsNodeInner
+                <CommentsNode
                   treeOptions={{ tag, forceSingleLine: collapseAll }}
                   comment={comment}
                   loadChildrenSeparately={true}

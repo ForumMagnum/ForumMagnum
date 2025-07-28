@@ -8,11 +8,10 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { locationHashIsFootnote, locationHashIsFootnoteBackreference } from '../contents/CollapsedFootnotes';
 import { getUrlClass } from '@/server/utils/getUrlClass';
 import type { ContentStyleType } from '../common/ContentStyles';
-import { DefaultPreview, MetaculusPreview, ManifoldPreview, FatebookPreview, NeuronpediaPreview, MetaforecastPreview, OWIDPreview, ArbitalPreview, EstimakerPreview, ViewpointsPreview } from './PostLinkPreview';
+import { DefaultPreview, MetaculusPreview, ManifoldPreview, FatebookPreview, NeuronpediaPreview, MetaforecastPreview, OWIDPreview, ArbitalPreview, EstimakerPreview, ViewpointsPreview, SequencePreview, PostLinkPreviewSequencePost, PostLinkPreviewSlug, PostLinkPreview, PostCommentLinkPreviewGreaterWrong } from '@/components/linkPreview/PostLinkPreview';
 import FootnotePreview from "./FootnotePreview";
 import { NoSideItems } from '../contents/SideItems';
 
-import { SequencePreview, PostLinkPreviewSequencePost, PostLinkPreviewSlug, PostLinkPreview, PostCommentLinkPreviewGreaterWrong } from '@/components/linkPreview/PostLinkPreview';
 import { TagHoverPreview } from '@/components/tagging/TagHoverPreview';
 
 export const routePreviewComponentMapping = {

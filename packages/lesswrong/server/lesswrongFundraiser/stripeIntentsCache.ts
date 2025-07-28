@@ -2,6 +2,7 @@ import type Stripe from 'stripe';
 import * as Sentry from '@sentry/nextjs';
 import { lightconeFundraiserPaymentLinkId } from '@/lib/instanceSettings';
 import { lightconeFundraiserStripeSecretKeySetting } from '../databaseSettings';
+import { backgroundTask } from '../utils/backgroundTask';
 export type SucceededPaymentIntent = Stripe.PaymentIntent & { status: 'succeeded' };
 
 export const stripeIntentsCache: { intents: SucceededPaymentIntent[] } = { intents: [] };
@@ -58,7 +59,7 @@ export async function updateStripeIntentsCache() {
 
 export function getStripeIntentsCache(): SucceededPaymentIntent[] {
   if (new Date().getTime() - lastUpdatedAt.getTime() > 1000 * 60) {
-    void updateStripeIntentsCache();
+    backgroundTask(updateStripeIntentsCache());
   }
   return structuredClone(stripeIntentsCache.intents);
 }

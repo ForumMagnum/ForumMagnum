@@ -1,6 +1,5 @@
 import { EditableUser, getUserEmail } from '../lib/collections/users/helpers';
-import { isEAForum } from '../lib/instanceSettings';
-import { ddRumSampleRate, ddSessionReplaySampleRate, ddTracingSampleRate } from '@/lib/instanceSettings';
+import { isEAForum, ddRumSampleRate, ddSessionReplaySampleRate, ddTracingSampleRate } from '@/lib/instanceSettings';
 import { getCookiePreferences } from '../lib/cookies/utils';
 import { isE2E, isServer } from '../lib/executionEnvironment';
 

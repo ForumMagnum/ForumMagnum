@@ -1,3 +1,4 @@
+import React from 'react';
 import { ClientRouteMetadataSetter, type RouteMetadata } from "./ClientRouteMetadataContext";
 import { RouteMetadataSetter as ServerRouteMetadataSetter } from "./ServerRouteMetadataContext";
 

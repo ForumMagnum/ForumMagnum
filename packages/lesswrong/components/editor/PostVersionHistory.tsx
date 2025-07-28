@@ -8,9 +8,8 @@ import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
-import { canUserEditPostMetadata, postGetEditUrl } from '../../lib/collections/posts/helpers';
+import { canUserEditPostMetadata, postGetEditUrl, isCollaborative } from '@/lib/collections/posts/helpers';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { isCollaborative } from '@/lib/collections/posts/helpers';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { gql } from "@/lib/generated/gql-codegen";

@@ -17,6 +17,7 @@ import { createUser } from '@/server/collections/users/mutations';
 import { createDisplayName } from '@/lib/collections/users/newSchema';
 import { comparePasswords, createPasswordHash, validatePassword } from './passwordHelpers';
 import type { NextRequest } from 'next/server';
+import { backgroundTask } from '@/server/utils/backgroundTask';
 
 // Given an HTTP request, clear a named cookie. Handles the difference between
 // the Meteor and Express server middleware setups. Works by setting an
@@ -277,7 +278,7 @@ function registerLoginEvent(user: DbUser, headers: Headers|undefined) {
     }
   }
   const context = computeContextFromUser({ user, isSSR: false });
-  void createLWEvent({ data: document }, context);
+  backgroundTask(createLWEvent({ data: document }, context));
 }
 
 const getCaptchaRating = async (token: string): Promise<string|null> => {

@@ -1239,6 +1239,7 @@ interface FeedSpotlightItem {
   _id: string;
   spotlight: Spotlight | null;
   post: Post | null;
+  spotlightMetaInfo: any;
 }
 
 interface UltraFeedQueryResults {

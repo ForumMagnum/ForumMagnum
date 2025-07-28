@@ -13,7 +13,7 @@ import * as Sentry from '@sentry/nextjs';
 import { app } from './expressServer';
 import path from 'path'
 import { addAuthMiddlewares } from './authenticationMiddlewares';
-import { expressSessionSecretSetting } from './databaseSettings';
+import { expressSessionSecretSetting, botProtectionCommentRedirectSetting } from './databaseSettings';
 import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
 import { logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
 import expressSession from 'express-session';
@@ -42,7 +42,6 @@ import { isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLogging
 import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
 import express from 'express';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
-import { botProtectionCommentRedirectSetting } from './databaseSettings';
 
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {

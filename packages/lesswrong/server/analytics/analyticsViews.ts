@@ -18,6 +18,7 @@ export const maintainAnalyticsViews = async () => {
 
   for (const query of maintenanceQueries) {
     // Run these concurrently and don't wait, as they can take ~hours
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     void db.none(query)
   }
 };

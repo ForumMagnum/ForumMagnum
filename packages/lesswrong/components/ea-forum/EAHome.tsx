@@ -1,9 +1,7 @@
 import React, { useCallback } from 'react'
-import { isBotSiteSetting, isEAForum } from '../../lib/instanceSettings'
-import { showEventBannerSetting, showMaintenanceBannerSetting, showSmallpoxSetting } from '@/lib/instanceSettings'
+import { isBotSiteSetting, isEAForum, showEventBannerSetting, showMaintenanceBannerSetting, showSmallpoxSetting, maintenanceTime } from '@/lib/instanceSettings'
 import { useCurrentUser } from '../common/withUser'
 import MaintenanceBanner from '../common/MaintenanceBanner'
-import { maintenanceTime } from '@/lib/instanceSettings'
 import { AnalyticsContext } from '../../lib/analyticsEvents'
 import DeferRender from '../common/DeferRender'
 import { registerComponent } from "../../lib/vulcan-lib/components";

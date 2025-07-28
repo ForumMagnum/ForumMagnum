@@ -26,7 +26,8 @@ import {
   isDialogueParticipant,
   MINIMUM_COAUTHOR_KARMA,
   DEFAULT_QUALITATIVE_VOTE,
-  userPassesCrosspostingKarmaThreshold
+  userPassesCrosspostingKarmaThreshold,
+  getDefaultVotingSystem
 } from "./helpers";
 import { postStatuses, sideCommentAlwaysExcludeKarma, sideCommentFilterMinKarma } from "./constants";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
@@ -74,8 +75,8 @@ import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from "graphql-tag";
 import { CommentsViews } from "../comments/views";
 import { commentIncludedInCounts } from "../comments/helpers";
-import { getDefaultVotingSystem } from "./helpers";
 import { votingSystemNames } from "@/lib/voting/votingSystemNames";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 
 export const graphqlTypeDefs = gql`
   type SocialPreviewType {
@@ -3598,11 +3599,11 @@ const schema = {
             })),
           });
 
-          void context.repos.sideComments.saveSideCommentCache(
+          backgroundTask(context.repos.sideComments.saveSideCommentCache(
             post._id,
             sideCommentMatches.html,
             sideCommentMatches.sideCommentsByBlock
-          );
+          ));
 
           unfilteredResult = {
             annotatedHtml: sideCommentMatches.html,

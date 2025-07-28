@@ -2,6 +2,7 @@ import { DatabaseMetadata } from "../../server/collections/databaseMetadata/coll
 import { nullKarmaInflationSeries, setKarmaInflationSeries, TimeSeries } from '../../lib/collections/posts/karmaInflation';
 import PostsRepo from '../repos/PostsRepo';
 import DatabaseMetadataRepo from '../repos/DatabaseMetadataRepo';
+import { backgroundTask } from "../utils/backgroundTask";
 
 const AVERAGING_WINDOW_MS = 1000 * 60 * 60 * 24 * 28; // 28 days
 

@@ -15,13 +15,11 @@ import { useTheme } from '../themes/useTheme';
 import { PostsItemIcons, CuratedIcon } from "./PostsItemIcons";
 import ForumIcon from "../common/ForumIcon";
 import TagsTooltip from "../tagging/TagsTooltip";
-import { amaTagIdSetting, annualReviewAnnouncementPostPathSetting, openThreadTagIdSetting } from '@/lib/instanceSettings';
-import { startHerePostIdSetting } from '@/lib/instanceSettings';
+import { amaTagIdSetting, annualReviewAnnouncementPostPathSetting, openThreadTagIdSetting, startHerePostIdSetting, isEAForum } from '@/lib/instanceSettings';
 import QuestionAnswerIcon from '@/lib/vendor/@material-ui/icons/src/QuestionAnswer';
 import ArrowForwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowForward';
 import AllInclusiveIcon from '@/lib/vendor/@material-ui/icons/src/AllInclusive';
 import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
-import { isEAForum } from '@/lib/instanceSettings';
 import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
 
 const styles = (theme: ThemeType) => ({

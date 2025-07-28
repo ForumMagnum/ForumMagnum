@@ -9,6 +9,7 @@ import type { EventProps } from '@/lib/analyticsEvents';
 import { getShowAnalyticsDebug } from '@/lib/analyticsDebugging';
 import { ColorHash } from '@/lib/vendor/colorHash';
 import moment from 'moment';
+import { backgroundTask } from '../utils/backgroundTask';
 
 export const serverId = randomId();
 
@@ -22,7 +23,7 @@ export const analyticsEventTypeDefs = gql`
 
 export const analyticsEventGraphQLMutations = {
   analyticsEvent(root: void, { events, now: clientTime }: AnyBecauseTodo, context: ResolverContext) {
-    void handleAnalyticsEventWriteRequest(events, clientTime);
+    backgroundTask(handleAnalyticsEventWriteRequest(events, clientTime));
   },
 }
 
@@ -41,7 +42,7 @@ addStaticRoute('/analyticsEvent', ({query}, req, res, next) => {
     return;
   }
   
-  void handleAnalyticsEventWriteRequest(body.events, body.now);
+  backgroundTask(handleAnalyticsEventWriteRequest(body.events, body.now));
   res.writeHead(200, {
     "Content-Type": "text/plain;charset=UTF-8"
   });
@@ -131,7 +132,7 @@ export async function pruneOldPerfMetrics() {
     `);
 
     // Don't await this one; it might take longer than five minutes to finish and there's no reason to keep a function instance around that long.
-    void connection.none(`
+    backgroundTask(connection.none(`
       SET LOCAL work_mem = '2GB';
 
       DELETE
@@ -159,7 +160,7 @@ export async function pruneOldPerfMetrics() {
           AND ch.started_at BETWEEN CURRENT_DATE - INTERVAL '9 days' AND CURRENT_DATE - INTERVAL '7 days'
           AND SUBSTR(ch.trace_id, 36, 1) != '0'
       )
-    `);
+    `));
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error('Error when pruning old perf metrics', { err });
@@ -177,13 +178,13 @@ export function serverWriteEvent(event: AnyBecauseTodo) {
     pendingEvents.push(event);
     return;
   }
-  void writeEventsToAnalyticsDB([{
+  backgroundTask(writeEventsToAnalyticsDB([{
     type, timestamp,
     props: {
       ...props,
       serverId: serverId,
     }
-  }]);
+  }]));
 }
 
 function serverConsoleLogAnalyticsEvent(event: any) {

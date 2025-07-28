@@ -9,7 +9,7 @@ import type { CommentTreeNode } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import classNames from 'classnames';
 import ErrorBoundary from "../common/ErrorBoundary";
-import CommentsNodeInner from "./CommentsNode";
+import CommentsNode from "./CommentsNode";
 import SettingsButton from "../icons/SettingsButton";
 import LoginPopupButton from "../users/LoginPopupButton";
 import LWTooltip from "../common/LWTooltip";
@@ -81,7 +81,7 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
         sorting view, so that the scroll position doesn't move. */}
     <div className={classNames({[classes.commentsListLoadingSpacer]: loading})}>
       {comments.map(comment =>
-        <CommentsNodeInner
+        <CommentsNode
           treeOptions={treeOptions}
           startThreadTruncated={startThreadTruncated || totalComments >= POST_COMMENT_COUNT_TRUNCATE_THRESHOLD}
           expandAllThreads={expandAllThreads}

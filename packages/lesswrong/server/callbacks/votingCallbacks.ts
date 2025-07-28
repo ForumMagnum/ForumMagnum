@@ -20,6 +20,7 @@ import { updatePostDenormalizedTags } from '../tagging/helpers';
 import { recomputeContributorScoresFor } from '../utils/contributorsUtil';
 import { createModeratorAction } from '../collections/moderatorActions/mutations';
 import { userGetGroups } from '@/lib/vulcan-users/permissions';
+import { backgroundTask } from '../utils/backgroundTask';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50;
 const TRUSTLEVEL1_THRESHOLD = 2000;
@@ -90,14 +91,14 @@ function voteUpdatePostDenormalizedTags({newDocument}: {newDocument: VoteableTyp
   } else {
     return;
   }
-  void updatePostDenormalizedTags(postId);
+  backgroundTask(updatePostDenormalizedTags(postId));
 }
 
 export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext): Promise<void> {
   voteUpdatePostDenormalizedTags({newDocument});
   cancelVoteKarma({newDocument, vote}, collection, user);
-  void cancelVoteCount({newDocument, vote});
-  void revokeUserAFKarmaForCancelledVote({newDocument, vote});
+  backgroundTask(cancelVoteCount({newDocument, vote}));
+  backgroundTask(revokeUserAFKarmaForCancelledVote({newDocument, vote}));
   
   
   if (vote.collectionName === "Revisions") {
@@ -109,11 +110,11 @@ export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, co
 }
 
 export async function onCastVoteAsync(voteDocTuple: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext): Promise<void> {
-  void grantUserAFKarmaForVote(voteDocTuple);
-  void updateTrustedStatus(voteDocTuple, context);
-  void updateModerateOwnPersonal(voteDocTuple, context);
-  void increaseMaxBaseScore(voteDocTuple, context);
-  void voteUpdatePostDenormalizedTags(voteDocTuple);
+  backgroundTask(grantUserAFKarmaForVote(voteDocTuple));
+  backgroundTask(updateTrustedStatus(voteDocTuple, context));
+  backgroundTask(updateModerateOwnPersonal(voteDocTuple, context));
+  backgroundTask(increaseMaxBaseScore(voteDocTuple, context));
+  voteUpdatePostDenormalizedTags(voteDocTuple);
 
   const { vote, newDocument } = voteDocTuple;
   if (vote.collectionName === "Revisions") {
@@ -123,9 +124,9 @@ export async function onCastVoteAsync(voteDocTuple: VoteDocTuple, collection: Co
     }
   }
 
-  void updateKarma(voteDocTuple, collection, user, context);
-  void incVoteCount(voteDocTuple);
-  void checkAutomod(voteDocTuple, collection, user, context);
+  backgroundTask(updateKarma(voteDocTuple, collection, user, context));
+  backgroundTask(incVoteCount(voteDocTuple));
+  backgroundTask(checkAutomod(voteDocTuple, collection, user, context));
   await maybeCreateReviewMarket(voteDocTuple, collection, user, context);
   await maybeCreateModeratorAlertsAfterVote(voteDocTuple, collection, user, context);
 }
@@ -157,14 +158,14 @@ async function updateKarma({newDocument, vote}: VoteDocTuple, collection: Collec
       for (let user of users) {
         const oldKarma = user.karma;
         const newKarma = oldKarma + vote.power;
-        void userKarmaChangedFrom(newDocument.userId, oldKarma, newKarma, context);
-      }  
+        backgroundTask(userKarmaChangedFrom(newDocument.userId, oldKarma, newKarma, context));
+      }
     }
   }
 
   
   if (!!newDocument.userId && isLWorAF && ['Posts', 'Comments'].includes(vote.collectionName) && votesCanTriggerReview(newDocument as DbPost | DbComment)) {
-    void checkForStricterRateLimits(newDocument.userId, context);
+    backgroundTask(checkForStricterRateLimits(newDocument.userId, context));
   }
 }
 
@@ -188,7 +189,7 @@ function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: Collecti
   // Only update user karma if the operation isn't done by one of the item's authors at the time of the original vote.
   // We expect vote.authorIds here to be the same as the authorIds of the original vote.
   if (vote.authorIds && !vote.authorIds.includes(vote.userId) && collectionsThatAffectKarma.includes(vote.collectionName)) {
-    void Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: -vote.power}});
+    backgroundTask(Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: -vote.power}}));
   }
 }
 
@@ -202,7 +203,7 @@ async function incVoteCount ({newDocument, vote}: VoteDocTuple) {
   const casterField = `${vote.voteType}Count`
 
   if (newDocument.userId !== vote.userId) {
-    void Users.rawUpdateOne({_id: vote.userId}, {$inc: {[casterField]: 1, voteCount: 1}});
+    backgroundTask(Users.rawUpdateOne({_id: vote.userId}, {$inc: {[casterField]: 1, voteCount: 1}}));
   }
 
   // Increment the count for the person receiving the vote
@@ -210,7 +211,7 @@ async function incVoteCount ({newDocument, vote}: VoteDocTuple) {
 
   if (newDocument.userId !== vote.userId) {
     // update all users in vote.authorIds
-    void Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {[receiverField]: 1, voteReceivedCount: 1}});
+    backgroundTask(Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {[receiverField]: 1, voteReceivedCount: 1}}));
   }
 }
 
@@ -222,7 +223,7 @@ async function cancelVoteCount ({newDocument, vote}: VoteDocTuple) {
   const casterField = `${vote.voteType}Count`
 
   if (newDocument.userId !== vote.userId) {
-    void Users.rawUpdateOne({_id: vote.userId}, {$inc: {[casterField]: -1, voteCount: -1}});
+    backgroundTask(Users.rawUpdateOne({_id: vote.userId}, {$inc: {[casterField]: -1, voteCount: -1}}));
   }
 
   // Increment the count for the person receiving the vote
@@ -230,13 +231,13 @@ async function cancelVoteCount ({newDocument, vote}: VoteDocTuple) {
 
   if (newDocument.userId !== vote.userId) {
     // update all users in vote.authorIds
-    void Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {[receiverField]: -1, voteReceivedCount: -1}});
+    backgroundTask(Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {[receiverField]: -1, voteReceivedCount: -1}}));
   }
 }
 
 async function checkAutomod ({newDocument, vote}: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
   if (vote.collectionName === 'Comments') {
-    void triggerCommentAutomodIfNeeded(newDocument, vote);
+    backgroundTask(triggerCommentAutomodIfNeeded(newDocument, vote));
   }
 }
 
@@ -353,13 +354,13 @@ async function maybeCreateModeratorAlertsAfterVote({ newDocument, vote }: VoteDo
     } = longtermDownvoteScore;
   
     if (commentCount > 20 && longtermSeniorDownvoterCount >= 3 && longtermScore < 0) {
-      void createModeratorAction({
+      backgroundTask(createModeratorAction({
         data: {
           type: RECEIVED_SENIOR_DOWNVOTES_ALERT,
           userId: userId,
           endedAt: new Date()
         },
-      }, adminContext);
+      }, adminContext));
     }
   } catch (err) {
     captureException(err);

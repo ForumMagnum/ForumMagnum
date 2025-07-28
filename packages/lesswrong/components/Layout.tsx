@@ -12,12 +12,11 @@ import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
-import { blackBarTitle, googleTagManagerIdSetting } from '@/lib/instanceSettings';
-import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
+import { blackBarTitle, googleTagManagerIdSetting, isAF, isEAForum, isLW, isLWorAF, buttonBurstSetting } from '@/lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { Helmet } from "./common/Helmet";
-import { DisableNoKibitzContext } from './common/sharedContexts';
+import { DisableNoKibitzContext, AutosaveEditorStateContext } from './common/sharedContexts';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
 // import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
@@ -32,10 +31,8 @@ import { CurrentAndRecentForumEventsProvider } from './hooks/useCurrentForumEven
 import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 import DeferRender from './common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
-import { AutosaveEditorStateContext } from './common/sharedContexts';
 
 import GlobalButtonBurst from './ea-forum/GlobalButtonBurst';
-import { buttonBurstSetting } from '@/lib/instanceSettings';
 import NavigationStandalone from "./common/TabNavigationMenu/NavigationStandalone";
 import ErrorBoundary from "./common/ErrorBoundary";
 import Footer from "./common/Footer";

@@ -4,7 +4,7 @@ import sortBy from "lodash/sortBy";
 import { type StylesContextType } from "@/components/hooks/useStyles";
 import { getJss } from "@/lib/jssStyles";
 import { SheetsRegistry } from 'jss';
-import { keyBy } from "lodash";
+import keyBy from "lodash/keyBy";
 
 export function stylesToStylesheet(allStyles: Record<string,StyleDefinition>, theme: ThemeType): string {
   const stylesByName = sortBy(Object.keys(allStyles), n=>n);

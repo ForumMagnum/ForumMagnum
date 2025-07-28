@@ -6,7 +6,7 @@ import type { CommentTreeNode } from "../../lib/utils/unflatten";
 import EARecentDiscussionItem, { EARecentDiscussionItemProps } from "./EARecentDiscussionItem";
 import classNames from "classnames";
 import CommentsItem from "../comments/CommentsItem/CommentsItem";
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 import { maybeDate } from "@/lib/utils/dateUtils";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
@@ -141,7 +141,7 @@ const EARecentDiscussionQuickTake = ({
               })}
             />
             {hasComments && comments.map((comment) => (
-              <CommentsNodeInner
+              <CommentsNode
                 key={comment.item._id}
                 treeOptions={{
                   ...treeOptions,

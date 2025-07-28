@@ -24,6 +24,7 @@ import { captureEvent } from '@/lib/analyticsEvents';
 import union from 'lodash/union';
 import groupBy from 'lodash/groupBy';
 import mergeWith from 'lodash/mergeWith';
+import { backgroundTask } from "../utils/backgroundTask";
 
 interface UltraFeedDateCutoffs {
   latestPostsMaxAgeDays: number;
@@ -59,6 +60,7 @@ export const ultraFeedGraphQLTypeDefs = gql`
     _id: String!
     spotlight: Spotlight
     post: Post
+    spotlightMetaInfo: JSON
   }
 
   type UltraFeedQueryResults {
@@ -357,7 +359,11 @@ const transformItemsForResolver = (
         feedSpotlight: {
           _id: item.feedSpotlight.spotlightId,
           spotlight,
-          ...(post && { post })
+          ...(post && { post }),
+          spotlightMetaInfo: {
+            servedEventId: randomId(),
+            sources: ['spotlights' as const]
+          }
         }
       };
     }
@@ -473,8 +479,9 @@ const createUltraFeedEvents = (
     const actualItemIndex = offset + index;
     
     if (item.type === "feedSpotlight" && item.feedSpotlight?.spotlight?._id) {
+      const servedEventId = item.feedSpotlight.spotlightMetaInfo.servedEventId;
       eventsToCreate.push({
-        _id: randomId(),
+        _id: servedEventId,
         userId,
         eventType: "served",
         collectionName: "Spotlights",
@@ -539,7 +546,9 @@ interface UltraFeedArgs {
 const calculateFetchLimits = (
   sourceWeights: Record<string, number>,
   totalLimit: number,
-  bufferMultiplier = 1.2
+  bufferMultiplier = 1.2,
+  latestAndSubscribedPostMultiplier = 1.0,
+  recombeeMultiplier = 1.2,
 ): {
   totalWeight: number;
   recombeePostFetchLimit: number;
@@ -561,9 +570,9 @@ const calculateFetchLimits = (
 
   return {
     totalWeight,
-    recombeePostFetchLimit: Math.ceil(totalLimit * (recombeePostWeight / totalWeight) * bufferMultiplier),
-    hackerNewsPostFetchLimit: Math.ceil(totalLimit * (hackerNewsPostWeight / totalWeight) * bufferMultiplier),
-    subscribedPostFetchLimit: Math.ceil(totalLimit * (subscribedPostWeight / totalWeight) * bufferMultiplier),
+    recombeePostFetchLimit: Math.ceil(totalLimit * (recombeePostWeight / totalWeight) * recombeeMultiplier),
+    hackerNewsPostFetchLimit: Math.ceil(totalLimit * (hackerNewsPostWeight / totalWeight) * latestAndSubscribedPostMultiplier),
+    subscribedPostFetchLimit: Math.ceil(totalLimit * (subscribedPostWeight / totalWeight) * latestAndSubscribedPostMultiplier),
     commentFetchLimit: Math.ceil(totalLimit * (totalCommentWeight / totalWeight) * bufferMultiplier),
     spotlightFetchLimit: Math.ceil(totalLimit * (totalSpotlightWeight / totalWeight) * bufferMultiplier),
     bookmarkFetchLimit: Math.ceil(totalLimit * (bookmarkWeight / totalWeight) * bufferMultiplier),
@@ -703,7 +712,7 @@ export const ultraFeedGraphQLQueries = {
         const currentOffset = offset ?? 0; 
         const eventsToCreate = createUltraFeedEvents(results, currentUser._id, sessionId, currentOffset);
         if (eventsToCreate.length > 0) {
-          void bulkRawInsert("UltraFeedEvents", eventsToCreate as DbUltraFeedEvent[]);
+          backgroundTask(bulkRawInsert("UltraFeedEvents", eventsToCreate as DbUltraFeedEvent[]));
         }
       }
 

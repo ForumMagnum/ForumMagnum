@@ -9,7 +9,7 @@ import EARecentDiscussionItem, { EARecentDiscussionItemProps } from "./EARecentD
 import classNames from "classnames";
 import EAPostMeta from "../ea-forum/EAPostMeta";
 import ForumIcon from "../common/ForumIcon";
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 import PostExcerpt from "../common/excerpts/PostExcerpt";
 import LinkPostMessage from "../posts/LinkPostMessage";
 import EAKarmaDisplay from "../common/EAKarmaDisplay";
@@ -167,7 +167,7 @@ const EARecentDiscussionThread = ({
       />
       {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
         <div key={comment.item._id}>
-          <CommentsNodeInner
+          <CommentsNode
             treeOptions={treeOptions}
             startThreadTruncated={true}
             expandAllThreads={expandAllThreads}
