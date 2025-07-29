@@ -133,13 +133,13 @@ type ArbitalTagContentRelSelector = {
 type AutomatedContentEvaluation = {
   __typename?: 'AutomatedContentEvaluation';
   _id: Scalars['String']['output'];
-  aiChoice: Scalars['String']['output'];
-  aiCoT: Scalars['String']['output'];
-  aiReasoning: Scalars['String']['output'];
+  aiChoice?: Maybe<Scalars['String']['output']>;
+  aiCoT?: Maybe<Scalars['String']['output']>;
+  aiReasoning?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
   revisionId: Scalars['String']['output'];
-  score: Scalars['Float']['output'];
-  sentenceScores: Array<SentenceScore>;
+  score?: Maybe<Scalars['Float']['output']>;
+  sentenceScores?: Maybe<Array<SentenceScore>>;
 };
 
 type AutosaveContentType = {
@@ -23938,7 +23938,7 @@ type AdvisorRequestsMinimumInfo = { __typename?: 'AdvisorRequest', _id: string, 
 
 type AutomatedContentEvaluations_AutomatedContentEvaluation_sentenceScores_SentenceScore = { __typename?: 'SentenceScore', sentence: string, score: number };
 
-type AutomatedContentEvaluations = { __typename?: 'AutomatedContentEvaluation', _id: string, score: number, aiChoice: string, aiReasoning: string, aiCoT: string, sentenceScores: Array<AutomatedContentEvaluations_AutomatedContentEvaluation_sentenceScores_SentenceScore> };
+type AutomatedContentEvaluations = { __typename?: 'AutomatedContentEvaluation', _id: string, score: number | null, aiChoice: string | null, aiReasoning: string | null, aiCoT: string | null, sentenceScores: Array<AutomatedContentEvaluations_AutomatedContentEvaluation_sentenceScores_SentenceScore> | null };
 
 type BansAdminPageFragment_Ban_user_User = (
   { __typename?: 'User' }
@@ -26234,7 +26234,7 @@ type ArbitalCachesDefaultFragment = { __typename?: 'ArbitalCaches', _id: string,
 
 type ArbitalTagContentRelsDefaultFragment = { __typename?: 'ArbitalTagContentRel', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, parentDocumentId: string, childDocumentId: string, parentCollectionName: string, childCollectionName: string, type: string, level: number, isStrong: boolean };
 
-type AutomatedContentEvaluationsDefaultFragment = { __typename?: 'AutomatedContentEvaluation', _id: string, createdAt: string, revisionId: string, score: number, aiChoice: string, aiReasoning: string, aiCoT: string };
+type AutomatedContentEvaluationsDefaultFragment = { __typename?: 'AutomatedContentEvaluation', _id: string, createdAt: string, revisionId: string, score: number | null, aiChoice: string | null, aiReasoning: string | null, aiCoT: string | null };
 
 type BansDefaultFragment = { __typename?: 'Ban', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, expirationDate: string | null, userId: string, ip: string | null, reason: string | null, comment: string, properties: any | null };
 
