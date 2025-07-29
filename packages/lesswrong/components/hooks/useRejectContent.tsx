@@ -25,32 +25,32 @@ const rejectCommentMutation = gql(`
 
 export type RejectContentParams = {
   collectionName: "Posts",
-  content: SunshinePostsList
+  document: SunshinePostsList
 } | {
   collectionName: "Comments",
-  content: CommentsList | CommentsListWithParentMetadata
+  document: CommentsList | CommentsListWithParentMetadata
 }
 
-export function useRejectContent ({collectionName, content}: RejectContentParams) {
+export function useRejectContent ({collectionName, document}: RejectContentParams) {
   const [updateContent] = useMutation(collectionName === "Posts" ? rejectPostMutation : rejectCommentMutation);
   
   const rejectContent = useCallback((reason: string) => {
     void updateContent({
       variables: {
-        selector: { _id: content._id },
+        selector: { _id: document._id },
         data: { rejected: true, rejectedReason: reason }
       }
     });
-  }, [updateContent, content._id]);
+  }, [updateContent, document._id]);
   
   const unrejectContent = useCallback(() => {
     void updateContent({
       variables: {
-        selector: { _id: content._id },
+        selector: { _id: document._id },
         data: { rejected: false }
       }
     });
-  }, [updateContent, content._id])
+  }, [updateContent, document._id])
   
   return {rejectContent, unrejectContent} 
 }

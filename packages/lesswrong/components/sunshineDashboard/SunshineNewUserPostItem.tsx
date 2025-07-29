@@ -65,7 +65,7 @@ export const SunshineNewUserPostItem = ({post}: {
   return <div className={classes.post}>
     <div className={classes.rejection}>
       <ForumIcon className={classes.expandCollapseButton} icon={isCollapsed ? "ThickChevronRight" : "ThickChevronDown"} onClick={() => setIsCollapsed(!isCollapsed)} />
-      <RejectedContentControls contentWrapper={{ collectionName: 'Posts', content: post }} />
+      <RejectedContentControls contentWrapper={{ collectionName: 'Posts', document: post }} />
     </div>
     <div className={classes.row}>
       <div className={classes.row}>

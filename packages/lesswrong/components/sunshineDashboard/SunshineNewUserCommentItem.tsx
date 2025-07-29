@@ -35,7 +35,7 @@ export const SunshineNewUserCommentItem = ({comment}: {
   return <div className={classes?.comment}>
     <div className={classes?.rejection}>
       <ForumIcon className={classes?.expandCollapseButton} icon={isCollapsed ? "ThickChevronRight" : "ThickChevronDown"} onClick={() => setIsCollapsed(!isCollapsed)} />
-      <RejectedContentControls contentWrapper={{collectionName:"Comments", content:comment}}/>
+      <RejectedContentControls contentWrapper={{collectionName:"Comments", document:comment}}/>
     </div>
     {!isCollapsed && <CommentsNode 
       treeOptions={{
