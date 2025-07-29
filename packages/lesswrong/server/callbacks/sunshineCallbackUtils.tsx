@@ -24,7 +24,7 @@ type RejectableContent = {
 
 const NO_LLM_AUTOREJECT_TEMPLATE = "No LLM (autoreject)";
 
-async function rejectContent(rejectableContent: RejectableContent, reason: string) {
+export async function rejectContent(rejectableContent: RejectableContent, reason: string) {
   if (rejectableContent.collectionName === "Posts") {
     const moderationTemplate = await ModerationTemplates.findOne({ name: NO_LLM_AUTOREJECT_TEMPLATE });
     if (!moderationTemplate) {
@@ -63,9 +63,6 @@ export async function triggerReviewIfNeeded({userId, context, rejectableContent}
     throw new Error("user is null");
   
   const {needsReview, reason} = await getReasonForReview(user, rejectableContent?.content);
-  if (reason === 'llmRejected' && rejectableContent) {
-    await rejectContent(rejectableContent, reason);
-  }
   if (needsReview) {
     await triggerReview(user._id, context, reason);
   }

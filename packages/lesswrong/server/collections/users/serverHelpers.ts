@@ -15,17 +15,6 @@ const reviewReasonsSetting =
     ['firstPost', 'firstComment', 'contactedTooManyUsers', 'bio', 'profileImage']
   )
 
-
-const checkIfLLMRejected = async (newDocument: DbPost|DbComment): Promise<boolean> => {
-  if (!newDocument.contents_latest) return false;
-  const isLLMRejected = await AutomatedContentEvaluations.findOne({
-    revisionId: newDocument.contents_latest,
-    score: {$gte: 0.5},
-    aiChoice: "review",
-  });
-  return !!isLLMRejected;
-}
-
 export async function getReasonForReview(user: DbUser|SunshineUsersList, newDocument?: DbPost|DbComment): Promise<GetReasonForReviewResult>
 {
   /*
@@ -39,13 +28,6 @@ export async function getReasonForReview(user: DbUser|SunshineUsersList, newDocu
   const fullyReviewed = user.reviewedByUserId && !user.snoozedUntilContentCount;
   if (fullyReviewed) {
     return {needsReview: false, reason: 'alreadyApproved'};
-  }
-
-  if (newDocument) {
-    const isLLMRejected = await checkIfLLMRejected(newDocument);
-    if (isLLMRejected) {
-      return {needsReview: false, reason: 'llmRejected'};
-    }
   }
   
   const unreviewed = !user.reviewedByUserId;

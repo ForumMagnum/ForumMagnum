@@ -222,11 +222,12 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Posts', updatedDocument, oldDocument);
 
+  void updatedPostMaybeTriggerReview(updateCallbackProperties);
+
   // former updateAsync callbacks
   await eventUpdatedNotifications(updateCallbackProperties);
   await notifyUsersAddedAsCoauthors(updateCallbackProperties);
   await updatePostEmbeddingsOnChange(updateCallbackProperties.newDocument, updateCallbackProperties.oldDocument);
-  await updatedPostMaybeTriggerReview(updateCallbackProperties);
   await sendRejectionPM(updateCallbackProperties);
   await updateUserNotesOnPostDraft(updateCallbackProperties);
   await updateUserNotesOnPostRejection(updateCallbackProperties);

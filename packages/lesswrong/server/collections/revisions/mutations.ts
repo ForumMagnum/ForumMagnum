@@ -16,6 +16,7 @@ import { z } from "zod"; // Add this import for Zod
 import { getOpenAI } from "@/server/languageModels/languageModelIntegration";
 import { assertPollsAllowed, upsertPolls } from "@/server/callbacks/forumEventCallbacks";
 import { captureException } from "@sentry/core";
+import { rejectContent } from "@/server/callbacks/sunshineCallbackUtils";
 
 function editCheck(user: DbUser | null) {
   return userIsAdminOrMod(user);
@@ -334,6 +335,21 @@ async function createAutomatedContentEvaluation(revision: DbRevision, context: R
     aiReasoning: llmEvaluation?.reasoning,
     aiCoT: llmEvaluation?.cot,
   });
+  console.log("llmEvaluation", llmEvaluation?.decision);
+  console.log("validatedEvaluation", validatedEvaluation?.score);
+  if (llmEvaluation?.decision === "review" && (validatedEvaluation?.score ?? 0) > .5) {
+    const documentId = revision.documentId;
+    console.log("documentId", documentId);
+    console.log("collectionName", revision.collectionName);
+    if (!documentId) return
+    if (revision.collectionName === "Posts") {
+      const document = await context.loaders["Posts"].load(documentId);
+      await rejectContent({content: document, collectionName: "Posts"}, "llmRejected");
+    } else if (revision.collectionName === "Comments") {
+      const document = await context.loaders["Comments"].load(documentId);
+      await rejectContent({content: document, collectionName: "Comments"}, "llmRejected");
+    }
+  }
 }
 
 export const graphqlRevisionTypeDefs = gql`
