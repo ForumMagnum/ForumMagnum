@@ -39,20 +39,6 @@ const styles = defineStyles("RecentDiscussionFeed", (theme: ThemeType) => ({
   },
   titleText: {
   },
-  hiddenOnMobile: {
-    display: 'block',
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-  },
-  feedSelectorMobileContainer: {
-    marginBottom: 16,
-    display: 'none',
-    justifyContent: 'center',
-    [theme.breakpoints.down('sm')]: {
-      display: 'flex',
-    },
-  },
 }));
 
 const recentDisucssionFeedComponents = () => forumSelect({
@@ -135,13 +121,8 @@ const RecentDiscussionFeed = ({
       <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
         <SingleColumnSection>
           <SectionTitle title={title} titleClassName={classes.titleText}>
-            <div className={classes.hiddenOnMobile}>
-              <FeedSelectorDropdown currentFeedType="classic" />
-            </div>
-          </SectionTitle>
-          <div className={classes.feedSelectorMobileContainer}>
             <FeedSelectorDropdown currentFeedType="classic" />
-          </div>
+          </SectionTitle>
           <MixedTypeFeed
             query={RecentDiscussionFeedQuery}
             variables={{
