@@ -1,4 +1,4 @@
-import React, { useEffect, useImperativeHandle, useMemo, useRef, type CSSProperties } from 'react';
+import React, { useContext, useEffect, useImperativeHandle, useMemo, useRef, type CSSProperties } from 'react';
 import { addNofollowToHTML, ContentReplacedSubstringComponentInfo, replacementComponentMap, type ContentItemBodyProps } from './contentBodyUtil';
 import * as htmlparser2 from "htmlparser2";
 import { type ChildNode as DomHandlerChildNode, type Node as DomHandlerNode, Element as DomHandlerElement, Text as DomHandlerText } from 'domhandler';
@@ -17,8 +17,12 @@ import { useTracking } from '@/lib/analyticsEvents';
 import ForumEventPostPagePollSection from '../forumEvents/ForumEventPostPagePollSection';
 import repeat from 'lodash/repeat';
 import { captureException } from '@sentry/nextjs';
+import { colorReplacements } from '@/themes/userThemes/darkMode';
+import { colorToString, invertColor, parseColor } from '@/themes/colorUtil';
+import { ThemeContext } from '../themes/useTheme';
 
 type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"> & {
+  themeName: UserThemeSetting,
   bodyRef: React.RefObject<HTMLDivElement|null>,
 }
 
@@ -54,6 +58,7 @@ type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: 
 export const ContentItemBody = (props: ContentItemBodyProps) => {
   const { onContentReady, nofollow, dangerouslySetInnerHTML, replacedSubstrings, className, ref } = props;
   const bodyRef = useRef<HTMLDivElement|null>(null);
+  const themeContext = useContext(ThemeContext)
   const html = (nofollow
     ? addNofollowToHTML(dangerouslySetInnerHTML.__html)
     : dangerouslySetInnerHTML.__html
@@ -84,8 +89,9 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
     }
   }, [onContentReady]);
   
-  const passedThroughProps = {
+  const passedThroughProps: PassedThroughContentItemBodyProps = {
     ...pick(props, ["description", "noHoverPreviewPrefetch", "nofollow", "contentStyleType", "replacedSubstrings", "idInsertions"]),
+    themeName: themeContext!.abstractThemeOptions.name,
     bodyRef,
   };
   
@@ -104,7 +110,7 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
   passedThroughProps: PassedThroughContentItemBodyProps,
   root?: boolean,
 }) => {
-  const { replacedSubstrings } = passedThroughProps;
+  const { replacedSubstrings, themeName } = passedThroughProps;
   const { captureEvent } = useTracking();
   
   switch (parsedHtml.type) {
@@ -148,6 +154,11 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
 
       if (classNames.includes("footnotes") && hasCollapsedFootnotes) {
         return <CollapsedFootnotes attributes={attribs} footnoteElements={mappedChildren}/>
+      }
+
+      if (attribs["style"]) {
+        const transformedStyle = transformStylesForDarkMode(attribs["style"], themeName);
+        attribs["style"] = transformedStyle;
       }
 
       if (attribs['data-replacements'] && replacedSubstrings) {
@@ -573,4 +584,50 @@ function splitText(textNode: DomHandlerText, splitOffset: number): [DomHandlerTe
     return [insertedTextNode, replacedTextNode];
   }
   return null;
+}
+
+const attributesNeedingTransform: Record<string,boolean> = {
+  "background": true,
+  "backgroundColor": true,
+  "borderColor": true,
+};
+
+function transformStylesForDarkMode(styles: Record<string,string>, themeName: UserThemeSetting): Record<string,string> {
+  if (themeName === 'dark' || themeName === 'auto') {
+    return Object.fromEntries(Object.entries(styles).map(([attribute,value]) => {
+      if (attributesNeedingTransform[attribute]) {
+        const darkModeValue = transformAttributeValueForDarkMode(value)
+        if (themeName === "auto" && darkModeValue !== value) {
+          return [attribute, `light-dark(${value},${darkModeValue})`];
+        } else {
+          return [attribute, darkModeValue];
+        }
+      } else {
+        return [attribute, value];
+      }
+    }));
+  } else {
+    return styles;
+  }
+}
+
+function transformAttributeValueForDarkMode(attributeValue: string): string {
+  const normalized = attributeValue.trim().toLowerCase();
+  if (!colorReplacements[normalized]) {
+    const parsedColor = parseColor(normalized);
+    if (parsedColor) {
+      const invertedColor = invertColor(parsedColor);
+      colorReplacements[normalized] = colorToString(invertedColor);
+    } else {
+      // If unable to parse a color (eg an unsupported color format), use black
+      // as a safe dark-mode background color
+      colorReplacements[normalized] = "#000000";
+    }
+  }
+  
+  if (colorReplacements[normalized]) {
+    return colorReplacements[normalized];
+  } else {
+    return attributeValue;
+  }
 }

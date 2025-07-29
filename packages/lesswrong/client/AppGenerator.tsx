@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useState, useTransition } from 'react';
 // import { ApolloProvider } from '@apollo/client/react';
 // import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 // import { ForeignApolloClientProvider } from '../components/hooks/useForeignApolloClient';
-// import { PrefersDarkModeProvider } from '../components/themes/usePrefersDarkMode';
 // import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
 // // eslint-disable-next-line no-restricted-imports
 // import { BrowserRouter } from 'react-router-dom';
@@ -35,13 +34,11 @@ const AppGenerator = ({
   //         <ThemeContextProvider options={themeOptions}>
   //         <BrowserRouter>
   //           <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
-  //             <PrefersDarkModeProvider>
-  //               <LayoutOptionsContextProvider>
-  //                 <EnvironmentOverrideContextProvider ssrMetadata={ssrMetadata}>
-  //                   <AppComponent apolloClient={apolloClient} />
-  //                 </EnvironmentOverrideContextProvider>
-  //               </LayoutOptionsContextProvider>
-  //             </PrefersDarkModeProvider>
+  //             <LayoutOptionsContextProvider>
+  //               <EnvironmentOverrideContextProvider ssrMetadata={ssrMetadata}>
+  //                 <AppComponent apolloClient={apolloClient} />
+  //               </EnvironmentOverrideContextProvider>
+  //             </LayoutOptionsContextProvider>
   //           </ABTestGroupsUsedContext.Provider>
   //         </BrowserRouter>
   //         </ThemeContextProvider>

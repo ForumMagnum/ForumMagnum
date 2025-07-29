@@ -8,8 +8,8 @@ import { ClientRouteMetadataProvider } from "@/components/ClientRouteMetadataCon
 import { DEFAULT_TIMEZONE } from "@/lib/utils/timeUtil";
 import { getCachedUser } from "@/server/vulcan-lib/apollo-server/context";
 import { abstractThemeToConcrete, getThemeOptions } from "@/themes/themeNames";
-import StyleRegistry from "app/StyleRegistry";
 import { getRouteMetadata } from "@/components/ServerRouteMetadataContext";
+import { getEmbeddedStyleLoaderScript } from "@/components/hooks/embedStyles";
 
 export default async function RootLayout({
   children,
@@ -47,12 +47,12 @@ export default async function RootLayout({
         <Script strategy="beforeInteractive" id="public-instance-settings">
           {`window.publicInstanceSettings = ${toEmbeddableJson(publicInstanceSettings)}`}
         </Script>
+        <script dangerouslySetInnerHTML={{__html: getEmbeddedStyleLoaderScript()}}/>
         <meta httpEquiv='delegate-ch' content='sec-ch-dpr https://res.cloudinary.com;' />
       </head>
       <body>
         <style id="jss-insertion-start" />
         <style id="jss-insertion-end" />
-        <StyleRegistry themeOptions={themeOptions}>
         <ClientRouteMetadataProvider initialMetadata={routeMetadata}>
         <AppGenerator
           abTestGroupsUsed={{}}
@@ -71,7 +71,6 @@ export default async function RootLayout({
           {children}
         </AppGenerator>
         </ClientRouteMetadataProvider>
-        </StyleRegistry>
       </body>
     </html>
   );

@@ -1,11 +1,11 @@
 import React from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
-import { wrappedHighlightColor, wrappedWhiteColor } from "./wrappedHelpers";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { drawnArrow } from "@/components/icons/drawnArrow";
 import { useForumWrappedContext } from "./hooks";
 import WrappedSection from "./WrappedSection";
 import WrappedHeading from "./WrappedHeading";
+import { useThemeColor } from "@/components/themes/useTheme";
 
 const styles = (theme: ThemeType) => ({
   chart: {
@@ -48,6 +48,8 @@ const WrappedRelativeMostReadTopicsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {data: {relativeMostReadCoreTopics}} = useForumWrappedContext();
+  const wrappedWhiteColor = useThemeColor(theme => theme.palette.text.alwaysWhite);
+  const wrappedHighlightColor = useThemeColor(theme => theme.palette.wrapped.highlightText);
 
   const relativeMostReadTopics = relativeMostReadCoreTopics.map(topic => {
     return {

@@ -5,7 +5,6 @@ import '@/client/publicSettings';
 
 
 import React, { useEffect, useMemo, useRef, useState, useTransition } from 'react';
-import { PrefersDarkModeProvider } from '@/components/themes/usePrefersDarkMode';
 import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '@/lib/abTestImpl';
 import type { AbstractThemeOptions } from '@/themes/themeNames';
@@ -149,15 +148,13 @@ const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, user, cooki
         <CookiesProvider cookies={universalCookies}>
           <ThemeContextProvider options={themeOptions} isEmail={false}>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
-              <PrefersDarkModeProvider>
-                <LayoutOptionsContextProvider>
-                  <EnvironmentOverrideContextProvider ssrMetadata={ssrMetadata}>
-                    <AppComponent>
-                      {children}
-                    </AppComponent>
-                  </EnvironmentOverrideContextProvider>
-                </LayoutOptionsContextProvider>
-              </PrefersDarkModeProvider>
+              <LayoutOptionsContextProvider>
+                <EnvironmentOverrideContextProvider ssrMetadata={ssrMetadata}>
+                  <AppComponent>
+                    {children}
+                  </AppComponent>
+                </EnvironmentOverrideContextProvider>
+              </LayoutOptionsContextProvider>
             </ABTestGroupsUsedContext.Provider>
           </ThemeContextProvider>
         </CookiesProvider>

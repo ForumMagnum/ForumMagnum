@@ -19,6 +19,13 @@ const styles = (theme: ThemeType) => ({
     ".intercom-lightweight-app": {
       zIndex: `${theme.zIndexes.intercomButton} !important`,
     },
+
+    // Deactivate intercom on smaller devices
+    [theme.breakpoints.down('sm')]: {
+      "#intercom-container, .intercom-lightweight-app": {
+        display: "none",
+      }
+    }
   },
 });
 

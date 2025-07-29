@@ -24,5 +24,6 @@ declare global {
     grecaptcha?: any,
     google?: any,
     isReturningVisitor?: boolean,
+    serverInsertedStyleNodes?: HTMLStyleElement[]|null,
   }
 }

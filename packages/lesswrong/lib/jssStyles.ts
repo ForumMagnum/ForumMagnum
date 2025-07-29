@@ -28,18 +28,6 @@ export function getJss() {
   });
 }
 
-export function createStylesContext(theme: ThemeType): StylesContextType {
-  return {
-    theme,
-    mountedStyles: new Map<string, {
-      refcount: number;
-      styleDefinition: StyleDefinition<any>;
-      styleNode?: HTMLStyleElement;
-    }>()
-  };
-}
-
-
 /**
  * Takes a detached style element, and inserts it into the DOM as a child of
  * the `head` element, at a position determined by the precedence-affecting

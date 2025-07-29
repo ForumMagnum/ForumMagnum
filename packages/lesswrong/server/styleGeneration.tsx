@@ -1,15 +1,16 @@
 import React from 'react';
-import miscStyles from '../themes/globalStyles/miscStyles';
-import { ThemeOptions, getForumType } from '../themes/themeNames';
+import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
+import { addStaticRoute } from './vulcan-lib/staticRoutes';
+import sortBy from 'lodash/sortBy';
 import type { ForumTypeString } from '../lib/instanceSettings';
 import { getForumTheme } from '../themes/forumTheme';
-import { minify } from 'csso';
-import { requestedCssVarsToString } from '../themes/cssVars';
 import stringify from 'json-stringify-deterministic';
 import { brotliCompressResource, CompressedCacheResource } from './utils/bundleUtils';
 import { topLevelStyleDefinitions } from '@/components/hooks/useStyles';
 import type { JssStyles } from '@/lib/jssStyles';
 import { stylesToStylesheet } from '../lib/styleHelpers';
+import { SheetsRegistry } from 'jss';
+import { maybeMinifyCSS } from './maybeMinifyCSS';
 
 export type ClassNameProxy<T extends string = string> = Record<T,string>
 export type StyleDefinition<T extends string = string, N extends string = string> = {
@@ -34,17 +35,14 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   const allStyles = getAllStylesByName();
   
   const theme = getForumTheme(themeOptions);
-  const cssVars = requestedCssVarsToString(theme);
   const jssStylesheet = stylesToStylesheet(allStyles, theme);
   
   const mergedCSS = [
-    miscStyles(),
     jssStylesheet,
     ...theme.rawCSS,
-    cssVars,
   ].join("\n");
 
-  const minifiedCSS = minify(mergedCSS).css;
+  const minifiedCSS = maybeMinifyCSS(mergedCSS);
   return Buffer.from(minifiedCSS, "utf8");
 }
 

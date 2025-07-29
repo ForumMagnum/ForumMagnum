@@ -1,5 +1,4 @@
 import React, { useRef, useState, useEffect, useContext } from 'react'
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { ckEditorBundleVersion, getCkPostEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
@@ -34,6 +33,8 @@ import { useCkEditorInspector } from '@/client/useCkEditorInspector';
 import EditConditionalVisibility from "./conditionalVisibilityBlock/EditConditionalVisibility";
 import DialogueEditorGuidelines from "../posts/dialogues/DialogueEditorGuidelines";
 import DialogueEditorFeedback from "../posts/dialogues/DialogueEditorFeedback";
+import { useStyles } from '../hooks/useStyles';
+import { ckEditorPluginStyles } from './ckEditorStyles';
 
 const PostsMinimumInfoMultiQuery = gql(`
   query multiPostCKPostEditorQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -48,28 +49,6 @@ const PostsMinimumInfoMultiQuery = gql(`
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
-
-const styles = (theme: ThemeType) => ({
-  sidebar: {
-    position: 'absolute',
-    right: -350,
-    width: 300,
-    [theme.breakpoints.down('md')]: {
-      position: 'absolute',
-      right: -100,
-      width: 50
-    },
-    [theme.breakpoints.down('sm')]: {
-      right: 0
-    }
-  },
-  addMessageButton: {
-    marginBottom: 30,
-  },
-  hidden: {
-    display: "none",
-  },
-})
 
 const DIALOGUE_MESSAGE_INPUT_WRAPPER = 'dialogueMessageInputWrapper';
 const DIALOGUE_MESSAGE_INPUT = 'dialogueMessageInput';
@@ -408,7 +387,6 @@ const CKPostEditor = ({
   accessLevel,
   placeholder,
   document,
-  classes
 }: {
   data?: any,
   collectionName: CollectionNameString,
@@ -427,8 +405,8 @@ const CKPostEditor = ({
   accessLevel?: CollaborativeEditingAccessLevel,
   placeholder?: string,
   document?: any,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(ckEditorPluginStyles);
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const { openDialog } = useDialog();
@@ -591,7 +569,7 @@ const CKPostEditor = ({
   useSyncCkEditorPlaceholder(editorObject, actualPlaceholder);
   useCkEditorInspector(editorRef);
 
-  return <div>
+  return <div className={classes.ckWrapper}>
     {isBlockOwnershipMode && <>
      {!hasEverDialoguedBefore && <DialogueEditorGuidelines />}
      <style>
@@ -754,5 +732,5 @@ const CKPostEditor = ({
   </div>
 }
 
-export default registerComponent("CKPostEditor", CKPostEditor, {styles});
+export default CKPostEditor;
 

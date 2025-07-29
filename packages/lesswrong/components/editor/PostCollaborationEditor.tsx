@@ -37,9 +37,6 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 640,
     position: "relative",
     padding: 0,
-    '& li .public-DraftStyleDefault-block': {
-      margin: 0
-    }
   }
 })
 

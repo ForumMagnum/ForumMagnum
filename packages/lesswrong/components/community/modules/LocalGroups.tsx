@@ -3,7 +3,7 @@ import React, { MouseEventHandler } from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { requireCssVar } from '../../../themes/cssVars';
+import { useThemeColor } from '@/components/themes/useTheme';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import CommunityMapWrapper from "../../localGroups/CommunityMapWrapper";
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
@@ -169,9 +169,6 @@ export const distance = (
   return Math.round(distanceUnit === 'mi' ? distanceInKm * 0.621371 : distanceInKm)
 }
 
-const defaultBackground = requireCssVar("palette", "panelBackground", "default");
-const dimBackground = requireCssVar("palette", "background", "primaryDim");
-
 const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeInactive, toggleIncludeInactive, classes}: {
   keywordSearch: string,
   userLocation: {
@@ -185,6 +182,9 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
   toggleIncludeInactive: MouseEventHandler,
   classes: ClassesType<typeof styles>,
 }) => {
+  const defaultBackground = useThemeColor(theme => theme.palette.panelBackground.default);
+  const dimBackground = useThemeColor(theme => theme.palette.background.primaryDim);
+
   const groupsListTerms: LocalgroupsViewTerms = userLocation.known ? {
     view: 'nearby',
     lat: userLocation.lat,

@@ -3,7 +3,7 @@
 import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
 import { registerComponent } from '../lib/vulcan-lib/components';
 import classNames from 'classnames'
-import { useTheme } from './themes/useTheme';
+import { useTheme, useThemeColor } from './themes/useTheme';
 import { useLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContextProvider } from './common/withUser';
@@ -25,7 +25,6 @@ import { useCookiePreferences } from './hooks/useCookiesWithConsent';
 import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
 import { isFriendlyUI } from '../themes/forumTheme';
-import { requireCssVar } from '../themes/cssVars';
 import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
 import { CurrentAndRecentForumEventsProvider } from './hooks/useCurrentForumEvent';
 import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
@@ -61,6 +60,7 @@ import { SuspenseWrapper } from './common/SuspenseWrapper';
 import { useRouteMetadata } from './ClientRouteMetadataContext';
 import { isFullscreenRoute, isHomeRoute, isStandaloneRoute, isStaticHeaderRoute, isSunshineSidebarRoute, isUnspacedGridRoute } from '@/lib/routeChecks';
 import LanguageModelLauncherButton from './languageModels/LanguageModelLauncherButton';
+import { AutoDarkModeWrapper } from './themes/ThemeContextProvider';
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -242,8 +242,6 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
   },
 }));
 
-const wrappedBackgroundColor = requireCssVar("palette", "wrapped", "background")
-
 const StickyWrapper = ({children}: {
   children: ReactNode,
 }) => {
@@ -351,6 +349,7 @@ const Layout = ({currentUser, children}: {
 
   let headerBackgroundColor: ColorString;
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
+  const wrappedBackgroundColor = useThemeColor(theme => theme.palette.wrapped.background)
   if (isWrapped) {
     headerBackgroundColor = wrappedBackgroundColor;
   } else if (pathname.startsWith("/voting-portal")) {
@@ -391,6 +390,7 @@ const Layout = ({currentUser, children}: {
     
     return (
       <AnalyticsContext path={pathname}>
+      <AutoDarkModeWrapper>
       <UserContextProvider value={currentUser}>
       <UnreadNotificationsContextProvider>
       <TimezoneWrapper>
@@ -529,6 +529,7 @@ const Layout = ({currentUser, children}: {
       </TimezoneWrapper>
       </UnreadNotificationsContextProvider>
       </UserContextProvider>
+      </AutoDarkModeWrapper>
       </AnalyticsContext>
     )
   };

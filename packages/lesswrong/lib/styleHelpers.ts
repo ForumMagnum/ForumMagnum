@@ -1,4 +1,3 @@
-import type { ThemeOptions } from "@/themes/themeNames";
 import type { StyleDefinition } from "../server/styleGeneration";
 import sortBy from "lodash/sortBy";
 import { type StylesContextType } from "@/components/hooks/useStyles";
@@ -27,13 +26,12 @@ export function stylesToStylesheet(allStyles: Record<string,StyleDefinition>, th
   return sheetsRegistry.toString();
 }
 
-export function generateEmailStylesheet({ stylesContext, theme, themeOptions }: {
+export function generateEmailStylesheet({ stylesContext, theme}: {
   stylesContext: StylesContextType;
   theme: ThemeType;
-  themeOptions?: ThemeOptions;
 }): string {
   const mountedStyles = stylesContext.mountedStyles;
   const usedStyleDefinitions = [...mountedStyles.values()].map(s => s.styleDefinition);
-  const usedStylesByName = keyBy(usedStyleDefinitions, s => s.name);
+  const usedStylesByName = keyBy(usedStyleDefinitions.filter(s => !!s), s => s.name);
   return stylesToStylesheet(usedStylesByName, theme);
 }
