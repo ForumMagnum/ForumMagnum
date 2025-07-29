@@ -17,6 +17,8 @@ import { getOpenAI } from "@/server/languageModels/languageModelIntegration";
 import { assertPollsAllowed, upsertPolls } from "@/server/callbacks/forumEventCallbacks";
 import { captureException } from "@sentry/core";
 import { backgroundTask } from "@/server/utils/backgroundTask";
+import Posts from "../posts/collection";
+import ModerationTemplates from "../moderationTemplates/collection";
 
 function editCheck(user: DbUser | null) {
   return userIsAdminOrMod(user);
@@ -299,6 +301,26 @@ ${output_text}`,
   };
 };
 
+const NO_LLM_AUTOREJECT_TEMPLATE = "No LLM (autoreject)";
+
+async function rejectPostForLLM(post: DbPost) {
+  const moderationTemplate = await ModerationTemplates.findOne({ name: NO_LLM_AUTOREJECT_TEMPLATE });
+  if (!moderationTemplate) {
+    throw new Error("Moderation template not found");
+  }
+  await Posts.rawUpdateOne(
+    { _id: post._id },
+    { 
+      $set: { 
+        rejected: true, 
+        rejectedReason: moderationTemplate.contents?.html ?? "" 
+      } 
+    }
+  );
+  void sendRejectionPM({post});
+}
+
+
 async function createAutomatedContentEvaluation(revision: DbRevision, context: ResolverContext) {
   // we shouldn't be ending up running this on revisions where draft is true (which is for autosaves)
   // but if we did we'd want to return early.
@@ -335,6 +357,14 @@ async function createAutomatedContentEvaluation(revision: DbRevision, context: R
     aiReasoning: llmEvaluation?.reasoning,
     aiCoT: llmEvaluation?.cot,
   });
+  if (llmEvaluation?.decision === "review" && (validatedEvaluation?.score ?? 0) > .5) {
+    const documentId = revision.documentId;
+    if (!documentId) return
+    if (revision.collectionName === "Posts") {
+      const document = await context.loaders["Posts"].load(documentId);
+      await rejectPostForLLM(document);
+    }
+  }
 }
 
 export const graphqlRevisionTypeDefs = gql`
