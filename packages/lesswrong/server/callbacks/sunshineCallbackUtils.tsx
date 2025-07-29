@@ -13,6 +13,8 @@ import { useRejectContent } from "@/components/hooks/useRejectContent";
 import { Comments } from "../collections/comments/collection";
 import { Posts } from "../collections/posts/collection";
 import ModerationTemplates from "../collections/moderationTemplates/collection";
+import { utils } from "mocha";
+import { sendRejectionPM } from "./postCallbackFunctions";
 
 type RejectableContent = {
   content: DbPost,
@@ -24,7 +26,7 @@ type RejectableContent = {
 
 const NO_LLM_AUTOREJECT_TEMPLATE = "No LLM (autoreject)";
 
-export async function rejectContent(rejectableContent: RejectableContent, reason: string) {
+export async function rejectContent(rejectableContent: RejectableContent, reason: string, shouldSendPM?: boolean) {
   if (rejectableContent.collectionName === "Posts") {
     const moderationTemplate = await ModerationTemplates.findOne({ name: NO_LLM_AUTOREJECT_TEMPLATE });
     if (!moderationTemplate) {
@@ -39,6 +41,9 @@ export async function rejectContent(rejectableContent: RejectableContent, reason
         } 
       }
     );
+    if (shouldSendPM) {
+      void sendRejectionPM({post: rejectableContent.content});
+    }
   } else {
     await Comments.rawUpdateOne(
       { _id: rejectableContent.content._id },
@@ -50,6 +55,7 @@ export async function rejectContent(rejectableContent: RejectableContent, reason
       }
     );
   }
+
 }
 
 /** 

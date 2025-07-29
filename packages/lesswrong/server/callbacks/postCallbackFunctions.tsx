@@ -52,6 +52,7 @@ import { updateNotification } from "../collections/notifications/mutations";
 import { EmailCuratedAuthors } from "../emailComponents/EmailCuratedAuthors";
 import { EventUpdatedEmail } from "../emailComponents/EventUpdatedEmail";
 import { PostsHTML } from "@/lib/collections/posts/fragments";
+import Users from "../collections/users/collection";
 
 /** Create notifications for a new post being published */
 export async function sendNewPostNotifications(post: DbPost) {
@@ -914,30 +915,32 @@ export async function updatedPostMaybeTriggerReview({newDocument, oldDocument, c
   }
 }
 
-export async function sendRejectionPM({ newDocument: post, oldDocument: oldPost, currentUser, context }: UpdateCallbackProperties<'Posts'>) {
-  const { Users } = context;
+export async function sendRejectionPM({ post, currentUser, context }: {post: DbPost, currentUser?: DbUser|null, context?: ResolverContext}) {
+  const postUser = await Users.findOne({_id: post.userId});
+
+  const rejectedContentLink = `<span>post, <a href="https://lesswrong.com/posts/${post._id}/${post.slug}">${post.title}</a></span>`
+  let messageContents = getRejectionMessage(rejectedContentLink, post.rejectedReason)
+
+  // FYI EA Forum: Decide if you want this to always send emails the way you do for deletion. We think it's better not to.
+  const noEmail = isEAForum
+  ? false 
+  : !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
+  const adminAccount = currentUser ?? await getAdminTeamAccount(context);
+  if (!adminAccount) throw new Error("Couldn't find admin account for sending rejection PM");
+  console.log("adminAccount", adminAccount);
+  await utils.sendPostRejectionPM({
+    post,
+    messageContents: messageContents,
+    lwAccount: adminAccount,
+    noEmail
+  }); 
+}
+
+
+export async function maybeSendRejectionPM({ newDocument: post, oldDocument: oldPost, currentUser, context }: UpdateCallbackProperties<'Posts'>) {
   const postRejected = post.rejected && !oldPost.rejected;
   if (postRejected) {
-    const postUser = await Users.findOne({_id: post.userId});
-
-    const rejectedContentLink = `<span>post, <a href="https://lesswrong.com/posts/${post._id}/${post.slug}">${post.title}</a></span>`
-    let messageContents = getRejectionMessage(rejectedContentLink, post.rejectedReason)
-  
-    // FYI EA Forum: Decide if you want this to always send emails the way you do for deletion. We think it's better not to.
-    const noEmail = isEAForum
-    ? false 
-    : !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
-    
-    const adminAccount = currentUser ?? await getAdminTeamAccount(context);
-    if (!adminAccount) throw new Error("Couldn't find admin account for sending rejection PM");
-  
-    await utils.sendPostRejectionPM({
-      post,
-      messageContents: messageContents,
-      lwAccount: adminAccount,
-      noEmail,
-      context,
-    });  
+    await sendRejectionPM({ post, currentUser, context });
   }
 }
 
