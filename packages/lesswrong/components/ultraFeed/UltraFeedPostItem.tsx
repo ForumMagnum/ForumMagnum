@@ -82,7 +82,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     marginRight: 6,
     marginTop: -12,
     [theme.breakpoints.down('sm')]: {
-      marginRight: 2,
+      display: 'none',
     },
   },
   verticalLine: {

@@ -95,8 +95,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     marginTop: -commentHeaderPaddingDesktop,
     marginBottom: 0,
     [theme.breakpoints.down('sm')]: {
-      marginRight: 2,
-      marginTop: -commentHeaderPaddingMobile,
+      display: 'none',
     },
   },
   verticalLineContainerCompressed: {
@@ -106,7 +105,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     marginRight: 6,
     marginBottom: 0,
     [theme.breakpoints.down('sm')]: {
-      marginRight: 2,
+      display: 'none',
     },
   },
   verticalLine: {
