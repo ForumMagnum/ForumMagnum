@@ -136,13 +136,13 @@ export type ArbitalTagContentRelSelector = {
 export type AutomatedContentEvaluation = {
   __typename?: 'AutomatedContentEvaluation';
   _id: Scalars['String']['output'];
-  aiChoice: Scalars['String']['output'];
-  aiCoT: Scalars['String']['output'];
-  aiReasoning: Scalars['String']['output'];
+  aiChoice: Maybe<Scalars['String']['output']>;
+  aiCoT: Maybe<Scalars['String']['output']>;
+  aiReasoning: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
   revisionId: Scalars['String']['output'];
-  score: Scalars['Float']['output'];
-  sentenceScores: Array<SentenceScore>;
+  score: Maybe<Scalars['Float']['output']>;
+  sentenceScores: Maybe<Array<SentenceScore>>;
 };
 
 export type AutosaveContentType = {
@@ -19688,7 +19688,7 @@ export type updatePostPostsEditFormMutation = { __typename?: 'Mutation', updateP
 
 export type AdvisorRequestsMinimumInfo = { __typename?: 'AdvisorRequest', _id: string, userId: string | null, createdAt: string, interestedInMetaculus: boolean | null, jobAds: any | null };
 
-export type AutomatedContentEvaluations = { __typename?: 'AutomatedContentEvaluation', _id: string, score: number, aiChoice: string, aiReasoning: string, aiCoT: string, sentenceScores: Array<{ __typename?: 'SentenceScore', sentence: string, score: number }> };
+export type AutomatedContentEvaluations = { __typename?: 'AutomatedContentEvaluation', _id: string, score: number | null, aiChoice: string | null, aiReasoning: string | null, aiCoT: string | null, sentenceScores: Array<{ __typename?: 'SentenceScore', sentence: string, score: number }> | null };
 
 export type BansAdminPageFragment = { __typename?: 'Ban', _id: string, createdAt: string, expirationDate: string | null, userId: string, reason: string | null, comment: string, ip: string | null, properties: any | null, user: (
     { __typename?: 'User' }
@@ -21243,7 +21243,7 @@ export type ArbitalCachesDefaultFragment = { __typename?: 'ArbitalCaches', _id: 
 
 export type ArbitalTagContentRelsDefaultFragment = { __typename?: 'ArbitalTagContentRel', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, parentDocumentId: string, childDocumentId: string, parentCollectionName: string, childCollectionName: string, type: string, level: number, isStrong: boolean };
 
-export type AutomatedContentEvaluationsDefaultFragment = { __typename?: 'AutomatedContentEvaluation', _id: string, createdAt: string, revisionId: string, score: number, aiChoice: string, aiReasoning: string, aiCoT: string };
+export type AutomatedContentEvaluationsDefaultFragment = { __typename?: 'AutomatedContentEvaluation', _id: string, createdAt: string, revisionId: string, score: number | null, aiChoice: string | null, aiReasoning: string | null, aiCoT: string | null };
 
 export type BansDefaultFragment = { __typename?: 'Ban', _id: string, schemaVersion: number, createdAt: string, legacyData: any | null, expirationDate: string | null, userId: string, ip: string | null, reason: string | null, comment: string, properties: any | null };
 

@@ -1362,11 +1362,11 @@ interface AutomatedContentEvaluation {
   _id: string;
   createdAt: Date;
   revisionId: string;
-  score: number;
-  sentenceScores: Array<SentenceScore>;
-  aiChoice: string;
-  aiReasoning: string;
-  aiCoT: string;
+  score: number | null;
+  sentenceScores: Array<SentenceScore> | null;
+  aiChoice: string | null;
+  aiReasoning: string | null;
+  aiCoT: string | null;
 }
 
 interface SentenceScore {
