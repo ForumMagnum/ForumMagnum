@@ -23938,7 +23938,7 @@ type AdvisorRequestsMinimumInfo = { __typename?: 'AdvisorRequest', _id: string, 
 
 type AutomatedContentEvaluations_AutomatedContentEvaluation_sentenceScores_SentenceScore = { __typename?: 'SentenceScore', sentence: string, score: number };
 
-type AutomatedContentEvaluations = { __typename?: 'AutomatedContentEvaluation', _id: string, score: number | null, aiChoice: string | null, aiReasoning: string | null, aiCoT: string | null, sentenceScores: Array<AutomatedContentEvaluations_AutomatedContentEvaluation_sentenceScores_SentenceScore> | null };
+type AutomatedContentEvaluations = { __typename?: 'AutomatedContentEvaluation', _id: string, score: number, aiChoice: string, aiReasoning: string, aiCoT: string, sentenceScores: Array<AutomatedContentEvaluations_AutomatedContentEvaluation_sentenceScores_SentenceScore> };
 
 type BansAdminPageFragment_Ban_user_User = (
   { __typename?: 'User' }

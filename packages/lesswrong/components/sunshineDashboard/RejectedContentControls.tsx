@@ -102,7 +102,7 @@ export const RejectedContentControls = ({ contentWrapper }: {
         {document.rejected && <RejectedReasonDisplay reason={document.rejectedReason} />}
         {automatedContentEvaluations && (
           <div className={classes.automatedContentEvaluations}>
-            {score && <span className={classes.llmScore} onClick={handleLLMScoreClick}>
+            {typeof score === 'number' && <span className={classes.llmScore} onClick={handleLLMScoreClick}>
               <strong>LLM Score:</strong> {score.toFixed(2)}
             </span>
             }
