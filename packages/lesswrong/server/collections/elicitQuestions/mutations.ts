@@ -1,14 +1,15 @@
-
 import schema from "@/lib/collections/elicitQuestions/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
+
 
 function newCheck(user: DbUser | null) {
   if (!user) return false;
@@ -61,7 +62,7 @@ export async function updateElicitQuestion({ selector, data }: UpdateElicitQuest
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('ElicitQuestions', updatedDocument, oldDocument);
 
-  void logFieldChanges({ currentUser, collection: ElicitQuestions, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: ElicitQuestions, oldDocument, data: origData }));
 
   return updatedDocument;
 }

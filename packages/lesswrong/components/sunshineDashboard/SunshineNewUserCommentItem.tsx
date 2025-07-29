@@ -1,5 +1,5 @@
 import React from 'react';
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 import { RejectedContentControls } from "./RejectedContentControls";
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -37,7 +37,7 @@ export const SunshineNewUserCommentItem = ({comment}: {
       <ForumIcon className={classes?.expandCollapseButton} icon={isCollapsed ? "ThickChevronRight" : "ThickChevronDown"} onClick={() => setIsCollapsed(!isCollapsed)} />
       <RejectedContentControls contentWrapper={{collectionName:"Comments", document:comment}}/>
     </div>
-    {!isCollapsed && <CommentsNodeInner 
+    {!isCollapsed && <CommentsNode 
       treeOptions={{
         condensed: false,
         post: comment.post || undefined,

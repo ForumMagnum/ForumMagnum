@@ -2,6 +2,7 @@ import { registerMigration } from "./migrationUtils";
 import { createAdminContext } from "../vulcan-lib/createContexts";
 import { createNotification } from "../notificationCallbacksHelpers";
 import { getSqlClientOrThrow } from "../../server/sql/sqlClient";
+import { backgroundTask } from "../utils/backgroundTask";
 
 interface DialogueCheckWithExtraData extends DbDialogueCheck {
   targetUserMatchPreferenceId: string;
@@ -39,14 +40,14 @@ export default registerMigration({
     const context = createAdminContext();
     const checksYourTurn = await getMatchFormYourTurn()
     checksYourTurn.forEach(check => {
-      void createNotification({
+      backgroundTask(createNotification({
         userId: check.userId,
         notificationType: 'yourTurnMatchForm',
         documentType: 'dialogueMatchPreference',
         documentId: check.targetUserMatchPreferenceId,
         context,
         extraData: {checkId: check._id}
-      });
+      }));
     })
   }
 })

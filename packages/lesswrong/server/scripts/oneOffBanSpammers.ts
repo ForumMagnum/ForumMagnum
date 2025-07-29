@@ -3,6 +3,7 @@ import { userIPBanAndResetLoginTokens, userDeleteContent } from '../users/modera
 import Users from '../../server/collections/users/collection'
 import moment from 'moment'
 import { createAdminContext } from '../vulcan-lib/createContexts'
+import { backgroundTask } from '../utils/backgroundTask'
 
 const banUser = async (user: DbUser, adminUser: DbUser) => {
   // this was not updated when we moved from the "bio" field to the "biography" field,
@@ -21,8 +22,8 @@ const banUser = async (user: DbUser, adminUser: DbUser) => {
       },
     }
   }])
-  void userIPBanAndResetLoginTokens(user);
-  void userDeleteContent(user, adminUser, createAdminContext());
+  backgroundTask(userIPBanAndResetLoginTokens(user));
+  backgroundTask(userDeleteContent(user, adminUser, createAdminContext()));
 }
 
 export const oneOffBanSpammers = wrapVulcanAsyncScript(

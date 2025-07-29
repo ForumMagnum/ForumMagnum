@@ -178,12 +178,17 @@ module.exports = {
       ]
     }],
 
-    // Warn on missing await
+    // Warn on missing await. We use ignoreVoid: true by default but change it
+    // to false for lib/ and server/ because you should use the
+    // `backgroundTask()` function rather than void, except in the `components`
+    // folder in which void is allowed (specified in the `overrides` section
+    // below).
     // The ignoreVoid option makes it so that
     //   void someAwaitableFunction()
     // can be used as a way of marking a function as deliberately not-awaited.
     "@typescript-eslint/no-floating-promises": [1, {
-      ignoreVoid: true
+      ignoreVoid: true,
+      ignoreIIFE: true,
     }],
 
     // Like no-implicit-any, but specifically for things that are exported. Turn
@@ -320,6 +325,20 @@ module.exports = {
           ...clientRestrictedImportPaths
         ]}],
       }
+    },
+    {
+      "files": [
+        "packages/lesswrong/lib/**/*.ts",
+        "packages/lesswrong/lib/**/*.tsx",
+        "packages/lesswrong/server/**/*.ts",
+        "packages/lesswrong/server/**/*.tsx",
+      ],
+      "rules": {
+        "@typescript-eslint/no-floating-promises": [1, {
+          ignoreVoid: false,
+          ignoreIIFE: true,
+        }],
+      },
     }
   ],
   "env": {

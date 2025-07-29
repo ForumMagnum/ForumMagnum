@@ -1,7 +1,7 @@
-
 import schema from "@/lib/collections/bans/newSchema";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { assignUserIdToData, getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -49,7 +49,7 @@ export async function updateBan({ selector, data }: { selector: SelectorInput, d
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Bans', updatedDocument, oldDocument);
 
-  void logFieldChanges({ currentUser, collection: Bans, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: Bans, oldDocument, data: origData }));
 
   return updatedDocument;
 }

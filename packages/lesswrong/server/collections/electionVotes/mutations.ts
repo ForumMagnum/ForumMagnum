@@ -1,10 +1,10 @@
-
 import { isPastVotingDeadline, userCanVoteInDonationElection } from "@/lib/collections/electionVotes/helpers";
 import schema from "@/lib/collections/electionVotes/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { isAdmin, userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -83,7 +83,7 @@ export async function updateElectionVote({ selector, data }: UpdateElectionVoteI
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('ElectionVotes', updatedDocument, oldDocument);
 
-  void logFieldChanges({ currentUser, collection: ElectionVotes, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: ElectionVotes, oldDocument, data: origData }));
 
   return updatedDocument;
 }

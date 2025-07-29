@@ -1,10 +1,11 @@
 import { addStaticRoute } from '../vulcan-lib/staticRoutes';
 import { Posts } from '../../server/collections/posts/collection';
 import type { ServerResponse } from 'http';
+import { backgroundTask } from '../utils/backgroundTask';
 
 const redirect = (res: ServerResponse, url: string, post: DbPost | null) => {
   if (post) {
-    void Posts.rawUpdateOne({_id: post._id}, { $inc: { clickCount: 1 } });
+    backgroundTask(Posts.rawUpdateOne({_id: post._id}, { $inc: { clickCount: 1 } }));
     res.writeHead(301, {'Location': url});
     res.end();
   } else {

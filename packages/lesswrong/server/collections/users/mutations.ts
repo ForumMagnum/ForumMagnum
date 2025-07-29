@@ -1,4 +1,3 @@
-
 import schema from "@/lib/collections/users/newSchema";
 import { isElasticEnabled } from "@/lib/instanceSettings";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
@@ -8,6 +7,7 @@ import { approveUnreviewedSubmissions, changeDisplayNameRateLimit, clearKarmaCha
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
@@ -74,7 +74,7 @@ export async function createUser({ data }: CreateUserInput, context: ResolverCon
   createRecombeeUser(asyncProperties);
 
   if (isElasticEnabled) {
-    void elasticSyncDocument('Users', documentWithId._id);
+    backgroundTask(elasticSyncDocument('Users', documentWithId._id));
   }
 
   await subscribeOnSignup(documentWithId);
@@ -152,12 +152,12 @@ export async function updateUser({ selector, data }: { data: UpdateUserDataInput
   });
 
   if (isElasticEnabled) {
-    void elasticSyncDocument('Users', updatedDocument._id);
+    backgroundTask(elasticSyncDocument('Users', updatedDocument._id));
   }
 
   await reindexDeletedUserContent(updatedDocument, oldDocument, context);
 
-  void logFieldChanges({ currentUser, collection: Users, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: Users, oldDocument, data: origData }));
 
   return updatedDocument;
 }

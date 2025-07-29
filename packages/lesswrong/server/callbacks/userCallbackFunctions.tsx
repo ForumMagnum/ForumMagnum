@@ -43,6 +43,7 @@ import { updateComment } from "../collections/comments/mutations";
 import { createUser, updateUser } from "../collections/users/mutations";
 import { EmailContentItemBody } from "../emailComponents/EmailContentItemBody";
 import { PostsHTML } from "@/lib/collections/posts/fragments";
+import { backgroundTask } from "../utils/backgroundTask";
 
 
 async function sendWelcomeMessageTo(userId: string) {
@@ -127,7 +128,7 @@ const welcomeMessageDelayer = new EventDebouncer({
   defaultTiming: isLW ? {type: "none"} : {type: "delayed", delayMinutes: 5},
   
   callback: (userId: string) => {
-    void sendWelcomeMessageTo(userId);
+    backgroundTask(sendWelcomeMessageTo(userId));
   },
 });
 
@@ -194,7 +195,7 @@ const utils = {
 
   sendVerificationEmailConditional: async (user: DbUser) => {
     if (!isAnyTest && verifyEmailsSetting.get()) {
-      void sendVerificationEmail(user);
+      backgroundTask(sendVerificationEmail(user));
       await bellNotifyEmailVerificationRequired(user);
     }
   },
@@ -228,9 +229,10 @@ export function createRecombeeUser({ document }: {document: DbUser}) {
   if (!document.email)
     return;
 
-  void recombeeApi.createUser(document)
+  backgroundTask(recombeeApi.createUser(document)
     // eslint-disable-next-line no-console
-    .catch(e => console.log('Error when sending created user to recombee', { e }));
+    .catch(e => console.log('Error when sending created user to recombee', { e }))
+  );
 }
 
 /* NEW ASYNC */
@@ -262,7 +264,7 @@ export async function subscribeToEAForumAudience(user: DbUser) {
     return;
   }
   const { lat: latitude, lng: longitude, known } = userGetLocation(user);
-  void fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpEAForumListId}/members`, {
+  backgroundTask((fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpEAForumListId}/members`, {
     method: 'POST',
     body: JSON.stringify({
       email_address: user.email,
@@ -277,11 +279,11 @@ export async function subscribeToEAForumAudience(user: DbUser) {
       'Content-Type': 'application/json',
       Authorization: `API_KEY ${mailchimpAPIKey}`,
     },
-  }).catch(e => {
+  })).catch(e => {
     captureException(e);
     // eslint-disable-next-line no-console
     console.log(e);
-  });
+  }));
 }
 
 export async function sendWelcomingPM(user: DbUser) {
@@ -413,10 +415,10 @@ export async function updateDisplayName(data: UpdateUserDataInput, { oldDocument
       throw new Error("This display name is already taken");
     }
     if (data.shortformFeedId && !isLWorAF) {
-      void updatePost({
+      backgroundTask(updatePost({
         data: {title: userShortformPostTitle(newDocument)},
         selector: { _id: data.shortformFeedId }
-      }, createAnonymousContext());
+      }, createAnonymousContext()));
     }
   }
   return data;
@@ -432,7 +434,7 @@ export function maybeSendVerificationEmail(modifier: MongoModifier, user: DbUser
   const lastSent = user.whenConfirmationEmailSent;
 
   if (!lastSent || (lastSent.getTime() !== whenConfirmationEmailSent.getTime())) {
-    void utils.sendVerificationEmailConditional(user);
+    backgroundTask(utils.sendVerificationEmailConditional(user));
   }
 }
 
@@ -509,7 +511,7 @@ export function syncProfileUpdatedAt(modifier: MongoModifier, user: DbUser) {
 export function updateUserMayTriggerReview({newDocument, data, context}: UpdateCallbackProperties<"Users">) {
   const reviewTriggerFields: (keyof DbUser)[] = ['voteCount', 'mapLocation', 'postCount', 'commentCount', 'biography', 'profileImageId'];
   if (reviewTriggerFields.some(field => field in data)) {
-    void triggerReviewIfNeeded({userId:newDocument._id, context});
+    backgroundTask(triggerReviewIfNeeded({userId:newDocument._id, context}));
   }
 }
 
@@ -518,7 +520,7 @@ export async function userEditDeleteContentCallbacksAsync({ newDocument, oldDocu
     await nullifyVotesForUser(newDocument);
   }
   if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser) {
-    void userDeleteContent(newDocument, currentUser, context);
+    backgroundTask(userDeleteContent(newDocument, currentUser, context));
   }
 }
 
@@ -631,7 +633,7 @@ export function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
   const previousUserWasBanned = !!(previousBanDate && new Date(previousBanDate) > now)
   
   if (updatedUserIsBanned && !previousUserWasBanned) {
-    void userIPBanAndResetLoginTokens(user);
+    backgroundTask(userIPBanAndResetLoginTokens(user));
   }
 }
 
@@ -671,7 +673,7 @@ export async function newAlignmentUserSendPMAsync(newUser: DbUser, oldUser: DbUs
       conversationId: conversation._id
     };
 
-    void createMessage({ data: firstMessageData }, lwAccountContext);
+    backgroundTask(createMessage({ data: firstMessageData }, lwAccountContext));
   }
 }
 

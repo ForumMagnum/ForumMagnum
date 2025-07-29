@@ -44,12 +44,6 @@ export const styles = defineStyles('CollectionsEditForm', (theme: ThemeType) => 
       fontSize: "2em",
       marginBottom: "1em",
     },
-    "& label.control-label": {
-      display: "none",
-    },
-    "& .col-sm-9": {
-      padding: 0,
-    },
     "& .input-title input": {
       fontSize: "2em",
     },

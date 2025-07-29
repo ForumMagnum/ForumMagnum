@@ -79,6 +79,7 @@ const BookmarksFeed = () => {
             const postMetaInfo: FeedPostMetaInfo = {
               sources: ["bookmarks"],
               displayStatus: "expanded" as FeedItemDisplayStatus,
+              highlight: false,
             };
             return (
               <FeedItemWrapper key={typedBookmark._id || `post-${index}`}>

@@ -39,6 +39,7 @@ import { updateTag } from '../collections/tags/mutations';
 import { WithDateFields } from '@/lib/utils/dateUtils';
 import { getDefaultViewSelector, mergeSelectors, mergeWithDefaultViewSelector } from '@/lib/utils/viewUtils';
 import { CommentsViews } from '@/lib/collections/comments/views';
+import { backgroundTask } from '../utils/backgroundTask';
 
 type SubforumFeedSort = {
   posts: SubquerySortField<DbPost, keyof DbPost>,
@@ -521,7 +522,7 @@ export const tagResolversGraphQLMutations = {
       }
     }
     // Don't await this, because it might cause a timeout
-    void updateDenormalizedTags();
+    backgroundTask(updateDenormalizedTags());
 
     //
     // Transfer sub-tags

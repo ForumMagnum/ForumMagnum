@@ -54,6 +54,7 @@ export const useAfNonMemberSuccessHandling = () => {
   return useCallback((document: PostsBase | CommentsList) => {
     if (!!currentUser && userNeedsAFNonMemberWarning(currentUser, false)) {
       if (isComment(document)) {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         void updateComment({
           variables: {
             selector: { _id: document._id},
@@ -69,6 +70,7 @@ export const useAfNonMemberSuccessHandling = () => {
           />,
         })
       } else {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         void updatePost({
           variables: {
             selector: { _id: document._id },
