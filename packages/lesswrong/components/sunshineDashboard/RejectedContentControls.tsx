@@ -50,7 +50,7 @@ export const RejectedContentControls = ({ contentWrapper }: {
   if (collectionName === 'Posts' && !hasRejectedContentSectionSetting.get()) return null;
   if (collectionName === 'Comments' && !isLWorAF) return null;
 
-  const automatedContentEvaluations = document?.contents && 'automatedContentEvaluations' in document.contents && document.contents?.automatedContentEvaluations;
+  const automatedContentEvaluations = 'automatedContentEvaluations' in document ? document.automatedContentEvaluations : null;
 
   function handleLLMScoreClick() {
     if (!automatedContentEvaluations) return;
@@ -93,18 +93,23 @@ export const RejectedContentControls = ({ contentWrapper }: {
     });
   }
 
+  const score = automatedContentEvaluations?.score;
+  const aiChoice = automatedContentEvaluations?.aiChoice;
+
   return (
     <span className={classes.root}>
       <div className={classes.row}>
         {document.rejected && <RejectedReasonDisplay reason={document.rejectedReason} />}
         {automatedContentEvaluations && (
           <div className={classes.automatedContentEvaluations}>
-            <span className={classes.llmScore} onClick={handleLLMScoreClick}>
-              <strong>LLM Score:</strong> {automatedContentEvaluations.score.toFixed(2)}
+            {score && <span className={classes.llmScore} onClick={handleLLMScoreClick}>
+              <strong>LLM Score:</strong> {score.toFixed(2)}
             </span>
-            <span className={classes.llmScore} onClick={handleAiJudgementClick}>
-              <strong>AI notes:</strong> {automatedContentEvaluations.aiChoice}
+            }
+            {aiChoice && <span className={classes.llmScore} onClick={handleAiJudgementClick}>
+              <strong>AI notes:</strong> {aiChoice}
             </span>
+            }
           </div>
         )}
       </div>

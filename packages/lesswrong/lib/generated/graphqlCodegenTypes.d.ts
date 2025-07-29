@@ -23936,6 +23936,10 @@ type updatePostPostsEditFormMutation = updatePostPostsEditFormMutation_Mutation;
 
 type AdvisorRequestsMinimumInfo = { __typename?: 'AdvisorRequest', _id: string, userId: string | null, createdAt: string, interestedInMetaculus: boolean | null, jobAds: any | null };
 
+type AutomatedContentEvaluations_AutomatedContentEvaluation_sentenceScores_SentenceScore = { __typename?: 'SentenceScore', sentence: string, score: number };
+
+type AutomatedContentEvaluations = { __typename?: 'AutomatedContentEvaluation', _id: string, score: number, aiChoice: string, aiReasoning: string, aiCoT: string, sentenceScores: Array<AutomatedContentEvaluations_AutomatedContentEvaluation_sentenceScores_SentenceScore> };
+
 type BansAdminPageFragment_Ban_user_User = (
   { __typename?: 'User' }
   & UsersMinimumInfo
@@ -25086,9 +25090,10 @@ type UsersBannedFromPostsModerationLog = { __typename?: 'Post', title: string, s
 
 type SunshinePostsList_Post_fmCrosspost_CrosspostOutput = { __typename?: 'CrosspostOutput', isCrosspost: boolean, hostedHere: boolean | null, foreignPostId: string | null };
 
-type SunshinePostsList_Post_contents_Revision_automatedContentEvaluations_AutomatedContentEvaluation_sentenceScores_SentenceScore = { __typename?: 'SentenceScore', sentence: string, score: number };
-
-type SunshinePostsList_Post_contents_Revision_automatedContentEvaluations_AutomatedContentEvaluation = { __typename?: 'AutomatedContentEvaluation', _id: string, score: number, aiChoice: string, aiReasoning: string, aiCoT: string, sentenceScores: Array<SunshinePostsList_Post_contents_Revision_automatedContentEvaluations_AutomatedContentEvaluation_sentenceScores_SentenceScore> };
+type SunshinePostsList_Post_contents_Revision_automatedContentEvaluations_AutomatedContentEvaluation = (
+  { __typename?: 'AutomatedContentEvaluation' }
+  & AutomatedContentEvaluations
+);
 
 type SunshinePostsList_Post_contents_Revision = { __typename?: 'Revision', _id: string, html: string | null, htmlHighlight: string, wordCount: number, version: string, automatedContentEvaluations: SunshinePostsList_Post_contents_Revision_automatedContentEvaluations_AutomatedContentEvaluation | null };
 

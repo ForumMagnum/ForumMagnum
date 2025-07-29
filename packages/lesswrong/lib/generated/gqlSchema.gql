@@ -6474,7 +6474,6 @@ type Revision {
   post: Post
   lens: MultiDocument
   summary: MultiDocument
-  automatedContentEvaluations: AutomatedContentEvaluation
   currentUserVote: String
   currentUserExtendedVote: JSON
   voteCount: Float!
