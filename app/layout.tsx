@@ -10,6 +10,7 @@ import { getCachedUser } from "@/server/vulcan-lib/apollo-server/context";
 import { abstractThemeToConcrete, getThemeOptions } from "@/themes/themeNames";
 import { getRouteMetadata } from "@/components/ServerRouteMetadataContext";
 import { getEmbeddedStyleLoaderScript } from "@/components/hooks/embedStyles";
+import { globalExternalStylesheets } from "@/themes/globalStyles/externalStyles";
 
 export default async function RootLayout({
   children,
@@ -47,12 +48,19 @@ export default async function RootLayout({
         <Script strategy="beforeInteractive" id="public-instance-settings">
           {`window.publicInstanceSettings = ${toEmbeddableJson(publicInstanceSettings)}`}
         </Script>
+        {globalExternalStylesheets.map(stylesheet => <link key={stylesheet} rel="stylesheet" type="text/css" href={stylesheet}/>)}
         <script dangerouslySetInnerHTML={{__html: getEmbeddedStyleLoaderScript()}}/>
         <meta httpEquiv='delegate-ch' content='sec-ch-dpr https://res.cloudinary.com;' />
+        {/* HACK: These insertion-point markers are <script> tags (rather than
+          * <style> tags) because <style> is special-cased in a way that
+          * interacts badly with our dynamic insertion leading to a hydration
+          * mismatch
+          */}
+        <script id="jss-insertion-start"/>
+        {/*Style tags are dynamically inserted here*/}
+        <script id="jss-insertion-end"/>
       </head>
       <body>
-        <style id="jss-insertion-start" />
-        <style id="jss-insertion-end" />
         <ClientRouteMetadataProvider initialMetadata={routeMetadata}>
         <AppGenerator
           abTestGroupsUsed={{}}
