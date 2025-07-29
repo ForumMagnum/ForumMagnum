@@ -4148,6 +4148,7 @@ interface Post {
   generateDraftJargon: boolean | null;
   curationNotices: Array<CurationNotice> | null;
   reviews: Array<Comment> | null;
+  automatedContentEvaluations: AutomatedContentEvaluation | null;
   currentUserVote: string | null;
   currentUserExtendedVote: any;
   voteCount: number;
@@ -6001,7 +6002,6 @@ interface Revision {
   post: Post | null;
   lens: MultiDocument | null;
   summary: MultiDocument | null;
-  automatedContentEvaluations: AutomatedContentEvaluation | null;
   currentUserVote: string | null;
   currentUserExtendedVote: any;
   voteCount: number;
