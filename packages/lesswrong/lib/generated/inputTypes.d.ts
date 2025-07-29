@@ -4148,6 +4148,7 @@ interface Post {
   generateDraftJargon: boolean | null;
   curationNotices: Array<CurationNotice> | null;
   reviews: Array<Comment> | null;
+  automatedContentEvaluations: AutomatedContentEvaluation | null;
   currentUserVote: string | null;
   currentUserExtendedVote: any;
   voteCount: number;

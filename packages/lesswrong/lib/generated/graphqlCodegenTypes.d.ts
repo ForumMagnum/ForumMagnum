@@ -5536,6 +5536,7 @@ type Post = {
   author?: Maybe<Scalars['String']['output']>;
   authorIsUnreviewed: Scalars['Boolean']['output'];
   autoFrontpage?: Maybe<Scalars['String']['output']>;
+  automatedContentEvaluations?: Maybe<AutomatedContentEvaluation>;
   bannedUserIds?: Maybe<Array<Scalars['String']['output']>>;
   baseScore: Scalars['Float']['output'];
   bestAnswer?: Maybe<Comment>;
@@ -9317,7 +9318,6 @@ type Revision = {
   afBaseScore?: Maybe<Scalars['Float']['output']>;
   afExtendedScore?: Maybe<Scalars['JSON']['output']>;
   afVoteCount?: Maybe<Scalars['Float']['output']>;
-  automatedContentEvaluations?: Maybe<AutomatedContentEvaluation>;
   baseScore: Scalars['Float']['output'];
   changeMetrics: Scalars['JSON']['output'];
   ckEditorMarkup?: Maybe<Scalars['String']['output']>;
@@ -25090,12 +25090,12 @@ type UsersBannedFromPostsModerationLog = { __typename?: 'Post', title: string, s
 
 type SunshinePostsList_Post_fmCrosspost_CrosspostOutput = { __typename?: 'CrosspostOutput', isCrosspost: boolean, hostedHere: boolean | null, foreignPostId: string | null };
 
-type SunshinePostsList_Post_contents_Revision_automatedContentEvaluations_AutomatedContentEvaluation = (
+type SunshinePostsList_Post_contents_Revision = { __typename?: 'Revision', _id: string, html: string | null, htmlHighlight: string, wordCount: number, version: string };
+
+type SunshinePostsList_Post_automatedContentEvaluations_AutomatedContentEvaluation = (
   { __typename?: 'AutomatedContentEvaluation' }
   & AutomatedContentEvaluations
 );
-
-type SunshinePostsList_Post_contents_Revision = { __typename?: 'Revision', _id: string, html: string | null, htmlHighlight: string, wordCount: number, version: string, automatedContentEvaluations: SunshinePostsList_Post_contents_Revision_automatedContentEvaluations_AutomatedContentEvaluation | null };
 
 type SunshinePostsList_Post_moderationGuidelines_Revision = { __typename?: 'Revision', _id: string, html: string | null };
 
@@ -25117,7 +25117,7 @@ type SunshinePostsList_Post_user_User = (
 );
 
 type SunshinePostsList = (
-  { __typename?: 'Post', currentUserVote: string | null, currentUserExtendedVote: any | null, rejectedReason: string | null, autoFrontpage: string | null, fmCrosspost: SunshinePostsList_Post_fmCrosspost_CrosspostOutput | null, contents: SunshinePostsList_Post_contents_Revision | null, moderationGuidelines: SunshinePostsList_Post_moderationGuidelines_Revision | null, user: SunshinePostsList_Post_user_User | null }
+  { __typename?: 'Post', currentUserVote: string | null, currentUserExtendedVote: any | null, rejectedReason: string | null, autoFrontpage: string | null, fmCrosspost: SunshinePostsList_Post_fmCrosspost_CrosspostOutput | null, contents: SunshinePostsList_Post_contents_Revision | null, automatedContentEvaluations: SunshinePostsList_Post_automatedContentEvaluations_AutomatedContentEvaluation | null, moderationGuidelines: SunshinePostsList_Post_moderationGuidelines_Revision | null, user: SunshinePostsList_Post_user_User | null }
   & PostsListBase
 );
 

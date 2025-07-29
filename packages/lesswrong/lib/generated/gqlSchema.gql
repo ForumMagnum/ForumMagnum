@@ -4585,6 +4585,7 @@ type Post {
   generateDraftJargon: Boolean
   curationNotices: [CurationNotice!]
   reviews: [Comment!]
+  automatedContentEvaluations: AutomatedContentEvaluation
   currentUserVote: String
   currentUserExtendedVote: JSON
   voteCount: Float!
