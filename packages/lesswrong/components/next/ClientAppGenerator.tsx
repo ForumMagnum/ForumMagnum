@@ -33,6 +33,9 @@ import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.
 import { onUserChanged } from '@/client/logging';
 import moment from 'moment';
 import { localeSetting } from '@/lib/instanceSettings';
+import { initClientOnce } from '@/client/initClient';
+
+initClientOnce();
 
 const AppComponent = ({ children }: { children: React.ReactNode }) => {
   const locationContext = useRef<RouterLocation | null>(null);
@@ -119,9 +122,6 @@ const AppComponent = ({ children }: { children: React.ReactNode }) => {
   </HelmetProvider>;
 }
 
-// Client-side wrapper around the app. There's another AppGenerator which is
-// the server-side version, which differs in how it sets up the wrappers for
-// routing and cookies and such.
 const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, user, cookies, headers, searchParams, children }: {
   abTestGroupsUsed: RelevantTestGroupAllocation,
   themeOptions: AbstractThemeOptions,
