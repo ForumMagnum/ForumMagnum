@@ -63,10 +63,6 @@ const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
         width:125,
       },
 
-      "& .form-group.row": {
-        marginBottom:0,
-      },
-
       "& .checkbox": {
         width: 150,
         margin: "0 0 6px 0",

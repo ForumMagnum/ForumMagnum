@@ -59,41 +59,10 @@ const inverseGreyAlpha = (alpha: number) => {
 // the `background-color` and `border` properties on <table> and <td>
 // elements.
 //
-// We don't have any theme-specific HTML postprocessing, so this poses a bit of
-// a problem. Our solution is to override the `background-color` and `border`
-// properties on <td> and <table> to a safe default, to guarantee there won't
-// be any black-on-black or white-on-white text, and then then use CSS
-// attribute matching to replace specific colors that have been used in
-// posts we care about with proper aesthetic replacements. The CSS winds up
-// looking like this:
-//   .content td, .content table {
-//     background-color: black !important;
-//     border-color: #333 !important;
-//   }
-//   .content td[style*="background-color:rgb(230, 230, 230)"], .content table[style*="background-color:rgb(230, 230, 230)"] {
-//     background-color: #202020 !important;
-//   }
-// (Not real color values, but real syntax.)
-//
-const safeColorFallbacks = (palette: ThemePalette) => `
-.content td[style*="background-color:"] {
-  background-color: black !important;
-}
-.content th[style*="background-color:"] {
-  background-color: ${palette.panelBackground.tableHeading} !important;
-}
-.content table[style*="background-color:"] {
-  background-color: black !important;
-}
-.content td[style*="border:"], .content th[style*="border:"] {
-  border: ${palette.border.tableCell} !important;
-}
-.content table[style*="border:"] {
-  border-color: #333 !important;
-}
-`;
-
-const colorReplacements: Record<string,string> = {
+// We handle this in ContentItemBody with transformStylesForDarkMode. The
+// colors below have dedicated color-mappings; all other colors use `parseColor`
+// and `invertColor` from `colorUtil.ts`.
+export const colorReplacements: Record<string,string> = {
   "rgba(255,255,255,.5)": "rgba(0,0,0.5)",
   "hsl(0, 0%, 90%)":    "hsl(0, 0%, 10%)",
   "#F2F2F2":            invertHexColor("#f2f2f2"),
@@ -104,19 +73,6 @@ const colorReplacements: Record<string,string> = {
   "rgb(255, 238, 187)": colorToString(invertColor([255/255.0,238/255.0,187/255.0,1])),
   "rgb(230, 230, 230)": colorToString(invertColor([230/255.0,230/255.0,230/255.0,1])),
 } as const;
-function generateColorOverrides(): string {
-  return Object.keys(colorReplacements).map((colorString: keyof typeof colorReplacements) => {
-    const replacement = colorReplacements[colorString];
-    return `
-      .content td[style*="background-color:${colorString}"], .content table[style*="background-color:${colorString}"] {
-        background-color: ${replacement} !important;
-      }
-      .content td[style*="border-color:${colorString}"], .content table[style*="border-color:${colorString}"] {
-        border-color: ${replacement} !important;
-      }
-    `;
-  }).join('\n');
-}
 
 const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
   forumSelect({
@@ -356,9 +312,6 @@ export const darkModeTheme: UserThemeSpecification = {
       background: "#ffffff",
     },
     overrides: forumOverrides(palette),
-    rawCSS: [
-      safeColorFallbacks(palette),
-      generateColorOverrides()
-    ]
+    rawCSS: []
   }),
 };

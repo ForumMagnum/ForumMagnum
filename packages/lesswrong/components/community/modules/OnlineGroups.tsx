@@ -3,7 +3,7 @@ import React, { MouseEventHandler } from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { requireCssVar } from '../../../themes/cssVars';
+import { useThemeColor } from '@/components/themes/useTheme';
 
 import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
@@ -153,15 +153,14 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const defaultBackground = requireCssVar("palette", "panelBackground", "default");
-const dimBackground = requireCssVar("palette", "background", "primaryDim");
-
 const OnlineGroups = ({keywordSearch, includeInactive, toggleIncludeInactive, classes}: {
   keywordSearch: string,
   includeInactive: boolean,
   toggleIncludeInactive: MouseEventHandler,
   classes: ClassesType<typeof styles>,
 }) => {
+  const defaultBackground = useThemeColor(theme => theme.palette.panelBackground.default);
+  const dimBackground = useThemeColor(theme => theme.palette.background.primaryDim);
   const { data, loading } = useQuery(localGroupsHomeFragmentMultiQuery, {
     variables: {
       selector: { online: { includeInactive } },

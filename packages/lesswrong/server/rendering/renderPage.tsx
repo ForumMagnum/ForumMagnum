@@ -49,6 +49,7 @@ import { HelmetServerState } from 'react-helmet-async';
 import every from 'lodash/every';
 import { prefilterHandleRequest } from '../apolloServer';
 import { eventCaptureScript } from './eventCapture';
+import { getEmbeddedStyleLoaderScript } from '@/components/hooks/useStyles';
 
 export interface RenderSuccessResult {
   ssrBody: string
@@ -56,7 +57,6 @@ export interface RenderSuccessResult {
   serializedApolloState: string
   serializedForeignApolloState: string
   structuredData: Record<string,AnyBecauseHard>|null
-  jssSheets: string
   status: number|undefined,
   redirectUrl: string|undefined
   relevantAbTestGroups: RelevantTestGroupAllocation
@@ -181,7 +181,6 @@ export async function handleRequest(request: Request, response: Response) {
   const user = getUserFromReq(request);
   const themeOptions = getThemeOptionsFromReq(request, user);
   const themeOptionsHeader = embedAsGlobalVar("themeOptions", themeOptions);
-  const jssStylePreload = renderJssSheetPreloads(themeOptions);
   const externalStylesPreload = globalExternalStylesheets.map(url =>
     `<link rel="stylesheet" type="text/css" href="${url}">`
   ).join("");
@@ -203,8 +202,8 @@ export async function handleRequest(request: Request, response: Response) {
   // gets rendered. The browser will pick up any references in the still-open
   // tag and start fetching the, without waiting for the closing tag.
   responseManager.setPrefetchHeader(
-    jssStylePreload
-    + externalStylesPreload
+    externalStylesPreload
+    + getEmbeddedStyleLoaderScript()
     + ssrInteractionDisable
     + instanceSettingsHeader
     + faviconHeader
@@ -237,7 +236,6 @@ export async function handleRequest(request: Request, response: Response) {
     headers,
     serializedApolloState,
     serializedForeignApolloState,
-    jssSheets,
     status,
     redirectUrl,
     renderedAt,
@@ -269,7 +267,6 @@ export async function handleRequest(request: Request, response: Response) {
     );
 
     if (renderResult.cached) {
-      responseManager.addToHeadBlock(renderResult.jssSheets);
       responseManager.addToHeadBlock(renderResult.headers);
       responseManager.addBodyString(renderResult.ssrBody);
       const structuredData = renderResult.structuredData
@@ -405,9 +402,7 @@ export const renderRequest = async ({req, user, parsedRoute, startTime, response
   
   const now = new Date();
   const themeOptions = getThemeOptionsFromReq(req, user);
-  const jssSheets = renderJssSheetImports(themeOptions);
 
-  responseManager.addToHeadBlock(jssSheets);
   const helmetContext: {helmet?: HelmetServerState} = {};
   
   const renderHeadBlock = () => {
@@ -524,7 +519,6 @@ export const renderRequest = async ({req, user, parsedRoute, startTime, response
     serializedApolloState,
     serializedForeignApolloState,
     structuredData: responseManager.getStructuredData(),
-    jssSheets,
     status: serverRequestStatus.status,
     redirectUrl: serverRequestStatus.redirectUrl,
     relevantAbTestGroups: abTestGroupsUsed,

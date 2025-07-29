@@ -1,18 +1,16 @@
 import React from 'react';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import sortBy from 'lodash/sortBy';
-import miscStyles from '../themes/globalStyles/miscStyles';
 import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
 import type { ForumTypeString } from '../lib/instanceSettings';
 import { getForumTheme } from '../themes/forumTheme';
-import { minify } from 'csso';
-import { requestedCssVarsToString } from '../themes/cssVars';
 import stringify from 'json-stringify-deterministic';
 import { brotliCompressResource, CompressedCacheResource } from './utils/bundleUtils';
 import { getJss, type StylesContextType, topLevelStyleDefinitions } from '@/components/hooks/useStyles';
 import keyBy from 'lodash/keyBy';
 import type { JssStyles } from '@/lib/jssStyles';
 import { SheetsRegistry } from 'jss';
+import { maybeMinifyCSS } from './maybeMinifyCSS';
 
 export type ClassNameProxy<T extends string = string> = Record<T,string>
 export type StyleDefinition<T extends string = string, N extends string = string> = {
@@ -37,17 +35,14 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   const allStyles = getAllStylesByName();
   
   const theme = getForumTheme(themeOptions);
-  const cssVars = requestedCssVarsToString(theme);
   const jssStylesheet = stylesToStylesheet(allStyles, theme, themeOptions);
   
   const mergedCSS = [
-    miscStyles(),
     jssStylesheet,
     ...theme.rawCSS,
-    cssVars,
   ].join("\n");
 
-  const minifiedCSS = minify(mergedCSS).css;
+  const minifiedCSS = maybeMinifyCSS(mergedCSS);
   return Buffer.from(minifiedCSS, "utf8");
 }
 
@@ -122,7 +117,7 @@ export function generateEmailStylesheet({stylesContext, theme, themeOptions}: {
   themeOptions: ThemeOptions
 }): string {
   const mountedStyles = stylesContext.mountedStyles;
-  const usedStyleDefinitions = [...mountedStyles.values()].map(s => s.styleDefinition)
+  const usedStyleDefinitions = [...mountedStyles.values()].map(s => s.styleDefinition).filter(s => !!s);
   const usedStylesByName = keyBy(usedStyleDefinitions, s=>s.name);
   return stylesToStylesheet(usedStylesByName, theme, themeOptions);
 }

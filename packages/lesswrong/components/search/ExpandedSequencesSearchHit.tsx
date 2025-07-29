@@ -4,7 +4,7 @@ import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
-import { requireCssVar } from '../../themes/cssVars';
+import { useThemeColor } from '../themes/useTheme';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useNavigate } from "../../lib/routeUtil";
 import FormatDate from "../common/FormatDate";
@@ -68,16 +68,15 @@ const styles = (theme: ThemeType) => ({
 
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
-const translucentBackground = requireCssVar("palette", "panelBackground", "translucent3");
-const greyBackground = requireCssVar("palette", "grey", 0);
-
 const ExpandedSequencesSearchHit = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType<typeof styles>,
 }) => {
   const navigate = useNavigate();
   const sequence: SearchSequence = hit
-  
+  const translucentBackground = useThemeColor(theme => theme.palette.panelBackground.translucent3);
+  const greyBackground = useThemeColor(theme => theme.palette.grey[0]);
+
   const handleClick = () => {
     navigate(`/sequences/${sequence._id}`)
   }
