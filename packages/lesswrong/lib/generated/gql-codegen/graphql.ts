@@ -19688,7 +19688,7 @@ export type updatePostPostsEditFormMutation = { __typename?: 'Mutation', updateP
 
 export type AdvisorRequestsMinimumInfo = { __typename?: 'AdvisorRequest', _id: string, userId: string | null, createdAt: string, interestedInMetaculus: boolean | null, jobAds: any | null };
 
-export type AutomatedContentEvaluations = { __typename?: 'AutomatedContentEvaluation', _id: string, score: number, aiChoice: string, aiReasoning: string, aiCoT: string, sentenceScores: Array<{ __typename?: 'SentenceScore', sentence: string, score: number }> };
+export type AutomatedContentEvaluations = { __typename?: 'AutomatedContentEvaluation', _id: string, score: number | null, aiChoice: string | null, aiReasoning: string | null, aiCoT: string | null, sentenceScores: Array<{ __typename?: 'SentenceScore', sentence: string, score: number }> | null };
 
 export type BansAdminPageFragment = { __typename?: 'Ban', _id: string, createdAt: string, expirationDate: string | null, userId: string, reason: string | null, comment: string, ip: string | null, properties: any | null, user: (
     { __typename?: 'User' }
