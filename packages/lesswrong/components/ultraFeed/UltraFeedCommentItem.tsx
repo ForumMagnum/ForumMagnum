@@ -147,9 +147,6 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     '& > *': {
       pointerEvents: 'none',
     },
-    '& .SeeLessButton-root': {
-      pointerEvents: 'auto !important',
-    },
   },
   branchNavContainer: {
     display: 'flex',
@@ -312,12 +309,12 @@ export const UltraFeedCommentItem = ({
   
   const {
     isSeeLessMode,
-    handleSeeLess,
-    handleUndoSeeLess,
+    handleSeeLessClick,
     handleFeedbackChange,
   } = useSeeLess({
     documentId: comment._id,
-    documentType: 'comment',
+    collectionName: 'Comments',
+    metaInfo,
   });
 
   const { displaySettings } = settings;
@@ -484,11 +481,13 @@ export const UltraFeedCommentItem = ({
               onPostTitleClick={onPostTitleClick}
               parentAuthorName={parentAuthorName}
               onReplyIconClick={onReplyIconClick}
+              onSeeLess={handleSeeLessClick}
+              isSeeLessMode={isSeeLessMode}
             />
           </div>
           {isSeeLessMode && (
             <SeeLessFeedback
-              onUndo={handleUndoSeeLess}
+              onUndo={handleSeeLessClick}
               onFeedbackChange={handleFeedbackChange}
             />
           )}
@@ -521,8 +520,6 @@ export const UltraFeedCommentItem = ({
               collectionName="Comments"
               metaInfo={metaInfo}
               className={classNames(classes.footer, { [classes.footerGreyedOut]: isSeeLessMode })}
-              onSeeLess={isSeeLessMode ? handleUndoSeeLess : handleSeeLess}
-              isSeeLessMode={isSeeLessMode}
               replyConfig={replyConfig}
               cannotReplyReason={cannotReplyReason}
             />}

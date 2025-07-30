@@ -318,6 +318,7 @@ interface UltraFeedPostItemHeaderProps {
   handleOpenDialog: () => void;
   sources: FeedItemSourceType[];
   isSeeLessMode: boolean;
+  handleSeeLess: () => void;
 }
 
 const UltraFeedPostItemHeader = ({
@@ -325,6 +326,7 @@ const UltraFeedPostItemHeader = ({
   isRead,
   handleOpenDialog,
   sources,
+  handleSeeLess,
   isSeeLessMode,
 }: UltraFeedPostItemHeaderProps) => {
   const classes = useStyles(styles);
@@ -388,6 +390,8 @@ const UltraFeedPostItemHeader = ({
               post={post}
               vertical={true}
               autoPlace
+              onSeeLess={handleSeeLess}
+              isSeeLessMode={isSeeLessMode}
               ActionsComponent={UltraFeedPostActions}
               className={classnames(classes.tripleDotMenu, { [classes.greyedOut]: isSeeLessMode })}
             />
@@ -458,13 +462,12 @@ const UltraFeedPostItem = ({
 
   const {
     isSeeLessMode,
-    handleSeeLess,
-    handleUndoSeeLess,
+    handleSeeLessClick,
     handleFeedbackChange,
   } = useSeeLess({
     documentId: post._id,
-    documentType: 'post',
-    recommId: postMetaInfo.recommInfo?.recommId,
+    collectionName: 'Posts',
+    metaInfo: postMetaInfo,
   });
 
   const { data: localPostData, loading: loadingLocalPost } = useQuery(localPostQuery, {
@@ -669,6 +672,8 @@ const UltraFeedPostItem = ({
               post={post}
               vertical={true}
               autoPlace
+              onSeeLess={handleSeeLessClick}
+              isSeeLessMode={isSeeLessMode}
               ActionsComponent={UltraFeedPostActions}
               className={classnames(classes.tripleDotMenu, { [classes.greyedOut]: isSeeLessMode })}
             />
@@ -682,12 +687,13 @@ const UltraFeedPostItem = ({
             handleOpenDialog={() => handleOpenDialog("title")}
             sources={postMetaInfo.sources}
             isSeeLessMode={isSeeLessMode}
+            handleSeeLess={handleSeeLessClick}
           />
         </div>
 
         {isSeeLessMode && (
           <SeeLessFeedback
-            onUndo={handleUndoSeeLess}
+            onUndo={handleSeeLessClick}
             onFeedbackChange={handleFeedbackChange}
           />
         )}
@@ -718,8 +724,6 @@ const UltraFeedPostItem = ({
           collectionName="Posts" 
           metaInfo={postMetaInfo} 
           className={classnames(classes.footer, { [classes.footerGreyedOut]: isSeeLessMode })}
-          onSeeLess={isSeeLessMode ? handleUndoSeeLess : handleSeeLess}
-          isSeeLessMode={isSeeLessMode}
           replyConfig={replyConfig}
         />
         

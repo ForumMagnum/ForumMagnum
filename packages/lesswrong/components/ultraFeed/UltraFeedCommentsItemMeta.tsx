@@ -251,6 +251,8 @@ const UltraFeedCommentsItemMeta = ({
   onPostTitleClick,
   parentAuthorName,
   onReplyIconClick,
+  onSeeLess,
+  isSeeLessMode,
 }: {
   comment: UltraFeedComment,
   setShowEdit?: () => void,
@@ -260,6 +262,8 @@ const UltraFeedCommentsItemMeta = ({
   onPostTitleClick?: () => void,
   parentAuthorName?: string | null,
   onReplyIconClick?: () => void,
+  onSeeLess?: () => void,
+  isSeeLessMode?: boolean,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -310,7 +314,7 @@ const UltraFeedCommentsItemMeta = ({
       <div className={classes.tripleDotMenu}>
         {!hideActionsMenu && setShowEdit && post &&
           <AnalyticsContext pageElementContext="tripleDotMenu">
-            <CommentsMenu comment={comment} post={post} showEdit={setShowEdit} ActionsComponent={UltraFeedCommentActions} />
+            <CommentsMenu comment={comment} post={post} showEdit={setShowEdit} onSeeLess={onSeeLess} isSeeLessMode={isSeeLessMode} ActionsComponent={UltraFeedCommentActions} />
           </AnalyticsContext>
         }
       </div>
