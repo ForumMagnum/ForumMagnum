@@ -1,111 +1,14 @@
-import schema from "@/lib/collections/revisions/newSchema";
-import { accessFilterSingle } from "@/lib/utils/schemaUtils";
-import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
-import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { recomputeWhenSkipAttributionChanged, updateDenormalizedHtmlAttributionsDueToRev, upvoteOwnTagRevision } from "@/server/callbacks/revisionCallbacks";
-import { logFieldChanges } from "@/server/fieldChanges";
-import { getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
-import gql from "graphql-tag";
-import cloneDeep from "lodash/cloneDeep";
-import { isLW, saplingApiKey } from "@/lib/instanceSettings";
+
+import { saplingApiKey } from "@/lib/instanceSettings";
+
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
 import { z } from "zod"; // Add this import for Zod
 import { getOpenAI } from "@/server/languageModels/languageModelIntegration";
-import { assertPollsAllowed, upsertPolls } from "@/server/callbacks/forumEventCallbacks";
 import { captureException } from "@sentry/core";
-import { backgroundTask } from "@/server/utils/backgroundTask";
 import Posts from "../posts/collection";
 import ModerationTemplates from "../moderationTemplates/collection";
 import { sendRejectionPM } from "@/server/callbacks/postCallbackFunctions";
-
-function editCheck(user: DbUser | null) {
-  return userIsAdminOrMod(user);
-}
-
-const shouldEvaluateContent = (document: DbRevision, currentUser: DbUser | null) => {
-  return isLW && !document.draft && document.collectionName === "Posts" && document.fieldName === "contents" && !currentUser?.reviewedByUserId;
-}
-
-// This has mutators because of a few mutable metadata fields (eg
-// skipAttributions), but most parts of revisions are create-only immutable.
-export async function createRevision({ data }: { data: Partial<DbInsertion<DbRevision>> }, context: ResolverContext) {
-  const { currentUser } = context;
-
-  const callbackProps = await getLegacyCreateCallbackProps('Revisions', {
-    context,
-    data,
-    schema,
-  });
-
-  assignUserIdToData(data, currentUser, schema);
-
-  data = callbackProps.document;
-
-  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
-
-  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Revisions', callbackProps);
-  let documentWithId = afterCreateProperties.document;
-
-  assertPollsAllowed(documentWithId);
-  await upvoteOwnTagRevision({
-    revision: documentWithId,
-    context
-  })
-
-  await updateDenormalizedHtmlAttributionsDueToRev({
-    revision: documentWithId,
-    skipDenormalizedAttributions: documentWithId.skipAttributions,
-    context
-  });
-
-  await updateCountOfReferencesOnOtherCollectionsAfterCreate('Revisions', documentWithId);
-
-  if (shouldEvaluateContent(documentWithId, currentUser)) {
-    backgroundTask(createAutomatedContentEvaluation(documentWithId, context));
-  }
-
-  return documentWithId;
-}
-
-export async function updateRevision({ selector, data }: UpdateRevisionInput, context: ResolverContext) {
-  const { currentUser, Revisions } = context;
-
-  // Save the original mutation (before callbacks add more changes to it) for
-  // logging in FieldChanges
-  const origData = cloneDeep(data);
-
-  const {
-    documentSelector: revisionSelector,
-    updateCallbackProperties,
-  } = await getLegacyUpdateCallbackProps('Revisions', { selector, context, data, schema });
-
-  const { oldDocument } = updateCallbackProperties;
-
-  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
-
-  let updatedDocument = await updateAndReturnDocument(data, Revisions, revisionSelector, context);
-
-  await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Revisions', updatedDocument, oldDocument);
-
-  await recomputeWhenSkipAttributionChanged(updateCallbackProperties);
-
-  backgroundTask(logFieldChanges({ currentUser, collection: Revisions, oldDocument, data: origData }));
-
-  if (shouldEvaluateContent(updatedDocument, currentUser)) {
-    backgroundTask(createAutomatedContentEvaluation(updatedDocument, context));
-  }
-
-  return updatedDocument;
-}
-
-export const updateRevisionGqlMutation = makeGqlUpdateMutation('Revisions', updateRevision, {
-  editCheck,
-  accessFilter: (rawResult, context) => accessFilterSingle(context.currentUser, 'Revisions', rawResult, context)
-});
-
 
 async function getSaplingEvaluation(revision: DbRevision) {
   const key = saplingApiKey.get();
@@ -330,8 +233,7 @@ async function rejectPostForLLM(post: DbPost, context: ResolverContext) {
   await sendRejectionPM({post: { ...post, rejectedReason: moderationTemplate.contents?.html ?? "" }, currentUser: null, context});
 }
 
-// TODO: delete all automatedContentEvaluation code from this file after it's been reviewed.
-async function createAutomatedContentEvaluation(revision: DbRevision, context: ResolverContext) {
+export async function createAutomatedContentEvaluation(revision: DbRevision, context: ResolverContext) {
   // we shouldn't be ending up running this on revisions where draft is true (which is for autosaves) but if we did we'd want to return early.
   if (revision.draft) return;
 
@@ -375,35 +277,3 @@ async function createAutomatedContentEvaluation(revision: DbRevision, context: R
     }
   }
 }
-
-export const graphqlRevisionTypeDefs = gql`
-  input ContentTypeInput {
-    type: String!
-    data: ContentTypeData!
-  }
-
-  input CreateRevisionDataInput {
-    originalContents: ContentTypeInput!
-    commitMessage: String
-    updateType: String
-    dataWithDiscardedSuggestions: JSON
-    googleDocMetadata: JSON
-  }
-
-  input UpdateRevisionDataInput ${
-    getUpdatableGraphQLFields(schema)
-  }
-
-  input UpdateRevisionInput {
-    selector: SelectorInput!
-    data: UpdateRevisionDataInput!
-  }
-
-  type RevisionOutput {
-    data: Revision
-  }
-  
-  extend type Mutation {
-    updateRevision(selector: SelectorInput!, data: UpdateRevisionDataInput!): RevisionOutput
-  }
-`;

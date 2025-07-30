@@ -8,7 +8,7 @@ import { getConfirmedCoauthorIds, isRecombeeRecommendablePost, postIsApproved, p
 import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { isAnyTest, isE2E } from "@/lib/executionEnvironment";
-import { eaFrontpageDateDefault, isEAForum, requireReviewToFrontpagePostsSetting } from "@/lib/instanceSettings";
+import { eaFrontpageDateDefault, isEAForum, isLW, requireReviewToFrontpagePostsSetting } from "@/lib/instanceSettings";
 import { recombeeEnabledSetting, vertexEnabledSetting } from "@/lib/publicSettings";
 import { asyncForeachSequential } from "@/lib/utils/asyncUtils";
 import { isWeekend } from "@/lib/utils/timeUtil";
@@ -53,6 +53,7 @@ import { EmailCuratedAuthors } from "../emailComponents/EmailCuratedAuthors";
 import { EventUpdatedEmail } from "../emailComponents/EventUpdatedEmail";
 import { PostsHTML } from "@/lib/collections/posts/fragments";
 import { backgroundTask } from "../utils/backgroundTask";
+import { createAutomatedContentEvaluation } from "../collections/automatedContentEvaluations/helpers";
 
 /** Create notifications for a new post being published */
 export async function sendNewPostNotifications(post: DbPost) {
@@ -928,7 +929,6 @@ export async function sendRejectionPM({ post, currentUser, context }: {post: DbP
   : !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
   const adminAccount = currentUser ?? await getAdminTeamAccount(context);
   if (!adminAccount) throw new Error("Couldn't find admin account for sending rejection PM");
-  
   await utils.sendPostRejectionPM({
     post,
     messageContents: messageContents,
@@ -1188,4 +1188,14 @@ export async function oldPostsLastCommentedAt(post: DbPost, context: ResolverCon
   if (post.commentCount) return
 
   await Posts.rawUpdateOne({ _id: post._id }, {$set: { lastCommentedAt: post.postedAt }})
+}
+
+export async function maybeCreateAutomatedContentEvaluation(post: DbPost, context: ResolverContext) {
+  const shouldEvaluate = isLW && !post.draft && !context.currentUser?.reviewedByUserId;
+  if (shouldEvaluate) {
+    const revision = await getLatestContentsRevision(post, context);
+    if (revision) {
+      await createAutomatedContentEvaluation(revision, context);
+    }
+  }
 }
