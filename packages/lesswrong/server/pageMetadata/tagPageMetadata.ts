@@ -60,7 +60,7 @@ export function getTagPageMetadataFunction<Params>(paramsToTagSlugConverter: (pa
         ...noIndexFields,
       } satisfies Metadata;
   
-      return merge(defaultMetadata, tagMetadata, descriptionFields);
+      return merge({}, defaultMetadata, tagMetadata, descriptionFields);
     } catch (error) {
       //eslint-disable-next-line no-console
       console.error('Error generating tag page metadata:', error);

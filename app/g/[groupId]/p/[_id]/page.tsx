@@ -9,7 +9,7 @@ import { hasPostRecommendations } from "@/lib/betas";
 // TODO: this route previously did _not_ use the PostsPageHeaderTitle for its metadata.
 // Check whether we want that to continue to be true?
 export function generateMetadata(): Metadata {
-  return merge(defaultMetadata, {
+  return merge({}, defaultMetadata, {
     title: 'Community',
   });
 }

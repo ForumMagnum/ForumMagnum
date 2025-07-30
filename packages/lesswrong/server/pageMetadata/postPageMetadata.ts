@@ -163,7 +163,7 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
         ...(noIndex ? { robots: { index: false } } : {}),
       } satisfies Metadata;
   
-      return merge(defaultMetadata, postMetadata, titleFields, descriptionFields, imagesFields);
+      return merge({}, defaultMetadata, postMetadata, titleFields, descriptionFields, imagesFields);
     } catch (error) {
       //eslint-disable-next-line no-console
       console.error('Error generating post page metadata:', error);
