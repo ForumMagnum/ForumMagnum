@@ -175,6 +175,11 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   hidden: {
     visibility: 'hidden',
   },
+  bookmarkButtonContainer: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
   bookmarkButton: {
     position: "relative", 
     top: 1,
@@ -187,10 +192,6 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       [theme.breakpoints.down('sm')]: {
         height: 22,
       },
-    },
-    [theme.breakpoints.down('sm')]: {
-      top: 2,
-      opacity: 1,
     },
   },
   bookmarkButtonHighlighted: {
@@ -450,7 +451,13 @@ const UltraFeedItemFooterCore = ({
         )}
 
         { bookmarkProps && bookmarkableCollectionNames.has(collectionName) && (
-          <div onClick={() => handleInteractionLog('bookmarkClicked')}>
+          <div 
+            className={classes.bookmarkButtonContainer}
+            onClick={() => {
+              captureEvent('ultraFeedBookmarkInFooterClicked', { documentId: bookmarkProps.documentId, collectionName: collectionName });
+              handleInteractionLog('bookmarkClicked');
+            }}
+          >
             <BookmarkButton
               documentId={bookmarkProps.documentId}
               collectionName={collectionName}
