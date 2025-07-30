@@ -25,10 +25,6 @@ function editCheck(user: DbUser | null) {
   return userIsAdminOrMod(user);
 }
 
-const shouldEvaluateContent = (document: DbRevision, currentUser: DbUser | null) => {
-  return isLW && !document.draft && document.collectionName === "Posts" && document.fieldName === "contents" && !currentUser?.reviewedByUserId;
-}
-
 // This has mutators because of a few mutable metadata fields (eg
 // skipAttributions), but most parts of revisions are create-only immutable.
 export async function createRevision({ data }: { data: Partial<DbInsertion<DbRevision>> }, context: ResolverContext) {
@@ -63,10 +59,6 @@ export async function createRevision({ data }: { data: Partial<DbInsertion<DbRev
 
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('Revisions', documentWithId);
 
-  if (shouldEvaluateContent(documentWithId, currentUser)) {
-    backgroundTask(createAutomatedContentEvaluation(documentWithId, context));
-  }
-
   return documentWithId;
 }
 
@@ -93,10 +85,6 @@ export async function updateRevision({ selector, data }: UpdateRevisionInput, co
   await recomputeWhenSkipAttributionChanged(updateCallbackProperties);
 
   backgroundTask(logFieldChanges({ currentUser, collection: Revisions, oldDocument, data: origData }));
-
-  if (shouldEvaluateContent(updatedDocument, currentUser)) {
-    backgroundTask(createAutomatedContentEvaluation(updatedDocument, context));
-  }
 
   return updatedDocument;
 }
