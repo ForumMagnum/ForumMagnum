@@ -165,8 +165,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
 }) => {
   const classes = useStyles(styles);
   const navigate = useNavigate();
-  const location = useLocation();
-  const { query } = location;
+  const { query, location } = useLocation();
   const comment = commentTree.item;
   
   const score = forumTypeSetting.get() === "AlignmentForum"
@@ -192,6 +191,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
 
         delete query.commentId;
         navigate({
+          ...location,
           search: isEmpty(query) ? '' : `?${qs.stringify(query)}`,
           hash: `#${comment._id}`,
         });
