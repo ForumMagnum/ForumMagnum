@@ -1,6 +1,5 @@
 'use client';
 
-import isEqual from 'lodash/isEqual';
 import React, { createContext, useContext, useState, ReactNode, useEffect, useMemo } from 'react';
 
 // TODO: see if we can successfully move all of the <head> metadata to NextJS-native functionality
@@ -42,12 +41,10 @@ export const ClientRouteMetadataProvider = ({ initialMetadata, children }: { ini
  * This is purely to set route metadata for use by components like Header, HeadTags, etc.
  */
 export const ClientRouteMetadataSetter = ({ metadata }: { metadata: RouteMetadata }) => {
-  const { metadata: currentMetadata, setMetadata } = useRouteMetadata();
+  const { setMetadata } = useRouteMetadata();
 
   useEffect(() => {
-    if (!isEqual(currentMetadata, metadata)) {
-      setMetadata(metadata);
-    }
+    setMetadata(metadata);
 
     return () => {
       setMetadata({});

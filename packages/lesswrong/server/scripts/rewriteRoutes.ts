@@ -144,7 +144,7 @@ function addUseClientDirectiveToEntryComponent(importLine: string) {
 }
 
 const generateMetadataFunctionTemplate = `export function generateMetadata(): Metadata {
-  return merge(defaultMetadata, {
+  return merge({}, defaultMetadata, {
     $(titleLine)
     $(noIndexLine)
   }$(descriptionFields));

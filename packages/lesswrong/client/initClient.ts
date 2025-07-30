@@ -4,6 +4,8 @@ import { initDatadog } from "./datadogRum";
 import { googleTagManagerInit } from "./ga";
 import { initReCaptcha } from "./reCaptcha";
 
+import "@/components/momentjs";
+
 /**
  * These identifiers may or may not have been set on the server, depending on whether the request
  * needs to be cache friendly (and hence may not be unique to this client + tab). Generate them now

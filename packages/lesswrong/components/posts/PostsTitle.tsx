@@ -26,8 +26,7 @@ const styles = (theme: ThemeType) => ({
   root: {
     color: theme.palette.text.normal,
     position: "relative",
-    //lineHeight: "1.7rem",
-    lineHeight: "2.7rem",
+    lineHeight: "1.7rem",
     fontWeight: isFriendlyUI ? 600 : undefined,
     fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : theme.typography.postStyle.fontFamily,
     zIndex: theme.zIndexes.postItemTitle,

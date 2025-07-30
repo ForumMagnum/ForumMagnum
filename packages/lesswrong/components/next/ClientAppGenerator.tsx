@@ -3,28 +3,25 @@
 // Import needed to get the database settings from the window on the client
 import '@/client/publicSettings';
 
-
-import React, { useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import React, { useEffect, useRef, useState, useTransition } from 'react';
 import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '@/lib/abTestImpl';
 import type { AbstractThemeOptions } from '@/themes/themeNames';
 import { LayoutOptionsContextProvider } from '@/components/hooks/useLayoutOptions';
 import { SSRMetadata, EnvironmentOverride, EnvironmentOverrideContext } from '@/lib/utils/timeUtil';
 import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
-import { LocationContext, NavigationContext, SubscribeLocationContext, ServerRequestStatusContext, parseRoute, parsePath } from '@/lib/vulcan-core/appContext';
+import { LocationContext, NavigationContext, SubscribeLocationContext, ServerRequestStatusContext, parsePath } from '@/lib/vulcan-core/appContext';
 import { MessageContextProvider } from '../common/FlashMessages';
 import { RefetchCurrentUserContext } from '../common/withUser';
 import ScrollToTop from '../vulcan-core/ScrollToTop';
 import { useQueryCurrentUser } from '@/lib/crud/withCurrentUser';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams, useParams } from 'next/navigation';
 import Layout from '../Layout';
 import { HelmetProvider } from 'react-helmet-async';
 import { EnableSuspenseContext } from '@/lib/crud/useQuery';
-import { isServer } from '@/lib/executionEnvironment';
+import { isClient, isServer } from '@/lib/executionEnvironment';
 import Cookies from 'universal-cookie';
 import { ApolloWrapper } from '@/components/common/ApolloWrapper';
-
-import '@/lib/routes';
 
 import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 import type { RouterLocation } from '@/lib/vulcan-lib/routes';
@@ -42,12 +39,25 @@ const AppComponent = ({ children }: { children: React.ReactNode }) => {
   const history = useRouter();
   const navigationContext = useRef<{ history: AppRouterInstance } | null>({ history });
 
-  const searchParams = Object.fromEntries(useSearchParams().entries());
+  const urlSearchParams = useSearchParams();
+  const searchParamsString = urlSearchParams.toString();
+  const searchParams = Object.fromEntries(urlSearchParams.entries());
   const pathname = usePathname();
-  // TODO: implement the location and subscribed location values in ways that don't depend on our old route definitions
-  const reconstructedPath = `${pathname}${searchParams && Object.keys(searchParams).length > 0 ? `?${Object.entries(searchParams).map(([key, value]) => `${key}=${value}`).join('&')}` : ''}`;
+  const hash = isClient ? window.location.hash : '';
+
+  const reconstructedPath = `${pathname}${searchParamsString ? `?${searchParamsString}` : ''}${hash ? hash : ''}`;
   const parsedPath = parsePath(reconstructedPath);
-  const location = parseRoute({ location: parsedPath, onError: undefined });
+  
+  const routeParams = useParams();
+
+  const location: RouterLocation = {
+    hash,
+    params: routeParams,
+    pathname,
+    query: searchParams,
+    url: reconstructedPath,
+    location: parsedPath,
+  };
 
   const {currentUser, refetchCurrentUser, currentUserLoading} = useQueryCurrentUser();
 
@@ -62,15 +72,6 @@ const AppComponent = ({ children }: { children: React.ReactNode }) => {
     onUserChanged(currentUser);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser?._id]);
-
-  // TODO: implement the below logic taken from App.tsx if needed?
-  // const location = checkUserRouteAccess(currentUser, parseRoute({location: reactDomLocation}));
-  
-  // if (location.redirected) {
-  //   return (
-  //     <PermanentRedirect url={location.url} />
-  //   );
-  // }
 
   // Reuse the container objects for location and navigation context, so that
   // they will be reference-stable and won't trigger spurious rerenders.

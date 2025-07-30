@@ -1,5 +1,4 @@
-import { getSiteUrl } from "@/lib/vulcan-lib/utils";
-import { createHttpLink, createErrorLink, headerLink } from './links';
+import { createErrorLink, headerLink } from './links';
 import {
   registerApolloClient,
   ApolloClient,
@@ -8,6 +7,8 @@ import {
 import type { ApolloClient as ApolloClientType } from "@apollo/client"
 import { ApolloLink } from "@apollo/client";
 import { disableFragmentWarnings } from "graphql-tag";
+import { rscSchemaLink } from "./rscSchemaLink";
+import { getExecutableSchema } from "@/server/vulcan-lib/apollo-server/initGraphQL";
 
 // See comment on other instance of this function being invoked.
 disableFragmentWarnings();
@@ -15,7 +16,11 @@ disableFragmentWarnings();
 const { getClient: getClientInner, query, PreloadQuery } = registerApolloClient(() => {
   return new ApolloClient({
     cache: new InMemoryCache(),
-    link: ApolloLink.from([headerLink, createErrorLink(), createHttpLink(getSiteUrl())]),
+    link: ApolloLink.from([
+      headerLink,
+      createErrorLink(),
+      rscSchemaLink(getExecutableSchema()),
+    ]),
   });
 });
 

@@ -12,6 +12,8 @@ import { getRouteMetadata } from "@/components/ServerRouteMetadataContext";
 import { getEmbeddedStyleLoaderScript } from "@/components/hooks/embedStyles";
 import { globalExternalStylesheets } from "@/themes/globalStyles/externalStyles";
 
+import "@/components/momentjs";
+
 export default async function RootLayout({
   children,
   searchParams,

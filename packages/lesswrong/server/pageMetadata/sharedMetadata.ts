@@ -11,12 +11,14 @@ const siteImage = siteImageSetting.get();
  * https://nextjs.org/docs/app/getting-started/metadata-and-og-images#default-fields
  */
 export const defaultMetadata = {
+  title: tabLongTitleSetting.get() || tabTitleSetting.get(),
   description: defaultDescription,
   twitter: {
     description: defaultDescription,
     images: siteImage,
   },
   openGraph: {
+    title: tabLongTitleSetting.get() || tabTitleSetting.get(),
     type: 'article',
     url: getSiteUrl(),
     description: defaultDescription,

@@ -60,6 +60,7 @@ export type NavigateFunction = ReturnType<typeof useNavigate>
  */
 export const useNavigate = () => {
   const { history } = useContext(NavigationContext)!;
+  const { location } = useLocation();
   return useCallback((locationDescriptor: LocationDescriptor | -1 | 1, options?: {replace?: boolean, openInNewTab?: boolean}) => {
     if (locationDescriptor === -1) {
       history.back();
@@ -81,7 +82,21 @@ export const useNavigate = () => {
       if (typeof locationDescriptor === 'string') {
         history.push(locationDescriptor);
       } else {
-        history.push(createPath(locationDescriptor));
+        // The behavior of Next's router.push when handling hash changes
+        // while on the same route is either broken or deranged, so we
+        // just use the window.history API directly.
+        // Also, we only want to push anything to history if the hash is actually changing.
+        if (locationDescriptor.hash && (
+          locationDescriptor.pathname === location.pathname &&
+          locationDescriptor.search === location.search &&
+          locationDescriptor.hash !== location.hash
+        )) {
+          if (locationDescriptor.hash !== location.hash) {
+            window.history.pushState(null, '', createPath(locationDescriptor));
+          }
+        } else {
+          history.push(createPath(locationDescriptor));
+        }
       }
     }
   }, [history]);
