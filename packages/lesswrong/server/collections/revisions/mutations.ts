@@ -19,6 +19,7 @@ import { captureException } from "@sentry/core";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import Posts from "../posts/collection";
 import ModerationTemplates from "../moderationTemplates/collection";
+import { sendRejectionPM } from "@/server/callbacks/postCallbackFunctions";
 
 function editCheck(user: DbUser | null) {
   return userIsAdminOrMod(user);
@@ -303,10 +304,12 @@ ${output_text}`,
 
 const NO_LLM_AUTOREJECT_TEMPLATE = "No LLM (autoreject)";
 
-async function rejectPostForLLM(post: DbPost) {
+async function rejectPostForLLM(post: DbPost, context: ResolverContext) {
   const moderationTemplate = await ModerationTemplates.findOne({ name: NO_LLM_AUTOREJECT_TEMPLATE });
   if (!moderationTemplate) {
-    throw new Error("Moderation template not found");
+    // eslint-disable-next-line no-console
+    console.error("Moderation template not found");
+    return
   }
   await Posts.rawUpdateOne(
     { _id: post._id },
@@ -317,13 +320,14 @@ async function rejectPostForLLM(post: DbPost) {
       } 
     }
   );
-  void sendRejectionPM({post});
+  // we're deliberate not sending auto-llm-rejections from a human account, 
+  // because we wanna blankface in this context.
+  await sendRejectionPM({post: { ...post, rejectedReason: moderationTemplate.contents?.html ?? "" }, currentUser: null, context});
 }
 
 
 async function createAutomatedContentEvaluation(revision: DbRevision, context: ResolverContext) {
-  // we shouldn't be ending up running this on revisions where draft is true (which is for autosaves)
-  // but if we did we'd want to return early.
+  // we shouldn't be ending up running this on revisions where draft is true (which is for autosaves) but if we did we'd want to return early.
   if (revision.draft) return;
 
   const [validatedEvaluation, llmEvaluation] = await Promise.all([
@@ -362,7 +366,7 @@ async function createAutomatedContentEvaluation(revision: DbRevision, context: R
     if (!documentId) return
     if (revision.collectionName === "Posts") {
       const document = await context.loaders["Posts"].load(documentId);
-      await rejectPostForLLM(document);
+      await rejectPostForLLM(document, context);
     }
   }
 }
