@@ -425,11 +425,6 @@ addRoute(
     enableResourcePrefetch: sequenceRouteWillDefinitelyReturn200,
   },
   {
-    name: 'sequencesEdit',
-    path: '/sequencesEdit/:_id',
-    // component: SequencesEditForm,
-  },
-  {
     name: 'sequencesNew',
     path: '/sequencesNew',
     // component: SequencesNewForm,
@@ -442,14 +437,6 @@ addRoute(
     // titleComponent: PostsPageHeaderTitle,
     // previewComponent: PostLinkPreviewSequencePost,
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params.postId),
-    background: "white"
-  },
-
-  {
-    name: 'chaptersEdit',
-    path: '/chaptersEdit/:_id',
-    // component: ChaptersEditForm,
-    title: "Edit Chapter",
     background: "white"
   },
 
@@ -1618,14 +1605,6 @@ if (hasEventsSetting.get()) {
     },
   );
 }
-
-addRoute(
-  {
-    name: 'searchTest',
-    path: '/searchTest',
-    // component: SearchBar
-  },
-);
 
 addRoute(
   {

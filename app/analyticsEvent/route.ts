@@ -2,7 +2,12 @@ import { handleAnalyticsEventWriteRequest } from "@/server/analytics/serverAnaly
 import type { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+  let body: any = null;
+  try {
+    body = await req.json();
+  } catch(e) {
+    console.error(e);
+  }
   
   if (!body?.events || !body?.now) {
     return new Response('analyticsEvent endpoint should be JSON with fields "events" and "now"', { status: 400 });

@@ -82,6 +82,7 @@ function isExpectedDataTransportObject(value: unknown): value is ExpectedDataTra
  *
  * @public
  */
+// eslint-disable-next-line babel/new-cap
 export const ApolloNextAppProvider = WrapApolloProvider(
   buildManualDataTransport({
     useInsertHtml() {

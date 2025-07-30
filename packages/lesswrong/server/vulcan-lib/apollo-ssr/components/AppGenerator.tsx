@@ -22,9 +22,9 @@ import React from 'react';
 // Server-side wrapper around the app. There's another AppGenerator which is
 // the client-side version, which differs in how it sets up the wrappers for
 // routing and cookies and such. See client/start.tsx.
-const AppGenerator = ({
+//const AppGenerator = ({
   // req, onHeadBlockSent, responseManager, apolloClient, foreignApolloClient, serverRequestStatus, abTestGroupsUsed, ssrMetadata, themeOptions, enableSuspense, helmetContext
-}: {
+//}: {
   // req: Request,
   // onHeadBlockSent: (name: string) => void,
   // responseManager: ResponseManager,
@@ -36,7 +36,7 @@ const AppGenerator = ({
   // themeOptions: AbstractThemeOptions,
   // enableSuspense: boolean,
   // helmetContext: {helmet?: HelmetServerState},
-}) => {
+//}) => {
   // const App = (
   //   <HelmetProvider context={helmetContext}>
   //   <SSRResponseContext.Provider value={{
@@ -75,6 +75,8 @@ const AppGenerator = ({
   //   </HelmetProvider>
   // );
   // return App;
-  return <></>;
-};
-export default AppGenerator;
+//  return <></>;
+//};
+//export default AppGenerator;*/
+
+export default ()=><></>;

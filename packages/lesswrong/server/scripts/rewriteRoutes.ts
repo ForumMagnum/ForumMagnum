@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+/* eslint-disable no-useless-escape */
 import fs from 'fs';
 import path from 'path';
 import '@/lib/routes'

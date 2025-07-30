@@ -159,10 +159,9 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback, classes }: {
+const SequencesNewForm = ({ redirect, cancelCallback, classes }: {
   redirect: any,
-  cancelCallback: any,
-  removeSuccessCallback: any,
+  cancelCallback?: any,
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();

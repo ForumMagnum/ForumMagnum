@@ -22,12 +22,12 @@ import UltraFeedPostItem from './UltraFeedPostItem';
 import UltraFeedQuickTakeDialog from './UltraFeedQuickTakeDialog';
 import UltraFeedSettings from './UltraFeedSettings';
 import UltraFeedThreadItem from './UltraFeedThreadItem';
-import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 import UltraFeedFeedback from './UltraFeedFeedback';
 import FeedSelectorDropdown from '../common/FeedSelectorCheckbox';
 import UltraFeedSpotlightItem from './UltraFeedSpotlightItem';
 import AnalyticsInViewTracker from '../common/AnalyticsInViewTracker';
+import { Link } from '@/lib/reactRouterWrapper';
 
 const styles = defineStyles("UltraFeedContent", (theme: ThemeType) => ({
   root: {

@@ -13,12 +13,14 @@ const validEnvNames = z.enum(["baserates", "localAfDevDb", "localAfProdDb", "loc
 function getPublicSettings() {
   const envName = process.env.ENV_NAME;
   if (!envName) {
+    // eslint-disable-next-line no-console
     console.error("ENV_NAME is not set");
     return localLwDevDb;
   }
 
   const parsedEnvName = validEnvNames.safeParse(envName);
   if (!parsedEnvName.success) {
+    // eslint-disable-next-line no-console
     console.error(`Invalid ENV_NAME: ${envName}`);
     return localLwDevDb;
   }

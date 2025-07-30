@@ -59,7 +59,7 @@ export const SequencesForm = ({
   initialData?: UpdateSequenceDataInput & { _id: string };
   currentUser: UsersCurrent;
   onSuccess: (doc: SequencesEdit) => void;
-  onCancel: () => void;
+  onCancel?: () => void;
 }) => {
   const classes = useStyles(formStyles);
 
@@ -317,7 +317,7 @@ export const SequencesForm = ({
       </LegacyFormGroupLayout>
 
       <div className="form-submit">
-        <Button
+        {onCancel && <Button
           className={classNames("form-cancel", classes.cancelButton)}
           onClick={(e) => {
             e.preventDefault();
@@ -325,7 +325,7 @@ export const SequencesForm = ({
           }}
         >
           Cancel
-        </Button>
+        </Button>}
 
         <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
           {([canSubmit, isSubmitting]) => (

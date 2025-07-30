@@ -45,6 +45,7 @@ export async function ckEditorTokenHandler(req: NextRequest) {
   if (collectionName === "Posts") {
     const parsedFormType = formTypeValidator.safeParse(rawFormType);
     if (!parsedFormType.success) {
+      // eslint-disable-next-line no-console
       console.log({ rawFormType, parsedFormType });
       throw new Error("Invalid formType header");
     }

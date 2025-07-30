@@ -17,15 +17,15 @@ import React, { useEffect, useMemo, useState, useTransition } from 'react';
 // Client-side wrapper around the app. There's another AppGenerator which is
 // the server-side version, which differs in how it sets up the wrappers for
 // routing and cookies and such.
-const AppGenerator = ({
+//const AppGenerator = ({
   // apolloClient, foreignApolloClient, abTestGroupsUsed, themeOptions, ssrMetadata
-}: {
+//}: {
   // apolloClient: ApolloClient,
   // foreignApolloClient: ApolloClient,
   // abTestGroupsUsed: RelevantTestGroupAllocation,
   // themeOptions: AbstractThemeOptions,
   // ssrMetadata?: SSRMetadata,
-}) => {
+//}) => {
   // return (
   //   <HelmetProvider>
   //   <ApolloProvider client={apolloClient}>
@@ -47,8 +47,8 @@ const AppGenerator = ({
   //   </ApolloProvider>
   //   </HelmetProvider>
   // );
-  return <></>;
-};
+//  return <></>;
+//};
 
 // const EnvironmentOverrideContextProvider = ({ssrMetadata, children}: {
 //   ssrMetadata?: SSRMetadata
@@ -74,4 +74,5 @@ const AppGenerator = ({
 //   </EnvironmentOverrideContext.Provider>
 // }
 
-export default AppGenerator;
+//export default AppGenerator;
+export default () => <></>

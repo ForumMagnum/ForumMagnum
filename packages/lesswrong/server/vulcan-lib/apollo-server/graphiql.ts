@@ -290,9 +290,9 @@ export async function resolveGraphiQLString(query: URLSearchParams, options: Gra
  */
 
 export const graphiqlMiddleware = (options: any) => {
-  const graphiqlHandler = (req: any, res: any, next: any) => {
+  return (req: any, res: any, next: any) => {
     const query = req.url && url.parse(req.url, true).query;
-    resolveGraphiQLString(query, options, req).then(
+    resolveGraphiQLString(query, options).then(
       graphiqlString => {
         res.setHeader('Content-Type', 'text/html');
         res.write(graphiqlString);
@@ -301,5 +301,4 @@ export const graphiqlMiddleware = (options: any) => {
       error => next(error)
     );
   };
-  return graphiqlHandler;
 };

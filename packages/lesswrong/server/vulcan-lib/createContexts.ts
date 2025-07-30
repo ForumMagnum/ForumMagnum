@@ -4,12 +4,12 @@ import { getAllRepos } from "../repos";
 import { generateDataLoaders } from "./apollo-server/context";
 
 export const createAnonymousContext = (options?: Partial<ResolverContext>): ResolverContext => {
-  const queryContext = {
+  return {
     userId: null,
     clientId: null,
     visitorActivity: null,
     currentUser: null,
-    headers: null,
+    headers: undefined,
     locale: localeSetting.get(),
     isSSR: false,
     isGreaterWrong: false,
@@ -19,8 +19,6 @@ export const createAnonymousContext = (options?: Partial<ResolverContext>): Reso
     ...generateDataLoaders(),
     ...options,
   };
-  
-  return queryContext;
 }
 
 export const createAdminContext = (options?: Partial<ResolverContext>): ResolverContext => {
