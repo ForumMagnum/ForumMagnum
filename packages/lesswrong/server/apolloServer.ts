@@ -30,7 +30,7 @@ import { botRedirectMiddleware } from './botRedirect';
 import { hstsMiddleware } from './hsts';
 import { getClientBundle } from './utils/bundleUtils';
 import ElasticController from './search/elastic/ElasticController';
-import { closePerfMetric, openPerfMetric, perfMetricMiddleware } from './perfMetrics';
+import { closePerfMetric, openPerfMetric } from './perfMetrics';
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
 import { addCacheControlMiddleware } from './cacheControlMiddleware';
 import { getSqlClientOrThrow } from './sql/sqlClient';
@@ -174,7 +174,7 @@ export async function startWebserver() {
 
   app.use('/graphql', express.json({ limit: '50mb' }));
   app.use('/graphql', express.text({ type: 'application/graphql' }));
-  app.use('/graphql', perfMetricMiddleware);
+  // app.use('/graphql', perfMetricMiddleware);
 
   await apolloServer.start();
 

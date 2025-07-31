@@ -8,6 +8,7 @@ import { asyncLocalStorage, closeRequestPerfMetric, openPerfMetric, setAsyncStor
 import { logAllQueries } from '@/server/sql/sqlClient';
 import { getIsolationScope } from '@sentry/nextjs';
 import { getClientIP } from '@/server/utils/getClientIP';
+import { performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
@@ -31,6 +32,10 @@ const handler = startServerAndCreateNextHandler<NextRequest, ResolverContext>(se
 });
 
 export function GET(request: NextRequest) {
+  if (!performanceMetricLoggingEnabled.get()) {
+    return handler(request);
+  }
+  
   const perfMetric = openPerfMetric({
     op_type: 'request',
     op_name: request.url,
@@ -61,8 +66,12 @@ export function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const isSSRRequest = request.headers.get('isSSR') === 'true';
+  if (!performanceMetricLoggingEnabled.get()) {
+    return handler(request);
+  }
 
+  const isSSRRequest = request.headers.get('isSSR') === 'true';
+  
   const perfMetric = openPerfMetric({
     op_type: 'request',
     op_name: request.url,

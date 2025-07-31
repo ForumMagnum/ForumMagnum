@@ -155,7 +155,7 @@ export function parseRoute2<Patterns extends string[]>({location, onError=null, 
     }
   }
   
-  const params = routePattern !== undefined ? matchPath(location.pathname, { path: routePattern, exact: true, strict: false })!.params : {}
+  const params = routePattern !== undefined ? matchPath<Record<string, string>>(location.pathname, { path: routePattern, exact: true, strict: false })!.params : {}
   const result = {
     routePattern,
     location,
