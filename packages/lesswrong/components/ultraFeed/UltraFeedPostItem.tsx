@@ -72,7 +72,17 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'row',
     [theme.breakpoints.down('sm')]: {
-      paddingLeft: 16,
+      paddingTop: 16,
+      paddingLeft: 20,
+      paddingRight: 20,
+    },
+  },
+  rootWithReadStyles: {
+    [theme.breakpoints.down('sm')]: {
+      backgroundColor: theme.palette.grey[100],
+      borderTop: theme.palette.border.itemSeparatorBottom,
+      borderBottom: theme.palette.border.itemSeparatorBottom,
+      opacity: 0.9,
     },
   },
   verticalLineContainer: {
@@ -174,7 +184,6 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     fontSize: '1.3rem',
     whiteSpace: 'normal',
     [theme.breakpoints.down('sm')]: {
-      fontSize: 20.5,
       width: '100%',
       flexGrow: 1,
       paddingRight: 8,
@@ -185,6 +194,9 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     color: theme.palette.text.bannerAdOverlay,
     '&:hover': {
       opacity: 0.9,
+    },
+    [theme.breakpoints.down('sm')]: {
+      opacity: 0.7,
     },
   },
   metaRow: {
@@ -200,7 +212,6 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
       flexWrap: "nowrap",
       alignItems: "baseline",
       rowGap: "6px",
-      fontSize: "1.3rem",
       flexShrink: 1,
       width: 'auto',
     },
@@ -655,7 +666,7 @@ const UltraFeedPostItem = ({
   return (
     <RecombeeRecommendationsContextWrapper postId={post._id} recommId={postMetaInfo.recommInfo?.recommId}>
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} feedCardIndex={index} ultraFeedSources={postMetaInfo.sources}>
-    <div className={classes.root}>
+    <div className={classnames(classes.root, { [classes.rootWithReadStyles]: isRead })}>
       <div className={classes.verticalLineContainer}>
         <div className={classnames(
           classes.verticalLine,

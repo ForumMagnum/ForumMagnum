@@ -9,6 +9,7 @@ import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
+import classNames from "classnames";
 
 const PostsListWithVotesQuery = gql(`
   query UltraFeedThreadItem($documentId: String) {
@@ -32,14 +33,9 @@ const itemSeparator = (theme: ThemeType) => ({
 
 const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
   commentsRoot: {
-    paddingLeft: 20,
-    paddingRight: 16,
     borderRadius: 4,
     background: theme.palette.panelBackground.bannerAdTranslucentHeavy,
     backdropFilter: theme.palette.filters.bannerAdBlurHeavy,
-    [theme.breakpoints.down('sm')]: {
-      paddingLeft: 16,
-    },
   },
   commentsContainer: {
     display: 'flex',
@@ -52,6 +48,19 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
   },
   commentItem: {
     position: 'relative',
+    [theme.breakpoints.down('sm')]: {
+      borderBottom: theme.palette.border.itemSeparatorBottomStrong,
+      '&:last-child': {
+        borderBottom: 'none',
+      },
+    },
+  },
+  commentItemWithReadStyles: {
+    [theme.breakpoints.down('sm')]: {
+      '&:first-child': {
+        borderTop: theme.palette.border.itemSeparatorBottomStrong
+      },
+    },
   },
 
   postsLoadingContainer: {
@@ -406,9 +415,10 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
               const navigationProps = getNavigationProps(cId, visibleComments);
               
               const isNewReply = Object.values(newReplies).some(reply => reply._id === cId);
+              const isFirstItemAndIsRead = isFirstItem && (!!commentMetaInfos?.[cId]?.lastViewed || !!commentMetaInfos?.[cId]?.lastInteracted);
               
               return (
-                <div key={cId} className={classes.commentItem}>
+                <div key={cId} className={classNames(classes.commentItem, { [classes.commentItemWithReadStyles]: isFirstItemAndIsRead })}>
                   <UltraFeedCommentItem
                     comment={item}
                     metaInfo={{

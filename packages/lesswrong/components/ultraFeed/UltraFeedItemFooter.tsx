@@ -37,6 +37,7 @@ const UltraFeedEventsDefaultFragmentMutation = gql(`
 
 const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   root: {
+    marginLeft: -6, // cause actual edge of CommentIcon to align with edge of text
     position: "relative",
     display: "flex",
     flexWrap: "wrap",
@@ -49,6 +50,9 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     // every child except last has margin right applied
     "& > *:not(:last-child)": {
       marginRight: 16,
+    },
+    "& > *:nth-last-child(2)": {
+      marginRight: 4,
     },
     "& a:hover, & a:active": {
       textDecoration: "none",
@@ -65,7 +69,7 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   commentCount: {
     position: 'relative',
     bottom: 1,
-    padding: 2,
+    // padding: 2,
     color: `${theme.palette.ultraFeed.dim} !important`,
     display: "inline-flex",
     alignItems: "center",
@@ -77,20 +81,24 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
       top: 2,
       [theme.breakpoints.down('sm')]: {
         top: 1,
-        height: 21,
-        width: 21,
+        height: 20,
+        width: 20,
       },
     },
     [theme.breakpoints.down('sm')]: {
       top: 0,
+      opacity: 0.95,
     }
   },
   showAllCommentsWrapper: {
     display: 'inline-flex',
     alignItems: 'center',
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    }
+    "& svg": {
+      [theme.breakpoints.down('sm')]: {
+        height: 20,
+        width: 20,
+      },
+    },
   },
   showAllComments: {
     position: 'relative',
@@ -105,19 +113,23 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     height: 24,
     "& svg": {
       position: "relative",
-      height: 14,
+      height: 15,
       top: 0,
+      [theme.breakpoints.down('sm')]: {
+        height: 18,
+        width: 18,
+      },
     },
     "&:hover": {
       color: theme.palette.grey[1000],
     },
-    // Hide on mobile
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    }
   },
   showAllCommentsCount: {
     marginLeft: 2,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 17,
+      marginLeft: 6,
+    },
   },
   commentCountClickable: {
     cursor: "pointer",
@@ -154,9 +166,9 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   commentCountText: {
     marginLeft: 4,
     display: 'none',
-    [theme.breakpoints.down('sm')]: {
-      display: 'inline',
-    }
+    // [theme.breakpoints.down('sm')]: {
+    //   display: 'inline',
+    // }
   },
   reactionIcon: {
     marginRight: 6,
@@ -391,8 +403,7 @@ const UltraFeedItemFooterCore = ({
     ? `Show all comments`
     : `Show ${commentCount} descendant${commentCount === 1 ? '' : 's'}`;
 
-  const showAllCommentsButton = (commentCount ?? 0) > 0 
-    ? <div className={classes.showAllCommentsWrapper}>
+  const showAllCommentsButton = <div className={classes.showAllCommentsWrapper}>
       <LWTooltip title={showAllCommentsTooltip} disabledOnMobile>
       <div
         onClick={() => {
@@ -402,11 +413,10 @@ const UltraFeedItemFooterCore = ({
         className={classes.showAllComments}
       >
         <DebateIconOutline />
-        <span className={classes.showAllCommentsCount}>{commentCount}</span>
+        {(commentCount ?? 0) > 0 && <span className={classes.showAllCommentsCount}>{commentCount}</span>}
       </div>
       </LWTooltip>
     </div>
-   : null;
 
   const votingSystem = voteProps.document.votingSystem || getDefaultVotingSystem();
 

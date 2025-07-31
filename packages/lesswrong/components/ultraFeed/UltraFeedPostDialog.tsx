@@ -330,7 +330,7 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   },
   audioToggle: {
     opacity: 0.55,
-    display: 'flex',
+    display: 'none' //'flex', disable until working
   },
   bookmarkButton: {
     position: 'relative',
@@ -841,12 +841,13 @@ const UltraFeedPostDialog = ({
                     </div>
                   </div>
 
-                  {fullPostForContent && (
+                  {/* TODO: Re-enable once works  */}
+                  {/* {fullPostForContent && (
                     <PostsAudioPlayerWrapper 
                       showEmbeddedPlayer={showEmbeddedPlayer} 
                       post={fullPostForContent}
                     />
-                  )}
+                  )} */}
 
                   {displayPost && !aboveLinkpostThreshold && (
                     <LinkPostMessage post={displayPost} />

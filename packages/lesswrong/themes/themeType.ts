@@ -275,6 +275,7 @@ declare global {
     border: {
       normal: string,
       itemSeparatorBottom: string,
+      itemSeparatorBottomStrong: string,
       slightlyFaint: string,
       extraFaint: string,
       slightlyIntense: string,

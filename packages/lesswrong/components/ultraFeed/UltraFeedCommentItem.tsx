@@ -30,6 +30,17 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     paddingTop: commentHeaderPaddingDesktop,
     backgroundColor: 'transparent',
     transition: 'background-color 1.0s ease-out',
+    paddingLeft: 20,
+    paddingRight: 16,
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 20,
+      paddingRight: 20,
+    },
+  },
+  rootWithReadStyles: {
+    [theme.breakpoints.down('sm')]: {
+      backgroundColor: theme.palette.grey[100],
+    },
   },
   rootWithAnimation: {
     backgroundColor: `${theme.palette.primary.main}3b`,
@@ -53,6 +64,9 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   },
   commentContentWrapperWithBorder: {
     borderBottom: theme.palette.border.itemSeparatorBottom,
+    [theme.breakpoints.down('sm')]: {
+      borderBottom: 'none',
+    },
   },
   commentHeader: {
     display: 'flex',
@@ -66,6 +80,11 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     paddingRight: 16,
     [theme.breakpoints.down('sm')]: {
       paddingRight: 0,
+    },
+  },
+  contentWrapperWithReadStyles: {
+    [theme.breakpoints.down('sm')]: {
+      opacity: 0.7,
     },
   },
   numComments: {
@@ -123,15 +142,9 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   },
   verticalLineFirstComment: {
     marginTop: commentHeaderPaddingDesktop,
-    [theme.breakpoints.down('sm')]: {
-      marginTop: commentHeaderPaddingMobile,
-    },
   },
   verticalLineLastComment: {
     marginBottom: commentHeaderPaddingDesktop,
-    [theme.breakpoints.down('sm')]: {
-      marginBottom: commentHeaderPaddingMobile,
-    },
   },
   footer: {
     marginBottom: 12,
@@ -301,6 +314,7 @@ export const UltraFeedCommentItem = ({
   const cannotReplyReason = customCannotReplyReason ?? (userOwns(currentUser, comment) ? "You cannot reply to your own comment from within the feed" : null);
 
   const displayStatus = metaInfo.displayStatus ?? 'expanded';
+  const isRead = !!metaInfo.lastViewed || !!metaInfo.lastInteracted
 
   const initialHighlightState = (highlight && !hasBeenFadeViewed(comment._id)) ? 'highlighted-unviewed' : 'never-highlighted';
   const [highlightState, setHighlightState] = useState<HighlightStateType>(initialHighlightState);
@@ -454,7 +468,8 @@ export const UltraFeedCommentItem = ({
   return (
     <AnalyticsContext ultraFeedElementType="feedComment" commentId={comment._id} postId={comment.postId ?? undefined} ultraFeedSources={metaInfo.sources}>
     <div className={classNames(classes.root, {
-      [classes.rootWithAnimation]: isHighlightAnimating
+      [classes.rootWithAnimation]: isHighlightAnimating,
+      [classes.rootWithReadStyles]: isRead,
     })}>
       <div className={classes.mainContent}>
         <div className={classes.verticalLineContainer}>
@@ -468,7 +483,10 @@ export const UltraFeedCommentItem = ({
             }
           )} />
         </div>
-        <div ref={elementRef} className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
+        <div ref={elementRef} className={
+          classNames(classes.commentContentWrapper, { 
+            [classes.commentContentWrapperWithBorder]: !isLastComment,
+          })}>
           <div className={classNames(classes.commentHeader, { [classes.greyedOut]: isSeeLessMode })}>
             {hasFork && <BranchNavigationButton
               currentBranch={currentBranch}
@@ -492,7 +510,10 @@ export const UltraFeedCommentItem = ({
             />
           )}
           {!isSeeLessMode && (
-            <div className={classes.contentWrapper}>
+            <div className={classNames(
+              classes.contentWrapper, 
+              { [classes.contentWrapperWithReadStyles]: isRead && !isSeeLessMode && !showEditState }
+            )}>
               {showEditState ? (
                 <CommentsEditForm
                   comment={comment}

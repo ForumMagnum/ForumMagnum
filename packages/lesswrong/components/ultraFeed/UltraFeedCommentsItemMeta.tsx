@@ -143,8 +143,9 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
   },
   abovePostTitle: {
     marginBottom: 8,
+    marginRight: 16,
     color: theme.palette.link.dim,
-    fontSize: theme.typography.body2.fontSize,
+    fontSize: '1.3rem',
     lineHeight: theme.typography.body2.lineHeight,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontStyle: 'italic',
@@ -186,6 +187,7 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     fontSize: 14,
     transform: "rotate(90deg)",
     marginRight: 4,
+    marginLeft: -2,
   },
   replyingToIconClickable: {
     cursor: "pointer",
@@ -222,14 +224,14 @@ const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick, highligh
       className={classNames({
         [classes.sameRowPostTitle]: position === 'metarow',
         [classes.sameRowPostTitleHighlighted]: position === 'metarow' && highlighted,
-        [classes.hideOnMobile]: position === 'metarow' && !post.shortform,
+        [classes.hideOnMobile]: position === 'metarow', //&& !post.shortform,
         [classes.abovePostTitle]: position === 'above',
         [classes.abovePostTitleHighlighted]: position === 'above' && highlighted,
         [classes.hideOnDesktop]: position === 'above',
       })}
     >
       <PostsTooltip postId={post._id} placement="top" As="span">
-        {position === 'above' && <span className={classes.postTitleReplyTo}>Replying to</span>}
+        {position === 'above' && !post.shortform && <span className={classes.postTitleReplyTo}>Replying to</span>}
           <a
             href={postGetPageUrl(post)}
             onClick={handleTitleClick}
@@ -318,7 +320,7 @@ const UltraFeedCommentsItemMeta = ({
           </AnalyticsContext>
         }
       </div>
-      <ReplyingToTitle enabled={showPostTitle && !post?.shortform} position="above" comment={comment} onPostTitleClick={onPostTitleClick} highlighted={postTitleHighlighted} />
+      <ReplyingToTitle enabled={showPostTitle} position="above" comment={comment} onPostTitleClick={onPostTitleClick} highlighted={postTitleHighlighted} />
       <div className={classes.metaRow}>
         {!isTopLevelComment && (
           <LWTooltip 

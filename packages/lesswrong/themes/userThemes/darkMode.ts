@@ -230,6 +230,7 @@ export const darkModeTheme: UserThemeSpecification = {
     },
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
+      itemSeparatorBottomStrong: shadePalette.greyBorder("1px", .3),
       commentBorder: "1px solid rgba(255,255,255,.2)",
       answerBorder: "2px solid rgba(255,255,255,.2)",
       primaryHighlight: '#314a4e',
