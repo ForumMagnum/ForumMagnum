@@ -3,7 +3,7 @@
 // Import needed to get the database settings from the window on the client
 import '@/client/publicSettings';
 
-import React, { useEffect, useRef, useState, useTransition } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '@/lib/abTestImpl';
 import type { AbstractThemeOptions } from '@/themes/themeNames';
@@ -44,6 +44,26 @@ const AppComponent = ({ children }: { children: React.ReactNode }) => {
   const searchParams = Object.fromEntries(urlSearchParams.entries());
   const pathname = usePathname();
   const hash = isClient ? window.location.hash : '';
+
+  useEffect(() => {
+    const eventListener = (e: HashChangeEvent) => {
+      const newHash = new URL(e.newURL).hash;
+
+      if (locationContext.current) {
+        Object.assign(locationContext.current, { hash: newHash });
+      }
+
+      if (subscribeLocationContext.current) {
+        Object.assign(subscribeLocationContext.current, { hash: newHash });
+      }
+    };
+
+    window.addEventListener('hashchange', eventListener);
+    
+    return () => {
+      window.removeEventListener('hashchange', eventListener);
+    };
+  }, []);
 
   const reconstructedPath = `${pathname}${searchParamsString ? `?${searchParamsString}` : ''}${hash ? hash : ''}`;
   const parsedPath = parsePath(reconstructedPath);

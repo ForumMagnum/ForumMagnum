@@ -194,7 +194,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
           ...location,
           search: isEmpty(query) ? '' : `?${qs.stringify(query)}`,
           hash: `#${comment._id}`,
-        });
+        }, { skipRouter: true });
         ev.stopPropagation();
         ev.preventDefault();
       }}
