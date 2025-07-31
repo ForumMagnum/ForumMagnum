@@ -21,6 +21,7 @@ export const UnclaimedReportsList = () => frag`
     post {
       ...PostsList
     }
+    reportedUserId
     reportedUser {
       ...SunshineUsersList
     }

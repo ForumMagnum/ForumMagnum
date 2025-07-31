@@ -3,12 +3,35 @@ import { slackApiTokenSetting, slackModFlagsChannelIdSetting } from "./databaseS
 import { fetchFragmentSingle } from "./fetchFragment";
 import { createAdminContext } from "./vulcan-lib/createContexts";
 import { commentGetPageUrl } from "@/lib/collections/comments/helpers";
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { getSiteUrl } from "@/lib/vulcan-lib/utils";
-import { isEAForum } from "@/lib/instanceSettings";
 import { userGetProfileUrl } from "@/lib/collections/users/helpers";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { isEAForum } from "@/lib/instanceSettings";
 
 const hasModSlackWarnings = isEAForum;
+
+const getReportContent = (
+  report: ReportsSlackPreview,
+): {contentType: "comment" | "post" | "user", url: string} => {
+  if (report.commentId && report.comment) {
+    return {
+      contentType: "comment",
+      url: commentGetPageUrl(report.comment, true),
+    };
+  }
+  if (report.postId && report.post) {
+    return {
+      contentType: "post",
+      url: postGetPageUrl(report.post, true)
+    };
+  }
+  if (report.reportedUserId && report.reportedUser) {
+    return {
+      contentType: "user",
+      url: userGetProfileUrl(report.reportedUser, true),
+    };
+  }
+  throw new Error(`Report ${report._id} has no content`);
+}
 
 /**
  * Forward a report to a channel in Slack. The generate an API key you must
@@ -41,9 +64,6 @@ export const forwardReportToModSlack = async (
       throw new Error(`Report ${reportId} not found`);
     }
 
-    const contentType = report.comment ? "comment" : "post";
-    const description = report.description || "[No description]";
-
     const apiToken = slackApiTokenSetting.get();
     if (!apiToken) {
       throw new Error("Slack API token not configured");
@@ -54,11 +74,8 @@ export const forwardReportToModSlack = async (
       throw new Error("Mod flags channel ID not configured");
     }
 
-    const url = report.comment
-      ? commentGetPageUrl(report.comment, true)
-      : report.post
-        ? postGetPageUrl(report.post, true)
-        : getSiteUrl();
+    const {contentType, url} = getReportContent(report);
+    const description = report.description || "[No description]";
 
     const userName = report.user?.username ?? "[Unknown user]";
     const userLink = userGetProfileUrl(report.user, true);

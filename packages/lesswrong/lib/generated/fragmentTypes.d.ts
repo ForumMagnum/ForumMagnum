@@ -3768,6 +3768,7 @@ interface UnclaimedReportsList { // fragment on Reports
   readonly comment: UnclaimedReportsList_comment|null,
   readonly postId: string|null,
   readonly post: PostsList|null,
+  readonly reportedUserId: string|null,
   readonly reportedUser: SunshineUsersList|null,
   readonly closedAt: Date|null,
   readonly createdAt: Date,
