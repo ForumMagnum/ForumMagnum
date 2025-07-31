@@ -143,7 +143,7 @@ export async function getOrCreateCloudinaryImage({
   upload,
 }: {
   identifier: string;
-  identifierType: string;
+  identifierType: 'originalUrl' | 'sha256Hash';
   upload: (credentials: CloudinaryCredentials) => Promise<UploadApiResponse>;
 }) {
   const cloudinary = await import('cloudinary');
@@ -170,6 +170,7 @@ export async function getOrCreateCloudinaryImage({
     identifier,
     identifierType,
     cdnHostedUrl: autoQualityFormatUrl,
+    originalUrl: null,
   });
 
   return autoQualityFormatUrl;
@@ -371,7 +372,7 @@ export async function convertImagesInObject<N extends CollectionNameString>(
       _id: randomId(),
       html: newHtml,
       editedAt: now,
-      updateType: "patch",
+      updateType: "patch" as const,
       version: newVersion,
       commitMessage: "Move images to CDN",
       changeMetrics: htmlToChangeMetrics(oldHtml, newHtml),

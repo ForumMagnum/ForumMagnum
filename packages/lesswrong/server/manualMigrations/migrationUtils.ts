@@ -59,6 +59,8 @@ export async function runMigration(name: string) {
   const migrationLogId = await Migrations.rawInsert({
     name: name,
     started: new Date(),
+    finished: false,
+    succeeded: false,
   });
   
   const db = getSqlClient();
@@ -573,15 +575,15 @@ export async function safeRun(db: SqlClient | null, fn: string): Promise<void> {
 
 export async function bulkRawInsert<N extends CollectionNameString>(
   collectionName: N,
-  objects: Array<ObjectsByCollectionName[N]>
+  objects: Array<InsertionRecord<ObjectsByCollectionName[N]>>
 ): Promise<void> {
   const collection = getCollection(collectionName);
-  await collection.rawCollection().bulkWrite(
-    objects.map(obj => ({
-      insertOne: {
-        document: obj
-      }
-    }))
-  );
+  const operations = objects.map(obj => ({
+    insertOne: {
+      document: obj
+    }
+  }));
+
+  await collection.rawCollection().bulkWrite(operations);
 }
 

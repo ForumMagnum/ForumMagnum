@@ -133,7 +133,7 @@ export function generateDbTypes(): string {
 
 function generateCollectionType(collection: any): string {
   const collectionName = collection.collectionName;
-  return `type ${collectionName}Collection = CollectionBase<"${collectionName}">;\n\n`;
+  return `type ${collectionName}Collection = PgCollection<"${collectionName}">;\n\n`;
 }
 
 function isNonTrivialSimpleSchemaType(fieldSimpleSchemaType: DerivedSimpleSchemaType<SchemaType<CollectionNameString>>[string]['type'], fieldSchema: CollectionFieldSpecification<any>): boolean {

@@ -1,6 +1,5 @@
 import AbstractRepo from "./AbstractRepo";
 import Users from "../../server/collections/users/collection";
-import { ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isEAForum } from "../../lib/instanceSettings";
 import { userLoginTokensView } from "../postgresView";
@@ -398,35 +397,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `)
   }
 
-  async getActiveDialogues(userIds: string[]): Promise<ActiveDialogueServer[]> {
-    const result = await this.getRawDb().any(`
-    SELECT
-        p._id,
-        p.title,
-        p."userId",
-        p."coauthorStatuses",
-        ARRAY_AGG(DISTINCT s."userId") AS "activeUserIds",
-        MAX(r."editedAt") AS "mostRecentEditedAt"
-    FROM "Posts" AS p
-    INNER JOIN "Revisions" AS r ON p._id = r."documentId"
-    INNER JOIN "CkEditorUserSessions" AS s ON p._id = s."documentId",
-        unnest(p."coauthorStatuses") AS coauthors
-    WHERE
-        (
-            coauthors ->> 'userId' = any($1)
-            OR p."userId" = any($1)
-        )
-        AND s."endedAt" IS NULL
-        AND (
-          s."createdAt" > CURRENT_TIMESTAMP - INTERVAL '30 minutes'
-          OR r."editedAt" > CURRENT_TIMESTAMP - INTERVAL '30 minutes'
-        )
-    GROUP BY p._id
-    `, [userIds]);
-  
-    return result;
-  }
-
   async isDisplayNameTaken({ displayName, currentUserId }: { displayName: string; currentUserId: string; }): Promise<boolean> {
     const result = await this.getRawDb().one(`
       -- UsersRepo.isDisplayNameTaken
@@ -681,6 +651,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
   }
 }
 
-recordPerfMetrics(UsersRepo, { excludeMethods: ['getUserByLoginToken', 'getActiveDialogues'] });
+recordPerfMetrics(UsersRepo, { excludeMethods: ['getUserByLoginToken'] });
 
 export default UsersRepo;

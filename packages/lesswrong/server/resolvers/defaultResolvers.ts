@@ -99,7 +99,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     context: ResolverContext,
     info: GraphQLResolveInfo,
   ): Promise<{ results: Partial<T>[]; totalCount?: number }> => {
-    const collection = context[collectionName] as PgCollection<N>;
+    const collection = context[collectionName] as unknown as PgCollection<N>;
     const { input, selector, limit, offset, enableTotal } = args ?? { input: {} };
 
     // We used to handle selector terms just using a generic "terms" object, but now we use a more structured approach
@@ -248,7 +248,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     context: ResolverContext,
     info: GraphQLResolveInfo,
   ) => {
-    const collection = context[collectionName] as PgCollection<N>;
+    const collection = context[collectionName] as unknown as PgCollection<N>;
     const { input: _input, selector: _selector, ...otherQueryVariables } = info.variableValues;
     allowNull ??= input.allowNull ?? false;
     // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.

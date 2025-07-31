@@ -230,7 +230,7 @@ type MongoIndexSpecification<T> = {
 
 type MongoDropIndexOptions = {};
 
-type MongoBulkInsert<T extends DbObject> = {document: T};
+type MongoBulkInsert<T extends DbObject> = {document: InsertionRecord<T>};
 type MongoBulkUpdate<T extends DbObject> = {filter: MongoSelector<T>, update: MongoModifier, upsert?: boolean};
 type MongoBulkDelete<T extends DbObject> = {filter: MongoSelector<T>};
 type MongoBulkReplace<T extends DbObject> = {filter: MongoSelector<T>, replacement: T, upsert?: boolean};
@@ -406,7 +406,7 @@ type DbInsertion<T extends DbObject> = Omit<
 
 type OptionalIfPresent<T, K extends keyof T> = T extends { [P in K]?: infer U } ? U : never;
 
-type InsertionRecord<T extends DbObject & { createdAt?: Date; legacyData?: Json }> = Omit<T, "_id" | "createdAt" | "schemaVersion" | "legacyData"> & {
+type InsertionRecord<T extends DbObject & { createdAt?: Date; legacyData?: Json }> = Omit<T, "_id" | "createdAt" | "schemaVersion" | "legacyData" | "__collectionName"> & {
   _id?: T["_id"];
   createdAt?: OptionalIfPresent<T, "createdAt">;
   schemaVersion?: OptionalIfPresent<T, "schemaVersion">;
