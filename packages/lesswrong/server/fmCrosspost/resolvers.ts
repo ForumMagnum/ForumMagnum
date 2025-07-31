@@ -117,7 +117,10 @@ export const fmCrosspostGraphQLMutations = {
     {token}: ConnectCrossposterArgs,
     {req, currentUser, Users}: ResolverContext,
   ) => {
-    const localUserId = getUserId(req);
+    if (!currentUser) {
+      throw new UnauthorizedError();
+    }
+    const localUserId = currentUser._id;
     assertCrosspostingKarmaThreshold(currentUser);
     const {foreignUserId} = await makeV2CrossSiteRequest(
       connectCrossposterRoute,
@@ -129,9 +132,12 @@ export const fmCrosspostGraphQLMutations = {
     });
     return "success";
   },
-  unlinkCrossposter: async (_root: void, _args: {}, {req, Users}: ResolverContext) => {
-    const localUserId = getUserId(req);
-    const foreignUserId = req?.user?.fmCrosspostUserId;
+  unlinkCrossposter: async (_root: void, _args: {}, {req, currentUser, Users}: ResolverContext) => {
+    if (!currentUser) {
+      throw new UnauthorizedError();
+    }
+    const localUserId = currentUser._id;
+    const foreignUserId = currentUser.fmCrosspostUserId;
     if (foreignUserId) {
       const token = await connectCrossposterToken.create({
         userId: foreignUserId,

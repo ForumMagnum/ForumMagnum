@@ -8,7 +8,6 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { parseRouteWithErrors } from '../linkPreview/HoverPreviewLink';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useNavigate } from '../../lib/routeUtil';
-import {checkUserRouteAccess} from '../../lib/vulcan-core/appContext'
 import { getUrlClass } from '@/server/utils/getUrlClass';
 import LWTooltip from "../common/LWTooltip";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";

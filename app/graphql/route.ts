@@ -4,9 +4,10 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import { ApolloServer } from '@apollo/server';
 import { configureSentryScope, getContextFromReqAndRes } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/context';
 import type { NextRequest } from 'next/server';
-import { asyncLocalStorage, closeRequestPerfMetric, openPerfMetric } from '@/server/perfMetrics';
+import { asyncLocalStorage, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '@/server/perfMetrics';
 import { logAllQueries } from '@/server/sql/sqlClient';
 import { getIsolationScope } from '@sentry/nextjs';
+import { getClientIP } from '@/server/utils/getClientIP';
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
@@ -29,26 +30,45 @@ const handler = startServerAndCreateNextHandler<NextRequest, ResolverContext>(se
   }
 });
 
-// export { handler as GET, handler as POST };
-
 export function GET(request: NextRequest) {
   const perfMetric = openPerfMetric({
     op_type: 'request',
     op_name: request.url,
+    client_path: request.headers.get('request-origin-path') ?? undefined,
+    ip: getClientIP(request.headers),
+    user_agent: request.headers.get('user-agent') ?? undefined,
   });
 
   return asyncLocalStorage.run({ requestPerfMetric: perfMetric }, () => handler(request)).then(res => {
+    setAsyncStoreValue('requestPerfMetric', (incompletePerfMetric) => {
+      if (!incompletePerfMetric) {
+        return;
+      }
+
+      const isolationScope = getIsolationScope();
+      const userId = isolationScope.getUser()?.id;
+
+      return {
+        ...incompletePerfMetric,
+        user_id: userId?.toString(),
+      };
+    });
+
     closeRequestPerfMetric();
+
     return res;
   });
 }
 
 export async function POST(request: NextRequest) {
   const isSSRRequest = request.headers.get('isSSR') === 'true';
-  
+
   const perfMetric = openPerfMetric({
     op_type: 'request',
     op_name: request.url,
+    client_path: request.headers.get('request-origin-path') ?? undefined,
+    ip: getClientIP(request.headers),
+    user_agent: request.headers.get('user-agent') ?? undefined,
   });
 
   const clonedRequest = request.clone();
@@ -56,5 +76,23 @@ export async function POST(request: NextRequest) {
     console.log(`Entering /graphql with traceId ${perfMetric.trace_id} and gql op ${(await clonedRequest.json())[0]?.operationName}`)
   }
 
-  return asyncLocalStorage.run({ requestPerfMetric: perfMetric, isSSRRequest }, () => handler(request));
+  return asyncLocalStorage.run({ requestPerfMetric: perfMetric, isSSRRequest }, () => handler(request)).then(res => {
+    setAsyncStoreValue('requestPerfMetric', (incompletePerfMetric) => {
+      if (!incompletePerfMetric) {
+        return;
+      }
+
+      const isolationScope = getIsolationScope();
+      const userId = isolationScope.getUser()?.id;
+
+      return {
+        ...incompletePerfMetric,
+        user_id: userId?.toString(),
+      };
+    });
+
+    closeRequestPerfMetric();
+
+    return res;
+  });
 }

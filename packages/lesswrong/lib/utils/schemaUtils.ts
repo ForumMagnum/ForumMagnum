@@ -193,7 +193,7 @@ export function getDenormalizedCountOfReferencesGetValue<
     if (!isServer) {
       throw new Error(`${collectionName}.${fieldName} getValue called on the client!`);
     }
-    const foreignCollection = context[foreignCollectionName] as PgCollection<TargetCollectionName>;
+    const foreignCollection = context[foreignCollectionName] as unknown as PgCollection<TargetCollectionName>;
     const docsThatMayCount = await getWithLoader<TargetCollectionName>(
       context,
       foreignCollection,

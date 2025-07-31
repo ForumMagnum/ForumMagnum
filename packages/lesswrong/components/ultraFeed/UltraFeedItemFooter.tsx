@@ -316,7 +316,7 @@ interface UltraFeedItemFooterCoreSharedProps {
   commentCount: number | undefined;
   onClickComments: () => void;
   showVoteButtons: boolean;
-  voteProps: VotingProps<VoteableTypeClient>;
+  voteProps: VotingProps<VoteableTypeClient> & { collectionName: UltraFeedEventCollectionName };
   hideKarma?: boolean;
   bookmarkProps?: BookmarkProps;
   metaInfo?: FeedPostMetaInfo | FeedCommentMetaInfo;

@@ -7,10 +7,9 @@ import { matchPath } from 'react-router';
 import qs from 'qs'
 import { captureException } from '@sentry/nextjs';
 import { isClient } from '../executionEnvironment';
-import type { RouterLocation, Route, SegmentedUrl } from '../vulcan-lib/routes';
-import { getRouteMatchingPathname, userCanAccessRoute } from "../vulcan-lib/routes";
+import type { RouterLocation, SegmentedUrl } from '../vulcan-lib/routes';
+import { getRouteMatchingPathname } from "../vulcan-lib/routes";
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
-// import Error404 from '@/components/common/Error404';
 
 export interface ServerRequestStatusContextType {
   status?: number
@@ -168,20 +167,5 @@ export function parseRoute2<Patterns extends string[]>({location, onError=null, 
   };
   
   return result;
-}
-
-/**
- * Check if user can access given route, and if not - override the component we'll render to 404 page
- * Also removes the "currentRoute" and "params" fields so downstream code treats this as a 404 (not rendering previews, etc)
- */
-export const checkUserRouteAccess = (user: UsersCurrent | null, location: RouterLocation): RouterLocation => {
-  if (userCanAccessRoute(user, location.currentRoute)) return location
-
-  return {
-    ...location,
-    // RouteComponent: Error404,
-    currentRoute: null,
-    params: {},
-  }
 }
 

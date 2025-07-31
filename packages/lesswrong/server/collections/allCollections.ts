@@ -136,7 +136,7 @@ const collectionsByTypeName = Object.fromEntries(
 
 export function getCollection<N extends CollectionNameString>(name: N): PgCollection<N> {
   const collectionsWithTestCollections = { ...allCollections, ...getTestCollections() };
-  return collectionsWithTestCollections[name] as PgCollection<N>;
+  return collectionsWithTestCollections[name] as unknown as PgCollection<N>;
 }
 
 export function getAllCollections(): Array<CollectionBase<CollectionNameString>> {

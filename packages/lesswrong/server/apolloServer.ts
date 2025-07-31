@@ -22,7 +22,6 @@ import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getEAGApplicationData } from './zohoUtils';
 import { addTestingRoutes } from './testingSqlClient';
 import { addCrosspostRoutes } from './fmCrosspost/routes';
-import { addV2CrosspostHandlers } from './crossposting/handlers';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
 import { datadogMiddleware } from './datadog/datadogMiddleware';
@@ -34,9 +33,7 @@ import ElasticController from './search/elastic/ElasticController';
 import { closePerfMetric, openPerfMetric, perfMetricMiddleware } from './perfMetrics';
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
 import { addCacheControlMiddleware } from './cacheControlMiddleware';
-// import { addAutocompleteEndpoint } from './autocompleteEndpoint';
 import { getSqlClientOrThrow } from './sql/sqlClient';
-// import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
 import { getCommandLineArguments } from './commandLine';
 import { isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
 import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
@@ -279,9 +276,7 @@ export async function startWebserver() {
   })
 
   addCrosspostRoutes(app);
-  addV2CrosspostHandlers(app);
   addTestingRoutes(app);
-  // addLlmChatEndpoint(app);
 
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {

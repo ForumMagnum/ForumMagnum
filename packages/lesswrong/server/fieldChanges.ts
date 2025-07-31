@@ -44,7 +44,7 @@ export const logFieldChanges = async <
     try {
       await Promise.all(Object.keys(loggedChangesAfter).map(key =>
         FieldChanges.rawInsert({
-          userId: currentUser?._id,
+          userId: currentUser?._id ?? null,
           changeGroup,
           documentId: oldDocument._id,
           fieldName: key,

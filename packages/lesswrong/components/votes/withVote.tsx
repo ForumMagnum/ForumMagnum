@@ -101,7 +101,7 @@ const performVoteMutations = {
   MultiDocument: performVoteMultiDocumentMutation,
 } satisfies Record<typeof collectionNameToTypeName[VoteableCollectionName], DocumentNode>;
 
-export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: VoteableCollectionName, votingSystem?: VotingSystem): VotingProps<T> => {
+export const useVote = <T extends VoteableTypeClient, CollectionName extends VoteableCollectionName>(document: T, collectionName: CollectionName, votingSystem?: VotingSystem): VotingProps<T> & { collectionName: CollectionName } => {
   const getCurrentUser = useGetCurrentUser();
   const messages = useMessages();
   const [optimisticResponseDocument, setOptimisticResponseDocument] = useState<any>(null);
