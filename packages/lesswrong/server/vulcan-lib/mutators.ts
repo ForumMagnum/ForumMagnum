@@ -187,8 +187,8 @@ export async function insertAndReturnDocument<N extends CollectionNameString, T 
  * 
  * Instead, use insertAndReturnDocument.
  */
-export async function insertAndReturnCreateAfterProps<N extends CollectionNameString, T extends InsertionRecord<ObjectsByCollectionName[N]>>(data: T, collectionName: N, createCallbackProperties: CreateCallbackProperties<N, T>) {
-  const insertedDocument = await insertAndReturnDocument(data, collectionName, createCallbackProperties.context);
+export async function insertAndReturnCreateAfterProps<N extends CollectionNameString, T extends CreateInputsByCollectionName[N]['data'] | Partial<ObjectsByCollectionName[N]>>(data: T, collectionName: N, createCallbackProperties: CreateCallbackProperties<N, T>) {
+  const insertedDocument = await insertAndReturnDocument(data as InsertionRecord<ObjectsByCollectionName[N]>, collectionName, createCallbackProperties.context);
 
   const afterCreateProperties: AfterCreateCallbackProperties<N> = {
     ...createCallbackProperties,
