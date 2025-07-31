@@ -1307,7 +1307,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       )
       SELECT
         p."_id",
-        p."slug",
+        p."title",
         $1 || p."_id" || '/' || p."slug" || '?utm_source=eafunds' "pageUrl",
         p."postedAt",
         "authors"."users"
