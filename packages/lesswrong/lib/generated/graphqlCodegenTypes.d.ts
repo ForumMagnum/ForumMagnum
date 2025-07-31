@@ -23936,9 +23936,9 @@ type updatePostPostsEditFormMutation = updatePostPostsEditFormMutation_Mutation;
 
 type AdvisorRequestsMinimumInfo = { __typename?: 'AdvisorRequest', _id: string, userId: string | null, createdAt: string, interestedInMetaculus: boolean | null, jobAds: any | null };
 
-type AutomatedContentEvaluations_AutomatedContentEvaluation_sentenceScores_SentenceScore = { __typename?: 'SentenceScore', sentence: string, score: number };
+type AutomatedContentEvaluationsFragment_AutomatedContentEvaluation_sentenceScores_SentenceScore = { __typename?: 'SentenceScore', sentence: string, score: number };
 
-type AutomatedContentEvaluations = { __typename?: 'AutomatedContentEvaluation', _id: string, score: number | null, aiChoice: string | null, aiReasoning: string | null, aiCoT: string | null, sentenceScores: Array<AutomatedContentEvaluations_AutomatedContentEvaluation_sentenceScores_SentenceScore> | null };
+type AutomatedContentEvaluationsFragment = { __typename?: 'AutomatedContentEvaluation', _id: string, score: number | null, aiChoice: string | null, aiReasoning: string | null, aiCoT: string | null, sentenceScores: Array<AutomatedContentEvaluationsFragment_AutomatedContentEvaluation_sentenceScores_SentenceScore> | null };
 
 type BansAdminPageFragment_Ban_user_User = (
   { __typename?: 'User' }
@@ -25094,7 +25094,7 @@ type SunshinePostsList_Post_contents_Revision = { __typename?: 'Revision', _id: 
 
 type SunshinePostsList_Post_automatedContentEvaluations_AutomatedContentEvaluation = (
   { __typename?: 'AutomatedContentEvaluation' }
-  & AutomatedContentEvaluations
+  & AutomatedContentEvaluationsFragment
 );
 
 type SunshinePostsList_Post_moderationGuidelines_Revision = { __typename?: 'Revision', _id: string, html: string | null };
