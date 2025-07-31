@@ -152,8 +152,6 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
     props: asyncProperties,
   });
 
-  backgroundTask(maybeCreateAutomatedContentEvaluation(documentWithId, context));
-
   return documentWithId;
 }
 
@@ -267,7 +265,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   }
 
   backgroundTask(logFieldChanges({ currentUser, collection: Posts, oldDocument, data: origData }));
-  backgroundTask(maybeCreateAutomatedContentEvaluation(updatedDocument, context));
+  backgroundTask(maybeCreateAutomatedContentEvaluation(updatedDocument, oldDocument, context));
 
   return updatedDocument;
 }

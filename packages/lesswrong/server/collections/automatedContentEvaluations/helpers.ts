@@ -235,6 +235,8 @@ async function rejectPostForLLM(post: DbPost, context: ResolverContext) {
 export async function createAutomatedContentEvaluation(revision: DbRevision, context: ResolverContext) {
   // we shouldn't be ending up running this on revisions where draft is true (which is for autosaves) but if we did we'd want to return early.
   if (revision.draft) return;
+  const documentId = revision.documentId;
+  if (!documentId) return
 
   const [validatedEvaluation, llmEvaluation] = await Promise.all([
     getSaplingEvaluation(revision).catch((err) => {
@@ -268,8 +270,6 @@ export async function createAutomatedContentEvaluation(revision: DbRevision, con
     aiCoT: llmEvaluation?.cot,
   });
   if (llmEvaluation?.decision === "review" && (validatedEvaluation?.score ?? 0) > .5) {
-    const documentId = revision.documentId;
-    if (!documentId) return
     if (revision.collectionName === "Posts") {
       const document = await context.loaders["Posts"].load(documentId);
       await rejectPostForLLM(document, context);

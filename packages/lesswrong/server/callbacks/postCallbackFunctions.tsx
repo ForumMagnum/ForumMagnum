@@ -1190,8 +1190,8 @@ export async function oldPostsLastCommentedAt(post: DbPost, context: ResolverCon
   await Posts.rawUpdateOne({ _id: post._id }, {$set: { lastCommentedAt: post.postedAt }})
 }
 
-export async function maybeCreateAutomatedContentEvaluation(post: DbPost, context: ResolverContext) {
-  const shouldEvaluate = isLW && !post.draft && !context.currentUser?.reviewedByUserId;
+export async function maybeCreateAutomatedContentEvaluation(post: DbPost, oldPost: DbPost, context: ResolverContext) {
+  const shouldEvaluate = isLW && !post.draft && oldPost.draft && !context.currentUser?.reviewedByUserId;
   if (shouldEvaluate) {
     const revision = await getLatestContentsRevision(post, context);
     if (revision) {
