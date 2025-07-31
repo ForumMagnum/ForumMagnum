@@ -16,7 +16,7 @@ import OverflowNavButtons from "./OverflowNavButtons";
 import SeeLessFeedback from "./SeeLessFeedback";
 import { useSeeLess } from "./useSeeLess";
 import { useCurrentUser } from "../common/withUser";
-import { userOwns } from "../../lib/vulcan-users/permissions";
+import { userIsAdmin, userOwns } from "../../lib/vulcan-users/permissions";
 import CommentsEditForm from "../comments/CommentsEditForm";
 
 
@@ -45,6 +45,9 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   rootWithAnimation: {
     backgroundColor: `${theme.palette.primary.main}3b`,
     transition: 'none',
+  },
+  moderatorComment: {
+    background: theme.palette.panelBackground.commentModeratorHat,
   },
   mainContent: {
     display: 'flex',
@@ -465,11 +468,15 @@ export const UltraFeedCommentItem = ({
     onChangeDisplayStatus('collapsed');
   };
 
+  const showModeratorCommentAnnotation = comment.moderatorHat && (!comment.hideModeratorHat || userIsAdmin(currentUser));
+
+
   return (
     <AnalyticsContext ultraFeedElementType="feedComment" commentId={comment._id} postId={comment.postId ?? undefined} ultraFeedSources={metaInfo.sources}>
     <div className={classNames(classes.root, {
       [classes.rootWithAnimation]: isHighlightAnimating,
       [classes.rootWithReadStyles]: isRead,
+      [classes.moderatorComment]: showModeratorCommentAnnotation,
     })}>
       <div className={classes.mainContent}>
         <div className={classes.verticalLineContainer}>

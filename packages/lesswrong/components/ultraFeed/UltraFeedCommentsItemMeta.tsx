@@ -107,7 +107,8 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     fontWeight: 600,
   },
   moderatorHat: {
-    marginLeft: 10,
+    marginRight: 24,
+    whiteSpace: "nowrap",
   },
   newContentDateStyling: {
   },
@@ -277,15 +278,8 @@ const UltraFeedCommentsItemMeta = ({
     return null;
   }
 
-  const moderatorCommentAnnotation = comment.hideModeratorHat
-    ? "Moderator Comment (Invisible)"
-    : "Moderator Comment";
-
-  const showModeratorCommentAnnotation = comment.moderatorHat && (
-    userIsAdmin(currentUser)
-      ? true
-      : !comment.hideModeratorHat
-  );
+  const moderatorCommentAnnotation = comment.hideModeratorHat ? "Moderator Comment (Invisible)" : "Moderator Comment";
+  const showModeratorCommentAnnotation = comment.moderatorHat && (!comment.hideModeratorHat || userIsAdmin(currentUser));
 
   const isNewContent = comment.postedAt && (new Date(comment.postedAt) > new Date(Date.now() - (7 * 24 * 60 * 60 * 1000)));
   const isTopLevelComment = !comment.parentCommentId;
