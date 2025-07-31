@@ -11699,6 +11699,7 @@ fragment UnclaimedReportsList on Report {
   post {
     ...PostsList
   }
+  reportedUserId
   reportedUser {
     ...SunshineUsersList
   }
