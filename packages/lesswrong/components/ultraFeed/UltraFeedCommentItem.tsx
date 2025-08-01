@@ -55,6 +55,12 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   compressedRoot: {
     display: 'flex',
     flexDirection: 'row',
+    paddingLeft: 20,
+    paddingRight: 16,
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 20,
+      paddingRight: 20,
+    },
   },
   commentContentWrapper: {
     maxWidth: '100%',
@@ -123,6 +129,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'center',
     marginRight: 6,
+    marginTop: 0,
     marginBottom: 0,
     [theme.breakpoints.down('sm')]: {
       display: 'none',
