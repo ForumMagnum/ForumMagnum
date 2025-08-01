@@ -99,7 +99,7 @@ export const useSeeLess = ({ documentId, collectionName, metaInfo }: UseSeeLessO
         documentId,
         collectionName,
         feedItemId: metaInfo?.servedEventId,
-                  event: {
+          event: {
             feedbackReasons: {
               author: false,
               topic: false,

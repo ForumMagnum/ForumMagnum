@@ -327,7 +327,7 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   },
   audioToggle: {
     opacity: 0.55,
-    display: 'none' //'flex', disable until working
+    display: 'flex',
   },
   bookmarkButton: {
     position: 'relative',
@@ -367,7 +367,6 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
 
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300;
-const MAX_LOAD_MORE_ATTEMPTS = 3;
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000;
 
 const COMMENTS_LIST_MULTI_QUERY = gql(`
@@ -451,24 +450,14 @@ const UltraFeedPostDialog = ({
   const postCommentsQuery = useQueryWithLoadMore(COMMENTS_LIST_MULTI_QUERY, {
     variables: {
       selector: { postCommentsTop: { postId: postId ?? post?._id } },
-      limit: 1000,
+      limit: 1500,
       enableTotal: true,
     },
     skip: !!topLevelCommentId || !(postId ?? post?._id),
     itemsPerPage: 500,
   });
 
-  const threadCommentsQuery = useQueryWithLoadMore(COMMENTS_LIST_MULTI_QUERY, {
-    variables: {
-      selector: { repliesToCommentThreadIncludingRoot: { topLevelCommentId: topLevelCommentId ?? '' } },
-      limit: 200,
-      enableTotal: true,
-    },
-    skip: !topLevelCommentId,
-    itemsPerPage: 100,
-  });
-  
-  const commentsQuery = topLevelCommentId ? threadCommentsQuery : postCommentsQuery;
+  const commentsQuery = postCommentsQuery;
   const {
     data: dataCommentsList,
     loading: isCommentsLoading,
@@ -838,13 +827,12 @@ const UltraFeedPostDialog = ({
                     </div>
                   </div>
 
-                  {/* TODO: Re-enable once works  */}
-                  {/* {fullPostForContent && (
+                  {fullPostForContent && (
                     <PostsAudioPlayerWrapper 
                       showEmbeddedPlayer={showEmbeddedPlayer} 
                       post={fullPostForContent}
                     />
-                  )} */}
+                  )}
 
                   {displayPost && !aboveLinkpostThreshold && (
                     <LinkPostMessage post={displayPost} />
