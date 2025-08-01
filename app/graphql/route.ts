@@ -21,8 +21,6 @@ const server = new ApolloServer<ResolverContext>({
 
 
 const handler = startServerAndCreateNextHandler<NextRequest, ResolverContext>(server, {
-  // IDK if that cast is actually safe/correct; I'm pretty sure the conditional type provided for `res` is wrong
-  // but :shrug:
   context: async (req) => {
     const context = await getContextFromReqAndRes({ req, isSSR: false });
     const isolationScope = getIsolationScope();
@@ -44,7 +42,9 @@ export function GET(request: NextRequest) {
     user_agent: request.headers.get('user-agent') ?? undefined,
   });
 
-  return asyncLocalStorage.run({ requestPerfMetric: perfMetric }, () => handler(request)).then(res => {
+  return asyncLocalStorage.run({ requestPerfMetric: perfMetric }, async () => {
+    const res = await handler(request);
+    
     setAsyncStoreValue('requestPerfMetric', (incompletePerfMetric) => {
       if (!incompletePerfMetric) {
         return;
@@ -85,7 +85,9 @@ export async function POST(request: NextRequest) {
     console.log(`Entering /graphql with traceId ${perfMetric.trace_id} and gql op ${(await clonedRequest.json())[0]?.operationName}`)
   }
 
-  return asyncLocalStorage.run({ requestPerfMetric: perfMetric, isSSRRequest }, () => handler(request)).then(res => {
+  return asyncLocalStorage.run({ requestPerfMetric: perfMetric, isSSRRequest }, async () => {
+    const res = await handler(request);
+
     setAsyncStoreValue('requestPerfMetric', (incompletePerfMetric) => {
       if (!incompletePerfMetric) {
         return;
