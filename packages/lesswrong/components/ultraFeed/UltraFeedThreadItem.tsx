@@ -384,7 +384,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
                     setExpanded={() => {
                       // Always expand max 3 comments at a time
                       item.hiddenComments.slice(0, 3).forEach(h => {
-                        setDisplayStatus(h._id, "fullyExpanded");
+                        setDisplayStatus(h._id, "expandedToMaxInPlace");
                       });
                     }}
                     isFirstComment={commentIndex === 0}

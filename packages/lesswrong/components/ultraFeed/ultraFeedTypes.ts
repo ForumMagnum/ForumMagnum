@@ -22,7 +22,7 @@ export type FeedItemRenderType = typeof feedItemRenderTypes[number];
 
 export type FeedItemType = FeedItemRenderType | "feedComment";
  
-export type FeedItemDisplayStatus = "expanded" | "collapsed" | "hidden" | "fullyExpanded";
+export type FeedItemDisplayStatus = "expanded" | "collapsed" | "hidden" | "expandedToMaxInPlace";
 export interface RecombeeMetaInfo {
   scenario: string;
   recommId: string;

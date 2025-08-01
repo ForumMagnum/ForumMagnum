@@ -476,7 +476,7 @@ export const UltraFeedCommentItem = ({
     let initialWordCount: number;
     
     // If this comment is fully expanded, show maximum content
-    if (displayStatus === "fullyExpanded") {
+    if (displayStatus === "expandedToMaxInPlace") {
       initialWordCount = displaySettings.commentMaxWords;
     } else if (displayStatus === "hidden") {
       initialWordCount = 10;
@@ -498,6 +498,18 @@ export const UltraFeedCommentItem = ({
   };
 
   const showModeratorCommentAnnotation = comment.moderatorHat && (!comment.hideModeratorHat || userIsAdmin(currentUser));
+
+  let initialWordCount
+  /* The first condition exists for when a read comment has been revealed by clicking on +N comments.
+  /* We then set it to expanded for convenience due to revealed interest
+  */
+  if (displayStatus === "expandedToMaxInPlace") {
+    initialWordCount = truncationParams.maxWordCount;
+  } else if (isRead) {
+    initialWordCount = readCommentsInitialWords;
+  } else {
+    initialWordCount = truncationParams.initialWordCount;
+  }
 
 
   return (
@@ -560,7 +572,7 @@ export const UltraFeedCommentItem = ({
               ) : (
                 <FeedContentBody
                   html={comment.contents?.html ?? ""}
-                  initialWordCount={isRead ? readCommentsInitialWords : truncationParams.initialWordCount}
+                  initialWordCount={initialWordCount}
                   maxWordCount={truncationParams.maxWordCount}
                   wordCount={comment.contents?.wordCount ?? 0}
                   nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
