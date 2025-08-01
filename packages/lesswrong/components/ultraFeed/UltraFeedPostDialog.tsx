@@ -453,7 +453,7 @@ const UltraFeedPostDialog = ({
       limit: 1500,
       enableTotal: true,
     },
-    skip: !!topLevelCommentId || !(postId ?? post?._id),
+    skip: !(postId ?? post?._id),
     itemsPerPage: 500,
   });
 
