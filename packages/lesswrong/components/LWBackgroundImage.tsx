@@ -6,6 +6,7 @@ import { defineStyles, useStyles } from './hooks/useStyles';
 import { Link } from '../lib/reactRouterWrapper';
 import ReviewVotingCanvas from "./review/ReviewVotingCanvas";
 import CloudinaryImage2 from "./common/CloudinaryImage2";
+import Inkhaven2025Banner from './seasonal/Inkhaven2025';
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
@@ -139,6 +140,8 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   if (getReviewPhase() === 'VOTING') homePageImage = <ReviewVotingCanvas />
   if (getReviewPhase() === 'RESULTS') homePageImage = reviewCompleteImage
 
+  return <Inkhaven2025Banner />
+  
   return <div className={classes.root}>
     {currentRoute?.name === 'home' ? homePageImage : defaultImage}
   </div>;
