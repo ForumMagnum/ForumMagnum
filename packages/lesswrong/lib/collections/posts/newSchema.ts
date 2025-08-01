@@ -75,6 +75,7 @@ import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from "graphql-tag";
 import { CommentsViews } from "../comments/views";
 import { commentIncludedInCounts } from "../comments/helpers";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 
 export const graphqlTypeDefs = gql`
   type SocialPreviewType {
@@ -3608,11 +3609,11 @@ const schema = {
             })),
           });
 
-          void context.repos.sideComments.saveSideCommentCache(
+          backgroundTask(context.repos.sideComments.saveSideCommentCache(
             post._id,
             sideCommentMatches.html,
             sideCommentMatches.sideCommentsByBlock
-          );
+          ));
 
           unfilteredResult = {
             annotatedHtml: sideCommentMatches.html,
@@ -4414,6 +4415,28 @@ const schema = {
         return await accessFilterMultiple(currentUser, "Comments", reviews, context);
       },
     },
+  },
+  automatedContentEvaluations: {
+    graphql: {
+      outputType: "AutomatedContentEvaluation",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (post, args, context) => {
+        if (!isLWorAF) return null;
+        const {AutomatedContentEvaluations, Revisions} =  context;
+        const revisionIds = (await Revisions.find({
+          documentId: post._id,
+          fieldName: "contents",
+        }, {
+          sort: { editedAt: -1 },
+        }, {_id: 1}).fetch()).map(r => r._id);
+
+        return AutomatedContentEvaluations.findOne({
+          revisionId: {$in:revisionIds},
+        }, {
+          sort: { createdAt: -1 },
+        })
+      }
+    }
   },
   currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,
   currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,

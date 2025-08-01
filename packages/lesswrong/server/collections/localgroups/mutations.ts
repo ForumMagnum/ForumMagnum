@@ -1,4 +1,3 @@
-
 import schema from "@/lib/collections/localgroups/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo } from "@/lib/vulcan-users/permissions";
@@ -6,6 +5,7 @@ import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfRefe
 import { createGroupNotifications, handleOrganizerUpdates, validateGroupIsOnlineOrHasLocation } from "@/server/callbacks/localgroupCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -111,7 +111,7 @@ export async function updateLocalgroup({ selector, data }: UpdateLocalgroupInput
     props: updateCallbackProperties,
   });
 
-  void logFieldChanges({ currentUser, collection: Localgroups, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: Localgroups, oldDocument, data: origData }));
 
   return updatedDocument;
 }

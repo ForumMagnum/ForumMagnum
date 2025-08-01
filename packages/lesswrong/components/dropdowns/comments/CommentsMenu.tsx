@@ -26,15 +26,19 @@ interface CommentsMenuComponentProps {
   post?: PostsMinimumInfo;
   tag?: TagBasicInfo | null;
   showEdit: () => void;
+  onSeeLess?: () => void;
+  isSeeLessMode?: boolean;
 }
 
-const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon, ActionsComponent}: {
+const CommentsMenu = ({classes, className, comment, post, tag, showEdit, onSeeLess, isSeeLessMode, icon, ActionsComponent}: {
   classes: ClassesType<typeof styles>,
   className?: string,
   comment: CommentsList,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
   showEdit: () => void,
+  onSeeLess?: () => void,
+  isSeeLessMode?: boolean,
   icon?: any,
   ActionsComponent?: React.ComponentType<CommentsMenuComponentProps>,
 }) => {
@@ -77,6 +81,8 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon, A
           post={post}
           tag={tag}
           showEdit={showEdit}
+          onSeeLess={onSeeLess}
+          isSeeLessMode={isSeeLessMode}
         />}
       </Menu>
     </>

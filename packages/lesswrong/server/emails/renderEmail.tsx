@@ -20,14 +20,14 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 import { createLWEvent } from '../collections/lwevents/mutations';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
-import { FMJssProvider } from '@/components/hooks/FMJssProvider';
 import { createStylesContext } from '@/components/hooks/useStyles';
 import { generateEmailStylesheet } from '../styleGeneration';
-import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
+import { FMJssProvider, ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
 import { ThemeOptions } from '@/themes/themeNames';
 import { EmailWrapper } from '../emailComponents/EmailWrapper';
 import CookiesProvider from '@/lib/vendor/react-cookie/CookiesProvider';
 import { utmifyForumBacklinks, UtmParam } from '../analytics/utm-tracking';
+import { backgroundTask } from '../utils/backgroundTask';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -159,7 +159,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   
   const themeOptions: ThemeOptions = {name: "default", siteThemeOverride: {}};
   const theme = getForumTheme(themeOptions);
-  const stylesContext = createStylesContext(theme);
+  const stylesContext = createStylesContext(theme, themeOptions);
   
   // Wrap the body in Apollo, JSS, and MUI wrappers.
   const wrappedBodyComponent = (
@@ -293,7 +293,7 @@ export const wrapAndSendEmail = async ({
   try {
     const email = await wrapAndRenderEmail({ user, to: destinationAddress, from, subject, body, utmParams });
     const succeeded = await sendEmail(email);
-    void logSentEmail(email, user, {succeeded});
+    backgroundTask(logSentEmail(email, user, {succeeded}));
     return succeeded;
   } catch(e) {
     // eslint-disable-next-line no-console

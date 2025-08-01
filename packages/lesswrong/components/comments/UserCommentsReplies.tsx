@@ -3,7 +3,7 @@ import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { getUserFromResults } from '../users/UsersProfile';
 import { slugify } from '@/lib/utils/slugify';
-import CommentsNodeInner from "./CommentsNode";
+import CommentsNode from "./CommentsNode";
 import LoadMore from "../common/LoadMore";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
@@ -82,7 +82,7 @@ const UserCommentsReplies = ({ classes }: { classes: ClassesType<typeof styles> 
       <div className={classes.root}>
         {results.map(comment =>
           <div key={comment._id}>
-            <CommentsNodeInner
+            <CommentsNode
               treeOptions={{
                 condensed: false,
                 post: comment.post || undefined,

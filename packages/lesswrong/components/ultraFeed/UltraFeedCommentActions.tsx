@@ -7,12 +7,16 @@ import NotifyMeToggleDropdownItem from "../dropdowns/NotifyMeToggleDropdownItem"
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import EditCommentDropdownItem from "../dropdowns/comments/EditCommentDropdownItem";
 import { useCurrentUserId } from "../common/withUser";
+import BookmarkDropdownItem from "../dropdowns/posts/BookmarkDropdownItem";
+import SeeLessDropdownItem from "../dropdowns/posts/SeeLessDropdownItem";
 
-const UltraFeedCommentActions = ({ comment, post, closeMenu, showEdit }: {
+const UltraFeedCommentActions = ({ comment, post, closeMenu, showEdit, onSeeLess, isSeeLessMode }: {
   comment: CommentsList,
   post?: PostsMinimumInfo,
   closeMenu?: () => void,
   showEdit: () => void,
+  onSeeLess?: () => void,
+  isSeeLessMode?: boolean,
 }) => {
   const currentUserId = useCurrentUserId();
   const url = comment.postId
@@ -30,6 +34,11 @@ const UltraFeedCommentActions = ({ comment, post, closeMenu, showEdit }: {
     closeMenu?.();
   }, [url, closeMenu]);
 
+  const handleSeeLess = useCallback(() => {
+    onSeeLess?.();
+    closeMenu?.();
+  }, [onSeeLess, closeMenu]);
+
   const isOwnComment = currentUserId && (comment.userId === currentUserId);
 
   return (
@@ -45,6 +54,8 @@ const UltraFeedCommentActions = ({ comment, post, closeMenu, showEdit }: {
         title="Subscribe to replies"
         subscriptionType="newReplies"
       />
+      {onSeeLess && <SeeLessDropdownItem onSeeLess={handleSeeLess} isSeeLessMode={isSeeLessMode} />}
+      <BookmarkDropdownItem documentId={comment._id} collectionName="Comments" />
       <DropdownItem
         title="Open in new tab"
         icon="ArrowRight"

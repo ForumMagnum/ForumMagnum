@@ -63,16 +63,62 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   root: {
     position: 'relative',
     paddingTop: 12,
-    paddingLeft: 16,
+    paddingLeft: 20,
     paddingRight: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
     background: theme.palette.panelBackground.bannerAdTranslucentHeavy,
     backdropFilter: theme.palette.filters.bannerAdBlurHeavy,
     borderRadius: 4,
+    display: 'flex',
+    flexDirection: 'row',
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: 16,
+      paddingLeft: 20,
+      paddingRight: 20,
+    },
+  },
+  rootWithReadStyles: {
+    [theme.breakpoints.down('sm')]: {
+      backgroundColor: theme.palette.grey[100],
+      borderTop: theme.palette.border.itemSeparatorBottom,
+      borderBottom: theme.palette.border.itemSeparatorBottom,
+      opacity: 0.9,
+    },
+  },
+  verticalLineContainer: {
+    width: 0,
+    display: 'flex',
+    justifyContent: 'center',
+    marginRight: 6,
+    marginTop: -12,
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
+  verticalLine: {
+    width: 0,
+    borderLeft: `4px solid ${theme.palette.grey[300]}ac`,
+    flex: 1,
+    marginLeft: -12,
+    marginTop: 12,
+    marginBottom: 12,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 12,
+      marginBottom: 12,
+    },
+  },
+  verticalLineHighlightedUnviewed: {
+    borderLeftColor: `${theme.palette.secondary.light}ec`,
+  },
+  verticalLineHighlightedViewed: {
+    borderLeftColor: `${theme.palette.secondary.light}5f`,
+    transition: 'border-left-color 0.5s ease-out',
   },
   mainContent: {
     display: 'flex',
     flexDirection: 'column',
+    flexGrow: 1,
+    minWidth: 0,
   },
   greyedOut: {
     opacity: 0.5,
@@ -115,7 +161,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
   titleContainer: {
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'baseline',
     flexGrow: 1,
     minWidth: 0,
     [theme.breakpoints.down('sm')]: {
@@ -138,7 +184,6 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     fontSize: '1.3rem',
     whiteSpace: 'normal',
     [theme.breakpoints.down('sm')]: {
-      fontSize: 20.5,
       width: '100%',
       flexGrow: 1,
       paddingRight: 8,
@@ -150,13 +195,16 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     '&:hover': {
       opacity: 0.9,
     },
+    [theme.breakpoints.down('sm')]: {
+      opacity: 0.7,
+    },
   },
   metaRow: {
     display: "flex",
     color: theme.palette.text.dim,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: theme.typography.body2.fontSize,
-    alignItems: 'center',
+    alignItems: 'baseline',
     flexShrink: 0,
     flexWrap: 'nowrap',
     columnGap: '8px',
@@ -164,7 +212,6 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
       flexWrap: "nowrap",
       alignItems: "baseline",
       rowGap: "6px",
-      fontSize: "1.3rem",
       flexShrink: 1,
       width: 'auto',
     },
@@ -267,6 +314,8 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
 }));
 
+type HighlightStateType = 'never-highlighted' | 'highlighted-unviewed' | 'highlighted-viewed';
+
 const sourceIconMap: Array<{ source: FeedItemSourceType, icon: any, tooltip: string }> = [
   { source: 'bookmarks' as FeedItemSourceType, icon: BookmarksIcon, tooltip: "From your bookmarks" },
   { source: 'subscriptionsPosts' as FeedItemSourceType, icon: SubscriptionsIcon, tooltip: "From users you follow" },
@@ -280,6 +329,7 @@ interface UltraFeedPostItemHeaderProps {
   handleOpenDialog: () => void;
   sources: FeedItemSourceType[];
   isSeeLessMode: boolean;
+  handleSeeLess: () => void;
 }
 
 const UltraFeedPostItemHeader = ({
@@ -287,6 +337,7 @@ const UltraFeedPostItemHeader = ({
   isRead,
   handleOpenDialog,
   sources,
+  handleSeeLess,
   isSeeLessMode,
 }: UltraFeedPostItemHeaderProps) => {
   const classes = useStyles(styles);
@@ -350,6 +401,9 @@ const UltraFeedPostItemHeader = ({
               post={post}
               vertical={true}
               autoPlace
+              includeBookmark
+              onSeeLess={handleSeeLess}
+              isSeeLessMode={isSeeLessMode}
               ActionsComponent={UltraFeedPostActions}
               className={classnames(classes.tripleDotMenu, { [classes.greyedOut]: isSeeLessMode })}
             />
@@ -374,7 +428,7 @@ const UltraFeedPostItem = ({
   settings?: UltraFeedSettingsType,
 }) => {
   const classes = useStyles(styles);
-  const { observe, trackExpansion } = useUltraFeedObserver();
+  const { observe, trackExpansion, hasBeenFadeViewed, subscribeToFadeView, unsubscribeFromFadeView } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { openDialog } = useDialog();
   const overflowNav = useOverflowNav(elementRef);
@@ -396,15 +450,36 @@ const UltraFeedPostItem = ({
   const [newComment, setNewComment] = useState<UltraFeedComment | null>(null);
   const [newCommentMetaInfo, setNewCommentMetaInfo] = useState<FeedCommentMetaInfo | null>(null);
   
+  const initialHighlightState = (postMetaInfo.highlight && !hasBeenFadeViewed(post._id)) ? 'highlighted-unviewed' : 'never-highlighted';
+  const [highlightState, setHighlightState] = useState<HighlightStateType>(initialHighlightState);
+
+  useEffect(() => {
+    const initialState: HighlightStateType = (postMetaInfo.highlight && !hasBeenFadeViewed(post._id)) ? 'highlighted-unviewed' : 'never-highlighted';
+    setHighlightState(initialState);
+
+    const handleFade = () => {
+      setHighlightState(prev => prev === 'highlighted-unviewed' ? 'highlighted-viewed' : prev);
+    };
+
+    if (initialState === 'highlighted-unviewed') {
+      subscribeToFadeView(post._id, handleFade);
+    }
+
+    return () => {
+      if (initialState === 'highlighted-unviewed') {
+        unsubscribeFromFadeView(post._id, handleFade);
+      }
+    };
+  }, [postMetaInfo.highlight, post._id, hasBeenFadeViewed, subscribeToFadeView, unsubscribeFromFadeView]);
+
   const {
     isSeeLessMode,
-    handleSeeLess,
-    handleUndoSeeLess,
+    handleSeeLessClick,
     handleFeedbackChange,
   } = useSeeLess({
     documentId: post._id,
-    documentType: 'post',
-    recommId: postMetaInfo.recommInfo?.recommId,
+    collectionName: 'Posts',
+    metaInfo: postMetaInfo,
   });
 
   const { data: localPostData, loading: loadingLocalPost } = useQuery(localPostQuery, {
@@ -591,7 +666,16 @@ const UltraFeedPostItem = ({
   return (
     <RecombeeRecommendationsContextWrapper postId={post._id} recommId={postMetaInfo.recommInfo?.recommId}>
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} feedCardIndex={index} ultraFeedSources={postMetaInfo.sources}>
-    <div className={classes.root}>
+    <div className={classnames(classes.root, { [classes.rootWithReadStyles]: isRead })}>
+      <div className={classes.verticalLineContainer}>
+        <div className={classnames(
+          classes.verticalLine,
+          {
+            [classes.verticalLineHighlightedUnviewed]: highlightState === 'highlighted-unviewed',
+            [classes.verticalLineHighlightedViewed]: highlightState === 'highlighted-viewed',
+          }
+        )} />
+      </div>
       <div ref={elementRef} className={classes.mainContent}>
         {/* On small screens, the triple dot menu is positioned absolutely to the root */}
         <div className={classes.mobileTripleDotWrapper}>
@@ -600,7 +684,10 @@ const UltraFeedPostItem = ({
               post={post}
               vertical={true}
               autoPlace
+              onSeeLess={handleSeeLessClick}
+              isSeeLessMode={isSeeLessMode}
               ActionsComponent={UltraFeedPostActions}
+              includeBookmark={true}
               className={classnames(classes.tripleDotMenu, { [classes.greyedOut]: isSeeLessMode })}
             />
           </AnalyticsContext>
@@ -613,12 +700,13 @@ const UltraFeedPostItem = ({
             handleOpenDialog={() => handleOpenDialog("title")}
             sources={postMetaInfo.sources}
             isSeeLessMode={isSeeLessMode}
+            handleSeeLess={handleSeeLessClick}
           />
         </div>
 
         {isSeeLessMode && (
           <SeeLessFeedback
-            onUndo={handleUndoSeeLess}
+            onUndo={handleSeeLessClick}
             onFeedbackChange={handleFeedbackChange}
           />
         )}
@@ -649,8 +737,6 @@ const UltraFeedPostItem = ({
           collectionName="Posts" 
           metaInfo={postMetaInfo} 
           className={classnames(classes.footer, { [classes.footerGreyedOut]: isSeeLessMode })}
-          onSeeLess={isSeeLessMode ? handleUndoSeeLess : handleSeeLess}
-          isSeeLessMode={isSeeLessMode}
           replyConfig={replyConfig}
         />
         

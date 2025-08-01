@@ -13,6 +13,8 @@ import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder'
 import { CkEditorPortalContext } from './CKEditorPortalProvider';
 import { useDialog } from '../common/withDialog';
 import { claimsConfig } from './claims/claimsConfig';
+import { useStyles } from '../hooks/useStyles';
+import { ckEditorPluginStyles } from './ckEditorStyles';
 
 // Uncomment the import and the line below to activate the debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -60,6 +62,7 @@ const CKCommentEditor = ({
   onReady: (editor: Editor) => void,
   placeholder?: string,
 }) => {
+  const classes = useStyles(ckEditorPluginStyles);
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
   const ckEditorCloudConfigured = !!webSocketUrl;
   const CommentEditor = getCkCommentEditor();
@@ -97,7 +100,7 @@ const CKCommentEditor = ({
 
   useSyncCkEditorPlaceholder(editorObject, actualPlaceholder);
 
-  return <div>
+  return <div className={classes.ckWrapper}>
     <CKEditor
       editor={CommentEditor}
       onReady={(editor: Editor) => {

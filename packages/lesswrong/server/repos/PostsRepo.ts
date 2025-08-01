@@ -1196,11 +1196,12 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       limit
     });
 
-    const filteredPosts = await accessFilterMultiple(currentUser, 'Posts', feedPostsData, context);
+    // Preserve meta fields (isFromSubscribedUser, initialFilteredScore) before running access filtering, because accessFilterMultiple strips any keys not present in the schema.
+    const metaById = new Map(feedPostsData.map(p => [p._id!, { isFromSubscribedUser: p.isFromSubscribedUser, }]));
+    const filteredPosts: Partial<DbPost>[] = await accessFilterMultiple(currentUser, 'Posts', feedPostsData, context);
 
     return filteredPosts.map((post): FeedFullPost => {
-      const { isFromSubscribedUser, initialFilteredScore, ...postData } = post;
-      
+      const isFromSubscribedUser = metaById.get(post._id!)?.isFromSubscribedUser ?? false;
       // Determine sources - all posts are "latest" (hacker-news) and posts from subscribed users also get "subscriptionsPosts"
       const sources: FeedItemSourceType[] = ['hacker-news'];
       if (isFromSubscribedUser) {
@@ -1208,10 +1209,11 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       }
       
       return {
-        post: postData,
+        post,
         postMetaInfo: {
           sources,
           displayStatus: 'expanded',
+          highlight: true, // All posts from this query are unviewed, so highlight them all
         },
       };
     });

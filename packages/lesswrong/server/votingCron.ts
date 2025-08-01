@@ -1,6 +1,7 @@
 import { batchUpdateScore } from './updateScores';
 import { getVoteableCollections } from '@/server/collections/allCollections';
 import { addCronJob } from './cron/cronUtil';
+import { backgroundTask } from './utils/backgroundTask';
 
 // Setting voting.scoreUpdateInterval removed and replaced with a hard-coded
 // interval because the time-parsing library we use can't handle numbers of
@@ -14,7 +15,7 @@ export const updateScoreActiveDocumentsCron = addCronJob({
     getVoteableCollections().forEach(collection => {
       const options = collection.options.voteable!;
       if (options.timeDecayScoresCronjob) {
-        void batchUpdateScore({collection});
+        backgroundTask(batchUpdateScore({collection}));
       }
     });
   }
@@ -26,7 +27,7 @@ export const updateScoreInactiveDocumentsCron = addCronJob({
     getVoteableCollections().forEach(collection => {
       const options = collection.options.voteable!;
       if (options.timeDecayScoresCronjob) {
-        void batchUpdateScore({collection, inactive: true});
+        backgroundTask(batchUpdateScore({collection, inactive: true}));
       }
     });
   }

@@ -17,7 +17,7 @@ import { useRecentDiscussionThread } from './useRecentDiscussionThread';
 import { useRecentDiscussionViewTracking } from './useRecentDiscussionViewTracking';
 import PostsGroupDetails from "../posts/PostsGroupDetails";
 import PostsItemMeta from "../posts/PostsItemMeta";
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 import PostsHighlight from "../posts/PostsHighlight";
 import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 
@@ -245,7 +245,7 @@ const RecentDiscussionThread = ({
         <div className={classes.commentsList}>
           {!!nestedComments.length && nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
             <div key={comment.item._id}>
-              <CommentsNodeInner
+              <CommentsNode
                 treeOptions={treeOptions}
                 startThreadTruncated={true}
                 expandAllThreads={expandAllThreads}

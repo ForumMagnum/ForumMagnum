@@ -22,7 +22,7 @@ export type FeedItemRenderType = typeof feedItemRenderTypes[number];
 
 export type FeedItemType = FeedItemRenderType | "feedComment";
  
-export type FeedItemDisplayStatus = "expanded" | "collapsed" | "hidden";
+export type FeedItemDisplayStatus = "expanded" | "collapsed" | "hidden" | "expandedToMaxInPlace";
 export interface RecombeeMetaInfo {
   scenario: string;
   recommId: string;
@@ -34,6 +34,7 @@ export interface FeedPostMetaInfo {
   lastServed?: Date | null;
   lastViewed?: Date | null;
   lastInteracted?: Date | null;
+  highlight: boolean;
   displayStatus: FeedItemDisplayStatus;
   servedEventId?: string;
 }
@@ -49,6 +50,11 @@ export interface FeedCommentMetaInfo {
   highlight?: boolean;
   displayStatus?: FeedItemDisplayStatus;
   servedEventId?: string;
+}
+
+export interface FeedSpotlightMetaInfo {
+  sources: FeedItemSourceType[];
+  servedEventId: string;
 }
 
 export interface FeedCommentFromDb {
@@ -118,6 +124,7 @@ export interface FeedSpotlightResolverType {
   _id: string;
   spotlight: DbSpotlight;
   post?: DbPost;
+  spotlightMetaInfo: FeedSpotlightMetaInfo;
 }
 
 export type FeedItemResolverType = FeedPostResolverType | FeedCommentsThreadResolverType | FeedSpotlightResolverType;

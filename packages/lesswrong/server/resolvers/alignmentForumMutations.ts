@@ -4,6 +4,7 @@ import { userCanMakeAlignmentPost } from '../../lib/alignment-forum/users/helper
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { moveToAFUpdatesUserAFKarma, postsMoveToAFAddsAlignmentVoting } from '../callbacks/alignment-forum/callbacks';
 import { commentsAlignmentEdit, recalculateAFCommentMetadata } from '../callbacks/commentCallbackFunctions';
+import { backgroundTask } from "../utils/backgroundTask";
 
 export const alignmentForumMutations = {
   async alignmentComment(root: void, {commentId, af}: {commentId: string, af: boolean}, context: ResolverContext) {
@@ -31,7 +32,7 @@ export const alignmentForumMutations = {
       await context.Posts.rawUpdateOne({_id: postId}, modifier);
       const updatedPost = (await context.Posts.findOne(postId))!
       await moveToAFUpdatesUserAFKarma(updatedPost, post);
-      void postsMoveToAFAddsAlignmentVoting(updatedPost, post);
+      backgroundTask(postsMoveToAFAddsAlignmentVoting(updatedPost, post));
       return await accessFilterSingle(context.currentUser, 'Posts', updatedPost, context);
     } else {
       throw new Error(`app.user_cannot_edit_post_alignment_forum_status`);

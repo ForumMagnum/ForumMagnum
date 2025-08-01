@@ -6,6 +6,7 @@ import UsersRepo from './repos/UsersRepo';
 import Users from '@/server/collections/users/collection';
 import { isEAForum } from '../lib/instanceSettings';
 import { EmailInactiveUserSurvey } from './emailComponents/EmailInactiveUserSurvey';
+import { backgroundTask } from './utils/backgroundTask';
 
 /**
  * Sends emails to inactive users with a link to a feedback survey
@@ -26,12 +27,12 @@ export const sendInactiveUserSurveyEmails = async () => {
   const now = new Date()
   for (let user of users) {
     try {
-      void wrapAndSendEmail({
+      backgroundTask(wrapAndSendEmail({
         user,
         from: 'EA Forum Team <eaforum@centreforeffectivealtruism.org>',
         subject: `Help us improve the site`,
         body: <EmailInactiveUserSurvey user={user} />,
-      })
+      }))
       await Users.rawUpdateOne(
         {_id: user._id},
         {$set: {inactiveSurveyEmailSentAt: now}}
@@ -49,7 +50,7 @@ export const sendInactiveUserSurveyEmailsCron = addCronJob({
   interval: `every 1 day`,
   disabled: !isEAForum,
   job() {
-    void sendInactiveUserSurveyEmails();
+    backgroundTask(sendInactiveUserSurveyEmails());
   }
 });
 

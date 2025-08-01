@@ -1,14 +1,16 @@
-import React, { useState, useMemo, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useMemo, useEffect, useLayoutEffect, useContext } from 'react';
 import { getForumTheme } from '../../themes/forumTheme';
 import { AbstractThemeOptions, abstractThemeToConcrete } from '../../themes/themeNames';
-import { usePrefersDarkMode } from './usePrefersDarkMode';
 import moment from 'moment';
 import { isEAForum } from '../../lib/instanceSettings';
 import { THEME_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import stringify from 'json-stringify-deterministic';
-import { FMJssProvider } from '../hooks/FMJssProvider';
-import { ThemeContext, useThemeOptions } from './useTheme';
+import { ThemeContext, useTheme, useThemeOptions } from './useTheme';
+import { isClient, isServer } from '@/lib/executionEnvironment';
+import { useTracking } from '@/lib/analyticsEvents';
+import { createStylesContext, regeneratePageStyles, serverEmbeddedStyles, setClientMountedStyles, StylesContext, type StylesContextType } from '../hooks/useStyles';
+import { useServerInsertedHtml } from '../hooks/useServerInsertedHtml';
 
 export const ThemeContextProvider = ({options, isEmail, children}: {
   options: AbstractThemeOptions,
@@ -33,55 +35,82 @@ export const ThemeContextProvider = ({options, isEmail, children}: {
     }
   }, [themeOptions, themeCookie, setCookie, removeCookie]);
   
-  const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode);
+  const concreteThemeOptions = abstractThemeToConcrete(themeOptions, prefersDarkMode);
 
   const theme: any = useMemo(() =>
-    getForumTheme(concreteTheme),
-    [concreteTheme]
+    getForumTheme(concreteThemeOptions),
+    [concreteThemeOptions]
   );
   const themeContext = useMemo(() => (
-    {theme, themeOptions, setThemeOptions}),
-    [theme, themeOptions, setThemeOptions]
+    {theme, abstractThemeOptions: themeOptions, concreteThemeOptions, setThemeOptions}),
+    [theme, themeOptions, concreteThemeOptions, setThemeOptions]
   );
   
+  const [stylesContext] = useState(() => createStylesContext(theme, themeOptions));
+  
   return <ThemeContext.Provider value={themeContext}>
-    <FMJssProvider>
-      {!isEmail && <ThemeStylesheetSwapper/>}
+    <FMJssProvider stylesContext={stylesContext}>
+      {isClient && <ThemeStylesheetSwapper/>}
+      {isServer && !isEmail && <StyleHTMLInjector/>}
       {children}
     </FMJssProvider>
   </ThemeContext.Provider>
 }
 
-const ThemeStylesheetSwapper = () => {
+export const AutoDarkModeWrapper = ({children}: {
+  children: React.ReactNode
+}) => {
   const themeOptions = useThemeOptions();
-  const prefersDarkMode = usePrefersDarkMode();
-  const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode);
+  if (themeOptions.name === "auto") {
+    return <div>{children}</div>
+  } else if (themeOptions.name === "dark") {
+    return <div style={{colorScheme: "only light"}}>{children}</div>
+  } else if (themeOptions.name === "default") {
+    return <div style={{colorScheme: "only dark"}}>{children}</div>
+  }
+}
+
+export const FMJssProvider = ({stylesContext, children}: {
+  stylesContext: StylesContextType
+  children: React.ReactNode
+}) => {
+  if (isClient) {
+    setClientMountedStyles(stylesContext);
+  }
+  
+  return <StylesContext.Provider value={stylesContext}>
+    {children}
+  </StylesContext.Provider>
+}
+
+
+const ThemeStylesheetSwapper = () => {
+  const themeContext = useContext(ThemeContext)!;
+  const stylesContext = useContext(StylesContext)!;
+  const abstractThemeOptions = themeContext!.abstractThemeOptions;
 
   useLayoutEffect(() => {
-    if (stringify(themeOptions) !== stringify(window.themeOptions)) {
-      window.themeOptions = themeOptions;
-      const stylesId = "main-styles";
-      const tempStylesId = stylesId + "-temp";
-      const oldStyles = document.getElementById(stylesId);
-      if (oldStyles) {
-        oldStyles.setAttribute("id", tempStylesId);
-        const onFinish = (error?: string | Event) => {
-          if (error) {
-            // eslint-disable-next-line no-console
-            console.error("Failed to load stylesheet for theme:", themeOptions, "Error:", error);
-          } else {
-            oldStyles.parentElement!.removeChild(oldStyles);
-          }
-        }
-
-        if (themeOptions.name === "auto") {
-          addAutoStylesheet(stylesId, onFinish, concreteTheme.siteThemeOverride);
-        } else {
-          addStylesheet(makeStylesheetUrl(concreteTheme), stylesId, onFinish);
-        }
-      }
+    if (stringify(abstractThemeOptions) !== stringify(window.themeOptions)) {
+      window.themeOptions = abstractThemeOptions;
+      regeneratePageStyles(themeContext, stylesContext);
     }
-  }, [themeOptions, concreteTheme]);
+  }, [abstractThemeOptions, themeContext, stylesContext]);
+  
+  return null;
+}
+
+const StyleHTMLInjector = () => {
+  const stylesContext = useContext(StylesContext)!;
+  const themeContext = useContext(ThemeContext)!;
+  
+  useServerInsertedHtml(() => {
+    if (stylesContext.stylesAwaitingServerInjection.length > 0) {
+      const injectedStyles = serverEmbeddedStyles(themeContext.abstractThemeOptions, stylesContext.stylesAwaitingServerInjection)
+      stylesContext.stylesAwaitingServerInjection = [];
+      return injectedStyles;
+    }
+    return null;
+  });
   
   return null;
 }
@@ -124,4 +153,43 @@ const addAutoStylesheet = (id: string, onFinish: OnFinish, siteThemeOverride?: S
   }
   styleNode.onerror = onFinish;
   document.head.appendChild(styleNode);
+}
+
+
+
+const buildPrefersDarkModeQuery = () =>
+  isClient && "matchMedia" in window
+    ? window.matchMedia("(prefers-color-scheme: dark)")
+    : {
+      matches: false,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    };
+
+export const usePrefersDarkMode = () => {
+  const [query] = useState(() => buildPrefersDarkModeQuery());
+  const [prefersDarkMode, setPrefersDarkMode] = useState(query.matches);
+  const { captureEvent } = useTracking();
+
+  useEffect(() => {
+    const handler = ({matches}: MediaQueryListEvent) => {
+      setPrefersDarkMode(matches);
+      captureEvent("prefersDarkModeChange", {
+        prefersDarkMode: matches,
+      });
+    }
+    // Check that query.addEventListener exists before using it, because on
+    // some browsers (older iOS Safari) it doesn't.
+    if (query.addEventListener) {
+      query.addEventListener("change", handler);
+      return () => query.removeEventListener("change", handler);
+    }
+  }, [query, captureEvent]);
+  
+  return prefersDarkMode;
+}
+
+export const devicePrefersDarkMode = () => {
+  const query = buildPrefersDarkModeQuery();
+  return query?.matches ?? false;
 }

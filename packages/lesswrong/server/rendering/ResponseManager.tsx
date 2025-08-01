@@ -3,6 +3,7 @@ import type { Request, Response } from 'express';
 import { Writable } from 'node:stream';
 import { renderToPipeableStream } from 'react-dom/server';
 import { toEmbeddableJson } from '@/lib/utils/jsonUtils';
+import { createServerInsertedHtmlContext, type ServerInsertedHtml, ServerInsertedHtmlContext } from '@/components/hooks/useServerInsertedHtml';
 
 const debugStreamTiming = false;
 
@@ -102,14 +103,20 @@ export class ResponseManager {
       this._errorTooLate(`Response was aborted`);
       return "";
     }
+    
+    const serverInsertedHtmlContext = createServerInsertedHtmlContext();
+    const WrappedBody = <ServerInsertedHtmlContext.Provider value={serverInsertedHtmlContext}>
+      {Body}
+    </ServerInsertedHtmlContext.Provider>
 
     const bodyStream = this.body = new ResponseForwarderStream({
       res: this.res,
       corked: true,
-      startTimeMs: this.startTimeMs
+      startTimeMs: this.startTimeMs,
+      serverInsertedHtmlProvider: serverInsertedHtmlContext,
     });
     await new Promise<void>((resolve) => {
-      const reactPipe = renderToPipeableStream(Body, {
+      const reactPipe = renderToPipeableStream(WrappedBody, {
         onAllReady: () => {
           this.bodyFinished = true;
           resolve();
@@ -274,49 +281,81 @@ export class ResponseManager {
 export class ResponseForwarderStream extends Writable {
   private res: Response
   private corked: boolean;
-  private _data: string[] = [];
+  private pendingData: string[] = [];
+  private pendingServerInsertedHtml: string[] = [];
+  private allChunks: string[] = [];
   private startTimeMs: number
+  private serverInsertedHtmlProvider: ServerInsertedHtml
 
-  constructor({res, corked, startTimeMs}: {
+  constructor({res, corked, startTimeMs, serverInsertedHtmlProvider}: {
     res: Response,
     corked: boolean
     startTimeMs: number
+    serverInsertedHtmlProvider: ServerInsertedHtml
   }) {
     super();
     this.res = res;
     this.corked = corked;
     this.startTimeMs = startTimeMs;
+    this.serverInsertedHtmlProvider = serverInsertedHtmlProvider;
   }
 
   _write(chunk: any, _encoding: string, callback: (error?: Error|null) => void) {
-    if (!this.corked) {
-      if (debugStreamTiming) {
-        // If debugStreamTiming is turned on, look for a place to insert a
-        // comment indicating how much time has passed since the start of the
-        // request. Specifically, if there's a </script> close tag in this
-        // block, put it just after there. This is a safe place because it
-        // can't be inside JSON or text (it would be escaped if it was), and
-        // these are also the places where previously-sent HTML gets moved
-        // into the DOM and used.
-        const chunkStr = new String(chunk);
-        let endScriptIndex = chunkStr.lastIndexOf("</script>");
-        if (endScriptIndex >= 0) {
-          this.res.write(
-            chunkStr.substring(0, endScriptIndex)
-            + `<!-- ${new Date().getTime() - this.startTimeMs}ms -->`
-            + chunkStr.substring(endScriptIndex)
-          );
-        } else {
-          this.res.write(chunk);
+    this.pendingData.push(chunk);
+    if (this.serverInsertedHtmlProvider.callbacks.length > 0) {
+      for (const callback of this.serverInsertedHtmlProvider.callbacks) {
+        const insertedHtml = callback();
+        if (insertedHtml) {
+          this.pendingServerInsertedHtml.push(insertedHtml);
         }
-        // eslint-disable-next-line no-console
-        console.log(`Wrote ${chunkStr.length}b`);
-      } else {
-        this.res.write(chunk);
       }
     }
-    this._data.push(chunk);
+    
+    this.waitForInsertionPointAndFlush();
+
     callback();
+  }
+  
+  waitForInsertionPointAndFlush() {
+    // When injecting into a response stream, we need to find a safe place to
+    // perform the injection; if we insert at any arbitrary block boundary,
+    // we could be in the middle of an HTML tag, or a React Suspense script,
+    // etc. The rule for when it' safe to inject, apparently, is that React
+    // can write blocks that aren't safe to inject in between, but only
+    // synchronously, ie, it will never yield to the nodejs event loop in
+    // between two writes if injection in between those writes is unsafe. This
+    // behavior is not documented, but nextjs relied on it and then all the
+    // other libraries that do content injection reverse-engineered the nextjs
+    // implementation and copied this property.
+    //
+    // See:
+    //   https://github.com/brillout/react-streaming/tree/main/src
+    //   https://github.com/apollographql/apollo-client-integrations/issues/325#issuecomment-2205375796
+    if (this.pendingServerInsertedHtml.length > 0) {
+      setImmediate(() => this.flush());
+    } else {
+      this.flush();
+    }
+  }
+  
+  flush() {
+    const newChunks = [...this.pendingServerInsertedHtml, ...this.pendingData];
+    this.pendingData = [];
+    this.pendingServerInsertedHtml = [];
+    this.allChunks.push(...newChunks);
+    
+    if (!this.corked) {
+      if (debugStreamTiming) {
+        this.res.write(`<!-- ${new Date().getTime() - this.startTimeMs}ms -->`);
+        for (const newChunk of newChunks) {
+          // eslint-disable-next-line no-console
+          console.log(`Wrote ${newChunk.length}b`);
+        }
+      }
+      for (const newChunk of newChunks) {
+        this.res.write(newChunk);
+      }
+    }
   }
   
   uncork() {
@@ -325,14 +364,14 @@ export class ResponseForwarderStream extends Writable {
       if (debugStreamTiming) {
         this.res.write(`<!-- ${new Date().getTime() - this.startTimeMs}ms -->`);
       }
-      for (const chunk of this._data) {
+      for (const chunk of this.allChunks) {
         this.res.write(chunk);
       }
     }
   }
 
   public getString(): string {
-    return this._data.join('');
+    return this.allChunks.join('');
   }
 }
 

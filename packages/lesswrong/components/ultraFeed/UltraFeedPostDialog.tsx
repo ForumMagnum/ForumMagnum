@@ -48,6 +48,7 @@ import PostsPageQuestionContent from "../questions/PostsPageQuestionContent";
 import { useSubscribedLocation } from "@/lib/routeUtil";
 import { randomId } from '@/lib/random';
 import { RecombeeRecommendationsContextWrapper } from '../recommendations/RecombeeRecommendationsContextWrapper';
+import { Helmet } from '../common/Helmet';
 import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
 import AttributionInViewTracker from "../common/AttributionInViewTracker";
 
@@ -85,9 +86,6 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   },
   titleContainer: {
     marginTop: 24,
-    [theme.breakpoints.down('sm')]: {
-      marginTop: 0,
-    }
   },
   headerContent: {
     display: 'flex',
@@ -369,7 +367,6 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
 
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300;
-const MAX_LOAD_MORE_ATTEMPTS = 3;
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000;
 
 const COMMENTS_LIST_MULTI_QUERY = gql(`
@@ -453,24 +450,14 @@ const UltraFeedPostDialog = ({
   const postCommentsQuery = useQueryWithLoadMore(COMMENTS_LIST_MULTI_QUERY, {
     variables: {
       selector: { postCommentsTop: { postId: postId ?? post?._id } },
-      limit: 1000,
+      limit: 1500,
       enableTotal: true,
     },
     skip: !!topLevelCommentId || !(postId ?? post?._id),
     itemsPerPage: 500,
   });
 
-  const threadCommentsQuery = useQueryWithLoadMore(COMMENTS_LIST_MULTI_QUERY, {
-    variables: {
-      selector: { repliesToCommentThreadIncludingRoot: { topLevelCommentId: topLevelCommentId ?? '' } },
-      limit: 200,
-      enableTotal: true,
-    },
-    skip: !topLevelCommentId,
-    itemsPerPage: 100,
-  });
-  
-  const commentsQuery = topLevelCommentId ? threadCommentsQuery : postCommentsQuery;
+  const commentsQuery = postCommentsQuery;
   const {
     data: dataCommentsList,
     loading: isCommentsLoading,
@@ -715,10 +702,16 @@ const UltraFeedPostDialog = ({
       className={classes.modalWrapper}
     >
       <RecombeeRecommendationsContextWrapper postId={postId} recommId={recommId}>
-      <AnalyticsContext pageModalContext="ultraFeedPostModal" postId={postId}>
-        <DialogContent className={classes.dialogContent}>
-          <div ref={dialogInnerRef} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-            {/* Header */}
+        <AnalyticsContext pageModalContext="ultraFeedPostModal" postId={postId}>
+          <DialogContent className={classes.dialogContent}>
+            {/* Canonical URL changed to enable audio player to work */}
+            {postUrl && (
+              <Helmet name="ultraFeedPostDialogCanonical">
+                <link rel="canonical" href={postUrl} />
+              </Helmet>
+            )}
+            <div ref={dialogInnerRef} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+              {/* Header */}
             <div className={classes.stickyHeader}>
               <ForumIcon 
                 icon="Close"

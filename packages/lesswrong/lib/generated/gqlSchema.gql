@@ -1404,6 +1404,7 @@ type FeedSpotlightItem {
   _id: String!
   spotlight: Spotlight
   post: Post
+  spotlightMetaInfo: JSON
 }
 
 type UltraFeedQueryResults {
@@ -1546,11 +1547,11 @@ type AutomatedContentEvaluation {
   _id: String!
   createdAt: Date!
   revisionId: String!
-  score: Float!
-  sentenceScores: [SentenceScore!]!
-  aiChoice: String!
-  aiReasoning: String!
-  aiCoT: String!
+  score: Float
+  sentenceScores: [SentenceScore!]
+  aiChoice: String
+  aiReasoning: String
+  aiCoT: String
 }
 
 type SentenceScore {
@@ -4584,6 +4585,7 @@ type Post {
   generateDraftJargon: Boolean
   curationNotices: [CurationNotice!]
   reviews: [Comment!]
+  automatedContentEvaluations: AutomatedContentEvaluation
   currentUserVote: String
   currentUserExtendedVote: JSON
   voteCount: Float!
@@ -6473,7 +6475,6 @@ type Revision {
   post: Post
   lens: MultiDocument
   summary: MultiDocument
-  automatedContentEvaluations: AutomatedContentEvaluation
   currentUserVote: String
   currentUserExtendedVote: JSON
   voteCount: Float!

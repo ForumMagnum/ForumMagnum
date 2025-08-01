@@ -29,6 +29,7 @@ export const FeedSpotlightFragment = gql(`
     post {
       ...PostsListWithVotes
     }
+    spotlightMetaInfo
   }
 `)
 

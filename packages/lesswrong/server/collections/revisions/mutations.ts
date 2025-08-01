@@ -16,6 +16,7 @@ import { z } from "zod"; // Add this import for Zod
 import { getOpenAI } from "@/server/languageModels/languageModelIntegration";
 import { assertPollsAllowed, upsertPolls } from "@/server/callbacks/forumEventCallbacks";
 import { captureException } from "@sentry/core";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 
 function editCheck(user: DbUser | null) {
   return userIsAdminOrMod(user);
@@ -56,7 +57,7 @@ export async function createRevision({ data }: { data: Partial<DbInsertion<DbRev
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('Revisions', documentWithId);
 
   if (isLW && documentWithId.collectionName === "Posts" && documentWithId.fieldName === "contents") {
-    void createAutomatedContentEvaluation(documentWithId, context);
+    backgroundTask(createAutomatedContentEvaluation(documentWithId, context));
   }
 
   return documentWithId;
@@ -83,10 +84,10 @@ export async function updateRevision({ selector, data }: UpdateRevisionInput, co
 
   await recomputeWhenSkipAttributionChanged(updateCallbackProperties);
 
-  void logFieldChanges({ currentUser, collection: Revisions, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: Revisions, oldDocument, data: origData }));
 
   if (!updatedDocument.draft && isLW && updatedDocument.collectionName === "Posts" && updatedDocument.fieldName === "contents") {
-    void createAutomatedContentEvaluation(updatedDocument, context);
+    backgroundTask(createAutomatedContentEvaluation(updatedDocument, context));
   }
 
   return updatedDocument;
@@ -299,34 +300,41 @@ ${output_text}`,
 };
 
 async function createAutomatedContentEvaluation(revision: DbRevision, context: ResolverContext) {
-  try {
-    const [validatedEvaluation, llmEvaluation] = await Promise.all([
-      getSaplingEvaluation(revision),
-      getLlmEvaluation(revision, context),
-    ]);
+  // we shouldn't be ending up running this on revisions where draft is true (which is for autosaves)
+  // but if we did we'd want to return early.
+  if (revision.draft) return;
 
-    // FIXME: If one of these two evaluations failed, we should still keep the
-    // other one rather than return before saving it here
-    if (!validatedEvaluation || !llmEvaluation) {
+  const [validatedEvaluation, llmEvaluation] = await Promise.all([
+    getSaplingEvaluation(revision).catch((err) => {
       // eslint-disable-next-line no-console
-      console.error("No evaluation returned");
-      return;
-    }
-  
-    await AutomatedContentEvaluations.rawInsert({
-      createdAt: new Date(),
-      revisionId: revision._id,
-      score: validatedEvaluation.score,
-      sentenceScores: validatedEvaluation.sentence_scores,
-      aiChoice: llmEvaluation.decision,
-      aiReasoning: llmEvaluation.reasoning,
-      aiCoT: llmEvaluation.cot,
-    });
-  } catch(e) {
+      console.error("Sapling evaluation failed: ", err);
+      captureException(err);
+      return null;
+    }),
+    getLlmEvaluation(revision, context).catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error("LLM evaluation failed: ", err);
+      captureException(err);
+      return null;
+    }),
+  ]);
+
+  if (!validatedEvaluation && !llmEvaluation) {
     // eslint-disable-next-line no-console
-    console.error("Automated content evaluation failed: ", e);
-    captureException(e);
+    console.error("No evaluation returned");
+    return;
   }
+
+  await AutomatedContentEvaluations.rawInsert({
+    createdAt: new Date(),
+    documentId: revision.documentId,
+    revisionId: revision._id,
+    score: validatedEvaluation?.score,
+    sentenceScores: validatedEvaluation?.sentence_scores,
+    aiChoice: llmEvaluation?.decision,
+    aiReasoning: llmEvaluation?.reasoning,
+    aiCoT: llmEvaluation?.cot,
+  });
 }
 
 export const graphqlRevisionTypeDefs = gql`
