@@ -474,7 +474,11 @@ export const UltraFeedCommentItem = ({
     const { displaySettings } = settings;
     
     let initialWordCount: number;
-    if (displayStatus === "hidden") {
+    
+    // If this comment is fully expanded, show maximum content
+    if (displayStatus === "fullyExpanded") {
+      initialWordCount = displaySettings.commentMaxWords;
+    } else if (displayStatus === "hidden") {
       initialWordCount = 10;
     } else if (displayStatus === "collapsed") {
       initialWordCount = displaySettings.commentCollapsedInitialWords;
