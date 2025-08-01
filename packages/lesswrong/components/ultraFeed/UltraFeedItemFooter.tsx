@@ -69,7 +69,6 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   commentCount: {
     position: 'relative',
     bottom: 1,
-    // padding: 2,
     color: `${theme.palette.ultraFeed.dim} !important`,
     display: "inline-flex",
     alignItems: "center",
@@ -318,9 +317,8 @@ const UltraFeedItemFooterCore = ({
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
-  const { openDialog } = useDialog();
-  
-  const { isReplying, onReplyClick, onReplySubmit, onReplyCancel } = replyConfig;
+
+  const { isReplying, onReplyClick, onReplyCancel } = replyConfig;
 
   const [createUltraFeedEvent] = useMutation(UltraFeedEventsDefaultFragmentMutation);
 

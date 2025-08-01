@@ -48,12 +48,10 @@ const pillLabels: Record<PillType, string> = {
 const UltraFeedMetaInfoPill = ({
   type,
   readStyles,
-  hideOnDesktop = false,
   className,
 }: {
   type: PillType;
   readStyles?: boolean;
-  hideOnDesktop?: boolean;
   className?: string;
 }) => {
   const classes = useStyles(styles);
@@ -65,7 +63,6 @@ const UltraFeedMetaInfoPill = ({
       className={classNames(
         classes.base,
         { 
-          // [classes.hideOnDesktop]: hideOnDesktop,
           [classes.defaultColors]: !useReadStyles,
           [classes.readItemColors]: useReadStyles,
         },
