@@ -14,6 +14,8 @@ import SubdirectoryArrowLeft from "@/lib/vendor/@material-ui/icons/src/Subdirect
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import DebateIcon from "@/lib/vendor/@material-ui/icons/src/Forum";
+import { FeedCommentMetaInfo } from "./ultraFeedTypes";
+import UltraFeedMetaInfoPill from "./UltraFeedMetaInfoPill";
 
 const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => ({
   root: {
@@ -43,6 +45,9 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     alignItems: 'baseline',
     position: 'relative',
     width: '100%',
+    [theme.breakpoints.down('sm')]: {
+      paddingRight: 20,
+    }
   },
   tripleDotMenu: {
     opacity: 0.7,
@@ -107,13 +112,13 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     fontWeight: 600,
   },
   moderatorHat: {
-    marginRight: 24,
+    marginRight: 12,
     whiteSpace: "nowrap",
   },
   newContentDateStyling: {
   },
   date: {
-    marginRight: 24,
+    marginRight: 12,
     fontSize: theme.typography.body2.fontSize,
     [theme.breakpoints.down('sm')]: {
       ...theme.typography.ultraFeedMobileStyle,
@@ -217,7 +222,7 @@ const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick, highligh
     }
   };
 
-  if (!enabled || !post ) {
+  if (!enabled || !post || post.shortform) {
     return null;
   }
   return (
@@ -225,14 +230,14 @@ const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick, highligh
       className={classNames({
         [classes.sameRowPostTitle]: position === 'metarow',
         [classes.sameRowPostTitleHighlighted]: position === 'metarow' && highlighted,
-        [classes.hideOnMobile]: position === 'metarow', //&& !post.shortform,
+        [classes.hideOnMobile]: position === 'metarow' || post.shortform,
         [classes.abovePostTitle]: position === 'above',
         [classes.abovePostTitleHighlighted]: position === 'above' && highlighted,
         [classes.hideOnDesktop]: position === 'above',
       })}
     >
       <PostsTooltip postId={post._id} placement="top" As="span">
-        {position === 'above' && !post.shortform && <span className={classes.postTitleReplyTo}>Replying to</span>}
+        {position === 'above' && <span className={classes.postTitleReplyTo}>Replying to</span>}
           <a
             href={postGetPageUrl(post)}
             onClick={handleTitleClick}
@@ -247,6 +252,7 @@ const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick, highligh
 
 const UltraFeedCommentsItemMeta = ({
   comment,
+  metaInfo,
   setShowEdit,
   hideDate,
   hideActionsMenu,
@@ -258,6 +264,7 @@ const UltraFeedCommentsItemMeta = ({
   isSeeLessMode,
 }: {
   comment: UltraFeedComment,
+  metaInfo: FeedCommentMetaInfo, 
   setShowEdit?: () => void,
   hideDate?: boolean,
   hideActionsMenu?: boolean,
@@ -283,6 +290,7 @@ const UltraFeedCommentsItemMeta = ({
 
   const isNewContent = comment.postedAt && (new Date(comment.postedAt) > new Date(Date.now() - (7 * 24 * 60 * 60 * 1000)));
   const isTopLevelComment = !comment.parentCommentId;
+  const isRead = !!metaInfo.lastViewed || !!metaInfo.lastInteracted
 
   const handleReplyIconClick = (event: React.MouseEvent) => {
     event.stopPropagation();
@@ -356,6 +364,7 @@ const UltraFeedCommentsItemMeta = ({
         {!hideDate && post && <span className={classNames({[classes.newContentDateStyling]: isNewContent})}>
           <CommentsItemDate comment={comment} post={post} className={classes.date}/>
         </span>}
+        {post.shortform && isTopLevelComment && <UltraFeedMetaInfoPill type="quickTake" readStyles={isRead} />}
         {showModeratorCommentAnnotation &&
           <span className={classes.moderatorHat}>
             {moderatorCommentAnnotation}

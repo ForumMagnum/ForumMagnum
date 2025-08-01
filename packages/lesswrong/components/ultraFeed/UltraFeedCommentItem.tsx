@@ -2,7 +2,7 @@ import React, { useCallback, useState, useMemo, useEffect, useRef } from "react"
 import classNames from "classnames";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
-import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
+import { UltraFeedSettingsType, DEFAULT_SETTINGS, readCommentsInitialWords } from "./ultraFeedSettingsTypes";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { FeedCommentMetaInfo, FeedItemDisplayStatus } from "./ultraFeedTypes";
@@ -21,8 +21,6 @@ import CommentsEditForm from "../comments/CommentsEditForm";
 
 
 const commentHeaderPaddingDesktop = 12;
-const commentHeaderPaddingMobile = 12;
-
 
 const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   root: {
@@ -501,6 +499,7 @@ export const UltraFeedCommentItem = ({
             />}
             <UltraFeedCommentsItemMeta
               comment={comment}
+              metaInfo={metaInfo}
               setShowEdit={setShowEdit}
               showPostTitle={showPostTitle}
               onPostTitleClick={onPostTitleClick}
@@ -530,7 +529,7 @@ export const UltraFeedCommentItem = ({
               ) : (
                 <FeedContentBody
                   html={comment.contents?.html ?? ""}
-                  initialWordCount={truncationParams.initialWordCount}
+                  initialWordCount={isRead ? readCommentsInitialWords : truncationParams.initialWordCount}
                   maxWordCount={truncationParams.maxWordCount}
                   wordCount={comment.contents?.wordCount ?? 0}
                   nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}

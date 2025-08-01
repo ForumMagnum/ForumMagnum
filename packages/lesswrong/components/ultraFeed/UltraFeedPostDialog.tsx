@@ -86,9 +86,6 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   },
   titleContainer: {
     marginTop: 24,
-    [theme.breakpoints.down('sm')]: {
-      marginTop: 0,
-    }
   },
   headerContent: {
     display: 'flex',
