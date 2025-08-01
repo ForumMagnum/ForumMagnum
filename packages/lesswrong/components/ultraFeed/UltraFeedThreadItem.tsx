@@ -389,6 +389,8 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
           {compressedItems.map((item, commentIndex) => {
             if ("placeholder" in item) {
               const hiddenCount = item.hiddenComments.length;
+              const anyHighlighted = item.hiddenComments.some(h => highlightStatuses[h._id]);
+              const anyRead = item.hiddenComments.some(h => !!commentMetaInfos?.[h._id]?.lastViewed || !!commentMetaInfos?.[h._id]?.lastInteracted);
               
               return (
                 <div className={classes.commentItem} key={`placeholder-${commentIndex}`}>
@@ -402,6 +404,8 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
                     }}
                     isFirstComment={commentIndex === 0}
                     isLastComment={commentIndex === compressedItems.length - 1}
+                    isHighlighted={anyHighlighted}
+                    isRead={anyRead}
                   />
                 </div>
               );

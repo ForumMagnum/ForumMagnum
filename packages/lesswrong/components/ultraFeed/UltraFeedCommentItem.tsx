@@ -62,6 +62,11 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
       paddingRight: 20,
     },
   },
+  compressedRootWithReadStyles: {
+    [theme.breakpoints.down('sm')]: {
+      backgroundColor: theme.palette.grey[100],
+    },
+  },
   commentContentWrapper: {
     maxWidth: '100%',
     flex: 1,
@@ -110,6 +115,11 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       padding: 6,
       fontSize: theme.typography.ultraFeedMobileStyle.fontSize,
+    },
+  },
+  numCommentsWithReadStyles: {
+    [theme.breakpoints.down('sm')]: {
+      opacity: 0.7,
     },
   },
   verticalLineContainer: {
@@ -220,11 +230,15 @@ export const UltraFeedCompressedCommentsItem = ({
   setExpanded,
   isFirstComment = false,
   isLastComment = false,
+  isHighlighted = false,
+  isRead = false,
 }: {
   numComments: number, 
   setExpanded: () => void,
   isFirstComment?: boolean,
   isLastComment?: boolean,
+  isHighlighted?: boolean,
+  isRead?: boolean,
 }) => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
@@ -240,18 +254,24 @@ export const UltraFeedCompressedCommentsItem = ({
   };
   
   return (
-    <div className={classes.compressedRoot} onClick={handleClick}>
+    <div 
+      onClick={handleClick}
+      className={classNames(classes.compressedRoot, { [classes.compressedRootWithReadStyles]: isRead })}
+    >
       <div className={classes.verticalLineContainerCompressed}>
         <div className={classNames(
           classes.verticalLine,
           { 
+            [classes.verticalLineHighlightedUnviewed]: isHighlighted,
             [classes.verticalLineFirstComment]: isFirstComment,
             [classes.verticalLineLastComment]: isLastComment
           }
         )} />
       </div>
       <div className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
-        <div className={classes.numComments}>
+        <div className={classNames(classes.numComments, {
+          [classes.numCommentsWithReadStyles]: isRead
+        })}>
           <span>+{numComments} comments</span>
         </div>
       </div>
