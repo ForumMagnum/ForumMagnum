@@ -46,13 +46,6 @@ export const useSeeLess = ({ documentId, collectionName, metaInfo }: UseSeeLessO
   
   const recommId = metaInfo && 'recommInfo' in metaInfo ? metaInfo.recommInfo?.recommId : undefined;
 
-  const handleSeeLess = useCallback((eventId: string) => {
-    setIsSeeLessMode(true);
-    if (eventId !== 'pending') {
-      setSeeLessEventId(eventId);
-    }
-  }, []);
-
   const handleUndoSeeLess = useCallback(async () => {
     if (!currentUser) return;
     
@@ -82,73 +75,71 @@ export const useSeeLess = ({ documentId, collectionName, metaInfo }: UseSeeLessO
     setSeeLessEventId(null);
   }, [currentUser, seeLessEventId, documentId, documentType, recommId, updateUltraFeedEvent, captureEvent]);
 
-  const handleSeeLessClick = useCallback(() => {
-    void (async () => {
-      if (!currentUser) return;
+  const handleSeeLessClick = useCallback(async () => {
+    if (!currentUser) return;
 
-      if (isSeeLessMode) {
-        void handleUndoSeeLess();
-        return;
-      }
+    if (isSeeLessMode) {
+      void handleUndoSeeLess();
+      return;
+    }
 
-      handleSeeLess('pending');
+    setIsSeeLessMode(true);
 
-      captureEvent("ultraFeedSeeLessClicked", {
+    captureEvent("ultraFeedSeeLessClicked", {
+      documentId,
+      collectionName,
+      sources: metaInfo?.sources,
+      servedEventId: metaInfo?.servedEventId,
+    });
+    
+    const eventData = {
+      data: {
+        userId: currentUser._id,
+        eventType: 'seeLess' as const,
         documentId,
         collectionName,
-        sources: metaInfo?.sources,
-        servedEventId: metaInfo?.servedEventId,
-      });
-      
-      const eventData = {
-        data: {
-          userId: currentUser._id,
-          eventType: 'seeLess' as const,
-          documentId,
-          collectionName,
-          feedItemId: metaInfo?.servedEventId,
-          event: {
+        feedItemId: metaInfo?.servedEventId,
+                  event: {
             feedbackReasons: {
               author: false,
               topic: false,
               contentType: false,
+              repetitive: false,
               other: false,
               text: '',
             },
             sources: metaInfo?.sources,
             cancelled: false,
           }
-        }
-      };
-      
-      try {
-        const result = await createUltraFeedEvent({ variables: eventData });
-        const eventId = result.data?.createUltraFeedEvent?.data?._id;
-        
-        if (eventId) {
-          handleSeeLess(eventId);
-        }
-
-        // Handle Recombee rating for posts
-        if (collectionName === "Posts" && metaInfo && 'recommInfo' in metaInfo && recommId) {
-          void recombeeApi.createRating(
-            documentId, 
-            currentUser._id, 
-            "bigDownvote",
-            recommId
-          );
-        }
-      } catch (error) {
-        //eslint-disable-next-line no-console
-        console.error('Error creating see less event:', error);
-        void handleUndoSeeLess();
       }
-    })();
+    };
+    
+    try {
+      const result = await createUltraFeedEvent({ variables: eventData });
+      const eventId = result.data?.createUltraFeedEvent?.data?._id;
+      
+      if (eventId) {
+        setSeeLessEventId(eventId);
+      }
+
+      // Handle Recombee rating for posts
+      if (collectionName === "Posts" && metaInfo && 'recommInfo' in metaInfo && recommId) {
+        void recombeeApi.createRating(
+          documentId, 
+          currentUser._id, 
+          "bigDownvote",
+          recommId
+        );
+      }
+    } catch (error) {
+      //eslint-disable-next-line no-console
+      console.error('Error creating see less event:', error);
+      void handleUndoSeeLess();
+    }
   }, [
     currentUser, 
     isSeeLessMode, 
     handleUndoSeeLess, 
-    handleSeeLess, 
     captureEvent, 
     documentId, 
     collectionName, 

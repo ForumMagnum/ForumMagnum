@@ -166,9 +166,6 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
   commentCountText: {
     marginLeft: 4,
     display: 'none',
-    // [theme.breakpoints.down('sm')]: {
-    //   display: 'inline',
-    // }
   },
   reactionIcon: {
     marginRight: 6,
