@@ -23197,6 +23197,23 @@ type UltraFeedThreadItemQueryVariables = Exact<{
 
 type UltraFeedThreadItemQuery = UltraFeedThreadItemQuery_Query;
 
+type createUltraFeedEventSeeLessMutation_createUltraFeedEvent_UltraFeedEventOutput_data_UltraFeedEvent = (
+  { __typename?: 'UltraFeedEvent' }
+  & UltraFeedEventsDefaultFragment
+);
+
+type createUltraFeedEventSeeLessMutation_createUltraFeedEvent_UltraFeedEventOutput = { __typename?: 'UltraFeedEventOutput', data: createUltraFeedEventSeeLessMutation_createUltraFeedEvent_UltraFeedEventOutput_data_UltraFeedEvent | null };
+
+type createUltraFeedEventSeeLessMutation_Mutation = { __typename?: 'Mutation', createUltraFeedEvent: createUltraFeedEventSeeLessMutation_createUltraFeedEvent_UltraFeedEventOutput | null };
+
+
+type createUltraFeedEventSeeLessMutationVariables = Exact<{
+  data: CreateUltraFeedEventDataInput;
+}>;
+
+
+type createUltraFeedEventSeeLessMutation = createUltraFeedEventSeeLessMutation_Mutation;
+
 type updateUltraFeedEventMutation_updateUltraFeedEvent_UltraFeedEventOutput_data_UltraFeedEvent = { __typename?: 'UltraFeedEvent', _id: string };
 
 type updateUltraFeedEventMutation_updateUltraFeedEvent_UltraFeedEventOutput = { __typename?: 'UltraFeedEventOutput', data: updateUltraFeedEventMutation_updateUltraFeedEvent_UltraFeedEventOutput_data_UltraFeedEvent | null };

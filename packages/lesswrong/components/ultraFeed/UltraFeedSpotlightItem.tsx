@@ -154,7 +154,6 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       fontSize: '1.3rem',
       whiteSpace: 'normal',
       [theme.breakpoints.down('sm')]: {
-        fontSize: 20.5,
       },
     },
     metaRow: {
@@ -167,7 +166,6 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       rowGap: '4px',
       marginBottom: '12px',
       [theme.breakpoints.down('sm')]: {
-        fontSize: "1.3rem",
         columnGap: '8px',
         rowGap: '0px',
         flexWrap: 'wrap',
@@ -191,9 +189,6 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
       color: 'inherit',
       fontSize: 'inherit',
       fontFamily: 'inherit',
-      [theme.breakpoints.down('sm')]: {
-        fontSize: "1.3rem",
-      },
     },
     curatedIcon: {
       "--icon-size": "16px",

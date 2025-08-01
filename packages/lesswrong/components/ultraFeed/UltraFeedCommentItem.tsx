@@ -2,7 +2,7 @@ import React, { useCallback, useState, useMemo, useEffect, useRef } from "react"
 import classNames from "classnames";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { nofollowKarmaThreshold } from "../../lib/publicSettings";
-import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
+import { UltraFeedSettingsType, DEFAULT_SETTINGS, readCommentsInitialWords } from "./ultraFeedSettingsTypes";
 import { useUltraFeedObserver } from "./UltraFeedObserver";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { FeedCommentMetaInfo, FeedItemDisplayStatus } from "./ultraFeedTypes";
@@ -16,13 +16,11 @@ import OverflowNavButtons from "./OverflowNavButtons";
 import SeeLessFeedback from "./SeeLessFeedback";
 import { useSeeLess } from "./useSeeLess";
 import { useCurrentUser } from "../common/withUser";
-import { userOwns } from "../../lib/vulcan-users/permissions";
+import { userIsAdmin, userOwns } from "../../lib/vulcan-users/permissions";
 import CommentsEditForm from "../comments/CommentsEditForm";
 
 
 const commentHeaderPaddingDesktop = 12;
-const commentHeaderPaddingMobile = 12;
-
 
 const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   root: {
@@ -30,10 +28,24 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     paddingTop: commentHeaderPaddingDesktop,
     backgroundColor: 'transparent',
     transition: 'background-color 1.0s ease-out',
+    paddingLeft: 20,
+    paddingRight: 16,
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 20,
+      paddingRight: 20,
+    },
+  },
+  rootWithReadStyles: {
+    [theme.breakpoints.down('sm')]: {
+      backgroundColor: theme.palette.grey[100],
+    },
   },
   rootWithAnimation: {
     backgroundColor: `${theme.palette.primary.main}3b`,
     transition: 'none',
+  },
+  moderatorComment: {
+    background: theme.palette.panelBackground.commentModeratorHat,
   },
   mainContent: {
     display: 'flex',
@@ -43,6 +55,17 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   compressedRoot: {
     display: 'flex',
     flexDirection: 'row',
+    paddingLeft: 20,
+    paddingRight: 16,
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 20,
+      paddingRight: 20,
+    },
+  },
+  compressedRootWithReadStyles: {
+    [theme.breakpoints.down('sm')]: {
+      backgroundColor: theme.palette.grey[100],
+    },
   },
   commentContentWrapper: {
     maxWidth: '100%',
@@ -53,6 +76,9 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   },
   commentContentWrapperWithBorder: {
     borderBottom: theme.palette.border.itemSeparatorBottom,
+    [theme.breakpoints.down('sm')]: {
+      borderBottom: 'none',
+    },
   },
   commentHeader: {
     display: 'flex',
@@ -66,6 +92,11 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     paddingRight: 16,
     [theme.breakpoints.down('sm')]: {
       paddingRight: 0,
+    },
+  },
+  contentWrapperWithReadStyles: {
+    [theme.breakpoints.down('sm')]: {
+      opacity: 0.7,
     },
   },
   numComments: {
@@ -86,6 +117,11 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
       fontSize: theme.typography.ultraFeedMobileStyle.fontSize,
     },
   },
+  numCommentsWithReadStyles: {
+    [theme.breakpoints.down('sm')]: {
+      opacity: 0.7,
+    },
+  },
   verticalLineContainer: {
     fontStyle: 'italic',
     width: 0,
@@ -95,8 +131,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     marginTop: -commentHeaderPaddingDesktop,
     marginBottom: 0,
     [theme.breakpoints.down('sm')]: {
-      marginRight: 2,
-      marginTop: -commentHeaderPaddingMobile,
+      display: 'none',
     },
   },
   verticalLineContainerCompressed: {
@@ -104,9 +139,10 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'center',
     marginRight: 6,
+    marginTop: 0,
     marginBottom: 0,
     [theme.breakpoints.down('sm')]: {
-      marginRight: 2,
+      display: 'none',
     },
   },
   verticalLine: {
@@ -124,15 +160,9 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   },
   verticalLineFirstComment: {
     marginTop: commentHeaderPaddingDesktop,
-    [theme.breakpoints.down('sm')]: {
-      marginTop: commentHeaderPaddingMobile,
-    },
   },
   verticalLineLastComment: {
     marginBottom: commentHeaderPaddingDesktop,
-    [theme.breakpoints.down('sm')]: {
-      marginBottom: commentHeaderPaddingMobile,
-    },
   },
   footer: {
     marginBottom: 12,
@@ -147,9 +177,6 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     filter: 'blur(0.5px)',
     '& > *': {
       pointerEvents: 'none',
-    },
-    '& .SeeLessButton-root': {
-      pointerEvents: 'auto !important',
     },
   },
   branchNavContainer: {
@@ -203,11 +230,15 @@ export const UltraFeedCompressedCommentsItem = ({
   setExpanded,
   isFirstComment = false,
   isLastComment = false,
+  isHighlighted = false,
+  isRead = false,
 }: {
   numComments: number, 
   setExpanded: () => void,
   isFirstComment?: boolean,
   isLastComment?: boolean,
+  isHighlighted?: boolean,
+  isRead?: boolean,
 }) => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
@@ -223,18 +254,24 @@ export const UltraFeedCompressedCommentsItem = ({
   };
   
   return (
-    <div className={classes.compressedRoot} onClick={handleClick}>
+    <div 
+      onClick={handleClick}
+      className={classNames(classes.compressedRoot, { [classes.compressedRootWithReadStyles]: isRead })}
+    >
       <div className={classes.verticalLineContainerCompressed}>
         <div className={classNames(
           classes.verticalLine,
           { 
+            [classes.verticalLineHighlightedUnviewed]: isHighlighted,
             [classes.verticalLineFirstComment]: isFirstComment,
             [classes.verticalLineLastComment]: isLastComment
           }
         )} />
       </div>
       <div className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
-        <div className={classes.numComments}>
+        <div className={classNames(classes.numComments, {
+          [classes.numCommentsWithReadStyles]: isRead
+        })}>
           <span>+{numComments} comments</span>
         </div>
       </div>
@@ -305,6 +342,7 @@ export const UltraFeedCommentItem = ({
   const cannotReplyReason = customCannotReplyReason ?? (userOwns(currentUser, comment) ? "You cannot reply to your own comment from within the feed" : null);
 
   const displayStatus = metaInfo.displayStatus ?? 'expanded';
+  const isRead = !!metaInfo.lastViewed || !!metaInfo.lastInteracted
 
   const initialHighlightState = (highlight && !hasBeenFadeViewed(comment._id)) ? 'highlighted-unviewed' : 'never-highlighted';
   const [highlightState, setHighlightState] = useState<HighlightStateType>(initialHighlightState);
@@ -313,12 +351,12 @@ export const UltraFeedCommentItem = ({
   
   const {
     isSeeLessMode,
-    handleSeeLess,
-    handleUndoSeeLess,
+    handleSeeLessClick,
     handleFeedbackChange,
   } = useSeeLess({
     documentId: comment._id,
-    documentType: 'comment',
+    collectionName: 'Comments',
+    metaInfo,
   });
 
   const { displaySettings } = settings;
@@ -436,7 +474,11 @@ export const UltraFeedCommentItem = ({
     const { displaySettings } = settings;
     
     let initialWordCount: number;
-    if (displayStatus === "hidden") {
+    
+    // If this comment is fully expanded, show maximum content
+    if (displayStatus === "expandedToMaxInPlace") {
+      initialWordCount = displaySettings.commentMaxWords;
+    } else if (displayStatus === "hidden") {
       initialWordCount = 10;
     } else if (displayStatus === "collapsed") {
       initialWordCount = displaySettings.commentCollapsedInitialWords;
@@ -455,10 +497,27 @@ export const UltraFeedCommentItem = ({
     onChangeDisplayStatus('collapsed');
   };
 
+  const showModeratorCommentAnnotation = comment.moderatorHat && (!comment.hideModeratorHat || userIsAdmin(currentUser));
+
+  let initialWordCount
+  /* The first condition exists for when a read comment has been revealed by clicking on +N comments.
+  /* We then set it to expanded for convenience due to revealed interest
+  */
+  if (displayStatus === "expandedToMaxInPlace") {
+    initialWordCount = truncationParams.maxWordCount;
+  } else if (isRead) {
+    initialWordCount = readCommentsInitialWords;
+  } else {
+    initialWordCount = truncationParams.initialWordCount;
+  }
+
+
   return (
     <AnalyticsContext ultraFeedElementType="feedComment" commentId={comment._id} postId={comment.postId ?? undefined} ultraFeedSources={metaInfo.sources}>
     <div className={classNames(classes.root, {
-      [classes.rootWithAnimation]: isHighlightAnimating
+      [classes.rootWithAnimation]: isHighlightAnimating,
+      [classes.rootWithReadStyles]: isRead,
+      [classes.moderatorComment]: showModeratorCommentAnnotation,
     })}>
       <div className={classes.mainContent}>
         <div className={classes.verticalLineContainer}>
@@ -472,7 +531,10 @@ export const UltraFeedCommentItem = ({
             }
           )} />
         </div>
-        <div ref={elementRef} className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
+        <div ref={elementRef} className={
+          classNames(classes.commentContentWrapper, { 
+            [classes.commentContentWrapperWithBorder]: !isLastComment,
+          })}>
           <div className={classNames(classes.commentHeader, { [classes.greyedOut]: isSeeLessMode })}>
             {hasFork && <BranchNavigationButton
               currentBranch={currentBranch}
@@ -480,21 +542,27 @@ export const UltraFeedCommentItem = ({
             />}
             <UltraFeedCommentsItemMeta
               comment={comment}
+              metaInfo={metaInfo}
               setShowEdit={setShowEdit}
               showPostTitle={showPostTitle}
               onPostTitleClick={onPostTitleClick}
               parentAuthorName={parentAuthorName}
               onReplyIconClick={onReplyIconClick}
+              onSeeLess={handleSeeLessClick}
+              isSeeLessMode={isSeeLessMode}
             />
           </div>
           {isSeeLessMode && (
             <SeeLessFeedback
-              onUndo={handleUndoSeeLess}
+              onUndo={handleSeeLessClick}
               onFeedbackChange={handleFeedbackChange}
             />
           )}
           {!isSeeLessMode && (
-            <div className={classes.contentWrapper}>
+            <div className={classNames(
+              classes.contentWrapper, 
+              { [classes.contentWrapperWithReadStyles]: isRead && !isSeeLessMode && !showEditState }
+            )}>
               {showEditState ? (
                 <CommentsEditForm
                   comment={comment}
@@ -504,7 +572,7 @@ export const UltraFeedCommentItem = ({
               ) : (
                 <FeedContentBody
                   html={comment.contents?.html ?? ""}
-                  initialWordCount={truncationParams.initialWordCount}
+                  initialWordCount={initialWordCount}
                   maxWordCount={truncationParams.maxWordCount}
                   wordCount={comment.contents?.wordCount ?? 0}
                   nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
@@ -522,8 +590,6 @@ export const UltraFeedCommentItem = ({
               collectionName="Comments"
               metaInfo={metaInfo}
               className={classNames(classes.footer, { [classes.footerGreyedOut]: isSeeLessMode })}
-              onSeeLess={isSeeLessMode ? handleUndoSeeLess : handleSeeLess}
-              isSeeLessMode={isSeeLessMode}
               replyConfig={replyConfig}
               cannotReplyReason={cannotReplyReason}
             />}

@@ -31,8 +31,8 @@ const DEFAULT_DISPLAY_SETTINGS: UltraFeedDisplaySettings = {
   lineClampNumberOfLines: 0,
   commentCollapsedInitialWords: 75,
   commentExpandedInitialWords: 150,
-  commentMaxWords: 350,
-  postInitialWords: 100,
+  commentMaxWords: 500,
+  postInitialWords: 150,
   postMaxWords: 300,
 };
 
@@ -40,17 +40,19 @@ export const truncationLevels = ['Very Short', 'Short', 'Medium', 'Long', 'Full'
 export type TruncationLevel = typeof truncationLevels[number];
 export const SHOW_ALL_BREAKPOINT_VALUE = 100_000;
 
+export const readCommentsInitialWords = 30;
+
 export const levelToWordCountMap: Record<TruncationLevel, number> = {
   'Very Short': 75,
   'Short': 150,
-  'Medium': 350,
+  'Medium': 500,
   'Long': 1000,
   'Full': SHOW_ALL_BREAKPOINT_VALUE,
 };
 
 export const levelToPostWordCountMap: Record<TruncationLevel, number> = {
   'Very Short': 50,
-  'Short': 100,
+  'Short': 150,
   'Medium': 300,
   'Long': 2000,
   'Full': SHOW_ALL_BREAKPOINT_VALUE,
