@@ -50,7 +50,7 @@ const FeedSelectorCheckbox = ({ currentFeedType }: FeedSelectorCheckboxProps) =>
   const hasExplicitPreference = cookieValue === "true" || cookieValue === "false";
   
   // Don't show if (1) UltraFeed is disabled, (2) user is not logged in, or (3) user has not explicitly opted in, visited the feed page, or is in the A/B test group
-  if (!ultraFeedEnabledSetting.get() || !currentUser || !(userIsAdmin(currentUser) || hasExplicitPreference || hasVisitedFeedPage || abTestGroup === 'ultraFeed')) {
+  if (!ultraFeedEnabledSetting.get() || !currentUser) {
     return null;
   }
   
