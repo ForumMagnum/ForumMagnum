@@ -6,23 +6,24 @@ import CloudinaryImage2 from "../common/CloudinaryImage2";
 
 const styles = defineStyles("Inkhaven2025Banner", (theme: ThemeType) => ({
   root: {
-    position: 'fixed',
+    position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     zIndex: theme.zIndexes.frontpageSplashImage,
     pointerEvents: 'none',
+    height: '100vh',
     [theme.breakpoints.down(1200)]: {
       display: 'none',
     },
   },
   image: {
     width: '160%',
-    height: '84vh',
+    height: '90vh',
     objectFit: 'cover',
     objectPosition: 'right',
     position: 'relative',
-    right: '-70px',
+    right: '-40px',
   },
   gradientOverlay: {
     position: 'absolute',
@@ -38,7 +39,7 @@ const styles = defineStyles("Inkhaven2025Banner", (theme: ThemeType) => ({
   imageColumn: {
     position: 'absolute',
     top: 0,
-    right: '30px',
+    right: 0,
     height: "100vh",
     width: '640px',
     ['@media(max-width: 1450px)']: {
@@ -50,7 +51,7 @@ const styles = defineStyles("Inkhaven2025Banner", (theme: ThemeType) => ({
   },
   inkhavenBannerText: {
     ...theme.typography.postStyle,
-    position: 'fixed',
+    position: 'absolute',
     right: 16,
     bottom: 80,
     color: theme.palette.greyAlpha(0.87),
