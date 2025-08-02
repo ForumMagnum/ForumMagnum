@@ -1,5 +1,6 @@
 // Generated file - run "yarn generate" to update
 
+import "../../components/admin/AdminMultiMessage.tsx"
 import "../../components/admin/CurationNoticesForm.tsx"
 import "../../components/comments/CommentForm.tsx"
 import "../../components/comments/CommentOnSelection.tsx"
