@@ -64,9 +64,9 @@ export const AutoDarkModeWrapper = ({children}: {
   if (themeOptions.name === "auto") {
     return <div>{children}</div>
   } else if (themeOptions.name === "dark") {
-    return <div style={{colorScheme: "only light"}}>{children}</div>
-  } else if (themeOptions.name === "default") {
     return <div style={{colorScheme: "only dark"}}>{children}</div>
+  } else if (themeOptions.name === "default") {
+    return <div style={{colorScheme: "only light"}}>{children}</div>
   }
 }
 
