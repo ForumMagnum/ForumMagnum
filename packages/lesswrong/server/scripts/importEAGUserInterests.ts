@@ -1,4 +1,4 @@
-import fs from 'mz/fs';
+import fs from 'fs';
 import { z } from "zod";
 import Papa from 'papaparse';
 import Users from '../../server/collections/users/collection';

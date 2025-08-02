@@ -1,4 +1,4 @@
-import fs from 'mz/fs';
+import fs from 'fs';
 import Papa from 'papaparse';
 import Localgroups from '../../server/collections/localgroups/collection';
 import { GROUP_CATEGORIES } from "@/lib/collections/localgroups/groupTypes";
