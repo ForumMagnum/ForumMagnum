@@ -17,7 +17,7 @@ const styles = defineStyles("Inkhaven2025Banner", (theme: ThemeType) => ({
     },
   },
   image: {
-    width: '130%',
+    width: '160%',
     height: '84vh',
     objectFit: 'cover',
     objectPosition: 'right',

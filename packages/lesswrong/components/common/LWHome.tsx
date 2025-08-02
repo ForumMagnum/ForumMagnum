@@ -55,13 +55,14 @@ const getStructuredData = () => ({
 
 const styles = defineStyles("LWHome", (theme: ThemeType) => ({
   hideOnDesktop: {
-    [theme.breakpoints.up('lg')]: {
-      display: 'none',
+    ['@media(min-width: 1200px)']: {
+      display: 'none'
     },
   },
 }))
 
 const LWHome = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const abTestGroup = useABTest(ultraFeedABTest);
   const [cookies] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE]);
@@ -86,7 +87,7 @@ const LWHome = () => {
               </SuspenseWrapper>
             </SingleColumnSection>}
           </>}
-          {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
+          {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection className={classes.hideOnDesktop}>
             <SuspenseWrapper name="DismissibleSpotlightItem" fallback={<SpotlightItemFallback/>}>
               <DismissibleSpotlightItem/> 
             </SuspenseWrapper>
