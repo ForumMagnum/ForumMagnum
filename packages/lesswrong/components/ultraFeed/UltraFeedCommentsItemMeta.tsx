@@ -45,6 +45,7 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     alignItems: 'baseline',
     position: 'relative',
     width: '100%',
+    paddingRight: 16,
     [theme.breakpoints.down('sm')]: {
       paddingRight: 20,
     }
