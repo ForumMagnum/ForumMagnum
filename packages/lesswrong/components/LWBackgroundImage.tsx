@@ -139,11 +139,9 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   let homePageImage = defaultImage
   if (getReviewPhase() === 'VOTING') homePageImage = <ReviewVotingCanvas />
   if (getReviewPhase() === 'RESULTS') homePageImage = reviewCompleteImage
-
-  return <Inkhaven2025Banner />
   
   return <div className={classes.root}>
-    {currentRoute?.name === 'home' ? homePageImage : defaultImage}
+    {currentRoute?.name === 'home' ? <Inkhaven2025Banner /> : defaultImage}
   </div>;
 }
 
