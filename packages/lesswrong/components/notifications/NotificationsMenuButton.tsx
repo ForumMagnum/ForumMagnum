@@ -14,7 +14,13 @@ import { gql } from "@/lib/generated/gql-codegen";
 import ForumIcon from "../common/ForumIcon";
 import LWPopper from "../common/LWPopper";
 import LWClickAwayListener from "../common/LWClickAwayListener";
-import NotificationsPopover from "./NotificationsPopover";
+import { useReadQuery } from '@apollo/client/react';
+import { useStyles } from '../hooks/useStyles';
+import { SuspenseWrapper } from '../common/SuspenseWrapper';
+// import dynamic from 'next/dynamic';
+import { styles } from './notificationsMenuButtonStyles';
+import NotificationsPopover from './NotificationsPopover';
+import ErrorBoundary from '../common/ErrorBoundary';
 
 const UserKarmaChangesQuery = gql(`
   query NotificationsMenuButton($documentId: String) {
@@ -26,108 +32,21 @@ const UserKarmaChangesQuery = gql(`
   }
 `);
 
-/**
- * These same styles are also used by `MessagesMenuButton`, so changes here
- * should also be checked there as well.
- */
-export const styles = (theme: ThemeType) => ({
-  badgeContainer: {
-    padding: "none",
-    verticalAlign: "inherit",
-    fontFamily: isFriendlyUI
-      ? theme.palette.fonts.sansSerifStack
-      : 'freight-sans-pro, sans-serif',
-  },
-  badge: {
-    pointerEvents: "none",
-    ...(isFriendlyUI
-      ? {
-        top: 3,
-        right: 6,
-        maxHeight: 20,
-        fontSize: 11,
-        fontWeight: 800,
-        letterSpacing: "0.22px",
-        color: `${theme.palette.text.alwaysWhite} !important`,
-        borderRadius: "50%",
-      }
-      : {
-        top: 1,
-        right: 1,
-        fontWeight: 500,
-        fontFamily: "freight-sans-pro, sans-serif",
-        fontSize: 12,
-        color: theme.palette.header.text,
-      }),
-  },
-  badgeBackground: {
-    backgroundColor: isFriendlyUI
-      ? theme.palette.primary.main
-      : "inherit",
-  },
-  badge1Char: isFriendlyUI
-    ? {
-      width: 18,
-      height: 18,
-    }
-    : {},
-  badge2Chars: isFriendlyUI
-    ? {
-      width: 20,
-      height: 20,
-    }
-    : {},
-  buttonOpen: {
-    backgroundColor: theme.palette.buttons.notificationsBellOpen.background,
-    color: isFriendlyUI
-      ? theme.palette.grey[600]
-      : theme.palette.buttons.notificationsBellOpen.icon,
-  },
-  buttonClosed: {
-    backgroundColor: "transparent",
-    color: isFriendlyUI
-      ? theme.palette.grey[600]
-      : theme.palette.header.text,
-  },
-  buttonActive: {
-    backgroundColor: theme.palette.greyAlpha(0.1),
-  },
-  karmaStar: {
-    color: theme.palette.icon.headerKarma,
-    transform: "rotate(-15deg)",
-    position: "absolute",
-    width: 16,
-    height: 16,
-  },
-  karmaStarWithBadge: {
-    left: -6,
-    top: -6,
-  },
-  karmaStarWithoutBadge: {
-    left: 1,
-    top: 1,
-  },
-  tooltip: {
-    background: `${theme.palette.panelBackground.tooltipBackground2} !important`,
-    padding: "5px 13px",
-    transform: "translateY(5px)",
-  },
-});
-
 type NotificationsMenuButtonProps = {
   open: boolean,
   toggle: () => void,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }
 
-const BookNotificationsMenuButton = ({
+const BookNotificationsMenuButtonInner = ({
   open,
   toggle,
   className,
-  classes,
 }: NotificationsMenuButtonProps) => {
-  const {unreadNotifications} = useUnreadNotifications();
+  const classes = useStyles(styles);
+  const {unreadNotificationCountsQueryRef} = useUnreadNotifications();
+  const {data} = useReadQuery(unreadNotificationCountsQueryRef!);
+  const {unreadNotifications} = data?.unreadNotificationCounts ?? 0;
   const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
   return (
     <Badge
@@ -143,6 +62,15 @@ const BookNotificationsMenuButton = ({
       </IconButton>
     </Badge>
   );
+}
+
+const BookNotificationsMenuButtonPlaceholder = ({toggle}: {
+  toggle: () => void,
+}) => {
+  const classes = useStyles(styles);
+  return <IconButton classes={{ root: classes.buttonClosed }} onClick={toggle}>
+    <ForumIcon icon="BellBorder"/>
+  </IconButton>
 }
 
 const hasKarmaChange = (
@@ -165,22 +93,26 @@ const hasKarmaChange = (
   return lastOpened < (endDate ?? new Date(0)) || updateFrequency === "realtime";
 }
 
-const FriendlyNotificationsMenuButton = ({
+const FriendlyNotificationsMenuButtonInner = ({
   toggle,
   className,
-  classes,
 }: NotificationsMenuButtonProps) => {
+  // const NotificationsPopover = dynamic(() => import("./NotificationsPopover"), { ssr: false });
+  
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const {pathname} = useLocation();
-  const {unreadNotifications, notificationsOpened} = useUnreadNotifications();
+  const {unreadNotificationCountsQueryRef, notificationsOpened} = useUnreadNotifications();
+  const {data} = useReadQuery(unreadNotificationCountsQueryRef!);
+  const {unreadNotifications} = data?.unreadNotificationCounts ?? 0;
   const [open, setOpen] = useState(false);
   const anchorEl = useRef<HTMLDivElement>(null);
-  const { refetch, data } = useQuery(UserKarmaChangesQuery, {
+  const { refetch, data: karmaChangesData } = useQuery(UserKarmaChangesQuery, {
     variables: { documentId: currentUser?._id },
     skip: !currentUser,
   });
-  const karmaChanges = data?.user?.result;
+  const karmaChanges = karmaChangesData?.user?.result;
 
   const showKarmaStar = hasKarmaChange(currentUser, karmaChanges);
   const hasBadge = unreadNotifications > 0;
@@ -270,14 +202,37 @@ const FriendlyNotificationsMenuButton = ({
   );
 }
 
-export default registerComponent(
-  "NotificationsMenuButton",
-  isFriendlyUI ? FriendlyNotificationsMenuButton : BookNotificationsMenuButton,
-  {
-    styles,
-    stylePriority: -1,
-    areEqual: "auto",
-  },
-);
+const FriendlyNotificationsMenuButtonPlaceholder = ({toggle}: {
+  toggle: () => void,
+}) => {
+  // ea-forum-look-here
+  // This component is a loading-placeholder that will be shown briefly (less
+  // than a second) during pageload. It should visually match
+  // FriendlyNotificationsMenuButtonInner (but with zero notifications). Not
+  // implementing this will cause mild visual jank during loading (the buttons
+  // will be hidden, causing things next to them to shift horizontally.)
+  return null; // TODO
+}
+
+const NotificationsMenuButton = ({ open, toggle, className }: NotificationsMenuButtonProps) => {
+  const fallback = isFriendlyUI
+    ? <FriendlyNotificationsMenuButtonPlaceholder toggle={toggle} />
+    : <BookNotificationsMenuButtonPlaceholder toggle={toggle} />
+  return <SuspenseWrapper
+    name="NotificationsMenuButton"
+    fallback={fallback}
+  >
+    <ErrorBoundary fallback={fallback}>
+      {isFriendlyUI
+        ? <FriendlyNotificationsMenuButtonInner open={open} toggle={toggle} className={className}/>
+        : <BookNotificationsMenuButtonInner open={open} toggle={toggle} className={className}/>
+      }
+    </ErrorBoundary>
+  </SuspenseWrapper>
+}
+
+export default registerComponent("NotificationsMenuButton", NotificationsMenuButton, {
+  areEqual: "auto",
+});
 
 

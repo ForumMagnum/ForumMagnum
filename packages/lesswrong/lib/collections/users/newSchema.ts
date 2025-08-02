@@ -1,5 +1,5 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import SimpleSchema from "simpl-schema";
+import SimpleSchema from "@/lib/utils/simpleSchema";
 import {
   userGetProfileUrl,
   getUserEmail,
@@ -30,7 +30,7 @@ import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils";
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "@/server/karmaChanges";
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, getRecentKarmaInfo } from "@/server/rateLimitUtils";
-import GraphQLJSON from "graphql-type-json";
+import GraphQLJSON from "@/lib/vendor/graphql-type-json";
 import gql from "graphql-tag";
 import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificationSettingOnCreate, defaultNotificationTypeSettings, emailEnabledNotificationSettingOnCreate, notificationTypeSettingsSchema } from "./notificationFieldHelpers";
 import { loadByIds } from "@/lib/loaders";
@@ -1418,14 +1418,39 @@ const schema = {
       canRead: [userOwns, "sunshineRegiment", "admins"],
       resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
         const { Bookmarks } = context;
-        const bookmarks = await Bookmarks.find({ 
-          userId: user._id, 
-          collectionName: "Posts",
-          active: true 
-        }, 
-        {sort: {lastUpdated: -1}}
+        const bookmarks = await Bookmarks.find(
+          {
+            userId: user._id,
+            collectionName: "Posts",
+            active: true
+          },
+          {sort: {lastUpdated: -1}}
         ).fetch();
         return bookmarks.map((bookmark: DbBookmark) => ({ postId: bookmark.documentId }));
+      },
+    },
+  },
+  bookmarksCount: {
+    database: {
+      type: "INTEGER",
+      nullable: false,
+      defaultValue: 0,
+      denormalized: true,
+    },
+    graphql: {
+      outputType: "Int",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  hasAnyBookmarks: {
+    graphql: {
+      outputType: "Boolean",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
+        return user.bookmarksCount > 0;
       },
     },
   },
@@ -3022,6 +3047,16 @@ const schema = {
       canUpdate: [userOwns],
     },
   },
+  hasContinueReading: {
+    graphql: {
+      outputType: "Boolean",
+      canRead: [userOwns, "sunshineRegiment", "admins"],
+      resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
+        const sequences = user.partiallyReadSequences;
+        return sequences && sequences.length>0;
+      }
+    },
+  },
   beta: {
     database: {
       type: "BOOL",
@@ -4189,7 +4224,7 @@ const schema = {
     graphql: {
       outputType: "Boolean",
       canRead: [userOwns, "admins"],
-      canUpdate: ["admins"],
+      canUpdate: [userOwns, "admins"],
       canCreate: ["admins"],
       validation: {
         optional: true,

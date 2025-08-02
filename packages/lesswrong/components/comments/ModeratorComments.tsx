@@ -1,7 +1,9 @@
+"use client";
+
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { sectionTitleStyle } from '../common/SectionTitle';
-import CommentsNodeInner from "./CommentsNode";
+import CommentsNode from "./CommentsNode";
 import Loading from "../vulcan-core/Loading";
 import LoadMore from "../common/LoadMore";
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -36,7 +38,7 @@ const styles = (theme: ThemeType) =>  ({
 
 const ModeratorComments = ({classes, terms={view: "moderatorComments"}, truncated=true, noResultsMessage="No Comments Found"}: {
   classes: ClassesType<typeof styles>,
-  terms: CommentsViewTerms,
+  terms?: CommentsViewTerms,
   truncated?: boolean,
   noResultsMessage?: string,
 }) => {
@@ -65,7 +67,7 @@ const ModeratorComments = ({classes, terms={view: "moderatorComments"}, truncate
       <div className={classes.root}>
         {results.map(comment =>
           <div key={comment._id}>
-            <CommentsNodeInner
+            <CommentsNode
               treeOptions={{
                 condensed: false,
                 post: comment.post || undefined,

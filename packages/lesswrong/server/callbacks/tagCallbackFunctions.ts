@@ -10,6 +10,7 @@ import { postIsPublic } from "@/lib/collections/posts/helpers";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import _ from "underscore";
 import { updateTag } from "../collections/tags/mutations";
+import { backgroundTask } from "../utils/backgroundTask";
 
 const utils = {
   isValidTagName: (name: string) => {
@@ -129,7 +130,7 @@ export async function reexportProfileTagUsersToElastic(newDocument: DbTag, { old
       projection: {_id: 1},
     }).fetch();
     for (const user of users) {
-      void elasticSyncDocument("Users", user._id);
+      backgroundTask(elasticSyncDocument("Users", user._id));
     }
   }
   return newDocument;

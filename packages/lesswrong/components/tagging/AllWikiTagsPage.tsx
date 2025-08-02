@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useMemo } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useLocation } from '../../lib/routeUtil';

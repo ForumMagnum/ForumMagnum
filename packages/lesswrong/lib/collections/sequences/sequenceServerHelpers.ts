@@ -1,6 +1,6 @@
 import { loadByIds } from '@/lib/loaders';
 import { accessFilterMultiple } from '@/lib/utils/schemaUtils';
-import { keyBy } from 'lodash';
+import keyBy from 'lodash/keyBy';
 import * as _ from 'underscore';
 import { getSequenceCollectionBooks, SequencePostId } from './helpers';
 

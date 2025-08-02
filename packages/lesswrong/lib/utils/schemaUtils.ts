@@ -79,7 +79,8 @@ export const accessFilterSingle = async <N extends CollectionNameString, DocType
   if (!document) return null;
   const checkAccess = getCollectionAccessFilter(collectionName);
   if (checkAccess && !(await checkAccess(currentUser, document as AnyBecauseHard, context))) return null
-  const restrictedDoc = await restrictViewableFieldsSingle(currentUser, collectionName, document)
+  const collection = context[collectionName];
+  const restrictedDoc = await restrictViewableFieldsSingle(currentUser, collection, document)
   return restrictedDoc as Partial<DocType> & { [ACCESS_FILTERED]: true };
 }
 
@@ -104,8 +105,10 @@ export const accessFilterMultiple = async <N extends CollectionNameString, DocTy
   const filteredDocs = checkAccess
     ? await asyncFilter(existingDocs, async (d) => await checkAccess(currentUser, d as AnyBecauseHard, context))
     : existingDocs
+
+  const collection = context[collectionName];
   // Apply field-level permissions
-  const restrictedDocs = await restrictViewableFieldsMultiple(currentUser, collectionName, filteredDocs)
+  const restrictedDocs = await restrictViewableFieldsMultiple(currentUser, collection, filteredDocs)
   
   return restrictedDocs;
 }
@@ -190,7 +193,7 @@ export function getDenormalizedCountOfReferencesGetValue<
     if (!isServer) {
       throw new Error(`${collectionName}.${fieldName} getValue called on the client!`);
     }
-    const foreignCollection = context[foreignCollectionName] as CollectionBase<TargetCollectionName>;
+    const foreignCollection = context[foreignCollectionName] as unknown as PgCollection<TargetCollectionName>;
     const docsThatMayCount = await getWithLoader<TargetCollectionName>(
       context,
       foreignCollection,
@@ -242,3 +245,9 @@ export function throwIfSetToNull<N extends CollectionNameString>({ oldDocument, 
 export function isUniversalField(fieldName: string): boolean {
   return fieldName==="_id" || fieldName==="schemaVersion";
 }
+
+/**
+ * Based on SimpleSchema.RegEx.Url, modified to also accept the empty string
+ */
+export const optionalUrlRegex = new RegExp('^((?:(?:https?|ftp):\\/\\/)(?:\\S+(?::\\S*)?@)?(?:(?!10(?:\\.\\d{1,3}){3})(?!127(?:\\.\\d{1,3}){3})(?!169\\.254(?:\\.\\d{1,3}){2})(?!192\\.168(?:\\.\\d{1,3}){2})(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,})))(?::\\d{2,5})?(?:\\/[^\\s]*)?)?$', 'i');
+

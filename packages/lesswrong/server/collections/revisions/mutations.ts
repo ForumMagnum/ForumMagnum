@@ -15,6 +15,8 @@ import AutomatedContentEvaluations from "../automatedContentEvaluations/collecti
 import { z } from "zod"; // Add this import for Zod
 import { getOpenAI } from "@/server/languageModels/languageModelIntegration";
 import { assertPollsAllowed, upsertPolls } from "@/server/callbacks/forumEventCallbacks";
+import { captureException } from "@sentry/nextjs";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 
 function editCheck(user: DbUser | null) {
   return userIsAdminOrMod(user);
@@ -55,7 +57,7 @@ export async function createRevision({ data }: { data: Partial<DbInsertion<DbRev
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('Revisions', documentWithId);
 
   if (isLW && documentWithId.collectionName === "Posts" && documentWithId.fieldName === "contents") {
-    void createAutomatedContentEvaluation(documentWithId, context);
+    backgroundTask(createAutomatedContentEvaluation(documentWithId, context));
   }
 
   return documentWithId;
@@ -82,10 +84,10 @@ export async function updateRevision({ selector, data }: UpdateRevisionInput, co
 
   await recomputeWhenSkipAttributionChanged(updateCallbackProperties);
 
-  void logFieldChanges({ currentUser, collection: Revisions, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: Revisions, oldDocument, data: origData }));
 
   if (!updatedDocument.draft && isLW && updatedDocument.collectionName === "Posts" && updatedDocument.fieldName === "contents") {
-    void createAutomatedContentEvaluation(updatedDocument, context);
+    backgroundTask(createAutomatedContentEvaluation(updatedDocument, context));
   }
 
   return updatedDocument;
@@ -115,20 +117,31 @@ async function getSaplingEvaluation(revision: DbRevision) {
     }),
   });
 
-  const saplingEvaluation = await response.json();
-
-  // Define single Zod schema for response validation
-  const saplingResponseSchema = z.object({
-    score: z.number(),
-    sentence_scores: z.array(
-      z.object({
-        sentence: z.string(),
-        score: z.number()
-      })
-    )
-  });
-
-  return saplingResponseSchema.parse(saplingEvaluation);
+  if (!response.ok) {
+    // eslint-disable-next-line no-console
+    console.error(`Request to api.sapling.ai failed: ${response.status}`);
+  }
+  
+  try {
+    const saplingEvaluation = await response.json();
+  
+    // Define single Zod schema for response validation
+    const saplingResponseSchema = z.object({
+      score: z.number(),
+      sentence_scores: z.array(
+        z.object({
+          sentence: z.string(),
+          score: z.number()
+        })
+      )
+    });
+  
+    return saplingResponseSchema.parse(saplingEvaluation);
+  } catch(e) {
+    // eslint-disable-next-line no-console
+    console.error(`Failed parsing response from api.sapling.ai: ${e.message}`);
+    captureException(e);
+  }
 }
 
 async function getLlmEvaluation(revision: DbRevision, context: ResolverContext) {
@@ -287,26 +300,34 @@ ${output_text}`,
 };
 
 async function createAutomatedContentEvaluation(revision: DbRevision, context: ResolverContext) {
-  const [validatedEvaluation, llmEvaluation] = await Promise.all([
-    getSaplingEvaluation(revision),
-    getLlmEvaluation(revision, context),
-  ]);
+  try {
+    const [validatedEvaluation, llmEvaluation] = await Promise.all([
+      getSaplingEvaluation(revision),
+      getLlmEvaluation(revision, context),
+    ]);
 
-  if (!validatedEvaluation || !llmEvaluation) {
+    // FIXME: If one of these two evaluations failed, we should still keep the
+    // other one rather than return before saving it here
+    if (!validatedEvaluation || !llmEvaluation) {
+      // eslint-disable-next-line no-console
+      console.error("No evaluation returned");
+      return;
+    }
+  
+    await AutomatedContentEvaluations.rawInsert({
+      createdAt: new Date(),
+      revisionId: revision._id,
+      score: validatedEvaluation.score,
+      sentenceScores: validatedEvaluation.sentence_scores,
+      aiChoice: llmEvaluation.decision,
+      aiReasoning: llmEvaluation.reasoning,
+      aiCoT: llmEvaluation.cot,
+    });
+  } catch(e) {
     // eslint-disable-next-line no-console
-    console.error("No evaluation returned");
-    return;
+    console.error("Automated content evaluation failed: ", e);
+    captureException(e);
   }
-
-  await AutomatedContentEvaluations.rawInsert({
-    createdAt: new Date(),
-    revisionId: revision._id,
-    score: validatedEvaluation.score,
-    sentenceScores: validatedEvaluation.sentence_scores,
-    aiChoice: llmEvaluation.decision,
-    aiReasoning: llmEvaluation.reasoning,
-    aiCoT: llmEvaluation.cot,
-  });
 }
 
 export const graphqlRevisionTypeDefs = gql`

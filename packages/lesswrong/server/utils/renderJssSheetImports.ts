@@ -28,7 +28,7 @@ const renderImportForColorScheme = (url: string, colorScheme: string): string =>
 const renderImportForPrint = (url: string): string =>
   `@import url("${url}") print;\n`;
 
-export const renderAutoStyleImport = (siteThemeOverride?: SiteThemeOverride) => {
+const renderAutoStyleImport = (siteThemeOverride?: SiteThemeOverride) => {
   const lightSheet = stylesheetUrls.getStylesheetUrl({siteThemeOverride, name: "default"})
   const darkSheet = stylesheetUrls.getStylesheetUrl({siteThemeOverride, name: "dark"})
 

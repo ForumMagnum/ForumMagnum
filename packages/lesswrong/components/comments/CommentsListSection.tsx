@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
@@ -33,6 +33,7 @@ import { MenuItem } from "../common/Menus";
 import { NEW_COMMENT_MARGIN_BOTTOM } from './constants';
 import CommentsDraftList from './CommentsDraftList';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { CommentTreeOptions } from './commentTree';
 
 const styles = defineStyles("CommentsListSection", (theme: ThemeType) => ({
   root: {
@@ -112,6 +113,7 @@ const CommentsListSection = ({
   highlightDate,
   hideDateHighlighting,
   setHighlightDate,
+  treeOptions: treeOptionsOverride,
 }: {
   post?: PostsDetails,
   tag?: TagBasicInfo,
@@ -129,10 +131,11 @@ const CommentsListSection = ({
   highlightDate: Date|undefined,
   hideDateHighlighting?: boolean,
   setHighlightDate: (newValue: Date|undefined) => void,
+  treeOptions?: Partial<CommentTreeOptions>,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const commentTree = unflattenComments(comments);
+  const commentTree = useMemo(() => unflattenComments(comments), [comments]);
   const [restoreScrollPos, setRestoreScrollPos] = useState(-1);
 
   useEffect(() => {
@@ -152,6 +155,15 @@ const CommentsListSection = ({
     && (currentUser._id === postAuthor?._id || post?.coauthorStatuses?.some(coauthor => coauthor.userId === currentUser._id));
     
   const commentCountNode = !!totalComments && <span className={classes.commentCount}>{totalComments}</span>
+  
+  const treeOptions: CommentTreeOptions = useMemo(() => ({
+    highlightDate: highlightDate,
+    post: post,
+    postPage: true,
+    showCollapseButtons: true,
+    tag: tag,
+    ...treeOptionsOverride,
+  }), [highlightDate, post, tag, treeOptionsOverride]);
 
   return (
     <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
@@ -214,13 +226,7 @@ const CommentsListSection = ({
         setRestoreScrollPos={setRestoreScrollPos}
       /> : null}
       <CommentsList
-        treeOptions={{
-          highlightDate: highlightDate,
-          post: post,
-          postPage: true,
-          showCollapseButtons: true,
-          tag: tag,
-        }}
+        treeOptions={treeOptions}
         totalComments={totalComments}
         comments={commentTree}
         startThreadTruncated={startThreadTruncated}

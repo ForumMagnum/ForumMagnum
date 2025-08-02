@@ -1,9 +1,10 @@
+import { createSqlConnection } from "../sqlConnection";
 import type { DbTarget } from "./PgCollection";
 import { isProduction } from "@/lib/executionEnvironment";
 
 // logAllQueries: If true, generate a console log for all postgres queries.
 // Intended for debugging and performance investigation, not for prod.
-export const logAllQueries = false;
+export const logAllQueries = process.env.QUERY_LOGGING === 'true';
 
 // logQueryArguments: If true, logged queries will include the parameters to
 // the query (which may include sensitive data). Intended for debugging, not for
@@ -37,24 +38,12 @@ export const setSqlClient = (sql_: SqlClient, target: DbTarget = "write") => {
 }
 
 export const getSqlClient = (target: DbTarget = "write") => {
-  return target === "write" || !sqlRead ? sql : sqlRead;
+  const url = target === "read" ? (process.env.PG_READ_URL ?? '') : (process.env.PG_URL ?? '');
+  return createSqlConnection(url, false);
 }
 
 export const getSqlClientOrThrow = (target: DbTarget = "write") => {
-  let client: SqlClient | null = null;
-
-  if (target === "noTransaction") {
-    client = sqlOutsideTransaction ?? sql;
-  } else if (target === "read") {
-    client = sqlRead ?? sql;
-  } else {
-    client = sql;
-  }
-
-  if (!client) {
-    throw new Error("SQL Client is not initialized");
-  }
-  return client;
+  return getSqlClient(target);
 }
 
 

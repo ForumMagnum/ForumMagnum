@@ -1,5 +1,4 @@
 import React, { useMemo, useState, useCallback } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { DisplayFeedCommentThread, FeedCommentMetaInfo, FeedItemDisplayStatus } from "./ultraFeedTypes";
@@ -36,7 +35,8 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
     paddingLeft: 20,
     paddingRight: 16,
     borderRadius: 4,
-    backgroundColor: theme.palette.panelBackground.default,
+    background: theme.palette.panelBackground.bannerAdTranslucentHeavy,
+    backdropFilter: theme.palette.filters.bannerAdBlurHeavy,
     [theme.breakpoints.down('sm')]: {
       paddingLeft: 16,
     },
@@ -64,7 +64,6 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
     '&::after': itemSeparator(theme),
   },
   postContainer: {
-    // bottom border with margins to mimic separation between comments
     position: 'relative',
     '&::after': itemSeparator(theme),
   }
@@ -101,14 +100,10 @@ const compressCollapsedComments = (
     const commentId = comment._id;
     const localStatus = displayStatuses[commentId] || "collapsed"
 
-    if (localStatus === "hidden") {
-      continue;
-    }
-
-    if (localStatus === "collapsed") {
+    if (localStatus === "collapsed" || localStatus === "hidden") {
       tempGroup.push(comment);
     } else {
-      // If we hit a non-collapsed, flush the current group
+      // If we hit a non-collapsed/hidden comment, flush the current group
       flushGroupIfNeeded();
       result.push(comment);
     }
@@ -143,16 +138,17 @@ const initializeHighlightStatuses = (
 ): Record<string, boolean> => {
   const result: Record<string, boolean> = {};
   for (const commentId of Object.keys(initialDisplayStatuses)) {
-    const metaInfo = metaInfos?.[commentId]; // Safely access metaInfos
-    result[commentId] = metaInfo?.highlight ?? false; // Use ?? nullish coalescing
+    const metaInfo = metaInfos?.[commentId];
+    result[commentId] = metaInfo?.highlight ?? false;
   }
   return result;
 };
 
-const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
+const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startReplyingTo}: {
   thread: DisplayFeedCommentThread,
   index: number,
   settings?: UltraFeedSettingsType,
+  startReplyingTo?: string,
 }) => {
   const classes = useStyles(styles);
   
@@ -160,7 +156,12 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
   const {captureEvent} = useTracking();
   const [ postExpanded, setPostExpanded ] = useState(false);
   const [animatingCommentIds, setAnimatingCommentIds] = useState<Set<string>>(new Set());
-
+  
+  // State for handling new replies (including allowing switching back to original subsequent comments)
+  const [newReplies, setNewReplies] = useState<Record<string, UltraFeedComment>>({});
+  const [branchViewStates, setBranchViewStates] = useState<Record<string, 'new' | 'original'>>({});
+  const [replyingToCommentId, setReplyingToCommentId] = useState<string | null>(startReplyingTo ?? null);
+  
   const { loading, data } = useQuery(PostsListWithVotesQuery, {
     variables: { documentId: comments[0].postId ?? undefined },
     skip: !comments[0].postId || !postExpanded,
@@ -170,6 +171,8 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
   const postMetaInfo = {
     sources: commentMetaInfos?.[comments[0]._id]?.sources ?? [],
     displayStatus: "expanded" as FeedItemDisplayStatus,
+    servedEventId: commentMetaInfos?.[comments[0]._id]?.servedEventId ?? '',
+    highlight: false,
   }
 
   const initialDisplayStatuses = calculateInitialDisplayStatuses(comments, commentMetaInfos);
@@ -185,6 +188,8 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
     return authorsMap;
   }, [comments]);
   
+  const [newCommentMetaInfos, setNewCommentMetaInfos] = useState<Record<string, FeedCommentMetaInfo>>({});
+  
   const setDisplayStatus = useCallback((commentId: string, newStatus: "expanded" | "collapsed" | "hidden") => {
     setCommentDisplayStatuses(prev => ({
       ...prev,
@@ -192,9 +197,30 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
     }));
   }, []);
 
+  // Build the list of comments to display, incorporating new replies.
+  // When a user replies to a comment, we show their new reply and hide all subsequent
+  // comments in the original thread (creating a "fork" in the conversation).
+  const buildDisplayComments = useMemo(() => {
+    const result: UltraFeedComment[] = [];
+
+    for (const comment of comments) {
+      result.push(comment);
+
+      // Check if this comment has a new reply
+      const newReply = newReplies[comment._id];
+      if (newReply && branchViewStates[comment._id] !== 'original') {
+        // Add the new reply after its parent, skip all remaining comments since we've forked the conversation
+        result.push(newReply);
+        break;
+      }
+    }
+
+    return result;
+  }, [comments, newReplies, branchViewStates]);
+
   const visibleComments = useMemo(
-    () => comments.filter(c => commentDisplayStatuses[c._id] !== "hidden"),
-    [comments, commentDisplayStatuses]
+    () => buildDisplayComments.filter(c => commentDisplayStatuses[c._id] !== "hidden"),
+    [buildDisplayComments, commentDisplayStatuses]
   );
 
   const compressedItems = useMemo(() => {
@@ -235,48 +261,161 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
     }
   }, [comments, commentDisplayStatuses, setDisplayStatus, captureEvent]);
 
+  const handleReplyClick = (commentId: string) => {
+    setReplyingToCommentId(commentId);
+  };
+
+  const handleReplySubmit = (parentCommentId: string, newComment: UltraFeedComment) => {
+    setNewReplies(prev => ({
+      ...prev,
+      [parentCommentId]: newComment
+    }));
+    setBranchViewStates(prev => ({
+      ...prev,
+      [parentCommentId]: 'new'
+    }));
+    setReplyingToCommentId(null);
+    
+    const defaultMetaInfo: FeedCommentMetaInfo = {
+      displayStatus: 'expanded',
+      sources: [],
+      descendentCount: 0,
+      directDescendentCount: 0,
+      highlight: false,
+      lastServed: new Date(),
+      lastViewed: null,
+      lastInteracted: new Date(),
+      postedAt: newComment.postedAt ? new Date(newComment.postedAt) : new Date(),
+    };
+    setNewCommentMetaInfos(prev => ({
+      ...prev,
+      [newComment._id]: defaultMetaInfo
+    }));
+    
+    setCommentDisplayStatuses(prev => ({
+      ...prev,
+      [newComment._id]: 'expanded'
+    }));
+  };
+
+  const handleBranchToggle = (parentCommentId: string) => {
+    setBranchViewStates(prev => ({
+      ...prev,
+      [parentCommentId]: prev[parentCommentId] === 'new' ? 'original' : 'new'
+    }));
+  };
+
+  const handleNewReplyEdit = useCallback((editedComment: CommentsList) => {
+    const parentId = Object.entries(newReplies).find(
+      ([_, reply]) => reply._id === editedComment._id
+    )?.[0];
+
+    const editedNewReply = {
+      ...editedComment,
+      post: comments[0].post,
+    }
+    
+    if (parentId) {
+      setNewReplies(prev => ({
+        ...prev,
+        [parentId]: editedNewReply
+      }));
+    }
+  }, [newReplies, comments]);
+
+  const getNavigationProps = (commentId: string, displayComments: UltraFeedComment[]) => {
+    const parentIdForNewReply = Object.entries(newReplies).find(
+      ([parentId, reply]) => reply._id === commentId
+    )?.[0];
+
+    if (parentIdForNewReply) {
+      // This is a new reply - it should show navigation if there are more comments after its parent
+      const parentIndex = comments.findIndex(c => c._id === parentIdForNewReply);
+      const hasMoreComments = parentIndex >= 0 && parentIndex < comments.length - 1;
+      
+      return {
+        showNav: hasMoreComments,
+        forkParentId: parentIdForNewReply,
+        currentBranch: 'new' as const
+      };
+    }
+
+    // Check if this is the first comment after a fork point where we chose 'original'
+    const commentIndex = displayComments.findIndex(c => c._id === commentId);
+    if (commentIndex > 0) {
+      const prevComment = displayComments[commentIndex - 1];
+      
+      // Check if the previous comment has a new reply that we're not showing
+      if (newReplies[prevComment._id] && branchViewStates[prevComment._id] === 'original') {
+        return {
+          showNav: true,
+          forkParentId: prevComment._id,
+          currentBranch: 'original' as const
+        };
+      }
+    }
+
+    return { showNav: false, forkParentId: null, currentBranch: 'new' as const };
+  };
+
+  const handlePostExpansion = useCallback(() => {
+    captureEvent("ultraFeedThreadPostExpanded", {
+      threadId: thread._id,
+      postId: comments[0].postId,
+    });
+    setPostExpanded(true);
+  }, [thread._id, comments, captureEvent]);
+
   return (
-    <AnalyticsContext pageSubSectionContext="ultraFeedThread" ultraFeedCardId={thread._id} ultraFeedCardIndex={index}>
+    <AnalyticsContext pageParentElementContext="ultraFeedThread" ultraFeedCardId={thread._id} feedCardIndex={index}>
     {postExpanded && !post && loading && <div className={classes.postsLoadingContainer}>
       <Loading />
     </div>}
     {postExpanded && post && <div className={classes.postContainer}>
-      <UltraFeedPostItem post={post} index={index} postMetaInfo={postMetaInfo} settings={settings}/>
+      <UltraFeedPostItem post={post} index={-1} postMetaInfo={postMetaInfo} settings={settings}/>
     </div>}
     <div className={classes.commentsRoot}>
       {comments.length > 0 && <div className={classes.commentsContainer}>
         <div className={classes.commentsList}>
-          {compressedItems.map((item, index) => {
+          {compressedItems.map((item, commentIndex) => {
             if ("placeholder" in item) {
               const hiddenCount = item.hiddenComments.length;
+              
               return (
-                <div className={classes.commentItem} key={`placeholder-${index}`}>
+                <div className={classes.commentItem} key={`placeholder-${commentIndex}`}>
                   <UltraFeedCompressedCommentsItem
                     numComments={hiddenCount}
                     setExpanded={() => {
-                      captureEvent("ultraFeedThreadItemCompressedCommentsExpanded", { ultraCardIndex: index, ultraCardCount: compressedItems.length, });
-                      item.hiddenComments.forEach(h => {
+                      // Always expand max 3 comments at a time
+                      item.hiddenComments.slice(0, 3).forEach(h => {
                         setDisplayStatus(h._id, "expanded");
                       });
                     }}
-                    isFirstComment={index === 0}
-                    isLastComment={index === compressedItems.length - 1}
+                    isFirstComment={commentIndex === 0}
+                    isLastComment={commentIndex === compressedItems.length - 1}
                   />
                 </div>
               );
             } else {
               const cId = item._id;
-              const isFirstItem = index === 0;
-              const isLastItem = index === compressedItems.length - 1;
+              const isFirstItem = commentIndex === 0;
+              const isLastItem = commentIndex === compressedItems.length - 1;
               const parentAuthorName = item.parentCommentId ? commentAuthorsMap[item.parentCommentId] : null;
               const isAnimating = animatingCommentIds.has(cId);
+              
+              const navigationProps = getNavigationProps(cId, visibleComments);
+              
+              const isNewReply = Object.values(newReplies).some(reply => reply._id === cId);
               
               return (
                 <div key={cId} className={classes.commentItem}>
                   <UltraFeedCommentItem
                     comment={item}
-                    metaInfo={commentMetaInfos?.[cId]}
-                    onPostTitleClick={() => setPostExpanded(true)}
+                    metaInfo={{
+                      ...commentMetaInfos?.[cId],
+                      displayStatus: commentDisplayStatuses[cId] ?? commentMetaInfos?.[cId]?.displayStatus ?? "collapsed"
+                    }}
+                    onPostTitleClick={handlePostExpansion}
                     onChangeDisplayStatus={(newStatus) => setDisplayStatus(cId, newStatus)}
                     showPostTitle={isFirstItem}
                     highlight={highlightStatuses[cId] || false}
@@ -286,6 +425,18 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
                     parentAuthorName={parentAuthorName}
                     onReplyIconClick={() => triggerParentHighlight(cId)}
                     isHighlightAnimating={isAnimating}
+                    replyConfig={{
+                      isReplying: replyingToCommentId === cId,
+                      onReplyClick: () => handleReplyClick(cId),
+                      onReplySubmit: (newComment) => handleReplySubmit(cId, newComment),
+                      onReplyCancel: () => setReplyingToCommentId(null),
+                    }}
+                    hasFork={navigationProps.showNav}
+                    currentBranch={navigationProps.currentBranch}
+                    threadIndex={index}
+                    commentIndex={commentIndex}
+                    onBranchToggle={() => navigationProps.forkParentId && handleBranchToggle(navigationProps.forkParentId)}
+                    onEditSuccess={isNewReply ? handleNewReplyEdit : () => {}}
                   />
                 </div>
               );
@@ -298,10 +449,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS}: {
   );
 }
 
-export default registerComponent(
-  "UltraFeedThreadItem",
-  UltraFeedThreadItem,
-);
+export default UltraFeedThreadItem;
 
 
 

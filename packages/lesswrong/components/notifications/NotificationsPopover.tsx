@@ -9,7 +9,7 @@ import type { NotificationDisplay } from "@/lib/notificationTypes";
 import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/helpers";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { NotificationsPopoverContext, NotifPopoverLink } from "./useNotificationsPopoverContext";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import classNames from "classnames";
 import SectionTitle from "../common/SectionTitle";

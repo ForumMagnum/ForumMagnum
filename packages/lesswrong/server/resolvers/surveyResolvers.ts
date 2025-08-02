@@ -5,6 +5,7 @@ import type { SurveyScheduleWithSurvey } from "../repos/SurveySchedulesRepo";
 import gql from "graphql-tag";
 import { createSurveyQuestion, updateSurveyQuestion } from "../collections/surveyQuestions/mutations";
 import { updateSurvey } from "../collections/surveys/mutations";
+import { backgroundTask } from "../utils/backgroundTask";
 
 type EditSurveyArgs = {
   surveyId: string,
@@ -30,13 +31,13 @@ export const surveyResolversGraphQLQueries = {
   async CurrentFrontpageSurvey(
     _root: void,
     _args: void,
-    {currentUser, clientId, req, repos: {surveySchedules}}: ResolverContext,
+    {currentUser, clientId, headers, repos: {surveySchedules}}: ResolverContext,
   ): Promise<SurveyScheduleWithSurvey | null> {
     if (!hasSurveys || !clientId) {
       return null;
     }
 
-    const userAgent = req?.get("User-Agent");
+    const userAgent = headers?.get("User-Agent");
     if (!userAgent || userAgent.indexOf("Mozilla") !== 0) {
       return null;
     }
@@ -46,7 +47,7 @@ export const surveyResolversGraphQLQueries = {
       clientId,
     );
     if (survey) {
-      void surveySchedules.assignClientToSurveySchedule(survey._id, clientId);
+      backgroundTask(surveySchedules.assignClientToSurveySchedule(survey._id, clientId));
       return survey;
     }
     return null;

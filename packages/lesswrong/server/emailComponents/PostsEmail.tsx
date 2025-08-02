@@ -245,8 +245,6 @@ export const PostsEmail = ({ postIds, reason, hideRecommendations}: {
     // Providers are required for useMulti
     <LocationContext.Provider
       value={{
-        currentRoute: null,
-        RouteComponent: null,
         location: { pathname: "", search: "", hash: "" },
         pathname: "",
         url: "",
@@ -259,17 +257,12 @@ export const PostsEmail = ({ postIds, reason, hideRecommendations}: {
       <NavigationContext.Provider
         value={{
           history: {
-            length: 0,
-            action: "PUSH",
-            location: { pathname: "", search: "", hash: "", state: undefined },
             push: () => {},
             replace: () => {},
-            go: () => {},
-            goBack: () => {},
-            goForward: () => {},
-            block: () => () => {},
-            listen: () => () => {},
-            createHref: () => "",
+            back: () => {},
+            forward: () => {},
+            refresh: () => {},
+            prefetch: () => {},
           },
         }}
       >

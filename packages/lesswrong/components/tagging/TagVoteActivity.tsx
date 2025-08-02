@@ -1,9 +1,10 @@
+"use client";
+
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useVote } from '../votes/withVote';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
-import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
-import { useCurrentUser } from '../common/withUser';
+import { useVoteButtonsDisabled } from '../votes/useVoteButtonsDisabled';
 import FormatDate from "../common/FormatDate";
 import OverallVoteButton from "../votes/OverallVoteButton";
 import FooterTag from "./FooterTag";
@@ -74,11 +75,10 @@ const TagVoteActivityRow = ({vote, classes}: {
   classes: ClassesType<typeof styles>
 }) => {
   const voteProps = useVote(vote.tagRel!, "TagRels")
-  const currentUser = useCurrentUser();
+  const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
   if (!vote.tagRel?.post || !vote.tagRel?.tag)
     return null;
   
-  const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
   const canVote = !fail;
   
   return (

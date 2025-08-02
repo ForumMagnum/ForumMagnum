@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
 export const ReadTime = ({classes, post, dialogueResponses}: {
   classes: ClassesType<typeof styles>,
   post: PostsList,
-  dialogueResponses: CommentsList[],
+  dialogueResponses: readonly CommentsList[],
 }) => {
   const wordCount = useMemo(() => {
     if (!post.debate || dialogueResponses.length === 0) {

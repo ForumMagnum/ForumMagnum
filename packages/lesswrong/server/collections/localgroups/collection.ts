@@ -1,10 +1,12 @@
+import schema from '@/lib/collections/localgroups/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
 
-export const Localgroups: LocalgroupsCollection = createCollection({
+export const Localgroups = createCollection({
   collectionName: 'Localgroups',
   typeName: 'Localgroup',
+  schema,
     getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('Localgroups', { organizerIds: 1, deleted: 1, name: 1 });

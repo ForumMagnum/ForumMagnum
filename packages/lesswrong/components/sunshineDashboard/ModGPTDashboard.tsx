@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper'

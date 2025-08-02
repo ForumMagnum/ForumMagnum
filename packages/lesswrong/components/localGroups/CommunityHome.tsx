@@ -1,3 +1,5 @@
+"use client";
+
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -25,7 +27,7 @@ import GroupFormLink from "./GroupFormLink";
 import SectionFooter from "../common/SectionFooter";
 import { Typography } from "../common/Typography";
 import SectionButton from "../common/SectionButton";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const UsersProfileUpdateMutation = gql(`

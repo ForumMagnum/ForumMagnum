@@ -55,7 +55,6 @@ import { OutlinedInputClassKey } from '../OutlinedInput';
 import { PaperClassKey } from '../Paper';
 import { PopoverClassKey } from '../Popover';
 import { RadioClassKey } from '../Radio';
-import { RadioGroupClassKey } from '../RadioGroup';
 import { SelectClassKey } from '../Select';
 import { StepButtonClasskey } from '../StepButton';
 import { StepClasskey } from '../Step';

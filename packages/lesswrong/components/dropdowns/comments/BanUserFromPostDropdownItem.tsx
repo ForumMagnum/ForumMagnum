@@ -5,7 +5,7 @@ import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { clone } from 'underscore';
 import DropdownItem from "../DropdownItem";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsPageUpdateMutation = gql(`

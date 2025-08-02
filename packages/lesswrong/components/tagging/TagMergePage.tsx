@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useCallback, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { userIsAdminOrMod } from "../../lib/vulcan-users/permissions";
@@ -6,7 +8,7 @@ import { taggingNameCapitalSetting, taggingNameSetting } from "../../lib/instanc
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import { Link } from "../../lib/reactRouterWrapper";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { useMessages } from "../common/withMessages";
 import { gql } from "@/lib/generated/gql-codegen";

@@ -1,21 +1,21 @@
 // import { startWebserver } from './apolloServer';
 import { scheduleQueueProcessing } from './cache/swr';
-import { initRenderQueueLogging } from './vulcan-lib/apollo-ssr/renderPage';
-import { serverInitSentry, startMemoryUsageMonitor } from './logging';
+import { initRenderQueueLogging } from './rendering/requestQueue';
+import { startMemoryUsageMonitor } from './logging';
 import { initLegacyRoutes } from '@/lib/routes';
 import { startupSanityChecks } from './startupSanityChecks';
 import { refreshKarmaInflationCache } from './karmaInflation/cron';
 import { addLegacyRssRoutes } from './legacy-redirects/routes';
 import { initReviewWinnerCache } from './resolvers/reviewWinnerResolvers';
-import { startAnalyticsWriter } from './analytics/serverAnalyticsWriter';
+import { startAnalyticsWriter, serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
 import { startSyncedCron } from './cron/startCron';
 import { isAnyTest, isMigrations } from '@/lib/executionEnvironment';
 import chokidar from 'chokidar';
 import fs from 'fs';
 import { basename, join } from 'path';
 import type { CommandLineArguments } from './commandLine';
-import { serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
 import { updateStripeIntentsCache } from './lesswrongFundraiser/stripeIntentsCache';
+import { backgroundTask } from './utils/backgroundTask';
 
 /**
  * Entry point for the server, assuming it's a webserver (ie not cluster mode,
@@ -43,14 +43,13 @@ export async function runServerOnStartupFunctions() {
   startAnalyticsWriter();
   scheduleQueueProcessing();
   initRenderQueueLogging();
-  serverInitSentry();
   startMemoryUsageMonitor();
   initLegacyRoutes();
-  await startupSanityChecks();
-  await refreshKarmaInflationCache();
+  backgroundTask(startupSanityChecks());
+  backgroundTask(refreshKarmaInflationCache());
   addLegacyRssRoutes();
-  void initReviewWinnerCache();
-  void updateStripeIntentsCache();
+  backgroundTask(initReviewWinnerCache());
+  backgroundTask(updateStripeIntentsCache());
 
   startSyncedCron();
   captureEvent("serverStarted", {});

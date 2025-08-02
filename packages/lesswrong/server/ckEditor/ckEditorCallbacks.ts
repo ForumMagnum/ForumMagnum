@@ -1,7 +1,6 @@
 import * as _ from 'underscore';
-import { isCollaborative } from '@/lib/collections/posts/helpers';
+import { isCollaborative, canUserEditPostMetadata } from '@/lib/collections/posts/helpers';
 import { Posts } from '../../server/collections/posts/collection';
-import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { Revisions } from '../../server/collections/revisions/collection';
 import { constantTimeCompare } from '../../lib/helpers';
 import { randomSecret } from '../../lib/random';
@@ -65,7 +64,7 @@ export const getLinkSharedPostGraphQLQueries = {
       }
       
       // Return the post
-      const filteredPost = restrictViewableFields(currentUser, 'Posts', post);
+      const filteredPost = restrictViewableFields(currentUser, Posts, post);
       return filteredPost;
     } else {
       throw new Error("Invalid postId or not shared with you");

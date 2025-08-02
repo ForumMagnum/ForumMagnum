@@ -84,9 +84,6 @@ const styles = defineStyles('FeedContentBody', (theme: ThemeType) => ({
     '& p:last-child': {
       marginBottom: '0 !important',
     },
-    '& p:last-child br:last-child': {
-      display: 'none !important',
-    },
     '& img': limitImageHeightClass(theme),
   },
   lineClamp1: {
@@ -123,7 +120,7 @@ export interface FeedContentBodyProps {
   initialWordCount: number;
   maxWordCount: number;
   onContinueReadingClick?: () => void;
-  wordCount: number;
+  wordCount?: number;
   onExpand?: (expanded: boolean, wordCount: number) => void;
   nofollow?: boolean;
   className?: string;
@@ -173,7 +170,7 @@ const FeedContentBody = ({
     if (isExpanded) return;
     
     setIsExpanded(true);
-    onExpand?.(true, wordCount);
+    onExpand?.(true, wordCount ?? 0);
   }, [isExpanded, onExpand, wordCount]);
 
   const calculateTruncationState = (): {
@@ -186,6 +183,11 @@ const FeedContentBody = ({
     let wasTruncated = false;
     let wordsLeft = 0;
     let suffix = '';
+
+    // If wordCount is undefined, show all content without truncation
+    if (wordCount === undefined) {
+      return { truncatedHtml: html, wasTruncated: false, wordsLeft: 0, suffix: '' };
+    }
 
     if (applyLineClamp) {
       wasTruncated = true; // assume truncated when line clamp is active, nothing bad happens if it's not
@@ -203,12 +205,12 @@ const FeedContentBody = ({
         suffix = '...';
       } else if (willTruncate && !isExpanded) {
         // Determine which action to take when content is truncated:
-        // 1. If total content exceeds maxWordCount → open modal (with word count)
-        // 2. If total content fits within maxWordCount → expand inline (no word count)
+        // 1. If total content exceeds maxWordCount → show word count
+        // 2. If total content fits within maxWordCount → show "(read more)"
         if (wordCount > maxWordCount) {
-          suffix = `...<span class="read-more-suffix" data-action="modal">read ${wordsRemaining} more ${wordsRemaining === 1 ? 'word' : 'words'} →</span>`;
+          suffix = `...<span class="read-more-suffix">(read ${wordsRemaining} more ${wordsRemaining === 1 ? 'word' : 'words'} →)</span>`;
         } else {
-          suffix = '...<span class="read-more-suffix" data-action="expand">(read more)</span>';
+          suffix = '...<span class="read-more-suffix">(read more)</span>';
         }
       }
 
@@ -230,33 +232,33 @@ const FeedContentBody = ({
 
   const { truncatedHtml, wasTruncated, suffix } = calculateTruncationState();
 
-  // Handle clicks on inline read-more suffix and footnote links
   const handleContentClick = useCallback((e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
     
-    // Check if clicking on the read-more suffix
-    if (target.classList.contains('read-more-suffix')) {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      const action = target.getAttribute('data-action');
-      if (action === 'modal' && onContinueReadingClick) {
-        onContinueReadingClick();
-      } else if (action === 'expand') {
-        handleExpand();
-      }
-    }
-    
-    // Expand to show footnotes
+    // If clicking on a link, let the default behavior happen
     const anchorElement = target.closest('a');
     if (anchorElement) {
-      const href = anchorElement.getAttribute('href');
-      if (href && href.startsWith('#fn')) {
-        e.preventDefault();
+      return;
+    }
+    
+    // If wordCount is undefined, don't handle clicks for expansion
+    if (wordCount === undefined) {
+      return;
+    }
+    
+    // If content is truncated and not expanded, handle click
+    if (wasTruncated && !isExpanded) {
+      e.preventDefault();
+      
+      // If total content exceeds maxWordCount → open modal
+      // If total content fits within maxWordCount → expand inline
+      if (wordCount > maxWordCount && onContinueReadingClick) {
+        onContinueReadingClick();
+      } else {
         handleExpand();
       }
     }
-  }, [onContinueReadingClick, handleExpand]);
+  }, [onContinueReadingClick, handleExpand, wasTruncated, isExpanded, wordCount, maxWordCount]);
 
   const getLineClampClass = () => {
     if (!applyLineClamp || !clampOverride) return "";
@@ -286,7 +288,12 @@ const FeedContentBody = ({
       )}
     >
       <ContentStyles contentType={styleType}>
-        <div onClick={handleContentClick}>
+        <div 
+          onClick={handleContentClick}
+          className={classNames({
+            [classes.clickableContent]: wasTruncated && !isExpanded,
+          })}
+        >
           <ContentItemBody
             dangerouslySetInnerHTML={{ __html: truncatedHtml }}
             nofollow={nofollow}

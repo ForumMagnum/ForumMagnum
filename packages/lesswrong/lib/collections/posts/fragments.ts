@@ -330,6 +330,7 @@ export const PostsList = gql(`
       hostedHere
       foreignPostId
     }
+    bannedUserIds
   }
 `)
 

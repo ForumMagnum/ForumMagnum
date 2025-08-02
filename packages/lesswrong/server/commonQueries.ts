@@ -7,6 +7,6 @@ export const userFindOneByEmail = function (email: string): Promise<DbUser | nul
   return new UsersRepo().getUserByEmail(email);
 };
 
-export const usersFindAllByEmail: (email: string) => Promise<Array<DbUser | null>> = async function (email: string) {
+export const usersFindAllByEmail: (email: string) => Promise<Array<DbUser>> = async function (email: string) {
   return new UsersRepo().getAllUsersByEmail(email);
 };

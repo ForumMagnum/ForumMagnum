@@ -1,3 +1,4 @@
+import schema from '@/lib/collections/userRateLimits/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -10,9 +11,10 @@ import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
  * Setting currentUser to null (and validate to false) will create the action as
  * 'Automod'.
  */
-export const UserRateLimits: UserRateLimitsCollection = createCollection({
+export const UserRateLimits = createCollection({
   collectionName: 'UserRateLimits',
   typeName: 'UserRateLimit',
+  schema,
     getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('UserRateLimits', { userId: 1, createdAt: -1, endedAt: -1 });

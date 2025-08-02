@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "lib": ["es2019", "dom"],
+    "lib": ["es2021", "dom"],
     "noImplicitAny": true,
     "noImplicitThis": true,
     "strictNullChecks": true,
@@ -33,6 +33,7 @@
   ],
   "exclude": [
     "node_modules",
+    ".next",
     "packages/lesswrong/viteClient",
     "build",
     "packages/lesswrong/lib/vendor/@material-ui"

@@ -20,7 +20,7 @@ import SidebarInfo from "./SidebarInfo";
 import SidebarActionMenu from "./SidebarActionMenu";
 import SidebarAction from "./SidebarAction";
 import OmegaIcon from "../icons/OmegaIcon";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import uniq from 'lodash/uniq';
 import without from 'lodash/without';

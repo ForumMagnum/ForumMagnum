@@ -7,13 +7,7 @@ import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userCanEditUser, userGetDisplayName, userGetProfileUrlFromSlug, PROGRAM_PARTICIPATION } from '../../lib/collections/users/helpers';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
-import {
-  siteNameWithArticleSetting,
-  taggingNameIsSet,
-  taggingNameCapitalSetting,
-  taglineSetting,
-  isEAForum,
-} from '../../lib/instanceSettings'
+import { siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taglineSetting, isEAForum, nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
 import EAUsersProfileTabbedSection, { eaUsersProfileSectionStyles, UserProfileTabType } from '../ea-forum/users/modules/EAUsersProfileTabbedSection';
@@ -22,7 +16,6 @@ import InfoIcon from '@/lib/vendor/@material-ui/icons/src/Info'
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
 import LibraryAddIcon from '@/lib/vendor/@material-ui/icons/src/LibraryAdd'
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import classNames from 'classnames';
 import { getUserStructuredData } from './UsersSingle';
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/helpers';
@@ -59,6 +52,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
 import { gql } from "@/lib/generated/gql-codegen";
 import CommentsDraftList from '../comments/CommentsDraftList';
+import { StructuredData } from '../common/StructuredData';
 
 const PostsMinimumInfoMultiQuery = gql(`
   query multiPostFriendlyUsersProfileQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -87,6 +81,12 @@ const UsersProfileMultiQuery = gql(`
     users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
         ...UsersProfile
+        profileTags {
+          ...TagPreviewFragment
+        }
+        organizerOfGroups {
+          ...localGroupsBase
+        }
       }
       totalCount
     }
@@ -502,7 +502,8 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
       count: user.commentCount,
       body: <AnalyticsContext pageSectionContext="commentsSection">
         <RecentComments
-          terms={{view: 'profileComments', sortBy: "new", authorIsUnreviewed: null, limit: 10, userId: user._id, drafts: "exclude"}}
+          selector={{ profileComments: { sortBy: "new", authorIsUnreviewed: null, userId: user._id, drafts: "exclude" } }}
+          limit={10}
           showPinnedOnProfile
         />
       </AnalyticsContext>
@@ -524,9 +525,9 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
       description={metaDescription}
       noIndex={(!userPostsCount && !user.commentCount) || user.karma <= 0 || user.noindex}
       image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
-      structuredData={getUserStructuredData(user)}
       useSmallImage
     />
+    <StructuredData generate={() => getUserStructuredData(user)}/>
     <AnalyticsContext pageContext="userPage">
       <SingleColumnSection>
         <div className={classNames(classes.section, classes.mainSection)}>

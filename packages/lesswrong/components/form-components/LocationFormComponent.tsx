@@ -4,7 +4,7 @@ import Geosuggest from 'react-geosuggest'
 // These imports need to be separate to satisfy eslint, for some reason
 import type { Suggest, QueryType } from 'react-geosuggest';
 import { isClient } from '../../lib/executionEnvironment';
-import { mapsAPIKeySetting } from '../../lib/publicSettings';
+import { mapsAPIKeySetting } from '@/lib/instanceSettings';
 import { styles as greyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import classNames from 'classnames';

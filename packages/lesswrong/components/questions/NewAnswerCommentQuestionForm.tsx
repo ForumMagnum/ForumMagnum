@@ -71,7 +71,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 const NewAnswerCommentQuestionForm = ({post, classes}: {
-  post: PostsDetails,
+  post: PostsListWithVotes,
   classes: ClassesType<typeof styles>,
 }) => {
   const [selection, setSelection] = useState("answer");

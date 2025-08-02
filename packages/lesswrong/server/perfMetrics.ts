@@ -12,6 +12,7 @@ type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'paren
 interface AsyncLocalStorageContext {
   requestPerfMetric?: IncompletePerfMetric;
   inDbRepoMethod?: boolean;
+  isSSRRequest?: boolean;
 }
 
 export const asyncLocalStorage = new AsyncLocalStorage<AsyncLocalStorageContext>();
@@ -42,6 +43,12 @@ export function getParentTraceId() {
   }
 
   return parentTraceIdField;
+}
+
+export function getIsSSRRequest() {
+  const store = asyncLocalStorage.getStore();
+
+  return !!store?.isSSRRequest;
 }
 
 export function openPerfMetric(props: IncompletePerfMetricProps, startedAtOverride?: Date): IncompletePerfMetric {

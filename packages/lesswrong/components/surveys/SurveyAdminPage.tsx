@@ -11,7 +11,7 @@ import FormatDate from "../common/FormatDate";
 import BlurredBackgroundModal from "../common/BlurredBackgroundModal";
 import EAOnboardingInput from "../ea-forum/onboarding/EAOnboardingInput";
 import LoadMore from "../common/LoadMore";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 

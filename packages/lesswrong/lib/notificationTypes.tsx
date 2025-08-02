@@ -23,8 +23,8 @@ import isEqual from 'lodash/isEqual';
 import { NotificationChannel } from "./collections/users/notificationFieldHelpers";
 import keyBy from 'lodash/keyBy';
 import ForumIcon from '@/components/common/ForumIcon';
-import CommentOnYourDraftNotificationHover from '@/components/notifications/CommentOnYourDraftNotificationHover';
 import type { NotificationDocument } from '@/server/collections/notifications/constants';
+import { getCommentParentTitle, getDocument, getDocumentSummary, taggedPostMessage } from './notificationDataHelpers';
 
 // We need enough fields here to render the user tooltip
 type NotificationDisplayUser = Pick<
@@ -91,7 +91,7 @@ export type NotificationDisplay =
     tagRelId?: string,
   };
 
-interface GetMessageProps {
+export interface GetMessageProps {
   documentType: NotificationDocument | null
   documentId: string | null
   extraData?: Record<string,any>
@@ -121,7 +121,6 @@ export interface NotificationType {
     Sequence: FC,
     Localgroup: FC,
   }>,
-  onsiteHoverView?: (props: {notification: NotificationsList}) => React.ReactNode
   getLink?: (props: { documentType: string|null, documentId: string|null, extraData: Record<string,any> }) => string
   causesRedBadge?: boolean
 }
@@ -129,98 +128,6 @@ export interface NotificationType {
 const createNotificationType = ({allowedChannels = ["onsite", "email"], ...otherArgs}: NotificationType) => {
   const notificationTypeClass = {allowedChannels, ...otherArgs};
   return notificationTypeClass;
-}
-
-export const getDocument = async (documentType: NotificationDocument | null, documentId: string | null, context: ResolverContext) =>
-  (await getDocumentSummary(documentType, documentId, context))?.document
-
-type DocumentSummary =
-  | { type: 'post'; associatedUserName: string; displayName: string; document: DbPost }
-  | { type: 'comment'; associatedUserName: string; displayName: string | undefined; document: DbComment }
-  | { type: 'user'; associatedUserName: string; displayName: string; document: DbUser }
-  | { type: 'message'; associatedUserName: string; displayName: string | undefined; document: DbMessage }
-  | { type: 'localgroup'; displayName: string; document: DbLocalgroup; associatedUserName: null }
-  | { type: 'tagRel'; document: DbTagRel; associatedUserName: null; displayName: null }
-  | { type: 'sequence'; document: DbSequence; associatedUserName: null; displayName: null }
-  | { type: 'dialogueCheck'; document: DbDialogueCheck; associatedUserName: string; displayName: null }
-  | { type: 'dialogueMatchPreference'; document: DbDialogueMatchPreference; associatedUserName: string; displayName: null }
-
-
-export const getDocumentSummary = async (documentType: NotificationDocument | null, documentId: string | null, context: ResolverContext): Promise<DocumentSummary | null> => {
-  if (!documentId) return null
-
-  const { Posts, Comments, Users, Messages, Conversations, Localgroups, TagRels, Sequences } = context;
-
-  switch (documentType) {
-    case 'post':
-      const post = await Posts.findOne(documentId)
-      return post && {
-        type: documentType,
-        document: post,
-        displayName: post.title,
-        associatedUserName: await postGetAuthorName(post, context),
-      }
-    case 'comment':
-      const comment = await Comments.findOne(documentId)
-      return comment && {
-        type: documentType,
-        document: comment,
-        displayName: await getCommentParentTitle(comment, context),
-        associatedUserName: await commentGetAuthorName(comment, context),
-      }
-    case 'user':
-      const user = await Users.findOne(documentId)
-      return user && {
-        type: documentType,
-        document: user,
-        displayName: userGetDisplayName(user),
-        associatedUserName: userGetDisplayName(user),
-      }
-    case 'message':
-      const message = await Messages.findOne(documentId)
-      if (!message) return null
-
-      const conversation = await Conversations.findOne(message.conversationId)
-      const author = await Users.findOne(message.userId)
-      return {
-        type: documentType,
-        document: message,
-        displayName: conversation?.title ?? undefined,
-        associatedUserName: userGetDisplayName(author),
-      }
-    case 'localgroup':
-      const localgroup = await Localgroups.findOne(documentId)
-      return localgroup && {
-        type: documentType,
-        document: localgroup,
-        displayName: localgroup.name ?? "[missing local group name]",
-        associatedUserName: null,
-      }
-    case 'tagRel':
-      const tagRel = await TagRels.findOne(documentId)
-      return tagRel && {
-        type: documentType,
-        document: tagRel,
-        displayName: null,
-        associatedUserName: null,
-      }
-    case 'sequence':
-      const sequence = await Sequences.findOne(documentId)
-      return sequence && {
-        type: documentType,
-        document: sequence,
-        displayName: null,
-        associatedUserName: null,
-      }
-    case 'dialogueCheck':
-      return null
-    case 'dialogueMatchPreference':
-      return null
-    default:
-      //eslint-disable-next-line no-console
-      console.error(`Invalid documentType type: ${documentType}`)
-      return null
-  }
 }
 
 const iconStyles = {
@@ -524,14 +431,6 @@ export const NewShortformNotification = createNotificationType({
   </>,
 });
 
-export const taggedPostMessage = async ({documentType, documentId, context}: GetMessageProps) => {
-  const { Tags, Posts } = context;
-  const tagRel = await getDocument(documentType, documentId, context) as DbTagRel;
-  const tag = await Tags.findOne({_id: tagRel.tagId})
-  const post = await Posts.findOne({_id: tagRel.postId})
-  return `New post tagged '${tag?.name}: ${post?.title}'`
-}
-
 export const NewTagPostsNotification = createNotificationType({
   name: "newTagPosts",
   userSettingField: "notificationSubscribedTagPost",
@@ -559,13 +458,6 @@ export const NewSequencePostsNotification = createNotificationType({
   },
   Display: ({Sequence}) => <>Posts added to <Sequence /></>,
 });
-
-export async function getCommentParentTitle(comment: DbComment, context: ResolverContext) {
-  const { Tags, Posts } = context;
-  if (comment.postId) return (await Posts.findOne(comment.postId))?.title
-  if (comment.tagId) return (await Tags.findOne(comment.tagId))?.name
-  return "Unknown Parent"
-}
 
 // Reply to a comment you're subscribed to.
 export const NewReplyNotification = createNotificationType({
@@ -861,10 +753,6 @@ export const NewCommentOnDraftNotification = createNotificationType({
   
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
-  },
-  
-  onsiteHoverView({notification}: {notification: NotificationsList}) {
-    return <CommentOnYourDraftNotificationHover notification={notification}/>
   },
   
   getLink: ({documentType, documentId, extraData}: {

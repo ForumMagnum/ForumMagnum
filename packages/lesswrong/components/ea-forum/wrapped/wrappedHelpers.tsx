@@ -1,11 +1,6 @@
-import { requireCssVar } from "@/themes/cssVars";
 import { userGetProfileUrlFromSlug } from "@/lib/collections/users/helpers";
 import type { WrappedDataByYear } from "./hooks";
 import type { WrappedYear } from "./constants";
-
-export const wrappedWhiteColor = requireCssVar("palette", "text", "alwaysWhite");
-export const wrappedHighlightColor = requireCssVar("palette", "wrapped", "highlightText");
-export const wrappedSecondaryColor = requireCssVar("palette", "wrapped", "secondaryText");
 
 /**
  * Formats the percentile as an integer > 0

@@ -13,6 +13,7 @@ import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndRe
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 import { newCheck, editCheck } from "./helpers";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 
 export async function createTag({ data }: CreateTagInput, context: ResolverContext) {
   const { currentUser } = context;
@@ -58,7 +59,7 @@ export async function createTag({ data }: CreateTagInput, context: ResolverConte
   };
 
   if (isElasticEnabled) {
-    void elasticSyncDocument('Tags', documentWithId._id);
+    backgroundTask(elasticSyncDocument('Tags', documentWithId._id));
   }
 
   await uploadImagesInEditableFields({
@@ -111,10 +112,10 @@ export async function updateTag({ selector, data }: UpdateTagInput, context: Res
   });
 
   if (isElasticEnabled) {
-    void elasticSyncDocument('Tags', updatedDocument._id);
+    backgroundTask(elasticSyncDocument('Tags', updatedDocument._id));
   }
 
-  void logFieldChanges({ currentUser, collection: Tags, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: Tags, oldDocument, data: origData }));
 
   return updatedDocument;
 }

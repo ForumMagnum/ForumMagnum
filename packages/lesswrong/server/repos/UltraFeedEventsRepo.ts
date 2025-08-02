@@ -1,8 +1,14 @@
 import AbstractRepo from './AbstractRepo';
 import UltraFeedEvents from '../collections/ultraFeedEvents/collection';
-import groupBy from 'lodash/groupBy';
 import { recordPerfMetrics } from './perfMetricWrapper';
-import { generateThreadHash } from '@/server/ultraFeed/ultraFeedThreadHelpers';
+import { FeedItemSourceType } from '@/components/ultraFeed/ultraFeedTypes';
+
+export interface UnviewedItem {
+  documentId: string;
+  collectionName: "Posts" | "Spotlights";
+  sources: FeedItemSourceType[];
+  servedAt: Date;
+}
 
 class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
   constructor() {
@@ -10,56 +16,90 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
   }
 
   /**
-   * Fetches served comment events for a specific user and session,
-   * groups them by itemIndex (representing a served thread),
-   * and returns a Set of unique, stable hashes identifying those served threads.
+   * Fetches unviewed Recombee post IDs for feed optimization.
+   * This is a lighter query that only returns document IDs.
    */
-  async getRecentlyServedCommentThreadHashes(
+  async getUnviewedRecombeePostIds(
     userId: string,
-    sessionId: string,
-    lookbackHours = 48
-  ): Promise<Set<string>> {
-    // Fetch relevant 'served' comment events for the session
-    const servedEvents = await this.getRawDb().manyOrNone<{ documentId: string, itemIndex: number | null, commentIndex: number | null }>(`
-      -- UltraFeedEventsRepo.getRecentlyServedCommentThreadHashes
+    scenarioId: string,
+    lookbackDays: number,
+    limit: number
+  ): Promise<string[]> {
+    const unviewedItems = await this.manyOrNone(`
+      -- UltraFeedEventsRepo.getUnviewedRecombeePostIds
       SELECT
-          "documentId", -- The comment ID
-          (event->>'itemIndex')::INTEGER AS "itemIndex", -- The index of the thread item in the feed batch
-          (event->>'commentIndex')::INTEGER AS "commentIndex" -- Index within the thread
-      FROM "UltraFeedEvents"
-      WHERE
-          "userId" = $1
-          AND event->>'sessionId' = $2
-          AND "collectionName" = 'Comments'
-          AND "eventType" = 'served'
-          AND "createdAt" > NOW() - INTERVAL $3
-          AND event->>'itemIndex' IS NOT NULL
-      ORDER BY
-          "itemIndex" ASC,
-          "commentIndex" ASC NULLS LAST
-    `, [userId, sessionId, `${lookbackHours} hours`]);
+        s."documentId"
+      FROM (
+        SELECT
+          "documentId",
+          SUM(CASE WHEN "eventType" = 'served' THEN 1 ELSE 0 END) as serve_count,
+          MAX(CASE WHEN "eventType" = 'served' THEN "createdAt" END) as last_served,
+          MAX(CASE WHEN "eventType" = 'viewed' THEN 1 ELSE 0 END) as was_viewed
+        FROM "UltraFeedEvents"
+        WHERE "userId" = $(userId)
+          AND "collectionName" = 'Posts'
+          AND "eventType" IN ('served', 'viewed')
+          AND "createdAt" > (NOW() - INTERVAL '1 day' * $(lookbackDays))
+          AND (
+            ("eventType" = 'served' AND event->'sources' ? $(scenarioId))
+            OR "eventType" = 'viewed'
+          )
+        GROUP BY "documentId"
+      ) s
+      WHERE s.serve_count < 3 AND s.was_viewed = 0
+      ORDER BY s.last_served
+      LIMIT $(limit)
+    `, {
+      userId,
+      scenarioId,
+      lookbackDays,
+      limit
+    });
 
-    if (!servedEvents || servedEvents.length === 0) {
-      return new Set<string>();
+    return unviewedItems.map((row: any) => row.documentId);
+  }
+
+  /**
+   * Checks whether posts have been viewed by a user.
+   * Returns a Set of post IDs that have been viewed (either in UltraFeedEvents or ReadStatuses).
+   */
+  async getViewedPostIds(
+    userId: string,
+    postIds: string[],
+  ): Promise<Set<string>> {
+    if (postIds.length === 0) {
+      return new Set();
     }
 
-    // Group events by the itemIndex they appeared at in the feed
-    // Filter out any groups with null itemIndex just in case
-    const groupedByItemIndex = groupBy(servedEvents.filter((e: { itemIndex: number | null }) => e.itemIndex !== null), 'itemIndex');
+    const viewedPosts = await this.manyOrNone(`
+      -- UltraFeedEventsRepo.getViewedPostIds
+      SELECT DISTINCT "postId"
+      FROM (
+        -- Check UltraFeedEvents for viewed events
+        SELECT "documentId" AS "postId"
+        FROM "UltraFeedEvents"
+        WHERE 
+          "userId" = $(userId)
+          AND "collectionName" = 'Posts'
+          AND "eventType" = 'viewed'
+          AND "documentId" = ANY($(postIds)::text[])
+        
+        UNION
+        
+        -- Check ReadStatuses for read posts
+        SELECT "postId"
+        FROM "ReadStatuses"
+        WHERE 
+          "userId" = $(userId)
+          AND "isRead" IS TRUE
+          AND "postId" = ANY($(postIds)::text[])
+      ) AS viewed
+    `, {
+      userId,
+      postIds,
+    });
 
-    const servedThreadHashes = new Set<string>();
-
-    // Generate a hash for each group (each served thread)
-    for (const itemIndex in groupedByItemIndex) {
-      const commentsInGroup = groupedByItemIndex[itemIndex];
-      // Sort by commentIndex again here just to be absolutely sure before hashing
-      const sortedComments = commentsInGroup.sort((a, b) => (a.commentIndex ?? Infinity) - (b.commentIndex ?? Infinity));
-      const commentIds = sortedComments.map(event => event.documentId);
-      const threadHash = generateThreadHash(commentIds);
-      servedThreadHashes.add(threadHash);
-    }
-
-    return servedThreadHashes;
+    return new Set(viewedPosts.map((row: any) => row.postId));
   }
 }
 

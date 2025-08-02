@@ -5,7 +5,6 @@ import max from 'lodash/fp/max';
 import { isEAForum, isLW } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
-import { addCronJob } from '../cron/cronUtil';
 import { ActivityWindowData, getUserActivityData } from './getUserActivityData';
 import { isAnyTest } from '../../lib/executionEnvironment';
 
@@ -376,13 +375,3 @@ export async function backfillUserActivities() {
     await updateUserActivities({ updateStartDate: currentDate, updateEndDate: endDate });
   }
 }
-
-
-export const updateUserActivitiesCron = addCronJob({
-  name: 'updateUserActivitiesCron',
-  interval: 'every 3 hours',
-  disabled: !isEAForum && !isLW,
-  async job() {
-    await updateUserActivities({randomWait: true});
-  }
-});

@@ -1,4 +1,3 @@
-
 import schema from "@/lib/collections/forumEvents/newSchema";
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from "@/lib/collections/posts/helpers";
 import { userCanPost } from "@/lib/collections/users/helpers";
@@ -7,6 +6,7 @@ import { userIsAdmin, userIsPodcaster } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
@@ -112,7 +112,7 @@ export async function updateForumEvent({ selector, data }: UpdateForumEventInput
     props: updateCallbackProperties,
   });
 
-  void logFieldChanges({ currentUser, collection: ForumEvents, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: ForumEvents, oldDocument, data: origData }));
 
   return updatedDocument;
 }

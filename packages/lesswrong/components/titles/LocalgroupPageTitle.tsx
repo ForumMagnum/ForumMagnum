@@ -1,6 +1,8 @@
+"use client";
+
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import { Helmet } from '../../lib/utils/componentsWithChildren';
+import { Helmet } from '../common/Helmet';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 
@@ -28,8 +30,8 @@ export const LocalgroupPageTitle = ({siteName}: {
   if (!group || loading) return null;
 
   const titleString = `${group.name} - ${siteName}`
-  return <Helmet>
-      <title>{titleString}</title>
-      <meta property='og:title' content={titleString}/>
-    </Helmet>
+  return <Helmet name="title">
+    <title>{titleString}</title>
+    <meta property='og:title' content={titleString}/>
+  </Helmet>
 }

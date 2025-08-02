@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { userGetProfileUrl } from "../../lib/collections/users/helpers";
@@ -14,8 +14,10 @@ import UserTooltip from "../users/UserTooltip";
 import PostsItem from "../posts/PostsItem";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { RecommendationsAlgorithm } from "@/lib/collections/users/recommendationSettings";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostBottomRecommendations", (theme: ThemeType) => ({
   root: {
     background: isFriendlyUI ? theme.palette.grey[55] : 'transparent',
     padding: "60px 0 80px 0",
@@ -49,7 +51,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     color: theme.palette.grey[600],
   },
-});
+}));
 
 const WrapperComponent = ({hasTableOfContents, children}: {
   hasTableOfContents: boolean
@@ -67,27 +69,27 @@ const WrapperComponent = ({hasTableOfContents, children}: {
   }
 };
 
-const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, classes}: {
+const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList,
   hasTableOfContents?: boolean,
   ssr?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+  const postId = post._id;
+  const algorithm: RecommendationsAlgorithm = useMemo(() => ({
+    strategy: {
+      name: "moreFromAuthor",
+      postId: postId,
+      context: "post-footer",
+    },
+    count: 3,
+    disableFallbacks: true,
+  }), [postId]);
+
   const {
     recommendationsLoading: moreFromAuthorLoading,
     recommendations: moreFromAuthorPosts,
-  } = useRecommendations({
-    algorithm: {
-      strategy: {
-        name: "moreFromAuthor",
-        postId: post._id,
-        context: "post-footer",
-      },
-      count: 3,
-      disableFallbacks: true,
-    },
-    ssr
-  });
+  } = useRecommendations({ algorithm, ssr });
 
   const { data: curatedAndPopularData, loading: curatedAndPopularLoading } = useQuery(gql(`
     query CuratedAndPopularThisWeek($limit: Int) {
@@ -194,10 +196,6 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, class
   );
 }
 
-export default registerComponent(
-  "PostBottomRecommendations",
-  PostBottomRecommendations,
-  {styles},
-);
-
-
+export default registerComponent("PostBottomRecommendations", PostBottomRecommendations, {
+  areEqual: "auto"
+});

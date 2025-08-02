@@ -9,7 +9,7 @@ import { useCurrentUser } from '../common/withUser';
 import { CurationNoticesForm } from './CurationNoticesForm';
 import { ContentItemBody } from "../contents/ContentItemBody";
 import BasicFormStyles from "../form-components/BasicFormStyles";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsListUpdateMutation = gql(`

@@ -1,10 +1,10 @@
 import React from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
-import { wrappedHighlightColor, wrappedWhiteColor } from "./wrappedHelpers";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { useForumWrappedContext } from "./hooks";
 import WrappedSection from "./WrappedSection";
 import WrappedHeading from "./WrappedHeading";
+import { useThemeColor } from "@/components/themes/useTheme";
 
 const styles = (_theme: ThemeType) => ({
   chart: {
@@ -23,6 +23,8 @@ const WrappedMostReadTopicsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {data: {mostReadTopics}} = useForumWrappedContext();
+  const wrappedWhiteColor = useThemeColor(theme => theme.palette.text.alwaysWhite);
+  const wrappedHighlightColor = useThemeColor(theme => theme.palette.wrapped.highlightText);
 
   // The top bar is highlighted, the rest are white
   const topics = mostReadTopics.map((topic, i) => {

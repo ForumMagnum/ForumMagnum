@@ -2,13 +2,12 @@ import { isServer } from './executionEnvironment';
 import qs from 'qs';
 import React, { useCallback, useContext } from 'react';
 import { LocationContext, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType, NavigationContext } from './vulcan-core/appContext';
-import type { RouterLocation } from './vulcan-lib/routes';
+import type { RouterLocation, SegmentedUrl } from './vulcan-lib/routes';
 import * as _ from 'underscore';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
-import type { LocationDescriptor } from 'history';
+import { createPath, type LocationDescriptor, parsePath } from 'history';
 import {siteUrlSetting} from './instanceSettings'
 import { getUrlClass } from '@/server/utils/getUrlClass';
-import { getCommandLineArguments } from '@/server/commandLine';
 
 // React Hook which returns the page location (parsed URL and route).
 // Return value contains:
@@ -52,6 +51,19 @@ export const useSubscribedLocation = (): RouterLocation => {
   return useContext(SubscribeLocationContext)!;
 }
 
+function getUpdatedLocationDescriptor(currentLocation: SegmentedUrl, locationDescriptor: LocationDescriptor) {
+  if (typeof locationDescriptor === 'object') {
+    return { ...currentLocation, ...locationDescriptor };
+  }
+
+  const parsedLocationDescriptor = parsePath(locationDescriptor);
+  const { pathname, search, hash } = parsedLocationDescriptor;
+  if (hash && !pathname && !search) {
+    return { ...currentLocation, hash };
+  } 
+  return { ...currentLocation, ...parsedLocationDescriptor };
+}
+
 export type NavigateFunction = ReturnType<typeof useNavigate>
 /**
  * React Hook which returns an acessor-object for page navigation. Contains one
@@ -61,22 +73,46 @@ export type NavigateFunction = ReturnType<typeof useNavigate>
  */
 export const useNavigate = () => {
   const { history } = useContext(NavigationContext)!;
-  return useCallback((locationDescriptor: LocationDescriptor | -1 | 1, options?: {replace?: boolean, openInNewTab?: boolean}) => {
+  const { location } = useLocation();
+  return useCallback((locationDescriptor: LocationDescriptor | -1 | 1, options?: {replace?: boolean, openInNewTab?: boolean, skipRouter?: boolean}) => {
     if (locationDescriptor === -1) {
-      history.goBack();
+      history.back();
     } else if (locationDescriptor === 1) {
-      history.goForward();
-    } else if (options?.openInNewTab) {
-      const href = typeof locationDescriptor === 'string' ?
-        locationDescriptor :
-        history.createHref(locationDescriptor);
-      window.open(href, '_blank')?.focus();
-    } else if (options?.replace) {
-      history.replace(locationDescriptor);
+      history.forward();
     } else {
-      history.push(locationDescriptor);
+      const updatedLocationDescriptor = getUpdatedLocationDescriptor(location, locationDescriptor);
+      const normalizedLocation = createPath(updatedLocationDescriptor);
+
+      if (options?.openInNewTab) {
+        window.open(normalizedLocation, '_blank')?.focus();
+      } else if (options?.replace) {
+        history.replace(normalizedLocation);
+      } else {
+        // The behavior of Next's router.push when handling hash changes
+        // while on the same route is either broken or deranged, so we
+        // need to do something rather more complicated.
+        if (options?.skipRouter) {
+          // Problem!  window.history.pushState doesn't update the value
+          // that comes out of `useLocation` for hash updates, so we 
+          // need to manually fire a `hashchange` event and listen for it
+          // in ClientAppGenerator.
+          window.history.pushState(null, '', normalizedLocation);
+
+          const hashChanged = updatedLocationDescriptor.hash !== location.hash;
+
+          if (hashChanged) {
+            const base = new URL(window.location.href).origin;
+            const oldURL = new URL(createPath(location), base).toString();
+            const newURL = new URL(normalizedLocation, base).toString();
+            const hashChangeEvent = new HashChangeEvent('hashchange', { oldURL, newURL });
+            window.dispatchEvent(hashChangeEvent);
+          }
+        } else {
+          history.push(normalizedLocation);
+        }
+      }
     }
-  }, [history]);
+  }, [history, location]);
 }
 
 // HoC which adds a `location` property to an object, which contains the page
@@ -125,7 +161,8 @@ const LwAfDomainWhitelist: DomainList = {
     "baserates.org",
     "alignmentforum.org",
     "alignment-forum.com",
-    `localhost:${getCommandLineArguments().localhostUrlPort}`,
+    // TODO: fix this to not use `getCommandLineArguments` anymore
+    // `localhost:${getCommandLineArguments().localhostUrlPort}`,
   ],
   mirrorDomains: [
     "greaterwrong.com",
@@ -140,14 +177,16 @@ const forumDomainWhitelist: ForumOptions<DomainList> = {
     onsiteDomains: [
       'forum.effectivealtruism.org',
       'forum-staging.effectivealtruism.org',
-      `localhost:${getCommandLineArguments().localhostUrlPort}`,
+      // TODO: fix this to not use `getCommandLineArguments` anymore
+      // `localhost:${getCommandLineArguments().localhostUrlPort}`,
     ],
     mirrorDomains: ['ea.greaterwrong.com'],
   },
   default: {
     onsiteDomains: [
       new URLClass(siteUrlSetting.get()).host,
-      `localhost:${getCommandLineArguments().localhostUrlPort}`,
+      // TODO: fix this to not use `getCommandLineArguments` anymore
+      // `localhost:${getCommandLineArguments().localhostUrlPort}`,
     ],
     mirrorDomains: [],
   }

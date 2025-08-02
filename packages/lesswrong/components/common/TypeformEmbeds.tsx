@@ -1,10 +1,10 @@
 import React, { FC, useEffect } from "react";
-import { Helmet } from "../../lib/utils/componentsWithChildren";
+import { Helmet } from "./Helmet";
 
 type TypeformParameters = Record<string, boolean | string>;
 
 const TypeformScript: FC = () => (
-  <Helmet>
+  <Helmet name="typeformScript">
     <script src="https://embed.typeform.com/next/embed.js" />
   </Helmet>
 );

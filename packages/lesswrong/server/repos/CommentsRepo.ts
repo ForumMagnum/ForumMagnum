@@ -488,7 +488,17 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
 
     const feedCommentsData: FeedCommentFromDb[] = await this.getRawDb().manyOrNone(`
       -- CommentsRepo.getCommentsForFeed
-      WITH "InitialCandidates" AS (
+      WITH "SubscribedAuthorIds" AS (
+          -- Get all user IDs the current user is subscribed to
+          SELECT DISTINCT "documentId" AS "authorId"
+          FROM "Subscriptions"
+          WHERE "userId" = $(userId)
+            AND "collectionName" = 'Users'
+            AND "state" = 'subscribed'
+            AND "type" IN ('newActivityForFeed', 'newPosts', 'newComments')
+            AND deleted IS NOT TRUE
+      ),
+      "InitialCandidates" AS (
           -- Find top candidate comments based on recency or shortform status
           SELECT
               c._id AS "commentId",
@@ -498,10 +508,12 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
               c.shortform,
               c."userId" AS "authorId"
           FROM "Comments" c
+          INNER JOIN "Posts" p ON c."postId" = p._id
           WHERE
               ${getUniversalCommentFilterClause('c')}
               AND c."userId" != $(userId)
-              AND (c.shortform IS TRUE OR c."postedAt" > (NOW() - INTERVAL '1 day' * $(initialCandidateLookbackDaysParam)))
+              AND c."postedAt" > (NOW() - INTERVAL '1 day' * $(initialCandidateLookbackDaysParam))
+              AND p.draft IS NOT TRUE
           ORDER BY c."postedAt" DESC
           LIMIT $(initialCandidateLimit)
       ),
@@ -511,18 +523,27 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       "AllRelevantComments" AS (
           -- Fetch all comments belonging to the candidate threads using the distinct IDs
           SELECT
-            c._id,
-            c."postId",
-            c."userId" AS "authorId",
-            c."baseScore",
-            c."topLevelCommentId",
-            c."parentCommentId",
-            c.shortform,
-            c."postedAt"
+              c._id,
+              c."postId",
+              c."userId" AS "authorId",
+              c."baseScore",
+              c."topLevelCommentId",
+              c."parentCommentId",
+              c.shortform,
+              c."postedAt",
+              c."descendentCount",
+              CASE 
+                WHEN c.shortform IS TRUE THEN 'quicktakes'
+                WHEN sa."authorId" IS NOT NULL THEN 'subscriptionsComments'
+                ELSE 'recentComments'
+              END AS "primarySource",
+              (ic."commentId" IS NOT NULL) AS "isInitialCandidate"
           FROM "Comments" c
           JOIN "CandidateThreadTopLevelIds" ct
               ON c."topLevelCommentId" = ct."threadTopLevelId"
               OR (c._id = ct."threadTopLevelId" AND c."topLevelCommentId" IS NULL)
+          LEFT JOIN "SubscribedAuthorIds" sa ON c."userId" = sa."authorId"
+          LEFT JOIN "InitialCandidates" ic ON c._id = ic."commentId"
           WHERE
               ${getUniversalCommentFilterClause('c')}
       ),
@@ -580,6 +601,9 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           c."parentCommentId",
           c.shortform,
           c."postedAt",
+          c."descendentCount",
+          c."primarySource",
+          c."isInitialCandidate",
           ce."lastServed",
           ce."lastViewed",
           ce."lastInteracted"
@@ -595,20 +619,34 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       commentServedEventRecencyHoursParam: commentServedEventRecencyHours
     });
 
-    return feedCommentsData.map((comment): FeedCommentFromDb => ({
-      commentId: comment.commentId,
-      authorId: comment.authorId,
-      topLevelCommentId: comment.topLevelCommentId,
-      parentCommentId: comment.parentCommentId ?? null,
-      postId: comment.postId,
-      baseScore: comment.baseScore,
-      shortform: comment.shortform ?? null,
-      postedAt: comment.postedAt,
-      sources: ['recentComments'],
-      lastServed: null, 
-      lastViewed: comment.lastViewed ?? null,
-      lastInteracted: comment.lastInteracted ?? null,
-    }));
+    // Safety check for duplicates from the database query
+    const uniqueMap = new Map(feedCommentsData.map(c => [c.commentId, c]));
+    if (uniqueMap.size < feedCommentsData.length) {
+      // eslint-disable-next-line no-console
+      console.warn(`[CommentsRepo.getCommentsForFeed] Deduplicated from ${feedCommentsData.length} to ${uniqueMap.size} comments`);
+    }
+    const deduplicatedComments = Array.from(uniqueMap.values());
+
+    return deduplicatedComments.map((comment): FeedCommentFromDb => {
+      const sources: string[] = [comment.primarySource ?? 'recentComments'];
+      return {
+        commentId: comment.commentId,
+        authorId: comment.authorId,
+        topLevelCommentId: comment.topLevelCommentId,
+        parentCommentId: comment.parentCommentId ?? null,
+        postId: comment.postId,
+        baseScore: comment.baseScore,
+        shortform: comment.shortform ?? null,
+        postedAt: comment.postedAt,
+        descendentCount: comment.descendentCount,
+        sources,
+        primarySource: comment.primarySource,
+        isInitialCandidate: comment.isInitialCandidate,
+        lastServed: null,
+        lastViewed: comment.lastViewed ?? null,
+        lastInteracted: comment.lastInteracted ?? null,
+      };
+    });
   }
 
   /**
@@ -622,13 +660,15 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     const lookbackInterval = `${threadEngagementLookbackDays} days`;
 
     const engagementStats = await this.getRawDb().manyOrNone<ThreadEngagementStats>(`
-      -- CommentsRepo.getThreadEngagementStatsForRecentlyActiveThreads (Refactored to use JOINs with inlined subqueries)
+      -- CommentsRepo.getThreadEngagementStatsForRecentlyActiveThreads
       SELECT
         recentActiveThreads."threadTopLevelId",
         COALESCE(userVotesInThreads."votingActivityScore", 0) AS "votingActivityScore",
         COALESCE(userCommentsInThreads."participationCount", 0) AS "participationCount",
         COALESCE(userViewEventsInThreads."viewScore", 0) AS "viewScore",
-        CASE WHEN threadsOnReadPosts."threadTopLevelId" IS NOT NULL THEN TRUE ELSE FALSE END AS "isOnReadPost"
+        CASE WHEN threadsOnReadPosts."threadTopLevelId" IS NOT NULL THEN TRUE ELSE FALSE END AS "isOnReadPost",
+        COALESCE(recentServings."recentServingCount", 0) AS "recentServingCount",
+        COALESCE(recentServings."servingHoursAgo", ARRAY[]::numeric[]) AS "servingHoursAgo"
       FROM
         ( -- get threads with any recent activity
           SELECT "threadTopLevelId"
@@ -749,6 +789,34 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
                 ) recent_threads_filter_for_torp
             )
         ) threadsOnReadPosts ON recentActiveThreads."threadTopLevelId" = threadsOnReadPosts."threadTopLevelId"
+      LEFT JOIN
+        ( -- get recent servings of threads to calculate repetition penalty
+          SELECT
+            COALESCE(c_served."topLevelCommentId", c_served._id) AS "threadTopLevelId",
+            COUNT(DISTINCT ufe_served."createdAt") AS "recentServingCount",
+            ARRAY_AGG(
+              EXTRACT(EPOCH FROM (NOW() - ufe_served."createdAt")) / 3600 
+              ORDER BY ufe_served."createdAt" DESC
+            ) AS "servingHoursAgo"
+          FROM "UltraFeedEvents" ufe_served
+          JOIN "Comments" c_served ON ufe_served."documentId" = c_served._id
+          WHERE ufe_served."userId" = $(userId)
+            AND ufe_served."eventType" = 'served'
+            AND ufe_served."collectionName" = 'Comments'
+            AND ufe_served."createdAt" > (NOW() - INTERVAL '6 hours') -- Shorter lookback for repetition
+            AND COALESCE(c_served."topLevelCommentId", c_served._id) IN (
+                SELECT "threadTopLevelId_inner_rat" FROM (
+                    SELECT COALESCE(c_inner."topLevelCommentId", c_inner._id) AS "threadTopLevelId_inner_rat", MAX(c_inner."postedAt") AS "lastCommentActivity_inner"
+                    FROM "Comments" c_inner
+                    WHERE c_inner."postedAt" > (NOW() - INTERVAL $(lookbackInterval))
+                      AND c_inner.deleted IS NOT TRUE AND c_inner.retracted IS NOT TRUE AND c_inner."authorIsUnreviewed" IS NOT TRUE
+                    GROUP BY COALESCE(c_inner."topLevelCommentId", c_inner._id)
+                    ORDER BY "lastCommentActivity_inner" DESC
+                    LIMIT $(threadCandidateLimit)
+                ) recent_threads_filter_for_servings
+            )
+          GROUP BY COALESCE(c_served."topLevelCommentId", c_served._id)
+        ) recentServings ON recentActiveThreads."threadTopLevelId" = recentServings."threadTopLevelId"
     `, {
       userId,
       lookbackInterval,

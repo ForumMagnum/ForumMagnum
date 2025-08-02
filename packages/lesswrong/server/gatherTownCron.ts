@@ -1,26 +1,19 @@
 import { addCronJob, removeCronJob } from './cronUtil';
 import WebSocket from 'ws';
-import { DatabaseServerSetting } from './databaseSettings';
-import { gatherTownRoomId, gatherTownRoomName } from '../lib/publicSettings';
+import { gatherTownRoomPassword, minGatherTownTrackerVersion } from './databaseSettings';
+import { gatherTownRoomId, gatherTownRoomName, isLW } from '@/lib/instanceSettings';
 import { isProduction } from '../lib/executionEnvironment';
 import { toDictionary } from '../lib/utils/toDictionary';
 import * as _ from 'underscore';
-import { isLW } from '../lib/instanceSettings';
 import { createLWEvent } from './collections/lwevents/mutations';
 import { createAdminContext } from './vulcan-lib/createContexts';
-
-const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
+import { backgroundTask } from './utils/backgroundTask';
 
 // Version number of the GatherTown bot in this file. This matches the version
 // number field in the GatherTown connection header, ie it tracks their releases.
 // If this is a non-integer, the integer part is the GatherTown version number and
 // the fractional part is our internal iteration on the bot.
 const currentGatherTownTrackerVersion = 7;
-
-// Minimum version number of the GatherTown bot that should run. If this is higher
-// than the bot version in this file, then the cronjob shuts off so some other
-// server can update it instead.
-const minGatherTownTrackerVersion = new DatabaseServerSetting<number>("gatherTownTrackerVersion", currentGatherTownTrackerVersion);
 
 export function initGatherTownCron() {
   if (isProduction && isLW) {
@@ -29,7 +22,7 @@ export function initGatherTownCron() {
         name: 'gatherTownBot'+currentGatherTownTrackerVersion,
         interval: "every 3 minutes",
         job() {
-          void pollGatherTownUsers();
+          backgroundTask(pollGatherTownUsers());
         }
       });
     }
@@ -48,7 +41,7 @@ const pollGatherTownUsers = async () => {
   const {gatherTownUsers, checkFailed, failureReason} = result;
   // eslint-disable-next-line no-console
   console.log(`GatherTown users: ${JSON.stringify(result)}`);
-  void createLWEvent({
+  backgroundTask(createLWEvent({
     data: {
       name: 'gatherTownUsersCheck',
       important: false,
@@ -58,7 +51,7 @@ const pollGatherTownUsers = async () => {
         gatherTownUsers, checkFailed, failureReason
       }
     }
-  }, createAdminContext());
+  }, createAdminContext()));
 }
 
 type GatherTownPlayerInfo = any;
