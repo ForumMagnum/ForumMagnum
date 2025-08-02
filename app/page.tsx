@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 export const metadata = defaultMetadata;
 
-export default function Home() {
+export default async function Home() {
   return <>
     <RouteMetadataSetter metadata={{ hasLeftNavigationColumn: true }} />
     <LWHome />

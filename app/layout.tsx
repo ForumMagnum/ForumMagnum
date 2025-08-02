@@ -13,6 +13,9 @@ import { getEmbeddedStyleLoaderScript } from "@/components/hooks/embedStyles";
 import { globalExternalStylesheets } from "@/themes/globalStyles/externalStyles";
 
 import "@/components/momentjs";
+import ClientIDAssigner from "@/components/analytics/ClientIDAssigner";
+import ClientIdsRepo from "@/server/repos/ClientIdsRepo";
+import { CLIENT_ID_COOKIE, THEME_COOKIE, TIMEZONE_COOKIE } from "@/lib/cookies/cookies";
 
 export default async function RootLayout({
   children,
@@ -31,12 +34,16 @@ export default async function RootLayout({
 
   const cookieStoreArray = cookieStore.getAll();
 
-  const timezoneCookie = cookieStore.get("timezone");
-  const themeCookie = cookieStore.get("theme")?.value ?? null;
+  const timezoneCookie = cookieStore.get(TIMEZONE_COOKIE);
+  const themeCookie = cookieStore.get(THEME_COOKIE)?.value ?? null;
 
   const timezone = timezoneCookie?.value ?? DEFAULT_TIMEZONE;
+  const clientId = cookieStore.get(CLIENT_ID_COOKIE)?.value ?? null;
 
-  const user = await getCachedUser(cookieStore.get("loginToken")?.value ?? null);
+  const [user, clientIdInvalidated] = await Promise.all([
+    getCachedUser(cookieStore.get("loginToken")?.value ?? null),
+    clientId && new ClientIdsRepo().isClientIdInvalidated(clientId)
+  ]);
   const abstractThemeOptions = getThemeOptions(themeCookie, user);
   const themeOptions = abstractThemeToConcrete(abstractThemeOptions, false);
 
@@ -64,6 +71,7 @@ export default async function RootLayout({
       </head>
       <body>
         <ClientRouteMetadataProvider initialMetadata={routeMetadata}>
+        <ClientIDAssigner cookieArray={cookieStoreArray} clientIdInvalidated={!!clientIdInvalidated}/>
         <AppGenerator
           abTestGroupsUsed={{}}
           themeOptions={abstractThemeOptions}
