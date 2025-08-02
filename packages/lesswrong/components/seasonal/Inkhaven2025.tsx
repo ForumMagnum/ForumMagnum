@@ -120,7 +120,7 @@ export const Inkhaven2025Banner = () => {
         </div>
         <div className={classes.inkhavenBannerText}>
           <h2><a href="https://www.lesswrong.com/posts/CA6XfmzYoGFWNhH8e/whence-the-inkhaven-residency">The Inkhaven Residency</a></h2>
-          <h3>November 1-30 | Lighthaven, CA</h3>
+          <h3>November 1-30 | Lighthaven,&nbsp;CA</h3>
           <div className={classes.inkhavenBannerDateAndLocation}>Want to become a great internet writer? Join us for an intense month of daily blogging.          </div>
           <div style={{display: 'inline-block', alignItems: 'center'}}>
             <a href="https://www.inkhaven.blog" target="_blank" rel="noopener noreferrer"><button>Apply Now</button></a>
