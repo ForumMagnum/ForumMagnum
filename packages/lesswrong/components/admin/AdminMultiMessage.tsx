@@ -150,12 +150,12 @@ const AdminMultiMessage = () => {
     defaultValues: {
       contents: {
         originalContents: {
-          type: 'html',
+          type: 'ckEditorMarkup',
           data: '',
         },
       },
     },
-    onSubmit: async ({ formApi }) => {
+    onSubmit: async ({ value }) => {
       if (selectedUsers.length === 0) {
         flash({ messageString: 'Please select at least one user', type: 'error' });
         return;
@@ -166,7 +166,7 @@ const AdminMultiMessage = () => {
         return;
       }
 
-      const messageContents = formApi.state.values.contents;
+      const messageContents = value.contents;
       if (!messageContents?.originalContents?.data) {
         flash({ messageString: 'Please enter a message', type: 'error' });
         return;
@@ -229,11 +229,9 @@ const AdminMultiMessage = () => {
         if (successfulSends > 0) {
           setSuccessCount(successfulSends);
           
+          onSuccessCallback.current?.(null);
           setSubject('');
-          formApi.reset();
           setSelectedUsers([]);
-          setIsModerator(false);
-          setNoEmail(false);
           
           setInboxRefreshKey(prev => prev + 1);
         }
