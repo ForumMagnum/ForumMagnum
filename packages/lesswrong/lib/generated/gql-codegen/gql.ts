@@ -18,6 +18,8 @@ type Documents = {
     "\n  query multiGoogleServiceAccountSessionAdminGoogleServiceAccountQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {\n    googleServiceAccountSessions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...GoogleServiceAccountSessionAdminInfo\n      }\n      totalCount\n    }\n  }\n": typeof types.multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryDocument,
     "\n    mutation revokeGoogleServiceAccountTokens {\n      revokeGoogleServiceAccountTokens\n    }\n  ": typeof types.revokeGoogleServiceAccountTokensDocument,
     "\n    query AdminMetadataQuery {\n      AdminMetadata\n    }\n  ": typeof types.AdminMetadataQueryDocument,
+    "\n  mutation AdminMultiMessageCreateConversation($data: CreateConversationDataInput!) {\n    createConversation(data: $data) {\n      data {\n        ...ConversationsMinimumInfo\n      }\n    }\n  }\n": typeof types.AdminMultiMessageCreateConversationDocument,
+    "\n  mutation AdminMultiMessageCreateMessage($data: CreateMessageDataInput!) {\n    createMessage(data: $data) {\n      data {\n        ...messageListFragment\n      }\n    }\n  }\n": typeof types.AdminMultiMessageCreateMessageDocument,
     "\n    query SearchSynonyms {\n      SearchSynonyms\n    }\n  ": typeof types.SearchSynonymsDocument,
     "mutation UpdateSearchSynonyms($synonyms: [String!]!) {\n      UpdateSearchSynonyms(synonyms: $synonyms)\n    }": typeof types.UpdateSearchSynonymsDocument,
     "\n  mutation updateCurationNoticeCurationNoticesForm($selector: SelectorInput!, $data: UpdateCurationNoticeDataInput!) {\n    updateCurationNotice(selector: $selector, data: $data) {\n      data {\n        ...CurationNoticesFragment\n      }\n    }\n  }\n": typeof types.updateCurationNoticeCurationNoticesFormDocument,
@@ -1008,6 +1010,8 @@ const documents: Documents = {
     "\n  query multiGoogleServiceAccountSessionAdminGoogleServiceAccountQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {\n    googleServiceAccountSessions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...GoogleServiceAccountSessionAdminInfo\n      }\n      totalCount\n    }\n  }\n": types.multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryDocument,
     "\n    mutation revokeGoogleServiceAccountTokens {\n      revokeGoogleServiceAccountTokens\n    }\n  ": types.revokeGoogleServiceAccountTokensDocument,
     "\n    query AdminMetadataQuery {\n      AdminMetadata\n    }\n  ": types.AdminMetadataQueryDocument,
+    "\n  mutation AdminMultiMessageCreateConversation($data: CreateConversationDataInput!) {\n    createConversation(data: $data) {\n      data {\n        ...ConversationsMinimumInfo\n      }\n    }\n  }\n": types.AdminMultiMessageCreateConversationDocument,
+    "\n  mutation AdminMultiMessageCreateMessage($data: CreateMessageDataInput!) {\n    createMessage(data: $data) {\n      data {\n        ...messageListFragment\n      }\n    }\n  }\n": types.AdminMultiMessageCreateMessageDocument,
     "\n    query SearchSynonyms {\n      SearchSynonyms\n    }\n  ": types.SearchSynonymsDocument,
     "mutation UpdateSearchSynonyms($synonyms: [String!]!) {\n      UpdateSearchSynonyms(synonyms: $synonyms)\n    }": types.UpdateSearchSynonymsDocument,
     "\n  mutation updateCurationNoticeCurationNoticesForm($selector: SelectorInput!, $data: UpdateCurationNoticeDataInput!) {\n    updateCurationNotice(selector: $selector, data: $data) {\n      data {\n        ...CurationNoticesFragment\n      }\n    }\n  }\n": types.updateCurationNoticeCurationNoticesFormDocument,
@@ -2024,6 +2028,14 @@ export function gql(source: "\n    mutation revokeGoogleServiceAccountTokens {\n
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    query AdminMetadataQuery {\n      AdminMetadata\n    }\n  "): (typeof documents)["\n    query AdminMetadataQuery {\n      AdminMetadata\n    }\n  "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation AdminMultiMessageCreateConversation($data: CreateConversationDataInput!) {\n    createConversation(data: $data) {\n      data {\n        ...ConversationsMinimumInfo\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation AdminMultiMessageCreateConversation($data: CreateConversationDataInput!) {\n    createConversation(data: $data) {\n      data {\n        ...ConversationsMinimumInfo\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation AdminMultiMessageCreateMessage($data: CreateMessageDataInput!) {\n    createMessage(data: $data) {\n      data {\n        ...messageListFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation AdminMultiMessageCreateMessage($data: CreateMessageDataInput!) {\n    createMessage(data: $data) {\n      data {\n        ...messageListFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

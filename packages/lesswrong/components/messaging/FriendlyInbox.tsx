@@ -210,9 +210,11 @@ const FriendlyInbox = ({
   terms,
   conversationId,
   isModInbox = false,
+  onSelectConversation,
   classes,
 }: InboxComponentProps & {
   conversationId?: string;
+  onSelectConversation?: (conversationId: string | undefined) => void;
   classes: ClassesType<typeof styles>;
 }) => {
   const { openDialog } = useDialog();
@@ -224,9 +226,13 @@ const FriendlyInbox = ({
 
   const selectConversationCallback = useCallback(
     (conversationId: string | undefined) => {
-      navigate({ ...location, pathname: `/${isModInbox ? "moderatorInbox" : "inbox"}/${conversationId}` });
+      if (onSelectConversation) {
+        onSelectConversation(conversationId);
+      } else {
+        navigate({ ...location, pathname: `/${isModInbox ? "moderatorInbox" : "inbox"}/${conversationId}` });
+      }
     },
-    [navigate, isModInbox, location]
+    [navigate, isModInbox, location, onSelectConversation]
   );
 
   const openNewConversationDialog = useCallback(() => {
