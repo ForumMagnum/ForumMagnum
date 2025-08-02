@@ -115,8 +115,13 @@ export const Inkhaven2025Banner = () => {
     <AnalyticsContext pageSectionContext="inkhaven2025Banner">
       <div className={classes.root}>
         <div className={classes.imageColumn}>
-          <img src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1754080752/benito2692_httpss.mj.runyDVzPpvb3Kw_httpss.mj.runw1QRA5VJzn0_Pa_6687e73d-a1af-4911-86b3-bd6d4b18d242_ysez8s.png" alt="Inkhaven 2025 Banner" className={classes.image} />
-            <div className={classes.gradientOverlay} />
+          <CloudinaryImage2
+            loading="lazy"
+            className={classes.image}
+            publicId="benito2692_httpss.mj.runyDVzPpvb3Kw_httpss.mj.runw1QRA5VJzn0_Pa_6687e73d-a1af-4911-86b3-bd6d4b18d242_ysez8s"
+            darkPublicId={"0_0_g6fknc.png"}
+          />
+          <div className={classes.gradientOverlay} />
         </div>
         <div className={classes.inkhavenBannerText}>
           <h2><a href="https://www.lesswrong.com/posts/CA6XfmzYoGFWNhH8e/whence-the-inkhaven-residency">The Inkhaven Residency</a></h2>
