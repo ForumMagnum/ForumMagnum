@@ -716,7 +716,7 @@ export const SunshinePostsList = gql(`
     }
 
     automatedContentEvaluations {
-      ...AutomatedContentEvaluations
+      ...AutomatedContentEvaluationsFragment
     }
 
     moderationGuidelines {

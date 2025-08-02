@@ -14,8 +14,8 @@ interface FragmentTypes {
   ArbitalCachesDefaultFragment: ArbitalCachesDefaultFragment
   ArbitalLinkedPagesFragment: ArbitalLinkedPagesFragment
   ArbitalTagContentRelsDefaultFragment: ArbitalTagContentRelsDefaultFragment
-  AutomatedContentEvaluations: AutomatedContentEvaluations
   AutomatedContentEvaluationsDefaultFragment: AutomatedContentEvaluationsDefaultFragment
+  AutomatedContentEvaluationsFragment: AutomatedContentEvaluationsFragment
   BansAdminPageFragment: BansAdminPageFragment
   BansDefaultFragment: BansDefaultFragment
   BookEdit: BookEdit
@@ -349,7 +349,7 @@ interface FragmentTypesByCollection {
   ArbitalCacheses: "ArbitalCachesDefaultFragment"
   ArbitalLinkedPageses: "ArbitalLinkedPagesFragment"
   ArbitalTagContentRels: "ArbitalTagContentRelsDefaultFragment"
-  AutomatedContentEvaluations: "AutomatedContentEvaluations"|"AutomatedContentEvaluationsDefaultFragment"
+  AutomatedContentEvaluations: "AutomatedContentEvaluationsDefaultFragment"|"AutomatedContentEvaluationsFragment"
   Bans: "BansAdminPageFragment"|"BansDefaultFragment"
   Bookmarks: "BookmarksDefaultFragment"|"BookmarksFeedItemFragment"|"BookmarksWithDocumentFragment"
   Books: "BookEdit"|"BookPageFragment"|"BooksDefaultFragment"
@@ -446,8 +446,8 @@ interface CollectionNamesByFragmentName {
   ArbitalCachesDefaultFragment: "ArbitalCaches"
   ArbitalLinkedPagesFragment: never
   ArbitalTagContentRelsDefaultFragment: "ArbitalTagContentRels"
-  AutomatedContentEvaluations: "AutomatedContentEvaluations"
   AutomatedContentEvaluationsDefaultFragment: "AutomatedContentEvaluations"
+  AutomatedContentEvaluationsFragment: "AutomatedContentEvaluations"
   BansAdminPageFragment: "Bans"
   BansDefaultFragment: "Bans"
   BookEdit: "Books"
