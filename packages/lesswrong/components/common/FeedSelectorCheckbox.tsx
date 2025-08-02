@@ -41,7 +41,6 @@ const FeedSelectorCheckbox = ({ currentFeedType }: FeedSelectorCheckboxProps) =>
   const updateCurrentUser = useUpdateCurrentUser();
   const [cookies, setCookie] = useCookiesWithConsent([ULTRA_FEED_ENABLED_COOKIE, ULTRA_FEED_PAGE_VISITED_COOKIE]);
   
-  // Don't show if (1) UltraFeed is disabled, (2) user is not logged in, or (3) user has not explicitly opted in, visited the feed page, or is in the A/B test group
   if (!ultraFeedEnabledSetting.get() || !currentUser) {
     return null;
   }
