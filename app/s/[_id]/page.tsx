@@ -5,7 +5,10 @@ import { RouteMetadataSetter } from "@/components/RouteMetadataContext";
 import type { Metadata } from "next";
 import { gql } from "@/lib/generated/gql-codegen";
 import { getClient } from "@/lib/apollo/nextApolloClient";
-import { getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
+import { defaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
+import merge from "lodash/merge";
+import { combineUrls, getSiteUrl } from "@/lib/vulcan-lib/utils";
+import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
 
 const SequenceMetadataQuery = gql(`
   query SequenceMetadata($sequenceId: String) {
@@ -19,14 +22,14 @@ const SequenceMetadataQuery = gql(`
 `);
 
 export async function generateMetadata({ params }: { params: Promise<{ _id: string }> }): Promise<Metadata> {
-  const paramValues = await params;
+  const { _id } = await params;
 
   const client = getClient();
 
   const { data } = await client.query({
     query: SequenceMetadataQuery,
     variables: {
-      sequenceId: paramValues._id,
+      sequenceId: _id,
     },
   });
 
@@ -36,7 +39,14 @@ export async function generateMetadata({ params }: { params: Promise<{ _id: stri
 
   const titleFields = getPageTitleFields(sequence.title);
 
-  return { ...titleFields };
+  const ogUrl = combineUrls(getSiteUrl(), `/s/${_id}`);
+  const canonicalUrl = sequenceGetPageUrl({ _id }, true);
+
+  return merge({}, defaultMetadata, {
+    ...titleFields,
+    openGraph: { url: ogUrl },
+    alternates: { canonical: canonicalUrl },
+  });
 }
 
 export default function Page() {
