@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from 'moment';
-import { JOB_AD_DATA } from '../components/ea-forum/TargetedJobAd';
+import { JOB_AD_DATA } from '../components/ea-forum/constants';
 import UserJobAds from '../server/collections/userJobAds/collection';
 import { Users } from '../server/collections/users/collection';
 import uniq from 'lodash/fp/uniq';
