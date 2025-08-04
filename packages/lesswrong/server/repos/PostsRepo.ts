@@ -11,6 +11,7 @@ import { FilterSettings, FilterMode } from "@/lib/filterSettings";
 import { FeedFullPost, FeedPostFromDb } from "@/components/ultraFeed/ultraFeedTypes";
 import { TIME_DECAY_FACTOR, SCORE_BIAS } from "@/lib/scoring";
 import { accessFilterMultiple } from "@/lib/utils/schemaUtils";
+import { getSiteUrl } from "@/lib/vulcan-lib/utils";
 
 type DbPostWithContents = DbPost & {contents?: DbRevision | null};
 
@@ -1273,6 +1274,49 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       maxAgeDaysParam: maxAgeDays,
       limitParam: limit
     });
+  }
+
+  async fetchEAFundsPosts(userSlugs: string[]) {
+    const eaFundsTagSlug = "effective-altruism-funds";
+    return this.getRawDb().any(`
+      -- PostsRepo.fetchEAFundsPosts
+      WITH "splitAuthors" AS (
+        SELECT p."_id" "postId", coauthor->>'userId' "userId"
+        FROM "Posts" p,
+          UNNEST(
+            ARRAY[JSONB_BUILD_OBJECT('userId', p."userId")] ||
+            p."coauthorStatuses"
+          ) AS coauthor
+        JOIN "Tags" t ON t."slug" = $2
+        WHERE (p."tagRelevance"->t."_id")::INTEGER >= 1
+        AND ${getViewablePostsSelector("p")}
+      ), authors AS (
+        SELECT
+          "splitAuthors"."postId",
+          ARRAY_AGG(u."slug") "slugs",
+          ARRAY_AGG(
+            JSONB_BUILD_OBJECT(
+              '_id', u."_id",
+              'displayName', u."displayName",
+              'pageUrl', $1 || 'users/' || u."slug" || '?utm_source=eafunds'
+            )
+          ) "users"
+        FROM "splitAuthors"
+        JOIN "Users" u ON u."_id" = "splitAuthors"."userId"
+        GROUP BY "splitAuthors"."postId"
+      )
+      SELECT
+        p."_id",
+        p."title",
+        $1 || 'posts/' || p."_id" || '/' || p."slug" || '?utm_source=eafunds' "pageUrl",
+        p."postedAt",
+        "authors"."users"
+      FROM "authors"
+      JOIN "Posts" p ON authors."postId" = p."_id"
+      WHERE "authors"."slugs" && $3
+      ORDER BY p."postedAt" DESC
+      LIMIT 6
+    `, [getSiteUrl(), eaFundsTagSlug, userSlugs]);
   }
 
   async getSitemapPosts(): Promise<Pick<
