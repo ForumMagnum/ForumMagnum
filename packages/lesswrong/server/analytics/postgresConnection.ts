@@ -3,7 +3,7 @@ import pgp, { IDatabase } from "pg-promise";
 import type { IClient } from "pg-promise/typescript/pg-subset";
 import { DatabaseServerSetting } from "../databaseSettings";
 import { PublicInstanceSetting, isEAForum } from "../../lib/instanceSettings";
-import { fs } from "mz";
+import fs from "fs";
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { getInstanceSettingsFilePath } from "../commandLine";
 import path from "path";
