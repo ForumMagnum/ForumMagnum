@@ -1298,7 +1298,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
             JSONB_BUILD_OBJECT(
               '_id', u."_id",
               'displayName', u."displayName",
-              'pageUrl', $1 || u."slug" || '?utm_source=eafunds'
+              'pageUrl', $1 || 'users/' || u."slug" || '?utm_source=eafunds'
             )
           ) "users"
         FROM "splitAuthors"
@@ -1308,7 +1308,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       SELECT
         p."_id",
         p."title",
-        $1 || p."_id" || '/' || p."slug" || '?utm_source=eafunds' "pageUrl",
+        $1 || 'posts/' || p."_id" || '/' || p."slug" || '?utm_source=eafunds' "pageUrl",
         p."postedAt",
         "authors"."users"
       FROM "authors"
