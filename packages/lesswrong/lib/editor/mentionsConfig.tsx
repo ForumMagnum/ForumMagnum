@@ -88,16 +88,12 @@ type MentionItem = (MentionUser | MentionPost | MentionTag) & {
 }
 
 const itemRenderer = (portalContext: CkEditorPortalContextType|null) => (item: MentionItem) => {
-  console.log("In mentionsConfig.itemRenderer");
   const itemElement = document.createElement("button");
   itemElement.classList.add("ck-mention-item", "ck-reset_all-excluded");
   itemElement.style.cursor = "pointer";
 
   if (portalContext) {
-    console.log("mentionsConfig.itemRenderer has portalContext");
     portalContext.createPortal(itemElement, <MentionHit item={item}/>);
-  } else {
-    console.log("mentionsConfig.itemRenderer missing portalContext");
   }
 
   return itemElement;
