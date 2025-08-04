@@ -270,11 +270,17 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   backgroundTask(maybeCreateAutomatedContentEvaluation(updatedDocument, oldDocument, context));
   
   const postTitleChanged = (oldDocument.title !== updatedDocument.title);
-  const postBodyChanged = (oldDocument.contents_latest !== updatedDocument.contents_latest);
-  console.log(`postTitleChanged=${postTitleChanged}, postBodyChanged=${postBodyChanged}`);
-  if (isProduction && isPostAllowedType3Audio(updatedDocument) && (postTitleChanged || postBodyChanged)) {
+
+  // Note: Posts can sometimes get a new revision ID without the actual contents
+  // of the body changing. This happens when undrafting, but might also happen
+  // under other circumstances.
+  const postBodyRevisionIdChanged = (oldDocument.contents_latest !== updatedDocument.contents_latest);
+
+  if (isProduction && isPostAllowedType3Audio(updatedDocument) && (postTitleChanged || postBodyRevisionIdChanged)) {
     console.log(`Regenerating Type3 audio for post ${updatedDocument._id} after update`);
-    backgroundTask(regenerateType3AudioForDocumentId(updatedDocument._id, "Posts"));
+    backgroundTask(regenerateType3AudioForDocumentId(updatedDocument._id, "Posts", {
+      immediate: false,
+    }));
   }
 
   return updatedDocument;
