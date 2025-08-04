@@ -269,6 +269,18 @@ class TagsRepo extends AbstractRepo<"Tags"> {
 
     return { tags, totalCount };
   }
+
+  async getSitemapTags(): Promise<Pick<DbTag, "slug">[]> {
+    return this.getRawDb().any(`
+      -- TagsRepo.getSitemapTags
+      SELECT "slug"
+      FROM "Tags"
+      WHERE
+        NOT "noindex" AND
+        ${getViewableTagsSelector()}
+      ORDER BY "createdAt" DESC
+    `);
+  }
 }
 
 recordPerfMetrics(TagsRepo);

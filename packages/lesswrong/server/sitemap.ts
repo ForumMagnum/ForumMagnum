@@ -2,10 +2,12 @@ import { Routes } from "@/lib/vulcan-lib/routes";
 import { combineUrls, getSiteUrl } from "@/lib/vulcan-lib/utils";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { userGetProfileUrlFromSlug } from "@/lib/collections/users/helpers";
+import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
 import { localgroupGetUrl } from "@/lib/collections/localgroups/helpers";
 import PostsRepo from "./repos/PostsRepo";
 import UsersRepo from "./repos/UsersRepo";
+import TagsRepo from "./repos/TagsRepo";
 import SequencesRepo from "./repos/SequencesRepo";
 import LocalgroupsRepo from "./repos/LocalgroupsRepo";
 import chunk from "lodash/chunk";
@@ -81,6 +83,14 @@ const generateUserEntries = async (): Promise<SitemapEntry[]> => {
   }));
 }
 
+const generateTagEntries = async (): Promise<SitemapEntry[]> => {
+  const tags = await new TagsRepo().getSitemapTags();
+  return tags.map((tag) => ({
+    path: tagGetUrl(tag),
+    changefreq: "monthly",
+  }));
+}
+
 const generateSequencesEntries = async (): Promise<SitemapEntry[]> => {
   const sequences = await new SequencesRepo().getSitemapSequences();
   return sequences.map((sequence) => ({
@@ -116,11 +126,13 @@ export const generateSitemaps = async (): Promise<string[]> => {
   const [
     postEntries,
     userEntries,
+    tagEntries,
     sequenceEntries,
     localgroupEntries,
   ] = await Promise.all([
     generatePostEntries(),
     generateUserEntries(),
+    generateTagEntries(),
     generateSequencesEntries(),
     generateLocalgroupsEntries(),
   ]);
@@ -128,6 +140,7 @@ export const generateSitemaps = async (): Promise<string[]> => {
     ...generateStaticEntries(),
     ...postEntries,
     ...userEntries,
+    ...tagEntries,
     ...sequenceEntries,
     ...localgroupEntries,
   ];
