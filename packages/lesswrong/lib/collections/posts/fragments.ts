@@ -15,6 +15,7 @@ export const PostsMinimumInfo = () => frag`
       quadraticScore
     }
     userId
+    coauthorUserIds
     coauthorStatuses {
       userId
       confirmed
@@ -586,6 +587,7 @@ export const PostsEdit = () => frag`
     ...PostSideComments
     myEditorAccess
     version
+    coauthorUserIds
     coauthorStatuses {
       userId
       confirmed

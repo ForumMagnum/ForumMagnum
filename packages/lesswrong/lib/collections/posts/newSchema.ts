@@ -2301,16 +2301,27 @@ const schema = {
       canCreate: ["sunshineRegiment", "admins", userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
     },
   },
+  coauthorUserIds: {
+    database: {
+      type: "TEXT[]",
+      defaultValue: [],
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "[String!]!",
+      inputType: "[String!]!",
+      canRead: [documentIsNotDeleted],
+      canUpdate: ["sunshineRegiment", "admins", userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
+      canCreate: ["sunshineRegiment", "admins", userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
+    },
+  },
   coauthors: {
     graphql: {
       outputType: "[User!]",
       canRead: [documentIsNotDeleted],
       resolver: async (post, args, context) => {
-        const resolvedDocs = await loadByIds(
-          context,
-          "Users",
-          post.coauthorStatuses?.map(({ userId }) => userId) || []
-        );
+        const resolvedDocs = await loadByIds(context, "Users", post.coauthorUserIds);
         return await accessFilterMultiple(context.currentUser, "Users", resolvedDocs, context);
       },
     },

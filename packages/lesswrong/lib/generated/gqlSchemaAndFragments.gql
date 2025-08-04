@@ -3397,6 +3397,7 @@ type Post {
   autoFrontpage: String
   collectionTitle: String
   coauthorStatuses: [CoauthorStatusOutput!]
+  coauthorUserIds: [String!]!
   coauthors: [User!]
   hasCoauthorPermission: Boolean!
   socialPreviewImageId: String
@@ -6118,6 +6119,7 @@ input CreatePostDataInput {
   autoFrontpage: String
   collectionTitle: String
   coauthorStatuses: [CoauthorStatusInput!]
+  coauthorUserIds: [String!]!
   hasCoauthorPermission: Boolean
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String
@@ -6233,6 +6235,7 @@ input UpdatePostDataInput {
   autoFrontpage: String
   collectionTitle: String
   coauthorStatuses: [CoauthorStatusInput!]
+  coauthorUserIds: [String!]
   hasCoauthorPermission: Boolean
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String
@@ -9568,6 +9571,7 @@ fragment PostsDefaultFragment on Post {
   frontpageDate
   autoFrontpage
   collectionTitle
+  coauthorUserIds
   hasCoauthorPermission
   socialPreviewImageId
   socialPreviewImageAutoUrl
@@ -9767,6 +9771,7 @@ fragment PostsEdit on Post {
   ...PostSideComments
   myEditorAccess
   version
+  coauthorUserIds
   coauthorStatuses {
     userId
     confirmed
@@ -9949,6 +9954,7 @@ fragment PostsMinimumInfo on Post {
     quadraticScore
   }
   userId
+  coauthorUserIds
   coauthorStatuses {
     userId
     confirmed

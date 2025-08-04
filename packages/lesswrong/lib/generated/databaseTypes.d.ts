@@ -974,6 +974,7 @@ interface DbPost extends DbObject {
   canonicalSource: string | null
   clickCount: number
   coauthorStatuses: Array<CoauthorStatusInput!> | null
+  coauthorUserIds: Array<string>
   collabEditorDialogue: boolean
   collectionTitle: string | null
   commentCount: number

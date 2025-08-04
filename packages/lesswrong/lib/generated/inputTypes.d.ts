@@ -2731,6 +2731,7 @@ interface Post {
   autoFrontpage: string | null;
   collectionTitle: string | null;
   coauthorStatuses: Array<CoauthorStatusOutput> | null;
+  coauthorUserIds: Array<string>;
   coauthors: Array<User> | null;
   hasCoauthorPermission: boolean;
   socialPreviewImageId: string | null;
@@ -5202,6 +5203,7 @@ interface CreatePostDataInput {
   autoFrontpage?: string | null;
   collectionTitle?: string | null;
   coauthorStatuses?: Array<CoauthorStatusInput> | null;
+  coauthorUserIds: Array<string>;
   hasCoauthorPermission?: boolean | null;
   socialPreviewImageId?: string | null;
   socialPreviewImageAutoUrl?: string | null;
@@ -5317,6 +5319,7 @@ interface UpdatePostDataInput {
   autoFrontpage?: string | null;
   collectionTitle?: string | null;
   coauthorStatuses?: Array<CoauthorStatusInput> | null;
+  coauthorUserIds?: Array<string> | null;
   hasCoauthorPermission?: boolean | null;
   socialPreviewImageId?: string | null;
   socialPreviewImageAutoUrl?: string | null;

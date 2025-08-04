@@ -1691,6 +1691,7 @@ CREATE TABLE "Posts" (
   "autoFrontpage" TEXT,
   "collectionTitle" TEXT,
   "coauthorStatuses" JSONB[],
+  "coauthorUserIds" TEXT[] NOT NULL DEFAULT '{}',
   "hasCoauthorPermission" BOOL NOT NULL DEFAULT TRUE,
   "socialPreviewImageId" TEXT,
   "socialPreviewImageAutoUrl" TEXT,

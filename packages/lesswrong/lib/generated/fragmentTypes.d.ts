@@ -1954,6 +1954,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly frontpageDate: Date|null,
   readonly autoFrontpage: "show" | "hide" | null,
   readonly collectionTitle: string|null,
+  readonly coauthorUserIds: Array<string>,
   readonly hasCoauthorPermission: boolean,
   readonly socialPreviewImageId: string|null,
   readonly socialPreviewImageAutoUrl: string|null,
@@ -2130,6 +2131,7 @@ interface PostsDetails_targetPostRelations { // fragment on PostRelations
 interface PostsEdit extends PostsDetails, PostSideComments { // fragment on Posts
   readonly myEditorAccess: string,
   readonly version: string|null,
+  readonly coauthorUserIds: Array<string>,
   readonly coauthorStatuses: Array<CoauthorStatusOutput>,
   readonly readTimeMinutesOverride: number|null,
   readonly fmCrosspost: CrosspostOutput,
@@ -2259,6 +2261,7 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly af: boolean,
   readonly currentUserReviewVote: PostsMinimumInfo_currentUserReviewVote|null,
   readonly userId: string|null,
+  readonly coauthorUserIds: Array<string>,
   readonly coauthorStatuses: Array<CoauthorStatusOutput>,
   readonly hasCoauthorPermission: boolean,
   readonly rejected: boolean,
