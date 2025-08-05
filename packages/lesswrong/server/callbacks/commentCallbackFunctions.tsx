@@ -862,6 +862,7 @@ export async function trackCommentRateLimitHit({document, context}: AfterCreateC
     if (rateLimit && rateLimit.rateLimitType !== 'universal') {
       captureEvent("commentRateLimitHit", {
         rateLimitType: rateLimit.rateLimitType,
+        rateLimitName: rateLimit.rateLimitName,
         userId: document.userId,
         commentId: document._id
       })
