@@ -58,8 +58,10 @@ const LatestReview = ({classes}: { classes: ClassesType<typeof styles> }) => {
           commentId={comment._id}
           placement="bottom-start"
           clickable
-          pageElementContext="frontpageReviewWidget"
-          pageElementSubContext="latestReviews"
+          analyticsProps={{
+            pageElementContext: "frontpageReviewWidget",
+            pageElementSubContext: "latestReviews"
+          }}
         >
           <div className={classes.root}>
             <Link to={href} className={classes.lastReview}>

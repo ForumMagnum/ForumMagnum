@@ -842,16 +842,21 @@ export const KeywordAlertNotification = createServerNotificationType({
       if (!link || !count || !keyword || !startDate || !endDate) {
         throw new Error("Missing keyword alert notification data");
       }
+      const start = new Date(startDate);
+      const end = new Date(endDate);
       const results = await fetchContentForKeyword(
         context,
         keyword,
-        new Date(startDate),
-        new Date(endDate),
+        start,
+        end,
       );
-      const alerts = count === 1 ? "alert" : "alerts";
-      return (
+      const alertsLabel = count === 1 ? "alert" : "alerts";
+      alerts.push(
         <div>
-          <p><a href={link}>{count} new {alerts}</a> for "{keyword}"</p>
+          <p>
+            <a href={link}>{count} new {alertsLabel}</a> for "{keyword}"
+            at {end.toLocaleTimeString()}, {end.toLocaleDateString()}
+          </p>
           <ul>
             {await Promise.all(results.map(async (keywordAlert) => (
               <li key={keywordAlert._id}>

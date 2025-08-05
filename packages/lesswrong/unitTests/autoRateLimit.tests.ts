@@ -40,6 +40,7 @@ function createCommentRateLimit(isActive: IsActiveFunction): CommentAutoRateLimi
     timeframeLength: 2,
     itemsPerTimeframe: 1,
     rateLimitType: "lowKarma",
+    rateLimitName: "oneCommentPerTwoDays",
     rateLimitMessage: "",
     appliesToOwnPosts: false,
     isActive,
