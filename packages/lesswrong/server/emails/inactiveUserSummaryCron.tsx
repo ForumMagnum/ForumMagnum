@@ -96,6 +96,7 @@ const sendInactiveUserSummaryEmail = async (
   const tag = "inactive-user-summary";
   const utmParams = {
     utm_source: "inactive_user_summary",
+    utm_medium: "email",
     utm_user_id: user._id,
   };
   const body = (
