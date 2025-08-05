@@ -82,7 +82,7 @@ export const EmailInactiveUserSummary = ({
   const showKarmaChange = karmaChange > 0;
   const showBestReaction = bestReaction && bestReaction.count > 0;
   const showMostCommentedPost = mostCommentedPost && mostCommentedPost.commentCount > 0;
-  const showUnreadNotifications = unreadNotifications > 0;
+  const showUnreadNotifications = unreadNotifications > 0 && unreadNotifications < 5;
 
   const showNotificationsSection =
     showKarmaChange ||
