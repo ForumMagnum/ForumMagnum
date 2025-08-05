@@ -41,12 +41,11 @@ interface CoauthorsListEditorProps {
 
 export const CoauthorsListEditor = ({ field, post, label }: CoauthorsListEditorProps) => {
   const classes = useStyles(coauthorsListEditorStyles);
-  const value = field.state.value ?? [];
 
   const addUserId = useCallback((userId: string) => {
-    const newValue = uniq([...value, userId]);
+    const newValue = uniq([...(field.state.value ?? []), userId]);
     field.handleChange(newValue);
-  }, [field, value]);
+  }, [field]);
 
   const setValue = useCallback((newValue: string[]) => {
     field.handleChange(newValue);
@@ -62,7 +61,7 @@ export const CoauthorsListEditor = ({ field, post, label }: CoauthorsListEditorP
       </ErrorBoundary>
       <SortableList
         axis="xy"
-        value={value}
+        value={field.state.value ?? []}
         setValue={setValue}
         className={classes.list}
       />
