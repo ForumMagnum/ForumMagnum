@@ -2731,8 +2731,8 @@ interface Post {
   autoFrontpage: string | null;
   collectionTitle: string | null;
   coauthorStatuses: Array<CoauthorStatusOutput> | null;
-  coauthorUserIds: Array<string>;
-  coauthors: Array<User>;
+  coauthorUserIds: Array<string> | null;
+  coauthors: Array<User> | null;
   hasCoauthorPermission: boolean;
   socialPreviewImageId: string | null;
   socialPreviewImageAutoUrl: string | null;

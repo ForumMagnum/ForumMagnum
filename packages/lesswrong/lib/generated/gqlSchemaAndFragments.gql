@@ -3393,8 +3393,8 @@ type Post {
   autoFrontpage: String
   collectionTitle: String
   coauthorStatuses: [CoauthorStatusOutput!]
-  coauthorUserIds: [String!]!
-  coauthors: [User!]!
+  coauthorUserIds: [String!]
+  coauthors: [User!]
   hasCoauthorPermission: Boolean!
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String

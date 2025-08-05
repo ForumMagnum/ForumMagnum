@@ -2309,7 +2309,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[String!]!",
+      outputType: "[String!]",
       inputType: "[String!]",
       canRead: [documentIsNotDeleted],
       canUpdate: ["sunshineRegiment", "admins", userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
@@ -2321,7 +2321,7 @@ const schema = {
   },
   coauthors: {
     graphql: {
-      outputType: "[User!]!",
+      outputType: "[User!]",
       canRead: [documentIsNotDeleted],
       resolver: async (post, args, context) => {
         const resolvedDocs = await loadByIds(context, "Users", post.coauthorUserIds);
