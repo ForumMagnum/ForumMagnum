@@ -27,7 +27,8 @@ type UseQueryOptions = {
 export const useQuery: typeof useQueryApollo = ((query: any, options?: UseQueryOptions) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   if (bundleIsServer && useContext(EnableSuspenseContext)) {
-    const isSkipped = options?.skip || (options && 'ssr' in options && !options.ssr);
+    const isNoSSR = (options && 'ssr' in options && !options.ssr)
+    const isSkipped = options?.skip || isNoSSR;
 
     if (debugSuspenseBoundaries) {
       // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -49,7 +50,10 @@ export const useQuery: typeof useQueryApollo = ((query: any, options?: UseQueryO
       // eslint-disable-next-line no-console
       console.log(`    ...returned query from cache`);
     }
-    return result;
+    return {
+      ...result,
+      loading: !options?.skip && isNoSSR,
+    };
   } else {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const result = useQueryApollo(query, options);
