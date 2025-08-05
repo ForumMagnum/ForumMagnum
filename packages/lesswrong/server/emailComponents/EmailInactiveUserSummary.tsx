@@ -108,7 +108,7 @@ export const EmailInactiveUserSummary = ({
           </h2>
           {showKarmaChange &&
             <p>
-              You earned {karmaChange} karma.
+              You earned {karmaChange} karma 🎉
             </p>
           }
           {showBestReaction &&
