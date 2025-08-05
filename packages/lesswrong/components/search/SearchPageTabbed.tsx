@@ -38,6 +38,7 @@ import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import LWDialog from '../common/LWDialog';
 import HeadTags from '../common/HeadTags';
+import { InteractionWrapper } from '../common/useClickableCell';
 
 const hitsPerPage = 10
 
@@ -398,11 +399,13 @@ const SearchPageTabbed = ({classes}: {
               * null is the only option that actually suppresses the extra X button.
             // @ts-ignore */}
             <SearchBox defaultRefinement={query.query} reset={null} focusShortcuts={[]} autoFocus={true} />
-            <div onClick={() => setModalOpen(true)}>
-              <IconButton className={classes.funnelIconButton}>
-                <ForumIcon icon="Funnel" className={classNames({[classes.funnelIconLW]: !isEAForum, [classes.funnelIconEA]: isEAForum})}/>
-              </IconButton>
-            </div>
+            <InteractionWrapper>
+              <div onClick={() => setModalOpen(true)}>
+                <IconButton className={classes.funnelIconButton}>
+                  <ForumIcon icon="Funnel" className={classNames({[classes.funnelIconLW]: !isEAForum, [classes.funnelIconEA]: isEAForum})}/>
+                </IconButton>
+              </div>
+            </InteractionWrapper>
           </div>
           <LWTooltip
             title={`"Quotes" and -minus signs are supported. Use user:"Jane Doe" or ${taggingNameSetting.get()}:"Expected value" to filter by user or ${taggingNameSetting.get()}.`}
