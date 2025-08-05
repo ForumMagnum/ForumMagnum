@@ -1272,33 +1272,10 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     const eaFundsTagSlug = "effective-altruism-funds";
     return this.getRawDb().any(`
       -- PostsRepo.fetchEAFundsPosts
-      SELECT
-        p."_id",
-        p."title",
-        $1 || 'posts/' || p."_id" || '/' || p."slug" || '?utm_source=eafunds' "pageUrl",
-        p."postedAt",
-        ARRAY_AGG(
-          JSONB_BUILD_OBJECT(
-            '_id', u."_id",
-            'displayName', u."displayName",
-            'pageUrl', $1 || 'users/' || u."slug" || '?utm_source=eafunds'
-          )
-        ) "users"
-      FROM "Posts" p
-      JOIN "Tags" t ON t."slug" = 'effective-altruism-funds'
-      JOIN "Users" u ON u."_id" = p."userId" OR u."_id" = ANY(p."coauthorUserIds")
-      WHERE
-        (p."tagRelevance"->t."_id")::INTEGER >= 1
-        AND ${getViewablePostsSelector("p")}
-      GROUP BY p."_id"
-      ORDER BY p."postedAt" DESC
-      LIMIT 6
-
-
       WITH "splitAuthors" AS (
         SELECT p."_id" "postId", coauthor "userId"
         FROM "Posts" p, UNNEST(p."coauthorUserIds" || ARRAY[p."userId"]) AS coauthor
-        JOIN "Tags" t ON t."slug" = 'effective-altruism-funds'
+        JOIN "Tags" t ON t."slug" = $2
         WHERE (p."tagRelevance"->t."_id")::INTEGER >= 1
         AND ${getViewablePostsSelector("p")}
       ), authors AS (
