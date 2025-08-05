@@ -1,8 +1,8 @@
 import React, { Fragment } from "react";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { getEAEmojiByName } from "@/lib/voting/eaEmojiPalette";
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
-import { truncate } from "@/lib/editor/ellipsize";
 import { EmailUsername } from "./EmailUsername";
 
 export type BestReaction = {name: string, count: number};
@@ -12,8 +12,9 @@ const styles = defineStyles("EmailInactiveUserSummary", (theme: ThemeType) => ({
     background: theme.palette.text.alwaysWhite,
     color: theme.palette.text.alwaysBlack,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: 400,
+    lineHeight: "22px",
     width: 522,
     maxWidth: "100%",
     margin: "24px auto",
@@ -22,7 +23,7 @@ const styles = defineStyles("EmailInactiveUserSummary", (theme: ThemeType) => ({
     marginBottom: 48,
   },
   heading: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: 700,
   },
   mostCommentedPost: {
@@ -30,18 +31,20 @@ const styles = defineStyles("EmailInactiveUserSummary", (theme: ThemeType) => ({
     color: "inherit",
   },
   notifications: {
-    fontSize: 11,
-    fontStyle: "italic",
+    fontSize: 12,
     textDecoration: "underline",
-    color: "inherit",
   },
   post: {
-    marginBottom: 40,
+    marginBottom: 20,
+    padding: "12px 24px",
+    background: theme.palette.grey[100],
+    borderRadius: theme.borderRadius.default,
   },
   postTitle: {
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: 700,
     lineHeight: "36px",
+    textDecoration: "none",
     marginBottom: 0,
     color: "inherit",
   },
@@ -54,15 +57,18 @@ const styles = defineStyles("EmailInactiveUserSummary", (theme: ThemeType) => ({
     textDecoration: "none",
   },
   postBody: {
-    fontFamily: theme.palette.fonts.serifStack,
-    fontSize: 12,
-    fontWeight: 400,
+    fontWeight: 500,
   },
   hr: {
     border: "none",
     borderBottom: `1px solid ${theme.palette.text.alwaysBlack}`,
   },
 }));
+
+const truncateDescription = (description: string = "") => {
+  const truncated = description.slice(0, 260);
+  return truncated.length < description.length ? truncated + "..." : truncated;
+}
 
 export const EmailInactiveUserSummary = ({
   user,
@@ -79,8 +85,9 @@ export const EmailInactiveUserSummary = ({
   unreadNotifications: number,
   recommendedPosts: PostsList[],
 }) => {
+  const bestEmoji = bestReaction ? getEAEmojiByName(bestReaction.name) : null;
   const showKarmaChange = karmaChange > 0;
-  const showBestReaction = bestReaction && bestReaction.count > 0;
+  const showBestReaction = bestReaction && bestReaction.count > 0 && bestEmoji;
   const showMostCommentedPost = mostCommentedPost && mostCommentedPost.commentCount > 0;
   const showUnreadNotifications = unreadNotifications > 0 && unreadNotifications < 5;
 
@@ -113,8 +120,9 @@ export const EmailInactiveUserSummary = ({
           }
           {showBestReaction &&
             <p>
-              You received {bestReaction.count} :{bestReaction.name}:{" "}
-              react{bestReaction.count > 1 ? 's' : ''}.
+              You received {bestReaction.count}{" "}
+              &quot;{bestEmoji.label.toLowerCase()}&quot;{" "}
+              react{bestReaction.count > 1 ? 's' : ''}
             </p>
           }
           {showMostCommentedPost &&
@@ -127,7 +135,7 @@ export const EmailInactiveUserSummary = ({
                 className={classes.mostCommentedPost}
               >
                 {mostCommentedPost.post.title}
-              </a>.
+              </a>
             </p>
           }
           <p>
@@ -159,19 +167,10 @@ export const EmailInactiveUserSummary = ({
               </Fragment>
             ))}
           </p>
-          {post.contents?.htmlHighlight &&
-            <div
-              dangerouslySetInnerHTML={{
-                __html: truncate(
-                  post.contents?.htmlHighlight,
-                  80,
-                  "words",
-                  "...",
-                  false,
-                ),
-              }}
-              className={classes.postBody}
-            />
+          {post.contents?.plaintextDescription &&
+            <div className={classes.postBody}>
+              {truncateDescription(post.contents.plaintextDescription)}
+            </div>
           }
         </div>
       ))}
