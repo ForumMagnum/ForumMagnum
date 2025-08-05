@@ -78,6 +78,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     },
   },
   rootWithReadStyles: {
+    backgroundColor: theme.palette.grey[300],
     [theme.breakpoints.down('sm')]: {
       backgroundColor: theme.palette.grey[100],
       borderTop: theme.palette.border.itemSeparatorBottom,
@@ -87,7 +88,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
   verticalLineContainer: {
     width: 0,
-    display: 'flex',
+    display: 'none',
     justifyContent: 'center',
     marginRight: 6,
     marginTop: -12,
