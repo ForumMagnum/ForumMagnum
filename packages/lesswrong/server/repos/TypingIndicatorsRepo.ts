@@ -4,9 +4,9 @@ import AbstractRepo from "./AbstractRepo";
 
 interface TypingIndicatorPostInfo extends DbTypingIndicator {
   postUserId: string,
-  hasCoauthorPermission: DbPost['hasCoauthorPermission'],
-  coauthorStatuses: DbPost['coauthorStatuses']
+  coauthorUserIds: DbPost['coauthorUserIds']
 }
+
 export default class TypingIndicatorsRepo extends AbstractRepo<"TypingIndicators"> {
   constructor() {
     super(TypingIndicators);
@@ -31,10 +31,13 @@ export default class TypingIndicatorsRepo extends AbstractRepo<"TypingIndicators
   getRecentTypingIndicators(since: Date): Promise<TypingIndicatorPostInfo[]> {
     return this.getRawDb().any(`
       -- TypingIndicatorsRepo.getRecentTypingIndicators
-      SELECT t.*, p."userId" as "postUserId", p."coauthorStatuses", p."hasCoauthorPermission"
+      SELECT
+        t.*,
+        p."userId" as "postUserId",
+        p."coauthorUserIds"
       FROM "TypingIndicators" t
       JOIN "Posts" p
-        ON t."documentId" = p._id 
+        ON t."documentId" = p._id
       WHERE t."lastUpdated" > $1
     `, [since])
   }

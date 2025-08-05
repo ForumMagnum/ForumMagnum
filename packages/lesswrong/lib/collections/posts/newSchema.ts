@@ -2310,15 +2310,18 @@ const schema = {
     },
     graphql: {
       outputType: "[String!]!",
-      inputType: "[String!]!",
+      inputType: "[String!]",
       canRead: [documentIsNotDeleted],
       canUpdate: ["sunshineRegiment", "admins", userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
       canCreate: ["sunshineRegiment", "admins", userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
+      validation: {
+        optional: true,
+      },
     },
   },
   coauthors: {
     graphql: {
-      outputType: "[User!]",
+      outputType: "[User!]!",
       canRead: [documentIsNotDeleted],
       resolver: async (post, args, context) => {
         const resolvedDocs = await loadByIds(context, "Users", post.coauthorUserIds);
@@ -3631,10 +3634,8 @@ const schema = {
 
         const alwaysShownIds = new Set<string>([]);
         alwaysShownIds.add(post.userId);
-        if (post.coauthorStatuses) {
-          for (let { userId } of post.coauthorStatuses) {
-            alwaysShownIds.add(userId);
-          }
+        for (const userId of post.coauthorUserIds) {
+          alwaysShownIds.add(userId);
         }
 
         const commentsById = keyBy(comments, (comment) => comment._id);

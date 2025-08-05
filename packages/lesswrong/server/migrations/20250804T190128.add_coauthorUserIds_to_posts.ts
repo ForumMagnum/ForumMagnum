@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import { addField, dropField } from "./meta/utils"
+import { addField, dropField, updateIndexes } from "./meta/utils"
 import Posts from "../collections/posts/collection";
 import BulkWriter from "../sql/BulkWriter";
 
@@ -9,6 +9,9 @@ export const up = async ({db}: MigrationContext) => {
 
   console.log("Adding coauthorUserIds field...");
   await addField(db, Posts, "coauthorUserIds");
+
+  console.log("Updating indexes...");
+  await updateIndexes(Posts);
 
   console.log("Fetching posts to update...");
   const posts: {
@@ -42,4 +45,5 @@ export const up = async ({db}: MigrationContext) => {
 
 export const down = async ({db}: MigrationContext) => {
   await dropField(db, Posts, "coauthorUserIds");
+  await updateIndexes(Posts);
 }

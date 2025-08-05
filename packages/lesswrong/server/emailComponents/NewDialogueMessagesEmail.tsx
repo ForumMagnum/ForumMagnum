@@ -1,5 +1,5 @@
 import React from 'react';
-import { getConfirmedCoauthorIds, postGetEditUrl, postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postGetEditUrl, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useSingle } from '../../lib/crud/withSingle';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { EmailContentItemBody } from './EmailContentItemBody';
@@ -33,7 +33,7 @@ export const NewDialogueMessagesEmail = ({documentId, userId, dialogueMessageEma
   if (!post) return null;
   if (!post.collabEditorDialogue) return null;
   
-  const dialogueParticipantIds = [post.userId, ...getConfirmedCoauthorIds(post)];
+  const dialogueParticipantIds = [post.userId, ...post.coauthorUserIds];
   
   if (dialogueParticipantIds.includes(userId)) {
     const editUrl = postGetEditUrl(post._id)

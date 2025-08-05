@@ -1166,7 +1166,7 @@ type ExternalPost {
   modifiedAt: Date
   draft: Boolean
   content: String
-  coauthorStatuses: [CoauthorStatus]
+  coauthorUserIds: [String!]
 }
 
 type ExternalPostImportData {
@@ -1217,10 +1217,6 @@ extend type Mutation {
 
 extend type Mutation {
   upsertUserTypingIndicator(documentId: String!): TypingIndicator
-}
-
-extend type Mutation {
-  acceptCoauthorRequest(postId: String, userId: String, accept: Boolean): Post
 }
 
 input ToggleBookmarkInput {
@@ -3398,7 +3394,7 @@ type Post {
   collectionTitle: String
   coauthorStatuses: [CoauthorStatusOutput!]
   coauthorUserIds: [String!]!
-  coauthors: [User!]
+  coauthors: [User!]!
   hasCoauthorPermission: Boolean!
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String
@@ -6119,7 +6115,7 @@ input CreatePostDataInput {
   autoFrontpage: String
   collectionTitle: String
   coauthorStatuses: [CoauthorStatusInput!]
-  coauthorUserIds: [String!]!
+  coauthorUserIds: [String!]
   hasCoauthorPermission: Boolean
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String
@@ -9772,11 +9768,6 @@ fragment PostsEdit on Post {
   myEditorAccess
   version
   coauthorUserIds
-  coauthorStatuses {
-    userId
-    confirmed
-    requested
-  }
   readTimeMinutesOverride
   fmCrosspost {
     isCrosspost
@@ -9955,12 +9946,6 @@ fragment PostsMinimumInfo on Post {
   }
   userId
   coauthorUserIds
-  coauthorStatuses {
-    userId
-    confirmed
-    requested
-  }
-  hasCoauthorPermission
   rejected
   debate
   collabEditorDialogue

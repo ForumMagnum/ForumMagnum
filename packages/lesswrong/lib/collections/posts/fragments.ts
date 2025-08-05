@@ -16,12 +16,6 @@ export const PostsMinimumInfo = () => frag`
     }
     userId
     coauthorUserIds
-    coauthorStatuses {
-      userId
-      confirmed
-      requested
-    }
-    hasCoauthorPermission
     rejected
     debate
     collabEditorDialogue
@@ -588,11 +582,6 @@ export const PostsEdit = () => frag`
     myEditorAccess
     version
     coauthorUserIds
-    coauthorStatuses {
-      userId
-      confirmed
-      requested
-    }
     readTimeMinutesOverride
     fmCrosspost {
       isCrosspost

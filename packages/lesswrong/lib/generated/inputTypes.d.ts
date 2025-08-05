@@ -826,7 +826,7 @@ interface ExternalPost {
   modifiedAt: Date | null;
   draft: boolean | null;
   content: string | null;
-  coauthorStatuses: Array<CoauthorStatus | null> | null;
+  coauthorUserIds: Array<string> | null;
 }
 
 interface ExternalPostImportData {
@@ -2732,7 +2732,7 @@ interface Post {
   collectionTitle: string | null;
   coauthorStatuses: Array<CoauthorStatusOutput> | null;
   coauthorUserIds: Array<string>;
-  coauthors: Array<User> | null;
+  coauthors: Array<User>;
   hasCoauthorPermission: boolean;
   socialPreviewImageId: string | null;
   socialPreviewImageAutoUrl: string | null;
@@ -5203,7 +5203,7 @@ interface CreatePostDataInput {
   autoFrontpage?: string | null;
   collectionTitle?: string | null;
   coauthorStatuses?: Array<CoauthorStatusInput> | null;
-  coauthorUserIds: Array<string>;
+  coauthorUserIds?: Array<string> | null;
   hasCoauthorPermission?: boolean | null;
   socialPreviewImageId?: string | null;
   socialPreviewImageAutoUrl?: string | null;

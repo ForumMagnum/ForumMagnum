@@ -149,19 +149,14 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     return this.none(`
       -- PostsRepo.moveCoauthorshipToNewUser
       UPDATE "Posts"
-      SET "coauthorStatuses" = array(
-        SELECT
-          CASE
-            WHEN (jsonb_elem->>'userId') = $1
-            THEN jsonb_set(jsonb_elem, '{userId}', to_jsonb($2::text), false)
-            ELSE jsonb_elem
-          END
-          FROM unnest("coauthorStatuses") AS t(jsonb_elem)
+      SET "coauthorUserIds" = array(
+        SELECT CASE
+          WHEN user_id = $1 THEN $2
+          ELSE user_id
+        END
+        FROM unnest("coauthorUserIds") AS t(user_id)
       )
-      WHERE EXISTS (
-        SELECT 1 FROM unnest("coauthorStatuses") AS sub(jsonb_sub)
-        WHERE jsonb_sub->>'userId' = $1
-      );
+      WHERE $1 = ANY("coauthorUserIds");
     `, [oldUserId, newUserId]);
   }
 
@@ -420,12 +415,12 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   getMyActiveDialogues(userId: string, limit = 3): Promise<DbPost[]> {
     return this.any(`
       -- PostsRepo.getMyActiveDialogues
-      SELECT * 
+      SELECT *
       FROM (
-          SELECT DISTINCT ON (p._id) p.* 
-          FROM "Posts" p, UNNEST("coauthorStatuses") unnested
-          WHERE p."collabEditorDialogue" IS TRUE 
-          AND ((UNNESTED->>'userId' = $1) OR (p."userId" = $1))
+          SELECT DISTINCT ON (_id) *
+          FROM "Posts"
+          WHERE "collabEditorDialogue" IS TRUE
+          AND (($1 = ANY("coauthorUserIds")) OR ("userId" = $1))
       ) dialogues
       ORDER BY "modifiedAt" DESC
       LIMIT $2
@@ -675,7 +670,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       WITH visible_posts AS (
         SELECT
           "userId",
-          "coauthorStatuses"
+          "coauthorUserIds"
         FROM
           "Posts"
         WHERE
@@ -690,7 +685,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
             visible_posts)
         UNION ALL (
           SELECT
-            unnest("coauthorStatuses") ->> 'userId' AS "userId"
+            "coauthorUserIds" AS "userId"
           FROM
             visible_posts)
       ),
@@ -748,14 +743,11 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       `
       -- PostsRepo.getReadAuthorStats
       WITH authored_posts AS (
-        SELECT DISTINCT
-          _id AS "postId"
-        FROM
-          "Posts" p
-          LEFT JOIN LATERAL UNNEST(p."coauthorStatuses") AS unnested ON true
+        SELECT DISTINCT _id AS "postId"
+        FROM "Posts"
         WHERE
-          ${getViewablePostsSelector("p")}
-          AND (p."userId" = $3 OR unnested ->> 'userId' = $3)
+          ${getViewablePostsSelector()}
+          AND ("userId" = $3 OR $3 = ANY("coauthorUserIds"))
       ),
       read_counts AS (
         SELECT
@@ -1280,14 +1272,33 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     const eaFundsTagSlug = "effective-altruism-funds";
     return this.getRawDb().any(`
       -- PostsRepo.fetchEAFundsPosts
+      SELECT
+        p."_id",
+        p."title",
+        $1 || 'posts/' || p."_id" || '/' || p."slug" || '?utm_source=eafunds' "pageUrl",
+        p."postedAt",
+        ARRAY_AGG(
+          JSONB_BUILD_OBJECT(
+            '_id', u."_id",
+            'displayName', u."displayName",
+            'pageUrl', $1 || 'users/' || u."slug" || '?utm_source=eafunds'
+          )
+        ) "users"
+      FROM "Posts" p
+      JOIN "Tags" t ON t."slug" = 'effective-altruism-funds'
+      JOIN "Users" u ON u."_id" = p."userId" OR u."_id" = ANY(p."coauthorUserIds")
+      WHERE
+        (p."tagRelevance"->t."_id")::INTEGER >= 1
+        AND ${getViewablePostsSelector("p")}
+      GROUP BY p."_id"
+      ORDER BY p."postedAt" DESC
+      LIMIT 6
+
+
       WITH "splitAuthors" AS (
-        SELECT p."_id" "postId", coauthor->>'userId' "userId"
-        FROM "Posts" p,
-          UNNEST(
-            ARRAY[JSONB_BUILD_OBJECT('userId', p."userId")] ||
-            p."coauthorStatuses"
-          ) AS coauthor
-        JOIN "Tags" t ON t."slug" = $2
+        SELECT p."_id" "postId", coauthor "userId"
+        FROM "Posts" p, UNNEST(p."coauthorUserIds" || ARRAY[p."userId"]) AS coauthor
+        JOIN "Tags" t ON t."slug" = 'effective-altruism-funds'
         WHERE (p."tagRelevance"->t."_id")::INTEGER >= 1
         AND ${getViewablePostsSelector("p")}
       ), authors AS (

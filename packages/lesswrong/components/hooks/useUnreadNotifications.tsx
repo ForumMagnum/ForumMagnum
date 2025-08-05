@@ -30,7 +30,7 @@ export type ActiveDialogueServer = {
   _id: string,
   userId: string,
   title: string,
-  coauthorStatuses: {userId: string, confirmed: string, rejected: string}[],
+  coauthorUserIds: string[],
   activeUserIds: string[],
   mostRecentEditedAt?: Date,
 }

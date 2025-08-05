@@ -5,7 +5,6 @@ import { getSiteUrl } from "../lib/vulcan-lib/utils";
 import { DatabaseServerSetting } from './databaseSettings';
 import maxBy from 'lodash/maxBy';
 import moment from 'moment';
-import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 import { ActiveDialogue, ActiveDialogueServer, ServerSentEventsMessage, TypingIndicatorMessage } from '../components/hooks/useUnreadNotifications';
 import TypingIndicatorsRepo from './repos/TypingIndicatorsRepo';
 import UsersRepo from './repos/UsersRepo';
@@ -205,7 +204,7 @@ async function checkForTypingIndicators() {
   const results: Record<string, TypingIndicatorInfo[]> = {};
   for (const curr of typingIndicatorInfos) {
     // Get all userIds that have permission to type on the post
-    const userIdsToNotify = [curr.postUserId, ...getConfirmedCoauthorIds(curr)].filter((userId) => userId !== curr.userId);
+    const userIdsToNotify = [curr.postUserId, ...curr.coauthorUserIds].filter((userId) => userId !== curr.userId);
   
     for (const userIdToNotify of userIdsToNotify) {
       const {_id, userId, documentId, lastUpdated} = curr; // filter to just the fields in TypingIndicatorInfo
@@ -253,8 +252,7 @@ async function checkForActiveDialoguePartners() {
 
   const allUsersDialoguesData: Record<string, ActiveDialogue[]> = {};
   for (let dialogue of activeDialogues) {
-    const coauthorUserIds = dialogue.coauthorStatuses.map((status: any) => status.userId);
-    const allUserIds = [dialogue.userId, ...coauthorUserIds];
+    const allUserIds = [dialogue.userId, ...dialogue.coauthorUserIds];
     for (let userId of allUserIds) {
       const editedAt = dialogue?.mostRecentEditedAt;
       const data = {

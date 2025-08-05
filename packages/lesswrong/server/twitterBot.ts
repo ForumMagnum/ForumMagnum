@@ -3,7 +3,7 @@ import TweetsRepo from "./repos/TweetsRepo";
 import { loggerConstructor } from "@/lib/utils/logging";
 import { Posts } from "@/server/collections/posts/collection.ts";
 import { TwitterApi } from 'twitter-api-v2';
-import { getConfirmedCoauthorIds, postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import Users from "@/server/collections/users/collection";
 import { dogstatsd } from "./datadog/tracer";
 import { PublicInstanceSetting, twitterBotEnabledSetting, twitterBotKarmaThresholdSetting } from "@/lib/instanceSettings";
@@ -22,7 +22,7 @@ const URL_LENGTH = 24;
 async function writeTweet(post: DbPost): Promise<string> {
   const userIds = [
     post.userId,
-    ...getConfirmedCoauthorIds(post)
+    ...post.coauthorUserIds,
   ];
 
   const users = await Users.find(

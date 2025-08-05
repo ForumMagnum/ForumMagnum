@@ -1806,6 +1806,28 @@ CREATE INDEX IF NOT EXISTS "idx_posts_coauthorStatuses_postedAt" ON "Posts" USIN
   "baseScore"
 );
 
+-- Index "idx_posts_coauthorUserIds_postedAt"
+CREATE INDEX IF NOT EXISTS "idx_posts_coauthorUserIds_postedAt" ON "Posts" USING gin (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "coauthorUserIds",
+  "userId",
+  "postedAt",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "frontpageDate",
+  "curatedDate",
+  "baseScore"
+);
+
 -- Index "idx_posts_score"
 CREATE INDEX IF NOT EXISTS "idx_posts_score" ON "Posts" USING btree (
   "status",
