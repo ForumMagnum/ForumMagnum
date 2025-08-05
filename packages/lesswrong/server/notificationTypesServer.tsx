@@ -25,6 +25,7 @@ import startCase from 'lodash/startCase';
 import Sequences from '../server/collections/sequences/collection';
 import { DialogueMessageEmailInfo, NewDialogueMessagesEmail } from './emailComponents/NewDialogueMessagesEmail';
 import { PostsEmail } from './emailComponents/PostsEmail';
+import { fetchPostsForEmail } from './emailComponents/queries';
 import { EmailCommentBatch } from './emailComponents/EmailComment';
 import { PostNominatedEmail } from './emailComponents/PostNominatedEmail';
 import { SequenceNewPostsEmail } from './emailComponents/SequenceNewPostsEmail';
@@ -74,7 +75,8 @@ export const NewPostNotification = createServerNotificationType({
       return true;
     }))) as string[];
 
-    return <PostsEmail postIds={postIds}/>
+    const posts = await fetchPostsForEmail(postIds, user);
+    return <PostsEmail posts={posts}/>
   },
 });
 
@@ -98,7 +100,9 @@ export const NewEventNotification = createServerNotificationType({
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
     if (!postId) throw Error(`Can't find event post to generate body for: ${postId}`)
-    return <PostsEmail postIds={[postId]} hideRecommendations={true} reason="you are subscribed to this group"/>
+    
+    const posts = await fetchPostsForEmail([postId], user);
+    return <PostsEmail posts={posts} hideRecommendations={true} reason="you are subscribed to this group"/>
   },
 });
 
@@ -113,7 +117,9 @@ export const NewGroupPostNotification = createServerNotificationType({
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
     if (!postId) throw Error(`Can't find group post to generate body for: ${postId}`)
-    return <PostsEmail postIds={[postId]} hideRecommendations={true} reason="you are subscribed to this group"/>
+    
+    const posts = await fetchPostsForEmail([postId], user);
+    return <PostsEmail posts={posts} hideRecommendations={true} reason="you are subscribed to this group"/>
   },
 });
 
@@ -168,7 +174,8 @@ export const NewTagPostsNotification = createServerNotificationType({
     const {documentId, documentType} = notifications[0]
     const tagRel = await TagRels.findOne({_id: documentId})
     if (tagRel) {
-      return <PostsEmail postIds={ [tagRel.postId] }/>
+      const posts = await fetchPostsForEmail([tagRel.postId], user);
+      return <PostsEmail posts={posts}/>
     }
   }
 })
@@ -619,7 +626,9 @@ export const NewEventInRadiusNotification = createServerNotificationType({
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
     if (!postId) throw Error(`Can't find event to generate body for: ${postId}`)
-    return <PostsEmail postIds={[postId]} hideRecommendations={true} reason="you are subscribed to nearby events notifications"/>
+    
+    const posts = await fetchPostsForEmail([postId], user);
+    return <PostsEmail posts={posts} hideRecommendations={true} reason="you are subscribed to nearby events notifications"/>
   },
 });
 

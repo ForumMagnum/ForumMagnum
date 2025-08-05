@@ -1,8 +1,8 @@
-'use client';
 
 import React from "react";
-import { JOB_AD_DATA } from "../../components/ea-forum/TargetedJobAd";
-import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import { JOB_AD_DATA } from "../../components/ea-forum/constants";
+import { defineStyles } from "@/components/hooks/defineStyles";
+import { useEmailStyles } from "./emailContext";
 
 const styles = defineStyles("EmailJobAdReminder", (theme: ThemeType) => ({
   root: {
@@ -24,7 +24,7 @@ const styles = defineStyles("EmailJobAdReminder", (theme: ThemeType) => ({
 export const EmailJobAdReminder = ({ jobName }: {
   jobName: string;
 }) => {
-  const classes = useStyles(styles);
+  const classes = useEmailStyles(styles);
   const jobData = JOB_AD_DATA[jobName];
   const link = jobData.bitlyLink;
 

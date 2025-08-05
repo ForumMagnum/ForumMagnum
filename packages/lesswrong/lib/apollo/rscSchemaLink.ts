@@ -1,10 +1,11 @@
 import { computeContextFromUser, getCachedUser } from "@/server/vulcan-lib/apollo-server/context";
 import { SchemaLink } from "@apollo/client/link/schema";
 import type { GraphQLSchema } from "graphql";
-import { cookies, headers } from "next/headers";
 
 export const rscSchemaLink = (schema: GraphQLSchema) => {
   return new SchemaLink({ schema, context: async () => {
+    const { cookies, headers } = await import("next/headers");
+
     const [cookieStore, headerValues] = await Promise.all([
       cookies(),
       headers(),

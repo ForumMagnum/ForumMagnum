@@ -12,6 +12,7 @@ import UsersRepo from "../repos/UsersRepo";
 import chunk from "lodash/chunk";
 import moment from "moment";
 import { PostsEmail } from "../emailComponents/PostsEmail";
+import { fetchPostsForEmail } from "../emailComponents/queries";
 
 export async function findUsersToEmail(filter: MongoSelector<DbUser>) {
   let usersMatchingFilter = await Users.find(filter).fetch();
@@ -49,13 +50,15 @@ export async function sendCurationEmail({users, postId, reason, subject}: {
   const post = await Posts.findOne(postId);
   if (!post) throw Error(`Can't find post to send by email: ${postId}`)
 
-  for (const user of users) {
+  // Send emails to all users in parallel
+  await Promise.all(users.map(async (user) => {
+    const posts = await fetchPostsForEmail([post._id], user);
     await wrapAndSendEmail({
       user,
       subject: subject ?? post.title,
-      body: <PostsEmail postIds={[post._id]} reason={reason}/>
+      body: <PostsEmail posts={posts} reason={reason}/>
     });
-  }
+  }));
 }
 
 export async function hydrateCurationEmailsQueue(postId: string) {

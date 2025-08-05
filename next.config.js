@@ -3,7 +3,7 @@ const fs = require('fs');
 
 const serverExternalPackages = [
   'superagent-proxy', 'gpt-3-encoder', 'mathjax-node', 'mathjax', 'turndown', 'cloudinary',
-  '@aws-sdk/client-cloudfront', 'auth0', 'jimp', '@datadog/browser-rum', 'juice',
+  '@aws-sdk/client-cloudfront', 'auth0', 'jimp', 'juice', 'react-dom/static',
   'request', 'stripe', 'openai', 'twitter-api-v2', 'draft-js', 'draft-convert', 'csso',
 ];
 
@@ -37,7 +37,7 @@ module.exports = {
       '@/*': './packages/lesswrong/*',
 
       'superagent-proxy': './packages/lesswrong/stubs/emptyModule.js',
-    }
+    },
   },
   serverExternalPackages,
 
@@ -83,10 +83,15 @@ module.exports = {
         vm: false,
         worker_threads: false,
       };
-
-      config.externals = config.externals ?? [];
-      config.externals.push(Object.fromEntries([...serverExternalPackages, ...webpackExternalPackages].map(pkg => [pkg, `commonjs ${pkg}`])));
     }
+
+    config.externals = [
+      ...config.externals,
+      ...[
+        ...serverExternalPackages,
+        ...webpackExternalPackages
+      ].flatMap(pkg => [pkg, `commonjs ${pkg}`])
+    ];
 
     // What follows is the result of absolutely deranged behavior by NextJS.
     // It turns out that NextJS will, by default, force webpack to use the paths specified in tsconfig.json.
@@ -597,7 +602,6 @@ module.exports = {
     ignoreBuildErrors: true,
   },
 };
-
 
 // Injected content via Sentry wizard below
 

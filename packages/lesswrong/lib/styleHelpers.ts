@@ -4,6 +4,7 @@ import { type StylesContextType } from "@/components/hooks/useStyles";
 import { getJss } from "@/lib/jssStyles";
 import { SheetsRegistry } from 'jss';
 import keyBy from "lodash/keyBy";
+import type { AbstractThemeOptions } from "@/themes/themeNames";
 
 export function stylesToStylesheet(allStyles: Record<string,StyleDefinition>, theme: ThemeType): string {
   const stylesByName = sortBy(Object.keys(allStyles), n=>n);
@@ -34,4 +35,16 @@ export function generateEmailStylesheet({ stylesContext, theme}: {
   const usedStyleDefinitions = [...mountedStyles.values()].map(s => s.styleDefinition);
   const usedStylesByName = keyBy(usedStyleDefinitions.filter(s => !!s), s => s.name);
   return stylesToStylesheet(usedStylesByName, theme);
+}
+
+export function createStylesContext(theme: ThemeType, abstractThemeOptions: AbstractThemeOptions): StylesContextType {
+  return {
+    initialTheme: theme,
+    stylesAwaitingServerInjection: [],
+    mountedStyles: new Map<string, {
+      refcount: number
+      styleDefinition: StyleDefinition<any>
+      styleNode?: HTMLStyleElement
+    }>()
+  };
 }

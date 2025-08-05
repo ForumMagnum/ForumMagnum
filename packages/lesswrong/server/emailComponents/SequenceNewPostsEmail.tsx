@@ -1,10 +1,10 @@
-'use client';
 
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { makeCloudinaryImageUrl } from '../../components/common/CloudinaryImage2';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { defineStyles } from "@/components/hooks/defineStyles";
+import { useEmailStyles } from "./emailContext";
 
 const styles = defineStyles("SequenceNewPostsEmail", (theme: ThemeType) => ({
   root: {
@@ -24,7 +24,7 @@ export const SequenceNewPostsEmail = ({sequence, posts}: {
   sequence: DbSequence,
   posts: DbPost[],
 }) => {
-  const classes = useStyles(styles);
+  const classes = useEmailStyles(styles);
   const img = sequence.gridImageId || sequence.bannerImageId;
     const imgUrl = img ? makeCloudinaryImageUrl(img, {
       c: "fill",

@@ -1,6 +1,6 @@
 import { getForumTheme } from '../themes/forumTheme';
 import * as _ from 'underscore';
-import { topLevelStyleDefinitions } from '@/components/hooks/useStyles';
+import { topLevelStyleDefinitions } from '@/components/hooks/defineStyles';
 import type { JssStyles } from '@/lib/jssStyles';
 import '../lib/generated/allComponents';
 import '../lib/generated/nonRegisteredComponents';

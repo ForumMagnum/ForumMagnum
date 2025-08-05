@@ -1,4 +1,3 @@
-'use client';
 
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -8,7 +7,8 @@ import { tagGetSubforumUrl, tagGetDiscussionUrl } from '../../lib/collections/ta
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import startCase from 'lodash/startCase';
 import { isFriendlyUI } from '@/themes/forumTheme';
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { defineStyles } from "@/components/hooks/defineStyles";
+import { useEmailStyles } from "./emailContext";
 import { EmailFormatDate } from './EmailFormatDate';
 import { EmailUsername } from './EmailUsername';
 import { EmailContentItemBody } from './EmailContentItemBody';
@@ -68,7 +68,7 @@ const styles = defineStyles("EmailComment", (theme: ThemeType) => ({
 export const EmailCommentBatch = ({comments}: {
   comments: Partial<DbComment>[],
 }) => {
-  const classes = useStyles(styles);
+  const classes = useEmailStyles(styles);
   const commentsOnPosts = filter(comments, comment => !!comment.postId)
   const commentsByPostId = groupBy(commentsOnPosts, (comment: DbComment)=>comment.postId);
   const commentsOnTags = filter(comments, comment => !!comment.tagId && comment.tagCommentType === "DISCUSSION")
@@ -113,7 +113,7 @@ export const EmailCommentBatch = ({comments}: {
 }
 
 const HeadingLink = ({ text, href }: { text: string; href: string; }) => {
-  const classes = useStyles(styles);
+  const classes = useEmailStyles(styles);
   return (
     <h1>
       <a href={href} className={classes.headingLink}>

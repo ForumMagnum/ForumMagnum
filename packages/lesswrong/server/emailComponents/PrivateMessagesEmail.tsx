@@ -1,11 +1,11 @@
-'use client';
 
 import React from 'react';
 import { conversationGetPageUrl } from '../../lib/collections/conversations/helpers';
-import { useCurrentUser } from '../../components/common/withUser';
+// import { useCurrentUser } from '../../components/common/withUser';
 import * as _ from 'underscore';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { defineStyles } from "@/components/hooks/defineStyles";
+import { useEmailStyles } from "./emailContext";
 import { EmailUsername } from './EmailUsername';
 import { EmailFormatDate } from './EmailFormatDate';
 import { EmailContentItemBody } from './EmailContentItemBody';
@@ -20,7 +20,7 @@ export const PrivateMessagesEmail = ({conversations, messages, participantsById}
   messages: Array<DbMessage>,
   participantsById: Record<string,DbUser>,
 }) => {
-  const classes = useStyles(styles);
+  const classes = useEmailStyles(styles);
   if (conversations.length === 1) {
     return <React.Fragment>
       <p>
@@ -72,8 +72,8 @@ export const PrivateMessagesEmailConversation = ({conversation, messages, partic
   messages: Array<DbMessage>,
   participantsById: Partial<Record<string,DbUser>>,
 }) => {
-  const classes = useStyles(styles);
-  const currentUser = useCurrentUser();
+  const classes = useEmailStyles(styles);
+  // const currentUser = useCurrentUser();
   const sitename = siteNameWithArticleSetting.get()
   const conversationLink = conversationGetPageUrl(conversation, true);
 

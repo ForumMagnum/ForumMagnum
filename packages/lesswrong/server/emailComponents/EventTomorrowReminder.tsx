@@ -1,15 +1,16 @@
-'use client';
+
 
 import React from 'react';
 import type { RSVPType } from "@/lib/collections/posts/helpers";
+import type { PostsRevision } from "@/lib/generated/gql-codegen/graphql";
 import { PostsEmail } from './PostsEmail';
 
-export const EventTomorrowReminder = ({postId, rsvp}: {
-  postId: string,
+export const EventTomorrowReminder = ({posts, rsvp}: {
+  posts: PostsRevision[],
   rsvp: RSVPType,
 }) => {
   return <PostsEmail
-    postIds={[postId]}
+    posts={posts}
     hideRecommendations
     reason={`you RSVPed ${rsvp.response} to this event`}
   />

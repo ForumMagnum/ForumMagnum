@@ -9,6 +9,7 @@ import moment from '../lib/moment-timezone';
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updatePost } from './collections/posts/mutations';
 import { EventTomorrowReminder } from './emailComponents/EventTomorrowReminder';
+import { fetchPostsForEmail } from './emailComponents/queries';
 import { backgroundTask } from './utils/backgroundTask';
 
 export async function checkAndSendUpcomingEventEmails() {
@@ -45,15 +46,19 @@ export async function checkAndSendUpcomingEventEmails() {
     
     const emailsToNotify = await getUsersToNotifyAboutEvent(upcomingEvent);
     
-    for (let {userId,email,rsvp} of emailsToNotify) {
-      if (!email) continue;
+    // Send emails to all users in parallel
+    await Promise.all(emailsToNotify.map(async ({userId, email, rsvp}) => {
+      if (!email) return;
       const user = await Users.findOne(userId);
+      if (!user) return;
+      
+      const posts = await fetchPostsForEmail([upcomingEvent._id], user);
       
       await wrapAndSendEmail({
         user, to: email,
         subject: `Event reminder: ${upcomingEvent.title}`,
-        body: <EventTomorrowReminder rsvp={rsvp} postId={upcomingEvent._id}/>
+        body: <EventTomorrowReminder rsvp={rsvp} posts={posts}/>
       });
-    }
+    }));
   }
 }

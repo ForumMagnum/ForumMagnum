@@ -1,7 +1,7 @@
-'use client';
 
 import React from "react";
-import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import { defineStyles } from "@/components/hooks/defineStyles";
+import { useEmailStyles } from "./emailContext";
 
 const styles = defineStyles("EmailAnnualForumUserSurvey", (theme: ThemeType) => ({
   root: {
@@ -20,7 +20,7 @@ const styles = defineStyles("EmailAnnualForumUserSurvey", (theme: ThemeType) => 
 export const EmailAnnualForumUserSurvey = ({ user }: {
   user: DbUser;
 }) => {
-  const classes = useStyles(styles);
+  const classes = useEmailStyles(styles);
   const surveyLink = 'https://forms.cea.community/forum-survey-2024?utm_source=ea_forum&utm_medium=email&utm_campaign=survey_reminder'
 
   return (

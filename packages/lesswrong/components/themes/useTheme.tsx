@@ -3,14 +3,7 @@
 import React, { forwardRef } from 'react';
 import { AbstractThemeOptions, abstractThemeToConcrete, ThemeOptions } from '../../themes/themeNames';
 import { getForumTheme } from '@/themes/forumTheme';
-
-export type ThemeContextType = {
-  theme: ThemeType,
-  abstractThemeOptions: AbstractThemeOptions,
-  concreteThemeOptions: ThemeOptions,
-  setThemeOptions: (options: AbstractThemeOptions) => void
-}
-export const ThemeContext = React.createContext<ThemeContextType|null>(null);
+import { ThemeContext } from './ThemeContext';
 
 /**
  * You should NOT use the hooks in this file unless you _really_ know what you're doing - in

@@ -2,7 +2,8 @@ import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useRecommendations } from '../../components/recommendations/withRecommendations';
 import { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { defineStyles } from "@/components/hooks/defineStyles";
+import { useEmailStyles } from "./emailContext";
 
 const styles = defineStyles("EmailFooterRecommendations", (theme: ThemeType) => ({
   recommendedPostsHeader: {
@@ -11,7 +12,7 @@ const styles = defineStyles("EmailFooterRecommendations", (theme: ThemeType) => 
 }));
 
 export const EmailFooterRecommendations = () => {
-  const classes = useStyles(styles);
+  const classes = useEmailStyles(styles);
   const algorithm: RecommendationsAlgorithm = {
     method: "sample",
     count: 5,

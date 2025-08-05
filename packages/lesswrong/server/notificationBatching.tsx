@@ -6,6 +6,7 @@ import Users from '@/server/collections/users/collection';
 import { computeContextFromUser } from './vulcan-lib/apollo-server/context';
 import gql from 'graphql-tag';
 import { PostsEmail } from './emailComponents/PostsEmail';
+import { fetchPostsForEmail } from './emailComponents/queries';
 import { UtmParam } from './analytics/utm-tracking';
 import { isEAForum } from '@/lib/instanceSettings';
 import { backgroundTask } from './utils/backgroundTask';
@@ -129,14 +130,18 @@ export const graphqlQueries = {
     if (postId) {
       const post = await Posts.findOne(postId)
       if (post) {
+        const posts = await fetchPostsForEmail([post._id], currentUser);
+
         emails = [{
           user: currentUser,
           subject: post.title,
-          body: <PostsEmail postIds={[post._id]} reason='you have the "Email me new posts in Curated" option enabled' />
+          body: <PostsEmail posts={posts} reason='you have the "Email me new posts in Curated" option enabled' />
         }]
       }
     }
     const renderedEmails = await Promise.all(emails.map(async email => await wrapAndRenderEmail(email)));
+
+    console.log({ renderedEmails });
     return renderedEmails;
   }
 };

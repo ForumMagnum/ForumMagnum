@@ -6,7 +6,7 @@ import type { ForumTypeString } from '../lib/instanceSettings';
 import { getForumTheme } from '../themes/forumTheme';
 import stringify from 'json-stringify-deterministic';
 import { brotliCompressResource, CompressedCacheResource } from './utils/bundleUtils';
-import { topLevelStyleDefinitions } from '@/components/hooks/useStyles';
+import { topLevelStyleDefinitions } from '@/components/hooks/defineStyles';
 import type { JssStyles } from '@/lib/jssStyles';
 import { stylesToStylesheet } from '../lib/styleHelpers';
 import { SheetsRegistry } from 'jss';

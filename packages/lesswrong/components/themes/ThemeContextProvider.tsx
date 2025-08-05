@@ -8,11 +8,14 @@ import { isEAForum } from '../../lib/instanceSettings';
 import { THEME_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import stringify from 'json-stringify-deterministic';
-import { ThemeContext, useTheme, useThemeOptions } from './useTheme';
+import { useTheme, useThemeOptions } from './useTheme';
+import { ThemeContext } from './ThemeContext';
 import { isClient, isServer } from '@/lib/executionEnvironment';
 import { useTracking } from '@/lib/analyticsEvents';
-import { createStylesContext, regeneratePageStyles, serverEmbeddedStyles, setClientMountedStyles, StylesContext, type StylesContextType } from '../hooks/useStyles';
+import { regeneratePageStyles, serverEmbeddedStyles, StylesContext, type StylesContextType } from '../hooks/useStyles';
 import { useServerInsertedHTML } from 'next/navigation';
+import { createStylesContext } from '@/lib/styleHelpers';
+import { setClientMountedStyles } from '../hooks/defineStyles';
 
 export const ThemeContextProvider = ({options, isEmail, children}: {
   options: AbstractThemeOptions,

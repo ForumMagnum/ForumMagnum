@@ -1,7 +1,6 @@
 import { ApolloClient, ApolloLink, InMemoryCache, Observable, Operation, FetchResult, NextLink } from '@apollo/client';
 import { createSchemaLink, createHttpLink, createErrorLink } from '../../../lib/apollo/links';
 import { fmCrosspostBaseUrlSetting } from "../../../lib/instanceSettings";
-import { getExecutableSchema } from '../apollo-server/initGraphQL';
 import { type DocumentNode, type GraphQLSchema, execute, print } from 'graphql';
 import stringify from 'json-stringify-deterministic';
 import { SwrCache } from '@/lib/utils/swrCache';
@@ -19,6 +18,9 @@ export const createClient = async (context: ResolverContext | null, foreign = fa
     links.push(createHttpLink(fmCrosspostBaseUrlSetting.get() ?? "/"));
   } else if (context) {
     links.push(createErrorLink());
+
+    const { getExecutableSchema } = await import('../apollo-server/initGraphQL');
+
     const schema = getExecutableSchema();
     links.push(new LoggedOutCacheSchemaLink(schema));
 

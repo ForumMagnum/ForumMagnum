@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { use } from 'react';
 import { headerLink, createErrorLink, createHttpLink, createSchemaLink } from "@/lib/apollo/links";
 import { isServer } from "@/lib/executionEnvironment";
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
@@ -10,7 +10,6 @@ import {
 import { ApolloNextAppProvider } from "@/lib/vendor/@apollo/client-integration-nextjs/ApolloNextAppProvider";
 import type { GraphQLSchema } from "graphql";
 import type { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
-import { typeDefs, resolvers } from "@/server/vulcan-lib/apollo-server/initGraphQL";
 import { disableFragmentWarnings } from "graphql-tag";
 
 // In the internals of apollo client, they do two round-trips that look like `gql(print(gql(options.query)))`
@@ -20,16 +19,16 @@ import { disableFragmentWarnings } from "graphql-tag";
 // Disabling the warnings should basically be harmless as long as they're still enabled in the codegen context.
 disableFragmentWarnings();
 
-const getExecutableSchema = (() => {
-  let _executableSchema: GraphQLSchema|null = null;
-  return () => {
-    if (!_executableSchema) {
-      const { makeExecutableSchema }: typeof import("@graphql-tools/schema") = require("@graphql-tools/schema");
-      _executableSchema = makeExecutableSchema({ typeDefs, resolvers });
-    }
-    return _executableSchema;  
-  };
-})()
+// const getExecutableSchema = (() => {
+//   let _executableSchema: GraphQLSchema|null = null;
+//   return () => {
+//     if (!_executableSchema) {
+//       const { makeExecutableSchema }: typeof import("@graphql-tools/schema") = require("@graphql-tools/schema");
+//       _executableSchema = makeExecutableSchema({ typeDefs, resolvers });
+//     }
+//     return _executableSchema;  
+//   };
+// })()
 
 interface MakeClientProps {
   loginToken?: string,
@@ -39,32 +38,44 @@ interface MakeClientProps {
   searchParams: Record<string, string>,
 }
 
-function makeClient({ loginToken, user, cookies, headers, searchParams }: MakeClientProps) {
+function makeClient({ loginToken, user, cookies, headers, searchParams }: MakeClientProps): ApolloClient<unknown> | Promise<ApolloClient<unknown>> {
   const links = [
     headerLink,
     createErrorLink(),
   ];
+  console.log('before isServer', isServer);
   if (isServer) {
-    const { LoggedOutCacheLink }: typeof import("@/lib/apollo/loggedOutCacheLink") = require("@/lib/apollo/loggedOutCacheLink");
-    links.push(new LoggedOutCacheLink());
+    console.log('in isServer', isServer);
+    return (async () => {
+      const { LoggedOutCacheLink }: typeof import("@/lib/apollo/loggedOutCacheLink") = await import("@/lib/apollo/loggedOutCacheLink");
+      links.push(new LoggedOutCacheLink());
 
-    const { computeContextFromUser }: typeof import("@/server/vulcan-lib/apollo-server/context") = require("@/server/vulcan-lib/apollo-server/context");
+      const { computeContextFromUser }: typeof import("@/server/vulcan-lib/apollo-server/context") = await import("@/server/vulcan-lib/apollo-server/context");
 
-    const context = computeContextFromUser({
-      user,
-      cookies,
-      headers: new Headers(headers),
-      searchParams: new URLSearchParams(searchParams),
-      isSSR: true,
-    });
-    links.push(createSchemaLink(getExecutableSchema(), context));
+      const { getExecutableSchema }: typeof import("@/server/vulcan-lib/apollo-server/initGraphQL") = await import("@/server/vulcan-lib/apollo-server/initGraphQL");
+
+      const context = computeContextFromUser({
+        user,
+        cookies,
+        headers: new Headers(headers),
+        searchParams: new URLSearchParams(searchParams),
+        isSSR: true,
+      });
+      links.push(createSchemaLink(getExecutableSchema(), context));
+      return new ApolloClient({
+        cache: new InMemoryCache(),
+        link: ApolloLink.from(links),
+      });
+    })();
   } else {
+    console.log('in else', isServer);
     links.push(createHttpLink(isServer ? getSiteUrl() : '/', loginToken, headers));
+
+    return new ApolloClient({
+      cache: new InMemoryCache(),
+      link: ApolloLink.from(links),
+    });  
   }
-  return new ApolloClient({
-    cache: new InMemoryCache(),
-    link: ApolloLink.from(links),
-  });
 }
 
 export function ApolloWrapper({ loginToken, user, cookies, headers, searchParams, children }: React.PropsWithChildren<{
@@ -74,8 +85,17 @@ export function ApolloWrapper({ loginToken, user, cookies, headers, searchParams
   headers: Record<string, string>,
   searchParams: Record<string, string>,
 }>) {
+  if (isServer) {
+    const client = use(makeClient({ loginToken, user, cookies, headers, searchParams }) as Promise<ApolloClient<unknown>>);
+    return (
+      <ApolloNextAppProvider makeClient={() => client}>
+        {children}
+      </ApolloNextAppProvider>
+    );
+  }
+
   return (
-    <ApolloNextAppProvider makeClient={() => makeClient({ loginToken, user, cookies, headers, searchParams })}>
+    <ApolloNextAppProvider makeClient={() => makeClient({ loginToken, user, cookies, headers, searchParams }) as ApolloClient<unknown>}>
       {children}
     </ApolloNextAppProvider>
   );

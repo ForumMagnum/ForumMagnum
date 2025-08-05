@@ -1,30 +1,16 @@
-'use client';
-
 import React from 'react';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { postGetPageUrl, postGetLink, postGetLinkTarget } from '../../lib/collections/posts/helpers';
 import { truncatise } from '@/lib/truncatise';
 import { SMALL_TRUNCATION_CHAR_COUNT } from '@/lib/editor/ellipsize';
-import { LocationContext, NavigationContext } from '@/lib/vulcan-core/appContext';
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { EmailPostAuthors } from './EmailPostAuthors';
+// import { LocationContext, NavigationContext } from '@/lib/vulcan-core/appContext';
+// import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+// import { EmailPostAuthors } from './EmailPostAuthors';
 import { EmailContentItemBody } from './EmailContentItemBody';
-import { EmailFooterRecommendations } from './EmailFooterRecommendations';
-import { EmailPostDate } from './EmailPostDate';
-import ContentStyles from '@/components/common/ContentStyles';
-import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen";
-
-const PostsRevisionMultiQuery = gql(`
-  query multiPostPostsEmailQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean, $version: String) {
-    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...PostsRevision
-      }
-      totalCount
-    }
-  }
-`);
+// import { EmailFooterRecommendations } from './EmailFooterRecommendations';
+// import { EmailPostDate } from './EmailPostDate';
+// import ContentStyles from '@/components/common/ContentStyles';
+import type { PostsRevision } from "@/lib/generated/gql-codegen/graphql";
 
 const getPodcastInfoElement = (podcastEpisode: Exclude<PostsDetails['podcastEpisode'], null>) => {
   const { podcast: { applePodcastLink, spotifyPodcastLink }, episodeLink, externalEpisodeId } = podcastEpisode;
@@ -86,65 +72,56 @@ const getTruncatedHtml = (html: string) => {
   }
 };
 
-const styles = defineStyles("PostsEmail", (theme: ThemeType) => ({
-  heading: {
-    textAlign: "center",
-    color: theme.palette.primary.main,
-    marginBottom: 30
-  },
-  headingRow: {
-    marginBottom: 8
-  },
-  podcastRow: {
-    '& p': {
-      marginBottom: 16,
-    },
-    fontStyle: "italic"
-  },
-  headingLink: {
-    color: theme.palette.text.maxIntensity,
-    textDecoration: "none",
-    fontWeight: "normal",
-    fontFamily: theme.typography.headerStyle.fontFamily,
-    ...(isFriendlyUI ? {
-      fontSize: "2.4rem",
-      lineHeight: '1.25em'
-    } : {}),
-  },
-  headingHR: {
-    width: 210,
-    height: 0,
-    borderTop: "none",
-    borderBottom: theme.palette.border.emailHR,
-    marginTop: 50,
-    marginBottom: 35,
-  },
-  hr: {
-    marginTop: 30,
-    marginBottom: 30,
-  },
-}));
+// const styles = defineStyles("PostsEmail", (theme: ThemeType) => ({
+//   heading: {
+//     textAlign: "center",
+//     color: theme.palette.primary.main,
+//     marginBottom: 30
+//   },
+//   headingRow: {
+//     marginBottom: 8
+//   },
+//   podcastRow: {
+//     '& p': {
+//       marginBottom: 16,
+//     },
+//     fontStyle: "italic"
+//   },
+//   headingLink: {
+//     color: theme.palette.text.maxIntensity,
+//     textDecoration: "none",
+//     fontWeight: "normal",
+//     fontFamily: theme.typography.headerStyle.fontFamily,
+//     ...(isFriendlyUI ? {
+//       fontSize: "2.4rem",
+//       lineHeight: '1.25em'
+//     } : {}),
+//   },
+//   headingHR: {
+//     width: 210,
+//     height: 0,
+//     borderTop: "none",
+//     borderBottom: theme.palette.border.emailHR,
+//     marginTop: 50,
+//     marginBottom: 35,
+//   },
+//   hr: {
+//     marginTop: 30,
+//     marginBottom: 30,
+//   },
+// }));
 
 function PostsEmailInner({
-  postIds,
+  posts,
   reason,
   hideRecommendations,
 }: {
-  postIds: string[];
+  posts: PostsRevision[];
   reason?: string;
   hideRecommendations?: boolean;
 }) {
-  const classes = useStyles(styles);
-  const { data } = useQuery(PostsRevisionMultiQuery, {
-    variables: {
-      selector: { default: { exactPostIds: postIds } },
-      limit: 10,
-      enableTotal: false,
-    },
-    notifyOnNetworkStatusChange: true,
-  });
-
-  const posts = data?.posts?.results;
+  // const classes = useStyles(styles);
+  const classes: Record<string, string> = {};
 
   if (!posts || posts.length === 0) {
     return null;
@@ -175,10 +152,10 @@ function PostsEmailInner({
           </h1>
           <hr className={classes.headingHR} />
           <div className={classes.headingRow}>
-            <EmailPostAuthors post={post} />
+            {/* <EmailPostAuthors post={post} /> */}
           </div>
           <div className={classes.headingRow}>
-            <EmailPostDate post={post} />
+            {/* <EmailPostDate post={post} /> */}
           </div>
           {post.isEvent && <div className={classes.headingRow}>{eventLocation}</div>}
           {post.contactInfo && (
@@ -202,14 +179,14 @@ function PostsEmailInner({
         )}
 
         {post.contents && (
-          <ContentStyles contentType="post">
+          // <ContentStyles contentType="post">
             <EmailContentItemBody
               className="post-body"
               dangerouslySetInnerHTML={{
                 __html: postContentHtml,
               }}
             />
-          </ContentStyles>
+          // </ContentStyles>
         )}
 
         <a href={postGetPageUrl(post, true)}>{truncated ? "Read full post" : "Discuss"}</a>
@@ -226,7 +203,7 @@ function PostsEmailInner({
       {postElements}
       {!hideRecommendations && (
         <>
-          <EmailFooterRecommendations />
+          {/* <EmailFooterRecommendations /> */}
           <hr className={classes.hr}/>
         </>
       )}
@@ -235,43 +212,42 @@ function PostsEmailInner({
   );
 }
 
-export const PostsEmail = ({ postIds, reason, hideRecommendations}: {
-  postIds: string[];
+export const PostsEmail = ({ posts, reason, hideRecommendations}: {
+  posts: PostsRevision[];
   reason?: string;
   hideRecommendations?: boolean;
 }) => {
-  const classes = useStyles(styles);
   return (
     // Providers are required for useMulti
-    <LocationContext.Provider
-      value={{
-        location: { pathname: "", search: "", hash: "" },
-        pathname: "",
-        url: "",
-        hash: "",
-        params: {},
-        query: {},
-        redirected: false,
-      }}
-    >
-      <NavigationContext.Provider
-        value={{
-          history: {
-            push: () => {},
-            replace: () => {},
-            back: () => {},
-            forward: () => {},
-            refresh: () => {},
-            prefetch: () => {},
-          },
-        }}
-      >
+    // <LocationContext.Provider
+    //   value={{
+    //     location: { pathname: "", search: "", hash: "" },
+    //     pathname: "",
+    //     url: "",
+    //     hash: "",
+    //     params: {},
+    //     query: {},
+    //     redirected: false,
+    //   }}
+    // >
+    //   <NavigationContext.Provider
+    //     value={{
+    //       history: {
+    //         push: () => {},
+    //         replace: () => {},
+    //         back: () => {},
+    //         forward: () => {},
+    //         refresh: () => {},
+    //         prefetch: () => {},
+    //       },
+    //     }}
+    //   >
         <PostsEmailInner
-          postIds={postIds}
+          posts={posts}
           reason={reason}
           hideRecommendations={hideRecommendations}
         />
-      </NavigationContext.Provider>
-    </LocationContext.Provider>
+    //   </NavigationContext.Provider>
+    // </LocationContext.Provider>
   );
 };

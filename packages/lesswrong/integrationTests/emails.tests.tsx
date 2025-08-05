@@ -1,11 +1,13 @@
 import "./integrationTestSetup";
 import React from 'react';
 import { createDummyUser, createDummyPost } from './utils'
-import { emailDoctype, generateEmail } from '../server/emails/renderEmail';
+import { generateEmail } from '../server/emails/renderEmail';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles, withStyles } from "@/components/hooks/useStyles";
+
+const emailDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">';
 
 const PostsRevisionQuery = gql(`
   query emailstests($documentId: String, $version: String) {

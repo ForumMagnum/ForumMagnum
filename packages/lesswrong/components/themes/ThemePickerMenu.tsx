@@ -3,7 +3,8 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { ThemeMetadata, themeMetadata, getForumType, AbstractThemeOptions } from '../../themes/themeNames';
 import { ForumTypeString, allForumTypes, forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
-import { useThemeOptions, useSetTheme, ThemeContext } from './useTheme';
+import { useThemeOptions, useSetTheme } from './useTheme';
+import { ThemeContext } from './ThemeContext';
 import { useCurrentUser } from '../common/withUser';
 import { isMobile } from '../../lib/utils/isMobile'
 import { Paper }from '@/components/widgets/Paper';

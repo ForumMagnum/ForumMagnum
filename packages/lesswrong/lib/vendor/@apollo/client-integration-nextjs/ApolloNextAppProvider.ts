@@ -23,6 +23,8 @@
   SOFTWARE.
 */
 
+'use client';
+
 import { useContext } from "react";
 import { buildManualDataTransport } from "@apollo/client-react-streaming/manual-transport";
 import { type QueryEvent, WrapApolloProvider } from "@apollo/client-react-streaming";

@@ -13,7 +13,7 @@ import { getExecutableSchema } from "@/server/vulcan-lib/apollo-server/initGraph
 // See comment on other instance of this function being invoked.
 disableFragmentWarnings();
 
-const { getClient: getClientInner, query, PreloadQuery } = registerApolloClient(() => {
+const { getClient: getClientInner, query: queryInner, PreloadQuery } = registerApolloClient(() => {
   return new ApolloClient({
     cache: new InMemoryCache(),
     link: ApolloLink.from([
@@ -31,5 +31,7 @@ const { getClient: getClientInner, query, PreloadQuery } = registerApolloClient(
 // (along with issues like "doesn't work when using @apollo/client versions later than 4.0.0-alpha.17,
 // because they shuffled around some internals and it's now trying to import functions from the wrong place")
 const getClient = getClientInner as unknown as () => ApolloClientType;
+
+const query = queryInner as ApolloClientType["query"];
 
 export { getClient, query, PreloadQuery };

@@ -1,8 +1,8 @@
-'use client';
 
 import React from "react";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import { defineStyles } from "@/components/hooks/defineStyles";
+import { useEmailStyles } from "./emailContext";
 
 const styles = defineStyles("EmailCuratedAuthors", (theme: ThemeType) => ({
   root: {
@@ -22,7 +22,7 @@ export const EmailCuratedAuthors = ({ user, post }: {
   user: DbUser;
   post: DbPost;
 }) => {
-  const classes = useStyles(styles);
+  const classes = useEmailStyles(styles);
 
   return (
     <div className={classes.root}>
