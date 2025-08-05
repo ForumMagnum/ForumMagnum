@@ -94,7 +94,6 @@ const utils = {
     if (rateLimit) {
       const {nextEligible, rateLimitType, rateLimitName} = rateLimit;
       if (nextEligible > new Date()) {
-        // Track when a comment is actually blocked due to rate limits
         captureEvent("commentBlockedDueToRateLimit", {
           rateLimitType,
           rateLimitName,
