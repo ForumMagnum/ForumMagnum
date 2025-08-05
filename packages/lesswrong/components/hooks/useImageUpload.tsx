@@ -190,22 +190,6 @@ const cloudinaryArgsByImageType = {
   },
 } as const;
 
-/**
- * In order to work in both light and dark mode, we need to store the colors in a CSS
- * variable. However, the cloudinary widget is loaded in an iframe which can't access
- * the CSS variables so we need to extract the color back out again. This means the
- * color won't update if the theme changes from light to dark or vice versa whilst the
- * dialog is open, but that seems pretty niche.
- */
-const getCssVarValue = (varRef: string): string => {
-  const varName = varRef.match(/var\((.*)\)/)?.[1];
-  if (!varName) {
-    throw new Error("Invalid var ref: " + varRef);
-  }
-  const style = getComputedStyle(document.body);
-  return style.getPropertyValue(varName);
-}
-
 export type ImageType = keyof typeof cloudinaryArgsByImageType;
 
 export type UseImageUploadProps = {
@@ -239,7 +223,7 @@ export const useImageUpload = ({
       throw new Error(`Cloudinary upload preset not configured for ${imageType}`)
     }
 
-    const color = getCssVarValue(primaryMainColor);
+    const color = primaryMainColor;
 
     window.cloudinary.openUploadWidget({
       multiple: false,
