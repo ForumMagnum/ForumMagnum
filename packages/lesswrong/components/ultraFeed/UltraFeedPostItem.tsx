@@ -79,6 +79,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
   rootWithReadStyles: {
     backgroundColor: theme.palette.grey[300],
+    opacity: 0.9,
     [theme.breakpoints.down('sm')]: {
       backgroundColor: theme.palette.grey[100],
       borderTop: theme.palette.border.itemSeparatorBottom,

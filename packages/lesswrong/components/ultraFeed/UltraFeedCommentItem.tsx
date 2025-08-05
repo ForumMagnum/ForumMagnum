@@ -100,7 +100,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     },
   },
   contentWrapperWithReadStyles: {
-    opacity: 1,
+    opacity: 0.9,
     [theme.breakpoints.down('sm')]: {
       opacity: 0.7,
     },
