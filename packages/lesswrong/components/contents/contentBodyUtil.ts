@@ -1,4 +1,4 @@
-import type { ContentStyleType } from '../common/ContentStyles';
+import type { ContentStyleType } from '../common/ContentStylesValues';
 import JargonTooltip from '../jargon/JargonTooltip';
 import InlineReactHoverableHighlight from '../votes/lwReactions/InlineReactHoverableHighlight';
 
