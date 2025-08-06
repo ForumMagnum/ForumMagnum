@@ -49,6 +49,7 @@ import BasicOnboardingFlow from "./onboarding/BasicOnboardingFlow";
 import { CommentOnSelectionPageWrapper } from "./comments/CommentOnSelection";
 import SidebarsWrapper from "./common/SidebarsWrapper";
 import HomepageCommunityMap from "./seasonal/HomepageMap/HomepageCommunityMap";
+import EASurveyBanner from "./ea-forum/EASurveyBanner";
 import AdminToggle from "./admin/AdminToggle";
 import SunshineSidebar from "./sunshineDashboard/SunshineSidebar";
 import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
@@ -431,6 +432,7 @@ const Layout = ({currentUser, children}: {
               <ForumEventBanner />
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
+              {isEAForum && <EASurveyBanner />}
 
               <div className={classNames({
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
