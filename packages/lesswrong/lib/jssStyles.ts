@@ -1,4 +1,3 @@
-import { StylesContextType } from "@/components/hooks/useStyles";
 import type { StyleDefinition } from "@/server/styleGeneration";
 import { create as jssCreate, SheetsRegistry } from "jss";
 import jssCamelCase from "jss-plugin-camel-case";

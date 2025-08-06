@@ -7,6 +7,8 @@ import { ExecutionResult, graphql, GraphQLError, print } from 'graphql';
 import { createAnonymousContext } from './createContexts';
 import { ResultOf, TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { getExecutableSchema } from './apollo-server/initGraphQL';
+import { EmailContextType } from '../emailComponents/emailContext';
+import type { OperationVariables } from '@apollo/client';
 
 function writeGraphQLErrorToStderr(errors: readonly GraphQLError[])
 {
@@ -50,3 +52,16 @@ export const runQuery = async <const TDocumentNode extends TypedDocumentNode<any
 
   return result;
 };
+
+export const useEmailQuery = <
+  TData extends Record<string, any>,
+  TVariables extends OperationVariables
+>(
+  query: TypedDocumentNode<TData, TVariables>,
+  options: {
+    variables?: TVariables
+    emailContext: EmailContextType
+  },
+) => {
+  return runQuery(query, options.variables ?? {}, options.emailContext.resolverContext);
+}

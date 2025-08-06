@@ -1,9 +1,6 @@
 import { htmlToText } from 'html-to-text';
 import { sendEmailSmtp } from './sendEmail';
 import React from 'react';
-import { ApolloProvider } from '@apollo/client/react';
-import { getMarkupFromTree } from '@apollo/client/react/ssr';
-import { TimezoneContext, UserContext } from '../../components/common/sharedContexts';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { forumTitleSetting, isLWorAF } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
@@ -16,19 +13,16 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 import { createLWEvent } from '../collections/lwevents/mutations';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
-import { FMJssProvider, ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
 import { ThemeOptions } from '@/themes/themeNames';
 import { EmailWrapper } from '../emailComponents/EmailWrapper';
-import CookiesProvider from '@/lib/vendor/react-cookie/CookiesProvider';
 import { utmifyForumBacklinks, UtmParam } from '../analytics/utm-tracking';
-import { EmailRenderContext } from './EmailRenderContext';
 import { backgroundTask } from '../utils/backgroundTask';
-import { generateEmailStylesheet, createStylesContext } from '@/lib/styleHelpers';
-import { EmailThemeProvider } from '../emailComponents/EmailThemeProvider';
 import { runQuery } from '../vulcan-lib/query';
 import { CurrentUserQuery } from '@/lib/crud/currentUserQuery';
 import type { StyleDefinition } from '../styleGeneration';
 import { prerenderToNodeStream } from 'react-dom/static';
+import { EmailContextType } from '../emailComponents/emailContext';
+import { generateEmailStylesheet } from '@/lib/styleHelpers';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -148,7 +142,7 @@ async function renderToString(component: React.ReactNode) {
 //
 
 
-export async function generateEmail({user, to, from, subject, bodyComponent, boilerplateGenerator=addEmailBoilerplate, utmParams}: {
+export async function generateEmail({user, to, from, subject, bodyComponent, boilerplateGenerator=addEmailBoilerplate, utmParams, emailContext}: {
   user: DbUser | null,
   to: string,
   from?: string,
@@ -156,6 +150,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   bodyComponent: React.ReactNode,
   boilerplateGenerator?: (props: {css: string, title: string, body: string}) => string,
   utmParams?: Partial<Record<UtmParam, string>>;
+  emailContext: EmailContextType,
 }): Promise<RenderedEmail>
 {
   if (!subject) throw new Error("Missing required argument: subject");
@@ -183,13 +178,11 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     {/* <CookiesProvider> */}
     {/* <ThemeContextProvider options={themeOptions} isEmail={true}> */}
     {/* <FMJssProvider stylesContext={stylesContext}> */}
-    {/* <EmailThemeProvider options={themeOptions}> */}
     {/* <UserContext.Provider value={user as unknown as UsersCurrent | null}> */}
     {/* <TimezoneContext.Provider value={timezone}> */}
       {bodyComponent}
     {/* </TimezoneContext.Provider> */}
     {/* </UserContext.Provider> */}
-    {/* </EmailThemeProvider> */}
     {/* </FMJssProvider> */}
     {/* </ThemeContextProvider> */}
     {/* </CookiesProvider> */}
@@ -215,7 +208,11 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
 
   // console.log({ body, css });
 
-  const html = boilerplateGenerator({ css: '', body, title:subject })
+  const css = generateEmailStylesheet({
+    stylesUsed: emailContext.stylesUsed,
+    theme,
+  });
+  const html = boilerplateGenerator({ css, body, title:subject })
   
   // Find any relative links, and convert them to absolute
   const htmlWithAbsoluteUrls = makeAllUrlsAbsolute(html, getSiteUrl());
@@ -251,6 +248,18 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     text: plaintext,
   }
 }
+
+export async function createEmailContext(user: DbUser|null, resolverContext?: ResolverContext) {
+  const resolverContextWithDefault = resolverContext ?? computeContextFromUser({ user, isSSR: false });
+  const currentUser = await runQuery(CurrentUserQuery, {}, resolverContext);
+
+  return {
+    resolverContext: resolverContextWithDefault,
+    stylesUsed: new Set<StyleDefinition<string, string>>(),
+    currentUser: currentUser.data?.currentUser ?? null,
+  };
+}
+
 export const wrapAndRenderEmail = async ({
   user,
   to,
@@ -263,19 +272,12 @@ export const wrapAndRenderEmail = async ({
   to: string;
   from?: string;
   subject: string;
-  body: React.ReactNode;
+  body: (emailContext: EmailContextType) => React.ReactNode;
   utmParams?: Partial<Record<UtmParam, string>>;
 }): Promise<RenderedEmail> => {
   const unsubscribeAllLink = user ? await emailTokenTypesByName.unsubscribeAll.generateLink(user._id) : null;
   
-  const resolverContext = computeContextFromUser({ user, isSSR: false });
-  const currentUser = await runQuery(CurrentUserQuery, {}, resolverContext);
-
-  const emailContext = {
-    resolverContext: resolverContext,
-    stylesUsed: new Set<StyleDefinition<string, string>>(),
-    currentUser: currentUser.data?.currentUser ?? null,
-  };
+  const emailContext = await createEmailContext(user);
 
   return await generateEmail({
     user,
@@ -286,8 +288,9 @@ export const wrapAndRenderEmail = async ({
       unsubscribeAllLink={unsubscribeAllLink}
       emailContext={emailContext}
     >
-      {body}
+      {body(emailContext)}
     </EmailWrapper>,
+    emailContext,
     utmParams
   });
 }
@@ -306,7 +309,7 @@ export const wrapAndSendEmail = async ({
   to?: string;
   from?: string;
   subject: string;
-  body: React.ReactNode;
+  body: (emailContext: EmailContextType) => React.ReactNode;
   utmParams?: Partial<Record<UtmParam, string>>;
 }): Promise<boolean> => {
   if (isE2E) {

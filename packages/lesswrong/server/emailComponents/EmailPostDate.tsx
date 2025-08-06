@@ -1,13 +1,15 @@
 import React from 'react';
-import { useTimezone } from '../../components/common/withTimezone';
 import { EmailFormatDate } from './EmailFormatDate';
 import PrettyEventDateTime from '@/components/events/modules/PrettyEventDateTime';
 import { maybeDate } from '@/lib/utils/dateUtils';
+import { EmailContextType } from './emailContext';
+import { useEmailRecipientTimezone } from './useEmailRecipientTimezone';
 
-export const EmailPostDate = ({post}: {
+export const EmailPostDate = ({post, emailContext}: {
   post: PostsBase
+  emailContext: EmailContextType
 }) => {
-  const { timezone, timezoneIsKnown } = useTimezone()
+  const { timezone, timezoneIsKnown } = useEmailRecipientTimezone(emailContext)
   
   if (post.isEvent) {
     return <span><PrettyEventDateTime post={post} timezone={timezoneIsKnown ? timezone : undefined} /></span>

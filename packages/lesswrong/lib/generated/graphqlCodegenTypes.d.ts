@@ -26542,6 +26542,22 @@ type EmailCommentQueryVariables = Exact<{
 
 type EmailCommentQuery = EmailCommentQuery_Query;
 
+type EmailFooterRecommendationsQueryQuery_Recommendations_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotesAndSequence
+);
+
+type EmailFooterRecommendationsQueryQuery_Query = { __typename?: 'Query', Recommendations: Array<EmailFooterRecommendationsQueryQuery_Recommendations_Post> | null };
+
+
+type EmailFooterRecommendationsQueryQueryVariables = Exact<{
+  count: InputMaybe<Scalars['Int']['input']>;
+  algorithm: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+type EmailFooterRecommendationsQueryQuery = EmailFooterRecommendationsQueryQuery_Query;
+
 type EmailUsernameByIDQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
   & UsersMinimumInfo

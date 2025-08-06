@@ -32,6 +32,13 @@ export const defineStyles = <T extends string, N extends string>(
   };
   topLevelStyleDefinitions[name] = definition;
   
+  // If defineStyles has already been called with this name, either there
+  // are two defineStyles calls with the same name in the codebase (an
+  // error) *or* we are doing hot module reloading, and should replace
+  // the styles in-place. (HMR works this way in both Vite and Nextjs).
+  // Since the HMR case is important, we don't enforce unique style
+  // names here.
+
   if (isClient && _clientMountedStyles) {
     const mountedStyles = _clientMountedStyles.mountedStyles.get(name);
     if (mountedStyles) {

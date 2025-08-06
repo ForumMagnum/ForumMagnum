@@ -10,6 +10,8 @@ import { fetchPostsForEmail } from './emailComponents/queries';
 import { UtmParam } from './analytics/utm-tracking';
 import { isEAForum } from '@/lib/instanceSettings';
 import { backgroundTask } from './utils/backgroundTask';
+import { EmailContextType } from './emailComponents/emailContext';
+import { createEmailContext } from './emails/renderEmail';
 
 export const getUtmParamsForNotificationType = (notificationType: string): Partial<Record<UtmParam, string>> => {
   return {
@@ -90,7 +92,7 @@ const notificationBatchToEmails = async ({user, notificationType, notifications,
         to: getUserEmail(user),
         from: notificationTypeRenderer.from,
         subject: await notificationTypeRenderer.emailSubject({ user, notifications, context }),
-        body: await notificationTypeRenderer.emailBody({ user, notifications, context }),
+        body: async (emailContext: EmailContextType) => await notificationTypeRenderer.emailBody({ user, notifications, emailContext }),
         ...(isEAForum && { utmParams: { ...utmParams, utm_user_id: user._id } })
       }))
   );
@@ -111,7 +113,6 @@ export const graphqlQueries = {
       throw new Error("Please only specify notificationIds or postId in the query")
     }
     
-    let emails: any[] = []
     if (notificationIds?.length) {
       const notifications = await Notifications.find(
         { _id: {$in: notificationIds} }
@@ -120,29 +121,30 @@ export const graphqlQueries = {
       // Assume they are all of the same type
       const notificationType = notifications[0].type;
 
-      emails = await notificationBatchToEmails({
+      const emails = await notificationBatchToEmails({
         user: currentUser,
         notificationType,
         notifications,
         context
       });
-    }
-    if (postId) {
+      const renderedEmails = await Promise.all(emails.map(async email => await wrapAndRenderEmail(email)));
+      console.log({ renderedEmails });
+      return renderedEmails;
+    } else if (postId) {
       const post = await Posts.findOne(postId)
-      if (post) {
-        const posts = await fetchPostsForEmail([post._id], currentUser);
-
-        emails = [{
-          user: currentUser,
-          subject: post.title,
-          body: <PostsEmail posts={posts} reason='you have the "Email me new posts in Curated" option enabled' />
-        }]
+      if (!post) {
+        return [];
       }
+      const renderedEmail = await wrapAndRenderEmail({
+        user: currentUser,
+        subject: post.title,
+        body: (emailContext: EmailContextType) => <PostsEmail postIds={[post._id]} reason='you have the "Email me new posts in Curated" option enabled' emailContext={emailContext} />
+      })
+      console.log({ renderedEmail });
+      return [renderedEmail];
+    } else {
+      return [];
     }
-    const renderedEmails = await Promise.all(emails.map(async email => await wrapAndRenderEmail(email)));
-
-    console.log({ renderedEmails });
-    return renderedEmails;
   }
 };
 

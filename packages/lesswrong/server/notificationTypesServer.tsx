@@ -25,13 +25,13 @@ import startCase from 'lodash/startCase';
 import Sequences from '../server/collections/sequences/collection';
 import { DialogueMessageEmailInfo, NewDialogueMessagesEmail } from './emailComponents/NewDialogueMessagesEmail';
 import { PostsEmail } from './emailComponents/PostsEmail';
-import { fetchPostsForEmail } from './emailComponents/queries';
 import { EmailCommentBatch } from './emailComponents/EmailComment';
 import { PostNominatedEmail } from './emailComponents/PostNominatedEmail';
 import { SequenceNewPostsEmail } from './emailComponents/SequenceNewPostsEmail';
 import { PrivateMessagesEmail } from './emailComponents/PrivateMessagesEmail';
 import { EventUpdatedEmail } from './emailComponents/EventUpdatedEmail';
 import { EmailUsernameByID } from './emailComponents/EmailUsernameByID';
+import { EmailContextType } from './emailComponents/emailContext';
 
 interface ServerNotificationType {
   name: string,
@@ -40,7 +40,7 @@ interface ServerNotificationType {
   skip: ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => Promise<boolean>,
   loadData?: ({user, notifications, context}: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => Promise<any>,
   emailSubject: ({user, notifications, context}: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => Promise<string>,
-  emailBody: ({user, notifications, context}: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => Promise<React.ReactNode>,
+  emailBody: ({user, notifications, emailContext}: {user: DbUser, notifications: DbNotification[], emailContext: EmailContextType}) => Promise<React.ReactNode>,
 }
 // A default skip function is added in createServerNotificationType so it is optional when registering a notification type
 type ServerRegisterNotificationType = Omit<ServerNotificationType, 'skip'> & Partial<Pick<ServerNotificationType, 'skip'>>
@@ -65,7 +65,11 @@ export const NewPostNotification = createServerNotificationType({
       return post.title;
     }
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, emailContext }: {
+    user: DbUser,
+    notifications: DbNotification[],
+    emailContext: EmailContextType,
+  }) => {
     const postIds = Array.from(new Set(notifications.map(n => n.documentId).filter(postId => {
       if (!postId) {
         // eslint-disable-next-line no-console
@@ -75,8 +79,7 @@ export const NewPostNotification = createServerNotificationType({
       return true;
     }))) as string[];
 
-    const posts = await fetchPostsForEmail(postIds, user);
-    return <PostsEmail posts={posts}/>
+    return <PostsEmail postIds={postIds} emailContext={emailContext}/>
   },
 });
 
@@ -97,12 +100,11 @@ export const NewEventNotification = createServerNotificationType({
     if (!post) throw Error(`Can't find post to generate subject-line for: ${notifications}`)
     return `New event: ${post.title}`;
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, emailContext }) => {
     const postId = notifications[0].documentId;
     if (!postId) throw Error(`Can't find event post to generate body for: ${postId}`)
     
-    const posts = await fetchPostsForEmail([postId], user);
-    return <PostsEmail posts={posts} hideRecommendations={true} reason="you are subscribed to this group"/>
+    return <PostsEmail postIds={[postId]} hideRecommendations={true} reason="you are subscribed to this group" emailContext={emailContext}/>
   },
 });
 
@@ -114,12 +116,11 @@ export const NewGroupPostNotification = createServerNotificationType({
     const group = await Localgroups.findOne(post?.groupId);
     return `New post in group ${group?.name}`;
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, emailContext }) => {
     const postId = notifications[0].documentId;
     if (!postId) throw Error(`Can't find group post to generate body for: ${postId}`)
     
-    const posts = await fetchPostsForEmail([postId], user);
-    return <PostsEmail posts={posts} hideRecommendations={true} reason="you are subscribed to this group"/>
+    return <PostsEmail postIds={[postId]} hideRecommendations={true} reason="you are subscribed to this group" emailContext={emailContext}/>
   },
 });
 
@@ -154,12 +155,12 @@ export const NewShortformNotification = createServerNotificationType({
       return `New quick take by ${author.displayName}`;
     }
   },
-  emailBody: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({user, notifications, emailContext}) => {
     const commentIds = notifications.map(n => n.documentId);
     const comments = await Comments.find({_id: {$in: commentIds}}).fetch();
     if (!comments.length) throw Error(`Can't find comments for comment email notification: ${notifications}`);
 
-    return <EmailCommentBatch comments={comments}/>;
+    return <EmailCommentBatch comments={comments} emailContext={emailContext}/>;
   }
 })
 
@@ -170,12 +171,11 @@ export const NewTagPostsNotification = createServerNotificationType({
     const {documentId, documentType} = notifications[0]
     return await taggedPostMessage({documentId, documentType: documentType as NotificationDocument, context})
   },
-  emailBody: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({user, notifications, emailContext}) => {
     const {documentId, documentType} = notifications[0]
     const tagRel = await TagRels.findOne({_id: documentId})
     if (tagRel) {
-      const posts = await fetchPostsForEmail([tagRel.postId], user);
-      return <PostsEmail posts={posts}/>
+      return <PostsEmail postIds={[tagRel.postId]} emailContext={emailContext}/>
     }
   }
 })
@@ -188,7 +188,7 @@ export const NewSequencePostsNotification = createServerNotificationType({
     if (!sequence) throw Error(`Can't find sequence for notification: ${notifications[0]}`)
     return `Posts added to ${sequence.title}`
   },
-  emailBody: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({user, notifications, emailContext}) => {
     const {documentId, extraData} = notifications[0]
     
     const sequence = await Sequences.findOne({_id: documentId})
@@ -202,7 +202,7 @@ export const NewSequencePostsNotification = createServerNotificationType({
     
     if (!posts.length) throw Error(`No valid new posts for notification: ${notifications[0]}`)
     
-    return <SequenceNewPostsEmail sequence={sequence} posts={posts} />;
+    return <SequenceNewPostsEmail sequence={sequence} posts={posts} emailContext={emailContext} />;
   }
 })
 
@@ -220,12 +220,12 @@ export const NewCommentNotification = createServerNotificationType({
       return `${author.displayName} commented on a post you subscribed to`;
     }
   },
-  emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
+  emailBody: async ({ user, notifications, emailContext }: {user: DbUser, notifications: DbNotification[], emailContext: EmailContextType}) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, context);
+    const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, emailContext.resolverContext);
     
-    return <EmailCommentBatch comments={comments}/>;
+    return <EmailCommentBatch comments={comments} emailContext={emailContext}/>;
   },
 });
 
@@ -243,12 +243,12 @@ export const NewUserCommentNotification = createServerNotificationType({
       return `${author.displayName} left a new comment.`;
     }
   },
-  emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
+  emailBody: async ({ user, notifications, emailContext }) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, context);
+    const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, emailContext.resolverContext);
     
-    return <EmailCommentBatch comments={comments}/>;
+    return <EmailCommentBatch comments={comments} emailContext={emailContext}/>;
   },
 });
 
@@ -277,12 +277,12 @@ export const NewSubforumCommentNotification = createServerNotificationType({
       return `${commentCount} new comment${commentCount > 1 ? 's' : ''} in ${subforumIds.length} topics you are subscribed to`
     }
   },
-  emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
+  emailBody: async ({ user, notifications, emailContext }) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, context);
+    const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, emailContext.resolverContext);
     
-    return <EmailCommentBatch comments={comments}/>;
+    return <EmailCommentBatch comments={comments} emailContext={emailContext}/>;
   },
 });
 
@@ -364,12 +364,12 @@ export const NewDebateCommentNotification = createServerNotificationType({
       return `${author.displayName} replied in a dialogue you subscribed to`;
     }
   },
-  emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
+  emailBody: async ({ user, notifications, emailContext }) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, context);
+    const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, emailContext.resolverContext);
     
-    return <EmailCommentBatch comments={comments}/>;
+    return <EmailCommentBatch comments={comments} emailContext={emailContext}/>;
   },
 });
 
@@ -387,12 +387,12 @@ export const NewDebateReplyNotification = createServerNotificationType({
       return `${author.displayName} replied in a dialogue you're participanting in`;
     }
   },
-  emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
+  emailBody: async ({ user, notifications, emailContext }) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, context);
+    const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, emailContext.resolverContext);
     
-    return <EmailCommentBatch comments={comments}/>;
+    return <EmailCommentBatch comments={comments} emailContext={emailContext}/>;
   },
 });
 
@@ -410,12 +410,12 @@ export const NewReplyNotification = createServerNotificationType({
       return `${userGetDisplayName(author)} replied to a comment you're subscribed to`;
     }
   },
-  emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
+  emailBody: async ({ user, notifications, emailContext }) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, context);
+    const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, emailContext.resolverContext);
     
-    return <EmailCommentBatch comments={comments}/>;
+    return <EmailCommentBatch comments={comments} emailContext={emailContext}/>;
   },
 });
 
@@ -435,12 +435,12 @@ export const NewReplyToYouNotification = createServerNotificationType({
       return anyIndirect ? `${userGetDisplayName(author)} replied to a thread you participated in` : `${userGetDisplayName(author)} replied to your comment`;
     }
   },
-  emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
+  emailBody: async ({ user, notifications, emailContext }) => {
     const commentIds = notifications.map(n => n.documentId);
     const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, context);
+    const comments = await accessFilterMultiple(user, 'Comments', commentsRaw, emailContext.resolverContext);
     
-    return <EmailCommentBatch comments={comments}/>;
+    return <EmailCommentBatch comments={comments} emailContext={emailContext}/>;
   },
 });
 
@@ -462,7 +462,7 @@ const forumNewMessageEmail = forumSelect(newMessageEmails) ?? undefined
 export const NewMessageNotification = createServerNotificationType({
   name: "newMessage",
   from: forumNewMessageEmail, // passing in undefined will lead to default behavior
-  loadData: async function({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) {
+  loadData: async function({ user, notifications, context }) {
     // Load messages
     const messageIds = notifications.map(notification => notification.documentId);
     const messagesRaw = await Messages.find({ _id: {$in: messageIds} }).fetch();
@@ -490,13 +490,14 @@ export const NewMessageNotification = createServerNotificationType({
     
     return `Private message conversation${conversations.length>1 ? 's' : ''} with ${otherParticipantNames}`;
   },
-  emailBody: async function({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) {
-    const { conversations, messages, participantsById } = await this.loadData!({ user, notifications, context });
+  emailBody: async function({ user, notifications, emailContext }) {
+    const { conversations, messages, participantsById } = await this.loadData!({ user, notifications, context: emailContext.resolverContext });
     
     return <PrivateMessagesEmail
       conversations={conversations}
       messages={messages}
       participantsById={participantsById}
+      emailContext={emailContext}
     />
   },
 });
@@ -547,11 +548,11 @@ export const PostSharedWithUserNotification = createServerNotificationType({
     const name = await postGetAuthorName(post, context);
     return `${name} shared their ${post.draft ? "draft" : "post"} "${post.title}" with you`;
   },
-  emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
+  emailBody: async ({ user, notifications, emailContext }) => {
     const post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
     const link = postGetPageUrl(post, true);
-    const name = await postGetAuthorName(post, context);
+    const name = await postGetAuthorName(post, emailContext.resolverContext);
     return <p>
       {name} shared their {post.draft ? "draft" : "post"} <a href={link}>{post.title}</a> with you.
     </p>
@@ -568,11 +569,11 @@ export const PostAddedAsCoauthorNotification = createServerNotificationType({
     const postOrDialogue = post.collabEditorDialogue ? 'dialogue' : 'post';
     return `${name} added you as a coauthor to the ${postOrDialogue} "${post.title}"`;
   },
-  emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
+  emailBody: async ({ user, notifications, emailContext }) => {
     const post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
     const link = postGetEditUrl(post._id, true);
-    const name = await postGetAuthorName(post, context);
+    const name = await postGetAuthorName(post, emailContext.resolverContext);
     const postOrDialogue = post.collabEditorDialogue ? 'dialogue' : 'post';
 
     return <p>
@@ -623,12 +624,11 @@ export const NewEventInRadiusNotification = createServerNotificationType({
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
     return `New event in your area: ${post.title}`;
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, emailContext }) => {
     const postId = notifications[0].documentId;
     if (!postId) throw Error(`Can't find event to generate body for: ${postId}`)
     
-    const posts = await fetchPostsForEmail([postId], user);
-    return <PostsEmail posts={posts} hideRecommendations={true} reason="you are subscribed to nearby events notifications"/>
+    return <PostsEmail postIds={[postId]} hideRecommendations={true} reason="you are subscribed to nearby events notifications" emailContext={emailContext}/>
   },
 });
 
@@ -640,10 +640,10 @@ export const EditedEventInRadiusNotification = createServerNotificationType({
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
     return `Event in your area updated: ${post.title}`;
   },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailBody: async ({ user, notifications, emailContext }) => {
     const postId= notifications[0].documentId
     if (!postId) throw Error(`Can't find event to generate body for: ${postId}`)
-    return <EventUpdatedEmail postId={postId} />
+    return <EventUpdatedEmail postId={postId} emailContext={emailContext} />
   },
 });
 
@@ -761,13 +761,13 @@ export const PostCoauthorRequestNotification = createServerNotificationType({
     const name = await postGetAuthorName(post, context);
     return `${name} requested that you co-author their post: ${post.title}`;
   },
-  emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
+  emailBody: async ({ user, notifications, emailContext }) => {
     const post = await Posts.findOne(notifications[0].documentId);
     if (!post) {
       throw Error(`Can't find post for notification: ${notifications[0]}`);
     }
     const link = postGetPageUrl(post, true);
-    const name = await postGetAuthorName(post, context);
+    const name = await postGetAuthorName(post, emailContext.resolverContext);
     return (
       <p>
         {name} requested that you co-author their post <a href={link}>{post.title}</a>.
@@ -839,9 +839,9 @@ export const NewMentionNotification = createServerNotificationType({
     
     return `${summary.associatedUserName} mentioned you in ${summary.displayName}`;
   },
-  emailBody: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
+  emailBody: async ({ user, notifications, emailContext }) => {
     const notification = notifications[0];
-    const summary = await getDocumentSummary(notification.documentType as NotificationDocument, notification.documentId, context);
+    const summary = await getDocumentSummary(notification.documentType as NotificationDocument, notification.documentId, emailContext.resolverContext);
     if (!summary) {
       throw Error(`Can't find document for notification: ${notification}`);
     }

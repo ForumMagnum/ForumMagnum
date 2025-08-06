@@ -1,18 +1,18 @@
-
-
 import React from 'react';
 import type { RSVPType } from "@/lib/collections/posts/helpers";
-import type { PostsRevision } from "@/lib/generated/gql-codegen/graphql";
 import { PostsEmail } from './PostsEmail';
+import { EmailContextType } from './emailContext';
 
-export const EventTomorrowReminder = ({posts, rsvp}: {
-  posts: PostsRevision[],
+export const EventTomorrowReminder = ({postIds, rsvp, emailContext}: {
+  postIds: string[],
   rsvp: RSVPType,
+  emailContext: EmailContextType,
 }) => {
   return <PostsEmail
-    posts={posts}
+    postIds={postIds}
     hideRecommendations
     reason={`you RSVPed ${rsvp.response} to this event`}
+    emailContext={emailContext}
   />
 }
 

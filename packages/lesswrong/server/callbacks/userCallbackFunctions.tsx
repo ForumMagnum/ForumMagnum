@@ -108,7 +108,7 @@ async function sendWelcomeMessageTo(userId: string) {
     await wrapAndSendEmail({
       user,
       subject: subjectLine,
-      body: <EmailContentItemBody dangerouslySetInnerHTML={{ __html: welcomeMessageBody }}/>
+      body: (emailContext) => <EmailContentItemBody dangerouslySetInnerHTML={{ __html: welcomeMessageBody }}/>
     })
   }
 }
@@ -135,7 +135,7 @@ async function sendVerificationEmail(user: DbUser) {
     user,
     force: true,
     subject: `Verify your ${forumTitleSetting.get()} email`,
-    body: <div>
+    body: (emailContext) => <div>
       <p>
         Click here to verify your {forumTitleSetting.get()} email
       </p>

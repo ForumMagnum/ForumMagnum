@@ -14,7 +14,7 @@ import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from "../curationEmails/cron";
 import { autoFrontpageSetting, tagBotActiveTimeSetting } from "../databaseSettings";
 import { EventDebouncer } from "../debouncer";
-import { wrapAndSendEmail } from "../emails/renderEmail";
+import { createEmailContext, wrapAndSendEmail } from "../emails/renderEmail";
 import { updatePostEmbeddings } from "../embeddings";
 import { fetchFragmentSingle } from "../fetchFragment";
 import { checkFrontpage, checkTags, getAutoAppliedTags, getTagBotAccount } from "../languageModels/autoTagCallbacks";
@@ -869,7 +869,7 @@ export async function eventUpdatedNotifications({newDocument: newPost, oldDocume
         user: user,
         to: email,
         subject: `Event updated: ${newPost.title}`,
-        body: <EventUpdatedEmail postId={newPost._id} />
+        body: (emailContext) => <EventUpdatedEmail postId={newPost._id} emailContext={emailContext} />
       });
     }
     
@@ -1084,12 +1084,14 @@ export async function sendEAFCuratedAuthorsNotification(post: DbPost, oldPost: D
     }).fetch()
     
     backgroundTask(Promise.all(
-      authors.map(author => wrapAndSendEmail({
-        user: author,
-        subject: "We’ve curated your post",
-        body: <EmailCuratedAuthors user={author} post={post} />
+      authors.map(async (author) => {
+        return wrapAndSendEmail({
+          user: author,
+          subject: "We’ve curated your post",
+          body: (emailContext) => <EmailCuratedAuthors user={author} post={post} emailContext={emailContext}/>
+        })
       })
-    )))
+    ))
   }
 }
 

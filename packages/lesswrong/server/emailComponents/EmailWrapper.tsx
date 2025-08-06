@@ -2,10 +2,8 @@ import React from 'react';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { isFriendlyUI } from '@/themes/forumTheme';
-import type { JssStyles } from '@/lib/jssStyles';
 import { EmailContextType, useEmailStyles } from './emailContext';
 import { defineStyles } from '@/components/hooks/defineStyles';
-import { sleep } from '@/lib/helpers';
 
 const styles = defineStyles("EmailWrapper", (theme: ThemeType) => ({
   root: {
@@ -19,16 +17,14 @@ const styles = defineStyles("EmailWrapper", (theme: ThemeType) => ({
 // Wrapper for top-level formatting of emails, eg controling width and
 // background color. See also the global CSS in renderEmail.js. Derived from
 // wrapper.handlebars in Vulcan-Starter.
-export const EmailWrapper = async ({unsubscribeAllLink, emailContext, children}: {
+export const EmailWrapper = ({unsubscribeAllLink, emailContext, children}: {
   unsubscribeAllLink: string | null,
   emailContext: EmailContextType,
   children: React.ReactNode,
 }) => {
-  const classes = useEmailStyles(styles);
+  const classes = useEmailStyles(styles, emailContext);
   const accountLink = `${getSiteUrl()}account`
   const siteNameWithArticle = siteNameWithArticleSetting.get()
-
-  await sleep(100);
   
   // Put props for some HTML elements in any-typed objects, because emails use
   // non-HTML5 attributes which the typechecker will complain about

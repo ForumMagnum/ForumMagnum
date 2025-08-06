@@ -3,8 +3,14 @@ const fs = require('fs');
 
 const serverExternalPackages = [
   'superagent-proxy', 'gpt-3-encoder', 'mathjax-node', 'mathjax', 'turndown', 'cloudinary',
-  '@aws-sdk/client-cloudfront', 'auth0', 'jimp', 'juice', 'react-dom/static',
+  '@aws-sdk/client-cloudfront', 'auth0', 'jimp', 'juice',
   'request', 'stripe', 'openai', 'twitter-api-v2', 'draft-js', 'draft-convert', 'csso',
+  // Needs to be external for email-rendering to be able to use prerenderToNodeStream,
+  // because nextjs bundles a version of react-dom which omits react-dom/static (and
+  // doesn't provide anything in its place that would work for server-component email
+  // rendering). This has a somewhat high risk of causing problems related to there
+  // being multiple different versions of React present.
+  'react-dom/static',
 ];
 
 const webpackExternalPackages = [
@@ -90,6 +96,11 @@ module.exports = {
       ...[
         ...serverExternalPackages,
         ...webpackExternalPackages
+      // For each external package, add both the package name and
+      // "commonjs packagename" to the list of external packages. With webpack,
+      // these are different, and if you guess wrong which of these to use then
+      // the externalization will have no effect, but externalizing with both
+      // variants is safe.
       ].flatMap(pkg => [pkg, `commonjs ${pkg}`])
     ];
 

@@ -55,7 +55,7 @@ export const sendJobAdReminderEmails = async () => {
       backgroundTask(wrapAndSendEmail({
         user: recipient,
         subject: `Reminder: ${jobAdData.role} role at${jobAdData.insertThe ? ' the ' : ' '}${jobAdData.org}`,
-        body: <EmailJobAdReminder jobName={userJobAd.jobName} />,
+        body: (emailContext) => <EmailJobAdReminder jobName={userJobAd.jobName} emailContext={emailContext} />,
         force: true  // ignore the "unsubscribe to all" in this case, since the user initiated it
       }))
     }

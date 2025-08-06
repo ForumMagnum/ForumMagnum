@@ -6,6 +6,10 @@ import { getUserEmail } from "../lib/collections/users/helpers";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles, withStyles } from "@/components/hooks/useStyles";
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
+import { StyleDefinition } from "@/server/styleGeneration";
+import { runQuery } from "@/server/vulcan-lib/query";
+import { CurrentUserQuery } from "@/lib/crud/currentUserQuery";
 
 const emailDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">';
 
@@ -32,14 +36,22 @@ async function renderTestEmail({ user=null, subject="Unit test email", bodyCompo
   boilerplateGenerator?: typeof unitTestBoilerplateGenerator
 }) {
   const destinationUser = user || await createDummyUser();
+  const resolverContext = computeContextFromUser({ user: destinationUser, isSSR: false });
+  const destinationUserCurrentUser = await runQuery(CurrentUserQuery, {}, resolverContext);
   const email = getUserEmail(destinationUser)
   if (!email) throw new Error("test email has no email address")
+  const emailContext = {
+    resolverContext,
+    stylesUsed: new Set<StyleDefinition<string, string>>(),
+    currentUser: destinationUserCurrentUser.data?.currentUser ?? null,
+  };
   return await generateEmail({
     user: destinationUser,
     to: email,
     subject: "Unit test email",
     bodyComponent,
-    boilerplateGenerator: boilerplateGenerator||unitTestBoilerplateGenerator
+    boilerplateGenerator: boilerplateGenerator||unitTestBoilerplateGenerator,
+    emailContext,
   });
 }
 

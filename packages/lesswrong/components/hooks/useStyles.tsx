@@ -11,8 +11,7 @@ import jssDefaultUnit from 'jss-plugin-default-unit';
 import jssVendorPrefixer from 'jss-plugin-vendor-prefixer';
 import jssPropsSort from 'jss-plugin-props-sort';
 import { isClient } from "@/lib/executionEnvironment";
-import { useTheme } from "../themes/useTheme";
-import { ThemeContext, ThemeContextType } from '../themes/ThemeContext';
+import { ThemeContext, ThemeContextType, useTheme } from '../themes/useTheme';
 import { maybeMinifyCSS } from "@/server/maybeMinifyCSS";
 import { type AbstractThemeOptions, abstractThemeToConcrete, themeOptionsAreConcrete } from "@/themes/themeNames";
 import { getForumTheme } from "@/themes/forumTheme";
@@ -29,6 +28,18 @@ export type StylesContextType = {
 }
 
 export const StylesContext = createContext<StylesContextType|null>(null);
+
+export function createStylesContext(theme: ThemeType, abstractThemeOptions: AbstractThemeOptions): StylesContextType {
+  return {
+    initialTheme: theme,
+    stylesAwaitingServerInjection: [],
+    mountedStyles: new Map<string, {
+      refcount: number
+      styleDefinition: StyleDefinition<any>
+      styleNode?: HTMLStyleElement
+    }>()
+  };
+}
 
 /**
  * Client-side only: If the theme has changed (eg with the theme-picker UI),

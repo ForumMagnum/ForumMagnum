@@ -3,14 +3,17 @@ import { isFriendlyUI } from '@/themes/forumTheme';
 import { postGetPageUrl, postGetLink, postGetLinkTarget } from '../../lib/collections/posts/helpers';
 import { truncatise } from '@/lib/truncatise';
 import { SMALL_TRUNCATION_CHAR_COUNT } from '@/lib/editor/ellipsize';
-// import { LocationContext, NavigationContext } from '@/lib/vulcan-core/appContext';
-// import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-// import { EmailPostAuthors } from './EmailPostAuthors';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { EmailPostAuthors } from './EmailPostAuthors';
 import { EmailContentItemBody } from './EmailContentItemBody';
-// import { EmailFooterRecommendations } from './EmailFooterRecommendations';
-// import { EmailPostDate } from './EmailPostDate';
+import { EmailFooterRecommendations } from './EmailFooterRecommendations';
+import { EmailPostDate } from './EmailPostDate';
 // import ContentStyles from '@/components/common/ContentStyles';
 import type { PostsRevision } from "@/lib/generated/gql-codegen/graphql";
+import { EmailContextType, useEmailStyles } from './emailContext';
+import { PostsRevisionMultiQuery } from './queries';
+import { useEmailQuery } from '../vulcan-lib/query';
+import { EmailContentStyles } from './EmailContentStyles';
 
 const getPodcastInfoElement = (podcastEpisode: Exclude<PostsDetails['podcastEpisode'], null>) => {
   const { podcast: { applePodcastLink, spotifyPodcastLink }, episodeLink, externalEpisodeId } = podcastEpisode;
@@ -72,56 +75,67 @@ const getTruncatedHtml = (html: string) => {
   }
 };
 
-// const styles = defineStyles("PostsEmail", (theme: ThemeType) => ({
-//   heading: {
-//     textAlign: "center",
-//     color: theme.palette.primary.main,
-//     marginBottom: 30
-//   },
-//   headingRow: {
-//     marginBottom: 8
-//   },
-//   podcastRow: {
-//     '& p': {
-//       marginBottom: 16,
-//     },
-//     fontStyle: "italic"
-//   },
-//   headingLink: {
-//     color: theme.palette.text.maxIntensity,
-//     textDecoration: "none",
-//     fontWeight: "normal",
-//     fontFamily: theme.typography.headerStyle.fontFamily,
-//     ...(isFriendlyUI ? {
-//       fontSize: "2.4rem",
-//       lineHeight: '1.25em'
-//     } : {}),
-//   },
-//   headingHR: {
-//     width: 210,
-//     height: 0,
-//     borderTop: "none",
-//     borderBottom: theme.palette.border.emailHR,
-//     marginTop: 50,
-//     marginBottom: 35,
-//   },
-//   hr: {
-//     marginTop: 30,
-//     marginBottom: 30,
-//   },
-// }));
+const styles = defineStyles("PostsEmail", (theme: ThemeType) => ({
+  heading: {
+    textAlign: "center",
+    color: theme.palette.primary.main,
+    marginBottom: 30
+  },
+  headingRow: {
+    marginBottom: 8
+  },
+  podcastRow: {
+    '& p': {
+      marginBottom: 16,
+    },
+    fontStyle: "italic"
+  },
+  headingLink: {
+    color: theme.palette.text.maxIntensity,
+    textDecoration: "none",
+    fontWeight: "normal",
+    fontFamily: theme.typography.headerStyle.fontFamily,
+    ...(isFriendlyUI ? {
+      fontSize: "2.4rem",
+      lineHeight: '1.25em'
+    } : {}),
+  },
+  headingHR: {
+    width: 210,
+    height: 0,
+    borderTop: "none",
+    borderBottom: theme.palette.border.emailHR,
+    marginTop: 50,
+    marginBottom: 35,
+  },
+  hr: {
+    marginTop: 30,
+    marginBottom: 30,
+  },
+}));
 
-function PostsEmailInner({
-  posts,
+export async function PostsEmail({
+  postIds,
   reason,
   hideRecommendations,
+  emailContext,
 }: {
-  posts: PostsRevision[];
+  postIds: string[];
   reason?: string;
   hideRecommendations?: boolean;
+  emailContext: EmailContextType,
 }) {
-  // const classes = useStyles(styles);
-  const classes: Record<string, string> = {};
+  const classes = useEmailStyles(styles, emailContext);
+  const { data } = await useEmailQuery(PostsRevisionMultiQuery, {
+    variables: {
+      selector: { default: { exactPostIds: postIds } },
+      limit: 10,
+      enableTotal: false,
+    },
+    emailContext,
+  });
+
+  const posts = data?.posts?.results;
 
   if (!posts || posts.length === 0) {
     return null;
@@ -152,10 +166,10 @@ function PostsEmailInner({
           </h1>
           <hr className={classes.headingHR} />
           <div className={classes.headingRow}>
-            {/* <EmailPostAuthors post={post} /> */}
+            <EmailPostAuthors post={post} />
           </div>
           <div className={classes.headingRow}>
-            {/* <EmailPostDate post={post} /> */}
+            <EmailPostDate post={post} emailContext={emailContext} />
           </div>
           {post.isEvent && <div className={classes.headingRow}>{eventLocation}</div>}
           {post.contactInfo && (
@@ -179,14 +193,14 @@ function PostsEmailInner({
         )}
 
         {post.contents && (
-          // <ContentStyles contentType="post">
+          <EmailContentStyles contentType="post" emailContext={emailContext}>
             <EmailContentItemBody
               className="post-body"
               dangerouslySetInnerHTML={{
                 __html: postContentHtml,
               }}
             />
-          // </ContentStyles>
+          </EmailContentStyles>
         )}
 
         <a href={postGetPageUrl(post, true)}>{truncated ? "Read full post" : "Discuss"}</a>
@@ -203,7 +217,7 @@ function PostsEmailInner({
       {postElements}
       {!hideRecommendations && (
         <>
-          {/* <EmailFooterRecommendations /> */}
+          <EmailFooterRecommendations emailContext={emailContext} />
           <hr className={classes.hr}/>
         </>
       )}
@@ -211,43 +225,3 @@ function PostsEmailInner({
     </>
   );
 }
-
-export const PostsEmail = ({ posts, reason, hideRecommendations}: {
-  posts: PostsRevision[];
-  reason?: string;
-  hideRecommendations?: boolean;
-}) => {
-  return (
-    // Providers are required for useMulti
-    // <LocationContext.Provider
-    //   value={{
-    //     location: { pathname: "", search: "", hash: "" },
-    //     pathname: "",
-    //     url: "",
-    //     hash: "",
-    //     params: {},
-    //     query: {},
-    //     redirected: false,
-    //   }}
-    // >
-    //   <NavigationContext.Provider
-    //     value={{
-    //       history: {
-    //         push: () => {},
-    //         replace: () => {},
-    //         back: () => {},
-    //         forward: () => {},
-    //         refresh: () => {},
-    //         prefetch: () => {},
-    //       },
-    //     }}
-    //   >
-        <PostsEmailInner
-          posts={posts}
-          reason={reason}
-          hideRecommendations={hideRecommendations}
-        />
-    //   </NavigationContext.Provider>
-    // </LocationContext.Provider>
-  );
-};
