@@ -7,7 +7,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import withErrorBoundary from '../common/withErrorBoundary';
 import { locationHashIsFootnote, locationHashIsFootnoteBackreference } from '../contents/CollapsedFootnotes';
 import { getUrlClass } from '@/server/utils/getUrlClass';
-import type { ContentStyleType } from '../common/ContentStyles';
+import type { ContentStyleType } from '../common/ContentStylesValues';
 import { DefaultPreview, MetaculusPreview, ManifoldPreview, FatebookPreview, NeuronpediaPreview, MetaforecastPreview, OWIDPreview, ArbitalPreview, EstimakerPreview, ViewpointsPreview, SequencePreview, PostLinkPreviewSequencePost, PostLinkPreviewSlug, PostLinkPreview, PostCommentLinkPreviewGreaterWrong } from '@/components/linkPreview/PostLinkPreview';
 import FootnotePreview from "./FootnotePreview";
 import { NoSideItems } from '../contents/SideItems';

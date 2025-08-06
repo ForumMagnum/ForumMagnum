@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
 import { useFilteredCurrentUser } from '../../common/withUser'
 import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
-import ContentStyles, { ContentStyleType } from '../../common/ContentStyles';
+import ContentStyles from '../../common/ContentStyles';
 import { VotingProps } from '../../votes/votingProps';
 import { ContentItemBody } from '../../contents/ContentItemBody';
 import { type ContentItemBodyImperative, type ContentReplacedSubstringComponentInfo } from '../../contents/contentBodyUtil';
@@ -12,6 +12,7 @@ import { type ContentItemBodyImperative, type ContentReplacedSubstringComponentI
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import CommentDeletedMetadata from "./CommentDeletedMetadata";
 import InlineReactSelectionWrapper from "../../votes/lwReactions/InlineReactSelectionWrapper";
+import type { ContentStyleType } from '@/components/common/ContentStylesValues';
 
 const styles = (theme: ThemeType) => ({
   commentStyling: {
