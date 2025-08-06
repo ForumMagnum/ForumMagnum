@@ -598,7 +598,7 @@ type Documents = {
     "\n  query UltraFeedPostDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": typeof types.UltraFeedPostDialogDocument,
     "\n  query LocalPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": typeof types.LocalPostQueryDocument,
     "\n  query ForeignPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.ForeignPostQueryDocument,
-    "\n  query UltraFeedThreadItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.UltraFeedThreadItemDocument,
+    "\n  query UltraFeedThreadItem($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.UltraFeedThreadItemDocument,
     "\n  mutation createUltraFeedEventSeeLess($data: CreateUltraFeedEventDataInput!) {\n    createUltraFeedEvent(data: $data) {\n      data {\n        ...UltraFeedEventsDefaultFragment\n      }\n    }\n  }\n": typeof types.createUltraFeedEventSeeLessDocument,
     "\n  mutation updateUltraFeedEvent($selector: String!, $data: UpdateUltraFeedEventDataInput!) {\n    updateUltraFeedEvent(selector: $selector, data: $data) {\n      data {\n        _id\n      }\n    }\n  }\n": typeof types.updateUltraFeedEventDocument,
     "\n    mutation connectCrossposter($token: String) {\n      connectCrossposter(token: $token)\n    }\n  ": typeof types.connectCrossposterDocument,
@@ -980,7 +980,7 @@ type Documents = {
     "\n    query Lightcone2024FundraiserStripeAmounts {\n      Lightcone2024FundraiserStripeAmounts\n    }\n  ": typeof types.Lightcone2024FundraiserStripeAmountsDocument,
     "\n  fragment SubscribedPostAndCommentsFeed on SubscribedPostAndComments {\n    _id\n    post {\n      ...PostsList\n    }\n    comments {\n      ...CommentsList\n    }\n    expandCommentIds\n    postIsFromSubscribedUser\n  }\n": typeof types.SubscribedPostAndCommentsFeedDoc,
     "\n  fragment FeedPostFragment on FeedPost {\n    _id\n    postMetaInfo\n    post {\n      ...PostsListWithVotes\n    }\n  }\n": typeof types.FeedPostFragmentDoc,
-    "\n  fragment FeedCommentThreadFragment on FeedCommentThread {\n    _id\n    commentMetaInfos\n    comments {\n      ...UltraFeedComment\n    }\n  }\n": typeof types.FeedCommentThreadFragmentDoc,
+    "\n  fragment FeedCommentThreadFragment on FeedCommentThread {\n    _id\n    commentMetaInfos\n    isOnReadPost\n    postSources\n    post {\n      ...PostsListWithVotes\n    }\n    comments {\n      ...UltraFeedComment\n    }\n  }\n": typeof types.FeedCommentThreadFragmentDoc,
     "\n  fragment FeedSpotlightFragment on FeedSpotlightItem {\n    _id\n    spotlight {\n      ...SpotlightDisplay\n    }\n    post {\n      ...PostsListWithVotes\n    }\n    spotlightMetaInfo\n  }\n": typeof types.FeedSpotlightFragmentDoc,
     "\n  query multiPostsForAutocompleteQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsForAutocomplete\n      }\n    }\n  }\n": typeof types.multiPostsForAutocompleteQueryDocument,
     "\n  query multiCommentsForAutocompleteQuery($input: MultiCommentInput) {\n    comments(input: $input) {\n      results {\n        ...CommentsForAutocomplete\n      }\n    }\n  }\n": typeof types.multiCommentsForAutocompleteQueryDocument,
@@ -1588,7 +1588,7 @@ const documents: Documents = {
     "\n  query UltraFeedPostDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": types.UltraFeedPostDialogDocument,
     "\n  query LocalPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": types.LocalPostQueryDocument,
     "\n  query ForeignPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": types.ForeignPostQueryDocument,
-    "\n  query UltraFeedThreadItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.UltraFeedThreadItemDocument,
+    "\n  query UltraFeedThreadItem($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.UltraFeedThreadItemDocument,
     "\n  mutation createUltraFeedEventSeeLess($data: CreateUltraFeedEventDataInput!) {\n    createUltraFeedEvent(data: $data) {\n      data {\n        ...UltraFeedEventsDefaultFragment\n      }\n    }\n  }\n": types.createUltraFeedEventSeeLessDocument,
     "\n  mutation updateUltraFeedEvent($selector: String!, $data: UpdateUltraFeedEventDataInput!) {\n    updateUltraFeedEvent(selector: $selector, data: $data) {\n      data {\n        _id\n      }\n    }\n  }\n": types.updateUltraFeedEventDocument,
     "\n    mutation connectCrossposter($token: String) {\n      connectCrossposter(token: $token)\n    }\n  ": types.connectCrossposterDocument,
@@ -1970,7 +1970,7 @@ const documents: Documents = {
     "\n    query Lightcone2024FundraiserStripeAmounts {\n      Lightcone2024FundraiserStripeAmounts\n    }\n  ": types.Lightcone2024FundraiserStripeAmountsDocument,
     "\n  fragment SubscribedPostAndCommentsFeed on SubscribedPostAndComments {\n    _id\n    post {\n      ...PostsList\n    }\n    comments {\n      ...CommentsList\n    }\n    expandCommentIds\n    postIsFromSubscribedUser\n  }\n": types.SubscribedPostAndCommentsFeedDoc,
     "\n  fragment FeedPostFragment on FeedPost {\n    _id\n    postMetaInfo\n    post {\n      ...PostsListWithVotes\n    }\n  }\n": types.FeedPostFragmentDoc,
-    "\n  fragment FeedCommentThreadFragment on FeedCommentThread {\n    _id\n    commentMetaInfos\n    comments {\n      ...UltraFeedComment\n    }\n  }\n": types.FeedCommentThreadFragmentDoc,
+    "\n  fragment FeedCommentThreadFragment on FeedCommentThread {\n    _id\n    commentMetaInfos\n    isOnReadPost\n    postSources\n    post {\n      ...PostsListWithVotes\n    }\n    comments {\n      ...UltraFeedComment\n    }\n  }\n": types.FeedCommentThreadFragmentDoc,
     "\n  fragment FeedSpotlightFragment on FeedSpotlightItem {\n    _id\n    spotlight {\n      ...SpotlightDisplay\n    }\n    post {\n      ...PostsListWithVotes\n    }\n    spotlightMetaInfo\n  }\n": types.FeedSpotlightFragmentDoc,
     "\n  query multiPostsForAutocompleteQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsForAutocomplete\n      }\n    }\n  }\n": types.multiPostsForAutocompleteQueryDocument,
     "\n  query multiCommentsForAutocompleteQuery($input: MultiCommentInput) {\n    comments(input: $input) {\n      results {\n        ...CommentsForAutocomplete\n      }\n    }\n  }\n": types.multiCommentsForAutocompleteQueryDocument,
@@ -4347,7 +4347,7 @@ export function gql(source: "\n  query ForeignPostQuery($documentId: String!) {\
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query UltraFeedThreadItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"): (typeof documents)["\n  query UltraFeedThreadItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"];
+export function gql(source: "\n  query UltraFeedThreadItem($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"): (typeof documents)["\n  query UltraFeedThreadItem($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -5875,7 +5875,7 @@ export function gql(source: "\n  fragment FeedPostFragment on FeedPost {\n    _i
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  fragment FeedCommentThreadFragment on FeedCommentThread {\n    _id\n    commentMetaInfos\n    comments {\n      ...UltraFeedComment\n    }\n  }\n"): (typeof documents)["\n  fragment FeedCommentThreadFragment on FeedCommentThread {\n    _id\n    commentMetaInfos\n    comments {\n      ...UltraFeedComment\n    }\n  }\n"];
+export function gql(source: "\n  fragment FeedCommentThreadFragment on FeedCommentThread {\n    _id\n    commentMetaInfos\n    isOnReadPost\n    postSources\n    post {\n      ...PostsListWithVotes\n    }\n    comments {\n      ...UltraFeedComment\n    }\n  }\n"): (typeof documents)["\n  fragment FeedCommentThreadFragment on FeedCommentThread {\n    _id\n    commentMetaInfos\n    isOnReadPost\n    postSources\n    post {\n      ...PostsListWithVotes\n    }\n    comments {\n      ...UltraFeedComment\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

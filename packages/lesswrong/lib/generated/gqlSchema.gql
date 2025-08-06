@@ -1398,6 +1398,8 @@ type FeedCommentThread {
   commentMetaInfos: JSON
   comments: [Comment!]!
   post: Post
+  isOnReadPost: Boolean
+  postSources: JSON
 }
 
 type FeedSpotlightItem {

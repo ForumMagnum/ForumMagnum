@@ -190,14 +190,6 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     },
   },
   titleIsRead: {
-    opacity: 0.5,
-    color: theme.palette.text.bannerAdOverlay,
-    '&:hover': {
-      opacity: 0.9,
-    },
-    [theme.breakpoints.down('sm')]: {
-      opacity: 0.7,
-    },
   },
   metaRow: {
     display: "flex",

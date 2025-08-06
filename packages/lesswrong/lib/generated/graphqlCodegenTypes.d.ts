@@ -2534,7 +2534,9 @@ type FeedCommentThread = {
   _id: Scalars['String']['output'];
   commentMetaInfos?: Maybe<Scalars['JSON']['output']>;
   comments: Array<Comment>;
+  isOnReadPost?: Maybe<Scalars['Boolean']['output']>;
   post?: Maybe<Post>;
+  postSources?: Maybe<Scalars['JSON']['output']>;
 };
 
 type FeedPost = {
@@ -26446,12 +26448,17 @@ type FeedPostFragment_FeedPost_post_Post = (
 
 type FeedPostFragment = { __typename?: 'FeedPost', _id: string, postMetaInfo: any | null, post: FeedPostFragment_FeedPost_post_Post };
 
+type FeedCommentThreadFragment_FeedCommentThread_post_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
 type FeedCommentThreadFragment_FeedCommentThread_comments_Comment = (
   { __typename?: 'Comment' }
   & UltraFeedComment
 );
 
-type FeedCommentThreadFragment = { __typename?: 'FeedCommentThread', _id: string, commentMetaInfos: any | null, comments: Array<FeedCommentThreadFragment_FeedCommentThread_comments_Comment> };
+type FeedCommentThreadFragment = { __typename?: 'FeedCommentThread', _id: string, commentMetaInfos: any | null, isOnReadPost: boolean | null, postSources: any | null, post: FeedCommentThreadFragment_FeedCommentThread_post_Post | null, comments: Array<FeedCommentThreadFragment_FeedCommentThread_comments_Comment> };
 
 type FeedSpotlightFragment_FeedSpotlightItem_spotlight_Spotlight = (
   { __typename?: 'Spotlight' }

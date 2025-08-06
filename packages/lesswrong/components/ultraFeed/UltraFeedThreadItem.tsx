@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useCallback } from "react";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { DisplayFeedCommentThread, FeedCommentMetaInfo, FeedItemDisplayStatus } from "./ultraFeedTypes";
+import { DisplayFeedCommentThread, FeedCommentMetaInfo, FeedItemDisplayStatus, FeedItemSourceType } from "./ultraFeedTypes";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
 import { UltraFeedCommentItem, UltraFeedCompressedCommentsItem } from "./UltraFeedCommentItem";
 import UltraFeedPostItem from "./UltraFeedPostItem";
@@ -11,9 +11,10 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import classNames from "classnames";
 
+// Only used as a fallback when post is not preloaded
 const PostsListWithVotesQuery = gql(`
   query UltraFeedThreadItem($documentId: String) {
-    post(input: { selector: { documentId: $documentId } }) {
+    post(selector: { _id: $documentId }) {
       result {
         ...PostsListWithVotes
       }
@@ -74,7 +75,8 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
   },
   postContainer: {
     position: 'relative',
-    '&::after': itemSeparator(theme),
+    borderBottom: theme.palette.border.itemSeparatorBottom,
+    // '&::after': itemSeparator(theme),
   }
 }));
 
@@ -161,27 +163,39 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
 }) => {
   const classes = useStyles(styles);
   
-  const { comments, commentMetaInfos } = thread;
+  const { comments, commentMetaInfos, isOnReadPost, postSources, post: preloadedPost } = thread;
   const {captureEvent} = useTracking();
-  const [ postExpanded, setPostExpanded ] = useState(false);
+
+  const isShortform = comments[0].shortform
+  const postInitiallyExpanded = !isOnReadPost && !isShortform;
+  const [ postExpanded, setPostExpanded ] = useState(postInitiallyExpanded);
   const [animatingCommentIds, setAnimatingCommentIds] = useState<Set<string>>(new Set());
-  
+
   // State for handling new replies (including allowing switching back to original subsequent comments)
   const [newReplies, setNewReplies] = useState<Record<string, UltraFeedComment>>({});
   const [branchViewStates, setBranchViewStates] = useState<Record<string, 'new' | 'original'>>({});
   const [replyingToCommentId, setReplyingToCommentId] = useState<string | null>(startReplyingTo ?? null);
   
+  const shouldLoadPost = !preloadedPost && postExpanded && comments[0].postId;
   const { loading, data } = useQuery(PostsListWithVotesQuery, {
     variables: { documentId: comments[0].postId ?? undefined },
-    skip: !comments[0].postId || !postExpanded,
+    skip: !shouldLoadPost,
   });
-  const post = data?.post?.result;
+  const post = preloadedPost ?? data?.post?.result;
 
   const postMetaInfo = {
-    sources: commentMetaInfos?.[comments[0]._id]?.sources ?? [],
+    sources: postSources ?? commentMetaInfos?.[comments[0]._id]?.sources ?? [],
     displayStatus: "expanded" as FeedItemDisplayStatus,
     servedEventId: commentMetaInfos?.[comments[0]._id]?.servedEventId ?? '',
-    highlight: false,
+    highlight: !isOnReadPost,
+  }
+
+  const postSettings = {
+    ...settings,
+    displaySettings: {
+      ...settings.displaySettings,
+      postInitialWords: 50
+    }
   }
 
   const initialDisplayStatuses = calculateInitialDisplayStatuses(comments, commentMetaInfos);
@@ -363,7 +377,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
       <Loading />
     </div>}
     {postExpanded && post && <div className={classes.postContainer}>
-      <UltraFeedPostItem post={post} index={-1} postMetaInfo={postMetaInfo} settings={settings}/>
+      <UltraFeedPostItem post={post} index={-1} postMetaInfo={postMetaInfo} settings={postSettings}/>
     </div>}
     <div className={classes.commentsRoot}>
       {comments.length > 0 && <div className={classes.commentsContainer}>
@@ -417,7 +431,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
                     }}
                     onPostTitleClick={handlePostExpansion}
                     onChangeDisplayStatus={(newStatus) => setDisplayStatus(cId, newStatus)}
-                    showPostTitle={isFirstItem}
+                    showPostTitle={isFirstItem && !postInitiallyExpanded}
                     highlight={highlightStatuses[cId] || false}
                     isFirstComment={isFirstItem}
                     isLastComment={isLastItem}

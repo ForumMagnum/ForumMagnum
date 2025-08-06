@@ -1241,6 +1241,8 @@ interface FeedCommentThread {
   commentMetaInfos: any;
   comments: Array<Comment>;
   post: Post | null;
+  isOnReadPost: boolean | null;
+  postSources: any;
 }
 
 interface FeedSpotlightItem {
