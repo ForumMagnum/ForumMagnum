@@ -146,6 +146,7 @@ export const useTagPreview = (
       ...hashVariables,
     },
     skip: skip || hasWikiLenses,
+    ssr: false,
   });
 
   if (hasWikiLenses) {

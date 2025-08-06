@@ -591,6 +591,7 @@ const attributesNeedingTransform: Record<string,boolean> = {
   "background": true,
   "backgroundColor": true,
   "borderColor": true,
+  "color": true,
 };
 
 function transformStylesForDarkMode(styles: Record<string,string>, themeName: UserThemeSetting): Record<string,string> {

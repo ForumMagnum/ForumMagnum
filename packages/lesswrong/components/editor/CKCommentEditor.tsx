@@ -93,7 +93,7 @@ const CKCommentEditor = ({
     },
     initialData: data || "",
     placeholder: actualPlaceholder,
-    mention: mentionPluginConfiguration,
+    mention: mentionPluginConfiguration(portalContext),
     ...cloudinaryConfig,
     claims: claimsConfig(portalContext, openDialog),
   };

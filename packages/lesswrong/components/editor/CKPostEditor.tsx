@@ -560,7 +560,7 @@ const CKPostEditor = ({
     },
     initialData: initData,
     placeholder: actualPlaceholder,
-    mention: mentionPluginConfiguration,
+    mention: mentionPluginConfiguration(portalContext),
     dialogues: dialogueConfiguration,
     conditionalVisibility: conditionalVisibilityPluginConfiguration,
     ...cloudinaryConfig,
