@@ -24,14 +24,6 @@ import {
 import gql from "graphql-tag";
 import { fmCrosspostTimeoutMsSetting } from "../databaseSettings";
 
-const getUserId = (req?: Request) => {
-  const userId = req?.user?._id;
-  if (!userId) {
-    throw new UnauthorizedError();
-  }
-  return userId;
-}
-
 const foreignPostCache = new LRU<string, Promise<AnyBecauseHard>>({
   maxAge: 1000 * 60 * 30, // 30 minute TTL
   updateAgeOnGet: false,
