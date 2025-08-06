@@ -2,6 +2,8 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useEffect } from 'react';
 import { useServerRequestStatus } from '../../lib/routeUtil'
 import { Redirect } from '../../lib/reactRouterWrapper';
+import { Helmet } from '../../lib/utils/componentsWithChildren';
+import { combineUrls, getSiteUrl } from '@/lib/vulcan-lib/utils';
 
 /**
  * If this component appears in the DOM, this page is a redirect to the given
@@ -38,7 +40,14 @@ const PermanentRedirect = ({url, status}: {
   if(urlIsAbsolute(url)) {
     return <></>;
   } else {
-    return <Redirect to={url}/>;
+    return (
+      <>
+        <Helmet>
+          <link rel="canonical" href={combineUrls(getSiteUrl(), url)} />
+        </Helmet>
+        <Redirect to={url}/>
+      </>
+    );
   }
 };
 
@@ -47,5 +56,3 @@ function urlIsAbsolute(url: string): boolean {
 }
 
 export default registerComponent('PermanentRedirect', PermanentRedirect);
-
-

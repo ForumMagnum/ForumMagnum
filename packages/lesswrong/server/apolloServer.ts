@@ -62,6 +62,8 @@ import { makeAbsolute, urlIsAbsolute, getSiteUrl } from '@/lib/vulcan-lib/utils'
 import { faviconUrlSetting, isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
 import { resolvers, typeDefs } from './vulcan-lib/apollo-server/initGraphQL';
 import { botProtectionCommentRedirectSetting } from './databaseSettings';
+import { getSitemapWithCache } from './sitemap';
+import PostsRepo from './repos/PostsRepo';
 
 /**
  * End-to-end tests automate interactions with the page. If we try to, for
@@ -255,6 +257,40 @@ export function startWebserver() {
   app.use('/graphql', express.text({ type: 'application/graphql' }));
   app.use('/graphql', clientIdMiddleware, perfMetricMiddleware);
   apolloServer.applyMiddleware({ app })
+
+  addStaticRoute(/^\/sitemap([0-9]?).xml$/, async (props, _req, res, _next) => {
+    const rawIndex = parseInt(props["0"]);
+    const index = Number.isInteger(rawIndex) ? rawIndex : undefined;
+    const sitemap = await getSitemapWithCache(index);
+    if (sitemap) {
+      res.statusCode = 200;
+      res.setHeader("Content-Type", "text/xml");
+      res.write(sitemap);
+    } else {
+      res.statusCode = 404;
+    }
+    res.end();
+  });
+
+  if (isEAForum) {
+    addStaticRoute("/api/eafunds-posts", async (props, _req, res) => {
+      try {
+        const slugs = props.query?.slugs?.split(",");
+        if (!slugs?.length) {
+          throw new Error("Missing user slugs");
+        }
+        const posts = await new PostsRepo().fetchEAFundsPosts(slugs);
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.write(JSON.stringify(posts));
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error("Error fetching EA Funds posts:", e);
+        res.statusCode = 500;
+      }
+      res.end();
+    });
+  }
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
     const {hash: bundleHash, content: bundleBuffer, brotli: bundleBrotliBuffer} = getClientBundle().resource;

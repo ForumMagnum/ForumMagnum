@@ -37,6 +37,8 @@ import ExpandedSequencesSearchHit from "./ExpandedSequencesSearchHit";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import LWDialog from '../common/LWDialog';
+import HeadTags from '../common/HeadTags';
+import { InteractionWrapper } from '../common/useClickableCell';
 
 const hitsPerPage = 10
 
@@ -369,6 +371,7 @@ const SearchPageTabbed = ({classes}: {
   const HitComponent = hitComponents[tab]
 
   return <div className={classes.root}>
+    <HeadTags canonicalUrl='/search' />
     <InstantSearch
       indexName={getElasticIndexNameWithSorting(tab, sorting)}
       searchClient={getSearchClient({emptyStringSearchResults: "default"})}
@@ -396,11 +399,13 @@ const SearchPageTabbed = ({classes}: {
               * null is the only option that actually suppresses the extra X button.
             // @ts-ignore */}
             <SearchBox defaultRefinement={query.query} reset={null} focusShortcuts={[]} autoFocus={true} />
-            <div onClick={() => setModalOpen(true)}>
-              <IconButton className={classes.funnelIconButton}>
-                <ForumIcon icon="Funnel" className={classNames({[classes.funnelIconLW]: !isEAForum, [classes.funnelIconEA]: isEAForum})}/>
-              </IconButton>
-            </div>
+            <InteractionWrapper>
+              <div onClick={() => setModalOpen(true)}>
+                <IconButton className={classes.funnelIconButton}>
+                  <ForumIcon icon="Funnel" className={classNames({[classes.funnelIconLW]: !isEAForum, [classes.funnelIconEA]: isEAForum})}/>
+                </IconButton>
+              </div>
+            </InteractionWrapper>
           </div>
           <LWTooltip
             title={`"Quotes" and -minus signs are supported. Use user:"Jane Doe" or ${taggingNameSetting.get()}:"Expected value" to filter by user or ${taggingNameSetting.get()}.`}
@@ -451,9 +456,9 @@ const SearchPageTabbed = ({classes}: {
           <Configure hitsPerPage={hitsPerPage} />
           <div className={classes.statsContainer}>
             <CustomStats className={classes.resultCount} />
-            {hasKeywordAlerts && tab === "Posts" &&
+            {hasKeywordAlerts && (tab === "Posts" || tab === "Comments") &&
               <LWTooltip
-                title="Get notified about new posts matching this search"
+                title="Get notified about new posts and comments matching this search"
                 placement="top"
                 As="div"
               >

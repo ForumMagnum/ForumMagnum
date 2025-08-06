@@ -8,6 +8,7 @@ import {
   TaggedPostTooltipSingle,
 } from "./PostsPreviewTooltipSingle";
 import HoverOver from "../../common/HoverOver";
+import { AnalyticsProps } from "@/lib/analyticsEvents";
 
 const PostsTooltip = ({
   post,
@@ -24,9 +25,8 @@ const PostsTooltip = ({
   flip,
   placement,
   children,
-  pageElementContext,
-  pageElementSubContext,
   disabled,
+  analyticsProps,
   className,
 }: {
   post?: PostsList | SunshinePostsList | null,
@@ -43,10 +43,8 @@ const PostsTooltip = ({
   flip?: boolean,
   placement?: PopperPlacementType,
   children?: ReactNode,
-  pageElementContext?: string,
-  pageElementSubContext?: string,
-  //bypasses the component and just returns the children
   disabled?: boolean,
+  analyticsProps?: AnalyticsProps,
   className?: string,
 }) => {
   const renderTitle = useCallback(() => {
@@ -105,8 +103,7 @@ const PostsTooltip = ({
       clickable={clickable}
       flip={flip}
       analyticsProps={{
-        pageElementContext,
-        pageElementSubContext,
+        ...analyticsProps,
         postId: postId ?? post?._id,
       }}
       className={className}

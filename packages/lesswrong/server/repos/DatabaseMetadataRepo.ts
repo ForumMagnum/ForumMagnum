@@ -3,6 +3,7 @@ import { DatabaseMetadata } from "../../server/collections/databaseMetadata/coll
 import type { TimeSeries } from "../../lib/collections/posts/karmaInflation";
 import { randomId } from "../../lib/random";
 import type { GivingSeasonHeart } from "../../components/review/ReviewVotingCanvas";
+import keyBy from "lodash/keyBy";
 
 export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata"> {
   constructor() {
@@ -19,6 +20,16 @@ export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata
       [name],
       `DatabaseMetadata.${name}`,
     );
+  }
+  
+  async getByNames(names: string[]): Promise<Array<DbDatabaseMetadata|null>> {
+    const results = (await this.any(`
+      -- DatabaseMetadataRepo.getByName
+      SELECT * from "DatabaseMetadata" WHERE "name" IN ($1:csv)
+    `, [names])) as DbDatabaseMetadata[];
+    
+    const resultsByName = keyBy(results, r=>r.name);
+    return names.map(n => resultsByName[n] ?? null);
   }
 
   private electionNameToMetadataName(electionName: string): string {

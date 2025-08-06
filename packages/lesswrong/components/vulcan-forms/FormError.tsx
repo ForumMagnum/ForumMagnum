@@ -1,31 +1,51 @@
 import React from 'react';
 import FormattedMessage from '../../lib/vulcan-i18n/message';
 
-export const FormError = ({ error, errorContext="", getLabel }: {
+export const FormError = ({ error, errorContext="" }: {
   error: any,
   errorContext: any,
-  getLabel: (fieldName: string, fieldLocale?: any) => string,
 }) => {
-  if (error.message) { // A normal string error
-    return error.message;
+  if (isJsonString(error.message)) {
+    const parsed = JSON.parse(error.message);
+    if (Array.isArray(parsed)) {
+      return <>{parsed.map((err, i) => <FormError
+        key={i}
+        error={err}
+        errorContext={errorContext}
+      />)}</>;
+    } else {
+      return <FormError
+        error={parsed}
+        errorContext={errorContext}
+      />
+    }
+  } else if (error.message) { // A normal string error
+    return <li>{error.message}</li>
   } else if (error.id) { // An internationalized error
-    // in case this is a nested fields, only keep last segment of path
-    const errorName = error.properties?.name && error.properties.name.split('.').slice(-1)[0];
-    return (
+    return <li>
       <FormattedMessage
         id={error.id}
         values={{
           errorContext,
-          label: error.properties && getLabel(errorName, error.properties.locale),
+          label: error.properties?.name,
           ...error.data, // backwards compatibility
           ...error.properties,
         }}
         defaultMessage={JSON.stringify(error)}
       />
-    )
+    </li>
   } else if (error.operationName) {
-    return `Error submitting form: ${error.operationName}`;
+    return <li>{`Error submitting form: ${error.operationName}`}</li>
   } else {
-    return 'Error submitting form';
+    return <li>Error submitting form</li>
   }
 };
+
+function isJsonString(s: string) {
+  try {
+    JSON.parse(s);
+    return true;
+  } catch {
+    return false;
+  }
+}

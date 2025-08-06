@@ -136,6 +136,16 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
       return result ? parseInt(result.read_count, 10) : 0
     });
   }
+
+  async getSitemapSequences(): Promise<Pick<DbSequence, "_id">[]> {
+    return this.getRawDb().any(`
+      -- SequencesRepo.getSitemapSequences
+      SELECT "_id"
+      FROM "Sequences"
+      WHERE NOT "noindex" AND ${getViewableSequencesSelector()}
+      ORDER BY "createdAt" DESC
+    `);
+  }
 }
 
 recordPerfMetrics(SequencesRepo);

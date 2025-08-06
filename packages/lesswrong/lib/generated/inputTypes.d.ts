@@ -781,8 +781,14 @@ interface LoginReturnData {
   token: string | null;
 }
 
+interface KeywordAlert {
+  _id: string;
+  post: Post | null;
+  comment: Comment | null;
+}
+
 interface KeywordAlertsResult {
-  results: Array<Post>;
+  results: Array<KeywordAlert>;
 }
 
 interface MigrationsDashboardData {
@@ -4069,6 +4075,7 @@ interface User {
   karmaChangeBatchStart: Date | null;
   emailSubscribedToCurated: boolean | null;
   subscribedToDigest: boolean | null;
+  sendInactiveSummaryEmail: boolean | null;
   subscribedToNewsletter: boolean | null;
   unsubscribeFromAll: boolean | null;
   hideSubscribePoke: boolean | null;
@@ -4171,6 +4178,7 @@ interface User {
   allCommentingDisabled: boolean | null;
   commentingOnOtherUsersDisabled: boolean | null;
   conversationsDisabled: boolean | null;
+  mentionsDisabled: boolean | null;
   associatedClientId: ClientId | null;
   associatedClientIds: Array<ClientId> | null;
   altAccountsDetected: boolean | null;
@@ -4194,6 +4202,7 @@ interface User {
   hideSunshineSidebar: boolean | null;
   inactiveSurveyEmailSentAt: Date | null;
   userSurveyEmailSentAt: Date | null;
+  inactiveSummaryEmailSentAt: Date | null;
   karmaChanges: KarmaChanges | null;
   recommendationSettings: any;
 }
@@ -6155,6 +6164,7 @@ interface CreateUserDataInput {
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
   subscribedToDigest?: boolean | null;
+  sendInactiveSummaryEmail?: boolean | null;
   subscribedToNewsletter?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
@@ -6196,6 +6206,7 @@ interface CreateUserDataInput {
   allCommentingDisabled?: boolean | null;
   commentingOnOtherUsersDisabled?: boolean | null;
   conversationsDisabled?: boolean | null;
+  mentionsDisabled?: boolean | null;
   acknowledgedNewUserGuidelines?: boolean | null;
   subforumPreferredLayout?: string | null;
   hideJobAdUntil?: Date | null;
@@ -6207,6 +6218,7 @@ interface CreateUserDataInput {
   hideSunshineSidebar?: boolean | null;
   inactiveSurveyEmailSentAt?: Date | null;
   userSurveyEmailSentAt?: Date | null;
+  inactiveSummaryEmailSentAt?: Date | null;
 }
 
 interface CreateUserInput {
@@ -6330,6 +6342,7 @@ interface UpdateUserDataInput {
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
   subscribedToDigest?: boolean | null;
+  sendInactiveSummaryEmail?: boolean | null;
   subscribedToNewsletter?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
@@ -6395,6 +6408,7 @@ interface UpdateUserDataInput {
   allCommentingDisabled?: boolean | null;
   commentingOnOtherUsersDisabled?: boolean | null;
   conversationsDisabled?: boolean | null;
+  mentionsDisabled?: boolean | null;
   acknowledgedNewUserGuidelines?: boolean | null;
   subforumPreferredLayout?: string | null;
   hideJobAdUntil?: Date | null;
@@ -6407,6 +6421,7 @@ interface UpdateUserDataInput {
   hideSunshineSidebar?: boolean | null;
   inactiveSurveyEmailSentAt?: Date | null;
   userSurveyEmailSentAt?: Date | null;
+  inactiveSummaryEmailSentAt?: Date | null;
   recommendationSettings?: RecommendationSettingsInput | null;
 }
 
@@ -6540,6 +6555,7 @@ interface GraphQLTypeMap {
   WrappedDataByYear: WrappedDataByYear;
   Site: Site;
   LoginReturnData: LoginReturnData;
+  KeywordAlert: KeywordAlert;
   KeywordAlertsResult: KeywordAlertsResult;
   MigrationsDashboardData: MigrationsDashboardData;
   MigrationStatus: MigrationStatus;

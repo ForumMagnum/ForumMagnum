@@ -1,4 +1,4 @@
-import React, { useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useNamedMutation } from '../../lib/crud/withMutation';
 import { useLocation } from '../../lib/routeUtil';
@@ -20,12 +20,11 @@ const EmailTokenPage = () => {
   }, [])
   
   const ResultComponent = useTokenResult?.componentName && emailTokenResultComponents[useTokenResult.componentName];
+  const props = useTokenResult?.props as AnyBecauseHard;
 
   return <SingleColumnSection>
-    {(emailTokenLoading || !ResultComponent) ? <Loading/> : <ResultComponent {...useTokenResult.props}/>}
+    {(emailTokenLoading || !ResultComponent) ? <Loading/> : <ResultComponent {...props}/>}
   </SingleColumnSection>
 }
 
 export default registerComponent("EmailTokenPage", EmailTokenPage);
-
-

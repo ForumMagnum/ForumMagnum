@@ -1,16 +1,25 @@
+import gql from 'graphql-tag';
 import { hasKeywordAlerts } from "@/lib/betas";
 import { createPaginatedResolver } from "../resolvers/paginatedResolver";
-import { fetchPostsForKeyword } from "./keywordSearch";
+import { fetchContentForKeyword } from "./keywordSearch";
+
+const keywordAlertTypeDef = gql`
+  type KeywordAlert {
+    _id: String!
+    post: Post
+    comment: Comment
+  }
+`;
 
 const { Query, typeDefs } = createPaginatedResolver({
   name: "KeywordAlerts",
-  graphQLType: "Post",
+  graphQLType: "KeywordAlert",
   args: {
     keyword: "String!",
     startDate: "Date!",
     endDate: "Date!",
   },
-  callback: async (context, limit, args): Promise<DbPost[]> => {
+  callback: async (context, limit, args) => {
     if (!hasKeywordAlerts) {
       throw new Error("Keyword alerts not enabled");
     }
@@ -30,9 +39,13 @@ const { Query, typeDefs } = createPaginatedResolver({
       throw new Error("Invalid endDate");
     }
 
-    return fetchPostsForKeyword(context, keyword, startDate, endDate, limit);
+    return fetchContentForKeyword(context, keyword, startDate, endDate, limit);
   },
 });
 
 export const keywordAlertsQueryHandlers = Query;
-export const keywordAlertsTypeDefs = typeDefs;
+
+export const keywordAlertsTypeDefs = gql`
+  ${keywordAlertTypeDef}
+  ${typeDefs}
+`;

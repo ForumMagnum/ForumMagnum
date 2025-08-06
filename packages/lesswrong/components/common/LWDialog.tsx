@@ -50,7 +50,7 @@ const styles = defineStyles("LWDialog", theme => ({
     maxWidth: theme.breakpoints.values.md,
   },
   hidden: {
-    display: "none",
+    display: "none !important",
   },
 }), {stylePriority: -1});
 
@@ -94,9 +94,9 @@ const LWDialog = ({open, fullScreen, title, maxWidth='sm', fullWidth, disableBac
     {everOpened && (open || keepMounted) && createPortal(
       <div>
         <ClickAwayListener onClickAway={() => {
-          if (!disableBackdropClick)
+            if (!open || disableBackdropClick) return;
             onClose?.();
-        }}>
+          }}>
           <div className={classNames(
             classes.dialogWrapper, className, {
               [classes.hidden]: !open,

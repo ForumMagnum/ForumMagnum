@@ -1749,6 +1749,7 @@ interface DbUser extends DbObject {
   howOthersCanHelpMe: EditableFieldContents | null
   howOthersCanHelpMe_latest: string | null
   htmlMapMarkerText: string | null
+  inactiveSummaryEmailSentAt: Date | null
   inactiveSurveyEmailSentAt: Date | null
   isAdmin: boolean
   jobTitle: string | null
@@ -1776,6 +1777,7 @@ interface DbUser extends DbObject {
   markDownPostEditor: boolean
   maxCommentCount: number
   maxPostCount: number
+  mentionsDisabled: boolean
   moderationGuidelines: EditableFieldContents | null
   moderationGuidelines_latest: string | null
   moderationStyle: string | null
@@ -2244,6 +2246,7 @@ interface DbUser extends DbObject {
   reviewVotesQuadratic2020: boolean | null
   reviewedAt: Date | null
   reviewedByUserId: string | null
+  sendInactiveSummaryEmail: boolean
   sequenceCount: number
   sequenceDraftCount: number
   services: any | null

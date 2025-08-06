@@ -13,7 +13,7 @@ import Users from '../server/collections/users/collection';
 import { userGetDisplayName, userGetProfileUrl } from '../lib/collections/users/helpers';
 import * as _ from 'underscore';
 import {getDocumentSummary, taggedPostMessage, NotificationDocument, getDocument} from '../lib/notificationTypes'
-import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
+import { commentGetPageUrlFromDB, commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { getReviewTitle, REVIEW_YEAR } from '../lib/reviewUtils';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { forumTitleSetting, siteNameWithArticleSetting } from '../lib/instanceSettings';
@@ -30,7 +30,8 @@ import { SequenceNewPostsEmail } from './emailComponents/SequenceNewPostsEmail';
 import { PrivateMessagesEmail } from './emailComponents/PrivateMessagesEmail';
 import { EventUpdatedEmail } from './emailComponents/EventUpdatedEmail';
 import { EmailUsernameByID } from './emailComponents/EmailUsernameByID';
-import { fetchPostsForKeyword } from './keywordAlerts/keywordSearch';
+import { KeywordAlert, fetchContentForKeyword } from './keywordAlerts/keywordSearch';
+import { htmlToTextDefault } from '@/lib/htmlToText';
 
 interface ServerNotificationType {
   name: string,
@@ -791,6 +792,30 @@ export const PostCoauthorAcceptNotification = createServerNotificationType({
   },
 });
 
+const keywordAlertPreview = async (
+  context: ResolverContext,
+  {post, comment}: KeywordAlert,
+) => {
+  if (post) {
+    return (
+      <a href={postGetPageUrl(post)}>{post.title}</a>
+    );
+  }
+  if (comment) {
+    const plainText = htmlToTextDefault(comment.contents?.html);
+    const maxLength = 50;
+    const truncated = plainText.length > maxLength
+      ? plainText.slice(0, maxLength) + "..."
+      : plainText;
+    return (
+      <a href={await commentGetPageUrlFromDB(comment, context, true)}>
+        {truncated}
+      </a>
+    );
+  }
+  return null;
+}
+
 export const KeywordAlertNotification = createServerNotificationType({
   name: "keywordAlert",
   canCombineEmails: true,
@@ -817,22 +842,27 @@ export const KeywordAlertNotification = createServerNotificationType({
       if (!link || !count || !keyword || !startDate || !endDate) {
         throw new Error("Missing keyword alert notification data");
       }
-      const posts = await fetchPostsForKeyword(
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const results = await fetchContentForKeyword(
         context,
         keyword,
-        new Date(startDate),
-        new Date(endDate),
+        start,
+        end,
       );
-      const alerts = count === 1 ? "alert" : "alerts";
-      return (
+      const alertsLabel = count === 1 ? "alert" : "alerts";
+      alerts.push(
         <div>
-          <p><a href={link}>{count} new {alerts}</a> for "{keyword}"</p>
+          <p>
+            <a href={link}>{count} new {alertsLabel}</a> for "{keyword}"
+            at {end.toLocaleTimeString()}, {end.toLocaleDateString()}
+          </p>
           <ul>
-            {posts.map((post) => (
-              <li key={post._id}>
-                <a href={postGetPageUrl(post)}>{post.title}</a>
+            {await Promise.all(results.map(async (keywordAlert) => (
+              <li key={keywordAlert._id}>
+                {await keywordAlertPreview(context, keywordAlert)}
               </li>
-            ))}
+            )))}
           </ul>
         </div>
       );

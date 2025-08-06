@@ -12,7 +12,8 @@ export function getModRateLimitInfo(documents: Array<DbPost|DbComment>, modRateL
   return {
     nextEligible,
     rateLimitMessage: "A moderator has rate limited you.",
-    rateLimitType: "moderator"
+    rateLimitType: "moderator",
+    rateLimitName: "moderatorRateLimit"
   }
 }
 
@@ -41,7 +42,8 @@ export function getManualRateLimitInfo(userRateLimit: DbUserRateLimit|null, docu
   return {
     nextEligible,
     rateLimitType: "moderator",
-    rateLimitMessage: "A moderator has rate limited you."
+    rateLimitMessage: "A moderator has rate limited you.",
+    rateLimitName: "manualModeratorRateLimit"
   }
 }
 
@@ -56,13 +58,13 @@ export function getNextAbleToSubmitDate(documents: Array<DbPost|DbComment>, time
 
 export function getAutoRateLimitInfo(user: RateLimitUser, features: RateLimitFeatures, rateLimit: AutoRateLimit,  documents: Array<DbPost|DbComment>): RateLimitInfo|null {
   // rate limit effects
-  const { timeframeUnit, timeframeLength, itemsPerTimeframe, rateLimitMessage, rateLimitType } = rateLimit 
+  const { timeframeUnit, timeframeLength, itemsPerTimeframe, rateLimitMessage, rateLimitType, rateLimitName } = rateLimit
 
   if (!rateLimit.isActive(user, features)) return null 
 
   const nextEligible = getNextAbleToSubmitDate(documents, timeframeUnit, timeframeLength, itemsPerTimeframe)
   if (!nextEligible) return null 
-  return { nextEligible, rateLimitType, rateLimitMessage }
+  return { nextEligible, rateLimitType, rateLimitMessage, rateLimitName }
 }
 
 function getVotesOnLatestDocuments (votes: RecentVoteInfo[], numItems=20): RecentVoteInfo[] {
@@ -120,7 +122,7 @@ export function calculateRecentKarmaInfo(userId: string, allVotes: RecentVoteInf
 }
 
 function getRateLimitName (rateLimit: AutoRateLimit) {
-  return `${rateLimit.itemsPerTimeframe} ${rateLimit.actionType} per ${rateLimit.timeframeLength} ${rateLimit.timeframeUnit}`
+  return rateLimit.rateLimitName
 }
 
 function getActiveRateLimits<T extends AutoRateLimit>(user: UserKarmaInfo & { recentKarmaInfo: RecentKarmaInfo }, autoRateLimits: T[]) {

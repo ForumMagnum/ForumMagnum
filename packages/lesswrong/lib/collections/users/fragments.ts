@@ -96,6 +96,7 @@ export const UsersProfile = () => frag`
     allCommentingDisabled
     commentingOnOtherUsersDisabled
     conversationsDisabled
+    mentionsDisabled
   }
 `
 
@@ -449,6 +450,7 @@ export const SunshineUsersList = () => frag`
     allCommentingDisabled
     commentingOnOtherUsersDisabled
     conversationsDisabled
+    mentionsDisabled
     snoozedUntilContentCount
     nullifyVotes
     deleteContent
@@ -542,6 +544,7 @@ export const UsersEdit = () => frag`
     emailSubscribedToCurated
     subscribedToDigest
     subscribedToNewsletter
+    sendInactiveSummaryEmail
     unsubscribeFromAll
     hasAuth0Id
 

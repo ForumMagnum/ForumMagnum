@@ -1245,6 +1245,12 @@ interface JargonTermsWithPostInfo extends JargonTerms { // fragment on JargonTer
   readonly post: PostsMinimumInfo|null,
 }
 
+interface KeywordAlertDisplay { // fragment on non-collection type
+  readonly _id: any,
+  readonly post: any,
+  readonly comment: any,
+}
+
 interface LWEventsDefaultFragment { // fragment on LWEvents
   readonly _id: string,
   readonly schemaVersion: number,
@@ -3129,6 +3135,7 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly allCommentingDisabled: boolean|null,
   readonly commentingOnOtherUsersDisabled: boolean|null,
   readonly conversationsDisabled: boolean|null,
+  readonly mentionsDisabled: boolean|null,
   readonly snoozedUntilContentCount: number|null,
   readonly nullifyVotes: boolean|null,
   readonly deleteContent: boolean|null,
@@ -3761,6 +3768,7 @@ interface UnclaimedReportsList { // fragment on Reports
   readonly comment: UnclaimedReportsList_comment|null,
   readonly postId: string|null,
   readonly post: PostsList|null,
+  readonly reportedUserId: string|null,
   readonly reportedUser: SunshineUsersList|null,
   readonly closedAt: Date|null,
   readonly createdAt: Date,
@@ -4688,6 +4696,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly karmaChangeBatchStart: Date|null,
   readonly emailSubscribedToCurated: boolean|null,
   readonly subscribedToDigest: boolean|null,
+  readonly sendInactiveSummaryEmail: boolean|null,
   readonly subscribedToNewsletter: boolean|null,
   readonly unsubscribeFromAll: boolean|null,
   readonly hideSubscribePoke: boolean|null,
@@ -4778,6 +4787,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly allCommentingDisabled: boolean|null,
   readonly commentingOnOtherUsersDisabled: boolean|null,
   readonly conversationsDisabled: boolean|null,
+  readonly mentionsDisabled: boolean|null,
   readonly acknowledgedNewUserGuidelines: boolean|null,
   readonly subforumPreferredLayout: "card" | "list" | null,
   readonly hideJobAdUntil: Date|null,
@@ -4794,6 +4804,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly hideSunshineSidebar: boolean|null,
   readonly inactiveSurveyEmailSentAt: Date|null,
   readonly userSurveyEmailSentAt: Date|null,
+  readonly inactiveSummaryEmailSentAt: Date|null,
   readonly recommendationSettings: RecommendationSettingsInput,
 }
 
@@ -4822,6 +4833,7 @@ interface UsersEdit extends UsersCurrent { // fragment on Users
   readonly emailSubscribedToCurated: boolean|null,
   readonly subscribedToDigest: boolean|null,
   readonly subscribedToNewsletter: boolean|null,
+  readonly sendInactiveSummaryEmail: boolean|null,
   readonly unsubscribeFromAll: boolean|null,
   readonly hasAuth0Id: boolean|null,
   readonly moderatorAssistance: boolean|null,
@@ -5311,6 +5323,7 @@ interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragmen
   readonly allCommentingDisabled: boolean|null,
   readonly commentingOnOtherUsersDisabled: boolean|null,
   readonly conversationsDisabled: boolean|null,
+  readonly mentionsDisabled: boolean|null,
 }
 
 interface UsersProfileEdit { // fragment on Users
@@ -5676,6 +5689,7 @@ interface FragmentTypes {
   JargonTermsDefaultFragment: JargonTermsDefaultFragment
   JargonTermsPost: JargonTermsPost
   JargonTermsWithPostInfo: JargonTermsWithPostInfo
+  KeywordAlertDisplay: KeywordAlertDisplay
   LWEventsDefaultFragment: LWEventsDefaultFragment
   LegacyDataDefaultFragment: LegacyDataDefaultFragment
   LlmConversationsDefaultFragment: LlmConversationsDefaultFragment
@@ -5968,6 +5982,7 @@ interface FragmentTypesByCollection {
   GoogleServiceAccountSessions: "GoogleServiceAccountSessionAdminInfo"|"GoogleServiceAccountSessionInfo"|"GoogleServiceAccountSessionsDefaultFragment"
   Imageses: "ImagesDefaultFragment"
   JargonTerms: "JargonTerms"|"JargonTermsDefaultFragment"|"JargonTermsPost"|"JargonTermsWithPostInfo"
+  KeywordAlerts: "KeywordAlertDisplay"
   LWEvents: "LWEventsDefaultFragment"|"emailHistoryFragment"|"lastEventFragment"|"lwEventsAdminPageFragment"|"newEventFragment"
   LegacyDatas: "LegacyDataDefaultFragment"
   LlmConversations: "LlmConversationsDefaultFragment"|"LlmConversationsFragment"|"LlmConversationsViewingPageFragment"|"LlmConversationsWithMessagesFragment"
@@ -6122,6 +6137,7 @@ interface CollectionNamesByFragmentName {
   JargonTermsDefaultFragment: "JargonTerms"
   JargonTermsPost: "JargonTerms"
   JargonTermsWithPostInfo: "JargonTerms"
+  KeywordAlertDisplay: never
   LWEventsDefaultFragment: "LWEvents"
   LegacyDataDefaultFragment: "LegacyData"
   LlmConversationsDefaultFragment: "LlmConversations"

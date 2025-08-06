@@ -28,6 +28,7 @@ import { createNotifications, getSubscribedUsers, getUsersWhereLocationIsInNotif
 import { getDefaultPostLocationFields, getDialogueResponseIds } from "../posts/utils";
 import { rateLimitDateWhenUserNextAbleToPost } from "../rateLimitUtils";
 import { recombeeApi } from "../recombee/client";
+import { captureEvent } from "@/lib/analyticsEvents";
 import { createNewJargonTerms } from "../resolvers/jargonResolvers/jargonTermMutations";
 import { moveImageToCloudinary } from "../scripts/convertImagesToCloudinary";
 import { updatePostDenormalizedTags } from "../tagging/helpers";
@@ -152,8 +153,16 @@ const utils = {
   enforcePostRateLimit: async (user: DbUser, context: ResolverContext) => {
     const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user, context);
     if (rateLimit) {
-      const {nextEligible} = rateLimit;
+      const {nextEligible, rateLimitType, rateLimitName} = rateLimit;
       if (nextEligible > new Date()) {
+        captureEvent("postBlockedDueToRateLimit", {
+          rateLimitType,
+          rateLimitName,
+          userId: user._id,
+          userKarma: user.karma,
+          nextEligible: nextEligible.toISOString()
+        });
+
         // "fromNow" makes for a more human readable "how long till I can comment/post?".
         // moment.relativeTimeThreshold ensures that it doesn't appreviate unhelpfully to "now"
         moment.relativeTimeThreshold('ss', 0);

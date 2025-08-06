@@ -85,6 +85,7 @@ export type Route = {
    */
   swrCaching?: "logged-out"
   isAdmin?: boolean
+  hideFromSitemap?: boolean
 };
 
 /** Populated by calls to addRoute */

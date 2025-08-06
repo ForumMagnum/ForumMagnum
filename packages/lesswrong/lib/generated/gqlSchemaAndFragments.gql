@@ -1094,8 +1094,14 @@ extend type Mutation {
   RemoveForumEventSticker(forumEventId: String!, stickerId: String!): Boolean
 }
 
+type KeywordAlert {
+  _id: String!
+  post: Post
+  comment: Comment
+}
+
 type KeywordAlertsResult {
-  results: [Post!]!
+  results: [KeywordAlert!]!
 }
 
 extend type Query {
@@ -4855,6 +4861,7 @@ type User {
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
   subscribedToDigest: Boolean
+  sendInactiveSummaryEmail: Boolean
   subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
@@ -4957,6 +4964,7 @@ type User {
   allCommentingDisabled: Boolean
   commentingOnOtherUsersDisabled: Boolean
   conversationsDisabled: Boolean
+  mentionsDisabled: Boolean
   associatedClientId: ClientId
   associatedClientIds: [ClientId!]
   altAccountsDetected: Boolean
@@ -4980,6 +4988,7 @@ type User {
   hideSunshineSidebar: Boolean
   inactiveSurveyEmailSentAt: Date
   userSurveyEmailSentAt: Date
+  inactiveSummaryEmailSentAt: Date
   karmaChanges(startDate: Date, endDate: Date): KarmaChanges
   recommendationSettings: JSON
 }
@@ -7167,6 +7176,7 @@ input CreateUserDataInput {
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
   subscribedToDigest: Boolean
+  sendInactiveSummaryEmail: Boolean
   subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
@@ -7208,6 +7218,7 @@ input CreateUserDataInput {
   allCommentingDisabled: Boolean
   commentingOnOtherUsersDisabled: Boolean
   conversationsDisabled: Boolean
+  mentionsDisabled: Boolean
   acknowledgedNewUserGuidelines: Boolean
   subforumPreferredLayout: String
   hideJobAdUntil: Date
@@ -7219,6 +7230,7 @@ input CreateUserDataInput {
   hideSunshineSidebar: Boolean
   inactiveSurveyEmailSentAt: Date
   userSurveyEmailSentAt: Date
+  inactiveSummaryEmailSentAt: Date
 }
 
 input CreateUserInput {
@@ -7342,6 +7354,7 @@ input UpdateUserDataInput {
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
   subscribedToDigest: Boolean
+  sendInactiveSummaryEmail: Boolean
   subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
@@ -7407,6 +7420,7 @@ input UpdateUserDataInput {
   allCommentingDisabled: Boolean
   commentingOnOtherUsersDisabled: Boolean
   conversationsDisabled: Boolean
+  mentionsDisabled: Boolean
   acknowledgedNewUserGuidelines: Boolean
   subforumPreferredLayout: String
   hideJobAdUntil: Date
@@ -7419,6 +7433,7 @@ input UpdateUserDataInput {
   hideSunshineSidebar: Boolean
   inactiveSurveyEmailSentAt: Date
   userSurveyEmailSentAt: Date
+  inactiveSummaryEmailSentAt: Date
   recommendationSettings: RecommendationSettingsInput
 }
 
@@ -8773,6 +8788,16 @@ fragment JargonTermsWithPostInfo on JargonTerm {
   ...JargonTerms
   post {
     ...PostsMinimumInfo
+  }
+}
+
+fragment KeywordAlertDisplay on KeywordAlert {
+  _id
+  post {
+    ...PostsListWithVotes
+  }
+  comment {
+    ...CommentsListWithParentMetadata
   }
 }
 
@@ -10904,6 +10929,7 @@ fragment SunshineUsersList on User {
   allCommentingDisabled
   commentingOnOtherUsersDisabled
   conversationsDisabled
+  mentionsDisabled
   snoozedUntilContentCount
   nullifyVotes
   deleteContent
@@ -11673,6 +11699,7 @@ fragment UnclaimedReportsList on Report {
   post {
     ...PostsList
   }
+  reportedUserId
   reportedUser {
     ...SunshineUsersList
   }
@@ -12314,6 +12341,7 @@ fragment UsersDefaultFragment on User {
   karmaChangeBatchStart
   emailSubscribedToCurated
   subscribedToDigest
+  sendInactiveSummaryEmail
   subscribedToNewsletter
   unsubscribeFromAll
   hideSubscribePoke
@@ -12404,6 +12432,7 @@ fragment UsersDefaultFragment on User {
   allCommentingDisabled
   commentingOnOtherUsersDisabled
   conversationsDisabled
+  mentionsDisabled
   acknowledgedNewUserGuidelines
   subforumPreferredLayout
   hideJobAdUntil
@@ -12420,6 +12449,7 @@ fragment UsersDefaultFragment on User {
   hideSunshineSidebar
   inactiveSurveyEmailSentAt
   userSurveyEmailSentAt
+  inactiveSummaryEmailSentAt
   recommendationSettings
 }
 
@@ -12455,6 +12485,7 @@ fragment UsersEdit on User {
   emailSubscribedToCurated
   subscribedToDigest
   subscribedToNewsletter
+  sendInactiveSummaryEmail
   unsubscribeFromAll
   hasAuth0Id
 
@@ -12650,6 +12681,7 @@ fragment UsersProfile on User {
   allCommentingDisabled
   commentingOnOtherUsersDisabled
   conversationsDisabled
+  mentionsDisabled
 }
 
 fragment UsersProfileEdit on User {
