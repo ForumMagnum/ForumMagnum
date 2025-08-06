@@ -142,7 +142,7 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
       -- SequencesRepo.getSitemapSequences
       SELECT "_id"
       FROM "Sequences"
-      WHERE ${getViewableSequencesSelector()}
+      WHERE NOT "noindex" AND ${getViewableSequencesSelector()}
       ORDER BY "createdAt" DESC
     `);
   }

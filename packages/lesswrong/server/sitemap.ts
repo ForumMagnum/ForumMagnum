@@ -1,4 +1,5 @@
 import { Routes } from "@/lib/vulcan-lib/routes";
+import { noIndexSetting } from "@/lib/instanceSettings";
 import { combineUrls, getSiteUrl } from "@/lib/vulcan-lib/utils";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { userGetProfileUrlFromSlug } from "@/lib/collections/users/helpers";
@@ -123,6 +124,9 @@ const generateSitemapIndex = (sitemapCount: number) => {
 }
 
 export const generateSitemaps = async (): Promise<string[]> => {
+  if (noIndexSetting.get()) {
+    return [compileEntries([])];
+  }
   const [
     postEntries,
     userEntries,
