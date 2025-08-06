@@ -24,6 +24,7 @@ const commentHeaderPaddingDesktop = 12;
 
 const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   root: {
+    borderBottom: theme.palette.border.itemSeparatorBottomStrong,
     position: 'relative',
     paddingTop: commentHeaderPaddingDesktop,
     backgroundColor: 'transparent',
@@ -33,9 +34,11 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       paddingLeft: 20,
       paddingRight: 20,
+      borderBottom: 'none',
     },
   },
   rootWithReadStyles: {
+    backgroundColor: theme.palette.grey[300],
     [theme.breakpoints.down('sm')]: {
       backgroundColor: theme.palette.grey[100],
     },
@@ -55,14 +58,16 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   compressedRoot: {
     display: 'flex',
     flexDirection: 'row',
-    paddingLeft: 20,
-    paddingRight: 16,
+    // paddingLeft: 20,
+    // paddingRight: 16,
     [theme.breakpoints.down('sm')]: {
       paddingLeft: 20,
       paddingRight: 20,
     },
   },
   compressedRootWithReadStyles: {
+    backgroundColor: theme.palette.grey[300],
+    borderBottom: theme.palette.border.itemSeparatorBottomStrong,
     [theme.breakpoints.down('sm')]: {
       backgroundColor: theme.palette.grey[100],
     },
@@ -75,7 +80,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     overflow: 'visible',
   },
   commentContentWrapperWithBorder: {
-    borderBottom: theme.palette.border.itemSeparatorBottom,
+    // borderBottom: theme.palette.border.itemSeparatorBottom,
     [theme.breakpoints.down('sm')]: {
       borderBottom: 'none',
     },
@@ -95,6 +100,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     },
   },
   contentWrapperWithReadStyles: {
+    opacity: 0.9,
     [theme.breakpoints.down('sm')]: {
       opacity: 0.7,
     },
@@ -118,6 +124,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     },
   },
   numCommentsWithReadStyles: {
+    opacity: 0.6,
     [theme.breakpoints.down('sm')]: {
       opacity: 0.7,
     },
@@ -125,7 +132,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   verticalLineContainer: {
     fontStyle: 'italic',
     width: 0,
-    display: 'flex',
+    display: 'none',
     justifyContent: 'center',
     marginRight: 6,
     marginTop: -commentHeaderPaddingDesktop,
@@ -136,7 +143,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   },
   verticalLineContainerCompressed: {
     width: 0,
-    display: 'flex',
+    display: 'none',
     justifyContent: 'center',
     marginRight: 6,
     marginTop: 0,
@@ -291,6 +298,7 @@ export interface UltraFeedCommentItemProps {
   metaInfo: FeedCommentMetaInfo;
   onChangeDisplayStatus: (newStatus: "expanded" | "collapsed" | "hidden") => void;
   showPostTitle?: boolean;
+  postInitiallyExpanded?: boolean;
   highlight?: boolean;
   isFirstComment?: boolean;
   isLastComment?: boolean;
@@ -314,6 +322,7 @@ export const UltraFeedCommentItem = ({
   metaInfo,
   onChangeDisplayStatus,
   showPostTitle,
+  postInitiallyExpanded = false,
   highlight = false,
   isFirstComment = false,
   isLastComment = false,
@@ -545,6 +554,7 @@ export const UltraFeedCommentItem = ({
               metaInfo={metaInfo}
               setShowEdit={setShowEdit}
               showPostTitle={showPostTitle}
+              postInitiallyExpanded={postInitiallyExpanded}
               onPostTitleClick={onPostTitleClick}
               parentAuthorName={parentAuthorName}
               onReplyIconClick={onReplyIconClick}
