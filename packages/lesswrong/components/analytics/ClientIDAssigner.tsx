@@ -11,7 +11,6 @@ const ClientIDAssigner = ({cookieArray, clientIdInvalidated}: {
   cookieArray: RequestCookie[],
   clientIdInvalidated: boolean
 }) => {
-  console.log("In ClientIDAssigner");
   const cookies = keyBy(cookieArray, c=>c.name);
   useEffectOnce(() => {
     backgroundTask((async () => {

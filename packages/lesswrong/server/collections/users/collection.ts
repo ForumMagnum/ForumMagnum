@@ -20,7 +20,7 @@ export const usersGraphQLTypeDefs = gql`
 export const usersGraphQLQueries = {
   async currentUser(root: void, args: void, context: ResolverContext) {
       let user: any = null;
-      const userId: string|null = (context as any)?.userId;
+      const userId: string|null = context?.userId;
       if (userId) {
         user = await context.loaders.Users.load(userId);
 

@@ -251,7 +251,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
 
 export async function createEmailContext(user: DbUser|null, resolverContext?: ResolverContext) {
   const resolverContextWithDefault = resolverContext ?? computeContextFromUser({ user, isSSR: false });
-  const currentUser = await runQuery(CurrentUserQuery, {}, resolverContext);
+  const currentUser = await runQuery(CurrentUserQuery, {}, resolverContextWithDefault);
 
   return {
     resolverContext: resolverContextWithDefault,
