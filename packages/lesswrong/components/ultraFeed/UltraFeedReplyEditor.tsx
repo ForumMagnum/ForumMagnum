@@ -83,9 +83,6 @@ const UltraFeedReplyEditor = ({
 
   return (
     <>
-      <div className={classes.viewAllCommentsButton} onClick={onViewAllComments} >
-        Click to view all comments
-      </div>
       {cannotReplyReason ? (
         <div className={classes.cannotReplyMessage}>
           {cannotReplyReason}
@@ -114,6 +111,9 @@ const UltraFeedReplyEditor = ({
           />
         </div>
       )}
+      <div className={classes.viewAllCommentsButton} onClick={onViewAllComments} >
+        Click to view all comments
+      </div>
     </>
   );
 };

@@ -53,13 +53,13 @@ type AutomatedContentEvaluationsCollection = PgCollection<"AutomatedContentEvalu
 
 interface DbAutomatedContentEvaluation extends DbObject {
   __collectionName?: "AutomatedContentEvaluations"
-  aiChoice: "accept" | "review"
-  aiCoT: string
-  aiReasoning: string
+  aiChoice: "accept" | "review" | null
+  aiCoT: string | null
+  aiReasoning: string | null
   createdAt: Date
   revisionId: string
-  score: number
-  sentenceScores: { sentence: string; score: number; }[]
+  score: number | null
+  sentenceScores: { sentence: string; score: number; }[] | null
 }
 
 type BansCollection = PgCollection<"Bans">;

@@ -23,6 +23,7 @@ import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
+import { CkEditorPortalContext, CKEditorPortalProvider } from '../editor/CKEditorPortalProvider';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -180,13 +181,14 @@ const LLMInputTextbox = ({onSubmit, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [currentMessage, setCurrentMessage] = useState('');
+  const portalContext = useContext(CkEditorPortalContext);
   const ckEditorRef = useRef<CKEditor<any> | null>(null);
   const editorRef = useRef<Editor | null>(null);
 
   // TODO: we probably want to come back to this and enable cloud services for image uploading
   const editorConfig = {
     placeholder: 'Type here.  Ctrl/Cmd + Enter to submit.',
-    mention: mentionPluginConfiguration,
+    mention: mentionPluginConfiguration(portalContext),
   };
 
   const submitEditorContentAndClear = useCallback(() => {
@@ -237,6 +239,7 @@ const LLMInputTextbox = ({onSubmit, classes}: {
   // TODO: styling and debouncing
   return <ContentStyles className={classes.inputTextbox} contentType='comment'>
     <div className={classes.editor}>
+      <CKEditorPortalProvider>
       <CKEditor
         data={currentMessage}
         ref={ckEditorRef}
@@ -262,6 +265,7 @@ const LLMInputTextbox = ({onSubmit, classes}: {
         }}
         config={editorConfig}
       />
+      </CKEditorPortalProvider>
     </div>
     {submitButton}
   </ContentStyles>

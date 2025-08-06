@@ -63,19 +63,6 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   settingsContainer: {
     marginBottom: 32,
   },
-  hiddenOnDesktop: {
-    // because of conflicting styles (this is all temporary code anyhow)
-    display: 'none !important',
-    [theme.breakpoints.down('sm')]: {
-      display: 'block !important',
-    },
-  },
-  hiddenOnMobile: {
-    display: 'block',
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-  },
   composerButton: {
     display: 'none',
     [theme.breakpoints.down('sm')]: {
@@ -116,12 +103,6 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
       color: 'inherit',
       opacity: 0.8,
     },
-  },
-  feedSelectorMobileContainer: {
-    // marginTop: 8,
-    marginBottom: 16,
-    display: 'flex',
-    justifyContent: 'center',
   },
 }));
 

@@ -41,7 +41,7 @@ const styles = defineStyles("RejectedContentControls", (theme: ThemeType) => ({
 export const RejectedContentControls = ({ contentWrapper }: {
   contentWrapper: RejectContentParams
 }) => {
-  const { collectionName, content } = contentWrapper;
+  const { collectionName, document } = contentWrapper;
   const classes = useStyles(styles);
 
   const { openDialog } = useDialog();
@@ -50,12 +50,12 @@ export const RejectedContentControls = ({ contentWrapper }: {
   if (collectionName === 'Posts' && !hasRejectedContentSectionSetting.get()) return null;
   if (collectionName === 'Comments' && !isLWorAF) return null;
 
-  const automatedContentEvaluations = content?.contents && 'automatedContentEvaluations' in content.contents && content.contents?.automatedContentEvaluations;
+  const automatedContentEvaluations = 'automatedContentEvaluations' in document ? document.automatedContentEvaluations : null;
 
   function handleLLMScoreClick() {
     if (!automatedContentEvaluations) return;
     const highlightedHtml = highlightHtmlWithLlmDetectionScores(
-      content.contents?.html || '',
+      document.contents?.html || '',
       automatedContentEvaluations.sentenceScores || []
     );
 
@@ -93,18 +93,23 @@ export const RejectedContentControls = ({ contentWrapper }: {
     });
   }
 
+  const score = automatedContentEvaluations?.score;
+  const aiChoice = automatedContentEvaluations?.aiChoice;
+
   return (
     <span className={classes.root}>
       <div className={classes.row}>
-        {content.rejected && <RejectedReasonDisplay reason={content.rejectedReason} />}
+        {document.rejected && <RejectedReasonDisplay reason={document.rejectedReason} />}
         {automatedContentEvaluations && (
           <div className={classes.automatedContentEvaluations}>
-            <span className={classes.llmScore} onClick={handleLLMScoreClick}>
-              <strong>LLM Score:</strong> {automatedContentEvaluations.score.toFixed(2)}
+            {typeof score === 'number' && <span className={classes.llmScore} onClick={handleLLMScoreClick}>
+              <strong>LLM Score:</strong> {score.toFixed(2)}
             </span>
-            <span className={classes.llmScore} onClick={handleAiJudgementClick}>
-              <strong>AI notes:</strong> {automatedContentEvaluations.aiChoice}
+            }
+            {aiChoice && <span className={classes.llmScore} onClick={handleAiJudgementClick}>
+              <strong>AI notes:</strong> {aiChoice}
             </span>
+            }
           </div>
         )}
       </div>

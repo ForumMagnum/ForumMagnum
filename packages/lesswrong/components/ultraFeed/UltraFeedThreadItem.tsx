@@ -9,6 +9,7 @@ import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
+import classNames from "classnames";
 
 const PostsListWithVotesQuery = gql(`
   query UltraFeedThreadItem($documentId: String) {
@@ -32,14 +33,9 @@ const itemSeparator = (theme: ThemeType) => ({
 
 const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
   commentsRoot: {
-    paddingLeft: 20,
-    paddingRight: 16,
     borderRadius: 4,
     background: theme.palette.panelBackground.bannerAdTranslucentHeavy,
     backdropFilter: theme.palette.filters.bannerAdBlurHeavy,
-    [theme.breakpoints.down('sm')]: {
-      paddingLeft: 16,
-    },
   },
   commentsContainer: {
     display: 'flex',
@@ -52,6 +48,19 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
   },
   commentItem: {
     position: 'relative',
+    [theme.breakpoints.down('sm')]: {
+      borderBottom: theme.palette.border.itemSeparatorBottomStrong,
+      '&:last-child': {
+        borderBottom: 'none',
+      },
+    },
+  },
+  commentItemWithReadStyles: {
+    [theme.breakpoints.down('sm')]: {
+      '&:first-child': {
+        borderTop: theme.palette.border.itemSeparatorBottomStrong
+      },
+    },
   },
 
   postsLoadingContainer: {
@@ -69,7 +78,7 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
   }
 }));
 
-type CommentDisplayStatusMap = Record<string, "expanded" | "collapsed" | "hidden">;
+type CommentDisplayStatusMap = Record<string, FeedItemDisplayStatus>;
 
 /* if there are multiple comments in a row that are collapsed, compress them into a single placeholder */
 const compressCollapsedComments = (
@@ -188,9 +197,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
     return authorsMap;
   }, [comments]);
   
-  const [newCommentMetaInfos, setNewCommentMetaInfos] = useState<Record<string, FeedCommentMetaInfo>>({});
-  
-  const setDisplayStatus = useCallback((commentId: string, newStatus: "expanded" | "collapsed" | "hidden") => {
+  const setDisplayStatus = useCallback((commentId: string, newStatus: FeedItemDisplayStatus) => {
     setCommentDisplayStatuses(prev => ({
       ...prev,
       [commentId]: newStatus,
@@ -275,22 +282,6 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
       [parentCommentId]: 'new'
     }));
     setReplyingToCommentId(null);
-    
-    const defaultMetaInfo: FeedCommentMetaInfo = {
-      displayStatus: 'expanded',
-      sources: [],
-      descendentCount: 0,
-      directDescendentCount: 0,
-      highlight: false,
-      lastServed: new Date(),
-      lastViewed: null,
-      lastInteracted: new Date(),
-      postedAt: newComment.postedAt ? new Date(newComment.postedAt) : new Date(),
-    };
-    setNewCommentMetaInfos(prev => ({
-      ...prev,
-      [newComment._id]: defaultMetaInfo
-    }));
     
     setCommentDisplayStatuses(prev => ({
       ...prev,
@@ -380,6 +371,11 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
           {compressedItems.map((item, commentIndex) => {
             if ("placeholder" in item) {
               const hiddenCount = item.hiddenComments.length;
+              const anyHighlighted = item.hiddenComments.some(h => highlightStatuses[h._id]);
+              const anyRead = item.hiddenComments.some(h => {
+                const metaInfo = commentMetaInfos?.[h._id];
+                return !!metaInfo?.lastViewed || !!metaInfo?.lastInteracted;
+              });
               
               return (
                 <div className={classes.commentItem} key={`placeholder-${commentIndex}`}>
@@ -388,11 +384,13 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
                     setExpanded={() => {
                       // Always expand max 3 comments at a time
                       item.hiddenComments.slice(0, 3).forEach(h => {
-                        setDisplayStatus(h._id, "expanded");
+                        setDisplayStatus(h._id, "expandedToMaxInPlace");
                       });
                     }}
                     isFirstComment={commentIndex === 0}
                     isLastComment={commentIndex === compressedItems.length - 1}
+                    isHighlighted={anyHighlighted}
+                    isRead={anyRead}
                   />
                 </div>
               );
@@ -406,9 +404,11 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
               const navigationProps = getNavigationProps(cId, visibleComments);
               
               const isNewReply = Object.values(newReplies).some(reply => reply._id === cId);
+              const metaInfo = commentMetaInfos?.[cId];
+              const isFirstItemAndIsRead = isFirstItem && (!!metaInfo?.lastViewed || !!metaInfo?.lastInteracted);
               
               return (
-                <div key={cId} className={classes.commentItem}>
+                <div key={cId} className={classNames(classes.commentItem, { [classes.commentItemWithReadStyles]: isFirstItemAndIsRead })}>
                   <UltraFeedCommentItem
                     comment={item}
                     metaInfo={{

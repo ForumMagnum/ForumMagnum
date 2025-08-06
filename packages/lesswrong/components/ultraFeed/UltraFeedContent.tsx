@@ -84,19 +84,6 @@ const styles = defineStyles("UltraFeedContent", (theme: ThemeType) => ({
   settingsContainer: {
     marginBottom: 32,
   },
-  hiddenOnDesktop: {
-    // because of conflicting styles (this is all temporary code anyhow)
-    display: 'none !important',
-    [theme.breakpoints.down('sm')]: {
-      display: 'block !important',
-    },
-  },
-  hiddenOnMobile: {
-    display: 'block',
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-  },
   composerButton: {
     display: 'none',
     [theme.breakpoints.down('sm')]: {
@@ -138,12 +125,6 @@ const styles = defineStyles("UltraFeedContent", (theme: ThemeType) => ({
       opacity: 0.8,
     },
   },
-  feedSelectorMobileContainer: {
-    // marginTop: 8,
-    marginBottom: 16,
-    display: 'flex',
-    justifyContent: 'center',
-  },
 }));
 
 const ULTRAFEED_SESSION_ID_KEY = 'ultraFeedSessionId';
@@ -183,7 +164,6 @@ const UltraFeedContent = ({alwaysShow = false}: {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [settingsVisible, setSettingsVisible] = useState(false);
-  const [showFeedback, setShowFeedback] = useState(false);
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking();
   const [settings, setSettings] = useState<UltraFeedSettingsType>(getStoredSettings);
@@ -249,9 +229,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
           <SingleColumnSection>
             <SectionTitle title={customTitle} titleClassName={classes.sectionTitle}>
               <div className={classes.feedCheckboxAndSettingsContainer}>
-              {!alwaysShow && <div className={classes.hiddenOnMobile}>
-                <FeedSelectorDropdown currentFeedType="new" showFeedback={showFeedback} onFeedbackClick={() => setShowFeedback(!showFeedback)} />
-              </div>}
+              {!alwaysShow && <FeedSelectorDropdown currentFeedType="new" />}
               <div className={classes.settingsButtonContainer}>
                 <SettingsButton 
                   showIcon={true}
@@ -260,10 +238,6 @@ const UltraFeedContent = ({alwaysShow = false}: {
               </div>
             </div>
             </SectionTitle>
-            {!alwaysShow && <div className={classNames(classes.hiddenOnDesktop, classes.feedSelectorMobileContainer)}>
-              <FeedSelectorDropdown currentFeedType="new" showFeedback={showFeedback} onFeedbackClick={() => setShowFeedback(!showFeedback)} />
-            </div>}
-            {showFeedback && <UltraFeedFeedback />}
 
             {settingsVisible && (
               <div className={classes.settingsContainer}>

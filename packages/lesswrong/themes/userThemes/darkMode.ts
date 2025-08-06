@@ -63,6 +63,7 @@ const inverseGreyAlpha = (alpha: number) => {
 // colors below have dedicated color-mappings; all other colors use `parseColor`
 // and `invertColor` from `colorUtil.ts`.
 export const colorReplacements: Record<string,string> = {
+  "initial":            "rgba(255,255,255,.87)",
   "rgba(255,255,255,.5)": "rgba(0,0,0.5)",
   "hsl(0, 0%, 90%)":    "hsl(0, 0%, 10%)",
   "#F2F2F2":            invertHexColor("#f2f2f2"),
@@ -230,6 +231,7 @@ export const darkModeTheme: UserThemeSpecification = {
     },
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
+      itemSeparatorBottomStrong: shadePalette.greyBorder("1px", .3),
       commentBorder: "1px solid rgba(255,255,255,.2)",
       answerBorder: "2px solid rgba(255,255,255,.2)",
       primaryHighlight: '#314a4e',

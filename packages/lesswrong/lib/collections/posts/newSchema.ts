@@ -4406,6 +4406,28 @@ const schema = {
       },
     },
   },
+  automatedContentEvaluations: {
+    graphql: {
+      outputType: "AutomatedContentEvaluation",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (post, args, context) => {
+        if (!isLWorAF) return null;
+        const {AutomatedContentEvaluations, Revisions} =  context;
+        const revisionIds = (await Revisions.find({
+          documentId: post._id,
+          fieldName: "contents",
+        }, {
+          sort: { editedAt: -1 },
+        }, {_id: 1}).fetch()).map(r => r._id);
+
+        return AutomatedContentEvaluations.findOne({
+          revisionId: {$in:revisionIds},
+        }, {
+          sort: { createdAt: -1 },
+        })
+      }
+    }
+  },
   currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,
   currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,
   voteCount: defaultVoteCountField('Posts'),

@@ -7,6 +7,7 @@ import { Link } from '../lib/reactRouterWrapper';
 import ReviewVotingCanvas from "./review/ReviewVotingCanvas";
 import CloudinaryImage2 from "./common/CloudinaryImage2";
 import { isHomeRoute } from '@/lib/routeChecks';
+import Inkhaven2025Banner from './seasonal/Inkhaven2025';
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
@@ -142,9 +143,9 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   let homePageImage = defaultImage
   if (getReviewPhase() === 'VOTING') homePageImage = <ReviewVotingCanvas />
   if (getReviewPhase() === 'RESULTS') homePageImage = reviewCompleteImage
-
+  
   return <div className={classes.root}>
-    {isHomePage ? homePageImage : defaultImage}
+    {isHomePage ? <Inkhaven2025Banner /> : defaultImage}
   </div>;
 }
 

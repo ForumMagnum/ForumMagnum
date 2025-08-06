@@ -29,6 +29,7 @@ import {
 import { ZodFormattedError } from 'zod';
 import mergeWith from 'lodash/mergeWith';
 import cloneDeep from 'lodash/cloneDeep';
+import UltraFeedFeedback from './UltraFeedFeedback';
 import {
   SourceWeightsSettings,
   TruncationGridSettings,
@@ -50,9 +51,19 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   },
   viewModeToggle: {
     display: 'flex',
-    columnGap: 8,
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     marginBottom: 12,
+    alignItems: 'center',
+    position: 'relative',
+  },
+  viewModeButtonsContainer: {
+    display: 'flex',
+    columnGap: 8,
+    flex: '1 1 0',
+    justifyContent: 'center',
+  },
+  spacer: {
+    flex: '1 1 0',
   },
   viewModeButton: {
     display: 'flex',
@@ -82,6 +93,32 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
     color: theme.palette.text.primary,
     opacity: 1,
     fontWeight: 600,
+  },
+  feedbackButtonContainer: {
+    flex: '1 1 0',
+    display: 'flex',
+    justifyContent: 'flex-end',
+  },
+  feedbackButton: {
+    color: theme.palette.grey[600],
+    cursor: 'pointer',
+    fontSize: "1.2rem",
+    fontStyle: 'italic',
+    padding: '4px 8px',
+    borderRadius: 4,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    '&:hover': {
+      color: theme.palette.ultraFeed.dim,
+      backgroundColor: theme.palette.panelBackground.hoverHighlightGrey,
+    },
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 12,
+      marginRight: 4,
+    },
+  },
+  feedbackButtonActive: {
+    color: theme.palette.ultraFeed.dim,
+    backgroundColor: theme.palette.panelBackground.hoverHighlightGrey,
   },
   buttonRow: {
     display: 'flex',
@@ -315,6 +352,7 @@ const UltraFeedSettings = ({
   const { captureEvent } = useTracking();
   const classes = useStyles(styles);
   const { flash } = useMessages();
+  const [showFeedback, setShowFeedback] = useState(false);
 
 
   const { ultraFeedSettingsViewMode, setUltraFeedSettingsViewMode } = useLocalStorageState('ultraFeedSettingsViewMode', (key) => key, initialViewMode);
@@ -623,18 +661,32 @@ const UltraFeedSettings = ({
   return (
     <div className={classes.root}>
       <div className={classes.viewModeToggle}>
-        <ViewModeButton
-          mode="simple"
-          currentViewMode={viewMode as 'simple' | 'advanced'}
-          onClick={setViewMode}
-        />
-        <ViewModeButton
-          mode="advanced"
-          currentViewMode={viewMode as 'simple' | 'advanced'}
-          onClick={setViewMode}
-        />
+        <div className={classes.spacer} />
+        <div className={classes.viewModeButtonsContainer}>
+          <ViewModeButton
+            mode="simple"
+            currentViewMode={viewMode as 'simple' | 'advanced'}
+            onClick={setViewMode}
+          />
+          <ViewModeButton
+            mode="advanced"
+            currentViewMode={viewMode as 'simple' | 'advanced'}
+            onClick={setViewMode}
+          />
+        </div>
+        <div className={classes.feedbackButtonContainer}>
+          <span 
+            className={classNames(
+              classes.feedbackButton,
+              showFeedback && classes.feedbackButtonActive
+            )}
+            onClick={() => setShowFeedback(!showFeedback)}
+          >
+            give feedback
+          </span>
+        </div>
       </div>
-      
+      {showFeedback && <UltraFeedFeedback />}
       <div className={classes.settingsGroupsContainer}>
         {viewMode === 'simple' ? (
           <SimpleView
