@@ -4,7 +4,7 @@ import moment from 'moment';
 import { useIsInView, useTracking } from '../../lib/analyticsEvents';
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
-import TargetedJobAd, { EAGWillingToRelocateOption, JOB_AD_DATA } from './TargetedJobAd';
+import { EAGWillingToRelocateOption, JOB_AD_DATA } from './constants';
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -15,6 +15,7 @@ import { getCountryCode, isInPoliticalEntity } from '../../lib/geocoding';
 import intersection from 'lodash/intersection';
 import union from 'lodash/fp/union';
 import { CAREER_STAGES } from "@/lib/collections/users/helpers";
+import TargetedJobAd from './TargetedJobAd';
 
 const UserEAGDetailsMinimumInfoMultiQuery = gql(`
   query multiUserEAGDetailTargetedJobAdSectionQuery($selector: UserEAGDetailSelector, $limit: Int, $enableTotal: Boolean) {

@@ -11,10 +11,11 @@ import jssDefaultUnit from 'jss-plugin-default-unit';
 import jssVendorPrefixer from 'jss-plugin-vendor-prefixer';
 import jssPropsSort from 'jss-plugin-props-sort';
 import { isClient } from "@/lib/executionEnvironment";
-import { ThemeContext, ThemeContextType, useTheme } from "../themes/useTheme";
+import { ThemeContext, ThemeContextType, useTheme } from '../themes/useTheme';
 import { maybeMinifyCSS } from "@/server/maybeMinifyCSS";
 import { type AbstractThemeOptions, abstractThemeToConcrete, themeOptionsAreConcrete } from "@/themes/themeNames";
 import { getForumTheme } from "@/themes/forumTheme";
+import { classNameProxy, defineStyles } from "./defineStyles";
 
 export type StylesContextType = {
   initialTheme: ThemeType
@@ -28,7 +29,6 @@ export type StylesContextType = {
 
 export const StylesContext = createContext<StylesContextType|null>(null);
 
-
 export function createStylesContext(theme: ThemeType, abstractThemeOptions: AbstractThemeOptions): StylesContextType {
   return {
     initialTheme: theme,
@@ -39,20 +39,6 @@ export function createStylesContext(theme: ThemeType, abstractThemeOptions: Abst
       styleNode?: HTMLStyleElement
     }>()
   };
-}
-
-/**
- * _clientMountedStyles: Client-side-only global variable that contains the
- * style context, as an alternative to getting it through React context. This
- * is client-side-only because on the server, where there may be more than one
- * render happening concurrently for different users, there isn't a meaningful
- * answer to questions like "what is the current theme". But when doing
- * hot-module reloading on the client, we need "the current theme" in order to
- * update any styles mounted in the <head> block.
- */
-let _clientMountedStyles: StylesContextType|null = null;
-export function setClientMountedStyles(styles: StylesContextType) {
-  _clientMountedStyles = styles;
 }
 
 /**
@@ -73,32 +59,6 @@ export function regeneratePageStyles(themeContext: ThemeContextType, stylesConte
       }
     }
   }
-}
-
-export const topLevelStyleDefinitions: Record<string,StyleDefinition<string>> = {};
-
-export const defineStyles = <T extends string, N extends string>(
-  name: N,
-  styles: (theme: ThemeType) => JssStyles<T>,
-  options?: StyleOptions
-): StyleDefinition<T,N> => {
-  const definition: StyleDefinition<T,N> = {
-    name,
-    styles,
-    options,
-    nameProxy: null,
-  };
-  topLevelStyleDefinitions[name] = definition;
-  
-  if (isClient && _clientMountedStyles) {
-    const mountedStyles = _clientMountedStyles.mountedStyles.get(name);
-    if (mountedStyles) {
-      mountedStyles.styleNode?.remove();
-      mountedStyles.styleNode = createAndInsertStyleNode(_clientMountedStyles.initialTheme, definition);
-    }
-  }
-  
-  return definition;
 }
 
 function addStyleUsage<T extends string>(context: StylesContextType, theme: ThemeType, styleDefinition: StyleDefinition<T>) {
@@ -264,20 +224,6 @@ export const withAddClasses = (
   }
 }
 
-export const classNameProxy = <T extends string>(prefix: string): ClassNameProxy<T> => {
-  return new Proxy({}, {
-    get: function(obj: any, prop: any) {
-      // Check that the prop is really a string. This isn't an error that comes
-      // up normally, but apparently React devtools will try to query for non-
-      // string properties sometimes when using the component debugger.
-      if (typeof prop === "string")
-        return prefix+prop;
-      else
-        return prefix+'invalid';
-    }
-  });
-}
-
 
 export const overrideClassesProxy = <T extends string>(prefix: string, overrideClasses: Partial<JssStyles<T>>): ClassNameProxy<T> => {
   return new Proxy({}, {
@@ -437,3 +383,6 @@ function insertStyleNodeAtCorrectPosition(styleNode: HTMLStyleElement, name: str
   }
 }
 
+// Re-exporting from this file to avoid needing diffs in hundreds of files
+// eslint-disable-next-line no-barrel-files/no-barrel-files
+export { defineStyles };

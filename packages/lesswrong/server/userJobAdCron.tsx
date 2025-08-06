@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from 'moment';
-import { JOB_AD_DATA } from '../components/ea-forum/TargetedJobAd';
+import { JOB_AD_DATA } from '../components/ea-forum/constants';
 import UserJobAds from '../server/collections/userJobAds/collection';
 import { Users } from '../server/collections/users/collection';
 import uniq from 'lodash/fp/uniq';
@@ -55,7 +55,7 @@ export const sendJobAdReminderEmails = async () => {
       backgroundTask(wrapAndSendEmail({
         user: recipient,
         subject: `Reminder: ${jobAdData.role} role at${jobAdData.insertThe ? ' the ' : ' '}${jobAdData.org}`,
-        body: <EmailJobAdReminder jobName={userJobAd.jobName} />,
+        body: (emailContext) => <EmailJobAdReminder jobName={userJobAd.jobName} emailContext={emailContext} />,
         force: true  // ignore the "unsubscribe to all" in this case, since the user initiated it
       }))
     }

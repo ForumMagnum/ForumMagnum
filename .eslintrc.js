@@ -23,6 +23,10 @@ const clientRestrictedImportPaths = [
   { name: "url", message: "'url' is a nodejs polyfill; use getUrlClass() instead" },
 ]
 
+const emailComponentRestrictedImportPaths = [
+  { name: "@/components/hooks/useStyles", message: "Don't import defineStyles from @/components/hooks/useStyles; use @/components/hooks/defineStyles instead" },
+];
+
 module.exports = {
   "extends": [
     "eslint:recommended",
@@ -322,9 +326,21 @@ module.exports = {
       "rules": {
         "no-restricted-imports": ["error", {"paths": [
           ...restrictedImportsPaths,
-          ...clientRestrictedImportPaths
+          ...clientRestrictedImportPaths,
         ]}],
       }
+    },
+    {
+      "files": [
+        "packages/lesswrong/server/emailComponents/**/*.ts",
+        "packages/lesswrong/server/emailComponents/**/*.tsx",
+      ],
+      "rules": {
+        "no-restricted-imports": ["error", {"paths": [
+          ...restrictedImportsPaths,
+          ...emailComponentRestrictedImportPaths,
+        ]}],
+      },
     },
     {
       "files": [

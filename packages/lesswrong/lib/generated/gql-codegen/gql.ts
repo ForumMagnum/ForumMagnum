@@ -986,6 +986,7 @@ type Documents = {
     "\n  query EmailComment2($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": typeof types.EmailComment2Document,
     "\n  query EmailComment1($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n": typeof types.EmailComment1Document,
     "\n  query EmailComment($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.EmailCommentDocument,
+    "\n    query EmailFooterRecommendationsQuery($count: Int, $algorithm: JSON) {\n      Recommendations(count: $count, algorithm: $algorithm) {\n        ...PostsListWithVotesAndSequence\n      }\n    }\n  ": typeof types.EmailFooterRecommendationsQueryDocument,
     "\n  query EmailUsernameByID($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": typeof types.EmailUsernameByIDDocument,
     "\n  query EventUpdatedEmail($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsBase\n      }\n    }\n  }\n": typeof types.EventUpdatedEmailDocument,
     "\n  query NewDialogueMessagesEmail1($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": typeof types.NewDialogueMessagesEmail1Document,
@@ -1977,6 +1978,7 @@ const documents: Documents = {
     "\n  query EmailComment2($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": types.EmailComment2Document,
     "\n  query EmailComment1($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n": types.EmailComment1Document,
     "\n  query EmailComment($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": types.EmailCommentDocument,
+    "\n    query EmailFooterRecommendationsQuery($count: Int, $algorithm: JSON) {\n      Recommendations(count: $count, algorithm: $algorithm) {\n        ...PostsListWithVotesAndSequence\n      }\n    }\n  ": types.EmailFooterRecommendationsQueryDocument,
     "\n  query EmailUsernameByID($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": types.EmailUsernameByIDDocument,
     "\n  query EventUpdatedEmail($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsBase\n      }\n    }\n  }\n": types.EventUpdatedEmailDocument,
     "\n  query NewDialogueMessagesEmail1($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": types.NewDialogueMessagesEmail1Document,
@@ -5898,6 +5900,10 @@ export function gql(source: "\n  query EmailComment1($documentId: String) {\n   
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query EmailComment($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  query EmailComment($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n    query EmailFooterRecommendationsQuery($count: Int, $algorithm: JSON) {\n      Recommendations(count: $count, algorithm: $algorithm) {\n        ...PostsListWithVotesAndSequence\n      }\n    }\n  "): (typeof documents)["\n    query EmailFooterRecommendationsQuery($count: Int, $algorithm: JSON) {\n      Recommendations(count: $count, algorithm: $algorithm) {\n        ...PostsListWithVotesAndSequence\n      }\n    }\n  "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

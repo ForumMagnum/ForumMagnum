@@ -1,9 +1,6 @@
 import { htmlToText } from 'html-to-text';
 import { sendEmailSmtp } from './sendEmail';
 import React from 'react';
-import { ApolloProvider } from '@apollo/client/react';
-import { getMarkupFromTree } from '@apollo/client/react/ssr';
-import { TimezoneContext, UserContext } from '../../components/common/sharedContexts';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { forumTitleSetting, isLWorAF } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
@@ -16,14 +13,15 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 import { createLWEvent } from '../collections/lwevents/mutations';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
-import { createStylesContext } from '@/components/hooks/useStyles';
-import { FMJssProvider, ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
 import { ThemeOptions } from '@/themes/themeNames';
 import { EmailWrapper } from '../emailComponents/EmailWrapper';
-import CookiesProvider from '@/lib/vendor/react-cookie/CookiesProvider';
 import { utmifyForumBacklinks, UtmParam } from '../analytics/utm-tracking';
-import { EmailRenderContext } from './EmailRenderContext';
 import { backgroundTask } from '../utils/backgroundTask';
+import { runQuery } from '../vulcan-lib/query';
+import { CurrentUserQuery } from '@/lib/crud/currentUserQuery';
+import type { StyleDefinition } from '../styleGeneration';
+import { prerenderToNodeStream } from 'react-dom/static';
+import { EmailContextType } from '../emailComponents/emailContext';
 import { generateEmailStylesheet } from '@/lib/styleHelpers';
 
 export interface RenderedEmail {
@@ -39,7 +37,7 @@ export interface RenderedEmail {
 const plainTextWordWrap = 80;
 
 // Doctype string at the header of HTML emails
-export const emailDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">';
+const emailDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">';
 
 // Global email CSS, inherited from Vulcan-Starter. Some of this is about
 // handling the top-level table layout; some of it looks like workarounds for
@@ -111,6 +109,19 @@ function addEmailBoilerplate({ css, title, body }: {
   `;
 }
 
+async function renderToString(component: React.ReactNode) {
+  const { prelude } = await prerenderToNodeStream(component);
+
+  return new Promise<string>((resolve, reject) => {
+    let data = '';
+    prelude.on('data', chunk => {
+      data += chunk;
+    });
+    prelude.on('end', () => resolve(data));
+    prelude.on('error', reject);
+  });
+}
+
 // Render an email. Arguments:
 //
 //   user: A user object. The user the email is being sent to, and also the
@@ -131,7 +142,7 @@ function addEmailBoilerplate({ css, title, body }: {
 //
 
 
-export async function generateEmail({user, to, from, subject, bodyComponent, boilerplateGenerator=addEmailBoilerplate, utmParams}: {
+export async function generateEmail({user, to, from, subject, bodyComponent, boilerplateGenerator=addEmailBoilerplate, utmParams, emailContext}: {
   user: DbUser | null,
   to: string,
   from?: string,
@@ -139,15 +150,17 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   bodyComponent: React.ReactNode,
   boilerplateGenerator?: (props: {css: string, title: string, body: string}) => string,
   utmParams?: Partial<Record<UtmParam, string>>;
+  emailContext: EmailContextType,
 }): Promise<RenderedEmail>
 {
   if (!subject) throw new Error("Missing required argument: subject");
   if (!bodyComponent) throw new Error("Missing required argument: bodyComponent");
 
-  const { renderToStaticMarkup, renderToString } = await import('react-dom/server');
-  
+  // const { renderToStaticMarkup } = await import('react-dom/server');
+  // const { prerenderToNodeStream } = await import('react-dom/static');
+
   // Set up Apollo
-  const { createClient }: typeof import('../vulcan-lib/apollo-ssr/apolloClient') = require('../vulcan-lib/apollo-ssr/apolloClient');
+  const { createClient } = await import('../vulcan-lib/apollo-ssr/apolloClient');
   const apolloClient = await createClient(computeContextFromUser({user, isSSR: false}));
   
   // Use the user's last-used timezone, which is the timezone of their browser
@@ -157,41 +170,48 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   
   const themeOptions: ThemeOptions = {name: "default", siteThemeOverride: {}};
   const theme = getForumTheme(themeOptions);
-  const stylesContext = createStylesContext(theme, themeOptions);
   
   // Wrap the body in Apollo, JSS, and MUI wrappers.
-  const wrappedBodyComponent = (
-    <EmailRenderContext.Provider value={{isEmailRender:true}}>
-    <ApolloProvider client={apolloClient}>
-    <CookiesProvider>
-    <ThemeContextProvider options={themeOptions} isEmail={true}>
-    <FMJssProvider stylesContext={stylesContext}>
-    <UserContext.Provider value={user as unknown as UsersCurrent | null /*FIXME> */}>
-    <TimezoneContext.Provider value={timezone}>
+  const wrappedBodyComponent = (<>
+    {/* <EmailRenderContext.Provider value={{isEmailRender:true}}> */}
+    {/* <ApolloProvider client={apolloClient}> */}
+    {/* <CookiesProvider> */}
+    {/* <ThemeContextProvider options={themeOptions} isEmail={true}> */}
+    {/* <FMJssProvider stylesContext={stylesContext}> */}
+    {/* <UserContext.Provider value={user as unknown as UsersCurrent | null}> */}
+    {/* <TimezoneContext.Provider value={timezone}> */}
       {bodyComponent}
-    </TimezoneContext.Provider>
-    </UserContext.Provider>
-    </FMJssProvider>
-    </ThemeContextProvider>
-    </CookiesProvider>
-    </ApolloProvider>
-    </EmailRenderContext.Provider>
-  );
+    {/* </TimezoneContext.Provider> */}
+    {/* </UserContext.Provider> */}
+    {/* </FMJssProvider> */}
+    {/* </ThemeContextProvider> */}
+    {/* </CookiesProvider> */}
+    {/* </ApolloProvider> */}
+    {/* </EmailRenderContext.Provider> */}
+  </>);
   
   // Traverse the tree, running GraphQL queries and expanding the tree
   // accordingly.
-  await getMarkupFromTree({
-    tree: wrappedBodyComponent,
-    context: {},
-    renderFunction: renderToStaticMarkup,
-  });
+  // await getMarkupFromTree({
+  //   tree: wrappedBodyComponent,
+  //   context: {},
+  //   renderFunction: renderToStaticMarkup,
+  // });
   
   // Render the REACT tree to an HTML string
-  const body = renderToString(wrappedBodyComponent);
+  const body = await renderToString(bodyComponent);
   
   // Get JSS styles, which were added to sheetsRegistry as a byproduct of
   // renderToString.
-  const css = generateEmailStylesheet({ stylesContext, theme });
+  // const css = generateEmailStylesheet({ stylesContext, theme });
+  // const css = EmailCss.toString();
+
+  // console.log({ body, css });
+
+  const css = generateEmailStylesheet({
+    stylesUsed: emailContext.stylesUsed,
+    theme,
+  });
   const html = boilerplateGenerator({ css, body, title:subject })
   
   // Find any relative links, and convert them to absolute
@@ -228,6 +248,18 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     text: plaintext,
   }
 }
+
+export async function createEmailContext(user: DbUser|null, resolverContext?: ResolverContext) {
+  const resolverContextWithDefault = resolverContext ?? computeContextFromUser({ user, isSSR: false });
+  const currentUser = await runQuery(CurrentUserQuery, {}, resolverContext);
+
+  return {
+    resolverContext: resolverContextWithDefault,
+    stylesUsed: new Set<StyleDefinition<string, string>>(),
+    currentUser: currentUser.data?.currentUser ?? null,
+  };
+}
+
 export const wrapAndRenderEmail = async ({
   user,
   to,
@@ -240,10 +272,13 @@ export const wrapAndRenderEmail = async ({
   to: string;
   from?: string;
   subject: string;
-  body: React.ReactNode;
+  body: (emailContext: EmailContextType) => React.ReactNode;
   utmParams?: Partial<Record<UtmParam, string>>;
 }): Promise<RenderedEmail> => {
   const unsubscribeAllLink = user ? await emailTokenTypesByName.unsubscribeAll.generateLink(user._id) : null;
+  
+  const emailContext = await createEmailContext(user);
+
   return await generateEmail({
     user,
     to,
@@ -251,9 +286,11 @@ export const wrapAndRenderEmail = async ({
     subject: subject,
     bodyComponent: <EmailWrapper
       unsubscribeAllLink={unsubscribeAllLink}
+      emailContext={emailContext}
     >
-      {body}
+      {body(emailContext)}
     </EmailWrapper>,
+    emailContext,
     utmParams
   });
 }
@@ -272,7 +309,7 @@ export const wrapAndSendEmail = async ({
   to?: string;
   from?: string;
   subject: string;
-  body: React.ReactNode;
+  body: (emailContext: EmailContextType) => React.ReactNode;
   utmParams?: Partial<Record<UtmParam, string>>;
 }): Promise<boolean> => {
   if (isE2E) {
@@ -324,7 +361,7 @@ async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
   }
 }
 
-export async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | null, additionalFields: any) {
+async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | null, additionalFields: any) {
   // Remove the html, which is very large and bloats LWEvents
   // We still have the text content of the email, which is sufficient for email history
   const { html, ...emailFields } = renderedEmail;
@@ -350,7 +387,7 @@ export async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | 
 
 // Returns a string explanation of why we can't send emails to a given user, or
 // null if there is no such reason and we can email them.
-export function reasonUserCantReceiveEmails(user: DbUser): string|null
+function reasonUserCantReceiveEmails(user: DbUser): string|null
 {
   if (user.deleted)
     return "User is deactivated"

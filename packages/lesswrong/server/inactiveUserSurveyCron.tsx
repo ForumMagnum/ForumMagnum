@@ -30,7 +30,7 @@ export const sendInactiveUserSurveyEmails = async () => {
         user,
         from: 'EA Forum Team <eaforum@centreforeffectivealtruism.org>',
         subject: `Help us improve the site`,
-        body: <EmailInactiveUserSurvey user={user} />,
+        body: (emailContext) => <EmailInactiveUserSurvey user={user} emailContext={emailContext} />,
       }))
       await Users.rawUpdateOne(
         {_id: user._id},

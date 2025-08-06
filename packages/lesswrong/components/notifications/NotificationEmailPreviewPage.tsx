@@ -27,7 +27,7 @@ const NotificationEmailPreviewPage = () => {
       }
   `), {
     variables: {notificationIds, postId},
-    ssr: true
+    ssr: false
   });
   
   if (!userIsAdmin(currentUser))

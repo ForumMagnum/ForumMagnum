@@ -49,6 +49,7 @@ export const ClientRouteMetadataSetter = ({ metadata }: { metadata: RouteMetadat
     return () => {
       setMetadata({});
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <></>;

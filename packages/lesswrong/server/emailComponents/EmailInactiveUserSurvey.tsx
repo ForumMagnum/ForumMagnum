@@ -1,7 +1,6 @@
-'use client';
-
 import React from "react";
-import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import { defineStyles } from "@/components/hooks/defineStyles";
+import { EmailContextType, useEmailStyles } from "./emailContext";
 
 const styles = defineStyles("EmailInactiveUserSurvey", (theme: ThemeType) => ({
   root: {
@@ -17,10 +16,11 @@ const styles = defineStyles("EmailInactiveUserSurvey", (theme: ThemeType) => ({
   }
 }));
 
-export const EmailInactiveUserSurvey = ({ user }: {
+export const EmailInactiveUserSurvey = ({ user, emailContext }: {
   user: DbUser;
+  emailContext: EmailContextType
 }) => {
-  const classes = useStyles(styles);
+  const classes = useEmailStyles(styles, emailContext);
   const surveyLink = 'https://docs.google.com/forms/d/e/1FAIpQLSevnR0viER-xSUbcL0AsQpQ8Zn7X5iuvUgMcs3XEqk55SngLw/viewform'
 
   return (

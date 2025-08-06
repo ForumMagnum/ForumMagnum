@@ -22,7 +22,7 @@ import { akismetKeySetting, commentAncestorsToNotifySetting } from "../databaseS
 import { checkForAkismetSpam } from "../akismet";
 import { getUsersToNotifyAboutEvent } from "../notificationCallbacks";
 import { getConfirmedCoauthorIds, postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { wrapAndSendEmail } from "../emails/renderEmail";
+import { createEmailContext, wrapAndSendEmail } from "../emails/renderEmail";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { swrInvalidatePostRoute } from "../cache/swr";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
@@ -150,12 +150,12 @@ const utils = {
     for (let {userId,email} of emailsToNotify) {
       if (!email) continue;
       const user = await Users.findOne(userId);
-      
+
       await wrapAndSendEmail({
         user: user,
         to: email,
         subject: `New comment on ${post.title}`,
-        body: <EmailComment commentId={comment._id}/>,
+        body: (emailContext) => <EmailComment commentId={comment._id} emailContext={emailContext}/>,
       });
     }
   },

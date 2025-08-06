@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { use } from 'react';
 import { headerLink, createErrorLink, createHttpLink, createSchemaLink } from "@/lib/apollo/links";
 import { isServer } from "@/lib/executionEnvironment";
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
@@ -8,9 +8,7 @@ import {
   InMemoryCache,
 } from "@apollo/client-integration-nextjs";
 import { ApolloNextAppProvider } from "@/lib/vendor/@apollo/client-integration-nextjs/ApolloNextAppProvider";
-import type { GraphQLSchema } from "graphql";
 import type { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
-import { typeDefs, resolvers } from "@/server/vulcan-lib/apollo-server/initGraphQL";
 import { disableFragmentWarnings } from "graphql-tag";
 
 // In the internals of apollo client, they do two round-trips that look like `gql(print(gql(options.query)))`
@@ -20,17 +18,6 @@ import { disableFragmentWarnings } from "graphql-tag";
 // Disabling the warnings should basically be harmless as long as they're still enabled in the codegen context.
 disableFragmentWarnings();
 
-const getExecutableSchema = (() => {
-  let _executableSchema: GraphQLSchema|null = null;
-  return () => {
-    if (!_executableSchema) {
-      const { makeExecutableSchema }: typeof import("@graphql-tools/schema") = require("@graphql-tools/schema");
-      _executableSchema = makeExecutableSchema({ typeDefs, resolvers });
-    }
-    return _executableSchema;  
-  };
-})()
-
 interface MakeClientProps {
   loginToken?: string,
   user: DbUser | null,
@@ -39,31 +26,44 @@ interface MakeClientProps {
   searchParams: Record<string, string>,
 }
 
-function makeClient({ loginToken, user, cookies, headers, searchParams }: MakeClientProps) {
-  const links = [
-    headerLink,
-    createErrorLink(),
-  ];
+async function makeApolloClientForServer({ loginToken, user, cookies, headers, searchParams }: MakeClientProps): Promise<ApolloClient<unknown>> {
+  if (!isServer) {
+    throw new Error("Not server");
+  }
+
+  const { LoggedOutCacheLink } = await import("@/lib/apollo/loggedOutCacheLink");
+  const { computeContextFromUser } = await import("@/server/vulcan-lib/apollo-server/context");
+  const { getExecutableSchema } = await import("@/server/vulcan-lib/apollo-server/initGraphQL");
+
+  const context = computeContextFromUser({
+    user,
+    cookies,
+    headers: new Headers(headers),
+    searchParams: new URLSearchParams(searchParams),
+    isSSR: true,
+  });
+  return new ApolloClient({
+    cache: new InMemoryCache(),
+    link: ApolloLink.from([
+      headerLink,
+      createErrorLink(),
+      new LoggedOutCacheLink(),
+      createSchemaLink(getExecutableSchema(), context)
+    ]),
+  });
+}
+
+function makeApolloClientForClient({ loginToken, user, cookies, headers, searchParams }: MakeClientProps): ApolloClient<unknown> {
   if (isServer) {
-    const { LoggedOutCacheLink }: typeof import("@/lib/apollo/loggedOutCacheLink") = require("@/lib/apollo/loggedOutCacheLink");
-    links.push(new LoggedOutCacheLink());
-
-    const { computeContextFromUser }: typeof import("@/server/vulcan-lib/apollo-server/context") = require("@/server/vulcan-lib/apollo-server/context");
-
-    const context = computeContextFromUser({
-      user,
-      cookies,
-      headers: new Headers(headers),
-      searchParams: new URLSearchParams(searchParams),
-      isSSR: true,
-    });
-    links.push(createSchemaLink(getExecutableSchema(), context));
-  } else {
-    links.push(createHttpLink(isServer ? getSiteUrl() : '/', loginToken, headers));
+    throw new Error("Not client")
   }
   return new ApolloClient({
     cache: new InMemoryCache(),
-    link: ApolloLink.from(links),
+    link: ApolloLink.from([
+      headerLink,
+      createErrorLink(),
+      createHttpLink(isServer ? getSiteUrl() : '/', loginToken, headers)
+    ]),
   });
 }
 
@@ -74,9 +74,26 @@ export function ApolloWrapper({ loginToken, user, cookies, headers, searchParams
   headers: Record<string, string>,
   searchParams: Record<string, string>,
 }>) {
-  return (
-    <ApolloNextAppProvider makeClient={() => makeClient({ loginToken, user, cookies, headers, searchParams })}>
-      {children}
-    </ApolloNextAppProvider>
-  );
+  // Either this is an SSR context, in which case constructing an apollo client
+  // involves an async function call because of dynamic imports, or this is in
+  // a client context, in which case construting an apollo client can be done
+  // synchronously. We need the dynamic imports in makeApolloClientForServer
+  // because if they were synchronous require() or regular imports, then
+  // nextjs's bundler would try to import server-specific code and bundle it as
+  // if it was client code, which fails at compile time (but it doesn't bundle
+  // it this way if it's imported dynamically).
+  if (isServer) {
+    const client = use(makeApolloClientForServer({ loginToken, user, cookies, headers, searchParams }));
+    return (
+      <ApolloNextAppProvider makeClient={() => client}>
+        {children}
+      </ApolloNextAppProvider>
+    );
+  } else {
+    return (
+      <ApolloNextAppProvider makeClient={() => makeApolloClientForClient({ loginToken, user, cookies, headers, searchParams })}>
+        {children}
+      </ApolloNextAppProvider>
+    );
+  }
 }

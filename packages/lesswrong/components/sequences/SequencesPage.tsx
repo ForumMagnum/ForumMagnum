@@ -261,13 +261,6 @@ const SequencesPage = ({ documentId, classes }: {
     
   return <AnalyticsContext pageContext="sequencesPage">
     <div className={classes.root}>
-      <HeadTags
-        canonicalUrl={sequenceGetPageUrl(document, true)}
-        title={document.title}
-        description={plaintextDescription || undefined}
-        image={socialImageUrl}
-        noIndex={document.noindex}
-      />
       {bannerId && <div className={classes.banner}>
         <div className={classes.bannerWrapper}>
           <DeferRender ssr={false}>
