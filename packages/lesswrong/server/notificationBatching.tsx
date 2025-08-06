@@ -109,6 +109,11 @@ export const graphqlQueries = {
     if (notificationIds?.length && postId) {
       throw new Error("Please only specify notificationIds or postId in the query")
     }
+
+    const userEmail = getUserEmail(currentUser);
+    if (!userEmail) {
+      throw new Error("User has no email address");
+    }
     
     if (notificationIds?.length) {
       const notifications = await Notifications.find(
@@ -124,7 +129,7 @@ export const graphqlQueries = {
         notifications,
         context
       });
-      const renderedEmails = await Promise.all(emails.map(async email => await wrapAndRenderEmail(email)));
+      const renderedEmails = await Promise.all(emails.map(async email => await wrapAndRenderEmail({ ...email, to: email.to ?? userEmail })));
       return renderedEmails;
     } else if (postId) {
       const post = await Posts.findOne(postId)
@@ -135,7 +140,7 @@ export const graphqlQueries = {
         user: currentUser,
         subject: post.title,
         body: (emailContext: EmailContextType) => <PostsEmail postIds={[post._id]} reason='you have the "Email me new posts in Curated" option enabled' emailContext={emailContext} />,
-        to: getUserEmail(currentUser)
+        to: userEmail
       })
       return [renderedEmail];
     } else {

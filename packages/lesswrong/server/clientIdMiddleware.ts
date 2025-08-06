@@ -4,7 +4,7 @@ import express from 'express';
 import { responseIsCacheable } from './cacheControlMiddleware';
 import ClientIdsRepo from './repos/ClientIdsRepo';
 import LRU from 'lru-cache';
-import { getUserFromReq } from './vulcan-lib/apollo-server/context';
+import { getUserFromReq } from './vulcan-lib/apollo-server/getUserFromReq';
 import type { NextRequest } from 'next/server';
 import { backgroundTask } from './utils/backgroundTask';
 

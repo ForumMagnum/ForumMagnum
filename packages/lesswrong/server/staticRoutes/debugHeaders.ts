@@ -1,5 +1,5 @@
 import { addStaticRoute } from '../vulcan-lib/staticRoutes';
-import { getUserFromReq } from '../vulcan-lib/apollo-server/context';
+import { getUserFromReq } from '../vulcan-lib/apollo-server/getUserFromReq';
 
 // Debug endpoint which, if you load it while logged in as an admin, echoes
 // back the HTTP headers you used to request it. Used for debugging header

@@ -1,4 +1,5 @@
-import { computeContextFromUser, getCachedUser } from "@/server/vulcan-lib/apollo-server/context";
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
+import { getCachedUser } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
 import { SchemaLink } from "@apollo/client/link/schema";
 import type { GraphQLSchema } from "graphql";
 

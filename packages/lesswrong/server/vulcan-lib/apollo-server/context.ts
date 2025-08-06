@@ -9,39 +9,9 @@ import { getAllRepos } from '../../repos';
 import UsersRepo from '../../repos/UsersRepo';
 import { asyncLocalStorage } from '../../perfMetrics';
 import type { NextRequest } from 'next/server';
-import { prepareClientId } from '@/server/clientIdMiddleware';
 import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';
-import { unstable_cache } from 'next/cache';
+import { getUserFromReq } from './getUserFromReq';
 
-
-export const getUser = async (loginToken: string|null): Promise<DbUser|null> => {
-  if (loginToken) {
-    if (typeof loginToken !== 'string')
-      throw new Error("Login token is not a string");
-
-    const hashedToken = hashLoginToken(loginToken)
-
-    const user = await new UsersRepo().getUserByLoginToken(hashedToken);
-
-    if (user && !userIsBanned(user)) {
-      // find the right login token corresponding, the current user may have
-      // several sessions logged on different browsers / computers
-      const tokenInformation = user.services.resume.loginTokens.find(
-        (tokenInfo: AnyBecauseTodo) => tokenInfo.hashedToken === hashedToken
-      )
-
-      const expiresAt = tokenExpiration(tokenInformation.when)
-
-      const isExpired = expiresAt < new Date()
-
-      if (!isExpired) {
-        return user
-      }
-    }
-  }
-  
-  return null;
-}
 
 // Generate a set of DataLoader objects, one per collection, to be added to a resolver context
 export const generateDataLoaders = (): {
@@ -132,25 +102,12 @@ export function configureSentryScope(context: ResolverContext, scope: Scope) {
   }
 }
 
-export const getCachedUser = unstable_cache(getUser, undefined, { revalidate: 5 });
-
-export const getUserFromReq = async (req: NextRequest): Promise<DbUser|null> => {
-  // We check both cookies and headers, because requests from the browser come with cookies,
-  // but requests made by the apollo client (even during SSR) have to send it via header
-  const loginToken = req.cookies.get('loginToken')?.value ?? req.headers.get('loginToken') ?? null;
-  return getCachedUser(loginToken);
-}
-
 export async function getContextFromReqAndRes({req, isSSR}: {
   req: NextRequest,
   isSSR: boolean
 }): Promise<ResolverContext> {
   // TODO: do we want to abstract this out into something shared across all routes that need to grab the authenticated user for the current request?
-  const [user] = await Promise.all([
-    getUserFromReq(req),
-    prepareClientId(req)
-  ]);
-
+  const user = await getUserFromReq(req);
   const context = computeContextFromUser({user, req, isSSR: isSSR || req.headers.get('isSSR') === 'true'});
   return context;
 }
