@@ -1,8 +1,6 @@
 import { allSchemas } from "@/lib/schema/allSchemas";
-import { makeExecutableSchema } from "@graphql-tools/schema";
-import { resolvers, typeDefs } from "../vulcan-lib/apollo-server/initGraphQL";
+import { getExecutableSchema } from "../vulcan-lib/apollo-server/initGraphQL";
 import type { GraphQLSchema } from "graphql";
-import { collectionNameToTypeName } from "@/lib/generated/collectionTypeNames";
 
 function getBaseGraphqlType(graphqlSpec?: GraphQLFieldSpecification<any>) {
   if (!graphqlSpec?.outputType || typeof graphqlSpec.outputType !== 'string') {
@@ -77,7 +75,7 @@ ${fieldNames.map(fieldName => {
 };
 
 export function generateDefaultFragments(collectionToTypeNameMap: Record<string, string>): string[] {
-  const executableSchema = makeExecutableSchema({ typeDefs, resolvers });
+  const executableSchema = getExecutableSchema();
   const fragments: string[] = [];
   for (const [collectionName, schema] of Object.entries(allSchemas)) {
     const typeName = collectionToTypeNameMap[collectionName];
@@ -94,7 +92,7 @@ export function generateDefaultFragments(collectionToTypeNameMap: Record<string,
 }
 
 export function generateDefaultFragmentsFile(collectionToTypeNameMap: Record<string, string>): string {
-  const executableSchema = makeExecutableSchema({ typeDefs, resolvers });
+  const executableSchema = getExecutableSchema();
   const sb: string[] = [`import { gql } from "@/lib/generated/gql-codegen";`];
   for (const [collectionName, schema] of Object.entries(allSchemas)) {
     const typeName = collectionToTypeNameMap[collectionName];

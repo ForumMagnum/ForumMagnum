@@ -229,7 +229,7 @@ const emptyViewInput = gql`
 
 //  @deprecated(reason: "GraphQL doesn't support empty input types, so we need to provide a field.  Don't pass anything in, it doesn't do anything.")
 
-export const typeDefs = gql`
+export const getTypeDefs = () => gql`
   type Query
   type Mutation
   scalar JSON
@@ -449,7 +449,7 @@ export const typeDefs = gql`
 `
 
 
-export const resolvers = {
+const getResolvers = () => ({
   JSON: GraphQLJSON,
   Date: GraphQLDate,
   Query: {
@@ -789,7 +789,7 @@ export const resolvers = {
   Mutation: Record<string, (root: void, args: any, context: ResolverContext) => any>,
   KarmaChanges: { updateFrequency: (root: void, args: any, context: ResolverContext) => any },
   ElicitUser: { lwUser: (root: void, args: any, context: ResolverContext) => any },
-};
+});
 
 export type SchemaGraphQLFieldArgument = {name: string, type: string|GraphQLScalarType|null}
 export type SchemaGraphQLFieldDescription = {
@@ -804,7 +804,7 @@ export type SchemaGraphQLFieldDescription = {
 let _executableSchema: GraphQLSchema|null = null;
 export function getExecutableSchema() {
   if (!_executableSchema) {
-    _executableSchema = makeExecutableSchema({ typeDefs, resolvers });
+    _executableSchema = makeExecutableSchema({ typeDefs: getTypeDefs(), resolvers: getResolvers() });
   }
   return _executableSchema;
 }

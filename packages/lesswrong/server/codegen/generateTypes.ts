@@ -7,7 +7,7 @@ import path from 'path';
 import { generateCollectionTypeNames } from './generateCollectionTypeNames';
 import { generateInputTypes } from './generateInputTypes';
 import { generateDefaultFragmentsFile } from './generateDefaultFragments';
-import { typeDefs } from '../vulcan-lib/apollo-server/initGraphQL';
+import { getTypeDefs } from '../vulcan-lib/apollo-server/initGraphQL';
 import { generate } from '@graphql-codegen/cli'
 import { DefinitionNode, DocumentNode, FragmentDefinitionNode, Kind, print, visit } from 'graphql';
 import graphqlCodegenConfig from '@/../../codegen.ts';
@@ -151,7 +151,7 @@ export const generateTypesAndSQLSchema = async (rootDir?: string) => {
 function generateGraphQLSchemaFile(): string {
   const sb: string[] = [];
   sb.push("# Generated file - run 'yarn generate' to update.\n\n");
-  sb.push(print(typeDefs));
+  sb.push(print(getTypeDefs()));
   return sb.join("");
 }
 

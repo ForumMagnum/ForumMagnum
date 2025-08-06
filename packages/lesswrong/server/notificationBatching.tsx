@@ -6,12 +6,9 @@ import Users from '@/server/collections/users/collection';
 import { computeContextFromUser } from './vulcan-lib/apollo-server/context';
 import gql from 'graphql-tag';
 import { PostsEmail } from './emailComponents/PostsEmail';
-import { fetchPostsForEmail } from './emailComponents/queries';
 import { UtmParam } from './analytics/utm-tracking';
 import { isEAForum } from '@/lib/instanceSettings';
-import { backgroundTask } from './utils/backgroundTask';
 import { EmailContextType } from './emailComponents/emailContext';
-import { createEmailContext } from './emails/renderEmail';
 
 export const getUtmParamsForNotificationType = (notificationType: string): Partial<Record<UtmParam, string>> => {
   return {
@@ -128,7 +125,6 @@ export const graphqlQueries = {
         context
       });
       const renderedEmails = await Promise.all(emails.map(async email => await wrapAndRenderEmail(email)));
-      console.log({ renderedEmails });
       return renderedEmails;
     } else if (postId) {
       const post = await Posts.findOne(postId)
@@ -138,9 +134,9 @@ export const graphqlQueries = {
       const renderedEmail = await wrapAndRenderEmail({
         user: currentUser,
         subject: post.title,
-        body: (emailContext: EmailContextType) => <PostsEmail postIds={[post._id]} reason='you have the "Email me new posts in Curated" option enabled' emailContext={emailContext} />
+        body: (emailContext: EmailContextType) => <PostsEmail postIds={[post._id]} reason='you have the "Email me new posts in Curated" option enabled' emailContext={emailContext} />,
+        to: getUserEmail(currentUser)
       })
-      console.log({ renderedEmail });
       return [renderedEmail];
     } else {
       return [];
