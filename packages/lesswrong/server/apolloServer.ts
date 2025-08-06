@@ -31,7 +31,7 @@ import { hstsMiddleware } from './hsts';
 import { getClientBundle } from './utils/bundleUtils';
 import ElasticController from './search/elastic/ElasticController';
 import { closePerfMetric, openPerfMetric } from './perfMetrics';
-import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
+// import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
 import { addCacheControlMiddleware } from './cacheControlMiddleware';
 import { getSqlClientOrThrow } from './sql/sqlClient';
 import { getCommandLineArguments } from './commandLine';
@@ -140,7 +140,7 @@ export async function startWebserver() {
 
   // Most middleware need to run after those added by addAuthMiddlewares, so that they can access the user that passport puts on the request.  Be careful if moving it!
   // addAuthMiddlewares(addMiddleware);
-  addAdminRoutesMiddleware(addMiddleware);
+  // addAdminRoutesMiddleware(addMiddleware);
   addForumSpecificMiddleware(addMiddleware);
   // addSentryMiddlewares(addMiddleware);
   addCacheControlMiddleware(addMiddleware);

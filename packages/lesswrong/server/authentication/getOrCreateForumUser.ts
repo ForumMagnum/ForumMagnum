@@ -1,5 +1,4 @@
 import type { Profile } from "passport";
-import type { VerifyCallback } from "passport-oauth2";
 import { captureException } from "@sentry/nextjs";
 import { userFindOneByEmail, usersFindAllByEmail } from "../commonQueries";
 import Users from "../../server/collections/users/collection";
@@ -53,7 +52,7 @@ export const getOrCreateForumUser = async <P extends Profile>(
   profile: P,
   getIdFromProfile: IdFromProfile<P>,
   getUserDataFromProfile: UserDataFromProfile<P>,
-  callback: VerifyCallback,
+  callback: (err?: Error | null, user?: DbUser) => void,
 ) => {
   try {
     const profileId = getIdFromProfile(profile);
