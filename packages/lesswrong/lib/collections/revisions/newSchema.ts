@@ -14,9 +14,7 @@ import { PLAINTEXT_HTML_TRUNCATION_LENGTH, PLAINTEXT_DESCRIPTION_LENGTH } from "
 import { ContentType } from "./revisionSchemaTypes";
 import sanitizeHtml from "sanitize-html";
 import { compile as compileHtmlToText } from "html-to-text";
-import gql from "graphql-tag";
 import { getOriginalContents } from "./helpers";
-import { userIsPostGroupOrganizer } from "../posts/helpers";
 import { isLWorAF } from "@/lib/instanceSettings";
 
 // I _think_ this is a server-side only library, but it doesn't seem to be causing problems living at the top level (yet)
@@ -34,18 +32,6 @@ const htmlToTextPlaintextDescription = compileHtmlToText({
   ]
 });
 
-// Graphql doesn't allow union types that include scalars, which is necessary
-// to accurately represent the data field the ContentType simple schema.
-
-// defining a custom scalar seems to allow it to pass through any data type,
-// but this doesn't seem much more permissive than ContentType was originally
-export const graphqlTypeDefs = gql`
-  scalar ContentTypeData
-  type ContentType {
-    type: String!
-    data: ContentTypeData!
-  }
-`
 
 const schema = {
   _id: DEFAULT_ID_FIELD,

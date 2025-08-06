@@ -43,7 +43,6 @@ import BasicOnboardingFlow from "./onboarding/BasicOnboardingFlow";
 import { CommentOnSelectionPageWrapper } from "./comments/CommentOnSelection";
 import SidebarsWrapper from "./common/SidebarsWrapper";
 import AdminToggle from "./admin/AdminToggle";
-import SunshineSidebar from "./sunshineDashboard/SunshineSidebar";
 import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
 import ForumEventBanner from "./forumEvents/ForumEventBanner";
 import GlobalHotkeys from "./common/GlobalHotkeys";
@@ -56,10 +55,9 @@ import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { gql } from "@/lib/generated/gql-codegen";
 import { DelayedLoading } from './common/DelayedLoading';
 import { SuspenseWrapper } from './common/SuspenseWrapper';
-// import dynamic from 'next/dynamic';
+import dynamic from 'next/dynamic';
 import { useRouteMetadata } from './ClientRouteMetadataContext';
 import { isFullscreenRoute, isHomeRoute, isStandaloneRoute, isStaticHeaderRoute, isSunshineSidebarRoute, isUnspacedGridRoute } from '@/lib/routeChecks';
-import LanguageModelLauncherButton from './languageModels/LanguageModelLauncherButton';
 import { AutoDarkModeWrapper } from './themes/ThemeContextProvider';
 
 const UsersCurrentUpdateMutation = gql(`
@@ -359,9 +357,9 @@ const Layout = ({currentUser, children}: {
   }
 
   const render = () => {
-    // const SunshineSidebar = dynamic(() => import("./sunshineDashboard/SunshineSidebar"), { ssr: false });
+    const SunshineSidebar = dynamic(() => import("./sunshineDashboard/SunshineSidebar"), { ssr: false });
     // const HomepageCommunityMap = dynamic(() => import('./seasonal/HomepageMap/HomepageCommunityMap'), { ssr: false });
-    // const LanguageModelLauncherButton = dynamic(() => import("./languageModels/LanguageModelLauncherButton"), { ssr: false });
+    const LanguageModelLauncherButton = dynamic(() => import("./languageModels/LanguageModelLauncherButton"), { ssr: false });
 
     const baseLayoutOptions: LayoutOptions = {
       // Check whether the current route is one which should have standalone

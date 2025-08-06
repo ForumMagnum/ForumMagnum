@@ -17,9 +17,8 @@ import LWClickAwayListener from "../common/LWClickAwayListener";
 import { useReadQuery } from '@apollo/client/react';
 import { useStyles } from '../hooks/useStyles';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
-// import dynamic from 'next/dynamic';
+import dynamic from 'next/dynamic';
 import { styles } from './notificationsMenuButtonStyles';
-import NotificationsPopover from './NotificationsPopover';
 import ErrorBoundary from '../common/ErrorBoundary';
 
 const UserKarmaChangesQuery = gql(`
@@ -97,7 +96,7 @@ const FriendlyNotificationsMenuButtonInner = ({
   toggle,
   className,
 }: NotificationsMenuButtonProps) => {
-  // const NotificationsPopover = dynamic(() => import("./NotificationsPopover"), { ssr: false });
+  const NotificationsPopover = dynamic(() => import("./NotificationsPopover"), { ssr: false });
   
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();

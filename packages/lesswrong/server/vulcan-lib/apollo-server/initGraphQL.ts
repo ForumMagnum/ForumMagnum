@@ -9,7 +9,6 @@ import GraphQLDate from './graphql-date';
 import { graphqlTypeDefs as notificationTypeDefs, graphqlQueries as notificationQueries } from '@/server/notificationBatching';
 import { graphqlTypeDefs as arbitalLinkedPagesTypeDefs } from '@/lib/collections/helpers/arbitalLinkedPagesField';
 import { graphqlTypeDefs as additionalPostsTypeDefs } from '@/lib/collections/posts/newSchema';
-import { graphqlTypeDefs as additionalRevisionsTypeDefs } from '@/lib/collections/revisions/newSchema';
 import { graphqlTypeDefs as additionalTagsTypeDefs } from '@/lib/collections/tags/newSchema';
 import { graphqlTypeDefs as additionalUsersTypeDefs } from '@/lib/collections/users/newSchema';
 import { graphqlTypeDefs as recommendationsTypeDefs, graphqlQueries as recommendationsQueries } from '@/server/recommendations';
@@ -227,19 +226,27 @@ const emptyViewInput = gql`
   }
 `;
 
-//  @deprecated(reason: "GraphQL doesn't support empty input types, so we need to provide a field.  Don't pass anything in, it doesn't do anything.")
-
 export const getTypeDefs = () => gql`
   type Query
   type Mutation
   scalar JSON
   scalar Date
+  
+  # Graphql doesn't allow union types that include scalars, which is necessary
+  # to accurately represent the data field the ContentType simple schema.
+  # Defining a custom scalar seems to allow it to pass through any data type,
+  # but this doesn't seem much more permissive than ContentType was originally.
+  scalar ContentTypeData
+  type ContentType {
+    type: String!
+    data: ContentTypeData!
+  }
+
   ${selectorInput}
   ${emptyViewInput}
   ${notificationTypeDefs}
   ${arbitalLinkedPagesTypeDefs}
   ${additionalPostsTypeDefs}
-  ${additionalRevisionsTypeDefs}
   ${additionalTagsTypeDefs}
   ${additionalUsersTypeDefs}
   ${recommendationsTypeDefs}
