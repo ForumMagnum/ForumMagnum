@@ -104,7 +104,6 @@ const UltraFeedThreadCommentsList = ({
         if ("placeholder" in item) {
           const hiddenCount = item.hiddenComments.length;
           const anyHighlighted = item.hiddenComments.some(h => highlightStatuses[h._id]);
-          const anyRead = item.hiddenComments.some(h => isCommentRead(h._id));
           const allRead = item.hiddenComments.every(h => isCommentRead(h._id));
           const nextItemIsRead = isNextItemRead(commentIndex);
           const isReadAndNextItemIsRead = allRead && nextItemIsRead;
@@ -139,7 +138,6 @@ const UltraFeedThreadCommentsList = ({
           const isAnimating = animatingCommentIds.has(cId);
           const navigationProps = getNavigationProps(cId, visibleComments);
           const isNewReply = Object.values(newReplies).some(reply => reply._id === cId);
-          const metaInfo = commentMetaInfos?.[cId];
           const isRead = isCommentRead(cId);
           const nextItemIsRead = isNextItemRead(commentIndex);
           const isReadAndNextItemIsRead = isRead && nextItemIsRead;
