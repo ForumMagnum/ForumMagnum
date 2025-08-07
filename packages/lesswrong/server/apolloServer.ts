@@ -39,7 +39,7 @@ import { isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLogging
 import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
 import express from 'express';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
-import type { NextRequest } from 'next/server';
+import { requestToNextRequest } from './utils/requestToNextRequest';
 
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
@@ -357,7 +357,3 @@ export function prefilterHandleRequest(req: express.Request, res: express.Respon
   return false;
 }
 
-export function requestToNextRequest(req: express.Request): NextRequest {
-  // Hack. Probably all code that calls this is dead.
-  return req as unknown as NextRequest;
-}

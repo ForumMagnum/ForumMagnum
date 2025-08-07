@@ -46,9 +46,10 @@ import { queueRenderRequest } from '@/server/rendering/requestQueue';
 import { closeRenderRequestPerfMetric, getCpuTimeMs, logRequestToConsole, openRenderRequestPerfMetric, recordSsrAnalytics, RenderTimings } from './renderLogging';
 import { HelmetServerState } from 'react-helmet-async';
 import every from 'lodash/every';
-import { prefilterHandleRequest, requestToNextRequest } from '../apolloServer';
+import { prefilterHandleRequest } from '../apolloServer';
 import { eventCaptureScript } from './eventCapture';
 import { getEmbeddedStyleLoaderScript } from '@/components/hooks/embedStyles';
+import { requestToNextRequest } from '../utils/requestToNextRequest';
 
 export interface RenderSuccessResult {
   ssrBody: string

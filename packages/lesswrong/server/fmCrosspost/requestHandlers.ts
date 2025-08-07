@@ -19,7 +19,7 @@ import { createPost } from '../collections/posts/mutations';
 import { gql } from "@/lib/generated/gql-codegen";
 import type { CrosspostFragments } from "@/components/hooks/useForeignCrosspost";
 import { getUserFromReq } from "../vulcan-lib/apollo-server/getUserFromReq";
-import { requestToNextRequest } from "../apolloServer";
+import { requestToNextRequest } from "../utils/requestToNextRequest";
 
 const postsWithNavigationQuery = gql(`
   query getCrosspostPostsWithNavigation($input: SinglePostInput, $sequenceId: String) {

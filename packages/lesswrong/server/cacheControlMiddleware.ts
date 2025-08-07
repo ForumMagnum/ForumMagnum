@@ -1,9 +1,10 @@
-import { type AddMiddlewareType, requestToNextRequest } from './apolloServer';
+import { type AddMiddlewareType } from './apolloServer';
 import { parsePath, parseRoute } from '../lib/vulcan-core/appContext';
 import { getUserFromReq } from './vulcan-lib/apollo-server/getUserFromReq';
 import express from 'express';
 import { getCookieFromReq } from './utils/httpUtil';
 import { swrCachingEnabledSetting } from './databaseSettings';
+import { requestToNextRequest } from './utils/requestToNextRequest';
 
 /**
  * Returns whether the Cache-Control header indicates that this response may be cached by a shared

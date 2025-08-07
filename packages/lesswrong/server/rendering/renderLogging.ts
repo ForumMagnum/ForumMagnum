@@ -5,7 +5,7 @@ import { performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
 import { getClientIP } from '@/server/utils/getClientIP';
 import { captureEvent } from '@/lib/analyticsEvents';
 import { type RenderParams, RenderResult } from './renderPage';
-import { requestToNextRequest } from '../apolloServer';
+import { requestToNextRequest } from '../utils/requestToNextRequest';
 
 
 export type RenderTimings = {
