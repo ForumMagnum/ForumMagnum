@@ -36,7 +36,7 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
   postContainer: {
     position: 'relative',
     borderBottom: theme.palette.border.itemSeparatorBottom,
-    background: theme.palette.panelBackground.default,
+    background: theme.palette.panelBackground.bannerAdTranslucentHeavy,
   },
   commentsRoot: {
     borderRadius: 4,

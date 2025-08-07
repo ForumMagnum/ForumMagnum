@@ -43,7 +43,7 @@ const useUltraFeedSpotlightItemStyles = defineStyles(
   "UltraFeedSpotlightItem",
   (theme: ThemeType) => ({
     root: {
-      background: theme.palette.panelBackground.default,
+      background: theme.palette.panelBackground.bannerAdTranslucentHeavy,
       maxWidth: SECTION_WIDTH,
       marginLeft: "auto",
       marginRight: "auto",
