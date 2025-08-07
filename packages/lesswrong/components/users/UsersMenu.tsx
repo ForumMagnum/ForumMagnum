@@ -23,8 +23,6 @@ import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequenc
 import { isAF, isEAForum, taggingNameCapitalSetting, blackBarTitle } from '@/lib/instanceSettings';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { InteractionWrapper } from '../common/useClickableCell';
-import NewDialogueDialog from "../posts/NewDialogueDialog";
-import AFApplicationForm from "../alignment-forum/AFApplicationForm";
 import LWPopper from "../common/LWPopper";
 import LWTooltip from "../common/LWTooltip";
 import ThemePickerMenu from "../themes/ThemePickerMenu";
@@ -223,10 +221,13 @@ const UsersMenu = ({classes}: {
       ? (
         <DropdownItem
           title={styleSelect({friendly: "Dialogue", default: preferredHeadingCase("New Dialogue")})}
-          onClick={() => openDialog({
-            name:"NewDialogueDialog",
-            contents: ({onClose}) => <NewDialogueDialog onClose={onClose}/>
-          })}
+          onClick={() => {
+            const NewDialogueDialog = dynamic(() => import("../posts/NewDialogueDialog"), { ssr: false });
+            openDialog({
+              name:"NewDialogueDialog",
+              contents: ({onClose}) => <NewDialogueDialog onClose={onClose}/>
+            })}
+          }
         />
       )
     : null,
@@ -351,10 +352,13 @@ const UsersMenu = ({classes}: {
               {isAF && !isAfMember &&
                 <DropdownItem
                   title={preferredHeadingCase("Apply for Membership")}
-                  onClick={() => openDialog({
-                    name: "AFApplicationForm",
-                    contents: ({onClose}) => <AFApplicationForm onClose={onClose}/>
-                  })}
+                  onClick={() => {
+                    const AFApplicationForm = dynamic(() => import("../alignment-forum/AFApplicationForm"), { ssr: false });
+                    openDialog({
+                      name: "AFApplicationForm",
+                      contents: ({onClose}) => <AFApplicationForm onClose={onClose}/>
+                    })
+                  }}
                 />
               }
               {currentUser.noKibitz &&

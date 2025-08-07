@@ -9,7 +9,7 @@ import {
   onUpdateCrosspostRequest,
   onGetCrosspostRequest,
 } from "./requestHandlers";
-import { isLeft } from 'fp-ts/Either';
+import { isLeft } from "@/lib/utils/typeGuardUtils";
 import { ConnectCrossposterRequestValidator, ConnectCrossposterResponseValidator, CrosspostRequestValidator, CrosspostResponseValidator, CrosspostTokenResponseValidator, GetCrosspostRequestValidator, GetCrosspostResponseValidator, UnlinkCrossposterRequestValidator, UnlinkedCrossposterResponseValidator, UpdateCrosspostRequestValidator, UpdateCrosspostResponseValidator } from "./types";
 import { ApiError } from "./errors";
 

@@ -1,5 +1,4 @@
-import type { Request } from "express";
-import { isLeft } from 'fp-ts/Either';
+import { isLeft } from "@/lib/utils/typeGuardUtils";
 import { crosspostUserAgent } from "@/lib/apollo/constants";
 import {
   ApiError,

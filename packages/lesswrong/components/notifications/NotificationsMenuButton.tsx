@@ -12,7 +12,6 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import ForumIcon from "../common/ForumIcon";
-import LWPopper from "../common/LWPopper";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import { useReadQuery } from '@apollo/client/react';
 import { useStyles } from '../hooks/useStyles';
@@ -116,6 +115,8 @@ const FriendlyNotificationsMenuButtonInner = ({
   const showKarmaStar = hasKarmaChange(currentUser, karmaChanges);
   const hasBadge = unreadNotifications > 0;
   const badgeText = hasBadge ? `${unreadNotifications}` : "";
+
+  const LWPopper = dynamic(() => import("../common/LWPopper"), { ssr: false });
 
   useEffect(() => {
     void refetch();

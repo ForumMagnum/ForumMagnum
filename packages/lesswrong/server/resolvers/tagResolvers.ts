@@ -25,7 +25,7 @@ import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { taggingNamePluralSetting } from '../../lib/instanceSettings';
 import difference from 'lodash/difference';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
-import union from 'lodash/fp/union';
+import union from 'lodash/union';
 import { loadByIds } from '@/lib/loaders';
 import { hasWikiLenses } from '@/lib/betas';
 import { updateDenormalizedHtmlAttributions } from '../tagging/updateDenormalizedHtmlAttributions';
@@ -36,8 +36,7 @@ import { getLatestRev } from '../editor/utils';
 import gql from 'graphql-tag';
 import { createAdminContext } from "@/server/vulcan-lib/createContexts";
 import { updateTag } from '../collections/tags/mutations';
-import { WithDateFields } from '@/lib/utils/dateUtils';
-import { getDefaultViewSelector, mergeSelectors, mergeWithDefaultViewSelector } from '@/lib/utils/viewUtils';
+import { mergeWithDefaultViewSelector } from '@/lib/utils/viewUtils';
 import { CommentsViews } from '@/lib/collections/comments/views';
 import { backgroundTask } from '../utils/backgroundTask';
 

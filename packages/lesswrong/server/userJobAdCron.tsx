@@ -3,7 +3,6 @@ import moment from 'moment';
 import { JOB_AD_DATA } from '../components/ea-forum/constants';
 import UserJobAds from '../server/collections/userJobAds/collection';
 import { Users } from '../server/collections/users/collection';
-import uniq from 'lodash/fp/uniq';
 import { wrapAndSendEmail } from './emails/renderEmail';
 import { loggerConstructor } from '../lib/utils/logging';
 import { isEAForum } from '../lib/instanceSettings';
@@ -35,10 +34,12 @@ export const sendJobAdReminderEmails = async () => {
     logger(`No users to remind for jobs: ${jobNames.join(', ')}`)
     return
   }
+
+  const uniqueUserIds = [...new Set(userJobAds.map(u => u.userId))];
   
   // Get all the email recipient data
   const users = await Users.find({
-    _id: {$in: uniq(userJobAds.map(u => u.userId))},
+    _id: {$in: uniqueUserIds},
     email: {$exists: true},
     deleteContent: {$ne: true},
     deleted: {$ne: true}
