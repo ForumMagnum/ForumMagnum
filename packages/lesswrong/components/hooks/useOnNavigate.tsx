@@ -4,7 +4,6 @@ import type { RouterLocation } from '../../lib/vulcan-lib/routes';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { isClient } from '../../lib/executionEnvironment';
 import { useTracking } from '../../lib/analyticsEvents';
-import * as _ from 'underscore';
 
 let lastLocation: RouterLocation|null = null;
 type LocationChange = {oldLocation: RouterLocation|null, newLocation: RouterLocation};
@@ -30,7 +29,7 @@ const NavigationEventSender = () => {
             cb(change);
           }
         }
-        lastLocation = _.clone(location);
+        lastLocation = {...location};
       }
     }
   }, [location, captureEvent]);

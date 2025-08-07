@@ -7,7 +7,6 @@ import { Menu } from '@/components/widgets/Menu';
 import { useCurrentUser } from '../common/withUser';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
-import { filter } from 'underscore';
 import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
 import CommentsNewForm, { CommentsNewFormProps } from './CommentsNewForm';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -273,10 +272,7 @@ function CommentsListSectionTitle({
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const newCommentsSinceDate = highlightDate
-    ? filter(
-      comments,
-      (comment) => new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime(),
-    ).length
+    ? comments.filter(comment => new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime()).length
     : 0;
   const now = useCurrentTime();
 

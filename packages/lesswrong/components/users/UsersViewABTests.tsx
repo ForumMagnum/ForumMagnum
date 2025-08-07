@@ -7,7 +7,6 @@ import { useAllABTests } from '../hooks/useAbTests';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
-import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
@@ -67,7 +66,7 @@ const UsersViewABTests = ({classes}: {
             <th>Your Group</th>
           </tr></thead>
           <tbody>
-            {_.keys(allABtests).map(abTestName => <tr key={abTestName}>
+            {Object.keys(allABtests).map(abTestName => <tr key={abTestName}>
               <td>{abTestsMetadata[abTestName].description}</td>
               <td>
                 {currentUser &&

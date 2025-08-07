@@ -1,6 +1,6 @@
 import {useState, useCallback, ReactNode} from 'react'
 import { useCurrentUser } from "../common/withUser";
-import { sortBy } from 'underscore';
+import sortBy from 'lodash/sortBy';
 import { postGetLastCommentedAt } from "../../lib/collections/posts/helpers";
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import type { Placement as PopperPlacementType } from "popper.js"

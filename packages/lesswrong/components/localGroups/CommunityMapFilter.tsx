@@ -14,7 +14,6 @@ import { DialogContentsFn, OpenDialogContextType, useDialog } from '../common/wi
 import { useCurrentUser } from '../common/withUser';
 import { PersonSVG, ArrowSVG, GroupIconSVG } from './Icons'
 import qs from 'qs'
-import { without } from 'underscore';
 import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import {isFriendlyUI} from '../../themes/forumTheme'
@@ -243,7 +242,7 @@ const CommunityMapFilter = ({
   const handleCheck = useCallback((filter: string) => {
     let newFilters: AnyBecauseTodo[] = [];
     if (Array.isArray(filters) && filters.includes(filter)) {
-      newFilters = without(filters, filter);
+      newFilters = filters.filter(f => f !== filter);
     } else {
       newFilters = [...filters, filter];
     }

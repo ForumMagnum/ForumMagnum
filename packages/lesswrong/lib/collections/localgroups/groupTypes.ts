@@ -1,5 +1,3 @@
-import * as _ from 'underscore';
-
 export const groupTypes = [
   {
     shortName: "LW",
@@ -19,7 +17,7 @@ export const groupTypes = [
   }
 ];
 
-export const localGroupTypeFormOptions = _.map(groupTypes,
+export const localGroupTypeFormOptions = groupTypes.map(
   groupType => {
     return {
       value: groupType.shortName,

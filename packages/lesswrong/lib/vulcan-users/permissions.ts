@@ -1,6 +1,5 @@
 import intersection from 'lodash/intersection';
 import moment from 'moment';
-import * as _ from 'underscore';
 import { isLW, hideUnreviewedAuthorCommentsSettings } from '../instanceSettings';
 import { allUserGroupsByName } from '../permissions';
 
@@ -47,7 +46,7 @@ export const userGetActions = (user: PermissionableUser|DbUser|null): Array<stri
     const group = allUserGroupsByName[groupName];
     return group && group.actions;
   });
-  return _.unique(_.flatten(groupActions));
+  return [...new Set(groupActions.flat())];
 };
 
 // Check if a user is a member of a group

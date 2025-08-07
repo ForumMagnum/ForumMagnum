@@ -38,13 +38,13 @@ import Footer from "./common/Footer";
 import FlashMessages from "./common/FlashMessages";
 import AnalyticsClient from "./common/AnalyticsClient";
 import AnalyticsPageInitializer from "./common/AnalyticsPageInitializer";
-import EAOnboardingFlow from "./ea-forum/onboarding/EAOnboardingFlow";
-import BasicOnboardingFlow from "./onboarding/BasicOnboardingFlow";
+// import EAOnboardingFlow from "./ea-forum/onboarding/EAOnboardingFlow";
+// import BasicOnboardingFlow from "./onboarding/BasicOnboardingFlow";
 import { CommentOnSelectionPageWrapper } from "./comments/CommentOnSelection";
 import SidebarsWrapper from "./common/SidebarsWrapper";
 import AdminToggle from "./admin/AdminToggle";
-import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
-import ForumEventBanner from "./forumEvents/ForumEventBanner";
+// import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
+// import ForumEventBanner from "./forumEvents/ForumEventBanner";
 import GlobalHotkeys from "./common/GlobalHotkeys";
 import LlmChatWrapper from "./languageModels/LlmChatWrapper";
 import LWBackgroundImage from "./LWBackgroundImage";
@@ -483,9 +483,9 @@ const Layout = ({currentUser, children}: {
                     <SuspenseWrapper name="Route" fallback={<DelayedLoading/>}>
                       {children}
                     </SuspenseWrapper>
-                    <SuspenseWrapper name="OnboardingFlow">
+                    {/* <SuspenseWrapper name="OnboardingFlow">
                       {!isIncompletePath && isEAForum ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
-                    </SuspenseWrapper>
+                    </SuspenseWrapper> */}
                   </ErrorBoundary>
                   {!isFullscreenRoute(pathname) && !routeMetadata.noFooter && <Footer />}
                 </div>

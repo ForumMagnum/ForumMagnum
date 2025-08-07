@@ -6,7 +6,6 @@ import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
 import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
-import * as _ from 'underscore';
 import classNames from 'classnames';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import CurationNoticesItem from "../admin/CurationNoticesItem";
@@ -87,7 +86,7 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
   }
 
   const handleSuggestCurated = () => {
-    let suggestUserIds = _.clone(post.suggestForCuratedUserIds) || []
+    let suggestUserIds = [...post.suggestForCuratedUserIds ?? []]
     if (!suggestUserIds.includes(currentUser!._id)) {
       suggestUserIds.push(currentUser!._id)
     }

@@ -3,7 +3,6 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMessages } from '../../common/withMessages';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
-import { clone } from 'underscore';
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -34,7 +33,7 @@ const BanUserFromPostDropdownItem = ({comment, post}: {
     event.preventDefault();
     if (confirm("Are you sure you want to ban this user from commenting on this post?")) {
       const commentUserId = comment.userId ?? '';
-      let bannedUserIds = clone(post.bannedUserIds) || []
+      let bannedUserIds = [...post.bannedUserIds ?? []]
       if (!bannedUserIds.includes(commentUserId)) {
         bannedUserIds.push(commentUserId)
       }

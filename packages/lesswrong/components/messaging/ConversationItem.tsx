@@ -6,7 +6,6 @@ import { postsItemLikeStyles } from '../localGroups/LocalGroupsItem'
 import ArchiveIcon from '@/lib/vendor/@material-ui/icons/src/Archive';
 import UnarchiveIcon from '@/lib/vendor/@material-ui/icons/src/Unarchive';
 import classNames from 'classnames'
-import * as _ from 'underscore';
 import { TooltipSpan } from '../common/FMTooltip';
 import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
 import UsersName from "../users/UsersName";
@@ -64,9 +63,9 @@ const ConversationItem = ({conversation, currentUser, classes, expanded}: {
   if (!conversation) return null
 
   const archiveIconClick = () => {
-    const newArchivedByIds = isArchived ?
-      _.without(conversation.archivedByIds || [] , currentUser._id) :
-      [...(conversation.archivedByIds || []), currentUser._id]
+    const newArchivedByIds = isArchived
+      ? (conversation.archivedByIds || []).filter(id => id !== currentUser._id)
+      : [...(conversation.archivedByIds || []), currentUser._id]
 
     void updateConversation({
       variables: {

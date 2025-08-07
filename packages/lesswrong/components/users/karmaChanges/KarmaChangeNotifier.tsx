@@ -8,7 +8,6 @@ import classNames from 'classnames';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import LWClickAwayListener from "../../common/LWClickAwayListener";
-import LWPopper from "../../common/LWPopper";
 import ForumIcon from "../../common/ForumIcon";
 import { SuspenseWrapper } from '../../common/SuspenseWrapper';
 import ErrorBoundary from '../../common/ErrorBoundary';
@@ -86,6 +85,7 @@ const KarmaChangeNotifierLoaded = ({className}: {
       return null;
 
     const KarmaChangesDisplay = dynamic(() => import('./KarmaChangesDisplay'), { ssr: false });
+    const LWPopper = dynamic(() => import('../../common/LWPopper'), { ssr: false });
 
     const { posts, comments, tagRevisions, endDate, totalChange } = karmaChanges
     //Check if user opened the karmaChangeNotifications for the current interval

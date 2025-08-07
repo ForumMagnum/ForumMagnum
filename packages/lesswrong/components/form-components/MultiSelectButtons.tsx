@@ -1,7 +1,6 @@
 import React from 'react';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classnames from 'classnames';
-import * as _ from 'underscore';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
@@ -66,7 +65,7 @@ export const MultiSelectButtons = ({
 
   const handleClick = (option: string) => {
     const newValue = currentValue?.includes(option)
-      ? _.without(currentValue, option)
+      ? currentValue.filter(v => v !== option)
       : [...(currentValue ?? []), option];
 
     field.handleChange(newValue);

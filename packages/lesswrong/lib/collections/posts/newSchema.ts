@@ -35,7 +35,6 @@ import { loadByIds, getWithLoader, getWithCustomLoader } from "../../loaders";
 import SimpleSchema from "@/lib/utils/simpleSchema";
 import { getCollaborativeEditorAccess } from "./collabEditingPermissions";
 import { eaFrontpageDateDefault, isEAForum, isLWorAF, requireReviewToFrontpagePostsSetting, reviewUserBotSetting } from "../../instanceSettings";
-import * as _ from "underscore";
 import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from "../users/helpers";
 import {
   sequenceGetNextPostID,
@@ -2155,7 +2154,7 @@ const schema = {
         // did a hacky thing.
         if (!post.suggestForCuratedUserIds) return null;
         const users = await Promise.all(
-          _.map(post.suggestForCuratedUserIds, async (userId) => {
+          post.suggestForCuratedUserIds.map(async (userId) => {
             const user = await context.loaders.Users.load(userId);
             return user.displayName;
           })

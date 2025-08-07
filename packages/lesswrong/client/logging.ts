@@ -1,9 +1,7 @@
 import { captureEvent } from '../lib/analyticsEvents';
 import { browserProperties } from '../lib/utils/browserProperties';
-import { sentryUrlSetting, sentryReleaseSetting, sentryEnvironmentSetting } from '../lib/instanceSettings';
 import { devicePrefersDarkMode } from '@/components/themes/ThemeContextProvider';
 import { getUserEmail } from "../lib/collections/users/helpers";
-import { configureDatadogRum } from './datadogRum';
 import type { UtmParam } from '@/server/analytics/utm-tracking';
 import { CamelCaseify } from '@/lib/vulcan-lib/utils';
 import { getIsolationScope } from '@sentry/nextjs';
@@ -31,7 +29,7 @@ function addUserIdToGoogleAnalytics(user: UsersCurrent | null) {
 export function onUserChanged(user: UsersCurrent | null) {
   identifyUserToSentry(user);
   addUserIdToGoogleAnalytics(user);
-  void configureDatadogRum(user);
+  // void import('./datadogRum').then(module => module.configureDatadogRum(user));
 }
 
 window.addEventListener('load', ev => {

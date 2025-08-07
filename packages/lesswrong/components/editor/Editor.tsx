@@ -1,11 +1,10 @@
 import React, { Component, MutableRefObject } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
 import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
-import { debounce } from 'underscore';
+import debounce from 'lodash/debounce';
 import { isClient } from '../../lib/executionEnvironment';
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';

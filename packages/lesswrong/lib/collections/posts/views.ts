@@ -5,14 +5,14 @@ import { isAF, isEAForum, defaultVisibilityTags, openThreadTagIdSetting, startHe
 import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing, jsonArrayContainsSelector } from '@/lib/utils/viewConstants';
 import { filters, postStatuses } from './constants';
-import uniq from 'lodash/uniq';
 import { getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD, longformReviewTagId } from '../../reviewUtils';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/helpers';
-import { filter, isEmpty, pick } from 'underscore';
+import isEmpty from 'lodash/isEmpty';
+import pick from 'lodash/pick';
 import { visitorGetsDynamicFrontpage } from '../../betas';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
-import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import type { ApolloClient } from '@apollo/client';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -296,8 +296,8 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
     } :
     t
   )
-  const tagsRequired = filter(tagFilterSettingsWithDefaults, t=>t.filterMode==="Required");
-  const tagsExcluded = filter(tagFilterSettingsWithDefaults, t=>t.filterMode==="Hidden");
+  const tagsRequired = tagFilterSettingsWithDefaults.filter(t=>t.filterMode==="Required");
+  const tagsExcluded = tagFilterSettingsWithDefaults.filter(t=>t.filterMode==="Hidden");
   
   const frontpageFiltering = getFrontpageFilter(filterSettings)
   

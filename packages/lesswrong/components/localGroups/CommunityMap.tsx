@@ -3,7 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
 import { Marker as BadlyTypedMarker } from 'react-map-gl';
-import * as _ from 'underscore';
 import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person';
 import classNames from 'classnames';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
@@ -126,12 +125,12 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
 
   const [ openWindows, setOpenWindows ] = useState(initialOpenWindows)
   const handleClick = useCallback(
-    (id: string) => { setOpenWindows([id]) }
-    , []
+    (id: string) => setOpenWindows([id]),
+    []
   )
   const handleClose = useCallback(
-    (id: string) => { setOpenWindows(_.without(openWindows, id))}
-    , [openWindows]
+    (id: string) => setOpenWindows(openWindows.filter(i => i !== id)),
+    [openWindows]
   )
 
   const [ showEvents, setShowEvents ] = useState(true)

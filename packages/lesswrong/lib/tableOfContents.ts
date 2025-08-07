@@ -1,5 +1,4 @@
 import { commentsTableOfContentsEnabled } from "./betas";
-import * as _ from 'underscore';
 import { answerTocExcerptFromHTML, truncate } from "./editor/ellipsize";
 import { htmlToTextDefault } from "./htmlToText";
 import type { WindowType } from "./domParser";
@@ -85,7 +84,7 @@ const headingIfWholeParagraph = {
   b: true,
 };
 
-const headingSelector = _.keys(headingTags).join(",");
+const headingSelector = Object.keys(headingTags).join(",");
 
 /**
  * Given an HTML document, extract a list of sections for a table of contents
@@ -347,7 +346,7 @@ function titleToAnchor(title: string, usedAnchors: Record<string,boolean>): stri
   }
 
   let anchor = sb.join('');
-  if(!usedAnchors[anchor] && !_.find(reservedAnchorNames, x=>x===anchor))
+  if(!usedAnchors[anchor] && !reservedAnchorNames.includes(anchor))
     return anchor;
 
   let anchorSuffix = 1;

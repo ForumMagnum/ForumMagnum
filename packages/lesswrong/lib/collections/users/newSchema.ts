@@ -8,8 +8,7 @@ import {
 } from "./helpers";
 import { userGetEditUrl } from "../../vulcan-users/helpers";
 import { userOwns, userIsAdmin, userHasntChangedName } from "../../vulcan-users/permissions";
-import * as _ from "underscore";
-import { isAF, isEAForum, verifyEmailsSetting } from "../../instanceSettings";
+import { isAF, isEAForum } from "../../instanceSettings";
 import {
   accessFilterMultiple, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
   generateIdResolverSingle,
@@ -1583,7 +1582,7 @@ const schema = {
         ).fetch();
         const filteredEvents = await accessFilterMultiple(currentUser, "LWEvents", events, context);
         const IPs = filteredEvents.map((event) => event.properties?.ip);
-        const uniqueIPs = _.uniq(IPs);
+        const uniqueIPs = [...new Set(IPs)];
         return uniqueIPs;
       },
     },
