@@ -72,54 +72,10 @@ import { cheerioParse } from "@/server/utils/htmlUtil";
 import { captureException } from "@sentry/nextjs";
 import keyBy from "lodash/keyBy";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
-import gql from "graphql-tag";
 import { CommentsViews } from "../comments/views";
 import { commentIncludedInCounts } from "../comments/helpers";
 import { votingSystemNames } from "@/lib/voting/votingSystemNames";
 import { backgroundTask } from "@/server/utils/backgroundTask";
-
-export const graphqlTypeDefs = gql`
-  type SocialPreviewType {
-    _id: String!
-    imageId: String
-    imageUrl: String!
-    text: String
-  }
-
-  input CoauthorStatusInput {
-    userId: String!
-    confirmed: Boolean!
-    requested: Boolean!
-  }
-
-  input SocialPreviewInput {
-    imageId: String
-    text: String
-  }
-
-  input CrosspostInput {
-    isCrosspost: Boolean!
-    hostedHere: Boolean
-    foreignPostId: String
-  }
-
-  type CoauthorStatusOutput {
-    userId: String!
-    confirmed: Boolean!
-    requested: Boolean!
-  }
-
-  type SocialPreviewOutput {
-    imageId: String
-    text: String
-  }
-
-  type CrosspostOutput {
-    isCrosspost: Boolean!
-    hostedHere: Boolean
-    foreignPostId: String
-  }
-`
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;

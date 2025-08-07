@@ -1,7 +1,5 @@
 import * as _ from 'underscore';
 import { Posts } from '../server/collections/posts/collection';
-import { Sequences } from '../server/collections/sequences/collection';
-import { Collections } from '../server/collections/collections/collection';
 import { accessFilterSingle, accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { setUserPartiallyReadSequences } from './partiallyReadSequences';
 import { WeightedList } from './weightedList';

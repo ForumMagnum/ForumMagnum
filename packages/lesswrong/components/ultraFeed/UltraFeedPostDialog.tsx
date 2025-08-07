@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState, useMemo, useCallback } from "react"
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl, postGetLink, postGetLinkTarget, detectLinkpost, getResponseCounts } from "@/lib/collections/posts/helpers";
-import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from "@/components/posts/PostsPage/LWPostsPageHeader";
+import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from "@/components/posts/PostsPage/constants";
 import LWDialog from "../common/LWDialog";
 import FeedContentBody from "./FeedContentBody";
 import Loading from "../vulcan-core/Loading";

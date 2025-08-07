@@ -1,20 +1,11 @@
-import React, { FC, ReactNode } from 'react';
+import React, { FC } from 'react';
 import { getPostCollaborateUrl, postGetAuthorName, postGetEditUrl } from './collections/posts/helpers';
 import { commentGetAuthorName } from './collections/comments/helpers';
-import PostsIcon from '@/lib/vendor/@material-ui/icons/src/Description';
-import CommentsIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
-import EventIcon from '@/lib/vendor/@material-ui/icons/src/Event';
-import MailIcon from '@/lib/vendor/@material-ui/icons/src/Mail';
 import { responseToText } from './collections/posts/constants';
 import sortBy from 'lodash/sortBy';
 import { REVIEW_NAME_IN_SITU } from './reviewUtils';
-import SupervisedUserCircleIcon from '@/lib/vendor/@material-ui/icons/src/SupervisedUserCircle';
-import GroupAddIcon from '@/lib/vendor/@material-ui/icons/src/GroupAdd';
-import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import startCase from 'lodash/startCase';
-import { GiftIcon } from '../components/icons/giftIcon';
 import { userGetDisplayName } from './collections/users/helpers'
-import DebateIcon from '@/lib/vendor/@material-ui/icons/src/Forum';
 import { Link } from './reactRouterWrapper';
 import { isFriendlyUI } from '../themes/forumTheme';
 import { sequenceGetPageUrl } from './collections/sequences/helpers';
@@ -22,7 +13,6 @@ import { tagGetUrl } from './collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
 import { NotificationChannel } from "./collections/users/notificationFieldHelpers";
 import keyBy from 'lodash/keyBy';
-import ForumIcon from '@/components/common/ForumIcon';
 import type { NotificationDocument } from '@/server/collections/notifications/constants';
 import { getCommentParentTitle, getDocument, getDocumentSummary, taggedPostMessage } from './notificationDataHelpers';
 
@@ -105,12 +95,11 @@ interface GetDialogueMessageProps {
   newMessageContents: string
 }
 
-export interface NotificationType {
-  name: string
+export interface NotificationType<Name extends string> {
+  name: Name
   userSettingField: (keyof DbUser & `notification${string}`)|null
   allowedChannels?: NotificationChannel[],
   getMessage: (args: {documentType: NotificationDocument|null, documentId: string|null, extraData?: Record<string,any>, context: ResolverContext}) => Promise<string>
-  getIcon: () => ReactNode,
   Display?: FC<{
     notification: NotificationDisplay,
     User: FC,
@@ -125,7 +114,7 @@ export interface NotificationType {
   causesRedBadge?: boolean
 }
 
-const createNotificationType = ({allowedChannels = ["onsite", "email"], ...otherArgs}: NotificationType) => {
+const createNotificationType = <Name extends string>({allowedChannels = ["onsite", "email"], ...otherArgs}: NotificationType<Name>) => {
   const notificationTypeClass = {allowedChannels, ...otherArgs};
   return notificationTypeClass;
 }
@@ -147,9 +136,6 @@ export const NewPostNotification = createNotificationType({
     let document: DbPost = await getDocument(documentType, documentId, context) as DbPost;
     return await postGetAuthorName(document, context) + ' has created a new post: ' + document.title;
   },
-  getIcon() {
-    return <PostsIcon style={iconStyles}/>
-  },
   Display: ({User, Post}) => <><User /> created a new post <Post /></>,
 });
 
@@ -159,9 +145,6 @@ export const NewUserCommentNotification = createNotificationType({
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     let document: DbComment = await getDocument(documentType, documentId, context) as DbComment;
     return await commentGetAuthorName(document, context) + ' left a new comment on the post ' + await getCommentParentTitle(document, context);
-  },
-  getIcon() {
-    return <CommentsIcon style={iconStyles}/>
   },
   Display: ({User, Comment}) => <><User /> left a new <Comment /></>,
 });
@@ -174,9 +157,6 @@ export const PostApprovedNotification = createNotificationType({
     let document: DbPost = await getDocument(documentType, documentId, context) as DbPost;
     return 'Your post "' + document.title + '" has been approved';
   },
-  getIcon() {
-    return <ForumIcon icon="Bell" style={iconStyles} />
-  },
   Display: ({Post}) => <>Your post <Post /> has been approved</>,
 });
 
@@ -187,9 +167,6 @@ export const PostNominatedNotification = createNotificationType({
     let post: DbPost = await getDocument(documentType, documentId, context) as DbPost;
     return `Your post is nominated for the ${REVIEW_NAME_IN_SITU}: "${post.title}"`
   },
-  getIcon() {
-    return <ForumIcon icon="Star" style={iconStyles} />
-  }
 })
 
 export const NewEventNotification = createNotificationType({
@@ -209,9 +186,6 @@ export const NewEventNotification = createNotificationType({
       return `${group.name} posted a new event`;
     else
       return await postGetAuthorName(document as DbPost, context) + ' has created a new event';
-  },
-  getIcon() {
-    return <ForumIcon icon="Bell" style={iconStyles} />
   },
   Display: ({User, Localgroup, notification: {post}}) => <>
     {post?.groupId ? <Localgroup /> : <User />} has created a new event
@@ -236,9 +210,6 @@ export const NewGroupPostNotification = createNotificationType({
     else
       return await postGetAuthorName(document as DbPost, context) + ' has created a new post in a group';
   },
-  getIcon() {
-    return <ForumIcon icon="Bell" style={iconStyles} />
-  },
   Display: ({User, Localgroup, notification: {post}}) => <>
     <User /> has created a new post in {
       post?.group
@@ -256,9 +227,6 @@ export const NewCommentNotification = createNotificationType({
     let document = await getDocument(documentType, documentId, context) as DbComment;
     return await commentGetAuthorName(document, context) + ' left a new comment on "' + await getCommentParentTitle(document, context) + '"';
   },
-  getIcon() {
-    return <CommentsIcon style={iconStyles}/>
-  },
   Display: ({User, Comment, Post}) => <>
     <User /> left a new <Comment /> on <Post />
   </>,
@@ -272,9 +240,6 @@ export const NewSubforumCommentNotification = createNotificationType({
     // e.g. "Forecasting: Will Howard left a new comment"
     let document = await getDocument(documentType, documentId, context) as DbComment;
     return `${startCase(await getCommentParentTitle(document, context))}: ${await commentGetAuthorName(document, context)} left a new comment`;
-  },
-  getIcon() {
-    return <CommentsIcon style={iconStyles}/>
   },
   // We don't have the exact data here to format this the same as above, but
   // subforums don't exist anymore so it doesn't seem worth the effort to fix
@@ -296,9 +261,6 @@ export const NewDialogueMessagesNotification = createNotificationType({
 
     return userGetDisplayName(author) + ' left a new reply in your dialogue "' + post.title + '"';
   },
-  getIcon() {
-    return <DebateIcon style={iconStyles}/>
-  },
   getLink: ({documentId}: {
     documentId: string|null,
   }): string => {
@@ -319,9 +281,6 @@ export const NewDialogueMessagesBatchNotification = createNotificationType({
 
     return 'Multiple new messages in your dialogue "' + post.title + '"';
   },
-  getIcon() {
-    return <DebateIcon style={iconStyles}/>
-  },
   getLink: ({documentId}: {
     documentId: string|null,
   }): string => {
@@ -339,9 +298,6 @@ export const NewPublishedDialogueMessagesNotification = createNotificationType({
     let post = await getDocument(documentType, documentId, context) as DbPost;
     return `New content in the dialogue "${post.title}"`;
   },
-  getIcon() {
-    return <DebateIcon style={iconStyles}/>
-  },
   causesRedBadge: false,
   Display: ({Post}) => <>New content in the dialogue <Post /></>,
 });
@@ -353,9 +309,6 @@ export const NewDialogueMatchNotification = createNotificationType({
   async getMessage({documentType, documentId}: GetMessageProps) {
     return "This is an old notification for a deprecated feature."
   },
-  getIcon() {
-    return <DebateIcon style={iconStyles}/>
-  }
 });
 
 // Notification that you have new interested parties for dialogues
@@ -366,9 +319,6 @@ export const NewDialogueCheckNotification = createNotificationType({
   async getMessage(props: GetMessageProps) {
     return "This is an old notification for a deprecated feature."
   },
-  getIcon() {
-    return <DebateIcon style={iconStyles}/>
-  }
 });
 
 export const YourTurnMatchFormNotification = createNotificationType({
@@ -378,9 +328,6 @@ export const YourTurnMatchFormNotification = createNotificationType({
   async getMessage({documentType, documentId}: GetMessageProps) {
     return "This is an old notification for a deprecated feature."
   },
-  getIcon() {
-    return <DebateIcon style={iconStyles}/>
-  }
 });
 
 //NOTIFICATION FOR OLD DIALOGUE FORMAT
@@ -393,9 +340,6 @@ export const NewDebateCommentNotification = createNotificationType({
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     let document = await getDocument(documentType, documentId, context) as DbComment;
     return await commentGetAuthorName(document, context) + ' left a new reply on the dialogue "' + await getCommentParentTitle(document, context) + '"';
-  },
-  getIcon() {
-    return <CommentsIcon style={iconStyles}/>
   },
 });
 
@@ -410,9 +354,6 @@ export const NewDebateReplyNotification = createNotificationType({
     let document = await getDocument(documentType, documentId, context) as DbComment;
     return await commentGetAuthorName(document, context) + ' left a new reply on the dialogue "' + await getCommentParentTitle(document, context) + '"';
   },
-  getIcon() {
-    return <DebateIcon style={iconStyles}/>
-  },
   causesRedBadge: true,
 });
 
@@ -422,9 +363,6 @@ export const NewShortformNotification = createNotificationType({
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     let document = await getDocument(documentType, documentId, context) as DbComment;
     return 'New comment on "' + await getCommentParentTitle(document, context) + '"';
-  },
-  getIcon() {
-    return <CommentsIcon style={iconStyles}/>
   },
   Display: ({User, Comment, Post}) => <>
     <User /> left a new <Comment /> on <Post />
@@ -437,9 +375,6 @@ export const NewTagPostsNotification = createNotificationType({
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     return await taggedPostMessage({documentType, documentId, context})
   },
-  getIcon() {
-    return <PostsIcon style={iconStyles}/>
-  },
   Display: ({Tag, Post}) => <>New post tagged <Tag />: <Post /></>,
 });
 
@@ -449,9 +384,6 @@ export const NewSequencePostsNotification = createNotificationType({
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     const sequence = await getDocument(documentType, documentId, context) as DbSequence;
     return `Posts added to ${sequence.title}`
-  },
-  getIcon() {
-    return <PostsIcon style={iconStyles}/>
   },
   getLink({documentId}) {
     return documentId ? sequenceGetPageUrl({_id: documentId}) : "#";
@@ -466,9 +398,6 @@ export const NewReplyNotification = createNotificationType({
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     let document = await getDocument(documentType, documentId, context) as DbComment;
     return await commentGetAuthorName(document, context) + ' replied to a comment on "' + await getCommentParentTitle(document, context) + '"';
-  },
-  getIcon() {
-    return <CommentsIcon style={iconStyles}/>
   },
   Display: ({User, Comment, Post}) => <>
     <User /> replied to a <Comment /> on <Post />
@@ -487,9 +416,6 @@ export const NewReplyToYouNotification = createNotificationType({
       return await commentGetAuthorName(document, context) + ' replied to your comment on "' + await getCommentParentTitle(document, context) + '"';
     }
   },
-  getIcon() {
-    return <CommentsIcon style={iconStyles}/>
-  },
   Display: ({notification, User, Comment, Post}) => {
     const isDirect = notification.extraData?.direct !== false;
     return <>
@@ -506,9 +432,6 @@ export const NewUserNotification = createNotificationType({
     let document = await getDocument(documentType, documentId, context) as DbUser;
     return document.displayName + ' just signed up!';
   },
-  getIcon() {
-    return <ForumIcon icon="Bell" style={iconStyles} />
-  },
   Display: ({User}) => <><User /> just signed up</>,
 });
 
@@ -524,9 +447,6 @@ export const NewMessageNotification = createNotificationType({
     let conversation = await Conversations.findOne(document.conversationId);
     return (await Users.findOne(document.userId))?.displayName + ' sent you a new message' + (conversation?.title ? (' in the conversation ' + conversation.title) : "") + '!';
   },
-  getIcon() {
-    return <MailIcon style={iconStyles}/>
-  },
   causesRedBadge: !isFriendlyUI,
 });
 
@@ -535,9 +455,6 @@ export const WrappedNotification = createNotificationType({
   userSettingField: null,
   async getMessage({extraData}: GetMessageProps) {
     return `Check out your ${extraData?.year ?? 2023} EA Forum Wrapped`;
-  },
-  getIcon() {
-    return <GiftIcon style={flatIconStyles}/>
   },
   getLink() {
     return "/wrapped"
@@ -555,9 +472,6 @@ export const EmailVerificationRequiredNotification = createNotificationType({
   async getMessage({documentType, documentId}: GetMessageProps) {
     return "Verify your email address to activate email subscriptions.";
   },
-  getIcon() {
-    return <ForumIcon icon="Bell" style={iconStyles} />
-  },
   Display: () => <>Verify your email address to activate email subscriptions</>,
 });
 
@@ -568,9 +482,6 @@ export const PostSharedWithUserNotification = createNotificationType({
     let document = await getDocument(documentType, documentId, context) as DbPost;
     const name = await postGetAuthorName(document, context);
     return `${name} shared their ${document.draft ? "draft" : "post"} "${document.title}" with you`;
-  },
-  getIcon() {
-    return <ForumIcon icon="Bell" style={iconStyles} />
   },
   getLink: ({documentType, documentId, extraData}: {
     documentType: string|null,
@@ -595,9 +506,6 @@ export const PostAddedAsCoauthorNotification = createNotificationType({
     const name = await postGetAuthorName(document, context);
     const postOrDialogue = document.collabEditorDialogue ? 'dialogue' : 'post';
     return `${name} added you as a coauthor to the ${postOrDialogue} "${document.title}"`;
-  },
-  getIcon() {
-    return <GroupAddIcon style={iconStyles} />
   },
   getLink: ({documentType, documentId, extraData}: {
     documentType: string|null,
@@ -629,9 +537,6 @@ export const AlignmentSubmissionApprovalNotification = createNotificationType({
       return `Your post has been accepted to the Alignment Forum: ${post.title}`
     } else throw new Error("documentType must be post or comment!")
   },
-  getIcon() {
-    return <ForumIcon icon="Bell" style={iconStyles} />
-  },
 });
 
 export const NewEventInNotificationRadiusNotification = createNotificationType({
@@ -640,9 +545,6 @@ export const NewEventInNotificationRadiusNotification = createNotificationType({
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     let document = await getDocument(documentType, documentId, context) as DbPost
     return `New event in your area: ${document.title}`
-  },
-  getIcon() {
-    return <EventIcon style={iconStyles} />
   },
   Display: ({Post}) => <>New event in your area: <Post /></>,
 })
@@ -653,9 +555,6 @@ export const EditedEventInNotificationRadiusNotification = createNotificationTyp
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     let document = await getDocument(documentType, documentId, context) as DbPost
     return `Event in your area updated: ${document.title}`
-  },
-  getIcon() {
-    return <EventIcon style={iconStyles} />
   },
   Display: ({Post}) => <>Event in your area updated: <Post /></>,
 })
@@ -669,9 +568,6 @@ export const NewRSVPNotification = createNotificationType({
     const rsvps = document.rsvps || []
     const lastRSVP = sortBy(rsvps, r => r.createdAt)[rsvps.length - 1]
     return `${lastRSVP.name} responded "${responseToText[lastRSVP.response]}" to your event ${document.title}`
-  },
-  getIcon() {
-    return <EventIcon style={iconStyles} />
   },
   Display: ({Post, LazyUser, notification: {post}}) => {
     const rsvps = post?.rsvps ?? [];
@@ -694,9 +590,6 @@ export const KarmaPowersGainedNotification = createNotificationType({
   getLink() {
     return tagGetUrl({slug: 'vote-strength'});
   },
-  getIcon() {
-    return <ForumIcon icon="Bell" style={iconStyles} />
-  }
 })
 export const CancelledRSVPNotification = createNotificationType({
   name: "cancelledRSVP",
@@ -704,9 +597,6 @@ export const CancelledRSVPNotification = createNotificationType({
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     const document = await getDocument(documentType, documentId, context) as DbPost
     return `Someone cancelled their RSVP to your event ${document.title}`
-  },
-  getIcon() {
-    return <EventIcon style={iconStyles} />
   },
   Display: ({Post}) => <>Someone cancelled their RSVP to your event <Post /></>,
 })
@@ -721,9 +611,6 @@ export const NewGroupOrganizerNotification = createNotificationType({
     if (!localGroup) throw new Error("Cannot find local group for which this notification is being sent")
     return `You've been added as an organizer of ${localGroup.name}`
   },
-  getIcon() {
-    return <SupervisedUserCircleIcon style={iconStyles} />
-  },
   Display: ({Localgroup}) => <>You've been added as an organizer of <Localgroup /></>,
 })
 
@@ -737,9 +624,6 @@ export const NewSubforumMemberNotification = createNotificationType({
     if (!newUser) throw new Error("Cannot find new user for which this notification is being sent")
     return `A new user has joined your topic: ${newUser.displayName}`
   },
-  getIcon() {
-    return <SupervisedUserCircleIcon style={iconStyles} />
-  },
   Display: ({User, Tag}) => <><User /> has joined <Tag /></>,
 })
 
@@ -751,9 +635,6 @@ export const NewCommentOnDraftNotification = createNotificationType({
     return `New comments on your draft ${post.title}`;
   },
   
-  getIcon() {
-    return <CommentsIcon style={iconStyles}/>
-  },
   
   getLink: ({documentType, documentId, extraData}: {
     documentType: string|null,
@@ -778,9 +659,6 @@ export const CoauthorRequestNotification = createNotificationType({
     const name = await postGetAuthorName(document, context);
     return `${name} requested that you co-author their post: ${document.title}`;
   },
-  getIcon() {
-    return <GroupAddIcon style={iconStyles} />
-  },
   Display: ({User, Post}) => <>
     <User /> requested that you co-author their post <Post />
   </>,
@@ -793,9 +671,6 @@ export const CoauthorAcceptNotification = createNotificationType({
     const document = await getDocument(documentType, documentId, context) as DbPost;
     return `Your co-author request for '${document.title}' was accepted`;
   },
-  getIcon() {
-    return <DoneIcon style={iconStyles} />
-  },
   Display: ({Post}) => <>Your co-author request for <Post /> was accepted</>,
 })
 
@@ -805,9 +680,6 @@ export const NewMentionNotification = createNotificationType({
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     const summary = await getDocumentSummary(documentType, documentId, context)
     return `${summary?.associatedUserName} mentioned you in ${summary?.displayName}`
-  },
-  getIcon() {
-    return <CommentsIcon style={iconStyles}/>
   },
   Display: ({User, Comment, Post, Tag, notification: {comment, tag}}) => {
     if (tag) {
@@ -821,7 +693,7 @@ export const NewMentionNotification = createNotificationType({
   },
 })
 
-const notificationTypesArray: NotificationType[] = [
+const notificationTypesArray = [
   NewPostNotification,
   NewUserCommentNotification,
   PostApprovedNotification,
@@ -862,10 +734,15 @@ const notificationTypesArray: NotificationType[] = [
   CoauthorAcceptNotification,
   NewMentionNotification,
 ];
-const notificationTypes: Record<string,NotificationType> = keyBy(notificationTypesArray, n=>n.name);
 
-function groupNotificationTypesByUserSetting(notificationTypes: Record<string,NotificationType>) {
-  const result: Partial<Record<(keyof DbUser & `notification${string}`), NotificationType>> = {};
+export type NotificationTypesByName = {
+  [k in typeof notificationTypesArray[number]["name"]]: Extract<typeof notificationTypesArray[number], {name: k}>
+}
+
+const notificationTypes = keyBy(notificationTypesArray, n=>n.name) as NotificationTypesByName;
+
+function groupNotificationTypesByUserSetting(notificationTypes: Record<string,NotificationType<string>>) {
+  const result: Partial<Record<(keyof DbUser & `notification${string}`), NotificationType<string>>> = {};
   for (const notificationType of Object.values(notificationTypes)) {
     const { userSettingField } = notificationType;
     if (userSettingField) {
@@ -881,21 +758,26 @@ function groupNotificationTypesByUserSetting(notificationTypes: Record<string,No
   }
   return result;
 }
-const notificationTypesByUserSetting: Partial<Record<(keyof DbUser & `notification${string}`), NotificationType>> = groupNotificationTypesByUserSetting(notificationTypes);
+const notificationTypesByUserSetting: Partial<Record<(keyof DbUser & `notification${string}`), NotificationType<string>>> = groupNotificationTypesByUserSetting(notificationTypes);
 
 
 export const getNotificationTypes = () => {
   return Object.keys(notificationTypes);
 }
 
-export const getNotificationTypeByName = (name: string) => {
-  if (name in notificationTypes)
+export function isNotificationTypeName(name: string): name is keyof NotificationTypesByName {
+  return name in notificationTypes;
+}
+
+export const getNotificationTypeByName = <Name extends string>(name: Name) => {
+  if (isNotificationTypeName(name)) {
     return notificationTypes[name];
+  }
   else
     throw new Error(`Invalid notification type: ${name}`);
 }
 
-export const getNotificationTypeByUserSetting = (settingName: keyof DbUser & `notification${string}`): NotificationType => {
+export const getNotificationTypeByUserSetting = (settingName: keyof DbUser & `notification${string}`): NotificationType<string> => {
   const result = notificationTypesByUserSetting[settingName];
   if (!result) throw new Error("Setting does not correspond to a notification type");
   return result;

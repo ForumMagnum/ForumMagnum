@@ -8,5 +8,7 @@ export const SHARE_POPUP_QUERY_PARAM = 'sharePopup';
 export const RECOMBEE_RECOMM_ID_QUERY_PARAM = 'recombeeRecommId';
 export const VERTEX_ATTRIBUTION_ID_QUERY_PARAM = 'vertexAttributionId';
 
+export const BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD = 800;
+
 export const sidenotesHiddenBreakpoint = (theme: ThemeType) => theme.breakpoints.down('md');
 
