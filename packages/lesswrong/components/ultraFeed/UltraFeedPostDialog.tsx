@@ -78,7 +78,7 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     borderBottom: theme.palette.border.faint,
     borderRadius: '12px 12px 0 0',
     zIndex: theme.zIndexes.ultrafeedModalHeader,
-    padding: '12px 20px',
+    padding: '12px 12px',
     [theme.breakpoints.down('sm')]: {
       top: 0,
       left: 0,
@@ -189,7 +189,10 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     },
     '& svg': {
       display: 'block',
-    }
+    },
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: 3,
+    },
   },
   hamburgerMenuButton: {
     display: 'none',
