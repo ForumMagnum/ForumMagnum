@@ -1,4 +1,3 @@
-import * as _ from 'underscore';
 import { Posts } from '../../server/collections/posts/collection';
 import { createNotifications } from '../notificationCallbacksHelpers';
 import { addStaticRoute } from '../vulcan-lib/staticRoutes';
@@ -57,7 +56,7 @@ export async function handleCkEditorWebhook(message: any) {
       const commentAddedPayload = payload as CkEditorCommentAdded;
       
       const thread = await ckEditorApi.fetchCkEditorCommentThread(payload?.comment?.thread_id);
-      const commentersInThread: string[] = _.uniq(thread.map(comment => comment?.user?.id));
+      const commentersInThread: string[] = [...new Set(thread.map(comment => comment?.user?.id))];
       
       await notifyCkEditorCommentAdded({
         commenterUserId: payload?.comment?.user?.id,
@@ -181,10 +180,10 @@ async function notifyCkEditorCommentAdded({commenterUserId, commentHtml, postId,
   // comment themself.
   const coauthorUserIds = post.coauthorStatuses?.filter(status=>status.confirmed).map(status => status.userId) ?? [];
 
-  const usersToNotify = _.uniq(_.filter(
-    [post.userId, ...coauthorUserIds, ...commentersInThread],
-    u=>(!!u && u!==commenterUserId)
-  ));
+  const usersToNotify = [...new Set(
+    [post.userId, ...coauthorUserIds, ...commentersInThread]
+      .filter(u=>(!!u && u!==commenterUserId))
+  )];
   
   // eslint-disable-next-line no-console
   console.log(`New CkEditor comment. Notifying users: ${JSON.stringify(usersToNotify)}`);

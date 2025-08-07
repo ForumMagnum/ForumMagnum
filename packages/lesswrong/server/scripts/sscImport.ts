@@ -3,7 +3,6 @@ import Users from '../../server/collections/users/collection';
 import { Posts } from '../../server/collections/posts/collection';
 import RSSFeeds from '../../server/collections/rssfeeds/collection';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
-import * as _ from 'underscore';
 import { createRSSFeed } from '../collections/rssfeeds/mutations';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
@@ -21,7 +20,7 @@ async function rssImport(userId: string, rssURL: string, pages = 100, overwrite 
     const rssFeed = maybeRSSFeed
     //eslint-disable-next-line no-console
     console.log(rssFeed);
-    for (let i of _.range(1,pages)) {
+    for (let i of Array.from({ length: pages - 1 }, (_, idx) => idx + 1)) {
       const newPosts = await feedparser.parse(rssURL+i)
       //eslint-disable-next-line no-console
       console.log("Importing RSS posts page " + i);

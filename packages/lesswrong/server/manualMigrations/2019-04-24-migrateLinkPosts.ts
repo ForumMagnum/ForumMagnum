@@ -1,6 +1,5 @@
 import { registerMigration } from './migrationUtils';
 import { Posts } from '../../server/collections/posts/collection'
-import * as _ from 'underscore';
 import { backgroundTask } from '../utils/backgroundTask';
 
 export default registerMigration({
@@ -30,7 +29,7 @@ export default registerMigration({
     // eslint-disable-next-line no-console
     console.log(`Found ${unmigratedLinkposts.length} old linkposts to migrate`);
     
-    const updates = _.map(unmigratedLinkposts, post => ({
+    const updates = unmigratedLinkposts.map(post => ({
       updateOne: {
         filter: { _id: post._id },
         update: {

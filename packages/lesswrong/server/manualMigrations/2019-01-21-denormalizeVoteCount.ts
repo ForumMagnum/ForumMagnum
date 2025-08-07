@@ -2,7 +2,6 @@ import Votes from '../../server/collections/votes/collection';
 import { getVoteableCollections } from '@/server/collections/allCollections';
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import mapValues from 'lodash/mapValues';
-import * as _ from 'underscore';
 
 export default registerMigration({
   name: "denormalizeVoteCount",
@@ -20,7 +19,7 @@ export default registerMigration({
         },
         migrate: async (documents) => {
           // Get votes on the set of documents
-          let documentIds = _.map(documents, d=>d._id);
+          let documentIds = documents.map(d=>d._id);
           const votes = await Votes.find({
             documentId: {$in: documentIds},
             cancelled: false,
@@ -45,7 +44,7 @@ export default registerMigration({
               }
             })
           );
-          let updates = _.values(updatesByDocument);
+          let updates = Object.values(updatesByDocument);
           
           if (updates.length > 0) {
             await collection.rawCollection().bulkWrite(

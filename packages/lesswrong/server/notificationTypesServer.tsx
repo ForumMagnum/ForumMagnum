@@ -11,7 +11,6 @@ import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import keyBy from 'lodash/keyBy';
 import Users from '../server/collections/users/collection';
 import { userGetDisplayName, userGetProfileUrl } from '../lib/collections/users/helpers';
-import * as _ from 'underscore';
 import { taggedPostMessage, getDocumentSummary, getDocument } from '@/lib/notificationDataHelpers';
 import type { NotificationDocument } from './collections/notifications/constants';
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
@@ -470,16 +469,16 @@ export const NewMessageNotification = createServerNotificationType({
     
     // Load conversations
     const messagesByConversationId = keyBy(messages, message=>message.conversationId);
-    const conversationIds = _.keys(messagesByConversationId);
+    const conversationIds = Object.keys(messagesByConversationId);
     const conversationsRaw = await Conversations.find({ _id: {$in: conversationIds} }).fetch();
     const conversations = await accessFilterMultiple(user, 'Conversations', conversationsRaw, context);
     
     // Load participant users
-    const participantIds = _.uniq(_.flatten(conversations.map(conversation => conversation.participantIds), true));
+    const participantIds = [...new Set(conversations.flatMap(conversation => conversation.participantIds))];
     const participantsRaw = await Users.find({ _id: {$in: participantIds} }).fetch();
     const participants = await accessFilterMultiple(user, 'Users', participantsRaw, context);
     const participantsById = keyBy(participants, u=>u._id);
-    const otherParticipants = _.filter(participants, participant=>participant._id!==user._id);
+    const otherParticipants = participants.filter(participant=>participant._id!==user._id);
     
     return { conversations, messages, participantsById, otherParticipants };
   },

@@ -1,7 +1,6 @@
 import { getFieldsWithAttribute } from './utils';
 import { migrateDocuments, registerMigration } from '../manualMigrations/migrationUtils'
 import { getSchema } from '@/lib/schema/allSchemas';
-import * as _ from 'underscore';
 import { getAllCollections } from "@/server/collections/allCollections";
 
 registerMigration({
@@ -71,6 +70,6 @@ function countRowsNeedingAutofill<N extends CollectionNameString>(
   fieldsWithAutofill: Array<string>,
 ) {
   return collection.find({
-    $or: _.map(fieldsWithAutofill, (fieldName: string) => ({[fieldName]: null}))
+    $or: fieldsWithAutofill.map((fieldName: string) => ({[fieldName]: null}))
   }).count();
 }

@@ -8,8 +8,8 @@ import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { createNotifications, getSubscribedUsers } from "../notificationCallbacksHelpers";
 import { postIsPublic } from "@/lib/collections/posts/helpers";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
-import _ from "underscore";
 import { updateTag } from "../collections/tags/mutations";
+import difference from "lodash/difference";
 import { backgroundTask } from "../utils/backgroundTask";
 
 const utils = {
@@ -184,10 +184,10 @@ export async function taggedPostNewNotifications(tagRel: DbTagRel, { context }: 
   })
   const post = await Posts.findOne({_id:tagRel.postId})
   if (post && postIsPublic(post) && !post.authorIsUnreviewed) {
-    const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
+    const subscribedUserIds = subscribedUsers.map(u=>u._id);
     
     // Don't notify the person who created the tagRel
-    let tagSubscriberIdsToNotify = _.difference(subscribedUserIds, filterNonnull([tagRel.userId]))
+    let tagSubscriberIdsToNotify = difference(subscribedUserIds, filterNonnull([tagRel.userId]))
 
     //eslint-disable-next-line no-console
     console.info("Post tagged, creating notifications");
