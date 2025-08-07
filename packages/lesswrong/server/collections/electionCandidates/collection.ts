@@ -1,7 +1,7 @@
 import schema from '@/lib/collections/electionCandidates/newSchema';
 import { createCollection } from "@/lib/vulcan-lib/collections";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
-import { getVoteGraphql } from "@/server/votingGraphQL";
+
 export const ElectionCandidates = createCollection({
   collectionName: "ElectionCandidates",
   typeName: "ElectionCandidate",
@@ -15,7 +15,5 @@ export const ElectionCandidates = createCollection({
     timeDecayScoresCronjob: false,
   },
 });
-
-export const { graphqlVoteTypeDefs, graphqlVoteMutations } = getVoteGraphql('ElectionCandidates');
 
 export default ElectionCandidates;
