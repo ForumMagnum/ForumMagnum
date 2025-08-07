@@ -46,11 +46,14 @@ import LinkPostMessage from "../posts/LinkPostMessage";
 import { unflattenComments } from '../../lib/utils/unflatten';
 import PostsPageQuestionContent from "../questions/PostsPageQuestionContent";
 import { useSubscribedLocation } from "@/lib/routeUtil";
-import { randomId } from '@/lib/random';
 import { RecombeeRecommendationsContextWrapper } from '../recommendations/RecombeeRecommendationsContextWrapper';
 import { Helmet } from '../common/Helmet';
 import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
 import AttributionInViewTracker from "../common/AttributionInViewTracker";
+import { commentIsHiddenPendingReview } from '../../lib/collections/comments/helpers';
+import { ItemsReadContextWrapper } from '../hooks/useRecordPostView';
+import Divider from '../common/Divider';
+import CommentOnPostWithReplies from '../comments/CommentOnPostWithReplies';
 
 const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   dialogContent: {
@@ -363,11 +366,107 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
       }
     }
   },
+  permalinkSection: {
+    maxWidth: 720,
+    margin: '0 auto',
+    marginTop: 32,
+    marginBottom: 32,
+  },
+  permalinkLabel: {
+    color: theme.palette.grey[600],
+    marginBottom: theme.spacing.unit*2,
+    marginLeft: 10,
+    fontSize: theme.typography.body2.fontSize,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+  },
+  seeInContext: {
+    textAlign: 'right',
+    color: theme.palette.lwTertiary.main,
+    marginRight: 10,
+    marginTop: 12,
+    fontSize: theme.typography.body2.fontSize,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    '& a': {
+      '&:hover': {
+        opacity: 0.7,
+      }
+    }
+  },
+  dividerMargins: {
+    marginTop: 24,
+    marginBottom: 24,
+  },
 }));
 
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300;
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000;
+
+const ModalContextWrapper = ({ children, postId, recommId }: { 
+  children: React.ReactNode;
+  postId: string;
+  recommId?: string;
+}) => (
+  <RecombeeRecommendationsContextWrapper postId={postId} recommId={recommId}>
+    <ItemsReadContextWrapper>
+      <AnalyticsContext pageModalContext="ultraFeedPostModal" postId={postId}>
+        {children}
+      </AnalyticsContext>
+    </ItemsReadContextWrapper>
+  </RecombeeRecommendationsContextWrapper>
+);
+
+const CommentPermalinkSection = ({ 
+  targetComment, 
+  displayPost, 
+  targetCommentId,
+  onSeeInContext,
+}: {
+  targetComment: CommentWithRepliesFragment | null | undefined;
+  displayPost: PostsPage | UltraFeedPostFragment | PostsListWithVotes;
+  targetCommentId: string;
+  onSeeInContext: (e: React.MouseEvent) => void;
+}) => {
+  const classes = useStyles(styles);
+  
+  if (!targetComment) return null;
+  
+  if (commentIsHiddenPendingReview(targetComment) && !targetComment.rejected) {
+    return (
+      <>
+        <div className={classes.permalinkLabel}>
+          Comment Permalink
+        </div>
+        <p>Error: Sorry, this comment is not available</p>
+      </>
+    );
+  }
+  
+  return (
+    <>
+      <div className={classes.permalinkLabel}>Comment Permalink</div>
+      <CommentOnPostWithReplies
+        key={targetComment._id}
+        post={displayPost}
+        comment={targetComment}
+        commentNodeProps={{
+          treeOptions: {
+            refetch: () => {},
+            showPostTitle: false,
+          },
+          forceUnTruncated: true,
+          forceUnCollapsed: true,
+          noAutoScroll: true
+        }}
+      />
+      <div className={classes.seeInContext}>
+        <a href={`#${targetCommentId}`} onClick={onSeeInContext}>
+          See in context
+        </a>
+      </div>
+    </>
+  );
+};
 
 const COMMENTS_LIST_MULTI_QUERY = gql(`
   query multiCommentUltraFeedPostDialogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -385,6 +484,16 @@ const ULTRA_FEED_POST_FRAGMENT_QUERY = gql(`
     post(input: { selector: { documentId: $documentId } }) {
       result {
         ...UltraFeedPostFragment
+      }
+    }
+  }
+`);
+
+const TARGET_COMMENT_QUERY = gql(`
+  query UltraFeedTargetComment($documentId: String) {
+    comment(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...CommentWithRepliesFragment
       }
     }
   }
@@ -446,6 +555,12 @@ const UltraFeedPostDialog = ({
   const fullPostForContent = fetchedPost ?? post;
   
   const displayPost = fetchedPost ?? post ?? partialPost;
+  
+  const { loading: loadingTargetComment, data: targetCommentData, error: targetCommentError } = useQuery(TARGET_COMMENT_QUERY, {
+    variables: { documentId: targetCommentId },
+    skip: !targetCommentId,
+  });
+  const targetComment = targetCommentData?.comment?.result;
   
   const postCommentsQuery = useQueryWithLoadMore(COMMENTS_LIST_MULTI_QUERY, {
     variables: {
@@ -528,7 +643,11 @@ const UltraFeedPostDialog = ({
   }, [captureEvent, onClose, postId]);
   
   // Dialog navigation and scroll behavior
-  const postUrl = displayPost ? `${postGetPageUrl(displayPost)}?${qs.stringify({ from: 'feedModal' })}` : undefined;
+  const postUrl = displayPost ? 
+    `${postGetPageUrl(displayPost)}?${qs.stringify({ 
+      ...(targetCommentId ? { commentId: targetCommentId } : {}),
+      from: 'feedModal' 
+    })}` : undefined;
   useDialogNavigation(handleClose, postUrl);
   useDisableBodyScroll();
   useModalHashLinkScroll(scrollableContentRef, true, true, (footnoteHTML: string) => {
@@ -565,54 +684,39 @@ const UltraFeedPostDialog = ({
     }
   };
   
-  // Reset scroll tracking when target changes
-  useEffect(() => {
-    hasScrolledRef.current = false;
-  }, [targetCommentId]);
-  
-  // Scroll to target comment when loaded
-  useEffect(() => {
-    let removeHighlightTimer: NodeJS.Timeout | null = null;
-    let cleanupTimer: NodeJS.Timeout | null = null;
+  const handleSeeInContext = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    captureEvent("ultraFeedPostDialogSeeInContext", { commentId: targetCommentId });
+    
+    if (!targetCommentId) return;
+    
+    const cleanup = scrollToElement(targetCommentId, () => {
+      const element = document.getElementById(targetCommentId);
+      if (element) {
+        // Add highlight instantly
+        element.classList.add(classes.scrolledHighlight);
 
-    if (!isCommentsLoading && targetCommentId && comments && comments.length > 0 && !hasScrolledRef.current) {
-      const targetFound = comments.some(c => c._id === targetCommentId);
-      
-      if (targetFound) {
-        const cleanup = scrollToElement(targetCommentId, () => {
-          const element = document.getElementById(targetCommentId);
-          if (element) {
-            // Add highlight instantly
-            element.classList.add(classes.scrolledHighlight);
-
-            // After a brief delay, add transition and remove highlight to trigger fade
-            removeHighlightTimer = setTimeout(() => {
-              element.classList.add(classes.scrolledHighlightFading);
-              element.classList.remove(classes.scrolledHighlight);
-              
-              // Clean up transition class after animation completes
-              cleanupTimer = setTimeout(() => {
-                element.classList.remove(classes.scrolledHighlightFading);
-              }, 3000); // Match the 3s transition animationduration
-            }, 100);
-
-            hasScrolledRef.current = true;
-          }
-        });
-
-        return () => {
-          cleanup();
-          if (removeHighlightTimer) clearTimeout(removeHighlightTimer);
-          if (cleanupTimer) clearTimeout(cleanupTimer);
-        };
+        // After a brief delay, add transition and remove highlight to trigger fade
+        const removeHighlightTimer = setTimeout(() => {
+          element.classList.add(classes.scrolledHighlightFading);
+          element.classList.remove(classes.scrolledHighlight);
+          
+          // Clean up transition class after animation completes
+          const cleanupTimer = setTimeout(() => {
+            element.classList.remove(classes.scrolledHighlightFading);
+          }, 3000);
+          
+          // Store cleanup timer
+          return () => clearTimeout(cleanupTimer);
+        }, 100);
+        
+        // Store removal timer
+        return () => clearTimeout(removeHighlightTimer);
       }
-    }
-
-    return () => {
-      if (removeHighlightTimer) clearTimeout(removeHighlightTimer);
-      if (cleanupTimer) clearTimeout(cleanupTimer);
-    };
-  }, [isCommentsLoading, targetCommentId, comments, classes.scrolledHighlight, classes.scrolledHighlightFading, scrollToElement]);
+    });
+    
+    return cleanup;
+  }, [targetCommentId, scrollToElement, classes.scrolledHighlight, classes.scrolledHighlightFading, captureEvent]);
   
   // Scroll to comments section if requested
   useEffect(() => {
@@ -679,7 +783,7 @@ const UltraFeedPostDialog = ({
         paperClassName={classes.dialogPaper}
         className={classes.modalWrapper}
       >
-        <AnalyticsContext pageModalContext="ultraFeedPostModal" postId={postId} modalInstanceId={randomId()}>
+        <ModalContextWrapper postId={postId} recommId={recommId}>
           <DialogContent className={classes.dialogContent}>
             <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
               <div className={classes.loadingContainer}>
@@ -687,7 +791,7 @@ const UltraFeedPostDialog = ({
               </div>
             </div>
           </DialogContent>
-        </AnalyticsContext>
+        </ModalContextWrapper>
       </LWDialog>
     );
   }
@@ -701,9 +805,8 @@ const UltraFeedPostDialog = ({
       paperClassName={classes.dialogPaper}
       className={classes.modalWrapper}
     >
-      <RecombeeRecommendationsContextWrapper postId={postId} recommId={recommId}>
-        <AnalyticsContext pageModalContext="ultraFeedPostModal" postId={postId}>
-          <DialogContent className={classes.dialogContent}>
+      <ModalContextWrapper postId={postId} recommId={recommId}>
+        <DialogContent className={classes.dialogContent}>
             {/* Canonical URL changed to enable audio player to work */}
             {postUrl && (
               <Helmet name="ultraFeedPostDialogCanonical">
@@ -770,6 +873,20 @@ const UltraFeedPostDialog = ({
               <div />
               
               <div className={classes.scrollableContent} id="postBody">
+
+                {/* Target Comment Permalink Section */}
+                {targetCommentId && <div className={classes.permalinkSection}>
+                  {loadingTargetComment && <Loading />}
+                  {(targetCommentError || (!targetComment && !loadingTargetComment)) && <div>Comment not found</div>}
+                  {!loadingTargetComment && !targetCommentError && targetComment && <CommentPermalinkSection
+                    targetComment={targetComment}
+                    displayPost={displayPost}
+                    targetCommentId={targetCommentId}
+                    onSeeInContext={handleSeeInContext}
+                  />}
+                  <div className={classes.dividerMargins}><Divider /></div>
+                </div>}
+                
                 <div id="postContent" className={classes.contentColumn}>
                   <div className={classes.titleContainer}>
                     <div className={classes.headerContent}>
@@ -953,8 +1070,7 @@ const UltraFeedPostDialog = ({
             footnoteHTML={footnoteDialogHTML}
           />
         )}
-      </AnalyticsContext>
-      </RecombeeRecommendationsContextWrapper>
+      </ModalContextWrapper>
     </LWDialog>
   );
 };
