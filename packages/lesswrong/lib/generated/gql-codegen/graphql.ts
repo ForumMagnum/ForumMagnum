@@ -2539,7 +2539,7 @@ export type FeedCommentThread = {
   comments: Array<Comment>;
   isOnReadPost: Maybe<Scalars['Boolean']['output']>;
   post: Maybe<Post>;
-  postSources: Maybe<Scalars['JSON']['output']>;
+  postSources: Maybe<Array<Scalars['String']['output']>>;
 };
 
 export type FeedPost = {
@@ -2554,7 +2554,13 @@ export type FeedSpotlightItem = {
   _id: Scalars['String']['output'];
   post: Maybe<Post>;
   spotlight: Maybe<Spotlight>;
-  spotlightMetaInfo: Maybe<Scalars['JSON']['output']>;
+  spotlightMetaInfo: Maybe<FeedSpotlightMetaInfo>;
+};
+
+export type FeedSpotlightMetaInfo = {
+  __typename?: 'FeedSpotlightMetaInfo';
+  servedEventId: Scalars['String']['output'];
+  sources: Array<Scalars['String']['output']>;
 };
 
 export type FieldChange = {
@@ -21441,7 +21447,7 @@ export type FeedPostFragment = { __typename?: 'FeedPost', _id: string, postMetaI
     & PostsListWithVotes
   ) };
 
-export type FeedCommentThreadFragment = { __typename?: 'FeedCommentThread', _id: string, commentMetaInfos: any | null, isOnReadPost: boolean | null, postSources: any | null, post: (
+export type FeedCommentThreadFragment = { __typename?: 'FeedCommentThread', _id: string, commentMetaInfos: any | null, isOnReadPost: boolean | null, postSources: Array<string> | null, post: (
     { __typename?: 'Post' }
     & PostsListWithVotes
   ) | null, comments: Array<(
@@ -21449,13 +21455,13 @@ export type FeedCommentThreadFragment = { __typename?: 'FeedCommentThread', _id:
     & UltraFeedComment
   )> };
 
-export type FeedSpotlightFragment = { __typename?: 'FeedSpotlightItem', _id: string, spotlightMetaInfo: any | null, spotlight: (
+export type FeedSpotlightFragment = { __typename?: 'FeedSpotlightItem', _id: string, spotlight: (
     { __typename?: 'Spotlight' }
     & SpotlightDisplay
   ) | null, post: (
     { __typename?: 'Post' }
     & PostsListWithVotes
-  ) | null };
+  ) | null, spotlightMetaInfo: { __typename?: 'FeedSpotlightMetaInfo', sources: Array<string>, servedEventId: string } | null };
 
 export type multiPostsForAutocompleteQueryQueryVariables = Exact<{
   input?: InputMaybe<MultiPostInput>;
@@ -21801,7 +21807,7 @@ const FeaturedResourcesFragmentFragmentDef = {"kind":"FragmentDefinition","name"
 const FeedCommentThreadFragmentFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"FeedCommentThreadFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"FeedCommentThread"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"commentMetaInfos"}},{"kind":"Field","name":{"kind":"Name","value":"isOnReadPost"}},{"kind":"Field","name":{"kind":"Name","value":"postSources"}},{"kind":"Field","name":{"kind":"Name","value":"post"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsListWithVotes"}}]}},{"kind":"Field","name":{"kind":"Name","value":"comments"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UltraFeedComment"}}]}}]}};
 const FeedPostFragmentFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"FeedPostFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"FeedPost"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"postMetaInfo"}},{"kind":"Field","name":{"kind":"Name","value":"post"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsListWithVotes"}}]}}]}};
 const PostsExpandedHighlightFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"PostsExpandedHighlight"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Post"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"contents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"html"}},{"kind":"Field","name":{"kind":"Name","value":"wordCount"}}]}}]}};
-const FeedSpotlightFragmentFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"FeedSpotlightFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"FeedSpotlightItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"spotlight"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"SpotlightDisplay"}}]}},{"kind":"Field","name":{"kind":"Name","value":"post"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsListWithVotes"}}]}},{"kind":"Field","name":{"kind":"Name","value":"spotlightMetaInfo"}}]}};
+const FeedSpotlightFragmentFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"FeedSpotlightFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"FeedSpotlightItem"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"spotlight"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"SpotlightDisplay"}}]}},{"kind":"Field","name":{"kind":"Name","value":"post"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsListWithVotes"}}]}},{"kind":"Field","name":{"kind":"Name","value":"spotlightMetaInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sources"}},{"kind":"Field","name":{"kind":"Name","value":"servedEventId"}}]}}]}};
 const FieldChangeFragmentFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"FieldChangeFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"FieldChange"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"changeGroup"}},{"kind":"Field","name":{"kind":"Name","value":"documentId"}},{"kind":"Field","name":{"kind":"Name","value":"fieldName"}},{"kind":"Field","name":{"kind":"Name","value":"oldValue"}},{"kind":"Field","name":{"kind":"Name","value":"newValue"}}]}};
 const FieldChangesDefaultFragmentFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"FieldChangesDefaultFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"FieldChange"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"schemaVersion"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"legacyData"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"changeGroup"}},{"kind":"Field","name":{"kind":"Name","value":"documentId"}},{"kind":"Field","name":{"kind":"Name","value":"fieldName"}},{"kind":"Field","name":{"kind":"Name","value":"oldValue"}},{"kind":"Field","name":{"kind":"Name","value":"newValue"}}]}};
 const PostsPageFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"PostsPage"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Post"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsDetails"}},{"kind":"Field","name":{"kind":"Name","value":"version"}},{"kind":"Field","name":{"kind":"Name","value":"contents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"RevisionDisplay"}}]}},{"kind":"Field","name":{"kind":"Name","value":"customHighlight"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"RevisionDisplay"}}]}},{"kind":"Field","name":{"kind":"Name","value":"myEditorAccess"}}]}};

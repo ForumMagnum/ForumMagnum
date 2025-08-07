@@ -981,7 +981,7 @@ type Documents = {
     "\n  fragment SubscribedPostAndCommentsFeed on SubscribedPostAndComments {\n    _id\n    post {\n      ...PostsList\n    }\n    comments {\n      ...CommentsList\n    }\n    expandCommentIds\n    postIsFromSubscribedUser\n  }\n": typeof types.SubscribedPostAndCommentsFeedDoc,
     "\n  fragment FeedPostFragment on FeedPost {\n    _id\n    postMetaInfo\n    post {\n      ...PostsListWithVotes\n    }\n  }\n": typeof types.FeedPostFragmentDoc,
     "\n  fragment FeedCommentThreadFragment on FeedCommentThread {\n    _id\n    commentMetaInfos\n    isOnReadPost\n    postSources\n    post {\n      ...PostsListWithVotes\n    }\n    comments {\n      ...UltraFeedComment\n    }\n  }\n": typeof types.FeedCommentThreadFragmentDoc,
-    "\n  fragment FeedSpotlightFragment on FeedSpotlightItem {\n    _id\n    spotlight {\n      ...SpotlightDisplay\n    }\n    post {\n      ...PostsListWithVotes\n    }\n    spotlightMetaInfo\n  }\n": typeof types.FeedSpotlightFragmentDoc,
+    "\n  fragment FeedSpotlightFragment on FeedSpotlightItem {\n    _id\n    spotlight {\n      ...SpotlightDisplay\n    }\n    post {\n      ...PostsListWithVotes\n    }\n    spotlightMetaInfo {\n      sources\n      servedEventId\n    }\n  }\n": typeof types.FeedSpotlightFragmentDoc,
     "\n  query multiPostsForAutocompleteQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsForAutocomplete\n      }\n    }\n  }\n": typeof types.multiPostsForAutocompleteQueryDocument,
     "\n  query multiCommentsForAutocompleteQuery($input: MultiCommentInput) {\n    comments(input: $input) {\n      results {\n        ...CommentsForAutocomplete\n      }\n    }\n  }\n": typeof types.multiCommentsForAutocompleteQueryDocument,
     "\n  query multiCommentsForAutocompleteWithParentsQuery($input: MultiCommentInput) {\n    comments(input: $input) {\n      results {\n        ...CommentsForAutocompleteWithParents\n      }\n    }\n  }\n": typeof types.multiCommentsForAutocompleteWithParentsQueryDocument,
@@ -1971,7 +1971,7 @@ const documents: Documents = {
     "\n  fragment SubscribedPostAndCommentsFeed on SubscribedPostAndComments {\n    _id\n    post {\n      ...PostsList\n    }\n    comments {\n      ...CommentsList\n    }\n    expandCommentIds\n    postIsFromSubscribedUser\n  }\n": types.SubscribedPostAndCommentsFeedDoc,
     "\n  fragment FeedPostFragment on FeedPost {\n    _id\n    postMetaInfo\n    post {\n      ...PostsListWithVotes\n    }\n  }\n": types.FeedPostFragmentDoc,
     "\n  fragment FeedCommentThreadFragment on FeedCommentThread {\n    _id\n    commentMetaInfos\n    isOnReadPost\n    postSources\n    post {\n      ...PostsListWithVotes\n    }\n    comments {\n      ...UltraFeedComment\n    }\n  }\n": types.FeedCommentThreadFragmentDoc,
-    "\n  fragment FeedSpotlightFragment on FeedSpotlightItem {\n    _id\n    spotlight {\n      ...SpotlightDisplay\n    }\n    post {\n      ...PostsListWithVotes\n    }\n    spotlightMetaInfo\n  }\n": types.FeedSpotlightFragmentDoc,
+    "\n  fragment FeedSpotlightFragment on FeedSpotlightItem {\n    _id\n    spotlight {\n      ...SpotlightDisplay\n    }\n    post {\n      ...PostsListWithVotes\n    }\n    spotlightMetaInfo {\n      sources\n      servedEventId\n    }\n  }\n": types.FeedSpotlightFragmentDoc,
     "\n  query multiPostsForAutocompleteQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsForAutocomplete\n      }\n    }\n  }\n": types.multiPostsForAutocompleteQueryDocument,
     "\n  query multiCommentsForAutocompleteQuery($input: MultiCommentInput) {\n    comments(input: $input) {\n      results {\n        ...CommentsForAutocomplete\n      }\n    }\n  }\n": types.multiCommentsForAutocompleteQueryDocument,
     "\n  query multiCommentsForAutocompleteWithParentsQuery($input: MultiCommentInput) {\n    comments(input: $input) {\n      results {\n        ...CommentsForAutocompleteWithParents\n      }\n    }\n  }\n": types.multiCommentsForAutocompleteWithParentsQueryDocument,
@@ -5879,7 +5879,7 @@ export function gql(source: "\n  fragment FeedCommentThreadFragment on FeedComme
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  fragment FeedSpotlightFragment on FeedSpotlightItem {\n    _id\n    spotlight {\n      ...SpotlightDisplay\n    }\n    post {\n      ...PostsListWithVotes\n    }\n    spotlightMetaInfo\n  }\n"): (typeof documents)["\n  fragment FeedSpotlightFragment on FeedSpotlightItem {\n    _id\n    spotlight {\n      ...SpotlightDisplay\n    }\n    post {\n      ...PostsListWithVotes\n    }\n    spotlightMetaInfo\n  }\n"];
+export function gql(source: "\n  fragment FeedSpotlightFragment on FeedSpotlightItem {\n    _id\n    spotlight {\n      ...SpotlightDisplay\n    }\n    post {\n      ...PostsListWithVotes\n    }\n    spotlightMetaInfo {\n      sources\n      servedEventId\n    }\n  }\n"): (typeof documents)["\n  fragment FeedSpotlightFragment on FeedSpotlightItem {\n    _id\n    spotlight {\n      ...SpotlightDisplay\n    }\n    post {\n      ...PostsListWithVotes\n    }\n    spotlightMetaInfo {\n      sources\n      servedEventId\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

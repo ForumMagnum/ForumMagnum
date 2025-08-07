@@ -43,6 +43,11 @@ const ULTRA_FEED_DATE_CUTOFFS: UltraFeedDateCutoffs = {
 };
 
 export const ultraFeedGraphQLTypeDefs = gql`
+  type FeedSpotlightMetaInfo {
+    sources: [String!]!
+    servedEventId: String!
+  }
+
   type FeedPost {
     _id: String!
     postMetaInfo: JSON
@@ -55,14 +60,14 @@ export const ultraFeedGraphQLTypeDefs = gql`
     comments: [Comment!]!
     post: Post
     isOnReadPost: Boolean
-    postSources: JSON
+    postSources: [String!]
   }
 
   type FeedSpotlightItem {
     _id: String!
     spotlight: Spotlight
     post: Post
-    spotlightMetaInfo: JSON
+    spotlightMetaInfo: FeedSpotlightMetaInfo
   }
 
   type UltraFeedQueryResults {

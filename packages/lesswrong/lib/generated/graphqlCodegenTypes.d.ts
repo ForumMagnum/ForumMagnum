@@ -2536,7 +2536,7 @@ type FeedCommentThread = {
   comments: Array<Comment>;
   isOnReadPost?: Maybe<Scalars['Boolean']['output']>;
   post?: Maybe<Post>;
-  postSources?: Maybe<Scalars['JSON']['output']>;
+  postSources?: Maybe<Array<Scalars['String']['output']>>;
 };
 
 type FeedPost = {
@@ -2551,7 +2551,13 @@ type FeedSpotlightItem = {
   _id: Scalars['String']['output'];
   post?: Maybe<Post>;
   spotlight?: Maybe<Spotlight>;
-  spotlightMetaInfo?: Maybe<Scalars['JSON']['output']>;
+  spotlightMetaInfo?: Maybe<FeedSpotlightMetaInfo>;
+};
+
+type FeedSpotlightMetaInfo = {
+  __typename?: 'FeedSpotlightMetaInfo';
+  servedEventId: Scalars['String']['output'];
+  sources: Array<Scalars['String']['output']>;
 };
 
 type FieldChange = {
@@ -26458,7 +26464,7 @@ type FeedCommentThreadFragment_FeedCommentThread_comments_Comment = (
   & UltraFeedComment
 );
 
-type FeedCommentThreadFragment = { __typename?: 'FeedCommentThread', _id: string, commentMetaInfos: any | null, isOnReadPost: boolean | null, postSources: any | null, post: FeedCommentThreadFragment_FeedCommentThread_post_Post | null, comments: Array<FeedCommentThreadFragment_FeedCommentThread_comments_Comment> };
+type FeedCommentThreadFragment = { __typename?: 'FeedCommentThread', _id: string, commentMetaInfos: any | null, isOnReadPost: boolean | null, postSources: Array<string> | null, post: FeedCommentThreadFragment_FeedCommentThread_post_Post | null, comments: Array<FeedCommentThreadFragment_FeedCommentThread_comments_Comment> };
 
 type FeedSpotlightFragment_FeedSpotlightItem_spotlight_Spotlight = (
   { __typename?: 'Spotlight' }
@@ -26470,7 +26476,9 @@ type FeedSpotlightFragment_FeedSpotlightItem_post_Post = (
   & PostsListWithVotes
 );
 
-type FeedSpotlightFragment = { __typename?: 'FeedSpotlightItem', _id: string, spotlightMetaInfo: any | null, spotlight: FeedSpotlightFragment_FeedSpotlightItem_spotlight_Spotlight | null, post: FeedSpotlightFragment_FeedSpotlightItem_post_Post | null };
+type FeedSpotlightFragment_FeedSpotlightItem_spotlightMetaInfo_FeedSpotlightMetaInfo = { __typename?: 'FeedSpotlightMetaInfo', sources: Array<string>, servedEventId: string };
+
+type FeedSpotlightFragment = { __typename?: 'FeedSpotlightItem', _id: string, spotlight: FeedSpotlightFragment_FeedSpotlightItem_spotlight_Spotlight | null, post: FeedSpotlightFragment_FeedSpotlightItem_post_Post | null, spotlightMetaInfo: FeedSpotlightFragment_FeedSpotlightItem_spotlightMetaInfo_FeedSpotlightMetaInfo | null };
 
 type multiPostsForAutocompleteQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
