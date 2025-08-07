@@ -177,9 +177,10 @@ const LlmChatWrapper = ({children}: {
   // initializes with an empty object and doesn't update when the query finishes.
   // So we need to update the state manually when the result comes back.
   useEffect(() => {
-    if (!isEqual(userLlmConversationsDict, conversations)) {
-      setConversations(userLlmConversationsDict);
-    }
+    setConversations(oldConversationsDict => isEqual(userLlmConversationsDict, oldConversationsDict)
+      ? oldConversationsDict
+      : userLlmConversationsDict
+    );
   }, [userLlmConversationsDict]);
 
   const sortedConversations = useMemo(() => {

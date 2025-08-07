@@ -8,7 +8,7 @@ import {
   isDefaultSubscriptionType,
 } from "../../lib/collections/subscriptions/mutations";
 import type { SubscriptionType } from "../../lib/collections/subscriptions/helpers";
-import max from "lodash/max";
+import maxBy from "lodash/maxBy";
 import { userIsDefaultSubscribed, userSubscriptionStateIsFixed } from "../../lib/subscriptionUtil";
 import LoginPopup from "../users/LoginPopup";
 import { useMutation } from "@apollo/client/react";
@@ -60,10 +60,10 @@ const currentUserIsSubscribed = (
   // recent subscription
   if (results && results.length > 0) {
     // Get the newest subscription entry (Mingo doesn't enforce the limit:1)
-    const currentSubscription = max(
+    const currentSubscription = maxBy(
       results,
       (result) => new Date(result.createdAt).getTime(),
-    );
+    )!;
 
     if (currentSubscription.state === "subscribed") {
       return true;

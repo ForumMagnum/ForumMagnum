@@ -5,6 +5,7 @@ import { performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
 import { getClientIP } from '@/server/utils/getClientIP';
 import { captureEvent } from '@/lib/analyticsEvents';
 import { type RenderParams, RenderResult } from './renderPage';
+import { requestToNextRequest } from '../apolloServer';
 
 
 export type RenderTimings = {
@@ -31,7 +32,7 @@ export function openRenderRequestPerfMetric(renderParams: RenderParams) {
     op_type: "ssr",
     op_name: opName,
     client_path: req.originalUrl,
-    ip: getClientIP(req),
+    ip: getClientIP(requestToNextRequest(req).headers),
     user_agent: userAgent,
     ...userIdField,
   }, startTime);

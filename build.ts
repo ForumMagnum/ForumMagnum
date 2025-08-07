@@ -185,11 +185,7 @@ if (databaseConfig.sshTunnelCommand) {
   startSshTunnel(databaseConfig.sshTunnelCommand);
 }
 
-if (isProduction) {
-  process.env.NODE_ENV="production";
-} else {
-  process.env.NODE_ENV="development";
-}
+(process.env as any).NODE_ENV = isProduction ? "production" : "development";
 
 const clientBundleBanner = `/*
  * LessWrong 2.0 (client JS bundle)

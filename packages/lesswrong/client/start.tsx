@@ -6,6 +6,7 @@ import { fmCrosspostBaseUrlSetting } from "../lib/instanceSettings";
 import { hydrateRoot } from 'react-dom/client';
 
 export function hydrateClient() {
+  /*
   const apolloClient = createApolloClient();
   apolloClient.prioritizeCacheValues = true;
   const foreignApolloClient = createApolloClient(fmCrosspostBaseUrlSetting.get() ?? "/");
@@ -56,6 +57,7 @@ export function hydrateClient() {
     // apollo-client 4.x.
     apolloClient.prioritizeCacheValues = false;
   }, 3000);
+  */
 };
 
 

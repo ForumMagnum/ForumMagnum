@@ -371,6 +371,11 @@ interface Mutation {
   updateUser: UserOutput | null;
 }
 
+interface ContentType {
+  type: string;
+  data: ContentTypeData;
+}
+
 interface SelectorInput {
   _id?: string | null;
   documentId?: string | null;
@@ -443,11 +448,6 @@ interface CrosspostOutput {
   isCrosspost: boolean;
   hostedHere: boolean | null;
   foreignPostId: string | null;
-}
-
-interface ContentType {
-  type: string;
-  data: ContentTypeData;
 }
 
 interface TagContributor {
@@ -9682,6 +9682,7 @@ interface UserOutput {
 interface GraphQLTypeMap {
   Query: Query;
   Mutation: Mutation;
+  ContentType: ContentType;
   SelectorInput: SelectorInput;
   EmptyViewInput: EmptyViewInput;
   EmailPreview: EmailPreview;
@@ -9694,7 +9695,6 @@ interface GraphQLTypeMap {
   CoauthorStatusOutput: CoauthorStatusOutput;
   SocialPreviewOutput: SocialPreviewOutput;
   CrosspostOutput: CrosspostOutput;
-  ContentType: ContentType;
   TagContributor: TagContributor;
   TagContributorsList: TagContributorsList;
   UserLikingTag: UserLikingTag;

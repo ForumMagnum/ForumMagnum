@@ -7,7 +7,7 @@ import { matchPath } from 'react-router';
 import qs from 'qs'
 import { captureException } from '@sentry/nextjs';
 import { isClient } from '../executionEnvironment';
-import type { RouterLocation, SegmentedUrl } from '../vulcan-lib/routes';
+import type { Route, RouterLocation, SegmentedUrl } from '../vulcan-lib/routes';
 import { getRouteMatchingPathname } from "../vulcan-lib/routes";
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
@@ -70,7 +70,9 @@ export function parseRoute({location, followRedirects=true, onError=null}: {
   location: SegmentedUrl,
   followRedirects?: boolean,
   onError?: null|((err: string) => void),
-}): RouterLocation {
+}): RouterLocation & {
+  currentRoute: Route
+}{
   const currentRoute = getRouteMatchingPathname(location.pathname)
   
   if (!currentRoute) {
@@ -94,10 +96,9 @@ export function parseRoute({location, followRedirects=true, onError=null}: {
   }
   
   const params = currentRoute ? matchPath(location.pathname, { path: currentRoute.path, exact: true, strict: false })!.params : {}
-  const RouteComponent = currentRoute?.component // ?? Error404; // currentRoute?.componentName ? Components[currentRoute.componentName] : Error404;
-  const result: RouterLocation = {
+  const result: RouterLocation & {currentRoute: Route} = {
     currentRoute: currentRoute!, //TODO: Better null handling than this
-    RouteComponent, location, params,
+    location, params,
     pathname: location.pathname,
     url: location.pathname + location.search + location.hash,
     hash: location.hash,

@@ -8,6 +8,13 @@ scalar JSON
 
 scalar Date
 
+scalar ContentTypeData
+
+type ContentType {
+  type: String!
+  data: ContentTypeData!
+}
+
 input SelectorInput {
   _id: String
   documentId: String
@@ -84,13 +91,6 @@ type CrosspostOutput {
   isCrosspost: Boolean!
   hostedHere: Boolean
   foreignPostId: String
-}
-
-scalar ContentTypeData
-
-type ContentType {
-  type: String!
-  data: ContentTypeData!
 }
 
 type TagContributor {

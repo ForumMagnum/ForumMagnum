@@ -262,11 +262,11 @@ export async function createAutomatedContentEvaluation(revision: DbRevision, con
   await AutomatedContentEvaluations.rawInsert({
     createdAt: new Date(),
     revisionId: revision._id,
-    score: validatedEvaluation?.score,
-    sentenceScores: validatedEvaluation?.sentence_scores,
+    score: validatedEvaluation?.score ?? null,
+    sentenceScores: validatedEvaluation?.sentence_scores ?? null,
     aiChoice: llmEvaluation?.decision,
     aiReasoning: llmEvaluation?.reasoning,
-    aiCoT: llmEvaluation?.cot,
+    aiCoT: llmEvaluation?.cot ?? null,
   });
   if (llmEvaluation?.decision === "review" && (validatedEvaluation?.score ?? 0) > .5) {
     if (revision.collectionName === "Posts") {

@@ -18,6 +18,8 @@ import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
 import { createPost } from '../collections/posts/mutations';
 import { gql } from "@/lib/generated/gql-codegen";
 import type { CrosspostFragments } from "@/components/hooks/useForeignCrosspost";
+import { getUserFromReq } from "../vulcan-lib/apollo-server/getUserFromReq";
+import { requestToNextRequest } from "../apolloServer";
 
 const postsWithNavigationQuery = gql(`
   query getCrosspostPostsWithNavigation($input: SinglePostInput, $sequenceId: String) {
@@ -89,7 +91,7 @@ const getCrosspostQueryDocument = (fragmentName: CrosspostFragments) => {
 };
 
 export const onCrosspostTokenRequest: GetRouteOf<'crosspostToken'> = async (req: Request) => {
-  const {user} = req;
+  const user = await getUserFromReq(requestToNextRequest(req));
   if (!user) {
     throw new UnauthorizedError();
   }

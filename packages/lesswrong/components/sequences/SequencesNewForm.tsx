@@ -160,7 +160,7 @@ export const styles = (theme: ThemeType) => ({
 });
 
 const SequencesNewForm = ({ redirect, cancelCallback, classes }: {
-  redirect: any,
+  redirect?: any,
   cancelCallback?: any,
   classes: ClassesType<typeof styles>,
 }) => {
