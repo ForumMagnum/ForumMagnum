@@ -514,7 +514,7 @@ const UltraFeedSpotlightItem = ({
   index: number,
   showSubtitle?: boolean,
   className?: string,
-  spotlightMetaInfo: FeedSpotlightMetaInfo,
+  spotlightMetaInfo?: FeedSpotlightMetaInfo | null,
 }) => {
   const classes = useStyles(useUltraFeedSpotlightItemStyles);
   const { observe } = useUltraFeedObserver();
@@ -556,10 +556,10 @@ const UltraFeedSpotlightItem = ({
         documentId: spotlight._id,
         documentType: 'spotlight',
         feedCardIndex: index,
-        servedEventId: spotlightMetaInfo.servedEventId,
+        servedEventId: spotlightMetaInfo?.servedEventId ?? '',
       });
     }
-  }, [observe, spotlight, index, spotlightMetaInfo.servedEventId]);
+  }, [observe, spotlight, index, spotlightMetaInfo?.servedEventId]);
 
   if (!spotlight) {
     return null;
