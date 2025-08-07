@@ -1,7 +1,6 @@
 import schema from '@/lib/collections/multiDocuments/newSchema';
 import { createCollection } from "@/lib/vulcan-lib/collections.ts";
 import { DatabaseIndexSet } from "@/lib/utils/databaseIndexSet";
-import { getVoteGraphql } from "@/server/votingGraphQL";
 
 export const MultiDocuments = createCollection({
   collectionName: 'MultiDocuments',
@@ -19,5 +18,3 @@ export const MultiDocuments = createCollection({
     timeDecayScoresCronjob: false,
   },
 });
-
-export const { graphqlVoteTypeDefs, graphqlVoteMutations } = getVoteGraphql('MultiDocuments');

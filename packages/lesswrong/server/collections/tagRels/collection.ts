@@ -2,7 +2,6 @@ import schema from '@/lib/collections/tagRels/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { canVoteOnTagAsync } from '@/lib/voting/tagRelVoteRules';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
-import { getVoteGraphql } from '@/server/votingGraphQL';
 
 export const TagRels = createCollection({
   collectionName: 'TagRels',
@@ -25,7 +24,5 @@ export const TagRels = createCollection({
     ) => canVoteOnTagAsync(user, document.tagId, document.postId, context, voteType ?? 'neutral'),
   },
 });
-
-export const { graphqlVoteTypeDefs, graphqlVoteMutations } = getVoteGraphql('TagRels');
 
 export default TagRels;
