@@ -4,7 +4,6 @@ import { consoleLogMemoryUsageThreshold, sentryErrorMemoryUsageThreshold, memory
 import { printInFlightRequests } from '@/server/rendering/pageCache';
 
 import * as Sentry from '@sentry/nextjs';
-import * as _ from 'underscore';
 
 // Log unhandled promise rejections, eg exceptions escaping from async
 // callbacks. The default node behavior is to silently ignore these exceptions,
@@ -90,9 +89,9 @@ export function logGraphqlQueryFinished(operationName: string, queryString: stri
 }
 
 function printInFlightGraphqlQueries() {
-  const operationsInProgress = _.map(
-    _.filter(Object.keys(queriesInProgress), (operationName)=>queriesInProgress[operationName]>0),
-    (operationName) => queriesInProgress[operationName]>1 ? `${operationName}(${queriesInProgress[operationName]})` : operationName);
+  const operationsInProgress = Object.keys(queriesInProgress)
+    .filter((operationName)=>queriesInProgress[operationName]>0)
+    .map((operationName) => queriesInProgress[operationName]>1 ? `${operationName}(${queriesInProgress[operationName]})` : operationName);
   if (operationsInProgress.length > 0) {
     // eslint-disable-next-line no-console
     console.log(`Graphql queries in progress: ${operationsInProgress.join(", ")}`);

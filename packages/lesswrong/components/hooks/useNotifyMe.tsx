@@ -8,7 +8,7 @@ import {
   isDefaultSubscriptionType,
 } from "../../lib/collections/subscriptions/mutations";
 import type { SubscriptionType } from "../../lib/collections/subscriptions/helpers";
-import { max } from "underscore";
+import max from "lodash/max";
 import { userIsDefaultSubscribed, userSubscriptionStateIsFixed } from "../../lib/subscriptionUtil";
 import LoginPopup from "../users/LoginPopup";
 import { useMutation } from "@apollo/client/react";

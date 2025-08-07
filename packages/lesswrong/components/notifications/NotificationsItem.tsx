@@ -15,6 +15,7 @@ import ConversationPreview from "../messaging/ConversationPreview";
 import PostNominatedNotification from "../review/PostNominatedNotification";
 import TagRelNotificationItem from "./TagRelNotificationItem";
 import { onsiteHoverViewComponents } from '@/lib/notificationTypeComponents';
+import { getNotificationIconByNotificationName } from './notificationIcons';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -245,7 +246,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, classes}: {
           }
         }}
       >
-        {notificationType.getIcon()}
+        {notification.type ? getNotificationIconByNotificationName(notification.type) : null}
         <div className={classes.notificationLabel}>
           {renderMessage()}
         </div>

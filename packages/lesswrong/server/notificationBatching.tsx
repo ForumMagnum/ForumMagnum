@@ -6,12 +6,9 @@ import Users from '@/server/collections/users/collection';
 import { computeContextFromUser } from './vulcan-lib/apollo-server/context';
 import gql from 'graphql-tag';
 import { PostsEmail } from './emailComponents/PostsEmail';
-import { fetchPostsForEmail } from './emailComponents/queries';
 import { UtmParam } from './analytics/utm-tracking';
 import { isEAForum } from '@/lib/instanceSettings';
-import { backgroundTask } from './utils/backgroundTask';
 import { EmailContextType } from './emailComponents/emailContext';
-import { createEmailContext } from './emails/renderEmail';
 
 export const getUtmParamsForNotificationType = (notificationType: string): Partial<Record<UtmParam, string>> => {
   return {
@@ -112,6 +109,11 @@ export const graphqlQueries = {
     if (notificationIds?.length && postId) {
       throw new Error("Please only specify notificationIds or postId in the query")
     }
+
+    const userEmail = getUserEmail(currentUser);
+    if (!userEmail) {
+      throw new Error("User has no email address");
+    }
     
     if (notificationIds?.length) {
       const notifications = await Notifications.find(
@@ -127,8 +129,7 @@ export const graphqlQueries = {
         notifications,
         context
       });
-      const renderedEmails = await Promise.all(emails.map(async email => await wrapAndRenderEmail(email)));
-      console.log({ renderedEmails });
+      const renderedEmails = await Promise.all(emails.map(async email => await wrapAndRenderEmail({ ...email, to: email.to ?? userEmail })));
       return renderedEmails;
     } else if (postId) {
       const post = await Posts.findOne(postId)
@@ -138,9 +139,9 @@ export const graphqlQueries = {
       const renderedEmail = await wrapAndRenderEmail({
         user: currentUser,
         subject: post.title,
-        body: (emailContext: EmailContextType) => <PostsEmail postIds={[post._id]} reason='you have the "Email me new posts in Curated" option enabled' emailContext={emailContext} />
+        body: (emailContext: EmailContextType) => <PostsEmail postIds={[post._id]} reason='you have the "Email me new posts in Curated" option enabled' emailContext={emailContext} />,
+        to: userEmail
       })
-      console.log({ renderedEmail });
       return [renderedEmail];
     } else {
       return [];

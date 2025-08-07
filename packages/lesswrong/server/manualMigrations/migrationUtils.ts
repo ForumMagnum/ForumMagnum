@@ -1,5 +1,4 @@
 import Migrations from '../../server/collections/migrations/collection';
-import * as _ from 'underscore';
 import { getSchema } from '@/lib/schema/allSchemas';
 import { sleep, timedFunc } from '../../lib/helpers';
 import { getSqlClient } from '../../server/sql/sqlClient';
@@ -231,9 +230,9 @@ export async function migrateDocuments<N extends CollectionNameString>({
 
       // Check if any of the documents returned were supposed to have been
       // migrated by the previous batch's update operation.
-      let docsNotMigrated = _.filter(documents, doc => previousDocumentIds[doc._id]);
+      let docsNotMigrated = documents.filter(doc => previousDocumentIds[doc._id]);
       if (docsNotMigrated.length > 0) {
-        let errorMessage = `Documents not updated in migrateDocuments: ${_.map(docsNotMigrated, doc=>doc._id)}`;
+        let errorMessage = `Documents not updated in migrateDocuments: ${docsNotMigrated.map(doc=>doc._id)}`;
 
         // eslint-disable-next-line no-console
         console.error(errorMessage);
@@ -241,7 +240,7 @@ export async function migrateDocuments<N extends CollectionNameString>({
       }
 
       previousDocumentIds = {};
-      _.each(documents, doc => previousDocumentIds[doc._id] = true);
+      documents.forEach(doc => previousDocumentIds[doc._id] = true);
 
       // Migrate documents in the batch
       try {

@@ -7,7 +7,6 @@ import { setVoteClient } from '../../lib/voting/vote';
 import { isAF } from '../../lib/instanceSettings';
 import { getDefaultVotingSystem } from '@/lib/voting/getVotingSystem';
 import type { VotingSystem } from '@/lib/voting/votingSystems';
-import * as _ from 'underscore';
 import { VotingProps } from './votingProps';
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
 import VotingPatternsWarningPopup from "./VotingPatternsWarningPopup";
@@ -165,7 +164,7 @@ export const useVote = <T extends VoteableTypeClient, CollectionName extends Vot
         },
       })
     } catch(e) {
-      const errorMessage = _.map(e.graphQLErrors, (gqlErr: any)=>gqlErr.message).join("; ");
+      const errorMessage = e.graphQLErrors.map((gqlErr: any)=>gqlErr.message).join("; ");
       messages.flash({ messageString: errorMessage });
       setOptimisticResponseDocument(null);
     }

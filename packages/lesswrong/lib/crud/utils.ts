@@ -1,5 +1,4 @@
 import type { ApolloCache } from '@apollo/client';
-import * as _ from 'underscore';
 import { camelCaseify } from "../vulcan-lib/utils";
 import { pluralize } from "../vulcan-lib/pluralize";
 
@@ -46,14 +45,4 @@ export const findWatchesByTypeName = (store: ApolloCache, typeName: string) => {
     const multiQueryName = getMultiQueryName(typeName);
     return name === multiQueryName
   })
-}
-
-/**
- * Extract `extraVariables` (fed to resolvers where referenced in fragments)
- * from options passed to an HoC mutation. Obsolete-ish since we've almost
- * fully gotten rid of HoCs in this context, but may be needed by the few HoC
- * mutation usages still hanging on.
- */
-export const getExtraVariables = (props: any, extraVariables: any) => {
-  return _.pick(props || {}, Object.keys(extraVariables || {}))
 }

@@ -9,7 +9,6 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import moment from '../../lib/moment-timezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
 import { karmaChangeNotifierDefaultSettings, KarmaChangeUpdateFrequency, type KarmaChangeSettingsType } from '../../lib/collections/users/helpers';
-import * as _ from 'underscore';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -143,7 +142,7 @@ const KarmaChangeNotifierSettings = ({
           value={timeOfDay}
           onChange={(event) => setBatchingTimeOfDay(parseInt(event.target.value), timezone)}
         >
-          { _.range(24).map(hour =>
+          { Array.from({ length: 24 }, (_, hour) =>
               <MenuItem key={hour} value={hour}>{hour}:00</MenuItem>
             )
           }

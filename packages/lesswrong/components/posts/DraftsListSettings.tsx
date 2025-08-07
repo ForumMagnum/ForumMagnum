@@ -4,7 +4,6 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { QueryLink } from '../../lib/reactRouterWrapper'
-import * as _ from 'underscore';
 import { useCurrentUser } from '../common/withUser';
 
 import { sortings as defaultSortings } from './DraftsList'

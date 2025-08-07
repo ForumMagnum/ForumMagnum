@@ -1,6 +1,5 @@
-import { typeDefs, resolvers } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/initGraphQL';
+import { getExecutableSchema } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/initGraphQL';
 import { startServerAndCreateNextHandler } from '@as-integrations/next';
-import { makeExecutableSchema } from '@graphql-tools/schema';
 import { ApolloServer } from '@apollo/server';
 import { configureSentryScope, getContextFromReqAndRes } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/context';
 import type { NextRequest } from 'next/server';
@@ -10,10 +9,8 @@ import { getIsolationScope } from '@sentry/nextjs';
 import { getClientIP } from '@/server/utils/getClientIP';
 import { performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
 
-const schema = makeExecutableSchema({ typeDefs, resolvers });
-
 const server = new ApolloServer<ResolverContext>({
-  schema,
+  schema: getExecutableSchema(),
   introspection: true,
   allowBatchedHttpRequests: true,
   csrfPrevention: false,

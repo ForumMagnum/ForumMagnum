@@ -8,8 +8,7 @@ import {
 } from "./helpers";
 import { userGetEditUrl } from "../../vulcan-users/helpers";
 import { userOwns, userIsAdmin, userHasntChangedName } from "../../vulcan-users/permissions";
-import * as _ from "underscore";
-import { isAF, isEAForum, verifyEmailsSetting } from "../../instanceSettings";
+import { isAF, isEAForum } from "../../instanceSettings";
 import {
   accessFilterMultiple, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
   generateIdResolverSingle,
@@ -31,7 +30,6 @@ import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils"
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "@/server/karmaChanges";
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, getRecentKarmaInfo } from "@/server/rateLimitUtils";
 import GraphQLJSON from "@/lib/vendor/graphql-type-json";
-import gql from "graphql-tag";
 import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificationSettingOnCreate, defaultNotificationTypeSettings, emailEnabledNotificationSettingOnCreate, notificationTypeSettingsSchema } from "./notificationFieldHelpers";
 import { loadByIds } from "@/lib/loaders";
 
@@ -125,74 +123,6 @@ const userTheme = new SimpleSchema({
 });
 
 export type RateLimitReason = "moderator" | "lowKarma" | "downvoteRatio" | "universal";
-
-export const graphqlTypeDefs = gql`
-  type LatLng {
-    lat: Float!
-    lng: Float!
-  }
-
-  input ExpandedFrontpageSectionsSettingsInput {
-    community: Boolean
-    recommendations: Boolean
-    quickTakes: Boolean
-    quickTakesCommunity: Boolean
-    popularComments: Boolean
-  }
-
-  type ExpandedFrontpageSectionsSettingsOutput {
-    community: Boolean
-    recommendations: Boolean
-    quickTakes: Boolean
-    quickTakesCommunity: Boolean
-    popularComments: Boolean
-  }
-
-  input PartiallyReadSequenceItemInput {
-    sequenceId: String
-    collectionId: String
-    lastReadPostId: String!
-    nextPostId: String!
-    numRead: Int!
-    numTotal: Int!
-    lastReadTime: Date
-  }
-
-  type PartiallyReadSequenceItemOutput {
-    sequenceId: String
-    collectionId: String
-    lastReadPostId: String
-    nextPostId: String
-    numRead: Int
-    numTotal: Int
-    lastReadTime: Date
-  }
-
-  input PostMetadataInput {
-    postId: String!
-  }
-
-  type PostMetadataOutput {
-    postId: String!
-  }
-
-  input RecommendationAlgorithmSettingsInput {
-    method: String!
-    count: Int!
-    scoreOffset: Float!
-    scoreExponent: Float!
-    personalBlogpostModifier: Float!
-    frontpageModifier: Float!
-    curatedModifier: Float!
-    onlyUnread: Boolean!
-  }
-
-  input RecommendationSettingsInput {
-    frontpage: RecommendationAlgorithmSettingsInput!
-    frontpageEA: RecommendationAlgorithmSettingsInput!
-    recommendationspage: RecommendationAlgorithmSettingsInput!
-  }
-`;
 
 const emailsSchema = new SimpleSchema({
   address: {
@@ -1652,7 +1582,7 @@ const schema = {
         ).fetch();
         const filteredEvents = await accessFilterMultiple(currentUser, "LWEvents", events, context);
         const IPs = filteredEvents.map((event) => event.properties?.ip);
-        const uniqueIPs = _.uniq(IPs);
+        const uniqueIPs = [...new Set(IPs)];
         return uniqueIPs;
       },
     },

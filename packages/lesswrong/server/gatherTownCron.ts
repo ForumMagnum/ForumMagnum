@@ -4,7 +4,6 @@ import { gatherTownRoomPassword, minGatherTownTrackerVersion } from './databaseS
 import { gatherTownRoomId, gatherTownRoomName, isLW } from '@/lib/instanceSettings';
 import { isProduction } from '../lib/executionEnvironment';
 import { toDictionary } from '../lib/utils/toDictionary';
-import * as _ from 'underscore';
 import { createLWEvent } from './collections/lwevents/mutations';
 import { createAdminContext } from './vulcan-lib/createContexts';
 import { backgroundTask } from './utils/backgroundTask';
@@ -258,7 +257,7 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
       failureReason: "Version number mismatch",
     };
   } else if (socketConnectedSuccessfully && socketReceivedAnyMessage) {
-    const playerNames = _.values(playerNamesById);
+    const playerNames = Object.values(playerNamesById);
     return {
       checkFailed: false,
       gatherTownUsers: toDictionary(playerNames, name=>name, name=>playerInfoByName[name]),

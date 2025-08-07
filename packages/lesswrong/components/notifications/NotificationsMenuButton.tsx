@@ -12,14 +12,12 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import ForumIcon from "../common/ForumIcon";
-import LWPopper from "../common/LWPopper";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import { useReadQuery } from '@apollo/client/react';
 import { useStyles } from '../hooks/useStyles';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
-// import dynamic from 'next/dynamic';
+import dynamic from 'next/dynamic';
 import { styles } from './notificationsMenuButtonStyles';
-import NotificationsPopover from './NotificationsPopover';
 import ErrorBoundary from '../common/ErrorBoundary';
 
 const UserKarmaChangesQuery = gql(`
@@ -97,7 +95,7 @@ const FriendlyNotificationsMenuButtonInner = ({
   toggle,
   className,
 }: NotificationsMenuButtonProps) => {
-  // const NotificationsPopover = dynamic(() => import("./NotificationsPopover"), { ssr: false });
+  const NotificationsPopover = dynamic(() => import("./NotificationsPopover"), { ssr: false });
   
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -117,6 +115,8 @@ const FriendlyNotificationsMenuButtonInner = ({
   const showKarmaStar = hasKarmaChange(currentUser, karmaChanges);
   const hasBadge = unreadNotifications > 0;
   const badgeText = hasBadge ? `${unreadNotifications}` : "";
+
+  const LWPopper = dynamic(() => import("../common/LWPopper"), { ssr: false });
 
   useEffect(() => {
     void refetch();

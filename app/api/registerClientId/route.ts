@@ -1,7 +1,7 @@
 import { CLIENT_ID_COOKIE, CLIENT_ID_NEW_COOKIE } from "@/lib/cookies/cookies";
 import { randomId } from "@/lib/random";
 import ClientIdsRepo from "@/server/repos/ClientIdsRepo";
-import { getUserFromReq } from "@/server/vulcan-lib/apollo-server/context";
+import { getUserFromReq } from '@/server/vulcan-lib/apollo-server/getUserFromReq';
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { cookies } from "next/headers";

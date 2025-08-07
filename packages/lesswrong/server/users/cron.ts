@@ -4,7 +4,6 @@ import { allRateLimits } from "@/lib/collections/moderatorActions/constants";
 import { appendToSunshineNotes } from "../../lib/collections/users/helpers";
 import { triggerReview } from "../callbacks/helpers";
 import { createAdminContext } from "../vulcan-lib/createContexts";
-import * as _ from 'underscore';
 import moment from 'moment';
 
 export async function expiredRateLimitsReturnToReviewQueue() {
@@ -16,7 +15,7 @@ export async function expiredRateLimitsReturnToReviewQueue() {
   const userIdsWithExpiringRateLimits = rateLimitsExpiringToday.map((action) => action.userId);
   const usersWithExpiringRateLimits = await Users.find({_id: {$in: userIdsWithExpiringRateLimits}}).fetch();
   
-  if (!_.isEmpty(usersWithExpiringRateLimits)) {
+  if (usersWithExpiringRateLimits.length > 0) {
     await Promise.all(usersWithExpiringRateLimits.map(async user => {
       await appendToSunshineNotes({
         moderatedUserId: user._id,

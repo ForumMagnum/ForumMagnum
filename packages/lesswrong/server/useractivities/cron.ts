@@ -1,8 +1,7 @@
 /* eslint-disable no-console */
 /* See lib/collections/useractivities/collection.ts for a high-level overview */
-import chunk from 'lodash/fp/chunk';
-import max from 'lodash/fp/max';
-import { isEAForum, isLW } from '../../lib/instanceSettings';
+import chunk from 'lodash/chunk';
+import max from 'lodash/max';
 import { randomId } from '../../lib/random';
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { ActivityWindowData, getUserActivityData } from './getUserActivityData';
@@ -202,7 +201,7 @@ async function concatNewActivity({
 
   // Insert data for users we haven't seen before
   if (newUsersData.length > 0) {
-    const newUsersDataChunked = chunk(1000, newUsersData)
+    const newUsersDataChunked = chunk(newUsersData, 1000)
     log(`Inserting ${newUsersData.length} new rows into UserActivities table, in ${newUsersDataChunked.length} chunks`)
     
     for (const dataChunk of newUsersDataChunked) {
@@ -222,7 +221,7 @@ async function concatNewActivity({
   // Note the truncation ([:${ACTIVITY_WINDOW_HOURS}]) to ensure that the array of activity is the correct length
   const existingUsersData = cleanedActivityData.filter(({ userOrClientId }) => existingUserIds.includes(userOrClientId));
   if (existingUsersData.length > 0) {
-    const existingUsersDataChunked = chunk(1000, existingUsersData)
+    const existingUsersDataChunked = chunk(existingUsersData, 1000)
     log(`Updating ${existingUsersData.length} existing rows for which there is new activity, in ${existingUsersDataChunked.length} chunks`)
     
     for (const dataChunk of existingUsersDataChunked) {
@@ -250,7 +249,7 @@ async function concatNewActivity({
   const inactiveExistingUserIds = existingUserIds.filter(id => !existingUsersData.some(({ userOrClientId }) => userOrClientId === id));
   if (inactiveExistingUserIds.length > 0) {
     const newActivityHours = Math.round((updateEndDate.getTime() - updateStartDate.getTime()) / (1000 * 60 * 60));
-    const inactiveExistingUserIdsChunked = chunk(1000, inactiveExistingUserIds)
+    const inactiveExistingUserIdsChunked = chunk(inactiveExistingUserIds, 1000)
     log(`Adding zero-padding to ${inactiveExistingUserIds.length} existing rows for which there is no new activity, in ${inactiveExistingUserIdsChunked.length} chunks`)
 
     for (const userIdsChunk of inactiveExistingUserIdsChunked) {

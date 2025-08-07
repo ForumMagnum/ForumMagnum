@@ -1,12 +1,7 @@
-import type { NextRequest } from "next/server";
-
 export function getClientIP(headers?: Headers): string|undefined {
-  // From: https://stackoverflow.com/a/19524949 (which contains incorrect sample code!)
-  const ip = (headers?.get('x-forwarded-for') || '').split(',').shift()?.trim() // || 
-  // TODO: annoyingly, Next's app router doesn't seem to give us the IncomingMessage which originally had these fields???
-    // req.connection.remoteAddress || 
-    // req.socket.remoteAddress || 
-    // req.connection.socket?.remoteAddress
-  
-  return ip;
+  return (
+    headers?.get('x-forwarded-for')?.split(',')[0].trim()
+    ?? headers?.get('x-real-ip')
+    ?? undefined
+  );
 }

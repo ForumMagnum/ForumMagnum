@@ -1,4 +1,3 @@
-import * as _ from 'underscore';
 import { constantTimeCompare } from '../../helpers';
 import { userCanDo, userOwns } from '../../vulcan-users/permissions';
 import { userIsPostGroupOrganizer, userIsPostCoauthor } from './helpers';
@@ -71,7 +70,7 @@ export async function getCollaborativeEditorAccess({formType, post, user, contex
     accessLevel = strongerAccessLevel(accessLevel, "edit");
   } 
 
-  if (user && _.contains(post.shareWithUsers, user._id)) {
+  if (user && post.shareWithUsers.includes(user._id)) {
     accessLevel = strongerAccessLevel(accessLevel, post.sharingSettings?.explicitlySharedUsersCan);
   } 
   

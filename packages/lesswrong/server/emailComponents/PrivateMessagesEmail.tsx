@@ -1,7 +1,6 @@
 import React from 'react';
 import { conversationGetPageUrl } from '../../lib/collections/conversations/helpers';
 // import { useCurrentUser } from '../../components/common/withUser';
-import * as _ from 'underscore';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { EmailContextType } from "./emailContext";
 import { EmailUsername } from './EmailUsername';
@@ -34,7 +33,7 @@ export const PrivateMessagesEmail = ({conversations, messages, participantsById,
       {conversations.map(conv => <PrivateMessagesEmailConversation
         conversation={conv}
         key={conv._id}
-        messages={_.filter(messages, message=>message.conversationId===conv._id)}
+        messages={messages.filter(message=>message.conversationId===conv._id)}
         participantsById={participantsById}
         emailContext={emailContext}
       />)}

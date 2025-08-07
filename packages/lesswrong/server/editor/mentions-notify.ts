@@ -1,6 +1,7 @@
-import * as _ from 'underscore'
 import {createNotifications} from '../notificationCallbacksHelpers'
 import { notificationDocumentTypes } from '../collections/notifications/constants'
+import difference from 'lodash/difference';
+import intersection from 'lodash/intersection';
 import {isBeingUndrafted} from './utils'
 import {canMention} from '../../lib/pingback'
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames'
@@ -44,7 +45,7 @@ function getPingbacksToSend(
   const pingbacksFromDocuments = () => {
     const newDocPingbacks = getPingbacks(document)
     const oldDocPingbacks = getPingbacks(oldDocument)
-    const newPingbacks = _.difference(newDocPingbacks, oldDocPingbacks)
+    const newPingbacks = difference(newDocPingbacks, oldDocPingbacks)
 
     if (collectionName !== 'Posts' && collectionName !== 'Comments') {
       return newPingbacks
@@ -56,7 +57,7 @@ function getPingbacksToSend(
     if (doc.draft) {
       if (collectionName === 'Posts') {
         const post = doc as DbPost
-        const pingedUsersWhoHaveAccessToDoc = _.intersection(newPingbacks, post.shareWithUsers)
+        const pingedUsersWhoHaveAccessToDoc = intersection(newPingbacks, post.shareWithUsers || [])
         return pingedUsersWhoHaveAccessToDoc
       }
       return []
@@ -66,10 +67,10 @@ function getPingbacksToSend(
     if (oldDoc && isBeingUndrafted(oldDoc, doc)) {
       let alreadyNotifiedUsers: string[] = []
       if (collectionName === 'Posts') {
-        alreadyNotifiedUsers = _.intersection(oldDocPingbacks, (oldDoc as DbPost).shareWithUsers)
+        alreadyNotifiedUsers = intersection(oldDocPingbacks, (oldDoc as DbPost).shareWithUsers || [])
       }
 
-      return _.difference(newDocPingbacks, alreadyNotifiedUsers)
+      return difference(newDocPingbacks, alreadyNotifiedUsers)
     }
 
     return newPingbacks
@@ -78,4 +79,4 @@ function getPingbacksToSend(
   return removeSelfReference(pingbacksFromDocuments(), currentUser._id)
 }
 
-const removeSelfReference = (ids: string[], id: string) => _.without(ids, id)
+const removeSelfReference = (ids: string[], id: string) => ids.filter(i => i !== id)

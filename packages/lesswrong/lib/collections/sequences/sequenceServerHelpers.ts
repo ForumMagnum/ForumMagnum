@@ -1,16 +1,15 @@
 import { loadByIds } from '@/lib/loaders';
 import { accessFilterMultiple } from '@/lib/utils/schemaUtils';
 import keyBy from 'lodash/keyBy';
-import * as _ from 'underscore';
 import { getSequenceCollectionBooks, SequencePostId } from './helpers';
 
 
 export const sequenceGetAllPostIDs = async (sequenceId: string, context: ResolverContext): Promise<Array<string>> => {
   const chapters = await context.Chapters.find({ sequenceId: sequenceId }, { sort: { number: 1 } }).fetch();
-  let allPostIds = _.flatten(_.pluck(chapters, 'postIds'));
+  let allPostIds = chapters.flatMap(chapter => chapter.postIds);
 
   // Filter out nulls
-  const validPostIds = _.filter(allPostIds, postId => !!postId);
+  const validPostIds = allPostIds.filter(postId => !!postId);
 
   // Filter by user access
   const posts = await loadByIds(context, "Posts", validPostIds);
@@ -29,7 +28,7 @@ export const sequenceGetAllPosts = async (sequenceId: string | null, context: Re
 
   // Sort the posts retrieved back into reading order and return them
   const postsById = keyBy(posts, post => post._id);
-  return _.map(allPostIds, id => postsById[id]).filter(post => !!post);
+  return allPostIds.map(id => postsById[id]).filter(post => !!post);
 };
 
 export const getSurroundingSequencePostIdTuples = async function (sequenceId: string, context: ResolverContext) {
@@ -85,7 +84,7 @@ export const getPrevPostIdFromPrevSequence = async function (sequenceId: string,
 // returns null.
 export const sequenceGetNextPostID = async function (sequenceId: string, postId: string, context: ResolverContext): Promise<string | null> {
   const postIDs = await sequenceGetAllPostIDs(sequenceId, context);
-  const postIndex = _.indexOf(postIDs, postId);
+  const postIndex = postIDs.indexOf(postId);
 
   if (postIndex < 0) {
     // Post is not in this sequence
@@ -105,7 +104,7 @@ export const sequenceGetNextPostID = async function (sequenceId: string, postId:
 // sequence, returns null.
 export const sequenceGetPrevPostID = async function (sequenceId: string, postId: string, context: ResolverContext): Promise<string | null> {
   const postIDs = await sequenceGetAllPostIDs(sequenceId, context);
-  const postIndex = _.indexOf(postIDs, postId);
+  const postIndex = postIDs.indexOf(postId);
 
   if (postIndex < 0) {
     // Post is not in this sequence
@@ -121,7 +120,7 @@ export const sequenceGetPrevPostID = async function (sequenceId: string, postId:
 
 export const sequenceContainsPost = async function (sequenceId: string, postId: string, context: ResolverContext): Promise<boolean> {
   const postIDs = await sequenceGetAllPostIDs(sequenceId, context);
-  const postIndex = _.indexOf(postIDs, postId);
+  const postIndex = postIDs.indexOf(postId);
   return postIndex >= 0;
 };
 

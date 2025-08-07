@@ -3,7 +3,6 @@ import { loadByIds, getWithLoader } from "../loaders";
 import { isServer } from '../executionEnvironment';
 import { asyncFilter } from './asyncUtils';
 import DataLoader from 'dataloader';
-import * as _ from 'underscore';
 import { DeferredForumSelect } from '../forumTypeUtils';
 import { getCollectionAccessFilter } from '@/server/permissions/accessFilters';
 
@@ -100,7 +99,7 @@ export const accessFilterMultiple = async <N extends CollectionNameString, DocTy
   // Filter out nulls (docs that were referenced but didn't exist)
   // Explicit cast because the type-system doesn't detect that this is removing
   // nulls.
-  const existingDocs = _.filter(unfilteredDocs, d=>!!d) as DocType[];
+  const existingDocs = unfilteredDocs.filter(d=>!!d);
   // Apply the collection's checkAccess function, if it has one, to filter out documents
   const filteredDocs = checkAccess
     ? await asyncFilter(existingDocs, async (d) => await checkAccess(currentUser, d as AnyBecauseHard, context))
@@ -203,7 +202,7 @@ export function getDenormalizedCountOfReferencesGetValue<
       doc._id
     );
     
-    const docsThatCount = _.filter(docsThatMayCount, d=>filterFn(d));
+    const docsThatCount = docsThatMayCount.filter(d=>filterFn(d));
     return docsThatCount.length;
   }
 }

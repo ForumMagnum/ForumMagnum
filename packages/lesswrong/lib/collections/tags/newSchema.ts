@@ -21,27 +21,8 @@ import { getContributorsFieldResolver } from "@/lib/collections/helpers/contribu
 import { captureException } from "@sentry/nextjs";
 import { isLW } from "@/lib/instanceSettings";
 import { permissionGroups } from "@/lib/permissions";
-import gql from "graphql-tag";
 import type { TagCommentType } from "../comments/types";
 import { CommentsViews } from "../comments/views";
-
-export const graphqlTypeDefs = gql`
-  type TagContributor {
-    user: User
-    contributionScore: Int!
-    currentAttributionCharCount: Int
-    numCommits: Int!
-    voteCount: Int!
-  }
-  type TagContributorsList {
-    contributors: [TagContributor!]!
-    totalCount: Int!
-  }
-  type UserLikingTag {
-    _id: String!
-    displayName: String!
-  }
-`
 
 async function getTagMultiDocuments(context: ResolverContext, tagId: string) {
   const { MultiDocuments } = context;

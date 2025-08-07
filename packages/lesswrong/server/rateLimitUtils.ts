@@ -8,7 +8,7 @@ import type { CommentAutoRateLimit, PostAutoRateLimit, RateLimitComparison, Rate
 import { calculateRecentKarmaInfo, documentOnlyHasSelfVote, getAutoRateLimitInfo, getCurrentAndPreviousUserKarmaInfo, getMaxAutoLimitHours, getModRateLimitInfo, getRateLimitStrictnessComparisons, getStrictestRateLimitInfo, getManualRateLimitInfo, getManualRateLimitIntervalHours, getDownvoteRatio } from "../lib/rateLimits/utils"
 import { triggerReview } from "./callbacks/helpers"
 import { appendToSunshineNotes } from "../lib/collections/users/helpers"
-import { isNonEmpty } from "fp-ts/Array"
+import { isNonEmpty } from "@/lib/utils/typeGuardUtils"
 import type { NonEmptyArray } from "fp-ts/lib/NonEmptyArray"
 import { backgroundTask } from "./utils/backgroundTask"
 

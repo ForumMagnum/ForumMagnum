@@ -1,8 +1,10 @@
 import Notifications from '../server/collections/notifications/collection';
 import Users from '../server/collections/users/collection';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
-import * as _ from 'underscore';
 import type { RSVPType } from "@/lib/collections/posts/helpers";
+import difference from 'lodash/difference';
+import groupBy from 'lodash/groupBy';
+import min from 'lodash/min';
 import { createNotifications } from './notificationCallbacksHelpers'
 import moment from 'moment';
 import type { DialogueMessageInfo } from '../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
@@ -68,9 +70,9 @@ async function notifyDialogueParticipantNewMessage(props: NotifyDialogueParticip
 
 export async function notifyDialogueParticipantsNewMessage(newMessageAuthorId: string, dialogueMessageInfo: DialogueMessageInfo|undefined, post: DbPost) {
   // Get all the debate participants, but exclude the comment author if they're a debate participant
-  const debateParticipantIds = _.difference([post.userId, ...getConfirmedCoauthorIds(post)], [newMessageAuthorId]);
+  const debateParticipantIds = difference([post.userId, ...getConfirmedCoauthorIds(post)], [newMessageAuthorId]);
   const debateParticipants = await Users.find({_id: {$in: debateParticipantIds}}).fetch();
-  const earliestLastNotificationsCheck = _.min(debateParticipants.map(user => user.lastNotificationsCheck));
+  const earliestLastNotificationsCheck = min(debateParticipants.map(user => user.lastNotificationsCheck));
 
   const notifications = await Notifications.find({
     userId: {$in: debateParticipantIds}, 
@@ -81,7 +83,7 @@ export async function notifyDialogueParticipantsNewMessage(newMessageAuthorId: s
   }, {sort: {createdAt: -1}}).fetch();
 
 
-  const notificationsByUserId = _.groupBy(notifications, notification => notification.userId);
+  const notificationsByUserId = groupBy(notifications, notification => notification.userId);
   debateParticipantIds.forEach(userId => {
     if (!notificationsByUserId[userId]) {
       notificationsByUserId[userId] = []

@@ -1,5 +1,4 @@
-import { makeExecutableSchema } from "@graphql-tools/schema";
-import { typeDefs, resolvers } from "../vulcan-lib/apollo-server/initGraphQL";
+import { getExecutableSchema } from "../vulcan-lib/apollo-server/initGraphQL";
 import { GraphQLInputObjectType, GraphQLObjectType, InputObjectTypeDefinitionNode, Kind, ObjectTypeDefinitionNode, TypeNode } from "graphql";
 import { graphqlTypeToCollectionName } from "@/lib/vulcan-lib/collections";
 import { isValidCollectionName, getAllCollections } from "../collections/allCollections";
@@ -83,7 +82,7 @@ type GeneratableObjectType =
   | GraphQLObjectType & { astNode: ObjectTypeDefinitionNode };
 
 export function generateInputTypes() {
-  const schema = makeExecutableSchema({ typeDefs, resolvers });
+  const schema = getExecutableSchema();
   const types = Object.values(schema.getTypeMap());
   const inputTypes = types.filter((t): t is GeneratableObjectType => {
     return t.astNode?.kind === 'InputObjectTypeDefinition' || t.astNode?.kind === 'ObjectTypeDefinition';

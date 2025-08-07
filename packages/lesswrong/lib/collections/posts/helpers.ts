@@ -3,7 +3,7 @@ import { getOutgoingUrl, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userOverNKarmaFunc, userIsAdminOrMod, userOverNKarmaOrApproved } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
-import { max } from "underscore";
+import maxBy from "lodash/maxBy";
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import type { Request, Response } from 'express';
 import pathToRegexp from "path-to-regexp";
@@ -408,7 +408,7 @@ export const isNotHostedHere = (post: PostsEdit|PostsEditQueryFragment|PostsPage
 const mostRelevantTag = (
   tags: TagBasicInfo[],
   tagRelevance: Record<string, number>,
-): TagBasicInfo | null => max(tags, ({_id}) => tagRelevance[_id] ?? 0);
+): TagBasicInfo | null => maxBy(tags, ({_id}) => tagRelevance[_id] ?? 0) ?? null;
 
 export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = false) => {
   const {tags, tagRelevance} = post;

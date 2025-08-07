@@ -26,10 +26,13 @@ import { createEmailContext, wrapAndSendEmail } from "../emails/renderEmail";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { swrInvalidatePostRoute } from "../cache/swr";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
-import _ from "underscore";
 import moment from "moment";
 import isEqual from "lodash/isEqual";
 import uniq from "lodash/uniq";
+import maxBy from "lodash/maxBy";
+import difference from "lodash/difference";
+import intersection from "lodash/intersection";
+import union from "lodash/union";
 import { createConversation } from "../collections/conversations/mutations";
 import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
 import { createMessage } from "../collections/messages/mutations";
@@ -68,7 +71,7 @@ export async function recalculateAFCommentMetadata(postId: string|null, context:
     deleted: false
   }).fetch()
 
-  const lastComment: DbComment = _.max(afComments, function(c){return c.postedAt;})
+  const lastComment = maxBy(afComments, (c) => c.postedAt)
   const lastCommentedAt = (lastComment && lastComment.postedAt) || (await loaders.Posts.load(postId))?.postedAt || new Date()
 
   backgroundTask(updatePost({
@@ -196,12 +199,12 @@ const utils = {
           potentiallyDefaultSubscribedUserIds: [currentParentCommentAuthorId],
           userIsDefaultSubscribed: u => u.auto_subscribe_to_my_comments
         })
-        const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
+        const subscribedUserIds = subscribedUsers.map(u=>u._id);
   
         // Don't notify the author of their own comment, and filter out the author
         // of the parent-comment to be treated specially (with a newReplyToYou
         // notification instead of a newReply notification).
-        newReplyUserIds = [...newReplyUserIds, ..._.difference(subscribedUserIds, [comment.userId, currentParentCommentAuthorId])]
+        newReplyUserIds = [...newReplyUserIds, ...difference(subscribedUserIds, [comment.userId, currentParentCommentAuthorId])]
   
         // Separately notify authors of replies to their own comments
         if (subscribedUserIds.includes(currentParentCommentAuthorId) && currentParentCommentAuthorId !== comment.userId) {
@@ -214,8 +217,8 @@ const utils = {
       }
 
       // Take the difference to prevent double-notifying
-      newReplyUserIds = uniq(_.difference(newReplyUserIds, [...newReplyToYouDirectUserIds, ...newReplyToYouIndirectUserIds]));
-      newReplyToYouIndirectUserIds = uniq(_.difference(newReplyToYouIndirectUserIds, newReplyToYouDirectUserIds)); // Direct replies take precedence over indirect replies
+      newReplyUserIds = uniq(difference(newReplyUserIds, [...newReplyToYouDirectUserIds, ...newReplyToYouIndirectUserIds]));
+      newReplyToYouIndirectUserIds = uniq(difference(newReplyToYouIndirectUserIds, newReplyToYouDirectUserIds)); // Direct replies take precedence over indirect replies
       newReplyToYouDirectUserIds = uniq(newReplyToYouDirectUserIds);
   
       await Promise.all([
@@ -230,7 +233,7 @@ const utils = {
     // 2. If this comment is a debate comment, notify users who are subscribed to the post as a debate (`newDebateComments`)
     if (post && comment.debateResponse) {
       // Get all the debate participants, but exclude the comment author if they're a debate participant
-      const debateParticipantIds = _.difference([post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)], [comment.userId]);
+      const debateParticipantIds = difference([post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)], [comment.userId]);
   
       const debateSubscribers = await getSubscribedUsers({
         documentId: comment.postId,
@@ -243,11 +246,11 @@ const utils = {
       // Handle debate readers
       // Filter out debate participants, since they get a different notification type
       // (We shouldn't have notified any users for these comments previously, but leaving that in for sanity)
-      const debateSubscriberIdsToNotify = _.difference(debateSubscriberIds, [...debateParticipantIds, ...notifiedUsers, comment.userId]);
+      const debateSubscriberIdsToNotify = difference(debateSubscriberIds, [...debateParticipantIds, ...notifiedUsers, comment.userId]);
       await createNotifications({ userIds: debateSubscriberIdsToNotify, notificationType: 'newDebateComment', documentType: 'comment', documentId: comment._id });
   
       // Handle debate participants
-      const subscribedParticipantIds = _.intersection(debateSubscriberIds, debateParticipantIds);
+      const subscribedParticipantIds = intersection(debateSubscriberIds, debateParticipantIds);
       await createNotifications({ userIds: subscribedParticipantIds, notificationType: 'newDebateReply', documentType: 'comment', documentId: comment._id });
   
       // Avoid notifying users who are subscribed to both the debate comments and regular comments on a debate twice 
@@ -263,7 +266,7 @@ const utils = {
       potentiallyDefaultSubscribedUserIds: post ? [post.userId, ...getConfirmedCoauthorIds(post)] : [],
       userIsDefaultSubscribed: u => u.auto_subscribe_to_my_posts
     })
-    userIdsSubscribedToPost = _.map(usersSubscribedToPost, u=>u._id);
+    userIdsSubscribedToPost = usersSubscribedToPost.map(u=>u._id);
     
     // if the post is associated with a group, also (potentially) notify the group organizers
     if (post && post.groupId) {
@@ -276,7 +279,7 @@ const utils = {
           potentiallyDefaultSubscribedUserIds: group.organizerIds,
           userIsDefaultSubscribed: u => u.autoSubscribeAsOrganizer
         })
-        userIdsSubscribedToPost = _.union(userIdsSubscribedToPost, _.map(subsWithOrganizers, u=>u._id))
+        userIdsSubscribedToPost = union(userIdsSubscribedToPost, subsWithOrganizers.map(u=>u._id))
       }
     }
   
@@ -287,14 +290,14 @@ const utils = {
         collectionName: "Posts",
         type: subscriptionTypes.newShortform
       })
-      const userIdsSubscribedToShortform = _.map(usersSubscribedToShortform, u=>u._id);
+      const userIdsSubscribedToShortform = usersSubscribedToShortform.map(u=>u._id);
       await createNotifications({userIds: userIdsSubscribedToShortform, notificationType: 'newShortform', documentType: 'comment', documentId: comment._id});
       notifiedUsers = [ ...userIdsSubscribedToShortform, ...notifiedUsers]
     }
     
     // remove userIds of users that have already been notified
     // and of comment author (they could be replying in a thread they're subscribed to)
-    const postSubscriberIdsToNotify = _.difference(userIdsSubscribedToPost, [...notifiedUsers, comment.userId])
+    const postSubscriberIdsToNotify = difference(userIdsSubscribedToPost, [...notifiedUsers, comment.userId])
     if (postSubscriberIdsToNotify.length > 0) {
       await createNotifications({userIds: postSubscriberIdsToNotify, notificationType: 'newComment', documentType: 'comment', documentId: comment._id})
       notifiedUsers = [ ...notifiedUsers, ...postSubscriberIdsToNotify]
@@ -316,7 +319,7 @@ const utils = {
           subforumEmailNotifications: true,
         }).fetch()
       ).map((u) => u.userId);
-      const subforumSubscriberIdsToNotify = _.difference(subforumSubscriberIdsMaybeNotify, [...notifiedUsers, comment.userId])
+      const subforumSubscriberIdsToNotify = difference(subforumSubscriberIdsMaybeNotify, [...notifiedUsers, comment.userId])
   
       await createNotifications({
         userIds: subforumSubscriberIdsToNotify,
@@ -333,7 +336,7 @@ const utils = {
       type: subscriptionTypes.newUserComments
     })
     const commentAuthorSubscriberIds = commentAuthorSubscribers.map(({ _id }) => _id)
-    const commentAuthorSubscriberIdsToNotify = _.difference(commentAuthorSubscriberIds, notifiedUsers)
+    const commentAuthorSubscriberIdsToNotify = difference(commentAuthorSubscriberIds, notifiedUsers)
     await createNotifications({
       userIds: commentAuthorSubscriberIdsToNotify, 
       notificationType: 'newUserComment', 
@@ -501,7 +504,7 @@ const utils = {
     if (comment.postId) {
       const comments = await Comments.find({postId:comment.postId, deleted: false, debateResponse: false}).fetch()
     
-      const lastComment: DbComment = _.max(comments, (c) => c.postedAt)
+      const lastComment = maxBy(comments, (c) => c.postedAt)
       const lastCommentedAt = (lastComment && lastComment.postedAt) || (await loaders.Posts.load(comment.postId))?.postedAt || new Date()
     
       backgroundTask(updatePost({
@@ -981,7 +984,7 @@ export async function validateDeleteOperations(data: UpdateCommentDataInput, pro
     if (properties.newDocument.deleted && !properties.oldDocument.deleted) {
       // Deletion
       const childrenComments = await Comments.find({parentCommentId: properties.newDocument._id}).fetch()
-      const filteredChildrenComments = _.filter(childrenComments, (c) => !(c && c.deleted))
+      const filteredChildrenComments = childrenComments.filter((c) => !(c && c.deleted))
       if (
         filteredChildrenComments &&
         (filteredChildrenComments.length > 0) &&

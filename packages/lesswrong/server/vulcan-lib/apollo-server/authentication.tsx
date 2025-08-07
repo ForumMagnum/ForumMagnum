@@ -234,7 +234,7 @@ export const loginDataGraphQLMutations = {
       user,
       force: true,
       subject: "Password Reset Request",
-      body: <div>
+      body: (emailContext) => <div>
         <p>
           You requested a password reset. Follow the following link to reset your password: 
         </p>

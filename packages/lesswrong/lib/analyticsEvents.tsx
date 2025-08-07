@@ -6,7 +6,7 @@ import { hookToHoc } from './hocUtils'
 import { isClient, isServer, isE2E } from './executionEnvironment';
 import { ColorHash } from './vendor/colorHash';
 import { flushIntervalSetting } from './instanceSettings';
-import { throttle } from 'underscore';
+import throttle from 'lodash/throttle';
 import moment from 'moment';
 import { FeedItemSourceType, FeedItemType, UltraFeedAnalyticsContext } from '@/components/ultraFeed/ultraFeedTypes';
 import { RelevantTestGroupAllocation } from './abTestImpl';

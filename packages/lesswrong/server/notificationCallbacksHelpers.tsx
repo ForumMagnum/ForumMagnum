@@ -7,9 +7,9 @@ import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
 import { DebouncerTiming, EventDebouncer } from './debouncer';
 import type { NotificationDocument } from './collections/notifications/constants';
 import { defaultNotificationTypeSettings, NotificationChannelSettings, NotificationTypeSettings, legacyToNewNotificationTypeSettings } from "@/lib/collections/users/notificationFieldHelpers";
-import * as _ from 'underscore';
 import { createAnonymousContext } from './vulcan-lib/createContexts';
 import keyBy from 'lodash/keyBy';
+import union from 'lodash/union';
 import UsersRepo, { MongoNearLocation } from './repos/UsersRepo';
 import { sequenceGetPageUrl } from '../lib/collections/sequences/helpers';
 import { createNotification as createNotificationMutator } from './collections/notifications/mutations';
@@ -48,7 +48,7 @@ import { backgroundTask } from './utils/backgroundTask';
   }
   
   const subscriptions = await Subscriptions.find({documentId, type, collectionName, deleted: false, state: 'subscribed'}).fetch()
-  const explicitlySubscribedUserIds = _.pluck(subscriptions, 'userId')
+  const explicitlySubscribedUserIds = subscriptions.map(s => s.userId)
   
   const explicitlySubscribedUsers = await Users.find({_id: {$in: explicitlySubscribedUserIds}}).fetch()
   const explicitlySubscribedUsersDict = keyBy(explicitlySubscribedUsers, u=>u._id);
@@ -57,21 +57,20 @@ import { backgroundTask } from './utils/backgroundTask';
   if (potentiallyDefaultSubscribedUserIds && potentiallyDefaultSubscribedUserIds.length>0) {
     // Filter explicitly-subscribed users out of the potentially-implicitly-subscribed
     // users list, since their subscription status is already known
-    potentiallyDefaultSubscribedUserIds = _.filter(potentiallyDefaultSubscribedUserIds, id=>!(id in explicitlySubscribedUsersDict));
+    potentiallyDefaultSubscribedUserIds = potentiallyDefaultSubscribedUserIds.filter(id=>!(id in explicitlySubscribedUsersDict));
     
     // Fetch and filter potentially-subscribed users
     const potentiallyDefaultSubscribedUsers: Array<DbUser> = await Users.find({
       _id: {$in: potentiallyDefaultSubscribedUserIds}
     }).fetch();
-    // @ts-ignore @types/underscore annotated this wrong; the filter is optional, if it's null then everything passes
-    const defaultSubscribedUsers: Array<DbUser> = _.filter(potentiallyDefaultSubscribedUsers, userIsDefaultSubscribed);
+    const defaultSubscribedUsers: Array<DbUser> = userIsDefaultSubscribed ? potentiallyDefaultSubscribedUsers.filter(userIsDefaultSubscribed) : potentiallyDefaultSubscribedUsers;
     
     // Check for suppression in the subscriptions table
     const suppressions = await Subscriptions.find({documentId, type, collectionName, deleted: false, state: "suppressed"}).fetch();
     const suppressionsByUserId = keyBy(suppressions, s=>s.userId);
-    const defaultSubscribedUsersNotSuppressed = _.filter(defaultSubscribedUsers, u=>!(u._id in suppressionsByUserId))
+    const defaultSubscribedUsersNotSuppressed = defaultSubscribedUsers.filter(u=>!(u._id in suppressionsByUserId))
     
-    return _.union(explicitlySubscribedUsers, defaultSubscribedUsersNotSuppressed);
+    return union(explicitlySubscribedUsers, defaultSubscribedUsersNotSuppressed);
   } else {
     return explicitlySubscribedUsers;
   }

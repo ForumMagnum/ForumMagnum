@@ -3,17 +3,16 @@
 import React, { useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { showReviewOnFrontPageIfActive, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserActive, ultraFeedEnabledSetting, isLW, isAF } from '@/lib/instanceSettings';
+import { showReviewOnFrontPageIfActive, lightconeFundraiserActive, ultraFeedEnabledSetting, isLW, isAF } from '@/lib/instanceSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE, ULTRA_FEED_ENABLED_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
-import { userHasUltraFeed,visitorGetsDynamicFrontpage } from '../../lib/betas';
+import { visitorGetsDynamicFrontpage } from '../../lib/betas';
 import { useCurrentUser } from './withUser';
 import { combineUrls, getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useABTest } from '@/components/hooks/useAbTests';
 import { ultraFeedABTest } from '../../lib/abTests';
-import RecentDiscussionFeed from "../recentDiscussion/RecentDiscussionFeed";
 import AnalyticsInViewTracker from "./AnalyticsInViewTracker";
 import FrontpageReviewWidget from "../review/FrontpageReviewWidget";
 import SingleColumnSection from "./SingleColumnSection";
@@ -24,6 +23,8 @@ import LWHomePosts from "./LWHomePosts";
 import UltraFeed from "../ultraFeed/UltraFeed";
 import { StructuredData } from './StructuredData';
 import { SuspenseWrapper } from './SuspenseWrapper';
+import DeferRender from './DeferRender';
+import dynamic from 'next/dynamic';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const getStructuredData = () => ({
@@ -73,8 +74,9 @@ const LWHome = () => {
   const hasExplicitPreference = cookieValue === "true" || cookieValue === "false";
   
   // Determine which feed to show: if cookie is set, use that preference, otherwise use A/B test assignment
-  const shouldShowUltraFeed = ultraFeedEnabledSetting.get() && currentUser && (cookieValue === "true" || (!hasExplicitPreference && abTestGroup === 'ultraFeed')
-  );
+  const shouldShowUltraFeed = ultraFeedEnabledSetting.get() && currentUser && (cookieValue === "true" || (!hasExplicitPreference && abTestGroup === 'ultraFeed'));
+
+  const RecentDiscussionFeed = dynamic(() => import("../recentDiscussion/RecentDiscussionFeed"), { ssr: false });
 
   return (
       <AnalyticsContext pageContext="homePage">
@@ -103,11 +105,13 @@ const LWHome = () => {
               <AnalyticsInViewTracker eventProps={{inViewType: "feedSection"}} observerProps={{threshold:[0, 0.5, 1]}}>
                 <SuspenseWrapper name="UltraFeed">
                   {shouldShowUltraFeed && <UltraFeed />}
-                  {!shouldShowUltraFeed && <RecentDiscussionFeed
+                  {!shouldShowUltraFeed && <DeferRender ssr={false}>
+                    <RecentDiscussionFeed
                       af={false}
                       commentsLimit={4}
                       maxAgeHours={18}
-                    />}
+                    />
+                  </DeferRender>}
                 </SuspenseWrapper>
               </AnalyticsInViewTracker>
 

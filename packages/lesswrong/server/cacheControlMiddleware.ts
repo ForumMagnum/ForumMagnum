@@ -1,6 +1,6 @@
 import type { AddMiddlewareType } from './apolloServer';
 import { parsePath, parseRoute } from '../lib/vulcan-core/appContext';
-import { getUserFromReq } from './vulcan-lib/apollo-server/context';
+import { getUserFromReq } from './vulcan-lib/apollo-server/getUserFromReq';
 import express from 'express';
 import { getCookieFromReq } from './utils/httpUtil';
 import { swrCachingEnabledSetting } from './databaseSettings';

@@ -12,7 +12,7 @@ import keyBy from 'lodash/keyBy';
 import orderBy from 'lodash/orderBy';
 import mapValues from 'lodash/mapValues';
 import pick from 'lodash/pick';
-import * as _ from 'underscore';
+import maxBy from 'lodash/maxBy';
 import {
   defaultSubforumSorting,
   SubforumSorting,
@@ -25,7 +25,7 @@ import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { taggingNamePluralSetting } from '../../lib/instanceSettings';
 import difference from 'lodash/difference';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
-import union from 'lodash/fp/union';
+import union from 'lodash/union';
 import { loadByIds } from '@/lib/loaders';
 import { hasWikiLenses } from '@/lib/betas';
 import { updateDenormalizedHtmlAttributions } from '../tagging/updateDenormalizedHtmlAttributions';
@@ -36,8 +36,7 @@ import { getLatestRev } from '../editor/utils';
 import gql from 'graphql-tag';
 import { createAdminContext } from "@/server/vulcan-lib/createContexts";
 import { updateTag } from '../collections/tags/mutations';
-import { WithDateFields } from '@/lib/utils/dateUtils';
-import { getDefaultViewSelector, mergeSelectors, mergeWithDefaultViewSelector } from '@/lib/utils/viewUtils';
+import { mergeWithDefaultViewSelector } from '@/lib/utils/viewUtils';
 import { CommentsViews } from '@/lib/collections/comments/views';
 import { backgroundTask } from '../utils/backgroundTask';
 
@@ -259,7 +258,7 @@ function getDocumentDeletionsInTimeBlockSelector(documentIds: string[], before: 
 async function getRevisionAndCommentUsers(revisions: DbRevision[], rootComments: DbComment[], context: ResolverContext) {
   const revisionUserIds = revisions.map(tr => tr.userId);
   const commentUserIds = rootComments.map(rc => rc.userId);
-  const userIds = filterNonnull(_.uniq([...revisionUserIds, ...commentUserIds]));
+  const userIds = filterNonnull([...new Set([...revisionUserIds, ...commentUserIds])]);
 
   const usersAll = await loadByIds(context, "Users", userIds);
   const users = await accessFilterMultiple(context.currentUser, 'Users', usersAll, context);
@@ -276,7 +275,7 @@ async function getMultiDocumentsByTagId(revisions: DbRevision[], context: Resolv
 
   // Get the ids of MultiDocuments that have revisions in the given time interval
   const revisionMultiDocumentIds = revisions.filter(r=>r.collectionName==="MultiDocuments").map(r=>r.documentId);
-  const multiDocumentIds = filterNonnull(_.uniq(revisionMultiDocumentIds));
+  const multiDocumentIds = filterNonnull([...new Set(revisionMultiDocumentIds)]);
 
   const multiDocumentsUnfiltered = await loadByIds(context, "MultiDocuments", multiDocumentIds);
   const multiDocuments = await accessFilterMultiple(context.currentUser, 'MultiDocuments', multiDocumentsUnfiltered, context);
@@ -298,7 +297,7 @@ async function getTopLevelTags(revisions: DbRevision[], rootComments: DbComment[
   const tagIds = [...revisionTagIds, ...commentTagIds];
   const lensTagIds = Object.keys(lensIdsByTagId);
   const summaryTagIds = Object.keys(summaryIdsByTagId);
-  const topLevelTagIds = filterNonnull(_.uniq([...tagIds, ...lensTagIds, ...summaryTagIds]));
+  const topLevelTagIds = filterNonnull([...new Set([...tagIds, ...lensTagIds, ...summaryTagIds])]);
 
   const tagsUnfiltered = await loadByIds(context, "Tags", topLevelTagIds);
   return await accessFilterMultiple(context.currentUser, 'Tags', tagsUnfiltered, context);
@@ -399,9 +398,9 @@ async function getDocumentDeletionsInTimeBlock({before, after, lensesByTagId, su
   const lenses = Object.values(lensesByTagId).flat();
   const summaries = Object.values(summariesByTagId).flat();
 
-  const lensIds = filterNonnull(_.uniq(lenses.map(l => l._id)));
-  const summaryIds = filterNonnull(_.uniq(summaries.map(s => s._id)));
-  const documentIds = _.uniq([...lensIds, ...summaryIds]);
+  const lensIds = filterNonnull([...new Set(lenses.map(l => l._id))]);
+  const summaryIds = filterNonnull([...new Set(summaries.map(s => s._id))]);
+  const documentIds = [...new Set([...lensIds, ...summaryIds])];
 
   const documentDeletionsSelector = getDocumentDeletionsInTimeBlockSelector(documentIds, before, after);
   const documentDeletions = await LWEvents.find(documentDeletionsSelector).fetch();
@@ -724,7 +723,7 @@ export const tagResolversGraphQLQueries = {
       const relevantDocumentDeletions = documentDeletionsByTagId[tag._id!] ?? [];
 
       const relevantRootComments = rootComments.filter(c => c.tagId === tag._id);
-      const relevantUsersIds = filterNonnull(_.uniq([...relevantTagRevisions.map(tr => tr.userId), ...relevantRootComments.map(rc => rc.userId)]));
+      const relevantUsersIds = filterNonnull([...new Set([...relevantTagRevisions.map(tr => tr.userId), ...relevantRootComments.map(rc => rc.userId)])]);
       // `usersById` might be missing a user for a given userId if that user is e.g. deleted
       const relevantUsers = relevantUsersIds.map(userId => usersById[userId]).filter(user => !!user);
       
@@ -733,8 +732,8 @@ export const tagResolversGraphQLQueries = {
         revisionIds: relevantRevisions.map(r=>r._id),
         commentCount: relevantRootComments.length + sumBy(relevantRootComments, c=>c.descendentCount),
         commentIds: relevantRootComments.map(c=>c._id),
-        lastRevisedAt: relevantRevisions.length>0 ? _.max(relevantRevisions, r=>r.editedAt).editedAt : null,
-        lastCommentedAt: relevantRootComments.length>0 ? _.max(relevantRootComments, c=>c.lastSubthreadActivity).lastSubthreadActivity : null,
+        lastRevisedAt: relevantRevisions.length>0 ? maxBy(relevantRevisions, r=>r.editedAt)?.editedAt ?? null : null,
+        lastCommentedAt: relevantRootComments.length>0 ? maxBy(relevantRootComments, c=>c.lastSubthreadActivity)?.lastSubthreadActivity ?? null : null,
         added: sumBy(relevantRevisions, r=>r.changeMetrics.added),
         removed: sumBy(relevantRevisions, r=>r.changeMetrics.removed),
         users: relevantUsers,
@@ -777,7 +776,7 @@ export const tagResolversGraphQLQueries = {
     const tagRevisions = filterWhereFieldsNotNull(rawTagRevisions, "documentId")
 
     // Get the tags themselves, keyed by the id
-    const tagIds = filterNonnull(_.uniq(tagRevisions.map(r=>r.documentId)))
+    const tagIds = filterNonnull([...new Set(tagRevisions.map(r=>r.documentId))])
     const tagsUnfiltered = await loadByIds(context, "Tags", tagIds);
     const tags = (await accessFilterMultiple(context.currentUser, 'Tags', tagsUnfiltered, context)).reduce( (acc: Partial<Record<string,DbTag>>, tag: DbTag) => {
       acc[tag._id] = tag;

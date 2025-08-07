@@ -1,4 +1,3 @@
-import * as _ from 'underscore';
 import { isCollaborative, canUserEditPostMetadata } from '@/lib/collections/posts/helpers';
 import { Posts } from '../../server/collections/posts/collection';
 import { Revisions } from '../../server/collections/revisions/collection';
@@ -47,14 +46,14 @@ export const getLinkSharedPostGraphQLQueries = {
     //  * The logged in user is an admin or moderator (or otherwise has edit permissions)
 
     if (
-      (post.shareWithUsers && _.contains(post.shareWithUsers, currentUser?._id))
+      (post.shareWithUsers && currentUser?._id && post.shareWithUsers.includes(currentUser._id))
       || (linkSharingEnabled(post) && (!canonicalLinkSharingKey || keysMatch))
       || (linkSharingEnabled(post) && (currentUser && post.linkSharingKeyUsedBy?.includes(currentUser._id)))
       || currentUser?._id === post.userId
       || userCanDo(currentUser, 'posts.edit.all')
     ) {
       // Add the user to linkSharingKeyUsedBy, if not already there
-      if (currentUser && (!post.linkSharingKeyUsedBy || !_.contains(post.linkSharingKeyUsedBy, currentUser._id))) {
+      if (currentUser && (!post.linkSharingKeyUsedBy || !post.linkSharingKeyUsedBy.includes(currentUser._id))) {
         // FIXME: This is a workaround for the fact that $addToSet hasn't yet been implemented for postgres. We should
         // switch to just using the second version because it should avoid errors with concurrent updates.
         await Posts.rawUpdateOne(

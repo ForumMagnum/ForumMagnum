@@ -6,13 +6,13 @@ import cors from 'cors';
 import { isDevelopment } from '../lib/executionEnvironment';
 import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
 import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql'; 
-import { getUserFromReq, configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
+import { configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
+import { getUserFromReq } from './vulcan-lib/apollo-server/getUserFromReq';
 import universalCookiesMiddleware from 'universal-cookie-express';
 import { formatError } from 'apollo-errors';
 import * as Sentry from '@sentry/nextjs';
 import { app } from './expressServer';
 import path from 'path'
-import { addAuthMiddlewares } from './authenticationMiddlewares';
 import { expressSessionSecretSetting, botProtectionCommentRedirectSetting } from './databaseSettings';
 import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
 import { logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
@@ -31,7 +31,7 @@ import { hstsMiddleware } from './hsts';
 import { getClientBundle } from './utils/bundleUtils';
 import ElasticController from './search/elastic/ElasticController';
 import { closePerfMetric, openPerfMetric } from './perfMetrics';
-import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
+// import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
 import { addCacheControlMiddleware } from './cacheControlMiddleware';
 import { getSqlClientOrThrow } from './sql/sqlClient';
 import { getCommandLineArguments } from './commandLine';
@@ -139,8 +139,8 @@ export async function startWebserver() {
   }
 
   // Most middleware need to run after those added by addAuthMiddlewares, so that they can access the user that passport puts on the request.  Be careful if moving it!
-  addAuthMiddlewares(addMiddleware);
-  addAdminRoutesMiddleware(addMiddleware);
+  // addAuthMiddlewares(addMiddleware);
+  // addAdminRoutesMiddleware(addMiddleware);
   addForumSpecificMiddleware(addMiddleware);
   // addSentryMiddlewares(addMiddleware);
   addCacheControlMiddleware(addMiddleware);

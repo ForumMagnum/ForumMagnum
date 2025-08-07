@@ -13,13 +13,13 @@ import { SideItem, useHasSideItemsSidebar } from '../contents/SideItems';
 import { useDialog } from '../common/withDialog';
 import { isRegularClick } from "@/components/posts/TableOfContents/TableOfContentsList";
 import { isMobile } from '@/lib/utils/isMobile';
-import ContentStyles, { ContentStyleType } from '../common/ContentStyles';
+import ContentStyles from '../common/ContentStyles';
 import FootnoteDialog from "./FootnoteDialog";
 import SideItemLine from "../contents/SideItemLine";
 import LWPopper from "../common/LWPopper";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import { InteractionWrapper } from '../common/useClickableCell';
-
+import type { ContentStyleType } from '@/components/common/ContentStylesValues';
 
 const footnotePreviewStyles = (theme: ThemeType) => ({
   hovercard: {

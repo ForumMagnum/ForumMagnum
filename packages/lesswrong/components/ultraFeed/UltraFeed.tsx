@@ -1,12 +1,11 @@
 import React from 'react';
-// import dynamic from 'next/dynamic';
+import dynamic from 'next/dynamic';
 import { ultraFeedEnabledSetting } from '../../lib/instanceSettings';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import DeferRender from '../common/DeferRender';
 import SingleColumnSection from "../common/SingleColumnSection";
 import { useCurrentUser } from '../common/withUser';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import UltraFeedContent from './UltraFeedContent';
 
 const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   root: {
@@ -109,7 +108,7 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
 const UltraFeed = ({alwaysShow = false}: {
   alwaysShow?: boolean
 }) => {
-  // const UltraFeedContent = dynamic(() => import('./UltraFeedContent'), { ssr: false });
+  const UltraFeedContent = dynamic(() => import('./UltraFeedContent'), { ssr: false });
   
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();

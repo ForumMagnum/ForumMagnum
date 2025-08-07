@@ -1,6 +1,5 @@
 import { forEachDocumentBatchInCollection, registerMigration } from './migrationUtils';
 import Users from '../../server/collections/users/collection';
-import * as _ from 'underscore';
 import { backgroundTask } from '../utils/backgroundTask';
 
 export default registerMigration({

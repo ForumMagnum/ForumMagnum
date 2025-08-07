@@ -2,12 +2,12 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
 import { useLocation, useNavigate } from '@/lib/routeUtil';
-import { isEmpty } from 'underscore';
+import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useQuery } from "@/lib/crud/useQuery";

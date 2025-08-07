@@ -3,7 +3,6 @@ import qs from 'qs';
 import React, { useCallback, useContext } from 'react';
 import { LocationContext, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType, NavigationContext } from './vulcan-core/appContext';
 import type { RouterLocation, SegmentedUrl } from './vulcan-lib/routes';
-import * as _ from 'underscore';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
 import { createPath, type LocationDescriptor, parsePath } from 'history';
 import {siteUrlSetting} from './instanceSettings'
@@ -139,8 +138,8 @@ export const removeUrlParameters = (url: string, queryParameterBlacklist: string
   
   const parsedQuery = qs.parse(query);
   let filteredQuery: AnyBecauseTodo = {};
-  for (let key of _.keys(parsedQuery)) {
-    if (_.indexOf(queryParameterBlacklist, key) < 0) {
+  for (let key of Object.keys(parsedQuery)) {
+    if (!queryParameterBlacklist.includes(key)) {
       filteredQuery[key] = parsedQuery[key];
     }
   }

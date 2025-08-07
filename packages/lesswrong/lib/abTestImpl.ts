@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import * as _ from 'underscore';
 import rng from './seedrandom';
 import { CLIENT_ID_COOKIE } from './cookies/cookies';
 import { useCookiesWithConsent } from '../components/hooks/useCookiesWithConsent';
@@ -122,10 +121,10 @@ export function getAllUserABTestGroups(abKeyInfo: ABKeyInfo): CompleteTestGroupA
 
 // Given a weighted set of strings and a seed, return a random element of that set.
 export function weightedRandomPick<T extends string>(options: Record<T,number>, seed: string): T {
-  const weights = _.values(options);
+  const weights = Object.values<number>(options);
   if (weights.length === 0)
     throw new Error("Random pick from empty set");
-  const totalWeight: number = _.reduce(weights, (x: number, y: number) => x+y);
+  const totalWeight: number = weights.reduce((x: number, y: number) => x+y, 0);
   const randomRangeValue = totalWeight*rng(seed).double();
   
   let i=0;

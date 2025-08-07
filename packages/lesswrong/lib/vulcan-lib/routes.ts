@@ -1,4 +1,3 @@
-import * as _ from 'underscore';
 // eslint-disable-next-line no-restricted-imports
 import {matchPath} from 'react-router'
 
@@ -107,8 +106,7 @@ export const addRoute = (...routes: Route[]): void => {
     const {name, path, ...properties} = route;
   
     // check if there is already a route registered to this path
-    // @ts-ignore The @types/underscore signature for _.findWhere is narrower than the real function; this works fine
-    const routeWithSamePath = _.findWhere(Routes, { path });
+    const routeWithSamePath = Object.values(Routes).find(route => route.path === path);
   
     if (routeWithSamePath) {
       // Don't allow shadowing/replacing routes

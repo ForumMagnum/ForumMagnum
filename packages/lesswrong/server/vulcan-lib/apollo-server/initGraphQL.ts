@@ -6,21 +6,14 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLSchema } from 'graphql';
 import GraphQLJSON from '@/lib/vendor/graphql-type-json';
 import GraphQLDate from './graphql-date';
+import { getVoteGraphql } from '@/server/votingGraphQL';
 import { graphqlTypeDefs as notificationTypeDefs, graphqlQueries as notificationQueries } from '@/server/notificationBatching';
 import { graphqlTypeDefs as arbitalLinkedPagesTypeDefs } from '@/lib/collections/helpers/arbitalLinkedPagesField';
-import { graphqlTypeDefs as additionalPostsTypeDefs } from '@/lib/collections/posts/newSchema';
-import { graphqlTypeDefs as additionalRevisionsTypeDefs } from '@/lib/collections/revisions/newSchema';
-import { graphqlTypeDefs as additionalTagsTypeDefs } from '@/lib/collections/tags/newSchema';
-import { graphqlTypeDefs as additionalUsersTypeDefs } from '@/lib/collections/users/newSchema';
+import { graphqlTypeDefs as additionalPostsTypeDefs } from "@/lib/collections/posts/graphqlTypeDefs";
+import { graphqlTypeDefs as additionalTagsTypeDefs } from "@/lib/collections/tags/graphqlTypeDefs";
+import { graphqlTypeDefs as additionalUsersTypeDefs } from "@/lib/collections/users/graphqlTypeDefs";
 import { graphqlTypeDefs as recommendationsTypeDefs, graphqlQueries as recommendationsQueries } from '@/server/recommendations';
 import { graphqlTypeDefs as userResolversTypeDefs, graphqlMutations as userResolversMutations, graphqlQueries as userResolversQueries } from '@/server/resolvers/userResolvers';
-import { graphqlVoteTypeDefs as postVoteTypeDefs, graphqlVoteMutations as postVoteMutations } from '@/server/collections/posts/collection';
-import { graphqlVoteTypeDefs as commentVoteTypeDefs, graphqlVoteMutations as commentVoteMutations } from '@/server/collections/comments/collection';
-import { graphqlVoteTypeDefs as tagRelVoteTypeDefs, graphqlVoteMutations as tagRelVoteMutations } from '@/server/collections/tagRels/collection';
-import { graphqlVoteTypeDefs as revisionVoteTypeDefs, graphqlVoteMutations as revisionVoteMutations } from '@/server/collections/revisions/collection';
-import { graphqlVoteTypeDefs as electionCandidateVoteTypeDefs, graphqlVoteMutations as electionCandidateVoteMutations } from '@/server/collections/electionCandidates/collection';
-import { graphqlVoteTypeDefs as tagVoteTypeDefs, graphqlVoteMutations as tagVoteMutations } from '@/server/collections/tags/collection';
-import { graphqlVoteTypeDefs as multiDocumentVoteTypeDefs, graphqlVoteMutations as multiDocumentVoteMutations } from '@/server/collections/multiDocuments/collection';
 import { graphqlTypeDefs as commentTypeDefs, graphqlMutations as commentMutations, graphqlQueries as commentQueries } from '@/server/resolvers/commentResolvers'
 import { karmaChangesTypeDefs, karmaChangesFieldResolvers } from '@/server/collections/users/karmaChangesGraphQL';
 import { analyticsGraphQLQueries, analyticsGraphQLTypeDefs } from '@/server/resolvers/analyticsResolvers';
@@ -227,19 +220,35 @@ const emptyViewInput = gql`
   }
 `;
 
-//  @deprecated(reason: "GraphQL doesn't support empty input types, so we need to provide a field.  Don't pass anything in, it doesn't do anything.")
+const { graphqlVoteTypeDefs: postVoteTypeDefs, graphqlVoteMutations: postVoteMutations } = getVoteGraphql('Posts');
+const { graphqlVoteTypeDefs: commentVoteTypeDefs, graphqlVoteMutations: commentVoteMutations } = getVoteGraphql('Comments');
+const { graphqlVoteTypeDefs: tagRelVoteTypeDefs, graphqlVoteMutations: tagRelVoteMutations } = getVoteGraphql('TagRels');
+const { graphqlVoteTypeDefs: revisionVoteTypeDefs, graphqlVoteMutations: revisionVoteMutations } = getVoteGraphql('Revisions');
+const { graphqlVoteTypeDefs: electionCandidateVoteTypeDefs, graphqlVoteMutations: electionCandidateVoteMutations } = getVoteGraphql('ElectionCandidates');
+const { graphqlVoteTypeDefs: tagVoteTypeDefs, graphqlVoteMutations: tagVoteMutations } = getVoteGraphql('Tags');
+const { graphqlVoteTypeDefs: multiDocumentVoteTypeDefs, graphqlVoteMutations: multiDocumentVoteMutations } = getVoteGraphql('MultiDocuments');
 
-export const typeDefs = gql`
+export const getTypeDefs = () => gql`
   type Query
   type Mutation
   scalar JSON
   scalar Date
+  
+  # Graphql doesn't allow union types that include scalars, which is necessary
+  # to accurately represent the data field the ContentType simple schema.
+  # Defining a custom scalar seems to allow it to pass through any data type,
+  # but this doesn't seem much more permissive than ContentType was originally.
+  scalar ContentTypeData
+  type ContentType {
+    type: String!
+    data: ContentTypeData!
+  }
+
   ${selectorInput}
   ${emptyViewInput}
   ${notificationTypeDefs}
   ${arbitalLinkedPagesTypeDefs}
   ${additionalPostsTypeDefs}
-  ${additionalRevisionsTypeDefs}
   ${additionalTagsTypeDefs}
   ${additionalUsersTypeDefs}
   ${recommendationsTypeDefs}
@@ -449,7 +458,7 @@ export const typeDefs = gql`
 `
 
 
-export const resolvers = {
+const getResolvers = () => ({
   JSON: GraphQLJSON,
   Date: GraphQLDate,
   Query: {
@@ -789,7 +798,7 @@ export const resolvers = {
   Mutation: Record<string, (root: void, args: any, context: ResolverContext) => any>,
   KarmaChanges: { updateFrequency: (root: void, args: any, context: ResolverContext) => any },
   ElicitUser: { lwUser: (root: void, args: any, context: ResolverContext) => any },
-};
+});
 
 export type SchemaGraphQLFieldArgument = {name: string, type: string|GraphQLScalarType|null}
 export type SchemaGraphQLFieldDescription = {
@@ -804,7 +813,7 @@ export type SchemaGraphQLFieldDescription = {
 let _executableSchema: GraphQLSchema|null = null;
 export function getExecutableSchema() {
   if (!_executableSchema) {
-    _executableSchema = makeExecutableSchema({ typeDefs, resolvers });
+    _executableSchema = makeExecutableSchema({ typeDefs: getTypeDefs(), resolvers: getResolvers() });
   }
   return _executableSchema;
 }

@@ -1,8 +1,8 @@
 import compose from 'lodash/flowRight';
 import React from 'react';
 import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '../utils/componentUtils';
-import * as _ from 'underscore';
 import { withAddClasses } from '@/components/hooks/useStyles';
+import isEqual from 'lodash/isEqual';
 import type { StyleOptions } from '@/server/styleGeneration';
 
 type ComparisonFn = (prev: any, next: any) => boolean
@@ -171,7 +171,7 @@ const memoizeComponent = (areEqual: AreEqualOption, component: any, name: string
             }
             break;
           case "deep":
-            if (!_.isEqual(oldProps[key], newProps[key])) {
+            if (!isEqual(oldProps[key], newProps[key])) {
               if (debugRerenders) {
                 // eslint-disable-next-line no-console
                 console.log(`Updating ${name} because props.${key} changed`);

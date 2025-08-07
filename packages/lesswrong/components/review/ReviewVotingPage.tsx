@@ -4,7 +4,6 @@ import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from '@/lib/generated/gql-codegen';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
-import * as _ from "underscore"
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
 import { getCostData, getReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
@@ -99,7 +98,7 @@ export const generatePermutation = (count: number, user: UsersCurrent|null): Arr
   const seed = user?._id || "";
   const rng = seedrandom(seed);
   
-  let remaining = _.range(count);
+  let remaining = Array.from({ length: count }, (_, i) => i);
   let result: Array<number> = [];
   while(remaining.length > 0) {
     let idx = Math.floor(rng() * remaining.length);

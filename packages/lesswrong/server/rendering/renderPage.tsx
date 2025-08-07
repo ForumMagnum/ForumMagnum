@@ -5,9 +5,9 @@
  * @see https://www.apollographql.com/docs/react/features/server-side-rendering.html#renderToStringWithData
  */
 import React from 'react';
-import ReactDOM, { renderToPipeableStream } from 'react-dom/server';
-import { renderToStringWithData } from '@apollo/client/react/ssr';
-import { getUserFromReq, computeContextFromUser, configureSentryScope } from '@/server/vulcan-lib/apollo-server/context';
+import ReactDOM from 'react-dom/server';
+import { computeContextFromUser, configureSentryScope } from '@/server/vulcan-lib/apollo-server/context';
+import { getUserFromReq } from '../vulcan-lib/apollo-server/getUserFromReq';
 import { createClient } from '@/server/vulcan-lib/apollo-ssr/apolloClient';
 import { cachedPageRender, recordCacheBypass} from './pageCache';
 import { getAllUserABTestGroups, CompleteTestGroupAllocation, RelevantTestGroupAllocation, classesForAbTestGroups } from '@/lib/abTestImpl';
@@ -29,7 +29,7 @@ import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
 import { visitorGetsDynamicFrontpage } from '@/lib/betas';
 import { responseIsCacheable } from '@/server/cacheControlMiddleware';
 import { preloadScrollToCommentScript } from '@/lib/scrollUtils';
-import { ensureClientId } from '@/server/clientIdMiddleware';
+// import { ensureClientId } from '@/server/clientIdMiddleware';
 import { getSqlBytesDownloaded } from '@/server/sqlConnection';
 import { measureSqlBytesDownloaded } from '@/server/sql/sqlClient';
 import { globalExternalStylesheets } from '@/themes/globalStyles/externalStyles';
@@ -142,7 +142,7 @@ export async function handleRequest(request: Request, response: Response) {
 
   const responseManager = new ResponseManager(response);
   responseManager.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
-  ensureClientId(request, responseManager.res);
+  // ensureClientId(request, responseManager.res);
 
   if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
   const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings())

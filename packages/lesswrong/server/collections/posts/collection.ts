@@ -1,7 +1,5 @@
 import schema from '@/lib/collections/posts/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
-import { getVoteGraphql } from '@/server/votingGraphQL';
-
 
 export const Posts = createCollection({
   collectionName: 'Posts',
@@ -15,7 +13,5 @@ export const Posts = createCollection({
     {type: "extension", name: "earthdistance"},
   ],
 });
-
-export const { graphqlVoteTypeDefs, graphqlVoteMutations } = getVoteGraphql('Posts');
 
 export default Posts;
