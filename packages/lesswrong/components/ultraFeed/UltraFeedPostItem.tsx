@@ -92,35 +92,6 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     backgroundColor: `${theme.palette.primary.main}3b`,
     transition: 'none',
   },
-  verticalLineContainer: {
-    width: 0,
-    display: 'none',
-    justifyContent: 'center',
-    marginRight: 6,
-    marginTop: -12,
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-  },
-  verticalLine: {
-    width: 0,
-    borderLeft: `4px solid ${theme.palette.grey[300]}ac`,
-    flex: 1,
-    marginLeft: -12,
-    marginTop: 12,
-    marginBottom: 12,
-    [theme.breakpoints.down('sm')]: {
-      marginTop: 12,
-      marginBottom: 12,
-    },
-  },
-  verticalLineHighlightedUnviewed: {
-    borderLeftColor: `${theme.palette.secondary.light}ec`,
-  },
-  verticalLineHighlightedViewed: {
-    borderLeftColor: `${theme.palette.secondary.light}5f`,
-    transition: 'border-left-color 0.5s ease-out',
-  },
   mainContent: {
     display: 'flex',
     flexDirection: 'column',
@@ -313,8 +284,6 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
 }));
 
-type HighlightStateType = 'never-highlighted' | 'highlighted-unviewed' | 'highlighted-viewed';
-
 const sourceIconMap: Array<{ source: FeedItemSourceType, icon: any, tooltip: string }> = [
   { source: 'bookmarks' as FeedItemSourceType, icon: BookmarksIcon, tooltip: "From your bookmarks" },
   { source: 'subscriptionsPosts' as FeedItemSourceType, icon: SubscriptionsIcon, tooltip: "From users you follow" },
@@ -429,7 +398,7 @@ const UltraFeedPostItem = ({
   isHighlightAnimating?: boolean,
 }) => {
   const classes = useStyles(styles);
-  const { observe, trackExpansion, hasBeenFadeViewed, subscribeToFadeView, unsubscribeFromFadeView } = useUltraFeedObserver();
+  const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { openDialog } = useDialog();
   const overflowNav = useOverflowNav(elementRef);
@@ -450,28 +419,6 @@ const UltraFeedPostItem = ({
   const [isReplying, setIsReplying] = useState(false);
   const [newComment, setNewComment] = useState<UltraFeedComment | null>(null);
   const [newCommentMetaInfo, setNewCommentMetaInfo] = useState<FeedCommentMetaInfo | null>(null);
-  
-  const initialHighlightState = (postMetaInfo.highlight && !hasBeenFadeViewed(post._id)) ? 'highlighted-unviewed' : 'never-highlighted';
-  const [highlightState, setHighlightState] = useState<HighlightStateType>(initialHighlightState);
-
-  useEffect(() => {
-    const initialState: HighlightStateType = (postMetaInfo.highlight && !hasBeenFadeViewed(post._id)) ? 'highlighted-unviewed' : 'never-highlighted';
-    setHighlightState(initialState);
-
-    const handleFade = () => {
-      setHighlightState(prev => prev === 'highlighted-unviewed' ? 'highlighted-viewed' : prev);
-    };
-
-    if (initialState === 'highlighted-unviewed') {
-      subscribeToFadeView(post._id, handleFade);
-    }
-
-    return () => {
-      if (initialState === 'highlighted-unviewed') {
-        unsubscribeFromFadeView(post._id, handleFade);
-      }
-    };
-  }, [postMetaInfo.highlight, post._id, hasBeenFadeViewed, subscribeToFadeView, unsubscribeFromFadeView]);
 
   const {
     isSeeLessMode,
@@ -671,15 +618,6 @@ const UltraFeedPostItem = ({
       [classes.rootWithReadStyles]: isRead,
       [classes.rootWithAnimation]: isHighlightAnimating,
     })}>
-      <div className={classes.verticalLineContainer}>
-        <div className={classnames(
-          classes.verticalLine,
-          {
-            [classes.verticalLineHighlightedUnviewed]: highlightState === 'highlighted-unviewed',
-            [classes.verticalLineHighlightedViewed]: highlightState === 'highlighted-viewed',
-          }
-        )} />
-      </div>
       <div ref={elementRef} className={classes.mainContent}>
         {/* On small screens, the triple dot menu is positioned absolutely to the root */}
         <div className={classes.mobileTripleDotWrapper}>
