@@ -33,6 +33,11 @@ const itemSeparator = (theme: ThemeType) => ({
 })
 
 const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
+  postContainer: {
+    position: 'relative',
+    borderBottom: theme.palette.border.itemSeparatorBottom,
+    background: theme.palette.panelBackground.default,
+  },
   commentsRoot: {
     borderRadius: 4,
     background: theme.palette.panelBackground.bannerAdTranslucentHeavy,
@@ -49,14 +54,13 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
   },
   commentItem: {
     position: 'relative',
-    [theme.breakpoints.down('sm')]: {
-      borderBottom: theme.palette.border.itemSeparatorBottomStrong,
-      '&:last-child': {
-        borderBottom: 'none',
-      },
+    borderBottom: theme.palette.border.itemSeparatorBottom,
+    '&:last-child': {
+      borderBottom: 'none',
     },
   },
   commentItemWithReadStyles: {
+    borderBottom: theme.palette.border.itemSeparatorBottomIntense,
     [theme.breakpoints.down('sm')]: {
       '&:first-child': {
         borderTop: theme.palette.border.itemSeparatorBottomStrong
@@ -73,11 +77,6 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
     height: 200,
     '&::after': itemSeparator(theme),
   },
-  postContainer: {
-    position: 'relative',
-    borderBottom: theme.palette.border.itemSeparatorBottom,
-    // '&::after': itemSeparator(theme),
-  }
 }));
 
 type CommentDisplayStatusMap = Record<string, FeedItemDisplayStatus>;
@@ -170,6 +169,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
   const postInitiallyExpanded = !isOnReadPost && !isShortform;
   const [ postExpanded, setPostExpanded ] = useState(postInitiallyExpanded);
   const [animatingCommentIds, setAnimatingCommentIds] = useState<Set<string>>(new Set());
+  const [postIsAnimating, setPostIsAnimating] = useState(false);
 
   // State for handling new replies (including allowing switching back to original subsequent comments)
   const [newReplies, setNewReplies] = useState<Record<string, UltraFeedComment>>({});
@@ -250,7 +250,15 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
 
   const triggerParentHighlight = useCallback((commentId: string) => {
     const comment = comments.find(c => c._id === commentId);
-    if (comment?.parentCommentId) {
+    
+    if (comment && !comment.parentCommentId && postExpanded) {
+      setPostIsAnimating(true);
+      setTimeout(() => {
+        setPostIsAnimating(false);
+      }, 100);
+      
+      captureEvent("ultraFeedReplyIconClicked", { commentId, parentType: "post", postId: comment.postId });
+    } else if (comment?.parentCommentId) {
       const parentCommentId = comment.parentCommentId;
       
       const parentStatus = commentDisplayStatuses[parentCommentId];
@@ -280,7 +288,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
         wasCollapsed,
       });
     }
-  }, [comments, commentDisplayStatuses, setDisplayStatus, captureEvent]);
+  }, [comments, commentDisplayStatuses, setDisplayStatus, captureEvent, postExpanded]);
 
   const handleReplyClick = (commentId: string) => {
     setReplyingToCommentId(commentId);
@@ -377,7 +385,13 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
       <Loading />
     </div>}
     {postExpanded && post && <div className={classes.postContainer}>
-      <UltraFeedPostItem post={post} index={-1} postMetaInfo={postMetaInfo} settings={postSettings}/>
+      <UltraFeedPostItem 
+        post={post} 
+        index={-1} 
+        postMetaInfo={postMetaInfo} 
+        settings={postSettings}
+        isHighlightAnimating={postIsAnimating}
+      />
     </div>}
     <div className={classes.commentsRoot}>
       {comments.length > 0 && <div className={classes.commentsContainer}>
@@ -391,8 +405,32 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
                 return !!metaInfo?.lastViewed || !!metaInfo?.lastInteracted;
               });
               
+              const allRead = item.hiddenComments.every(h => {
+                const metaInfo = commentMetaInfos?.[h._id];
+                return !!metaInfo?.lastViewed || !!metaInfo?.lastInteracted;
+              });
+              
+              let nextItemIsRead = false;
+              if (commentIndex < compressedItems.length - 1) {
+                const nextItem = compressedItems[commentIndex + 1];
+                if ("placeholder" in nextItem) {
+                  nextItemIsRead = nextItem.hiddenComments.every(h => {
+                    const meta = commentMetaInfos?.[h._id];
+                    return !!meta?.lastViewed || !!meta?.lastInteracted;
+                  });
+                } else {
+                  const nextMeta = commentMetaInfos?.[nextItem._id];
+                  nextItemIsRead = !!nextMeta?.lastViewed || !!nextMeta?.lastInteracted;
+                }
+              }
+              
+              const isReadAndNextItemIsRead = allRead && nextItemIsRead;
+              
               return (
-                <div className={classes.commentItem} key={`placeholder-${commentIndex}`}>
+                <div 
+                  className={classNames(classes.commentItem, {[classes.commentItemWithReadStyles]: isReadAndNextItemIsRead })} 
+                  key={`placeholder-${commentIndex}`}
+                >
                   <UltraFeedCompressedCommentsItem
                     numComments={hiddenCount}
                     setExpanded={() => {
@@ -404,7 +442,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
                     isFirstComment={commentIndex === 0}
                     isLastComment={commentIndex === compressedItems.length - 1}
                     isHighlighted={anyHighlighted}
-                    isRead={anyRead}
+                    isRead={allRead}
                   />
                 </div>
               );
@@ -419,10 +457,29 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
               
               const isNewReply = Object.values(newReplies).some(reply => reply._id === cId);
               const metaInfo = commentMetaInfos?.[cId];
-              const isFirstItemAndIsRead = isFirstItem && (!!metaInfo?.lastViewed || !!metaInfo?.lastInteracted);
+              const isRead = !!metaInfo?.lastViewed || !!metaInfo?.lastInteracted;
+              
+              // Check if the next item is read (handling both comments and placeholder objects)
+              let nextItemIsRead = false;
+              if (commentIndex < compressedItems.length - 1) {
+                const nextItem = compressedItems[commentIndex + 1];
+                if ("placeholder" in nextItem) {
+                  // For placeholder items, check if ALL hidden comments are read
+                  nextItemIsRead = nextItem.hiddenComments.every(h => {
+                    const meta = commentMetaInfos?.[h._id];
+                    return !!meta?.lastViewed || !!meta?.lastInteracted;
+                  });
+                } else {
+                  // For regular comments
+                  const nextMeta = commentMetaInfos?.[nextItem._id];
+                  nextItemIsRead = !!nextMeta?.lastViewed || !!nextMeta?.lastInteracted;
+                }
+              }
+              
+              const isReadAndNextItemIsRead = isRead && nextItemIsRead;
               
               return (
-                <div key={cId} className={classNames(classes.commentItem, { [classes.commentItemWithReadStyles]: isFirstItemAndIsRead })}>
+                <div key={cId} className={classNames(classes.commentItem, { [classes.commentItemWithReadStyles]: isReadAndNextItemIsRead })}>
                   <UltraFeedCommentItem
                     comment={item}
                     metaInfo={{
@@ -432,6 +489,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
                     onPostTitleClick={handlePostExpansion}
                     onChangeDisplayStatus={(newStatus) => setDisplayStatus(cId, newStatus)}
                     showPostTitle={isFirstItem && !postInitiallyExpanded}
+                    postInitiallyExpanded={postInitiallyExpanded}
                     highlight={highlightStatuses[cId] || false}
                     isFirstComment={isFirstItem}
                     isLastComment={isLastItem}

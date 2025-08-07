@@ -24,7 +24,6 @@ const commentHeaderPaddingDesktop = 12;
 
 const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   root: {
-    borderBottom: theme.palette.border.itemSeparatorBottomStrong,
     position: 'relative',
     paddingTop: commentHeaderPaddingDesktop,
     backgroundColor: 'transparent',
@@ -34,7 +33,6 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       paddingLeft: 20,
       paddingRight: 20,
-      borderBottom: 'none',
     },
   },
   rootWithReadStyles: {
@@ -78,12 +76,6 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     overflow: 'visible',
-  },
-  commentContentWrapperWithBorder: {
-    // borderBottom: theme.palette.border.itemSeparatorBottom,
-    [theme.breakpoints.down('sm')]: {
-      borderBottom: 'none',
-    },
   },
   commentHeader: {
     display: 'flex',
@@ -275,7 +267,7 @@ export const UltraFeedCompressedCommentsItem = ({
           }
         )} />
       </div>
-      <div className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
+      <div className={classes.commentContentWrapper}>
         <div className={classNames(classes.numComments, {
           [classes.numCommentsWithReadStyles]: isRead
         })}>
@@ -540,10 +532,7 @@ export const UltraFeedCommentItem = ({
             }
           )} />
         </div>
-        <div ref={elementRef} className={
-          classNames(classes.commentContentWrapper, { 
-            [classes.commentContentWrapperWithBorder]: !isLastComment,
-          })}>
+        <div ref={elementRef} className={classes.commentContentWrapper}>
           <div className={classNames(classes.commentHeader, { [classes.greyedOut]: isSeeLessMode })}>
             {hasFork && <BranchNavigationButton
               currentBranch={currentBranch}

@@ -71,6 +71,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     borderRadius: 4,
     display: 'flex',
     flexDirection: 'row',
+    transition: 'background-color 1.0s ease-out',
     [theme.breakpoints.down('sm')]: {
       paddingTop: 16,
       paddingLeft: 20,
@@ -86,6 +87,10 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
       borderBottom: theme.palette.border.itemSeparatorBottom,
       opacity: 0.9,
     },
+  },
+  rootWithAnimation: {
+    backgroundColor: `${theme.palette.primary.main}3b`,
+    transition: 'none',
   },
   verticalLineContainer: {
     width: 0,
@@ -414,12 +419,14 @@ const UltraFeedPostItem = ({
   index,
   showKarma,
   settings = DEFAULT_SETTINGS,
+  isHighlightAnimating = false,
 }: {
   post: PostsListWithVotes,
   postMetaInfo: FeedPostMetaInfo,
   index: number,
   showKarma?: boolean,
   settings?: UltraFeedSettingsType,
+  isHighlightAnimating?: boolean,
 }) => {
   const classes = useStyles(styles);
   const { observe, trackExpansion, hasBeenFadeViewed, subscribeToFadeView, unsubscribeFromFadeView } = useUltraFeedObserver();
@@ -660,7 +667,10 @@ const UltraFeedPostItem = ({
   return (
     <RecombeeRecommendationsContextWrapper postId={post._id} recommId={postMetaInfo.recommInfo?.recommId}>
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} feedCardIndex={index} ultraFeedSources={postMetaInfo.sources}>
-    <div className={classnames(classes.root, { [classes.rootWithReadStyles]: isRead })}>
+    <div className={classnames(classes.root, { 
+      [classes.rootWithReadStyles]: isRead,
+      [classes.rootWithAnimation]: isHighlightAnimating,
+    })}>
       <div className={classes.verticalLineContainer}>
         <div className={classnames(
           classes.verticalLine,
