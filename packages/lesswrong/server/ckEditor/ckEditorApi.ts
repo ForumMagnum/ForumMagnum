@@ -1,8 +1,8 @@
 import crypto from 'crypto';
 import fs from 'fs';
 import difference from 'lodash/difference';
+import isEqual from 'lodash/isEqual';
 import moment from 'moment';
-import _ from 'underscore';
 import Posts from '../../server/collections/posts/collection';
 import Revisions from '../../server/collections/revisions/collection';
 import Users from '../../server/collections/users/collection';
@@ -143,7 +143,7 @@ const documentHelpers = {
     if (!user) {
       throw Error("no user found for userId in saveDocumentRevision")
     }
-    if (!previousRev || !_.isEqual(newOriginalContents, previousRev.originalContents)) {
+    if (!previousRev || !isEqual(newOriginalContents, previousRev.originalContents)) {
       const newRevision: Partial<DbRevision> = {
         ...await buildRevision({
           originalContents: newOriginalContents,

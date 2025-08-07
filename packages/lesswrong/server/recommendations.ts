@@ -1,5 +1,5 @@
-import * as _ from 'underscore';
 import { Posts } from '../server/collections/posts/collection';
+import sortBy from 'lodash/sortBy';
 import { accessFilterSingle, accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { setUserPartiallyReadSequences } from './partiallyReadSequences';
 import { WeightedList } from './weightedList';
@@ -226,12 +226,12 @@ const topPosts = async ({count, currentUser, algorithm, scoreFn}: {
 
   const defaultRecommendations = algorithm.excludeDefaultRecommendations ? [] : recommendablePostsMetadata.filter(p=> !!p.defaultRecommendation)
 
-  const sortedTopRecommendations = _.sortBy(recommendablePostsMetadata, post => -scoreFn(post))
-  const unreadTopPosts = _.first([
+  const sortedTopRecommendations = sortBy(recommendablePostsMetadata, post => -scoreFn(post))
+  const unreadTopPosts = [
     ...defaultRecommendations,
     ...sortedTopRecommendations
-  ], count)
-  const unreadTopPostIds = _.map(unreadTopPosts, p=>p._id)
+  ].slice(0, count)
+  const unreadTopPostIds = unreadTopPosts.map(p=>p._id)
 
   return await Posts.find(
     { _id: {$in: unreadTopPostIds} },
@@ -263,10 +263,10 @@ const samplePosts = async ({count, currentUser, algorithm, sampleWeightFn}: {
   const defaultRecommendations = algorithm.excludeDefaultRecommendations ? [] : recommendablePostsMetadata.filter(p=> !!p.defaultRecommendation).map(p=>p._id)
 
   const sampledPosts = new WeightedList(
-    _.map(recommendablePostsMetadata, post => [post._id, sampleWeightFn(post)])
+    recommendablePostsMetadata.map(post => [post._id, sampleWeightFn(post)])
   ).pop(Math.max(numPostsToReturn - defaultRecommendations.length, 0))
 
-  const recommendedPosts = _.first([...defaultRecommendations, ...sampledPosts], numPostsToReturn)
+  const recommendedPosts = [...defaultRecommendations, ...sampledPosts].slice(0, numPostsToReturn)
 
   return await Posts.find(
     { _id: {$in: recommendedPosts} },
@@ -337,7 +337,7 @@ const getResumeSequences = async (currentUser: DbUser|null, context: ResolverCon
   if (!sequences)
     return [];
 
-  const results = await Promise.all(_.map(sequences,
+  const results = await Promise.all(sequences.map(
     async (partiallyReadSequence: any) => {
       const { sequenceId, collectionId, nextPostId, numRead, numTotal, lastReadTime } = partiallyReadSequence;
       
@@ -361,7 +361,7 @@ const getResumeSequences = async (currentUser: DbUser|null, context: ResolverCon
   // Filter out results where nextPost is null. (Specifically, this filters out
   // the default sequences on dev databases, which would otherwise cause a crash
   // down the line.)
-  return _.filter(results, result=>!!result.nextPost);
+  return results.filter(result=>!!result.nextPost);
 }
 
 export const graphqlQueries = {
@@ -401,7 +401,7 @@ export const graphqlMutations = {
       if (!currentUser) return false;
 
       if (currentUser.partiallyReadSequences?.some((s)=>s.nextPostId===postId)) {
-        const newPartiallyRead = _.filter(currentUser.partiallyReadSequences,
+        const newPartiallyRead = currentUser.partiallyReadSequences.filter(
           (s)=>s.nextPostId !== postId);
         await setUserPartiallyReadSequences(currentUser._id, newPartiallyRead);
         return true;

@@ -35,7 +35,9 @@ import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { captureException } from "@sentry/nextjs";
 import moment from "moment";
-import _ from "underscore";
+import difference from 'lodash/difference';
+import union from 'lodash/union';
+import isEqual from 'lodash/isEqual';
 import { getRejectionMessage, generateLinkSharingKey } from "./helpers";
 import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
 import { createConversation } from "../collections/conversations/mutations";
@@ -101,24 +103,24 @@ export async function sendNewPostNotifications(post: DbPost) {
           userIsDefaultSubscribed: u => u.autoSubscribeAsOrganizer,
         });
         
-        const userIdsToNotify = _.difference(groupSubscribedUsers.map(user => user._id), userIdsNotified)
+        const userIdsToNotify = difference(groupSubscribedUsers.map(user => user._id), userIdsNotified)
         if (post.isEvent) {
           await createNotifications({userIds: userIdsToNotify, notificationType: 'newEvent', documentType: 'post', documentId: post._id});
         } else {
           await createNotifications({userIds: userIdsToNotify, notificationType: 'newGroupPost', documentType: 'post', documentId: post._id});
         }
         // don't notify these users again
-        userIdsNotified = _.union(userIdsNotified, userIdsToNotify)
+        userIdsNotified = union(userIdsNotified, userIdsToNotify)
       }
     }
     
     // then notify all users who want to be notified of events in a radius
     if (post.isEvent && post.mongoLocation) {
       const radiusNotificationUsers = await getUsersWhereLocationIsInNotificationRadius(post.mongoLocation)
-      const userIdsToNotify = _.difference(radiusNotificationUsers.map(user => user._id), userIdsNotified)
+      const userIdsToNotify = difference(radiusNotificationUsers.map(user => user._id), userIdsNotified)
       await createNotifications({userIds: userIdsToNotify, notificationType: "newEventInRadius", documentType: "post", documentId: post._id})
       // don't notify these users again
-      userIdsNotified = _.union(userIdsNotified, userIdsToNotify)
+      userIdsNotified = union(userIdsNotified, userIdsToNotify)
     }
     
     // finally notify all users who are subscribed to the post's author
@@ -127,7 +129,7 @@ export async function sendNewPostNotifications(post: DbPost) {
       collectionName: "Users",
       type: subscriptionTypes.newPosts
     })
-    const userIdsToNotify = _.difference(authorSubscribedUsers.map(user => user._id), userIdsNotified)
+    const userIdsToNotify = difference(authorSubscribedUsers.map(user => user._id), userIdsNotified)
     await createNotifications({userIds: userIdsToNotify, notificationType: 'newPost', documentType: 'post', documentId: post._id});
   }
 }
@@ -344,7 +346,7 @@ const utils = {
       //Location added or removed
       return true;
     }
-    if (oldLocation && newLocation && !_.isEqual(oldLocation, newLocation)) {
+    if (oldLocation && newLocation && !isEqual(oldLocation, newLocation)) {
       // Location changed
       // NOTE: We treat the added/removed and changed cases separately because a
       // dumb thing inside the mutation callback handlers mixes up null vs
@@ -876,7 +878,7 @@ export async function eventUpdatedNotifications({newDocument: newPost, oldDocume
     // then notify all users who want to be notified of events in a radius
     if (newPost.mongoLocation) {
       const radiusNotificationUsers = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
-      const userIdsToNotify = _.difference(radiusNotificationUsers.map(user => user._id), userIdsNotified)
+      const userIdsToNotify = difference(radiusNotificationUsers.map(user => user._id), userIdsNotified)
       await createNotifications({userIds: userIdsToNotify, notificationType: "editedEventInRadius", documentType: "post", documentId: newPost._id})
     }
   }
@@ -885,7 +887,7 @@ export async function eventUpdatedNotifications({newDocument: newPost, oldDocume
 export async function notifyUsersAddedAsCoauthors({ oldDocument: oldPost, newDocument: newPost }: UpdateCallbackProperties<'Posts'>) {
   const newCoauthorIds = getConfirmedCoauthorIds(newPost);
   const oldCoauthorIds = getConfirmedCoauthorIds(oldPost);
-  const addedCoauthorIds = _.difference(newCoauthorIds, oldCoauthorIds);
+  const addedCoauthorIds = difference(newCoauthorIds, oldCoauthorIds);
 
   if (addedCoauthorIds.length) {
     await createNotifications({ userIds: addedCoauthorIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: newPost._id });
@@ -1027,7 +1029,7 @@ export async function sendNewPublishedDialogueMessageNotifications(newPost: DbPo
       getDialogueResponseIds(oldPost, context),
       getDialogueResponseIds(newPost, context),
     ]);
-    const uniqueNewIds = _.difference(newIds, oldIds);
+    const uniqueNewIds = difference(newIds, oldIds);
     
     if (uniqueNewIds.length > 0) {
       const dialogueParticipantIds = [newPost.userId, ...getConfirmedCoauthorIds(newPost)];
@@ -1038,7 +1040,7 @@ export async function sendNewPublishedDialogueMessageNotifications(newPost: DbPo
       });
       
       const dialogueSubscriberIds = dialogueSubscribers.map(sub => sub._id);
-      const dialogueSubscriberIdsToNotify = _.difference(dialogueSubscriberIds, dialogueParticipantIds);
+      const dialogueSubscriberIdsToNotify = difference(dialogueSubscriberIds, dialogueParticipantIds);
       await createNotifications({
         userIds: dialogueSubscriberIdsToNotify,
         notificationType: 'newPublishedDialogueMessages',
@@ -1152,11 +1154,11 @@ export async function sendLWAFPostCurationEmails(post: DbPost, oldPost: DbPost) 
 }
 
 export async function sendPostSharedWithUserNotifications(newPost: DbPost, oldPost: DbPost) {
-  if (!_.isEqual(newPost.shareWithUsers, oldPost.shareWithUsers)) {
+  if (!isEqual(newPost.shareWithUsers, oldPost.shareWithUsers)) {
     // Right now this only creates notifications when users are shared (and not when they are "unshared")
     // because currently notifications are hidden from you if you don't have view-access to a post.
     // TODO: probably fix that, such that users can see when they've lost access to post. [but, eh, I'm not sure this matters that much]
-    const sharedUsers = _.difference(newPost.shareWithUsers || [], oldPost.shareWithUsers || [])
+    const sharedUsers = difference(newPost.shareWithUsers || [], oldPost.shareWithUsers || [])
     await createNotifications({userIds: sharedUsers, notificationType: "postSharedWithUser", documentType: "post", documentId: newPost._id})
   }
 }

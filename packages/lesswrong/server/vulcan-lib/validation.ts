@@ -1,5 +1,4 @@
 import { userCanCreateField, userCanUpdateField } from '../../lib/vulcan-users/permissions';
-import * as _ from 'underscore';
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
 import { dataToModifier } from './mutators';
 
@@ -99,7 +98,7 @@ const validateModifier = async <N extends CollectionNameString>(
   let validationErrors: Array<any> = [];
 
   // 1. check that the current user has permission to edit each field
-  const modifiedProperties = _.keys(set).concat(_.keys(unset));
+  const modifiedProperties = Object.keys(set).concat(Object.keys(unset));
   modifiedProperties.forEach(function(fieldName) {
     var field = schema[fieldName];
     if (!field?.graphql || !userCanUpdateField(currentUser, field.graphql.canUpdate, document)) {

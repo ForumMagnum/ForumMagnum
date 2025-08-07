@@ -99,9 +99,9 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
   }
 
   const handleUnsuggestCurated = () => {
-    let suggestUserIds = _.clone(post.suggestForCuratedUserIds) || []
+    let suggestUserIds = [...post.suggestForCuratedUserIds ?? []]
     if (suggestUserIds.includes(currentUser!._id)) {
-      suggestUserIds = _.without(suggestUserIds, currentUser!._id);
+      suggestUserIds = suggestUserIds.filter(id => id !== currentUser!._id);
     }
     void updatePost({
       variables: {

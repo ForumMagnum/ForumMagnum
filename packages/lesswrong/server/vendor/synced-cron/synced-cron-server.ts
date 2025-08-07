@@ -1,5 +1,4 @@
 import later from '@breejs/later';
-import * as _ from 'underscore';
 import { CronHistories } from '../../../server/collections/cronHistories/collection';
 import { isDevelopment } from '@/lib/executionEnvironment';
 
@@ -63,7 +62,7 @@ SyncedCron.start = function() {
   var self = this;
 
   // Schedule each job with later.js
-  _.each(self._entries, function(entry) {
+  Object.values(self._entries).forEach(function(entry) {
     scheduleEntry(entry);
   });
   self.running = true;
@@ -94,7 +93,7 @@ SyncedCron.remove = function(jobName: string) {
 // restart existing jobs
 SyncedCron.pause = function() {
   if (this.running) {
-    _.each(this._entries, function(entry: any) {
+    Object.values(this._entries).forEach(function(entry: any) {
       entry._timer.clear();
     });
     this.running = false;
@@ -103,7 +102,7 @@ SyncedCron.pause = function() {
 
 // Stop processing and remove ALL jobs
 SyncedCron.stop = function() {
-  _.each(this._entries, function(entry, name) {
+  Object.entries(this._entries).forEach(function([name, entry]) {
     SyncedCron.remove(name);
   });
   this.running = false;

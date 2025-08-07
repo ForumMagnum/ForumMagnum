@@ -1,5 +1,4 @@
 import { Posts } from '../../server/collections/posts/collection';
-import * as _ from 'underscore';
 
 export async function checkScheduledPosts() {
   // fetch all posts tagged as future
@@ -9,8 +8,8 @@ export async function checkScheduledPosts() {
   const postsToUpdate = scheduledPosts.filter(post => post.postedAt <= new Date());
 
   // update posts found
-  if (!_.isEmpty(postsToUpdate)) {
-    const postsIds = _.pluck(postsToUpdate, '_id');
+  if (postsToUpdate.length > 0) {
+    const postsIds = postsToUpdate.map(post => post._id);
     await Posts.rawUpdateMany({_id: {$in: postsIds}}, {$set: {isFuture: false}}, {multi: true});
 
     // log the action

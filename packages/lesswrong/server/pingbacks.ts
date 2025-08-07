@@ -2,7 +2,6 @@ import { cheerioParse } from './utils/htmlUtil';
 import { parsePath, parseRoute2 } from '../lib/vulcan-core/appContext';
 import { getSiteUrl } from '../lib/vulcan-lib/utils';
 import { classifyHost } from '../lib/routeUtil';
-import * as _ from 'underscore';
 import { getUrlClass } from './utils/getUrlClass';
 import { forEachDocumentBatchInCollection } from './manualMigrations/migrationUtils';
 import { getEditableFieldsByCollection } from '@/server/editor/editableSchemaFieldHelpers';
@@ -83,7 +82,7 @@ export const htmlToPingbacks = async (html: string, exclusions: Array<{collectio
           const getPingback = routePingbackMapping[parsedUrl.routePattern];
           const pingback = await getPingback(parsedUrl, context);
           if (pingback) {
-            if (exclusions && _.find(exclusions,
+            if (exclusions && exclusions.find(
               exclusion => exclusion.documentId===pingback.documentId && exclusion.collectionName===pingback.collectionName))
             {
               // Pingback is excluded
