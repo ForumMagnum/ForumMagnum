@@ -1,13 +1,10 @@
-import React from "react";
-import {
-  fmCrosspostSiteNameSetting,
-  fmCrosspostBaseUrlSetting,
-} from "../../../lib/instanceSettings";
+import React, { useEffect, useState } from "react";
+import { fmCrosspostSiteNameSetting } from "../../../lib/instanceSettings";
+import { crosspostDetailsRoute } from "@/lib/fmCrosspost/routes";
 import { usePostsPageContext } from "./PostsPageContext";
-import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
-import { combineUrls } from "../../../lib/vulcan-lib/utils";
 import { Typography } from "../../common/Typography";
+import Loading from "@/components/vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -19,6 +16,63 @@ const styles = (theme: ThemeType) => ({
     padding: 12,
   },
 });
+
+type Response = {
+  loading: boolean,
+  data?: { canonicalLink: string, commentCount: number },
+}
+
+const PostsPageCrosspostCommentsInner = ({foreignPostId, hostedHere, classes}: {
+  foreignPostId: string,
+  hostedHere: boolean,
+  classes: ClassesType<typeof styles>,
+}) => {
+  const [response, setResponse] = useState<Response>({ loading: true });
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const data = await crosspostDetailsRoute.makeRequest(
+          {postId: foreignPostId},
+          {foreignRequest: true},
+        );
+        setResponse({ loading: false, data });
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error("Error fetching foreign crosspost details:", error);
+        setResponse({ loading: false });
+      }
+    })();
+  }, [foreignPostId]);
+
+  if (response.loading) {
+    return (
+      <div>
+        <Loading />
+      </div>
+    );
+  }
+
+  if (!response.data) {
+    return null;
+  }
+
+  const {canonicalLink, commentCount} = response.data;
+  const relation = hostedHere ? "to" : "from";
+  const commentsText = !commentCount
+    ? "Click to view."
+    : `Click to view ${commentCount} comment${commentCount === 1 ? "" : "s"}.`;
+
+  return (
+    <div>
+      <a href={canonicalLink} target="_blank" rel="noreferrer">
+        <Typography variant="body2" className={classes.root}>
+          Crossposted {relation} {fmCrosspostSiteNameSetting.get()}. {commentsText}
+        </Typography>
+      </a>
+    </div>
+  );
+}
 
 const PostsPageCrosspostComments = ({classes}: {
   classes: ClassesType<typeof styles>,
@@ -32,31 +86,17 @@ const PostsPageCrosspostComments = ({classes}: {
   if (!foreignPostId) {
     return null;
   }
-
-  const relation = hostedHere ? "to" : "from";
-  // TODO: We need to fetch the comment count and foreign URL from the other site
-  const commentCount = 0; // foreignPost.commentCount ?? 0;
-  const noComments = commentCount === 0;
-
-  const commentsText = noComments
-    ? "Click to view."
-    : `Click to view ${commentCount} comment${commentCount === 1 ? "" : "s"}.`;
-
-  const postPageUrl = postGetPageUrl({
-    _id: foreignPostId,
-    slug: post.slug,
-  });
-  const link = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", `${postPageUrl}${noComments ? "" : "#comments"}`);
-
   return (
-    <div>
-      <a href={link} target="_blank" rel="noreferrer">
-        <Typography variant="body2" className={classes.root}>
-          Crossposted {relation} {fmCrosspostSiteNameSetting.get()}. {commentsText}
-        </Typography>
-      </a>
-    </div>
+    <PostsPageCrosspostCommentsInner
+      foreignPostId={foreignPostId}
+      hostedHere={!!hostedHere}
+      classes={classes}
+    />
   );
 }
 
-export default registerComponent("PostsPageCrosspostComments", PostsPageCrosspostComments, {styles});
+export default registerComponent(
+  "PostsPageCrosspostComments",
+  PostsPageCrosspostComments,
+  {styles},
+);
