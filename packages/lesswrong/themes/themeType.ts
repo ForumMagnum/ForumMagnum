@@ -276,6 +276,7 @@ declare global {
       normal: string,
       itemSeparatorBottom: string,
       itemSeparatorBottomStrong: string,
+      itemSeparatorBottomIntense: string,
       slightlyFaint: string,
       extraFaint: string,
       slightlyIntense: string,

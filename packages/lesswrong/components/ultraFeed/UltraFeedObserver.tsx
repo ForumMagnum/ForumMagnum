@@ -84,9 +84,6 @@ interface UltraFeedObserverContextType {
   observe: (element: Element, data: ObserveData) => void;
   unobserve: (element: Element) => void;
   trackExpansion: (data: TrackExpansionData) => void;
-  subscribeToFadeView: (documentId: string, callback: () => void) => void;
-  unsubscribeFromFadeView: (documentId: string, callback: () => void) => void;
-  hasBeenFadeViewed: (documentId: string) => boolean;
 }
 
 const UltraFeedObserverContext = createContext<UltraFeedObserverContextType | null>(null);
@@ -96,7 +93,6 @@ const UltraFeedObserverContext = createContext<UltraFeedObserverContextType | nu
 export const MIN_VISIBLE_PX = 100;
 
 const VIEW_THRESHOLD_MS = 1000;
-const FADE_VIEW_THRESHOLD_MS = 1000; // Time after which UI highlights should fade
 const LONG_VIEW_THRESHOLD_MS = 10000;
 
 const documentTypeToCollectionName = {
@@ -113,13 +109,10 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
   
   const observerRef = useRef<IntersectionObserver | null>(null);
 
-  const timerMapRef = useRef<Map<Element, { shortTimerId: ReturnType<typeof setTimeout> | null, fadeTimerId: ReturnType<typeof setTimeout> | null, longTimerId: ReturnType<typeof setTimeout> | null }>>(new Map());
+  const timerMapRef = useRef<Map<Element, { shortTimerId: ReturnType<typeof setTimeout> | null, longTimerId: ReturnType<typeof setTimeout> | null }>>(new Map());
   const elementDataMapRef = useRef<Map<Element, ObserveData>>(new Map());
   const longViewedItemsRef = useRef<Set<string>>(new Set());
   const shortViewedItemsRef = useRef<Set<string>>(new Set());
-  const fadeViewedItemsRef = useRef<Set<string>>(new Set());
-
-  const fadeViewSubscriptionsRef = useRef<Map<string, Set<() => void>>>(new Map());
 
   const logViewEvent = useCallback((elementData: ObserveData, durationMs: number) => {
     if (!currentUser || incognitoMode || !elementData) return;
@@ -164,7 +157,6 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
           if (!elementData) return;
 
           let shortTimerId: ReturnType<typeof setTimeout> | null = null;
-          let fadeTimerId: ReturnType<typeof setTimeout> | null = null;
 
           // 1s view (analytics)
           if (!shortViewedItemsRef.current.has(elementData.documentId)) {
@@ -176,23 +168,6 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
                 if (timers) timers.shortTimerId = null;
               }
             }, VIEW_THRESHOLD_MS);
-          }
-
-          // 2s view (UI fade)
-          if (!fadeViewedItemsRef.current.has(elementData.documentId)) {
-            fadeTimerId = setTimeout(() => {
-              if (elementDataMapRef.current.has(element)) {
-                const docId = elementData.documentId;
-                fadeViewedItemsRef.current.add(docId);
-                const subscriptions = fadeViewSubscriptionsRef.current.get(docId);
-                if (subscriptions) {
-                  subscriptions.forEach(cb => cb());
-                  fadeViewSubscriptionsRef.current.delete(docId);
-                }
-                const timers = timerMapRef.current.get(element);
-                if (timers) timers.fadeTimerId = null;
-              }
-            }, FADE_VIEW_THRESHOLD_MS);
           }
 
           // 10s view (long view analytics)
@@ -211,16 +186,13 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
              }
           }, LONG_VIEW_THRESHOLD_MS);
 
-          timerMapRef.current.set(element, { shortTimerId, fadeTimerId, longTimerId });
+          timerMapRef.current.set(element, { shortTimerId, longTimerId });
         }
       } else {
         if (timerMapRef.current.has(element)) {
           const timers = timerMapRef.current.get(element)!;
           if (timers.shortTimerId) {
             clearTimeout(timers.shortTimerId);
-          }
-          if (timers.fadeTimerId) {
-            clearTimeout(timers.fadeTimerId);
           }
           if (timers.longTimerId) {
             clearTimeout(timers.longTimerId);
@@ -236,7 +208,6 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
     const currentElementDataMap = elementDataMapRef.current;
     const currentLongViewedItems = longViewedItemsRef.current;
     const currentShortViewedItems = shortViewedItemsRef.current;
-    const currentFadeViewedItems = fadeViewedItemsRef.current;
 
     // We shrink the effective viewport by MIN_VISIBLE_PX on the top and bottom.
     // Consequently, `entry.isIntersecting === true` means the element has at
@@ -252,13 +223,11 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
       observerInstance?.disconnect();
       currentTimerMap.forEach(timers => {
         if (timers.shortTimerId) clearTimeout(timers.shortTimerId);
-        if (timers.fadeTimerId) clearTimeout(timers.fadeTimerId);
         if (timers.longTimerId) clearTimeout(timers.longTimerId);
       });
       currentTimerMap.clear();
       currentElementDataMap.clear();
       currentLongViewedItems.clear();
-      currentFadeViewedItems.clear();
       currentShortViewedItems.clear();
     };
   }, [handleIntersection]);
@@ -276,28 +245,10 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
       if (timerMapRef.current.has(element)) {
         const timers = timerMapRef.current.get(element)!;
         if (timers.shortTimerId) clearTimeout(timers.shortTimerId);
-        if (timers.fadeTimerId) clearTimeout(timers.fadeTimerId);
         if (timers.longTimerId) clearTimeout(timers.longTimerId);
         timerMapRef.current.delete(element);
       }
       elementDataMapRef.current.delete(element);
-    }
-  }, []);
-
-  const hasBeenFadeViewed = useCallback((documentId: string): boolean => fadeViewedItemsRef.current.has(documentId), []);
-
-  const subscribeToFadeView = useCallback((documentId: string, callback: () => void) => {
-    if (!fadeViewSubscriptionsRef.current.has(documentId)) {
-      fadeViewSubscriptionsRef.current.set(documentId, new Set());
-    }
-    fadeViewSubscriptionsRef.current.get(documentId)!.add(callback);
-  }, []);
-
-  const unsubscribeFromFadeView = useCallback((documentId: string, callback: () => void) => {
-    if (fadeViewSubscriptionsRef.current.has(documentId)) {
-      const subscriptions = fadeViewSubscriptionsRef.current.get(documentId)!;
-      subscriptions.delete(callback);
-      if (subscriptions.size === 0) fadeViewSubscriptionsRef.current.delete(documentId);
     }
   }, []);
 
@@ -333,11 +284,8 @@ export const UltraFeedObserverProvider = ({ children, incognitoMode }: { childre
   const contextValue = useMemo(() => ({ 
     observe, 
     unobserve, 
-    trackExpansion, 
-    subscribeToFadeView,
-    unsubscribeFromFadeView,
-    hasBeenFadeViewed,
-  }), [observe, unobserve, trackExpansion, subscribeToFadeView, unsubscribeFromFadeView, hasBeenFadeViewed]);
+    trackExpansion,
+  }), [observe, unobserve, trackExpansion]);
 
   return (
     <UltraFeedObserverContext.Provider value={contextValue}>

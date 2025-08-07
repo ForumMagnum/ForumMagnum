@@ -299,6 +299,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     normal: shades.greyBorder("1px", .2),
     itemSeparatorBottom: shades.greyBorder("2px", .05),
     itemSeparatorBottomStrong: shades.greyBorder("2px", .1),
+    itemSeparatorBottomIntense: shades.greyBorder("2px", .2),
     slightlyFaint: shades.greyBorder("1px", .15),
     slightlyIntense: shades.greyBorder("1px", .25),
     slightlyIntense2: shades.greyBorder("1px", .3),

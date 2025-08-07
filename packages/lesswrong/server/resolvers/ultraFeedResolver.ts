@@ -43,6 +43,11 @@ const ULTRA_FEED_DATE_CUTOFFS: UltraFeedDateCutoffs = {
 };
 
 export const ultraFeedGraphQLTypeDefs = gql`
+  type FeedSpotlightMetaInfo {
+    sources: [String!]!
+    servedEventId: String!
+  }
+
   type FeedPost {
     _id: String!
     postMetaInfo: JSON
@@ -54,13 +59,15 @@ export const ultraFeedGraphQLTypeDefs = gql`
     commentMetaInfos: JSON
     comments: [Comment!]!
     post: Post
+    isOnReadPost: Boolean
+    postSources: [String!]
   }
 
   type FeedSpotlightItem {
     _id: String!
     spotlight: Spotlight
     post: Post
-    spotlightMetaInfo: JSON
+    spotlightMetaInfo: FeedSpotlightMetaInfo
   }
 
   type UltraFeedQueryResults {
@@ -324,6 +331,11 @@ const extractIdsToLoad = (sampled: SampledItem[]) => {
       }
     } else if (it.type === "feedCommentThread") {
       it.feedCommentThread.comments?.forEach(c => c.commentId && commentIdsSet.add(c.commentId));
+      // Extract post ID from the first comment to preload the post
+      const firstComment = it.feedCommentThread.comments?.[0];
+      if (firstComment?.postId && !it.feedCommentThread.isOnReadPost) {
+        postIds.push(firstComment.postId);
+      }
     } else if (it.type === "feedPost") {
       postIds.push(it.feedPostStub.postId);
     }
@@ -334,6 +346,59 @@ const extractIdsToLoad = (sampled: SampledItem[]) => {
     commentIds: Array.from(commentIdsSet),
     postIds
   };
+};
+
+/**
+ * Deduplicate posts that appear both as standalone items and in comment threads.
+ * When a comment thread will show the post (!isOnReadPost), we remove the standalone
+ * post item and transfer its source information to the thread.
+ */
+const deduplicatePostsInThreads = (results: UltraFeedResolverType[]): UltraFeedResolverType[] => {
+  const postIdsInExpandedThreads = new Map<string, FeedItemSourceType[]>();
+  const threadsByPostId = new Map<string, UltraFeedResolverType>();
+  
+  // First pass: identify threads that will show posts
+  for (const result of results) {
+    if (result.type === "feedCommentThread" && result.feedCommentThread) {
+      const thread = result.feedCommentThread;
+      // If isOnReadPost is false or null/undefined, the post will be shown with the thread
+      if (!thread.isOnReadPost && thread.comments?.length > 0) {
+        const postId = thread.comments[0]?.postId;
+        if (postId) {
+          postIdsInExpandedThreads.set(postId, []);
+          threadsByPostId.set(postId, result);
+        }
+      }
+    }
+  }
+  
+  // If no threads will show posts, return unchanged
+  if (postIdsInExpandedThreads.size === 0) {
+    return results;
+  }
+  
+  // Second pass: collect sources from standalone posts and filter them out
+  const filteredResults = results.filter(result => {
+    if (result.type === "feedPost" && result.feedPost?.post?._id) {
+      const postId = result.feedPost.post._id;
+      if (postIdsInExpandedThreads.has(postId)) {
+        const postSources = result.feedPost.postMetaInfo?.sources ?? [];
+        postIdsInExpandedThreads.set(postId, postSources);
+        return false;
+      }
+    }
+    return true;
+  });
+  
+  // Third pass: add the collected sources to the comment threads
+  for (const [postId, postSources] of postIdsInExpandedThreads) {
+    const threadResult = threadsByPostId.get(postId);
+    if (threadResult?.type === "feedCommentThread" && threadResult.feedCommentThread && postSources.length > 0) {
+      threadResult.feedCommentThread.postSources = postSources;
+    }
+  }
+  
+  return filteredResults;
 };
 
 /**
@@ -369,13 +434,22 @@ const transformItemsForResolver = (
     }
 
     if (item.type === "feedCommentThread") {
-      const { comments: preDisplayComments } = item.feedCommentThread;
+      const { comments: preDisplayComments, isOnReadPost, postSources } = item.feedCommentThread;
       let loadedComments: DbComment[] = [];
 
       if (preDisplayComments && preDisplayComments.length > 0) {
         loadedComments = filterNonnull(
           preDisplayComments.map(comment => commentsById.get(comment.commentId))
         );
+      }
+      
+      // Load the post if the thread will display it
+      let post: DbPost | null = null;
+      if (!isOnReadPost && loadedComments.length > 0) {
+        const postId = loadedComments[0]?.postId;
+        if (postId) {
+          post = postsById.get(postId) ?? null;
+        }
       }
       
       const commentMetaInfos: {[commentId: string]: FeedCommentMetaInfo} = {};
@@ -409,11 +483,14 @@ const transformItemsForResolver = (
          }
       }
       
-      const resultData: FeedCommentsThreadResolverType = {
-        _id: threadId,
-        comments: loadedComments,
-        commentMetaInfos
-      };
+           const resultData: FeedCommentsThreadResolverType = {
+       _id: threadId,
+       comments: loadedComments,
+       commentMetaInfos,
+       isOnReadPost,
+       postSources,
+       post
+     };
 
       return {
         type: item.type,
@@ -683,7 +760,9 @@ export const ultraFeedGraphQLQueries = {
       const postsById = new Map<string, DbPost>();
       postsResults.forEach(p => p?._id && postsById.set(p._id, p));
       
-      const results = transformItemsForResolver(sampledItems, spotlightsById, commentsById, postsById);
+      const resultsWithoutDuplication = transformItemsForResolver(sampledItems, spotlightsById, commentsById, postsById);
+      
+      const results = deduplicatePostsInThreads(resultsWithoutDuplication);
       
       const keyFunc = (result: any) => `${result.type}_${result[result.type]?._id}`;
       const seenKeys = new Set<string>();

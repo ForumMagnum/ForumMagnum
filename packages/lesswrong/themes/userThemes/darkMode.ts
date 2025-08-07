@@ -289,6 +289,10 @@ export const darkModeTheme: UserThemeSpecification = {
     arbital: {
       arbitalGreen: '#02796b',
     },
+    ultraFeed: {
+      dim: shadePalette.grey[400],
+      cardSeparator: `12px solid ${shadePalette.greyAlpha(0.15)}`,
+    },
     action: {
       active: '#fff',
       hover: greyAlpha(0.1),

@@ -23,8 +23,8 @@ const styles = defineStyles("UltraFeedMetaInfoPill", (theme: ThemeType) => ({
     border: `1px solid ${theme.palette.grey[400]}`,
   },
   readItemColors: {
-    color: theme.palette.grey[600],
-    border: `1px solid ${theme.palette.grey[400]}`,
+    color: theme.palette.grey[800],
+    border: `1px solid ${theme.palette.grey[600]}`,
     [theme.breakpoints.down('sm')]: {
       backgroundColor: theme.palette.grey[300],
       color: theme.palette.grey[800],
