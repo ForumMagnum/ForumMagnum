@@ -16218,16 +16218,6 @@ type UserExpandFrontpageSectionMutationVariables = Exact<{
 
 type UserExpandFrontpageSectionMutation = UserExpandFrontpageSectionMutation_Mutation;
 
-type GetCrosspostQueryQuery_Query = { __typename?: 'Query', getCrosspost: any | null };
-
-
-type GetCrosspostQueryQueryVariables = Exact<{
-  args: InputMaybe<Scalars['JSON']['input']>;
-}>;
-
-
-type GetCrosspostQueryQuery = GetCrosspostQueryQuery_Query;
-
 type initiateConversationMutation_initiateConversation_Conversation = (
   { __typename?: 'Conversation' }
   & ConversationsMinimumInfo
@@ -23162,23 +23152,6 @@ type LocalPostQueryQueryVariables = Exact<{
 
 
 type LocalPostQueryQuery = LocalPostQueryQuery_Query;
-
-type ForeignPostQueryQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostsPage
-);
-
-type ForeignPostQueryQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: ForeignPostQueryQuery_post_SinglePostOutput_result_Post | null };
-
-type ForeignPostQueryQuery_Query = { __typename?: 'Query', post: ForeignPostQueryQuery_post_SinglePostOutput | null };
-
-
-type ForeignPostQueryQueryVariables = Exact<{
-  documentId: Scalars['String']['input'];
-}>;
-
-
-type ForeignPostQueryQuery = ForeignPostQueryQuery_Query;
 
 type UltraFeedThreadItemQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }

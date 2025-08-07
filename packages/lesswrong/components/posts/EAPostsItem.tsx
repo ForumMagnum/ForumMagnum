@@ -8,7 +8,6 @@ import withErrorBoundary from "../common/withErrorBoundary";
 import classNames from "classnames";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { cloudinaryCloudNameSetting } from "../../lib/publicSettings";
-import { usePostContents } from "../hooks/useForeignCrosspost";
 import { usePostsListView } from "../hooks/usePostsListView";
 import PostsTitle from "./PostsTitle";
 import ForumIcon from "../common/ForumIcon";
@@ -319,11 +318,6 @@ const EAPostsItem = ({
   // even those that are not a card, so that all titles are consistent.
   const {view} = usePostsListView()
 
-  const {postContents} = usePostContents({
-    post,
-    fragmentName: "PostsList",
-    skip: !cardView,
-  });
   const SecondaryInfo = useCallback(() => {
     if (secondaryInfoNode) {
       return <InteractionWrapper className={classes.interactionWrapper}>
@@ -400,7 +394,6 @@ const EAPostsItem = ({
 
   const body =
     post.customHighlight?.plaintextDescription ||
-    postContents?.plaintextDescription ||
     post.contents?.plaintextDescription ||
     "";
   const hasBody = body.trim().length > 0;

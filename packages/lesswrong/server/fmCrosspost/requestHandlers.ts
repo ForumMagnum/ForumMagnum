@@ -17,7 +17,16 @@ import { connectCrossposterToken } from "../crossposting/tokens";
 import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
 import { createPost } from '../collections/posts/mutations';
 import { gql } from "@/lib/generated/gql-codegen";
-import type { CrosspostFragments } from "@/components/hooks/useForeignCrosspost";
+
+const crosspostFragments = [
+  "PostsWithNavigation",
+  "PostsWithNavigationAndRevision",
+  "PostsList",
+  "SunshinePostsList",
+  "PostsPage",
+] as const;
+
+type CrosspostFragments = typeof crosspostFragments[number];
 
 const postsWithNavigationQuery = gql(`
   query getCrosspostPostsWithNavigation($input: SinglePostInput, $sequenceId: String) {
