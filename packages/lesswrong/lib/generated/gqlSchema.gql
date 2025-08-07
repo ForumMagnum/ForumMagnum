@@ -1387,6 +1387,11 @@ extend type Mutation {
   increasePostViewCount(postId: String): Float
 }
 
+type FeedSpotlightMetaInfo {
+  sources: [String!]!
+  servedEventId: String!
+}
+
 type FeedPost {
   _id: String!
   postMetaInfo: JSON
@@ -1399,14 +1404,14 @@ type FeedCommentThread {
   comments: [Comment!]!
   post: Post
   isOnReadPost: Boolean
-  postSources: JSON
+  postSources: [String!]
 }
 
 type FeedSpotlightItem {
   _id: String!
   spotlight: Spotlight
   post: Post
-  spotlightMetaInfo: JSON
+  spotlightMetaInfo: FeedSpotlightMetaInfo
 }
 
 type UltraFeedQueryResults {

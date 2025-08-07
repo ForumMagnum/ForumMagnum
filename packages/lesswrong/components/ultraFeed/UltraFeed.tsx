@@ -5,6 +5,7 @@ import type { ObservableQuery } from '@apollo/client';
 import { randomId } from '../../lib/random';
 import DeferRender from '../common/DeferRender';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { FeedItemSourceType } from './ultraFeedTypes';
 import { UltraFeedObserverProvider } from './UltraFeedObserver';
 import { OverflowNavObserverProvider } from './OverflowNavObserverContext';
 import { DEFAULT_SETTINGS, UltraFeedSettingsType, ULTRA_FEED_SETTINGS_KEY } from './ultraFeedSettingsTypes';
@@ -273,10 +274,15 @@ const UltraFeedContent = ({alwaysShow = false}: {
                         return null;
                       }
                       
+                      const thread = {
+                        ...item,
+                        postSources: item.postSources as FeedItemSourceType[] | null
+                      };
+                      
                       return (
                         <FeedItemWrapper>
                           <UltraFeedThreadItem
-                            thread={item}
+                            thread={thread}
                             settings={settings}
                             index={index}
                           />
@@ -309,12 +315,17 @@ const UltraFeedContent = ({alwaysShow = false}: {
                         return null;
                       }
 
+                      const metaInfo = spotlightMetaInfo ? {
+                        ...spotlightMetaInfo,
+                        sources: spotlightMetaInfo.sources as FeedItemSourceType[]
+                      } : undefined;
+
                       return (
                         <FeedItemWrapper>
                           <UltraFeedSpotlightItem 
                             spotlight={spotlight}
                             post={post ?? undefined}
-                            spotlightMetaInfo={spotlightMetaInfo}
+                            spotlightMetaInfo={metaInfo}
                             showSubtitle={true}
                             index={index}
                           />

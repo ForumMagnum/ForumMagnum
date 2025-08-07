@@ -3,13 +3,12 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { DisplayFeedCommentThread, FeedCommentMetaInfo, FeedItemDisplayStatus, FeedItemSourceType } from "./ultraFeedTypes";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
-import { UltraFeedCommentItem, UltraFeedCompressedCommentsItem } from "./UltraFeedCommentItem";
 import UltraFeedPostItem from "./UltraFeedPostItem";
+import UltraFeedThreadCommentsList from "./UltraFeedThreadCommentsList";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
-import classNames from "classnames";
 
 // Only used as a fallback when post is not preloaded
 const PostsListWithVotesQuery = gql(`
@@ -52,22 +51,6 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
   },
-  commentItem: {
-    position: 'relative',
-    borderBottom: theme.palette.border.itemSeparatorBottom,
-    '&:last-child': {
-      borderBottom: 'none',
-    },
-  },
-  commentItemWithReadStyles: {
-    borderBottom: theme.palette.border.itemSeparatorBottomIntense,
-    [theme.breakpoints.down('sm')]: {
-      '&:first-child': {
-        borderTop: theme.palette.border.itemSeparatorBottomStrong
-      },
-    },
-  },
-
   postsLoadingContainer: {
     backgroundColor: theme.palette.panelBackground.default,
     position: 'relative',
@@ -396,124 +379,29 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
     <div className={classes.commentsRoot}>
       {comments.length > 0 && <div className={classes.commentsContainer}>
         <div className={classes.commentsList}>
-          {compressedItems.map((item, commentIndex) => {
-            if ("placeholder" in item) {
-              const hiddenCount = item.hiddenComments.length;
-              const anyHighlighted = item.hiddenComments.some(h => highlightStatuses[h._id]);
-              const anyRead = item.hiddenComments.some(h => {
-                const metaInfo = commentMetaInfos?.[h._id];
-                return !!metaInfo?.lastViewed || !!metaInfo?.lastInteracted;
-              });
-              
-              const allRead = item.hiddenComments.every(h => {
-                const metaInfo = commentMetaInfos?.[h._id];
-                return !!metaInfo?.lastViewed || !!metaInfo?.lastInteracted;
-              });
-              
-              let nextItemIsRead = false;
-              if (commentIndex < compressedItems.length - 1) {
-                const nextItem = compressedItems[commentIndex + 1];
-                if ("placeholder" in nextItem) {
-                  nextItemIsRead = nextItem.hiddenComments.every(h => {
-                    const meta = commentMetaInfos?.[h._id];
-                    return !!meta?.lastViewed || !!meta?.lastInteracted;
-                  });
-                } else {
-                  const nextMeta = commentMetaInfos?.[nextItem._id];
-                  nextItemIsRead = !!nextMeta?.lastViewed || !!nextMeta?.lastInteracted;
-                }
-              }
-              
-              const isReadAndNextItemIsRead = allRead && nextItemIsRead;
-              
-              return (
-                <div 
-                  className={classNames(classes.commentItem, {[classes.commentItemWithReadStyles]: isReadAndNextItemIsRead })} 
-                  key={`placeholder-${commentIndex}`}
-                >
-                  <UltraFeedCompressedCommentsItem
-                    numComments={hiddenCount}
-                    setExpanded={() => {
-                      // Always expand max 3 comments at a time
-                      item.hiddenComments.slice(0, 3).forEach(h => {
-                        setDisplayStatus(h._id, "expandedToMaxInPlace");
-                      });
-                    }}
-                    isFirstComment={commentIndex === 0}
-                    isLastComment={commentIndex === compressedItems.length - 1}
-                    isHighlighted={anyHighlighted}
-                    isRead={allRead}
-                  />
-                </div>
-              );
-            } else {
-              const cId = item._id;
-              const isFirstItem = commentIndex === 0;
-              const isLastItem = commentIndex === compressedItems.length - 1;
-              const parentAuthorName = item.parentCommentId ? commentAuthorsMap[item.parentCommentId] : null;
-              const isAnimating = animatingCommentIds.has(cId);
-              
-              const navigationProps = getNavigationProps(cId, visibleComments);
-              
-              const isNewReply = Object.values(newReplies).some(reply => reply._id === cId);
-              const metaInfo = commentMetaInfos?.[cId];
-              const isRead = !!metaInfo?.lastViewed || !!metaInfo?.lastInteracted;
-              
-              // Check if the next item is read (handling both comments and placeholder objects)
-              let nextItemIsRead = false;
-              if (commentIndex < compressedItems.length - 1) {
-                const nextItem = compressedItems[commentIndex + 1];
-                if ("placeholder" in nextItem) {
-                  // For placeholder items, check if ALL hidden comments are read
-                  nextItemIsRead = nextItem.hiddenComments.every(h => {
-                    const meta = commentMetaInfos?.[h._id];
-                    return !!meta?.lastViewed || !!meta?.lastInteracted;
-                  });
-                } else {
-                  // For regular comments
-                  const nextMeta = commentMetaInfos?.[nextItem._id];
-                  nextItemIsRead = !!nextMeta?.lastViewed || !!nextMeta?.lastInteracted;
-                }
-              }
-              
-              const isReadAndNextItemIsRead = isRead && nextItemIsRead;
-              
-              return (
-                <div key={cId} className={classNames(classes.commentItem, { [classes.commentItemWithReadStyles]: isReadAndNextItemIsRead })}>
-                  <UltraFeedCommentItem
-                    comment={item}
-                    metaInfo={{
-                      ...commentMetaInfos?.[cId],
-                      displayStatus: commentDisplayStatuses[cId] ?? commentMetaInfos?.[cId]?.displayStatus ?? "collapsed"
-                    }}
-                    onPostTitleClick={handlePostExpansion}
-                    onChangeDisplayStatus={(newStatus) => setDisplayStatus(cId, newStatus)}
-                    showPostTitle={isFirstItem && !postInitiallyExpanded}
-                    postInitiallyExpanded={postInitiallyExpanded}
-                    highlight={highlightStatuses[cId] || false}
-                    isFirstComment={isFirstItem}
-                    isLastComment={isLastItem}
-                    settings={settings}
-                    parentAuthorName={parentAuthorName}
-                    onReplyIconClick={() => triggerParentHighlight(cId)}
-                    isHighlightAnimating={isAnimating}
-                    replyConfig={{
-                      isReplying: replyingToCommentId === cId,
-                      onReplyClick: () => handleReplyClick(cId),
-                      onReplySubmit: (newComment) => handleReplySubmit(cId, newComment),
-                      onReplyCancel: () => setReplyingToCommentId(null),
-                    }}
-                    hasFork={navigationProps.showNav}
-                    currentBranch={navigationProps.currentBranch}
-                    threadIndex={index}
-                    commentIndex={commentIndex}
-                    onBranchToggle={() => navigationProps.forkParentId && handleBranchToggle(navigationProps.forkParentId)}
-                    onEditSuccess={isNewReply ? handleNewReplyEdit : () => {}}
-                  />
-                </div>
-              );
-            }
-          })}
+          <UltraFeedThreadCommentsList
+            compressedItems={compressedItems}
+            commentMetaInfos={commentMetaInfos}
+            commentDisplayStatuses={commentDisplayStatuses}
+            highlightStatuses={highlightStatuses}
+            commentAuthorsMap={commentAuthorsMap}
+            animatingCommentIds={animatingCommentIds}
+            visibleComments={visibleComments}
+            newReplies={newReplies}
+            replyingToCommentId={replyingToCommentId}
+            postInitiallyExpanded={postInitiallyExpanded}
+            settings={settings}
+            threadIndex={index}
+            onSetDisplayStatus={setDisplayStatus}
+            onPostExpansion={handlePostExpansion}
+            onParentHighlight={triggerParentHighlight}
+            onReplyClick={handleReplyClick}
+            onReplySubmit={handleReplySubmit}
+            onReplyCancel={() => setReplyingToCommentId(null)}
+            getNavigationProps={getNavigationProps}
+            onBranchToggle={handleBranchToggle}
+            onNewReplyEdit={handleNewReplyEdit}
+          />
         </div>
       </div>}
     </div>
