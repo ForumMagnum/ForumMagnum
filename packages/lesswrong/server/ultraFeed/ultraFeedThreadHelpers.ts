@@ -459,7 +459,8 @@ function selectBestThreads(
  * Also determines a primary source for the thread.
  */
 function prepareThreadForDisplay(
-  rankedThreadInfo: PrioritizedThread
+  rankedThreadInfo: PrioritizedThread,
+  engagementStatsMap: Map<string, ThreadEngagementStats>
 ): PreparedFeedCommentsThread | null { // Return new type
   const thread = rankedThreadInfo.thread;
   const numComments = thread.length;
@@ -470,6 +471,9 @@ function prepareThreadForDisplay(
 
   // The primarySource for the entire thread is determined by that single candidate comment.
   const primarySource = (initialCandidateComment?.primarySource ?? thread[0]?.primarySource ?? 'recentComments')
+
+  const engagementStats = engagementStatsMap.get(rankedThreadInfo.topLevelId);
+  const isOnReadPost = engagementStats?.isOnReadPost ?? false;
 
   const expandedCommentIds = new Set<string>();
 
@@ -532,6 +536,7 @@ function prepareThreadForDisplay(
   return {
     comments: finalComments,
     primarySource: primarySource as FeedItemSourceType,
+    isOnReadPost: isOnReadPost,
   };
 }
 
@@ -620,7 +625,7 @@ export async function getUltraFeedCommentThreads(
   // --- Prepare for Display --- 
   const displayThreads = viableThreads
     .slice(0, limit) 
-    .map(rankedThreadInfo => prepareThreadForDisplay(rankedThreadInfo))
+    .map(rankedThreadInfo => prepareThreadForDisplay(rankedThreadInfo, engagementStatsMap))
     .filter(rankedThreadInfo => !!rankedThreadInfo);
 
   return displayThreads;

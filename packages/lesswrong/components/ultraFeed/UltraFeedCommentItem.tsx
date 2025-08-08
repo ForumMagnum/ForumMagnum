@@ -36,6 +36,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     },
   },
   rootWithReadStyles: {
+    backgroundColor: theme.palette.grey[300],
     [theme.breakpoints.down('sm')]: {
       backgroundColor: theme.palette.grey[100],
     },
@@ -55,14 +56,14 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   compressedRoot: {
     display: 'flex',
     flexDirection: 'row',
-    paddingLeft: 20,
-    paddingRight: 16,
     [theme.breakpoints.down('sm')]: {
       paddingLeft: 20,
       paddingRight: 20,
     },
   },
   compressedRootWithReadStyles: {
+    backgroundColor: theme.palette.grey[300],
+    borderBottom: theme.palette.border.itemSeparatorBottomStrong,
     [theme.breakpoints.down('sm')]: {
       backgroundColor: theme.palette.grey[100],
     },
@@ -73,12 +74,6 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     overflow: 'visible',
-  },
-  commentContentWrapperWithBorder: {
-    borderBottom: theme.palette.border.itemSeparatorBottom,
-    [theme.breakpoints.down('sm')]: {
-      borderBottom: 'none',
-    },
   },
   commentHeader: {
     display: 'flex',
@@ -95,6 +90,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     },
   },
   contentWrapperWithReadStyles: {
+    opacity: 0.9,
     [theme.breakpoints.down('sm')]: {
       opacity: 0.7,
     },
@@ -118,52 +114,12 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     },
   },
   numCommentsWithReadStyles: {
+    opacity: 0.6,
     [theme.breakpoints.down('sm')]: {
       opacity: 0.7,
     },
   },
-  verticalLineContainer: {
-    fontStyle: 'italic',
-    width: 0,
-    display: 'flex',
-    justifyContent: 'center',
-    marginRight: 6,
-    marginTop: -commentHeaderPaddingDesktop,
-    marginBottom: 0,
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-  },
-  verticalLineContainerCompressed: {
-    width: 0,
-    display: 'flex',
-    justifyContent: 'center',
-    marginRight: 6,
-    marginTop: 0,
-    marginBottom: 0,
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-  },
-  verticalLine: {
-    width: 0,
-    borderLeft: `4px solid ${theme.palette.grey[300]}ac`,
-    flex: 1,
-    marginLeft: -12,
-  },
-  verticalLineHighlightedUnviewed: {
-    borderLeftColor: `${theme.palette.secondary.light}ec`,
-  },
-  verticalLineHighlightedViewed: {
-    borderLeftColor: `${theme.palette.secondary.light}5f`,
-    transition: 'border-left-color 0.5s ease-out',
-  },
-  verticalLineFirstComment: {
-    marginTop: commentHeaderPaddingDesktop,
-  },
-  verticalLineLastComment: {
-    marginBottom: commentHeaderPaddingDesktop,
-  },
+
   footer: {
     marginBottom: 12,
   },
@@ -195,8 +151,6 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     fontStyle: 'italic',
   },
 }));
-
-type HighlightStateType = 'never-highlighted' | 'highlighted-unviewed' | 'highlighted-viewed';
 
 const BranchNavigationButton = ({
   currentBranch,
@@ -258,17 +212,7 @@ export const UltraFeedCompressedCommentsItem = ({
       onClick={handleClick}
       className={classNames(classes.compressedRoot, { [classes.compressedRootWithReadStyles]: isRead })}
     >
-      <div className={classes.verticalLineContainerCompressed}>
-        <div className={classNames(
-          classes.verticalLine,
-          { 
-            [classes.verticalLineHighlightedUnviewed]: isHighlighted,
-            [classes.verticalLineFirstComment]: isFirstComment,
-            [classes.verticalLineLastComment]: isLastComment
-          }
-        )} />
-      </div>
-      <div className={classNames(classes.commentContentWrapper, { [classes.commentContentWrapperWithBorder]: !isLastComment })}>
+      <div className={classes.commentContentWrapper}>
         <div className={classNames(classes.numComments, {
           [classes.numCommentsWithReadStyles]: isRead
         })}>
@@ -291,6 +235,7 @@ export interface UltraFeedCommentItemProps {
   metaInfo: FeedCommentMetaInfo;
   onChangeDisplayStatus: (newStatus: "expanded" | "collapsed" | "hidden") => void;
   showPostTitle?: boolean;
+  postInitiallyExpanded?: boolean;
   highlight?: boolean;
   isFirstComment?: boolean;
   isLastComment?: boolean;
@@ -314,6 +259,7 @@ export const UltraFeedCommentItem = ({
   metaInfo,
   onChangeDisplayStatus,
   showPostTitle,
+  postInitiallyExpanded = false,
   highlight = false,
   isFirstComment = false,
   isLastComment = false,
@@ -332,7 +278,7 @@ export const UltraFeedCommentItem = ({
   commentIndex,
 }: UltraFeedCommentItemProps) => {
   const classes = useStyles(styles);
-  const { observe, unobserve, trackExpansion, hasBeenFadeViewed, subscribeToFadeView, unsubscribeFromFadeView } = useUltraFeedObserver();
+  const { observe, unobserve, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { openDialog } = useDialog();
   const overflowNav = useOverflowNav(elementRef);
@@ -344,8 +290,6 @@ export const UltraFeedCommentItem = ({
   const displayStatus = metaInfo.displayStatus ?? 'expanded';
   const isRead = !!metaInfo.lastViewed || !!metaInfo.lastInteracted
 
-  const initialHighlightState = (highlight && !hasBeenFadeViewed(comment._id)) ? 'highlighted-unviewed' : 'never-highlighted';
-  const [highlightState, setHighlightState] = useState<HighlightStateType>(initialHighlightState);
   const [resetSig, setResetSig] = useState(0);
   const [showEditState, setShowEditState] = useState(false);
   
@@ -393,26 +337,6 @@ export const UltraFeedCommentItem = ({
       }
     };
   }, [observe, unobserve, comment._id, comment.postId, metaInfo.servedEventId, threadIndex, commentIndex]);
-
-  // Manage highlight fading using observer's fade timer (2s)
-  useEffect(() => {
-    const initialState: HighlightStateType = (highlight && !hasBeenFadeViewed(comment._id)) ? 'highlighted-unviewed' : 'never-highlighted';
-    setHighlightState(initialState);
-
-    const handleFade = () => {
-      setHighlightState(prev => prev === 'highlighted-unviewed' ? 'highlighted-viewed' : prev);
-    };
-
-    if (initialState === 'highlighted-unviewed') {
-      subscribeToFadeView(comment._id, handleFade);
-    }
-
-    return () => {
-      if (initialState === 'highlighted-unviewed') {
-        unsubscribeFromFadeView(comment._id, handleFade);
-      }
-    };
-  }, [highlight, comment._id, hasBeenFadeViewed, subscribeToFadeView, unsubscribeFromFadeView]);
 
   const handleContentExpand = useCallback((expanded: boolean, wordCount: number) => {
     trackExpansion({
@@ -520,21 +444,7 @@ export const UltraFeedCommentItem = ({
       [classes.moderatorComment]: showModeratorCommentAnnotation,
     })}>
       <div className={classes.mainContent}>
-        <div className={classes.verticalLineContainer}>
-          <div className={classNames(
-            classes.verticalLine,
-            {
-              [classes.verticalLineHighlightedUnviewed]: highlightState === 'highlighted-unviewed',
-              [classes.verticalLineHighlightedViewed]: highlightState === 'highlighted-viewed',
-              [classes.verticalLineFirstComment]: isFirstComment,
-              [classes.verticalLineLastComment]: isLastComment
-            }
-          )} />
-        </div>
-        <div ref={elementRef} className={
-          classNames(classes.commentContentWrapper, { 
-            [classes.commentContentWrapperWithBorder]: !isLastComment,
-          })}>
+        <div ref={elementRef} className={classes.commentContentWrapper}>
           <div className={classNames(classes.commentHeader, { [classes.greyedOut]: isSeeLessMode })}>
             {hasFork && <BranchNavigationButton
               currentBranch={currentBranch}
@@ -545,6 +455,7 @@ export const UltraFeedCommentItem = ({
               metaInfo={metaInfo}
               setShowEdit={setShowEdit}
               showPostTitle={showPostTitle}
+              postInitiallyExpanded={postInitiallyExpanded}
               onPostTitleClick={onPostTitleClick}
               parentAuthorName={parentAuthorName}
               onReplyIconClick={onReplyIconClick}

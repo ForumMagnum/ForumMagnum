@@ -88,6 +88,8 @@ export type PreDisplayFeedCommentThread = PreDisplayFeedComment[];
 export interface FeedCommentsThread {
   comments: PreDisplayFeedComment[];
   primarySource?: FeedItemSourceType;
+  isOnReadPost?: boolean | null;
+  postSources?: FeedItemSourceType[];
 }
 
 export interface FeedPostStub {
@@ -112,6 +114,9 @@ export interface FeedCommentsThreadResolverType {
   _id: string;
   comments: DbComment[];
   commentMetaInfos: {[commentId: string]: FeedCommentMetaInfo};
+  isOnReadPost?: boolean | null;
+  postSources?: FeedItemSourceType[];
+  post?: DbPost | null;
 }
 
 export interface FeedPostResolverType {
@@ -140,6 +145,9 @@ export interface DisplayFeedCommentThread {
   _id: string;
   comments: UltraFeedComment[];
   commentMetaInfos: {[commentId: string]: FeedCommentMetaInfo};
+  isOnReadPost?: boolean | null;
+  postSources?: FeedItemSourceType[] | null;
+  post?: PostsListWithVotes | null;
 }
 
 export interface DisplayFeedPost {
