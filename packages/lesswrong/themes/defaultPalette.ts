@@ -710,5 +710,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   ultraFeed: {
     dim: shades.grey[600],
     cardSeparator: `12px solid ${shades.greyAlpha(0.005)}`,
+    readBackground: shades.grey[300],
+    readBackgroundMobile: shades.grey[100],
   }
 })

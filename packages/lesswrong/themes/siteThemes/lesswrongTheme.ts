@@ -55,6 +55,10 @@ export const lessWrongTheme: SiteThemeSpecification = {
     ultrafeedModalHeader: {
       background: blackBarTitle.get() ? shadePalette.inverseGreyAlpha(.4) : shadePalette.inverseGreyAlpha(.95)
     },
+    ultraFeed: {
+      readBackground: '#faf8f4',
+      readBackgroundMobile: '#f5f5f5',
+    },
     background: {
       default: '#f8f4ee'
     },
