@@ -4,10 +4,10 @@
     "noImplicitAny": true,
     "noImplicitThis": true,
     "strictNullChecks": true,
-    "jsx": "react",
+    "jsx": "preserve",
     "esModuleInterop": true,
     "rootDir": ".",
-    "module": "commonjs",
+    "module": "esnext",
     "target": "es2018",
     "sourceMap": true,
     "moduleResolution": "node",
@@ -22,14 +22,24 @@
     "paths": {
       "@/*": ["./packages/lesswrong/*"],
       "@/allComponents": ["./packages/lesswrong/lib/generated/allComponents.ts"]
-    }
+    },
+    "strict": false,
+    "incremental": true,
+    "isolatedModules": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "include": [
     "packages/lesswrong",
     "ckEditor/src/editorConfigs.js",
     "playwright",
     "./build.ts",
-    "app"
+    ".next/types/**/*.ts",
+    "app",
+    "app/**/.*/**/*"
   ],
   "exclude": [
     "node_modules",
