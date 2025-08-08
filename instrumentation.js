@@ -15,6 +15,6 @@ export async function register() {
 }
 
 if (process.env.NODE_ENV === "production") {
-  const Sentry = await import('@sentry/nextjs');
+  const Sentry = require('@sentry/nextjs');
   module.exports.onRequestError = Sentry.captureRequestError;
 }
