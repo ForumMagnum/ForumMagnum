@@ -1,4 +1,4 @@
-export const devDbSettings = {
+export const sharedSettings = {
   forum: {
     numberOfDays: 10,
     postInterval: 30,

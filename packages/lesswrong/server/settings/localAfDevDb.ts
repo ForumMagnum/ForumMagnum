@@ -1,4 +1,4 @@
-import { devDbSettings } from "./devDbSettings";
+import { sharedSettings } from "./sharedSettings";
 import merge from "lodash/merge";
 
 export const localAfDevDb = merge({
@@ -32,4 +32,4 @@ export const localAfDevDb = merge({
   },
   taggingName: "wikitag",
   taggingUrlCustomBase: "w",
-}, devDbSettings);
+}, sharedSettings);

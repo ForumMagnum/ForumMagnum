@@ -1,5 +1,5 @@
 import merge from "lodash/merge";
-import { prodDbSettings } from "./prodDbSettings";
+import { sharedSettings } from "./sharedSettings";
 
 export const localLwProdDb = merge({
   forumType: "LessWrong",
@@ -91,4 +91,4 @@ export const localLwProdDb = merge({
       }
     ]
   }
-}, prodDbSettings);
+}, sharedSettings);

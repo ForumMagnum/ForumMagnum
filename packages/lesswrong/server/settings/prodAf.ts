@@ -1,5 +1,5 @@
 import merge from "lodash/merge";
-import { prodDbSettings } from "./prodDbSettings";
+import { sharedSettings } from "./sharedSettings";
 
 export const prodAf = merge({
   forumType: "AlignmentForum",
@@ -37,4 +37,4 @@ export const prodAf = merge({
   },
   taggingName: "wikitag",
   taggingUrlCustomBase: "w"
-}, prodDbSettings);
+}, sharedSettings);

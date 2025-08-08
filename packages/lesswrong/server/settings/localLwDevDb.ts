@@ -1,4 +1,4 @@
-import { devDbSettings } from "./devDbSettings";
+import { sharedSettings } from "./sharedSettings";
 import merge from "lodash/merge";
 
 export const localLwDevDb = merge({
@@ -98,4 +98,4 @@ export const localLwDevDb = merge({
     ]
   },
   ultraFeedEnabled: true,
-}, devDbSettings);
+}, sharedSettings);

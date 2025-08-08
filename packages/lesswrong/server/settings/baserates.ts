@@ -1,6 +1,7 @@
-import { devDbSettings } from "./devDbSettings";
+import merge from "lodash/merge";
+import { sharedSettings } from "./sharedSettings";
 
-export const baserates = {
+export const baserates = merge({
   forumType: "LessWrong",
   title: "LessWrong Development Server",
   siteNameWithArticle: "LessWrong",
@@ -31,5 +32,4 @@ export const baserates = {
   disallowCrawlers: true,
   hasRejectedContentSection: true,
   hasCuratedPosts: true,
-  ...devDbSettings,
-};
+}, sharedSettings);
