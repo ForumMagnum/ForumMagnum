@@ -23154,6 +23154,23 @@ type UltraFeedPostDialogQueryVariables = Exact<{
 
 type UltraFeedPostDialogQuery = UltraFeedPostDialogQuery_Query;
 
+type UltraFeedTargetCommentQuery_comment_SingleCommentOutput_result_Comment = (
+  { __typename?: 'Comment' }
+  & CommentWithRepliesFragment
+);
+
+type UltraFeedTargetCommentQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: UltraFeedTargetCommentQuery_comment_SingleCommentOutput_result_Comment | null };
+
+type UltraFeedTargetCommentQuery_Query = { __typename?: 'Query', comment: UltraFeedTargetCommentQuery_comment_SingleCommentOutput | null };
+
+
+type UltraFeedTargetCommentQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type UltraFeedTargetCommentQuery = UltraFeedTargetCommentQuery_Query;
+
 type LocalPostQueryQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
   & UltraFeedPostFragment
