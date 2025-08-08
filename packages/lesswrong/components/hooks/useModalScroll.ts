@@ -146,4 +146,53 @@ export const useModalHashLinkScroll = (
       document.removeEventListener('click', handleHashLinkClick, true);
     };
   }, [scrollContainerRef, enabled, shouldHighlight, highlightElementWithTheme, onFootnoteClick]);
+};
+
+/**
+ * Hook that customizes spacebar scrolling within a modal dialog
+ * to prevent content from being hidden under sticky headers.
+ * 
+ * @param scrollContainerRef - Reference to the scrollable container element
+ * @param offsetPx - Pixels to subtract from visible height when scrolling (default: 150)
+ * @param enabled - Whether the hook should be active (default: true)
+ */
+export const useModalSpacebarScroll = (
+  scrollContainerRef: RefObject<HTMLElement | null>,
+  offsetPx = 150,
+  enabled = true
+) => {
+  useEffect(() => {
+    if (!enabled) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return;
+      if (event.code !== 'Space') return;
+
+      const target = event.target as HTMLElement | null;
+      if (target && (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.tagName === 'SELECT' ||
+        target.isContentEditable
+      )) {
+        return;
+      }
+
+      const container = scrollContainerRef.current;
+      if (!container) return;
+
+      event.preventDefault();
+      const visibleHeight = Math.max(0, container.clientHeight - offsetPx);
+      const scrollDelta = Math.max(1, Math.floor(visibleHeight));
+      const nextTop = event.shiftKey ? container.scrollTop - scrollDelta : container.scrollTop + scrollDelta;
+
+      container.scrollTo({ top: nextTop, behavior: 'smooth' });
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [scrollContainerRef, offsetPx, enabled]);
 }; 

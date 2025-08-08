@@ -36,7 +36,7 @@ import TocIcon from "@/lib/vendor/@material-ui/icons/src/Toc";
 import UltraFeedPostToCDrawer from "./UltraFeedPostToCDrawer";
 import { useDialogNavigation } from "../hooks/useDialogNavigation";
 import { useDisableBodyScroll } from "../hooks/useDisableBodyScroll";
-import { useModalHashLinkScroll, scrollToElementInContainer } from "../hooks/useModalScroll";
+import { useModalHashLinkScroll, useModalSpacebarScroll, scrollToElementInContainer } from "../hooks/useModalScroll";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { NetworkStatus } from "@apollo/client";
 import UltraFeedPostFooter from "./UltraFeedPostFooter";
@@ -466,7 +466,6 @@ const UltraFeedPostDialog = ({
   } = commentsQuery;
   
   const comments = dataCommentsList?.comments?.results;
-  const totalCount = dataCommentsList?.comments?.totalCount;
   const loadingMoreComments = networkStatus === NetworkStatus.fetchMore;
   
   // Answers query for questions
@@ -531,6 +530,7 @@ const UltraFeedPostDialog = ({
   const postUrl = displayPost ? `${postGetPageUrl(displayPost)}?${qs.stringify({ from: 'feedModal' })}` : undefined;
   useDialogNavigation(handleClose, postUrl);
   useDisableBodyScroll();
+  useModalSpacebarScroll(scrollableContentRef, 90);
   useModalHashLinkScroll(scrollableContentRef, true, true, (footnoteHTML: string) => {
     setFootnoteDialogHTML(footnoteHTML);
   });
