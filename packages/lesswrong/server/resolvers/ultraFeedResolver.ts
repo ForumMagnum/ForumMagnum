@@ -20,11 +20,11 @@ import { loadByIds } from '@/lib/loaders';
 import { getUltraFeedPostThreads } from '@/server/ultraFeed/ultraFeedPostHelpers';
 import { getUltraFeedBookmarks, PreparedBookmarkItem } from '../ultraFeed/ultraFeedBookmarkHelpers';
 import { randomId } from '@/lib/random';
-import { captureEvent } from '@/lib/analyticsEvents';
 import union from 'lodash/union';
 import groupBy from 'lodash/groupBy';
 import mergeWith from 'lodash/mergeWith';
 import { backgroundTask } from "../utils/backgroundTask";
+import { serverCaptureEvent } from "../analytics/serverAnalyticsWriter";
 
 interface UltraFeedDateCutoffs {
   latestPostsMaxAgeDays: number;
@@ -191,7 +191,7 @@ function dedupSampledItems(sampled: SampledItem[]): SampledItem[] {
   );
 
   if (duplicateLog.length > 0) {
-    captureEvent?.('ultraFeedDuplicateAfterSample', { duplicates: duplicateLog, location: 'ultraFeedResolver' });
+    serverCaptureEvent?.('ultraFeedDuplicateAfterSample', { duplicates: duplicateLog, location: 'ultraFeedResolver' });
   }
 
   return Object.values(mergedObject);
@@ -698,7 +698,7 @@ export const ultraFeedGraphQLQueries = {
       }
 
       if (duplicateKeys.length > 0) {
-        captureEvent("ultraFeedDuplicateDetected", {
+        serverCaptureEvent("ultraFeedDuplicateDetected", {
           keys: duplicateKeys,
           resolverName: "UltraFeed",
           duplicateStage: "server-resolver-after-transform",
@@ -725,7 +725,7 @@ export const ultraFeedGraphQLQueries = {
       };
 
       const executionTime = Date.now() - startTime;
-      captureEvent('ultraFeedPerformance', { 
+      serverCaptureEvent('ultraFeedPerformance', { 
         ultraFeedResolverTotalExecutionTime: executionTime,
         sessionId,
         offset: offset ?? 0,
