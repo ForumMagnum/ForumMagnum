@@ -1,5 +1,5 @@
 import type Stripe from 'stripe';
-import * as Sentry from '@sentry/nextjs';
+import { captureException } from '@sentry/nextjs';
 import { lightconeFundraiserPaymentLinkId } from '@/lib/instanceSettings';
 import { lightconeFundraiserStripeSecretKeySetting } from '../databaseSettings';
 import { backgroundTask } from '../utils/backgroundTask';
@@ -53,7 +53,7 @@ export async function updateStripeIntentsCache() {
 
     stripeIntentsCache.intents = succeededPaymentIntents;
   } catch (error) {
-    Sentry.captureException(error);
+    captureException(error);
   }
 }
 

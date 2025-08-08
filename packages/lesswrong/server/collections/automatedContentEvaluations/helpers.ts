@@ -1,10 +1,9 @@
-
 import { saplingApiKey } from "@/lib/instanceSettings";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
 import { z } from "zod"; // Add this import for Zod
 import { getOpenAI } from "@/server/languageModels/languageModelIntegration";
-import { captureException } from "@sentry/core";
+import { captureException } from "@sentry/nextjs";
 import Posts from "../posts/collection";
 import ModerationTemplates from "../moderationTemplates/collection";
 import { sendRejectionPM } from "@/server/callbacks/postCallbackFunctions";

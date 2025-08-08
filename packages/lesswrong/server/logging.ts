@@ -3,8 +3,6 @@ import { isAnyTest } from '../lib/executionEnvironment';
 import { consoleLogMemoryUsageThreshold, sentryErrorMemoryUsageThreshold, memoryUsageCheckInterval, logGraphqlQueriesSetting, logGraphqlMutationsSetting } from './databaseSettings';
 import { printInFlightRequests } from '@/server/rendering/pageCache';
 
-import * as Sentry from '@sentry/nextjs';
-
 // Log unhandled promise rejections, eg exceptions escaping from async
 // callbacks. The default node behavior is to silently ignore these exceptions,
 // which is terrible and has led to unnoticed bugs in the past.
@@ -32,7 +30,7 @@ export function startMemoryUsageMonitor() {
         logInFlightStuff();
       }
       if (memoryUsage > sentryErrorMemoryUsageThreshold.get()) {
-        Sentry.captureException(new Error("Memory usage is high"));
+        captureException(new Error("Memory usage is high"));
       }
     }, memoryUsageCheckInterval.get());
   }
