@@ -36,7 +36,6 @@ export async function register() {
   });
 }
 
-if (process.env.NODE_ENV === "production") {
-  const Sentry = require('@sentry/nextjs');
-  module.exports.onRouterTransitionStart = Sentry.captureRouterTransitionStart;
-}
+export const onRouterTransitionStart = process.env.NODE_ENV === "production"
+  ? require('@sentry/nextjs').captureRouterTransitionStart
+  : () => {};
