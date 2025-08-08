@@ -10,7 +10,7 @@ import { configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apol
 import { getUserFromReq } from './vulcan-lib/apollo-server/getUserFromReq';
 import universalCookiesMiddleware from 'universal-cookie-express';
 import { formatError } from 'apollo-errors';
-import { getIsolationScope } as Sentry from '@sentry/nextjs';
+import { getIsolationScope } from '@sentry/nextjs';
 import { app } from './expressServer';
 import path from 'path'
 import { expressSessionSecretSetting, botProtectionCommentRedirectSetting } from './databaseSettings';
