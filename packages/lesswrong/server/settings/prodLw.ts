@@ -91,5 +91,6 @@ export const prodLw = {
         disabled: true
       }
     ]
-  }
+  },
+  ultraFeedEnabled: true,
 };

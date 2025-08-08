@@ -96,5 +96,6 @@ export const localLwDevDb = merge({
         disabled: true
       }
     ]
-  }
+  },
+  ultraFeedEnabled: true,
 }, devDbSettings);

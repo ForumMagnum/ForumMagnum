@@ -79,7 +79,6 @@ import './server/callbacks/sequenceCallbacks';
 import './server/callbacks/bookCallbacks';
 import './server/callbacks/messageCallbacks';
 import './server/callbacks/revisionCallbacks';
-import './server/staticRoutes/debugHeaders';
 import './server/tableOfContents';
 import './server/callbacks/subscriptionCallbacks';
 import './server/callbacks/reviewVoteCallbacks';

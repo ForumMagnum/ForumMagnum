@@ -25,12 +25,7 @@
     },
     "strict": false,
     "incremental": true,
-    "isolatedModules": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
+    "isolatedModules": true
   },
   "include": [
     "packages/lesswrong",

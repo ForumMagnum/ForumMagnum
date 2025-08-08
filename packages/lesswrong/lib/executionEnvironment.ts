@@ -50,26 +50,26 @@ export const isCodegen = nodeEnv === 'codegen';
 
 
 // @ts-ignore next-line
-global.bundleIsServer = isServer;
+globalThis.bundleIsServer = isServer;
 // @ts-ignore next-line
-global.bundleIsTest = isAnyTest;
+globalThis.bundleIsTest = isAnyTest;
 // @ts-ignore next-line
-global.bundleIsE2E = isE2E;
+globalThis.bundleIsE2E = isE2E;
 // @ts-ignore next-line
-global.bundleIsProduction = isProduction;
+globalThis.bundleIsProduction = isProduction;
 // @ts-ignore next-line
-global.bundleIsMigrations = isMigrations;
+globalThis.bundleIsMigrations = isMigrations;
 // @ts-ignore next-line
-global.bundleIsIntegrationTest = isIntegrationTest;
+globalThis.bundleIsIntegrationTest = isIntegrationTest;
 // @ts-ignore next-line
-global.bundleIsCodegen = isCodegen;
+globalThis.bundleIsCodegen = isCodegen;
 
 
 // @ts-ignore next-line
-global.defaultSiteAbsoluteUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_BRANCH_URL}` : 'http://localhost:3000';
+globalThis.defaultSiteAbsoluteUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_BRANCH_URL}` : 'http://localhost:3000';
 // @ts-ignore next-line
-global.buildProcessPid = 0;
+globalThis.buildProcessPid = 0;
 // @ts-ignore next-line
-global.ddEnv = 'local';
+globalThis.ddEnv = 'local';
 // @ts-ignore next-line
-global.enableVite = true;
+globalThis.enableVite = true;
