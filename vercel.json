@@ -27,5 +27,8 @@
   }, {
     "path": "/api/cron/every-midnight",
     "schedule": "0 0 * * *"
+  }, {
+    "path": "/",
+    "schedule": "* * * * *"
   }]
 }
