@@ -36,9 +36,9 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     },
   },
   rootWithReadStyles: {
-    backgroundColor: theme.palette.grey[300],
+    backgroundColor: theme.palette.ultraFeed.readBackground,
     [theme.breakpoints.down('sm')]: {
-      backgroundColor: theme.palette.grey[100],
+      backgroundColor: theme.palette.ultraFeed.readBackgroundMobile,
     },
   },
   rootWithAnimation: {
@@ -62,10 +62,10 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     },
   },
   compressedRootWithReadStyles: {
-    backgroundColor: theme.palette.grey[300],
+    backgroundColor: theme.palette.ultraFeed.readBackground,
     borderBottom: theme.palette.border.itemSeparatorBottomStrong,
     [theme.breakpoints.down('sm')]: {
-      backgroundColor: theme.palette.grey[100],
+      backgroundColor: theme.palette.ultraFeed.readBackgroundMobile,
     },
   },
   commentContentWrapper: {
@@ -90,7 +90,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     },
   },
   contentWrapperWithReadStyles: {
-    opacity: 0.9,
+    opacity: 0.8,
     [theme.breakpoints.down('sm')]: {
       opacity: 0.7,
     },
