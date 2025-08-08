@@ -103,7 +103,7 @@ export const cachedPageRender = async (
   userAgent: string|undefined,
   renderFn: () => Promise<RenderResult>
 ) => {
-  const clientId = req.clientId ?? getCookieFromReq(req, "clientId");
+  const clientId = (req as any).clientId ?? getCookieFromReq(req, "clientId");
   const abTestGroups = getAllUserABTestGroups({ clientId: clientId! });
   const path = getPathFromReq(req);
   const cacheKey = cacheKeyFromReq(req);

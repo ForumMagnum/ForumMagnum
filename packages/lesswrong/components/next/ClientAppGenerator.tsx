@@ -72,7 +72,7 @@ const AppComponent = ({ children }: { children: React.ReactNode }) => {
 
   const location: RouterLocation = {
     hash,
-    params: routeParams,
+    params: routeParams as Record<string,string>,
     pathname,
     query: searchParams,
     url: reconstructedPath,

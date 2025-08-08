@@ -2,9 +2,9 @@ import React from 'react';
 import { combineUrls, getBasePath, getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { taglineSetting, tabTitleSetting, tabLongTitleSetting, noIndexSetting } from '../../lib/instanceSettings';
-import { toEmbeddableJson } from '../../lib/utils/jsonUtils';
 import { Helmet } from "./Helmet";
 import { SuspenseWrapper } from './SuspenseWrapper';
+import { useRouteMetadata } from '../ClientRouteMetadataContext';
 
 const HeadTags = ({
   ogUrl: ogUrlProp,
@@ -23,19 +23,22 @@ const HeadTags = ({
   useSmallImage?: boolean,
   noIndex?: boolean,
 }) => {
-    const { currentRoute, pathname } = useSubscribedLocation();
+    const { pathname } = useSubscribedLocation();
+    const routeMetadata = useRouteMetadata().metadata;
     // The default url we want to use for our cannonical and og:url tags uses
     // the "base" path, site url and path without query or hash
     const url = combineUrls(getSiteUrl(), getBasePath(pathname))
     const ogUrl = ogUrlProp || url
     const canonicalUrl = canonicalUrlProp || url
-    const description = descriptionProp || currentRoute?.description || taglineSetting.get()
+    // FIXME: Routes table has a "description" option for a few routes, which has probably not been transferred into nextjs
+    //const description = descriptionProp || routeMetadata?.description || taglineSetting.get()
+    const description = descriptionProp || taglineSetting.get()
 
     const tabLongTitle = tabLongTitleSetting.get() || tabTitleSetting.get()
     const tabShortTitle = tabTitleSetting.get() || tabLongTitle
 
-    const TitleComponent = currentRoute?.titleComponent;
-    const titleString = currentRoute?.title || titleProp || currentRoute?.subtitle;
+    const TitleComponent = routeMetadata?.titleComponent;
+    const titleString = routeMetadata?.title || titleProp || routeMetadata?.subtitle;
 
     const rssUrl = `${getSiteUrl()}feed.xml`
     
@@ -82,7 +85,9 @@ const HeadTags = ({
           <meta httpEquiv='delegate-ch' content='sec-ch-dpr https://res.cloudinary.com;' />
 
           {/* done in default */}
-          {(noIndex || currentRoute?.noIndex || noIndexSetting.get()) && <meta name='robots' content='noindex' />}
+          {/* FIXME: Routes table has a "noIndex" option for a few routes, which has probably not been transferred into nextjs */}
+          {/*(noIndex || routeMetadata?.noIndex || noIndexSetting.get()) && <meta name='robots' content='noindex' />*/}
+          {(noIndex || noIndexSetting.get()) && <meta name='robots' content='noindex' />}
           {/* done in default */}
           <link rel='canonical' href={canonicalUrl}/>
           {/* done */}

@@ -37,15 +37,16 @@ export const isServer = !isClient;
 export const isProduction = process.env.NODE_ENV === 'production';
 export const isDevelopment = !isProduction;
 
+export const nodeEnv = process.env.NODE_ENV as "production"|"development"|"codegen"|"migrations"|"test"|"e2e"|"integration";
 
-export const isMigrations = process.env.NODE_ENV === 'migrations';
-export const isAnyTest = process.env.NODE_ENV === 'test';
-export const isIntegrationTest = process.env.NODE_ENV === 'integration';
+export const isMigrations = nodeEnv === 'migrations';
+export const isAnyTest = nodeEnv === 'test';
+export const isIntegrationTest = nodeEnv === 'integration';
 
 
-export const isE2E = process.env.NODE_ENV === 'e2e';
-export const isPackageTest = process.env.NODE_ENV === 'test';
-export const isCodegen = process.env.NODE_ENV === 'codegen';
+export const isE2E = nodeEnv === 'e2e';
+export const isPackageTest = nodeEnv === 'test';
+export const isCodegen = nodeEnv === 'codegen';
 
 
 // @ts-ignore next-line

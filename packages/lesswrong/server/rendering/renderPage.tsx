@@ -13,9 +13,9 @@ import { cachedPageRender, recordCacheBypass} from './pageCache';
 import { getAllUserABTestGroups, CompleteTestGroupAllocation, RelevantTestGroupAllocation, classesForAbTestGroups } from '@/lib/abTestImpl';
 import Head from './Head';
 import { embedAsGlobalVar } from './renderUtil';
-import { healthCheckUserAgentSetting } from '../databaseSettings';
+import { healthCheckUserAgentSetting, slowSSRWarnThresholdSetting } from '../databaseSettings';
 import AppGenerator from '@/server/vulcan-lib/apollo-ssr/components/AppGenerator';
-import { captureException } from '@sentry/nextjs';
+import { captureException, getIsolationScope } from '@sentry/nextjs';
 import { ServerRequestStatusContextType, parseRoute, parsePath } from '@/lib/vulcan-core/appContext';
 import { getIpFromRequest, getCookieFromReq, getPathFromReq, getRequestMetadata, trySetResponseStatus } from '@/server/utils/httpUtil';
 import { getThemeOptions, AbstractThemeOptions } from '@/themes/themeNames';
@@ -38,17 +38,18 @@ import { randomId } from '@/lib/random';
 import { getClientBundle } from '@/server/utils/bundleUtils';
 import { getInstanceSettings } from '@/lib/getInstanceSettings';
 import { makeAbsolute, urlIsAbsolute } from '@/lib/vulcan-lib/utils';
-import type { RouterLocation } from '@/lib/vulcan-lib/routes';
+import type { Route, RouterLocation } from '@/lib/vulcan-lib/routes';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 import express from 'express'
 import { ResponseForwarderStream, ResponseManager } from '@/server/rendering/ResponseManager';
 import { queueRenderRequest } from '@/server/rendering/requestQueue';
-import { closeRenderRequestPerfMetric, getCpuTimeMs, logRequestToConsole, openRenderRequestPerfMetric, recordSsrAnalytics, RenderTimings, slowSSRWarnThresholdSetting } from './renderLogging';
+import { closeRenderRequestPerfMetric, getCpuTimeMs, logRequestToConsole, openRenderRequestPerfMetric, recordSsrAnalytics, RenderTimings } from './renderLogging';
 import { HelmetServerState } from 'react-helmet-async';
 import every from 'lodash/every';
 import { prefilterHandleRequest } from '../apolloServer';
 import { eventCaptureScript } from './eventCapture';
-import { getEmbeddedStyleLoaderScript } from '@/components/hooks/useStyles';
+import { getEmbeddedStyleLoaderScript } from '@/components/hooks/embedStyles';
+import { requestToNextRequest } from '../utils/requestToNextRequest';
 
 export interface RenderSuccessResult {
   ssrBody: string
@@ -177,7 +178,7 @@ export async function handleRequest(request: Request, response: Response) {
     }
   }
   
-  const user = getUserFromReq(request);
+  const user = await getUserFromReq(requestToNextRequest(request));
   const themeOptions = getThemeOptionsFromReq(request, user);
   const themeOptionsHeader = embedAsGlobalVar("themeOptions", themeOptions);
   const externalStylesPreload = globalExternalStylesheets.map(url =>
@@ -279,7 +280,7 @@ export async function handleRequest(request: Request, response: Response) {
 
 export const renderWithCache = async ({req, parsedRoute, responseManager, user, tabId}: {
   req: Request,
-  parsedRoute: RouterLocation,
+  parsedRoute: RouterLocation & {currentRoute: Route},
   responseManager: ResponseManager,
   user: DbUser|null,
   tabId: string | null,
@@ -359,7 +360,7 @@ const buildSSRBody = (htmlContent: string, userAgent?: string) => {
 export const renderRequest = async ({req, user, parsedRoute, startTime, responseManager, userAgent }: {
   req: Request,
   responseManager: ResponseManager,
-  parsedRoute: RouterLocation
+  parsedRoute: RouterLocation & {currentRoute: Route}
   user: DbUser|null,
   startTime: Date,
   userAgent?: string,
@@ -371,7 +372,7 @@ export const renderRequest = async ({req, user, parsedRoute, startTime, response
   const cacheFriendly = responseIsCacheable(responseManager.res);
   const timezone = getCookieFromReq(req, "timezone") ?? DEFAULT_TIMEZONE;
 
-  const requestContext = await computeContextFromUser({user, req, res: responseManager.res, isSSR: true});
+  const requestContext = await computeContextFromUser({user, req: requestToNextRequest(req), isSSR: true});
   if (req.closed) {
     // eslint-disable-next-line no-console
     console.log(`Request for ${req.url} from ${user?._id ?? getIpFromRequest(req)} was closed before render started`);
@@ -379,7 +380,7 @@ export const renderRequest = async ({req, user, parsedRoute, startTime, response
       aborted: true,
     };
   }
-  configureSentryScope(requestContext);
+  configureSentryScope(requestContext, getIsolationScope());
   
   // according to the Apollo doc, client needs to be recreated on every request
   // this avoids caching server side
@@ -510,7 +511,7 @@ export const renderRequest = async ({req, user, parsedRoute, startTime, response
     }
   }
 
-  const clientId = req.clientId!;
+  const clientId = (req as any).clientId!;
 
   return {
     ssrBody,

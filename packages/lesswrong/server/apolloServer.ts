@@ -39,6 +39,7 @@ import { isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLogging
 import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
 import express from 'express';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
+import { requestToNextRequest } from './utils/requestToNextRequest';
 
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
@@ -192,8 +193,8 @@ export async function startWebserver() {
   app.use('/graphql', cors());
   app.use('/graphql', expressMiddleware(apolloServer, {
     context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
-      const context = await getContextFromReqAndRes({req, isSSR: false});
-      configureSentryScope(context);
+      const context = await getContextFromReqAndRes({req: requestToNextRequest(req), isSSR: false});
+      configureSentryScope(context, Sentry.getIsolationScope());
       return context;
     },
   }))
@@ -260,7 +261,7 @@ export async function startWebserver() {
       return
     }
     
-    const currentUser = getUserFromReq(req)
+    const currentUser = await getUserFromReq(requestToNextRequest(req))
     if (!currentUser) {
       res.status(403).send("Not logged in")
       return
@@ -355,3 +356,4 @@ export function prefilterHandleRequest(req: express.Request, res: express.Respon
 
   return false;
 }
+

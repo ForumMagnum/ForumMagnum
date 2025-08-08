@@ -1,9 +1,10 @@
-import type { AddMiddlewareType } from './apolloServer';
+import { type AddMiddlewareType } from './apolloServer';
 import { parsePath, parseRoute } from '../lib/vulcan-core/appContext';
 import { getUserFromReq } from './vulcan-lib/apollo-server/getUserFromReq';
 import express from 'express';
 import { getCookieFromReq } from './utils/httpUtil';
 import { swrCachingEnabledSetting } from './databaseSettings';
+import { requestToNextRequest } from './utils/requestToNextRequest';
 
 /**
  * Returns whether the Cache-Control header indicates that this response may be cached by a shared
@@ -25,7 +26,7 @@ const privateCacheHeader = "private, no-cache, no-store, must-revalidate, max-ag
 const swrCacheHeader = "max-age=1, s-max-age=1, stale-while-revalidate=86400"
 
 export const addCacheControlMiddleware = (addMiddleware: AddMiddlewareType) => {
-  addMiddleware((req: express.Request, res: express.Response, next: express.NextFunction) => {
+  addMiddleware(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (!swrCachingEnabledSetting.get()) {
       next();
       return;
@@ -35,7 +36,7 @@ export const addCacheControlMiddleware = (addMiddleware: AddMiddlewareType) => {
       location: parsePath(req.url)
     });
 
-    const user = getUserFromReq(req);
+    const user = await getUserFromReq(requestToNextRequest(req));
     // Note: EAF doesn't use this cookie, LW does. If LW want to adopt this caching they can change this to
     // check that the *default* theme is being used
     const theme = getCookieFromReq(req, "theme");

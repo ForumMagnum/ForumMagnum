@@ -79,4 +79,4 @@ import React from 'react';
 //};
 //export default AppGenerator;*/
 
-export default ()=><></>;
+export default (props: any)=><></>;

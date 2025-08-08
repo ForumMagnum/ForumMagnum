@@ -107,4 +107,5 @@ SimpleSchema.extendOptions([
 
 // We re-export the SimpleSchema constructor to avoid import order issues
 // e.g. in schema files that use the above custom properties
+// eslint-disable-next-line no-barrel-files/no-barrel-files
 export default SimpleSchema;
