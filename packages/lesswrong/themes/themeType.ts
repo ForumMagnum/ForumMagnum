@@ -628,6 +628,8 @@ declare global {
     ultraFeed: {
       dim: ColorString,
       cardSeparator: string,
+      readBackground: ColorString,
+      readBackgroundMobile: ColorString,
     }
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette> & {

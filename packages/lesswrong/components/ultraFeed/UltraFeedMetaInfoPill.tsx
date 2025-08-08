@@ -25,10 +25,6 @@ const styles = defineStyles("UltraFeedMetaInfoPill", (theme: ThemeType) => ({
   readItemColors: {
     color: theme.palette.grey[800],
     border: `1px solid ${theme.palette.grey[600]}`,
-    [theme.breakpoints.down('sm')]: {
-      backgroundColor: theme.palette.grey[300],
-      color: theme.palette.grey[800],
-    }
   },
   hideOnDesktop: {
     display: 'none',

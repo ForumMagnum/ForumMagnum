@@ -292,6 +292,8 @@ export const darkModeTheme: UserThemeSpecification = {
     ultraFeed: {
       dim: shadePalette.grey[400],
       cardSeparator: `12px solid ${shadePalette.greyAlpha(0.15)}`,
+      readBackground: shadePalette.grey[100],
+      readBackgroundMobile: shadePalette.grey[100],
     },
     action: {
       active: '#fff',
