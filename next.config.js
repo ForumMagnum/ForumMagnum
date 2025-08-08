@@ -40,6 +40,7 @@ module.exports = {
       '@/viteClient/*': { browser: './packages/lesswrong/stubs/viteClient/*' },
       '@/client/*': { browser: './packages/lesswrong/client/*', default: './packages/lesswrong/stubs/client/*' },
       '@/allComponents': './packages/lesswrong/lib/generated/allComponents.ts',
+      ...(process.env.NODE_ENV === 'production' ? {} : { '@sentry/nextjs': './packages/lesswrong/stubs/noSentry.ts' }),
       '@/*': './packages/lesswrong/*',
 
       'superagent-proxy': './packages/lesswrong/stubs/emptyModule.js',
@@ -101,7 +102,10 @@ module.exports = {
       // these are different, and if you guess wrong which of these to use then
       // the externalization will have no effect, but externalizing with both
       // variants is safe.
-      ].flatMap(pkg => [pkg, `commonjs ${pkg}`])
+      // We need to prevent sentry externalization because the Webpack build breaks
+      // in mysterious ways otherwise, and we really only use webpack for deployments
+      // so it doesn't matter as much.
+      ].filter(pkg => pkg !== '@sentry/nextjs').flatMap(pkg => [pkg, `commonjs ${pkg}`])
     ];
 
     // What follows is the result of absolutely deranged behavior by NextJS.

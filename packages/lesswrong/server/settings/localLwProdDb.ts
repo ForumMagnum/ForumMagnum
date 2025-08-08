@@ -1,4 +1,7 @@
-export const localLwProdDb = {
+import merge from "lodash/merge";
+import { prodDbSettings } from "./prodDbSettings";
+
+export const localLwProdDb = merge({
   forumType: "LessWrong",
   title: "LessWrong Development Server",
   tagline:"A community blog devoted to refining the art of rationality",
@@ -88,4 +91,4 @@ export const localLwProdDb = {
       }
     ]
   }
-};
+}, prodDbSettings);

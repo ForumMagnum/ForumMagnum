@@ -1,4 +1,7 @@
-export const prodLw = {
+import merge from "lodash/merge";
+import { prodDbSettings } from "./prodDbSettings";
+
+export const prodLw = merge({
   forumType: "LessWrong",
   title: "LessWrong",
   siteNameWithArticle: "LessWrong",
@@ -93,4 +96,4 @@ export const prodLw = {
     ]
   },
   ultraFeedEnabled: true,
-};
+}, prodDbSettings);

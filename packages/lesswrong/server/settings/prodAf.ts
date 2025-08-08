@@ -1,4 +1,7 @@
-export const prodAf = {
+import merge from "lodash/merge";
+import { prodDbSettings } from "./prodDbSettings";
+
+export const prodAf = merge({
   forumType: "AlignmentForum",
   title: "AI Alignment Forum",
   siteNameWithArticle: "the AI Alignment Forum",
@@ -34,4 +37,4 @@ export const prodAf = {
   },
   taggingName: "wikitag",
   taggingUrlCustomBase: "w"
-};
+}, prodDbSettings);
