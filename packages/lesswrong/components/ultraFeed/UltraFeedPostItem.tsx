@@ -80,12 +80,15 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
   },
   rootWithReadStyles: {
     backgroundColor: theme.palette.ultraFeed.readBackground,
-    opacity: 0.9,
+    opacity: theme.palette.ultraFeed.readOpacity.root,
+    '&:hover': {
+      opacity: 1,
+    },
     [theme.breakpoints.down('sm')]: {
       backgroundColor: theme.palette.ultraFeed.readBackgroundMobile,
       borderTop: theme.palette.border.itemSeparatorBottom,
       borderBottom: theme.palette.border.itemSeparatorBottom,
-      opacity: 0.9,
+      opacity: theme.palette.ultraFeed.readOpacity.rootMobile,
     },
   },
   rootWithAnimation: {
@@ -280,6 +283,15 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
       top: 0,
       height: 'auto',
       width: 'auto',
+    },
+  },
+  contentWithReadStyles: {
+    opacity: theme.palette.ultraFeed.readOpacity.content,
+    '&:hover': {
+      opacity: 1,
+    },
+    [theme.breakpoints.down('sm')]: {
+      opacity: theme.palette.ultraFeed.readOpacity.contentMobile,
     },
   },
 }));
@@ -664,6 +676,7 @@ const UltraFeedPostItem = ({
             onExpand={handleContentExpand}
             hideSuffix={loadingFullPost}
             resetSignal={resetSig}
+            className={isRead ? classes.contentWithReadStyles : undefined}
           />
         )}
         

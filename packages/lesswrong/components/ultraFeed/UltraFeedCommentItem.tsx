@@ -26,7 +26,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   root: {
     position: 'relative',
     paddingTop: commentHeaderPaddingDesktop,
-    backgroundColor: 'transparent',
+    backgroundColor: theme.palette.panelBackground.bannerAdTranslucentHeavy,
     transition: 'background-color 1.0s ease-out',
     paddingLeft: 20,
     paddingRight: 16,
@@ -37,8 +37,13 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   },
   rootWithReadStyles: {
     backgroundColor: theme.palette.ultraFeed.readBackground,
+    opacity: theme.palette.ultraFeed.readOpacity.root,
+    '&:hover': {
+      opacity: 1,
+    },
     [theme.breakpoints.down('sm')]: {
       backgroundColor: theme.palette.ultraFeed.readBackgroundMobile,
+      opacity: theme.palette.ultraFeed.readOpacity.rootMobile,
     },
   },
   rootWithAnimation: {
@@ -54,6 +59,7 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     maxWidth: '100%',
   },
   compressedRoot: {
+    backgroundColor: theme.palette.panelBackground.bannerAdTranslucentHeavy,
     display: 'flex',
     flexDirection: 'row',
     [theme.breakpoints.down('sm')]: {
@@ -63,9 +69,13 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
   },
   compressedRootWithReadStyles: {
     backgroundColor: theme.palette.ultraFeed.readBackground,
-    borderBottom: theme.palette.border.itemSeparatorBottomStrong,
+    opacity: theme.palette.ultraFeed.readOpacity.root,
+    '&:hover': {
+      opacity: 1,
+    },
     [theme.breakpoints.down('sm')]: {
       backgroundColor: theme.palette.ultraFeed.readBackgroundMobile,
+      opacity: theme.palette.ultraFeed.readOpacity.rootMobile,
     },
   },
   commentContentWrapper: {
@@ -90,9 +100,12 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     },
   },
   contentWrapperWithReadStyles: {
-    opacity: 0.8,
+    opacity: theme.palette.ultraFeed.readOpacity.content,
+    '&:hover': {
+      opacity: 1,
+    },
     [theme.breakpoints.down('sm')]: {
-      opacity: 0.7,
+      opacity: theme.palette.ultraFeed.readOpacity.contentMobile,
     },
   },
   numComments: {
@@ -114,9 +127,9 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     },
   },
   numCommentsWithReadStyles: {
-    opacity: 0.6,
+    opacity: theme.palette.ultraFeed.readOpacity.content,
     [theme.breakpoints.down('sm')]: {
-      opacity: 0.7,
+      opacity: theme.palette.ultraFeed.readOpacity.contentMobile,
     },
   },
 

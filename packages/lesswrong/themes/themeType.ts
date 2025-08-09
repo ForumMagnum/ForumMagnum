@@ -630,6 +630,12 @@ declare global {
       cardSeparator: string,
       readBackground: ColorString,
       readBackgroundMobile: ColorString,
+      readOpacity: {
+        root: number,
+        rootMobile: number,
+        content: number,
+        contentMobile: number,
+      },
     }
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette> & {
