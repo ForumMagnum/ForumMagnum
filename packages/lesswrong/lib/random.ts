@@ -1,3 +1,4 @@
+import { isServer } from "./executionEnvironment";
 import seedrandom from "./seedrandom";
 
 // Excludes 0O1lIUV
@@ -30,7 +31,7 @@ export const ID_LENGTH = 17;
  */
 export const randomId = (length=ID_LENGTH, randIntCallback?: RandIntCallback, allowedChars?: string) => {
   const chars = allowedChars ?? unmistakableChars;
-  if (bundleIsServer && !randIntCallback) {
+  if (isServer && !randIntCallback) {
     const typedArray = new Uint8Array(length);
     const bytes = crypto.getRandomValues(typedArray);
     const result: Array<string> = [];
@@ -70,7 +71,7 @@ export const isNotRandomId = (id: string, length=ID_LENGTH): boolean => {
  * Not available on the client (throws an exception).
  */
 export const randomSecret = () => {
-  if (bundleIsServer) {
+  if (isServer) {
     const typedArray = new Uint8Array(15);
     crypto.getRandomValues(typedArray);
     return Buffer.from(typedArray).toString("hex");
