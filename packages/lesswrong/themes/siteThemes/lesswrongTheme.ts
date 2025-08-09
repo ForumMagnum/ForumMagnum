@@ -56,8 +56,14 @@ export const lessWrongTheme: SiteThemeSpecification = {
       background: blackBarTitle.get() ? shadePalette.inverseGreyAlpha(.4) : shadePalette.inverseGreyAlpha(.95)
     },
     ultraFeed: {
-      readBackground: '#faf8f4',
+      readBackground: '#ffffffb3',
       readBackgroundMobile: '#f5f5f5',
+      readOpacity: {
+        root: 0.9,
+        content: 0.9,
+        rootMobile: 0.7,
+        contentMobile: 0.7,
+      },
     },
     background: {
       default: '#f8f4ee'

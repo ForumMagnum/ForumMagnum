@@ -712,5 +712,11 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     cardSeparator: `12px solid ${shades.greyAlpha(0.005)}`,
     readBackground: shades.grey[300],
     readBackgroundMobile: shades.grey[100],
+    readOpacity: {
+      root: 0.7,
+      rootMobile: 0.7,
+      content: 0.8,
+      contentMobile: 0.7,
+    },
   }
 })

@@ -14,10 +14,10 @@ const styles = defineStyles("UltraFeedThreadCommentsList", (theme: ThemeType) =>
     },
   },
   commentItemWithReadStyles: {
-    borderBottom: theme.palette.border.itemSeparatorBottomIntense,
+    borderBottom: theme.palette.border.itemSeparatorBottom,
     [theme.breakpoints.down('sm')]: {
       '&:first-child': {
-        borderTop: theme.palette.border.itemSeparatorBottomStrong
+        borderTop: theme.palette.border.itemSeparatorBottom
       },
     },
   },
