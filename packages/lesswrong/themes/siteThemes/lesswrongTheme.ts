@@ -60,9 +60,9 @@ export const lessWrongTheme: SiteThemeSpecification = {
       readBackgroundMobile: '#f5f5f5',
       readOpacity: {
         root: 0.9,
-        content: 0.9,
-        rootMobile: 0.7,
-        contentMobile: 0.7,
+        content: 0.8,
+        rootMobile: 0.9,
+        contentMobile: 0.9,
       },
     },
     background: {
