@@ -5,6 +5,7 @@ import { googleTagManagerInit } from "./ga";
 import { initReCaptcha } from "./reCaptcha";
 
 import "@/components/momentjs";
+import "./type3";
 
 /**
  * These identifiers may or may not have been set on the server, depending on whether the request
