@@ -25,6 +25,8 @@ export const recommendationFeatureNames = new TupleSet([
   "tagSimilarity",
   "collabFilter",
   "textSimilarity",
+  "subscribedAuthorPosts",
+  "subscribedTagPosts",
 ] as const);
 
 export const isRecommendationFeatureName =
