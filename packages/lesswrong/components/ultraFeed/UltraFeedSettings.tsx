@@ -29,6 +29,7 @@ import {
 import { ZodFormattedError } from 'zod';
 import mergeWith from 'lodash/mergeWith';
 import cloneDeep from 'lodash/cloneDeep';
+import UltraFeedFeedback from './UltraFeedFeedback';
 import {
   SourceWeightsSettings,
   TruncationGridSettings,
@@ -50,9 +51,19 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   },
   viewModeToggle: {
     display: 'flex',
-    columnGap: 8,
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     marginBottom: 12,
+    alignItems: 'center',
+    position: 'relative',
+  },
+  viewModeButtonsContainer: {
+    display: 'flex',
+    columnGap: 8,
+    flex: '1 1 0',
+    justifyContent: 'center',
+  },
+  spacer: {
+    flex: '1 1 0',
   },
   viewModeButton: {
     display: 'flex',
@@ -82,6 +93,32 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
     color: theme.palette.text.primary,
     opacity: 1,
     fontWeight: 600,
+  },
+  feedbackButtonContainer: {
+    flex: '1 1 0',
+    display: 'flex',
+    justifyContent: 'flex-end',
+  },
+  feedbackButton: {
+    color: theme.palette.grey[600],
+    cursor: 'pointer',
+    fontSize: "1.2rem",
+    fontStyle: 'italic',
+    padding: '4px 8px',
+    borderRadius: 4,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    '&:hover': {
+      color: theme.palette.ultraFeed.dim,
+      backgroundColor: theme.palette.panelBackground.hoverHighlightGrey,
+    },
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 12,
+      marginRight: 4,
+    },
+  },
+  feedbackButtonActive: {
+    color: theme.palette.ultraFeed.dim,
+    backgroundColor: theme.palette.panelBackground.hoverHighlightGrey,
   },
   buttonRow: {
     display: 'flex',
@@ -252,7 +289,6 @@ const deriveFormValuesFromSettings = (settings: UltraFeedSettingsType): Settings
       commentCollapsedInitialWords: displaySettings.commentCollapsedInitialWords ?? defaultDisplaySettings.commentCollapsedInitialWords,
       commentExpandedInitialWords: displaySettings.commentExpandedInitialWords ?? defaultDisplaySettings.commentExpandedInitialWords,
       commentMaxWords: displaySettings.commentMaxWords ?? defaultDisplaySettings.commentMaxWords,
-      postTitlesAreModals: displaySettings.postTitlesAreModals ?? defaultDisplaySettings.postTitlesAreModals,
     },
     commentScoring: mergeWith(
       cloneDeep(defaultCommentScoring),
@@ -316,11 +352,15 @@ const UltraFeedSettings = ({
   const { captureEvent } = useTracking();
   const classes = useStyles(styles);
   const { flash } = useMessages();
+  const [showFeedback, setShowFeedback] = useState(false);
 
 
   const { ultraFeedSettingsViewMode, setUltraFeedSettingsViewMode } = useLocalStorageState('ultraFeedSettingsViewMode', (key) => key, initialViewMode);
   const viewMode = ultraFeedSettingsViewMode && ['simple', 'advanced'].includes(ultraFeedSettingsViewMode) ? ultraFeedSettingsViewMode : initialViewMode;
-  const setViewMode = (mode: 'simple' | 'advanced') => setUltraFeedSettingsViewMode(mode);
+  const setViewMode = (mode: 'simple' | 'advanced') => {
+    captureEvent("ultraFeedSettingsViewModeChanged", { from: viewMode, to: mode });
+    setUltraFeedSettingsViewMode(mode);
+  };
 
   const [simpleViewTruncationLevels, setSimpleViewTruncationLevels] = useState(() => 
     deriveSimpleViewTruncationLevelsFromSettings(settings)
@@ -392,16 +432,14 @@ const UltraFeedSettings = ({
   }, []);
 
   const handleBooleanChange = useCallback((
-    field: 'incognitoMode' | 'postTitlesAreModals',
+    field: 'incognitoMode',
     checked: boolean
   ) => {
     setZodErrors(null);
     if (field === 'incognitoMode') {
       updateForm(field, checked);
-    } else if (field === 'postTitlesAreModals') {
-      updateDisplaySettingForm(field, checked);
     }
-  }, [updateForm, updateDisplaySettingForm]);
+  }, [updateForm]);
 
   const handleLineClampChange = useCallback((value: number | string) => {
     const strValue = String(value).trim();
@@ -508,7 +546,6 @@ const UltraFeedSettings = ({
         ),
       },
       displaySettings: {
-        postTitlesAreModals: formValues.displaySetting.postTitlesAreModals,
         lineClampNumberOfLines: 0, // Placeholder, will be set below
         postInitialWords: 0, // Placeholder, will be set below
         postMaxWords: 0, // Placeholder, will be set below
@@ -578,8 +615,9 @@ const UltraFeedSettings = ({
   
   const handleReset = useCallback(() => {
     resetSettingsToDefault();
-    setZodErrors(null); 
-  }, [resetSettingsToDefault]);
+    setZodErrors(null);
+    captureEvent("ultraFeedSettingsReset");
+  }, [resetSettingsToDefault, captureEvent]);
 
   const truncationGridProps = {
     levels: simpleViewTruncationLevels,
@@ -606,7 +644,6 @@ const UltraFeedSettings = ({
   const miscSettingsProps = {
     formValues: {
       incognitoMode: formValues.incognitoMode,
-      postTitlesAreModals: formValues.displaySetting.postTitlesAreModals,
     },
     onBooleanChange: handleBooleanChange,
 
@@ -624,18 +661,32 @@ const UltraFeedSettings = ({
   return (
     <div className={classes.root}>
       <div className={classes.viewModeToggle}>
-        <ViewModeButton
-          mode="simple"
-          currentViewMode={viewMode as 'simple' | 'advanced'}
-          onClick={setViewMode}
-        />
-        <ViewModeButton
-          mode="advanced"
-          currentViewMode={viewMode as 'simple' | 'advanced'}
-          onClick={setViewMode}
-        />
+        <div className={classes.spacer} />
+        <div className={classes.viewModeButtonsContainer}>
+          <ViewModeButton
+            mode="simple"
+            currentViewMode={viewMode as 'simple' | 'advanced'}
+            onClick={setViewMode}
+          />
+          <ViewModeButton
+            mode="advanced"
+            currentViewMode={viewMode as 'simple' | 'advanced'}
+            onClick={setViewMode}
+          />
+        </div>
+        <div className={classes.feedbackButtonContainer}>
+          <span 
+            className={classNames(
+              classes.feedbackButton,
+              showFeedback && classes.feedbackButtonActive
+            )}
+            onClick={() => setShowFeedback(!showFeedback)}
+          >
+            give feedback
+          </span>
+        </div>
       </div>
-      
+      {showFeedback && <UltraFeedFeedback />}
       <div className={classes.settingsGroupsContainer}>
         {viewMode === 'simple' ? (
           <SimpleView

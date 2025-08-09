@@ -4,15 +4,13 @@ import { getLSHandlers, getLSKeyPrefix } from '../editor/localStorageHandlers';
 import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, isBlank, serializeEditorContents, EditorTypeString, styles, FormProps, shouldSubmitContents, isValidEditorType, type LegacyEditorTypeString } from './Editor';
-import withErrorBoundary from '../common/withErrorBoundary';
-import * as _ from 'underscore';
-import { useLazyQuery, useMutation } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client/react';
 import { gql } from "@/lib/generated/gql-codegen";
-import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import Transition from 'react-transition-group/Transition';
 import { useTracking } from '../../lib/analyticsEvents';
 import { isCollaborative, PostCategory } from '../../lib/collections/posts/helpers';
-import { DynamicTableOfContentsContext } from '../posts/TableOfContents/DynamicTableOfContents';
+import { AutosaveEditorStateContext, DynamicTableOfContentsContext } from '../common/sharedContexts';
 import isEqual from 'lodash/isEqual';
 import { useDebouncedCallback, useStabilizedCallback } from '../hooks/useDebouncedCallback';
 import { useMessages } from '../common/withMessages';
@@ -31,24 +29,6 @@ import PostVersionHistoryButton from './PostVersionHistory';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
-
-type AutosaveFunc = () => Promise<void>;
-interface AutosaveEditorStateContext {
-  autosaveEditorState: AutosaveFunc | null;
-  /**
-   * WARNING: since `setAutosaveEditorState` is a React setState function,
-   * passing in a function seems to cause it to interpret it as the (prevValue: T): T => newValue form,
-   * so you actually need to pass in with an additional closure if you want to update `autosaveEditorState` with a new function:
-   * 
-   * (prevValue: T) => (): T => { ...;  return newValue; }
-   */
-  setAutosaveEditorState: React.Dispatch<React.SetStateAction<AutosaveFunc | null>>;
-}
-
-export const AutosaveEditorStateContext = React.createContext<AutosaveEditorStateContext>({
-  autosaveEditorState: null,
-  setAutosaveEditorState: _ => {},
-});
 
 const getPostPlaceholder = (post: PostsBase) => {
   const { question, postCategory } = post;
@@ -227,7 +207,7 @@ function InnerEditorFormComponent<S, R>({
       PostIsCriticism(args: $args)
     }
     `), {
-      onCompleted: (data) => {
+      //onCompleted: (data) => {
         // SC 2024-09-18: We are temporarily hiding the user-facing card,
         // as we are testing using gpt-4o-mini directly instead of a fine-tuned model.
         
@@ -236,7 +216,7 @@ function InnerEditorFormComponent<S, R>({
         // if (isCriticism && !postFlaggedAsCriticism) {
         //   captureEvent('criticismTipsShown', {postId: document._id})
         // }
-      }
+      //}
     }
   )
 

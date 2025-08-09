@@ -1,10 +1,10 @@
-
 import schema from "@/lib/collections/digests/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { backdatePreviousDigest, createNextDigestOnPublish } from "@/server/callbacks/digestCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -67,7 +67,7 @@ export async function updateDigest({ selector, data }: UpdateDigestInput, contex
   await createNextDigestOnPublish(updateCallbackProperties);
   await backdatePreviousDigest(updateCallbackProperties);
 
-  void logFieldChanges({ currentUser, collection: Digests, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: Digests, oldDocument, data: origData }));
 
   return updatedDocument;
 }

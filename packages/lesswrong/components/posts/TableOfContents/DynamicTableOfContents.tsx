@@ -4,12 +4,7 @@ import { EditorContents } from '../../editor/Editor';
 import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
 import TableOfContents from "./TableOfContents";
 import ToCColumn from "./ToCColumn";
-
-export interface DynamicTableOfContentsContextType {
-  setToc: (document: EditorContents) => void;
-}
-
-export const DynamicTableOfContentsContext = React.createContext<DynamicTableOfContentsContextType | null>(null);
+import { DynamicTableOfContentsContext } from '@/components/common/sharedContexts';
 
 export const DynamicTableOfContents = ({title, rightColumnChildren, children}: {
   title?: string,

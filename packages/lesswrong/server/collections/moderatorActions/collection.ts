@@ -1,3 +1,4 @@
+import schema from '@/lib/collections/moderatorActions/newSchema';
 import { createCollection } from '@/lib/vulcan-lib/collections';
 import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
 
@@ -10,9 +11,10 @@ import { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
  * Setting currentUser to null (and validate to false) will create the action as
  * 'Automod'.
  */
-export const ModeratorActions: ModeratorActionsCollection = createCollection({
+export const ModeratorActions = createCollection({
   collectionName: 'ModeratorActions',
   typeName: 'ModeratorAction',
+  schema,
     getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('ModeratorActions', { userId: 1, createdAt: -1 })

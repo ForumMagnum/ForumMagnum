@@ -9,7 +9,7 @@ const styles = defineStyles("MuiPaper", (theme: ThemeType) => {
     elevations[`elevation${index}`] = {
       boxShadow: shadow,
       
-      ...(theme.themeOptions.name === "dark" && {
+      ...(theme.dark && {
         boxShadow: "none",
       }),
     };

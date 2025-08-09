@@ -7,7 +7,7 @@ export type CronJobSpec = {
   disabled?: boolean,
   // uses later.js parser, no seconds allowed though
   cronStyleSchedule?: string,
-  job: () => void,
+  job: () => Promise<void>,
 }
 
 export const cronJobsDefined: CronJobSpec[] = [];
@@ -29,11 +29,3 @@ export async function clearOldCronHistories() {
     },
   });
 }
-
-export const cronClearOldCronHistories = addCronJob({
-  name: "clearOldCronHistories",
-  interval: 'every 24 hours',
-  job: async () => {
-    await clearOldCronHistories();
-  }
-});

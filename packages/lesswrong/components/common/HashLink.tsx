@@ -3,10 +3,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 // eslint-disable-next-line no-restricted-imports
-import Link from 'next/link';
-// eslint-disable-next-line no-restricted-imports
-import type { LinkProps } from 'react-router-dom';
+import Link, { type LinkProps } from 'next/link';
 import { useNavigate } from '@/lib/routeUtil';
+import { isClient } from '@/lib/executionEnvironment';
+import bowser from 'bowser';
 
 type ScrollFunction = ((el: HTMLElement) => void);
 
@@ -24,6 +24,7 @@ export type HashLinkProps = {
   scroll?: ScrollFunction,
   smooth?: boolean
   children?: React.ReactNode,
+  prefetch?: LinkProps['prefetch']
 };
 
 let hashFragment = '';
@@ -73,6 +74,7 @@ function hashLinkScroll() {
 
 export function HashLink(props: HashLinkProps) {
   const navigate = useNavigate();
+  const isIOS = isClient && bowser.ios;
 
   function handleClick(e: React.MouseEvent<HTMLAnchorElement>) {
     reset();
@@ -92,8 +94,8 @@ export function HashLink(props: HashLinkProps) {
     }
   }
   const { anchorRef, scroll, smooth, children, doOnDown, to, ...filteredProps } = props;
-  if (doOnDown && !filteredProps.target) {
-    return <a
+  if (doOnDown && !isIOS && !filteredProps.target) {
+    return <Link
       {...filteredProps}
       ref={anchorRef}
       href={to}
@@ -114,7 +116,7 @@ export function HashLink(props: HashLinkProps) {
       }}
     >
       {props.children}
-    </a>
+    </Link>
   } else {
     return <Link href={to} ref={anchorRef} {...filteredProps} onClick={handleClick}>
       {props.children}

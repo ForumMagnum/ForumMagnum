@@ -1,5 +1,4 @@
 import { dataToMarkdown, dataToHTML, dataToCkEditor, buildRevision } from '../editor/conversionUtils'
-import * as _ from 'underscore';
 import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
 import { EditorContents } from '../../components/editor/Editor';

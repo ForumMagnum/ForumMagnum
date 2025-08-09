@@ -2,8 +2,8 @@ import schema from "@/lib/collections/dialogueMatchPreferences/newSchema";
 import { getDefaultResolvers } from "@/server/resolvers/defaultResolvers";
 import { getAllGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { getFieldGqlResolvers } from "@/server/vulcan-lib/apollo-server/helpers";
-import gql from "graphql-tag";
 import { DialogueMatchPreferencesViews } from "@/lib/collections/dialogueMatchPreferences/views";
+import { gql } from "graphql-tag";
 
 export const graphqlDialogueMatchPreferenceQueryTypeDefs = gql`
   type DialogueMatchPreference ${ getAllGraphQLFields(schema) }

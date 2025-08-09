@@ -1,9 +1,8 @@
 import React from 'react';
 import { taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
-import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
+import { useVoteButtonsDisabled } from '../votes/useVoteButtonsDisabled';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useCurrentUser } from '../common/withUser';
 import { useVote } from '../votes/withVote';
 import TagPreview from "./TagPreview";
 import OverallVoteButton from "../votes/OverallVoteButton";
@@ -63,12 +62,11 @@ const TagRelCard = ({tagRel, classes}: {
   tagRel: TagRelMinimumFragment,
   classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser();
   const voteProps = useVote(tagRel, "TagRels");
   const newlyVoted = !!(tagRel.currentUserVote==="smallUpvote" && voteProps.voteCount === 1)
 
   // We check both whether the current user can vote at all, and whether they can specifically vote on this tagrel
-  const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
+  const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
   const canVote = tagRel.currentUserCanVote && !fail;
   
   const TooltipIfDisabled = (canVote

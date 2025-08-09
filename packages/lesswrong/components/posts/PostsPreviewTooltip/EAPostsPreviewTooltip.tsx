@@ -6,7 +6,7 @@ import type { PostsPreviewTooltipProps } from "./PostsPreviewTooltip";
 import PostExcerpt from "../../common/excerpts/PostExcerpt";
 import EAPostMeta from "../../ea-forum/EAPostMeta";
 import TruncatedTagsList from "../../tagging/TruncatedTagsList";
-import CommentsNodeInner from "../../comments/CommentsNode";
+import CommentsNode from "../../comments/CommentsNode";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -96,7 +96,7 @@ const EAPostsPreviewTooltip = ({
           </div>
           {comment
             ? (
-              <CommentsNodeInner
+              <CommentsNode
                 treeOptions={{
                   post,
                   hideReply: true,

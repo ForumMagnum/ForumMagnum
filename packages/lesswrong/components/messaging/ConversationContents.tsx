@@ -4,7 +4,6 @@ import withErrorBoundary from "../common/withErrorBoundary";
 import { useLocation } from "../../lib/routeUtil";
 import { useTracking } from "../../lib/analyticsEvents";
 import { getBrowserLocalStorage } from "../editor/localStorageHandlers";
-import { useOnServerSentEvent } from "../hooks/useUnreadNotifications";
 import stringify from "json-stringify-deterministic";
 import {isFriendlyUI} from '../../themes/forumTheme.ts'
 import MessagesNewForm from "./MessagesNewForm";
@@ -116,7 +115,8 @@ const ConversationContents = ({
     }
   }, [stateSignatureRef, results?.length, scrollRef, conversation._id]);
 
-  useOnServerSentEvent('notificationCheck', currentUser, () => refetch());
+  // TODO: replace this functionality without SSE
+  // useOnServerSentEvent('notificationCheck', currentUser, () => refetch());
 
   // try to attribute this sent message to where the user came from
   const profileViewedFrom = useRef("");

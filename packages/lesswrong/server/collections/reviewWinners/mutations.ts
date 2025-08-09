@@ -1,9 +1,9 @@
-
 import schema from "@/lib/collections/reviewWinners/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
@@ -61,7 +61,7 @@ export async function updateReviewWinner({ selector, data }: { selector: Selecto
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('ReviewWinners', updatedDocument, oldDocument);
 
-  void logFieldChanges({ currentUser, collection: ReviewWinners, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: ReviewWinners, oldDocument, data: origData }));
 
   return updatedDocument;
 }

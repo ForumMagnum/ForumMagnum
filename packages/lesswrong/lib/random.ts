@@ -1,5 +1,4 @@
 import seedrandom from "./seedrandom";
-import crypto from "@/server/utils/wrapNodeCrypto";
 
 // Excludes 0O1lIUV
 const unmistakableChars = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTWXYZ23456789";
@@ -32,7 +31,8 @@ export const ID_LENGTH = 17;
 export const randomId = (length=ID_LENGTH, randIntCallback?: RandIntCallback, allowedChars?: string) => {
   const chars = allowedChars ?? unmistakableChars;
   if (bundleIsServer && !randIntCallback) {
-    const bytes = crypto.randomBytes(length);
+    const typedArray = new Uint8Array(length);
+    const bytes = crypto.getRandomValues(typedArray);
     const result: Array<string> = [];
     for (let byte of bytes) {
       // Discards part of each byte and has modulo bias. Doesn't matter in
@@ -71,7 +71,9 @@ export const isNotRandomId = (id: string, length=ID_LENGTH): boolean => {
  */
 export const randomSecret = () => {
   if (bundleIsServer) {
-    return crypto.randomBytes(15).toString('hex');
+    const typedArray = new Uint8Array(15);
+    crypto.getRandomValues(typedArray);
+    return Buffer.from(typedArray).toString("hex");
   } else {
     throw new Error("No CSPRNG available on the client");
   }

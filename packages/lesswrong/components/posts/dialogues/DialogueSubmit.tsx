@@ -10,7 +10,7 @@ import type { TypedFormApi } from '../../tanstack-form-components/BaseAppForm';
 import type { EditablePost } from '@/lib/collections/posts/helpers';
 import { defineStyles, useStyles } from '../../hooks/useStyles';
 import Row from "../../common/Row";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const CommentEditMutation = gql(`

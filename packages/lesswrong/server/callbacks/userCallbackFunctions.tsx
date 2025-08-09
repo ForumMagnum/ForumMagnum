@@ -4,15 +4,13 @@ import Conversations from "@/server/collections/conversations/collection";
 import Users from "@/server/collections/users/collection";
 import { getUserEmail, userGetLocation, userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
-import { isEAForum, isLW, isLWorAF, verifyEmailsSetting } from "@/lib/instanceSettings";
-import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, mailchimpEAForumNewsletterListIdSetting, recombeeEnabledSetting } from "@/lib/publicSettings";
+import { forumTitleSetting, isEAForum, isLW, isLWorAF, verifyEmailsSetting, mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, mailchimpEAForumNewsletterListIdSetting, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { encodeIntlError } from "@/lib/vulcan-lib/utils";
 import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
-import { captureException } from "@sentry/core";
+import { captureException } from "@sentry/nextjs";
 import { getAuth0Profile, updateAuth0Email } from "../authentication/auth0";
-import { hasAuth0 } from "../authenticationMiddlewares";
 import { userFindOneByEmail } from "../commonQueries";
-import { changesAllowedSetting, forumTeamUserId, sinceDaysAgoSetting, welcomeEmailPostId } from "../databaseSettings";
+import { changesAllowedSetting, forumTeamUserId, sinceDaysAgoSetting, welcomeEmailPostId, mailchimpAPIKeySetting, hasAuth0 } from "../databaseSettings";
 import { EventDebouncer } from "../debouncer";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { fetchFragmentSingle } from "../fetchFragment";
@@ -22,13 +20,11 @@ import { createNotifications } from "../notificationCallbacksHelpers";
 import { recombeeApi } from "../recombee/client";
 import ElasticClient from "../search/elastic/ElasticClient";
 import ElasticExporter from "../search/elastic/ElasticExporter";
-import { mailchimpAPIKeySetting } from "../serverSettings";
 import { hasType3ApiAccess, regenerateAllType3AudioForUser } from "../type3";
 import { editableUserProfileFields, simpleUserProfileFields } from "../userProfileUpdates";
 import { userDeleteContent, userIPBanAndResetLoginTokens } from "../users/moderationUtils";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { nullifyVotesForUser } from '../nullifyVotesForUser';
-import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import difference from "lodash/difference";
 import isEqual from "lodash/isEqual";
@@ -43,6 +39,8 @@ import { updateComment } from "../collections/comments/mutations";
 import { createUser, updateUser } from "../collections/users/mutations";
 import { EmailContentItemBody } from "../emailComponents/EmailContentItemBody";
 import { PostsHTML } from "@/lib/collections/posts/fragments";
+import { emailTokenTypesByName } from "../emails/emailTokens";
+import { backgroundTask } from "../utils/backgroundTask";
 
 
 async function sendWelcomeMessageTo(userId: string) {
@@ -87,7 +85,7 @@ async function sendWelcomeMessageTo(userId: string) {
     title: subjectLine,
   }
 
-  const adminAccountContext = await computeContextFromUser({ user: adminsAccount, req: context.req, res: context.res, isSSR: context.isSSR });
+  const adminAccountContext = computeContextFromUser({ user: adminsAccount, isSSR: context.isSSR });
   const conversation = await createConversation({ data: conversationData }, adminAccountContext);
   
   const messageDocument = {
@@ -110,7 +108,7 @@ async function sendWelcomeMessageTo(userId: string) {
     await wrapAndSendEmail({
       user,
       subject: subjectLine,
-      body: <EmailContentItemBody dangerouslySetInnerHTML={{ __html: welcomeMessageBody }}/>
+      body: (emailContext) => <EmailContentItemBody dangerouslySetInnerHTML={{ __html: welcomeMessageBody }}/>
     })
   }
 }
@@ -127,9 +125,28 @@ const welcomeMessageDelayer = new EventDebouncer({
   defaultTiming: isLW ? {type: "none"} : {type: "delayed", delayMinutes: 5},
   
   callback: (userId: string) => {
-    void sendWelcomeMessageTo(userId);
+    backgroundTask(sendWelcomeMessageTo(userId));
   },
 });
+
+async function sendVerificationEmail(user: DbUser) {
+  const verifyEmailLink = await emailTokenTypesByName.verifyEmail.generateLink(user._id);
+  await wrapAndSendEmail({
+    user,
+    force: true,
+    subject: `Verify your ${forumTitleSetting.get()} email`,
+    body: (emailContext) => <div>
+      <p>
+        Click here to verify your {forumTitleSetting.get()} email
+      </p>
+      <p>
+        <a href={verifyEmailLink}>
+          {verifyEmailLink}
+        </a>
+      </p>
+    </div>
+  });
+}
 
 
 const utils = {
@@ -194,7 +211,7 @@ const utils = {
 
   sendVerificationEmailConditional: async (user: DbUser) => {
     if (!isAnyTest && verifyEmailsSetting.get()) {
-      void sendVerificationEmail(user);
+      backgroundTask(sendVerificationEmail(user));
       await bellNotifyEmailVerificationRequired(user);
     }
   },
@@ -228,9 +245,10 @@ export function createRecombeeUser({ document }: {document: DbUser}) {
   if (!document.email)
     return;
 
-  void recombeeApi.createUser(document)
+  backgroundTask(recombeeApi.createUser(document)
     // eslint-disable-next-line no-console
-    .catch(e => console.log('Error when sending created user to recombee', { e }));
+    .catch(e => console.log('Error when sending created user to recombee', { e }))
+  );
 }
 
 /* NEW ASYNC */
@@ -262,7 +280,7 @@ export async function subscribeToEAForumAudience(user: DbUser) {
     return;
   }
   const { lat: latitude, lng: longitude, known } = userGetLocation(user);
-  void fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpEAForumListId}/members`, {
+  backgroundTask((fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpEAForumListId}/members`, {
     method: 'POST',
     body: JSON.stringify({
       email_address: user.email,
@@ -277,11 +295,11 @@ export async function subscribeToEAForumAudience(user: DbUser) {
       'Content-Type': 'application/json',
       Authorization: `API_KEY ${mailchimpAPIKey}`,
     },
-  }).catch(e => {
+  })).catch(e => {
     captureException(e);
     // eslint-disable-next-line no-console
     console.log(e);
-  });
+  }));
 }
 
 export async function sendWelcomingPM(user: DbUser) {
@@ -413,10 +431,10 @@ export async function updateDisplayName(data: UpdateUserDataInput, { oldDocument
       throw new Error("This display name is already taken");
     }
     if (data.shortformFeedId && !isLWorAF) {
-      void updatePost({
+      backgroundTask(updatePost({
         data: {title: userShortformPostTitle(newDocument)},
         selector: { _id: data.shortformFeedId }
-      }, createAnonymousContext());
+      }, createAnonymousContext()));
     }
   }
   return data;
@@ -432,7 +450,7 @@ export function maybeSendVerificationEmail(modifier: MongoModifier, user: DbUser
   const lastSent = user.whenConfirmationEmailSent;
 
   if (!lastSent || (lastSent.getTime() !== whenConfirmationEmailSent.getTime())) {
-    void utils.sendVerificationEmailConditional(user);
+    backgroundTask(utils.sendVerificationEmailConditional(user));
   }
 }
 
@@ -509,7 +527,7 @@ export function syncProfileUpdatedAt(modifier: MongoModifier, user: DbUser) {
 export function updateUserMayTriggerReview({newDocument, data, context}: UpdateCallbackProperties<"Users">) {
   const reviewTriggerFields: (keyof DbUser)[] = ['voteCount', 'mapLocation', 'postCount', 'commentCount', 'biography', 'profileImageId'];
   if (reviewTriggerFields.some(field => field in data)) {
-    void triggerReviewIfNeeded(newDocument._id, context);
+    backgroundTask(triggerReviewIfNeeded(newDocument._id, context));
   }
 }
 
@@ -518,7 +536,7 @@ export async function userEditDeleteContentCallbacksAsync({ newDocument, oldDocu
     await nullifyVotesForUser(newDocument);
   }
   if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser) {
-    void userDeleteContent(newDocument, currentUser, context);
+    backgroundTask(userDeleteContent(newDocument, currentUser, context));
   }
 }
 
@@ -631,7 +649,7 @@ export function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
   const previousUserWasBanned = !!(previousBanDate && new Date(previousBanDate) > now)
   
   if (updatedUserIsBanned && !previousUserWasBanned) {
-    void userIPBanAndResetLoginTokens(user);
+    backgroundTask(userIPBanAndResetLoginTokens(user));
   }
 }
 
@@ -646,7 +664,7 @@ export async function newAlignmentUserSendPMAsync(newUser: DbUser, oldUser: DbUs
       title: `Welcome to the AI Alignment Forum!`
     }
 
-    const lwAccountContext = await computeContextFromUser({ user: lwAccount, req: context.req, res: context.res, isSSR: context.isSSR });
+    const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR });
     const conversation = await createConversation({ data: conversationData }, lwAccountContext);
 
     let firstMessageContent =
@@ -671,7 +689,7 @@ export async function newAlignmentUserSendPMAsync(newUser: DbUser, oldUser: DbUs
       conversationId: conversation._id
     };
 
-    void createMessage({ data: firstMessageData }, lwAccountContext);
+    backgroundTask(createMessage({ data: firstMessageData }, lwAccountContext));
   }
 }
 

@@ -2,7 +2,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { registerComponent } from '../../lib/vulcan-lib/components'
-import { reCaptchaSiteKeySetting } from '../../lib/publicSettings'
+import { reCaptchaSiteKeySetting } from '@/lib/instanceSettings';
 import { isClient } from '../../lib/executionEnvironment';
 
 const propTypes = {

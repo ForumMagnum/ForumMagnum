@@ -17,7 +17,7 @@ import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/Leg
 import Error404 from "../../common/Error404";
 import SummariesEditForm from "../SummariesEditForm";
 import FormComponentCheckbox from "../../form-components/FormComponentCheckbox";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const MultiDocumentEditUpdateMutation = gql(`
@@ -131,8 +131,10 @@ export const LensForm = ({
     },
   });
 
-  const checkIsFormDirty = useCallback(() => form.state.isDirty, [form.state.isDirty]);
-  useWarnAboutUnsavedChanges(checkIsFormDirty);
+  // TODO: we're not using react-router's history anymore, so we no longer have history.block
+  // See if there's a way to replicate it with NextJS
+  // const checkIsFormDirty = useCallback(() => form.state.isDirty, [form.state.isDirty]);
+  // useWarnAboutUnsavedChanges(checkIsFormDirty);
 
   const handleSubmit = useCallback(() => form.handleSubmit(), [form]);
   const formRef = useFormSubmitOnCmdEnter(handleSubmit);

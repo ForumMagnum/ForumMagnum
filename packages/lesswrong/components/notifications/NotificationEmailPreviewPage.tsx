@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
@@ -25,7 +27,7 @@ const NotificationEmailPreviewPage = () => {
       }
   `), {
     variables: {notificationIds, postId},
-    ssr: true
+    ssr: false
   });
   
   if (!userIsAdmin(currentUser))

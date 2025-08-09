@@ -37,38 +37,39 @@ export const isServer = !isClient;
 export const isProduction = process.env.NODE_ENV === 'production';
 export const isDevelopment = !isProduction;
 
+export const nodeEnv = process.env.NODE_ENV as "production"|"development"|"codegen"|"migrations"|"test"|"e2e"|"integration";
 
-export const isMigrations = process.env.NODE_ENV === 'migrations';
-export const isAnyTest = process.env.NODE_ENV === 'test';
-export const isIntegrationTest = process.env.NODE_ENV === 'integration';
-
-
-export const isE2E = process.env.NODE_ENV === 'e2e';
-export const isPackageTest = process.env.NODE_ENV === 'test';
-export const isCodegen = process.env.NODE_ENV === 'codegen';
+export const isMigrations = nodeEnv === 'migrations';
+export const isAnyTest = nodeEnv === 'test';
+export const isIntegrationTest = nodeEnv === 'integration';
 
 
-// @ts-ignore next-line
-global.bundleIsServer = isServer;
-// @ts-ignore next-line
-global.bundleIsTest = isAnyTest;
-// @ts-ignore next-line
-global.bundleIsE2E = isE2E;
-// @ts-ignore next-line
-global.bundleIsProduction = isProduction;
-// @ts-ignore next-line
-global.bundleIsMigrations = isMigrations;
-// @ts-ignore next-line
-global.bundleIsIntegrationTest = isIntegrationTest;
-// @ts-ignore next-line
-global.bundleIsCodegen = isCodegen;
+export const isE2E = nodeEnv === 'e2e';
+export const isPackageTest = nodeEnv === 'test';
+export const isCodegen = nodeEnv === 'codegen';
 
 
 // @ts-ignore next-line
-global.defaultSiteAbsoluteUrl = 'https://localhost:3000';
+globalThis.bundleIsServer = isServer;
 // @ts-ignore next-line
-global.buildProcessPid = 0;
+globalThis.bundleIsTest = isAnyTest;
 // @ts-ignore next-line
-global.ddEnv = 'local';
+globalThis.bundleIsE2E = isE2E;
 // @ts-ignore next-line
-global.enableVite = true;
+globalThis.bundleIsProduction = isProduction;
+// @ts-ignore next-line
+globalThis.bundleIsMigrations = isMigrations;
+// @ts-ignore next-line
+globalThis.bundleIsIntegrationTest = isIntegrationTest;
+// @ts-ignore next-line
+globalThis.bundleIsCodegen = isCodegen;
+
+
+// @ts-ignore next-line
+globalThis.defaultSiteAbsoluteUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_BRANCH_URL}` : 'http://localhost:3000';
+// @ts-ignore next-line
+globalThis.buildProcessPid = 0;
+// @ts-ignore next-line
+globalThis.ddEnv = 'local';
+// @ts-ignore next-line
+globalThis.enableVite = true;

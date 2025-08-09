@@ -1,6 +1,6 @@
 'use client';
 
-import React, { CSSProperties, FC } from 'react';
+import React, { CSSProperties, FC, useState } from 'react';
 import { useTracking } from '../lib/analyticsEvents';
 import NextLink from 'next/link';
 import { HashLink, HashLinkProps } from "../components/common/HashLink";
@@ -32,7 +32,22 @@ const isLinkValid = (props: LinkProps): props is HashLinkProps => {
   return typeof props.to === "string" || typeof props.to === "object";
 };
 
+const isPrefetchablePostLink = (to: string) => {
+  // TODO: maybe we want this to be a configurable prop at the callsite?
+  return to.startsWith('/posts/') || /^\/s\/[a-z0-9]+\/p\/[a-z0-9]+$/.test(to);
+};
+
+const getLinkPrefetch = (to: string, everHovered: boolean) => {
+  if (isPrefetchablePostLink(to)) {
+    return null;
+  }
+
+  return everHovered ? null : false;
+}
+
 export const Link = ({eventProps, ...props}: LinkProps) => {
+  const [hovered, setHovered] = useState(false);
+  
   const { captureEvent } = useTracking({
     eventType: "linkClicked",
     eventProps: {
@@ -55,7 +70,9 @@ export const Link = ({eventProps, ...props}: LinkProps) => {
   if (to && typeof to === 'string' && isOffsiteLink(to)) {
     return <a href={to} {...otherProps} onMouseDown={handleClick}/>
   } else {
-    return <HashLink {...props} onMouseDown={handleClick}/>
+    const prefetch = getLinkPrefetch(to, hovered);
+    const propsWithPrefetch = { ...props, prefetch };
+    return <HashLink {...propsWithPrefetch} onMouseDown={handleClick} onMouseEnter={() => setHovered(true)}/>
   }
 }
 

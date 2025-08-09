@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useOnNavigate } from '../hooks/useOnNavigate';
@@ -83,7 +85,7 @@ const styles = (theme: ThemeType) => ({
     "--icon-size": "24px",
   },
   searchIconButton: {
-    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text,
+    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text ,
   },
   searchIconButtonSmall: isFriendlyUI ? {
     padding: 6,

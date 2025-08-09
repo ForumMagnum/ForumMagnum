@@ -8,6 +8,12 @@ export const CLIENT_ID_COOKIE = registerCookie({
   description: "A unique identifier for this browser",
 });
 
+export const CLIENT_ID_NEW_COOKIE = registerCookie({
+  name: "clientIdUnset",
+  type: "necessary",
+  description: "Whether the client ID is newly assigned",
+});
+
 export const LOGIN_TOKEN_COOKIE = registerCookie({
   name: "loginToken",
   type: "necessary",

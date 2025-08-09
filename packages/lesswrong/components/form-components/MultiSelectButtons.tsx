@@ -1,7 +1,6 @@
 import React from 'react';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classnames from 'classnames';
-import * as _ from 'underscore';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
@@ -13,6 +12,13 @@ const styles = defineStyles('MultiSelectButtons', (theme: ThemeType) => ({
     fontWeight: isFriendlyUI ? 600 : 500,
     fontSize: "16px",
     fontFamily: theme.palette.fonts.sansSerifStack,
+
+    borderRadius: 0,
+    textTransform: "none",
+    minWidth: 63,
+  },
+  label: {
+    marginRight: 10,
   },
 
   selected: {
@@ -59,19 +65,18 @@ export const MultiSelectButtons = ({
 
   const handleClick = (option: string) => {
     const newValue = currentValue?.includes(option)
-      ? _.without(currentValue, option)
+      ? currentValue.filter(v => v !== option)
       : [...(currentValue ?? []), option];
 
     field.handleChange(newValue);
   };
 
   return <div className={classnames('multi-select-buttons', className)}>
-    {label && <label className="multi-select-buttons-label">{label}</label>}
+    {label && <label className={classes.label}>{label}</label>}
     {options.map((option) => {
       const selected = currentValue?.includes(option.value) ?? false;
       return <Button
         className={classnames(
-          "multi-select-buttons-button",
           classes.button,
           {
             [classes.selected]: selected,

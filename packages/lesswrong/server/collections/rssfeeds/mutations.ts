@@ -1,10 +1,10 @@
-
 import schema from "@/lib/collections/rssfeeds/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { populateRawFeed } from "@/server/rss-integration/callbacks";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -68,7 +68,7 @@ export async function updateRSSFeed({ selector, data }: UpdateRSSFeedInput, cont
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('RSSFeeds', updatedDocument, oldDocument);
 
-  void logFieldChanges({ currentUser, collection: RSSFeeds, oldDocument, data: origData });
+  backgroundTask(logFieldChanges({ currentUser, collection: RSSFeeds, oldDocument, data: origData }));
 
   return updatedDocument;
 }

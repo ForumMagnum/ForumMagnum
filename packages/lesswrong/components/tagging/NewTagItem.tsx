@@ -49,7 +49,7 @@ const NewTagItem = ({tag, classes}: {
   const { captureEvent } =  useTracking()
   
   const postSearchTerms = {
-    ...tagPostTerms(tag, {}),
+    ...tagPostTerms(tag),
     limit: 10
   };
 

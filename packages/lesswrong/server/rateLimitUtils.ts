@@ -8,8 +8,9 @@ import type { CommentAutoRateLimit, PostAutoRateLimit, RateLimitComparison, Rate
 import { calculateRecentKarmaInfo, documentOnlyHasSelfVote, getAutoRateLimitInfo, getCurrentAndPreviousUserKarmaInfo, getMaxAutoLimitHours, getModRateLimitInfo, getRateLimitStrictnessComparisons, getStrictestRateLimitInfo, getManualRateLimitInfo, getManualRateLimitIntervalHours, getDownvoteRatio } from "../lib/rateLimits/utils"
 import { triggerReview } from "./callbacks/helpers"
 import { appendToSunshineNotes } from "../lib/collections/users/helpers"
-import { isNonEmpty } from "fp-ts/Array"
+import { isNonEmpty } from "@/lib/utils/typeGuardUtils"
 import type { NonEmptyArray } from "fp-ts/lib/NonEmptyArray"
+import { backgroundTask } from "./utils/backgroundTask"
 
 /**
  * Fetches the most recent, active rate limit affecting a user.
@@ -326,25 +327,25 @@ function triggerReviewForStricterRateLimits(
   if (commentRateLimitComparison.isStricter) {
     const { strictestNewRateLimit: { itemsPerTimeframe, timeframeUnit, timeframeLength } } = commentRateLimitComparison;
 
-    void triggerReview(userId, context);
-    void appendToSunshineNotes({
+    backgroundTask(triggerReview(userId, context));
+    backgroundTask(appendToSunshineNotes({
       moderatedUserId: userId,
       adminName: 'Automod',
       text: `User triggered a stricter ${itemsPerTimeframe} comment(s) per ${timeframeLength} ${timeframeUnit} rate limit`,
       context,
-    });
+    }));
   }
 
   if (postRateLimitComparison.isStricter) {
     const { strictestNewRateLimit: { itemsPerTimeframe, timeframeUnit, timeframeLength } } = postRateLimitComparison;
 
-    void triggerReview(userId, context);
-    void appendToSunshineNotes({
+    backgroundTask(triggerReview(userId, context));
+    backgroundTask(appendToSunshineNotes({
       moderatedUserId: userId,
       adminName: 'Automod',
       text: `User triggered a stricter ${itemsPerTimeframe} post(s) per ${timeframeLength} ${timeframeUnit} rate limit`,
       context,
-    });
+    }));
   }
 }
 

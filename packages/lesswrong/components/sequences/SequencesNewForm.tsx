@@ -1,3 +1,5 @@
+"use client";
+
 import { useMessages } from '../common/withMessages';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
@@ -157,10 +159,9 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback, classes }: {
-  redirect: any,
-  cancelCallback: any,
-  removeSuccessCallback: any,
+const SequencesNewForm = ({ redirect, cancelCallback, classes }: {
+  redirect?: any,
+  cancelCallback?: any,
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();

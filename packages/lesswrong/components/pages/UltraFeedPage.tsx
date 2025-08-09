@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect } from 'react';
 import { useStyles, defineStyles } from '../hooks/useStyles';
 import { useCurrentUser } from '../common/withUser';

@@ -8,6 +8,8 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import NotifyMeToggleDropdownItem from "../dropdowns/NotifyMeToggleDropdownItem";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { useCurrentUser } from "../common/withUser";
+import SeeLessDropdownItem from "../dropdowns/posts/SeeLessDropdownItem";
+import BookmarkDropdownItem from "../dropdowns/posts/BookmarkDropdownItem";
 
 const styles = defineStyles("UltraFeedPostActions", (theme: ThemeType) => ({
   root: {
@@ -15,10 +17,12 @@ const styles = defineStyles("UltraFeedPostActions", (theme: ThemeType) => ({
   },
 }));
 
-const UltraFeedPostActions = ({ post, closeMenu, includeBookmark }: {
+const UltraFeedPostActions = ({ post, closeMenu, includeBookmark, onSeeLess, isSeeLessMode }: {
   post: PostsListWithVotes,
   closeMenu: () => void,
   includeBookmark?: boolean,
+  onSeeLess?: () => void,
+  isSeeLessMode?: boolean,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -35,6 +39,11 @@ const UltraFeedPostActions = ({ post, closeMenu, includeBookmark }: {
     closeMenu();
   }, [post, closeMenu]);
 
+  const handleSeeLess = useCallback(() => {
+    onSeeLess?.();
+    closeMenu();
+  }, [onSeeLess, closeMenu]);
+
   const author = post.user;
   const userIsAuthor = currentUser?._id === author?._id;
 
@@ -45,6 +54,8 @@ const UltraFeedPostActions = ({ post, closeMenu, includeBookmark }: {
         title={`Follow ${userGetDisplayName(author)}`}
         subscriptionType="newActivityForFeed"
       />}
+      {onSeeLess && <SeeLessDropdownItem onSeeLess={handleSeeLess} isSeeLessMode={isSeeLessMode} />}
+      {includeBookmark && <BookmarkDropdownItem documentId={post._id} collectionName="Posts" />}
       <DropdownItem
         title="Copy link"
         icon="Link"

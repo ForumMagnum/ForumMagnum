@@ -3,7 +3,7 @@ import { registerComponent } from "@/lib/vulcan-lib/components";
 import html2canvas from "html2canvas";
 import classNames from "classnames";
 import { isMobile } from "@/lib/utils/isMobile";
-import { captureException } from "@sentry/core";
+import { captureException } from "@sentry/nextjs";
 import ForumIcon from "../../common/ForumIcon";
 
 export const WRAPPED_SHARE_BUTTON_WIDTH = 100;

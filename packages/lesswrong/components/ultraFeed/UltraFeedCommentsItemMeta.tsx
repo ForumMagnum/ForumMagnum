@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { AnalyticsContext, captureEvent } from "../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import { defineStyles, useStyles } from "../hooks/useStyles";
@@ -14,6 +14,8 @@ import SubdirectoryArrowLeft from "@/lib/vendor/@material-ui/icons/src/Subdirect
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import DebateIcon from "@/lib/vendor/@material-ui/icons/src/Forum";
+import { FeedCommentMetaInfo } from "./ultraFeedTypes";
+import UltraFeedMetaInfoPill from "./UltraFeedMetaInfoPill";
 
 const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => ({
   root: {
@@ -40,19 +42,25 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
   metaRow: {
     display: 'flex',
     flexWrap: 'nowrap',
-    alignItems: 'center',
+    alignItems: 'baseline',
     position: 'relative',
     width: '100%',
+    paddingRight: 16,
+    [theme.breakpoints.down('sm')]: {
+      paddingRight: 20,
+    }
   },
   tripleDotMenu: {
     opacity: 0.7,
     position: 'absolute',
-    right: -10,
-    top: 4,
-
+    right: -20,
+    top: -2,
+    zIndex: 10,
+    padding: '4px 10px 4px 4px',
     [theme.breakpoints.down('sm')]: {
       marginRight: 0,
-      right: 0,
+      right: -8,
+      padding: '4px'
     },
   },
   commentShortformIconContainer: {
@@ -105,12 +113,13 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     fontWeight: 600,
   },
   moderatorHat: {
-    marginLeft: 10,
+    marginRight: 12,
+    whiteSpace: "nowrap",
   },
   newContentDateStyling: {
   },
   date: {
-    marginRight: 24,
+    marginRight: 12,
     fontSize: theme.typography.body2.fontSize,
     [theme.breakpoints.down('sm')]: {
       ...theme.typography.ultraFeedMobileStyle,
@@ -131,16 +140,19 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     transition: 'background-color 1.5s ease-out',
     padding: '2px 8px',
     borderRadius: 4,
+    [theme.breakpoints.down('sm')]: {
+      marginRight: 20,
+    }
   },
   sameRowPostTitleHighlighted: {
     backgroundColor: `${theme.palette.primary.main}3b`,
     transition: 'none',
   },
-  belowPostTitle: {
-    marginTop: 4,
-    marginRight: 4,
+  abovePostTitle: {
+    marginBottom: 8,
+    marginRight: 16,
     color: theme.palette.link.dim,
-    fontSize: theme.typography.body2.fontSize,
+    fontSize: '1.3rem',
     lineHeight: theme.typography.body2.lineHeight,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontStyle: 'italic',
@@ -154,10 +166,10 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     },
     backgroundColor: 'transparent',
     transition: 'background-color 1.5s ease-out',
-    padding: '4px 8px',
+    padding: '4px 0px',
     borderRadius: 4,
   },
-  belowPostTitleHighlighted: {
+  abovePostTitleHighlighted: {
     backgroundColor: `${theme.palette.primary.main}3b`,
     transition: 'none',
   },
@@ -182,6 +194,7 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     fontSize: 14,
     transform: "rotate(90deg)",
     marginRight: 4,
+    marginLeft: -2,
   },
   replyingToIconClickable: {
     cursor: "pointer",
@@ -193,7 +206,7 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
 
 const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick, highlighted}: {
   comment: UltraFeedComment,
-  position: 'metarow' | 'below',
+  position: 'metarow' | 'above',
   enabled?: boolean,
   onPostTitleClick?: () => void,
   highlighted?: boolean,
@@ -210,7 +223,7 @@ const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick, highligh
     }
   };
 
-  if (!enabled || !post ) {
+  if (!enabled || !post || post.shortform) {
     return null;
   }
   return (
@@ -218,14 +231,14 @@ const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick, highligh
       className={classNames({
         [classes.sameRowPostTitle]: position === 'metarow',
         [classes.sameRowPostTitleHighlighted]: position === 'metarow' && highlighted,
-        [classes.hideOnMobile]: position === 'metarow' && !post.shortform,
-        [classes.belowPostTitle]: position === 'below',
-        [classes.belowPostTitleHighlighted]: position === 'below' && highlighted,
-        [classes.hideOnDesktop]: position === 'below',
+        [classes.hideOnMobile]: position === 'metarow' || post.shortform,
+        [classes.abovePostTitle]: position === 'above',
+        [classes.abovePostTitleHighlighted]: position === 'above' && highlighted,
+        [classes.hideOnDesktop]: position === 'above',
       })}
     >
       <PostsTooltip postId={post._id} placement="top" As="span">
-        {position === 'below' && <span className={classes.postTitleReplyTo}>Replying to</span>}
+        {position === 'above' && <span className={classes.postTitleReplyTo}>Replying to</span>}
           <a
             href={postGetPageUrl(post)}
             onClick={handleTitleClick}
@@ -240,6 +253,7 @@ const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick, highligh
 
 const UltraFeedCommentsItemMeta = ({
   comment,
+  metaInfo,
   setShowEdit,
   hideDate,
   hideActionsMenu,
@@ -247,8 +261,11 @@ const UltraFeedCommentsItemMeta = ({
   onPostTitleClick,
   parentAuthorName,
   onReplyIconClick,
+  onSeeLess,
+  isSeeLessMode,
 }: {
   comment: UltraFeedComment,
+  metaInfo: FeedCommentMetaInfo, 
   setShowEdit?: () => void,
   hideDate?: boolean,
   hideActionsMenu?: boolean,
@@ -256,31 +273,29 @@ const UltraFeedCommentsItemMeta = ({
   onPostTitleClick?: () => void,
   parentAuthorName?: string | null,
   onReplyIconClick?: () => void,
+  onSeeLess?: () => void,
+  isSeeLessMode?: boolean,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [postTitleHighlighted, setPostTitleHighlighted] = useState(false);
   const { post } = comment;
+  const { captureEvent } = useTracking();
 
   if (!post) {
     return null;
   }
 
-  const moderatorCommentAnnotation = comment.hideModeratorHat
-    ? "Moderator Comment (Invisible)"
-    : "Moderator Comment";
-
-  const showModeratorCommentAnnotation = comment.moderatorHat && (
-    userIsAdmin(currentUser)
-      ? true
-      : !comment.hideModeratorHat
-  );
+  const moderatorCommentAnnotation = comment.hideModeratorHat ? "Moderator Comment (Invisible)" : "Moderator Comment";
+  const showModeratorCommentAnnotation = comment.moderatorHat && (!comment.hideModeratorHat || userIsAdmin(currentUser));
 
   const isNewContent = comment.postedAt && (new Date(comment.postedAt) > new Date(Date.now() - (7 * 24 * 60 * 60 * 1000)));
   const isTopLevelComment = !comment.parentCommentId;
+  const isRead = !!metaInfo.lastViewed || !!metaInfo.lastInteracted
 
   const handleReplyIconClick = (event: React.MouseEvent) => {
     event.stopPropagation();
+    captureEvent("ultraFeedReplyArrowClicked");
     if (onReplyIconClick) {
       onReplyIconClick();
     }
@@ -291,10 +306,7 @@ const UltraFeedCommentsItemMeta = ({
     setPostTitleHighlighted(true);
     
     // Track the click event
-    captureEvent(iconType === 'shortform' ? "ultraFeedShortformIconClicked" : "ultraFeedDebateIconClicked", {
-      commentId: comment._id,
-      postId: post._id,
-    });
+    captureEvent(iconType === 'shortform' ? "ultraFeedShortformIconClicked" : "ultraFeedDebateIconClicked");
     
     // Remove highlight after a short delay
     setTimeout(() => {
@@ -307,10 +319,11 @@ const UltraFeedCommentsItemMeta = ({
       <div className={classes.tripleDotMenu}>
         {!hideActionsMenu && setShowEdit && post &&
           <AnalyticsContext pageElementContext="tripleDotMenu">
-            <CommentsMenu comment={comment} post={post} showEdit={setShowEdit} ActionsComponent={UltraFeedCommentActions} />
+            <CommentsMenu comment={comment} post={post} showEdit={setShowEdit} onSeeLess={onSeeLess} isSeeLessMode={isSeeLessMode} ActionsComponent={UltraFeedCommentActions} />
           </AnalyticsContext>
         }
       </div>
+      <ReplyingToTitle enabled={showPostTitle} position="above" comment={comment} onPostTitleClick={onPostTitleClick} highlighted={postTitleHighlighted} />
       <div className={classes.metaRow}>
         {!isTopLevelComment && (
           <LWTooltip 
@@ -352,6 +365,7 @@ const UltraFeedCommentsItemMeta = ({
         {!hideDate && post && <span className={classNames({[classes.newContentDateStyling]: isNewContent})}>
           <CommentsItemDate comment={comment} post={post} className={classes.date}/>
         </span>}
+        {post.shortform && isTopLevelComment && <UltraFeedMetaInfoPill type="quickTake" readStyles={isRead} />}
         {showModeratorCommentAnnotation &&
           <span className={classes.moderatorHat}>
             {moderatorCommentAnnotation}
@@ -359,7 +373,6 @@ const UltraFeedCommentsItemMeta = ({
         }
         <ReplyingToTitle enabled={showPostTitle} position="metarow" comment={comment} onPostTitleClick={onPostTitleClick} highlighted={postTitleHighlighted} />
       </div>
-      <ReplyingToTitle enabled={showPostTitle && !post?.shortform} position="below" comment={comment} onPostTitleClick={onPostTitleClick} highlighted={postTitleHighlighted} />
     </div>
   );
 };

@@ -6,7 +6,7 @@ import { getUserEmail, userEmailAddressIsVerified, userHasEmailAddress} from '..
 import { useMessages } from '../common/withMessages';
 import { getGraphQLErrorID, getGraphQLErrorMessage } from '../../lib/utils/errorUtil';
 import { randInt } from '../../lib/random';
-import SimpleSchema from 'simpl-schema';
+import SimpleSchema from '@/lib/utils/simpleSchema';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import MailOutline from '@/lib/vendor/@material-ui/icons/src/MailOutline'

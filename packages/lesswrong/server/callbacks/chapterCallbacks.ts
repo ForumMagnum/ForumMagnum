@@ -3,10 +3,10 @@ import { sequenceGetAllPosts } from '@/lib/collections/sequences/sequenceServerH
 import { Posts } from '../../server/collections/posts/collection'
 import { UpdateCallbackProperties } from '../mutationCallbacks';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
-import * as _ from 'underscore';
 import { createNotifications, getSubscribedUsers } from '../notificationCallbacksHelpers';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers';
 import xor from 'lodash/xor';
+import difference from 'lodash/difference';
 
 export async function canonizeChapterPostInfo(chapter: DbChapter, context: ResolverContext) {
   const { Posts, Sequences } = context;
@@ -14,7 +14,7 @@ export async function canonizeChapterPostInfo(chapter: DbChapter, context: Resol
   const sequence = await Sequences.findOne({_id:chapter.sequenceId})
 
   const postsWithCanonicalSequenceId = await Posts.find({canonicalSequenceId: chapter.sequenceId}).fetch()
-  const removedPosts = _.difference(_.pluck(postsWithCanonicalSequenceId, '_id'), _.pluck(posts, '_id'))
+  const removedPosts = difference(postsWithCanonicalSequenceId.map(p => p._id), posts.map(p => p._id))
 
   await asyncForeachSequential(removedPosts, async (postId) => {
     await Posts.rawUpdateOne({_id: postId}, {$unset: {
@@ -65,7 +65,7 @@ export async function updateSequenceLastUpdated({oldDocument, newDocument}: Upda
 
 export async function notifyUsersOfNewPosts({oldDocument, newDocument, context}: UpdateCallbackProperties<'Chapters'>) {
   // Check if there were any posts added to this chapter
-  const newPostIds = _.difference(newDocument.postIds, oldDocument.postIds)
+  const newPostIds = difference(newDocument.postIds, oldDocument.postIds)
   if (!newPostIds.length) {
     return
   }
@@ -86,10 +86,10 @@ export async function notifyUsersOfNewPosts({oldDocument, newDocument, context}:
   })
   const sequence = await Sequences.findOne({_id: oldDocument.sequenceId})
   if (sequence && !sequence.isDeleted && !sequence.draft) {
-    let subscribedUserIds = _.map(subscribedUsers, u=>u._id);
+    let subscribedUserIds = subscribedUsers.map(u=>u._id);
     
     // Don't notify the user who added the post
-    subscribedUserIds = context.currentUser?._id ? _.difference(subscribedUserIds, context.currentUser._id) : subscribedUserIds
+    subscribedUserIds = context.currentUser?._id ? difference(subscribedUserIds, [context.currentUser._id]) : subscribedUserIds
     await createNotifications({userIds: subscribedUserIds, notificationType: 'newSequencePosts', documentType: 'sequence', documentId: sequence._id, extraData: {postIds: newPostIds}})
   }
 }

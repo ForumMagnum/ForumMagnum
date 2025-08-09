@@ -13,6 +13,8 @@ import CommentsEditForm from "./CommentsEditForm";
 import CommentsMenu from "../dropdowns/comments/CommentsMenu";
 import DebateCommentsListSection from "./DebateCommentsListSection";
 import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
+import { commentBottomComponents } from '@/lib/voting/votingSystemComponents';
+import type { VotingSystemName } from '@/lib/voting/votingSystemNames';
 
 const styles = (theme: ThemeType) => ({
   innerDebateComment: {
@@ -102,12 +104,12 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
     const [showReplyState, setShowReplyState] = useState(false);
     const [showEdit, setShowEdit] = useState(false);
     
-    const votingSystemName = comment.votingSystem || "default";
+    const votingSystemName = (comment.votingSystem || "default") as VotingSystemName;
     const votingSystem = getVotingSystemByName(votingSystemName);
     const voteProps = useVote(comment, "Comments", votingSystem);
     const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
 
-    const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
+    const VoteBottomComponent = commentBottomComponents[votingSystemName]?.() ?? null;
 
     const fullParticipantSet = new Set([post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)]);
 

@@ -3,7 +3,6 @@ import sanitizeHtml from 'sanitize-html';
 import { Comments } from '../../../server/collections/comments/collection';
 import { getOpenAI } from '../../languageModels/languageModelIntegration';
 import { wrapVulcanAsyncScript } from '../utils';
-import * as _ from 'underscore';
 import { modGPTPrompt, sanitizeHtmlOptions } from '../../languageModels/modGPT';
 import { truncatise } from '../../../lib/truncatise';
 import { fetchFragmentSingle } from '../../fetchFragment';

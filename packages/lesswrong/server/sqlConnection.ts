@@ -2,10 +2,10 @@ import pgp, { IDatabase, IEventContext } from "pg-promise";
 import type { IClient, IResult } from "pg-promise/typescript/pg-subset";
 import Query from "@/server/sql/Query";
 import { isAnyTest, isDevelopment } from "../lib/executionEnvironment";
-import { PublicInstanceSetting } from "../lib/instanceSettings";
+import { pgConnIdleTimeoutMsSetting } from "../lib/instanceSettings";
 import omit from "lodash/omit";
 import { logAllQueries, logQueryArguments, measureSqlBytesDownloaded } from "@/server/sql/sqlClient";
-import { recordSqlQueryPerfMetric } from "./perfMetrics";
+import { getIsSSRRequest, getParentTraceId, recordSqlQueryPerfMetric } from "./perfMetrics";
 
 let sqlBytesDownloaded = 0;
 
@@ -13,8 +13,6 @@ let sqlBytesDownloaded = 0;
 const SLOW_QUERY_REPORT_CUTOFF_MS = parseInt(process.env.SLOW_QUERY_REPORT_CUTOFF_MS ?? '') >= -1
   ? parseInt(process.env.SLOW_QUERY_REPORT_CUTOFF_MS ?? '')
   : isDevelopment ? 3000 : 2000;
-
-const pgConnIdleTimeoutMsSetting = new PublicInstanceSetting<number>('pg.idleTimeoutMs', 10000, 'optional')
 
 let vectorTypeOidPromise: Promise<number | null> | null = null;
 
@@ -170,6 +168,8 @@ const logIfSlow = async <T>(
     return describeString.slice(0, truncateLength ?? 5000)
   }
 
+  const isSSRRequest = getIsSSRRequest();
+
   const queryID = ++queriesExecuted;
   if (logAllQueries) {
     // eslint-disable-next-line no-console
@@ -188,7 +188,7 @@ const logIfSlow = async <T>(
   }
   if (logAllQueries) {
     // eslint-disable-next-line no-console
-    console.log(`Finished query #${queryID} (${milliseconds} ms) (${JSON.stringify(result).length}b)`);
+    console.log(`Finished query #${queryID}, ${getParentTraceId().parent_trace_id} (${milliseconds} ms) (${JSON.stringify(result).length}b)`);
   } else if (SLOW_QUERY_REPORT_CUTOFF_MS >= 0 && milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
     const description = isDevelopment ? getDescription(50) : getDescription(5000);
     const message = `Slow Postgres query detected (${milliseconds} ms): ${description}`;
@@ -227,15 +227,10 @@ const wrapQueryMethod = <T>(
   }
 }
 
-export const createSqlConnection = async (
+function getWrappedClient(
   url?: string,
   isTestingClient = false,
-): Promise<SqlClient> => {
-  url = url ?? process.env.PG_URL;
-  if (!url) {
-    throw new Error("PG_URL not configured");
-  }
-
+): SqlClient {
   const db = pgPromiseLib({
     connectionString: url,
     max: MAX_CONNECTIONS,
@@ -255,6 +250,46 @@ export const createSqlConnection = async (
     concat,
     isTestingClient,
   };
+
+  return client;
+}
+
+declare global {
+  var pgClients: Record<string, SqlClient>;
+}
+
+if (!globalThis['pgClients']) {
+  globalThis['pgClients'] = {
+    ...(process.env.PG_URL ? {
+      [process.env.PG_URL]: getWrappedClient(process.env.PG_URL, false),
+    } : {}),
+    ...(process.env.PG_READ_URL ? {
+      [process.env.PG_READ_URL]: getWrappedClient(process.env.PG_READ_URL, false),
+    } : {}),
+    ...(process.env.PG_NO_TRANSACTION_URL ? {
+      [process.env.PG_NO_TRANSACTION_URL]: getWrappedClient(process.env.PG_NO_TRANSACTION_URL, false),
+    } : {}),
+  };
+}
+
+export const createSqlConnection = (
+  url?: string,
+  isTestingClient = false,
+): SqlClient => {
+  // If we get an empty string, explicitly fall back to PG_URL
+  url = url || process.env.PG_URL;
+  if (url === undefined) {
+    throw new Error("PG_URL not configured");
+  }
+
+  const existingClient = globalThis['pgClients'][url];
+  if (existingClient) {
+    return existingClient;
+  }
+
+  const client = getWrappedClient(url, isTestingClient);
+
+  globalThis['pgClients'][url] = client;
 
   return client;
 }

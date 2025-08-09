@@ -1,21 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import { Link } from '../../lib/reactRouterWrapper'
-import { postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { hasRejectedContentSectionSetting } from '../../lib/instanceSettings';
-import { useDialog } from '../common/withDialog';
-import { DialogContent } from '../widgets/DialogContent';
-import { highlightHtmlWithLlmDetectionScores } from './helpers';
-import MetaInfo from "../common/MetaInfo";
-import FormatDate from "../common/FormatDate";
-import PostsTitle from "../posts/PostsTitle";
-import SmallSideVote from "../votes/SmallSideVote";
-import PostActionsButton from "../dropdowns/posts/PostActionsButton";
-import ContentStyles from "../common/ContentStyles";
-import LinkPostMessage from "../posts/LinkPostMessage";
-import RejectContentButton from "./RejectContentButton";
-import RejectedReasonDisplay from "./RejectedReasonDisplay";
-import LWDialog from "../common/LWDialog";
+import { SunshineNewUserPostItem } from "./SunshineNewUserPostItem";
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -36,27 +21,49 @@ const styles = (theme: ThemeType) => ({
       fontSize: "1rem"
     }
   },
-  meta: {
-    display: 'inline-block'
-  },
   vote: {
     marginRight: 10
   },
   rejectButton: {
     marginLeft: 'auto',
+    display: 'flex',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: "8px",
+    backgroundColor: theme.palette.grey[200],
+    padding: 10,
+    marginTop: 8,
+    borderRadius: 4,
   },
   llmScore: {
     cursor: 'pointer',
   },
   automatedContentEvaluations: {
     display: 'flex',
-    flexDirection: 'column',
-    gap: 10,
-    alignItems: 'flex-end',
+    marginTop: 8,
+    gap: "8px",
+    alignItems: 'center',
   },
   aiOutput: {
     fontSize: '0.9em',
     textWrap: 'pretty',
+  },
+  expandCollapseButton: {
+    cursor: 'pointer',
+    display: 'inline-flex',
+    alignItems: 'center',
+    marginRight: 8,
+    color: theme.palette.grey[600],
+    '&:hover': {
+      color: theme.palette.grey[800],
+    }
+  },
+  rejection: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexWrap: "wrap",
+    backgroundColor: theme.palette.grey[200],
   },
 })
 
@@ -66,117 +73,17 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
   classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
-  const { openDialog } = useDialog();
+  // Calculate newPosts early for rendering
+  const newPosts = React.useMemo(() => {
+    if (!posts) return [];
+    return user.reviewedAt ? posts.filter(post => post.postedAt > user.reviewedAt!) : posts;
+  }, [posts, user.reviewedAt]);
 
-  function handleLLMScoreClick(
-    automatedContentEvaluation: NonNullable<NonNullable<SunshinePostsList['contents']>['automatedContentEvaluations']>,
-    htmlContent: string | null | undefined
-  ) {
-    const highlightedHtml = highlightHtmlWithLlmDetectionScores(
-      htmlContent || "",
-      automatedContentEvaluation.sentenceScores || []
-    );
-
-    openDialog({
-      name: "LLMScoreDialog",
-      contents: ({onClose}) => (
-        <LWDialog open={true} onClose={onClose}>
-          <DialogContent>
-            <div>
-              <p>LLM Score: {automatedContentEvaluation.score}</p>
-              <p>Post with highlighted sentences:</p>
-              {/* eslint-disable-next-line react/no-danger */}
-              <div dangerouslySetInnerHTML={{ __html: highlightedHtml }} />
-            </div>
-          </DialogContent>
-        </LWDialog>
-      ),
-    });
-  }
-
-  function handleAiJudgementClick(automatedContentEvaluations: NonNullable<NonNullable<SunshinePostsList['contents']>['automatedContentEvaluations']>) {
-    openDialog({
-      name: "AiJudgementDialog",
-      contents: ({onClose}) => (
-        <LWDialog open={true} onClose={onClose}>
-          <DialogContent>
-            <p><strong>AI Choice:</strong> {automatedContentEvaluations.aiChoice}</p>
-            <p><strong>AI Reasoning:</strong></p>
-            <pre className={classes.aiOutput}>{automatedContentEvaluations.aiReasoning}</pre>
-            <p><strong>AI CoT:</strong></p>
-            <pre className={classes.aiOutput}>{automatedContentEvaluations.aiCoT}</pre>
-          </DialogContent>
-        </LWDialog>
-      ),
-    });
-  }
-
-  if (!posts) return null
-
-  const newPosts = user.reviewedAt ? posts.filter(post => post.postedAt > user.reviewedAt!) : posts
+  if (!posts) return null;
 
   return (
     <div>
-      {newPosts.map(post => {
-        const automatedContentEvaluations = post.contents?.automatedContentEvaluations
-        return <div className={classes.post} key={post._id}>
-          <div className={classes.row}>
-            <div>
-              <Link to={`/posts/${post._id}`}>
-                <PostsTitle post={post} showIcons={false} wrap />
-                {(post.status !== 2) && <MetaInfo>[Spam] {post.status}</MetaInfo>}
-              </Link>
-              <div>
-                <span className={classes.meta}>
-                  <span className={classes.vote}>
-                    <SmallSideVote document={post} collectionName="Posts" />
-                  </span>
-                  <MetaInfo>
-                    <FormatDate date={post.postedAt} />
-                  </MetaInfo>
-                  <MetaInfo>
-                    <Link to={`${postGetPageUrl(post)}#comments`}>
-                      {postGetCommentCountStr(post)}
-                    </Link>
-                  </MetaInfo>
-                </span>
-              </div>
-            </div>
-
-            {hasRejectedContentSectionSetting.get() && <span className={classes.rejectButton}>
-              {post.rejected && <RejectedReasonDisplay reason={post.rejectedReason} />}
-              {automatedContentEvaluations && (
-                <div className={classes.automatedContentEvaluations}>
-                  <span
-                    className={classes.llmScore}
-                    onClick={() => handleLLMScoreClick(
-                      automatedContentEvaluations,
-                      post.contents!.html
-                    )}
-                  >
-                    <strong>LLM Score:</strong> {automatedContentEvaluations.score.toFixed(2)}
-                  </span>
-                  <span
-                    className={classes.llmScore}
-                    onClick={() => handleAiJudgementClick(automatedContentEvaluations)}
-                  >
-                    <strong>AI judgement:</strong> {automatedContentEvaluations.aiChoice}
-                  </span>
-                </div>
-              )}
-              <RejectContentButton contentWrapper={{ collectionName: 'Posts', content: post }} />
-            </span>}
-
-            <PostActionsButton post={post} />
-          </div>
-          {!post.draft && <div className={classes.postBody}>
-            <LinkPostMessage post={post} />
-            <ContentStyles contentType="postHighlight">
-              <div dangerouslySetInnerHTML={{ __html: (post.contents?.html || "") }} />
-            </ContentStyles>
-          </div>}
-        </div>
-      })}
+      {newPosts.map(post => <SunshineNewUserPostItem key={post._id} post={post} />)}
     </div>
   )
 }

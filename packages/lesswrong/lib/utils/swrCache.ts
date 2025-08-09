@@ -1,3 +1,4 @@
+import { backgroundTask } from "@/server/utils/backgroundTask"
 
 export class SwrCache<T, Args extends any[]> {
   private value: T|null
@@ -19,7 +20,7 @@ export class SwrCache<T, Args extends any[]> {
       await this.recompute(...args);
       return this.value!;
     } else if (this.lastUpdatedAt < new Date().getTime() - this.expiryMs) {
-      void this.recompute(...args);
+      backgroundTask(this.recompute(...args));
       return this.value;
     } else {
       return this.value;

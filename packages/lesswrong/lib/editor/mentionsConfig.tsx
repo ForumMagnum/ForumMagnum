@@ -1,5 +1,5 @@
 import { getSearchClient, getSearchIndexName } from '../search/searchUtil'
-import React from 'react'
+import React, { useContext } from 'react'
 import {createRoot} from 'react-dom/client'
 import {userGetDisplayName} from '../collections/users/helpers'
 import {userMentionQueryString} from '../pingback'
@@ -9,6 +9,7 @@ import { getSiteUrl } from "../vulcan-lib/utils";
 import UserMentionHit from '@/components/search/UserMentionHit'
 import PostMentionHit from '@/components/search/PostMentionHit'
 import TagMentionHit from '@/components/search/TagMentionHit'
+import { CkEditorPortalContext, CkEditorPortalContextType } from '@/components/editor/CKEditorPortalProvider'
 
 const MARKER = "@";
 
@@ -86,32 +87,35 @@ type MentionItem = (MentionUser | MentionPost | MentionTag) & {
   link: string
 }
 
-const itemRenderer = (item: MentionItem) => {
+const itemRenderer = (portalContext: CkEditorPortalContextType|null) => (item: MentionItem) => {
   const itemElement = document.createElement("button");
   itemElement.classList.add("ck-mention-item", "ck-reset_all-excluded");
   itemElement.style.cursor = "pointer";
-  const root = createRoot(itemElement);
-  switch (item.type) {
-    case "Users":
-      root.render(<UserMentionHit hit={item.hit} />);
-      break;
-    case "Posts":
-      root.render(<PostMentionHit hit={item.hit} />);
-      break;
-    case "Tags":
-      root.render(<TagMentionHit hit={item.hit} />);
-      break;
+
+  if (portalContext) {
+    portalContext.createPortal(itemElement, <MentionHit item={item}/>);
   }
+
   return itemElement;
 }
 
-export const mentionPluginConfiguration = {
+const MentionHit = ({item}: {item: MentionItem}) => {
+  switch (item.type) {
+    case "Users": return <UserMentionHit hit={item.hit} />;
+    case "Posts": return <PostMentionHit hit={item.hit} />;
+    case "Tags": return <TagMentionHit hit={item.hit} />;
+    default:
+      return null;
+  }
+}
+
+export const mentionPluginConfiguration = (portalContext: CkEditorPortalContextType|null) => ({
   feeds: [
     {
       marker: MARKER,
       feed: fetchMentionableSuggestions,
       minimumCharacters: 1,
-      itemRenderer,
+      itemRenderer: itemRenderer(portalContext),
     },
   ],
-}
+})

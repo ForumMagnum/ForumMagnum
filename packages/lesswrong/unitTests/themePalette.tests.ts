@@ -1,17 +1,8 @@
-import { importAllComponents } from '@/lib/vulcan-lib/importAllComponents';
 import { getForumTheme } from '../themes/forumTheme';
-import * as _ from 'underscore';
-import { topLevelStyleDefinitions } from "@/lib/styles/defineStyles";
+import { topLevelStyleDefinitions } from '@/components/hooks/defineStyles';
 import type { JssStyles } from '@/lib/jssStyles';
-
-/*
- * We call `importAllComponents` in the test to actually call `require` on all
- * the components that are registed in the deferred components table, but we
- * need this import to actually get the components _into_ the deferred
- * components table in the first place.
- */
-// TODO: figure this out in NextJS world.
-// import '../lib/generated/allComponents';
+import '../lib/generated/allComponents';
+import '../lib/generated/nonRegisteredComponents';
 
 describe('JSS', () => {
   /**
@@ -25,7 +16,6 @@ describe('JSS', () => {
    * dark mode and accidentally make something black-on-black.
    */
   it('uses only colors that come from the theme palette or change in dark mode', () => {
-    importAllComponents();
     const lightTheme = getForumTheme({name: "default", siteThemeOverride: {}}) as unknown as ThemeType;
     const darkTheme = getForumTheme({name: "dark", siteThemeOverride: {}}) as unknown as ThemeType;
     const stubbedLightTheme = replacePaletteWithStubs(lightTheme);
@@ -59,7 +49,7 @@ function assertNoNonPaletteColorsRec(componentName: string, path: string, lightM
   if (typeof lightModeStyleFragment === "string") {
     const mentionedColor = stringMentionsAnyColor(lightModeStyleFragment);
     if (mentionedColor && lightModeStyleFragment === darkModeStyleFragment) {
-      outNonPaletteColors.push(`Non-palette color in styles for ${componentName} at ${path} - ${mentionedColor}`);
+      outNonPaletteColors.push(`Color for ${componentName} at ${path} (${mentionedColor}) is the same in light mode and dark mode. To prevent black-on-black text, use either a theme palette color, or check for dark mode with theme.dark ? colorOne : colorTwo. Or disable the warning for this component by passing {allowNonThemeColors: true} in the stylesheet options.`);
     }
   } else if (typeof lightModeStyleFragment === "object") {
     for (let key of Object.keys(lightModeStyleFragment)) {

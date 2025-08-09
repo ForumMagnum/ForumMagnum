@@ -3,12 +3,12 @@ import classNames from 'classnames';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import { SoftUpArrowIcon } from '../icons/softUpArrowIcon';
 import { SoftUpArrowIconCap } from '../icons/softUpArrowIconCap';
-import { useVoteColors } from './useVoteColors';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { BaseVoteArrowIconProps } from './VoteArrowIcon';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { getVoteButtonColor, voteButtonSharedStyles } from './VoteButton';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("VoteArrowIconSolid", (theme: ThemeType) => ({
   root: {
     color: theme.palette.grey[400],
     fontSize: 'inherit',
@@ -94,7 +94,7 @@ const styles = (theme: ThemeType) => ({
   entering: {
     transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
   }
-});
+}));
 
 const VoteArrowIconSolid = ({
   orientation,
@@ -108,23 +108,22 @@ const VoteArrowIconSolid = ({
   alwaysColored,
   strongVoteDelay,
   largeArrow = false,
-  classes,
-}: BaseVoteArrowIconProps & {
-  classes: ClassesType<typeof styles>
-}) => {
-
-  const { mainColor, lightColor } = useVoteColors(color);
+}: BaseVoteArrowIconProps) => {
+  const classes = useStyles(styles);
+  const sharedClasses = useStyles(voteButtonSharedStyles);
 
   const iconSize = largeArrow ? 14 : 10;
 
   const Icon = (
     <SoftUpArrowIcon
       style={{
-        color: voted || alwaysColored ? mainColor : 'inherit',
         height: iconSize,
         width: iconSize,
       }}
-      className={classNames(largeArrow ? classes.smallArrowLarge : classes.smallArrow)}
+      className={classNames(
+        largeArrow ? classes.smallArrowLarge : classes.smallArrow,
+        (voted || alwaysColored) && getVoteButtonColor(sharedClasses, color, "main")
+      )}
     />
   );
 
@@ -160,16 +159,13 @@ const VoteArrowIconSolid = ({
     >
       {Icon}
       <SoftUpArrowIconCap
-        style={bigVoteCompleted || bigVoted ? { color: lightColor } : {}}
-        className={accentIconClasses}
+        className={classNames(
+          accentIconClasses,
+          (bigVoteCompleted || bigVoted) && getVoteButtonColor(sharedClasses, color, "light")
+        )}
       />
     </IconButton>
   );
 };
 
-export default registerComponent( 'VoteArrowIconSolid', VoteArrowIconSolid, {styles});
-
-
-
-
-
+export default VoteArrowIconSolid;
