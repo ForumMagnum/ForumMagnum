@@ -32,6 +32,7 @@ import AdminViewOnboarding from '@/components/admin/AdminViewOnboarding';
 import CurationPage from '@/components/admin/CurationPage';
 import MigrationsDashboard from '@/components/admin/migrations/MigrationsDashboard';
 import RandomUserPage from '@/components/admin/RandomUserPage';
+import AdminMultiMessage from '@/components/admin/AdminMultiMessage';
 import TwitterAdmin from '@/components/admin/TwitterAdmin';
 import AFLibraryPage from '@/components/alignment-forum/AFLibraryPage';
 import AlignmentForumHome from '@/components/alignment-forum/AlignmentForumHome';
@@ -1739,6 +1740,14 @@ addRoute(
     path: '/admin/random-user',
     component: RandomUserPage,
     title: "Random User",
+  },
+  {
+    name: 'adminMultiMessage',
+    path: '/admin/multiMessage',
+    component: AdminMultiMessage,
+    title: "Multi-User Messaging",
+    isAdmin: true,
+    background: "white",
   },
   {
     name: 'onboarding',

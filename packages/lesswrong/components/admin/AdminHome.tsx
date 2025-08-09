@@ -65,6 +65,7 @@ const AdminHome = ({ classes }: {
         <li><Link className={classes.link} to="/moderatorComments">Moderator Comments</Link></li>
         <li><Link className={classes.link} to="/moderation">Moderation Log</Link></li>
         <li><Link className={classes.link} to={`/${taggingNamePluralSetting.get()}/dashboard`}>{taggingNamePluralCapitalSetting.get()} Dashboard</Link></li>
+        <li><Link className={classes.link} to="/admin/multiMessage">Send Multi-User Message</Link></li>
       </ul>
 
       <h3>Site Admin</h3>

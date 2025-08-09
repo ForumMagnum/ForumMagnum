@@ -12896,6 +12896,40 @@ type AdminMetadataQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 type AdminMetadataQueryQuery = AdminMetadataQueryQuery_Query;
 
+type AdminMultiMessageCreateConversationMutation_createConversation_ConversationOutput_data_Conversation = (
+  { __typename?: 'Conversation' }
+  & ConversationsMinimumInfo
+);
+
+type AdminMultiMessageCreateConversationMutation_createConversation_ConversationOutput = { __typename?: 'ConversationOutput', data: AdminMultiMessageCreateConversationMutation_createConversation_ConversationOutput_data_Conversation | null };
+
+type AdminMultiMessageCreateConversationMutation_Mutation = { __typename?: 'Mutation', createConversation: AdminMultiMessageCreateConversationMutation_createConversation_ConversationOutput | null };
+
+
+type AdminMultiMessageCreateConversationMutationVariables = Exact<{
+  data: CreateConversationDataInput;
+}>;
+
+
+type AdminMultiMessageCreateConversationMutation = AdminMultiMessageCreateConversationMutation_Mutation;
+
+type AdminMultiMessageCreateMessageMutation_createMessage_MessageOutput_data_Message = (
+  { __typename?: 'Message' }
+  & messageListFragment
+);
+
+type AdminMultiMessageCreateMessageMutation_createMessage_MessageOutput = { __typename?: 'MessageOutput', data: AdminMultiMessageCreateMessageMutation_createMessage_MessageOutput_data_Message | null };
+
+type AdminMultiMessageCreateMessageMutation_Mutation = { __typename?: 'Mutation', createMessage: AdminMultiMessageCreateMessageMutation_createMessage_MessageOutput | null };
+
+
+type AdminMultiMessageCreateMessageMutationVariables = Exact<{
+  data: CreateMessageDataInput;
+}>;
+
+
+type AdminMultiMessageCreateMessageMutation = AdminMultiMessageCreateMessageMutation_Mutation;
+
 type SearchSynonymsQuery_Query = { __typename?: 'Query', SearchSynonyms: Array<string> };
 
 
