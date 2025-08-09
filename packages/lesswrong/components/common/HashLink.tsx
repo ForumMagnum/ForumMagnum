@@ -3,9 +3,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 // eslint-disable-next-line no-restricted-imports
-import Link from 'next/link';
-// eslint-disable-next-line no-restricted-imports
-import type { LinkProps } from 'react-router-dom';
+import Link, { type LinkProps } from 'next/link';
 import { useNavigate } from '@/lib/routeUtil';
 import { isClient } from '@/lib/executionEnvironment';
 import bowser from 'bowser';
@@ -26,6 +24,7 @@ export type HashLinkProps = {
   scroll?: ScrollFunction,
   smooth?: boolean
   children?: React.ReactNode,
+  prefetch?: LinkProps['prefetch']
 };
 
 let hashFragment = '';
@@ -96,7 +95,7 @@ export function HashLink(props: HashLinkProps) {
   }
   const { anchorRef, scroll, smooth, children, doOnDown, to, ...filteredProps } = props;
   if (doOnDown && !isIOS && !filteredProps.target) {
-    return <a
+    return <Link
       {...filteredProps}
       ref={anchorRef}
       href={to}
@@ -117,7 +116,7 @@ export function HashLink(props: HashLinkProps) {
       }}
     >
       {props.children}
-    </a>
+    </Link>
   } else {
     return <Link href={to} ref={anchorRef} {...filteredProps} onClick={handleClick}>
       {props.children}
