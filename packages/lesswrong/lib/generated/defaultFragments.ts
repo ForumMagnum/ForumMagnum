@@ -980,6 +980,7 @@ export const PostsDefaultFragment = `
     frontpageDate
     autoFrontpage
     collectionTitle
+    coauthorUserIds
     hasCoauthorPermission
     socialPreviewImageId
     socialPreviewImageAutoUrl

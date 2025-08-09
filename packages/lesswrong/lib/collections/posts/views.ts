@@ -399,7 +399,7 @@ function userPosts(terms: PostsViewTerms) {
       hiddenRelatedQuestion: viewFieldAllowAny,
       shortform: viewFieldAllowAny,
       groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
-      $or: [{userId: terms.userId}, {"coauthorStatuses.userId": terms.userId}],
+      $or: [{userId: terms.userId}, {coauthorUserIds: terms.userId}],
       rejected: null
     },
     options: {
@@ -625,7 +625,7 @@ function drafts(terms: PostsViewTerms) {
       $or: [
         {userId: terms.userId},
         {shareWithUsers: terms.userId},
-        {"coauthorStatuses.userId": terms.userId},
+        {coauthorUserIds: terms.userId},
       ],
       draft: true,
       hideAuthor: false,
@@ -1082,7 +1082,7 @@ function hasEverDialogued(terms: PostsViewTerms) {
     selector: {
       $or: [
         {userId: terms.userId},
-        {"coauthorStatuses.userId": terms.userId}
+        {coauthorUserIds: terms.userId}
       ],
       collabEditorDialogue: true,
     },

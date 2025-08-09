@@ -145,7 +145,7 @@ async function getUserIsAuthor(userId: string, postId: string|null, context: Res
   const post = await context.loaders.Posts.load(postId);
   if (!post) return false
   const userIsNotPrimaryAuthor = post.userId !== userId
-  const userIsNotCoauthor = !post.coauthorStatuses || post.coauthorStatuses.every(coauthorStatus => coauthorStatus.userId !== userId)
+  const userIsNotCoauthor = post.coauthorUserIds.indexOf(userId) < 0;
   return !(userIsNotPrimaryAuthor && userIsNotCoauthor)
 }
 
@@ -162,15 +162,18 @@ async function getCommentsOnOthersPosts(comments: Array<DbComment>, userId: stri
     .map(comment => comment.postId)
     .filter(postId => !!postId) //exclude null post IDs (eg comments on tags)
 
-  const postsNotAuthoredByCommenter = postIds.length>0
-    ? await Posts.find(
-        {_id: {$in: postIds}, userId: {$ne: userId}},
-        {projection: {_id:1, coauthorStatuses:1}}
-      ).fetch()
-    : [];
+  const postsNotAuthoredByCommenter: Pick<DbPost, "_id" | "coauthorUserIds">[] =
+    postIds.length > 0
+      ? await Posts.find(
+          {_id: {$in: postIds}, userId: {$ne: userId}},
+          {projection: {_id: 1, coauthorUserIds: 1}}
+        ).fetch()
+      : [];
 
   // right now, filtering out coauthors doesn't work (due to a bug in our query builder), so we're doing that manually
-  const postsNotCoauthoredByCommenter = postsNotAuthoredByCommenter.filter(post => !post.coauthorStatuses || post.coauthorStatuses.every(coauthorStatus => coauthorStatus.userId !== userId))
+  const postsNotCoauthoredByCommenter = postsNotAuthoredByCommenter.filter(
+    (post) => post.coauthorUserIds.indexOf(userId) < 0,
+  );
   const postsNotAuthoredByCommenterIds = postsNotCoauthoredByCommenter.map(post => post._id)
   const commentsOnNonauthorPosts = comments.filter(comment => comment.postId && postsNotAuthoredByCommenterIds.includes(comment.postId))
   return commentsOnNonauthorPosts

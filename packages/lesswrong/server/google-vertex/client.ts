@@ -5,7 +5,7 @@ import { loadByIds } from "../../lib/loaders";
 import { accessFilterMultiple } from "../../lib/utils/schemaUtils";
 import { getInstanceSettingsFilePath } from "../commandLine";
 import { vertexDocumentServiceParentPathSetting, vertexRecommendationServingConfigPathSetting, vertexUserEventServiceParentPathSetting } from "../databaseSettings";
-import { getConfirmedCoauthorIds, postGetPageUrl } from "../../lib/collections/posts/helpers";
+import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import path from "path";
 import chunk from "lodash/chunk";
 import type { ClientSettingDependencies, ClientSettings, CreateGoogleMediaDocumentMetadataArgs, GoogleMediaDocumentMetadata, PostEvent, FrontpageViewEvent, ReadStatusWithPostId, SupportedPostEventTypes } from "./types";
@@ -234,7 +234,7 @@ const googleVertexApi = {
       tags = filterNonnull(await loadByIds(context, 'Tags', tagIds));  
     }
 
-    authorIds ??= [post.userId, ...getConfirmedCoauthorIds(post)];
+    authorIds ??= [post.userId, ...post.coauthorUserIds];
 
     const postWithHydratedMetadata = { post, tags, authorIds };
     const googleMediaDocument = helpers.createMediaDocument(postWithHydratedMetadata, vertexDocumentServiceParentPath);

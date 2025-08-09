@@ -1691,6 +1691,7 @@ CREATE TABLE "Posts" (
   "autoFrontpage" TEXT,
   "collectionTitle" TEXT,
   "coauthorStatuses" JSONB[],
+  "coauthorUserIds" TEXT[] NOT NULL DEFAULT '{}',
   "hasCoauthorPermission" BOOL NOT NULL DEFAULT TRUE,
   "socialPreviewImageId" TEXT,
   "socialPreviewImageAutoUrl" TEXT,
@@ -1794,6 +1795,28 @@ CREATE INDEX IF NOT EXISTS "idx_posts_coauthorStatuses_postedAt" ON "Posts" USIN
   "authorIsUnreviewed",
   "groupId",
   "coauthorStatuses",
+  "userId",
+  "postedAt",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "frontpageDate",
+  "curatedDate",
+  "baseScore"
+);
+
+-- Index "idx_posts_coauthorUserIds_postedAt"
+CREATE INDEX IF NOT EXISTS "idx_posts_coauthorUserIds_postedAt" ON "Posts" USING gin (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "coauthorUserIds",
   "userId",
   "postedAt",
   "_id",
