@@ -1,10 +1,10 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { spamRiskScoreThreshold } from '@/lib/collections/users/helpers';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("RecaptchaWarning", (theme: ThemeType) => ({
   warningText: {
     margin: 10,
     padding: 20,
@@ -14,16 +14,20 @@ const styles = (theme: ThemeType) => ({
   link: {
     color: theme.palette.primary.light
   }
-})
+}))
 
-const RecaptchaWarning = ({ currentUser, classes, children }: {
+const RecaptchaWarning = ({ currentUser, children }: {
   currentUser: UsersCurrent | null,
-  classes: any,
   children: React.ReactNode
 }) => {
   if (!currentUser?.spamRiskScore || (currentUser.spamRiskScore > spamRiskScoreThreshold)) {
     return <> { children } </>
   }
+  return <RecaptchaWarningInner/>
+}
+
+const RecaptchaWarningInner = () => {
+  const classes = useStyles(styles);
   switch (forumTypeSetting.get()) {
     case 'AlignmentForum':
     case 'LessWrong':
@@ -41,6 +45,6 @@ const RecaptchaWarning = ({ currentUser, classes, children }: {
 }
 
 
-export default registerComponent('RecaptchaWarning', RecaptchaWarning, { styles }); 
+export default RecaptchaWarning;
 
 
