@@ -18,7 +18,6 @@ import { captureException } from '@sentry/core';
 import { ServerRequestStatusContextType, parseRoute, parsePath } from '@/lib/vulcan-core/appContext';
 import { getCookieFromReq, getPathFromReq, getRequestMetadata, trySetResponseStatus } from '@/server/utils/httpUtil';
 import { getThemeOptions, AbstractThemeOptions } from '@/themes/themeNames';
-import { renderJssSheetImports, renderJssSheetPreloads } from '@/server/utils/renderJssSheetImports';
 import type { Request, Response } from 'express';
 import { DEFAULT_TIMEZONE, SSRMetadata } from '@/lib/utils/timeUtil';
 import { asyncLocalStorage } from '@/server/perfMetrics';
