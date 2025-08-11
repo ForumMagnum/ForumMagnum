@@ -30,6 +30,7 @@ function importAllFilesWithStyles() {
     return !!(defineStylesRegex.exec(fileContents) || registerComponentRegex.exec(fileContents));
   });
   for (const file of filesWithStyles) {
+    //eslint-disable-next-line import/no-dynamic-require
     require('../../../' + file);
   }
 }
