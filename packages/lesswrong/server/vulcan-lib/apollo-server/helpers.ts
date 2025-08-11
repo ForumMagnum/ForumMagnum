@@ -179,7 +179,7 @@ export function getFieldGqlResolvers<N extends CollectionNameString, S extends S
         if (graphql.sqlResolver) {
           const typedName = fieldName as keyof ObjectsByCollectionName[N];
           let existingValue = document[typedName];
-          if (existingValue !== undefined) {
+          if (existingValue !== undefined && existingValue !== null) {
             const {sqlPostProcess} = graphql;
             if (sqlPostProcess) {
               existingValue = sqlPostProcess(existingValue, document, context);
