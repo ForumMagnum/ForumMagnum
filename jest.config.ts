@@ -194,7 +194,6 @@ export default {
 
   moduleNameMapper: {
     // Should match "paths" in tsconfig.json
-    "@/allComponents": "<rootDir>/packages/lesswrong/lib/generated/allComponents",
     "@/client/(.*)": "<rootDir>/packages/lesswrong/stubs/client/$1",
     "@/viteClient/(.*)": "<rootDir>/packages/lesswrong/stubs/viteClient/$1",
     "@/(.*)": "<rootDir>/packages/lesswrong/$1",
