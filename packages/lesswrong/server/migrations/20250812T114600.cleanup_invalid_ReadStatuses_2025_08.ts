@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // Set to true to test the counts without actually deleting anything
 const DRY_RUN = false;
 
