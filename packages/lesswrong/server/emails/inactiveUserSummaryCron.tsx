@@ -50,7 +50,6 @@ const sendInactiveUserSummaryEmail = async (
       userId: user._id,
       startDate: fetchActivitySince,
       endDate: now,
-      showNegative: true,
     }),
     votesRepo.getEAReactsReceived(user._id, fetchActivitySince, now),
     votesRepo.getEAAgreements(user._id, fetchActivitySince, now),

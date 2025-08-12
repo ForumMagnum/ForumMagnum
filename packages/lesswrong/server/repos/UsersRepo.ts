@@ -562,11 +562,26 @@ class UsersRepo extends AbstractRepo<"Users"> {
       ) AS rs ON u._id = rs."userId"
       WHERE
         (
-          u."inactiveSummaryEmailSentAt" IS NULL
-          OR u."inactiveSummaryEmailSentAt" < CURRENT_TIMESTAMP - INTERVAL '50 days'
+          (
+            -- Exactly 21 days since last active and no email in that time
+            rs."max_last_updated"::DATE = (CURRENT_DATE - INTERVAL '21 days')::DATE
+            AND (
+              u."inactiveSummaryEmailSentAt" IS NULL
+              OR u."inactiveSummaryEmailSentAt" < rs."max_last_updated"
+            )
+          ) OR (
+            -- 50+ days since last email (or never sent) and no site visits since
+            (
+              u."inactiveSummaryEmailSentAt" IS NULL
+              OR u."inactiveSummaryEmailSentAt" <= CURRENT_DATE - INTERVAL '50 days'
+            )
+            AND (
+              rs."max_last_updated" IS NULL
+              OR rs."max_last_updated" < u."inactiveSummaryEmailSentAt"
+            )
+          )
         )
-        AND rs."max_last_updated" IS NOT NULL
-        AND rs."max_last_updated" < CURRENT_TIMESTAMP - INTERVAL '21 days'
+        AND u."sendInactiveSummaryEmail"
         AND u."unsubscribeFromAll" IS NOT TRUE
         AND u."deleted" IS NOT TRUE
         AND u."deleteContent" IS NOT TRUE
