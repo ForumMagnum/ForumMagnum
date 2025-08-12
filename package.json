@@ -318,6 +318,7 @@
     "@graphql-codegen/cli": "5.0.5",
     "@graphql-codegen/client-preset": "4.8.0",
     "@graphql-codegen/introspection": "4.0.3",
+    "@next/eslint-plugin-next": "^15.4.6",
     "@playwright/test": "^1.43.1",
     "@stylistic/eslint-plugin-ts": "^4.2.0",
     "@testing-library/dom": "^10.4.0",

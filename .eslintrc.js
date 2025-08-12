@@ -39,7 +39,8 @@ module.exports = {
     // have to delete .eslintcache to make it stop reporting the error.
     // Commented out because there are immport cycles that haven't been resolved
     // yet.
-    "plugin:import/typescript"
+    "plugin:import/typescript",
+    "plugin:@next/next/recommended"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -310,6 +311,9 @@ module.exports = {
     }],
 
     "no-barrel-files/no-barrel-files": 1,
+
+    // Disabling this until we figure out whether we want to stick with Cloudinary
+    "@next/next/no-img-element": 0,
   },
   "overrides": [
     {
