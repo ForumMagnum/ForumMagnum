@@ -7,10 +7,15 @@ import { localLwProdDb } from "./localLwProdDb";
 import { prodAf } from "./prodAf";
 import { prodLw } from "./prodLw";
 import { z } from "zod";
+import { isAnyTest } from "@/lib/executionEnvironment";
+import { loadSettingsFile } from "../commandLine";
 
 const validEnvNames = z.enum(["baserates", "localAfDevDb", "localAfProdDb", "localLwDevDb", "localLwProdDb", "prodAf", "prodLw"]);
 
 function getPublicSettings() {
+  if (isAnyTest) {
+    return loadSettingsFile('./settings-test.json').public;
+  }
   const envName = process.env.ENV_NAME;
   if (!envName) {
     // eslint-disable-next-line no-console

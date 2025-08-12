@@ -111,7 +111,7 @@ export const loadInstanceSettings = (args?: CommandLineArguments) => {
   return instanceSettings;
 }
 
-function loadSettingsFile(filename: string) {
+export function loadSettingsFile(filename: string) {
   if (isAnyTest) {
     filename = "./settings-test.json";
   }

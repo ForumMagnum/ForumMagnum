@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig-server.json",
   "compilerOptions": {
+    "module": "commonjs",
     "target": "esnext"
   },
   "ts-node": {

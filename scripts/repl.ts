@@ -115,7 +115,7 @@ async function replMain() {
   await initRepl(commandLineOptions);
   
   const repl = tsNode.createRepl();
-  const service = tsNode.create({...repl.evalAwarePartialHost, swc: true});
+  const service = tsNode.create({...repl.evalAwarePartialHost, swc: true, compilerOptions: { module: 'commonjs' }});
   repl.setService(service);
   repl.start();
   (async () => {
