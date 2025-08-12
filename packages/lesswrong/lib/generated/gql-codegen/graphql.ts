@@ -12837,13 +12837,6 @@ export type SequenceMetadataQueryVariables = Exact<{
 
 export type SequenceMetadataQuery = { __typename?: 'Query', sequence: { __typename?: 'SingleSequenceOutput', result: { __typename?: 'Sequence', _id: string, title: string } | null } | null };
 
-export type UserMetadataQueryVariables = Exact<{
-  slug?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type UserMetadataQuery = { __typename?: 'Query', users: { __typename?: 'MultiUserOutput', results: Array<{ __typename?: 'User', _id: string, displayName: string, slug: string }> } | null };
-
 export type updateUserLayoutMutationVariables = Exact<{
   selector: SelectorInput;
   data: UpdateUserDataInput;
@@ -21647,6 +21640,13 @@ export type TagMetadataQueryVariables = Exact<{
 
 export type TagMetadataQuery = { __typename?: 'Query', tags: { __typename?: 'MultiTagOutput', results: Array<{ __typename?: 'Tag', _id: string, name: string, noindex: boolean, description: { __typename?: 'Revision', _id: string, plaintextDescription: string } | null }> } | null };
 
+export type UserMetadataQueryVariables = Exact<{
+  slug?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type UserMetadataQuery = { __typename?: 'Query', users: { __typename?: 'MultiUserOutput', results: Array<{ __typename?: 'User', _id: string, displayName: string, username: string | null, slug: string, profileImageId: string | null, postCount: number, commentCount: number, karma: number, noindex: boolean }> } | null };
+
 export type singleDraftPostForLLMQueryQueryVariables = Exact<{
   input?: InputMaybe<SinglePostInput>;
   version?: InputMaybe<Scalars['String']['input']>;
@@ -22515,7 +22515,7 @@ export const UserExpandFrontpageSectionDocument = {"kind":"Document","definition
 export const UserJobAdsDefaultFragmentDoc = {"kind":"Document","definitions":[UserJobAdsDefaultFragmentFragmentDef]} as unknown as DocumentNode<UserJobAdsDefaultFragment, unknown>;
 export const UserJobAdsMinimumInfoDoc = {"kind":"Document","definitions":[UserJobAdsMinimumInfoFragmentDef]} as unknown as DocumentNode<UserJobAdsMinimumInfo, unknown>;
 export const UserKarmaChangesDoc = {"kind":"Document","definitions":[UserKarmaChangesFragmentDef]} as unknown as DocumentNode<UserKarmaChanges, unknown>;
-export const UserMetadataDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"UserMetadata"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"slug"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"users"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"usersProfile"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"slug"},"value":{"kind":"Variable","name":{"kind":"Name","value":"slug"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"results"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}}]}}]}}]}}]} as unknown as DocumentNode<UserMetadataQuery, UserMetadataQueryVariables>;
+export const UserMetadataDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"UserMetadata"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"slug"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"users"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"usersProfile"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"slug"},"value":{"kind":"Variable","name":{"kind":"Name","value":"slug"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"results"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"profileImageId"}},{"kind":"Field","name":{"kind":"Name","value":"postCount"}},{"kind":"Field","name":{"kind":"Name","value":"commentCount"}},{"kind":"Field","name":{"kind":"Name","value":"karma"}},{"kind":"Field","name":{"kind":"Name","value":"noindex"}}]}}]}}]}}]} as unknown as DocumentNode<UserMetadataQuery, UserMetadataQueryVariables>;
 export const UserMostValuablePostInfoDoc = {"kind":"Document","definitions":[UserMostValuablePostInfoFragmentDef]} as unknown as DocumentNode<UserMostValuablePostInfo, unknown>;
 export const UserMostValuablePostsDefaultFragmentDoc = {"kind":"Document","definitions":[UserMostValuablePostsDefaultFragmentFragmentDef]} as unknown as DocumentNode<UserMostValuablePostsDefaultFragment, unknown>;
 export const UserOnboardingAuthorDoc = {"kind":"Document","definitions":[UserOnboardingAuthorFragmentDef]} as unknown as DocumentNode<UserOnboardingAuthor, unknown>;

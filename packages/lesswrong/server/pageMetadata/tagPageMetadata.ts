@@ -1,7 +1,7 @@
 import { getClient } from "@/lib/apollo/nextApolloClient";
 import { gql } from "@/lib/generated/gql-codegen";
 import type { Metadata } from "next";
-import { defaultMetadata, getMetadataDescriptionFields, getPageTitleFields } from "./sharedMetadata";
+import { getDefaultMetadata, getMetadataDescriptionFields, getPageTitleFields, noIndexMetadata } from "./sharedMetadata";
 import merge from "lodash/merge";
 import { captureException } from "@sentry/nextjs";
 
@@ -28,7 +28,7 @@ interface TagPageMetadataOptions {
 
 export function getTagPageMetadataFunction<Params>(paramsToTagSlugConverter: (params: Params) => string, options?: TagPageMetadataOptions) {
   return async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
-    const paramValues = await params;
+    const [paramValues, defaultMetadata] = await Promise.all([params, getDefaultMetadata()]);
 
     const slug = paramsToTagSlugConverter(paramValues);
 
@@ -53,7 +53,7 @@ export function getTagPageMetadataFunction<Params>(paramsToTagSlugConverter: (pa
       const noIndex = tag.noindex || options?.noIndex;
   
       const descriptionFields = getMetadataDescriptionFields(description);
-      const noIndexFields = noIndex ? { robots: { index: false } } : {};
+      const noIndexFields = noIndex ? noIndexMetadata : {};
   
       const tagMetadata = {
         ...titleFields,

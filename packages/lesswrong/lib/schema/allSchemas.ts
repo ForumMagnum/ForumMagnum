@@ -2,7 +2,7 @@
 // Keep that in mind if changing the structure.
 
 // Helper imports
-import { isAnyTest, isCodegen } from '../executionEnvironment';
+import { isAnyTest } from '../executionEnvironment';
 
 // Collection imports
 import { default as AdvisorRequests } from '../collections/advisorRequests/newSchema';
@@ -97,7 +97,7 @@ import { default as Users } from '../collections/users/newSchema';
 import { default as Votes } from '../collections/votes/newSchema';
 
 let testSchemas: Record<never, never>;
-if (isAnyTest || isCodegen) {
+if (isAnyTest || bundleIsCodegen) {
   // TODO: does this need fixing to avoid esbuild headaches?
   // Seems like no, but it might be a footgun.
   ({ testSchemas } = require('../../server/sql/tests/testSchemas'));

@@ -3,7 +3,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { isEAForum, cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import type { Metadata } from "next";
 import merge from "lodash/merge";
-import { defaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields } from "./sharedMetadata";
+import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, noIndexMetadata } from "./sharedMetadata";
 import { postCoauthorIsPending, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
 import { captureException } from "@sentry/nextjs";
@@ -110,7 +110,7 @@ interface PostPageMetadataOptions {
 
 export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (params: Params) => string, options?: PostPageMetadataOptions) {
   return async function generateMetadata({ params, searchParams }: { params: Promise<Params>, searchParams: Promise<{ commentId?: string }> }): Promise<Metadata> {
-    const [paramValues, searchParamsValues] = await Promise.all([params, searchParams]);
+    const [paramValues, searchParamsValues, defaultMetadata] = await Promise.all([params, searchParams, getDefaultMetadata()]);
 
     const postId = paramsToPostIdConverter(paramValues);
     const commentId = searchParamsValues.commentId;
@@ -160,7 +160,7 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
         other: {
           ...getCitationTags(post),
         },
-        ...(noIndex ? { robots: { index: false } } : {}),
+        ...(noIndex ? noIndexMetadata : {}),
       } satisfies Metadata;
   
       return merge({}, defaultMetadata, postMetadata, titleFields, descriptionFields, imagesFields);

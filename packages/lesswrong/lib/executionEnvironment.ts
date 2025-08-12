@@ -37,7 +37,7 @@ export const isServer = !isClient;
 export const isProduction = process.env.NODE_ENV === 'production';
 export const isDevelopment = !isProduction;
 
-export const nodeEnv = process.env.NODE_ENV as "production"|"development"|"migrations"|"test"|"e2e"|"integration";
+export const nodeEnv = process.env.NODE_ENV as "production"|"development"|"codegen"|"migrations"|"test"|"e2e"|"integration";
 
 export const isMigrations = nodeEnv === 'migrations';
 export const isAnyTest = nodeEnv === 'test';
@@ -46,7 +46,7 @@ export const isIntegrationTest = nodeEnv === 'integration';
 
 export const isE2E = nodeEnv === 'e2e';
 export const isPackageTest = nodeEnv === 'test';
-export const isCodegen = bundleIsCodegen;
+export const isCodegen = nodeEnv === 'codegen';
 
 
 // @ts-ignore next-line
@@ -61,6 +61,11 @@ globalThis.bundleIsProduction = isProduction;
 globalThis.bundleIsMigrations = isMigrations;
 // @ts-ignore next-line
 globalThis.bundleIsIntegrationTest = isIntegrationTest;
+  // @ts-ignore next-line
+if (globalThis.bundleIsCodegen === undefined) {
+  // @ts-ignore next-line
+  globalThis.bundleIsCodegen = isCodegen;
+}
 
 
 // @ts-ignore next-line

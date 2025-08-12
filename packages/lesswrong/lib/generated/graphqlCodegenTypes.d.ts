@@ -12848,20 +12848,6 @@ type SequenceMetadataQueryVariables = Exact<{
 
 type SequenceMetadataQuery = SequenceMetadataQuery_Query;
 
-type UserMetadataQuery_users_MultiUserOutput_results_User = { __typename?: 'User', _id: string, displayName: string, slug: string };
-
-type UserMetadataQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<UserMetadataQuery_users_MultiUserOutput_results_User> };
-
-type UserMetadataQuery_Query = { __typename?: 'Query', users: UserMetadataQuery_users_MultiUserOutput | null };
-
-
-type UserMetadataQueryVariables = Exact<{
-  slug: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type UserMetadataQuery = UserMetadataQuery_Query;
-
 type updateUserLayoutMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
   & UsersCurrent
@@ -26834,6 +26820,20 @@ type TagMetadataQueryVariables = Exact<{
 
 
 type TagMetadataQuery = TagMetadataQuery_Query;
+
+type UserMetadataQuery_users_MultiUserOutput_results_User = { __typename?: 'User', _id: string, displayName: string, username: string | null, slug: string, profileImageId: string | null, postCount: number, commentCount: number, karma: number, noindex: boolean };
+
+type UserMetadataQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<UserMetadataQuery_users_MultiUserOutput_results_User> };
+
+type UserMetadataQuery_Query = { __typename?: 'Query', users: UserMetadataQuery_users_MultiUserOutput | null };
+
+
+type UserMetadataQueryVariables = Exact<{
+  slug: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type UserMetadataQuery = UserMetadataQuery_Query;
 
 type singleDraftPostForLLMQueryQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }

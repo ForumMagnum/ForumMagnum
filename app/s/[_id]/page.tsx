@@ -5,7 +5,7 @@ import { RouteMetadataSetter } from "@/components/RouteMetadataContext";
 import type { Metadata } from "next";
 import { gql } from "@/lib/generated/gql-codegen";
 import { getClient } from "@/lib/apollo/nextApolloClient";
-import { defaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
+import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import merge from "lodash/merge";
 import { combineUrls, getSiteUrl } from "@/lib/vulcan-lib/utils";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: { params: Promise<{ _id: stri
   const ogUrl = combineUrls(getSiteUrl(), `/s/${_id}`);
   const canonicalUrl = sequenceGetPageUrl({ _id }, true);
 
-  return merge({}, defaultMetadata, {
+  return merge({}, await getDefaultMetadata(), {
     ...titleFields,
     openGraph: { url: ogUrl },
     alternates: { canonical: canonicalUrl },

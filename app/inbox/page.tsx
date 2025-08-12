@@ -1,11 +1,11 @@
 import React from "react";
 import InboxWrapper from '@/components/messaging/InboxWrapper';
-import { defaultMetadata } from "@/server/pageMetadata/sharedMetadata";
+import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 
-export function generateMetadata(): Metadata {
-  return merge({}, defaultMetadata, {
+export async function generateMetadata(): Promise<Metadata> {
+  return merge({}, await getDefaultMetadata(), {
     title: 'Inbox',
   });
 }
