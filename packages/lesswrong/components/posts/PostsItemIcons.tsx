@@ -15,8 +15,9 @@ import { IsRecommendationContext } from '../dropdowns/posts/PostActions';
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import OmegaIcon from "../icons/OmegaIcon";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsItemIcons", (theme: ThemeType) => ({
   iconSet: {
     marginLeft: isFriendlyUI ? 6 : theme.spacing.unit,
     marginRight: isFriendlyUI ? 2 : theme.spacing.unit,
@@ -80,12 +81,12 @@ const styles = (theme: ThemeType) => ({
       opacity: 0.5
     }
   }
-});
+}));
 
-const CuratedIconInner = ({hasColor, classes}: {
+export const CuratedIcon = ({hasColor}: {
   hasColor?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   return <span className={classes.postIcon}>
       <LWTooltip title={<div>Curated <div><em>(click to view all curated posts)</em></div></div>} placement="bottom-start">
         <Link to={curatedUrl}>
@@ -98,14 +99,12 @@ const CuratedIconInner = ({hasColor, classes}: {
     </span>
 }
 
-export const CuratedIcon = registerComponent('CuratedIcon', CuratedIconInner, {styles});
 
-
-const RecommendedPostIcon = ({post, hover, classes}: {
+const RecommendedPostIcon = ({post, hover}: {
   post: PostsBase,
   hover?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking() 
   const { setIsHiddenMutation } = useSetIsHiddenMutation();
   const currentUser = useCurrentUser();
@@ -133,13 +132,13 @@ const RecommendedPostIcon = ({post, hover, classes}: {
 }
 
 
-const PostsItemIconsInner = ({post, hover, classes, hideCuratedIcon, hidePersonalIcon}: {
+export const PostsItemIcons = ({post, hover, hideCuratedIcon, hidePersonalIcon}: {
   post: PostsBase,
   hover?: boolean,
   hideCuratedIcon?: boolean,
   hidePersonalIcon?: boolean
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const showRecommendationIcon = useContext(IsRecommendationContext)
 
   return <span className={classes.iconSet}>
@@ -182,11 +181,6 @@ const PostsItemIconsInner = ({post, hover, classes, hideCuratedIcon, hidePersona
       </LWTooltip>
     </span>}
 
-    {showRecommendationIcon && <RecommendedPostIcon post={post} hover={hover} classes={classes}/>}
-
+    {showRecommendationIcon && <RecommendedPostIcon post={post} hover={hover}/>}
   </span>
 }
-
-export const PostsItemIcons = registerComponent('PostsItemIcons', PostsItemIconsInner, {styles});
-
-

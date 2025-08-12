@@ -1,10 +1,10 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import SequencesGridItem from "./SequencesGridItem";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 // Shared with SequencesGridWrapper
-export const styles = (theme: ThemeType) => ({
+export const styles = defineStyles("SequencesGrid", (theme: ThemeType) => ({
   grid: {
     marginBottom: 10,
   },
@@ -29,15 +29,15 @@ export const styles = (theme: ThemeType) => ({
     color: theme.palette.text.dim4,
     ...theme.typography.italic,
   }
-});
+}));
 
-const SequencesGrid = ({sequences, showAuthor, classes, bookItemStyle }: {
+const SequencesGrid = ({sequences, showAuthor, bookItemStyle }: {
   sequences: Array<SequencesPageFragment>,
   showAuthor?: boolean,
-  classes: ClassesType<typeof styles>,
   bookItemStyle?: boolean
-}) =>
-  <div className={classes.grid}>
+}) => {
+  const classes = useStyles(styles);
+  return <div className={classes.grid}>
     <div className={classes.gridContent}>
       {sequences.map(sequence => {
         return (
@@ -51,8 +51,9 @@ const SequencesGrid = ({sequences, showAuthor, classes, bookItemStyle }: {
       })}
     </div>
   </div>
+}
 
-export default registerComponent('SequencesGrid', SequencesGrid, {styles});
+export default SequencesGrid;
 
 
 
