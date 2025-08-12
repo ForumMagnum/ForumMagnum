@@ -1351,7 +1351,11 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       -- PostsRepo.getSitemapPosts
       SELECT "_id", "slug", "isEvent", "groupId", "modifiedAt"
       FROM "Posts"
-      WHERE ${getViewablePostsSelector()}
+      WHERE
+        NOT "noIndex"
+        AND NOT "rejected"
+        AND "baseScore" > 0
+        AND ${getViewablePostsSelector()}
       ORDER BY "postedAt" DESC
     `);
   }
