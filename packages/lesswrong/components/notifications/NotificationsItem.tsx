@@ -5,7 +5,7 @@ import React, { FC, ReactNode, useCallback, useState } from 'react';
 import { Card } from "@/components/widgets/Paper";
 import { getNotificationTypeByName } from '../../lib/notificationTypes';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { parseRouteWithErrors } from '../linkPreview/HoverPreviewLink';
+import { parseRouteWithErrors } from '../linkPreview/parseRouteWithErrors';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useNavigate } from '../../lib/routeUtil';
 import { getUrlClass } from '@/server/utils/getUrlClass';
@@ -148,7 +148,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, classes}: {
       )
     }
 
-    const parsedPath = parseRouteWithErrors(notificationLink);
+    const parsedPath = parseRouteWithErrors(notificationLink, ['/inbox/:_id']);
     switch (notification.documentType) {
       case "tagRel":
         return (

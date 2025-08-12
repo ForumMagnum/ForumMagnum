@@ -1,52 +1,17 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
-import {parsePath, parseRoute2} from '../../lib/vulcan-core/appContext'
 import { classifyHost, useLocation } from '../../lib/routeUtil';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import withErrorBoundary from '../common/withErrorBoundary';
 import { locationHashIsFootnote, locationHashIsFootnoteBackreference } from '../contents/CollapsedFootnotes';
 import { getUrlClass } from '@/server/utils/getUrlClass';
 import type { ContentStyleType } from '../common/ContentStylesValues';
-import { DefaultPreview, MetaculusPreview, ManifoldPreview, FatebookPreview, NeuronpediaPreview, MetaforecastPreview, OWIDPreview, ArbitalPreview, EstimakerPreview, ViewpointsPreview, SequencePreview, PostLinkPreviewSequencePost, PostLinkPreviewSlug, PostLinkPreview, PostCommentLinkPreviewGreaterWrong } from '@/components/linkPreview/PostLinkPreview';
+import { DefaultPreview, MetaculusPreview, ManifoldPreview, FatebookPreview, NeuronpediaPreview, MetaforecastPreview, OWIDPreview, ArbitalPreview, EstimakerPreview, ViewpointsPreview } from '@/components/linkPreview/PostLinkPreview';
 import FootnotePreview from "./FootnotePreview";
 import { NoSideItems } from '../contents/SideItems';
 
-import { TagHoverPreview } from '@/components/tagging/TagHoverPreview';
-
-export const routePreviewComponentMapping = {
-  '/sequences/:_id': SequencePreview,
-  '/s/:_id': SequencePreview,
-  '/s/:sequenceId/p/:postId': PostLinkPreviewSequencePost,
-  '/highlights/:slug': PostLinkPreviewSlug,
-  '/w/:slug': TagHoverPreview,
-  '/w/:slug/discussion': TagHoverPreview,
-  '/hpmor/:slug': PostLinkPreviewSlug,
-  '/codex/:slug': PostLinkPreviewSlug,
-  '/rationality/:slug': PostLinkPreviewSlug,
-  '/events/:_id/:slug?': PostLinkPreview,
-  '/g/:groupId/p/:_id': PostLinkPreview,
-  '/posts/:_id/:slug?': PostLinkPreview,
-  '/posts/slug/:slug?': PostLinkPreviewSlug,
-  '/posts/:_id/:slug/comment/:commentId?': PostCommentLinkPreviewGreaterWrong,
-};
-
-export const parseRouteWithErrors = (onsiteUrl: string, contentSourceDescription?: string) => {
-  return parseRoute2({
-    location: parsePath(onsiteUrl),
-    onError: (pathname) => {
-      // Don't capture broken links in Sentry (too spammy, but maybe we'll
-      // put this back some day).
-      //if (isClient) {
-      //  if (contentSourceDescription)
-      //    Sentry.captureException(new Error(`Broken link from ${contentSourceDescription} to ${pathname}`));
-      //  else
-      //    Sentry.captureException(new Error(`Broken link from ${location.pathname} to ${pathname}`));
-      //}
-    },
-    routePatterns: Object.keys(routePreviewComponentMapping).reverse() as (keyof typeof routePreviewComponentMapping)[]
-  });
-}
+import { parseRouteWithErrors, routePreviewComponentMapping } from './parseRouteWithErrors';
 
 export const linkIsExcludedFromPreview = (url: string): boolean => {
   // Don't try to preview special JS links
@@ -56,20 +21,14 @@ export const linkIsExcludedFromPreview = (url: string): boolean => {
   // Don't try to preview links that go directly to images. The usual use case
   // for such links is an image where you click for a larger version.
   return !!(url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.gif'));
-
-
 }
 
 // A link, which will have a hover preview auto-selected and attached. Used from
 // ContentItemBody as a replacement for <a> tags in user-provided content.
 // Props
 //   href: The link destination, the href attribute on the original <a> tag.
-//   contentSourceDescription: (Optional) A human-readabe string describing
-//     where this content came from. Used in error logging only, not displayed
-//     to users.
-const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch, contentStyleType, className, children }: {
+const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, className, children }: {
   href: string,
-  contentSourceDescription?: string,
   id?: string,
   rel?: string,
   // Only Implemented for Tag Hover Previews
@@ -108,7 +67,7 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
     const hostType = classifyHost(linkTargetAbsolute.host)
     if (!linkIsExcludedFromPreview(onsiteUrl) && (hostType==="onsite" || hostType==="mirrorOfUs")) {
-      const parsedUrl = parseRouteWithErrors(onsiteUrl, contentSourceDescription)
+      const parsedUrl = parseRouteWithErrors(onsiteUrl)
       const destinationUrl = hostType==="onsite" ? parsedUrl.url : href;
 
       if (parsedUrl.routePattern) {
