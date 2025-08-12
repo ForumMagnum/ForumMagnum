@@ -1,8 +1,8 @@
-import React, { FC, ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import React, { FC, ReactNode, RefObject, createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useOnFocusTab } from '../hooks/useOnFocusTab';
-import { useCurrentUser } from '../common/withUser';
+import { useCurrentUser, useCurrentUserId } from '../common/withUser';
 import { useUpdateCurrentUser } from './useUpdateCurrentUser';
 import { type QueryRef, useBackgroundQuery, useReadQuery } from '@apollo/client/react';
 import { NotificationsListMultiQuery } from '../notifications/NotificationsListMultiQuery';
@@ -37,13 +37,13 @@ const UnreadNotificationCountsQuery = gql(`
   `)
 
 type UnreadNotificationsContext = {
-  unreadNotificationCountsQueryRef: QueryRef<ResultOf<typeof UnreadNotificationCountsQuery>> | null,
+  unreadNotificationCountsQueryRef: QueryRef<ResultOf<typeof UnreadNotificationCountsQuery>> | undefined,
   notificationsOpened: () => Promise<void>,
   refetchUnreadNotifications: () => Promise<void>,
 }
 
 const unreadNotificationsContext = createContext<UnreadNotificationsContext>({
-  unreadNotificationCountsQueryRef: null,
+  unreadNotificationCountsQueryRef: undefined,
   notificationsOpened: async () => {},
   refetchUnreadNotifications: async () => {},
 });
@@ -63,7 +63,7 @@ const unreadNotificationsContext = createContext<UnreadNotificationsContext>({
 export const UnreadNotificationsContextProvider: FC<{
   children: ReactNode,
 }> = ({children}) => {
-  const currentUser = useCurrentUser();
+  const currentUserId = useCurrentUserId();
   const updateCurrentUser = useUpdateCurrentUser();
   
   //function updateFavicon(unreadNotificationCounts: NotificationCountsResult) {
@@ -77,7 +77,7 @@ export const UnreadNotificationsContextProvider: FC<{
   //}
   
   const [unreadNotificationCountsQueryRef, {refetch: refetchCounts}] = useBackgroundQuery(UnreadNotificationCountsQuery, {
-    skip: !currentUser?._id,
+    skip: !currentUserId,
     //onCompleted: (data) => updateFavicon(withDateFields(data.unreadNotificationCounts, ['checkedAt'])),
   });
 
@@ -87,24 +87,24 @@ export const UnreadNotificationsContextProvider: FC<{
   // in the crucial "click the notifications icon after site load" interaction.
   const [_queryRef, {refetch: refetchNotifications}] = useBackgroundQuery(NotificationsListMultiQuery, {
     variables: {
-      selector: { userNotifications: { userId: currentUser?._id } },
+      selector: { userNotifications: { userId: currentUserId } },
       limit: 20,
       enableTotal: false,
     },
-    skip: !currentUser?._id,
+    skip: !currentUserId,
   });
   
   const refetchBoth = useCallback(async () => {
-    if (currentUser?._id) {
+    if (currentUserId) {
       void refetchNotifications();
 
       const newCounts = await refetchCounts();
       //updateFavicon(withDateFields(newCounts.data.unreadNotificationCounts, ['checkedAt']));
     }
-  }, [currentUser?._id, refetchCounts, refetchNotifications]);
+  }, [currentUserId, refetchCounts, refetchNotifications]);
 
   useOnNavigate(refetchBoth);
-  useOnFocusTab(refetchBoth);
+  // useOnFocusTab(refetchBoth);
   
   const notificationsOpened = useCallback(async () => {
     const now = new Date();
@@ -116,7 +116,7 @@ export const UnreadNotificationsContextProvider: FC<{
   }, [refetchBoth, updateCurrentUser]);
 
   const providedContext: UnreadNotificationsContext = useMemo(() => ({
-    unreadNotificationCountsQueryRef: unreadNotificationCountsQueryRef!,
+    unreadNotificationCountsQueryRef,
     notificationsOpened,
     refetchUnreadNotifications: refetchBoth,
   }), [ unreadNotificationCountsQueryRef, notificationsOpened, refetchBoth ]);
@@ -140,13 +140,22 @@ const NotificationsEffects = ({queryRef, refetchCounts, refetchBoth}: {
   refetchCounts: () => void
   refetchBoth: () => void
 }) => {
-  const currentUser = useCurrentUser();
+  const currentUserId = useCurrentUserId();
   const updateCurrentUser = useUpdateCurrentUser();
-  const unreadNotificationCounts = useReadQuery(queryRef);
+  const unreadNotificationCounts = useReadQuery(queryRef!);
   const checkedAt = unreadNotificationCounts.data.unreadNotificationCounts.checkedAt;
   const { userIsIdle } = useIdlenessDetection(30);
   const { pageIsVisible } = usePageVisibility();
+
+  const userIsIdleRef = useRef(userIsIdle);
+  const pageIsVisibleRef = useRef(pageIsVisible);
+
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    userIsIdleRef.current = userIsIdle;
+    pageIsVisibleRef.current = pageIsVisible;
+  }, [userIsIdle, pageIsVisible]);
 
   // Subscribe to localStorage change events. The localStorage key
   // "notificationsCheckedAt" contains a date; when the user checks
@@ -169,10 +178,10 @@ const NotificationsEffects = ({queryRef, refetchCounts, refetchBoth}: {
     return () => {
       window.removeEventListener("storage", storageEventListener);
     };
-  }, [refetchCounts, checkedAt, refetchBoth, updateCurrentUser]);
+  }, [refetchCounts, checkedAt, updateCurrentUser]);
 
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUserId) return;
 
     const startPolling = () => {
       if (pollingIntervalRef.current) {
@@ -180,9 +189,13 @@ const NotificationsEffects = ({queryRef, refetchCounts, refetchBoth}: {
       }
 
       // Only start polling if user is active and page is visible
-      if (!userIsIdle && pageIsVisible) {
-        pollingIntervalRef.current = setInterval(() => {
-          void refetchBoth();
+      if (!userIsIdleRef.current && pageIsVisibleRef.current) {
+        pollingIntervalRef.current = setInterval(async () => {
+          const response = await fetch("/api/notificationCount");
+          const { unreadNotificationCount } = await response.json();
+          if (unreadNotificationCount > 0) {
+            void refetchBoth();
+          }
         }, POLLING_INTERVAL);
       }
     };
@@ -195,7 +208,7 @@ const NotificationsEffects = ({queryRef, refetchCounts, refetchBoth}: {
         clearInterval(pollingIntervalRef.current);
       }
     };
-  }, [currentUser, userIsIdle, pageIsVisible, refetchBoth]);
+  }, [currentUserId, refetchBoth]);
 
   return null;
 }
