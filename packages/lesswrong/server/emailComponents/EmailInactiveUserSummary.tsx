@@ -101,7 +101,7 @@ export const EmailInactiveUserSummary = ({
   return (
     <div className={classes.root}>
       <p>
-        Hi <EmailUsername user={user} />,
+        Hi {user.displayName},
       </p>
       <p>
         We noticed you haven’t been on the EA Forum in a while. Here are some
