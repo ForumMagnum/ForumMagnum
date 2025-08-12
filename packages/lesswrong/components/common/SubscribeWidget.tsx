@@ -4,7 +4,9 @@ import { isEAForum } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import TabNavigationSubItem from "./TabNavigationMenu/TabNavigationSubItem";
+
 import dynamic from 'next/dynamic';
+const SubscribeDialog = dynamic(() => import('./SubscribeDialog'), { ssr: false });
 
 const styles = defineStyles('SubscribeWidget', (theme: ThemeType) => ({
   root: {
@@ -28,8 +30,6 @@ export const SubscribeWidget = () => {
     setMethod(method);
     captureEvent("subscribeButtonsClicked", {method: method, dialogOpen: true})
   };
-
-  const SubscribeDialog = dynamic(() => import('./SubscribeDialog'), { ssr: false });
 
   return (
     <div>

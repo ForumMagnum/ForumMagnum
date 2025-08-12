@@ -33,7 +33,11 @@ import UsersProfileImage from "./UsersProfileImage";
 import ForumIcon from "../common/ForumIcon";
 import NewWikiTagMenu from "../tagging/NewWikiTagMenu";
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
+
 import dynamic from 'next/dynamic';
+const NewDialogueDialog = dynamic(() => import("../posts/NewDialogueDialog"), { ssr: false });
+const NewShortformDialog = dynamic(() => import("../shortform/NewShortformDialog"), { ssr: false });
+const AFApplicationForm = dynamic(() => import("../alignment-forum/AFApplicationForm"), { ssr: false });
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -222,7 +226,6 @@ const UsersMenu = ({classes}: {
         <DropdownItem
           title={styleSelect({friendly: "Dialogue", default: preferredHeadingCase("New Dialogue")})}
           onClick={() => {
-            const NewDialogueDialog = dynamic(() => import("../posts/NewDialogueDialog"), { ssr: false });
             openDialog({
               name:"NewDialogueDialog",
               contents: ({onClose}) => <NewDialogueDialog onClose={onClose}/>
@@ -242,7 +245,6 @@ const UsersMenu = ({classes}: {
           <DropdownItem
             title={styleSelect({friendly: "Quick take", default: preferredHeadingCase("New Quick Take")})}
             onClick={() => {
-              const NewShortformDialog = dynamic(() => import("../shortform/NewShortformDialog"), { ssr: false });
               openDialog({
                 name:"NewShortformDialog",
                 contents: ({onClose}) => <NewShortformDialog onClose={onClose}/>
@@ -353,7 +355,6 @@ const UsersMenu = ({classes}: {
                 <DropdownItem
                   title={preferredHeadingCase("Apply for Membership")}
                   onClick={() => {
-                    const AFApplicationForm = dynamic(() => import("../alignment-forum/AFApplicationForm"), { ssr: false });
                     openDialog({
                       name: "AFApplicationForm",
                       contents: ({onClose}) => <AFApplicationForm onClose={onClose}/>

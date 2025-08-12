@@ -1,8 +1,7 @@
 import React, { FC, ReactNode, RefObject, createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useOnNavigate } from '../hooks/useOnNavigate';
-import { useOnFocusTab } from '../hooks/useOnFocusTab';
-import { useCurrentUser, useCurrentUserId } from '../common/withUser';
+import { useCurrentUserId } from '../common/withUser';
 import { useUpdateCurrentUser } from './useUpdateCurrentUser';
 import { type QueryRef, useBackgroundQuery, useReadQuery } from '@apollo/client/react';
 import { NotificationsListMultiQuery } from '../notifications/NotificationsListMultiQuery';
@@ -147,15 +146,7 @@ const NotificationsEffects = ({queryRef, refetchCounts, refetchBoth}: {
   const { userIsIdle } = useIdlenessDetection(30);
   const { pageIsVisible } = usePageVisibility();
 
-  const userIsIdleRef = useRef(userIsIdle);
-  const pageIsVisibleRef = useRef(pageIsVisible);
-
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    userIsIdleRef.current = userIsIdle;
-    pageIsVisibleRef.current = pageIsVisible;
-  }, [userIsIdle, pageIsVisible]);
 
   // Subscribe to localStorage change events. The localStorage key
   // "notificationsCheckedAt" contains a date; when the user checks
@@ -189,7 +180,7 @@ const NotificationsEffects = ({queryRef, refetchCounts, refetchBoth}: {
       }
 
       // Only start polling if user is active and page is visible
-      if (!userIsIdleRef.current && pageIsVisibleRef.current) {
+      if (!userIsIdle && pageIsVisible) {
         pollingIntervalRef.current = setInterval(async () => {
           const response = await fetch("/api/notificationCount");
           const { unreadNotificationCount } = await response.json();
@@ -208,7 +199,7 @@ const NotificationsEffects = ({queryRef, refetchCounts, refetchBoth}: {
         clearInterval(pollingIntervalRef.current);
       }
     };
-  }, [currentUserId, refetchBoth]);
+  }, [currentUserId, userIsIdle, pageIsVisible, refetchBoth]);
 
   return null;
 }

@@ -15,7 +15,10 @@ import { ColoredNumber } from './ColoredNumber';
 import { styles } from './styles';
 import { useStyles } from '../../hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
+
 import dynamic from 'next/dynamic';
+const KarmaChangesDisplay = dynamic(() => import('./KarmaChangesDisplay'), { ssr: false });
+const LWPopper = dynamic(() => import('../../common/LWPopper'), { ssr: false });
 
 const UserKarmaChangesQuery = gql(`
   query KarmaChangeNotifier($documentId: String) {
@@ -83,9 +86,6 @@ const KarmaChangeNotifierLoaded = ({className}: {
     const { karmaChangeNotifierSettings: settings } = currentUser
     if (settings && settings.updateFrequency === "disabled")
       return null;
-
-    const KarmaChangesDisplay = dynamic(() => import('./KarmaChangesDisplay'), { ssr: false });
-    const LWPopper = dynamic(() => import('../../common/LWPopper'), { ssr: false });
 
     const { posts, comments, tagRevisions, endDate, totalChange } = karmaChanges
     //Check if user opened the karmaChangeNotifications for the current interval

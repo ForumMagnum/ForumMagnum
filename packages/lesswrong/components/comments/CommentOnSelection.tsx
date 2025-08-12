@@ -5,7 +5,10 @@ import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
 import { hasSideComments } from '../../lib/betas';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useDialog } from '../common/withDialog';
+
 import dynamic from 'next/dynamic';
+const LWTooltip = dynamic(() => import("../common/LWTooltip"), { ssr: false });
+const ReplyCommentDialog = dynamic(() => import("./ReplyCommentDialog"), { ssr: false });
 
 const selectedTextToolbarStyles = defineStyles("CommentOnSelectionContentWrapper", (theme: ThemeType) => ({
   toolbarWrapper: {
@@ -159,8 +162,6 @@ const SelectedTextToolbar = ({onClickComment, x, y}: {
   const classes = useStyles(selectedTextToolbarStyles);
   const { captureEvent } = useTracking()
 
-  const LWTooltip = dynamic(() => import("../common/LWTooltip"), { ssr: false });
-
   return <div className={classes.toolbarWrapper} style={{left: x, top: y}}>
     <LWTooltip inlineBlock={false} title={<div><p>Click to comment on the selected text</p></div>}>
       <div className={classes.toolbar}>
@@ -195,7 +196,6 @@ export const CommentOnSelectionContentWrapper = ({post, children}: {
     openDialog({
       name: "ReplyCommentDialog",
       contents: ({onClose}) => {
-        const ReplyCommentDialog = dynamic(() => import("./ReplyCommentDialog"), { ssr: false });
         return <ReplyCommentDialog
           onClose={onClose}
           post={post}

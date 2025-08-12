@@ -24,8 +24,10 @@ import UltraFeed from "../ultraFeed/UltraFeed";
 import { StructuredData } from './StructuredData';
 import { SuspenseWrapper } from './SuspenseWrapper';
 import DeferRender from './DeferRender';
-import dynamic from 'next/dynamic';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+
+import dynamic from 'next/dynamic';
+const RecentDiscussionFeed = dynamic(() => import("../recentDiscussion/RecentDiscussionFeed"), { ssr: false });
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -75,8 +77,6 @@ const LWHome = () => {
   
   // Determine which feed to show: if cookie is set, use that preference, otherwise use A/B test assignment
   const shouldShowUltraFeed = ultraFeedEnabledSetting.get() && currentUser && (cookieValue === "true" || (!hasExplicitPreference && abTestGroup === 'ultraFeed'));
-
-  const RecentDiscussionFeed = dynamic(() => import("../recentDiscussion/RecentDiscussionFeed"), { ssr: false });
 
   return (
       <AnalyticsContext pageContext="homePage">

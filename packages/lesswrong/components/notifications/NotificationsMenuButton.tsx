@@ -16,9 +16,12 @@ import LWClickAwayListener from "../common/LWClickAwayListener";
 import { useReadQuery } from '@apollo/client/react';
 import { useStyles } from '../hooks/useStyles';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
-import dynamic from 'next/dynamic';
 import { styles } from './notificationsMenuButtonStyles';
 import ErrorBoundary from '../common/ErrorBoundary';
+
+import dynamic from 'next/dynamic';
+const NotificationsPopover = dynamic(() => import("./NotificationsPopover"), { ssr: false });
+const LWPopper = dynamic(() => import("../common/LWPopper"), { ssr: false });
 
 const UserKarmaChangesQuery = gql(`
   query NotificationsMenuButton($documentId: String) {
@@ -95,7 +98,6 @@ const FriendlyNotificationsMenuButtonInner = ({
   toggle,
   className,
 }: NotificationsMenuButtonProps) => {
-  const NotificationsPopover = dynamic(() => import("./NotificationsPopover"), { ssr: false });
   
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -115,8 +117,6 @@ const FriendlyNotificationsMenuButtonInner = ({
   const showKarmaStar = hasKarmaChange(currentUser, karmaChanges);
   const hasBadge = unreadNotifications > 0;
   const badgeText = hasBadge ? `${unreadNotifications}` : "";
-
-  const LWPopper = dynamic(() => import("../common/LWPopper"), { ssr: false });
 
   useEffect(() => {
     void refetch();
