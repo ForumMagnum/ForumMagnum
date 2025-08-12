@@ -12,7 +12,6 @@
       "@/server/*": ["./packages/lesswrong/server/*"],
       "@/client/*": ["./packages/lesswrong/stubs/client/*"],
       "@/viteClient/*": ["./packages/lesswrong/stubs/viteClient/*"],
-      "@/allComponents": ["./packages/lesswrong/lib/generated/allComponents.ts"],
       "@/*": ["./packages/lesswrong/*"]
     }
   }

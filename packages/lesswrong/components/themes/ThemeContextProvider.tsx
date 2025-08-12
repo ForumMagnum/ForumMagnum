@@ -115,9 +115,6 @@ const StyleHTMLInjector = () => {
   return null;
 }
 
-const makeStylesheetUrl = (themeOptions: AbstractThemeOptions) =>
-  `/allStyles?theme=${encodeURIComponent(stringify(themeOptions))}`;
-
 type OnFinish = (error?: string | Event) => void;
 
 const addStylesheet = (href: string, id: string, onFinish: OnFinish) => {
@@ -131,30 +128,6 @@ const addStylesheet = (href: string, id: string, onFinish: OnFinish) => {
   styleNode.onerror = onFinish;
   document.head.appendChild(styleNode);
 }
-
-
-/**
- * The 'auto' stylesheet is an inline style that will automatically import
- * either the light or dark theme based on the device preferences. If the
- * preference changes whilst the site is open, the sheet will automatically
- * be switched.
- */
-const addAutoStylesheet = (id: string, onFinish: OnFinish, siteThemeOverride?: SiteThemeOverride) => {
-  const light = makeStylesheetUrl({name: "default", siteThemeOverride})
-  const dark = makeStylesheetUrl({name: "dark", siteThemeOverride})
-  const styleNode = document.createElement("style");
-  styleNode.setAttribute("id", id);
-  styleNode.innerHTML = `
-    @import url("${light}") screen and (prefers-color-scheme: light);
-    @import url("${dark}") screen and (prefers-color-scheme: dark);
-  `;
-  styleNode.onload = () => {
-    onFinish();
-  }
-  styleNode.onerror = onFinish;
-  document.head.appendChild(styleNode);
-}
-
 
 
 const buildPrefersDarkModeQuery = () =>
