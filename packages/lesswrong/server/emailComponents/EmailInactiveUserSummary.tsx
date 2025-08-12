@@ -75,27 +75,23 @@ export const EmailInactiveUserSummary = ({
   karmaChange,
   bestReaction,
   mostCommentedPost,
-  unreadNotifications,
   recommendedPosts,
 }: {
   user: DbUser,
   karmaChange: number,
   bestReaction?: BestReaction,
   mostCommentedPost?: {post: DbPost, commentCount: number},
-  unreadNotifications: number,
   recommendedPosts: PostsList[],
 }) => {
   const bestEmoji = bestReaction ? getEAEmojiByName(bestReaction.name) : null;
   const showKarmaChange = karmaChange > 0;
   const showBestReaction = bestReaction && bestReaction.count > 0 && bestEmoji;
   const showMostCommentedPost = mostCommentedPost && mostCommentedPost.commentCount > 0;
-  const showUnreadNotifications = unreadNotifications > 0 && unreadNotifications < 5;
 
   const showNotificationsSection =
     showKarmaChange ||
     showBestReaction ||
-    showMostCommentedPost ||
-    showUnreadNotifications;
+    showMostCommentedPost;
 
   const classes = useStyles(styles);
   return (
@@ -141,7 +137,6 @@ export const EmailInactiveUserSummary = ({
           <p>
             <a href={getSiteUrl()} className={classes.notifications}>
               See all your notifications on the EA Forum
-              {showUnreadNotifications && ` (${unreadNotifications} unread)`}
             </a>
           </p>
           <div className={classes.spacing} />

@@ -8,7 +8,6 @@ import {
 } from "../emailComponents/EmailInactiveUserSummary";
 import { EmailWrapper } from "../emailComponents/EmailWrapper";
 import FeatureStrategy from "../recommendations/FeatureStrategy";
-import Notifications from "../collections/notifications/collection";
 import Users from "../collections/users/collection";
 import UsersRepo from "../repos/UsersRepo";
 import VotesRepo from "../repos/VotesRepo";
@@ -45,7 +44,6 @@ const sendInactiveUserSummaryEmail = async (
     reacts,
     agreements,
     mostCommentedPost,
-    unreadNotifications,
     recommendations,
   ] = await Promise.all([
     votesRepo.getEAKarmaChanges({
@@ -57,13 +55,6 @@ const sendInactiveUserSummaryEmail = async (
     votesRepo.getEAReactsReceived(user._id, fetchActivitySince, now),
     votesRepo.getEAAgreements(user._id, fetchActivitySince, now),
     postsRepo.getUsersMostCommentedPostSince(user._id, fetchActivitySince),
-    Notifications.find({
-      userId: user._id,
-      createdAt: {$gt: fetchActivitySince},
-      viewed: false,
-      emailed: false,
-      deleted: false,
-    }).count(),
     featureStrategy.recommend(user, 5, {
       name: "feature",
       postId: "",
@@ -105,7 +96,6 @@ const sendInactiveUserSummaryEmail = async (
       karmaChange={karmaChange}
       bestReaction={bestReaction}
       mostCommentedPost={mostCommentedPost ?? undefined}
-      unreadNotifications={unreadNotifications}
       recommendedPosts={recommendedPosts}
     />
   );
