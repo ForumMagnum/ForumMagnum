@@ -36,9 +36,12 @@ const styles = defineStyles("EmailInactiveUserSummary", (theme: ThemeType) => ({
   },
   post: {
     marginBottom: 20,
-    padding: "12px 24px",
+    padding: "18px 24px",
     background: theme.palette.grey[100],
     borderRadius: theme.borderRadius.default,
+  },
+  postTitleWrapper: {
+    marginTop: 0,
   },
   postTitle: {
     fontSize: 32,
@@ -149,7 +152,7 @@ export const EmailInactiveUserSummary = ({
       }
       {recommendedPosts.map((post) => (
         <div className={classes.post} key={post._id}>
-          <h3>
+          <h3 className={classes.postTitleWrapper}>
             <a href={postGetPageUrl(post, true)} className={classes.postTitle}>
               {post.title}
             </a>
