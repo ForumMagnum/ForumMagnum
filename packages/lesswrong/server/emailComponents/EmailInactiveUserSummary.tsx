@@ -60,7 +60,7 @@ const styles = defineStyles("EmailInactiveUserSummary", (theme: ThemeType) => ({
     textDecoration: "none",
   },
   postBody: {
-    fontWeight: 500,
+    fontWeight: 400,
   },
   hr: {
     border: "none",
