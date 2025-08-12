@@ -1,3 +1,4 @@
+import { gql } from '@/lib/generated/gql-codegen';
 import { noIndexSetting, tabLongTitleSetting, tabTitleSetting, taglineSetting, siteImageSetting } from '@/lib/instanceSettings';
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
 import type { Metadata } from "next";
@@ -5,6 +6,23 @@ import { headers } from "next/headers";
 
 const defaultDescription = taglineSetting.get();
 const siteImage = siteImageSetting.get();
+
+export const CommentPermalinkMetadataQuery = gql(`
+  query CommentPermalinkMetadata($commentId: String) {
+    comment(selector: { _id: $commentId }) {
+      result {
+        _id
+        user {
+          displayName
+        }
+        contents {
+          plaintextMainText
+        }
+        deleted
+      }
+    }
+  }
+`);
 
 export const noIndexMetadata = { robots: { index: false } };
 
@@ -75,4 +93,15 @@ export function getMetadataImagesFields(images: string) {
       ...(images ? { images } : {}),
     },
   } satisfies Metadata;
+}
+
+export function getCommentDescription(comment: CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment) {
+  if (comment.deleted) {
+    return '[Comment deleted]';
+  }
+
+  return `Comment ${comment.user ? 
+    `by ${comment.user.displayName} ` : 
+    ''
+  }- ${comment.contents?.plaintextMainText}`;
 }

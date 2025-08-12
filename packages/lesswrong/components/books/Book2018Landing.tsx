@@ -7,7 +7,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useTracking } from "../../lib/analyticsEvents";
 import BookAnimation from "./BookAnimation";
 import BookCheckout from "../review/BookCheckout";
-import HeadTags from "../common/HeadTags";
 
 const contentMaxWidth = "1050px"
 const lw = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
@@ -368,10 +367,6 @@ const Book2018Landing = ({classes}: {
   
   return (
     <div>
-      <HeadTags 
-        image={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606944736/Screen_Shot_2020-11-30_at_10.17.10_PM_copy_mleu4a.png"}
-        description={"LessWrong is now a book."}
-      />
       <div className={classes.bookAnimationContainer}>
         <BookAnimation >
           <Hidden classes={classes} />

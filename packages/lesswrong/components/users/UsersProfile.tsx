@@ -49,7 +49,6 @@ import SettingsButton from "../icons/SettingsButton";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import Loading from "../vulcan-core/Loading";
 import PermanentRedirect from "../common/PermanentRedirect";
-import HeadTags from "../common/HeadTags";
 import { Typography } from "../common/Typography";
 import ContentStyles from "../common/ContentStyles";
 import ReportUserButton from "./ReportUserButton";
@@ -318,11 +317,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
-        <HeadTags
-          description={metaDescription}
-          noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0 || user.noindex}
-          image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
-        />
         <StructuredData generate={() => getUserStructuredData(user)}/>
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}

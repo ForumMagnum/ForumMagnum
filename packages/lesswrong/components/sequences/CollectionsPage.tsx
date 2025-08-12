@@ -5,7 +5,6 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
-import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -21,17 +20,7 @@ import ContentStyles from "../common/ContentStyles";
 import ErrorBoundary from "../common/ErrorBoundary";
 import CollectionTableOfContents from "./CollectionTableOfContents";
 import ToCColumn from "../posts/TableOfContents/ToCColumn";
-import HeadTags from "../common/HeadTags";
-
-const CollectionsPageFragmentQuery = gql(`
-  query CollectionsPage($documentId: String) {
-    collection(input: { selector: { documentId: $documentId } }) {
-      result {
-        ...CollectionsPageFragment
-      }
-    }
-  }
-`);
+import { CollectionsPageFragmentQuery } from './queries';
 
 const CollectionsEditFragmentQuery = gql(`
   query CollectionsEdit($documentId: String) {
@@ -141,7 +130,7 @@ const CollectionsPage = ({ documentId, classes }: {
     const startedReading = false; //TODO: Check whether user has started reading sequences
     const collection = document;
     const canEdit = userCanDo(currentUser, 'collections.edit.all') || (userCanDo(currentUser, 'collections.edit.own') && userOwns(currentUser, collection))
-    const { html = "", plaintextDescription } = collection.contents || {}
+    const { html = "" } = collection.contents || {}
     
     // Workaround: MUI Button takes a component option and passes extra props to
     // that component, but has a type signature which fails to include the extra
@@ -157,21 +146,7 @@ const CollectionsPage = ({ documentId, classes }: {
     // // eslint-disable-next-line no-console
     // console.log(`${wordCount.toLocaleString()} words`)
 
-    const socialImageUrl = collection.gridImageId ? makeCloudinaryImageUrl(collection.gridImageId, {
-      c: "fill",
-      dpr: "auto",
-      q: "auto",
-      f: "auto",
-      g: "auto:faces",
-    }) : undefined;
-
     return (<ErrorBoundary>
-      <HeadTags
-        title={collection.title}
-        description={plaintextDescription || undefined}
-        noIndex={collection.noindex}
-        image={socialImageUrl}
-      />
       <div className={classes.root}>
       <ToCColumn
         tableOfContents={<CollectionTableOfContents collection={document}/>}

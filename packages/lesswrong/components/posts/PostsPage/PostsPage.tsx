@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { getResponseCounts, isDialogueParticipant, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { getResponseCounts, isDialogueParticipant, postCoauthorIsPending } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView, commentIncludedInCounts } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import { isAF, isEAForum, isLWorAF, cloudinaryCloudNameSetting, recombeeEnabledSetting, vertexEnabledSetting } from '@/lib/instanceSettings';
+import { isAF, isEAForum, isLWorAF, recombeeEnabledSetting, vertexEnabledSetting } from '@/lib/instanceSettings';
 import classNames from 'classnames';
-import { hasPostRecommendations, commentsTableOfContentsEnabled, hasDigests, hasSidenotes } from '../../../lib/betas';
+import { hasPostRecommendations, commentsTableOfContentsEnabled, hasSidenotes } from '../../../lib/betas';
 import { useDialog } from '../../common/withDialog';
 import { PostsPageContext } from './PostsPageContext';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
@@ -38,7 +38,6 @@ import { useCurrentAndRecentForumEvents } from '@/components/hooks/useCurrentFor
 import SharePostPopup from "../SharePostPopup";
 import { SideItemsSidebar, SideItemsContainer } from "../../contents/SideItems";
 import MultiToCLayout from "../TableOfContents/MultiToCLayout";
-import HeadTags from "../../common/HeadTags";
 import CitationTags from "../../common/CitationTags";
 import PostsPagePostHeader from "./PostsPagePostHeader";
 import PostsPagePostFooter from "./PostsPagePostFooter";
@@ -503,13 +502,6 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
   const linkedCommentId = globalLinkedCommentId || params.commentId
 
   const description = fullPost ? getPostDescription(fullPost) : null
-  const ogUrl = postGetPageUrl(post, true) // open graph
-  const canonicalUrl = fullPost?.canonicalSource || ogUrl
-  // For imageless posts this will be an empty string
-  let socialPreviewImageUrl = post.socialPreviewData?.imageUrl ?? "";
-  if (post.isEvent && post.eventImageId) {
-    socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_191:100/${post.eventImageId}`
-  }
 
   const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
   const debateResponseReplies = debateReplies?.filter(comment => comment.topLevelCommentId && debateResponseIds.has(comment.topLevelCommentId));
@@ -527,9 +519,6 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
   const isCrosspostedQuestion = post.question &&
     post.fmCrosspost?.isCrosspost &&
     !post.fmCrosspost?.hostedHere;
-
-  const shouldLowKarmaNoIndex = isEAForum && post.baseScore <= 0;
-  const noIndex = fullPost?.noIndex || post.rejected || shouldLowKarmaNoIndex;
 
   const marketInfo = getMarketInfo(post)
 
@@ -613,12 +602,6 @@ const PostsPage = ({fullPost, postPreload, refetch}: {
 
   const header = <>
     {fullPost && !linkedCommentId && <>
-      <HeadTags
-        ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
-        title={post.title}
-        description={description}
-        noIndex={noIndex}
-      />
       <StructuredData generate={() => getStructuredData({post: fullPost, description, commentTree, answersTree})}/>
       <CitationTags
         title={post.title}

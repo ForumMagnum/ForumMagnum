@@ -54,7 +54,6 @@ import AddPostsToTag from "./AddPostsToTag";
 import { Typography } from "../common/Typography";
 import ContentStyles from "../common/ContentStyles";
 import PermanentRedirect from "../common/PermanentRedirect";
-import HeadTags from "../common/HeadTags";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import TagFlagItem from "./TagFlagItem";
 import CommentsListCondensed from "../common/CommentsListCondensed";
@@ -760,8 +759,6 @@ const LWTagPage = () => {
     setTruncated(false)
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
-
-  const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
   
   const tagFlagItemType: AnyBecauseTodo = {
     allPages: "allPages",
@@ -1015,10 +1012,6 @@ const LWTagPage = () => {
     limit={terms?.limit ?? 0}
   >
     <TagPageContext.Provider value={{selectedLens: selectedLens ?? null}}>
-      <HeadTags
-        description={headTagDescription}
-        noIndex={tag.noindex}
-      />
       <StructuredData generate={() => getTagStructuredData(tag)}/>
       {hoveredContributorId && <style>
         {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}

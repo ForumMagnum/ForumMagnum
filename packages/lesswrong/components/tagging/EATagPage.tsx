@@ -31,7 +31,6 @@ import AddPostsToTag from "./AddPostsToTag";
 import Error404 from "../common/Error404";
 import { Typography } from "../common/Typography";
 import PermanentRedirect from "../common/PermanentRedirect";
-import HeadTags from "../common/HeadTags";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import TagFlagItem from "./TagFlagItem";
 import TagDiscussionSection from "./TagDiscussionSection";
@@ -352,8 +351,6 @@ const EATagPage = ({classes}: {
     ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
     : htmlWithAnchors
   }
-
-  const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
   
   const tagFlagItemType: AnyBecauseTodo = {
     allPages: "allPages",
@@ -378,10 +375,6 @@ const EATagPage = ({classes}: {
     sortedBy={query.sortedBy || "relevance"}
     limit={terms.limit}
   >
-    <HeadTags
-      description={headTagDescription}
-      noIndex={tag.noindex}
-    />
     <StructuredData generate={() => getTagStructuredData(tag)}/>
     {hoveredContributorId && <style>
       {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}

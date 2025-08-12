@@ -3,7 +3,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { isEAForum, cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import type { Metadata } from "next";
 import merge from "lodash/merge";
-import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, noIndexMetadata } from "./sharedMetadata";
+import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, noIndexMetadata } from "./sharedMetadata";
 import { postCoauthorIsPending, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
 import { captureException } from "@sentry/nextjs";
@@ -54,23 +54,6 @@ const PostMetadataQuery = gql(`
   }
 `);
 
-const CommentPermalinkMetadataQuery = gql(`
-  query CommentPermalinkMetadata($commentId: String) {
-    comment(selector: { _id: $commentId }) {
-      result {
-        _id
-        user {
-          displayName
-        }
-        contents {
-          plaintextMainText
-        }
-        deleted
-      }
-    }
-  }
-`);
-
 function getSocialPreviewImageUrl(post: PostMetadataQuery_post_SinglePostOutput_result_Post) {
   if (post.isEvent && post.eventImageId) {
     return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_191:100/${post.eventImageId}`
@@ -91,17 +74,6 @@ function getCitationTags(post: PostMetadataQuery_post_SinglePostOutput_result_Po
     ...(post.coauthors?.filter(({ _id }) => !postCoauthorIsPending(post, _id))?.map(coauthor => coauthor.displayName) && { citation_author: post.coauthors?.map(coauthor => coauthor.displayName) }),
     ...(formattedDate && { citation_publication_date: formattedDate }),
   } satisfies Metadata['other'];
-}
-
-function getCommentDescription(comment: CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment) {
-  if (comment.deleted) {
-    return '[Comment deleted]';
-  }
-
-  return `Comment ${comment.user ? 
-    `by ${comment.user.displayName} ` : 
-    ''
-  }- ${comment.contents?.plaintextMainText}`;
 }
 
 interface PostPageMetadataOptions {
@@ -144,7 +116,7 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
       const canonicalUrl = post.canonicalSource ?? ogUrl;
       const socialPreviewImageUrl = getSocialPreviewImageUrl(post);
       const postNoIndex = post.noIndex || post.rejected || (post.baseScore <= 0 && isEAForum);
-      const noIndex = postNoIndex || options?.noIndex;
+      const noIndex = postNoIndex || commentId || options?.noIndex;
   
       const titleFields = getPageTitleFields(post.title);
       const descriptionFields = getMetadataDescriptionFields(description);

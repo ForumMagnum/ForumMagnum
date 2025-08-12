@@ -14,7 +14,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
-    "\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n      }\n    }\n  }\n": typeof types.LocalgroupMetadataDocument,
+    "\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n        bannerImageId\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n": typeof types.LocalgroupMetadataDocument,
     "\n  query SequenceMetadata($sequenceId: String) {\n    sequence(selector: { _id: $sequenceId }) {\n      result {\n        _id\n        title\n      }\n    }\n  }\n": typeof types.SequenceMetadataDocument,
     "\n  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": typeof types.updateUserLayoutDocument,
     "\n  query multiGoogleServiceAccountSessionAdminGoogleServiceAccountQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {\n    googleServiceAccountSessions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...GoogleServiceAccountSessionAdminInfo\n      }\n      totalCount\n    }\n  }\n": typeof types.multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryDocument,
@@ -309,7 +309,6 @@ type Documents = {
     "\n  query PostsCompareRevisions($documentId: String, $sequenceId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n": typeof types.PostsCompareRevisionsDocument,
     "\n  query multiCommentPostsDialogItemNewCommentsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentPostsDialogItemNewCommentsListQueryDocument,
     "\n  query PostsEditFormUser($documentId: String, $eventForm: Boolean) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersCurrentPostRateLimit\n      }\n    }\n  }\n": typeof types.PostsEditFormUserDocument,
-    "\n  query PostsEditFormPost($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n": typeof types.PostsEditFormPostDocument,
     "\n  query PostsGroupDetails($documentId: String) {\n    localgroup(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...localGroupsHomeFragment\n      }\n    }\n  }\n": typeof types.PostsGroupDetailsDocument,
     "\n  query PostsHighlight($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsExpandedHighlight\n      }\n    }\n  }\n": typeof types.PostsHighlightDocument,
     "\n  query multiCommentPostsItemNewCommentsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentPostsItemNewCommentsListQueryDocument,
@@ -345,6 +344,7 @@ type Documents = {
     "\n  query getRecombeeLatestPosts($limit: Int, $settings: JSON) {\n    RecombeeLatestPosts(limit: $limit, settings: $settings) {\n      results {\n        post {\n          ...PostsListWithVotes\n        }\n        scenario\n        recommId\n        generatedAt\n        curated\n        stickied\n      }\n    }\n  }\n": typeof types.getRecombeeLatestPostsDocument,
     "\n  query getRecombeeHybridPosts($limit: Int, $settings: JSON) {\n    RecombeeHybridPosts(limit: $limit, settings: $settings) {\n      results {\n        post {\n          ...PostsListWithVotes\n        }\n        scenario\n        recommId\n        generatedAt\n        curated\n        stickied\n      }\n    }\n  }\n": typeof types.getRecombeeHybridPostsDocument,
     "\n  mutation createCommentDialogueSubmit($data: CreateCommentDataInput!) {\n    createComment(data: $data) {\n      data {\n        ...CommentEdit\n      }\n    }\n  }\n": typeof types.createCommentDialogueSubmitDocument,
+    "\n  query PostsEditFormPost($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n": typeof types.PostsEditFormPostDocument,
     "\n  query multiPostusePostQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsPage\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostusePostQueryDocument,
     "\n  query postsListWithVotes($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsListWithVotes\n      }\n      totalCount\n    }\n  }\n": typeof types.postsListWithVotesDocument,
     "\n  query postsListTagWithVotes($selector: PostSelector, $limit: Int, $enableTotal: Boolean, $tagId: String) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsListTagWithVotes\n      }\n      totalCount\n    }\n  }\n": typeof types.postsListTagWithVotesDocument,
@@ -416,7 +416,6 @@ type Documents = {
     "\n  query ChaptersItem($documentId: String) {\n    chapter(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ChaptersEdit\n      }\n    }\n  }\n": typeof types.ChaptersItemDocument,
     "\n  query multiChapterChaptersListQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {\n    chapters(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ChaptersFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiChapterChaptersListQueryDocument,
     "\n  mutation updateCollectionCollectionsEditForm($selector: SelectorInput!, $data: UpdateCollectionDataInput!) {\n    updateCollection(selector: $selector, data: $data) {\n      data {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n": typeof types.updateCollectionCollectionsEditFormDocument,
-    "\n  query CollectionsPage($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n": typeof types.CollectionsPageDocument,
     "\n  query CollectionsEdit($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsEditFragment\n      }\n    }\n  }\n": typeof types.CollectionsEditDocument,
     "\n  query multiPostSequenceDraftsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostSequenceDraftsListQueryDocument,
     "\n  mutation updateSequenceSequencesForm($selector: SelectorInput!, $data: UpdateSequenceDataInput!) {\n    updateSequence(selector: $selector, data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n": typeof types.updateSequenceSequencesFormDocument,
@@ -426,6 +425,7 @@ type Documents = {
     "\n  query SequencesEdit($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SequencesEdit\n      }\n    }\n  }\n": typeof types.SequencesEditDocument,
     "\n  query multiChapterSequencesSummaryQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {\n    chapters(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ChaptersFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiChapterSequencesSummaryQueryDocument,
     "\n    query GetAllReviewWinners {\n      GetAllReviewWinners {\n        ...PostsTopItemInfo\n      }\n    }\n  ": typeof types.GetAllReviewWinnersDocument,
+    "\n  query CollectionsPage($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n": typeof types.CollectionsPageDocument,
     "\n    mutation updateContinueReading($sequenceId: String!, $postId: String!) {\n      updateContinueReading(sequenceId: $sequenceId, postId: $postId)\n    }\n  ": typeof types.updateContinueReadingDocument,
     "\n  query ProfileShortform($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.ProfileShortformDocument,
     "\n  query multiCommentRepliesToCommentListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentRepliesToCommentListQueryDocument,
@@ -1008,7 +1008,7 @@ type Documents = {
     "\n  query multiPostsForLLMQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.multiPostsForLLMQueryDocument,
 };
 const documents: Documents = {
-    "\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n      }\n    }\n  }\n": types.LocalgroupMetadataDocument,
+    "\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n        bannerImageId\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n": types.LocalgroupMetadataDocument,
     "\n  query SequenceMetadata($sequenceId: String) {\n    sequence(selector: { _id: $sequenceId }) {\n      result {\n        _id\n        title\n      }\n    }\n  }\n": types.SequenceMetadataDocument,
     "\n  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUserLayoutDocument,
     "\n  query multiGoogleServiceAccountSessionAdminGoogleServiceAccountQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {\n    googleServiceAccountSessions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...GoogleServiceAccountSessionAdminInfo\n      }\n      totalCount\n    }\n  }\n": types.multiGoogleServiceAccountSessionAdminGoogleServiceAccountQueryDocument,
@@ -1303,7 +1303,6 @@ const documents: Documents = {
     "\n  query PostsCompareRevisions($documentId: String, $sequenceId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsWithNavigation\n      }\n    }\n  }\n": types.PostsCompareRevisionsDocument,
     "\n  query multiCommentPostsDialogItemNewCommentsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": types.multiCommentPostsDialogItemNewCommentsListQueryDocument,
     "\n  query PostsEditFormUser($documentId: String, $eventForm: Boolean) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersCurrentPostRateLimit\n      }\n    }\n  }\n": types.PostsEditFormUserDocument,
-    "\n  query PostsEditFormPost($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n": types.PostsEditFormPostDocument,
     "\n  query PostsGroupDetails($documentId: String) {\n    localgroup(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...localGroupsHomeFragment\n      }\n    }\n  }\n": types.PostsGroupDetailsDocument,
     "\n  query PostsHighlight($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsExpandedHighlight\n      }\n    }\n  }\n": types.PostsHighlightDocument,
     "\n  query multiCommentPostsItemNewCommentsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": types.multiCommentPostsItemNewCommentsListQueryDocument,
@@ -1339,6 +1338,7 @@ const documents: Documents = {
     "\n  query getRecombeeLatestPosts($limit: Int, $settings: JSON) {\n    RecombeeLatestPosts(limit: $limit, settings: $settings) {\n      results {\n        post {\n          ...PostsListWithVotes\n        }\n        scenario\n        recommId\n        generatedAt\n        curated\n        stickied\n      }\n    }\n  }\n": types.getRecombeeLatestPostsDocument,
     "\n  query getRecombeeHybridPosts($limit: Int, $settings: JSON) {\n    RecombeeHybridPosts(limit: $limit, settings: $settings) {\n      results {\n        post {\n          ...PostsListWithVotes\n        }\n        scenario\n        recommId\n        generatedAt\n        curated\n        stickied\n      }\n    }\n  }\n": types.getRecombeeHybridPostsDocument,
     "\n  mutation createCommentDialogueSubmit($data: CreateCommentDataInput!) {\n    createComment(data: $data) {\n      data {\n        ...CommentEdit\n      }\n    }\n  }\n": types.createCommentDialogueSubmitDocument,
+    "\n  query PostsEditFormPost($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n": types.PostsEditFormPostDocument,
     "\n  query multiPostusePostQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsPage\n      }\n      totalCount\n    }\n  }\n": types.multiPostusePostQueryDocument,
     "\n  query postsListWithVotes($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsListWithVotes\n      }\n      totalCount\n    }\n  }\n": types.postsListWithVotesDocument,
     "\n  query postsListTagWithVotes($selector: PostSelector, $limit: Int, $enableTotal: Boolean, $tagId: String) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsListTagWithVotes\n      }\n      totalCount\n    }\n  }\n": types.postsListTagWithVotesDocument,
@@ -1410,7 +1410,6 @@ const documents: Documents = {
     "\n  query ChaptersItem($documentId: String) {\n    chapter(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...ChaptersEdit\n      }\n    }\n  }\n": types.ChaptersItemDocument,
     "\n  query multiChapterChaptersListQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {\n    chapters(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ChaptersFragment\n      }\n      totalCount\n    }\n  }\n": types.multiChapterChaptersListQueryDocument,
     "\n  mutation updateCollectionCollectionsEditForm($selector: SelectorInput!, $data: UpdateCollectionDataInput!) {\n    updateCollection(selector: $selector, data: $data) {\n      data {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n": types.updateCollectionCollectionsEditFormDocument,
-    "\n  query CollectionsPage($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n": types.CollectionsPageDocument,
     "\n  query CollectionsEdit($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsEditFragment\n      }\n    }\n  }\n": types.CollectionsEditDocument,
     "\n  query multiPostSequenceDraftsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": types.multiPostSequenceDraftsListQueryDocument,
     "\n  mutation updateSequenceSequencesForm($selector: SelectorInput!, $data: UpdateSequenceDataInput!) {\n    updateSequence(selector: $selector, data: $data) {\n      data {\n        ...SequencesEdit\n      }\n    }\n  }\n": types.updateSequenceSequencesFormDocument,
@@ -1420,6 +1419,7 @@ const documents: Documents = {
     "\n  query SequencesEdit($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SequencesEdit\n      }\n    }\n  }\n": types.SequencesEditDocument,
     "\n  query multiChapterSequencesSummaryQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {\n    chapters(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ChaptersFragment\n      }\n      totalCount\n    }\n  }\n": types.multiChapterSequencesSummaryQueryDocument,
     "\n    query GetAllReviewWinners {\n      GetAllReviewWinners {\n        ...PostsTopItemInfo\n      }\n    }\n  ": types.GetAllReviewWinnersDocument,
+    "\n  query CollectionsPage($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n": types.CollectionsPageDocument,
     "\n    mutation updateContinueReading($sequenceId: String!, $postId: String!) {\n      updateContinueReading(sequenceId: $sequenceId, postId: $postId)\n    }\n  ": types.updateContinueReadingDocument,
     "\n  query ProfileShortform($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.ProfileShortformDocument,
     "\n  query multiCommentRepliesToCommentListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": types.multiCommentRepliesToCommentListQueryDocument,
@@ -2019,7 +2019,7 @@ export function gql(source: string): unknown;
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n      }\n    }\n  }\n"): (typeof documents)["\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n      }\n    }\n  }\n"];
+export function gql(source: "\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n        bannerImageId\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n        bannerImageId\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -3199,10 +3199,6 @@ export function gql(source: "\n  query PostsEditFormUser($documentId: String, $e
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query PostsEditFormPost($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query PostsEditFormPost($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
 export function gql(source: "\n  query PostsGroupDetails($documentId: String) {\n    localgroup(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...localGroupsHomeFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query PostsGroupDetails($documentId: String) {\n    localgroup(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...localGroupsHomeFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -3340,6 +3336,10 @@ export function gql(source: "\n  query getRecombeeHybridPosts($limit: Int, $sett
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation createCommentDialogueSubmit($data: CreateCommentDataInput!) {\n    createComment(data: $data) {\n      data {\n        ...CommentEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createCommentDialogueSubmit($data: CreateCommentDataInput!) {\n    createComment(data: $data) {\n      data {\n        ...CommentEdit\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query PostsEditFormPost($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query PostsEditFormPost($documentId: String, $version: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsEditQueryFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -3627,10 +3627,6 @@ export function gql(source: "\n  mutation updateCollectionCollectionsEditForm($s
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query CollectionsPage($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query CollectionsPage($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
 export function gql(source: "\n  query CollectionsEdit($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsEditFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query CollectionsEdit($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsEditFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -3664,6 +3660,10 @@ export function gql(source: "\n  query multiChapterSequencesSummaryQuery($select
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    query GetAllReviewWinners {\n      GetAllReviewWinners {\n        ...PostsTopItemInfo\n      }\n    }\n  "): (typeof documents)["\n    query GetAllReviewWinners {\n      GetAllReviewWinners {\n        ...PostsTopItemInfo\n      }\n    }\n  "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query CollectionsPage($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query CollectionsPage($documentId: String) {\n    collection(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CollectionsPageFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

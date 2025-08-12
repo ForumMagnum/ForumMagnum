@@ -12820,7 +12820,9 @@ type WrappedDataByYear = {
   totalSeconds?: Maybe<Scalars['Int']['output']>;
 };
 
-type LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup = { __typename?: 'Localgroup', _id: string, name: string };
+type LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
+
+type LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup = { __typename?: 'Localgroup', _id: string, name: string, bannerImageId: string | null, contents: LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup_contents_Revision | null };
 
 type LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput = { __typename?: 'SingleLocalgroupOutput', result: LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup | null };
 
@@ -18061,24 +18063,6 @@ type PostsEditFormUserQueryVariables = Exact<{
 
 type PostsEditFormUserQuery = PostsEditFormUserQuery_Query;
 
-type PostsEditFormPostQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostsEditQueryFragment
-);
-
-type PostsEditFormPostQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostsEditFormPostQuery_post_SinglePostOutput_result_Post | null };
-
-type PostsEditFormPostQuery_Query = { __typename?: 'Query', post: PostsEditFormPostQuery_post_SinglePostOutput | null };
-
-
-type PostsEditFormPostQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-  version: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type PostsEditFormPostQuery = PostsEditFormPostQuery_Query;
-
 type PostsGroupDetailsQuery_localgroup_SingleLocalgroupOutput_result_Localgroup = (
   { __typename?: 'Localgroup' }
   & localGroupsHomeFragment
@@ -18688,6 +18672,24 @@ type createCommentDialogueSubmitMutationVariables = Exact<{
 
 
 type createCommentDialogueSubmitMutation = createCommentDialogueSubmitMutation_Mutation;
+
+type PostsEditFormPostQuery_post_SinglePostOutput_result_Post = (
+  { __typename?: 'Post' }
+  & PostsEditQueryFragment
+);
+
+type PostsEditFormPostQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostsEditFormPostQuery_post_SinglePostOutput_result_Post | null };
+
+type PostsEditFormPostQuery_Query = { __typename?: 'Query', post: PostsEditFormPostQuery_post_SinglePostOutput | null };
+
+
+type PostsEditFormPostQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+  version: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type PostsEditFormPostQuery = PostsEditFormPostQuery_Query;
 
 type multiPostusePostQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
@@ -19906,23 +19908,6 @@ type updateCollectionCollectionsEditFormMutationVariables = Exact<{
 
 type updateCollectionCollectionsEditFormMutation = updateCollectionCollectionsEditFormMutation_Mutation;
 
-type CollectionsPageQuery_collection_SingleCollectionOutput_result_Collection = (
-  { __typename?: 'Collection' }
-  & CollectionsPageFragment
-);
-
-type CollectionsPageQuery_collection_SingleCollectionOutput = { __typename?: 'SingleCollectionOutput', result: CollectionsPageQuery_collection_SingleCollectionOutput_result_Collection | null };
-
-type CollectionsPageQuery_Query = { __typename?: 'Query', collection: CollectionsPageQuery_collection_SingleCollectionOutput | null };
-
-
-type CollectionsPageQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type CollectionsPageQuery = CollectionsPageQuery_Query;
-
 type CollectionsEditQuery_collection_SingleCollectionOutput_result_Collection = (
   { __typename?: 'Collection' }
   & CollectionsEditFragment
@@ -20078,6 +20063,23 @@ type GetAllReviewWinnersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 type GetAllReviewWinnersQuery = GetAllReviewWinnersQuery_Query;
+
+type CollectionsPageQuery_collection_SingleCollectionOutput_result_Collection = (
+  { __typename?: 'Collection' }
+  & CollectionsPageFragment
+);
+
+type CollectionsPageQuery_collection_SingleCollectionOutput = { __typename?: 'SingleCollectionOutput', result: CollectionsPageQuery_collection_SingleCollectionOutput_result_Collection | null };
+
+type CollectionsPageQuery_Query = { __typename?: 'Query', collection: CollectionsPageQuery_collection_SingleCollectionOutput | null };
+
+
+type CollectionsPageQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type CollectionsPageQuery = CollectionsPageQuery_Query;
 
 type updateContinueReadingMutation_Mutation = { __typename?: 'Mutation', updateContinueReading: boolean | null };
 

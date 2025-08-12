@@ -1,6 +1,6 @@
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { makeCloudinaryImageUrl } from '../../components/common/CloudinaryImage2';
+import { makeCloudinaryImageUrl } from '@/components/common/cloudinaryHelpers';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import { defineStyles } from "@/components/hooks/defineStyles";
 import { EmailContextType, useEmailStyles } from "./emailContext";

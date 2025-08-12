@@ -7,17 +7,15 @@ import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
 import { MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
-import { TooltipRef, TooltipSpan } from '../common/FMTooltip';
+import { TooltipRef } from '../common/FMTooltip';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import SortButton from "../icons/SortButton";
 import SettingsButton from "../icons/SettingsButton";
 import PostsListSettings from "./PostsListSettings";
-import HeadTags from "../common/HeadTags";
 import AllPostsList from "./AllPostsList";
 
 const styles = (theme: ThemeType) => ({
@@ -39,8 +37,6 @@ const styles = (theme: ThemeType) => ({
     borderTop: `1px solid ${theme.palette.grey[300]}`,
   },
 });
-
-const description = `All of ${siteNameWithArticleSetting.get()}'s posts, filtered and sorted however you want`;
 
 const formatSort = (sorting: PostSortingMode) => {
   const sort = SORT_ORDER_OPTIONS[sorting].label
@@ -78,7 +74,6 @@ const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<type
   const currentHideCommunity = (query.hideCommunity === 'true') || currentUser?.allPostsHideCommunity || false;
   return (
     <>
-      <HeadTags description={description} />
       <AnalyticsContext pageContext="allPostsPage">
         <SingleColumnSection>
         <DeferRender ssr={false}>

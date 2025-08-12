@@ -31,7 +31,6 @@ import PostsList2 from "../posts/PostsList2";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import Loading from "../vulcan-core/Loading";
 import PermanentRedirect from "../common/PermanentRedirect";
-import HeadTags from "../common/HeadTags";
 import { Typography } from "../common/Typography";
 import ContentStyles from "../common/ContentStyles";
 import PostsListSettings from "../posts/PostsListSettings";
@@ -521,12 +520,6 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
   }
 
   return <div>
-    <HeadTags
-      description={metaDescription}
-      noIndex={(!userPostsCount && !user.commentCount) || user.karma <= 0 || user.noindex}
-      image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
-      useSmallImage
-    />
     <StructuredData generate={() => getUserStructuredData(user)}/>
     <AnalyticsContext pageContext="userPage">
       <SingleColumnSection>

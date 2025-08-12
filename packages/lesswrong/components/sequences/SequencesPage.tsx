@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
@@ -8,7 +7,7 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { defaultSequenceBannerIdSetting, nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../common/Header';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
+import { makeCloudinaryImageUrl } from '../common/cloudinaryHelpers';
 import { allowSubscribeToSequencePosts } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
 import DeferRender from '../common/DeferRender';
@@ -18,7 +17,6 @@ import { ChaptersForm } from './ChaptersForm';
 import Error404 from "../common/Error404";
 import Loading from "../vulcan-core/Loading";
 import SequencesEditForm from "./SequencesEditForm";
-import HeadTags from "../common/HeadTags";
 import CloudinaryImage from "../common/CloudinaryImage";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionSubtitle from "../common/SectionSubtitle";

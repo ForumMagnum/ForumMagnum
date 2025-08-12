@@ -12828,7 +12828,7 @@ export type LocalgroupMetadataQueryVariables = Exact<{
 }>;
 
 
-export type LocalgroupMetadataQuery = { __typename?: 'Query', localgroup: { __typename?: 'SingleLocalgroupOutput', result: { __typename?: 'Localgroup', _id: string, name: string } | null } | null };
+export type LocalgroupMetadataQuery = { __typename?: 'Query', localgroup: { __typename?: 'SingleLocalgroupOutput', result: { __typename?: 'Localgroup', _id: string, name: string, bannerImageId: string | null, contents: { __typename?: 'Revision', plaintextDescription: string } | null } | null } | null };
 
 export type SequenceMetadataQueryVariables = Exact<{
   sequenceId?: InputMaybe<Scalars['String']['input']>;
@@ -16043,17 +16043,6 @@ export type PostsEditFormUserQuery = { __typename?: 'Query', user: { __typename?
       & UsersCurrentPostRateLimit
     ) | null } | null };
 
-export type PostsEditFormPostQueryVariables = Exact<{
-  documentId?: InputMaybe<Scalars['String']['input']>;
-  version?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type PostsEditFormPostQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
-      { __typename?: 'Post' }
-      & PostsEditQueryFragment
-    ) | null } | null };
-
 export type PostsGroupDetailsQueryVariables = Exact<{
   documentId?: InputMaybe<Scalars['String']['input']>;
 }>;
@@ -16427,6 +16416,17 @@ export type createCommentDialogueSubmitMutationVariables = Exact<{
 export type createCommentDialogueSubmitMutation = { __typename?: 'Mutation', createComment: { __typename?: 'CommentOutput', data: (
       { __typename?: 'Comment' }
       & CommentEdit
+    ) | null } | null };
+
+export type PostsEditFormPostQueryVariables = Exact<{
+  documentId?: InputMaybe<Scalars['String']['input']>;
+  version?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type PostsEditFormPostQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: (
+      { __typename?: 'Post' }
+      & PostsEditQueryFragment
     ) | null } | null };
 
 export type multiPostusePostQueryQueryVariables = Exact<{
@@ -17187,16 +17187,6 @@ export type updateCollectionCollectionsEditFormMutation = { __typename?: 'Mutati
       & CollectionsPageFragment
     ) | null } | null };
 
-export type CollectionsPageQueryVariables = Exact<{
-  documentId?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type CollectionsPageQuery = { __typename?: 'Query', collection: { __typename?: 'SingleCollectionOutput', result: (
-      { __typename?: 'Collection' }
-      & CollectionsPageFragment
-    ) | null } | null };
-
 export type CollectionsEditQueryVariables = Exact<{
   documentId?: InputMaybe<Scalars['String']['input']>;
 }>;
@@ -17291,6 +17281,16 @@ export type GetAllReviewWinnersQuery = { __typename?: 'Query', GetAllReviewWinne
     { __typename?: 'Post' }
     & PostsTopItemInfo
   )> };
+
+export type CollectionsPageQueryVariables = Exact<{
+  documentId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type CollectionsPageQuery = { __typename?: 'Query', collection: { __typename?: 'SingleCollectionOutput', result: (
+      { __typename?: 'Collection' }
+      & CollectionsPageFragment
+    ) | null } | null };
 
 export type updateContinueReadingMutationVariables = Exact<{
   sequenceId: Scalars['String']['input'];
@@ -22206,7 +22206,7 @@ export const LlmMessagesDefaultFragmentDoc = {"kind":"Document","definitions":[L
 export const LlmMessagesFragmentDoc = {"kind":"Document","definitions":[LlmMessagesFragmentFragmentDef]} as unknown as DocumentNode<LlmMessagesFragment, unknown>;
 export const LocalGroupPageDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"LocalGroupPage"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"localgroup"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"localGroupsHomeFragment"}}]}}]}}]}},localGroupsHomeFragmentFragmentDef,localGroupsBaseFragmentDef,UsersMinimumInfoFragmentDef,RevisionDisplayFragmentDef]} as unknown as DocumentNode<LocalGroupPageQuery, LocalGroupPageQueryVariables>;
 export const LocalPostQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"LocalPostQuery"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"post"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UltraFeedPostFragment"}}]}}]}}]}},UltraFeedPostFragmentFragmentDef,PostsDetailsFragmentDef,PostsListBaseFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,PostsAuthorsFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,RSSFeedMinimumInfoFragmentDef,PostsListWithVotesFragmentDef,PostsListFragmentDef,JargonTermsPostFragmentDef,RevisionDisplayFragmentDef]} as unknown as DocumentNode<LocalPostQueryQuery, LocalPostQueryQueryVariables>;
-export const LocalgroupMetadataDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"LocalgroupMetadata"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"groupId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"localgroup"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"groupId"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]} as unknown as DocumentNode<LocalgroupMetadataQuery, LocalgroupMetadataQueryVariables>;
+export const LocalgroupMetadataDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"LocalgroupMetadata"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"groupId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"localgroup"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"groupId"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"bannerImageId"}},{"kind":"Field","name":{"kind":"Name","value":"contents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"plaintextDescription"}}]}}]}}]}}]}}]} as unknown as DocumentNode<LocalgroupMetadataQuery, LocalgroupMetadataQueryVariables>;
 export const LocalgroupPageTitleDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"LocalgroupPageTitle"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"localgroup"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"localGroupsBase"}}]}}]}}]}},localGroupsBaseFragmentDef,UsersMinimumInfoFragmentDef]} as unknown as DocumentNode<LocalgroupPageTitleQuery, LocalgroupPageTitleQueryVariables>;
 export const LocalgroupsDefaultFragmentDoc = {"kind":"Document","definitions":[LocalgroupsDefaultFragmentFragmentDef]} as unknown as DocumentNode<LocalgroupsDefaultFragment, unknown>;
 export const ManifoldProbabilitiesCachesDefaultFragmentDoc = {"kind":"Document","definitions":[ManifoldProbabilitiesCachesDefaultFragmentFragmentDef]} as unknown as DocumentNode<ManifoldProbabilitiesCachesDefaultFragment, unknown>;

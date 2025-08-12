@@ -19,7 +19,6 @@ import Loading from "../vulcan-core/Loading";
 import PermanentRedirect from "../common/PermanentRedirect";
 import Error404 from "../common/Error404";
 import PostsAcceptTos from "./PostsAcceptTos";
-import HeadTags from "../common/HeadTags";
 import ForeignCrosspostEditForm from "./ForeignCrosspostEditForm";
 import RateLimitWarning from "../editor/RateLimitWarning";
 import PostForm from "./PostForm";
@@ -27,22 +26,13 @@ import DynamicTableOfContents from "./TableOfContents/DynamicTableOfContents";
 import NewPostModerationWarning from "../sunshineDashboard/NewPostModerationWarning";
 import NewPostHowToGuides from "./NewPostHowToGuides";
 import { withDateFields } from '@/lib/utils/dateUtils';
+import { PostsEditFormQuery } from './queries';
 
 const UsersCurrentPostRateLimitQuery = gql(`
   query PostsEditFormUser($documentId: String, $eventForm: Boolean) {
     user(input: { selector: { documentId: $documentId } }) {
       result {
         ...UsersCurrentPostRateLimit
-      }
-    }
-  }
-`);
-
-const PostsEditFormQuery = gql(`
-  query PostsEditFormPost($documentId: String, $version: String) {
-    post(input: { selector: { documentId: $documentId } }) {
-      result {
-        ...PostsEditQueryFragment
       }
     }
   }
@@ -219,7 +209,6 @@ const PostsEditForm = ({ documentId, version }: {
   return (
     <DynamicTableOfContents title={document.title} rightColumnChildren={isEAForum && <NewPostHowToGuides/>}>
       <div className={classes.postForm}>
-        <HeadTags title={document.title} />
         {currentUser && <PostsAcceptTos currentUser={currentUser} />}
         {postWillBeHidden && <NewPostModerationWarning />}
         {rateLimitNextAbleToPost && <RateLimitWarning

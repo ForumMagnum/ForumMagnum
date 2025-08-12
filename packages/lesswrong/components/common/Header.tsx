@@ -15,7 +15,7 @@ import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
-import { makeCloudinaryImageUrl } from './CloudinaryImage2';
+import { makeCloudinaryImageUrl } from './cloudinaryHelpers';
 import { hasForumEvents } from '@/lib/betas';
 import SearchBar from "./SearchBar";
 import UsersMenu from "../users/UsersMenu";

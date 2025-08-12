@@ -6,7 +6,6 @@ import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useTracking } from "../../lib/analyticsEvents";
 import Book2019Animation from "./Book2019Animation";
-import HeadTags from "../common/HeadTags";
 import LWTooltip from "../common/LWTooltip";
 import ContentStyles from "../common/ContentStyles";
 
@@ -269,10 +268,6 @@ const Book2019Landing = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
   return (
     <div>
-      <HeadTags 
-        image={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606944736/Screen_Shot_2020-11-30_at_10.17.10_PM_copy_mleu4a.png"}
-        description={"LessWrong is now a book."}
-      />
       <div className={classes.bookAnimationContainer}>
         <Book2019Animation >
           <HiddenQuote classes={classes} />
