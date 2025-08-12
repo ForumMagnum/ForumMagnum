@@ -270,7 +270,6 @@ export const wrapAndRenderEmail = async ({
   from,
   subject,
   body,
-  centerFooter,
   includeCustomFonts,
   utmParams,
   tag,
@@ -280,7 +279,6 @@ export const wrapAndRenderEmail = async ({
   from?: string;
   subject: string;
   body: React.ReactNode;
-  centerFooter?: boolean,
   includeCustomFonts?: boolean,
   utmParams?: Partial<Record<UtmParam, string>>;
   tag: string,
@@ -292,10 +290,7 @@ export const wrapAndRenderEmail = async ({
     from,
     subject: subject,
     bodyComponent: (
-      <EmailWrapper
-        unsubscribeAllLink={unsubscribeAllLink}
-        centerFooter={centerFooter}
-      >
+      <EmailWrapper unsubscribeAllLink={unsubscribeAllLink}>
         {body}
       </EmailWrapper>
     ),
@@ -312,7 +307,6 @@ export const wrapAndSendEmail = async ({
   from,
   subject,
   body,
-  centerFooter,
   includeCustomFonts,
   utmParams,
   tag,
@@ -323,7 +317,6 @@ export const wrapAndSendEmail = async ({
   from?: string;
   subject: string;
   body: React.ReactNode;
-  centerFooter?: boolean,
   includeCustomFonts?: boolean,
   utmParams?: Partial<Record<UtmParam, string>>;
   tag: string,
@@ -352,7 +345,6 @@ export const wrapAndSendEmail = async ({
       utmParams,
       includeCustomFonts,
       tag,
-      centerFooter,
     });
     const succeeded = await sendEmail(email);
     void logSentEmail(email, user, {succeeded});

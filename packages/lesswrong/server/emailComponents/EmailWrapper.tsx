@@ -16,9 +16,8 @@ const styles = defineStyles("EmailWrapper", (theme: ThemeType) => ({
 // Wrapper for top-level formatting of emails, eg controling width and
 // background color. See also the global CSS in renderEmail.js. Derived from
 // wrapper.handlebars in Vulcan-Starter.
-export const EmailWrapper = ({unsubscribeAllLink, centerFooter, children}: {
+export const EmailWrapper = ({unsubscribeAllLink, children}: {
   unsubscribeAllLink: string | null,
-  centerFooter?: boolean,
   children: React.ReactNode,
 }) => {
   const classes = useStyles(styles);
@@ -58,10 +57,6 @@ export const EmailWrapper = ({unsubscribeAllLink, centerFooter, children}: {
   const innerTdProps: any = {
     bgcolor: "#ffffff",
   };
-  const footerProps: any = {
-    align: centerFooter ? "center" : undefined,
-  };
-  
   return (
     <body {...bodyProps}>
       <br/>
@@ -82,7 +77,7 @@ export const EmailWrapper = ({unsubscribeAllLink, centerFooter, children}: {
                         {children}
                       </td>
                     </tr>
-                    <tr><td className="container-padding" {...footerProps}>
+                    <tr><td className="container-padding">
                       <br/>
                       {unsubscribeAllLink && <>
                         <a href={unsubscribeAllLink}>Unsubscribe</a>{' '}

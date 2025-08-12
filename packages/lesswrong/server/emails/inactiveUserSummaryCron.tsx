@@ -117,7 +117,7 @@ const sendInactiveUserSummaryEmail = async (
       to: user.email,
       subject,
       bodyComponent: (
-        <EmailWrapper unsubscribeAllLink="#" centerFooter>
+        <EmailWrapper unsubscribeAllLink="#">
           {body}
         </EmailWrapper>
       ),
@@ -136,7 +136,6 @@ const sendInactiveUserSummaryEmail = async (
       utmParams,
       includeCustomFonts: true,
       tag,
-      centerFooter: true,
     });
     await Users.rawUpdateOne(
       {_id: user._id},
