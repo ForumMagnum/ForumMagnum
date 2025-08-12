@@ -580,7 +580,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
           OR u."sunshineNotes" IS NULL
           OR u."sunshineNotes" = ''
         )
-        AND u."karma" >= -10
+        AND u."karma" >= 0
       ORDER BY rs."max_last_updated" DESC
       LIMIT $1
     `, [limit])
