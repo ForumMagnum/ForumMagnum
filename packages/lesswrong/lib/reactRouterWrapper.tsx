@@ -42,7 +42,7 @@ const getLinkPrefetch = (to: string, everHovered: boolean) => {
     return null;
   }
 
-  return everHovered ? null : false;
+  return everHovered ? true : false;
 }
 
 export const Link = ({eventProps, ...props}: LinkProps) => {

@@ -30,6 +30,7 @@ import { onUserChanged } from '@/client/logging';
 import moment from 'moment';
 import { localeSetting } from '@/lib/instanceSettings';
 import { initClientOnce } from '@/client/initClient';
+import { useEffectOnce } from '@/components/hooks/useEffectOnce';
 
 initClientOnce();
 
@@ -120,6 +121,12 @@ const AppComponent = ({ children }: { children: React.ReactNode }) => {
     Object.assign(subscribeLocationContext.current, location);
   }
 
+  useEffectOnce(() => {
+    if (!window.initialRouteRefreshed) {
+      window.initialRouteRefreshed = true;
+      history.refresh();
+    }
+  });
 
   return <HelmetProvider>
   <LocationContext.Provider value={locationContext.current}>

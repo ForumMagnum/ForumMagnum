@@ -25,5 +25,19 @@ declare global {
     google?: any,
     isReturningVisitor?: boolean,
     serverInsertedStyleNodes?: HTMLStyleElement[]|null,
+
+    /**
+     * Next has a bug (https://github.com/vercel/next.js/issues/73426)
+     * which means that it doesn't prefetch (or treat as having been prefetched)
+     * the initial route that's SSR'd.  So if you land on the home page, navigate
+     * to another page, and then navigate back to the home page, the navigation
+     * to the home page will involve a loading state transition if there's a 
+     * root loading.tsx file, or a noticeable delay if not.
+     * 
+     * We solve this by calling a `useEffect` inside of `ClientAppGenerator`
+     * to call router.refresh(), but only if this flag hasn't been set yet,
+     * to prevent it from triggering on every single page navigation.
+     */
+    initialRouteRefreshed?: boolean,
   }
 }
