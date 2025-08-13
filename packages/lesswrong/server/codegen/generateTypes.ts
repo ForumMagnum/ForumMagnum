@@ -11,6 +11,7 @@ import { getTypeDefs } from '../vulcan-lib/apollo-server/initGraphQL';
 import { generate } from '@graphql-codegen/cli'
 import { DefinitionNode, DocumentNode, FragmentDefinitionNode, Kind, print, visit } from 'graphql';
 import graphqlCodegenConfig from '@/../../codegen.ts';
+import { generateRouteManifest } from '../scripts/generateRouteManifest';
 
 function enumerateFiles(dirPath: string): string[] {
   let fileList: string[] = [];
@@ -134,6 +135,7 @@ export async function generateTypes(repoRoot?: string) {
     writeIfChanged(generateViewTypes(), "/packages/lesswrong/lib/generated/viewTypes.ts");
     writeIfChanged(generateAllComponents(), "/packages/lesswrong/lib/generated/allComponents.ts");
     writeIfChanged(generateNonRegisteredComponentFiles(), "/packages/lesswrong/lib/generated/nonRegisteredComponents.ts");
+    writeIfChanged(generateRouteManifest(), "/packages/lesswrong/lib/generated/routeManifest.ts");
     await generateGraphQLCodegenTypes();
   } catch(e) {
     // eslint-disable-next-line no-console

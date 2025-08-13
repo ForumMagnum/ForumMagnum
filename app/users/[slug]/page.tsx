@@ -4,8 +4,7 @@ import { UserPageTitle } from '@/components/titles/UserPageTitle';
 import { RouteMetadataSetter } from "@/components/RouteMetadataContext";
 import { generateUserPageMetadata } from "@/server/pageMetadata/userPageMetadata";
 
-// eslint-disable-next-line no-barrel-files/no-barrel-files
-export { generateUserPageMetadata as generateMetadata };
+export const generateMetadata = generateUserPageMetadata;
 
 export default function Page() {
   return <>
