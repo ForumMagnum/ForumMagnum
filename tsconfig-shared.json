@@ -10,7 +10,7 @@
     "module": "esnext",
     "target": "es2018",
     "sourceMap": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "downlevelIteration": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,

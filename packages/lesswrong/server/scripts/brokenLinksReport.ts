@@ -1,6 +1,6 @@
 import Users from '../../server/collections/users/collection';
 import { urlIsBroken } from './utils'
-import htmlparser2 from 'htmlparser2';
+import { Parser } from 'htmlparser2';
 import { URL } from 'url';
 import fs from 'fs';
 import { FetchedFragment, fetchFragment } from '../fetchFragment';
@@ -19,7 +19,7 @@ function getImagesInHtml(html: string)
 {
   let images: Array<string> = [];
   
-  let parser = new htmlparser2.Parser({
+  let parser = new Parser({
     onopentag: function(name: string, attribs: any) {
       if(name.toLowerCase() === 'img' && attribs.src) {
         images.push(attribs.src);
@@ -38,7 +38,7 @@ function getLinksInHtml(html: string)
 {
   let links: Array<string> = [];
   
-  let parser = new htmlparser2.Parser({
+  let parser = new Parser({
     onopentag: function(name: string, attribs: any) {
       if(name.toLowerCase() === 'a' && attribs.href) {
         links.push(attribs.href);

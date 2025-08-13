@@ -8,7 +8,9 @@ import { inspect } from "util";
 import md5 from "md5";
 import { isAnyTest, isE2E } from "../lib/executionEnvironment";
 import { isEAForum, isLWorAF } from "../lib/instanceSettings";
-import { TiktokenModel, encodingForModel as encoding_for_model } from "js-tiktoken";
+// Avoid importing all of js-tiktoken, it's very large and increases bundle size noticeably
+import { Tiktoken, type TiktokenModel } from "js-tiktoken/lite";
+import cl100k_base from "js-tiktoken/ranks/cl100k_base";
 import { fetchFragment, fetchFragmentSingle } from "./fetchFragment";
 import mapValues from "lodash/mapValues";
 import chunk from "lodash/chunk";
@@ -66,7 +68,7 @@ const trimText = (
   model: TiktokenModel,
   maxTokens: number,
 ): string => {
-  const encoding = encoding_for_model(model);
+  const encoding = new Tiktoken(cl100k_base);
 
   for (
     let encoded = encoding.encode(text);
