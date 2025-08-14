@@ -72,6 +72,10 @@ function hashLinkScroll() {
   }, 0);
 }
 
+function isSpecialClick(ev: React.MouseEvent<HTMLAnchorElement>) {
+  return ev.metaKey || ev.altKey || ev.ctrlKey || ev.shiftKey || ev.button !== 0;
+}
+
 export function HashLink(props: HashLinkProps) {
   const navigate = useNavigate();
   const isIOS = isClient && bowser.ios;
@@ -103,14 +107,18 @@ export function HashLink(props: HashLinkProps) {
         // Run any custom onMouseDown logic, including event tracking (such as that passed in from `Link`) before checking for modifier keys
         // This is necessary to capture e.g. `linkClicked` events when cmd-clicking to open links in a new tab
         filteredProps.onMouseDown?.(ev);
-        if (ev.metaKey || ev.altKey || ev.ctrlKey || ev.shiftKey || ev.button !== 0) {
+        if (isSpecialClick(ev)) {
           return;
         }
         navigate(to);
         ev.preventDefault();
       }}
+      // I'm not sure if the behavior before this was a next/link was correct,
+      // but without the preventDefault on regular clicks, we end up making two
+      // requests: the first one in the `navigate` call in the `doOnDown` case,
+      // and the second one during the onClick handling in the `Link` component.
       onClick={(ev) => {
-        if (doOnDown) {
+        if (doOnDown && !isSpecialClick(ev)) {
           ev.preventDefault();
         }
       }}
