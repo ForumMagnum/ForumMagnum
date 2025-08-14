@@ -552,7 +552,8 @@ class UsersRepo extends AbstractRepo<"Users"> {
         u.*,
         GREATEST(
           u."inactiveSummaryEmailSentAt",
-          rs."max_last_updated"
+          rs."max_last_updated",
+          u."createdAt"
         ) "fetchActivitySince"
       FROM public."Users" AS u
       LEFT JOIN (
