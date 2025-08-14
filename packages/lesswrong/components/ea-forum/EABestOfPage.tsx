@@ -111,10 +111,10 @@ const featuredCollectionsSequenceIds = [
 ];
 const bestOfYearPostIds = [
   "XkLnbSsjK7TpNFgPn", // Truthseeking is the ground in which other principles grow
-  "da6iKGxco8hjwH4nv", // Detecting Genetically Engineered Viruses With Metagenomic Sequencing
-  "upR4t3gM4YxsKFBCG", // Can we help individual people cost-effectively? Our trial with three sick kids
+  "2RdYDcwrnvdCn2SbK", // The Case for Insect Consciousness
+  "rxTPv3MdrsHiqK7kM", // Money, Population, and Insecticide Resistance
   "JuGhpwTJxbeGt5GhH", // Good Judgment with Numbers
-  "bT3WrFn6H4fpvLSk8", // Policy advocacy for eradicating screwworm looks remarkably cost-effective
+  "RHqdSMscX25u7byQF", // Alignment Faking in Large Language Models
 ];
 const introToCauseAreasSequenceIds = [
   "vtmN9g6C57XbqPrZS", // AI risk
