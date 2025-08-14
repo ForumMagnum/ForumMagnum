@@ -62,6 +62,9 @@ export const getEAAnonymousEmojiByName = (targetName: string) =>
 export const getEAPublicEmojiByName = (targetName: string) =>
   eaEmojiPalette.find(({name}) => name === targetName)
 
+export const getEAEmojiByName = (targetName: string) =>
+  getEAAnonymousEmojiByName(targetName) ?? getEAPublicEmojiByName(targetName);
+
 export const getEAEmojisForKarmaChanges = (showNegative: boolean) => ({
   publicEmojis: eaEmojiPalette
     .filter(({isNegative}) => showNegative || !isNegative)
