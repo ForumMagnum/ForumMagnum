@@ -565,18 +565,23 @@ class UsersRepo extends AbstractRepo<"Users"> {
       WHERE
         (
           (
-            -- Exactly 21 days since last active and no email in that time
-            rs."max_last_updated"::DATE = (CURRENT_DATE - INTERVAL '21 days')::DATE
-            AND (
+            -- User has never received a summary email, or they read a post since the last summary email:
+            -- Send a summary email if it's been 21+ days since they last visited
+            (
               u."inactiveSummaryEmailSentAt" IS NULL
               OR u."inactiveSummaryEmailSentAt" < rs."max_last_updated"
             )
-          ) OR (
-            -- 50+ days since last email (or never sent) and no site visits since
-            (
-              u."inactiveSummaryEmailSentAt" IS NULL
-              OR u."inactiveSummaryEmailSentAt" <= CURRENT_DATE - INTERVAL '50 days'
+            AND (
+              rs."max_last_updated" <= CURRENT_DATE - INTERVAL '21 days'
+              OR (
+                rs."max_last_updated" IS NULL
+                AND u."createdAt" <= CURRENT_DATE - INTERVAL '21 days'
+              )
             )
+          ) OR (
+            -- User hasn't read a post since their last summary email:
+            -- Send a summary email if it's been 50+ days since the last summary email
+            u."inactiveSummaryEmailSentAt" <= CURRENT_DATE - INTERVAL '50 days'
             AND (
               rs."max_last_updated" IS NULL
               OR rs."max_last_updated" < u."inactiveSummaryEmailSentAt"
