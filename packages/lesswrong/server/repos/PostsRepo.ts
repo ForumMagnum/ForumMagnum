@@ -1290,7 +1290,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         SELECT "_id", UNNEST("coauthorStatuses")->>'userId' "coauthorId"
         FROM "Posts"
       ) q ON p."_id" = q."_id"
-      JOIN "Comments" c ON p."_id" = c."postId"
+      JOIN "Comments" c ON p."_id" = c."postId" AND NOT c."draft" AND NOT c."deleted"
       WHERE
         (p."userId" = $1 OR q."coauthorId" = $1)
         AND ${getViewablePostsSelector("p")}
