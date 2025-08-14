@@ -558,6 +558,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
       LEFT JOIN (
         SELECT "userId", MAX("lastUpdated") AS max_last_updated
         FROM "ReadStatuses"
+        WHERE "isRead" IS TRUE
         GROUP BY "userId"
       ) AS rs ON u._id = rs."userId"
       WHERE
