@@ -360,7 +360,7 @@ const Layout = ({currentUser, children}: {
   useEffect(() => {
     const redirectUrl = new URL(window.location.href);
     if (query.disableRedirect) {
-      setCookie(NO_ADMIN_NEXT_REDIRECT_COOKIE, true);
+      setCookie(NO_ADMIN_NEXT_REDIRECT_COOKIE, true, { path: '/' });
     } else if (isLW && userIsAdmin(currentUser) && !cookies[NO_ADMIN_NEXT_REDIRECT_COOKIE] && redirectUrl.host === 'wwww.lesswrong.com') {
       redirectUrl.host = 'baserates-prod-test.vercel.app';
       // These two are necessary when testing this on localhost
