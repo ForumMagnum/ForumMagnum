@@ -117,6 +117,12 @@ export function HashLink(props: HashLinkProps) {
       // but without the preventDefault on regular clicks, we end up making two
       // requests: the first one in the `navigate` call in the `doOnDown` case,
       // and the second one during the onClick handling in the `Link` component.
+      //
+      // However, if we call preventDefault on all clicks, it turns out that'll
+      // prevent modified clicks (like cmd+click) from doing anything, since
+      // the `Link` component executes the passed-in `onClick` and then does an
+      // indiscriminate early return if it sees e.defaultPrevented = true.
+      // So we need to only preventDefault on unmodified clicks.
       onClick={(ev) => {
         if (doOnDown && !isSpecialClick(ev)) {
           ev.preventDefault();
