@@ -17,7 +17,6 @@ const styles = defineStyles("EmailInactiveUserSummary", (theme: ThemeType) => ({
     lineHeight: "22px",
     width: 522,
     maxWidth: "100%",
-    margin: "24px auto",
   },
   spacing: {
     marginBottom: 48,
