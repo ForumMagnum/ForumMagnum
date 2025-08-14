@@ -13,14 +13,14 @@ import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, blackBarTitle, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
-import { userCanDo } from '../lib/vulcan-users/permissions';
+import { userCanDo, userIsAdmin } from '../lib/vulcan-users/permissions';
 import { Helmet } from "./common/Helmet";
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
 // import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
 import Header, { HEADER_HEIGHT } from './common/Header';
-import { useCookiePreferences } from './hooks/useCookiesWithConsent';
+import { useCookiePreferences, useCookiesWithConsent } from './hooks/useCookiesWithConsent';
 import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
 import { isFriendlyUI } from '../themes/forumTheme';
@@ -62,6 +62,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { DelayedLoading } from './common/DelayedLoading';
 import { SuspenseWrapper } from './common/SuspenseWrapper';
 import { AutoDarkModeWrapper } from './themes/ThemeContextProvider';
+import { NO_ADMIN_NEXT_REDIRECT_COOKIE } from '@/lib/cookies/cookies';
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -279,7 +280,7 @@ const Layout = ({currentUser, children}: {
   const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : false
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const theme = useTheme();
-  const {currentRoute, pathname} = useLocation();
+  const {currentRoute, pathname, query} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
 
   // enable during ACX Everywhere
@@ -352,6 +353,23 @@ const Layout = ({currentUser, children}: {
   } else if (blackBarTitle.get()) {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }
+
+  const [cookies, setCookie] = useCookiesWithConsent([NO_ADMIN_NEXT_REDIRECT_COOKIE]);
+
+  // Temporary redirect for admins while we're testing NextJS
+  useEffect(() => {
+    const redirectUrl = new URL(window.location.href);
+    if (query.disableRedirect) {
+      setCookie(NO_ADMIN_NEXT_REDIRECT_COOKIE, true);
+    } else if (isLW && userIsAdmin(currentUser) && !cookies[NO_ADMIN_NEXT_REDIRECT_COOKIE] && redirectUrl.host === 'wwww.lesswrong.com') {
+      redirectUrl.host = 'baserates-prod-test.vercel.app';
+      // These two are necessary when testing this on localhost
+      // redirectUrl.port = '';
+      // redirectUrl.protocol = 'https';
+      window.location.replace(redirectUrl.toString());
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const render = () => {
     const baseLayoutOptions: LayoutOptions = {
