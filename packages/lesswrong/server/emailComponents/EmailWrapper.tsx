@@ -3,6 +3,7 @@ import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
 
 const styles = defineStyles("EmailWrapper", (theme: ThemeType) => ({
   root: {
@@ -10,6 +11,9 @@ const styles = defineStyles("EmailWrapper", (theme: ThemeType) => ({
     "& img": {
       maxWidth: "100%",
     }
+  },
+  unsubscribe: {
+    fontWeight: isFriendlyUI ? 400 : undefined,
   },
 }))
 
@@ -57,7 +61,6 @@ export const EmailWrapper = ({unsubscribeAllLink, children}: {
   const innerTdProps: any = {
     bgcolor: "#ffffff",
   };
-  
   return (
     <body {...bodyProps}>
       <br/>
@@ -78,15 +81,17 @@ export const EmailWrapper = ({unsubscribeAllLink, children}: {
                         {children}
                       </td>
                     </tr>
-                    <tr><td className="container-padding">
-                      <br/>
-                      {unsubscribeAllLink && <>
-                        <a href={unsubscribeAllLink}>Unsubscribe</a>{' '}
-                        (from all emails from {siteNameWithArticle})
-                        or <a href={accountLink}>Change your notifications settings</a>
-                      </>}
-                      <br/>
-                    </td></tr>
+                    <tr>
+                      <td className={classNames("container-padding", classes.unsubscribe)}>
+                        <br/>
+                        {unsubscribeAllLink && <>
+                          <a href={unsubscribeAllLink}>Unsubscribe</a>{' '}
+                          (from all emails from {siteNameWithArticle})
+                          or <a href={accountLink}>Change your notifications settings</a>
+                        </>}
+                        <br/>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </td>

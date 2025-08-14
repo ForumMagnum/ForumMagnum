@@ -38,10 +38,10 @@ class FeatureStrategy extends RecommendationStrategy {
     let args = {};
 
     if (options?.publishedAfter) {
-      filters += `p."createdAt" > $(publishedAfter) AND `;
+      filters += `p."postedAt" > $(publishedAfter) AND `;
     }
     if (options?.publishedBefore) {
-      filters += `p."createdAt" < $(publishedBefore) AND `;
+      filters += `p."postedAt" < $(publishedBefore) AND `;
     }
 
     for (const {feature: featureName, weight} of features) {
