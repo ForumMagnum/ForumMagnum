@@ -596,6 +596,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
           OR u."sunshineNotes" = ''
         )
         AND u."karma" >= 0
+        AND u."email" IS NOT NULL
       ORDER BY rs."max_last_updated" DESC
       LIMIT $1
     `, [limit])
