@@ -33,6 +33,8 @@ function loadTsConfig(configPath) {
 
 /** @type {import('next').NextConfig} */
 module.exports = {
+  productionBrowserSourceMaps: true,
+  
   turbopack: {
     resolveAlias: {
       // Replicate the path mappings from tsconfig-client.json
