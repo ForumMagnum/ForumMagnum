@@ -28,6 +28,7 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { createPost, updatePost } from "../collections/posts/mutations";
 import Posts from "@/server/collections/posts/collection";
 import Users from "@/server/collections/users/collection";
+import { fmCrosspostBaseUrlSetting } from "@/lib/instanceSettings";
 
 const onRequestError = (
   req: Request,
@@ -62,9 +63,27 @@ const addHandler = <
     requestData: RequestData,
   ) => Promise<ResponseData>,
 ) => {
+  const setCorsHeaders = (res: Response) => {
+    const foreignBaseUrl = fmCrosspostBaseUrlSetting.get()?.replace(/\/$/, "");
+    if (foreignBaseUrl) {
+      res.set("Access-Control-Allow-Origin", foreignBaseUrl);
+      res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+      res.set("Access-Control-Allow-Headers", "Content-Type");
+      res.set("Access-Control-Max-Age", "86400");
+    }
+  }
   const path = route.getPath();
   app.use(path, json({ limit: "20mb" }));
+  app.options(path, (_req: Request, res: Response) => {
+    setCorsHeaders(res);
+    res.set("Connection", "Keep-Alive");
+    res.set("Keep-Alive", "timeout=2, max=100");
+    res.status(204).end();
+  });
   app.post(path, async (req: Request, res: Response) => {
+    setCorsHeaders(res);
+    res.set("Content-Type", "application/json");
+
     const parsedResult = route.getRequestSchema().safeParse(req.body);
     if (!parsedResult.success) {
       return onRequestError(req, res, path, 400, "Invalid cross-site request body");
@@ -122,7 +141,7 @@ export const addV2CrosspostHandlers = (app: Application) => {
     crosspostDetailsRoute,
     async function crosspostDetailsCrosspostHandler(context, { postId }) {
       const rawPost = await context.loaders.Posts.load(postId);
-      if (!rawPost.fmCrosspost?.isCrosspost) {
+      if (!rawPost?.fmCrosspost?.isCrosspost) {
         throw new InvalidPostError();
       }
       const post = await accessFilterSingle(
