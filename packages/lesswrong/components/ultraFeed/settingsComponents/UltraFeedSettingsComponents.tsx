@@ -6,8 +6,6 @@ import {
   UltraFeedSettingsType,
   sourceWeightConfigs,
   truncationLevels,
-  levelToWordCountMap,
-  levelToPostWordCountMap,
   DEFAULT_SETTINGS,
   ThreadInterestModelFormState,
   CommentScoringFormState
@@ -316,18 +314,24 @@ export const SourceWeightsSettings: React.FC<SourceWeightsSettingsProps> = ({
   );
 };
 
-const getCommentLevelLabel = (level: TruncationLevel): string => {
+const getCommentLevelLabel = (
+  level: TruncationLevel,
+  maps: { commentMap: Record<TruncationLevel, number> }
+): string => {
   // if (level === 'Very Short') return `${level} (2 lines)`; // uncomment if we reintroduce line clamp as default
   if (level === 'Full') return `${level} (no limit)`;
-  
-  const wordCount = levelToWordCountMap[level];
+  const commentMap = maps.commentMap;
+  const wordCount = commentMap[level];
   return typeof wordCount === 'number' ? `${level} (${wordCount} words)` : level;
 };
 
-const getPostLevelLabel = (level: TruncationLevel): string => {
+const getPostLevelLabel = (
+  level: TruncationLevel,
+  maps: { postMap: Record<TruncationLevel, number> }
+): string => {
   if (level === 'Full') return `${level} (no limit)`;
-  
-  const wordCount = levelToPostWordCountMap[level];
+  const postMap = maps.postMap;
+  const wordCount = postMap[level];
   return typeof wordCount === 'number' ? `${level} (${wordCount} words)` : level;
 };
 
@@ -344,17 +348,21 @@ interface TruncationLevelDropdownProps {
   value: TruncationLevel;
   onChange: (field: keyof SimpleViewTruncationLevels, value: TruncationLevel) => void;
   label: string;
+  maps: { commentMap: Record<TruncationLevel, number>, postMap: Record<TruncationLevel, number> };
 }
 
 const TruncationLevelDropdown: React.FC<TruncationLevelDropdownProps> = ({
   field,
   value,
   onChange,
-  label
+  label,
+  maps
 }) => {
   const classes = useStyles(styles);
   const isPostDropdown = field.startsWith('post');
-  const getLabel = isPostDropdown ? getPostLevelLabel : getCommentLevelLabel;
+  const getLabel = isPostDropdown
+    ? (lvl: TruncationLevel) => getPostLevelLabel(lvl, maps)
+    : (lvl: TruncationLevel) => getCommentLevelLabel(lvl, maps);
   
   return (
     <div className={classes.truncationItem}>
@@ -424,9 +432,14 @@ const TruncationInput: React.FC<TruncationInputProps> = ({
   );
 };
 
-const checkForNonstandardValues = (originalSettings: UltraFeedSettingsType) => { 
-  const allowedCommentValues = new Set(Object.values(levelToWordCountMap));
-  const allowedPostValues = new Set(Object.values(levelToPostWordCountMap));
+const checkForNonstandardValues = (
+  originalSettings: UltraFeedSettingsType,
+  maps: { commentMap: Record<TruncationLevel, number>, postMap: Record<TruncationLevel, number> }
+) => { 
+  const commentMap = maps.commentMap;
+  const postMap = maps.postMap;
+  const allowedCommentValues = new Set(Object.values(commentMap));
+  const allowedPostValues = new Set(Object.values(postMap));
 
   const { displaySettings } = originalSettings;
 
@@ -450,6 +463,7 @@ export interface TruncationGridSettingsProps {
   defaultOpen?: boolean;
   postBreakpointError?: string;
   commentBreakpointError?: string;
+  maps: { commentMap: Record<TruncationLevel, number>, postMap: Record<TruncationLevel, number> };
 }
 
 export const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
@@ -459,9 +473,10 @@ export const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
   defaultOpen = true,
   postBreakpointError,
   commentBreakpointError,
+  maps,
 }) => {
   const classes = useStyles(styles);
-  const showWarning = checkForNonstandardValues(originalSettings);
+  const showWarning = checkForNonstandardValues(originalSettings, maps);
 
   return (
     <CollapsibleSettingGroup title="Content Display Length" defaultOpen={defaultOpen} className={classes.settingGroup}>
@@ -484,12 +499,14 @@ export const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
           value={levels.postInitialLevel}
           onChange={onChange}
           label="Initial words to display"
+          maps={maps}
         />
         <TruncationLevelDropdown
           field="postMaxLevel"
           value={levels.postMaxLevel}
           onChange={onChange}
           label="Max words in-place"
+          maps={maps}
         />
         {postBreakpointError && (
           <p className={classes.errorMessage}>{postBreakpointError}</p>
@@ -503,18 +520,21 @@ export const TruncationGridSettings: React.FC<TruncationGridSettingsProps> = ({
           value={levels.commentCollapsedInitialLevel}
           onChange={onChange}
           label="Initial (deemphasized)"
+          maps={maps}
         />
         <TruncationLevelDropdown
           field="commentExpandedInitialLevel"
           value={levels.commentExpandedInitialLevel}
           onChange={onChange}
           label="Initial (emphasized)"
+          maps={maps}
         />
         <TruncationLevelDropdown
           field="commentMaxLevel"
           value={levels.commentMaxLevel}
           onChange={onChange}
           label="Max words in-place"
+          maps={maps}
         />
         {commentBreakpointError && (
           <p className={classes.errorMessage}>{commentBreakpointError}</p>
