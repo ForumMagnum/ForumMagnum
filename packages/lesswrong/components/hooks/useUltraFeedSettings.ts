@@ -11,7 +11,7 @@ import {
   UltraFeedSettingsType,
   ULTRA_FEED_SETTINGS_KEY,
 } from '@/components/ultraFeed/ultraFeedSettingsTypes';
-import useDeviceKind from './useDeviceKind';
+import { isMobile } from '@/lib/utils/isMobile';
 
 export interface UseUltraFeedSettingsResult {
   settings: UltraFeedSettingsType;
@@ -42,7 +42,7 @@ const writeStoredSettings = (next: UltraFeedSettingsType): void => {
 
 export const useUltraFeedSettings = (): UseUltraFeedSettingsResult => {
   const { captureEvent } = useTracking();
-  const deviceKind = useDeviceKind();
+  const deviceKind = useMemo<DeviceKind>(() => (isMobile() ? 'mobile' : 'desktop'), []);
 
   const initialSettings: UltraFeedSettingsType = useMemo(() => {
     const stored = readStoredSettings();

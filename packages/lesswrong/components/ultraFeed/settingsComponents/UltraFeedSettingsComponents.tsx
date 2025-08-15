@@ -316,21 +316,19 @@ export const SourceWeightsSettings: React.FC<SourceWeightsSettingsProps> = ({
 
 const getCommentLevelLabel = (
   level: TruncationLevel,
-  maps: { commentMap: Record<TruncationLevel, number> }
+  commentMap: Record<TruncationLevel, number>
 ): string => {
   // if (level === 'Very Short') return `${level} (2 lines)`; // uncomment if we reintroduce line clamp as default
   if (level === 'Full') return `${level} (no limit)`;
-  const commentMap = maps.commentMap;
   const wordCount = commentMap[level];
   return typeof wordCount === 'number' ? `${level} (${wordCount} words)` : level;
 };
 
 const getPostLevelLabel = (
   level: TruncationLevel,
-  maps: { postMap: Record<TruncationLevel, number> }
+  postMap: Record<TruncationLevel, number>
 ): string => {
   if (level === 'Full') return `${level} (no limit)`;
-  const postMap = maps.postMap;
   const wordCount = postMap[level];
   return typeof wordCount === 'number' ? `${level} (${wordCount} words)` : level;
 };
@@ -361,8 +359,8 @@ const TruncationLevelDropdown: React.FC<TruncationLevelDropdownProps> = ({
   const classes = useStyles(styles);
   const isPostDropdown = field.startsWith('post');
   const getLabel = isPostDropdown
-    ? (lvl: TruncationLevel) => getPostLevelLabel(lvl, maps)
-    : (lvl: TruncationLevel) => getCommentLevelLabel(lvl, maps);
+    ? (lvl: TruncationLevel) => getPostLevelLabel(lvl, maps.postMap)
+    : (lvl: TruncationLevel) => getCommentLevelLabel(lvl, maps.commentMap);
   
   return (
     <div className={classes.truncationItem}>
