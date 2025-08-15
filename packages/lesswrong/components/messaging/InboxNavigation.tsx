@@ -7,6 +7,7 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import type { InboxComponentProps } from './InboxWrapper';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { useDialog } from '../common/withDialog';
 import SectionTitle from "../common/SectionTitle";
 import SingleColumnSection from "../common/SingleColumnSection";
 import ConversationItem from "./ConversationItem";
@@ -17,6 +18,8 @@ import { Typography } from "../common/Typography";
 import LoadMore from "../common/LoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import NewConversationDialog from "./NewConversationDialog";
+import Button from '@/lib/vendor/@material-ui/core/src/Button/Button';
 
 const ConversationsListMultiQuery = gql(`
   query multiConversationInboxNavigationQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -38,6 +41,7 @@ const InboxNavigation = ({
   const location = useLocation();
   const { currentRoute, query } = location;
   const navigate = useNavigate();
+  const { openDialog } = useDialog();
 
   const { view, limit, ...selectorTerms } = terms;
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(ConversationsListMultiQuery, {
@@ -62,12 +66,24 @@ const InboxNavigation = ({
     navigate({...location, search: `?${qs.stringify({expanded: !expanded})}`})
   }
 
+  const openNewConversationDialog = () => {
+    openDialog({
+      name: "NewConversationDialog",
+      contents: ({onClose}) => <NewConversationDialog
+        onClose={onClose}
+      />
+    });
+  }
+
   const showModeratorLink = userCanDo(currentUser, 'conversations.view.all') && currentRoute?.name !== "moderatorInbox"
 
   return (
     <SingleColumnSection>
         <SectionTitle title={title}>
           <SectionFooter>
+            <Button onClick={openNewConversationDialog} variant="outlined">
+              New Conversation
+            </Button>
             <SectionFooterCheckbox
               onClick={expandCheckboxClick}
               value={expanded}
