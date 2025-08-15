@@ -59,7 +59,7 @@ export const useUltraFeedSettings = (): UseUltraFeedSettingsResult => {
       captureEvent('ultraFeedSettingsUpdated', { changedSettings: Object.keys(partial), deviceKind, next });
       return next;
     });
-  }, [captureEvent]);
+  }, [captureEvent, deviceKind]);
 
   const resetSettings = useCallback(() => {
     const defaultSettings = getDefaultSettingsForDevice(deviceKind);
