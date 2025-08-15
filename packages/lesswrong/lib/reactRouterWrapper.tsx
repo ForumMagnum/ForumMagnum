@@ -11,7 +11,7 @@ import { getUrlClass } from '@/server/utils/getUrlClass';
 import { usePathname, useSearchParams } from 'next/navigation';
 
 export type LinkProps = {
-  to?: HashLinkProps['to']|null
+  to: HashLinkProps['to']|null
   doOnDown?: boolean
   onMouseEnter?: HashLinkProps['onMouseEnter']
   onMouseLeave?: HashLinkProps['onMouseLeave']
@@ -39,7 +39,7 @@ const isPrefetchablePostLink = (to: string) => {
 
 const getLinkPrefetch = (to: string, everHovered: boolean) => {
   if (isPrefetchablePostLink(to)) {
-    return null;
+    return true;
   }
 
   return everHovered ? true : false;

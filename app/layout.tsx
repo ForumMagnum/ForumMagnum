@@ -19,15 +19,12 @@ import { CLIENT_ID_COOKIE, THEME_COOKIE, TIMEZONE_COOKIE } from "@/lib/cookies/c
 
 export default async function RootLayout({
   children,
-  searchParams,
 }: {
   children: React.ReactNode;
-  searchParams: Promise<URLSearchParams>;
 }) {
-  const [cookieStore, headerValues, searchParamValues] = await Promise.all([
+  const [cookieStore, headerValues] = await Promise.all([
     cookies(),
     headers(),
-    searchParams,
   ]);
 
   const publicInstanceSettings = getInstanceSettings().public;
@@ -84,7 +81,6 @@ export default async function RootLayout({
           }}
           user={user}
           headers={headerEntries}
-          searchParams={Object.fromEntries(searchParamValues?.entries() ?? [])}
         >
           {children}
         </AppGenerator>

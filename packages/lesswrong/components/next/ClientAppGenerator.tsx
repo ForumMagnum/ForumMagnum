@@ -149,16 +149,16 @@ const AppComponent = ({ children }: { children: React.ReactNode }) => {
   </HelmetProvider>;
 }
 
-const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, user, cookies, headers, searchParams, children }: {
+const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, user, cookies, headers, children }: {
   abTestGroupsUsed: RelevantTestGroupAllocation,
   themeOptions: AbstractThemeOptions,
   ssrMetadata?: SSRMetadata,
   user: DbUser | null,
   cookies: RequestCookie[],
   headers: Record<string, string>,
-  searchParams: Record<string, string>,
   children: React.ReactNode,
 }) => {
+  const urlSearchParams = useSearchParams();
   const universalCookies = new Cookies(Object.fromEntries(cookies.map((cookie) => [cookie.name, cookie.value])));
   const loginToken = universalCookies.get('loginToken');
 
@@ -171,7 +171,7 @@ const AppGenerator = ({ abTestGroupsUsed, themeOptions, ssrMetadata, user, cooki
           user={user}
           cookies={cookies}
           headers={headers}
-          searchParams={searchParams}
+          searchParams={Object.fromEntries(urlSearchParams.entries())}
         >
         <CookiesProvider cookies={universalCookies}>
           <ThemeContextProvider options={themeOptions} isEmail={false}>

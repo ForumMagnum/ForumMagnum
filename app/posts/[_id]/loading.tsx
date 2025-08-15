@@ -5,10 +5,12 @@ import { hasPostRecommendations } from "@/lib/betas";
 import React from "react";
 
 export default function PostsLoadingPage() {
-  <RouteMetadataSetter metadata={{
-    background: 'white',
-    noFooter: hasPostRecommendations,
-    titleComponent: PostsPageHeaderTitle
-  }} />
-  return <PostsSingle />;
+  return (<>
+    <RouteMetadataSetter metadata={{
+      background: 'white',
+      noFooter: hasPostRecommendations,
+      titleComponent: PostsPageHeaderTitle
+    }} />
+    <PostsSingle />
+  </>);
 }
