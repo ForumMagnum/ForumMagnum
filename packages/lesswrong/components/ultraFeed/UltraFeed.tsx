@@ -64,11 +64,6 @@ const saveSettings = (settings: Partial<UltraFeedSettingsType>): UltraFeedSettin
 
 const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   root: {
-    // Remove padding inserted by Layout.tsx to be flush with sides of screen
-    [theme.breakpoints.down('sm')]: {
-      marginLeft: -8,
-      marginRight: -8,
-    },
   },
   feedComementItem: {
     marginBottom: 16
