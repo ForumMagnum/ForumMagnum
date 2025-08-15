@@ -194,7 +194,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
     ALL.COMMENTS.ONE_PER_EIGHT_SECONDS
   ]
 }
-const EA = {
+const EA: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
   POSTS: [
     ...LW.POSTS,
     ALL.POSTS.FIVE_PER_DAY
