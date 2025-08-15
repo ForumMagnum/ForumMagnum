@@ -786,7 +786,7 @@ export async function lwCommentsNewUpvoteOwnComment(comment: DbComment, currentU
   const start = Date.now();
   var commentAuthor = await loaders.Users.load(comment.userId);
   if (!commentAuthor) throw new Error(`Could not find user: ${comment.userId}`);
-  const { performVoteServer } = require("../voteServer");
+  const { performVoteServer } = await import("../voteServer");
   const {modifiedDocument: votedComment} = await performVoteServer({
     document: comment,
     voteType: 'smallUpvote',
