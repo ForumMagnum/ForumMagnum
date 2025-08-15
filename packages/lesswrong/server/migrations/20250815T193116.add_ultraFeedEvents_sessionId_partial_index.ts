@@ -1,7 +1,8 @@
+import { backgroundTask } from "../utils/backgroundTask";
 import { updateCustomIndexes } from "./meta/utils";
 
 export const up = async ({dbOutsideTransaction}: MigrationContext) => {
-  await updateCustomIndexes(dbOutsideTransaction);
+  backgroundTask(updateCustomIndexes(dbOutsideTransaction));
 }
 
 export const down = async ({ db }: MigrationContext) => {
