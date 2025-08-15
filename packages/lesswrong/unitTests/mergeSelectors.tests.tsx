@@ -19,7 +19,7 @@ describe("mergeSelectors", () => {
     const newSelector = {
       userId: { allowAny: true },
       groupId: null,
-      $or: [{ userId: "abcd" }, { "coauthorStatuses.userId": "abcd" }],
+      $or: [{ userId: "abcd" }, { coauthorUserIds: "abcd" }],
     };
     
     const mergedSelector = mergeSelectors(baseSelector, newSelector)
@@ -27,7 +27,7 @@ describe("mergeSelectors", () => {
       '$and': [
         { '$or': [
           { userId: 'abcd' },
-          { 'coauthorStatuses.userId': 'abcd' }
+          { coauthorUserIds: 'abcd' }
         ] },
         {
           '$or': [

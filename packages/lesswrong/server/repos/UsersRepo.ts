@@ -325,17 +325,11 @@ class UsersRepo extends AbstractRepo<"Users"> {
   async getUsersWhoHaveMadeDialogues(): Promise<DbUser[]> {
     return this.getRawDb().any(`
       -- UsersRepo.getUsersWhoHaveMadeDialogues
-      WITH all_dialogue_authors AS
-        (SELECT (UNNESTED->>'userId') AS _id
-            FROM "Posts" p, UNNEST("coauthorStatuses") unnested
-            WHERE p."collabEditorDialogue" IS TRUE 
-            AND p."draft" IS FALSE
-        UNION
-        SELECT p."userId" as _id
-            FROM "Posts" p
-            WHERE p."collabEditorDialogue" IS TRUE
-            AND p."draft" IS FALSE
-        )
+      WITH all_dialogue_authors AS (
+        SELECT DISTINCT UNNEST("coauthorUserIds" || ARRAY["userId"]) "_id"
+        FROM "Posts"
+        where "collabEditorDialogue" IS TRUE AND "draft" IS FALSE
+      )
       SELECT u.*
       FROM "Users" u
       INNER JOIN all_dialogue_authors ON all_dialogue_authors._id = u._id
@@ -403,16 +397,16 @@ class UsersRepo extends AbstractRepo<"Users"> {
         p._id,
         p.title,
         p."userId",
-        p."coauthorStatuses",
+        p."coauthorUserIds",
         ARRAY_AGG(DISTINCT s."userId") AS "activeUserIds",
         MAX(r."editedAt") AS "mostRecentEditedAt"
     FROM "Posts" AS p
     INNER JOIN "Revisions" AS r ON p._id = r."documentId"
     INNER JOIN "CkEditorUserSessions" AS s ON p._id = s."documentId",
-        unnest(p."coauthorStatuses") AS coauthors
+        unnest(p."coauthorUserIds") AS coauthor
     WHERE
         (
-            coauthors ->> 'userId' = any($1)
+            coauthor = any($1)
             OR p."userId" = any($1)
         )
         AND s."endedAt" IS NULL

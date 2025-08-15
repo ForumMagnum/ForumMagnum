@@ -8,12 +8,11 @@ import { useCurrentUser } from '../common/withUser';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
 import { filter } from 'underscore';
-import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
+import { postGetCommentCountStr, userIsPostCoauthor } from '../../lib/collections/posts/helpers';
 import CommentsNewForm, { CommentsNewFormProps } from './CommentsNewForm';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
-
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import CommentsViews from "./CommentsViews";
 import Loading from "../vulcan-core/Loading";
@@ -149,7 +148,7 @@ const CommentsListSection = ({
   const userIsDebateParticipant =
     currentUser
     && post?.debate
-    && (currentUser._id === postAuthor?._id || post?.coauthorStatuses?.some(coauthor => coauthor.userId === currentUser._id));
+    && (currentUser._id === postAuthor?._id || userIsPostCoauthor(currentUser, post));
     
   const commentCountNode = !!totalComments && <span className={classes.commentCount}>{totalComments}</span>
 
