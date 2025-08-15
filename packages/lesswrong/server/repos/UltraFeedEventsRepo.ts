@@ -101,6 +101,30 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
 
     return new Set(viewedPosts.map((row: any) => row.postId));
   }
+
+  /**
+   * Gets comment IDs that have been served in a specific session.
+   */
+  async getServedCommentIdsForSession(
+    userId: string,
+    sessionId: string
+  ): Promise<Set<string>> {
+    const servedComments = await this.manyOrNone(`
+      -- UltraFeedEventsRepo.getServedCommentIdsForSession
+      SELECT DISTINCT "documentId"
+      FROM "UltraFeedEvents"
+      WHERE 
+        "userId" = $(userId)
+        AND "collectionName" = 'Comments'
+        AND "eventType" = 'served'
+        AND event->>'sessionId' = $(sessionId)
+    `, {
+      userId,
+      sessionId
+    });
+
+    return new Set(servedComments.map((row: any) => row.documentId));
+  }
 }
 
 recordPerfMetrics(UltraFeedEventsRepo);

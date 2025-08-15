@@ -550,7 +550,8 @@ export async function getUltraFeedCommentThreads(
   settings: UltraFeedResolverSettings,
   initialCandidateLookbackDays: number,
   commentServedEventRecencyHours: number,
-  threadEngagementLookbackDays: number
+  threadEngagementLookbackDays: number,
+  sessionId?: string
 ): Promise<PreparedFeedCommentsThread[]> {
   const userId = context.userId;
   if (!userId) {
@@ -558,6 +559,7 @@ export async function getUltraFeedCommentThreads(
   }
 
   const commentsRepo = context.repos.comments;
+  const ultraFeedEventsRepo = context.repos.ultraFeedEvents;
 
   const rawCommentsDataPromise = commentsRepo.getCommentsForFeed(
     userId, 
@@ -579,14 +581,20 @@ export async function getUltraFeedCommentThreads(
     documentId: 1,
   }).fetch().then(rows => rows.map(row => row.documentId).filter(id => id !== null));
 
+  const servedInSessionPromise = sessionId
+    ? ultraFeedEventsRepo.getServedCommentIdsForSession(userId, sessionId)
+    : Promise.resolve(new Set<string>());
+
   const [
     rawCommentsData,
     engagementStatsList,
-    subscribedToUserIdsList
+    subscribedToUserIdsList,
+    servedCommentIdsInSession
   ] = await Promise.all([
     rawCommentsDataPromise,
     engagementStatsPromise,
-    subscribedToUserIdsPromise
+    subscribedToUserIdsPromise,
+    servedInSessionPromise
   ]);
 
   const subscribedToUserIds = new Set(subscribedToUserIdsList);
@@ -618,6 +626,14 @@ export async function getUltraFeedCommentThreads(
       !comment.lastViewed && !comment.lastInteracted
     );
     if (!hasUnviewedComment) return false;
+    
+    // Exclude threads where ALL comments have already been served in this session, i.e. duplicate thread
+    if (sessionId && servedCommentIdsInSession.size > 0) {
+      const hasUnservedComment = thread.some(comment => 
+        !servedCommentIdsInSession.has(comment.commentId)
+      );
+      if (!hasUnservedComment) return false;
+    }
     
     return true;
   });
