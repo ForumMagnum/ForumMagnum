@@ -27,7 +27,14 @@ export interface UltraFeedSettingsType {
   resolverSettings: UltraFeedResolverSettings;
 }
 
-const DEFAULT_DISPLAY_SETTINGS: UltraFeedDisplaySettings = {
+
+export const truncationLevels = ['Very Short', 'Short', 'Medium', 'Long', 'Full'] as const;
+export type TruncationLevel = typeof truncationLevels[number];
+export const SHOW_ALL_BREAKPOINT_VALUE = 100_000;
+
+export const readCommentsInitialWords = 30;
+
+export const DEFAULT_DISPLAY_SETTINGS_DESKTOP: UltraFeedDisplaySettings = {
   lineClampNumberOfLines: 0,
   commentCollapsedInitialWords: 75,
   commentExpandedInitialWords: 150,
@@ -36,13 +43,7 @@ const DEFAULT_DISPLAY_SETTINGS: UltraFeedDisplaySettings = {
   postMaxWords: 300,
 };
 
-export const truncationLevels = ['Very Short', 'Short', 'Medium', 'Long', 'Full'] as const;
-export type TruncationLevel = typeof truncationLevels[number];
-export const SHOW_ALL_BREAKPOINT_VALUE = 100_000;
-
-export const readCommentsInitialWords = 30;
-
-export const levelToWordCountMap: Record<TruncationLevel, number> = {
+export const LEVEL_TO_COMMENT_WORDS_DESKTOP: Record<TruncationLevel, number> = {
   'Very Short': 75,
   'Short': 150,
   'Medium': 500,
@@ -50,11 +51,36 @@ export const levelToWordCountMap: Record<TruncationLevel, number> = {
   'Full': SHOW_ALL_BREAKPOINT_VALUE,
 };
 
-export const levelToPostWordCountMap: Record<TruncationLevel, number> = {
+export const LEVEL_TO_POST_WORDS_DESKTOP: Record<TruncationLevel, number> = {
   'Very Short': 50,
   'Short': 150,
   'Medium': 300,
-  'Long': 2000,
+  'Long': 600,
+  'Full': SHOW_ALL_BREAKPOINT_VALUE,
+};
+
+export const DEFAULT_DISPLAY_SETTINGS_MOBILE: UltraFeedDisplaySettings = {
+  lineClampNumberOfLines: 0,
+  commentCollapsedInitialWords: 30,
+  commentExpandedInitialWords: 75,
+  commentMaxWords: 300,
+  postInitialWords: 100,
+  postMaxWords: 300,
+};
+
+export const LEVEL_TO_COMMENT_WORDS_MOBILE: Record<TruncationLevel, number> = {
+  'Very Short': 30,
+  'Short': 75,
+  'Medium': 150,
+  'Long': 300,
+  'Full': SHOW_ALL_BREAKPOINT_VALUE,
+};
+
+export const LEVEL_TO_POST_WORDS_MOBILE: Record<TruncationLevel, number> = {
+  'Very Short': 50,
+  'Short': 100,
+  'Medium': 300,
+  'Long': 500,
   'Full': SHOW_ALL_BREAKPOINT_VALUE,
 };
 
@@ -111,13 +137,33 @@ const DEFAULT_THREAD_INTEREST_MODEL_SETTINGS: ThreadInterestModelSettings = {
 };
 
 export const DEFAULT_SETTINGS: UltraFeedSettingsType = {
-  displaySettings: DEFAULT_DISPLAY_SETTINGS,
+  displaySettings: DEFAULT_DISPLAY_SETTINGS_DESKTOP,
   resolverSettings: {
     incognitoMode: false,
     sourceWeights: DEFAULT_SOURCE_WEIGHTS,
     commentScoring: DEFAULT_COMMENT_SCORING_SETTINGS,
     threadInterestModel: DEFAULT_THREAD_INTEREST_MODEL_SETTINGS,
   },
+};
+
+export type DeviceKind = 'mobile' | 'desktop';
+
+export const getDefaultSettingsForDevice = (device: DeviceKind): UltraFeedSettingsType => {
+  return {
+    displaySettings: device === 'mobile' ? DEFAULT_DISPLAY_SETTINGS_MOBILE : DEFAULT_DISPLAY_SETTINGS_DESKTOP,
+    resolverSettings: {
+      incognitoMode: false,
+      sourceWeights: DEFAULT_SOURCE_WEIGHTS,
+      commentScoring: { ...DEFAULT_COMMENT_SCORING_SETTINGS },
+      threadInterestModel: { ...DEFAULT_THREAD_INTEREST_MODEL_SETTINGS },
+    },
+  };
+};
+
+export const getTruncationMapsForDevice = (device: DeviceKind): { commentMap: Record<TruncationLevel, number>, postMap: Record<TruncationLevel, number> } => {
+  return device === 'mobile'
+    ? { commentMap: LEVEL_TO_COMMENT_WORDS_MOBILE, postMap: LEVEL_TO_POST_WORDS_MOBILE }
+    : { commentMap: LEVEL_TO_COMMENT_WORDS_DESKTOP, postMap: LEVEL_TO_POST_WORDS_DESKTOP };
 };
 
 export interface SourceWeightConfig {
@@ -171,7 +217,7 @@ export const sourceWeightConfigs: SourceWeightConfig[] = [
 
 export const getWordCountLevel = (
   wordCount: number | undefined,
-  levelMap: Record<TruncationLevel, number> = levelToWordCountMap
+  levelMap: Record<TruncationLevel, number>
 ): TruncationLevel => {
   if (wordCount === undefined || wordCount <= 0) return 'Very Short';
   if (wordCount >= SHOW_ALL_BREAKPOINT_VALUE) return 'Full';
@@ -190,14 +236,6 @@ export const getWordCountLevel = (
     }
   }
   return closestLevel;
-};
-
-export const getCommentWordCountLevel = (wordCount: number | undefined): TruncationLevel => {
-  return getWordCountLevel(wordCount, levelToWordCountMap);
-};
-
-export const getPostWordCountLevel = (wordCount: number | undefined): TruncationLevel => {
-  return getWordCountLevel(wordCount, levelToPostWordCountMap);
 };
 
 export interface SettingsFormState {

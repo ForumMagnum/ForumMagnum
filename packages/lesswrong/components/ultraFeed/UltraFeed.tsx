@@ -8,9 +8,6 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { FeedItemSourceType } from './ultraFeedTypes';
 import { UltraFeedObserverProvider } from './UltraFeedObserver';
 import { OverflowNavObserverProvider } from './OverflowNavObserverContext';
-import { DEFAULT_SETTINGS, UltraFeedSettingsType, ULTRA_FEED_SETTINGS_KEY } from './ultraFeedSettingsTypes';
-import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
-import { isClient } from '../../lib/executionEnvironment';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import { MixedTypeFeed } from "../common/MixedTypeFeed";
@@ -29,48 +26,12 @@ import { useDialog } from '../common/withDialog';
 import FeedSelectorDropdown from '../common/FeedSelectorCheckbox';
 import { ultraFeedEnabledSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
-import classNames from 'classnames';
-import UltraFeedFeedback from './UltraFeedFeedback';
+import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
 import AnalyticsInViewTracker from '../common/AnalyticsInViewTracker';
 
-const ULTRAFEED_SESSION_ID_KEY = 'ultraFeedSessionId';
-
-const getStoredSettings = (): UltraFeedSettingsType => {
-  if (!isClient) return DEFAULT_SETTINGS;
-  
-  const ls = getBrowserLocalStorage();
-  if (!ls) return DEFAULT_SETTINGS;
-  
-  const storedSettings = ls.getItem(ULTRA_FEED_SETTINGS_KEY);
-  if (!storedSettings) return DEFAULT_SETTINGS;
-  
-  try {
-    return { ...DEFAULT_SETTINGS, ...JSON.parse(storedSettings) };
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error("Failed to parse UltraFeed settings", e);
-    return DEFAULT_SETTINGS;
-  }
-};
-
-const saveSettings = (settings: Partial<UltraFeedSettingsType>): UltraFeedSettingsType => {
-  const ls = getBrowserLocalStorage();
-  if (!ls) return DEFAULT_SETTINGS;
-  
-  const currentSettings = getStoredSettings();
-  const newSettings = { ...currentSettings, ...settings };
-  
-  ls.setItem(ULTRA_FEED_SETTINGS_KEY, JSON.stringify(newSettings));
-  return newSettings;
-};
 
 const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   root: {
-    // Remove padding inserted by Layout.tsx to be flush with sides of screen
-    [theme.breakpoints.down('sm')]: {
-      marginLeft: -8,
-      marginRight: -8,
-    },
   },
   feedComementItem: {
     marginBottom: 16
@@ -171,14 +132,8 @@ const UltraFeedContent = ({alwaysShow = false}: {
 
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking();
-  const [settings, setSettings] = useState<UltraFeedSettingsType>(getStoredSettings);
-  const [sessionId] = useState<string>(() => {
-    if (typeof window === 'undefined') return randomId();
-    const storage = window.sessionStorage;
-    const currentId = storage ? storage.getItem(ULTRAFEED_SESSION_ID_KEY) ?? randomId() : randomId();
-    storage.setItem(ULTRAFEED_SESSION_ID_KEY, currentId);
-    return currentId;
-  });
+  const { settings, updateSettings, resetSettings, truncationMaps } = useUltraFeedSettings();
+  const [sessionId] = useState<string>(randomId);
   const refetchSubscriptionContentRef = useRef<null | ObservableQuery['refetch']>(null);
 
   const handleOpenQuickTakeDialog = () => {
@@ -199,18 +154,8 @@ const UltraFeedContent = ({alwaysShow = false}: {
     setSettingsVisible(!settingsVisible);
   };
   
-  const updateSettings = (newSettings: Partial<UltraFeedSettingsType>) => {
-    const updatedSettings = saveSettings(newSettings);
-    setSettings(updatedSettings);
-    captureEvent("ultraFeedSettingsUpdated", { 
-      changedSettings: Object.keys(newSettings) 
-    });
-  };
-  
   const resetSettingsToDefault = () => {
-    const defaultSettings = saveSettings(DEFAULT_SETTINGS);
-    setSettings(defaultSettings);
-    captureEvent("ultraFeedSettingsReset");
+    resetSettings();
   };
 
   const { resolverSettings } = settings;
@@ -251,6 +196,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
                   updateSettings={updateSettings}
                   resetSettingsToDefault={resetSettingsToDefault}
                   onClose={() => setSettingsVisible(false)} 
+                  truncationMaps={truncationMaps}
                 />
               </div>
             )}

@@ -25,7 +25,7 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
     lookbackDays: number,
     limit: number
   ): Promise<string[]> {
-    const unviewedItems = await this.manyOrNone(`
+    const unviewedItems = await this.getRawDb().manyOrNone<{ documentId: string }>(`
       -- UltraFeedEventsRepo.getUnviewedRecombeePostIds
       SELECT
         s."documentId"
@@ -56,7 +56,7 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
       limit
     });
 
-    return unviewedItems.map((row: any) => row.documentId);
+    return unviewedItems.map((row) => row.documentId);
   }
 
   /**
@@ -71,7 +71,7 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
       return new Set();
     }
 
-    const viewedPosts = await this.manyOrNone(`
+    const viewedPosts = await this.getRawDb().manyOrNone<{ postId: string }>(`
       -- UltraFeedEventsRepo.getViewedPostIds
       SELECT DISTINCT "postId"
       FROM (
@@ -99,7 +99,31 @@ class UltraFeedEventsRepo extends AbstractRepo<'UltraFeedEvents'> {
       postIds,
     });
 
-    return new Set(viewedPosts.map((row: any) => row.postId));
+    return new Set(viewedPosts.map((row) => row.postId));
+  }
+
+  /**
+   * Gets comment IDs that have been served in a specific session.
+   */
+  async getServedCommentIdsForSession(
+    userId: string,
+    sessionId: string
+  ): Promise<Set<string>> {
+    const servedComments = await this.getRawDb().manyOrNone<{ documentId: string }>(`
+      -- UltraFeedEventsRepo.getServedCommentIdsForSession
+      SELECT DISTINCT "documentId"
+      FROM "UltraFeedEvents"
+      WHERE 
+        "userId" = $(userId)
+        AND "collectionName" = 'Comments'
+        AND "eventType" = 'served'
+        AND event->>'sessionId' = $(sessionId)
+    `, {
+      userId,
+      sessionId
+    });
+
+    return new Set(servedComments.map((row) => row.documentId));
   }
 }
 
