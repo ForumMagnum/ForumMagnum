@@ -2,11 +2,11 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
-import { styles } from '../common/HeaderSubtitle';
+import { headerSubtitleStyles } from '../common/HeaderSubtitle';
 import { Helmet } from '../common/Helmet';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useStyles } from '../hooks/useStyles';
 
 const SequencesPageTitleFragmentQuery = gql(`
   query SequencesPageTitle($documentId: String) {
@@ -18,13 +18,11 @@ const SequencesPageTitleFragmentQuery = gql(`
   }
 `);
 
-const titleComponentStyles = defineStyles('SequencesPageTitle', styles);
-
 export const SequencesPageTitle = ({isSubtitle, siteName}: {
   isSubtitle: boolean,
   siteName: string,
 }) => {
-  const classes = useStyles(titleComponentStyles);
+  const classes = useStyles(headerSubtitleStyles);
 
   const { params: {_id} } = useLocation();
   

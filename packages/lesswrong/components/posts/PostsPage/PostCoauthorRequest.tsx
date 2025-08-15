@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import classNames from 'classnames';
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Typography } from "../../common/Typography";
 import Loading from "../../vulcan-core/Loading";
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostCoauthorRequest", (theme: ThemeType) => ({
   coauthorRequest: {
     border: theme.palette.border.grey400,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -40,18 +40,29 @@ const styles = (theme: ThemeType) => ({
     marginTop: '10px',
     color: theme.palette.text.error2,
   },
-});
+}));
 
 const isRequestedCoauthor = (
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
   currentUser: UsersCurrent|null
 ) => currentUser && post.coauthorStatuses?.find?.(({ userId, confirmed }) => userId === currentUser._id && !confirmed);
 
-const PostCoauthorRequest = ({post, currentUser, classes}: {
+const PostCoauthorRequest = ({post, currentUser}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
   currentUser: UsersCurrent|null,
-  classes: ClassesType<typeof styles>,
 }) => {
+  if (!isRequestedCoauthor(post, currentUser)) {
+    return null;
+  }
+
+  return <PostCoauthorRequestInner post={post} currentUser={currentUser}/>
+}
+
+const PostCoauthorRequestInner = ({post, currentUser}: {
+  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
+  currentUser: UsersCurrent|null,
+}) => {
+  const classes = useStyles(styles);
   const [error, setError] = useState<string|undefined>();
   const [loading, setLoading] = useState(false);
 
@@ -62,10 +73,6 @@ const PostCoauthorRequest = ({post, currentUser, classes}: {
         }
     }
   `))
-
-  if (!isRequestedCoauthor(post, currentUser)) {
-    return null;
-  }
 
   const onResponse = async (accept: boolean) => {
     setLoading(true);
@@ -107,8 +114,6 @@ const PostCoauthorRequest = ({post, currentUser, classes}: {
   );
 }
 
-export default registerComponent(
-  'PostCoauthorRequest', PostCoauthorRequest, {styles}
-);
+export default PostCoauthorRequest;
 
 

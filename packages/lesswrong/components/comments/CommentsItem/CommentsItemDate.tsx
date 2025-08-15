@@ -39,10 +39,10 @@ const styles = defineStyles("CommentsItemDate", (theme: ThemeType) => ({
     whiteSpace: "nowrap",
 
     zIndex: theme.zIndexes.commentPermalinkIcon,
-  },
-  answerDate: {},
-  date: {
     color: theme.palette.text.dim,
+  },
+  answerDate: {
+    color: "inherit",
   },
   postTitle: {
     marginRight: 5,
@@ -99,7 +99,6 @@ const CommentsItemDate = ({comment, preventDateFormatting, className, ...rest}: 
   return (
     <span className={classNames(
       classes.root,
-      !comment.answer && classes.date,
       comment.answer && classes.answerDate,
       className,
     )}>

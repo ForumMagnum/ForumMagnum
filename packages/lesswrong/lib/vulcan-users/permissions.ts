@@ -171,7 +171,7 @@ export const userOverNKarmaOrApproved = (n: number) => {
   }
 }
 
-export const userHasntChangedName = (user: Partial<Pick<UsersMinimumInfo|DbUser, 'previousDisplayName'>> | null): boolean => {
+export const userHasntChangedName = (user: Partial<Pick<UsersProfile|DbUser, 'previousDisplayName'>> | null): boolean => {
   if (!user) return false
   return !user.previousDisplayName
 }

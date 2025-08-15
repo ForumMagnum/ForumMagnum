@@ -14,8 +14,6 @@ export const UsersMinimumInfo = gql(`
     username
     displayName
     profileImageId
-    previousDisplayName
-    fullName
     karma
     afKarma
     deleted
@@ -40,6 +38,8 @@ export const UsersMinimumInfo = gql(`
 export const UsersProfile = gql(`
   fragment UsersProfile on User {
     ...UsersMinimumInfo
+    fullName
+    previousDisplayName
     oldSlugs
     groups
     jobTitle

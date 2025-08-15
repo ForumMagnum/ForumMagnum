@@ -1,11 +1,11 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
 import { QueryLink } from '../../../lib/reactRouterWrapper';
 import LWTooltip from "../../common/LWTooltip";
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommentOutdatedWarning", (theme: ThemeType) => ({
   outdatedWarning: {
     float: "right",
     position: 'relative',
@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
     position: 'relative',
     top: 2
   }
-})
+}))
 
 interface PostWithVersion {
   contents: {
@@ -41,23 +41,24 @@ function postHadMajorRevision(comment: CommentsList, post: PostsMinimumInfo|Post
   }
 }
 
-const CommentOutdatedWarning = ({comment, post, classes}: {
+const CommentOutdatedWarning = ({comment, post}: {
   comment: CommentsList,
   post: PostsMinimumInfo,
-  classes: ClassesType<typeof styles>,
 }) => {
   if (!postHadMajorRevision(comment, post))
     return null;
+  return <CommentOutdatedWarningIcon comment={comment}/>
+};
+
+const CommentOutdatedWarningIcon = ({comment}: {
+  comment: CommentsList,
+}) => {
+  const classes = useStyles(styles);
   return <span className={classes.outdatedWarning}>
     <LWTooltip title="The top-level post had major updates since this comment was created. Click to see post at time of creation.">
       <QueryLink query={{revision: comment.postVersion}} merge><HistoryIcon className={classes.icon}/> Response to previous version </QueryLink>
     </LWTooltip>
   </span>;
-};
+}
 
-export default registerComponent(
-  'CommentOutdatedWarning', CommentOutdatedWarning, {styles}
-);
-
-
-
+export default CommentOutdatedWarning;

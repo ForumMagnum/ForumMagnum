@@ -9,6 +9,7 @@ import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useStyles } from '../hooks/useStyles';
 
 const SequencesPageFragmentMultiQuery = gql(`
   query multiSequenceSequencesGridWrapperQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {
@@ -24,18 +25,17 @@ const SequencesPageFragmentMultiQuery = gql(`
 const SequencesGridWrapper = ({
   terms,
   className,
-  classes,
   itemsPerPage=10,
   showLoadMore = false,
   showAuthor = false,
 }: {
   terms: SequencesViewTerms,
   className?: string,
-  classes: ClassesType<typeof styles>,
   itemsPerPage?: number,
   showLoadMore?: boolean,
   showAuthor?: boolean,
 }) => {
+  const classes = useStyles(styles);
   const { view, limit, ...selectorTerms } = terms;
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(SequencesPageFragmentMultiQuery, {
     variables: {
@@ -69,7 +69,6 @@ const SequencesGridWrapper = ({
 };
 
 export default registerComponent('SequencesGridWrapper', SequencesGridWrapper, {
-  styles,
   areEqual: {
     terms: "deep"
   }

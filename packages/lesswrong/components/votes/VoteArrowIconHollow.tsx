@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
 import classNames from 'classnames';
 import UpArrowIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowUp';
-import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import Transition from 'react-transition-group/Transition';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { VoteArrowIconProps } from './VoteArrowIcon';
@@ -9,16 +8,6 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { getVoteButtonColor, voteButtonSharedStyles } from './VoteButton';
 
 const styles = defineStyles("VoteArrowIconHollow", (theme: ThemeType) => ({
-  root: {
-    color: theme.palette.grey[400],
-    fontSize: 'inherit',
-    width: 'initial',
-    height: 'initial',
-    padding: 0,
-    '&:hover': {
-      backgroundColor: 'transparent',
-    },
-  },
   disabled: {
     cursor: 'not-allowed',
   },
@@ -77,18 +66,19 @@ const VoteArrowIconHollow = ({
   const nodeRef = useRef<SVGSVGElement|null>(null);
 
   return (
-    <IconButton
+    <button
       className={classNames(
-        classes.root,
+        sharedClasses.root,
         classes[orientation],
-        !enabled && classes.disabled
+        !enabled && classes.disabled,
       )}
+      type="button"
       onMouseDown={handlers.handleMouseDown}
       onMouseUp={handlers.handleMouseUp}
       onMouseOut={handlers.clearState}
       onClick={handlers.handleClick}
-      disableRipple
     >
+    <span className={sharedClasses.inner}>
       <UpArrowIcon
         className={classNames(classes.smallArrow, (voted || alwaysColored) && getVoteButtonColor(sharedClasses, color, "main"))}
         viewBox="6 6 12 12"
@@ -106,7 +96,8 @@ const VoteArrowIconHollow = ({
             viewBox="6 6 12 12"
         />)}
       </Transition>
-    </IconButton>
+    </span>
+    </button>
   );
 };
 

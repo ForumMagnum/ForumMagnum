@@ -75,7 +75,6 @@ export const CommentsList = gql(`
     debateResponse
     rejected
     rejectedReason
-    modGPTRecommendation
     originalDialogueId
 
     forumEventId

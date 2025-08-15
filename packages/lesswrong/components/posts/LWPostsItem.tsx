@@ -40,10 +40,11 @@ import { ResponseIcon } from "./PostsPage/RSVPs";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/IfAnyoneBuildsItSplash';
 import { isBookUI } from '@/themes/forumTheme';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 export const KARMA_WIDTH = 32;
 
-export const styles = (theme: ThemeType) => ({
+export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
   row: {
     display: "flex",
     alignItems: "center",
@@ -428,15 +429,12 @@ export const styles = (theme: ThemeType) => ({
     marginLeft: "auto",
     flexShrink: 0,
   },
-})
+}))
 
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
+export type PostsList2Props = PostsItemConfig;
 
-export type PostsList2Props = PostsItemConfig & {
-  classes: ClassesType<typeof styles>,
-};
-
-const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
+const LWPostsItem = (props: PostsItemConfig) => {
   const {
     post,
     postLink,
@@ -482,6 +480,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     className,
   } = usePostsItem(props);
 
+  const classes = useStyles(styles);
   const { hover, eventHandlers } = useHover();
 
   const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
@@ -691,7 +690,6 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
 };
 
 export default registerComponent('LWPostsItem', LWPostsItem, {
-  styles,
   stylePriority: 1,
   hocs: [withErrorBoundary],
   areEqual: {
