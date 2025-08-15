@@ -1,9 +1,9 @@
-import React, { FC, ReactNode, RefObject, createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import React, { FC, ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useCurrentUserId } from '../common/withUser';
 import { useUpdateCurrentUser } from './useUpdateCurrentUser';
-import { type QueryRef, useBackgroundQuery, useReadQuery } from '@apollo/client/react';
+import { type QueryRef, useApolloClient, useBackgroundQuery, useReadQuery } from '@apollo/client/react';
 import { NotificationsListMultiQuery } from '../notifications/NotificationsListMultiQuery';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import type { ResultOf } from '@graphql-typed-document-node/core';
@@ -39,12 +39,14 @@ type UnreadNotificationsContext = {
   unreadNotificationCountsQueryRef: QueryRef<ResultOf<typeof UnreadNotificationCountsQuery>> | undefined,
   notificationsOpened: () => Promise<void>,
   refetchUnreadNotifications: () => Promise<void>,
+  latestUnreadCount: number | null,
 }
 
 const unreadNotificationsContext = createContext<UnreadNotificationsContext>({
   unreadNotificationCountsQueryRef: undefined,
   notificationsOpened: async () => {},
   refetchUnreadNotifications: async () => {},
+  latestUnreadCount: null,
 });
 
 /**
@@ -64,6 +66,9 @@ export const UnreadNotificationsContextProvider: FC<{
 }> = ({children}) => {
   const currentUserId = useCurrentUserId();
   const updateCurrentUser = useUpdateCurrentUser();
+  const apolloClient = useApolloClient();
+
+  const [latestUnreadCount, setLatestUnreadCount] = useState<number | null>(null);
   
   //function updateFavicon(unreadNotificationCounts: NotificationCountsResult) {
     /*
@@ -110,21 +115,39 @@ export const UnreadNotificationsContextProvider: FC<{
     await updateCurrentUser({
       lastNotificationsCheck: now,
     });
-    await refetchBoth();
+
+    // This will cause NotificationEffects to update latestUnreadCount for us,
+    // which we want to happen before `refetchBoth` comes back to us with the real data
+    apolloClient.cache.writeQuery({
+      query: UnreadNotificationCountsQuery,
+      data: {
+        unreadNotificationCounts: {
+          __typename: "NotificationCounts",
+          unreadNotifications: 0,
+          checkedAt: now.toISOString(),
+          unreadPrivateMessages: 0,
+          faviconBadgeNumber: 0,
+        },
+      },
+    });
+
+    void refetchBoth();
+
     window.localStorage.setItem(notificationsCheckedAtLocalStorageKey, now.toISOString());
-  }, [refetchBoth, updateCurrentUser]);
+  }, [updateCurrentUser, apolloClient.cache, refetchBoth]);
 
   const providedContext: UnreadNotificationsContext = useMemo(() => ({
     unreadNotificationCountsQueryRef,
     notificationsOpened,
     refetchUnreadNotifications: refetchBoth,
-  }), [ unreadNotificationCountsQueryRef, notificationsOpened, refetchBoth ]);
+    latestUnreadCount,
+  }), [ unreadNotificationCountsQueryRef, notificationsOpened, refetchBoth, latestUnreadCount ]);
 
   return (
     <unreadNotificationsContext.Provider value={providedContext}>
       {unreadNotificationCountsQueryRef && <ErrorBoundary hideMessage>
         <SuspenseWrapper name="useUnreadNotifications">
-          <NotificationsEffects queryRef={unreadNotificationCountsQueryRef} refetchCounts={refetchCounts} refetchBoth={refetchBoth} />
+          <NotificationsEffects queryRef={unreadNotificationCountsQueryRef} refetchCounts={refetchCounts} refetchBoth={refetchBoth} latestUnreadCount={latestUnreadCount} onCountChanged={setLatestUnreadCount} />
         </SuspenseWrapper>
       </ErrorBoundary>}
       {children}
@@ -134,10 +157,12 @@ export const UnreadNotificationsContextProvider: FC<{
 
 export const useUnreadNotifications = () => useContext(unreadNotificationsContext);
 
-const NotificationsEffects = ({queryRef, refetchCounts, refetchBoth}: {
+const NotificationsEffects = ({queryRef, refetchCounts, refetchBoth, latestUnreadCount, onCountChanged}: {
   queryRef: QueryRef<ResultOf<typeof UnreadNotificationCountsQuery>>,
   refetchCounts: () => void
   refetchBoth: () => void
+  latestUnreadCount: number | null
+  onCountChanged: (count: number) => void
 }) => {
   const currentUserId = useCurrentUserId();
   const updateCurrentUser = useUpdateCurrentUser();
@@ -147,6 +172,14 @@ const NotificationsEffects = ({queryRef, refetchCounts, refetchBoth}: {
   const { pageIsVisible } = usePageVisibility();
 
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Update the latest unread count when the query is rerun or the cache
+  // is manually updated (i.e. by user clicking on the bell), if it's changed
+  useEffect(() => {
+    if (latestUnreadCount !== unreadNotificationCounts.data.unreadNotificationCounts.unreadNotifications) {
+      onCountChanged(unreadNotificationCounts.data.unreadNotificationCounts.unreadNotifications);
+    }
+  }, [latestUnreadCount, unreadNotificationCounts.data.unreadNotificationCounts.unreadNotifications, onCountChanged]);
 
   // Subscribe to localStorage change events. The localStorage key
   // "notificationsCheckedAt" contains a date; when the user checks

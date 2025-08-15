@@ -1,5 +1,5 @@
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
-import { getCachedUser } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
+import { getUser } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
 import { SchemaLink } from "@apollo/client/link/schema";
 import type { GraphQLSchema } from "graphql";
 
@@ -12,7 +12,7 @@ export const rscSchemaLink = (schema: GraphQLSchema) => {
       headers(),
     ]);
 
-    const user = await getCachedUser(cookieStore.get("loginToken")?.value ?? null);
+    const user = await getUser(cookieStore.get("loginToken")?.value ?? null);
 
     const context = computeContextFromUser({
       user,

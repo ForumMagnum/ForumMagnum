@@ -45,9 +45,8 @@ const BookNotificationsMenuButtonInner = ({
   className,
 }: NotificationsMenuButtonProps) => {
   const classes = useStyles(styles);
-  const {unreadNotificationCountsQueryRef} = useUnreadNotifications();
-  const {data} = useReadQuery(unreadNotificationCountsQueryRef!);
-  const {unreadNotifications} = data?.unreadNotificationCounts ?? 0;
+  const {latestUnreadCount} = useUnreadNotifications();
+  const unreadNotifications = latestUnreadCount ?? 0;
   const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
   return (
     <Badge
@@ -103,9 +102,8 @@ const FriendlyNotificationsMenuButtonInner = ({
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const {pathname} = useLocation();
-  const {unreadNotificationCountsQueryRef, notificationsOpened} = useUnreadNotifications();
-  const {data} = useReadQuery(unreadNotificationCountsQueryRef!);
-  const {unreadNotifications} = data?.unreadNotificationCounts ?? 0;
+  const {notificationsOpened, latestUnreadCount} = useUnreadNotifications();
+  const unreadNotifications = latestUnreadCount ?? 0;
   const [open, setOpen] = useState(false);
   const anchorEl = useRef<HTMLDivElement>(null);
   const { refetch, data: karmaChangesData } = useQuery(UserKarmaChangesQuery, {

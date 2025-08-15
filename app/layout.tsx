@@ -6,7 +6,7 @@ import { toEmbeddableJson } from "@/lib/utils/jsonUtils";
 import { cookies, headers } from "next/headers";
 import { ClientRouteMetadataProvider } from "@/components/ClientRouteMetadataContext";
 import { DEFAULT_TIMEZONE } from "@/lib/utils/timeUtil";
-import { getCachedUser } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
+import { getUser } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
 import { abstractThemeToConcrete, getThemeOptions } from "@/themes/themeNames";
 import { getRouteMetadata } from "@/components/ServerRouteMetadataContext";
 import { getEmbeddedStyleLoaderScript } from "@/components/hooks/embedStyles";
@@ -38,7 +38,7 @@ export default async function RootLayout({
   const clientId = cookieStore.get(CLIENT_ID_COOKIE)?.value ?? null;
 
   const [user, clientIdInvalidated] = await Promise.all([
-    getCachedUser(cookieStore.get("loginToken")?.value ?? null),
+    getUser(cookieStore.get("loginToken")?.value ?? null),
     clientId && new ClientIdsRepo().isClientIdInvalidated(clientId)
   ]);
   const abstractThemeOptions = getThemeOptions(themeCookie, user);
