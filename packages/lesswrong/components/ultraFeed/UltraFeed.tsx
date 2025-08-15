@@ -33,8 +33,6 @@ import classNames from 'classnames';
 import UltraFeedFeedback from './UltraFeedFeedback';
 import AnalyticsInViewTracker from '../common/AnalyticsInViewTracker';
 
-const ULTRAFEED_SESSION_ID_KEY = 'ultraFeedSessionId';
-
 const getStoredSettings = (): UltraFeedSettingsType => {
   if (!isClient) return DEFAULT_SETTINGS;
   
@@ -172,13 +170,7 @@ const UltraFeedContent = ({alwaysShow = false}: {
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking();
   const [settings, setSettings] = useState<UltraFeedSettingsType>(getStoredSettings);
-  const [sessionId] = useState<string>(() => {
-    if (typeof window === 'undefined') return randomId();
-    const storage = window.sessionStorage;
-    const currentId = storage ? storage.getItem(ULTRAFEED_SESSION_ID_KEY) ?? randomId() : randomId();
-    storage.setItem(ULTRAFEED_SESSION_ID_KEY, currentId);
-    return currentId;
-  });
+  const [sessionId] = useState<string>(randomId);
   const refetchSubscriptionContentRef = useRef<null | ObservableQuery['refetch']>(null);
 
   const handleOpenQuickTakeDialog = () => {
