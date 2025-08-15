@@ -87,9 +87,11 @@ export async function recalculateAFCommentMetadata(postId: string|null, context:
 const utils = {
   enforceCommentRateLimit: async ({user, comment, context}: {
     user: DbUser,
-    comment: CreateCommentDataInput,
+    comment: { draft?: boolean | null, postId?: string | null },
     context: ResolverContext,
   }) => {
+    if (comment.draft) return;
+
     const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, comment.postId ?? null, context);
     if (rateLimit) {
       const {nextEligible, rateLimitType, rateLimitName} = rateLimit;
@@ -557,7 +559,7 @@ export function newCommentsPollResponseCheck(comment: CreateCommentDataInput) {
   }
 }
 
-export async function newCommentsRateLimit(newComment: CreateCommentDataInput, currentUser: DbUser, context: ResolverContext) {
+export async function commentsRateLimit(newComment: { draft?: boolean | null, postId?: string | null }, currentUser: DbUser, context: ResolverContext) {
   if (!currentUser) {
     throw new Error(`Can't comment while logged out.`);
   }
