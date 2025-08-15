@@ -160,5 +160,5 @@ export const sendInactiveUserSummaryEmailsCron = addCronJob({
   name: "sendInactiveUserSummaryEmails",
   interval: "every 1 day",
   disabled: !hasInactiveSummaryEmail,
-  job: sendInactiveUserSummaryEmails,
+  job: () => sendInactiveUserSummaryEmails(),
 });
