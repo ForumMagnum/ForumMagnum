@@ -15,7 +15,7 @@ export const UltraFeedEvents: UltraFeedEventsCollection = createCollection({
       {name: "ultraFeedEvents_userId_collectionName_documentId_idx"});
 
     indexSet.addCustomPgIndex(`
-      CREATE INDEX IF NOT EXISTS ultraFeedEvents_sessionId_partial_idx
+      CREATE INDEX CONCURRENTLY IF NOT EXISTS ultraFeedEvents_sessionId_partial_idx
       ON "UltraFeedEvents" ("userId", "collectionName", "eventType", ((event->>'sessionId'))) INCLUDE ("documentId")
       WHERE "collectionName" = 'Comments' AND "eventType" = 'served';
     `);
