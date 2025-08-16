@@ -24,6 +24,7 @@ const BookmarksFeed = () => {
       userId: currentUser?._id,
       limit: 20,
     },
+    fetchPolicy: "network-only",
     skip: !currentUser,
   });
   
