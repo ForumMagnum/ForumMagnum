@@ -276,6 +276,7 @@ declare global {
       normal: string,
       itemSeparatorBottom: string,
       itemSeparatorBottomStrong: string,
+      itemSeparatorBottomIntense: string,
       slightlyFaint: string,
       extraFaint: string,
       slightlyIntense: string,
@@ -627,6 +628,14 @@ declare global {
     ultraFeed: {
       dim: ColorString,
       cardSeparator: string,
+      readBackground: ColorString,
+      readBackgroundMobile: ColorString,
+      readOpacity: {
+        root: number,
+        rootMobile: number,
+        content: number,
+        contentMobile: number,
+      },
     }
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette> & {

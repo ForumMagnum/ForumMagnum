@@ -71,6 +71,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     borderRadius: 4,
     display: 'flex',
     flexDirection: 'row',
+    transition: 'background-color 1.0s ease-out',
     [theme.breakpoints.down('sm')]: {
       paddingTop: 16,
       paddingLeft: 20,
@@ -78,41 +79,21 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     },
   },
   rootWithReadStyles: {
+    backgroundColor: theme.palette.ultraFeed.readBackground,
+    opacity: theme.palette.ultraFeed.readOpacity.root,
+    '&:hover': {
+      opacity: 1,
+    },
     [theme.breakpoints.down('sm')]: {
-      backgroundColor: theme.palette.grey[100],
+      backgroundColor: theme.palette.ultraFeed.readBackgroundMobile,
       borderTop: theme.palette.border.itemSeparatorBottom,
       borderBottom: theme.palette.border.itemSeparatorBottom,
-      opacity: 0.9,
+      opacity: theme.palette.ultraFeed.readOpacity.rootMobile,
     },
   },
-  verticalLineContainer: {
-    width: 0,
-    display: 'flex',
-    justifyContent: 'center',
-    marginRight: 6,
-    marginTop: -12,
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-  },
-  verticalLine: {
-    width: 0,
-    borderLeft: `4px solid ${theme.palette.grey[300]}ac`,
-    flex: 1,
-    marginLeft: -12,
-    marginTop: 12,
-    marginBottom: 12,
-    [theme.breakpoints.down('sm')]: {
-      marginTop: 12,
-      marginBottom: 12,
-    },
-  },
-  verticalLineHighlightedUnviewed: {
-    borderLeftColor: `${theme.palette.secondary.light}ec`,
-  },
-  verticalLineHighlightedViewed: {
-    borderLeftColor: `${theme.palette.secondary.light}5f`,
-    transition: 'border-left-color 0.5s ease-out',
+  rootWithAnimation: {
+    backgroundColor: `${theme.palette.primary.main}3b`,
+    transition: 'none',
   },
   mainContent: {
     display: 'flex',
@@ -190,14 +171,6 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     },
   },
   titleIsRead: {
-    opacity: 0.5,
-    color: theme.palette.text.bannerAdOverlay,
-    '&:hover': {
-      opacity: 0.9,
-    },
-    [theme.breakpoints.down('sm')]: {
-      opacity: 0.7,
-    },
   },
   metaRow: {
     display: "flex",
@@ -312,9 +285,16 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
       width: 'auto',
     },
   },
+  contentWithReadStyles: {
+    opacity: theme.palette.ultraFeed.readOpacity.content,
+    '&:hover': {
+      opacity: 1,
+    },
+    [theme.breakpoints.down('sm')]: {
+      opacity: theme.palette.ultraFeed.readOpacity.contentMobile,
+    },
+  },
 }));
-
-type HighlightStateType = 'never-highlighted' | 'highlighted-unviewed' | 'highlighted-viewed';
 
 const sourceIconMap: Array<{ source: FeedItemSourceType, icon: any, tooltip: string }> = [
   { source: 'bookmarks' as FeedItemSourceType, icon: BookmarksIcon, tooltip: "From your bookmarks" },
@@ -420,15 +400,17 @@ const UltraFeedPostItem = ({
   index,
   showKarma,
   settings = DEFAULT_SETTINGS,
+  isHighlightAnimating = false,
 }: {
   post: PostsListWithVotes,
   postMetaInfo: FeedPostMetaInfo,
   index: number,
   showKarma?: boolean,
   settings?: UltraFeedSettingsType,
+  isHighlightAnimating?: boolean,
 }) => {
   const classes = useStyles(styles);
-  const { observe, trackExpansion, hasBeenFadeViewed, subscribeToFadeView, unsubscribeFromFadeView } = useUltraFeedObserver();
+  const { observe, trackExpansion } = useUltraFeedObserver();
   const elementRef = useRef<HTMLDivElement | null>(null);
   const { openDialog } = useDialog();
   const overflowNav = useOverflowNav(elementRef);
@@ -449,28 +431,6 @@ const UltraFeedPostItem = ({
   const [isReplying, setIsReplying] = useState(false);
   const [newComment, setNewComment] = useState<UltraFeedComment | null>(null);
   const [newCommentMetaInfo, setNewCommentMetaInfo] = useState<FeedCommentMetaInfo | null>(null);
-  
-  const initialHighlightState = (postMetaInfo.highlight && !hasBeenFadeViewed(post._id)) ? 'highlighted-unviewed' : 'never-highlighted';
-  const [highlightState, setHighlightState] = useState<HighlightStateType>(initialHighlightState);
-
-  useEffect(() => {
-    const initialState: HighlightStateType = (postMetaInfo.highlight && !hasBeenFadeViewed(post._id)) ? 'highlighted-unviewed' : 'never-highlighted';
-    setHighlightState(initialState);
-
-    const handleFade = () => {
-      setHighlightState(prev => prev === 'highlighted-unviewed' ? 'highlighted-viewed' : prev);
-    };
-
-    if (initialState === 'highlighted-unviewed') {
-      subscribeToFadeView(post._id, handleFade);
-    }
-
-    return () => {
-      if (initialState === 'highlighted-unviewed') {
-        unsubscribeFromFadeView(post._id, handleFade);
-      }
-    };
-  }, [postMetaInfo.highlight, post._id, hasBeenFadeViewed, subscribeToFadeView, unsubscribeFromFadeView]);
 
   const {
     isSeeLessMode,
@@ -666,16 +626,10 @@ const UltraFeedPostItem = ({
   return (
     <RecombeeRecommendationsContextWrapper postId={post._id} recommId={postMetaInfo.recommInfo?.recommId}>
     <AnalyticsContext ultraFeedElementType="feedPost" postId={post._id} feedCardIndex={index} ultraFeedSources={postMetaInfo.sources}>
-    <div className={classnames(classes.root, { [classes.rootWithReadStyles]: isRead })}>
-      <div className={classes.verticalLineContainer}>
-        <div className={classnames(
-          classes.verticalLine,
-          {
-            [classes.verticalLineHighlightedUnviewed]: highlightState === 'highlighted-unviewed',
-            [classes.verticalLineHighlightedViewed]: highlightState === 'highlighted-viewed',
-          }
-        )} />
-      </div>
+    <div className={classnames(classes.root, { 
+      [classes.rootWithReadStyles]: isRead,
+      [classes.rootWithAnimation]: isHighlightAnimating,
+    })}>
       <div ref={elementRef} className={classes.mainContent}>
         {/* On small screens, the triple dot menu is positioned absolutely to the root */}
         <div className={classes.mobileTripleDotWrapper}>
@@ -722,6 +676,7 @@ const UltraFeedPostItem = ({
             onExpand={handleContentExpand}
             hideSuffix={loadingFullPost}
             resetSignal={resetSig}
+            className={isRead ? classes.contentWithReadStyles : undefined}
           />
         )}
         

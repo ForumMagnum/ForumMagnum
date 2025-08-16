@@ -299,6 +299,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     normal: shades.greyBorder("1px", .2),
     itemSeparatorBottom: shades.greyBorder("2px", .05),
     itemSeparatorBottomStrong: shades.greyBorder("2px", .1),
+    itemSeparatorBottomIntense: shades.greyBorder("2px", .2),
     slightlyFaint: shades.greyBorder("1px", .15),
     slightlyIntense: shades.greyBorder("1px", .25),
     slightlyIntense2: shades.greyBorder("1px", .3),
@@ -709,5 +710,13 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   ultraFeed: {
     dim: shades.grey[600],
     cardSeparator: `12px solid ${shades.greyAlpha(0.005)}`,
+    readBackground: shades.grey[300],
+    readBackgroundMobile: shades.grey[100],
+    readOpacity: {
+      root: 0.7,
+      rootMobile: 0.7,
+      content: 0.8,
+      contentMobile: 0.7,
+    },
   }
 })

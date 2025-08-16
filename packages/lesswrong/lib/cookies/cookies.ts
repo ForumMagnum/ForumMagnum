@@ -224,6 +224,18 @@ export const ULTRA_FEED_PAGE_VISITED_COOKIE = registerCookie({
   description: "Whether the user has ever visited the ultra feed page",
 })
 
+export const PINNED_GLOSSARY_COOKIE = registerCookie({
+  name: 'pinnedGlossary',
+  type: 'functional',
+  description: 'Whether the glossary is pinned',
+});
+
+export const NO_ADMIN_NEXT_REDIRECT_COOKIE = registerCookie({
+  name: 'no_admin_next_redirect',
+  type: 'functional',
+  description: `If set, admins won't be redirected to the baserates-prod-test.vercel.app domain`,
+});
+
 
 // Third party cookies
 
@@ -356,12 +368,5 @@ registerCookie({
   description: "Google ReCaptcha may set a number of cookies under the 'google.com' domain in order to check for suspicious activity. " +
                "The full list of known possible cookies are: __Secure-3PSIDCC, __Secure-1PSIDCC, SIDCC, __Secure-3PAPISID, SSID, " +
                "__Secure-1PAPISID, HSID, __Secure-3PSID, __Secure-1PSID, SID, SAPISID, APISID, NID, OTZ, 1P_JAR, AEC, DV, __Secure-ENID",
-});
-
-// Pinned glossary
-export const PINNED_GLOSSARY_COOKIE = registerCookie({
-  name: 'pinnedGlossary',
-  type: 'functional',
-  description: 'Whether the glossary is pinned',
 });
 

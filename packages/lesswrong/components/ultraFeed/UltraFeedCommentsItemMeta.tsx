@@ -204,6 +204,92 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
   },
 }));
 
+// Component for displaying the appropriate icon based on comment context
+const CommentContextIcon = ({
+  comment,
+  post,
+  isTopLevelComment,
+  postInitiallyExpanded,
+  parentAuthorName,
+  onReplyIconClick,
+  onPostTitleHighlight,
+}: {
+  comment: UltraFeedComment,
+  post: PostsListWithVotes | null,
+  isTopLevelComment: boolean,
+  postInitiallyExpanded: boolean,
+  parentAuthorName?: string | null,
+  onReplyIconClick?: () => void,
+  onPostTitleHighlight?: (iconType: 'shortform' | 'debate') => void,
+}) => {
+  const classes = useStyles(styles);
+  const { captureEvent } = useTracking();
+  
+  const handleReplyIconClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    captureEvent("ultraFeedReplyArrowClicked");
+    if (onReplyIconClick) {
+      onReplyIconClick();
+    }
+  };
+
+  const handlePostTitleHighlight = (event: React.MouseEvent, iconType: 'shortform' | 'debate') => {
+    event.stopPropagation();
+    captureEvent(iconType === 'shortform' ? "ultraFeedShortformIconClicked" : "ultraFeedDebateIconClicked");
+    
+    if (onPostTitleHighlight) {
+      onPostTitleHighlight(iconType);
+    }
+  };
+
+  if (!post) {
+    return null;
+  }
+
+  // Show reply arrow for non-top-level comments or when post is initially expanded
+  if (!isTopLevelComment || postInitiallyExpanded) {
+    const isReplyingToPost = isTopLevelComment;
+    const tooltip = isReplyingToPost
+      ? `Replying to ${post.title}`
+      : `Replying to ${parentAuthorName ?? 'parent comment'}`;
+    
+    return (
+      <LWTooltip title={tooltip} placement="top">
+        <SubdirectoryArrowLeft 
+          className={classNames(classes.replyingToIcon, {
+            [classes.replyingToIconClickable]: !!onReplyIconClick
+          })}
+          onClick={handleReplyIconClick}
+        />
+      </LWTooltip>
+    );
+  } else if (isTopLevelComment) {
+    if (comment.shortform) {
+      return (
+        <LWTooltip title={post.title} placement="top">
+          <div 
+            className={classes.commentShortformIconContainer} 
+            onClick={(event) => handlePostTitleHighlight(event, 'shortform')}
+          >
+            <ForumIcon icon="Shortform" className={classes.commentShortformIcon} />
+          </div>
+        </LWTooltip>
+      );
+    } else {
+      return (
+        <LWTooltip title={`Replying to ${post.title}`} placement="top">
+          <div 
+            className={classes.debateIconContainer} 
+            onClick={(event) => handlePostTitleHighlight(event, 'debate')}
+          >
+            <DebateIcon className={classes.debateIcon} />
+          </div>
+        </LWTooltip>
+      );
+    }
+  }
+};
+
 const ReplyingToTitle = ({comment, position, enabled, onPostTitleClick, highlighted}: {
   comment: UltraFeedComment,
   position: 'metarow' | 'above',
@@ -258,6 +344,7 @@ const UltraFeedCommentsItemMeta = ({
   hideDate,
   hideActionsMenu,
   showPostTitle,
+  postInitiallyExpanded = false,
   onPostTitleClick,
   parentAuthorName,
   onReplyIconClick,
@@ -270,6 +357,7 @@ const UltraFeedCommentsItemMeta = ({
   hideDate?: boolean,
   hideActionsMenu?: boolean,
   showPostTitle?: boolean,
+  postInitiallyExpanded?: boolean,
   onPostTitleClick?: () => void,
   parentAuthorName?: string | null,
   onReplyIconClick?: () => void,
@@ -291,23 +379,10 @@ const UltraFeedCommentsItemMeta = ({
 
   const isNewContent = comment.postedAt && (new Date(comment.postedAt) > new Date(Date.now() - (7 * 24 * 60 * 60 * 1000)));
   const isTopLevelComment = !comment.parentCommentId;
-  const isRead = !!metaInfo.lastViewed || !!metaInfo.lastInteracted
-
-  const handleReplyIconClick = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    captureEvent("ultraFeedReplyArrowClicked");
-    if (onReplyIconClick) {
-      onReplyIconClick();
-    }
-  };
-
-  const handlePostTitleHighlight = (event: React.MouseEvent, iconType: 'shortform' | 'debate') => {
-    event.stopPropagation();
+  const isRead = !!metaInfo.lastViewed || !!metaInfo.lastInteracted;
+  
+  const handlePostTitleHighlight = (iconType: 'shortform' | 'debate') => {
     setPostTitleHighlighted(true);
-    
-    // Track the click event
-    captureEvent(iconType === 'shortform' ? "ultraFeedShortformIconClicked" : "ultraFeedDebateIconClicked");
-    
     // Remove highlight after a short delay
     setTimeout(() => {
       setPostTitleHighlighted(false);
@@ -325,39 +400,15 @@ const UltraFeedCommentsItemMeta = ({
       </div>
       <ReplyingToTitle enabled={showPostTitle} position="above" comment={comment} onPostTitleClick={onPostTitleClick} highlighted={postTitleHighlighted} />
       <div className={classes.metaRow}>
-        {!isTopLevelComment && (
-          <LWTooltip 
-            title={parentAuthorName ? `Replying to ${parentAuthorName}` : "Replying to parent comment"}
-            placement="top"
-          >
-            <SubdirectoryArrowLeft 
-              className={classNames(classes.replyingToIcon, {
-                [classes.replyingToIconClickable]: !!onReplyIconClick
-              })}
-              onClick={handleReplyIconClick}
-            />
-          </LWTooltip>
-        )}
-        {comment.shortform && !comment.topLevelCommentId && post && (
-          <LWTooltip
-            title={post.title}
-            placement="top"
-          >
-            <div className={classes.commentShortformIconContainer} onClick={(event) => handlePostTitleHighlight(event, 'shortform')}>
-              <ForumIcon icon="Shortform" className={classes.commentShortformIcon} />
-            </div>
-          </LWTooltip>
-        )}
-        {!comment.shortform && isTopLevelComment && post && (
-          <LWTooltip
-            title={`Replying to ${post.title}`}
-            placement="top"
-          >
-            <div className={classes.debateIconContainer} onClick={(event) => handlePostTitleHighlight(event, 'debate')}>
-              <DebateIcon className={classes.debateIcon} />
-            </div>
-          </LWTooltip>
-        )}
+        <CommentContextIcon
+          comment={comment}
+          post={post}
+          isTopLevelComment={isTopLevelComment}
+          postInitiallyExpanded={postInitiallyExpanded}
+          parentAuthorName={parentAuthorName}
+          onReplyIconClick={onReplyIconClick}
+          onPostTitleHighlight={handlePostTitleHighlight}
+        />
         <CommentUserName
           comment={comment}
           className={classes.username}

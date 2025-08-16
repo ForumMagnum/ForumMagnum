@@ -14,14 +14,14 @@ import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { blackBarTitle, googleTagManagerIdSetting, isAF, isEAForum, isLW, isLWorAF, buttonBurstSetting } from '@/lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
-import { userCanDo } from '../lib/vulcan-users/permissions';
+import { userCanDo, userIsAdmin } from '../lib/vulcan-users/permissions';
 import { Helmet } from "./common/Helmet";
 import { DisableNoKibitzContext, AutosaveEditorStateContext } from './common/sharedContexts';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
 // import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
 import Header, { HEADER_HEIGHT } from './common/Header';
-import { useCookiePreferences } from './hooks/useCookiesWithConsent';
+import { useCookiePreferences, useCookiesWithConsent } from './hooks/useCookiesWithConsent';
 import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
 import { isFriendlyUI } from '../themes/forumTheme';
@@ -58,6 +58,7 @@ import { SuspenseWrapper } from './common/SuspenseWrapper';
 import { useRouteMetadata } from './ClientRouteMetadataContext';
 import { isFullscreenRoute, isHomeRoute, isStandaloneRoute, isStaticHeaderRoute, isSunshineSidebarRoute, isUnspacedGridRoute } from '@/lib/routeChecks';
 import { AutoDarkModeWrapper } from './themes/ThemeContextProvider';
+import { NO_ADMIN_NEXT_REDIRECT_COOKIE } from '@/lib/cookies/cookies';
 
 import dynamic from 'next/dynamic';
 const SunshineSidebar = dynamic(() => import("./sunshineDashboard/SunshineSidebar"), { ssr: false });
@@ -280,7 +281,7 @@ const Layout = ({currentUser, children}: {
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const theme = useTheme();
   // TODO: figure out if using usePathname directly is safe or better (concerns about unnecessary rerendering, idk; my guess is that with Next if the pathname changes we're rerendering everything anyways?)
-  const { pathname } = useLocation();
+  const { pathname, query } = useLocation();
   // const pathname = usePathname();
   const { metadata: routeMetadata } = useRouteMetadata();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
@@ -358,6 +359,23 @@ const Layout = ({currentUser, children}: {
   } else if (blackBarTitle.get()) {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }
+
+  const [cookies, setCookie] = useCookiesWithConsent([NO_ADMIN_NEXT_REDIRECT_COOKIE]);
+
+  // Temporary redirect for admins while we're testing NextJS
+  useEffect(() => {
+    const redirectUrl = new URL(window.location.href);
+    if (query.disableRedirect) {
+      setCookie(NO_ADMIN_NEXT_REDIRECT_COOKIE, true, { path: '/' });
+    } else if (isLW && userIsAdmin(currentUser) && !cookies[NO_ADMIN_NEXT_REDIRECT_COOKIE] && redirectUrl.host === 'www.lesswrong.com') {
+      redirectUrl.host = 'baserates-prod-test.vercel.app';
+      // These two are necessary when testing this on localhost
+      // redirectUrl.port = '';
+      // redirectUrl.protocol = 'https';
+      window.location.replace(redirectUrl.toString());
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const render = () => {
     const baseLayoutOptions: LayoutOptions = {

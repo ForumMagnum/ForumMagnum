@@ -11,8 +11,6 @@
     "paths": {
       "@/client/*": ["./packages/lesswrong/stubs/client/*"],
       "@/viteClient/*": ["./packages/lesswrong/stubs/viteClient/*"],
-      "@/server/*": ["./packages/lesswrong/server/*"],
-      "@/allComponents": ["./packages/lesswrong/lib/generated/allComponents.ts"],
       "@/*": ["./packages/lesswrong/*"]
     }
   }

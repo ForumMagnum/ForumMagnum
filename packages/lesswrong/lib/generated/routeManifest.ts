@@ -146,6 +146,9 @@ export const routeTrie: RouteNode ={
             "update-user-activities": "update-user-activities"
           }
         },
+        "health": {
+          "hasRoute": true
+        },
         "notificationCount": {
           "hasRoute": true
         },
@@ -212,6 +215,7 @@ export const routeTrie: RouteNode ={
         "autocomplete": "autocomplete",
         "autocomplete405b": "autocomplete405b",
         "cron": "cron",
+        "health": "health",
         "notificationcount": "notificationCount",
         "registerclientid": "registerClientId",
         "search": "search",

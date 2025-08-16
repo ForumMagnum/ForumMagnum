@@ -1222,6 +1222,11 @@ interface RssPostChangeInfo {
   htmlDiff: string;
 }
 
+interface FeedSpotlightMetaInfo {
+  sources: Array<string>;
+  servedEventId: string;
+}
+
 interface FeedPost {
   _id: string;
   postMetaInfo: any;
@@ -1233,13 +1238,15 @@ interface FeedCommentThread {
   commentMetaInfos: any;
   comments: Array<Comment>;
   post: Post | null;
+  isOnReadPost: boolean | null;
+  postSources: Array<string> | null;
 }
 
 interface FeedSpotlightItem {
   _id: string;
   spotlight: Spotlight | null;
   post: Post | null;
-  spotlightMetaInfo: any;
+  spotlightMetaInfo: FeedSpotlightMetaInfo | null;
 }
 
 interface UltraFeedQueryResults {
@@ -9811,6 +9818,7 @@ interface GraphQLTypeMap {
   ToggleBookmarkInput: ToggleBookmarkInput;
   ToggleBookmarkOutput: ToggleBookmarkOutput;
   RssPostChangeInfo: RssPostChangeInfo;
+  FeedSpotlightMetaInfo: FeedSpotlightMetaInfo;
   FeedPost: FeedPost;
   FeedCommentThread: FeedCommentThread;
   FeedSpotlightItem: FeedSpotlightItem;

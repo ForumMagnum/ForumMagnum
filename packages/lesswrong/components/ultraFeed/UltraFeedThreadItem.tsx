@@ -1,19 +1,19 @@
 import React, { useMemo, useState, useCallback } from "react";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { DisplayFeedCommentThread, FeedCommentMetaInfo, FeedItemDisplayStatus } from "./ultraFeedTypes";
+import { DisplayFeedCommentThread, FeedCommentMetaInfo, FeedItemDisplayStatus, FeedItemSourceType } from "./ultraFeedTypes";
 import { UltraFeedSettingsType, DEFAULT_SETTINGS } from "./ultraFeedSettingsTypes";
-import { UltraFeedCommentItem, UltraFeedCompressedCommentsItem } from "./UltraFeedCommentItem";
 import UltraFeedPostItem from "./UltraFeedPostItem";
+import UltraFeedThreadCommentsList from "./UltraFeedThreadCommentsList";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
-import classNames from "classnames";
 
+// Only used as a fallback when post is not preloaded
 const PostsListWithVotesQuery = gql(`
   query UltraFeedThreadItem($documentId: String) {
-    post(input: { selector: { documentId: $documentId } }) {
+    post(selector: { _id: $documentId }) {
       result {
         ...PostsListWithVotes
       }
@@ -32,9 +32,12 @@ const itemSeparator = (theme: ThemeType) => ({
 })
 
 const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
+  postContainer: {
+    position: 'relative',
+    borderBottom: theme.palette.border.itemSeparatorBottom,
+  },
   commentsRoot: {
     borderRadius: 4,
-    background: theme.palette.panelBackground.bannerAdTranslucentHeavy,
     backdropFilter: theme.palette.filters.bannerAdBlurHeavy,
   },
   commentsContainer: {
@@ -46,23 +49,6 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
   },
-  commentItem: {
-    position: 'relative',
-    [theme.breakpoints.down('sm')]: {
-      borderBottom: theme.palette.border.itemSeparatorBottomStrong,
-      '&:last-child': {
-        borderBottom: 'none',
-      },
-    },
-  },
-  commentItemWithReadStyles: {
-    [theme.breakpoints.down('sm')]: {
-      '&:first-child': {
-        borderTop: theme.palette.border.itemSeparatorBottomStrong
-      },
-    },
-  },
-
   postsLoadingContainer: {
     backgroundColor: theme.palette.panelBackground.default,
     position: 'relative',
@@ -72,10 +58,6 @@ const styles = defineStyles("UltraFeedThreadItem", (theme: ThemeType) => ({
     height: 200,
     '&::after': itemSeparator(theme),
   },
-  postContainer: {
-    position: 'relative',
-    '&::after': itemSeparator(theme),
-  }
 }));
 
 type CommentDisplayStatusMap = Record<string, FeedItemDisplayStatus>;
@@ -161,27 +143,40 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
 }) => {
   const classes = useStyles(styles);
   
-  const { comments, commentMetaInfos } = thread;
+  const { comments, commentMetaInfos, isOnReadPost, postSources, post: preloadedPost } = thread;
   const {captureEvent} = useTracking();
-  const [ postExpanded, setPostExpanded ] = useState(false);
+
+  const isShortform = comments[0].shortform
+  const postInitiallyExpanded = !isOnReadPost && !isShortform;
+  const [ postExpanded, setPostExpanded ] = useState(postInitiallyExpanded);
   const [animatingCommentIds, setAnimatingCommentIds] = useState<Set<string>>(new Set());
-  
+  const [postIsAnimating, setPostIsAnimating] = useState(false);
+
   // State for handling new replies (including allowing switching back to original subsequent comments)
   const [newReplies, setNewReplies] = useState<Record<string, UltraFeedComment>>({});
   const [branchViewStates, setBranchViewStates] = useState<Record<string, 'new' | 'original'>>({});
   const [replyingToCommentId, setReplyingToCommentId] = useState<string | null>(startReplyingTo ?? null);
   
+  const shouldLoadPost = !preloadedPost && postExpanded && comments[0].postId;
   const { loading, data } = useQuery(PostsListWithVotesQuery, {
     variables: { documentId: comments[0].postId ?? undefined },
-    skip: !comments[0].postId || !postExpanded,
+    skip: !shouldLoadPost,
   });
-  const post = data?.post?.result;
+  const post = preloadedPost ?? data?.post?.result;
 
   const postMetaInfo = {
-    sources: commentMetaInfos?.[comments[0]._id]?.sources ?? [],
+    sources: postSources ?? commentMetaInfos?.[comments[0]._id]?.sources ?? [],
     displayStatus: "expanded" as FeedItemDisplayStatus,
     servedEventId: commentMetaInfos?.[comments[0]._id]?.servedEventId ?? '',
-    highlight: false,
+    highlight: !isOnReadPost,
+  }
+
+  const postSettings = {
+    ...settings,
+    displaySettings: {
+      ...settings.displaySettings,
+      postInitialWords: 50
+    }
   }
 
   const initialDisplayStatuses = calculateInitialDisplayStatuses(comments, commentMetaInfos);
@@ -236,7 +231,15 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
 
   const triggerParentHighlight = useCallback((commentId: string) => {
     const comment = comments.find(c => c._id === commentId);
-    if (comment?.parentCommentId) {
+    
+    if (comment && !comment.parentCommentId && postExpanded) {
+      setPostIsAnimating(true);
+      setTimeout(() => {
+        setPostIsAnimating(false);
+      }, 100);
+      
+      captureEvent("ultraFeedReplyIconClicked", { commentId, parentType: "post", postId: comment.postId });
+    } else if (comment?.parentCommentId) {
       const parentCommentId = comment.parentCommentId;
       
       const parentStatus = commentDisplayStatuses[parentCommentId];
@@ -266,7 +269,7 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
         wasCollapsed,
       });
     }
-  }, [comments, commentDisplayStatuses, setDisplayStatus, captureEvent]);
+  }, [comments, commentDisplayStatuses, setDisplayStatus, captureEvent, postExpanded]);
 
   const handleReplyClick = (commentId: string) => {
     setReplyingToCommentId(commentId);
@@ -363,85 +366,40 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
       <Loading />
     </div>}
     {postExpanded && post && <div className={classes.postContainer}>
-      <UltraFeedPostItem post={post} index={-1} postMetaInfo={postMetaInfo} settings={settings}/>
+      <UltraFeedPostItem 
+        post={post} 
+        index={-1} 
+        postMetaInfo={postMetaInfo} 
+        settings={postSettings}
+        isHighlightAnimating={postIsAnimating}
+      />
     </div>}
     <div className={classes.commentsRoot}>
       {comments.length > 0 && <div className={classes.commentsContainer}>
         <div className={classes.commentsList}>
-          {compressedItems.map((item, commentIndex) => {
-            if ("placeholder" in item) {
-              const hiddenCount = item.hiddenComments.length;
-              const anyHighlighted = item.hiddenComments.some(h => highlightStatuses[h._id]);
-              const anyRead = item.hiddenComments.some(h => {
-                const metaInfo = commentMetaInfos?.[h._id];
-                return !!metaInfo?.lastViewed || !!metaInfo?.lastInteracted;
-              });
-              
-              return (
-                <div className={classes.commentItem} key={`placeholder-${commentIndex}`}>
-                  <UltraFeedCompressedCommentsItem
-                    numComments={hiddenCount}
-                    setExpanded={() => {
-                      // Always expand max 3 comments at a time
-                      item.hiddenComments.slice(0, 3).forEach(h => {
-                        setDisplayStatus(h._id, "expandedToMaxInPlace");
-                      });
-                    }}
-                    isFirstComment={commentIndex === 0}
-                    isLastComment={commentIndex === compressedItems.length - 1}
-                    isHighlighted={anyHighlighted}
-                    isRead={anyRead}
-                  />
-                </div>
-              );
-            } else {
-              const cId = item._id;
-              const isFirstItem = commentIndex === 0;
-              const isLastItem = commentIndex === compressedItems.length - 1;
-              const parentAuthorName = item.parentCommentId ? commentAuthorsMap[item.parentCommentId] : null;
-              const isAnimating = animatingCommentIds.has(cId);
-              
-              const navigationProps = getNavigationProps(cId, visibleComments);
-              
-              const isNewReply = Object.values(newReplies).some(reply => reply._id === cId);
-              const metaInfo = commentMetaInfos?.[cId];
-              const isFirstItemAndIsRead = isFirstItem && (!!metaInfo?.lastViewed || !!metaInfo?.lastInteracted);
-              
-              return (
-                <div key={cId} className={classNames(classes.commentItem, { [classes.commentItemWithReadStyles]: isFirstItemAndIsRead })}>
-                  <UltraFeedCommentItem
-                    comment={item}
-                    metaInfo={{
-                      ...commentMetaInfos?.[cId],
-                      displayStatus: commentDisplayStatuses[cId] ?? commentMetaInfos?.[cId]?.displayStatus ?? "collapsed"
-                    }}
-                    onPostTitleClick={handlePostExpansion}
-                    onChangeDisplayStatus={(newStatus) => setDisplayStatus(cId, newStatus)}
-                    showPostTitle={isFirstItem}
-                    highlight={highlightStatuses[cId] || false}
-                    isFirstComment={isFirstItem}
-                    isLastComment={isLastItem}
-                    settings={settings}
-                    parentAuthorName={parentAuthorName}
-                    onReplyIconClick={() => triggerParentHighlight(cId)}
-                    isHighlightAnimating={isAnimating}
-                    replyConfig={{
-                      isReplying: replyingToCommentId === cId,
-                      onReplyClick: () => handleReplyClick(cId),
-                      onReplySubmit: (newComment) => handleReplySubmit(cId, newComment),
-                      onReplyCancel: () => setReplyingToCommentId(null),
-                    }}
-                    hasFork={navigationProps.showNav}
-                    currentBranch={navigationProps.currentBranch}
-                    threadIndex={index}
-                    commentIndex={commentIndex}
-                    onBranchToggle={() => navigationProps.forkParentId && handleBranchToggle(navigationProps.forkParentId)}
-                    onEditSuccess={isNewReply ? handleNewReplyEdit : () => {}}
-                  />
-                </div>
-              );
-            }
-          })}
+          <UltraFeedThreadCommentsList
+            compressedItems={compressedItems}
+            commentMetaInfos={commentMetaInfos}
+            commentDisplayStatuses={commentDisplayStatuses}
+            highlightStatuses={highlightStatuses}
+            commentAuthorsMap={commentAuthorsMap}
+            animatingCommentIds={animatingCommentIds}
+            visibleComments={visibleComments}
+            newReplies={newReplies}
+            replyingToCommentId={replyingToCommentId}
+            postInitiallyExpanded={postInitiallyExpanded}
+            settings={settings}
+            threadIndex={index}
+            onSetDisplayStatus={setDisplayStatus}
+            onPostExpansion={handlePostExpansion}
+            onParentHighlight={triggerParentHighlight}
+            onReplyClick={handleReplyClick}
+            onReplySubmit={handleReplySubmit}
+            onReplyCancel={() => setReplyingToCommentId(null)}
+            getNavigationProps={getNavigationProps}
+            onBranchToggle={handleBranchToggle}
+            onNewReplyEdit={handleNewReplyEdit}
+          />
         </div>
       </div>}
     </div>
