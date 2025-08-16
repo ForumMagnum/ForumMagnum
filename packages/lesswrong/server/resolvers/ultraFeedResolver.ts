@@ -713,7 +713,8 @@ export const ultraFeedGraphQLQueries = {
               parsedSettings, 
               ULTRA_FEED_DATE_CUTOFFS.initialCommentCandidateLookbackDays,
               ULTRA_FEED_DATE_CUTOFFS.commentServedEventRecencyHours,
-              ULTRA_FEED_DATE_CUTOFFS.threadEngagementLookbackDays
+              ULTRA_FEED_DATE_CUTOFFS.threadEngagementLookbackDays,
+              sessionId
             ) 
           : Promise.resolve([]),
         spotlightFetchLimit > 0 ? spotlightsRepo.getUltraFeedSpotlights(context, spotlightFetchLimit) : Promise.resolve([]),
