@@ -138,22 +138,38 @@ export const sendInactiveUserSummaryEmails = async (
   dryRun = false,
 ) => {
   if (!hasInactiveSummaryEmail) {
-    return;
+    return {skipReason: "inactiveSummaryEmailDisabled", limit, dryRun};
   }
 
+  const results: unknown[] = [];
   const users = await new UsersRepo().getUsersForInactiveSummaryEmail(limit);
   for (const user of users) {
     try {
       // await one at a time to avoid blasting the DB
       await sendInactiveUserSummaryEmail(user, dryRun);
+      results.push(null);
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error(
         `Error sending inactive user summary email to ${user._id}`,
         err,
       );
+      results.push(err);
     }
   }
+
+  return {
+    users: users.map((user) => user._id),
+    results: results.map(
+      (result) => result === null
+        ? result
+        : result instanceof Error
+          ? result.message
+          : String(result),
+    ),
+    limit,
+    dryRun,
+  };
 }
 
 export const sendInactiveUserSummaryEmailsCron = addCronJob({
