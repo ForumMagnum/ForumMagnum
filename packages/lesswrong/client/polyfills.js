@@ -1,6 +1,3 @@
-
-import 'element-closest'
-
 // The below two polyfills are vendored from https://github.com/behnammodi/polyfill/blob/master/window.polyfill.js
 /**
 * window.requestIdleCallback()

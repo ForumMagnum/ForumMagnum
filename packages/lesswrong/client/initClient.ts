@@ -6,6 +6,7 @@ import { initReCaptcha } from "./reCaptcha";
 
 import "@/components/momentjs";
 import "./type3";
+import './polyfills'
 
 /**
  * These identifiers may or may not have been set on the server, depending on whether the request
