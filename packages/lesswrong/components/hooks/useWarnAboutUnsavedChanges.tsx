@@ -6,6 +6,7 @@ export function useWarnAboutUnsavedChanges(isChangedFunc: () => boolean) {
   const history = navigationContext?.history;
 
   const checkRouteChange = useCallback(() => {
+    // FIXME: We use `history.block` to prevent navigating away from a page with unsaved changes, but that API doesn't appear to exist in nextjs's router
     return history?.block(() => {
       if (isChangedFunc()) {
         return 'Discard changes?';

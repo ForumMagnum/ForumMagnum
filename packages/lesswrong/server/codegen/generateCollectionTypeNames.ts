@@ -1,5 +1,4 @@
 import { getAllCollections } from "@/server/collections/allCollections";
-import { isCodegen } from "@/lib/executionEnvironment";
 
 // Generate mappings from collection name to type name and vice versa
 export function generateCollectionTypeNames(): string {
@@ -25,7 +24,7 @@ export function generateCollectionTypeNames(): string {
   }
   sb.push(`  ...((isAnyTest && !isIntegrationTest) ? {`);
   let testCollections: CollectionBase<any>[] = [];
-  if (isCodegen) {
+  if (bundleIsCodegen) {
     testCollections = require('../sql/tests/testHelpers').testCollections;
   }
   for (let collection of Object.values(testCollections)) {

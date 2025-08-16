@@ -1,4 +1,4 @@
-import { useApolloClient } from "@apollo/client";
+import { useApolloClient } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import classNames from 'classnames';
 import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'react';
@@ -13,7 +13,7 @@ import { useGlobalKeydown, useOnSearchHotkey } from '../common/withGlobalKeydown
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { EditTagForm } from './EditTagPage';
-import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting, quickTakesTagsEnabledSetting } from '@/lib/instanceSettings';
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { getTagStructuredData } from "./TagPageRouter";
 import { isFriendlyUI } from "../../themes/forumTheme";
@@ -24,7 +24,6 @@ import { HEADER_HEIGHT } from "../common/Header";
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import { TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
 import { MAIN_TAB_ID } from "@/lib/collections/tags/constants";
-import { quickTakesTagsEnabledSetting } from "@/lib/publicSettings";
 import { isClient } from "@/lib/executionEnvironment";
 import qs from "qs";
 import { useTagOrLens } from "../hooks/useTagOrLens";
@@ -55,7 +54,6 @@ import AddPostsToTag from "./AddPostsToTag";
 import { Typography } from "../common/Typography";
 import ContentStyles from "../common/ContentStyles";
 import PermanentRedirect from "../common/PermanentRedirect";
-import HeadTags from "../common/HeadTags";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import TagFlagItem from "./TagFlagItem";
 import CommentsListCondensed from "../common/CommentsListCondensed";
@@ -68,6 +66,7 @@ import FormatDate from "../common/FormatDate";
 import InlineReactSelectionWrapper from "../votes/lwReactions/InlineReactSelectionWrapper";
 import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
 import PathInfo from "./PathInfo";
+import { StructuredData } from "../common/StructuredData";
 import { gql } from "@/lib/generated/gql-codegen";
 import { withDateFields } from "@/lib/utils/dateUtils";
 import type { TagBySlugQueryOptions } from "./useTag";
@@ -750,17 +749,16 @@ const LWTagPage = () => {
     query.sortedBy = (query.sortedBy || tag.postsDefaultSortOrder) ?? query.sortedBy
   }
 
-  const terms = {
-    ...tagPostTerms(tag, query),
+  const terms: PostsViewTerms|null = tag ? {
+    ...tagPostTerms(tag),
+    ...(query.sortedBy ? {sortedBy: query.sortedBy as PostSortingModeWithRelevanceOption} : {}),
     limit: 15
-  }
+  } : null
 
   const clickReadMore = () => {
     setTruncated(false)
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
-
-  const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
   
   const tagFlagItemType: AnyBecauseTodo = {
     allPages: "allPages",
@@ -864,7 +862,7 @@ const LWTagPage = () => {
       {tag.sequence && <TagIntroSequence tag={tag} />}
       {!tag.wikiOnly && <>
         <AnalyticsContext pageSectionContext="tagsSection">
-          <PostsList2
+          {terms && <PostsList2
             header={<PostsListHeading tag={tag} query={query} />}
             terms={terms}
             enableTotal
@@ -873,7 +871,7 @@ const LWTagPage = () => {
             showNoResults={false}
           >
             <AddPostsToTag tag={tag} />
-          </PostsList2>
+          </PostsList2>}
         </AnalyticsContext>
         {quickTakesTagsEnabledSetting.get() && <DeferRender ssr={false}>
           <AnalyticsContext pageSectionContext="quickTakesSection">
@@ -1011,14 +1009,10 @@ const LWTagPage = () => {
     tagName={tag.name}
     tagId={tag._id}
     sortedBy={query.sortedBy || "relevance"}
-    limit={terms.limit}
+    limit={terms?.limit ?? 0}
   >
     <TagPageContext.Provider value={{selectedLens: selectedLens ?? null}}>
-      <HeadTags
-        description={headTagDescription}
-        structuredData={getTagStructuredData(tag)}
-        noIndex={tag.noindex}
-      />
+      <StructuredData generate={() => getTagStructuredData(tag)}/>
       {hoveredContributorId && <style>
         {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}
       </style>}

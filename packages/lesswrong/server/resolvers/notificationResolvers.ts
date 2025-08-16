@@ -1,6 +1,6 @@
 import { Notifications } from '../../server/collections/notifications/collection';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
-import { getNotificationTypeByName, NotificationDisplay } from '../../lib/notificationTypes';
+import { NotificationDisplay } from '../../lib/notificationTypes';
 import type { NotificationCountsResult } from '@/components/hooks/useUnreadNotifications';
 import { isDialogueParticipant } from '../../lib/collections/posts/helpers';
 import { notifyDialogueParticipantsNewMessage } from "../notificationCallbacks";
@@ -138,15 +138,17 @@ export const notificationResolversGqlQueries = {
       }).fetch(),
     ]);
 
-    const badgeNotifications = newNotifications.filter(notif =>
-      !!getNotificationTypeByName(notif.type).causesRedBadge
-    );
+    // const badgeNotifications = newNotifications.filter(notif =>
+    //   !!getNotificationTypeByName(notif.type).causesRedBadge
+    // );
 
     return {
       checkedAt,
       unreadNotifications: newNotifications.length,
       unreadPrivateMessages,
-      faviconBadgeNumber: badgeNotifications.length,
+      // This is currently disabled, since it wasn't a great experience showing up on all tabs for all notifications.
+      // See the comment in `useUnreadNotifications` for more detail.
+      faviconBadgeNumber: 0,
     }
   },
   

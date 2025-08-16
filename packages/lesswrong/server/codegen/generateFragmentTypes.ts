@@ -1,5 +1,6 @@
 import { generatedFileHeader, assert, simplSchemaTypeToTypescript, graphqlTypeToTypescript, generateAllowedValuesTypeString, autoUnindent } from './typeGenerationUtils';
-import { allSchemas, getSchema, getSimpleSchema } from '@/lib/schema/allSchemas';
+import { allSchemas, getSchema } from '@/lib/schema/allSchemas';
+import { getSimpleSchema } from '@/lib/schema/allSimpleSchemas';
 import groupBy from 'lodash/groupBy';
 import { graphqlTypeToCollectionName } from "../../lib/vulcan-lib/collections";
 import { getAllCollections, getCollection, isValidCollectionName } from "@/server/collections/allCollections";

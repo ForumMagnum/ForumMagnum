@@ -16,7 +16,7 @@ import {
 import type { VotingProps } from "./votingProps";
 import { Menu } from '@/components/widgets/Menu';
 import classNames from "classnames";
-import {alwaysShowAnonymousReactsSetting} from '../../lib/publicSettings'
+import { alwaysShowAnonymousReactsSetting } from '@/lib/instanceSettings';
 import LoginPopup from "../users/LoginPopup";
 import EAEmojiPalette from "./EAEmojiPalette";
 import ForumIcon from "../common/ForumIcon";
@@ -276,7 +276,6 @@ const EAReactsSection: FC<{
       document: voteProps.document,
       voteType: voteProps.document.currentUserVote ?? "neutral",
       extendedVote,
-      currentUser,
     });
   }, [currentUser, openDialog, voteProps, viewOnly]);
 

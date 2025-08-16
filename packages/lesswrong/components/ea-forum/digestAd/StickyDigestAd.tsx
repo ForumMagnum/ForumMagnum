@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from '../../../lib/analyticsEvents';
 import { useCurrentUser } from '../../common/withUser';
@@ -11,8 +11,12 @@ import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 import AnalyticsInViewTracker from "../../common/AnalyticsInViewTracker";
 import ForumIcon from "../../common/ForumIcon";
 import EAButton from "../EAButton";
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { hasDigests } from '@/lib/betas';
+import { isEAForum } from '@/lib/instanceSettings';
+import { isServer } from '@/lib/executionEnvironment';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("StickyDigestAd", (theme: ThemeType) => ({
   '@keyframes digest-fade-in': {
     '0%': {
       opacity: 0,
@@ -125,15 +129,15 @@ const styles = (theme: ThemeType) => ({
   successLink: {
     color: theme.palette.primary.main
   },
-});
+}), {stylePriority: -1});
 
 /**
  * This is the Forum Digest ad that appears fixed to the bottom of the screen on the EA Forum post page.
  */
-const StickyDigestAd = ({className, classes}: {
+const StickyDigestAd = ({className}: {
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const { showDigestAd, emailRef, showForm, loading, subscribeClicked, handleClose, handleUserSubscribe } = useDigestAd()
   const ls = getBrowserLocalStorage()
@@ -204,6 +208,38 @@ const StickyDigestAd = ({className, classes}: {
   </AnalyticsContext>
 }
 
-export default registerComponent("StickyDigestAd", StickyDigestAd, {styles, stylePriority: -1});
+export const MaybeStickyDigestAd = ({post}: {
+  post: PostsListWithVotes
+}) => {
+  const [showDigestAd, setShowDigestAd] = useState(false)
 
+  // postReadCount is currently only used by StickyDigestAd, to only show the ad after the client has visited multiple posts.
+  const ls = getBrowserLocalStorage()
+  useEffect(() => {
+    if (ls && hasDigests) {
+      const postReadCount = ls.getItem('postReadCount') ?? '0'
+      ls.setItem('postReadCount', `${parseInt(postReadCount) + 1}`)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // On the EA Forum, show a digest ad at the bottom of the screen after the user scrolled down.
+  useEffect(() => {
+    if (!isEAForum || isServer || post.isEvent || post.question || post.shortform) return
+
+    checkShowDigestAd()
+    window.addEventListener('scroll', checkShowDigestAd)
+
+    return () => {
+      window.removeEventListener('scroll', checkShowDigestAd)
+    };
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  const checkShowDigestAd = () => {
+    // Ad stays visible once shown
+    setShowDigestAd((showAd) => showAd || window.scrollY > 1000)
+  }
+
+  if (showDigestAd) {
+    return <StickyDigestAd />
+  }
+}
 

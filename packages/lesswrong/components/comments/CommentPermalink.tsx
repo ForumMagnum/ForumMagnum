@@ -1,18 +1,16 @@
 import React from 'react';
 import { commentIsHiddenPendingReview } from '../../lib/collections/comments/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { isLWorAF } from '../../lib/instanceSettings';
+import { isLWorAF, commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isNotRandomId } from '@/lib/random';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
-import { commentPermalinkStyleSetting } from '@/lib/publicSettings';
 import { isBookUI } from '@/themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
 import Divider from "../common/Divider";
 import CommentOnPostWithReplies from "./CommentOnPostWithReplies";
-import HeadTags from "../common/HeadTags";
 import CommentWithReplies from "./CommentWithReplies";
 
 
@@ -52,15 +50,6 @@ const styles = (theme: ThemeType) => ({
     marginRight: 10
   },
 })
-
-const getCommentDescription = (comment: CommentWithRepliesFragment) => {
-  if (comment.deleted) return '[Comment deleted]'
-
-  return `Comment ${comment.user ? 
-    `by ${comment.user.displayName} ` : 
-    ''
-  }- ${comment.contents?.plaintextMainText}`
-}
 
 const CommentPermalink = ({
   documentId,
@@ -120,13 +109,6 @@ const CommentPermalink = ({
     <div className={classes.root}>
       <div className={classes.permalinkLabel}>Comment Permalink</div>
       <div>
-        <HeadTags
-          ogUrl={ogUrl}
-          canonicalUrl={canonicalUrl}
-          image={socialPreviewImageUrl}
-          description={getCommentDescription(comment)}
-          noIndex={true}
-        />
         {post ? (
           <CommentOnPostWithReplies
             key={comment._id}

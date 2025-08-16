@@ -1,17 +1,9 @@
-import { Posts } from "../../server/collections/posts/collection";
 import { PostsMinimumForGetPageUrl, postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { loggerConstructor } from "../../lib/utils/logging";
 import { serverId } from "@/server/analytics/serverAnalyticsWriter";
-import { DatabaseServerSetting } from "../databaseSettings";
+import { swrCachingEnabledSetting, swrCachingInvalidationIntervalMsSetting, awsRegionSetting, awsAccessKeyIdSetting, awsSecretAccessKeySetting, cloudFrontDistributionIdSetting } from "../databaseSettings";
 import type { CloudFrontClient } from "@aws-sdk/client-cloudfront";
-
-export const swrCachingEnabledSetting = new DatabaseServerSetting<boolean>('swrCaching.enabled', false)
-const swrCachingInvalidationIntervalMsSetting = new DatabaseServerSetting<number>('swrCaching.invalidationIntervalMs', 30_000)
-
-const awsRegionSetting = new DatabaseServerSetting<string>('swrCaching.awsRegion', 'us-east-1');
-const awsAccessKeyIdSetting = new DatabaseServerSetting<string | null>('swrCaching.accessKeyId', null);
-const awsSecretAccessKeySetting = new DatabaseServerSetting<string | null>('swrCaching.secretAccessKey', null);
-const cloudFrontDistributionIdSetting = new DatabaseServerSetting<string | null>('swrCaching.distributionId', null);
+import { backgroundTask } from "../utils/backgroundTask";
 
 const INVALIDATION_USER_AGENT = `ForumMagnumCacheInvalidator/1.0 (Server ID: ${serverId})`;
 
@@ -124,7 +116,7 @@ export const scheduleQueueProcessing = () => {
     const logger = loggerConstructor(`swr-invalidation-queue`)
     logger(`Running invalidateUrlFromQueue from setTimeout. serverId: ${serverId}`)
 
-    void invalidateUrlFromQueue();
+    backgroundTask(invalidateUrlFromQueue());
     eager = true;
     scheduleQueueProcessing();
   }, swrCachingInvalidationIntervalMsSetting.get());
@@ -133,7 +125,9 @@ export const scheduleQueueProcessing = () => {
 /**
  * Invalidate the CDN cache entry for the given post by pinging the URL
  */
-export const swrInvalidatePostRoute = async (postId: string) => {
+export const swrInvalidatePostRoute = async (postId: string, context: ResolverContext) => {
+  const { Posts } = context;
+
   if (!swrCachingEnabledSetting.get() || invalidationQueue.length > MAX_LENGTH) return;
   const post = await Posts.findOne({_id: postId, swrCachingEnabled: true}, {}, {_id: 1, slug: 1, isEvent: 1, groupId: 1}) as PostsMinimumForGetPageUrl;
 
@@ -145,7 +139,7 @@ export const swrInvalidatePostRoute = async (postId: string) => {
   invalidationQueue.push(url)
   if (eager) {
     eager = false;
-    void invalidateUrlFromQueue();
+    backgroundTask(invalidateUrlFromQueue());
   }
 };
 

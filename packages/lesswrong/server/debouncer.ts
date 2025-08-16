@@ -1,10 +1,10 @@
-import { captureException } from '@sentry/core';
+import { captureException } from '@sentry/nextjs';
 import { DebouncerEvents } from '../server/collections/debouncerEvents/collection';
 import { isAF, testServerSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
-import { addCronJob } from './cron/cronUtil';
 import DebouncerEventsRepo from './repos/DebouncerEventsRepo';
 import { isAnyTest } from '../lib/executionEnvironment';
+import { backgroundTask } from './utils/backgroundTask';
 
 let eventDebouncersByName: Partial<Record<string,EventDebouncer<any>>> = {};
 
@@ -200,6 +200,8 @@ export const getWeeklyBatchTimeAfter = (now: Date, timeOfDayGMT: number, dayOfWe
 }
 
 const dispatchEvent = async (event: DbDebouncerEvents) => {
+  // TODO: this won't work in Next since we've deleted the singleton dictionary of notication type event debouncers.
+  // Probably just need to create it from scratch here?
   const eventDebouncer = eventDebouncersByName[event.name];
   if (!eventDebouncer) {
     // eslint-disable-next-line no-console
@@ -307,16 +309,6 @@ export const forcePendingEvents = async (
   // eslint-disable-next-line no-console
   console.log(`Forced ${countHandled} pending event${countHandled === 1 ? "" : "s"}`);
 }
-
-export const cronDebouncedEventHandler = addCronJob({
-  name: "Debounced event handler",
-  // Once per minute, on the minute
-  cronStyleSchedule: '* * * * *',
-  disabled: testServerSetting.get(),
-  job() {
-    void dispatchPendingEvents();
-  }
-});
 
 function sleepWithVariance(ms: number)
 {

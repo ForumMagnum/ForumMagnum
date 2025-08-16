@@ -1,0 +1,247 @@
+// This entire file was basically one-shot by GPT-5, which is why it is the way it is
+
+import fs from 'fs';
+import path from 'path';
+
+type RouteNode = {
+  staticChildren: Map<string, RouteNode>
+  dynamicChild?: { paramName: string; node: RouteNode } | null
+  catchAllChild?: { paramName: string; node: RouteNode } | null
+  optionalCatchAllChild?: { paramName: string; node: RouteNode } | null
+  hasPage?: boolean
+  hasRoute?: boolean
+}
+
+type SerializedNode = {
+  staticChildren?: Record<string, SerializedNode>
+  dynamicChild?: { paramName: string; child: SerializedNode } | null
+  catchAll?: { paramName: string; child: SerializedNode } | null
+  optionalCatchAll?: { paramName: string; child: SerializedNode } | null
+  hasPage?: boolean
+  hasRoute?: boolean
+  lowerCase?: Record<string, string>
+}
+
+const APP_DIR = path.join(__dirname, '../../../../app');
+
+function createNode(): RouteNode {
+  return { staticChildren: new Map() }
+}
+
+function isRouteGroupOrParallel(name: string): boolean {
+  // Route groups: (group), parallel routes: @slot — neither contribute to the URL path
+  return (name.startsWith('(') && name.endsWith(')')) || name.startsWith('@')
+}
+
+function isDynamic(name: string): boolean {
+  return name.startsWith('[') && name.endsWith(']') && !name.startsWith('[[...') && !name.startsWith('[...')
+}
+
+function isCatchAll(name: string): boolean {
+  return name.startsWith('[...') && name.endsWith(']')
+}
+
+function isOptionalCatchAll(name: string): boolean {
+  return name.startsWith('[[...') && name.endsWith(']]')
+}
+
+function getParamName(name: string): string {
+  if (isOptionalCatchAll(name)) return name.slice('[[...'.length, -2)
+  if (isCatchAll(name)) return name.slice('[...'.length, -1)
+  return name.slice(1, -1)
+}
+
+function listImmediate(dir: string): { files: string[]; dirs: string[] } {
+  const entries = fs.readdirSync(dir, { withFileTypes: true })
+  const files: string[] = []
+  const dirs: string[] = []
+  for (const e of entries) {
+    if (e.name === 'node_modules' || e.name === '.next') continue
+    if (e.isDirectory()) dirs.push(e.name)
+    else files.push(e.name)
+  }
+  return { files, dirs }
+}
+
+function hasPageFile(files: string[]): boolean {
+  return files.some(f => /^page\.(t|j)sx?$|^page\.mdx$/.test(f))
+}
+
+function hasRouteFile(files: string[]): boolean {
+  return files.some(f => /^route\.(t|j)sx?$/.test(f))
+}
+
+function addRouteAt(node: RouteNode, segments: string[], hasPage: boolean, hasRoute: boolean) {
+  let cur = node
+  for (const seg of segments) {
+    if (isDynamic(seg)) {
+      const paramName = getParamName(seg)
+      if (!cur.dynamicChild) cur.dynamicChild = { paramName, node: createNode() }
+      cur = cur.dynamicChild.node
+      continue
+    }
+    if (isCatchAll(seg)) {
+      const paramName = getParamName(seg)
+      if (!cur.catchAllChild) cur.catchAllChild = { paramName, node: createNode() }
+      cur = cur.catchAllChild.node
+      continue
+    }
+    if (isOptionalCatchAll(seg)) {
+      const paramName = getParamName(seg)
+      if (!cur.optionalCatchAllChild) cur.optionalCatchAllChild = { paramName, node: createNode() }
+      cur = cur.optionalCatchAllChild.node
+      continue
+    }
+    // static
+    const existing = cur.staticChildren.get(seg)
+    if (existing) cur = existing
+    else {
+      const child = createNode()
+      cur.staticChildren.set(seg, child)
+      cur = child
+    }
+  }
+  if (hasPage) cur.hasPage = true
+  if (hasRoute) cur.hasRoute = true
+}
+
+function walkApp(dir: string, urlSegments: string[], root: RouteNode) {
+  const { files, dirs } = listImmediate(dir)
+  const page = hasPageFile(files)
+  const route = hasRouteFile(files)
+  if (page || route) addRouteAt(root, urlSegments, page, route)
+
+  for (const sub of dirs) {
+    if (isRouteGroupOrParallel(sub)) {
+      walkApp(path.join(dir, sub), urlSegments, root)
+      continue
+    }
+    walkApp(path.join(dir, sub), [...urlSegments, sub], root)
+  }
+}
+
+function serialize(node: RouteNode): SerializedNode {
+  const s: Record<string, SerializedNode> = {}
+  const lc: Record<string, string> = {}
+  for (const [seg, child] of node.staticChildren.entries()) {
+    s[seg] = serialize(child)
+    lc[seg.toLowerCase()] = seg
+  }
+  const out: SerializedNode = {}
+  if (Object.keys(s).length) out.staticChildren = s
+  if (Object.keys(lc).length) out.lowerCase = lc
+  if (node.dynamicChild) out.dynamicChild = { paramName: node.dynamicChild.paramName, child: serialize(node.dynamicChild.node) }
+  if (node.catchAllChild) out.catchAll = { paramName: node.catchAllChild.paramName, child: serialize(node.catchAllChild.node) }
+  if (node.optionalCatchAllChild) out.optionalCatchAll = { paramName: node.optionalCatchAllChild.paramName, child: serialize(node.optionalCatchAllChild.node) }
+  if (node.hasPage) out.hasPage = true
+  if (node.hasRoute) out.hasRoute = true
+  return out
+}
+
+function generateManifestSource(root: SerializedNode): string {
+  const header = `// AUTO-GENERATED BY list-routes.ts — DO NOT EDIT
+// This file is safe to import in edge runtime (no Node APIs).
+
+export type RouteNode = {
+  staticChildren?: Record<string, RouteNode>
+  dynamicChild?: { paramName: string; child: RouteNode } | null
+  catchAll?: { paramName: string; child: RouteNode } | null
+  optionalCatchAll?: { paramName: string; child: RouteNode } | null
+  hasPage?: boolean
+  hasRoute?: boolean
+  lowerCase?: Record<string, string>
+}
+
+export const routeTrie: RouteNode = `
+  .trim()
+  const body = JSON.stringify(root, null, 2)
+  const footer = `
+
+export function canonicalizePath(pathname: string): string | null {
+  // Normalize
+  const qIndex = pathname.indexOf('?')
+  const hIndex = pathname.indexOf('#')
+  const cut = (v: number, acc: number) => (v === -1 ? acc : Math.min(v, acc))
+  const end = cut(hIndex, cut(qIndex, pathname.length))
+  const raw = pathname.slice(0, end)
+  const segments = raw.split('/').filter(Boolean)
+
+  let node: RouteNode | undefined = routeTrie
+  const canonical: string[] = []
+
+  function acceptLeaf(n: RouteNode | undefined): boolean {
+    if (!n) return false
+    return !!(n.hasPage || n.hasRoute)
+  }
+
+  for (let i = 0; i < segments.length; i++) {
+    const seg = segments[i]
+    if (!node) return null
+
+    // Prefer static match (case-insensitive)
+    if (node.lowerCase && node.staticChildren) {
+      const canon: string = node.lowerCase[seg.toLowerCase()]
+      if (canon && node.staticChildren[canon]) {
+        canonical.push(canon)
+        node = node.staticChildren[canon]
+        continue
+      }
+    }
+
+    // Dynamic
+    if (node.dynamicChild) {
+      canonical.push(seg)
+      node = node.dynamicChild.child
+      continue
+    }
+
+    // Catch-all
+    if (node.catchAll) {
+      for (let j = i; j < segments.length; j++) canonical.push(segments[j])
+      node = node.catchAll.child
+      // Entire remainder consumed
+      i = segments.length
+      break
+    }
+
+    // Optional catch-all
+    if (node.optionalCatchAll) {
+      for (let j = i; j < segments.length; j++) canonical.push(segments[j])
+      node = node.optionalCatchAll.child
+      i = segments.length
+      break
+    }
+
+    return null
+  }
+
+  // If we ended before consuming all segments due to catch-all, fine. Otherwise ensure leaf exists
+  if (!segments.length) {
+    return acceptLeaf(node) ? '/' : null
+  }
+
+  return acceptLeaf(node) ? '/' + canonical.join('/') : null
+}
+`
+  return header + body + footer
+}
+
+export function generateRouteManifest() {
+  if (!fs.existsSync(APP_DIR)) {
+    throw new Error(`Cannot find app directory at ${APP_DIR}`)
+  }
+
+  const root = createNode()
+  // Root-level page/route (e.g., app/page.tsx or app/route.ts)
+  const { files } = listImmediate(APP_DIR)
+  const rootHasPage = hasPageFile(files)
+  const rootHasRoute = hasRouteFile(files)
+  if (rootHasPage || rootHasRoute) addRouteAt(root, [], rootHasPage, rootHasRoute)
+
+  walkApp(APP_DIR, [], root)
+
+  const serialized = serialize(root)
+  const source = generateManifestSource(serialized)
+
+  return source;
+}

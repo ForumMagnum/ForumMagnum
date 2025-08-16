@@ -13,13 +13,13 @@ import { SideItem, useHasSideItemsSidebar } from '../contents/SideItems';
 import { useDialog } from '../common/withDialog';
 import { isRegularClick } from "@/components/posts/TableOfContents/TableOfContentsList";
 import { isMobile } from '@/lib/utils/isMobile';
-import ContentStyles, { ContentStyleType } from '../common/ContentStyles';
+import ContentStyles from '../common/ContentStyles';
 import FootnoteDialog from "./FootnoteDialog";
 import SideItemLine from "../contents/SideItemLine";
 import LWPopper from "../common/LWPopper";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import { InteractionWrapper } from '../common/useClickableCell';
-
+import type { ContentStyleType } from '@/components/common/ContentStylesValues';
 
 const footnotePreviewStyles = (theme: ThemeType) => ({
   hovercard: {
@@ -165,7 +165,8 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
   const [footnoteHTML,setFootnoteHTML] = useState<string|null>(null);
   const memoizedEmptyArray = useMemo(() => [], []);
   const footnoteAncestors = useContext(FootnoteAncestorsContext) ?? memoizedEmptyArray;
-  
+  const newFootnoteAncestors = useMemo(() => [...footnoteAncestors, href], [footnoteAncestors, href])
+
   useEffect(() => {
     const extractedFootnoteHTML = footnoteAncestors.includes(href)
       ? null
@@ -217,7 +218,7 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
               eitherHovered && classes.sidenoteHover
             )}
           >
-            <FootnoteAncestorsContext.Provider value={[...footnoteAncestors, href]}>
+            <FootnoteAncestorsContext.Provider value={newFootnoteAncestors}>
               <SidenoteDisplay
                 footnoteHref={href}
                 footnoteHTML={footnoteHTML}

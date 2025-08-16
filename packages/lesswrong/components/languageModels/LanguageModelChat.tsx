@@ -7,7 +7,8 @@ import { useMessages } from '../common/withMessages';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { useLocation } from "../../lib/routeUtil";
-import { NewLlmMessage, PromptContextOptions, RAG_MODE_SET, RagModeType, useLlmChat } from './LlmChatWrapper';
+import { NewLlmMessage, useLlmChat } from './LlmChatWrapper';
+import { PromptContextOptions, RAG_MODE_SET, RagModeType } from './schema';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkCommentEditor } from '@/lib/wrapCkEditor';
@@ -17,11 +18,12 @@ import { ckEditorStyles } from '@/themes/stylePiping';
 import { HIDE_LLM_CHAT_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
-import { AutosaveEditorStateContext } from '../editor/EditorFormComponent';
+import { AutosaveEditorStateContext } from '../common/sharedContexts';
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
+import { CkEditorPortalContext, CKEditorPortalProvider } from '../editor/CKEditorPortalProvider';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -179,13 +181,14 @@ const LLMInputTextbox = ({onSubmit, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [currentMessage, setCurrentMessage] = useState('');
+  const portalContext = useContext(CkEditorPortalContext);
   const ckEditorRef = useRef<CKEditor<any> | null>(null);
   const editorRef = useRef<Editor | null>(null);
 
   // TODO: we probably want to come back to this and enable cloud services for image uploading
   const editorConfig = {
     placeholder: 'Type here.  Ctrl/Cmd + Enter to submit.',
-    mention: mentionPluginConfiguration,
+    mention: mentionPluginConfiguration(portalContext),
   };
 
   const submitEditorContentAndClear = useCallback(() => {
@@ -236,6 +239,7 @@ const LLMInputTextbox = ({onSubmit, classes}: {
   // TODO: styling and debouncing
   return <ContentStyles className={classes.inputTextbox} contentType='comment'>
     <div className={classes.editor}>
+      <CKEditorPortalProvider>
       <CKEditor
         data={currentMessage}
         ref={ckEditorRef}
@@ -261,6 +265,7 @@ const LLMInputTextbox = ({onSubmit, classes}: {
         }}
         config={editorConfig}
       />
+      </CKEditorPortalProvider>
     </div>
     {submitButton}
   </ContentStyles>

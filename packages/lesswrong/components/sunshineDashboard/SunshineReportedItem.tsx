@@ -16,12 +16,12 @@ import PostsHighlight from "../posts/PostsHighlight";
 import SidebarActionMenu from "./SidebarActionMenu";
 import SidebarAction from "./SidebarAction";
 import FormatDate from "../common/FormatDate";
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 import { Typography } from "../common/Typography";
 import SunshineCommentsItemOverview from "./SunshineCommentsItemOverview";
 import SunshineNewUsersInfo from "./SunshineNewUsersInfo";
 import UsersName from "../users/UsersName";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsListUpdateMutation = gql(`
@@ -135,7 +135,7 @@ const SunshineReportedItem = ({report, classes, currentUser, refetch}: {
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           <Typography variant="body2">
-            {comment && <CommentsNodeInner
+            {comment && <CommentsNode
               treeOptions={{
                 condensed: false,
                 post: comment.post || undefined,

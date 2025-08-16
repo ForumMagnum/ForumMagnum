@@ -1,8 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import withErrorBoundary from '../../common/withErrorBoundary';
-import { useCurrentUser } from '../../common/withUser';
+import { useCurrentUserId, useFilteredCurrentUser } from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { tagGetCommentLink } from "../../../lib/collections/tags/helpers";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
@@ -34,6 +34,7 @@ import CoreTagIcon from "../../tagging/CoreTagIcon";
 import RejectedReasonDisplay from "../../sunshineDashboard/RejectedReasonDisplay";
 import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
 import CommentBottom from "./CommentBottom";
+import pick from 'lodash/pick';
 
 
 const styles = (theme: ThemeType) => ({
@@ -214,7 +215,8 @@ export const CommentsItem = ({
   const [showEditState, setShowEditState] = useState(treeOptions.initialShowEdit || false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
   const isMinimalist = treeOptions.formStyle === "minimalist"
-  const currentUser = useCurrentUser();
+  const currentUserId = useCurrentUserId();
+  const currentUserEligibleToNominate = useFilteredCurrentUser(u => eligibleToNominate(u));
 
   const {
     postPage, tag, post, refetch, showPostTitle, hideReviewVoteButtons,
@@ -223,14 +225,12 @@ export const CommentsItem = ({
 
   const showCommentTitle = !!(commentAllowTitle({tagCommentType: comment.tagCommentType as TagCommentType, parentCommentId: comment.parentCommentId}) && comment.title && !comment.deleted && !showEditState)
 
-  const openReplyForm = (event: React.MouseEvent) => {
+  const openReplyForm = useCallback((event: React.MouseEvent) => {
     event.preventDefault();
     setReplyFormIsOpen(true);
-  }
+  }, []);
 
-  const closeReplyForm = () => {
-    setReplyFormIsOpen(false);
-  }
+  const closeReplyForm = useCallback(() => setReplyFormIsOpen(false), []);
 
   const replySuccessCallback = () => {
     if (refetch) {
@@ -239,9 +239,9 @@ export const CommentsItem = ({
     setReplyFormIsOpen(false);
   }
 
-  const setShowEdit = () => {
+  const setShowEdit = useCallback(() => {
     setShowEditState(true);
-  }
+  }, [])
 
   const editCancelCallback = () => {
     setShowEditState(false);
@@ -260,9 +260,9 @@ export const CommentsItem = ({
     }
   }
 
-  const toggleShowParent = () => {
-    setShowParentState(!showParentState);
-  }
+  const toggleShowParent = useCallback(() => {
+    setShowParentState(s => !s);
+  }, []);
 
   const renderBodyOrEditor = (voteProps: VotingProps<VoteableTypeClient>) => {
     if (showEditState) {
@@ -318,11 +318,19 @@ export const CommentsItem = ({
     reviewIsActive() &&
     comment.reviewingForReview === REVIEW_YEAR+"" &&
     post &&
-    currentUser?._id !== post.userId &&
-    eligibleToNominate(currentUser)
+    currentUserId !== post.userId &&
+    currentUserEligibleToNominate;
 
   const voteProps = useVote(comment, "Comments", votingSystem);
   const showInlineCancel = replyFormIsOpen && isMinimalist
+
+  const replacementReplyButton = treeOptions?.replaceReplyButtonsWith?.(comment);
+  const replyButton = useMemo(() => (replacementReplyButton || <a
+    className={classNames("comments-item-reply-link", classes.replyLink)}
+    onClick={showInlineCancel ? closeReplyForm : openReplyForm}
+  >
+    {showInlineCancel ? "Cancel" : "Reply"}
+  </a>), [replacementReplyButton, showInlineCancel, classes.replyLink, openReplyForm, closeReplyForm]);
 
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
@@ -403,14 +411,7 @@ export const CommentsItem = ({
             votingSystem={votingSystem}
             voteProps={voteProps}
             commentBodyRef={commentBodyRef}
-            replyButton={
-              treeOptions?.replaceReplyButtonsWith?.(comment) || <a
-                className={classNames("comments-item-reply-link", classes.replyLink)}
-                onClick={showInlineCancel ? closeReplyForm : openReplyForm}
-              >
-                {showInlineCancel ? "Cancel" : "Reply"}
-              </a>
-            }
+            replyButton={replyButton}
           />}
         </div>
         {displayReviewVoting && !collapsed && <div className={classes.reviewVotingButtons}>

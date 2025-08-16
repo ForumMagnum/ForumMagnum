@@ -9,7 +9,7 @@ import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import RecentComments from "../comments/RecentComments";
 import LWTooltip from "../common/LWTooltip";
 import { MenuItem } from "../common/Menus";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const UsersCurrentUpdateMutation = gql(`
@@ -109,7 +109,7 @@ const Reviews2019 = ({classes}: {
             <MenuItem value={'groupByPost'}>Grouped by Post</MenuItem>
           </Select>
         </SectionTitle>
-        <RecentComments terms={{ view: "reviews2019", sortBy: sortReviews}} truncated/>
+        <RecentComments selector={{ reviews2019: { sortBy: sortReviews } }} truncated/>
       </SingleColumnSection>
       <SingleColumnSection>
         <SectionTitle title="Nominations">
@@ -123,7 +123,7 @@ const Reviews2019 = ({classes}: {
             <MenuItem value={'groupByPost'}>Grouped by Post</MenuItem>
           </Select>
         </SectionTitle>
-        <RecentComments terms={{ view: "nominations2019", sortBy: sortNominations}} truncated/>
+        <RecentComments selector={{ nominations2019: { sortBy: sortNominations } }} truncated/>
       </SingleColumnSection>
     </div>
   )

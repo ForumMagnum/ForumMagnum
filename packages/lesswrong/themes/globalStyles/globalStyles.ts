@@ -1,5 +1,6 @@
 import type { JssStyles } from "@/lib/jssStyles";
 import { isFriendlyUI } from "../forumTheme";
+import { miscStyles } from "./miscStyles";
 
 export const maxSmallish = "@media screen and (max-width: 715px)";
 export const maxTiny = "@media screen and (max-width: 400px)";
@@ -154,7 +155,8 @@ const commentsStyle = (theme: ThemeType) => ({
       paddingTop: 5,
     },
     
-    backgroundColor: theme.palette.panelBackground.default,
+    background: theme.palette.panelBackground.commentNodeRoot,
+    backdropFilter: theme.palette.filters.bannerAdBlurHeavy,
   },
   ".comments-node .comments-node": {
     [maxTiny]: {
@@ -450,4 +452,5 @@ export const globalStyles = (theme: ThemeType) => ({
   ...commentsStyle(theme),
   ...dialogueStyle(theme),
   ...audioPlayerStyles(theme),
+  ...miscStyles(theme),
 });

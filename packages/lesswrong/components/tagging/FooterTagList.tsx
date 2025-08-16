@@ -1,8 +1,9 @@
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { useMutation, NetworkStatus } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
+import { NetworkStatus } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
-import { useCurrentUser } from '../common/withUser';
+import { useCurrentUserId } from '../common/withUser';
 import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
 import { contentTypes } from '../posts/PostsPage/ContentType';
 import FooterTag, { tagStyle, smallTagTextStyle } from './FooterTag';
@@ -167,7 +168,7 @@ const FooterTagList = ({
   const [showAll, setShowAll] = useState(!allowTruncate);
   const [displayShowAllButton, setDisplayShowAllButton] = useState(false);
 
-  const currentUser = useCurrentUser();
+  const currentUserId = useCurrentUserId();
   const { captureEvent } = useTracking()
   const { flash } = useMessages();
 
@@ -319,9 +320,9 @@ const FooterTagList = ({
   // we don't show any indicator). It's uncategorized if it's not frontpaged and doesn't
   // have reviewedByUserId set to anything.
   let postType = post.curatedDate
-    ? <Link to={contentTypeInfo.curated.linkTarget} className={classes.postTypeLink}>
+    ? <MaybeLink to={contentTypeInfo.curated.linkTarget} className={classes.postTypeLink}>
         <PostTypeTag label="Curated" tooltipBody={contentTypeInfo.curated.tooltipBody} neverCoreStyling={neverCoreStyling}/>
-      </Link>
+      </MaybeLink>
     : (post.frontpageDate
       ? <MaybeLink to={contentTypeInfo.frontpage.linkTarget} className={classes.postTypeLink}>
           <PostTypeTag label="Frontpage" tooltipBody={contentTypeInfo.frontpage.tooltipBody} neverCoreStyling={neverCoreStyling}/>
@@ -354,7 +355,7 @@ const FooterTagList = ({
 
   const innerContent = (
     <>
-      {!tagRight && currentUser && !hideAddTag && addTagButton}
+      {!tagRight && currentUserId && !hideAddTag && addTagButton}
       {showCoreTags && (
         <div>
           <CoreTagsChecklist existingTagIds={tagIds} onTagSelected={onTagSelected} />
@@ -382,7 +383,7 @@ const FooterTagList = ({
       {isLWorAF && annualReviewMarketInfo && isRecent && (
         <PostsAnnualReviewMarketTag annualReviewMarketInfo={annualReviewMarketInfo} />
       )}
-      {tagRight && currentUser && !hideAddTag && addTagButton}
+      {tagRight && currentUserId && !hideAddTag && addTagButton}
       {isAwaiting && <Loading />}
     </>
   );

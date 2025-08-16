@@ -304,6 +304,8 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
     filters: [
       {term: {deleted: false}},
       {term: {deleteContent: false}},
+      //Removed because it turns out you do need to be able to find unreviewed users in search sometimes, in order to add coauthors
+      //{term: {isReviewed: true}},
     ],
     mappings: {
       displayName: shingleTextMapping,

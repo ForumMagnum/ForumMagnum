@@ -31,15 +31,19 @@ interface PostActionsComponentProps {
   post: PostsList | SunshinePostsList;
   closeMenu: () => void;
   includeBookmark?: boolean;
+  onSeeLess?: () => void;
+  isSeeLessMode?: boolean;
 }
 
-const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, className, ActionsComponent}: {
+const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, onSeeLess, isSeeLessMode, className, ActionsComponent}: {
   post: PostsList|SunshinePostsList,
   vertical?: boolean,
   popperGap?: number,
   autoPlace?: boolean,
   flip?: boolean,
   includeBookmark?: boolean,
+  onSeeLess?: () => void;
+  isSeeLessMode?: boolean;
   className?: string,
   ActionsComponent?: React.ComponentType<PostActionsComponentProps>,
 }) => {
@@ -88,7 +92,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
     >
       {/*FIXME: ClickAwayListener doesn't handle portals correctly, which winds up making submenus inoperable. But we do still need clickaway to close.*/}
       <LWClickAwayListener onClickAway={() => handleSetOpen(false)}>
-        <MenuComponent post={post} closeMenu={() => handleSetOpen(false)} includeBookmark={includeBookmark} />
+        <MenuComponent post={post} closeMenu={() => handleSetOpen(false)} includeBookmark={includeBookmark} onSeeLess={onSeeLess} isSeeLessMode={isSeeLessMode} />
       </LWClickAwayListener>
     </PopperCard>
   </div>

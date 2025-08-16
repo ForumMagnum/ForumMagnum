@@ -10,7 +10,6 @@ import uniq from 'lodash/uniq';
 import { userGetDisplayName } from "../collections/users/helpers";
 import sortBy from 'lodash/sortBy';
 import type { TagLens } from "../arbital/useTagLenses";
-import { ReactionsAndLikesCommentBottom, ReactionsAndLikesVoteOnComment } from "@/components/votes/lwReactions/ReactionsAndLikesVote";
 
 /**
  * Reactions-and-likes voting
@@ -30,9 +29,6 @@ export const reactionsAndLikesVotingSystem = defineVotingSystem<ReactionsAndLike
   userCanActivate: isLW,
   description: "Likes (single-axis non-anonymous) plus reactions",
   hasInlineReacts: true,
-
-  getCommentVotingComponent: () => ReactionsAndLikesVoteOnComment,
-  getCommentBottomComponent: () => ReactionsAndLikesCommentBottom,
 
   addVoteClient: ({voteType, document, oldExtendedScore, extendedVote, currentUser}: {
     voteType: string|null,

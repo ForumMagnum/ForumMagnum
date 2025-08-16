@@ -1,6 +1,5 @@
 import Users from '../../server/collections/users/collection';
 import { registerMigration, migrateDocuments } from './migrationUtils';
-import * as _ from 'underscore';
 import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
 import { slugify } from '@/lib/utils/slugify';
 
@@ -16,7 +15,7 @@ export default registerMigration({
     },
     batchSize: 1000,
     migrate: async (users) => {
-      let updates = await Promise.all(_.map(users, async (user) => ({
+      let updates = await Promise.all(users.map(async (user) => ({
         updateOne: {
           filter: { _id: user._id },
           update: {

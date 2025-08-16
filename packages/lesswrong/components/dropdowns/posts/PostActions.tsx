@@ -71,7 +71,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       <DuplicateEventDropdownItem post={post} />
       <PostAnalyticsDropdownItem post={post} />
       <PostSubscriptionsDropdownItem post={post} />
-      {includeBookmark && <BookmarkDropdownItem post={post} />}
+      {includeBookmark && <BookmarkDropdownItem documentId={post._id} collectionName="Posts" />}
       <SetSideItemVisibility />
       <HideFrontPageButton post={post} />
       <DislikeRecommendationDropdownItem post={post} />

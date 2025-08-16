@@ -7,7 +7,7 @@ import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import withErrorBoundary from "../common/withErrorBoundary";
 import classNames from "classnames";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
-import { cloudinaryCloudNameSetting } from "../../lib/publicSettings";
+import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { usePostContents } from "../hooks/useForeignCrosspost";
 import { usePostsListView } from "../hooks/usePostsListView";
 import PostsTitle from "./PostsTitle";
@@ -305,7 +305,6 @@ const EAPostsItem = ({
     renderComments,
     commentTerms,
     condensedAndHiddenComments,
-    isRepeated,
     analyticsProps,
     viewType,
     isVoteable,
@@ -369,10 +368,6 @@ const EAPostsItem = ({
     toggleComments,
     classes
   ]);
-  
-  if (isRepeated) {
-    return null;
-  }
   
   const karmaNode = isVoteable
     ? (

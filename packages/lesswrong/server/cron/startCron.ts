@@ -11,6 +11,7 @@ export function startSyncedCron() {
   }
 
   // Defer starting of cronjobs until 20s after server startup
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
   void (async () => {
     await sleep(20000);
   

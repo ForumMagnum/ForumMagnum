@@ -96,8 +96,7 @@ export const UltraFeedComment = gql(`
   fragment UltraFeedComment on Comment {
     ...CommentsList
     post {
-      ...PostsMinimumInfo
-      votingSystem
+      ...PostsListWithVotes
     }
   }
 `)

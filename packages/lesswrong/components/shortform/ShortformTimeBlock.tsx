@@ -2,7 +2,7 @@ import React, { FC, useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import QuickTakesListItem from "../quickTakes/QuickTakesListItem";
-import CommentsNodeInner from "../comments/CommentsNode";
+import CommentsNode from "../comments/CommentsNode";
 import LoadMore from "../common/LoadMore";
 import ContentType from "../posts/PostsPage/ContentType";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
@@ -42,7 +42,7 @@ const ShortformItem: FC<{comment: ShortformComments}> = ({comment}) => {
     );
   }
   return (
-    <CommentsNodeInner
+    <CommentsNode
       treeOptions={{
         post: comment.post || undefined,
         forceSingleLine: true

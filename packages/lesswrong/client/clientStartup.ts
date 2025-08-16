@@ -15,7 +15,6 @@ import { googleTagManagerInit } from './ga';
 import { initReCaptcha } from './reCaptcha';
 import './type3';
 import { initDatadog } from './datadogRum';
-import miscStyles from '@/themes/globalStyles/miscStyles';
 import { viteHandleReload } from '@/viteClient/viteReload';
 
 /**
@@ -53,8 +52,10 @@ async function clientStartup() {
   initLegacyRoutes();
   hydrateClient();
   
+  // See comment in server/rendering/eventCapture.ts
+  window.__replayEvents?.();
+  
   if (enableVite) {
-    setTimeout(removeStaticStylesheet, 1000);
     viteHandleReload();
   }
 }
@@ -82,35 +83,3 @@ if (document.readyState === 'loading') {
   void startupAfterRendering();
 }
 
-/**
- * When using vite, we want component styles to be in individual <style> blocks
- * so that HMR can update them, but we also want the page to be visually
- * complete quickly after an SSR. So we include /allStyles, the merged
- * stylesheet that's used in production, and remove it after the individual
- * style nodes have been added to replace it.
- *
- * We have a few legacy styles that are in CSS rather than JSS, which are in
- * the merged stylesheet but not associated with any component, so we insert
- * them in its place.
- */
-function removeStaticStylesheet() {
-  const linkTags = document.getElementsByTagName("link")
-  let insertedReplacementStyles = false;
-  for (let i=0; i<linkTags.length; i++) {
-    const linkTag = linkTags.item(i);
-    if (linkTag) {
-      const href = linkTag.getAttribute("href")
-      if (href && href.startsWith("/allStyles")) {
-        if (!insertedReplacementStyles) {
-          insertedReplacementStyles = true;
-          const miscStylesNode = document.createElement("style");
-          miscStylesNode.append(document.createTextNode([
-            miscStyles(),
-          ].join("\n")));
-          linkTag.parentElement!.insertBefore(miscStylesNode, linkTag);
-        }
-        linkTag.remove();
-      }
-    }
-  }
-}

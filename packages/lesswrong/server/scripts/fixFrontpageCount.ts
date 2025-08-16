@@ -1,9 +1,7 @@
 import { Posts } from '../../server/collections/posts/collection';
 import Users from '../../server/collections/users/collection';
 
-const fixFrontpageCounts = false
-
-async function fixFrontpagePostCount() {
+export async function fixFrontpagePostCount() {
   try {
     let frontpageCountsPromise = Posts.aggregate([
       {$match: {frontpage: true}},
@@ -29,8 +27,4 @@ async function fixFrontpagePostCount() {
      //eslint-disable-next-line no-console
      console.error(e);
    }
-}
-
-if (fixFrontpageCounts) {
-  void fixFrontpagePostCount()
 }

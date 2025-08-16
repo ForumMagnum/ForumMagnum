@@ -1,4 +1,3 @@
-import { ApolloError } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from '@/lib/generated/gql-codegen';
 import { hasWikiLenses } from '@/lib/betas';
@@ -6,6 +5,7 @@ import intersection from 'lodash/intersection';
 import pick from 'lodash/pick';
 import { tagBySlugQueries } from './tagBySlugQueries';
 import { ResultOf } from '@graphql-typed-document-node/core';
+import { ErrorLike } from "@apollo/client";
 
 export interface TagBySlugQueryOptions {
   extraVariables?: {
@@ -23,7 +23,7 @@ export const useTagBySlug = <FragmentTypeName extends keyof typeof tagBySlugQuer
 ): {
   tag: NonNullable<ResultOf<typeof query>['tags']>['results'][number] | null,
   loading: boolean,
-  error?: ApolloError | null,
+  error?: ErrorLike | null,
   refetch: () => Promise<unknown>,
 } => {
   const query = tagBySlugQueries[fragmentName];
@@ -131,7 +131,8 @@ export const useTagPreview = (
     error: queryErrorWithLenses
   } = useQuery<getTagOrLensPreviewQuery | getTagOrLensSectionPreviewQuery>(queryWithLens, {
     skip: skip || !hasWikiLenses,
-    variables: { ...hashVariables, slug }
+    variables: { ...hashVariables, slug },
+    ssr: false,
   });
 
   const {
@@ -145,6 +146,7 @@ export const useTagPreview = (
       ...hashVariables,
     },
     skip: skip || hasWikiLenses,
+    ssr: false,
   });
 
   if (hasWikiLenses) {

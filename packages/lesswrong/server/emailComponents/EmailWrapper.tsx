@@ -1,10 +1,9 @@
-'use client';
-
 import React from 'react';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { isFriendlyUI } from '@/themes/forumTheme';
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { EmailContextType, useEmailStyles } from './emailContext';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const styles = defineStyles("EmailWrapper", (theme: ThemeType) => ({
   root: {
@@ -18,11 +17,12 @@ const styles = defineStyles("EmailWrapper", (theme: ThemeType) => ({
 // Wrapper for top-level formatting of emails, eg controling width and
 // background color. See also the global CSS in renderEmail.js. Derived from
 // wrapper.handlebars in Vulcan-Starter.
-export const EmailWrapper = ({unsubscribeAllLink, children}: {
+export const EmailWrapper = ({unsubscribeAllLink, emailContext, children}: {
   unsubscribeAllLink: string | null,
+  emailContext: EmailContextType,
   children: React.ReactNode,
 }) => {
-  const classes = useStyles(styles);
+  const classes = useEmailStyles(styles, emailContext);
   const accountLink = `${getSiteUrl()}account`
   const siteNameWithArticle = siteNameWithArticleSetting.get()
   

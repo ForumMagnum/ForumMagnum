@@ -13,7 +13,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import PostsUserAndCoauthors from "../PostsUserAndCoauthors";
 import PostsTitle from "../PostsTitle";
 import { ContentItemBody } from "../../contents/ContentItemBody";
-import CommentsNodeInner from "../../comments/CommentsNode";
+import CommentsNode from "../../comments/CommentsNode";
 import BookmarkButton from "../BookmarkButton";
 import FormatDate from "../../common/FormatDate";
 import Loading from "../../vulcan-core/Loading";
@@ -253,7 +253,7 @@ const LWPostsPreviewTooltip = ({
         </div>
         {renderedComment
           ? <div className={classes.comment}>
-              <CommentsNodeInner
+              <CommentsNode
                 treeOptions={{
                   post,
                   hideReply: true,
