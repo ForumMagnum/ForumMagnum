@@ -1,7 +1,8 @@
-// eslint-disable-next-line no-restricted-imports
-import {matchPath} from 'react-router'
-
+import { matchPath } from '@/lib/vendor/react-router/matchPath';
 import type { Request, Response } from 'express';
+import { captureException } from '@sentry/nextjs';
+import { isClient } from '../executionEnvironment';
+import qs from 'qs';
 
 export type PingbackDocument = {
   collectionName: CollectionNameString,
@@ -15,9 +16,6 @@ export interface SegmentedUrl {
 }
 
 export type RouterLocation = {
-  // Null in 404
-  // currentRoute: Route|null,
-  // RouteComponent: any,
   location: SegmentedUrl,
   pathname: string,
   url: string,
@@ -127,17 +125,94 @@ export const addRoute = (...routes: Route[]): void => {
   }
 };
 
-export const getRouteMatchingPathname = (pathname: string): Route | undefined  => {
-  return Object.values(Routes).reverse().find((route) => matchPath(pathname, {
-    path: route.path,
-    exact: true,
-    strict: false,
-  }))
+
+/**
+ * Given a Location, return the parsed query from the URL.
+ */
+export function parseQuery(location: SegmentedUrl): Record<string, string> {
+  let query = location?.search;
+  if (!query) return {};
+
+  // The unparsed query string looks like ?foo=bar&numericOption=5&flag but the
+  // 'qs' parser wants it without the leading question mark, so strip the
+  // question mark.
+  if (query.startsWith('?'))
+    query = query.substr(1);
+
+  return qs.parse(query) as Record<string, string>;
 }
 
-export const userCanAccessRoute = (user?: UsersCurrent | DbUser | null, route?: Route | null): boolean => {
-  if (!route) return true // Anyone can access a non-existent route (which would 404)
-  if (user?.isAdmin) return true
+// From react-router-v4
+// https://github.com/ReactTraining/history/blob/master/modules/PathUtils.js
+export const parsePath = function parsePath(path: string): SegmentedUrl {
+  var pathname = path || '/';
+  var search = '';
+  var hash = '';
 
-  return !route.isAdmin
+  var hashIndex = pathname.indexOf('#');
+  if (hashIndex !== -1) {
+    hash = pathname.substr(hashIndex);
+    pathname = pathname.substr(0, hashIndex);
+  }
+
+  var searchIndex = pathname.indexOf('?');
+  if (searchIndex !== -1) {
+    search = pathname.substr(searchIndex);
+    pathname = pathname.substr(0, searchIndex);
+  }
+
+  return {
+    pathname: pathname,
+    search: search === '?' ? '' : search,
+    hash: hash === '#' ? '' : hash
+  };
+};
+
+export function parseRoute<Patterns extends string[]>({ location, onError = null, routePatterns }: {
+  location: SegmentedUrl;
+  onError?: null | ((err: string) => void);
+  routePatterns: Patterns;
+}) {
+  const routePattern = getPatternMatchingPathname(location.pathname, routePatterns);
+
+  if (routePattern === undefined) {
+    if (onError) {
+      onError(location.pathname);
+    } else {
+      // If the route is unparseable, that's a 404. Only log this in Sentry if
+      // we're on the client, not if this is SSR. This is a compromise between
+      // catching broken links, and spam in Sentry; crawlers and bots that try lots
+      // of invalid URLs generally won't execute Javascript (especially after
+      // getting a 404 status), so this should only log when someone reaches a
+      // 404 with an actual browser.
+      // Unfortunately that also means it doesn't look broken resource links (ie
+      // images), but we can't really distinguish between "post contained a broken
+      // image link and it mattered" and "bot tried a weird URL and it didn't
+      // resolve to anything".
+      if (isClient) {
+        captureException(new Error(`404 not found: ${location.pathname}`));
+      }
+    }
+  }
+
+  const params = routePattern !== undefined ? matchPath<Record<string, string>>(location.pathname, { path: routePattern, exact: true, strict: false })!.params : {};
+  const result = {
+    routePattern,
+    location,
+    params,
+    pathname: location.pathname,
+    url: location.pathname + location.search + location.hash,
+    hash: location.hash,
+    query: parseQuery(location),
+  };
+
+  return result;
+}
+
+function getPatternMatchingPathname<Patterns extends string[]>(pathname: string, routePatterns: Patterns): Patterns[number] | undefined {
+  return routePatterns.find((routePattern) => matchPath(pathname, {
+    path: routePattern,
+    exact: true,
+    strict: false,
+  }));
 }

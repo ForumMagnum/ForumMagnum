@@ -1,4 +1,4 @@
-import { parseRoute2, parsePath } from '@/lib/vulcan-core/appContext';
+import { parseRoute, parsePath } from '@/lib/vulcan-lib/routes';
 import { PostCommentLinkPreviewGreaterWrong, PostLinkPreview, PostLinkPreviewSequencePost, PostLinkPreviewSlug, SequencePreview } from './PostLinkPreview';
 import { TagHoverPreview } from '../tagging/TagHoverPreview';
 
@@ -21,7 +21,7 @@ export const routePreviewComponentMapping = {
 
 
 export const parseRouteWithErrors = <const T extends string[] | [] = []>(onsiteUrl: string, extraRoutePatterns?: T) => {
-  return parseRoute2<((keyof typeof routePreviewComponentMapping) | T[number])[]>({
+  return parseRoute<((keyof typeof routePreviewComponentMapping) | T[number])[]>({
     location: parsePath(onsiteUrl),
     onError: (pathname) => {
       // Don't capture broken links in Sentry (too spammy, but maybe we'll

@@ -2,10 +2,11 @@
 /* eslint-disable no-useless-escape */
 import fs from 'fs';
 import path from 'path';
-import '@/lib/routes'
+// import '@/lib/routes'
 import { Routes, Route } from '@/lib/vulcan-lib/routes';
 import util from 'util';
-import { parsePath, parseRoute } from '@/lib/vulcan-core/appContext';
+// import { parseRoute } from '@/lib/vulcan-core/appContext';
+// import { parsePath } from '@/lib/vulcan-lib/routes';
 import type { Redirect } from 'next/dist/lib/load-custom-routes';
 
 const routesFileContents = fs.readFileSync('packages/lesswrong/lib/routes.ts', 'utf8');

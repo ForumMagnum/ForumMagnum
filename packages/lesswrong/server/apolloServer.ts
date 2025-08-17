@@ -1,7 +1,7 @@
 import { ApolloServer, ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from '@apollo/server';
 import { expressMiddleware } from '@as-integrations/express5';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
-import { handleRequest } from './rendering/renderPage';
+// import { handleRequest } from './rendering/renderPage';
 import cors from 'cors';
 import { isDevelopment } from '../lib/executionEnvironment';
 import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
@@ -161,7 +161,7 @@ export async function startWebserver() {
     
     schema: getExecutableSchema(),
     formatError: (e): GraphQLFormattedError => {
-      Sentry.captureException(new GraphQLError(e.message, e));
+      // Sentry.captureException(new GraphQLError(e.message, e));
       const {message, ...properties} = e;
       // eslint-disable-next-line no-console
       console.error(`[GraphQLError: ${message}]`, inspect(properties, {depth: null}));
@@ -310,7 +310,7 @@ export async function startWebserver() {
     }
   });
 
-  app.get('*', async (request, response) => handleRequest(request, response));
+  // app.get('*', async (request, response) => handleRequest(request, response));
 
   // Start Server
   const listenPort = getCommandLineArguments().listenPort;

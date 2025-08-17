@@ -5,7 +5,7 @@ import { useTracking } from '../lib/analyticsEvents';
 import NextLink from 'next/link';
 import { HashLink, HashLinkProps } from "../components/common/HashLink";
 import { classifyHost } from './routeUtil';
-import { parseQuery } from './vulcan-core/appContext'
+import { parseQuery } from './vulcan-lib/routes';
 import qs from 'qs'
 import { getUrlClass } from '@/server/utils/getUrlClass';
 import { usePathname, useSearchParams } from 'next/navigation';

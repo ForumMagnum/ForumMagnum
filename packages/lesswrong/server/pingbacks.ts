@@ -1,5 +1,5 @@
 import { cheerioParse } from './utils/htmlUtil';
-import { parsePath, parseRoute2 } from '../lib/vulcan-core/appContext';
+import { parseRoute, parsePath } from '@/lib/vulcan-lib/routes';
 import { getSiteUrl } from '../lib/vulcan-lib/utils';
 import { classifyHost } from '../lib/routeUtil';
 import { getUrlClass } from './utils/getUrlClass';
@@ -73,7 +73,7 @@ export const htmlToPingbacks = async (html: string, exclusions: Array<{collectio
       const hostType = classifyHost(linkTargetAbsolute.host)
       if (hostType==="onsite" || hostType==="mirrorOfUs") {
         const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
-        const parsedUrl = parseRoute2({
+        const parsedUrl = parseRoute({
           location: parsePath(onsiteUrl),
           onError: (pathname) => {},
           routePatterns: Object.keys(routePingbackMapping).reverse() as (keyof typeof routePingbackMapping)[]
