@@ -4,7 +4,7 @@ import Users from '../server/collections/users/collection';
 import { userGetProfileUrl } from '../lib/collections/users/helpers';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
-import { DebouncerTiming, EventDebouncer } from './debouncer';
+import { DebouncerTiming } from './debouncer';
 import type { NotificationDocument } from './collections/notifications/constants';
 import { defaultNotificationTypeSettings, NotificationChannelSettings, NotificationTypeSettings, legacyToNewNotificationTypeSettings } from "@/lib/collections/users/notificationFieldHelpers";
 import { createAnonymousContext } from './vulcan-lib/createContexts';
@@ -13,9 +13,9 @@ import union from 'lodash/union';
 import UsersRepo, { MongoNearLocation } from './repos/UsersRepo';
 import { sequenceGetPageUrl } from '../lib/collections/sequences/helpers';
 import { createNotification as createNotificationMutator } from './collections/notifications/mutations';
-import { sendNotificationBatch } from './notificationBatching';
+import { notificationDebouncers } from './notificationBatching';
 import { getDocument } from '@/lib/notificationDataHelpers';
-import { backgroundTask } from './utils/backgroundTask';
+
 /**
  * Return a list of users (as complete user objects) subscribed to a given
  * document. This is the union of users who have subscribed to it explicitly,
@@ -204,16 +204,7 @@ export const createNotification = async ({
     extraData,
   }
 
-  const debouncer = new EventDebouncer({
-    name: `notification_${notificationType}`,
-    defaultTiming: {
-      type: "delayed",
-      delayMinutes: 15,
-    },
-    callback: ({ userId, notificationType }: {userId: string, notificationType: string}, notificationIds: Array<string>) => {
-      backgroundTask(sendNotificationBatch({userId, notificationIds, notificationType}));
-    }
-  });
+  const debouncer = notificationDebouncers[notificationType];
 
   const { onsite, email } = notificationTypeSettings;
 
@@ -227,7 +218,7 @@ export const createNotification = async ({
     }, context);
 
     if (onsite.batchingFrequency !== "realtime") {
-      await debouncer.recordEvent({
+      await debouncer?.recordEvent({
         key: {notificationType, userId},
         data: createdNotification._id,
         timing: getNotificationTiming(onsite),
@@ -244,7 +235,7 @@ export const createNotification = async ({
       }
     }, context);
 
-    await debouncer.recordEvent({
+    await debouncer?.recordEvent({
       key: {notificationType, userId},
       data: createdNotification._id,
       timing: getNotificationTiming(email),

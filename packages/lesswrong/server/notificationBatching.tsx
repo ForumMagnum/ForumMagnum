@@ -9,6 +9,27 @@ import { PostsEmail } from './emailComponents/PostsEmail';
 import { UtmParam } from './analytics/utm-tracking';
 import { isEAForum } from '@/lib/instanceSettings';
 import { EmailContextType } from './emailComponents/emailContext';
+import toDictionary from '@/lib/utils/toDictionary';
+import { getNotificationTypes } from '@/lib/notificationTypes';
+import { EventDebouncer } from './debouncer';
+import { backgroundTask } from './utils/backgroundTask';
+
+// string (notification type name) => Debouncer
+export const notificationDebouncers = toDictionary(getNotificationTypes(),
+  notificationTypeName => notificationTypeName,
+  notificationTypeName => {
+    return new EventDebouncer({
+      name: `notification_${notificationTypeName}`,
+      defaultTiming: {
+        type: "delayed",
+        delayMinutes: 15,
+      },
+      callback: ({ userId, notificationType }: {userId: string, notificationType: string}, notificationIds: Array<string>) => {
+        backgroundTask(sendNotificationBatch({userId, notificationIds, notificationType}));
+      }
+    });
+  }
+);
 
 export const getUtmParamsForNotificationType = (notificationType: string): Partial<Record<UtmParam, string>> => {
   return {
@@ -28,7 +49,7 @@ export const getUtmParamsForNotificationType = (notificationType: string): Parti
  *
  * Precondition: All notifications in a batch share a notification type
  */
-export const sendNotificationBatch = async ({userId, notificationIds, notificationType}: {userId: string, notificationIds: Array<string>, notificationType: string}) => {
+const sendNotificationBatch = async ({userId, notificationIds, notificationType}: {userId: string, notificationIds: Array<string>, notificationType: string}) => {
   const { wrapAndSendEmail } = await import('./emails/renderEmail');
   if (!notificationIds || !notificationIds.length)
     throw new Error("Missing or invalid argument: notificationIds (must be a nonempty array)");

@@ -1,10 +1,9 @@
 import { captureException } from '@sentry/nextjs';
 import { DebouncerEvents } from '../server/collections/debouncerEvents/collection';
-import { isAF, testServerSetting } from '../lib/instanceSettings';
+import { isAF } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import DebouncerEventsRepo from './repos/DebouncerEventsRepo';
 import { isAnyTest } from '../lib/executionEnvironment';
-import { backgroundTask } from './utils/backgroundTask';
 
 let eventDebouncersByName: Partial<Record<string,EventDebouncer<any>>> = {};
 
@@ -200,8 +199,6 @@ export const getWeeklyBatchTimeAfter = (now: Date, timeOfDayGMT: number, dayOfWe
 }
 
 const dispatchEvent = async (event: DbDebouncerEvents) => {
-  // TODO: this won't work in Next since we've deleted the singleton dictionary of notication type event debouncers.
-  // Probably just need to create it from scratch here?
   const eventDebouncer = eventDebouncersByName[event.name];
   if (!eventDebouncer) {
     // eslint-disable-next-line no-console
