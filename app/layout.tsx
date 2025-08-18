@@ -16,6 +16,7 @@ import "@/components/momentjs";
 import ClientIDAssigner from "@/components/analytics/ClientIDAssigner";
 import ClientIdsRepo from "@/server/repos/ClientIdsRepo";
 import { CLIENT_ID_COOKIE, THEME_COOKIE, TIMEZONE_COOKIE } from "@/lib/cookies/cookies";
+import { getDefaultAbsoluteUrl } from "@/lib/instanceSettings";
 
 export default async function RootLayout({
   children,
@@ -28,6 +29,10 @@ export default async function RootLayout({
   ]);
 
   const publicInstanceSettings = getInstanceSettings().public;
+  // Since we can't statically define the site url in one of the settings files,
+  // (because for e.g. preview branches it depends on a value only known to Vercel
+  // at build time & runtime), explicitly embed it at runtime.
+  publicInstanceSettings.siteUrl = getDefaultAbsoluteUrl();
 
   const cookieStoreArray = cookieStore.getAll();
 

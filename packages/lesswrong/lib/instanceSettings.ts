@@ -4,7 +4,6 @@ import startCase from 'lodash/startCase' // AKA: capitalize, titleCase
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import {initializeSetting} from './settingsCache'
 import { getInstanceSettings } from './getInstanceSettings';
-import { getCommandLineArguments } from '@/server/commandLine';
 import type { FilterTag } from './filterSettings';
 import type { ReviewWinnerCategory, ReviewYear } from './reviewUtils';
 
@@ -176,13 +175,15 @@ export const hasRejectedContentSectionSetting = new PublicInstanceSetting<boolea
 export const sentryUrlSetting = new PublicInstanceSetting<string|null>('sentry.url', null, "warning"); // DSN URL
 export const sentryEnvironmentSetting = new PublicInstanceSetting<string|null>('sentry.environment', null, "warning"); // Environment, i.e. "development"
 export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sentry.release', null, "warning") // Current release, i.e. hash of lattest commit
-const getDefaultAbsoluteUrl = (): string => {
-  if (defaultSiteAbsoluteUrl?.length>0) {
-    return defaultSiteAbsoluteUrl;
+
+export const getDefaultAbsoluteUrl = (): string => {
+  if (process.env.VERCEL_BRANCH_URL) {
+    return `https://${process.env.VERCEL_BRANCH_URL}`;
   } else {
-    return `http://localhost:${getCommandLineArguments().localhostUrlPort}/`
+    return `http://localhost:3000/`;
   }
 }
+
 export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', getDefaultAbsoluteUrl(), "optional")
 
 // FM Crossposting
