@@ -64,7 +64,11 @@ module.exports = {
     }]
   },
 
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, dev }) => {
+    if (isServer && !dev) {
+      config.devtool = 'source-map';
+    }
+
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -660,7 +664,5 @@ module.exports = withSentryConfig(
     // https://docs.sentry.io/product/crons/
     // https://vercel.com/docs/cron-jobs
     automaticVercelMonitors: true,
-
-    productionBrowserSourceMaps: true,
   }
 );
