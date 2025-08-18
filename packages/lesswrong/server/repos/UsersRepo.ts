@@ -513,7 +513,10 @@ class UsersRepo extends AbstractRepo<"Users"> {
         GROUP BY "userId"
       ) AS rs ON u._id = rs."userId"
       WHERE
-        u."userSurveyEmailSentAt" IS NULL
+        (
+          u."userSurveyEmailSentAt" IS NULL
+          OR u."userSurveyEmailSentAt" < CURRENT_TIMESTAMP - INTERVAL '10 months'
+        )
         AND u."unsubscribeFromAll" IS NOT TRUE
         AND u.deleted IS NOT TRUE
         AND u."deleteContent" IS NOT TRUE
