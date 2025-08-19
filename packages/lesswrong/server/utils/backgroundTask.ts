@@ -1,3 +1,5 @@
+import { captureException } from "@sentry/nextjs";
+
 /**
  * Run a task (promise), without waiting for the result. If in a serverless
  * context, this function is responsible for making sure the process doesn't
@@ -35,7 +37,11 @@ function ensureRequestHasBackgroundTaskHandler() {
 
 export async function waitForBackgroundTasks() {
   while (pendingBackgroundTasks.length > 0) {
-    const taskGroup = pendingBackgroundTasks;
+    const taskGroup = pendingBackgroundTasks.map(task => task.catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error('Uncaught error in background task', err);
+      captureException(err);
+    }));
     pendingBackgroundTasks = [];
     await Promise.all(taskGroup);
   }
