@@ -13,6 +13,7 @@ import UsersRepo from "../repos/UsersRepo";
 import VotesRepo from "../repos/VotesRepo";
 import PostsRepo from "../repos/PostsRepo";
 import sum from "lodash/sum";
+import orderBy from "lodash/orderBy";
 import { addCronJob } from "../cron/cronUtil";
 
 const chooseBestReaction = (
@@ -67,15 +68,20 @@ const sendInactiveUserSummaryEmail = async (
       publishedAfter: fetchActivitySince,
     }),
   ]);
-
+  const recommendedPostIds = recommendations.posts.map((post) => post._id);
   const recommendedPosts = await fetchFragment({
     collectionName: "Posts",
     fragmentName: "PostsList",
     currentUser: user,
     selector: {
-      _id: {$in: recommendations.posts.map((post) => post._id)},
+      _id: {$in: recommendedPostIds},
     },
   });
+  const orderedRecommendedPosts = orderBy(
+    recommendedPosts,
+    [(post) => recommendedPostIds.indexOf(post._id)],
+    ['asc']
+  );
 
   const karmaChange = sum(karmaChanges.map(({scoreChange}) => scoreChange));
   const reactions = {...reacts, ...agreements};
@@ -95,7 +101,7 @@ const sendInactiveUserSummaryEmail = async (
       karmaChange={karmaChange}
       bestReaction={bestReaction}
       mostCommentedPost={mostCommentedPost ?? undefined}
-      recommendedPosts={recommendedPosts}
+      recommendedPosts={orderedRecommendedPosts}
     />
   );
 
