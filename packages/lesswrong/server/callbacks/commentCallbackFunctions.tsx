@@ -92,8 +92,17 @@ const utils = {
   }) => {
     const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, comment.postId ?? null, context);
     if (rateLimit) {
-      const {nextEligible, rateLimitType:_} = rateLimit;
+      const {nextEligible, rateLimitType, rateLimitName} = rateLimit;
       if (nextEligible > new Date()) {
+        captureEvent("commentBlockedDueToRateLimit", {
+          rateLimitType,
+          rateLimitName,
+          userId: user._id,
+          userKarma: user.karma,
+          postId: comment.postId,
+          nextEligible: nextEligible.toISOString()
+        });
+
         // "fromNow" makes for a more human readable "how long till I can comment/post?".
         // moment.relativeTimeThreshold ensures that it doesn't appreviate unhelpfully to "now"
         moment.relativeTimeThreshold('ss', 0);
@@ -863,8 +872,11 @@ export async function trackCommentRateLimitHit({document, context}: AfterCreateC
     // if the user has created a comment that makes them hit the rate limit, record an event
     // (ignore the universal 8 sec rate limit)
     if (rateLimit && rateLimit.rateLimitType !== 'universal') {
+      // Note: This isn't sent when a comment is blocked due to the rate limit, only if the *next*
+      // comment would be blocked. See "commentBlockedDueToRateLimit" for tracking comments that are blocked
       captureEvent("commentRateLimitHit", {
         rateLimitType: rateLimit.rateLimitType,
+        rateLimitName: rateLimit.rateLimitName,
         userId: document.userId,
         commentId: document._id
       })

@@ -7,7 +7,7 @@ export type CronJobSpec = {
   disabled?: boolean,
   // uses later.js parser, no seconds allowed though
   cronStyleSchedule?: string,
-  job: () => void,
+  job: (intendedAt: Date, name: string) => void,
 }
 
 export const cronJobsDefined: CronJobSpec[] = [];

@@ -189,9 +189,9 @@ export const getWrappedDataByYear = async (
     repos.comments.getAuthorshipStats({ userId: user._id, year, shortform: true }),
     readAuthorStatsPromise,
     repos.posts.getReadCoreTagStats({ userId: user._id, year }),
-    repos.votes.getEAWrappedReactsReceived(userId, start, end),
-    repos.votes.getEAWrappedReactsGiven(userId, start, end),
-    repos.votes.getEAWrappedAgreements(userId, start, end),
+    repos.votes.getEAReactsReceived(userId, start, end),
+    repos.votes.getEAReactsGiven(userId, start, end),
+    repos.votes.getEAAgreements(userId, start, end),
     repos.comments.getEAWrappedDiscussionsStarted(userId, start, end),
   ]);
 

@@ -31,7 +31,6 @@ import './server/manualMigrations/migrationsDashboardGraphql';
 import './server/legacy-redirects/routes';
 import './server/editor/utils';
 import './server/mapsUtils';
-import './server/emails/index';
 import './server/posts/index';
 
 import './server/analytics/serverAnalyticsWriter';

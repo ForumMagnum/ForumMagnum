@@ -96,9 +96,9 @@ const EASurveyBanner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   return (
     <DeferRender ssr={!!currentUser}>
       <div className={classes.root}>
-        Take the 2024 EA Forum Survey to help inform our strategy and priorities
+        Take the 2025 EA Forum Survey to help inform our strategy and priorities
         <Link
-          to="https://forms.cea.community/forum-survey-2024?utm_source=ea_forum&utm_medium=banner"
+          to="https://forms.cea.community/forum-survey-2025?utm_source=ea_forum&utm_medium=banner"
           target="_blank"
           rel="noopener"
           onClick={onSubmitSurvey}
