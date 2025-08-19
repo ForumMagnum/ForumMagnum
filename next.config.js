@@ -34,6 +34,9 @@ function loadTsConfig(configPath) {
 /** @type {import('next').NextConfig} */
 module.exports = {
   productionBrowserSourceMaps: true,
+  experimental: {
+    serverSourceMaps: true,
+  },
 
   outputFileTracingIncludes: {
     '/graphql': ['./node_modules/mathjax/unpacked/*.js', './node_modules/mathjax/unpacked/**/*.js']
