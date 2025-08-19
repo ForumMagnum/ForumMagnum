@@ -36,8 +36,7 @@ type EventTemplateFields =
   | "types"
   | "groupId"
   | "title"
-  | "hasCoauthorPermission"
-  | "coauthorStatuses";
+  | "coauthorUserIds";
 
 type PrefilledPostFields =
   | "isEvent"
@@ -83,8 +82,7 @@ const prefillFromTemplate = (template: PostsEditMutationFragment, currentUser: U
       "types",
       "groupId",
       "title",
-      "hasCoauthorPermission",
-      ...(userCanEditCoauthors(currentUser) ? ["coauthorStatuses"] as const : []),
+      ...(userCanEditCoauthors(currentUser) ? ["coauthorUserIds"] as const : []),
     ] as const
   )
 }

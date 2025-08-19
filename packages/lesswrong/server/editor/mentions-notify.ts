@@ -9,7 +9,6 @@ import type {PingbacksIndex} from '../pingbacks'
 import { isValidCollectionName } from '../collections/allCollections'
 import Comments from '../collections/comments/collection'
 import Posts from '../collections/posts/collection'
-import { getConfirmedCoauthorIds } from '@/lib/collections/posts/helpers'
 import { htmlToTextDefault } from '@/lib/htmlToText'
 import { dataToHTML } from './conversionUtils'
 import { createAnonymousContext } from '../vulcan-lib/createContexts'
@@ -96,7 +95,7 @@ export const notifyUsersAboutMentions = async (
     }).fetch();
     for (const post of posts) {
       const userIds = filterUserIds(
-        [post.userId, ...getConfirmedCoauthorIds(post)],
+        [post.userId, ...post.coauthorUserIds],
         filteredUserIds,
       );
       filteredUserIds.push(...userIds);

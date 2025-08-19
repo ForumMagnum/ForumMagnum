@@ -26,6 +26,12 @@ export function getDbIndexesOnPosts() {
       name: "posts.coauthorStatuses_postedAt",
     }
   );
+  indexSet.addIndex("Posts",
+    augmentForDefaultView({ coauthorUserIds: 1, userId: 1, postedAt: -1 }),
+    {
+      name: "posts.coauthorUserIds_postedAt",
+    }
+  );
 
   indexSet.addIndex("Posts",
     augmentForDefaultView({ score:-1, isEvent: 1 }),
@@ -257,7 +263,7 @@ export function getDbIndexesOnPosts() {
   
   /**
    * For preventing both `PostsRepo.getRecentlyActiveDialogues` and `PostsRepo.getMyActiveDialogues` from being seq scans on Posts.
-   * Given the relatively small number of dialogues, `getMyActiveDialogues` still ends up being fast even though it needs to check each dialogue for userId/coauthorStatuses.
+   * Given the relatively small number of dialogues, `getMyActiveDialogues` still ends up being fast even though it needs to check each dialogue for userId/coauthorUserIds.
    * 
    * This also speeds up `UsersRepo.getUsersWhoHaveMadeDialogues` a bunch.
    */

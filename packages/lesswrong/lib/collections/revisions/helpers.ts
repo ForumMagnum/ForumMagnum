@@ -3,7 +3,7 @@ import { SharableDocument, userIsSharedOn } from "../users/helpers";
 import { userIsPostGroupOrganizer } from "../posts/helpers";
 
 const isSharable = (document: any): document is SharableDocument => {
-  return "coauthorStatuses" in document || "shareWithUsers" in document || "sharingSettings" in document;
+  return "coauthorUserIds" in document || "shareWithUsers" in document || "sharingSettings" in document;
 };
 
 export const getOriginalContents = async <N extends CollectionNameString>(
