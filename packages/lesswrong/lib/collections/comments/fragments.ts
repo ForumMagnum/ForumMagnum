@@ -98,6 +98,7 @@ export const UltraFeedComment = () => frag`
     post {
       ...PostsMinimumInfo
       votingSystem
+      isRead
     }
   }
 `

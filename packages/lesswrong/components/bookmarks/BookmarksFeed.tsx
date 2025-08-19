@@ -12,7 +12,6 @@ import Loading from "../vulcan-core/Loading";
 import FeedItemWrapper from "../ultraFeed/FeedItemWrapper";
 import UltraFeedPostItem from "../ultraFeed/UltraFeedPostItem";
 import UltraFeedThreadItem from "../ultraFeed/UltraFeedThreadItem";
-import { isFriendlyUI } from '@/themes/forumTheme';
 
 const BookmarksFeed = () => {
   const currentUser = useCurrentUser();
@@ -21,7 +20,7 @@ const BookmarksFeed = () => {
     collectionName: "Bookmarks",
     fragmentName: "BookmarksFeedItemFragment",
     terms: {
-      view: isFriendlyUI ? "myBookmarkedComments" : "myBookmarks",
+      view: "myBookmarks",
       userId: currentUser?._id,
       limit: 20,
     },
@@ -61,9 +60,7 @@ const BookmarksFeed = () => {
       <UltraFeedObserverProvider incognitoMode={true} >
       <OverflowNavObserverProvider>
       <SingleColumnSection>
-        <SectionTitle
-          title={isFriendlyUI ? "Saved comments & quick takes" : "All Bookmarks"}
-        />
+        <SectionTitle title="All Bookmarks" />
         {bookmarks.map((bookmark: any, index) => {
           const typedBookmark = bookmark;
 

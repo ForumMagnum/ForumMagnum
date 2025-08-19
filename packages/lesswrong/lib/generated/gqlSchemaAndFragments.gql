@@ -7624,6 +7624,13 @@ fragment BookmarksFeedItemFragment on Bookmark {
   }
 }
 
+fragment BookmarksFriendlyFeedItemFragment on Bookmark {
+  ...BookmarksDefaultFragment
+  comment {
+    ...ShortformComments
+  }
+}
+
 fragment BookmarksWithDocumentFragment on Bookmark {
   ...BookmarksDefaultFragment
   post {
@@ -11641,6 +11648,7 @@ fragment UltraFeedComment on Comment {
   post {
     ...PostsMinimumInfo
     votingSystem
+    isRead
   }
 }
 
