@@ -140,7 +140,7 @@ const sendInactiveUserSummaryEmail = async (
 }
 
 export const sendInactiveUserSummaryEmails = async (
-  limit = 20,
+  limit = 60,
   dryRun = false,
 ) => {
   if (!hasInactiveSummaryEmail) {
