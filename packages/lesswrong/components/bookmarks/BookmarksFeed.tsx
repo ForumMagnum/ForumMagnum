@@ -21,7 +21,7 @@ const BookmarksFeed = () => {
     collectionName: "Bookmarks",
     fragmentName: "BookmarksFeedItemFragment",
     terms: {
-      view: "myBookmarks",
+      view: isFriendlyUI ? "myBookmarkedComments" : "myBookmarks",
       userId: currentUser?._id,
       limit: 20,
     },
