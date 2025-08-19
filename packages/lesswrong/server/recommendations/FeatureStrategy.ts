@@ -60,7 +60,7 @@ class FeatureStrategy extends RecommendationStrategy {
       -- FeatureStrategy
       SELECT p.*
       FROM (
-        SELECT p.*
+        SELECT p."_id", MAX(${score}) as max_score
         FROM "Posts" p
         ${readFilter.join}
         ${postFilter.join}
@@ -71,11 +71,14 @@ class FeatureStrategy extends RecommendationStrategy {
           ${readFilter.filter}
           ${postFilter.filter}
           ${tagFilter.filter}
-        ORDER BY 0 ${score} DESC
+        GROUP BY p."_id"
+        ORDER BY max_score DESC
         LIMIT $(count) * 10
-      ) p
+      ) ranked_posts
+      JOIN "Posts" p ON p."_id" = ranked_posts."_id"
       ${recommendedFilter.join}
       WHERE ${recommendedFilter.filter} 1=1
+      ORDER BY ranked_posts.max_score DESC
       LIMIT $(count)
     `, {
       ...readFilter.args,
