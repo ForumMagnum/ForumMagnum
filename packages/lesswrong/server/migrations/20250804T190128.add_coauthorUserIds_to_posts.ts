@@ -4,6 +4,19 @@ import { addField, dropField, updateIndexes } from "./meta/utils"
 import Posts from "../collections/posts/collection";
 import BulkWriter from "../sql/BulkWriter";
 
+type CoauthorMigrationPost = {
+  _id: string,
+  coauthorStatuses: CoauthorStatusInput[],
+  hasCoauthorPermission: boolean,
+}
+
+const getConfirmedCoauthors = (post: CoauthorMigrationPost): string[] => {
+  const statuses = post.hasCoauthorPermission
+    ? post.coauthorStatuses
+    : post.coauthorStatuses.filter(({confirmed}) => confirmed);
+  return statuses.map(({userId}) => userId);
+}
+
 export const up = async ({db}: MigrationContext) => {
   const start = new Date();
 
@@ -14,11 +27,8 @@ export const up = async ({db}: MigrationContext) => {
   await updateIndexes(Posts);
 
   console.log("Fetching posts to update...");
-  const posts: {
-    _id: string,
-    coauthorStatuses: CoauthorStatusInput[],
-  }[] = await db.any(`
-    SELECT "_id", "coauthorStatuses"
+  const posts: CoauthorMigrationPost[] = await db.any(`
+    SELECT "_id", "coauthorStatuses", "hasCoauthorPermission"
     FROM "Posts"
     WHERE CARDINALITY("coauthorStatuses") > 0
   `);
@@ -29,7 +39,7 @@ export const up = async ({db}: MigrationContext) => {
       filter: {_id: post._id},
       update: {
         $set: {
-          coauthorUserIds: post.coauthorStatuses!.map(({userId}) => userId),
+          coauthorUserIds: getConfirmedCoauthors(post),
         },
       },
     },
