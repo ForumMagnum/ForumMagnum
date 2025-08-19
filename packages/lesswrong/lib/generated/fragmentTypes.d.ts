@@ -3736,7 +3736,6 @@ interface UltraFeedComment extends CommentsList { // fragment on Comments
 
 interface UltraFeedComment_post extends PostsMinimumInfo { // fragment on Posts
   readonly votingSystem: string|null,
-  readonly isRead: boolean|null,
 }
 
 interface UltraFeedEventsDefaultFragment { // fragment on UltraFeedEvents

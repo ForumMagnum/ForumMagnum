@@ -11648,7 +11648,6 @@ fragment UltraFeedComment on Comment {
   post {
     ...PostsMinimumInfo
     votingSystem
-    isRead
   }
 }
 
