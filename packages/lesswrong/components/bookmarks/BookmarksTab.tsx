@@ -17,7 +17,7 @@ export const BookmarksTab = () => {
       <ContinueReadingList continueReading={continueReading}/>
     </>}
 
-    <SectionTitle title="Bookmarked Posts"/>
+    <SectionTitle title="Saved Posts"/>
     <BookmarksList showMessageIfEmpty={true} />
     <BookmarksFeed />
 
