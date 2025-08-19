@@ -6,7 +6,6 @@ import { useCurrentUser } from '../common/withUser';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkPostEditor, getCkCommentEditor } from '@/lib/wrapCkEditor';
 import { ckEditorStyles } from '@/themes/stylePiping';
-import { forumTypeSetting } from '@/lib/instanceSettings';
 import { useCreate } from '@/lib/crud/withCreate';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import classNames from 'classnames';
@@ -28,11 +27,7 @@ export type ExternalPostImportData = {
     modifiedAt: Date | null;
     draft: boolean;
     content: string;
-    coauthorStatuses: Array<{
-      userId: string;
-      confirmed: boolean;
-      requested: boolean;
-    }> | null;
+    coauthorUserIds: string[] | null,
   };
 };
 

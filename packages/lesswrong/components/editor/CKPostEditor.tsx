@@ -4,14 +4,13 @@ import { ckEditorBundleVersion, getCkPostEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
-import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
+import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import EditorTopBar, { CollaborationMode } from './EditorTopBar';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
-import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 import sortBy from 'lodash/sortBy'
 import uniqBy from 'lodash/uniqBy';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
@@ -28,8 +27,6 @@ import type { ConditionalVisibilityPluginConfiguration  } from './conditionalVis
 import { CkEditorPortalContext } from './CKEditorPortalProvider';
 import { useDialog } from '../common/withDialog';
 import { claimsConfig } from './claims/claimsConfig';
-import { useGlobalKeydown } from '../common/withGlobalKeydown';
-import { isClient } from '@/lib/executionEnvironment';
 import { useCkEditorInspector } from '@/client/useCkEditorInspector';
 import EditConditionalVisibility from "./conditionalVisibilityBlock/EditConditionalVisibility";
 import DialogueEditorGuidelines from "../posts/dialogues/DialogueEditorGuidelines";
@@ -637,7 +634,7 @@ const CKPostEditor = ({
           setEditor(editor);
         }
 
-        const userIds = formType === 'new' ? [userId] : [post.userId, ...getConfirmedCoauthorIds(post)];
+        const userIds = formType === 'new' ? [userId] : [post.userId, ...post.coauthorUserIds];
         if (post.collabEditorDialogue && accessLevel && accessLevelCan(accessLevel, 'edit')) {
           const rawAuthors = formType === 'new' ? [currentUser!] : filterNonnull([post.user, ...(post.coauthors ?? [])])
           const coauthors = uniqBy(

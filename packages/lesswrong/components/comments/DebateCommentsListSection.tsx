@@ -9,6 +9,7 @@ import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import CantCommentExplanation from "./CantCommentExplanation";
 import CommentsList from "./CommentsList";
 import PostsPageCrosspostComments from "../posts/PostsPage/PostsPageCrosspostComments";
+import { userIsPostCoauthor } from '@/lib/collections/posts/helpers';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
@@ -77,7 +78,7 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
   const userIsDebateParticipant =
     currentUser
     && post?.debate
-    && (currentUser._id === postAuthor?._id || post?.coauthorStatuses?.some(coauthor => coauthor.userId === currentUser._id));
+    && (currentUser._id === postAuthor?._id || userIsPostCoauthor(currentUser, post));
 
   return (
     <div className={classNames(classes.root, classes.maxWidthRoot)}>

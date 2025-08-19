@@ -207,6 +207,7 @@ jobs:
         name: Upload schema to accept
         path: schema/schema_to_accept.sql
     - name: Save coverage report
+      continue-on-error: true
       uses: coverallsapp/github-action@v2
       with:
         file: unit-coverage/lcov.info
@@ -244,6 +245,7 @@ jobs:
     - name: yarn run integration-ci
       run: yarn run integration-ci
     - name: Save coverage report
+      continue-on-error: true
       uses: coverallsapp/github-action@v2
       with:
         file: integration-coverage/lcov.info
@@ -286,6 +288,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Upload to Coveralls
+      continue-on-error: true
       uses: coverallsapp/github-action@v2
       with:
         parallel-finished: true
