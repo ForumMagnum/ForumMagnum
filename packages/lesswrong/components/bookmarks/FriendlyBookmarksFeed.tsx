@@ -9,6 +9,7 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
 import QuickTakesListItem from "../quickTakes/QuickTakesListItem";
+import LoadMore from "../common/LoadMore";
 
 const styles = (theme: ThemeType) => ({
   loading: {
@@ -19,12 +20,15 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     fontWeight: 500,
   },
+  loadMore: {
+    marginTop: 8,
+  },
 });
 
 const BookmarksFeed = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const currentUser = useCurrentUser();
 
-  const { results: bookmarks = [], loading, error } = useMulti({
+  const { results: bookmarks = [], loading, error, loadMoreProps } = useMulti({
     collectionName: "Bookmarks",
     fragmentName: "BookmarksFriendlyFeedItemFragment",
     terms: {
@@ -68,6 +72,7 @@ const BookmarksFeed = ({classes}: {classes: ClassesType<typeof styles>}) => {
             )
             : null
         )}
+        <LoadMore {...loadMoreProps} className={classes.loadMore} />
         {bookmarks.length === 0 && !loading && (
           <div className={classes.text}>
             No saved comments yet
