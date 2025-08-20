@@ -64,7 +64,7 @@ test("voting on a post gives karma", async ({page, context}) => {
 
   // Post should start with 1 karma from the author
   await page.goto(post.postPageUrl);
-  const karma = page.locator(".PostsVoteDefault-voteScore");
+  const karma = page.locator(".LWPostsPageTopHeaderVote-voteScore");
   await expect(karma).toContainText("0");
 
   // Click the upvote button and give time for the page to update
