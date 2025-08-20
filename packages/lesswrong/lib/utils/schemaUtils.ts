@@ -94,6 +94,7 @@ export const accessFilterMultiple = async <N extends CollectionNameString, DocTy
   unfilteredDocs: Array<DocType|null>,
   context: ResolverContext,
 ): Promise<Partial<DocType>[]> => {
+  if (!unfilteredDocs) return [];
   const checkAccess = getCollectionAccessFilter(collectionName);
   
   // Filter out nulls (docs that were referenced but didn't exist)
