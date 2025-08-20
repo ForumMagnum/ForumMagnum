@@ -22,7 +22,8 @@ export function userIsDefaultSubscribed({user, subscriptionType, collectionName,
       // TODO
       return false;
     case subscriptionTypes.newEvents:
-      return document.organizers.some((organizerId: string)=>organizerId===user._id)
+      return document.organizers
+        && document.organizers.some((organizerId: string) => organizerId===user._id)
         && user.autoSubscribeAsOrganizer;
     case subscriptionTypes.newReplies:
       return user.auto_subscribe_to_my_comments && document.userId===user._id;
