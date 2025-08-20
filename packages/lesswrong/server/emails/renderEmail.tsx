@@ -160,54 +160,19 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   // const { prerenderToNodeStream } = await import('react-dom/static');
 
   // Set up Apollo
-  const { createClient } = await import('../vulcan-lib/apollo-ssr/apolloClient');
-  const apolloClient = await createClient(computeContextFromUser({user, isSSR: false}));
   
   // Use the user's last-used timezone, which is the timezone of their browser
   // the last time they visited the site. Potentially null, if they haven't
   // visited since before that feature was implemented.
-  const timezone = user?.lastUsedTimezone || null
   
   const themeOptions: ThemeOptions = {name: "default", siteThemeOverride: {}};
   const theme = getForumTheme(themeOptions);
   
-  // Wrap the body in Apollo, JSS, and MUI wrappers.
-  const wrappedBodyComponent = (<>
-    {/* <EmailRenderContext.Provider value={{isEmailRender:true}}> */}
-    {/* <ApolloProvider client={apolloClient}> */}
-    {/* <CookiesProvider> */}
-    {/* <ThemeContextProvider options={themeOptions} isEmail={true}> */}
-    {/* <FMJssProvider stylesContext={stylesContext}> */}
-    {/* <UserContext.Provider value={user as unknown as UsersCurrent | null}> */}
-    {/* <TimezoneContext.Provider value={timezone}> */}
-      {bodyComponent}
-    {/* </TimezoneContext.Provider> */}
-    {/* </UserContext.Provider> */}
-    {/* </FMJssProvider> */}
-    {/* </ThemeContextProvider> */}
-    {/* </CookiesProvider> */}
-    {/* </ApolloProvider> */}
-    {/* </EmailRenderContext.Provider> */}
-  </>);
-  
-  // Traverse the tree, running GraphQL queries and expanding the tree
-  // accordingly.
-  // await getMarkupFromTree({
-  //   tree: wrappedBodyComponent,
-  //   context: {},
-  //   renderFunction: renderToStaticMarkup,
-  // });
-  
   // Render the REACT tree to an HTML string
   const body = await renderToString(bodyComponent);
   
-  // Get JSS styles, which were added to sheetsRegistry as a byproduct of
+  // Get JSS styles, which were added to emailContext as a byproduct of
   // renderToString.
-  // const css = generateEmailStylesheet({ stylesContext, theme });
-  // const css = EmailCss.toString();
-
-  // console.log({ body, css });
-
   const css = generateEmailStylesheet({
     stylesUsed: emailContext.stylesUsed,
     theme,

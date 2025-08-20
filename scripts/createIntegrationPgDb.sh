@@ -2,7 +2,8 @@
 
 set -euxo pipefail
 
-yarn ea-start-testing-db &
+# yarn ea-start-testing-db &
+yarn run-next &
 ./scripts/timeout.sh 120 ./scripts/waitForServer.sh
 curl --fail -X POST http://localhost:3000/api/dropAndCreatePg \
 	-d '{"templateId": "jest_template"}' \
