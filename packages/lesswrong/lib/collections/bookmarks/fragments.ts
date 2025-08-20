@@ -20,3 +20,12 @@ export const BookmarksFeedItemFragment = () => frag`
     }
   }
 `;
+
+export const BookmarksFriendlyFeedItemFragment = () => frag`
+  fragment BookmarksFriendlyFeedItemFragment on Bookmark {
+    ...BookmarksDefaultFragment
+    comment {
+      ...ShortformComments
+    }
+  }
+`;
