@@ -2,8 +2,8 @@ import config from "./jest.config";
 
 const base = "packages/lesswrong/unitTests";
 
-export default {
-  ...config,
+export default async () => ({
+  ...(await config()),
   testMatch: [
     `<rootDir>/${base}/**/?(*.)+(spec|test|tests).[tj]s?(x)`,
   ],
@@ -15,7 +15,7 @@ export default {
   ],
   coverageDirectory: "<rootDir>/unit-coverage/",
   coveragePathIgnorePatterns: [
-    ...config.coveragePathIgnorePatterns,
+    ...(await config()).coveragePathIgnorePatterns ?? [],
     "/integrationTests/",
   ],
-};
+});

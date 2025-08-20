@@ -34,7 +34,7 @@
     "create-integration-db": "PG_URL=$(cat ../ForumCredentials/testing-pg-conn.txt) ./scripts/createIntegrationPgDb.sh",
     "create-integration-db-ci": "yarn exec-accepted-schema && ./scripts/createIntegrationPgDb.sh",
     "integration": "PG_URL=$(cat ../ForumCredentials/testing-pg-conn.txt) PG_MAX_CONNECTIONS=5 jest --config jest.integration.config.ts --forceExit",
-    "integration-ci": "PG_MAX_CONNECTIONS=5 node --experimental-vm-modules ./node_modules/.bin/jest --config jest.integration.config.ts --forceExit --ci --coverage --coverageProvider=v8",
+    "integration-ci": "PG_MAX_CONNECTIONS=5 jest --config jest.integration.config.ts --forceExit --ci --coverage --coverageProvider=v8",
     "integration-watch": "jest --config jest.integration.config.ts --watchAll",
     "integration-coverage": "jest --config jest.integration.config.ts --forceExit --coverage --coverageProvider=v8",
     "combine-coverage": "./scripts/combineCoverage.sh",
