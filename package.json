@@ -54,7 +54,7 @@
     "playwright-db-crosspost": "docker run --rm --name forum-magnum-test-postgres-crosspost -e POSTGRES_PASSWORD=password -p 5434:5432 -v $PWD/schema/accepted_schema.sql:/docker-entrypoint-initdb.d/00_accepted_schema.sql -v $PWD/playwright/fixtures.sql:/docker-entrypoint-initdb.d/01_fixtures.sql ankane/pgvector",
     "playwright-test": "playwright test",
     "playwright-test-crosspost": "CROSSPOST_TEST=true playwright test",
-    "start-playwright": "PORT=3456 next dev --turbopack",
+    "start-playwright": "PORT=3456 PG_URL=postgres://postgres:password@localhost:5433/postgres next dev --turbopack",
     "start-playwright-crosspost": "PORT=3467 ENV_NAME=testCrosspost PG_URL=postgres://postgres:password@localhost:5434/postgres next dev --turbopack",
     "ea-start-staging-db": "ts-node --transpile-only ./build.ts -run --watch --lint --settings ../ForumCredentials/settings-local-dev-staging-db.json --postgresUrlFile ../ForumCredentials/staging-pg-conn.txt",
     "ea-start-prod-db": "ts-node --transpile-only ./build.ts -run --watch --lint --settings ../ForumCredentials/settings-local-dev-prod-db.json --postgresUrlFile ../ForumCredentials/prod-pg-conn.txt",

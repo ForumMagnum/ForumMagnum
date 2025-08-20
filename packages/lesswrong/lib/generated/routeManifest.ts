@@ -146,10 +146,16 @@ export const routeTrie: RouteNode ={
             "update-user-activities": "update-user-activities"
           }
         },
+        "dropAndCreatePg": {
+          "hasRoute": true
+        },
         "health": {
           "hasRoute": true
         },
         "notificationCount": {
+          "hasRoute": true
+        },
+        "quit": {
           "hasRoute": true
         },
         "registerClientId": {
@@ -215,8 +221,10 @@ export const routeTrie: RouteNode ={
         "autocomplete": "autocomplete",
         "autocomplete405b": "autocomplete405b",
         "cron": "cron",
+        "dropandcreatepg": "dropAndCreatePg",
         "health": "health",
         "notificationcount": "notificationCount",
+        "quit": "quit",
         "registerclientid": "registerClientId",
         "search": "search",
         "sendllmchat": "sendLlmChat",
@@ -806,6 +814,9 @@ export const routeTrie: RouteNode ={
         "w": "w"
       }
     },
+    "robots.txt": {
+      "hasRoute": true
+    },
     "s": {
       "dynamicChild": {
         "paramName": "_id",
@@ -1096,6 +1107,7 @@ export const routeTrie: RouteNode ={
     "reviews2018": "reviews2018",
     "reviews2019": "reviews2019",
     "revisions": "revisions",
+    "robots.txt": "robots.txt",
     "s": "s",
     "search": "search",
     "sequences": "sequences",
