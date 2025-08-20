@@ -102,6 +102,7 @@ jobs:
     env:
       NODE_OPTIONS: "--max_old_space_size=4096"
       SLOW_QUERY_REPORT_CUTOFF_MS: "-1"
+      ENV_NAME: test
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -165,6 +166,7 @@ jobs:
     env:
       NODE_OPTIONS: "--max_old_space_size=4096"
       SLOW_QUERY_REPORT_CUTOFF_MS: "-1"
+      ENV_NAME: test
     steps:
     - name: Checkout code
       uses: actions/checkout@v4

@@ -6,15 +6,16 @@ import { localLwDevDb } from "./localLwDevDb";
 import { localLwProdDb } from "./localLwProdDb";
 import { prodAf } from "./prodAf";
 import { prodLw } from "./prodLw";
+import { testSettings } from "./test";
+import { testCrosspostSettings } from "./testCrosspost";
 import { z } from "zod";
 import { isAnyTest } from "@/lib/executionEnvironment";
-import { loadSettingsFile } from "../commandLine";
 
-const validEnvNames = z.enum(["baserates", "localAfDevDb", "localAfProdDb", "localLwDevDb", "localLwProdDb", "prodAf", "prodLw"]);
+const validEnvNames = z.enum(["test", "testCrosspost", "baserates", "localAfDevDb", "localAfProdDb", "localLwDevDb", "localLwProdDb", "prodAf", "prodLw"]);
 
 function getPublicSettings() {
   if (isAnyTest) {
-    return loadSettingsFile('./settings-test.json').public;
+    return testSettings;
   }
   const envName = process.env.ENV_NAME;
   if (!envName) {
@@ -33,6 +34,10 @@ function getPublicSettings() {
   const validEnvName = parsedEnvName.data;
 
   switch (validEnvName) {
+    case "test":
+      return testSettings;
+    case "testCrosspost":
+      return testCrosspostSettings;
     case "baserates":
       return baserates;
     case "localAfDevDb":
