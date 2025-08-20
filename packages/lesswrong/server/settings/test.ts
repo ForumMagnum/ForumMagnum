@@ -1,5 +1,5 @@
 export const testSettings = {
-  forumType: "EAForum",
+  forumType: process.env.FORUM_TYPE ?? "EAForum",
   hasEvents: true,
   title: "EAForum Test",
   tagline: "Effective Altruism research, discussion and community updates",
