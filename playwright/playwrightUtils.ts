@@ -78,10 +78,22 @@ export const loginUser = async (
   {email, password}: PlaywrightUser,
 ): Promise<void> => {
   await logout(context);
-  await context.request.post("/auth/auth0/embedded-login", {
+  // await context.request.post("/auth/auth0/embedded-login", {
+  //   data: {
+  //     email,
+  //     password,
+  //   },
+  // });
+
+  await context.request.post("/graphql", {
     data: {
-      email,
-      password,
+      query: `
+        mutation {
+          login(username: "${email}", password: "${password}") {
+            token
+          }
+        }
+      `,
     },
   });
 }
