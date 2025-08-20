@@ -1,3 +1,4 @@
+import { createPasswordHash } from "@/server/vulcan-lib/apollo-server/passwordHelpers";
 import type { Browser, BrowserContext, Cookie, Page } from "@playwright/test";
 import pgp, { IDatabase } from "pg-promise";
 import getSlug from "speakingurl";
@@ -78,13 +79,6 @@ export const loginUser = async (
   {email, password}: PlaywrightUser,
 ): Promise<void> => {
   await logout(context);
-  // await context.request.post("/auth/auth0/embedded-login", {
-  //   data: {
-  //     email,
-  //     password,
-  //   },
-  // });
-
   await context.request.post("/graphql", {
     data: {
       query: `
@@ -123,9 +117,13 @@ export const createNewUser = async ({
   karma = 0,
 }: CreateNewUserOptions = {}): Promise<PlaywrightUser> => {
   const user = createNewUserDetails();
-  const {_id, username, email, slug, displayName} = user;
+  const {_id, username, email, slug, displayName, password} = user;
   const abtestkey = `abtestkey-${username}`;
   const emails = [{address: email, verifed: false}];
+  const services = {
+    password: {bcrypt: await createPasswordHash(password)},
+    resume: {loginTokens: []},
+  };
 
   await database.get().none(`
     INSERT INTO "Users" (
@@ -139,9 +137,10 @@ export const createNewUser = async ({
       "isAdmin",
       "karma",
       "usernameUnset",
-      "acceptedTos"
-    ) VALUES ($1, $2, $3, $4, $5::JSONB[], $6, $7, $8, $9, FALSE, TRUE)
-  `, [_id, username, displayName, email, emails, slug, abtestkey, isAdmin, karma]);
+      "acceptedTos",
+      "services"
+    ) VALUES ($1, $2, $3, $4, $5::JSONB[], $6, $7, $8, $9, FALSE, TRUE, $10::JSONB)
+  `, [_id, username, displayName, email, emails, slug, abtestkey, isAdmin, karma, services]);
 
   return user;
 }
@@ -333,7 +332,6 @@ export const setPostContent = async (page: Page, {
   title,
   body,
   titlePlaceholder = "Post title",
-  bodyLabel = "Rich Text Editor. Editing area: main",
 }: {
   title?: string,
   body?: string,
@@ -348,7 +346,7 @@ export const setPostContent = async (page: Page, {
   }
 
   if (body) {
-    await page.getByLabel(bodyLabel).fill("");
-    await page.getByLabel(bodyLabel).fill(body);
+    await page.locator('.CKEditor-ckWrapper').first().getByRole('textbox').fill("");
+    await page.locator('.CKEditor-ckWrapper').first().getByRole('textbox').fill(body);
   }
 }

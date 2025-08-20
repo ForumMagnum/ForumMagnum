@@ -8,7 +8,7 @@ import ReactBallotVoteOnComment from "@/components/votes/ReactBallotVoteOnCommen
 import EmojiReactionVoteOnComment from "@/components/votes/EmojiReactionVoteOnComment";
 import EAEmojisVoteOnComment from "@/components/votes/EAEmojisVoteOnComment";
 import type { VotingSystemName } from "./votingSystemNames";
-import type { CommentVotingBottomComponent, CommentVotingComponent, PostVotingComponent } from "./votingSystems";
+import type { CommentVotingBottomComponent, CommentVotingComponent, PostVotingComponent } from './votingSystemTypes';
 
 // These are split out from the voting system definitions because
 // we use the voting system definitions on the server but not in SSR contexts,

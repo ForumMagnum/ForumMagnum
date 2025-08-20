@@ -44,7 +44,7 @@ export const isAnyTest = nodeEnv === 'test';
 export const isIntegrationTest = nodeEnv === 'integration';
 
 
-export const isE2E = nodeEnv === 'e2e';
+export const isE2E = process.env.E2E === 'true';
 export const isPackageTest = nodeEnv === 'test';
 export const isCodegen = nodeEnv === 'codegen';
 

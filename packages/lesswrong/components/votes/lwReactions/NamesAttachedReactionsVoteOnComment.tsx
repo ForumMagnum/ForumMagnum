@@ -1,6 +1,6 @@
 import React, { useState, useRef, RefObject, useContext } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import type { CommentVotingComponentProps, NamesAttachedReactionsCommentBottomProps, } from '../../../lib/voting/votingSystems';
+import type { NamesAttachedReactionsCommentBottomProps, CommentVotingComponentProps } from '@/lib/voting/votingSystemTypes';
 import type { NamesAttachedReactionsList, NamesAttachedReactionsVote, EmojiReactName, UserReactInfo, UserVoteOnSingleReaction, VoteOnReactionType, QuoteLocator } from '../../../lib/voting/namesAttachedReactions';
 import { reactionsListToDisplayedNumbers, getNormalizedReactionsListFromVoteProps, getNormalizedUserVoteFromVoteProps } from '@/lib/voting/reactionDisplayHelpers';
 import { getNamesAttachedReactionsByName } from '../../../lib/voting/reactions';

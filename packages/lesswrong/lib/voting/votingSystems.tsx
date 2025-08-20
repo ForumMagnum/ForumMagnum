@@ -1,6 +1,3 @@
-'use client';
-
-import type React from 'react';
 import { calculateVotePower, getVoteAxisStrength } from './voteTypes';
 import { eaEmojiNames } from './eaEmojiPalette';
 import { loadByIds } from '../loaders';
@@ -10,72 +7,8 @@ import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
 import pickBy from 'lodash/pickBy';
 import fromPairs from 'lodash/fromPairs';
-import type { VotingProps } from '../../components/votes/votingProps';
-import type { ContentItemBodyImperative, ContentReplacedSubstringComponentInfo } from '../../components/contents/contentBodyUtil';
-import type { TagLens } from '../arbital/useTagLenses';
 import { defineVotingSystem } from './defineVotingSystem';
-import type { VotingSystemName } from './votingSystemNames';
-
-export type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics|MultiDocumentMinimumInfo
-
-export type CommentVotingComponentProps<T extends VotingPropsDocument = VotingPropsDocument> = {
-  document: T,
-  hideKarma?: boolean,
-  collectionName: VoteableCollectionName,
-  votingSystem: VotingSystem,
-  commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
-  voteProps?: VotingProps<VoteableTypeClient>,
-  post?: PostsWithNavigation | PostsWithNavigationAndRevision,
-}
-export interface NamesAttachedReactionsCommentBottomProps extends CommentVotingComponentProps<CommentsList> {
-  voteProps: VotingProps<VoteableTypeClient>,
-}
-
-export type PostVotingComponentProps = {
-  document: PostsWithVotes,
-  votingSystem: VotingSystem,
-  isFooter?: boolean,
-}
-
-export type CommentVotingComponent = React.ComponentType<CommentVotingComponentProps>;
-export type CommentVotingBottomComponent = React.ComponentType<NamesAttachedReactionsCommentBottomProps>;
-export type PostVotingComponent = React.ComponentType<PostVotingComponentProps>;
-
-export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
-  name: VotingSystemName,
-  description: string,
-  hasInlineReacts?: boolean,
-  userCanActivate?: boolean, // toggles whether non-admins use this voting system
-  addVoteClient: (props: {
-    voteType: string|null,
-    document: VoteableTypeClient,
-    oldExtendedScore: ExtendedScoreType,
-    extendedVote: ExtendedVoteType,
-    currentUser: UsersCurrent
-  }) => ExtendedScoreType,
-  cancelVoteClient: (props: {
-    voteType: string|null,
-    document: VoteableTypeClient,
-    oldExtendedScore: ExtendedScoreType,
-    cancelledExtendedVote: ExtendedVoteType,
-    currentUser: UsersCurrent
-  }) => ExtendedScoreType
-  computeExtendedScore: (votes: DbVote[], context: ResolverContext) => Promise<ExtendedScoreType>
-  isAllowedExtendedVote?: (args: {user: UsersCurrent|DbUser, document: DbVoteableType, oldExtendedScore: ExtendedScoreType, extendedVote: ExtendedVoteType, skipRateLimits?: boolean}) => {allowed: true}|{allowed: false, reason: string},
-  isNonblankExtendedVote: (vote: DbVote) => boolean,
-  getCommentHighlights?: (props: {
-    comment: CommentsList
-    voteProps: VotingProps<VoteableTypeClient>
-  }) => ContentReplacedSubstringComponentInfo[]
-  getPostHighlights?: (props: {
-    post: PostsBase
-    voteProps: VotingProps<VoteableTypeClient>
-  }) => ContentReplacedSubstringComponentInfo[]
-  getTagOrLensHighlights?: (props: {
-    tagOrLens: TagLens|TagPageFragment,
-    voteProps: VotingProps<VoteableTypeClient>
-  }) => ContentReplacedSubstringComponentInfo[]
-}
+import { emojiReactions, reactBallotAxes, reactBallotStandaloneReactions } from './constants';
 
 export const defaultVotingSystem = defineVotingSystem({
   name: "default",
@@ -139,30 +72,6 @@ export const twoAxisVotingSystem = defineVotingSystem({
   },
 });
 
-export type ReactBallotAxis = {
-  name: string,
-  scoreLabel: string,
-  goodLabel: string,
-  badLabel: string,
-}
-export type ReactBallotStandaloneReaction = {
-  name: string,
-  label: string,
-  icon: string,
-}
-export const reactBallotAxes: ReactBallotAxis[] = [
-  {name: "truth", scoreLabel: "Truth", goodLabel: "True", badLabel: "False"},
-  {name: "aim", scoreLabel: "Aim", goodLabel: "Hits the Mark", badLabel: "Misses the Point"},
-  {name: "clarity", scoreLabel: "Clarity", goodLabel: "Clear", badLabel: "Muddled"},
-  {name: "seeking", scoreLabel: "Seeking",goodLabel: "Seeks Truth", badLabel: "Seeks Conflict"},
-];
-export const reactBallotStandaloneReactions: ReactBallotStandaloneReaction[] = [
-  {name: "skepticism", label: "Skepticism", icon: "🤨"},
-  {name: "enthusiasm", label: "Enthusiasm", icon: "🎉"},
-  {name: "empathy",    label: "Empathy",    icon: "❤️"},
-  {name: "surprise",   label: "Surprise",   icon: "😮"},
-]
-
 const reactBallotAxisNames = reactBallotAxes.map(axis=>axis.name);
 const reactBallotStandaloneReactionNames = reactBallotStandaloneReactions.map(reaction => reaction.name);
 
@@ -218,17 +127,6 @@ export const reactsBallotVotingSystem = defineVotingSystem({
   },
 });
 
-export type EmojiReactionType = {
-  name: string,
-  icon: string,
-}
-export const emojiReactions: EmojiReactionType[] = [
-  {name: "raised-hands", icon: "🙌"},
-  {name: "enthusiasm", icon: "🎉"},
-  {name: "empathy", icon: "❤️"},
-  {name: "star", icon: "🌟"},
-  {name: "surprise", icon: "😮"},
-]
 const emojiReactionNames = emojiReactions.map(reaction => reaction.name)
 
 export const emojiReactionsVotingSystem = defineVotingSystem({

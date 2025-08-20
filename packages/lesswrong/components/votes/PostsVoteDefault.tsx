@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { useVote } from './withVote';
 import { isAF, isLW } from '../../lib/instanceSettings';
 import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
-import { VotingSystem } from '../../lib/voting/votingSystems';
+import { VotingSystem } from '@/lib/voting/votingSystemTypes';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { TooltipRef, TooltipSpan } from '../common/FMTooltip';
 import OverallVoteButton from "./OverallVoteButton";

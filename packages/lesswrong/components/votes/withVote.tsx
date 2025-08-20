@@ -6,7 +6,7 @@ import { DocumentNode } from '@apollo/client';
 import { setVoteClient } from '../../lib/voting/vote';
 import { isAF } from '../../lib/instanceSettings';
 import { getDefaultVotingSystem } from '@/lib/voting/getVotingSystem';
-import type { VotingSystem } from '@/lib/voting/votingSystems';
+import type { VotingSystem } from '@/lib/voting/votingSystemTypes';
 import { VotingProps } from './votingProps';
 import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
 import VotingPatternsWarningPopup from "./VotingPatternsWarningPopup";

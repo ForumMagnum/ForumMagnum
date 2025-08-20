@@ -1,9 +1,6 @@
 import React, { FC, MouseEvent, useState, useCallback } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import type {
-  CommentVotingComponentProps,
-  PostVotingComponentProps,
-} from "../../lib/voting/votingSystems";
+import type { PostVotingComponentProps, CommentVotingComponentProps } from '@/lib/voting/votingSystemTypes';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from "../common/withUser";
 import { useDialog } from "../common/withDialog";

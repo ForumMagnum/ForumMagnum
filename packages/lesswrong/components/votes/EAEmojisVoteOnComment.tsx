@@ -2,7 +2,7 @@
 
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import type { CommentVotingComponentProps } from "../../lib/voting/votingSystems";
+import type { CommentVotingComponentProps } from '@/lib/voting/votingSystemTypes';
 import { useVote } from "./withVote";
 import EAReactsSection, { isEAReactableDocument } from "./EAReactsSection";
 import OverallVoteAxis from "./OverallVoteAxis";

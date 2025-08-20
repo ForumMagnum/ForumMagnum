@@ -3,7 +3,7 @@ import React from 'react';
 import { useVote } from './withVote';
 import { isAF, isLW } from '../../lib/instanceSettings';
 import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
-import { VotingSystem } from '../../lib/voting/votingSystems';
+import { VotingSystem } from '@/lib/voting/votingSystemTypes';
 import { TooltipSpan } from '../common/FMTooltip';
 import OverallVoteButton from "./OverallVoteButton";
 import { Typography } from "../common/Typography";

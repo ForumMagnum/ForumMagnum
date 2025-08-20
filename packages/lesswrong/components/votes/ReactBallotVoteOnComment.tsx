@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { CommentVotingComponentProps, reactBallotAxes, ReactBallotAxis, ReactBallotStandaloneReaction, reactBallotStandaloneReactions } from '../../lib/voting/votingSystems';
+import { reactBallotStandaloneReactions, reactBallotAxes } from '@/lib/voting/constants';
+import type { ReactBallotStandaloneReaction, ReactBallotAxis, CommentVotingComponentProps } from '@/lib/voting/votingSystemTypes';
 import { useVote } from './withVote';
 import { useHover } from '../common/withHover';
 import { useDialog } from '../common/withDialog';

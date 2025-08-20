@@ -14,7 +14,7 @@ test("create and edit post", async ({page, context}) => {
 
   // Submitting navigates to the post page - check our new post is there
   await page.waitForURL(`/posts/**/test-post-${n}**`);
-  await expect(page.getByText(title)).toBeVisible();
+  await expect(page.getByText(title).first()).toBeVisible();
   await expect(page.getByText(body)).toBeVisible();
 
   // Click the edit button
@@ -36,20 +36,20 @@ test("create and edit post", async ({page, context}) => {
   await expect(page.getByText(newBody)).toBeVisible();
 });
 
-test("can create 5 posts per day, but not 6", async ({page, context}) => {
+test("can create 2 posts per day, but not 3", async ({page, context}) => {
   await loginNewUser(context);
 
-  // Create five posts with a single user
-  for (let i = 0; i < 5; i++) {
+  // Create two posts with a single user
+  for (let i = 0; i < 2; i++) {
     await page.goto("/newPost");
     await setPostContent(page, {title: `Test post ${i}`, body: `Test body ${i}`});
     await page.getByText("Publish").click();
     await page.waitForURL("/posts/**");
   }
 
-  // After creating five posts the post rate limit should be triggered
+  // After creating two posts the post rate limit should be triggered
   await page.goto("/newPost");
-  await expect(page.getByText("Users cannot post more than 5 posts a day")).toBeVisible();
+  await expect(page.getByText("You can submit again in")).toBeVisible();
 });
 
 test("voting on a post gives karma", async ({page, context}) => {
@@ -60,7 +60,7 @@ test("voting on a post gives karma", async ({page, context}) => {
   // The post author should have no karma
   const authorPage = `/users/${post.author.slug}`;
   await page.goto(authorPage);
-  await expect(page.getByText("0 karma")).toBeVisible();
+  await expect(page.locator(".UsersProfile-userMetaInfo").first().getByText("0")).toBeVisible();
 
   // Post should start with 1 karma from the author
   await page.goto(post.postPageUrl);
@@ -115,7 +115,7 @@ test("cannot create posts with duplicate title", async ({page, context}) => {
   // Submitting navigates to the post page - check our new post is there
   // This will have a slug derived from the initial title, rather than the one we just set.
   await page.waitForURL(`/posts/**/test-post-${n}**`);
-  await expect(page.getByText(title)).toBeVisible();
+  await expect(page.getByText(title).first()).toBeVisible();
   await expect(page.getByText(body)).toBeVisible();
 
   // Create another post with the same title

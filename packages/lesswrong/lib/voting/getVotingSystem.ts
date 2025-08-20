@@ -2,7 +2,8 @@ import { getVotingSystemNameForDocument } from "../collections/comments/helpers"
 import { namesAttachedReactionsVotingSystem } from "./namesAttachedReactions";
 import { reactionsAndLikesVotingSystem } from "./reactionsAndLikes";
 import { VotingSystemName } from "./votingSystemNames";
-import { defaultVotingSystem, eaEmojisVotingSystem, emojiReactionsVotingSystem, reactsBallotVotingSystem, twoAxisVotingSystem, type VotingSystem } from "./votingSystems";
+import { defaultVotingSystem, eaEmojisVotingSystem, emojiReactionsVotingSystem, reactsBallotVotingSystem, twoAxisVotingSystem } from "./votingSystems";
+import { type VotingSystem } from './votingSystemTypes';
 
 // const votingSystems: Partial<Record<string,VotingSystem>> = {
 //   default: defaultVotingSystem,

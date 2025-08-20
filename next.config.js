@@ -33,6 +33,11 @@ function loadTsConfig(configPath) {
 
 /** @type {import('next').NextConfig} */
 module.exports = {
+  compiler: {
+    define: {
+      ...(process.env.E2E === 'true' ? { 'process.env.E2E': 'true' } : {}),
+    }
+  },
   productionBrowserSourceMaps: true,
   experimental: {
     serverSourceMaps: true,

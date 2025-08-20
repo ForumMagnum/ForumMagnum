@@ -639,7 +639,7 @@ export async function lwPostsNewUpvoteOwnPost(post: DbPost, callbackProperties: 
 
   const postAuthor = await Users.findOne(post.userId);
   if (!postAuthor) throw new Error(`Could not find user: ${post.userId}`);
-  const { performVoteServer } = require("../voteServer");
+  const { performVoteServer } = await import("../voteServer");
   const {modifiedDocument: votedPost} = await performVoteServer({
     document: post,
     voteType: 'bigUpvote',

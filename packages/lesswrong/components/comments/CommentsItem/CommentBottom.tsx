@@ -7,7 +7,7 @@ import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useFilteredCurrentUser } from '../../common/withUser';
 import type { VotingProps } from '../../votes/votingProps';
 import type { CommentTreeOptions } from '../commentTree';
-import type { VotingSystem } from '../../../lib/voting/votingSystems';
+import type { VotingSystem } from '@/lib/voting/votingSystemTypes';
 import type { ContentItemBodyImperative } from '../../contents/contentBodyUtil';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import { isFriendlyUI } from '../../../themes/forumTheme';
