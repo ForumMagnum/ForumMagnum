@@ -29,6 +29,25 @@ function myBookmarkedPosts(terms: BookmarksViewTerms, _: any, context: ResolverC
   };
 }
 
+function myBookmarkedComments(_terms: BookmarksViewTerms, _: any, context: ResolverContext) {
+  if (!context.currentUser?._id) {
+    throw new Error("Cannot view bookmarks when not logged in");
+  }
+
+  return {
+    selector: {
+      userId: context.currentUser._id,
+      collectionName: "Comments",
+      active: true,
+    },
+    options: {
+      sort: {
+        lastUpdated: -1,
+      },
+    },
+  };
+}
+
 function myBookmarks(terms: BookmarksViewTerms, _: any, context: ResolverContext) {
   if (!context.currentUser?._id) {
     throw new Error("Cannot view bookmarks when not logged in");
@@ -69,6 +88,7 @@ function userDocumentBookmark(terms: BookmarksViewTerms, _: any, context: Resolv
 
 export const BookmarksViews = new CollectionViewSet('Bookmarks', {
   myBookmarkedPosts,
+  myBookmarkedComments,
   myBookmarks,
   userDocumentBookmark,
 });
