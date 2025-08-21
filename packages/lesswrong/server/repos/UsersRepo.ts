@@ -491,7 +491,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
    * users who unsubscribed from all site emails,
    * users who were banned any time over the past 6 month period,
    * users who have less than -10 karma,
-   * users who haven't been to the site in the past 2 years,
+   * users who haven't been to the site in the past 18 months,
    * and users who have already been sent this email.
    */
    async getUsersForUserSurveyEmail(limit: number): Promise<DbUser[]> {
@@ -528,11 +528,11 @@ class UsersRepo extends AbstractRepo<"Users"> {
         AND (
           (
             rs.max_last_updated IS NULL
-            AND u."createdAt" > CURRENT_TIMESTAMP - INTERVAL '2 years'
+            AND u."createdAt" > CURRENT_TIMESTAMP - INTERVAL '18 months'
           )
           OR (
             rs.max_last_updated IS NOT NULL
-            AND rs.max_last_updated > CURRENT_TIMESTAMP - INTERVAL '2 years'
+            AND rs.max_last_updated > CURRENT_TIMESTAMP - INTERVAL '18 months'
           )
         )
       ORDER BY u."createdAt" desc

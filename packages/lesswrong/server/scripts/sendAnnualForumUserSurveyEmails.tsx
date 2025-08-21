@@ -15,6 +15,9 @@ import { EmailAnnualForumUserSurvey } from './../emailComponents/EmailAnnualForu
  * have already emailed via the userSurveyEmailSentAt field.
  *
  * In 2024, we emailed approximately 20k users total.
+ * In 2025, we emailed approximately 16k users total.
+ *
+ * TODO next year: skip emailing users who have already filled out the survey
  *
  * Exported to allow running manually with "yarn repl"
  */
