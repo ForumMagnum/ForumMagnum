@@ -29,8 +29,8 @@ import { useContext } from "react";
 import { buildManualDataTransport } from "@apollo/client-react-streaming/manual-transport";
 import { type QueryEvent, WrapApolloProvider } from "@apollo/client-react-streaming";
 import { ServerInsertedHTMLContext } from "next/navigation";
-import { stringify as defaultTransportStringify } from "../client-react-streaming/ManualDataTransport/serialization";
 import keyBy from "lodash/keyBy";
+import { stringifyWithUndefined } from "@/lib/utils/stringifyWithUndefined";
 
 type RehydrationCache = Record<string, unknown>;
 
@@ -103,7 +103,7 @@ export const ApolloNextAppProvider = WrapApolloProvider(
     },
     stringifyForStream(value) {
       if (!isExpectedDataTransportObject(value)) {
-        return defaultTransportStringify(value);
+        return stringifyWithUndefined(value);
       }
 
       const { rehydrate, events } = value;
@@ -117,28 +117,28 @@ export const ApolloNextAppProvider = WrapApolloProvider(
         .map(event => [event.id, event.value.data] as const)
         .filter((event): event is [QueryEvent['id'], Record<string, any>] => !!event[1]);
 
-      const keyedData = keyBy(dataFromEvents, ([_, data]) => defaultTransportStringify(data));
+      const keyedData = keyBy(dataFromEvents, ([_, data]) => stringifyWithUndefined(data));
 
       const sharedValues = Object.values(rehydrate)
         .map(rehydrateWrapper => (rehydrateWrapper as AnyBecauseHard).data)
         .filter(rehydrateData => !!rehydrateData)
         .map(rehydrateData => {
-          const stringifiedData = defaultTransportStringify(rehydrateData);
+          const stringifiedData = stringifyWithUndefined(rehydrateData);
           const transportIdDataTuple = keyedData[stringifiedData];
           return { stringifiedData, transportIdDataTuple };
         })
         .filter(({ transportIdDataTuple }) => !!transportIdDataTuple);
 
       if (sharedValues.length === 0) {
-        const stringifiedObject = defaultTransportStringify(value);
+        const stringifiedObject = stringifyWithUndefined(value);
         return stringifiedObject;
       }
 
       const sharedValueMap = Object.fromEntries(sharedValues.map((sharedValue) => sharedValue.transportIdDataTuple));
 
-      const sharedValueMapDeclaration = `const sharedValueMap = ${defaultTransportStringify(sharedValueMap)};`;
-      let stringifiedRehydrate = defaultTransportStringify(rehydrate);
-      let stringifiedEvents = defaultTransportStringify(events);
+      const sharedValueMapDeclaration = `const sharedValueMap = ${stringifyWithUndefined(sharedValueMap)};`;
+      let stringifiedRehydrate = stringifyWithUndefined(rehydrate);
+      let stringifiedEvents = stringifyWithUndefined(events);
 
       for (let sharedValue of sharedValues) {
         stringifiedRehydrate = stringifiedRehydrate.replaceAll(sharedValue.stringifiedData, `sharedValueMap['${sharedValue.transportIdDataTuple[0]}']`);
