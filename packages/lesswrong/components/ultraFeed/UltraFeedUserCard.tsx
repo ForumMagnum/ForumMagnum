@@ -104,7 +104,7 @@ const styles = defineStyles("UltraFeedUserCard", (theme: ThemeType) => ({
     gap: 8,
     alignItems: 'center',
     flexShrink: 0,
-    marginLeft: 'auto',  // Push to the right when on its own row
+    marginLeft: 'auto',
   },
   metaRow: {
     display: "flex",
@@ -147,7 +147,6 @@ const UltraFeedUserCard = ({ user, inModal = false, onNameVisibilityChange }: {
   const nameRef = React.useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = React.useRef<HTMLDivElement | null>(null);
 
-  // Handler for opening the user modal when "read more" is clicked in hover card
   const handleOpenUserModal = React.useCallback(() => {
     if (!user) return;
     openDialog({
@@ -168,12 +167,11 @@ const UltraFeedUserCard = ({ user, inModal = false, onNameVisibilityChange }: {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // When the name row is not fully visible, it's hidden
         onNameVisibilityChange(!entry.isIntersecting);
       },
       {
         root: scrollContainerRef.current,
-        threshold: 1.0, // Trigger when fully visible/not fully visible
+        threshold: 1.0,
         rootMargin: '150px 0px 0px 0px' // Delay showing header items until scrolled 150px
       }
     );
@@ -183,7 +181,6 @@ const UltraFeedUserCard = ({ user, inModal = false, onNameVisibilityChange }: {
     return () => observer.disconnect();
   }, [inModal, onNameVisibilityChange]);
 
-  // Ensure user exists and has an ID
   if (!user || !user._id) {
     return <div className={classes.root}>User not found</div>;
   }
@@ -192,7 +189,6 @@ const UltraFeedUserCard = ({ user, inModal = false, onNameVisibilityChange }: {
   const profileUrl = userGetProfileUrl(user);
 
   if (inModal) {
-    // Modal layout where only the dialog's top bar is fixed; everything in the card scrolls together
     return (
       <div className={classNames(classes.root, classes.rootInModal)}>
         <div className={classes.scrollableContent} ref={scrollContainerRef}>

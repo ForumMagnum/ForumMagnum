@@ -400,22 +400,10 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: User
 
   const handleSortModeChange = useCallback((newMode: SortMode) => {
     if (newMode !== sortMode) {
-      // // Preserve scroll position if we have a scroll container
-      // const scrollTop = scrollContainerRef?.current?.scrollTop;
-      
       setSortMode(newMode);
       setOffset(0);
       setPostsOffset(0);
       setCommentsOffset(0);
-      
-      // Restore scroll position after state update
-      // if (scrollTop !== undefined && scrollContainerRef?.current) {
-      //   requestAnimationFrame(() => {
-      //     if (scrollContainerRef?.current) {
-      //       scrollContainerRef.current.scrollTop = scrollTop;
-      //     }
-      //   });
-      // }
     }
   }, [sortMode]);
 

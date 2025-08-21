@@ -71,7 +71,7 @@ const UsersNameWithModal = ({
     e.stopPropagation();
     
     if (openInNewTab) {
-      captureEvent("ultraFeedUserOpenedInNewTab", { userId: user._id });
+      captureEvent("ultraFeedUserOpenedInNewTab", { viewedUserId: user._id });
       window.open(profileUrl, '_blank');
     } else {
       captureEvent("ultraFeedUserDialogOpened", { viewedUserId: user._id });
