@@ -94,6 +94,7 @@ jobs:
       NODE_OPTIONS: "--max_old_space_size=4096"
       SLOW_QUERY_REPORT_CUTOFF_MS: "-1"
       ENV_NAME: test
+      FORUM_TYPE: LessWrong
       PG_URL: postgres://postgres:password@localhost:5433/postgres
     steps:
     - name: Checkout code
