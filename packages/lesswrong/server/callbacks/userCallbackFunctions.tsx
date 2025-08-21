@@ -113,7 +113,7 @@ async function sendWelcomeMessageTo(userId: string) {
   }
 }
 
-const welcomeMessageDelayer = new EventDebouncer({
+export const welcomeMessageDelayer = new EventDebouncer({
   name: "welcomeMessageDelay",
   
   // Delay is by default 5 minutes between when you create an account, and

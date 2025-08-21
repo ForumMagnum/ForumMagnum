@@ -1101,7 +1101,7 @@ export async function sendEAFCuratedAuthorsNotification(post: DbPost, oldPost: D
   }
 }
 
-const curationEmailDelay = new EventDebouncer({
+export const curationEmailDelayDebouncer = new EventDebouncer({
   name: "curationEmail",
   defaultTiming: {
     type: "delayed",
@@ -1147,7 +1147,7 @@ export async function sendLWAFPostCurationEmails(post: DbPost, oldPost: DbPost) 
     });
     
     if (!useCurationEmailsCron) {
-      await curationEmailDelay.recordEvent({
+      await curationEmailDelayDebouncer.recordEvent({
         key: post._id,
         af: false
       });  
