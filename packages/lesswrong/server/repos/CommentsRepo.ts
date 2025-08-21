@@ -104,7 +104,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
   }
 
   async getPopularComments({
-    minScore = 15,
+    minScore = 12,
     offset = 0,
     limit = 3,
     recencyFactor = 250000,
