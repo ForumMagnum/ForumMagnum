@@ -13756,38 +13756,6 @@ type multiCommentCommentsListCondensedQueryQueryVariables = Exact<{
 
 type multiCommentCommentsListCondensedQueryQuery = multiCommentCommentsListCondensedQueryQuery_Query;
 
-type DialogRouterUserQuery_user_SingleUserOutput_result_User = { __typename?: 'User', _id: string, username: string | null, displayName: string, slug: string, profileImageId: string | null, karma: number };
-
-type DialogRouterUserQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: DialogRouterUserQuery_user_SingleUserOutput_result_User | null };
-
-type DialogRouterUserQuery_Query = { __typename?: 'Query', user: DialogRouterUserQuery_user_SingleUserOutput | null };
-
-
-type DialogRouterUserQueryVariables = Exact<{
-  userId: Scalars['String']['input'];
-}>;
-
-
-type DialogRouterUserQuery = DialogRouterUserQuery_Query;
-
-type DialogRouterPostQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', wordCount: number, htmlHighlight: string };
-
-type DialogRouterPostQuery_post_SinglePostOutput_result_Post_user_User = { __typename?: 'User', _id: string, username: string | null, displayName: string, slug: string };
-
-type DialogRouterPostQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, title: string, slug: string, postedAt: string, baseScore: number, score: number, commentCount: number, contents: DialogRouterPostQuery_post_SinglePostOutput_result_Post_contents_Revision | null, user: DialogRouterPostQuery_post_SinglePostOutput_result_Post_user_User | null };
-
-type DialogRouterPostQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: DialogRouterPostQuery_post_SinglePostOutput_result_Post | null };
-
-type DialogRouterPostQuery_Query = { __typename?: 'Query', post: DialogRouterPostQuery_post_SinglePostOutput | null };
-
-
-type DialogRouterPostQueryVariables = Exact<{
-  postId: Scalars['String']['input'];
-}>;
-
-
-type DialogRouterPostQuery = DialogRouterPostQuery_Query;
-
 type HeaderEventSubtitleSpotlightQueryQuery_currentSpotlight_Spotlight = (
   { __typename?: 'Spotlight' }
   & SpotlightHeaderEventSubtitle
