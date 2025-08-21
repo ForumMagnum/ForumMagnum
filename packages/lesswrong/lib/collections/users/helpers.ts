@@ -8,6 +8,7 @@ import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 import type { ForumIconName } from '@/components/common/ForumIcon';
 import type { EditablePost } from '../posts/helpers';
 import { maybeDate } from '@/lib/utils/dateUtils';
+import { isE2E } from '@/lib/executionEnvironment';
 
 export const ACCOUNT_DELETION_COOLING_OFF_DAYS = 14;
 
@@ -428,6 +429,8 @@ export const getAuth0Id = (user: DbUser) => {
 
 const SHOW_NEW_USER_GUIDELINES_AFTER = new Date('10-07-2022');
 export const requireNewUserGuidelinesAck = (user: UsersCurrent) => {
+  if (isE2E) return false;
+  
   if (forumTypeSetting.get() !== 'LessWrong') return false;
 
   const userCreatedAfterCutoff = user.createdAt
