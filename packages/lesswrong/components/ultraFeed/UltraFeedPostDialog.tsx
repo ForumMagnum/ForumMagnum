@@ -177,18 +177,21 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   closeButton: {
     width: 36, 
     height: 36,
-    color: theme.palette.grey[600],
+    color: theme.palette.grey[700],
     backgroundColor: theme.palette.grey[200],
     borderRadius: 4,
     padding: 6,
     cursor: 'pointer',
     marginRight: 8,
     fontSize: 36,
+    fontWeight: 'bold',
     '&:hover': {
-      color: theme.palette.grey[700],
+      color: theme.palette.grey[900],
+      backgroundColor: theme.palette.grey[300],
     },
     '& svg': {
       display: 'block',
+      strokeWidth: 2.5,
     },
     [theme.breakpoints.down('sm')]: {
       marginLeft: 3,
@@ -820,7 +823,7 @@ const UltraFeedPostDialog = ({
               {/* Header */}
             <div className={classes.stickyHeader}>
               <ForumIcon 
-                icon="Close"
+                icon="ArrowLeft"
                 onClick={handleClose}
                 className={classes.closeButton}
               />

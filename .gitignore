@@ -107,3 +107,5 @@ client_stats.html
 
 playwright-report
 test-results
+
+ultrafeed_debug_logs/*
