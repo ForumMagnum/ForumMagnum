@@ -640,7 +640,7 @@ module.exports = {
 
 const { withSentryConfig } = require("@sentry/nextjs");
 
-module.exports = withSentryConfig(
+module.exports = process.env.E2E ? module.exports : withSentryConfig(
   module.exports,
   {
     // For all available options, see:
