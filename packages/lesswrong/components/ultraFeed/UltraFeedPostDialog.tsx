@@ -1,5 +1,6 @@
 import qs from 'qs';
 import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import classNames from 'classnames';
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl, postGetLink, postGetLinkTarget, detectLinkpost, getResponseCounts } from "@/lib/collections/posts/helpers";
@@ -402,6 +403,14 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
     marginTop: 24,
     marginBottom: 24,
   },
+  fullHeightFlex: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  clickable: {
+    cursor: 'pointer',
+  },
 }));
 
 
@@ -791,7 +800,7 @@ const UltraFeedPostDialog = ({
       >
         <ModalContextWrapper postId={postId} recommId={recommId}>
           <DialogContent className={classes.dialogContent}>
-            <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <div className={classes.fullHeightFlex}>
               <div className={classes.loadingContainer}>
                 <Loading />
               </div>
@@ -819,7 +828,7 @@ const UltraFeedPostDialog = ({
                 <link rel="canonical" href={postUrl} />
               </Helmet>
             )}
-            <div ref={dialogInnerRef} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <div ref={dialogInnerRef} className={classes.fullHeightFlex}>
               {/* Header */}
             <div className={classes.stickyHeader}>
               <ForumIcon 
@@ -935,9 +944,8 @@ const UltraFeedPostDialog = ({
                             </LWTooltip>
                           )}
                           <div 
-                            className={classes.mobileCommentCount} 
-                            onClick={scrollToComments} 
-                            style={{cursor: 'pointer'}}
+                            className={classNames(classes.mobileCommentCount, classes.clickable)} 
+                            onClick={scrollToComments}
                           >
                             <LWCommentCount 
                               commentCount={displayPost.commentCount} 
@@ -1049,9 +1057,8 @@ const UltraFeedPostDialog = ({
             {/* Comment count button (desktop only) */}
             {shouldShowToc && (
               <div 
-                className={classes.commentCount} 
-                onClick={scrollToComments} 
-                style={{ cursor: 'pointer' }}
+                className={classNames(classes.commentCount, classes.clickable)} 
+                onClick={scrollToComments}
               >
                 <LWCommentCount 
                   commentCount={displayPost.commentCount} 

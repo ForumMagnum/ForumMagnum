@@ -34,7 +34,6 @@ const styles = defineStyles("UltraFeedUserCard", (theme: ThemeType) => ({
   },
   rootInHover: {
     width: 400,
-    maxWidth: 400,
     maxHeight: 600,
     overflow: 'hidden',
     boxShadow: theme.palette.boxShadow.lwTagHoverOver,
@@ -61,7 +60,12 @@ const styles = defineStyles("UltraFeedUserCard", (theme: ThemeType) => ({
     gap: 16,
     flexWrap: "wrap-reverse",
     minHeight: 45,
-    marginBottom: 12
+    marginBottom: 12,
+    width: "100%",
+  },
+  nameRowHover: {
+    marginBottom: 4,
+    flexWrap: "wrap",  // Normal wrap order for hover card
   },
   name: {
     fontSize: "2.5em",
@@ -75,13 +79,19 @@ const styles = defineStyles("UltraFeedUserCard", (theme: ThemeType) => ({
     top: "0.08em",  // Compensate for descender space (adjust as needed)
   },
   nameInHover: {
-    fontSize: "2.0rem",
+    fontSize: "2.2rem",
     position: "relative",
-    top: "0.08em",  // Same compensation for hover state
+    top: "0.08em",
+    overflowWrap: "break-word",
+    wordBreak: "break-word",
+    lineHeight: "1.2",
+    flex: "1 0 200px",
+    minWidth: 0,
   },
   nameLink: {
     color: 'inherit',
     textDecoration: 'none',
+    cursor: 'pointer',
     '&:hover': {
       opacity: 0.8,
     },
@@ -117,6 +127,12 @@ const styles = defineStyles("UltraFeedUserCard", (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     backgroundColor: theme.palette.grey[200],
+  },
+  hoverCardContent: {
+    paddingTop: 16,
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingBottom: 20,
   },
 }));
 
@@ -229,12 +245,11 @@ const UltraFeedUserCard = ({ user, inModal = false, onNameVisibilityChange }: {
   // Non-modal layout (for hover card)
   return (
     <div className={classNames(classes.root, classes.rootInHover)}>
-      <div style={{ padding: 20 }}>
-        <div className={classes.nameRow}>
+      <div className={classes.hoverCardContent}>
+        <div className={classNames(classes.nameRow, classes.nameRowHover)}>
           <div 
             className={classNames(classes.name, classes.nameInHover, classes.nameLink)}
             onClick={handleOpenUserModal}
-            style={{ cursor: 'pointer' }}
           >
             {displayName}
           </div>
