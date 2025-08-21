@@ -5,7 +5,7 @@ import { readFileSync } from "fs";
 import { createHash } from "crypto";
 import { resolve } from "path";
 import PgStorage from "./PgStorage";
-import { safeRun } from "../../manualMigrations/migrationUtils"
+import { safeRun } from '@/server/manualMigrations/safeRun';
 
 declare global {
   interface MigrationTimer {

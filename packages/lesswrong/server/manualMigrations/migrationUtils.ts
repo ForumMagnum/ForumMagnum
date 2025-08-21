@@ -3,6 +3,7 @@ import { getSchema } from '@/lib/schema/allSchemas';
 import { sleep, timedFunc } from '../../lib/helpers';
 import { getSqlClient } from '../../server/sql/sqlClient';
 import { getCollection } from '@/server/collections/allCollections';
+import { safeRun } from './safeRun';
 
 // When running migrations with split batches, the fraction of time spent
 // running those batches (as opposed to sleeping). Used to limit database
@@ -556,20 +557,6 @@ export async function forEachBucketRangeInCollection<N extends CollectionNameStr
     _id: {$gte: bucketBoundaries[bucketBoundaries.length-1].value},
     ...filter
   });
-}
-
-  // We can't assume that certain postgres functions exist because we may not have run the appropriate migration
-  // This wraapper runs the function and ignores if it's not defined yet
-export async function safeRun(db: SqlClient | null, fn: string): Promise<void> {
-  if(!db) return;
-
-  await db.any(`DO $$
-    BEGIN
-      PERFORM ${fn}();
-    EXCEPTION WHEN undefined_function THEN
-      -- Ignore if the function hasn't been defined yet; that just means migrations haven't caught up
-    END;
-  $$;`)
 }
 
 export async function bulkRawInsert<N extends CollectionNameString>(

@@ -27,18 +27,32 @@ let sqlRead: SqlClient | null = null;
  */
 let sqlOutsideTransaction: SqlClient | null = null;
 
-export const setSqlClient = (sql_: SqlClient, target: DbTarget = "write") => {
+export const setSqlClient = (sql_: SqlClient, target: DbTarget = "write", connectionString?: string) => {
   if (target === "noTransaction") {
-    sqlOutsideTransaction = sql_
-  } else if (target === "read") {
-    sqlRead = sql_
+    sqlOutsideTransaction = sql_;
+    return;
+  }
+
+  connectionString ??= sql_.$pool?.options.connectionString as string;
+  if (globalThis['pgClients']?.[connectionString]) {
+    globalThis['pgClients'][connectionString] = sql_;
   } else {
-    sql = sql_
+    globalThis['pgClients'][connectionString] = sql_;
   }
 }
 
 export const getSqlClient = (target: DbTarget = "write") => {
-  const url = target === "read" ? (process.env.PG_READ_URL ?? '') : (process.env.PG_URL ?? '');
+  if (target === "noTransaction") {
+    if (!sqlOutsideTransaction) {
+      throw new Error("No sqlOutsideTransaction client set");
+    }
+    return sqlOutsideTransaction;
+  }
+
+  const url = target === "read"
+    ? (process.env.PG_READ_URL ?? '')
+    : (process.env.PG_URL ?? '');
+
   return createSqlConnection(url, false);
 }
 

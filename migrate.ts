@@ -69,7 +69,7 @@ import { detectForumType, getDatabaseConfigFromModeAndForumType, getSettingsFile
 
   try {
     await db.tx(async (transaction: ITask<{}>) => {
-      setSqlClient(transaction as unknown as SqlClient);
+      setSqlClient(transaction as unknown as SqlClient, "read", process.env.PG_URL);
       setSqlClient(db, "noTransaction");
       const { createMigrator }  = require("./packages/lesswrong/server/migrations/meta/umzug");
       const migrator = await createMigrator(transaction, db);
