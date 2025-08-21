@@ -14,6 +14,11 @@ export const FeedCommentThreadFragment = gql(`
   fragment FeedCommentThreadFragment on FeedCommentThread {
     _id
     commentMetaInfos
+    isOnReadPost
+    postSources
+    post {
+      ...PostsListWithVotes
+    }
     comments {
       ...UltraFeedComment
     }
@@ -29,7 +34,10 @@ export const FeedSpotlightFragment = gql(`
     post {
       ...PostsListWithVotes
     }
-    spotlightMetaInfo
+    spotlightMetaInfo {
+      sources
+      servedEventId
+    }
   }
 `)
 

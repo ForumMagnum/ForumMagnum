@@ -2,8 +2,42 @@ import { getForumTheme } from '../themes/forumTheme';
 import * as _ from 'underscore';
 import { topLevelStyleDefinitions } from '@/components/hooks/useStyles';
 import type { JssStyles } from '@/lib/jssStyles';
-import '../lib/generated/allComponents';
-import '../lib/generated/nonRegisteredComponents';
+import fs from "fs";
+import path from "path";
+
+function enumerateFiles(dirPath: string): string[] {
+  let fileList: string[] = [];
+  const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const fullPath = path.join(dirPath, entry.name);
+
+    if (entry.isDirectory()) {
+      fileList = fileList.concat(enumerateFiles(fullPath));
+    } else if (entry.isFile()) {
+      fileList.push(fullPath);
+    }
+  }
+
+  return fileList;
+}
+
+function importAllFilesWithStyles() {
+  const defineStylesRegex = /defineStyles\s*\(\s*["'](\w+)["']/gm;
+  const registerComponentRegex = /registerComponent\s*(<\s*\w*\s*>)?\s*\(\s*["'](\w+)["']/gm;
+  const filesWithStyles = enumerateFiles("packages/lesswrong/components").filter(path => {
+    const fileContents = fs.readFileSync(path, "utf-8");
+    return !!(defineStylesRegex.exec(fileContents) || registerComponentRegex.exec(fileContents));
+  });
+  for (const file of filesWithStyles) {
+    //eslint-disable-next-line import/no-dynamic-require
+    require('../../../' + file);
+  }
+}
+
+beforeAll(() => {
+  importAllFilesWithStyles();
+});
 
 describe('JSS', () => {
   /**
