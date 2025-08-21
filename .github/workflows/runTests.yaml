@@ -96,6 +96,7 @@ jobs:
       ENV_NAME: test
       FORUM_TYPE: LessWrong
       PG_URL: postgres://postgres:password@localhost:5433/postgres
+      E2E: true
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -107,6 +108,8 @@ jobs:
         psql postgres://postgres:password@localhost:5433/postgres -f playwright/fixtures.sql
     - name: Install browsers
       run: yarn playwright install ${{ matrix.project }} --with-deps
+    - name: Build project
+      run: yarn next build
     - name: Run playwright tests
       run: yarn playwright test --project ${{ matrix.project }}
     - name: Upload playwright report
@@ -160,6 +163,8 @@ jobs:
       NODE_OPTIONS: "--max_old_space_size=4096"
       SLOW_QUERY_REPORT_CUTOFF_MS: "-1"
       ENV_NAME: test
+      FORUM_TYPE: LessWrong
+      E2E: true
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
