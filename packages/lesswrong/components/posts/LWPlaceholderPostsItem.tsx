@@ -1,12 +1,12 @@
 import classNames from 'classnames';
 import React from 'react';
-import { registerComponent } from "../../lib/vulcan-lib/components";
-import { styles } from './LWPostsItemStyles';
+import { useStyles } from '../hooks/useStyles';
+import { styles } from './LWPostsItem';
 
-const LWPlaceholderPostsItem = ({showBottomBorder, classes}: {
+const LWPlaceholderPostsItem = ({showBottomBorder}: {
   showBottomBorder?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   return <div className={classes.row}>
     <div className={classNames(
       classes.root,
@@ -21,6 +21,6 @@ const LWPlaceholderPostsItem = ({showBottomBorder, classes}: {
   </div>
 }
 
-export default registerComponent('LWPlaceholderPostsItem', LWPlaceholderPostsItem, {styles});
+export default LWPlaceholderPostsItem;
 
 

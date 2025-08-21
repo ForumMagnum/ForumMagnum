@@ -88,6 +88,7 @@ export const defineStyles = <T extends string, N extends string>(
     options,
     nameProxy: null,
   };
+
   topLevelStyleDefinitions[name] = definition;
   
   if (isClient && _clientMountedStyles) {

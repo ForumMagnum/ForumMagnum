@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { KARMA_WIDTH } from './LWPostsItemStyles';
+import { KARMA_WIDTH } from './LWPostsItem';
 import PostsTooltip from "./PostsPreviewTooltip/PostsTooltip";
 import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
 import KarmaDisplay from "../common/KarmaDisplay";
