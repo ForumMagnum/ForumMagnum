@@ -81,7 +81,7 @@ const LWUsersAccountMenu = ({classes}: {
   }, [captureEvent]);
   return (
     <div className={classes.root}>
-      <Button onClick={handleClick}>
+      <Button data-testid="user-signup-button" onClick={handleClick}>
         <span className={classes.userButton}>
           Login
         </span>
