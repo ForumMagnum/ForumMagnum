@@ -41,9 +41,9 @@ import { maybeDate } from '@/lib/utils/dateUtils';
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/IfAnyoneBuildsItSplash';
 import { isBookUI } from '@/themes/forumTheme';
 
-export const KARMA_WIDTH = 32;
+import { KARMA_WIDTH } from './LWPostsItemStyles';
 
-export const styles = (theme: ThemeType) => ({
+const styles = (theme: ThemeType) => ({
   row: {
     display: "flex",
     alignItems: "center",

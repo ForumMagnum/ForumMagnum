@@ -349,10 +349,10 @@ const UltraFeedPostItemHeader = ({
       </div>
       <div className={classes.metaRow} ref={metaRowRef}>
         <div className={classes.mobileAuthorsListWrapper}>
-          <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={metaRowRef} className={classes.authorsList} />
+          <TruncatedAuthorsList post={post} useMoreSuffix={false} expandContainer={metaRowRef} className={classes.authorsList} useUltraFeedModal />
         </div>
         <div className={classes.authorsListWrapper}>
-          <PostsUserAndCoauthors post={post} abbreviateIfLong={true} tooltipPlacement="top" />
+          <PostsUserAndCoauthors post={post} abbreviateIfLong={true} tooltipPlacement="top" compact useUltraFeedModal />
         </div>
         {post.postedAt && (
           <span className={classes.metaDateContainer}>

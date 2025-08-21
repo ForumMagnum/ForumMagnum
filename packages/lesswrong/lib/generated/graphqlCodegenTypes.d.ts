@@ -13756,6 +13756,38 @@ type multiCommentCommentsListCondensedQueryQueryVariables = Exact<{
 
 type multiCommentCommentsListCondensedQueryQuery = multiCommentCommentsListCondensedQueryQuery_Query;
 
+type DialogRouterUserQuery_user_SingleUserOutput_result_User = { __typename?: 'User', _id: string, username: string | null, displayName: string, slug: string, profileImageId: string | null, karma: number };
+
+type DialogRouterUserQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: DialogRouterUserQuery_user_SingleUserOutput_result_User | null };
+
+type DialogRouterUserQuery_Query = { __typename?: 'Query', user: DialogRouterUserQuery_user_SingleUserOutput | null };
+
+
+type DialogRouterUserQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+}>;
+
+
+type DialogRouterUserQuery = DialogRouterUserQuery_Query;
+
+type DialogRouterPostQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', wordCount: number, htmlHighlight: string };
+
+type DialogRouterPostQuery_post_SinglePostOutput_result_Post_user_User = { __typename?: 'User', _id: string, username: string | null, displayName: string, slug: string };
+
+type DialogRouterPostQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, title: string, slug: string, postedAt: string, baseScore: number, score: number, commentCount: number, contents: DialogRouterPostQuery_post_SinglePostOutput_result_Post_contents_Revision | null, user: DialogRouterPostQuery_post_SinglePostOutput_result_Post_user_User | null };
+
+type DialogRouterPostQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: DialogRouterPostQuery_post_SinglePostOutput_result_Post | null };
+
+type DialogRouterPostQuery_Query = { __typename?: 'Query', post: DialogRouterPostQuery_post_SinglePostOutput | null };
+
+
+type DialogRouterPostQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+}>;
+
+
+type DialogRouterPostQuery = DialogRouterPostQuery_Query;
+
 type HeaderEventSubtitleSpotlightQueryQuery_currentSpotlight_Spotlight = (
   { __typename?: 'Spotlight' }
   & SpotlightHeaderEventSubtitle
@@ -23549,6 +23581,74 @@ type multiSubscriptionSubscriptionsListQueryQueryVariables = Exact<{
 
 type multiSubscriptionSubscriptionsListQueryQuery = multiSubscriptionSubscriptionsListQueryQuery_Query;
 
+type UserContentFeedPostsQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type UserContentFeedPostsQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<UserContentFeedPostsQuery_posts_MultiPostOutput_results_Post> };
+
+type UserContentFeedPostsQuery_Query = { __typename?: 'Query', posts: UserContentFeedPostsQuery_posts_MultiPostOutput | null };
+
+
+type UserContentFeedPostsQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+  limit: Scalars['Int']['input'];
+  offset: InputMaybe<Scalars['Int']['input']>;
+  sortedBy: Scalars['String']['input'];
+}>;
+
+
+type UserContentFeedPostsQuery = UserContentFeedPostsQuery_Query;
+
+type UserContentFeedCommentsQuery_comments_MultiCommentOutput_results_Comment_post_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type UserContentFeedCommentsQuery_comments_MultiCommentOutput_results_Comment_topLevelComment_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithTopLevelComment
+);
+
+type UserContentFeedCommentsQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment', post: UserContentFeedCommentsQuery_comments_MultiCommentOutput_results_Comment_post_Post | null, topLevelComment: UserContentFeedCommentsQuery_comments_MultiCommentOutput_results_Comment_topLevelComment_Comment | null }
+  & CommentsList
+);
+
+type UserContentFeedCommentsQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<UserContentFeedCommentsQuery_comments_MultiCommentOutput_results_Comment> };
+
+type UserContentFeedCommentsQuery_Query = { __typename?: 'Query', comments: UserContentFeedCommentsQuery_comments_MultiCommentOutput | null };
+
+
+type UserContentFeedCommentsQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+  limit: Scalars['Int']['input'];
+  offset: InputMaybe<Scalars['Int']['input']>;
+  sortBy: Scalars['String']['input'];
+}>;
+
+
+type UserContentFeedCommentsQuery = UserContentFeedCommentsQuery_Query;
+
+type UserContentFeedThreadQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & UltraFeedComment
+);
+
+type UserContentFeedThreadQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<UserContentFeedThreadQuery_comments_MultiCommentOutput_results_Comment> };
+
+type UserContentFeedThreadQuery_Query = { __typename?: 'Query', comments: UserContentFeedThreadQuery_comments_MultiCommentOutput | null };
+
+
+type UserContentFeedThreadQueryVariables = Exact<{
+  topLevelCommentId: Scalars['String']['input'];
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type UserContentFeedThreadQuery = UserContentFeedThreadQuery_Query;
+
 type UsersNameWrapperQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
   & UsersMinimumInfo
@@ -25497,17 +25597,26 @@ type SpotlightHeaderEventSubtitle = (
   & SpotlightMinimumInfo
 );
 
-type SpotlightDisplay_Spotlight_post_Post_user_User = { __typename?: 'User', _id: string, displayName: string, slug: string };
+type SpotlightDisplay_Spotlight_post_Post_user_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
 
 type SpotlightDisplay_Spotlight_post_Post_reviews_Comment = { __typename?: 'Comment', _id: string };
 
 type SpotlightDisplay_Spotlight_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string, user: SpotlightDisplay_Spotlight_post_Post_user_User | null, reviews: Array<SpotlightDisplay_Spotlight_post_Post_reviews_Comment> | null };
 
-type SpotlightDisplay_Spotlight_sequence_Sequence_user_User = { __typename?: 'User', _id: string, displayName: string, slug: string };
+type SpotlightDisplay_Spotlight_sequence_Sequence_user_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
 
 type SpotlightDisplay_Spotlight_sequence_Sequence = { __typename?: 'Sequence', _id: string, title: string, user: SpotlightDisplay_Spotlight_sequence_Sequence_user_User | null };
 
-type SpotlightDisplay_Spotlight_tag_Tag_user_User = { __typename?: 'User', _id: string, displayName: string, slug: string };
+type SpotlightDisplay_Spotlight_tag_Tag_user_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
 
 type SpotlightDisplay_Spotlight_tag_Tag = { __typename?: 'Tag', _id: string, name: string, slug: string, user: SpotlightDisplay_Spotlight_tag_Tag_user_User | null };
 
