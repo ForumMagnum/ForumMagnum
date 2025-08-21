@@ -1,13 +1,12 @@
 import React, { useCallback } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 import { styles } from "./PeopleDirectoryFilterDropdown";
 import classNames from "classnames";
 import ForumIcon from "../common/ForumIcon";
+import { useStyles } from "../hooks/useStyles";
 
-const PeopleDirectoryViewToggle = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const PeopleDirectoryViewToggle = () => {
+  const classes = useStyles(styles);
   const {view, setView} = usePeopleDirectory();
   const isList = view === "list";
   const onClick = useCallback(() => {
@@ -26,10 +25,6 @@ const PeopleDirectoryViewToggle = ({classes}: {
   );
 }
 
-export default registerComponent(
-  "PeopleDirectoryViewToggle",
-  PeopleDirectoryViewToggle,
-  {styles},
-);
+export default PeopleDirectoryViewToggle;
 
 
