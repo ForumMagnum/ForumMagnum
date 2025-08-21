@@ -178,6 +178,8 @@ jobs:
         psql postgres://postgres:password@localhost:5434/postgres -f playwright/fixtures.sql
     - name: Install browsers
       run: yarn playwright install chromium --with-deps
+    - name: Build project
+      run: yarn next build
     - name: Run crossposting tests
       run: yarn playwright-test-crosspost
     - name: Upload crosspost report

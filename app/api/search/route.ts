@@ -3,7 +3,15 @@ import ElasticService from "@/server/search/elastic/ElasticService";
 import uniq from "lodash/uniq";
 import type { NextRequest } from "next/server";
 
-const searchService = new ElasticService();
+const getSearchService = (() => {
+  let searchService: ElasticService | null = null;
+  return () => {
+    if (!searchService) {
+      searchService = new ElasticService();
+    }
+    return searchService;
+  }
+})();
 
 const defaultSearchOptions: SearchOptions = {
   emptyStringSearchResults: "default"
@@ -30,7 +38,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const results = await Promise.all(queries.map(q => searchService.runQuery(q, searchOptions)));
+    const results = await Promise.all(queries.map(q => getSearchService().runQuery(q, searchOptions)));
     for (const result of results) {
       const resultIds = result.hits.map(r=>r._id);
       if (uniq(resultIds).length !== resultIds.length) {
