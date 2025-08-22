@@ -2,7 +2,6 @@ import React, { useRef } from 'react';
 import classNames from 'classnames';
 import UpArrowIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowUp';
 import Transition from 'react-transition-group/Transition';
-import { isEAForum } from '../../lib/instanceSettings';
 import type { VoteArrowIconProps } from './VoteArrowIcon';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { getVoteButtonColor, voteButtonSharedStyles } from './VoteButton';
@@ -13,7 +12,7 @@ const styles = defineStyles("VoteArrowIconHollow", (theme: ThemeType) => ({
   },
   smallArrow: {
     fontSize: '50%',
-    opacity: isEAForum ? 0.7 : 0.6,
+    opacity: theme.isEAForum ? 0.7 : 0.6,
   },
   up: {
   },

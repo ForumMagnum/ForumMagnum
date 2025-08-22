@@ -12,11 +12,10 @@ import LWTooltip from "../common/LWTooltip";
 import AddToCalendarButton from "./AddToCalendar/AddToCalendarButton";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
-import { isBookUI } from '@/themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({
   onGrayBackground: {
-    ...(isBookUI && theme.dark && {
+    ...(theme.isBookUI && theme.dark && {
       color: theme.palette.greyAlpha(1),
     }),
   },

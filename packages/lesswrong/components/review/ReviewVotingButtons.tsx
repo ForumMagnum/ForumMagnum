@@ -6,12 +6,11 @@ import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import { eligibleToNominate, getCostData, reviewIsActive } from '../../lib/reviewUtils';
 import { SyntheticQualitativeVote } from './ReviewVotingPage';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => {
   const downvoteColor = theme.palette.text.reviewDownvote;
-  const upvoteColor = isFriendlyUI ? theme.palette.primary.main : theme.palette.text.reviewUpvote;
+  const upvoteColor = theme.isFriendlyUI ? theme.palette.primary.main : theme.palette.text.reviewUpvote;
   
   return {
     root: { 

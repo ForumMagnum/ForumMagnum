@@ -5,7 +5,7 @@ import CommentsNewForm, {
   CommentCancelCallback,
   CommentSuccessCallback } from "../comments/CommentsNewForm";
 import classNames from "classnames";
-import { isBookUI, isFriendlyUI } from "../../themes/forumTheme";
+import { isFriendlyUI } from "../../themes/forumTheme";
 import { useDialog } from "../common/withDialog";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import { COMMENTS_NEW_FORM_PADDING } from "@/lib/collections/comments/constants";
@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
     border: `1px solid ${theme.palette.grey[200]}`,
-    ...(isBookUI && {
+    ...(theme.isBookUI && {
       background: theme.palette.panelBackground.bannerAdTranslucentStrong,
       border: "none",
     }),
@@ -26,9 +26,9 @@ const styles = (theme: ThemeType) => ({
   },
   commentEditor: {
     "& .ck-placeholder": {
-      marginTop: isFriendlyUI ? "-3px !important" : undefined,
+      marginTop: theme.isFriendlyUI ? "-3px !important" : undefined,
       "&::before": {
-        color: isFriendlyUI ? theme.palette.grey[600] : undefined,
+        color: theme.isFriendlyUI ? theme.palette.grey[600] : undefined,
         fontFamily: theme.palette.fonts.sansSerifStack,
         fontSize: 14,
         fontWeight: 500,

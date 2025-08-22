@@ -8,7 +8,6 @@ import { useCurrentUser } from '../../common/withUser';
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useNavigate } from "../../../lib/routeUtil";
 import classNames from 'classnames';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import SequencesTooltip from "../../sequences/SequencesTooltip";
 import SequencesNavigationLink from "../../sequences/SequencesNavigationLink";
 
@@ -30,20 +29,20 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       marginBottom: -8,
     }),
   },
   title: {
     ...titleStyles(theme),
     
-    ...(isFriendlyUI && {
+    ...(theme.isFriendlyUI && {
       textTransform: 'uppercase',
       fontSize: 18,
       color: theme.palette.greyAlpha(0.7),
       fontWeight: 500,
     }),
-    ...(isFriendlyUI && theme.dark && {
+    ...(theme.isFriendlyUI && theme.dark && {
       color: theme.palette.icon.dim,
     }),
   },

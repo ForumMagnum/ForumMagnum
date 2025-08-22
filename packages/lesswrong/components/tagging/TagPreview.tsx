@@ -30,7 +30,7 @@ const PostsListMultiQuery = gql(`
 
 const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   root: {
-    ...(isFriendlyUI ? {
+    ...(theme.isFriendlyUI ? {
       paddingTop: 8,
       paddingLeft: 16,
       paddingRight: 16,
@@ -46,7 +46,7 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     width: FRIENDLY_HOVER_OVER_WIDTH,
   },
   mainContent: {
-    ...(!isFriendlyUI && {
+    ...(!theme.isFriendlyUI && {
       paddingLeft: 16,
       paddingRight: 16,
       maxHeight: 600,
@@ -65,7 +65,7 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   relatedTagWrapper: {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
     fontSize: "1.1rem",
     color: theme.palette.grey[900],
     display: '-webkit-box',
@@ -139,7 +139,7 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     },
   },
   description: {
-    ...(!isFriendlyUI && { marginTop: 16 }),
+    ...(!theme.isFriendlyUI && { marginTop: 16 }),
   },
 }));
 

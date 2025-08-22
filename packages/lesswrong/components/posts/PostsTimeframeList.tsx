@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
   loadMore: {
     ...theme.typography.postStyle,
     color: theme.palette.primary.main,
-    ...(isFriendlyUI
+    ...(theme.isFriendlyUI
       ? {
         fontFamily: theme.palette.fonts.sansSerifStack,
       }

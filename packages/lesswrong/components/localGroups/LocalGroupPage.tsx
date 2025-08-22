@@ -217,7 +217,7 @@ const styles = (theme: ThemeType) => ({
   },
   contactUsHeadline: {
     marginBottom: 16,
-    ...(isEAForum && {
+    ...(theme.isEAForum && {
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontWeight: 500,
     }),
@@ -225,7 +225,7 @@ const styles = (theme: ThemeType) => ({
   eventsHeadline: {
     marginTop: 40,
     marginBottom: 16,
-    ...(isEAForum && {
+    ...(theme.isEAForum && {
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontWeight: 500,
     }),
