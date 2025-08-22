@@ -16,7 +16,6 @@ import { UltraFeedContextProvider } from './UltraFeedContextProvider';
 import { UltraFeedObserverProvider } from './UltraFeedObserver';
 import { OverflowNavObserverProvider } from './OverflowNavObserverContext';
 import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
-import { userContentFeedStyles } from '../users/UserContentFeed';
 
 const styles = defineStyles("UltraFeedUserDialog", (theme: ThemeType) => ({
   dialogContent: {
@@ -154,8 +153,6 @@ const UltraFeedUserDialog = ({
   onClose: () => void;
 }) => {
   const classes = useStyles(styles);
-  // Preload UserContentFeed styles to ensure they're available when modal opens (fixes bug due issue with StylesContext)
-  useStyles(userContentFeedStyles);
   
   const currentUserId = useCurrentUserId();
   const [nameHidden, setNameHidden] = useState(false);
