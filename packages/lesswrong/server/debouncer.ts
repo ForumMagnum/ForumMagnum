@@ -5,8 +5,6 @@ import moment from '../lib/moment-timezone';
 import DebouncerEventsRepo from './repos/DebouncerEventsRepo';
 import { isAnyTest } from '../lib/executionEnvironment';
 
-let eventDebouncersByName: Partial<Record<string,EventDebouncer<any>>> = {};
-
 type DebouncerCallback<KeyType> = (key: KeyType, events: string[]) => void | Promise<void>;
 
 export type DebouncerTiming =
@@ -86,15 +84,9 @@ export class EventDebouncer<KeyType = string>
     defaultTiming: DebouncerTiming,
     callback: DebouncerCallback<KeyType>,
   }) {
-    if (!name || !callback)
-      throw new Error("EventDebouncer constructor: missing required argument");
-    if (name in eventDebouncersByName)
-      throw new Error(`Duplicate name for EventDebouncer: ${name}`);
-    
     this.name = name;
     this.defaultTiming = defaultTiming;
     this.callback = callback;
-    eventDebouncersByName[name] = this;
   }
   
   // Add a debounced event.
@@ -199,7 +191,8 @@ export const getWeeklyBatchTimeAfter = (now: Date, timeOfDayGMT: number, dayOfWe
 }
 
 const dispatchEvent = async (event: DbDebouncerEvents) => {
-  const eventDebouncer = eventDebouncersByName[event.name];
+  const { getDebouncerByName } = require("./getDebouncerByName");
+  const eventDebouncer = getDebouncerByName(event.name);
   if (!eventDebouncer) {
     // eslint-disable-next-line no-console
     throw new Error(`Unrecognized event type: ${event.name}`);
