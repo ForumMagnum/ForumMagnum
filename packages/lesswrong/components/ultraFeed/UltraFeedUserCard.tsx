@@ -143,8 +143,8 @@ const UltraFeedUserCard = ({ user, inModal = false, onNameVisibilityChange }: {
   const classes = useStyles(styles);
   const currentUserId = useCurrentUserId();
   const { openDialog } = useDialog();
-  const nameRef = useRef<HTMLDivElement | null>(null);
-  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const nameRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   
   const handleOpenUserModal = useCallback(() => {
     if (!user) return;
@@ -227,7 +227,7 @@ const UltraFeedUserCard = ({ user, inModal = false, onNameVisibilityChange }: {
             <UserContentFeed 
               userId={user._id} 
               initialLimit={5}
-              scrollContainerRef={scrollContainerRef as React.RefObject<HTMLElement>}
+              scrollContainerRef={scrollContainerRef}
             />
           </div>
         </div>

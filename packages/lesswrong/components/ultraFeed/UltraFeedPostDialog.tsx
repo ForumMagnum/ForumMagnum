@@ -880,7 +880,7 @@ const UltraFeedPostDialog = ({
                     tocSections={tocData.sections}
                     title={displayPost.title}
                     heading={<PostFixedPositionToCHeading post={displayPost as PostsListWithVotes}/>}
-                    scrollContainerRef={scrollableContentRef as React.RefObject<HTMLElement>}
+                    scrollContainerRef={scrollableContentRef}
                   />
                 )}
               </div>

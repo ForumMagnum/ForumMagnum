@@ -193,7 +193,7 @@ export function UltraFeedPrefetchedThreadItem({ comment, index, feedSettings }: 
 interface UserContentFeedProps {
   userId: string;
   initialLimit?: number;
-  scrollContainerRef?: React.RefObject<HTMLElement>;
+  scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 type SortMode = 'recent' | 'top';
