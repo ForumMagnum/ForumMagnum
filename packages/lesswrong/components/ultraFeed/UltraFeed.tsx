@@ -80,6 +80,10 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   settingsContainer: {
     marginBottom: 32,
   },
+  settingsContainerExternal: {
+    marginTop: 16,
+    marginBottom: 32,
+  },
   composerButton: {
     display: 'none',
     [theme.breakpoints.down('sm')]: {
@@ -123,18 +127,29 @@ const styles = defineStyles("UltraFeed", (theme: ThemeType) => ({
   },
 }));
 
-const UltraFeedContent = ({alwaysShow = false}: {
+const UltraFeedContent = ({
+  alwaysShow = false,
+  hideTitle = false,
+  settingsVisible,
+  onSettingsToggle,
+}: {
   alwaysShow?: boolean
+  hideTitle?: boolean
+  settingsVisible?: boolean
+  onSettingsToggle?: () => void
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const [settingsVisible, setSettingsVisible] = useState(false);
+  const [internalSettingsVisible, setInternalSettingsVisible] = useState(false);
 
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking();
   const { settings, updateSettings, resetSettings, truncationMaps } = useUltraFeedSettings();
   const [sessionId] = useState<string>(randomId);
   const refetchSubscriptionContentRef = useRef<null | ObservableQuery['refetch']>(null);
+  
+  const isControlled = settingsVisible !== undefined;
+  const actualSettingsVisible = isControlled ? settingsVisible : internalSettingsVisible;
 
   const handleOpenQuickTakeDialog = () => {
     captureEvent("ultraFeedComposerQuickTakeDialogOpened");
@@ -150,8 +165,12 @@ const UltraFeedContent = ({alwaysShow = false}: {
 
   const toggleSettings = (e: React.MouseEvent) => {
     e.stopPropagation();
-    captureEvent("ultraFeedSettingsToggled", { open: !settingsVisible });
-    setSettingsVisible(!settingsVisible);
+    captureEvent("ultraFeedSettingsToggled", { open: !actualSettingsVisible });
+    if (isControlled) {
+      onSettingsToggle?.();
+    } else {
+      setInternalSettingsVisible(!internalSettingsVisible);
+    }
   };
   
   const resetSettingsToDefault = () => {
@@ -177,25 +196,29 @@ const UltraFeedContent = ({alwaysShow = false}: {
         <UltraFeedObserverProvider incognitoMode={resolverSettings.incognitoMode}>
         <OverflowNavObserverProvider>
           <SingleColumnSection>
-            <SectionTitle title={customTitle} titleClassName={classes.sectionTitle}>
-              <div className={classes.feedCheckboxAndSettingsContainer}>
-              {!alwaysShow && <FeedSelectorDropdown currentFeedType="new" />}
-              <div className={classes.settingsButtonContainer}>
-                <SettingsButton 
-                  showIcon={true}
-                  onClick={toggleSettings}
-                />
+            {!hideTitle && (
+              <SectionTitle title={customTitle} titleClassName={classes.sectionTitle}>
+                <div className={classes.feedCheckboxAndSettingsContainer}>
+                {!alwaysShow && <FeedSelectorDropdown currentFeedType="new" />}
+                {!isControlled && (
+                  <div className={classes.settingsButtonContainer}>
+                    <SettingsButton 
+                      showIcon={true}
+                      onClick={toggleSettings}
+                    />
+                  </div>
+                )}
               </div>
-            </div>
-            </SectionTitle>
+              </SectionTitle>
+            )}
 
-            {settingsVisible && (
-              <div className={classes.settingsContainer}>
+            {actualSettingsVisible && (
+              <div className={isControlled ? classes.settingsContainerExternal : classes.settingsContainer}>
                 <UltraFeedSettings 
                   settings={settings}
                   updateSettings={updateSettings}
                   resetSettingsToDefault={resetSettingsToDefault}
-                  onClose={() => setSettingsVisible(false)} 
+                  onClose={() => isControlled ? onSettingsToggle?.() : setInternalSettingsVisible(false)} 
                   truncationMaps={truncationMaps}
                 />
               </div>
@@ -297,8 +320,16 @@ const UltraFeedContent = ({alwaysShow = false}: {
   );
 };
 
-const UltraFeed = ({alwaysShow = false}: {
+const UltraFeed = ({
+  alwaysShow = false,
+  hideTitle = false,
+  settingsVisible,
+  onSettingsToggle,
+}: {
   alwaysShow?: boolean
+  hideTitle?: boolean
+  settingsVisible?: boolean
+  onSettingsToggle?: () => void
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -320,7 +351,12 @@ const UltraFeed = ({alwaysShow = false}: {
   return (
     <>
       <DeferRender ssr={false}>
-        <UltraFeedContent alwaysShow={alwaysShow} />
+        <UltraFeedContent 
+          alwaysShow={alwaysShow}
+          hideTitle={hideTitle}
+          settingsVisible={settingsVisible}
+          onSettingsToggle={onSettingsToggle}
+        />
       </DeferRender>
     </>
   );
