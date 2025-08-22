@@ -20,8 +20,7 @@ import { gql } from "@/lib/generated/gql-codegen/gql";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import NewConversationDialog from "./NewConversationDialog";
 import Button from '@/lib/vendor/@material-ui/core/src/Button/Button';
-import { defineStyles } from '@/lib/vulcan-lib/components';
-import { useStyles } from '../hooks/useStyles';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles("InboxNavigation", (theme: ThemeType) => ({
   newConversationButton: {
