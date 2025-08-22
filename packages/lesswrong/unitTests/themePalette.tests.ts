@@ -4,6 +4,35 @@ import type { JssStyles } from '@/lib/jssStyles';
 import fs from "fs";
 import path from "path";
 
+// Mock defineStyles and withAddStyles to add some extra correctness checks:
+// That every call to defineStyles has a unique name and a unique stylesheet.
+const mockNamesUsed = new Set<string>();
+const mockStyleFnsUsed = new Set<any>();
+jest.mock("../components/hooks/useStyles", () => {
+  const originalModule = jest.requireActual('../components/hooks/useStyles');
+  const wrappedDefineStyles = jest.fn((name, styles, options) => {
+    if (mockNamesUsed.has(name)) {
+      throw new Error(`Style name ${name} is reused in multiple defineStyles calls; this will break if both are on the page simultaneously`);
+    }
+    mockNamesUsed.add(name);
+    if (mockStyleFnsUsed.has(styles)) {
+      throw new Error(`Style ${name} has a reused stylesheet; this will lead to duplicate styles in the page. Reuse the result of calling defineStyles, not the function passed into it.`);
+    }
+    mockStyleFnsUsed.add(styles);
+    return originalModule.defineStyles(name, styles, options);
+  });
+  const wrappedWithAddClasses = jest.fn((styles, name, options) => {
+    wrappedDefineStyles(name, styles, options);
+    return originalModule.withAddClasses(styles, name, options);
+  });
+  return {
+    __esModule: true,
+    ...originalModule,
+    defineStyles: wrappedDefineStyles,
+    withAddClasses: wrappedWithAddClasses,
+  };
+});
+
 function enumerateFiles(dirPath: string): string[] {
   let fileList: string[] = [];
   const entries = fs.readdirSync(dirPath, { withFileTypes: true });

@@ -1,12 +1,12 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { blackBarTitle } from '@/lib/instanceSettings';
 import HeaderEventSubtitle from "./HeaderEventSubtitle";
 import { useRouteMetadata } from '../ClientRouteMetadataContext';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-export const styles = (theme: ThemeType) => ({
+export const headerSubtitleStyles = defineStyles("HeaderSubtitle", (theme: ThemeType) => ({
   subtitle: {
     marginLeft: '1em',
     paddingLeft: '1em',
@@ -14,11 +14,10 @@ export const styles = (theme: ThemeType) => ({
     color: blackBarTitle.get() ? theme.palette.text.alwaysWhite : theme.palette.header.text,
     borderLeft: theme.palette.border.appBarSubtitleDivider,
   },
-});
+}));
 
-const HeaderSubtitle = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const HeaderSubtitle = () => {
+  const classes = useStyles(headerSubtitleStyles);
   const { metadata: routeMetadata } = useRouteMetadata();
 
   const SubtitleComponent = routeMetadata.subtitleComponent;
@@ -40,8 +39,6 @@ const HeaderSubtitle = ({classes}: {
   }
 }
 
-export default registerComponent("HeaderSubtitle", HeaderSubtitle, {
-  styles,
-});
+export default HeaderSubtitle;
 
 

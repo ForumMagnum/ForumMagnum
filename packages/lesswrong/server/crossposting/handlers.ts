@@ -27,7 +27,18 @@ import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { createPost, updatePost } from "../collections/posts/mutations";
 import Posts from "@/server/collections/posts/collection";
 import Users from "@/server/collections/users/collection";
-import type { NextRequest } from "next/server";
+import { fmCrosspostBaseUrlSetting } from "@/lib/instanceSettings";
+import { NextRequest, NextResponse } from "next/server";
+
+const setCorsHeaders = (res: NextResponse) => {
+  const foreignBaseUrl = fmCrosspostBaseUrlSetting.get()?.replace(/\/$/, "");
+  if (foreignBaseUrl) {
+    res.headers.set("Access-Control-Allow-Origin", foreignBaseUrl);
+    res.headers.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.headers.set("Access-Control-Allow-Headers", "Content-Type");
+    res.headers.set("Access-Control-Max-Age", "86400");
+  }
+};
 
 const onNextRequestError = (
   req: NextRequest,
@@ -46,8 +57,18 @@ const onNextRequestError = (
     error,
   });
 
-  const responseBody = JSON.stringify({ error: message, errorCode });
-  return new Response(responseBody, {status});
+  const res = NextResponse.json({ error: message, errorCode }, { status });
+  setCorsHeaders(res);
+  
+  return res;
+};
+
+export const crosspostOptionsHandler = (req: NextRequest) => {
+  const res = new NextResponse(null, { status: 204 });
+  setCorsHeaders(res);
+  res.headers.set("Connection", "Keep-Alive");
+  res.headers.set("Keep-Alive", "timeout=2, max=100");
+  return res;
 };
 
 const getNextHandler = <
@@ -88,8 +109,10 @@ const getNextHandler = <
       return onNextRequestError(req, path, 200, "Invalid cross-site response body");
     }
 
-    const responseBody = JSON.stringify(parsedResponse.data);
-    return new Response(responseBody, { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const res = NextResponse.json(parsedResponse.data, { status: 200 });
+    setCorsHeaders(res);
+    
+    return res;
   };
 };
 

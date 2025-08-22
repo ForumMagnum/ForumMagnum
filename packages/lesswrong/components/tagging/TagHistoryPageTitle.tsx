@@ -4,19 +4,17 @@ import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { useTagBySlug } from './useTag';
 import { Link } from '../../lib/reactRouterWrapper';
-import { styles } from '../common/HeaderSubtitle';
+import { headerSubtitleStyles } from '../common/HeaderSubtitle';
 import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { getAllTagsPath } from '@/lib/pathConstants';
-import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useStyles } from '../hooks/useStyles';
 import { Helmet } from '../common/Helmet';
-
-const titleComponentStyles = defineStyles('TagHistoryPageTitle', styles);
 
 export const TagHistoryPageTitle = ({isSubtitle, siteName}: {
   isSubtitle: boolean,
   siteName: string
 }) => {
-  const classes = useStyles(titleComponentStyles);
+  const classes = useStyles(headerSubtitleStyles);
 
   const { params } = useLocation();
   const { slug } = params;

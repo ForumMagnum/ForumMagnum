@@ -1,4 +1,5 @@
 import { Posts } from "@/server/collections/posts/collection";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { redirect } from "next/navigation";
 import { NextRequest } from "next/server";
 
@@ -15,7 +16,7 @@ export async function GET(req: NextRequest) {
     return new Response(`Invalid URL: ${url}`, { status: 404 });
   }
 
-  void Posts.rawUpdateOne({ _id: post._id }, { $inc: { clickCount: 1 } });
+  backgroundTask(Posts.rawUpdateOne({ _id: post._id }, { $inc: { clickCount: 1 } }));
 
   redirect(post.url);
 }

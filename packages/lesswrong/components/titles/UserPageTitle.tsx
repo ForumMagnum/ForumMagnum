@@ -4,9 +4,9 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
-import { styles } from '../common/HeaderSubtitle';
+import { headerSubtitleStyles } from '../common/HeaderSubtitle';
 import { getUserFromResults } from '../users/UsersProfile';
-import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useStyles } from '../hooks/useStyles';
 import { Helmet } from '../common/Helmet';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -22,13 +22,11 @@ const UsersMinimumInfoMultiQuery = gql(`
   }
 `);
 
-const titleComponentStyles = defineStyles('UserPageTitle', styles);
-
 export const UserPageTitle = ({isSubtitle, siteName}: {
   isSubtitle: boolean,
   siteName: string,
 }) => {
-  const classes = useStyles(titleComponentStyles);
+  const classes = useStyles(headerSubtitleStyles);
 
   const { params: {slug} } = useLocation();
   const { data, loading } = useQuery(UsersMinimumInfoMultiQuery, {

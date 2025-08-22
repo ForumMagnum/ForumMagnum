@@ -1,6 +1,5 @@
 import React, { useState }  from "react";
 import classNames from "classnames";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { isEAForum, commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { userIsPostCoauthor } from "../../../lib/collections/posts/helpers";
@@ -24,8 +23,9 @@ import CommentsMenu from "../../dropdowns/comments/CommentsMenu";
 import UserCommentMarkers from "../../users/UserCommentMarkers";
 import CommentPollVote from "./CommentPollVote";
 import { metaNoticeStyles } from "./metaNoticeStyles";
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommentsItemMeta", (theme: ThemeType) => ({
   root: {
     "& > div": {
       marginRight: 5,
@@ -139,7 +139,7 @@ const styles = (theme: ThemeType) => ({
     : {
       opacity: 0.35,
     }
-});
+}));
 
 export const CommentsItemMeta = ({
   treeOptions,
@@ -156,7 +156,6 @@ export const CommentsItemMeta = ({
   toggleCollapse,
   setShowEdit,
   rightSectionElements,
-  classes,
 }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
@@ -172,8 +171,8 @@ export const CommentsItemMeta = ({
   toggleCollapse?: () => void,
   setShowEdit: () => void,
   rightSectionElements?: React.ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUserIsAdmin = useFilteredCurrentUser(u => userIsAdmin(u));
   const { scrollToCommentId } = useCommentLinkState();
 
@@ -232,6 +231,7 @@ export const CommentsItemMeta = ({
   }
   // Note: This could be decoupled from `commentPermalinkStyleSetting` without any side effects
   const highlightLinkIcon = commentPermalinkStyleSetting.get() === 'in-context' && scrollToCommentId === comment._id
+  const menuVisible = (!isParentComment && !hideActionsMenu);
 
   return (
     <div className={classNames(
@@ -333,14 +333,14 @@ export const CommentsItemMeta = ({
       </span>}
       <CommentPollVote comment={comment} />
 
-      <span className={classes.rightSection}>
+      {(rightSectionElements || isFriendlyUI || menuVisible) && <span className={classes.rightSection}>
         {rightSectionElements}
         {isFriendlyUI &&
           <CommentLinkWrapper>
             <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
           </CommentLinkWrapper>
         }
-        {!isParentComment && !hideActionsMenu &&
+        {menuVisible &&
           <AnalyticsContext pageElementContext="tripleDotMenu">
             <CommentsMenu
               className={classes.menu}
@@ -351,15 +351,11 @@ export const CommentsItemMeta = ({
             />
           </AnalyticsContext>
         }
-      </span>
+      </span>}
     </div>
   );
 }
 
-export default registerComponent(
-  "CommentsItemMeta",
-  CommentsItemMeta,
-  {styles},
-);
+export default CommentsItemMeta;
 
 
